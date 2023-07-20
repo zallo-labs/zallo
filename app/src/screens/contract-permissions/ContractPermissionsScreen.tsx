@@ -19,12 +19,27 @@ import { Appbar } from '~/components/Appbar/Appbar';
 import { useAddressLabel } from '~/components/address/AddressLabel';
 import { SpendingLimit } from './SpendingLimit';
 import { ListHeader } from '~/components/list/ListHeader';
-import { useMaybeToken } from '@token/useToken';
 import { getFunctionSelector } from 'viem';
 import { ContractFunction } from '@api/contracts/types';
 import { ScrollView } from 'react-native';
 import { ListItem } from '~/components/list/ListItem';
 import { Switch } from 'react-native-paper';
+import { gql } from '@api/gen';
+import { useSuspenseQuery } from '@apollo/client';
+import {
+  ContractPermissionsScreenQuery,
+  ContractPermissionsScreenQueryVariables,
+} from '@api/gen/graphql';
+import { ContractPermissionsScreenDocument } from '@api/generated';
+
+gql(/* GraphQL */ `
+  query ContractPermissionsScreen($contract: Address!) {
+    token(input: { address: $contract }) {
+      id
+      ...SpendingLimit_token
+    }
+  }
+`);
 
 const ERC20_FUNCTIONS: ContractFunction[] = ERC20_ABI.filter(
   (abi): abi is Extract<typeof abi, { type: 'function' }> => abi.type === 'function',
@@ -42,7 +57,11 @@ export type ContractPermissionsScreenProps = StackNavigatorScreenProps<'Contract
 export const ContractPermissionsScreen = withSuspense(
   ({ route }: ContractPermissionsScreenProps) => {
     const { contract } = route.params;
-    const isToken = !!useMaybeToken(contract);
+
+    const { token } = useSuspenseQuery<
+      ContractPermissionsScreenQuery,
+      ContractPermissionsScreenQueryVariables
+    >(ContractPermissionsScreenDocument, { variables: { contract } }).data;
 
     const [{ permissions }, updatePolicy] = useImmerAtom(POLICY_DRAFT_ATOM);
 
@@ -50,7 +69,7 @@ export const ContractPermissionsScreen = withSuspense(
     const functions = filterFirst(
       [
         ...useContractFunctions(contract),
-        ...(isToken ? ERC20_FUNCTIONS : []),
+        ...(token ? ERC20_FUNCTIONS : []),
         ...Object.keys(target?.functions ?? []).map((selector) => ({
           selector: selector as Selector,
           abi: undefined,
@@ -67,7 +86,7 @@ export const ContractPermissionsScreen = withSuspense(
         <Appbar mode="large" leading="back" headline={useAddressLabel(contract)} />
 
         <ScrollView showsVerticalScrollIndicator={false}>
-          <SpendingLimit contract={contract} />
+          {token && <SpendingLimit token={token} />}
 
           <ListHeader>Actions</ListHeader>
 

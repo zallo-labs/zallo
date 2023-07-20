@@ -1,4 +1,4 @@
-import { FIAT_DECIMALS } from '~/util/token/fiat';
+import { FIAT_DECIMALS } from 'lib';
 import { FormattedNumberOptions, useFormattedNumber } from '../format/FormattedNumber';
 
 const currency = 'USD';

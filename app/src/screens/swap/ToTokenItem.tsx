@@ -1,5 +1,5 @@
 import { FragmentType, gql, useFragment } from '@api/gen';
-import { Address, convertToDecimals } from 'lib';
+import { Address, tokenToToken } from 'lib';
 import { useFormattedNumber } from '~/components/format/FormattedNumber';
 import { ListItem, ListItemProps } from '~/components/list/ListItem';
 import { ListItemSkeleton } from '~/components/list/ListItemSkeleton';
@@ -62,7 +62,7 @@ function ToTokenItem({
     from: { token: from.address, amount: ratioFromAmount },
   });
   const ratio =
-    (ratioToAmount * RATIO_FACTOR) / convertToDecimals(ratioFromAmount, from.decimals, to.decimals);
+    (ratioToAmount * RATIO_FACTOR) / tokenToToken(ratioFromAmount, from.decimals, to.decimals);
 
   return (
     <ListItem

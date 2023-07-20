@@ -28,6 +28,7 @@ export * from './bigint';
 export * from './bytes';
 export * from './operation';
 export * from './chain';
+export * from './convert';
 export * from './decode';
 export * from './deploy';
 export * from './errors';

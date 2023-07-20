@@ -8,17 +8,16 @@ import { Timestamp } from '~/components/format/Timestamp';
 import { ListItem, ListItemProps } from '~/components/list/ListItem';
 import { withSuspense } from '~/components/skeleton/withSuspense';
 import { TabScreenSkeleton } from '~/components/tab/TabScreenSkeleton';
-import { TokenAmount } from '~/components/token/TokenAmount2';
+import { TokenAmount } from '~/components/token/TokenAmount';
 import { TokenIcon } from '~/components/token/TokenIcon/TokenIcon';
 import { TabNavigatorScreenProp } from './Tabs';
 import { makeStyles } from '@theme/makeStyles';
-import { Hex, asBigInt } from 'lib';
+import { Hex, asBigInt, tokenToFiat } from 'lib';
 import { ReactNode } from 'react';
 import { gql, useFragment } from '@api/gen';
 import { useSuspenseQuery } from '@apollo/client';
 import { TransactionTabQuery, TransactionTabQueryVariables } from '@api/gen/graphql';
 import { TransactionTabDocument, useTransactionTabSubscriptionSubscription } from '@api/generated';
-import { getTokenValue } from '@token/token';
 
 const FragmentDoc = gql(/* GraphQL */ `
   fragment TransactionTab_TransactionProposalFragment on TransactionProposal {
@@ -177,11 +176,7 @@ export const TransactionTab = withSuspense(({ route }: TransactionTabProps) => {
           supporting={<TokenAmount token={p.feeToken} amount={actualFee} />}
           trailing={
             <FiatValue
-              value={getTokenValue({
-                amount: actualFee,
-                price: p.feeToken.price?.current ?? 0,
-                decimals: p.feeToken.decimals,
-              })}
+              value={tokenToFiat(actualFee, p.feeToken.price?.current ?? 0, p.feeToken.decimals)}
             />
           }
         />
@@ -192,11 +187,7 @@ export const TransactionTab = withSuspense(({ route }: TransactionTabProps) => {
           supporting={<TokenAmount token={p.feeToken} amount={estimatedFee} />}
           trailing={
             <FiatValue
-              value={getTokenValue({
-                amount: estimatedFee,
-                price: p.feeToken.price?.current ?? 0,
-                decimals: p.feeToken.decimals,
-              })}
+              value={tokenToFiat(estimatedFee, p.feeToken.price?.current ?? 0, p.feeToken.decimals)}
             />
           }
         />

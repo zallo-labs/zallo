@@ -1,14 +1,13 @@
 import { FragmentType, gql, useFragment } from '@api/gen';
 import { SwapVerticalIcon } from '@theme/icons';
 import { makeStyles } from '@theme/makeStyles';
-import { fiatAsBigInt, tokenToFiat, valueAsTokenAmount } from '@token/fiat';
 import { formatUnits, parseUnits } from 'ethers/lib/utils';
-import { asBigInt } from 'lib';
+import { asBigInt, fiatToToken, tokenToFiat } from 'lib';
 import { Dispatch, SetStateAction } from 'react';
 import { View } from 'react-native';
 import { Button, IconButton, Text } from 'react-native-paper';
 import { FiatValue } from '~/components/fiat/FiatValue';
-import { TokenAmount } from '~/components/token/TokenAmount2';
+import { TokenAmount } from '~/components/token/TokenAmount';
 import { logWarning } from '~/util/analytics';
 
 const FragmentDoc = gql(/* GraphQL */ `
@@ -52,12 +51,12 @@ export const InputsView = ({ input, setInput, type, setType, ...props }: InputsV
   const tokenAmount =
     type === InputType.Token
       ? parseUnits(inputAmount, token.decimals).toBigInt()
-      : valueAsTokenAmount(parseFloat(inputAmount), token.price?.current ?? 0, token.decimals);
+      : fiatToToken(parseFloat(inputAmount), token.price?.current ?? 0, token.decimals);
 
   const fiatValue =
     type === InputType.Token
-      ? tokenToFiat(tokenAmount, asBigInt(token.price?.current) ?? 0n, token.decimals)
-      : fiatAsBigInt(inputAmount);
+      ? tokenToFiat(tokenAmount, token.price?.current ?? 0, token.decimals)
+      : parseFloat(inputAmount);
 
   return (
     <View style={styles.container}>

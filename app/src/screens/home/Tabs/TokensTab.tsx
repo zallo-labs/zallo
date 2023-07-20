@@ -6,7 +6,7 @@ import { withSuspense } from '~/components/skeleton/withSuspense';
 import { TabScreenSkeleton } from '~/components/tab/TabScreenSkeleton';
 import { StyleSheet } from 'react-native';
 import { Text } from 'react-native-paper';
-import { Address, getTokenValue } from 'lib';
+import { Address, tokenToFiat } from 'lib';
 import { gql } from '@api/gen';
 import { useSuspenseQuery } from '@apollo/client';
 import { TokensTabQuery, TokensTabQueryVariables } from '@api/gen/graphql';
@@ -42,11 +42,7 @@ export const TokensTab = withSuspense(
     const tokens = data.tokens
       .map((t) => ({
         ...t,
-        value: getTokenValue({
-          amount: t.balance,
-          price: t.price?.current ?? 0,
-          decimals: t.decimals,
-        }),
+        value: tokenToFiat(t.balance, t.price?.current ?? 0, t.decimals),
       }))
       .sort((a, b) => b.value - a.value);
 

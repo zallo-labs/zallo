@@ -4,7 +4,7 @@ import { ListItem, ListItemProps } from '../list/ListItem';
 import { ListItemSkeleton } from '../list/ListItemSkeleton';
 import { withSuspense } from '../skeleton/withSuspense';
 import { TokenAmount } from './TokenAmount';
-import { BigIntlike, getTokenValue } from 'lib';
+import { BigIntlike, tokenToFiat } from 'lib';
 import { FragmentType, gql, useFragment } from '@api/gen';
 import { TokenIcon } from './TokenIcon/TokenIcon';
 
@@ -54,13 +54,7 @@ export const TokenItem = withSuspense(
         trailing={({ Text }) =>
           token.price && (
             <Text variant="labelLarge">
-              <FiatValue
-                value={getTokenValue({
-                  amount,
-                  price: token.price.current,
-                  decimals: token.decimals,
-                })}
-              />
+              <FiatValue value={tokenToFiat(amount, token.price.current, token.decimals)} />
             </Text>
           )
         }

@@ -1,6 +1,6 @@
 import { usePropose } from '@api/proposal';
 import { parseUnits } from 'ethers/lib/utils';
-import { Address, FIAT_DECIMALS, valueAsTokenAmount } from 'lib';
+import { Address, FIAT_DECIMALS, fiatToToken } from 'lib';
 import { useState } from 'react';
 import { InputType, InputsView } from '~/components/InputsView';
 import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
@@ -88,7 +88,7 @@ export const SwapScreen = withSuspense(({ route, navigation: { navigate } }: Swa
   const fromAmount =
     type === InputType.Token
       ? parseUnits(fromInput, from.decimals).toBigInt()
-      : valueAsTokenAmount(parseFloat(fromInput), from.price?.current ?? 0, from.decimals);
+      : fiatToToken(parseFloat(fromInput), from.price?.current ?? 0, from.decimals);
 
   return (
     <Screen>

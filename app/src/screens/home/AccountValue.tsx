@@ -1,6 +1,6 @@
 import { FragmentType, gql, useFragment } from '@api/gen';
 import { makeStyles } from '@theme/makeStyles';
-import { getTokenValue } from '@token/token';
+import { tokenToFiat } from 'lib';
 import { Text } from 'react-native-paper';
 import { FiatValue } from '~/components/fiat/FiatValue';
 
@@ -27,12 +27,7 @@ export function AccountValue(props: AccountValueProps) {
   const { tokens } = useFragment(FragmentDoc, props.tokensQuery);
 
   const total = tokens.reduce(
-    (sum, token) =>
-      getTokenValue({
-        amount: token.balance,
-        price: token.price?.current ?? 0,
-        decimals: token.decimals,
-      }) + sum,
+    (sum, token) => tokenToFiat(token.balance, token.price?.current ?? 0, token.decimals) + sum,
     0,
   );
 

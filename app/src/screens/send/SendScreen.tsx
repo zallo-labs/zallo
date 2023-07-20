@@ -1,7 +1,7 @@
 import { usePropose } from '@api/proposal';
 import { CloseIcon } from '@theme/icons';
 import { parseUnits } from 'ethers/lib/utils';
-import { Address, FIAT_DECIMALS, valueAsTokenAmount } from 'lib';
+import { Address, FIAT_DECIMALS, fiatToToken } from 'lib';
 import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Appbar, Divider } from 'react-native-paper';
@@ -72,7 +72,7 @@ export const SendScreen = withSuspense(
     const tokenAmount =
       type === InputType.Token
         ? parseUnits(inputAmount, token.decimals).toBigInt()
-        : valueAsTokenAmount(parseFloat(inputAmount), token.price?.current ?? 0, token.decimals);
+        : fiatToToken(parseFloat(inputAmount), token.price?.current ?? 0, token.decimals);
 
     return (
       <Screen>

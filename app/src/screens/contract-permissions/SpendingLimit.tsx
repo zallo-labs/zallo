@@ -1,7 +1,6 @@
 import { makeStyles } from '@theme/makeStyles';
-import { useMaybeToken } from '@token/useToken';
 import { useImmerAtom } from 'jotai-immer';
-import { Address, TransferLimit } from 'lib';
+import { TransferLimit } from 'lib';
 import { Duration } from 'luxon';
 import { View } from 'react-native';
 import { BasicTextField } from '~/components/fields/BasicTextField';
@@ -10,6 +9,15 @@ import { ListHeader } from '~/components/list/ListHeader';
 import { POLICY_DRAFT_ATOM } from '../policy/PolicyDraft';
 import { useBigIntInput } from '~/components/fields/useBigIntInput';
 import { ClockOutlineIcon } from '@theme/icons';
+import { FragmentType, gql, useFragment } from '@api/gen';
+
+const Fragment = gql(/* GraphQL */ `
+  fragment SpendingLimit_token on Token {
+    id
+    address
+    decimals
+  }
+`);
 
 const DEFAULT_DURATION = Duration.fromObject({ day: 1 });
 
@@ -23,33 +31,31 @@ const DURATIONS = [
 ] as const;
 
 export interface SpendingLimitProps {
-  contract: Address;
+  token: FragmentType<typeof Fragment>;
 }
 
-export function SpendingLimit({ contract }: SpendingLimitProps) {
+export function SpendingLimit(props: SpendingLimitProps) {
   const styles = useStyles();
-  const token = useMaybeToken(contract);
+  const t = useFragment(Fragment, props.token);
 
   const [policy, updatePolicy] = useImmerAtom(POLICY_DRAFT_ATOM);
-  const limit: TransferLimit | undefined = policy.permissions.transfers.limits[contract];
+  const limit: TransferLimit | undefined = policy.permissions.transfers.limits[t.address];
 
   const inputProps = useBigIntInput({
     value: limit?.amount,
-    decimals: token?.decimals ?? 0,
+    decimals: t.decimals,
     onChange: (amount) =>
       updatePolicy(({ permissions: { transfers } }) => {
         if (amount !== undefined) {
-          transfers.limits[contract] = {
+          transfers.limits[t.address] = {
             amount,
-            duration: transfers.limits[contract]?.duration ?? DEFAULT_DURATION.as('seconds'),
+            duration: transfers.limits[t.address]?.duration ?? DEFAULT_DURATION.as('seconds'),
           };
         } else {
-          delete transfers.limits[contract];
+          delete transfers.limits[t.address];
         }
       }),
   });
-
-  if (!token) return null;
 
   return (
     <>
@@ -68,8 +74,8 @@ export function SpendingLimit({ contract }: SpendingLimitProps) {
           value={limit ? Duration.fromObject({ seconds: limit.duration }) : DEFAULT_DURATION}
           onChange={(duration) =>
             updatePolicy(({ permissions: { transfers } }) => {
-              transfers.limits[contract] = {
-                amount: transfers.limits[contract]?.amount ?? 0n,
+              transfers.limits[t.address] = {
+                amount: transfers.limits[t.address]?.amount ?? 0n,
                 duration: duration.as('seconds'),
               };
             })

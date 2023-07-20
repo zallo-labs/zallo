@@ -8,8 +8,7 @@ import { selectAccount } from '../accounts/accounts.util';
 import { uuid } from 'edgedb/dist/codecs/ifaces';
 import { Shape } from '../database/database.select';
 import { PricesService } from '../prices/prices.service';
-import { Address, BigIntlike } from 'lib';
-import { formatUnits } from 'viem';
+import { Address, tokenToFiat } from 'lib';
 
 export const TRANSFER_VALUE_FIELDS_SHAPE = {
   token: {
@@ -22,19 +21,6 @@ export const TRANSFER_VALUE_FIELDS_SHAPE = {
 } satisfies Shape<typeof e.TransferDetails>;
 const s = e.select(e.TransferDetails, () => TRANSFER_VALUE_FIELDS_SHAPE);
 export type TransferValueSelectFields = $infer<typeof s>[0];
-
-const FIAT_DECIMALS = 8;
-const fiatAsBigInt = (value: number): bigint => BigInt(Math.floor(value * 10 ** FIAT_DECIMALS));
-
-export interface TokenValueOptions {
-  amount: BigIntlike;
-  decimals: number;
-  price: number;
-}
-
-export function getTokenValue({ amount, decimals, price }: TokenValueOptions): number {
-  return parseFloat(formatUnits(BigInt(amount) * fiatAsBigInt(price), decimals + FIAT_DECIMALS));
-}
 
 @Injectable()
 export class TransfersService {
@@ -76,7 +62,7 @@ export class TransfersService {
     );
     if (!p) return null;
 
-    const value = getTokenValue({ amount, decimals: token.decimals, price: p.current });
+    const value = tokenToFiat(amount, p.current, token.decimals);
 
     return direction === 'In' ? value : -value;
   }
