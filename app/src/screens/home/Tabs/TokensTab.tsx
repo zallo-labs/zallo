@@ -1,6 +1,6 @@
 import { FlashList } from '@shopify/flash-list';
 import { ListItemHeight } from '~/components/list/ListItem';
-import { TokenItem } from '~/components/token/TokenItem2';
+import { TokenItem } from '~/components/token/TokenItem';
 import { TabNavigatorScreenProp } from '.';
 import { withSuspense } from '~/components/skeleton/withSuspense';
 import { TabScreenSkeleton } from '~/components/tab/TabScreenSkeleton';

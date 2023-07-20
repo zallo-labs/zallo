@@ -5,7 +5,7 @@ import { Searchbar } from '~/components/fields/Searchbar';
 import { AppbarBack2 } from '~/components/Appbar/AppbarBack';
 import { SearchIcon } from '@theme/icons';
 import { ListHeader } from '~/components/list/ListHeader';
-import { TokenItem } from '~/components/token/TokenItem2';
+import { TokenItem } from '~/components/token/TokenItem';
 import { Screen } from '~/components/layout/Screen';
 import { EventEmitter } from '~/util/EventEmitter';
 import { useState } from 'react';

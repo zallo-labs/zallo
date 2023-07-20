@@ -4,7 +4,7 @@ import { FiatValue } from '~/components/fiat/FiatValue';
 import { ListHeader } from '~/components/list/ListHeader';
 import { withSuspense } from '~/components/skeleton/withSuspense';
 import { TabScreenSkeleton } from '~/components/tab/TabScreenSkeleton';
-import { TokenItem } from '~/components/token/TokenItem2';
+import { TokenItem } from '~/components/token/TokenItem';
 import { TabNavigatorScreenProp } from './Tabs';
 import { FeeToken } from './FeeToken';
 import { OperationSection } from './OperationSection';
