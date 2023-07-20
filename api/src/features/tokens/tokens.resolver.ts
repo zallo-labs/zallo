@@ -13,12 +13,14 @@ import e from '~/edgeql-js';
 import { ProviderService } from '../util/provider/provider.service';
 import { PricesService } from '../prices/prices.service';
 import { getUserCtx } from '~/request/ctx';
+import { PaymasterService } from '../paymaster/paymaster.service';
 
 @Resolver(() => Token)
 export class TokensResolver {
   constructor(
     private service: TokensService,
     private provider: ProviderService,
+    private paymaster: PaymasterService,
     private prices: PricesService,
   ) {}
 
@@ -47,6 +49,16 @@ export class TokensResolver {
   )
   async price(@Parent() { address, ethereumAddress }: Token): Promise<Price | null> {
     return this.prices.price(address, ethereumAddress);
+  }
+
+  @ComputedField<typeof e.Token>(
+    () => GraphQLBigInt,
+    { address: true, isFeeToken: true },
+    { nullable: true },
+  )
+  async gasPrice(@Parent() { address, isFeeToken }: Token): Promise<bigint | null> {
+    if (!isFeeToken) return null;
+    return this.paymaster.getGasPrice(address);
   }
 
   @Mutation(() => Token)

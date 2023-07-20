@@ -36,4 +36,16 @@ export class PaymasterService {
       innerInput: [],
     });
   }
+
+  async getGasPrice(feeToken: Address) {
+    assert(this.provider.chain.testnet); // Mainnet TODO: get correct gas price
+    // On testnet the conversion is 1:1 token:ETH (wei)
+
+    try {
+      return (await this.provider.getGasPrice()).toBigInt();
+    } catch (e) {
+      console.warn(`Failed to fetch gas price for ${feeToken}: ${e}`);
+      return null;
+    }
+  }
 }

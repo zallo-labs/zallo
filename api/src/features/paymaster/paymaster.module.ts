@@ -3,7 +3,7 @@ import { PaymasterService } from './paymaster.service';
 import { PaymasterResolver } from './paymaster.resolver';
 
 @Module({
-  providers: [PaymasterService, PaymasterResolver],
   exports: [PaymasterService],
+  providers: [PaymasterService, PaymasterResolver],
 })
 export class PaymasterModule {}

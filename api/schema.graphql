@@ -504,8 +504,10 @@ type Token implements Node {
   balance(input: BalanceInput!): BigInt!
   decimals: Float!
   ethereumAddress: Address
+  gasPrice: BigInt
   iconUri: String
   id: ID!
+  isFeeToken: Boolean!
   name: String!
   price: Price
   symbol: String!

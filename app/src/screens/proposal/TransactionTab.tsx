@@ -1,7 +1,4 @@
-import { useGasPrice } from '@network/useGasPrice';
 import { CheckIcon, ClockOutlineIcon, CloseIcon, GasOutlineIcon } from '@theme/icons';
-import { ETH } from '@token/tokens';
-import { useMaybeToken } from '@token/useToken';
 import { ScrollView } from 'react-native';
 import { ActivityIndicator } from 'react-native-paper';
 import { match } from 'ts-pattern';
@@ -11,7 +8,7 @@ import { Timestamp } from '~/components/format/Timestamp';
 import { ListItem, ListItemProps } from '~/components/list/ListItem';
 import { withSuspense } from '~/components/skeleton/withSuspense';
 import { TabScreenSkeleton } from '~/components/tab/TabScreenSkeleton';
-import { TokenAmount } from '~/components/token/TokenAmount';
+import { TokenAmount } from '~/components/token/TokenAmount2';
 import { TokenIcon } from '~/components/token/TokenIcon/TokenIcon';
 import { TabNavigatorScreenProp } from './Tabs';
 import { makeStyles } from '@theme/makeStyles';
@@ -21,12 +18,24 @@ import { gql, useFragment } from '@api/gen';
 import { useSuspenseQuery } from '@apollo/client';
 import { TransactionTabQuery, TransactionTabQueryVariables } from '@api/gen/graphql';
 import { TransactionTabDocument, useTransactionTabSubscriptionSubscription } from '@api/generated';
+import { getTokenValue } from '@token/token';
 
 const FragmentDoc = gql(/* GraphQL */ `
   fragment TransactionTab_TransactionProposalFragment on TransactionProposal {
     id
     status
-    feeToken
+    feeToken {
+      id
+      address
+      gasPrice
+      decimals
+      price {
+        id
+        current
+      }
+      ...TokenAmount_token
+      ...UseFormattedTokenAmount_token
+    }
     gasLimit
     transaction {
       id
@@ -86,12 +95,10 @@ export const TransactionTab = withSuspense(({ route }: TransactionTabProps) => {
 
   const tx = p?.transaction;
   const receipt = tx?.receipt;
-  const feeToken = useMaybeToken(p?.feeToken) ?? ETH;
-  const currentGasPrice = useGasPrice(feeToken);
 
   if (!p) return null;
 
-  const estimatedFee = currentGasPrice * asBigInt(p.gasLimit);
+  const estimatedFee = asBigInt(p.feeToken.gasPrice ?? 0) * asBigInt(p.gasLimit);
   const actualFee = receipt && asBigInt(receipt.gasUsed) * asBigInt(tx.gasPrice);
 
   return (
@@ -153,29 +160,45 @@ export const TransactionTab = withSuspense(({ route }: TransactionTabProps) => {
         <Item
           leading={GasOutlineIcon}
           headline="Gas price"
-          trailing={<TokenAmount token={feeToken} amount={tx.gasPrice} />}
+          trailing={<TokenAmount token={p.feeToken} amount={tx.gasPrice} />}
         />
       ) : (
         <Item
           leading={GasOutlineIcon}
           headline="Gas price (current)"
-          trailing={<TokenAmount token={feeToken} amount={currentGasPrice} />}
+          trailing={<TokenAmount token={p.feeToken} amount={p.feeToken.gasPrice ?? 0} />}
         />
       )}
 
       {actualFee ? (
         <Item
-          leading={(props) => <TokenIcon token={feeToken} {...props} />}
+          leading={(props) => <TokenIcon token={p.feeToken.address} {...props} />}
           headline="Network fee"
-          supporting={<TokenAmount token={feeToken} amount={actualFee} />}
-          trailing={<FiatValue value={{ token: feeToken, amount: actualFee }} />}
+          supporting={<TokenAmount token={p.feeToken} amount={actualFee} />}
+          trailing={
+            <FiatValue
+              value={getTokenValue({
+                amount: actualFee,
+                price: p.feeToken.price?.current ?? 0,
+                decimals: p.feeToken.decimals,
+              })}
+            />
+          }
         />
       ) : (
         <Item
-          leading={(props) => <TokenIcon token={feeToken} {...props} />}
+          leading={(props) => <TokenIcon token={p.feeToken.address} {...props} />}
           headline="Network fee (estimated)"
-          supporting={<TokenAmount token={feeToken} amount={estimatedFee} />}
-          trailing={<FiatValue value={{ token: feeToken, amount: estimatedFee }} />}
+          supporting={<TokenAmount token={p.feeToken} amount={estimatedFee} />}
+          trailing={
+            <FiatValue
+              value={getTokenValue({
+                amount: estimatedFee,
+                price: p.feeToken.price?.current ?? 0,
+                decimals: p.feeToken.decimals,
+              })}
+            />
+          }
         />
       )}
     </ScrollView>
