@@ -7,14 +7,13 @@ import { match } from 'ts-pattern';
 import { FiatValue } from '../fiat/FiatValue';
 import { materialCommunityIcon } from '@theme/icons';
 import { ICON_SIZE } from '@theme/paper';
-import { asBigInt } from 'lib';
 import { FragmentType, gql, useFragment } from '@api/gen';
 import { OperationLabel } from '../call/OperationLabel';
 import { useCanRespond } from './useCanRespond';
 import { useNavigation } from '@react-navigation/native';
 import { ETH_ICON_URI, TokenIcon } from '../token/TokenIcon/TokenIcon';
 
-const FragmentDoc = gql(/* GraphQL */ `
+const Fragment = gql(/* GraphQL */ `
   fragment ProposalItem_TransactionProposalFragment on TransactionProposal {
     id
     hash
@@ -49,13 +48,13 @@ const FragmentDoc = gql(/* GraphQL */ `
 const MultiOperationIcon = materialCommunityIcon('multiplication');
 
 export interface ProposalItemProps extends Partial<ListItemProps> {
-  proposal: FragmentType<typeof FragmentDoc>;
+  proposal: FragmentType<typeof Fragment>;
 }
 
 export const ProposalItem = withSuspense(
   ({ proposal: proposalFragment, ...itemProps }: ProposalItemProps) => {
     const styles = useStyles();
-    const p = useFragment(FragmentDoc, proposalFragment);
+    const p = useFragment(Fragment, proposalFragment);
     const { navigate } = useNavigation();
     const { canApprove } = useCanRespond(p);
 
@@ -63,7 +62,7 @@ export const ProposalItem = withSuspense(
 
     const totalValue = [
       ...(p.transaction?.receipt?.transferEvents ?? p.simulation.transfers),
-    ].reduce((sum, t) => sum + asBigInt(t.value ?? 0n), 0n);
+    ].reduce((sum, t) => sum + (t.value ?? 0), 0);
 
     const supporting = match(p)
       .returnType<ListItemProps['supporting']>()
@@ -92,6 +91,7 @@ export const ProposalItem = withSuspense(
             <TokenIcon token={p.operations[0].to} fallbackUri={ETH_ICON_URI} {...props} />
           )
         }
+        leadingSize="medium"
         headline={
           p.label ??
           (isMulti ? (

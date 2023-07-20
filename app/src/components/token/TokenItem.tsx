@@ -36,6 +36,7 @@ export const TokenItem = withSuspense(
     return (
       <ListItem
         leading={(props) => <TokenIcon token={token} {...props} />}
+        leadingSize="medium"
         headline={token.name}
         supporting={({ Text }) => (
           <View style={styles.supportingContainer}>

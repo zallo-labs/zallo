@@ -55,6 +55,7 @@ export const ContractsModal = ({ route }: ContractsModalProps) => {
             .with({ __typename: 'Token' }, (t) => (
               <ListItem
                 leading={(props) => <TokenIcon token={t} {...props} />}
+                leadingSize="medium"
                 headline={t.name}
                 supporting={truncateAddr(t.address)}
                 trailing={NavigateNextIcon}

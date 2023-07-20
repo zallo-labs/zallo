@@ -106,7 +106,7 @@ export const DetailsTab = withSuspense(({ route }: DetailsTabProps) => {
       <ListHeader
         trailing={({ Text }) => (
           <Text>
-            <FiatValue value={transfers.reduce((sum, t) => sum + asBigInt(t.value ?? 0), 0n)} />
+            <FiatValue value={transfers.reduce((sum, t) => sum + (t.value ?? 0), 0)} />
           </Text>
         )}
       >
