@@ -91,7 +91,7 @@ export const ApproverScreen = withSuspense(
           <FormTextField
             name="name"
             control={control}
-            left={<TextInput.Affix text={`${user.name}'s`} />}
+            left={user.name ? <TextInput.Affix text={`${user.name}'s`} /> : undefined}
             label="Label"
             supporting="This device"
             placeholder="iPhone"
