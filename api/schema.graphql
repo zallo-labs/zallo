@@ -511,8 +511,10 @@ type Token implements Node {
   isFeeToken: Boolean!
   name: String!
   price: Price
+  removable: Boolean!
   symbol: String!
   units: [TokenUnit!]
+  userOwned: Boolean!
 }
 
 input TokenInput {

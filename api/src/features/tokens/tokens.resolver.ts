@@ -10,6 +10,7 @@ import { Price } from '../prices/prices.model';
 import { ComputedField } from '~/decorators/computed.decorator';
 import { GraphQLBigInt } from 'graphql-scalars';
 import e from '~/edgeql-js';
+import * as eql from '~/edgeql-interfaces';
 import { ProviderService } from '../util/provider/provider.service';
 import { PricesService } from '../prices/prices.service';
 import { getUserCtx } from '~/request/ctx';
@@ -64,6 +65,11 @@ export class TokensResolver {
   async gasPrice(@Parent() { address, isFeeToken }: Token): Promise<bigint | null> {
     if (!isFeeToken) return null;
     return this.paymaster.getGasPrice(address);
+  }
+
+  @ComputedField<typeof e.Token>(() => Boolean, { user: true })
+  async userOwned(@Parent() { user }: eql.Token): Promise<boolean> {
+    return !!user;
   }
 
   @Mutation(() => Token)

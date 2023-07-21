@@ -28,6 +28,9 @@ export class Token extends Node {
 
   @Field(() => Boolean)
   isFeeToken: boolean;
+
+  @Field(() => Boolean)
+  removable: boolean;
 }
 
 @ObjectType()
