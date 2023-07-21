@@ -11,7 +11,7 @@ import { TextProps } from '@theme/types';
 import { P, match } from 'ts-pattern';
 
 export interface AppbarProps extends Pick<StyleOptions, 'mode' | 'center'> {
-  leading: FC<IconProps> | 'back' | 'close';
+  leading?: FC<IconProps> | 'back' | 'close';
   trailing?: Arraylike<FC<IconProps>>;
   headline: ReactNode | FC<Omit<TextProps, 'children'>>;
   elevated?: boolean;
@@ -20,7 +20,7 @@ export interface AppbarProps extends Pick<StyleOptions, 'mode' | 'center'> {
 
 export const Appbar = ({
   mode,
-  leading,
+  leading = 'back',
   trailing,
   headline: Headline,
   center,

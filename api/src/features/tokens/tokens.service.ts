@@ -17,7 +17,7 @@ export class TokensService {
     return this.db.query(
       e.assert_single(
         e.select(e.Token, (t) => ({
-          filter: e.op(isAddress(id) ? t.address : t.id, '=', id),
+          filter: isAddress(id) ? e.op(t.address, '=', id) : e.op(t.id, '=', e.uuid(id)),
           limit: 1,
           order_by: e.op('exists', t.user),
           ...shape?.(t),
@@ -88,7 +88,7 @@ export class TokensService {
     );
   }
 
-  private async getTokenMetadata(address: Address) {
+  async getTokenMetadata(address: Address) {
     const t = await this.db.query(
       e.assert_single(
         e.select(e.Token, (t) => ({
@@ -99,6 +99,7 @@ export class TokensService {
           symbol: true,
           decimals: true,
           isFeeToken: true,
+          iconUri: true,
         })),
       ),
     );
@@ -130,6 +131,7 @@ export class TokensService {
       symbol: symbol.result,
       decimals: decimals.result,
       isFeeToken: false,
+      iconUri: null,
     };
   }
 }

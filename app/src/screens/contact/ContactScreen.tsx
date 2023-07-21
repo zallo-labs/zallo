@@ -1,5 +1,5 @@
 import { NetworkIcon, RemoveIcon } from '@theme/icons';
-import { Address, isAddressLike, ZERO_ADDR } from 'lib';
+import { Address } from 'lib';
 import { useForm } from 'react-hook-form';
 import { StyleSheet } from 'react-native';
 import { View } from 'react-native';
@@ -28,6 +28,7 @@ import {
   useContactDeleteMutation,
   useContactUpsertMutation,
 } from '@api/generated';
+import { ADDRESS_FIELD_RULES } from '~/util/form.rules';
 
 gql(/* GraphQL */ `
   fragment Contact_contact on Contact {
@@ -139,20 +140,8 @@ export const ContactScreen = withSuspense(
               name="address"
               control={control}
               rules={{
+                ...ADDRESS_FIELD_RULES,
                 required: true,
-                minLength: {
-                  value: ZERO_ADDR.length,
-                  message: `Must be ${ZERO_ADDR.length} characters`,
-                },
-                pattern: {
-                  value: /^0x/,
-                  message: 'Must start with 0x',
-                },
-                maxLength: {
-                  value: ZERO_ADDR.length,
-                  message: `Must be ${ZERO_ADDR.length} characters`,
-                },
-                validate: (v) => isAddressLike(v) || 'Must be a valid address',
               }}
               containerStyle={styles.fieldInput}
             />

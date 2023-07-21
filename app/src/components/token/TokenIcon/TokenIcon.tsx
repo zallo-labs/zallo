@@ -14,7 +14,7 @@ export const ETH_ICON_URI =
   'https://cloudfront-us-east-1.images.arcpublishing.com/coindesk/ZJZZK5B2ZNF25LYQHMUTBTOMLU.png';
 Image.prefetch(ETH_ICON_URI);
 
-const UnknownTokenIcon = materialCommunityIcon('help-circle-outline');
+export const UnknownTokenIcon = materialCommunityIcon('help-circle-outline');
 
 gql(/* GraphQL */ `
   query TokenIcon($token: Address!) {

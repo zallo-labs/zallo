@@ -1,8 +1,7 @@
 import { ComponentPropsWithoutRef } from 'react';
-import { StyleProp, TextStyle, ViewStyle } from 'react-native';
+import { StyleProp, TextStyle, View, ViewStyle } from 'react-native';
 import Collapsible from 'react-native-collapsible';
 import { HelperText, TextInput } from 'react-native-paper';
-import { Box } from '~/components/layout/Box';
 
 type TextInputProps = ComponentPropsWithoutRef<typeof TextInput>;
 
@@ -15,7 +14,7 @@ export type TextFieldProps = Omit<TextInputProps, 'error' | 'style'> & {
   textStyle?: StyleProp<TextStyle>;
 };
 
-export const TextField = ({
+export function TextField({
   supporting,
   error,
   required,
@@ -23,9 +22,9 @@ export const TextField = ({
   containerStyle,
   textStyle,
   ...props
-}: TextFieldProps) => {
+}: TextFieldProps) {
   return (
-    <Box style={containerStyle}>
+    <View style={containerStyle}>
       <TextInput
         mode="outlined"
         // Control
@@ -42,6 +41,6 @@ export const TextField = ({
       <Collapsible collapsed={!(error || supporting)}>
         <HelperText type={error ? 'error' : 'info'}>{error || supporting}</HelperText>
       </Collapsible>
-    </Box>
+    </View>
   );
-};
+}

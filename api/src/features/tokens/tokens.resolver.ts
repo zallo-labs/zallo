@@ -1,5 +1,5 @@
 import { ID, Info, Mutation, Parent, Query, Resolver } from '@nestjs/graphql';
-import { Token } from './tokens.model';
+import { Token, TokenMetadata } from './tokens.model';
 import { Input } from '~/decorators/input.decorator';
 import { BalanceInput, TokenInput, TokensInput, UpsertTokenInput } from './tokens.input';
 import { TokensService } from './tokens.service';
@@ -32,6 +32,11 @@ export class TokensResolver {
   @Query(() => [Token])
   async tokens(@Input({ defaultValue: {} }) input: TokensInput, @Info() info: GraphQLResolveInfo) {
     return this.service.select(input, getShape(info));
+  }
+
+  @Query(() => TokenMetadata)
+  async tokenMetadata(@Input() { address }: TokenInput): Promise<TokenMetadata> {
+    return { ...(await this.service.getTokenMetadata(address)), id: `TokenMetadata:${address}` };
   }
 
   @ComputedField<typeof e.Token>(() => GraphQLBigInt, { address: true })
