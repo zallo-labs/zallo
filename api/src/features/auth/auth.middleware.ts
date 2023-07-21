@@ -106,6 +106,6 @@ export class AuthMiddleware implements NestMiddleware {
       }
     }
 
-    return err('Invalid token');
+    return ok(undefined);
   }
 }
