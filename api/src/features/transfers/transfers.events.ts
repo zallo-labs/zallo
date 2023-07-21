@@ -77,34 +77,36 @@ export class TransfersEvents {
       const block = await this.provider.getBlock(log.blockNumber);
       const tokenAddress = normalizeEthAddress(asAddress(log.address));
 
-      const transfers = await this.db.query(
-        e.set(
-          ...accounts.map((a) =>
-            e.select({
-              transfer: e
-                .insert(e.Transfer, {
-                  account: selectAccount(a),
-                  transactionHash: log.transactionHash,
-                  logIndex: log.logIndex,
-                  block: BigInt(log.blockNumber),
-                  timestamp: new Date(block.timestamp * 1000),
-                  direction: e.cast(
-                    e.TransferDirection,
-                    a === from ? TransferDirection.Out : TransferDirection.In,
-                  ),
-                  from,
-                  to,
-                  tokenAddress,
-                  amount,
-                })
-                .unlessConflict(),
-              isExternal: e.op(
-                e.select(e.Transaction, () => ({ filter_single: { hash: log.transactionHash } }))
-                  .proposal.account.address,
-                '?=',
-                a,
-              ),
-            }),
+      const transfers = toArray(
+        await this.db.query(
+          e.set(
+            ...accounts.map((a) =>
+              e.select({
+                transfer: e
+                  .insert(e.Transfer, {
+                    account: selectAccount(a),
+                    transactionHash: log.transactionHash,
+                    logIndex: log.logIndex,
+                    block: BigInt(log.blockNumber),
+                    timestamp: new Date(block.timestamp * 1000),
+                    direction: e.cast(
+                      e.TransferDirection,
+                      a === from ? TransferDirection.Out : TransferDirection.In,
+                    ),
+                    from,
+                    to,
+                    tokenAddress,
+                    amount,
+                  })
+                  .unlessConflict(),
+                isExternal: e.op(
+                  e.select(e.Transaction, () => ({ filter_single: { hash: log.transactionHash } }))
+                    .proposal.account.address,
+                  '?=',
+                  a,
+                ),
+              }),
+            ),
           ),
         ),
       );
