@@ -39,7 +39,7 @@ export const useApiAuth = () => {
   }, [approver, setToken]);
 
   return useMemo(() => {
-    const getHeaders = () => ({ Authorization: tokenRef.current });
+    const getHeaders = () => ({ Authorization: `Bearer ${tokenRef.current}` });
 
     const setHeadersLink = setContext(async (_request, prevContext) => {
       if (!tokenRef.current) await reset();

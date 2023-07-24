@@ -3,7 +3,7 @@ import { Address, Approver } from 'lib';
 import { persistedAtom } from '../persistedAtom';
 import { useAtomValue, useSetAtom } from 'jotai';
 
-const DANGEROUS_approverAtom = persistedAtom<Approver, string>(
+export const DANGEROUS_approverAtom = persistedAtom<Approver, string>(
   'Approver',
   Approver.createRandom().connect(PROVIDER),
   {

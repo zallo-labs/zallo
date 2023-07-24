@@ -9,4 +9,4 @@ export interface ContractFunction {
 
 export const fragmentToContractFunction = (
   f: ContractFunctionFieldsFragment,
-): ContractFunction => ({ selector: f.selector, abi: f.abi });
+): ContractFunction => ({ selector: f.selector, abi: f.abi as any });

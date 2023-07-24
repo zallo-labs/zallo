@@ -3,6 +3,8 @@ import { ApolloClient, ApolloProvider, NormalizedCacheObject } from '@apollo/cli
 import { Suspend } from '~/components/Suspender';
 import useAsyncEffect from 'use-async-effect';
 import { API_CLIENT_NAME, usePromisedApiClient } from '@api/client';
+import { Provider as UrqlProvider } from 'urql';
+import { useUrqlApiClient } from '@api/client/client';
 
 const clientNames = [API_CLIENT_NAME] as const;
 type Name = (typeof clientNames)[number];
@@ -22,6 +24,8 @@ export interface GqlProviderProps {
 }
 
 export const GqlProvider = ({ children }: GqlProviderProps) => {
+  const urqlApiClient = useUrqlApiClient();
+
   const [clients, setClients] = useState<GqlClients | Partial<GqlClients>>({});
 
   const promisedApi = usePromisedApiClient();
@@ -41,8 +45,10 @@ export const GqlProvider = ({ children }: GqlProviderProps) => {
   if (!isGqlClients(clients)) return <Suspend />;
 
   return (
-    <ApolloProvider client={clients.api}>
-      <context.Provider value={clients}>{children}</context.Provider>
-    </ApolloProvider>
+    <UrqlProvider value={urqlApiClient}>
+      <ApolloProvider client={clients.api}>
+        <context.Provider value={clients}>{children}</context.Provider>
+      </ApolloProvider>
+    </UrqlProvider>
   );
 };

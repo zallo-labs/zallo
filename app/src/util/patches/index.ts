@@ -25,6 +25,9 @@ import './ethersLogger';
 // Intl pollyfills - required for iOS
 import './intl';
 
+import 'core-js/actual/url';
+import 'core-js/actual/url-search-params'; // Required by URQL persisted-exchange
+
 // Immer features
 import { enableES5, enableMapSet } from 'immer';
 enableES5();

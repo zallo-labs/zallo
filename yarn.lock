@@ -6690,6 +6690,21 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@graphql-codegen/typescript-urql@npm:^3.7.3":
+  version: 3.7.3
+  resolution: "@graphql-codegen/typescript-urql@npm:3.7.3"
+  dependencies:
+    "@graphql-codegen/plugin-helpers": ^2.7.2
+    "@graphql-codegen/visitor-plugin-common": 2.13.1
+    auto-bind: ~4.0.0
+    tslib: ~2.4.0
+  peerDependencies:
+    graphql: ^0.8.0 || ^0.9.0 || ^0.10.0 || ^0.11.0 || ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0 || ^16.0.0
+    graphql-tag: ^2.0.0
+  checksum: a8ab2561e47de8167e2cff66902b23c24aa939e2e9c89349345ac0cbccdfb1af2fa7c7e20f782a6b00714a97a6480960da354b5e86b200204d1ca7f273c9ea9e
+  languageName: node
+  linkType: hard
+
 "@graphql-codegen/typescript@npm:^4.0.0":
   version: 4.0.0
   resolution: "@graphql-codegen/typescript@npm:4.0.0"
@@ -9905,6 +9920,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@react-native-community/netinfo@npm:9.3.10":
+  version: 9.3.10
+  resolution: "@react-native-community/netinfo@npm:9.3.10"
+  peerDependencies:
+    react-native: ">=0.59"
+  checksum: b3d79a61de0b08d6174616facda21cdac35a07a8d63b7d1830212862eef208c204dec90d74b29e85a6e60adc89ea5b7adf19c612c39073cc8ad4050440b1085b
+  languageName: node
+  linkType: hard
+
 "@react-native-firebase/analytics@npm:^18.0.0":
   version: 18.0.0
   resolution: "@react-native-firebase/analytics@npm:18.0.0"
@@ -12857,13 +12881,44 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@urql/core@npm:>=4.0.0, @urql/core@npm:^4.0.11":
+"@urql/core@npm:>=4.0.0, @urql/core@npm:^4.0.0, @urql/core@npm:^4.0.11":
   version: 4.0.11
   resolution: "@urql/core@npm:4.0.11"
   dependencies:
     "@0no-co/graphql.web": ^1.0.1
     wonka: ^6.3.2
   checksum: 69af84e56f33a08f6b107d410c71f9a2ace798c3fa4fcb2a8bc5fd2659da1ac5fe40303e37182dba6157022d65e5e945511dc8184f35f1502d460da37f880a02
+  languageName: node
+  linkType: hard
+
+"@urql/exchange-auth@npm:^2.1.5":
+  version: 2.1.5
+  resolution: "@urql/exchange-auth@npm:2.1.5"
+  dependencies:
+    "@urql/core": ">=4.0.0"
+    wonka: ^6.3.2
+  checksum: 20933f83927db30ee48be578702809565461cb54d567083013f99c715e41ba9b757632aa7f9bc77bca7863f2d3f6fb09257a2b77d108082a5106ee968b7ba4f8
+  languageName: node
+  linkType: hard
+
+"@urql/exchange-graphcache@npm:^6.1.4":
+  version: 6.1.4
+  resolution: "@urql/exchange-graphcache@npm:6.1.4"
+  dependencies:
+    "@0no-co/graphql.web": ^1.0.1
+    "@urql/core": ">=4.0.0"
+    wonka: ^6.3.2
+  checksum: 16bc616e1ab35fc66a4c29a2f6308f950c1c1f693e20f6ed8532c3455c9f42b2d6a6dca5af2b4f07c9531fd0d0eef61a9d9dd14635507ef929a9d216309e0c6c
+  languageName: node
+  linkType: hard
+
+"@urql/exchange-persisted@npm:^4.0.1":
+  version: 4.0.1
+  resolution: "@urql/exchange-persisted@npm:4.0.1"
+  dependencies:
+    "@urql/core": ">=4.0.0"
+    wonka: ^6.3.2
+  checksum: a9d3662f831256f427ab6903ba42350cd0d4833a5573f63713212efa96d8f74ec27674532cf4d662b72d287367b636366747e4869c354eb4c716d88ac1d17f49
   languageName: node
   linkType: hard
 
@@ -12908,6 +12963,17 @@ __metadata:
     "@urql/core": ">=4.0.0"
     wonka: ^6.3.2
   checksum: 5bb30c1de9fc6c1cd25224da4c2445567dc3d6bacac43a15dcca07bbd87c2c30c765dc522a3150dc119dc76230b2da27328a4ccd4e9cfb02039d87a9beaf97b4
+  languageName: node
+  linkType: hard
+
+"@urql/storage-rn@npm:^1.0.3":
+  version: 1.0.3
+  resolution: "@urql/storage-rn@npm:1.0.3"
+  peerDependencies:
+    "@react-native-async-storage/async-storage": ^1.15.5
+    "@react-native-community/netinfo": ^6.0.0 || ^7.0.0 || ^8.0.0 || ^9.0.0
+    "@urql/exchange-graphcache": ">=5.0.0"
+  checksum: 2f1bea7ef57cfadd92586d5a958575d8cffa0d1e38c7a901a07d8235935b98ca393b362d771280a75c43aba0d8789aa5b08f48119d7b3e62082c1b14937776ec
   languageName: node
   linkType: hard
 
@@ -14969,10 +15035,12 @@ __metadata:
     "@graphql-codegen/typescript": ^4.0.1
     "@graphql-codegen/typescript-operations": ^4.0.1
     "@graphql-codegen/typescript-react-apollo": ^3.3.7
+    "@graphql-codegen/typescript-urql": ^3.7.3
     "@graphql-typed-document-node/core": ^3.2.0
     "@n1ru4l/graphql-codegen-relay-optimizer-plugin": ^5.0.0
     "@react-native-async-storage/async-storage": 1.18.2
     "@react-native-community/blur": "patch:@react-native-community/blur@npm:^4.3.0#../.yarn/patches/react-native-blur-e67c3fc.patch"
+    "@react-native-community/netinfo": 9.3.10
     "@react-native-firebase/analytics": ^18.0.0
     "@react-native-firebase/app": ^18.0.0
     "@react-native-firebase/crashlytics": ^18.0.0
@@ -14997,6 +15065,11 @@ __metadata:
     "@types/styled-components-react-native": ^5.2.1
     "@types/styled-system": ^5.1.16
     "@typescript-eslint/eslint-plugin": ^5.59.11
+    "@urql/exchange-auth": ^2.1.5
+    "@urql/exchange-graphcache": ^6.1.4
+    "@urql/exchange-persisted": ^4.0.1
+    "@urql/exchange-retry": ^1.2.0
+    "@urql/storage-rn": ^1.0.3
     "@walletconnect/react-native-compat": ^2.8.1
     "@walletconnect/sign-client": ^2.8.1
     "@walletconnect/utils": ^2.8.1
@@ -15010,6 +15083,8 @@ __metadata:
     chardet: ^1.5.1
     color: ^4.2.3
     concurrently: ^7.6.0
+    core-js: ^3.31.1
+    corejs: ^1.0.0
     dotenv: ^16.3.1
     eas-cli: ^3.15.1
     eslint: ^8.38.0
@@ -15104,11 +15179,13 @@ __metadata:
     typechain: ^8.2.0
     typescript: ^5.1.3
     url: ^0.11.1
+    urql: ^4.0.4
     use-async-effect: ^2.2.7
     use-debounce: ^9.0.4
     use-immer: ^0.9.0
     valtio: ^1.10.5
     viem: ^1.0.7
+    wonka: ^6.3.3
     yup: ^0.32.11
     zksync-web3: ^0.14.4
   languageName: unknown
@@ -18686,6 +18763,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"core-js@npm:^3.31.1":
+  version: 3.31.1
+  resolution: "core-js@npm:3.31.1"
+  checksum: 14519213a63c55cf188bdd2f4dece54583feaf6b90e75d6c65e07f509cd487055bf64898aeda7c97c36029ac1ea2f2ed8e4b02281553f6a257e7143a32a14015
+  languageName: node
+  linkType: hard
+
 "core-util-is@npm:1.0.2":
   version: 1.0.2
   resolution: "core-util-is@npm:1.0.2"
@@ -18697,6 +18781,13 @@ __metadata:
   version: 1.0.3
   resolution: "core-util-is@npm:1.0.3"
   checksum: 9de8597363a8e9b9952491ebe18167e3b36e7707569eed0ebf14f8bba773611376466ae34575bca8cfe3c767890c859c74056084738f09d4e4a6f902b2ad7d99
+  languageName: node
+  linkType: hard
+
+"corejs@npm:^1.0.0":
+  version: 1.0.0
+  resolution: "corejs@npm:1.0.0"
+  checksum: e0e58e311859c7496950626263269149f55cbfddd6269244aa173076c641356966203f7cf727f7d3bd086d5bc3582e81f85b872d31a4da54784db70239d0b6d0
   languageName: node
   linkType: hard
 
@@ -41406,6 +41497,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"urql@npm:^4.0.4":
+  version: 4.0.4
+  resolution: "urql@npm:4.0.4"
+  dependencies:
+    "@urql/core": ^4.0.0
+    wonka: ^6.3.2
+  peerDependencies:
+    react: ">= 16.8.0"
+  checksum: 3fca8c38cb0ec87ec90e0c9ae0d7b237cf01917bfb62631839a990c75a349ba6aba9f2851f32c2958c4120b222dd46e42784ebbd125f4432a99ec806fabd061c
+  languageName: node
+  linkType: hard
+
 "use-async-effect@npm:^2.2.7":
   version: 2.2.7
   resolution: "use-async-effect@npm:2.2.7"
@@ -42601,31 +42704,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"wonka@npm:^4.0.14":
-  version: 4.0.15
-  resolution: "wonka@npm:4.0.15"
-  checksum: afbee7359ed2d0a9146bf682f3953cb093f47d5f827e767e6ef33cb70ca6f30631afe5fe31dbb8d6c7eaed26c4ac6426e7c13568917c017ef6f42c71139b38f7
-  languageName: node
-  linkType: hard
-
-"wonka@npm:^6.0.0":
-  version: 6.1.0
-  resolution: "wonka@npm:6.1.0"
-  checksum: 662793c7429affc12c4ee9f8b8b642fd44a9f69886bd782ee3df241ac6b1ada66d366e4669bbea43f52f6167e4697dd6f4aa40b8e71dbfe9046d91203ae59731
-  languageName: node
-  linkType: hard
-
-"wonka@npm:^6.1.2":
-  version: 6.1.2
-  resolution: "wonka@npm:6.1.2"
-  checksum: 474dcffd3861faaf5df8f4ef1ea1e614eb0cf36f54003974ebd4ab43b8fd6aad26317ef75e55488e7a61d64922531ae3ca2890dac90922d46715e0dd795682ce
-  languageName: node
-  linkType: hard
-
-"wonka@npm:^6.3.2":
-  version: 6.3.2
-  resolution: "wonka@npm:6.3.2"
-  checksum: e161f377a4ea17cc2b19fe8820219a9e3e2c78db5df08b820525bc2cc261184823d1bc33bd2385e632656a9676c9de6ff614b6324c441dd5fc5faa253433d032
+"wonka@npm:^6.3.3":
+  version: 6.3.3
+  resolution: "wonka@npm:6.3.3"
+  checksum: 00a93bea1a7ff0b9c5631d4f3c5b71de2697d380b48205b9a53049db4fa7e71e2ba77aede51a4c9960605a5e3947179a661d5b2bf60643cc71984fcb8aa29e00
   languageName: node
   linkType: hard
 

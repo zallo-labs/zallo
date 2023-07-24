@@ -38,6 +38,8 @@ app/.vscode/.react
 app/web-build
 app/**/*generated.ts
 app/src/gql/api/gen
+app/src/gql/api/generated.urql.ts
+app/src/gql/api/schema.json
 
 
 ## Contracts
