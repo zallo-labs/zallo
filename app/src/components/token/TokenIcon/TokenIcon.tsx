@@ -51,7 +51,8 @@ export const TokenIcon = withSuspense(
       getFragment(Fragment, !isAddress(tokenFragment) ? tokenFragment : query?.token)?.iconUri ??
       fallbackUri;
 
-    if (!iconUri) return <UnknownTokenIcon {...imageProps} style={[style, styles.icon]} />;
+    if (!iconUri)
+      return <UnknownTokenIcon {...imageProps} size={size} style={[style, styles.icon]} />;
 
     return <Image {...imageProps} source={{ uri: iconUri }} style={[style, styles.icon]} />;
   },
