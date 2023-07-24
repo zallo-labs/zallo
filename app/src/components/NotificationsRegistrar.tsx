@@ -9,15 +9,15 @@ import {
   useNotificationSettings,
 } from '~/screens/notifications/NotificationSettingsScreen';
 import { retryAsPromised } from 'retry-as-promised';
-import { useSuspenseQuery } from '@apollo/client';
-import { useUpdatePushTokenMutation } from '@api/generated';
 import {
   NotificationsRegistrarQuery,
   NotificationsRegistrarQueryVariables,
 } from '@api/gen/graphql';
 import { gql } from '@api/gen';
+import { useQuery } from '~/gql';
+import { NotificationsRegistrarDocument, useUpdatePushTokenMutation } from '@api/generated.urql';
 
-const NotificationsRegistrarDoc = gql(/* GraphQL */ `
+gql(/* GraphQL */ `
   query NotificationsRegistrar {
     approver {
       id
@@ -50,11 +50,11 @@ Notifications.setNotificationHandler({
 export const NotificationsRegistrar = () => {
   const channelEnabled = useNotificationSettings();
 
-  const { approver, proposals } = useSuspenseQuery<
+  const { approver, proposals } = useQuery<
     NotificationsRegistrarQuery,
     NotificationsRegistrarQueryVariables
-  >(NotificationsRegistrarDoc).data;
-  const [updatePushToken] = useUpdatePushTokenMutation();
+  >(NotificationsRegistrarDocument).data;
+  const updatePushToken = useUpdatePushTokenMutation()[1];
 
   const hasPermission = Notifications.usePermissions()[0]?.granted;
 
@@ -82,7 +82,7 @@ export const NotificationsRegistrar = () => {
             })
           ).data;
 
-          if (pushToken !== approver.pushToken) await updatePushToken({ variables: { pushToken } });
+          if (pushToken !== approver.pushToken) await updatePushToken({ pushToken });
         },
         { max: 3 },
       );
