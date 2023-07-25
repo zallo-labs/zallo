@@ -5170,15 +5170,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@expo/cli@npm:0.10.10":
-  version: 0.10.10
-  resolution: "@expo/cli@npm:0.10.10"
+"@expo/cli@npm:0.10.11":
+  version: 0.10.11
+  resolution: "@expo/cli@npm:0.10.11"
   dependencies:
     "@babel/runtime": ^7.20.0
     "@expo/code-signing-certificates": 0.0.5
     "@expo/config": ~8.1.0
     "@expo/config-plugins": ~7.2.0
-    "@expo/dev-server": 0.5.4
+    "@expo/dev-server": 0.5.5
     "@expo/devcert": ^1.0.0
     "@expo/env": 0.0.5
     "@expo/json-file": ^8.2.37
@@ -5239,7 +5239,7 @@ __metadata:
     ws: ^8.12.1
   bin:
     expo-internal: build/bin/cli
-  checksum: 9c24ac8070ec968d13735aa8e631e223751a21ef3fdd8bd539ffafc88f363726f797e9a9bc78e56d090b7723bf859d812ec96878ade2be80c4360ced781dfe53
+  checksum: bbb940f7e67af9f006e447cff5405781395ac2c3ab44f914100f1a94485a584eb75fd3ceb2df990157d4615141388d3edce7db7d4ae6c1f7dc3d9ad2c8d99909
   languageName: node
   linkType: hard
 
@@ -5332,9 +5332,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@expo/dev-server@npm:0.5.4":
-  version: 0.5.4
-  resolution: "@expo/dev-server@npm:0.5.4"
+"@expo/dev-server@npm:0.5.5":
+  version: 0.5.5
+  resolution: "@expo/dev-server@npm:0.5.5"
   dependencies:
     "@expo/bunyan": 4.0.0
     "@expo/metro-config": ~0.10.0
@@ -5351,7 +5351,7 @@ __metadata:
     resolve-from: ^5.0.0
     serialize-error: 6.0.0
     temp-dir: ^2.0.0
-  checksum: a7e5dfec2727ff455be4e366d932bf69389caad1f9ae6312c7a12d010ca7c27d517f0ccaf8aedee8ab479e852a8cbaa4b1333682d1990f7118eabd469a37b8f5
+  checksum: 5b13c1a757ed0c41cef20a5d45a024ad78c4086a6fea8e2031883947bc5b2b4512d9c9670f6f2ec9eeb9f83b66428e8a305f1564d0fcb090d081546e7b1fd551
   languageName: node
   linkType: hard
 
@@ -5386,9 +5386,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@expo/eas-json@npm:3.15.1":
-  version: 3.15.1
-  resolution: "@expo/eas-json@npm:3.15.1"
+"@expo/eas-json@npm:3.17.0":
+  version: 3.17.0
+  resolution: "@expo/eas-json@npm:3.17.0"
   dependencies:
     "@babel/code-frame": 7.18.6
     "@expo/eas-build-job": 1.0.13
@@ -5401,7 +5401,7 @@ __metadata:
     semver: 7.3.8
     terminal-link: 2.1.1
     tslib: 2.4.1
-  checksum: bbfeafa2dd7bcf63ba9dbdaf546ec7274c0b73a03fd913f9b74eb4676a2f9a35020a4828b15fe8308841fc1570147541539afc939dba9f787c2821933f4e606e
+  checksum: fba26da8e4dcccb008df9b33f95f96a6cfbc840b2a20ad3bf7fe1e85d761aeb679364d5557ec15be17a311e4bf6c34cc8f76e77c42aae8f840dad3fa14a88d8e
   languageName: node
   linkType: hard
 
@@ -12471,14 +12471,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@urql/core@npm:3.1.1":
-  version: 3.1.1
-  resolution: "@urql/core@npm:3.1.1"
+"@urql/core@npm:4.0.11, @urql/core@npm:>=4.0.0, @urql/core@npm:^4.0.0, @urql/core@npm:^4.0.11":
+  version: 4.0.11
+  resolution: "@urql/core@npm:4.0.11"
   dependencies:
-    wonka: ^6.1.2
-  peerDependencies:
-    graphql: ^0.11.0 || ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0 || ^16.0.0
-  checksum: 8fa40d9d1e387ec50571f78df59beae7d0eb9f7f4297255ad1c1201e7fe45d8f8fc4d9ed23586b2ae25531e1c200dee7486d42ac120d8d258d420f22a947a612
+    "@0no-co/graphql.web": ^1.0.1
+    wonka: ^6.3.2
+  checksum: 69af84e56f33a08f6b107d410c71f9a2ace798c3fa4fcb2a8bc5fd2659da1ac5fe40303e37182dba6157022d65e5e945511dc8184f35f1502d460da37f880a02
   languageName: node
   linkType: hard
 
@@ -12491,28 +12490,6 @@ __metadata:
   peerDependencies:
     graphql: ^0.11.0 || ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0 || ^16.0.0
   checksum: 5bc972422fc733e815d82f84b10daef05288d31c2b4958555ea982bd83dd42ec939165c66cc94eeed447c45b8798242971b3682714c7df21c25d6f9bad53303c
-  languageName: node
-  linkType: hard
-
-"@urql/core@npm:>=3.0.0":
-  version: 3.0.5
-  resolution: "@urql/core@npm:3.0.5"
-  dependencies:
-    "@graphql-typed-document-node/core": ^3.1.1
-    wonka: ^6.0.0
-  peerDependencies:
-    graphql: ^0.11.0 || ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0 || ^16.0.0
-  checksum: e98f2dfb7535f3c5631a3f6d16ad877ba1a66f179f96345a5877301d864e5bffd6fa5dc541ed1ac2531b30d0efea6d85235a70de8ee82d5a2626c3b9a171c7ad
-  languageName: node
-  linkType: hard
-
-"@urql/core@npm:>=4.0.0, @urql/core@npm:^4.0.0, @urql/core@npm:^4.0.11":
-  version: 4.0.11
-  resolution: "@urql/core@npm:4.0.11"
-  dependencies:
-    "@0no-co/graphql.web": ^1.0.1
-    wonka: ^6.3.2
-  checksum: 69af84e56f33a08f6b107d410c71f9a2ace798c3fa4fcb2a8bc5fd2659da1ac5fe40303e37182dba6157022d65e5e945511dc8184f35f1502d460da37f880a02
   languageName: node
   linkType: hard
 
@@ -12569,19 +12546,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@urql/exchange-retry@npm:1.0.0":
-  version: 1.0.0
-  resolution: "@urql/exchange-retry@npm:1.0.0"
-  dependencies:
-    "@urql/core": ">=3.0.0"
-    wonka: ^6.0.0
-  peerDependencies:
-    graphql: ^0.11.0 || ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0 || ^16.0.0
-  checksum: 99320fc6d03a5b318a9ae3907b9bcd22c60d5aed1badab803e082e7a165ee55b365b48fa2f63e6cb5e7e6ef37550603a57b9f501c232366d72bab0e6fade1fd2
-  languageName: node
-  linkType: hard
-
-"@urql/exchange-retry@npm:^1.2.0":
+"@urql/exchange-retry@npm:1.2.0, @urql/exchange-retry@npm:^1.2.0":
   version: 1.2.0
   resolution: "@urql/exchange-retry@npm:1.2.0"
   dependencies:
@@ -14679,7 +14644,7 @@ __metadata:
     core-js: ^3.31.1
     corejs: ^1.0.0
     dotenv: ^16.3.1
-    eas-cli: ^3.15.1
+    eas-cli: ^3.17.0
     eslint: ^8.38.0
     eslint-config-prettier: ^8.8.0
     eslint-config-standard-with-typescript: ^34.0.1
@@ -14691,7 +14656,7 @@ __metadata:
     eslint-plugin-valtio: ^0.6.2
     eth-url-parser: ^1.0.4
     ethers: ^5.7.2
-    expo: ^49.0.3
+    expo: ^49.0.5
     expo-application: ~5.3.0
     expo-asset: ~8.10.1
     expo-barcode-scanner: ~12.5.3
@@ -14713,7 +14678,7 @@ __metadata:
     expo-secure-store: ~12.3.1
     expo-splash-screen: ~0.20.4
     expo-status-bar: ~1.6.0
-    expo-updates: ~0.18.10
+    expo-updates: ~0.18.11
     expo-web-browser: ~12.3.2
     expo-yarn-workspaces: ^2.2.1
     fast-deep-equal: ^3.1.3
@@ -15677,7 +15642,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"babel-preset-expo@npm:^9.5.0, babel-preset-expo@npm:~9.5.0":
+"babel-preset-expo@npm:^9.5.0":
   version: 9.5.0
   resolution: "babel-preset-expo@npm:9.5.0"
   dependencies:
@@ -15690,6 +15655,22 @@ __metadata:
     babel-plugin-react-native-web: ~0.18.10
     metro-react-native-babel-preset: 0.76.5
   checksum: 07f44710bb2b968bc66f25d8aa7129a751935541722e23814ef275d14cf95755d3f07f5b9182db1f6d0360a8ea436ffc5aded34a3160069169fabc5c90842047
+  languageName: node
+  linkType: hard
+
+"babel-preset-expo@npm:~9.5.1":
+  version: 9.5.1
+  resolution: "babel-preset-expo@npm:9.5.1"
+  dependencies:
+    "@babel/plugin-proposal-decorators": ^7.12.9
+    "@babel/plugin-proposal-export-namespace-from": ^7.18.9
+    "@babel/plugin-proposal-object-rest-spread": ^7.12.13
+    "@babel/plugin-transform-react-jsx": ^7.12.17
+    "@babel/preset-env": ^7.20.0
+    babel-plugin-module-resolver: ^5.0.0
+    babel-plugin-react-native-web: ~0.18.10
+    metro-react-native-babel-preset: 0.76.7
+  checksum: 74ec8096169ce034b8ddfabba9691eb7044b4e28a8fd65509933e4ac977ddb7dbc9dbb6dabcc6e92c679fdafaeb372c0fa08ed8207ac15174d28297566637cb5
   languageName: node
   linkType: hard
 
@@ -20030,9 +20011,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eas-cli@npm:^3.15.1":
-  version: 3.15.1
-  resolution: "eas-cli@npm:3.15.1"
+"eas-cli@npm:^3.17.0":
+  version: 3.17.0
+  resolution: "eas-cli@npm:3.17.0"
   dependencies:
     "@expo/apple-utils": 1.3.1
     "@expo/code-signing-certificates": 0.0.5
@@ -20040,7 +20021,7 @@ __metadata:
     "@expo/config-plugins": 7.2.4
     "@expo/config-types": 49.0.0
     "@expo/eas-build-job": 1.0.13
-    "@expo/eas-json": 3.15.1
+    "@expo/eas-json": 3.17.0
     "@expo/json-file": 8.2.37
     "@expo/multipart-body-parser": 1.1.0
     "@expo/osascript": 2.0.33
@@ -20058,8 +20039,8 @@ __metadata:
     "@oclif/core": 1.23.2
     "@oclif/plugin-autocomplete": 1.3.10
     "@segment/ajv-human-errors": ^2.1.2
-    "@urql/core": 3.1.1
-    "@urql/exchange-retry": 1.0.0
+    "@urql/core": 4.0.11
+    "@urql/exchange-retry": 1.2.0
     ajv: 8.11.0
     ajv-formats: 2.1.1
     better-opn: 3.0.2
@@ -20073,7 +20054,6 @@ __metadata:
     fast-glob: 3.2.12
     figures: 3.2.0
     form-data: 4.0.0
-    freeport-async: 2.0.0
     fs-extra: 10.1.0
     getenv: 1.0.0
     gradle-to-js: 2.0.1
@@ -20111,7 +20091,7 @@ __metadata:
     wrap-ansi: 7.0.0
   bin:
     eas: bin/run
-  checksum: b9a40996c4db6e5bb219f861a6449289547447ac6a0ae8302dfdb4d60ae09e184ab34acd81b497755836b10b013b71f064863f80e3ce33c5170514fa9d0352dc
+  checksum: 4adf8120501b82adfb3838c007c630bb4ffa2fb4c4e3d4283b6c2b820747f8b0b57b811c22318b282801dd0695f8dd85ea4b4393ccae09be9a91b4b46dba24d8
   languageName: node
   linkType: hard
 
@@ -22002,13 +21982,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"expo-modules-core@npm:1.5.7":
-  version: 1.5.7
-  resolution: "expo-modules-core@npm:1.5.7"
+"expo-modules-core@npm:1.5.8":
+  version: 1.5.8
+  resolution: "expo-modules-core@npm:1.5.8"
   dependencies:
     compare-versions: ^3.4.0
     invariant: ^2.2.4
-  checksum: 6f3c583802c4a75f556d03113c9819a126a6f58b415c45859dbfafa99ac49d96999d84588965e8d48847fd97a916ae7a5c37838db464f5822809542e81e39026
+  checksum: 4eedc1f1c4c57707ef1c1b9dc4add3b8ba09880fdc4c89d701ebd53c7dae4b62b2a2898770113c4912b3b073a4389020ec19895d2d3be196b0bbad2d9f15e935
   languageName: node
   linkType: hard
 
@@ -22113,9 +22093,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"expo-updates@npm:~0.18.10":
-  version: 0.18.10
-  resolution: "expo-updates@npm:0.18.10"
+"expo-updates@npm:~0.18.11":
+  version: 0.18.11
+  resolution: "expo-updates@npm:0.18.11"
   dependencies:
     "@expo/code-signing-certificates": 0.0.5
     "@expo/config": ~8.1.0
@@ -22132,7 +22112,7 @@ __metadata:
     expo: "*"
   bin:
     expo-updates: bin/cli.js
-  checksum: 3d413b1f3a9087d5bcf2bd476e879aa5b8e1540ebf4a2407fba0f0ce197a37b2e9e70423ac1d62bf0a25c0f7ce6e54a34f0b53161c42221c533cd3390ebb5e14
+  checksum: 0c01e7d0c9aca8c289255eb0e987ac0e3ff34bf2d294d5229a812cbd00cd0c732e2cc318646dbf4d7789d6ca3e7f35aa678b1e894c45187a2d37e3b74b5ad2f9
   languageName: node
   linkType: hard
 
@@ -22165,16 +22145,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"expo@npm:^49.0.3":
-  version: 49.0.3
-  resolution: "expo@npm:49.0.3"
+"expo@npm:^49.0.5":
+  version: 49.0.5
+  resolution: "expo@npm:49.0.5"
   dependencies:
     "@babel/runtime": ^7.20.0
-    "@expo/cli": 0.10.10
+    "@expo/cli": 0.10.11
     "@expo/config": 8.1.2
     "@expo/config-plugins": 7.2.5
     "@expo/vector-icons": ^13.0.0
-    babel-preset-expo: ~9.5.0
+    babel-preset-expo: ~9.5.1
     expo-application: ~5.3.0
     expo-asset: ~8.10.1
     expo-constants: ~14.4.2
@@ -22182,7 +22162,7 @@ __metadata:
     expo-font: ~11.4.0
     expo-keep-awake: ~12.3.0
     expo-modules-autolinking: 1.5.0
-    expo-modules-core: 1.5.7
+    expo-modules-core: 1.5.8
     fbemitter: ^3.0.0
     invariant: ^2.2.4
     md5-file: ^3.2.3
@@ -22191,7 +22171,7 @@ __metadata:
     uuid: ^3.4.0
   bin:
     expo: bin/cli
-  checksum: be6ae9bbbdb20eaffad0fb8c74c5f57110ae872b08aaace140c7781948928f2065afb15afd744b67490dda15a3007c784dab770d3fff6dd748e6a26f22647b7e
+  checksum: f7e5163f1e51e5d10d27fb02a462b07f05ca41962141a6d37f0663aa7e7af2a0174da082f778effd775d4f281a2bb8de04626369bcb035d6b2abe8f35018997e
   languageName: node
   linkType: hard
 
