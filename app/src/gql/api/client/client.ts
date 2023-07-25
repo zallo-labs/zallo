@@ -13,9 +13,10 @@ import { SiweMessage } from 'siwe';
 import { atom, useAtomValue } from 'jotai';
 import { DANGEROUS_approverAtom } from '@network/useApprover';
 import { createClient as createWsClient } from 'graphql-ws';
-import schema from '../schema.json';
+import schema from '../schema';
 import { logError } from '~/util/analytics';
 import crypto from 'react-native-quick-crypto';
+import { CACHE_CONFIG } from './cache';
 
 const TOKEN_KEY = 'apiToken';
 
@@ -50,6 +51,7 @@ const client = atom(async (get) => {
     url: `${CONFIG.apiUrl}/graphql`,
     fetchOptions: { credentials: 'include' },
     suspense: true,
+    requestPolicy: 'cache-and-network',
     exchanges: [
       mapExchange({
         onError(error, _operation) {
@@ -67,6 +69,8 @@ const client = atom(async (get) => {
           metadataKey: 'urql-metadata', // AsyncStorage key
           maxAge: 28, // How many days to persist the data in storage
         }),
+        globalIDs: true,
+        ...CACHE_CONFIG,
       }),
       persistedExchange({
         generateHash: async (query, _document) =>

@@ -10,13 +10,13 @@ import { Screen } from '~/components/layout/Screen';
 import { EventEmitter } from '~/util/EventEmitter';
 import { useState } from 'react';
 import { gql } from '@api/gen';
-import { useSuspenseQuery } from '@apollo/client';
 import { TokensScreenQuery, TokensScreenQueryVariables } from '@api/gen/graphql';
 import { TokensScreenDocument } from '@api/generated';
 import { FlashList } from '@shopify/flash-list';
 import { ListItemHeight } from '~/components/list/ListItem';
 import { withSuspense } from '~/components/skeleton/withSuspense';
 import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
+import { useQuery } from '~/gql';
 
 gql(/* GraphQL */ `
   query TokensScreen($account: Address!, $query: String) {
@@ -49,9 +49,9 @@ export const TokensScreen = withSuspense(
 
     const [query, setQuery] = useState('');
 
-    const { tokens } = useSuspenseQuery<TokensScreenQuery, TokensScreenQueryVariables>(
+    const { tokens } = useQuery<TokensScreenQuery, TokensScreenQueryVariables>(
       TokensScreenDocument,
-      { variables: { account: route.params.account, query } },
+      { account: route.params.account, query },
     ).data;
 
     const onSelect = (token: Address) => () =>

@@ -12,7 +12,7 @@
     "with-env": "npx dotenv-cli -e ../.env",
     "eas": "yarn with-env -- eas",
     "expo": "yarn with-env -- expo",
-    "generate:gql": "graphql-codegen --config codegen.ts",
+    "generate:gql": "graphql-codegen --config codegen.ts && sed -i 's/as unknown as IntrospectionQuery;/as const;/g' ./src/gql/api/schema.ts",
     "generate:typechain": "typechain --target ethers-v5 --out-dir ./src/util/contracts './src/util/abi/*.json'",
     "clean": "npx rimraf web-build"
   },
@@ -154,11 +154,10 @@
   "devDependencies": {
     "@babel/core": "^7.22.5",
     "@graphql-codegen/cli": "^4.0.1",
-    "@graphql-codegen/introspection": "^4.0.0",
     "@graphql-codegen/typescript": "^4.0.1",
     "@graphql-codegen/typescript-operations": "^4.0.1",
     "@graphql-codegen/typescript-react-apollo": "^3.3.7",
-    "@graphql-codegen/typescript-urql": "^3.7.3",
+    "@graphql-codegen/urql-introspection": "^2.2.1",
     "@n1ru4l/graphql-codegen-relay-optimizer-plugin": "^5.0.0",
     "@testing-library/jest-native": "^5.4.2",
     "@testing-library/react-native": "^11.5.4",

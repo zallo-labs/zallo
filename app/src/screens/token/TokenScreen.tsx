@@ -1,15 +1,9 @@
 import { gql } from '@api/gen';
 import { TokenScreenQuery, TokenScreenQueryVariables } from '@api/gen/graphql';
-import {
-  TokenScreenDocument,
-  useTokenScreenRemovalMutation,
-  useTokenScreenUpsertMutation,
-} from '@api/generated';
-import { useQuery } from '@apollo/client';
 import { Image } from 'expo-image';
 import { Address, asAddress, isAddressLike } from 'lib';
 import _ from 'lodash';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { ScrollView, StyleSheet } from 'react-native';
 import { Appbar } from '~/components/Appbar/Appbar';
@@ -27,11 +21,16 @@ import { ADDRESS_FIELD_RULES } from '~/util/form.rules';
 import { useConfirmRemoval } from '../alert/useConfirm';
 import { AppbarMore2 } from '~/components/Appbar/AppbarMore';
 import { Menu } from 'react-native-paper';
+import { useQuery } from '~/gql';
+import { clog } from '~/util/format';
+import { useMutation } from 'urql';
+import { TokenScreenDocument } from '@api/generated';
 
 gql(/* GraphQL */ `
   query TokenScreen($token: Address!) {
     token(input: { address: $token }) {
       id
+      address
       userOwned
     }
 
@@ -44,13 +43,22 @@ gql(/* GraphQL */ `
       iconUri
     }
   }
+`);
 
+const UpsertToken = gql(/* GraphQL */ `
   mutation TokenScreenUpsert($input: UpsertTokenInput!) {
     upsertToken(input: $input) {
       id
+      ethereumAddress
+      name
+      symbol
+      decimals
+      iconUri
     }
   }
+`);
 
+const RemoveToken = gql(/* GraphQL */ `
   mutation TokenScreenRemoval($token: Address!) {
     removeToken(input: { address: $token })
   }
@@ -73,8 +81,8 @@ export type TokenScreenProps = StackNavigatorScreenProps<'Token'>;
 
 export const TokenScreen = withSuspense(
   ({ route: { params }, navigation: { goBack } }: TokenScreenProps) => {
-    const [upsert] = useTokenScreenUpsertMutation();
-    const [remove] = useTokenScreenRemovalMutation();
+    const upsert = useMutation(UpsertToken)[1];
+    const remove = useMutation(RemoveToken)[1];
     const confirmRemoval = useConfirmRemoval({
       message: 'Are you sure you want to remove this token?',
     });
@@ -84,10 +92,19 @@ export const TokenScreen = withSuspense(
     });
     const [address, ethereumAddress, iconUri] = watch(['address', 'ethereumAddress', 'iconUri']);
 
-    const query = useQuery<TokenScreenQuery, TokenScreenQueryVariables>(TokenScreenDocument, {
-      variables: { token: address as Address },
-      skip: !address || !isAddressLike(address),
-    }).data;
+    const query = useQuery<TokenScreenQuery, TokenScreenQueryVariables>(
+      TokenScreenDocument,
+      { token: address as Address },
+      {
+        pause: !address || !isAddressLike(address),
+        context: useMemo(() => ({ suspense: false }), []),
+      },
+    ).data;
+
+    clog({
+      ...query,
+      address,
+    });
 
     useEffect(() => {
       const m = query?.metadata;
@@ -121,7 +138,7 @@ export const TokenScreen = withSuspense(
                         onPress={async () => {
                           close();
                           if (await confirmRemoval()) {
-                            await remove({ variables: { token: params.token! } });
+                            await remove({ token: query.token!.address });
                             goBack();
                           }
                         }}
@@ -239,12 +256,11 @@ export const TokenScreen = withSuspense(
           <Actions>
             <FormSubmitButton
               mode="contained"
+              requireChanges
               control={control}
               onPress={handleSubmit(async (input) => {
                 await upsert({
-                  variables: {
-                    input: { ...input, decimals: parseFloat(input.decimals as unknown as string) },
-                  },
+                  input: { ...input, decimals: parseFloat(input.decimals as unknown as string) },
                 });
               })}
             >
