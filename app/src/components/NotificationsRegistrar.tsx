@@ -15,7 +15,8 @@ import {
 } from '@api/gen/graphql';
 import { gql } from '@api/gen';
 import { useQuery } from '~/gql';
-import { NotificationsRegistrarDocument, useUpdatePushTokenMutation } from '@api/generated.urql';
+import { useMutation } from 'urql';
+import { NotificationsRegistrarDocument } from '@api/generated';
 
 gql(/* GraphQL */ `
   query NotificationsRegistrar {
@@ -30,7 +31,7 @@ gql(/* GraphQL */ `
   }
 `);
 
-gql(/* GraphQL */ `
+const UpdatePushToken = gql(/* GraphQL */ `
   mutation UpdatePushToken($pushToken: String) {
     updateApprover(input: { pushToken: $pushToken }) {
       id
@@ -54,7 +55,7 @@ export const NotificationsRegistrar = () => {
     NotificationsRegistrarQuery,
     NotificationsRegistrarQueryVariables
   >(NotificationsRegistrarDocument).data;
-  const updatePushToken = useUpdatePushTokenMutation()[1];
+  const updatePushToken = useMutation(UpdatePushToken)[1];
 
   const hasPermission = Notifications.usePermissions()[0]?.granted;
 
