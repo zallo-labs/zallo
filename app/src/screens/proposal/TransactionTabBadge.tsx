@@ -1,4 +1,4 @@
-import { gql } from '@api/gen';
+import { gql } from '@api/generated';
 import { Hex } from 'lib';
 import { StyleSheet } from 'react-native';
 import { TabBadge } from '~/components/tab/TabBadge';

@@ -13,7 +13,7 @@ import { SiweMessage } from 'siwe';
 import { atom, useAtomValue } from 'jotai';
 import { DANGEROUS_approverAtom } from '@network/useApprover';
 import { createClient as createWsClient } from 'graphql-ws';
-import schema from '../schema';
+import schema from './schema';
 import { logError } from '~/util/analytics';
 import crypto from 'react-native-quick-crypto';
 import { CACHE_CONFIG } from './cache';

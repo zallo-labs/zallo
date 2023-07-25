@@ -1,4 +1,4 @@
-import { useAccountIds } from '@api/account';
+import { gql } from '@api/generated';
 import { makeStyles } from '@theme/makeStyles';
 import { getSdkError } from '@walletconnect/utils';
 import { tryOrCatchAsync } from 'lib';
@@ -9,6 +9,7 @@ import { Actions } from '~/components/layout/Actions';
 import { Sheet } from '~/components/sheet/Sheet';
 import { AccountsList } from '~/components/walletconnect/AccountsList';
 import { PeerHeader } from '~/components/walletconnect/PeerHeader';
+import { useQuery } from '~/gql';
 import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
 import { showError, showSuccess } from '~/provider/SnackbarProvider';
 import {
@@ -17,6 +18,16 @@ import {
   useUpdateWalletConnect,
   useWalletConnect,
 } from '~/util/walletconnect';
+
+const Query = gql(/* GraphQL */ `
+  query ConnectSheet {
+    accounts {
+      id
+      address
+      ...AccountsList_Account
+    }
+  }
+`);
 
 export type ConnectSheetParams = WalletConnectEventArgs['session_proposal'];
 
@@ -28,8 +39,9 @@ export const ConnectSheet = ({ navigation: { goBack }, route }: ConnectSheetProp
   const client = useWalletConnect();
   const update = useUpdateWalletConnect();
 
-  const accounts = useAccountIds();
-  const [selected, updateSelected] = useImmer(new Set(accounts));
+  const { accounts } = useQuery(Query).data;
+
+  const [selected, updateSelected] = useImmer(new Set(accounts.map((a) => a.address)));
 
   const connect = async () => {
     const req = await tryOrCatchAsync(
@@ -66,7 +78,7 @@ export const ConnectSheet = ({ navigation: { goBack }, route }: ConnectSheetProp
         </Text>
       )}
 
-      <AccountsList selected={selected} updateSelected={updateSelected} />
+      <AccountsList accounts={accounts} selected={selected} updateSelected={updateSelected} />
 
       <Actions>
         <Button mode="contained" onPress={connect} disabled={selected.size === 0}>

@@ -10,7 +10,7 @@ import { withSuspense } from '~/components/skeleton/withSuspense';
 import { TabScreenSkeleton } from '~/components/tab/TabScreenSkeleton';
 import { Address } from 'lib';
 import { asDateTime } from '~/components/format/Timestamp';
-import { gql } from '@api/gen';
+import { gql } from '@api/generated';
 import { useQuery } from '~/gql';
 import { useSubscription } from 'urql';
 

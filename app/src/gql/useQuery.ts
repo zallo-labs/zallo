@@ -7,7 +7,8 @@ import {
   UseQueryExecute,
 } from 'urql';
 import { DocumentNode, Kind } from 'graphql';
-import * as gen from '~/gql/api/generated';
+import * as documents from '~/gql/api/documents.generated';
+import { clog } from '~/util/format';
 
 type Options<Data, Variables extends AnyVariables> = Omit<
   UseQueryArgs<Variables, Data>,
@@ -61,13 +62,15 @@ export function tryReplaceDocument<Data, Variables>(
     const def = doc.definitions[0];
 
     if (def.kind === Kind.OPERATION_DEFINITION && def.name) {
-      const matchingDocument = gen[`${def.name.value}Document` as keyof typeof gen];
+      const matchingDocument = documents[`${def.name.value}Document` as keyof typeof documents];
       if (typeof matchingDocument === 'object') {
         CACHED_REPLACEMENTS.set(doc, matchingDocument);
         return matchingDocument;
       }
     }
   }
+
+  clog({ noMatch: doc });
 
   CACHED_REPLACEMENTS.set(doc, null);
   return doc;

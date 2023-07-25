@@ -1,4 +1,4 @@
-import { usePropose } from '@api/proposal';
+import { usePropose } from '@api/usePropose';
 import { CloseIcon } from '@theme/icons';
 import { parseUnits } from 'ethers/lib/utils';
 import { Address, FIAT_DECIMALS, fiatToToken } from 'lib';
@@ -17,7 +17,7 @@ import { InputsView, InputType } from '../../components/InputsView';
 import { useSelectToken } from '../tokens/TokensScreen';
 import { Button } from '~/components/Button';
 import { createTransferOp } from './transfer';
-import { gql } from '@api/gen';
+import { gql } from '@api/generated';
 import { useQuery } from '~/gql';
 
 const Query = gql(/* GraphQL */ `

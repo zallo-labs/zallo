@@ -11,7 +11,6 @@ import {
   isTargetAllowed,
   setTargetAllowed,
 } from 'lib';
-import { useContractFunctions } from '@api/contracts';
 import { Screen } from '~/components/layout/Screen';
 import { withSuspense } from '~/components/skeleton/withSuspense';
 import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
@@ -20,15 +19,24 @@ import { useAddressLabel } from '~/components/address/AddressLabel';
 import { SpendingLimit } from './SpendingLimit';
 import { ListHeader } from '~/components/list/ListHeader';
 import { getFunctionSelector } from 'viem';
-import { ContractFunction } from '@api/contracts/types';
+import { AbiFunction } from 'abitype';
 import { ScrollView } from 'react-native';
 import { ListItem } from '~/components/list/ListItem';
 import { Switch } from 'react-native-paper';
-import { gql } from '@api/gen';
+import { gql } from '@api/generated';
 import { useQuery } from '~/gql';
 
 const Query = gql(/* GraphQL */ `
   query ContractPermissionsScreen($contract: Address!) {
+    contract(input: { contract: $contract }) {
+      id
+      functions {
+        id
+        selector
+        abi
+      }
+    }
+
     token(input: { address: $contract }) {
       id
       ...SpendingLimit_token
@@ -36,7 +44,7 @@ const Query = gql(/* GraphQL */ `
   }
 `);
 
-const ERC20_FUNCTIONS: ContractFunction[] = ERC20_ABI.filter(
+const ERC20_FUNCTIONS = ERC20_ABI.filter(
   (abi): abi is Extract<typeof abi, { type: 'function' }> => abi.type === 'function',
 ).map((abi) => ({
   selector: getFunctionSelector(abi) as Selector,
@@ -51,16 +59,16 @@ export type ContractPermissionsScreenProps = StackNavigatorScreenProps<'Contract
 
 export const ContractPermissionsScreen = withSuspense(
   ({ route }: ContractPermissionsScreenProps) => {
-    const { contract } = route.params;
+    const { contract: address } = route.params;
 
-    const { token } = useQuery(Query, { contract }).data;
+    const { contract, token } = useQuery(Query, { contract: address }).data;
 
     const [{ permissions }, updatePolicy] = useImmerAtom(POLICY_DRAFT_ATOM);
 
-    const target: Target | undefined = permissions.targets.contracts[contract];
+    const target: Target | undefined = permissions.targets.contracts[address];
     const functions = filterFirst(
       [
-        ...useContractFunctions(contract),
+        ...(contract?.functions ?? []),
         ...(token ? ERC20_FUNCTIONS : []),
         ...Object.keys(target?.functions ?? []).map((selector) => ({
           selector: selector as Selector,
@@ -70,12 +78,14 @@ export const ContractPermissionsScreen = withSuspense(
       (f) => f.selector,
     ).filter(
       (f) =>
-        !f.abi || f.abi.stateMutability === 'payable' || f.abi.stateMutability === 'nonpayable',
+        !f.abi ||
+        (f.abi as AbiFunction).stateMutability === 'payable' ||
+        (f.abi as AbiFunction).stateMutability === 'nonpayable',
     );
 
     return (
       <Screen>
-        <Appbar mode="large" leading="back" headline={useAddressLabel(contract)} />
+        <Appbar mode="large" leading="back" headline={useAddressLabel(address)} />
 
         <ScrollView showsVerticalScrollIndicator={false}>
           {token && <SpendingLimit token={token} />}
@@ -89,8 +99,8 @@ export const ContractPermissionsScreen = withSuspense(
                 value={target?.defaultAllow ?? permissions.targets.default.defaultAllow}
                 onValueChange={(enabled) =>
                   updatePolicy((draft) => {
-                    draft.permissions.targets.contracts[contract] = {
-                      functions: draft.permissions.targets.contracts[contract]?.functions ?? {},
+                    draft.permissions.targets.contracts[address] = {
+                      functions: draft.permissions.targets.contracts[address]?.functions ?? {},
                       defaultAllow: enabled,
                     };
                   })
@@ -108,10 +118,10 @@ export const ContractPermissionsScreen = withSuspense(
                 headline={f.abi?.name ?? f.selector}
                 trailing={
                   <Switch
-                    value={isTargetAllowed(permissions.targets, contract, f.selector)}
+                    value={isTargetAllowed(permissions.targets, address, f.selector)}
                     onValueChange={(enabled) =>
                       updatePolicy((draft) => {
-                        setTargetAllowed(draft.permissions.targets, contract, f.selector, enabled);
+                        setTargetAllowed(draft.permissions.targets, address, f.selector, enabled);
                       })
                     }
                   />

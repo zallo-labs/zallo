@@ -1,4 +1,4 @@
-import { FragmentType, gql, useFragment } from '@api/gen';
+import { FragmentType, gql, useFragment } from '@api/generated';
 import { SwapVerticalIcon } from '@theme/icons';
 import { makeStyles } from '@theme/makeStyles';
 import { formatUnits, parseUnits } from 'ethers/lib/utils';

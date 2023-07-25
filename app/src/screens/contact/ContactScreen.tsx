@@ -20,7 +20,7 @@ import { SelectChip } from '~/components/fields/SelectChip';
 import { CHAIN, SUPPORTED_CHAINS } from '@network/provider';
 import { Unimplemented } from '~/util/error/unimplemented';
 import { FormResetIcon } from '~/components/fields/ResetFormIcon';
-import { gql, useFragment } from '@api/gen';
+import { gql, useFragment } from '@api/generated';
 import { ADDRESS_FIELD_RULES } from '~/util/form.rules';
 import { useQuery } from '~/gql';
 import { useMutation } from 'urql';

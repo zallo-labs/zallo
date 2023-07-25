@@ -8,7 +8,7 @@ import { Splash } from '~/components/Splash';
 import { AccountValue } from './AccountValue';
 import { Address } from 'lib';
 import { NotFound } from '~/components/NotFound';
-import { gql } from '@api/gen';
+import { gql } from '@api/generated';
 import { useQuery } from '~/gql';
 
 const Query = gql(/* GraphQL */ `

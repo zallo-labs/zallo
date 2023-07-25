@@ -1,4 +1,4 @@
-import { FragmentType, gql, useFragment as getFragment } from '@api/gen';
+import { FragmentType, gql, useFragment as getFragment } from '@api/generated';
 import { materialCommunityIcon } from '@theme/icons';
 import { makeStyles } from '@theme/makeStyles';
 import { Image, ImageProps } from 'expo-image';

@@ -8,7 +8,7 @@ import { ListItem } from '~/components/list/ListItem';
 import { Button, Text } from 'react-native-paper';
 import { View } from 'react-native';
 import { Address } from 'lib';
-import { gql } from '@api/gen';
+import { gql } from '@api/generated';
 import { AddressIcon } from '~/components/Identicon/AddressIcon';
 import { ICON_SIZE } from '@theme/paper';
 import { makeStyles } from '@theme/makeStyles';

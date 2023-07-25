@@ -1,6 +1,6 @@
 import { FormattedNumberOptions, useFormattedNumber } from '../format/FormattedNumber';
 import { Address, BigIntlike, asBigInt, isAddress } from 'lib';
-import { FragmentType, gql, useFragment as getFragment } from '@api/gen';
+import { FragmentType, gql, useFragment as getFragment } from '@api/generated';
 import { useQuery } from '~/gql';
 
 const Query = gql(/* GraphQL */ `

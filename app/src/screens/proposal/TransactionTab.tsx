@@ -14,7 +14,7 @@ import { TabNavigatorScreenProp } from './Tabs';
 import { makeStyles } from '@theme/makeStyles';
 import { Hex, asBigInt, tokenToFiat } from 'lib';
 import { ReactNode } from 'react';
-import { gql, useFragment } from '@api/gen';
+import { gql, useFragment } from '@api/generated';
 import { tryReplaceDocument, useQuery } from '~/gql';
 import { useSubscription } from 'urql';
 

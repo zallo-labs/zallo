@@ -37,7 +37,7 @@ app/.expo
 app/.vscode/.react
 app/web-build
 app/**/*generated.ts
-app/src/gql/api/gen
+app/src/gql/api/generated
 app/src/gql/api/schema.ts
 
 

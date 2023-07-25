@@ -8,7 +8,7 @@ import { Screen } from '~/components/layout/Screen';
 import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
 import { Button } from 'react-native-paper';
 import { PairIcon } from '../pair-confirm/PairConfirmSheet';
-import { gql } from '@api/gen';
+import { gql } from '@api/generated';
 import { useMutation } from 'urql';
 import { useQuery } from '~/gql';
 

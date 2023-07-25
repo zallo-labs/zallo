@@ -1,4 +1,4 @@
-import { gql } from '@api/gen';
+import { gql } from '@api/generated';
 import { Address } from 'lib';
 import { useForm } from 'react-hook-form';
 import { StyleSheet, View } from 'react-native';

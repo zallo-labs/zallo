@@ -3,7 +3,7 @@ import { Actions } from '~/components/layout/Actions';
 import { CHAIN } from '@network/provider';
 import { RetryIcon, ShareIcon } from '@theme/icons';
 import { Share } from 'react-native';
-import { FragmentType, gql, useFragment } from '@api/gen';
+import { FragmentType, gql, useFragment } from '@api/generated';
 import { useCanRespond } from '~/components/proposal/useCanRespond';
 import { useApprove } from './useApprove';
 import { useMutation } from 'urql';

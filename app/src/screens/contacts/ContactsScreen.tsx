@@ -10,7 +10,7 @@ import { ListHeader } from '~/components/list/ListHeader';
 import { Screen } from '~/components/layout/Screen';
 import { ListItemHeight } from '~/components/list/ListItem';
 import { useScanAddress } from '../scan/ScanScreen';
-import { gql } from '@api/gen';
+import { gql } from '@api/generated';
 import { FlashList } from '@shopify/flash-list';
 import { ContactItem } from './ContactItem';
 import { Text } from 'react-native-paper';

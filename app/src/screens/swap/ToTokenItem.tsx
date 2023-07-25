@@ -1,4 +1,4 @@
-import { FragmentType, gql, useFragment } from '@api/gen';
+import { FragmentType, gql, useFragment } from '@api/generated';
 import { Address, tokenToToken } from 'lib';
 import { useFormattedNumber } from '~/components/format/FormattedNumber';
 import { ListItem, ListItemProps } from '~/components/list/ListItem';

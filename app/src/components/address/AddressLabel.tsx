@@ -1,6 +1,6 @@
 import { Address } from 'lib';
 import { truncateAddr } from '~/util/format';
-import { gql } from '@api/gen';
+import { gql } from '@api/generated';
 import { useQuery } from '~/gql';
 
 const Query = gql(/* GraphQL */ `

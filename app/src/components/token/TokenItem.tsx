@@ -5,7 +5,7 @@ import { ListItemSkeleton } from '../list/ListItemSkeleton';
 import { withSuspense } from '../skeleton/withSuspense';
 import { TokenAmount } from './TokenAmount';
 import { BigIntlike, tokenToFiat } from 'lib';
-import { FragmentType, gql, useFragment } from '@api/gen';
+import { FragmentType, gql, useFragment } from '@api/generated';
 import { TokenIcon } from './TokenIcon/TokenIcon';
 
 const FragmentDoc = gql(/* GraphQL */ `

@@ -10,7 +10,7 @@ import { Button } from 'react-native-paper';
 import { PairIcon } from '../pair-confirm/PairConfirmSheet';
 import { ListHeader } from '~/components/list/ListHeader';
 import { UserApproverItem } from './UserApproverItem';
-import { gql } from '@api/gen';
+import { gql } from '@api/generated';
 import { useQuery } from '~/gql';
 import { useMutation } from 'urql';
 

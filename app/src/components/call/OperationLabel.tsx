@@ -1,8 +1,8 @@
 import { match, P } from 'ts-pattern';
 import { useAddressLabel } from '../address/AddressLabel';
-import { usePolicy } from '@api/policy';
 import { useFormattedTokenAmount } from '../token/TokenAmount';
-import { FragmentType, gql, useFragment } from '@api/gen';
+import { FragmentType, gql, useFragment } from '@api/generated';
+import { useQuery } from '~/gql';
 
 const FragmentDoc = gql(/* GraphQL */ `
   fragment OperationLabel_OperationFragment on Operation {
@@ -48,6 +48,15 @@ const FragmentDoc = gql(/* GraphQL */ `
   }
 `);
 
+const PolicyQuery = gql(/* GraphQL */ `
+  query OperationLabel_Policy($input: UniquePolicyInput!) {
+    policy(input: $input) {
+      id
+      name
+    }
+  }
+`);
+
 export interface OperationLabelProps {
   operation: FragmentType<typeof FragmentDoc>;
 }
@@ -56,8 +65,20 @@ export function OperationLabel(props: OperationLabelProps) {
   const op = useFragment(FragmentDoc, props.operation);
 
   return match(op.function)
-    .with({ __typename: 'AddPolicyOp' }, (f) => `Add policy: ${usePolicy(f)?.name}`)
-    .with({ __typename: 'RemovePolicyOp' }, (f) => `Remove policy: ${usePolicy(f)?.name}`)
+    .with(
+      { __typename: 'AddPolicyOp' },
+      (f) =>
+        `Add policy: ${
+          useQuery(PolicyQuery, { input: { account: f.account, key: f.key } }).data.policy?.name
+        }`,
+    )
+    .with(
+      { __typename: 'RemovePolicyOp' },
+      (f) =>
+        `Remove policy: ${
+          useQuery(PolicyQuery, { input: { account: f.account, key: f.key } }).data.policy?.name
+        }`,
+    )
     .with(
       { __typename: 'TransferOp' },
       (f) => `Transfer ${useFormattedTokenAmount(f)} to ${useAddressLabel(f.to)}`,

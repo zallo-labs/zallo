@@ -19,7 +19,7 @@ import { CONFIG } from '~/util/config';
 import { Address } from 'lib';
 import { FingerprintIcon } from '../biometrics/BiometricsScreen';
 import { AddressIcon } from '~/components/Identicon/AddressIcon';
-import { gql } from '@api/gen';
+import { gql } from '@api/generated';
 import { ICON_SIZE } from '@theme/paper';
 import { ETH_ICON_URI } from '~/components/token/TokenIcon/TokenIcon';
 import { withSuspense } from '~/components/skeleton/withSuspense';

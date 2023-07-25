@@ -9,7 +9,7 @@ import { ListHeader } from '~/components/list/ListHeader';
 import { POLICY_DRAFT_ATOM } from '../policy/PolicyDraft';
 import { useBigIntInput } from '~/components/fields/useBigIntInput';
 import { ClockOutlineIcon } from '@theme/icons';
-import { FragmentType, gql, useFragment } from '@api/gen';
+import { FragmentType, gql, useFragment } from '@api/generated';
 
 const Fragment = gql(/* GraphQL */ `
   fragment SpendingLimit_token on Token {

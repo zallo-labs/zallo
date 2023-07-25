@@ -2,7 +2,7 @@ import { StyleSheet } from 'react-native';
 import { withSuspense } from '~/components/skeleton/withSuspense';
 import { TabBadge } from '~/components/tab/TabBadge';
 import { Address } from 'lib';
-import { gql } from '@api/gen';
+import { gql } from '@api/generated';
 import { useQuery } from '~/gql';
 
 const Query = gql(/* GraphQL */ `

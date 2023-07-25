@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 import { logError } from '~/util/analytics';
-import { gql } from '@api/gen';
-import { ProposeInput } from '@api/gen/graphql';
+import { gql } from '@api/generated';
+import { ProposeInput } from '@api/generated/graphql';
 import { useMutation } from 'urql';
 
 const Propose = gql(/* GraphQL */ `

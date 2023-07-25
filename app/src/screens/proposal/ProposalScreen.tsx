@@ -9,7 +9,7 @@ import { useConfirmRemoval } from '../alert/useConfirm';
 import { Tabs } from './Tabs';
 import { ProposalActions } from './ProposalActions';
 import { Hex } from 'lib';
-import { gql } from '@api/gen';
+import { gql } from '@api/generated';
 import { NotFound } from '~/components/NotFound';
 import { useQuery } from '~/gql';
 import { useMutation } from 'urql';

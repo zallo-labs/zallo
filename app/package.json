@@ -20,7 +20,6 @@
     "//": "https://www.npmjs.com/package/expo-yarn-workspaces"
   },
   "dependencies": {
-    "@apollo/client": "^3.8.0-beta.7",
     "@ethersproject/shims": "5.7.0",
     "@expo/config": "~8.1.1",
     "@expo/vector-icons": "^13.0.0",
@@ -55,8 +54,6 @@
     "@walletconnect/react-native-compat": "^2.8.1",
     "@walletconnect/sign-client": "^2.8.1",
     "@walletconnect/utils": "^2.8.1",
-    "apollo-link-offline": "^1.0.1",
-    "apollo3-cache-persist": "^0.14.1",
     "async-mutex": "^0.4.0",
     "babel-plugin-formatjs": "^10.5.3",
     "babel-preset-expo": "^9.5.0",
@@ -154,9 +151,9 @@
   "devDependencies": {
     "@babel/core": "^7.22.5",
     "@graphql-codegen/cli": "^4.0.1",
+    "@graphql-codegen/typed-document-node": "^5.0.1",
     "@graphql-codegen/typescript": "^4.0.1",
     "@graphql-codegen/typescript-operations": "^4.0.1",
-    "@graphql-codegen/typescript-react-apollo": "^3.3.7",
     "@graphql-codegen/urql-introspection": "^2.2.1",
     "@n1ru4l/graphql-codegen-relay-optimizer-plugin": "^5.0.0",
     "@testing-library/jest-native": "^5.4.2",

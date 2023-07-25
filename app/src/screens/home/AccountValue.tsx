@@ -1,4 +1,4 @@
-import { FragmentType, gql, useFragment } from '@api/gen';
+import { FragmentType, gql, useFragment } from '@api/generated';
 import { makeStyles } from '@theme/makeStyles';
 import { tokenToFiat } from 'lib';
 import { Text } from 'react-native-paper';

@@ -9,7 +9,7 @@ import { TokenItem } from '~/components/token/TokenItem';
 import { Screen } from '~/components/layout/Screen';
 import { EventEmitter } from '~/util/EventEmitter';
 import { useState } from 'react';
-import { gql } from '@api/gen';
+import { gql } from '@api/generated';
 import { FlashList } from '@shopify/flash-list';
 import { ListItemHeight } from '~/components/list/ListItem';
 import { withSuspense } from '~/components/skeleton/withSuspense';

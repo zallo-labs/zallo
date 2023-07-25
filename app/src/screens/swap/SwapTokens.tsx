@@ -9,7 +9,7 @@ import { Dispatch, SetStateAction } from 'react';
 import { ListItemHeight } from '~/components/list/ListItem';
 import { Pool } from '~/util/swap';
 import ToTokenItem from './ToTokenItem';
-import { FragmentType, gql, useFragment } from '@api/gen';
+import { FragmentType, gql, useFragment } from '@api/generated';
 
 const DownArrow = materialCommunityIcon('arrow-down-thin');
 const ICON_BUTTON_SIZE = 24;

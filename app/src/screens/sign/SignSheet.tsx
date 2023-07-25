@@ -1,16 +1,17 @@
-import { useAccount } from '@api/account';
+import { gql } from '@api/generated';
 import { useApproverWallet } from '@network/useApprover';
 import { makeStyles } from '@theme/makeStyles';
-import { asAddress, asHex, encodeAccountSignature, isHex } from 'lib';
+import { asAddress, asHex, isHex } from 'lib';
 import { useMemo } from 'react';
 import { Text } from 'react-native-paper';
 import { match } from 'ts-pattern';
 import { Button } from '~/components/Button';
 import { DataView } from '~/components/DataView/DataView';
-import { AddressLabel } from '~/components/address/AddressLabel';
+import { NotFound } from '~/components/NotFound';
 import { Actions } from '~/components/layout/Actions';
 import { Sheet } from '~/components/sheet/Sheet';
 import { PeerHeader } from '~/components/walletconnect/PeerHeader';
+import { useQuery } from '~/gql';
 import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
 import {
   asWalletConnectError,
@@ -18,6 +19,25 @@ import {
   useWalletConnect,
 } from '~/util/walletconnect';
 import { SigningRequest, isTypedData, normalizeSigningRequest } from '~/util/walletconnect/methods';
+
+const Query = gql(/* GraphQL */ `
+  query SignSheet($account: Address!) {
+    account(input: { address: $account }) {
+      id
+      name
+      policies {
+        id
+        state {
+          id
+          approvers {
+            id
+            address
+          }
+        }
+      }
+    }
+  }
+`);
 
 export interface SignSheetParams {
   topic: string;
@@ -34,11 +54,12 @@ export const SignSheet = ({ route, navigation: { goBack } }: SignSheetProps) => 
   const client = useWalletConnect();
   const session = client.session.get(topic);
   const { account: accountAddress, message } = normalizeSigningRequest(request);
-  const account = useAccount(accountAddress);
 
-  const policy = account.policies.find((p) => {
+  const { account } = useQuery(Query, { account: accountAddress }).data;
+
+  const policy = account?.policies.find((p) => {
     const approvers = p.state?.approvers;
-    return approvers?.size === 1 && approvers.has(asAddress(approver.address));
+    return approvers?.length === 1 && approvers[0].address === asAddress(approver.address);
   })?.state;
 
   // TODO: verify typed data message chain is from one of the session's chains
@@ -59,9 +80,11 @@ export const SignSheet = ({ route, navigation: { goBack } }: SignSheetProps) => 
           )
           .exhaustive();
 
-        return encodeAccountSignature(0n, policy, [
-          { approver: asAddress(approver.address), signature, type: 'secp256k1' },
-        ]);
+        // return encodeAccountSignature(0n, policy, [
+        //   { approver: asAddress(approver.address), signature, type: 'secp256k1' },
+        // ]);
+        // TODO: create and approve SignatureProposal, subscribing to it and responding on approval
+        return null;
       })(),
     [message, approver],
   );
@@ -71,13 +94,13 @@ export const SignSheet = ({ route, navigation: { goBack } }: SignSheetProps) => 
     goBack();
   };
 
+  if (!account) return <NotFound name="Account" />;
+
   return (
     <Sheet onClose={reject}>
       <PeerHeader peer={session.peer.metadata}>
         {'wants '}
-        <Text variant="headlineMedium">
-          <AddressLabel address={account.address} />
-        </Text>
+        <Text variant="headlineMedium">{account?.name}</Text>
         {' to sign'}
       </PeerHeader>
 

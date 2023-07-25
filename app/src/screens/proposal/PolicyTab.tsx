@@ -9,7 +9,7 @@ import { TabScreenSkeleton } from '~/components/tab/TabScreenSkeleton';
 import { SelectedPolicy } from './SelectedPolicy';
 import { makeStyles } from '@theme/makeStyles';
 import { Hex } from 'lib';
-import { gql, useFragment } from '@api/gen';
+import { gql, useFragment } from '@api/generated';
 import { tryReplaceDocument, useQuery } from '~/gql';
 import { useSubscription } from 'urql';
 

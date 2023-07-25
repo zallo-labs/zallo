@@ -15,7 +15,7 @@ import { match, P } from 'ts-pattern';
 import { Button } from '~/components/Button';
 import { QrCodeIcon } from '@theme/icons';
 import { Address } from 'viem';
-import { gql } from '@api/gen';
+import { gql } from '@api/generated';
 import { useMutation } from 'urql';
 import { useQuery } from '~/gql';
 

@@ -12,7 +12,7 @@ import { buildAddressLink } from '~/util/addressLink';
 import { withSuspense } from '~/components/skeleton/withSuspense';
 import { Blur } from '~/components/Blur';
 import { Button } from '~/components/Button';
-import { gql } from '@api/gen';
+import { gql } from '@api/generated';
 import { useMutation } from 'urql';
 import { useQuery } from '~/gql';
 

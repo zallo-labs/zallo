@@ -3,7 +3,7 @@ import { StyleSheet, View } from 'react-native';
 import { Appbar as BaseAppbar } from 'react-native-paper';
 import { AccountSelector } from '~/components/AccountSelector/AccountSelector';
 import { useNavigation } from '@react-navigation/native';
-import { FragmentType, gql, useFragment } from '@api/gen';
+import { FragmentType, gql, useFragment } from '@api/generated';
 
 const FragmentDoc = gql(/* GraphQL */ `
   fragment HomeAppbar_account on Account {

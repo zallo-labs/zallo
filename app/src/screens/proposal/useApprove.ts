@@ -3,7 +3,7 @@ import { useCallback } from 'react';
 import { useApproverWallet } from '@network/useApprover';
 import { authenticate, useAuthSettings } from '~/provider/AuthGate';
 import { showError } from '~/provider/SnackbarProvider';
-import { gql, useFragment as getFragment, FragmentType } from '@api/gen';
+import { gql, useFragment as getFragment, FragmentType } from '@api/generated';
 import { useMutation } from 'urql';
 
 const TransactionProposalFragmentDoc = gql(/* GraphQL */ `

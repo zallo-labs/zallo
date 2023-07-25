@@ -9,7 +9,7 @@ import { ListHeader } from '../list/ListHeader';
 import { NavigateNextIcon } from '@theme/icons';
 import { truncateAddr } from '~/util/format';
 import { EventEmitter } from '~/util/EventEmitter';
-import { gql } from '@api/gen';
+import { gql } from '@api/generated';
 import { TokenIcon } from '../token/TokenIcon/TokenIcon';
 import { useQuery } from '~/gql';
 

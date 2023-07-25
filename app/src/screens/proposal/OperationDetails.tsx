@@ -1,4 +1,4 @@
-import { FragmentType, gql, useFragment } from '@api/gen';
+import { FragmentType, gql, useFragment } from '@api/generated';
 import { ClockOutlineIcon } from '@theme/icons';
 import { Address } from 'lib';
 import { DateTime } from 'luxon';

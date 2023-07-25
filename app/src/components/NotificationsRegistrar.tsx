@@ -9,7 +9,7 @@ import {
   useNotificationSettings,
 } from '~/screens/notifications/NotificationSettingsScreen';
 import { retryAsPromised } from 'retry-as-promised';
-import { gql } from '@api/gen';
+import { gql } from '@api/generated';
 import { useQuery } from '~/gql';
 import { useMutation } from 'urql';
 

@@ -4,7 +4,7 @@ import { ListItem } from '~/components/list/ListItem';
 import { ListItemSkeleton } from '~/components/list/ListItemSkeleton';
 import { withSuspense } from '~/components/skeleton/withSuspense';
 import { FiatValue } from '~/components/fiat/FiatValue';
-import { FragmentType, gql, useFragment } from '@api/gen';
+import { FragmentType, gql, useFragment } from '@api/generated';
 import { TokenIcon } from '../token/TokenIcon/TokenIcon';
 
 const FragmentDoc = gql(/* GraphQL */ `

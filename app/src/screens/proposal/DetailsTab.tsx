@@ -9,7 +9,7 @@ import { TabNavigatorScreenProp } from './Tabs';
 import { FeeToken } from './FeeToken';
 import { OperationSection } from './OperationSection';
 import { Hex } from 'lib';
-import { gql, useFragment } from '@api/gen';
+import { gql, useFragment } from '@api/generated';
 import { Text } from 'react-native-paper';
 import { useQuery } from '~/gql';
 import { useSubscription } from 'urql';

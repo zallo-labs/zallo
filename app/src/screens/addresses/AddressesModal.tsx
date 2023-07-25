@@ -9,7 +9,7 @@ import { Searchbar } from '~/components/fields/Searchbar';
 import { Screen } from '~/components/layout/Screen';
 import { ListItemHeight } from '~/components/list/ListItem';
 import { useScanAddress } from '../scan/ScanScreen';
-import { gql } from '@api/gen';
+import { gql } from '@api/generated';
 import { FlashList } from '@shopify/flash-list';
 import { P, match } from 'ts-pattern';
 import { AccountItem } from '../accounts/AccountItem';

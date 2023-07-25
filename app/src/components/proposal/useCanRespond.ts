@@ -1,4 +1,4 @@
-import { FragmentType, gql, useFragment } from '@api/gen';
+import { FragmentType, gql, useFragment } from '@api/generated';
 import { useApproverAddress } from '@network/useApprover';
 import { useMemo } from 'react';
 

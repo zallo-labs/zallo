@@ -1,4 +1,4 @@
-import { gql } from '@api/gen';
+import { gql } from '@api/generated';
 import { Image } from 'expo-image';
 import { Address, asAddress, isAddressLike } from 'lib';
 import _ from 'lodash';

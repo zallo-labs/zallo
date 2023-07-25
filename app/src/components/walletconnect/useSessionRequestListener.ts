@@ -1,4 +1,4 @@
-import { gql } from '@api/gen';
+import { gql } from '@api/generated';
 import { useNavigation } from '@react-navigation/native';
 import { Hex, asBigInt } from 'lib';
 import { useCallback } from 'react';
@@ -12,7 +12,7 @@ import {
   WalletConnectSendTransactionRequest,
 } from '~/util/walletconnect/methods';
 import { EventEmitter } from '~/util/EventEmitter';
-import { usePropose } from '@api/proposal';
+import { usePropose } from '@api/usePropose';
 import { useQuery } from '~/gql';
 import { useSubscription } from 'urql';
 

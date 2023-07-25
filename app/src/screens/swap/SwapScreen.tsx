@@ -1,4 +1,4 @@
-import { usePropose } from '@api/proposal';
+import { usePropose } from '@api/usePropose';
 import { parseUnits } from 'ethers/lib/utils';
 import { Address, FIAT_DECIMALS, fiatToToken } from 'lib';
 import { useState } from 'react';
@@ -17,7 +17,7 @@ import { SwapTokens } from './SwapTokens';
 import { getSwapOperations, useSwapPools } from '~/util/swap';
 import { DateTime } from 'luxon';
 import { Button } from '~/components/Button';
-import { gql } from '@api/gen';
+import { gql } from '@api/generated';
 import { ETH_ADDRESS } from 'zksync-web3/build/src/utils';
 import { useQuery } from '~/gql';
 

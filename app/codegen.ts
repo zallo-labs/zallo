@@ -17,14 +17,14 @@ const scalars = {
 export default {
   overwrite: true,
   generates: {
-    'src/gql/api/generated.ts': {
+    'src/gql/api/documents.generated.ts': {
       schema,
       documents,
       plugins: [
         '@n1ru4l/graphql-codegen-relay-optimizer-plugin',
         'typescript',
         'typescript-operations',
-        'typescript-react-apollo',
+        'typed-document-node',
       ],
       config: {
         // https://the-guild.dev/graphql/codegen/plugins/typescript/typescript
@@ -39,7 +39,7 @@ export default {
         flattenGeneratedTypes: true,
       },
     },
-    'src/gql/api/gen/': {
+    'src/gql/api/generated/': {
       schema,
       documents,
       preset: 'client', // Enables useFragments - https://the-guild.dev/graphql/codegen/plugins/presets/preset-client
@@ -48,7 +48,7 @@ export default {
       },
       config: {
         // https://the-guild.dev/graphql/codegen/plugins/typescript/typescript
-        defaultScalarType: 'unknown',
+        // defaultScalarType: 'unknown',
         enumsAsTypes: true,
         scalars,
         // https://the-guild.dev/graphql/codegen/plugins/typescript/relay-operation-optimizer

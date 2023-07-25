@@ -7,7 +7,7 @@ import { match } from 'ts-pattern';
 import { FiatValue } from '../fiat/FiatValue';
 import { materialCommunityIcon } from '@theme/icons';
 import { ICON_SIZE } from '@theme/paper';
-import { FragmentType, gql, useFragment } from '@api/gen';
+import { FragmentType, gql, useFragment } from '@api/generated';
 import { OperationLabel } from '../call/OperationLabel';
 import { useCanRespond } from './useCanRespond';
 import { useNavigation } from '@react-navigation/native';

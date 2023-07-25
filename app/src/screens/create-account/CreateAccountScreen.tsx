@@ -1,4 +1,4 @@
-import { gql } from '@api/gen';
+import { gql } from '@api/generated';
 import { useApproverAddress } from '@network/useApprover';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';

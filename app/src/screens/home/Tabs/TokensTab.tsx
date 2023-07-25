@@ -7,9 +7,8 @@ import { TabScreenSkeleton } from '~/components/tab/TabScreenSkeleton';
 import { StyleSheet } from 'react-native';
 import { Text } from 'react-native-paper';
 import { Address, tokenToFiat } from 'lib';
-import { gql } from '@api/gen';
-import { usePollQuery } from '~/gql/util';
-import { useQuery } from '~/gql';
+import { gql } from '@api/generated';
+import { useQuery, usePollQuery } from '~/gql';
 
 const Query = gql(/* GraphQL */ `
   query TokensTab($account: Address!) {

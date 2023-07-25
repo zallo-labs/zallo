@@ -6,7 +6,7 @@ import { Divider } from 'react-native-paper';
 import { Chevron } from '~/components/Chevron';
 import { ListItem } from '~/components/list/ListItem';
 import { OperationDetails } from './OperationDetails';
-import { FragmentType, gql, useFragment } from '@api/gen';
+import { FragmentType, gql, useFragment } from '@api/generated';
 import { OperationLabel } from '~/components/call/OperationLabel';
 
 const ProposalFragmentDoc = gql(/* GraphQL */ `

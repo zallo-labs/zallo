@@ -9,7 +9,7 @@ import { Share, View } from 'react-native';
 import { withSuspense } from '~/components/skeleton/withSuspense';
 import { Blur } from '~/components/Blur';
 import { Button } from '~/components/Button';
-import { gql } from '@api/gen';
+import { gql } from '@api/generated';
 import { getPairingLink } from './pairing';
 import { showSuccess } from '~/provider/SnackbarProvider';
 import { useQuery } from '~/gql';
