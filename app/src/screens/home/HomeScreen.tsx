@@ -9,9 +9,9 @@ import { AccountValue } from './AccountValue';
 import { Address } from 'lib';
 import { NotFound } from '~/components/NotFound';
 import { gql } from '@api/gen';
-import { useSuspenseQuery } from '@apollo/client';
 import { HomeQuery, HomeQueryVariables } from '@api/gen/graphql';
 import { HomeDocument } from '@api/generated';
+import { useQuery } from '~/gql';
 
 gql(/* GraphQL */ `
   query Home($account: Address) {
@@ -32,8 +32,8 @@ export interface HomeScreenParams {
 export type HomeScreenProps = StackNavigatorScreenProps<'Home'>;
 
 export const HomeScreen = withSuspense(({ route }: HomeScreenProps) => {
-  const query = useSuspenseQuery<HomeQuery, HomeQueryVariables>(HomeDocument, {
-    variables: { account: route.params.account },
+  const query = useQuery<HomeQuery, HomeQueryVariables>(HomeDocument, {
+    account: route.params.account,
   }).data;
   const { account } = query;
 

@@ -8,9 +8,10 @@ import { StyleSheet } from 'react-native';
 import { Text } from 'react-native-paper';
 import { Address, tokenToFiat } from 'lib';
 import { gql } from '@api/gen';
-import { useSuspenseQuery } from '@apollo/client';
 import { TokensTabQuery, TokensTabQueryVariables } from '@api/gen/graphql';
 import { TokensTabDocument } from '@api/generated';
+import { useQuery } from 'urql';
+import { usePollQuery } from '~/gql/util';
 
 gql(/* GraphQL */ `
   query TokensTab($account: Address!) {
@@ -35,11 +36,14 @@ export type TokensTabProps = TabNavigatorScreenProp<'Tokens'>;
 
 export const TokensTab = withSuspense(
   ({ route }: TokensTabProps) => {
-    const { data } = useSuspenseQuery<TokensTabQuery, TokensTabQueryVariables>(TokensTabDocument, {
+    const [query, reexecute] = useQuery<TokensTabQuery, TokensTabQueryVariables>({
+      query: TokensTabDocument,
       variables: { account: route.params.account },
     });
+    usePollQuery(reexecute, 15000);
+    const data = query.data!;
 
-    const tokens = data.tokens
+    const tokens = (data?.tokens ?? [])
       .map((t) => ({
         ...t,
         value: tokenToFiat(t.balance, t.price?.current ?? 0, t.decimals),
