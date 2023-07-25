@@ -1,7 +1,4 @@
 import { FragmentType, gql, useFragment as getFragment } from '@api/gen';
-import { TokenIconQuery, TokenIconQueryVariables } from '@api/gen/graphql';
-import { TokenIconDocument } from '@api/generated';
-import { useSuspenseQuery } from '@apollo/client';
 import { materialCommunityIcon } from '@theme/icons';
 import { makeStyles } from '@theme/makeStyles';
 import { Image, ImageProps } from 'expo-image';
@@ -9,6 +6,7 @@ import { Address, isAddress } from 'lib';
 import { ImageStyle } from 'react-native';
 import { CircleSkeleton } from '~/components/skeleton/CircleSkeleton';
 import { withSuspense } from '~/components/skeleton/withSuspense';
+import { useQuery } from '~/gql';
 
 export const ETH_ICON_URI =
   'https://cloudfront-us-east-1.images.arcpublishing.com/coindesk/ZJZZK5B2ZNF25LYQHMUTBTOMLU.png';
@@ -16,7 +14,7 @@ Image.prefetch(ETH_ICON_URI);
 
 export const UnknownTokenIcon = materialCommunityIcon('help-circle-outline');
 
-gql(/* GraphQL */ `
+const Query = gql(/* GraphQL */ `
   query TokenIcon($token: Address!) {
     token(input: { address: $token }) {
       ...TokenIcon_token
@@ -42,10 +40,11 @@ export const TokenIcon = withSuspense(
   ({ token: tokenFragment, fallbackUri, size, style, ...imageProps }: TokenIconProps) => {
     const styles = useStyles(size);
 
-    const query = useSuspenseQuery<TokenIconQuery, TokenIconQueryVariables>(TokenIconDocument, {
-      variables: { token: isAddress(tokenFragment) ? tokenFragment : '0x' },
-      skip: !isAddress(tokenFragment),
-    }).data;
+    const query = useQuery(
+      Query,
+      { token: isAddress(tokenFragment) ? tokenFragment : '0x' },
+      { pause: !isAddress(tokenFragment) },
+    ).data;
 
     const iconUri =
       getFragment(Fragment, !isAddress(tokenFragment) ? tokenFragment : query?.token)?.iconUri ??

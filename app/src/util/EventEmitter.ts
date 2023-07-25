@@ -30,6 +30,7 @@ export class EventEmitter<T> {
     RouteName extends keyof StackNavigatorParamList,
     Defaults extends Partial<StackNavigatorParamList[RouteName]>,
   >(route: RouteName, creationDefaults?: Partial<StackNavigatorParamList[RouteName]>) {
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
     const emitter = this;
     return (hookDefaults?: Defaults) => {
       const { navigate, goBack } = useNavigation();
@@ -53,7 +54,7 @@ export class EventEmitter<T> {
 
           return p;
         },
-        [navigate],
+        [goBack, hookDefaults, navigate],
       );
     };
   }
@@ -69,7 +70,7 @@ export const useEvent = <T>(emitter: EventEmitter<T>) => {
     return () => {
       emitter.listeners.delete(listener);
     };
-  }, []);
+  }, [emitter.listeners]);
 
   return value;
 };

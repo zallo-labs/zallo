@@ -15,10 +15,8 @@ import { Button } from '~/components/Button';
 import { gql } from '@api/gen';
 import { useMutation } from 'urql';
 import { useQuery } from '~/gql';
-import { QrModalDocument } from '@api/generated';
-import { QrModalQuery, QrModalQueryVariables } from '@api/gen/graphql';
 
-gql(/* GraphQL */ `
+const Query = gql(/* GraphQL */ `
   query QrModal($account: Address!) {
     requestableTokens(input: { account: $account })
   }
@@ -43,9 +41,7 @@ export const QrModal = withSuspense(({ route, navigation: { goBack } }: QrModalP
   const styles = uesStyles();
   const requestTokens = useMutation(RequestTokens)[1];
 
-  const { requestableTokens } = useQuery<QrModalQuery, QrModalQueryVariables>(QrModalDocument, {
-    account: address,
-  }).data;
+  const { requestableTokens } = useQuery(Query, { account: address }).data;
 
   const share = () => {
     const link = buildAddressLink(address);

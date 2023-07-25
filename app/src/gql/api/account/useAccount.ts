@@ -1,12 +1,13 @@
 import { useMemo } from 'react';
 import assert from 'assert';
-import { gql, useSuspenseQuery } from '@apollo/client';
+import { gql } from '@apollo/client';
 import { AccountIdlike, asAccountId, WAccount } from './types';
 import { AccountDocument, AccountQuery, AccountQueryVariables } from '@api/generated';
 import { asPolicyKey } from 'lib';
 import { convertPolicyFragment } from '@api/policy/types';
 import { match } from 'ts-pattern';
 import { truncateAddr } from '~/util/format';
+import { useQuery } from '~/gql';
 
 gql`
   fragment PolicyStateFields on PolicyState {
@@ -72,10 +73,11 @@ gql`
 export const useAccount = <Id extends AccountIdlike | undefined>(AccountIdlike: Id) => {
   const address = asAccountId(AccountIdlike);
 
-  const query = useSuspenseQuery<AccountQuery, AccountQueryVariables>(AccountDocument, {
-    variables: { input: { address: address! } },
-    skip: !address,
-  });
+  const query = useQuery<AccountQuery, AccountQueryVariables>(
+    AccountDocument,
+    { input: { address: address! } },
+    { pause: !address },
+  );
 
   const data = query.data?.account;
   const account = useMemo((): WAccount | undefined => {

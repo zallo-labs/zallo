@@ -9,16 +9,11 @@ import {
   useNotificationSettings,
 } from '~/screens/notifications/NotificationSettingsScreen';
 import { retryAsPromised } from 'retry-as-promised';
-import {
-  NotificationsRegistrarQuery,
-  NotificationsRegistrarQueryVariables,
-} from '@api/gen/graphql';
 import { gql } from '@api/gen';
 import { useQuery } from '~/gql';
 import { useMutation } from 'urql';
-import { NotificationsRegistrarDocument } from '@api/generated';
 
-gql(/* GraphQL */ `
+const Query = gql(/* GraphQL */ `
   query NotificationsRegistrar {
     approver {
       id
@@ -51,10 +46,7 @@ Notifications.setNotificationHandler({
 export const NotificationsRegistrar = () => {
   const channelEnabled = useNotificationSettings();
 
-  const { approver, proposals } = useQuery<
-    NotificationsRegistrarQuery,
-    NotificationsRegistrarQueryVariables
-  >(NotificationsRegistrarDocument).data;
+  const { approver, proposals } = useQuery(Query).data;
   const updatePushToken = useMutation(UpdatePushToken)[1];
 
   const hasPermission = Notifications.usePermissions()[0]?.granted;

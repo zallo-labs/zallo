@@ -1,15 +1,9 @@
 import { gql } from '@api/gen';
-import {
-  CreateAccountAccountsDocument,
-  CreateAccountAccountsQuery,
-  CreateAccountAccountsQueryVariables,
-  useCreateAccountMutation,
-} from '@api/generated';
-import { useSuspenseQuery } from '@apollo/client';
 import { useApproverAddress } from '@network/useApprover';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { StyleSheet, View } from 'react-native';
+import { useMutation } from 'urql';
 import { Appbar } from '~/components/Appbar/Appbar';
 import { FormSubmitButton } from '~/components/fields/FormSubmitButton';
 import { FormTextField } from '~/components/fields/FormTextField';
@@ -17,18 +11,21 @@ import { Actions } from '~/components/layout/Actions';
 import { Screen } from '~/components/layout/Screen';
 import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
 import { withSuspense } from '~/components/skeleton/withSuspense';
+import { useQuery } from '~/gql';
 import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
 import { showError } from '~/provider/SnackbarProvider';
 
-gql(/* GraphQL */ `
-  query CreateAccountAccounts {
+const Query = gql(/* GraphQL */ `
+  query CreateAccountScreen {
     accounts {
       id
       address
     }
   }
+`);
 
-  mutation CreateAccount($input: CreateAccountInput!) {
+const Create = gql(/* GraphQL */ `
+  mutation CreateAccountScreen_Create($input: CreateAccountInput!) {
     createAccount(input: $input) {
       id
       address
@@ -51,11 +48,8 @@ export const CreateAccountScreen = withSuspense(
     const { isOnboarding } = route.params;
     const approver = useApproverAddress();
 
-    const { accounts } = useSuspenseQuery<
-      CreateAccountAccountsQuery,
-      CreateAccountAccountsQueryVariables
-    >(CreateAccountAccountsDocument).data;
-    const [create] = useCreateAccountMutation();
+    const { accounts } = useQuery(Query).data;
+    const create = useMutation(Create)[1];
 
     const { control, handleSubmit } = useForm<Inputs>();
 
@@ -85,19 +79,20 @@ export const CreateAccountScreen = withSuspense(
             style={styles.button}
             control={control}
             onPress={handleSubmit(async ({ name }) => {
-              const account = (
-                await create({
-                  variables: {
+              try {
+                const account = (
+                  await create({
                     input: {
                       name,
                       policies: [{ name: 'High risk', approvers: [approver] }],
                     },
-                  },
-                  onError: (error) => showError('Failed to create account', { event: { error } }),
-                })
-              ).data?.createAccount;
+                  })
+                ).data?.createAccount;
 
-              if (account) replace('Home', { account: account.address });
+                if (account) replace('Home', { account: account.address });
+              } catch (error) {
+                showError('Failed to create account', { event: { error } });
+              }
             })}
           >
             Create account

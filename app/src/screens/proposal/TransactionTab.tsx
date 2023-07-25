@@ -15,11 +15,10 @@ import { makeStyles } from '@theme/makeStyles';
 import { Hex, asBigInt, tokenToFiat } from 'lib';
 import { ReactNode } from 'react';
 import { gql, useFragment } from '@api/gen';
-import { useSuspenseQuery } from '@apollo/client';
-import { TransactionTabQuery, TransactionTabQueryVariables } from '@api/gen/graphql';
-import { TransactionTabDocument, useTransactionTabSubscriptionSubscription } from '@api/generated';
+import { tryReplaceDocument, useQuery } from '~/gql';
+import { useSubscription } from 'urql';
 
-const FragmentDoc = gql(/* GraphQL */ `
+const TransactionProposal = gql(/* GraphQL */ `
   fragment TransactionTab_TransactionProposalFragment on TransactionProposal {
     id
     status
@@ -49,7 +48,7 @@ const FragmentDoc = gql(/* GraphQL */ `
   }
 `);
 
-gql(/* GraphQL */ `
+const Query = gql(/* GraphQL */ `
   query TransactionTab($proposal: Bytes32!) {
     proposal(input: { hash: $proposal }) {
       ...TransactionTab_TransactionProposalFragment
@@ -57,8 +56,8 @@ gql(/* GraphQL */ `
   }
 `);
 
-gql(/* GraphQL */ `
-  subscription TransactionTabSubscription($proposal: Bytes32!) {
+const Subscription = gql(/* GraphQL */ `
+  subscription TransactionTab_Subscription($proposal: Bytes32!) {
     proposal(input: { proposals: [$proposal] }) {
       ...TransactionTab_TransactionProposalFragment
     }
@@ -83,14 +82,12 @@ export type TransactionTabProps = TabNavigatorScreenProp<'Transaction'>;
 export const TransactionTab = withSuspense(({ route }: TransactionTabProps) => {
   const styles = useStyles();
 
-  const { data } = useSuspenseQuery<TransactionTabQuery, TransactionTabQueryVariables>(
-    TransactionTabDocument,
-    {
-      variables: { proposal: route.params.proposal },
-    },
-  );
-  useTransactionTabSubscriptionSubscription({ variables: { proposal: route.params.proposal } });
-  const p = useFragment(FragmentDoc, data?.proposal);
+  const { data } = useQuery(Query, { proposal: route.params.proposal });
+  useSubscription({
+    query: tryReplaceDocument(Subscription),
+    variables: { proposal: route.params.proposal },
+  });
+  const p = useFragment(TransactionProposal, data?.proposal);
 
   const tx = p?.transaction;
   const receipt = tx?.receipt;

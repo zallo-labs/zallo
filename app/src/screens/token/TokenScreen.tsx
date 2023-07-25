@@ -1,5 +1,4 @@
 import { gql } from '@api/gen';
-import { TokenScreenQuery, TokenScreenQueryVariables } from '@api/gen/graphql';
 import { Image } from 'expo-image';
 import { Address, asAddress, isAddressLike } from 'lib';
 import _ from 'lodash';
@@ -22,11 +21,9 @@ import { useConfirmRemoval } from '../alert/useConfirm';
 import { AppbarMore2 } from '~/components/Appbar/AppbarMore';
 import { Menu } from 'react-native-paper';
 import { useQuery } from '~/gql';
-import { clog } from '~/util/format';
 import { useMutation } from 'urql';
-import { TokenScreenDocument } from '@api/generated';
 
-gql(/* GraphQL */ `
+const Query = gql(/* GraphQL */ `
   query TokenScreen($token: Address!) {
     token(input: { address: $token }) {
       id
@@ -92,19 +89,14 @@ export const TokenScreen = withSuspense(
     });
     const [address, ethereumAddress, iconUri] = watch(['address', 'ethereumAddress', 'iconUri']);
 
-    const query = useQuery<TokenScreenQuery, TokenScreenQueryVariables>(
-      TokenScreenDocument,
+    const query = useQuery(
+      Query,
       { token: address as Address },
       {
         pause: !address || !isAddressLike(address),
         context: useMemo(() => ({ suspense: false }), []),
       },
     ).data;
-
-    clog({
-      ...query,
-      address,
-    });
 
     useEffect(() => {
       const m = query?.metadata;

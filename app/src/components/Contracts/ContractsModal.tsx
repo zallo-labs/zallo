@@ -10,12 +10,10 @@ import { NavigateNextIcon } from '@theme/icons';
 import { truncateAddr } from '~/util/format';
 import { EventEmitter } from '~/util/EventEmitter';
 import { gql } from '@api/gen';
-import { useSuspenseQuery } from '@apollo/client';
-import { ContractsModalQuery, ContractsModalQueryVariables } from '@api/gen/graphql';
-import { ContractsModalDocument } from '@api/generated';
 import { TokenIcon } from '../token/TokenIcon/TokenIcon';
+import { useQuery } from '~/gql';
 
-gql(/* GraphQL */ `
+const Query = gql(/* GraphQL */ `
   query ContractsModal {
     tokens {
       __typename
@@ -39,9 +37,7 @@ export type ContractsModalProps = StackNavigatorScreenProps<'ContractsModal'>;
 export const ContractsModal = ({ route }: ContractsModalProps) => {
   const disabled = route.params.disabled && new Set(route.params.disabled);
 
-  const { tokens } = useSuspenseQuery<ContractsModalQuery, ContractsModalQueryVariables>(
-    ContractsModalDocument,
-  ).data;
+  const { tokens } = useQuery(Query).data;
 
   return (
     <Screen>

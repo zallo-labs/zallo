@@ -4,7 +4,6 @@ import {
   AnyVariables,
   UseQueryState,
   DocumentInput,
-  TypedDocumentNode,
   UseQueryExecute,
 } from 'urql';
 import { DocumentNode, Kind } from 'graphql';
@@ -38,7 +37,7 @@ export function useQuery<Data, Variables extends AnyVariables>(
 ) {
   const [response, reexecute] = useBaseQuery({
     ...options,
-    query: getReplacementDocument(query) ?? query,
+    query: tryReplaceDocument(query),
     variables: variables!,
   });
 
@@ -50,12 +49,13 @@ export function useQuery<Data, Variables extends AnyVariables>(
 
 const CACHED_REPLACEMENTS = new Map<DocumentInput<unknown, unknown>, DocumentNode | null>();
 
-function getReplacementDocument<Data, Variables>(
+export function tryReplaceDocument<Data, Variables>(
   doc: DocumentInput<Data, Variables>,
-): TypedDocumentNode<Data, Variables> | null {
-  // Replace documents ('client-preset' generated) with ones from api/generated - which are optimized by the Relay compiler
+): DocumentInput<Data, Variables> {
+  // Replace document with Relay compiler optimized version (from api/generated)
   const cachedMatch = CACHED_REPLACEMENTS.get(doc);
-  if (cachedMatch !== undefined) return cachedMatch;
+  if (cachedMatch) return cachedMatch;
+  if (cachedMatch === null) return doc;
 
   if (typeof doc === 'object' && doc.definitions.length >= 1) {
     const def = doc.definitions[0];
@@ -70,5 +70,5 @@ function getReplacementDocument<Data, Variables>(
   }
 
   CACHED_REPLACEMENTS.set(doc, null);
-  return null;
+  return doc;
 }

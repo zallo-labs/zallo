@@ -12,20 +12,13 @@ import {
   WalletConnectSendTransactionRequest,
 } from '~/util/walletconnect/methods';
 import { EventEmitter } from '~/util/EventEmitter';
-import {
-  UseSessionRequestListenerDocument,
-  useSessionRequestListenerSubscription,
-} from '@api/generated';
-import { useSuspenseQuery } from '@apollo/client';
-import {
-  UseSessionRequestListenerQuery,
-  UseSessionRequestListenerQueryVariables,
-} from '@api/gen/graphql';
 import { usePropose } from '@api/proposal';
+import { useQuery } from '~/gql';
+import { useSubscription } from 'urql';
 
 const PROPOSAL_EXECUTED_EMITTER = new EventEmitter<Hex>('Proposal::exeucte');
 
-gql(/* GraphQL */ `
+const Query = gql(/* GraphQL */ `
   query UseSessionRequestListener {
     accounts {
       id
@@ -34,7 +27,7 @@ gql(/* GraphQL */ `
   }
 `);
 
-gql(/* GraphQL */ `
+const Subscription = gql(/* GraphQL */ `
   subscription SessionRequestListener($accounts: [Address!]!) {
     proposal(input: { accounts: $accounts, events: [executed] }) {
       id
@@ -47,11 +40,9 @@ export const useSessionRequestListener = () => {
   const { navigate } = useNavigation();
   const propose = usePropose();
 
-  const { accounts } = useSuspenseQuery<
-    UseSessionRequestListenerQuery,
-    UseSessionRequestListenerQueryVariables
-  >(UseSessionRequestListenerDocument).data;
-  useSessionRequestListenerSubscription({
+  const { accounts } = useQuery(Query).data;
+  useSubscription({
+    query: Subscription,
     variables: { accounts: accounts.map((a) => a.address) },
   });
 

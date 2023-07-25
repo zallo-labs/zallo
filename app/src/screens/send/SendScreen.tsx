@@ -18,11 +18,9 @@ import { useSelectToken } from '../tokens/TokensScreen';
 import { Button } from '~/components/Button';
 import { createTransferOp } from './transfer';
 import { gql } from '@api/gen';
-import { useSuspenseQuery } from '@apollo/client';
-import { SendScreenQuery, SendScreenQueryVariables } from '@api/gen/graphql';
-import { SendScreenDocument } from '@api/generated';
+import { useQuery } from '~/gql';
 
-gql(/* GraphQL */ `
+const Query = gql(/* GraphQL */ `
   query SendScreen($account: Address!, $token: Address!) {
     token(input: { address: $token }) {
       id
@@ -51,10 +49,10 @@ export const SendScreen = withSuspense(
     const { account, to } = route.params;
     const propose = usePropose();
 
-    const { token } = useSuspenseQuery<SendScreenQuery, SendScreenQueryVariables>(
-      SendScreenDocument,
-      { variables: { account: route.params.account, token: useSelectedToken() } },
-    ).data;
+    const { token } = useQuery(Query, {
+      account: route.params.account,
+      token: useSelectedToken(),
+    }).data;
 
     const selectToken = useSelectToken();
     const setToken = useSetSelectedToken();

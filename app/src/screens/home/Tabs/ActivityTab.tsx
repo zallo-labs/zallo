@@ -11,17 +11,11 @@ import { TabScreenSkeleton } from '~/components/tab/TabScreenSkeleton';
 import { Address } from 'lib';
 import { asDateTime } from '~/components/format/Timestamp';
 import { gql } from '@api/gen';
-import { useSuspenseQuery } from '@apollo/client';
-import { ActivityQuery, ActivityQueryVariables } from '@api/gen/graphql';
-import {
-  ActivityDocument,
-  useActivityTab_ProposalSubscription,
-  useActivityTab_TransferSubscription,
-} from '@api/generated';
-import { updateQuery } from '~/gql/util';
+import { useQuery } from '~/gql';
+import { useSubscription } from 'urql';
 
-gql(/* GraphQL */ `
-  query Activity($accounts: [Address!]!) {
+const Query = gql(/* GraphQL */ `
+  query ActivityTab($accounts: [Address!]!) {
     proposals(input: { accounts: $accounts }) {
       __typename
       id
@@ -38,8 +32,8 @@ gql(/* GraphQL */ `
   }
 `);
 
-gql(/* GraphQL */ `
-  subscription ActivityTab_Proposal($accounts: [Address!]!) {
+const ProposalSubscription = gql(/* GraphQL */ `
+  subscription ActivityTab_ProposalSubscription($accounts: [Address!]!) {
     proposal(input: { accounts: $accounts }) {
       __typename
       id
@@ -47,8 +41,10 @@ gql(/* GraphQL */ `
       ...ProposalItem_TransactionProposalFragment
     }
   }
+`);
 
-  subscription ActivityTab_Transfer($accounts: [Address!]!) {
+const TransferSubscription = gql(/* GraphQL */ `
+  subscription ActivityTab_TransferSubscription($accounts: [Address!]!) {
     transfer(input: { accounts: $accounts, directions: [In], external: true }) {
       __typename
       id
@@ -68,44 +64,9 @@ export const ActivityTab = withSuspense(
   ({ route }: ActivityTabProps) => {
     const { account } = route.params;
 
-    const { proposals, transfers } = useSuspenseQuery<ActivityQuery, ActivityQueryVariables>(
-      ActivityDocument,
-      { variables: { accounts: [account] } },
-    ).data;
-
-    useActivityTab_ProposalSubscription({
-      variables: { accounts: [account] },
-      onData: ({ client: { cache }, data: { data } }) => {
-        const proposal = data?.proposal;
-        if (!proposal) return;
-
-        updateQuery<ActivityQuery, ActivityQueryVariables>({
-          query: ActivityDocument,
-          cache,
-          variables: { accounts: [account] },
-          updater: (data) => {
-            if (!data.proposals.find((t) => t.id === proposal.id)) data.proposals.push(proposal);
-          },
-        });
-      },
-    });
-
-    useActivityTab_TransferSubscription({
-      variables: { accounts: [account] },
-      onData: ({ client: { cache }, data: { data } }) => {
-        const transfer = data?.transfer;
-        if (!transfer) return;
-
-        updateQuery<ActivityQuery, ActivityQueryVariables>({
-          query: ActivityDocument,
-          cache,
-          variables: { accounts: [account] },
-          updater: (data) => {
-            if (!data.transfers.find((t) => t.id === transfer.id)) data.transfers.push(transfer);
-          },
-        });
-      },
-    });
+    const { proposals, transfers } = useQuery(Query, { accounts: [account] }).data;
+    useSubscription({ query: ProposalSubscription, variables: { accounts: [account] } });
+    useSubscription({ query: TransferSubscription, variables: { accounts: [account] } });
 
     const data = [...proposals, ...transfers].sort(
       (a, b) => asDateTime(b.timestamp).toMillis() - asDateTime(a.timestamp).toMillis(),

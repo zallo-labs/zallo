@@ -8,12 +8,10 @@ import { StyleSheet } from 'react-native';
 import { Text } from 'react-native-paper';
 import { Address, tokenToFiat } from 'lib';
 import { gql } from '@api/gen';
-import { TokensTabQuery, TokensTabQueryVariables } from '@api/gen/graphql';
-import { TokensTabDocument } from '@api/generated';
-import { useQuery } from 'urql';
 import { usePollQuery } from '~/gql/util';
+import { useQuery } from '~/gql';
 
-gql(/* GraphQL */ `
+const Query = gql(/* GraphQL */ `
   query TokensTab($account: Address!) {
     tokens {
       id
@@ -36,11 +34,8 @@ export type TokensTabProps = TabNavigatorScreenProp<'Tokens'>;
 
 export const TokensTab = withSuspense(
   ({ route }: TokensTabProps) => {
-    const [query, reexecute] = useQuery<TokensTabQuery, TokensTabQueryVariables>({
-      query: TokensTabDocument,
-      variables: { account: route.params.account },
-    });
-    usePollQuery(reexecute, 15000);
+    const query = useQuery(Query, { account: route.params.account });
+    usePollQuery(query.reexecute, 15000);
     const data = query.data!;
 
     const tokens = (data?.tokens ?? [])

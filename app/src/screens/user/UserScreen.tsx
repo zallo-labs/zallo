@@ -6,17 +6,16 @@ import { Actions } from '~/components/layout/Actions';
 import { Screen } from '~/components/layout/Screen';
 import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
 import { FormResetIcon } from '~/components/fields/ResetFormIcon';
-import { useSuspenseQuery } from '@apollo/client';
-import { UserQueryVariables, useUserUpdateMutation } from '@api/generated';
 import { Button } from 'react-native-paper';
 import { PairIcon } from '../pair-confirm/PairConfirmSheet';
 import { ListHeader } from '~/components/list/ListHeader';
 import { UserApproverItem } from './UserApproverItem';
 import { gql } from '@api/gen';
-import { UserQuery } from '@api/gen/graphql';
+import { useQuery } from '~/gql';
+import { useMutation } from 'urql';
 
-const UserDocument = gql(/* GraphQL */ `
-  query User {
+const Query = gql(/* GraphQL */ `
+  query UserScreen {
     user {
       id
       name
@@ -29,8 +28,8 @@ const UserDocument = gql(/* GraphQL */ `
   }
 `);
 
-gql(/* GraphQL */ `
-  mutation UserUpdate($name: String!) {
+const Update = gql(/* GraphQL */ `
+  mutation UserScreen_Update($name: String!) {
     updateUser(input: { name: $name }) {
       id
       name
@@ -45,8 +44,8 @@ interface Inputs {
 export type UserScreenProps = StackNavigatorScreenProps<'User'>;
 
 export const UserScreen = ({ navigation: { navigate } }: UserScreenProps) => {
-  const [update] = useUserUpdateMutation();
-  const { user } = useSuspenseQuery<UserQuery, UserQueryVariables>(UserDocument).data;
+  const { user } = useQuery(Query).data;
+  const update = useMutation(Update)[1];
 
   const { control, handleSubmit, reset } = useForm<Inputs>({
     defaultValues: { name: user.name ?? '' },
@@ -70,7 +69,7 @@ export const UserScreen = ({ navigation: { navigate } }: UserScreenProps) => {
         rules={{ required: true }}
         containerStyle={styles.nameContainer}
         onEndEditing={handleSubmit(async ({ name }) => {
-          await update({ variables: { name } });
+          await update({ name });
         })}
       />
 

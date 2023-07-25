@@ -18,12 +18,10 @@ import { getSwapOperations, useSwapPools } from '~/util/swap';
 import { DateTime } from 'luxon';
 import { Button } from '~/components/Button';
 import { gql } from '@api/gen';
-import { useSuspenseQuery } from '@apollo/client';
-import { SwapScreenQuery, SwapScreenQueryVariables } from '@api/gen/graphql';
-import { SwapScreenDocument } from '@api/generated';
 import { ETH_ADDRESS } from 'zksync-web3/build/src/utils';
+import { useQuery } from '~/gql';
 
-gql(/* GraphQL */ `
+const Query = gql(/* GraphQL */ `
   query SwapScreen($account: Address!, $from: Address!, $to: Address!, $skipTo: Boolean!) {
     from: token(input: { address: $from }) {
       id
@@ -64,10 +62,12 @@ export const SwapScreen = withSuspense(({ route, navigation: { navigate } }: Swa
   const [fromAddress, setFromAddress] = useState(useSelectedToken());
   const [toAddress, setToAddress] = useState<Address | undefined>();
 
-  const { from, to, tokens } = useSuspenseQuery<SwapScreenQuery, SwapScreenQueryVariables>(
-    SwapScreenDocument,
-    { variables: { account, from: fromAddress, to: toAddress || ETH_ADDRESS, skipTo: !toAddress } },
-  ).data;
+  const { from, to, tokens } = useQuery(Query, {
+    account,
+    from: fromAddress,
+    to: toAddress || ETH_ADDRESS,
+    skipTo: !toAddress,
+  }).data;
 
   const [input, setInput] = useState('');
   const [type, setType] = useState(InputType.Fiat);

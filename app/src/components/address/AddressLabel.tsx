@@ -1,24 +1,16 @@
 import { Address } from 'lib';
 import { truncateAddr } from '~/util/format';
 import { gql } from '@api/gen';
-import { useSuspenseQuery } from '@apollo/client';
-import { AddressLabelQuery, AddressLabelQueryVariables } from '@api/gen/graphql';
-import { AddressLabelDocument } from '@api/generated';
+import { useQuery } from '~/gql';
 
-gql(/* GraphQL */ `
+const Query = gql(/* GraphQL */ `
   query AddressLabel($address: Address!) {
     label(input: { address: $address })
   }
 `);
 
 export const useAddressLabel = <A extends Address | undefined>(address: A) => {
-  const label = useSuspenseQuery<AddressLabelQuery, AddressLabelQueryVariables>(
-    AddressLabelDocument,
-    {
-      variables: { address: address! },
-      skip: !address,
-    },
-  ).data?.label;
+  const label = useQuery(Query, { address: address! }, { pause: !address }).data?.label;
 
   return (address ? label || truncateAddr(address) : undefined) as A extends undefined
     ? string | undefined

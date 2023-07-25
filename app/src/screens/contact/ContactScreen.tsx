@@ -21,35 +21,36 @@ import { CHAIN, SUPPORTED_CHAINS } from '@network/provider';
 import { Unimplemented } from '~/util/error/unimplemented';
 import { FormResetIcon } from '~/components/fields/ResetFormIcon';
 import { gql, useFragment } from '@api/gen';
-import { useSuspenseQuery } from '@apollo/client';
-import { ContactQuery, ContactQueryVariables, Contact_ContactFragmentDoc } from '@api/gen/graphql';
-import {
-  ContactDocument,
-  useContactDeleteMutation,
-  useContactUpsertMutation,
-} from '@api/generated';
 import { ADDRESS_FIELD_RULES } from '~/util/form.rules';
+import { useQuery } from '~/gql';
+import { useMutation } from 'urql';
 
-gql(/* GraphQL */ `
-  fragment Contact_contact on Contact {
+const Fragment = gql(/* GraphQL */ `
+  fragment ContactScreen_contact on Contact {
     id
     address
     label
   }
+`);
 
+const Query = gql(/* GraphQL */ `
   query Contact($address: Address!) {
     contact(input: { address: $address }) {
-      ...Contact_contact
+      ...ContactScreen_contact
     }
   }
+`);
 
-  mutation ContactUpsert($input: UpsertContactInput!) {
+const Upsert = gql(/* GraphQL */ `
+  mutation ContactScreen_Upsert($input: UpsertContactInput!) {
     upsertContact(input: $input) {
-      ...Contact_contact
+      ...ContactScreen_contact
     }
   }
+`);
 
-  mutation ContactDelete($address: Address!) {
+const Delete = gql(/* GraphQL */ `
+  mutation ContactScreen_Delete($address: Address!) {
     deleteContact(input: { address: $address })
   }
 `);
@@ -69,13 +70,10 @@ export const ContactScreen = withSuspense(
   ({ route, navigation: { goBack } }: ContactScreenProps) => {
     const { address } = route.params;
 
-    const { data } = useSuspenseQuery<ContactQuery, ContactQueryVariables>(ContactDocument, {
-      variables: { address: address! },
-      skip: !address,
-    });
-    const current = useFragment(Contact_ContactFragmentDoc, data?.contact);
-    const [upsert] = useContactUpsertMutation();
-    const [remove] = useContactDeleteMutation();
+    const { data } = useQuery(Query, { address: address! }, { pause: !address });
+    const current = useFragment(Fragment, data?.contact);
+    const upsert = useMutation(Upsert)[1];
+    const remove = useMutation(Delete)[1];
     const confirmRemove = useConfirmRemoval({
       message: 'Are you sure you want to remove this contact',
     });
@@ -85,7 +83,7 @@ export const ContactScreen = withSuspense(
     });
 
     const submit = handleSubmit(async ({ label, address }) => {
-      await upsert({ variables: { input: { label, address, previousAddress: current?.address } } });
+      await upsert({ input: { label, address, previousAddress: current?.address } });
       goBack();
     });
 
@@ -107,7 +105,7 @@ export const ContactScreen = withSuspense(
                       onPress={async () => {
                         close();
                         if (await confirmRemove()) {
-                          remove({ variables: { address: current.address } });
+                          remove({ address: current.address });
                           goBack();
                         }
                       }}

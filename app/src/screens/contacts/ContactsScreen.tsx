@@ -11,16 +11,14 @@ import { Screen } from '~/components/layout/Screen';
 import { ListItemHeight } from '~/components/list/ListItem';
 import { useScanAddress } from '../scan/ScanScreen';
 import { gql } from '@api/gen';
-import { useSuspenseQuery } from '@apollo/client';
-import { ContactsScreenQuery, ContactsScreenQueryVariables } from '@api/gen/graphql';
 import { FlashList } from '@shopify/flash-list';
 import { ContactItem } from './ContactItem';
 import { Text } from 'react-native-paper';
 import { Fab } from '~/components/buttons/Fab';
 import { makeStyles } from '@theme/makeStyles';
-import { ContactsScreenDocument } from '@api/generated';
+import { useQuery } from '~/gql';
 
-gql(/* GraphQL */ `
+const Query = gql(/* GraphQL */ `
   query ContactsScreen($query: String) {
     contacts(input: { query: $query }) {
       id
@@ -46,10 +44,7 @@ export const ContactsScreen = withSuspense(
 
     const [query, setQuery] = useState('');
 
-    const { contacts } = useSuspenseQuery<ContactsScreenQuery, ContactsScreenQueryVariables>(
-      ContactsScreenDocument,
-      { variables: { query } },
-    ).data;
+    const { contacts } = useQuery(Query, { query }).data;
 
     return (
       <Screen>

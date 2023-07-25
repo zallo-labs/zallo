@@ -4,12 +4,13 @@ import {
   ContractQuery,
   ContractQueryVariables,
 } from '@api/generated';
-import { gql, useSuspenseQuery } from '@apollo/client';
 import { Address } from 'lib';
 import { useMemo } from 'react';
 import { ContractFunction, fragmentToContractFunction } from './types';
+import { gql } from '@api/gen';
+import { useQuery } from '~/gql';
 
-gql`
+gql(/* GraphQL */ `
   ${ContractFunctionFieldsFragmentDoc}
 
   query Contract($input: ContractInput!) {
@@ -20,13 +21,14 @@ gql`
       }
     }
   }
-`;
+`);
 
 export const useContractFunctions = (contract: Address | undefined) => {
-  const { data } = useSuspenseQuery<ContractQuery, ContractQueryVariables>(ContractDocument, {
-    variables: { input: { contract: contract! } },
-    skip: !contract,
-  });
+  const { data } = useQuery<ContractQuery, ContractQueryVariables>(
+    ContractDocument,
+    { input: { contract: contract! } },
+    { pause: !contract },
+  );
 
   return useMemo(
     (): ContractFunction[] => data?.contract?.functions?.map(fragmentToContractFunction) || [],

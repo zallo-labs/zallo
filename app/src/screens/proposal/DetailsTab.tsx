@@ -8,14 +8,13 @@ import { TokenItem } from '~/components/token/TokenItem';
 import { TabNavigatorScreenProp } from './Tabs';
 import { FeeToken } from './FeeToken';
 import { OperationSection } from './OperationSection';
-import { Hex, asBigInt } from 'lib';
+import { Hex } from 'lib';
 import { gql, useFragment } from '@api/gen';
-import { useSuspenseQuery } from '@apollo/client';
-import { DetailsTabQuery, DetailsTabQueryVariables } from '@api/gen/graphql';
-import { DetailsTabDocument, useDetailsTabSubscriptionSubscription } from '@api/generated';
 import { Text } from 'react-native-paper';
+import { useQuery } from '~/gql';
+import { useSubscription } from 'urql';
 
-gql(/* GraphQL */ `
+const Query = gql(/* GraphQL */ `
   query DetailsTab($proposal: Bytes32!) {
     proposal(input: { hash: $proposal }) {
       ...DetailsTab_TransactionProposalFragment
@@ -65,8 +64,8 @@ const FragmentDoc = gql(/* GraphQL */ `
   }
 `);
 
-gql(/* GraphQL */ `
-  subscription DetailsTabSubscription($proposal: Bytes32!) {
+const Subscription = gql(/* GraphQL */ `
+  subscription DetailsTab_Subscription($proposal: Bytes32!) {
     proposal(input: { proposals: [$proposal] }) {
       ...DetailsTab_TransactionProposalFragment
     }
@@ -82,10 +81,8 @@ export type DetailsTabProps = TabNavigatorScreenProp<'Details'>;
 export const DetailsTab = withSuspense(({ route }: DetailsTabProps) => {
   const styles = useStyles();
 
-  const { data } = useSuspenseQuery<DetailsTabQuery, DetailsTabQueryVariables>(DetailsTabDocument, {
-    variables: { proposal: route.params.proposal },
-  });
-  useDetailsTabSubscriptionSubscription({ variables: { proposal: route.params.proposal } });
+  const { data } = useQuery(Query, { proposal: route.params.proposal });
+  useSubscription({ query: Subscription, variables: { proposal: route.params.proposal } });
   const p = useFragment(FragmentDoc, data?.proposal);
 
   if (!p) return null;

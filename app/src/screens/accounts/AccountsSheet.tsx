@@ -9,18 +9,16 @@ import { Button, Text } from 'react-native-paper';
 import { View } from 'react-native';
 import { Address } from 'lib';
 import { gql } from '@api/gen';
-import { useSuspenseQuery } from '@apollo/client';
 import { AddressIcon } from '~/components/Identicon/AddressIcon';
 import { ICON_SIZE } from '@theme/paper';
 import { makeStyles } from '@theme/makeStyles';
 import { truncateAddr } from '~/util/format';
-import { AccountsSheetQuery, AccountsSheetQueryVariables } from '@api/gen/graphql';
 import { AccountItem } from './AccountItem';
-import { AccountsSheetDocument } from '@api/generated';
+import { useQuery } from '~/gql';
 
 const SwitchIcon = materialCommunityIcon('swap-horizontal');
 
-gql(/* GraphQL */ `
+const Query = gql(/* GraphQL */ `
   query AccountsSheet {
     accounts {
       id
@@ -42,9 +40,7 @@ export const AccountsSheet = ({ route, navigation: { navigate, goBack } }: Accou
   const styles = useStyles();
   const ref = useRef<BottomSheet>(null);
 
-  const { accounts } = useSuspenseQuery<AccountsSheetQuery, AccountsSheetQueryVariables>(
-    AccountsSheetDocument,
-  ).data;
+  const { accounts } = useQuery(Query).data;
 
   const selected = accounts.find((account) => account.address === selectedAddress);
   const otherAccounts = accounts.filter((account) => account.address !== selectedAddress);

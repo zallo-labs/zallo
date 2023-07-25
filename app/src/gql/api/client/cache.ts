@@ -19,7 +19,19 @@ export const CACHE_CONFIG: Pick<
         cache.invalidate({ __typename: 'Token' as Typename, id: result });
         invalidateQuery(cache, 'tokens');
       },
+      removeProposal: (result: string, _args, cache) => {
+        cache.invalidate({ __typename: 'Proposal' as Typename, id: result });
+        invalidateQuery(cache, 'proposals');
+      },
     } as /* satisfies */ Partial<Record<Mutation, UpdateResolver<unknown, unknown>>>,
+    Subscription: {
+      proposal: (_result, _args, cache) => {
+        invalidateQuery(cache, 'proposals');
+      },
+      transfer: (_result, _args, cache) => {
+        invalidateQuery(cache, 'transfers');
+      },
+    } as /* satisfies */ Partial<Record<Subscription, UpdateResolver<unknown, unknown>>>,
   },
 };
 

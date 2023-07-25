@@ -25,14 +25,9 @@ import { ScrollView } from 'react-native';
 import { ListItem } from '~/components/list/ListItem';
 import { Switch } from 'react-native-paper';
 import { gql } from '@api/gen';
-import { useSuspenseQuery } from '@apollo/client';
-import {
-  ContractPermissionsScreenQuery,
-  ContractPermissionsScreenQueryVariables,
-} from '@api/gen/graphql';
-import { ContractPermissionsScreenDocument } from '@api/generated';
+import { useQuery } from '~/gql';
 
-gql(/* GraphQL */ `
+const Query = gql(/* GraphQL */ `
   query ContractPermissionsScreen($contract: Address!) {
     token(input: { address: $contract }) {
       id
@@ -58,10 +53,7 @@ export const ContractPermissionsScreen = withSuspense(
   ({ route }: ContractPermissionsScreenProps) => {
     const { contract } = route.params;
 
-    const { token } = useSuspenseQuery<
-      ContractPermissionsScreenQuery,
-      ContractPermissionsScreenQueryVariables
-    >(ContractPermissionsScreenDocument, { variables: { contract } }).data;
+    const { token } = useQuery(Query, { contract }).data;
 
     const [{ permissions }, updatePolicy] = useImmerAtom(POLICY_DRAFT_ATOM);
 

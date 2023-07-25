@@ -10,15 +10,13 @@ import { Screen } from '~/components/layout/Screen';
 import { EventEmitter } from '~/util/EventEmitter';
 import { useState } from 'react';
 import { gql } from '@api/gen';
-import { TokensScreenQuery, TokensScreenQueryVariables } from '@api/gen/graphql';
-import { TokensScreenDocument } from '@api/generated';
 import { FlashList } from '@shopify/flash-list';
 import { ListItemHeight } from '~/components/list/ListItem';
 import { withSuspense } from '~/components/skeleton/withSuspense';
 import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
 import { useQuery } from '~/gql';
 
-gql(/* GraphQL */ `
+const Query = gql(/* GraphQL */ `
   query TokensScreen($account: Address!, $query: String) {
     tokens(input: { query: $query }) {
       id
@@ -49,10 +47,7 @@ export const TokensScreen = withSuspense(
 
     const [query, setQuery] = useState('');
 
-    const { tokens } = useQuery<TokensScreenQuery, TokensScreenQueryVariables>(
-      TokensScreenDocument,
-      { account: route.params.account, query },
-    ).data;
+    const { tokens } = useQuery(Query, { account: route.params.account, query }).data;
 
     const onSelect = (token: Address) => () =>
       route.name === 'TokensModal' ? TOKEN_EMITTER.emit(token) : navigate('Token', { token });

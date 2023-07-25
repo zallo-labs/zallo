@@ -1,10 +1,10 @@
 import { useCallback } from 'react';
 import { logError } from '~/util/analytics';
 import { gql } from '@api/gen';
-import { useUseProposeMutation } from '@api/generated';
 import { ProposeInput } from '@api/gen/graphql';
+import { useMutation } from 'urql';
 
-gql(/* GraphQL */ `
+const Propose = gql(/* GraphQL */ `
   mutation UsePropose($input: ProposeInput!) {
     propose(input: $input) {
       id
@@ -14,17 +14,17 @@ gql(/* GraphQL */ `
 `);
 
 export const usePropose = () => {
-  const [mutation] = useUseProposeMutation();
+  const propose = useMutation(Propose)[1];
 
   return useCallback(
     async (input: ProposeInput) => {
-      const r = await mutation({ variables: { input } });
+      const r = await propose({ input });
 
       const hash = r.data?.propose.hash;
-      if (!hash) logError('Proposal failed', { input, errors: r.errors });
+      if (!hash) logError('Proposal failed', { input, error: r.error });
 
       return hash!;
     },
-    [mutation],
+    [propose],
   );
 };

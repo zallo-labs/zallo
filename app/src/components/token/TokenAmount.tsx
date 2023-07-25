@@ -1,11 +1,9 @@
 import { FormattedNumberOptions, useFormattedNumber } from '../format/FormattedNumber';
 import { Address, BigIntlike, asBigInt, isAddress } from 'lib';
 import { FragmentType, gql, useFragment as getFragment } from '@api/gen';
-import { useSuspenseQuery } from '@apollo/client';
-import { TokenAmountQuery, TokenAmountQueryVariables } from '@api/gen/graphql';
-import { TokenAmountDocument } from '@api/generated';
+import { useQuery } from '~/gql';
 
-gql(/* GraphQL */ `
+const Query = gql(/* GraphQL */ `
   query TokenAmount($token: Address!) {
     token(input: { address: $token }) {
       ...UseFormattedTokenAmount_token
@@ -40,10 +38,11 @@ export const useFormattedTokenAmount = ({
 }: FormattedTokenAmountOptions) => {
   const amount = amountProp ? asBigInt(amountProp) : 0n;
 
-  const query = useSuspenseQuery<TokenAmountQuery, TokenAmountQueryVariables>(TokenAmountDocument, {
-    variables: { token: isAddress(tokenProp) ? tokenProp : '0x' },
-    skip: !isAddress(tokenProp),
-  }).data;
+  const query = useQuery(
+    Query,
+    { token: isAddress(tokenProp) ? tokenProp : '0x' },
+    { pause: !isAddress(tokenProp) },
+  ).data;
 
   const token = getFragment(HookFragment, !isAddress(tokenProp) ? tokenProp : query?.token) ?? {
     id: '',
