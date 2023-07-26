@@ -54,16 +54,12 @@ const TransferSubscription = gql(/* GraphQL */ `
   }
 `);
 
-export interface ActivityTabParams {
-  account: Address;
-}
+export interface ActivityTabParams {}
 
-export type ActivityTabProps = TabNavigatorScreenProp<'Activity'>;
+export type ActivityTabProps = TabNavigatorScreenProp<'Activity'> & { account: Address };
 
 export const ActivityTab = withSuspense(
-  ({ route }: ActivityTabProps) => {
-    const { account } = route.params;
-
+  ({ account }: ActivityTabProps) => {
     const { proposals, transfers } = useQuery(Query, { accounts: [account] }).data;
     useSubscription({ query: ProposalSubscription, variables: { accounts: [account] } });
     useSubscription({ query: TransferSubscription, variables: { accounts: [account] } });

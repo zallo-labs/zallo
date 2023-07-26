@@ -25,15 +25,13 @@ const Query = gql(/* GraphQL */ `
   }
 `);
 
-export interface TokensTabParams {
-  account: Address;
-}
+export interface TokensTabParams {}
 
-export type TokensTabProps = TabNavigatorScreenProp<'Tokens'>;
+export type TokensTabProps = TabNavigatorScreenProp<'Tokens'> & { account: Address };
 
 export const TokensTab = withSuspense(
-  ({ route }: TokensTabProps) => {
-    const query = useQuery(Query, { account: route.params.account });
+  ({ route, ...props }: TokensTabProps) => {
+    const query = useQuery(Query, { account: props.account });
     usePollQuery(query.reexecute, 15000);
     const data = query.data!;
 

@@ -25,10 +25,10 @@ export interface TabsProps {
   account: Address;
 }
 
-export const Tabs = ({ account }: TabsProps) => {
+export function Tabs({ account }: TabsProps) {
   return (
     <Tab.Navigator tabBar={TopTabBar}>
-      <Tab.Screen name="Tokens" component={TokensTab} initialParams={{ account }} />
+      <Tab.Screen name="Tokens">{(props) => <TokensTab {...props} account={account} />}</Tab.Screen>
       <Tab.Screen
         name="Collectables"
         component={CollectablesTab}
@@ -41,10 +41,10 @@ export const Tabs = ({ account }: TabsProps) => {
       />
       <Tab.Screen
         name="Activity"
-        component={ActivityTab}
-        initialParams={{ account }}
         options={{ tabBarBadge: () => <ActivityTabBadge account={account} /> }}
-      />
+      >
+        {(props) => <ActivityTab {...props} account={account} />}
+      </Tab.Screen>
     </Tab.Navigator>
   );
-};
+}
