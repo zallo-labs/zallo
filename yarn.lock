@@ -9335,23 +9335,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@react-native-community/blur@npm:^4.3.0":
-  version: 4.3.0
-  resolution: "@react-native-community/blur@npm:4.3.0"
+"@react-native-community/blur@npm:^4.3.2":
+  version: 4.3.2
+  resolution: "@react-native-community/blur@npm:4.3.2"
   peerDependencies:
     react: "*"
     react-native: "*"
-  checksum: 1fb168a88d5901f0c86cf537a51e272ddd63b057cec4fb102f2e3a4b50f16d04fc0575567de7440dfab01d090fb3863cec74055538141f96e7d7bc8835101ac0
-  languageName: node
-  linkType: hard
-
-"@react-native-community/blur@patch:@react-native-community/blur@npm:^4.3.0#../.yarn/patches/react-native-blur-e67c3fc.patch::locator=app%40workspace%3Aapp":
-  version: 4.3.0
-  resolution: "@react-native-community/blur@patch:@react-native-community/blur@npm%3A4.3.0#../.yarn/patches/react-native-blur-e67c3fc.patch::version=4.3.0&hash=64a196&locator=app%40workspace%3Aapp"
-  peerDependencies:
-    react: "*"
-    react-native: "*"
-  checksum: 4671fdd06c4ead728f376c630c51aedc50b5538cc0f56cdb507f38fb3be7687182655f4faa7f829c34fbb2c635cacf15ad7984c56b76d17e1fb1ff7189de50ab
+  checksum: 4f7ed6a3bb58cd53346bb7d5755bb2733e8401fdae86334fde4f2fa0c554734e9bb52175c1f9ef1d99766aeb7a4991ac5dfe428c92da518d0353a1a6e5c3d39c
   languageName: node
   linkType: hard
 
@@ -14606,7 +14596,7 @@ __metadata:
     "@graphql-typed-document-node/core": ^3.2.0
     "@n1ru4l/graphql-codegen-relay-optimizer-plugin": ^5.0.0
     "@react-native-async-storage/async-storage": 1.18.2
-    "@react-native-community/blur": "patch:@react-native-community/blur@npm:^4.3.0#../.yarn/patches/react-native-blur-e67c3fc.patch"
+    "@react-native-community/blur": ^4.3.2
     "@react-native-community/netinfo": 9.3.10
     "@react-native-firebase/analytics": ^18.0.0
     "@react-native-firebase/app": ^18.0.0
