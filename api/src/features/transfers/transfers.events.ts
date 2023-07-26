@@ -65,66 +65,68 @@ export class TransfersEvents {
 
     const { from, to, value: amount } = r.args;
 
-    const accounts = await this.db.query(
+    const accounts = (await this.db.query(
       e.select(e.Account, (account) => ({
         filter: e.op(account.address, 'in', e.set(from, to)),
         address: true,
       })).address,
-    );
+    )) as Address[];
 
-    if (accounts.length) {
-      Logger.debug(`Transfer ${from} -> ${to}`);
-      const block = await this.provider.getBlock(log.blockNumber);
-      const tokenAddress = normalizeEthAddress(asAddress(log.address));
+    if (!accounts.length) return;
 
-      const transfers = toArray(
-        await this.db.query(
-          e.set(
-            ...accounts.map((a) =>
-              e.select({
-                transfer: e
-                  .insert(e.Transfer, {
-                    account: selectAccount(a),
-                    transactionHash: log.transactionHash,
-                    logIndex: log.logIndex,
-                    block: BigInt(log.blockNumber),
-                    timestamp: new Date(block.timestamp * 1000),
-                    direction: e.cast(
-                      e.TransferDirection,
-                      a === from ? TransferDirection.Out : TransferDirection.In,
-                    ),
-                    from,
-                    to,
-                    tokenAddress,
-                    amount,
-                  })
-                  .unlessConflict(),
-                isExternal: e.op(
-                  e.select(e.Transaction, () => ({ filter_single: { hash: log.transactionHash } }))
-                    .proposal.account.address,
-                  '?=',
-                  a,
+    const tokenAddress = normalizeEthAddress(asAddress(log.address));
+    const { timestamp } = await this.provider.getBlock(log.blockNumber);
+    const block = BigInt(log.blockNumber);
+
+    await Promise.all(
+      accounts.map(async (account) => {
+        const r = await this.db.query(
+          e.select({
+            newTransfer: e
+              .insert(e.Transfer, {
+                account: selectAccount(account),
+                transactionHash: log.transactionHash,
+                logIndex: log.logIndex,
+                block,
+                timestamp: new Date(timestamp * 1000),
+                direction: e.cast(
+                  e.TransferDirection,
+                  account === from ? TransferDirection.Out : TransferDirection.In,
                 ),
-              }),
+                from,
+                to,
+                tokenAddress,
+                amount,
+              })
+              .unlessConflict(),
+            existingTransfer: e.select(e.Transfer, () => ({
+              filter_single: { account: selectAccount(account), block, logIndex: log.logIndex },
+            })),
+            isExternal: e.op(
+              e.select(e.Transaction, () => ({ filter_single: { hash: log.transactionHash } }))
+                .proposal.account.address,
+              '?!=',
+              account,
             ),
-          ),
-        ),
-      );
+          }),
+        );
 
-      await Promise.all(
-        transfers.map(async ({ transfer, isExternal }, index) => {
-          if (!transfer) return;
-          const account = accounts[index] as Address;
+        await this.pubsub.publish<TransferSubscriptionPayload>(getTransferTrigger(account), {
+          transfer: (r.newTransfer ?? r.existingTransfer)!.id,
+          account,
+          direction: account === from ? TransferDirection.Out : TransferDirection.In,
+          isExternal: r.isExternal,
+        });
 
-          await this.pubsub.publish<TransferSubscriptionPayload>(getTransferTrigger(account), {
-            transfer: transfer.id,
-            account,
-            direction: account === from ? TransferDirection.Out : TransferDirection.In,
-            isExternal,
-          });
-        }),
-      );
-    }
+        if (r.newTransfer) {
+          Logger.debug(
+            `[${account}]: token (${tokenAddress}) transfer ${
+              from === account ? `to ${to}` : `from ${from}`
+            }`,
+          );
+        }
+      }),
+    );
   }
 
   private async approval(event: EventData | TransactionEventData) {

@@ -129,7 +129,7 @@ module default {
       select Transaction filter .hash = transactionHash
     );
 
-    constraint exclusive on ((.block, .logIndex));
+    constraint exclusive on ((.account, .block, .logIndex));
 
     access policy members_can_select
       allow select
