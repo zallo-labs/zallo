@@ -4,7 +4,7 @@ import { BlurView, BlurViewProps } from '@react-native-community/blur';
 import { StatusBar } from 'expo-status-bar';
 import { HideNavigationBar } from './NavigationBar/HideNavigationBar';
 
-export const Blur = (props: Partial<BlurViewProps>) => (
+export const Blur = ({ children, ...props }: Partial<BlurViewProps>) => (
   <>
     <StatusBar style="light" />
     <HideNavigationBar />
@@ -14,5 +14,6 @@ export const Blur = (props: Partial<BlurViewProps>) => (
       style={StyleSheet.absoluteFill}
       {...props}
     />
+    {children}
   </>
 );
