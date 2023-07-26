@@ -81,7 +81,7 @@ const client = atom(async (get) => {
           return utils.appendHeaders(operation, getHeaders());
         },
         didAuthError(error, _operation) {
-          return error.response.status === 401; // Unauthorized
+          return error.response?.status === 401; // Unauthorized
         },
         refreshAuth,
         willAuthError,
