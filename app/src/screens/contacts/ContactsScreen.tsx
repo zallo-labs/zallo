@@ -85,7 +85,7 @@ export const ContactsScreen = withSuspense(
           estimatedItemSize={ListItemHeight.DOUBLE_LINE}
         />
 
-        <Fab icon={AddContactIcon} label="Add" />
+        <Fab icon={AddContactIcon} label="Add" onPress={async () => navigate('Contact', {})} />
       </Screen>
     );
   },
