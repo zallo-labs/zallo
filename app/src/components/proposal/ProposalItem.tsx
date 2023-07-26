@@ -36,6 +36,7 @@ const Fragment = gql(/* GraphQL */ `
       }
     }
     simulation {
+      id
       transfers {
         id
         value
