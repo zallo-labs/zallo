@@ -39,8 +39,6 @@ export class ProviderService extends zk.Provider {
     fetchMethod: (key) => this.fetchBalance(key),
     max: 100_000,
     ttl: 15_000, // 15s
-    // Return stale value, then fetch in background
-    allowStale: true,
     // Re-use stale value if fetch fails
     allowStaleOnFetchRejection: true,
     noDeleteOnFetchRejection: true,
