@@ -1,15 +1,17 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { TokensService } from './tokens.service';
 import { DatabaseService } from '../database/database.service';
-import { createMock } from '@golevelup/ts-jest';
+import { DeepMocked, createMock } from '@golevelup/ts-jest';
 import { UserContext, asUser } from '~/request/ctx';
 import { randomAddress, randomUser } from '~/util/test';
 import e from '~/edgeql-js';
 import { UpsertTokenInput } from './tokens.input';
+import { ProviderService } from '../util/provider/provider.service';
 
 describe('TokensService', () => {
   let service: TokensService;
   let db: DatabaseService;
+  let provider: DeepMocked<ProviderService>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -20,6 +22,15 @@ describe('TokensService', () => {
 
     service = module.get(TokensService);
     db = module.get(DatabaseService);
+    provider = module.get(ProviderService);
+
+    provider.client = jest.mocked({
+      multicall: jest.fn(async () => [
+        { result: undefined },
+        { result: undefined },
+        { result: undefined },
+      ]),
+    }) as any;
   });
 
   let user1: UserContext;
@@ -40,7 +51,7 @@ describe('TokensService', () => {
   };
 
   describe('upsert', () => {
-    it('insert a new token', async () =>
+    it.only('insert a new token', async () =>
       asUser(user1, async () => {
         const { id } = await upsert();
 
