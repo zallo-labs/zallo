@@ -45,8 +45,16 @@ export const AccountsSheet = ({ route, navigation: { navigate, goBack } }: Accou
   const selected = accounts.find((account) => account.address === selectedAddress);
   const otherAccounts = accounts.filter((account) => account.address !== selectedAddress);
 
+  const goBackOnClose = useRef(true);
+
   return (
-    <Sheet ref={ref} onClose={goBack}>
+    <Sheet
+      ref={ref}
+      onClose={() => {
+        if (goBackOnClose.current) goBack();
+        goBackOnClose.current = true;
+      }}
+    >
       <BottomSheetScrollView
         contentContainerStyle={styles.contentContaiiner}
         showsVerticalScrollIndicator={false}
@@ -91,7 +99,10 @@ export const AccountsSheet = ({ route, navigation: { navigate, goBack } }: Accou
             </View>
           )}
           headline="Account"
-          onPress={() => navigate('CreateAccount', {})}
+          onPress={() => {
+            goBackOnClose.current = false;
+            navigate('CreateAccount', {});
+          }}
         />
       </BottomSheetScrollView>
     </Sheet>
