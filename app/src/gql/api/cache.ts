@@ -1,4 +1,4 @@
-import { Cache, CacheExchangeOpts, UpdateResolver } from '@urql/exchange-graphcache';
+import { Cache, CacheExchangeOpts, KeyGenerator, UpdateResolver } from '@urql/exchange-graphcache';
 import schema from './schema';
 import { MutationCreatePolicyArgs, Node } from '@api/generated/graphql';
 import { gql } from './generated';
@@ -11,7 +11,11 @@ export const CACHE_CONFIG: Pick<
 > = {
   keys: {
     TokenUnit: NO_ID,
-  },
+    Operation: NO_ID,
+    OperationFunction: NO_ID,
+    TransferOp: NO_ID,
+    SatisfiabilityResult: NO_ID,
+  } as /* satisfies */ Partial<Record<Typename, KeyGenerator>>,
   updates: {
     Mutation: {
       createAccount: (_result, _args, cache) => {
@@ -69,7 +73,7 @@ export const CACHE_CONFIG: Pick<
         invalidateQuery(cache, 'proposals');
       },
       transfer: (_result, _args, cache) => {
-        invalidateQuery(cache, 'transfers');
+        invalidateQuery(cache, 'transfers', 'tokens');
       },
     } as /* satisfies */ Partial<Record<Subscription, UpdateResolver<unknown, unknown>>>,
   },
@@ -89,9 +93,9 @@ type Mutation = MutationType['name'];
 type SubscriptionType = Type<{ name: Schema['subscriptionType']['name'] }>['fields'][number];
 type Subscription = SubscriptionType['name'];
 
-function invalidateQuery(cache: Cache, query: Query) {
+function invalidateQuery(cache: Cache, ...queries: Query[]) {
   cache
     .inspectFields('Query')
-    .filter((field) => field.fieldName === query)
+    .filter((field) => queries.includes(field.fieldName as Query))
     .forEach((field) => cache.invalidate('Query', field.fieldKey));
 }
