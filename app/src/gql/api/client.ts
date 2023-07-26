@@ -17,6 +17,7 @@ import schema from './schema';
 import { logError } from '~/util/analytics';
 import crypto from 'react-native-quick-crypto';
 import { CACHE_CONFIG } from './cache';
+import { clog } from '~/util/format';
 
 const TOKEN_KEY = 'apiToken';
 
@@ -26,6 +27,8 @@ const client = atom(async (get) => {
   let token = await AsyncStorage.getItem(TOKEN_KEY);
   const getHeaders = (): { Authorization: string } | Record<string, never> =>
     token ? { Authorization: `Bearer ${token}` } : {};
+
+  clog({ token });
 
   async function refreshAuth() {
     token = await getToken(approver);
@@ -112,7 +115,7 @@ async function getToken(approver: Approver): Promise<string> {
 
   const message = new SiweMessage({
     version: '1',
-    domain: new URL(CONFIG.apiUrl).hostname,
+    domain: new URL(CONFIG.apiUrl).host,
     address: approver.address,
     nonce,
     expirationTime: DateTime.now().plus({ days: 2 }).toString(),
