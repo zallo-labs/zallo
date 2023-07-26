@@ -22,6 +22,7 @@ import { useQuery } from '~/gql';
 const Query = gql(/* GraphQL */ `
   query AddressesModal($query: String) {
     accounts {
+      __typename
       id
       address
       ...AccountItem_AccountFragment
@@ -30,12 +31,15 @@ const Query = gql(/* GraphQL */ `
     user {
       id
       approvers {
+        __typename
+        id
         address
         ...UserApproverItem_UserApproverFragment
       }
     }
 
     contacts(input: { query: $query }) {
+      __typename
       id
       address
       ...ContactItem_ContactFragment
@@ -110,9 +114,10 @@ export const AddressesModal = withSuspense(({ route }: AddressesModalProps) => {
             .otherwise(() => null)
         }
         extraData={[disabled]}
+        getItemType={(item) => (typeof item === 'object' ? item.__typename : 'header')}
+        keyExtractor={(item) => (typeof item === 'object' ? item.id : item || '')}
         showsVerticalScrollIndicator={false}
         estimatedItemSize={ListItemHeight.DOUBLE_LINE}
-        getItemType={(item) => (typeof item === 'object' ? 'row' : 'header')}
       />
     </Screen>
   );
