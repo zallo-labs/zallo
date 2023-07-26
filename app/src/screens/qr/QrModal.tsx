@@ -7,7 +7,7 @@ import { IconButton, Surface, Text } from 'react-native-paper';
 import { CloseIcon, ShareIcon, materialCommunityIcon } from '@theme/icons';
 import { Actions } from '~/components/layout/Actions';
 import { Share, View } from 'react-native';
-import { AddressLabel } from '~/components/address/AddressLabel';
+import { useAddressLabel } from '~/components/address/AddressLabel';
 import { buildAddressLink } from '~/util/addressLink';
 import { withSuspense } from '~/components/skeleton/withSuspense';
 import { Blur } from '~/components/Blur';
@@ -55,7 +55,7 @@ export const QrModal = withSuspense(({ route, navigation: { goBack } }: QrModalP
 
         <View style={styles.qrContainer}>
           <Text variant="headlineLarge" style={styles.name}>
-            <AddressLabel address={address} />
+            {useAddressLabel(address)}
           </Text>
 
           <Surface style={styles.qrSurface}>
