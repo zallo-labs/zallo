@@ -1,10 +1,9 @@
-import { NavigateNextIcon } from '@theme/icons';
-import { ListItem } from '~/components/list/ListItem';
 import { useSelectToken } from '../tokens/TokensScreen';
-import { TokenAmount } from '~/components/token/TokenAmount';
 import { FragmentType, gql, useFragment } from '@api/generated';
 import { asBigInt } from 'lib';
 import { useMutation } from 'urql';
+import { TokenItem } from '~/components/token/TokenItem';
+import { makeStyles } from '@theme/makeStyles';
 
 const FragmentDoc = gql(/* GraphQL */ `
   fragment FeeToken_TransactionProposalFragment on TransactionProposal {
@@ -12,9 +11,9 @@ const FragmentDoc = gql(/* GraphQL */ `
     hash
     feeToken {
       id
-      address
+      name
       gasPrice
-      ...TokenAmount_token
+      ...TokenItem_token
     }
     updatable
     gasLimit
@@ -36,13 +35,7 @@ const FragmentDoc = gql(/* GraphQL */ `
 const Update = gql(/* GraphQL */ `
   mutation FeeToken_Update($hash: Bytes32!, $feeToken: Address!) {
     updateProposal(input: { hash: $hash, feeToken: $feeToken }) {
-      id
-      feeToken {
-        id
-        address
-        gasPrice
-        ...TokenAmount_token
-      }
+      ...FeeToken_TransactionProposalFragment
     }
   }
 `);
@@ -52,6 +45,7 @@ export interface FeeTokenProps {
 }
 
 export function FeeToken(props: FeeTokenProps) {
+  const styles = useStyles();
   const p = useFragment(FragmentDoc, props.proposal);
 
   const update = useMutation(Update)[1];
@@ -63,21 +57,15 @@ export function FeeToken(props: FeeTokenProps) {
     asBigInt(p.transaction.receipt.gasUsed) * asBigInt(p.transaction.gasPrice);
 
   return (
-    <ListItem
-      leading={p.feeToken.address}
-      headline="Network fee"
-      supporting={({ Text }) => (
+    <TokenItem
+      token={p.feeToken}
+      amount={-(actualFee ?? estimatedFee)}
+      headline={({ Text }) => (
         <Text>
-          {actualFee ? (
-            <TokenAmount token={p.feeToken} amount={-actualFee} />
-          ) : (
-            <>
-              {'≤ '} <TokenAmount token={p.feeToken} amount={-estimatedFee} />
-            </>
-          )}
+          {p.feeToken.name}
+          <Text style={styles.secondary}> ({typeof actualFee !== 'bigint' && 'max '}fee)</Text>
         </Text>
       )}
-      trailing={NavigateNextIcon}
       {...(p.updatable && {
         onPress: async () => {
           const token = await selectToken({ account: p.account.address });
@@ -87,3 +75,9 @@ export function FeeToken(props: FeeTokenProps) {
     />
   );
 }
+
+const useStyles = makeStyles(({ colors }) => ({
+  secondary: {
+    color: colors.onSurfaceVariant,
+  },
+}));
