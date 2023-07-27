@@ -74,7 +74,7 @@ export class TransfersEvents {
 
     if (!accounts.length) return;
 
-    const tokenAddress = normalizeEthAddress(asAddress(log.address));
+    const token = normalizeEthAddress(asAddress(log.address));
     const { timestamp } = await this.provider.getBlock(log.blockNumber);
     const block = BigInt(log.blockNumber);
 
@@ -95,7 +95,7 @@ export class TransfersEvents {
                   direction: e.cast(e.TransferDirection, direction),
                   from,
                   to,
-                  tokenAddress,
+                  tokenAddress: token,
                   amount: direction === TransferDirection.In ? amount : -amount,
                 })
                 .unlessConflict(),
@@ -112,6 +112,16 @@ export class TransfersEvents {
           }),
         );
 
+        if (r.newTransfer) {
+          Logger.debug(
+            `[${account}]: token (${token}) transfer ${
+              from === account ? `to ${to}` : `from ${from}`
+            }`,
+          );
+
+          this.provider.invalidateBalance({ account, token });
+        }
+
         const transfer = (r.newTransfer ?? r.existingTransfer)!;
         await this.pubsub.publish<TransferSubscriptionPayload>(getTransferTrigger(account), {
           transfer: transfer.id,
@@ -119,14 +129,6 @@ export class TransfersEvents {
           direction,
           internal: transfer.internal,
         });
-
-        if (r.newTransfer) {
-          Logger.debug(
-            `[${account}]: token (${tokenAddress}) transfer ${
-              from === account ? `to ${to}` : `from ${from}`
-            }`,
-          );
-        }
       }),
     );
   }
