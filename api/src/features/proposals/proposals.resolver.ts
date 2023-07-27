@@ -29,18 +29,12 @@ import {
 import { getShape } from '../database/database.select';
 import e from '~/edgeql-js';
 import { Input, InputArgs } from '~/decorators/input.decorator';
-import { DatabaseService } from '../database/database.service';
-import { Address } from 'lib';
 import { uuid } from 'edgedb/dist/codecs/ifaces';
 import { ComputedField } from '~/decorators/computed.decorator';
 
 @Resolver(() => TransactionProposal)
 export class ProposalsResolver {
-  constructor(
-    private service: ProposalsService,
-    private db: DatabaseService,
-    private pubsub: PubsubService,
-  ) {}
+  constructor(private service: ProposalsService, private pubsub: PubsubService) {}
 
   @Query(() => TransactionProposal, { nullable: true })
   async proposal(@Input() { hash }: ProposalInput, @Info() info: GraphQLResolveInfo) {
