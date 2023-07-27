@@ -161,20 +161,22 @@ export class PoliciesService {
         // Get existing policy state
         // If approvers, threshold, or permissions are undefined then modify the policy accordingly
         // Propose new state
-        const existing = await e
-          .select(e.Policy, (p) => ({
-            filter_single: {
-              account: e.select(p.account, () => ({ filter_single: { address: account } })),
-              key,
-            },
-            account: { id: true, address: true },
-            state: policyStateShape,
-            draft: policyStateShape,
-          }))
-          .run(db);
-        if (!existing) throw new UserInputError("Policy doesn't exist");
+        const selectAccount = e.select(e.Account, () => ({ filter_single: { address: account } }));
 
-        const policy = policyStateAsPolicy(key, existing?.draft ?? existing?.state!);
+        const existing = await e
+          .select({
+            account: selectAccount,
+            policy: e.select(e.Policy, () => ({
+              filter_single: { account: selectAccount, key },
+              state: policyStateShape,
+              draft: policyStateShape,
+            })),
+          })
+          .run(db);
+        if (!existing.account) throw new UserInputError("Account doesn't exist");
+        if (!existing.policy) throw new UserInputError("Policy doesn't exist");
+
+        const policy = policyStateAsPolicy(key, existing.policy.draft ?? existing.policy.state!);
 
         if (approvers) policy.approvers = new Set(approvers);
         if (threshold !== undefined) policy.threshold = threshold;
@@ -182,10 +184,7 @@ export class PoliciesService {
         if (permissions?.transfers)
           policy.permissions.transfers = asTransfersConfig(permissions.transfers);
 
-        await this.upsertApprovers(
-          { id: existing.account.id, address: existing.account.address as Address },
-          policy,
-        );
+        await this.upsertApprovers({ id: existing.account.id, address: account }, policy);
 
         const proposal = await this.proposeState(account, policy);
 
