@@ -24,7 +24,7 @@ export class FaucetService implements OnModuleInit {
 
     this.tokens = tokens.map((t) => ({
       address: t.address as Address,
-      amount: parseUnits(t.address === ETH_ADDRESS ? '0.1' : '1', t.decimals),
+      amount: parseUnits(t.address === ETH_ADDRESS ? '0.01' : '1', t.decimals),
     }));
   }
 
