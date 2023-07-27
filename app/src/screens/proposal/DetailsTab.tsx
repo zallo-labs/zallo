@@ -8,11 +8,12 @@ import { TokenItem } from '~/components/token/TokenItem';
 import { TabNavigatorScreenProp } from './Tabs';
 import { FeeToken } from './FeeToken';
 import { OperationSection } from './OperationSection';
-import { Hex } from 'lib';
+import { Address, Hex } from 'lib';
 import { gql, useFragment } from '@api/generated';
 import { Text } from 'react-native-paper';
 import { useQuery } from '~/gql';
 import { useSubscription } from 'urql';
+import { BOOTLOADER_FORMAL_ADDRESS } from 'zksync-web3/build/src/utils';
 
 const Query = gql(/* GraphQL */ `
   query DetailsTab($proposal: Bytes32!) {
@@ -44,6 +45,8 @@ const FragmentDoc = gql(/* GraphQL */ `
           }
           amount
           value
+          from
+          to
         }
       }
     }
@@ -57,6 +60,8 @@ const FragmentDoc = gql(/* GraphQL */ `
         }
         amount
         value
+        from
+        to
       }
     }
     ...OperationSection_TransactionProposalFragment
@@ -71,6 +76,9 @@ const Subscription = gql(/* GraphQL */ `
     }
   }
 `);
+
+const isFeeTransfer = ({ from, to }: { from: Address; to: Address }) =>
+  from !== BOOTLOADER_FORMAL_ADDRESS && to !== BOOTLOADER_FORMAL_ADDRESS;
 
 export interface DetailsTabParams {
   proposal: Hex;
@@ -111,13 +119,15 @@ export const DetailsTab = withSuspense(({ route }: DetailsTabProps) => {
       </ListHeader>
       <FeeToken proposal={p} />
 
-      {transfers.map((t) =>
-        t.token ? (
-          <TokenItem key={t.id} token={t.token} amount={t.amount} />
-        ) : (
-          <Text key={t.id}>{`${t.tokenAddress}: ${t.amount}`}</Text>
-        ),
-      )}
+      {transfers
+        .filter(isFeeTransfer) // Ignore fee transfers, this is shown by FeeToken
+        .map((t) =>
+          t.token ? (
+            <TokenItem key={t.id} token={t.token} amount={t.amount} />
+          ) : (
+            <Text key={t.id}>{`${t.tokenAddress}: ${t.amount}`}</Text>
+          ),
+        )}
     </ScrollView>
   );
 }, TabScreenSkeleton);
