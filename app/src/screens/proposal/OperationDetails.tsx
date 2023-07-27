@@ -7,6 +7,7 @@ import { useAddressLabel } from '~/components/address/AddressLabel';
 import { useTimestamp } from '~/components/format/Timestamp';
 import { ListItem } from '~/components/list/ListItem';
 import { useFormattedTokenAmount } from '~/components/token/TokenAmount';
+import { TokenIcon } from '~/components/token/TokenIcon/TokenIcon';
 
 const FragmentDoc = gql(/* GraphQL */ `
   fragment OperationDetails_OperationFragment on Operation {
@@ -65,36 +66,57 @@ export function OperationDetails({ account, ...props }: OperationDetailsProps) {
     .with({ __typename: 'TransferOp' }, (f) => (
       <>
         <ListItem leading={f.to} overline="To" headline={useAddressLabel(f.to)} />
-        <ListItem leading={f.token} overline="Amount" headline={useFormattedTokenAmount(f)} />
+        <ListItem
+          leading={(props) => <TokenIcon {...props} token={f.token} />}
+          leadingSize="medium"
+          overline="Amount"
+          headline={useFormattedTokenAmount(f)}
+        />
       </>
     ))
     .with({ __typename: 'TransferFromOp' }, (f) => (
       <>
-        <ListItem leading={f.token} headline={useFormattedTokenAmount(f)} />
+        <ListItem
+          leading={(props) => <TokenIcon {...props} token={f.token} />}
+          leadingSize="medium"
+          headline={useFormattedTokenAmount(f)}
+        />
         {account !== f.from && (
           <ListItem leading={f.from} overline="From" headline={useAddressLabel(f.from)} />
         )}
         {account !== f.to && (
           <ListItem leading={f.to} overline="To" headline={useAddressLabel(f.to)} />
         )}
-        <ListItem leading={f.token} overline="Amount" headline={useFormattedTokenAmount(f)} />
+        <ListItem
+          leading={(props) => <TokenIcon {...props} token={f.token} />}
+          leadingSize="medium"
+          overline="Amount"
+          headline={useFormattedTokenAmount(f)}
+        />
       </>
     ))
     .with({ __typename: 'TransferApprovalOp' }, (f) => (
       <>
         <ListItem leading={f.spender} overline="Spender" headline={useAddressLabel(f.spender)} />
-        <ListItem leading={f.token} overline="Amount" headline={useFormattedTokenAmount(f)} />
+        <ListItem
+          leading={(props) => <TokenIcon {...props} token={f.token} />}
+          leadingSize="medium"
+          overline="Amount"
+          headline={useFormattedTokenAmount(f)}
+        />
       </>
     ))
     .with({ __typename: 'SwapOp' }, (f) => (
       <>
         <ListItem
-          leading={f.fromToken}
+          leading={(props) => <TokenIcon {...props} token={f.fromToken} />}
+          leadingSize="medium"
           overline="From"
           headline={useFormattedTokenAmount({ token: f.fromToken, amount: f.fromAmount })}
         />
         <ListItem
-          leading={f.toToken}
+          leading={(props) => <TokenIcon {...props} token={f.toToken} />}
+          leadingSize="medium"
           overline="To (minimum)"
           headline={useFormattedTokenAmount({
             token: f.toToken,
