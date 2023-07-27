@@ -10,6 +10,11 @@ import { Address } from 'lib';
 import { NotFound } from '~/components/NotFound';
 import { gql } from '@api/generated';
 import { useQuery } from '~/gql';
+import { persistedAtom } from '~/util/persistedAtom';
+import { useAtomValue } from 'jotai';
+import { useSyncAtom } from '~/util/useSyncAtom';
+
+const selectedAccount = persistedAtom<Address | null>('selectedAccount', null);
 
 const Query = gql(/* GraphQL */ `
   query Home($account: Address) {
@@ -30,8 +35,11 @@ export interface HomeScreenParams {
 export type HomeScreenProps = StackNavigatorScreenProps<'Home'>;
 
 export const HomeScreen = withSuspense(({ route }: HomeScreenProps) => {
-  const query = useQuery(Query, { account: route.params.account }).data;
+  const selected = useAtomValue(selectedAccount);
+  const query = useQuery(Query, { account: route.params.account ?? (selected || undefined) }).data;
   const { account } = query;
+
+  useSyncAtom(selectedAccount, account?.address ?? null);
 
   if (!account) return <NotFound name="Account" />;
 
