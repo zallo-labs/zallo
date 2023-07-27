@@ -1,7 +1,7 @@
 import { InsertShape } from '~/edgeql-js/insert';
 import { $Token } from '~/edgeql-js/modules/default';
 
-export const TOKENS: InsertShape<$Token>[] = [
+export const TOKENS = [
   {
     name: 'Ether',
     symbol: 'ETH',
@@ -96,4 +96,4 @@ export const TOKENS: InsertShape<$Token>[] = [
     ethereumAddress: '0x853d955acef822db058eb8505911ed77f175b99e',
     iconUri: 'https://cryptologos.cc/logos/aave-aave-logo.svg',
   },
-];
+] satisfies InsertShape<$Token>[];

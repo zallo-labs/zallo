@@ -79,7 +79,12 @@ describe(PoliciesService.name, () => {
           account: e.select(e.Account, () => ({ filter_single: { address: account } })),
           operations: e.insert(e.Operation, { to: ZERO_ADDR }),
           nonce: nonce++,
-          feeToken: e.insert(e.Token, TOKENS[0]),
+          feeToken: e.assert_single(
+            e.select(e.Token, (t) => ({
+              filter: e.op(t.address, '=', TOKENS[0].address),
+              limit: 1,
+            })),
+          ),
           simulation: e.insert(e.Simulation, {}),
         })
         .run(db.client);
