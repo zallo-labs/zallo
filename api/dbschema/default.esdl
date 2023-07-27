@@ -125,8 +125,9 @@ module default {
     required block: bigint { constraint min_value(0n); }
     required timestamp: datetime { default := datetime_of_statement(); }
     link transaction := (
-      with transactionHash := .transactionHash
-      select Transaction filter .hash = transactionHash
+      with transactionHash := .transactionHash,
+           account := .account
+      select Transaction filter .hash = transactionHash and .proposal.account = account
     );
 
     constraint exclusive on ((.account, .block, .logIndex));
@@ -196,9 +197,8 @@ module default {
     required success: bool;
     required responses: array<Bytes>;
     multi link events := (
-      with txHash := .transaction.hash
-      select Event
-      filter .transactionHash = txHash
+      with tx := .transaction
+      select Event filter .transaction = tx
     );
     multi link transferEvents := .events[is Transfer];
     multi link transferApprovalEvents := .events[is TransferApproval];

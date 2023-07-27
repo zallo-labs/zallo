@@ -159,9 +159,9 @@ export interface Receipt extends std.$Object {
   "gasUsed": bigint;
   "timestamp": Date;
   "transaction": Transaction;
-  "events": Event[];
   "transferApprovalEvents": TransferApproval[];
   "transferEvents": Transfer[];
+  "events": Event[];
 }
 export interface Rejection extends ProposalResponse {}
 export interface Simulation extends std.$Object {
