@@ -73,14 +73,20 @@ export const ProposalItem = withSuspense(
           : 'Awaiting approval',
       )
       .with({ status: 'Executing' }, () => 'Executing...')
-      .with({ status: 'Failed' }, () => ({ Text }) => (
-        <Text style={styles.failed}>
-          <Timestamp timestamp={p.transaction!.receipt!.timestamp} />
-        </Text>
-      ))
-      .with({ status: 'Successful' }, () => (
-        <Timestamp timestamp={p.transaction!.receipt!.timestamp} />
-      ))
+      .with(
+        { status: 'Failed' },
+        () =>
+          ({ Text }) =>
+            p.transaction?.receipt && (
+              <Text style={styles.failed}>
+                <Timestamp timestamp={p.transaction.receipt.timestamp} />
+              </Text>
+            ),
+      )
+      .with(
+        { status: 'Successful' },
+        () => p.transaction?.receipt && <Timestamp timestamp={p.transaction.receipt.timestamp} />,
+      )
       .exhaustive();
 
     return (
