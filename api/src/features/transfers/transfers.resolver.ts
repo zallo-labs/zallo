@@ -29,12 +29,12 @@ export class TransfersResolver {
   @Subscription(() => Transfer, {
     name: 'transfer',
     filter: (
-      { direction, isExternal }: TransferSubscriptionPayload,
-      { input: { directions, external } }: InputArgs<TransferSubscriptionInput>,
+      transfer: TransferSubscriptionPayload,
+      { input }: InputArgs<TransferSubscriptionInput>,
     ) => {
       return (
-        (!directions || directions.includes(direction)) &&
-        (external === undefined || external === isExternal)
+        (input.direction === undefined || input.direction === transfer.direction) &&
+        (input.internal === undefined || input.internal === transfer.internal)
       );
     },
     resolve(

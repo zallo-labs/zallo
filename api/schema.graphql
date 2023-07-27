@@ -678,10 +678,10 @@ type TransferOp {
 
 input TransferSubscriptionInput {
   accounts: [Address!]
-  directions: [TransferDirection!]
+  direction: TransferDirection
 
-  """Not originating from an account transaction"""
-  external: Boolean
+  """Originating from an account transaction"""
+  internal: Boolean
 }
 
 interface Transferlike implements EventBase & TransferDetails {
@@ -717,8 +717,8 @@ input TransfersInput {
   accounts: [Address!]
   direction: TransferDirection
 
-  """Not originating from an account transaction"""
-  external: Boolean
+  """Originating from an account transaction"""
+  internal: Boolean
 }
 
 """256-bit unsigned integer"""

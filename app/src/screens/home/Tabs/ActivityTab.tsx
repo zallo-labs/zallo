@@ -23,7 +23,7 @@ const Query = gql(/* GraphQL */ `
       ...ProposalItem_TransactionProposalFragment
     }
 
-    transfers(input: { accounts: $accounts, direction: In, external: true }) {
+    transfers(input: { accounts: $accounts, direction: In, internal: false }) {
       __typename
       id
       timestamp
@@ -45,7 +45,7 @@ const ProposalSubscription = gql(/* GraphQL */ `
 
 const TransferSubscription = gql(/* GraphQL */ `
   subscription ActivityTab_TransferSubscription($accounts: [Address!]!) {
-    transfer(input: { accounts: $accounts, directions: [In], external: true }) {
+    transfer(input: { accounts: $accounts, direction: In, internal: false }) {
       __typename
       id
       timestamp

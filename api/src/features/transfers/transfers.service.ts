@@ -36,7 +36,7 @@ export class TransfersService {
   }
 
   async select(
-    { accounts, direction, external }: TransfersInput,
+    { accounts, direction, internal }: TransfersInput,
     shape?: ShapeFunc<typeof e.Transfer>,
   ) {
     return this.db.query(
@@ -45,9 +45,7 @@ export class TransfersService {
         filter: and(
           accounts && e.op(t.account, 'in', e.set(...accounts.map((a) => selectAccount(a)))),
           direction && e.op(t.direction, '=', e.cast(e.TransferDirection, direction)),
-          external !== undefined && external
-            ? e.op('not', e.op('exists', t.transaction))
-            : e.op('exists', t.transaction),
+          internal !== undefined && e.op(e.op('exists', t.transaction), '=', internal),
         ),
       })),
     );

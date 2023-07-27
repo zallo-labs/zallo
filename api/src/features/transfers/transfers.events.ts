@@ -25,7 +25,7 @@ export interface TransferSubscriptionPayload {
   transfer: uuid;
   account: Address;
   direction: TransferDirection;
-  isExternal: boolean;
+  internal: boolean;
 }
 
 @Injectable()
@@ -80,42 +80,44 @@ export class TransfersEvents {
 
     await Promise.all(
       accounts.map(async (account) => {
+        const direction = account === from ? TransferDirection.Out : TransferDirection.In;
+
         const r = await this.db.query(
           e.select({
-            newTransfer: e
-              .insert(e.Transfer, {
-                account: selectAccount(account),
-                transactionHash: log.transactionHash,
-                logIndex: log.logIndex,
-                block,
-                timestamp: new Date(timestamp * 1000),
-                direction: e.cast(
-                  e.TransferDirection,
-                  account === from ? TransferDirection.Out : TransferDirection.In,
-                ),
-                from,
-                to,
-                tokenAddress,
-                amount,
-              })
-              .unlessConflict(),
-            existingTransfer: e.select(e.Transfer, () => ({
-              filter_single: { account: selectAccount(account), block, logIndex: log.logIndex },
-            })),
-            isExternal: e.op(
-              e.select(e.Transaction, () => ({ filter_single: { hash: log.transactionHash } }))
-                .proposal.account.address,
-              '?!=',
-              account,
+            newTransfer: e.select(
+              e
+                .insert(e.Transfer, {
+                  account: selectAccount(account),
+                  transactionHash: log.transactionHash,
+                  logIndex: log.logIndex,
+                  block,
+                  timestamp: new Date(timestamp * 1000),
+                  direction: e.cast(e.TransferDirection, direction),
+                  from,
+                  to,
+                  tokenAddress,
+                  amount,
+                })
+                .unlessConflict(),
+              (t) => ({
+                id: true,
+                internal: e.op('exists', t.transaction),
+              }),
             ),
+            existingTransfer: e.select(e.Transfer, (t) => ({
+              filter_single: { account: selectAccount(account), block, logIndex: log.logIndex },
+              id: true,
+              internal: e.op('exists', t.transaction),
+            })),
           }),
         );
 
+        const transfer = (r.newTransfer ?? r.existingTransfer)!;
         await this.pubsub.publish<TransferSubscriptionPayload>(getTransferTrigger(account), {
-          transfer: (r.newTransfer ?? r.existingTransfer)!.id,
+          transfer: transfer.id,
           account,
-          direction: account === from ? TransferDirection.Out : TransferDirection.In,
-          isExternal: r.isExternal,
+          direction,
+          internal: transfer.internal,
         });
 
         if (r.newTransfer) {
