@@ -30,7 +30,7 @@ export interface TokensTabParams {}
 export type TokensTabProps = TabNavigatorScreenProp<'Tokens'> & { account: Address };
 
 export const TokensTab = withSuspense(
-  ({ route, ...props }: TokensTabProps) => {
+  (props: TokensTabProps) => {
     const query = useQuery(Query, { account: props.account });
     usePollQuery(query.reexecute, 15000);
     const data = query.data!;
@@ -55,7 +55,6 @@ export const TokensTab = withSuspense(
         contentContainerStyle={styles.contentContainer}
         estimatedItemSize={ListItemHeight.DOUBLE_LINE}
         getItemType={(item) => item.__typename}
-        keyExtractor={(item) => item.id}
         showsVerticalScrollIndicator={false}
       />
     );

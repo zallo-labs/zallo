@@ -115,7 +115,6 @@ export const AddressesModal = withSuspense(({ route }: AddressesModalProps) => {
         }
         extraData={[disabled]}
         getItemType={(item) => (typeof item === 'object' ? item.__typename : 'header')}
-        keyExtractor={(item) => (typeof item === 'object' ? item.id : item || '')}
         showsVerticalScrollIndicator={false}
         estimatedItemSize={ListItemHeight.DOUBLE_LINE}
       />
