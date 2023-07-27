@@ -17,7 +17,6 @@ export const TRANSFER_VALUE_FIELDS_SHAPE = {
     decimals: true,
   },
   amount: true,
-  direction: true,
 } satisfies Shape<typeof e.TransferDetails>;
 const s = e.select(e.TransferDetails, () => TRANSFER_VALUE_FIELDS_SHAPE);
 export type TransferValueSelectFields = $infer<typeof s>[0];
@@ -51,7 +50,7 @@ export class TransfersService {
     );
   }
 
-  async value({ token, amount, direction }: TransferValueSelectFields): Promise<number | null> {
+  async value({ token, amount }: TransferValueSelectFields): Promise<number | null> {
     if (!token) return null;
 
     const p = await this.prices.price(
@@ -60,8 +59,6 @@ export class TransfersService {
     );
     if (!p) return null;
 
-    const value = tokenToFiat(amount, p.current, token.decimals);
-
-    return direction === 'In' ? value : -value;
+    return tokenToFiat(amount, p.current, token.decimals);
   }
 }

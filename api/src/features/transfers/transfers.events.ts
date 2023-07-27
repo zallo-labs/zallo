@@ -96,7 +96,7 @@ export class TransfersEvents {
                   from,
                   to,
                   tokenAddress,
-                  amount,
+                  amount: direction === TransferDirection.In ? amount : -amount,
                 })
                 .unlessConflict(),
               (t) => ({
