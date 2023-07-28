@@ -95,7 +95,7 @@ export class ProposalsService {
     feeToken = ETH_ADDRESS as Address,
     signature,
   }: ProposeInput) {
-    const { id, hash } = await this.db.transaction(async (db) => {
+    return this.db.transaction(async (db) => {
       if (!operations.length) throw new UserInputError('No operations provided');
 
       const tx = asTx({
@@ -127,12 +127,10 @@ export class ProposalsService {
 
       if (signature) await this.approve({ hash, signature });
 
+      this.db.afterTransaction(() => this.publishProposal({ account, hash }, ProposalEvent.create));
+
       return { id, hash };
     });
-
-    await this.publishProposal({ account, hash }, ProposalEvent.create);
-
-    return { id, hash };
   }
 
   async approve({ hash, signature }: ApproveInput) {

@@ -6,8 +6,11 @@ import { AsyncLocalStorage } from 'async_hooks';
 import type { Client } from 'edgedb';
 import { Transaction } from 'edgedb/dist/transaction';
 
+type Hook = () => void;
+
 interface Context {
   transaction: Transaction;
+  afterTransactionHooks: Hook[];
 }
 
 @Injectable()
@@ -40,16 +43,33 @@ export class DatabaseService implements OnModuleInit {
       : this.DANGEROUS_superuserClient;
   }
 
-  transaction<T>(action: (transaction: Transaction) => Promise<T>): Promise<T> {
-    const transaction = this.context.getStore()?.transaction;
-    if (transaction) return action(transaction);
-
-    return this.client.transaction((transaction) =>
-      this.context.run({ transaction }, () => action(transaction)),
-    );
-  }
-
   async query<Expr extends Expression>(expression: Expr): Promise<$infer<Expr>> {
     return expression.run(this.client);
+  }
+
+  async transaction<T>(action: (transaction: Transaction) => Promise<T>): Promise<T> {
+    const transaction = this.context.getStore()?.transaction;
+    if (transaction) {
+      return action(transaction);
+    }
+
+    const afterTransactionHooks: Hook[] = [];
+
+    const result = await this.client.transaction((transaction) =>
+      this.context.run({ transaction, afterTransactionHooks }, () => action(transaction)),
+    );
+
+    afterTransactionHooks.forEach((f) => f());
+
+    return result;
+  }
+
+  afterTransaction(hook: Hook) {
+    const store = this.context.getStore();
+    if (store) {
+      store.afterTransactionHooks.push(hook);
+    } else {
+      hook();
+    }
   }
 }
