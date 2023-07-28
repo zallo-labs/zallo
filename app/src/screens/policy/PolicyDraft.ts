@@ -31,10 +31,12 @@ export function asPolicyInput(p: PolicyDraft): PolicyInput {
           defaultAllow: target.defaultAllow,
         })),
         default: {
-          functions: Object.entries(p.permissions.targets.default).map(([selector, allow]) => ({
-            selector,
-            allow,
-          })),
+          functions: Object.entries(p.permissions.targets.default.functions).map(
+            ([selector, allow]) => ({
+              selector,
+              allow,
+            }),
+          ),
           defaultAllow: p.permissions.targets.default.defaultAllow,
         },
       },
