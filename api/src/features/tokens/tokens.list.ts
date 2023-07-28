@@ -88,12 +88,4 @@ export const TOKENS = [
     ethereumAddress: '0x853d955acef822db058eb8505911ed77f175b99e',
     iconUri: 'https://cryptologos.cc/logos/frax-frax-logo.svg',
   },
-  {
-    name: 'Aave',
-    symbol: 'AAVE',
-    decimals: 18,
-    address: '0x7fc66500c84a76ad7e9c93437bfc5ac33e2ddae9',
-    ethereumAddress: '0x853d955acef822db058eb8505911ed77f175b99e',
-    iconUri: 'https://cryptologos.cc/logos/aave-aave-logo.svg',
-  },
 ] satisfies InsertShape<$Token>[];
