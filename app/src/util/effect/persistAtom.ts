@@ -62,7 +62,7 @@ export const persistAtom =
         }
         if (wrapped === null || clear) return new DefaultValue();
 
-        let { data, version: dataVersion }: Wrapped = JSON.parse(wrapped);
+        let { data, version: dataVersion } = JSON.parse(wrapped) as Wrapped;
         if (dataVersion !== version) {
           const migrated = migrate(key, data, dataVersion, migrations, version);
           if (migrated instanceof DefaultValue) return migrated;
