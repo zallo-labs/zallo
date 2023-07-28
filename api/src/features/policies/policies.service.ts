@@ -169,7 +169,7 @@ export class PoliciesService {
       }
 
       // State
-      if (approvers || threshold !== undefined || permissions) {
+      if (approvers || threshold !== undefined || !_.isEmpty(permissions)) {
         // Get existing policy state
         // If approvers, threshold, or permissions are undefined then modify the policy accordingly
         // Propose new state
@@ -189,12 +189,16 @@ export class PoliciesService {
         if (!existing.policy) throw new UserInputError("Policy doesn't exist");
 
         const policy = policyStateAsPolicy(key, existing.policy.draft ?? existing.policy.state!);
+        const encodedOriginal = POLICY_ABI.encode(policy);
 
         if (approvers) policy.approvers = new Set(approvers);
         if (threshold !== undefined) policy.threshold = threshold;
         if (permissions?.targets) policy.permissions.targets = asTargetsConfig(permissions.targets);
         if (permissions?.transfers)
           policy.permissions.transfers = asTransfersConfig(permissions.transfers);
+
+        // Only update if policy would actually change
+        if (encodedOriginal === POLICY_ABI.encode(policy)) return;
 
         await this.upsertApprovers({ id: existing.account.id, address: account }, policy);
 
