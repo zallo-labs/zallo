@@ -11007,6 +11007,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@total-typescript/ts-reset@npm:^0.4.2":
+  version: 0.4.2
+  resolution: "@total-typescript/ts-reset@npm:0.4.2"
+  checksum: e3681b8fb48cf63538c19e7f203de5ec8b1abdcd0db5c6bd48e0881e2a86977771118c6c2930691947d11213b10a654bc2328b479c4dc0ddec7dfde129d08569
+  languageName: node
+  linkType: hard
+
 "@trysound/sax@npm:0.2.0":
   version: 0.2.0
   resolution: "@trysound/sax@npm:0.2.0"
@@ -14237,7 +14244,7 @@ __metadata:
     connect-redis: ^7.1.0
     cross-fetch: ^3.1.5
     dotenv: ^16.3.1
-    edgedb: ^1.3.3
+    edgedb: ^1.3.4
     eslint: ^8.38.0
     eslint-config-prettier: ^8.8.0
     eslint-plugin-prettier: ^4.2.1
@@ -14609,6 +14616,7 @@ __metadata:
     "@shopify/flash-list": 1.4.3
     "@testing-library/jest-native": ^5.4.2
     "@testing-library/react-native": ^11.5.4
+    "@total-typescript/ts-reset": ^0.4.2
     "@typechain/ethers-v5": ^11.0.0
     "@types/color": ^3.0.3
     "@types/fuzzy-search": ^2.1.2
@@ -20115,12 +20123,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"edgedb@npm:^1.3.3":
-  version: 1.3.3
-  resolution: "edgedb@npm:1.3.3"
+"edgedb@npm:^1.3.4":
+  version: 1.3.4
+  resolution: "edgedb@npm:1.3.4"
   bin:
     edgeql-js: dist/cli.js
-  checksum: ec7ace3c20ee456083e201a473f9993c9a740c78bd5a3f5cb5542078745baa65f3ac4c6007f48ceaedb976e5a0eaa14252fa72996637a3b64d33577c1cf1d4f1
+  checksum: 44f52f629329e9928c0b097d6bf6bce857127da8267962176171aeff62ceda77d3f610c2872be53d7880bb8e5117ed3ba390414667c38b6e89b000fda4460ec6
   languageName: node
   linkType: hard
 
