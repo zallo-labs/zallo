@@ -20,10 +20,6 @@ import { useMutation } from 'urql';
 
 const Query = gql(/* GraphQL */ `
   query PolicyScreen($account: Address!, $key: PolicyKey!) {
-    account(input: { address: $account }) {
-      id
-    }
-
     policy(input: { account: $account, key: $key }) {
       id
       state {
@@ -86,19 +82,16 @@ export interface PolicyScreenParams {
 export type PolicyScreenProps = StackNavigatorScreenProps<'Policy'>;
 
 export const PolicyScreen = withSuspense((props: PolicyScreenProps) => {
-  const { account: accountAddress, key } = props.route.params;
-  const { account, policy } = useQuery(
-    Query,
-    { account: accountAddress, key: key! },
-    { pause: !key },
-  ).data;
+  const { account, key } = props.route.params;
+  const { policy } =
+    useQuery(Query, { account, key: key! }, { pause: key === undefined }).data ?? {};
 
-  const state = props.route.params.view ?? policy?.state ? 'active' : 'draft';
-  const init = useHydratePolicyDraft(accountAddress, policy, state);
+  const view = props.route.params.view ?? policy?.state ? 'active' : 'draft';
+  const init = useHydratePolicyDraft(account, policy, view);
 
-  if (!account || (key && !policy)) return <NotFound name="Policy" />;
+  if (key !== undefined && !policy) return <NotFound name="Policy" />;
 
-  return <PolicyView {...props} policy={policy} init={init} view={state} />;
+  return <PolicyView {...props} policy={policy} init={init} view={view} />;
 }, ScreenSkeleton);
 
 interface PolicyViewProps extends Pick<PolicyScreenProps, 'navigation'> {
