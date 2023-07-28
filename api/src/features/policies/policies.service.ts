@@ -31,6 +31,8 @@ import {
 import { PolicyState, SatisfiabilityResult } from './policies.model';
 import { proposalTxShape, transactionProposalAsTx } from '../proposals/proposals.uitl';
 import { UserAccountContext } from '~/request/ctx';
+import { and } from '../database/database.util';
+import { selectAccount } from '../accounts/accounts.util';
 
 interface CreateParams extends CreatePolicyInput {
   accountId?: uuid;
@@ -47,11 +49,21 @@ export class PoliciesService {
   ) {}
 
   async selectUnique(unique: UniquePolicy, shape?: ShapeFunc<typeof e.Policy>) {
+    // assert exist with filter is a workaround for the issue - https://github.com/edgedb/edgedb-js/issues/708
     return e
-      .select(e.Policy, (p) => ({
-        ...(shape && shape(p)),
-        ...uniquePolicy(unique)(p),
-      }))
+      .assert_single(
+        e.select(e.Policy, (p) => ({
+          ...shape?.(p),
+          // ...uniquePolicy(unique)(p),
+          filter:
+            'id' in unique
+              ? e.op(p.id, '=', e.uuid(unique.id))
+              : and(
+                  e.op(p.account, '=', selectAccount(unique.account)),
+                  e.op(p.key, '=', unique.key),
+                ),
+        })),
+      )
       .run(this.db.client);
   }
 
