@@ -8,6 +8,7 @@ import { makeStyles } from '@theme/makeStyles';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { ICON_SIZE } from '@theme/paper';
 import { Text } from 'react-native-paper';
+import { useNavigation } from '@react-navigation/native';
 
 export interface NotFoundProps {
   name: string;
@@ -16,10 +17,11 @@ export interface NotFoundProps {
 
 export function NotFound({ name, appbarProps }: NotFoundProps) {
   const styles = useStyles();
+  const { goBack } = useNavigation();
 
   return (
     <Screen>
-      <Appbar mode="small" leading="back" headline="" />
+      <Appbar mode="small" leading="back" headline="" {...appbarProps} />
 
       <View style={styles.container}>
         <MaterialCommunityIcons name="robot-confused" size={ICON_SIZE.large} style={styles.error} />
@@ -30,7 +32,7 @@ export function NotFound({ name, appbarProps }: NotFoundProps) {
       </View>
 
       <Actions>
-        <Button mode="contained" icon={BackIcon}>
+        <Button mode="contained" icon={BackIcon} onPress={goBack}>
           Back
         </Button>
       </Actions>
