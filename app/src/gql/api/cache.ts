@@ -3,19 +3,10 @@ import schema from './schema';
 import { MutationCreatePolicyArgs, Node } from '@api/generated/graphql';
 import { gql } from './generated';
 
-const NO_ID = () => null;
-
 export const CACHE_CONFIG: Pick<
   CacheExchangeOpts,
-  'keys' | 'resolvers' | 'updates' | 'optimistic'
+  'resolvers' | 'updates' | 'optimistic' | 'keys'
 > = {
-  keys: {
-    TokenUnit: NO_ID,
-    Operation: NO_ID,
-    OperationFunction: NO_ID,
-    TransferOp: NO_ID,
-    SatisfiabilityResult: NO_ID,
-  } as /* satisfies */ Partial<Record<Typename, KeyGenerator>>,
   updates: {
     Mutation: {
       createAccount: (_result, _args, cache) => {
@@ -77,7 +68,37 @@ export const CACHE_CONFIG: Pick<
       },
     } as /* satisfies */ Partial<Record<Subscription, UpdateResolver<unknown, unknown>>>,
   },
+  keys: new Proxy(
+    {
+      // Explicit keys
+    } as /* satisfies */ Partial<Record<Typename, KeyGenerator>>,
+    {
+      get: (target, p) => {
+        const explicit = target[p as Typename];
+        if (explicit) return explicit;
+
+        return (data: Record<string, unknown>) => {
+          if ('id' in data) return data.id;
+
+          // Show an error for types that have an id field, but isn't selected
+          if (__DEV__ && !KEY_TYPENAME_CHECKED[p]) {
+            KEY_TYPENAME_CHECKED[p] = true;
+            const type = schema['__schema']['types'].find((t) => t.name === p);
+            if (type?.kind === 'OBJECT' && (type.fields as any).find((f: any) => f.name === 'id')) {
+              console.error(
+                `Type '${p.toString()}' has a selection set but no key could be generated. Specify 'id' in the selection set or add an explicit key function for this type`,
+              );
+            }
+          }
+
+          return null;
+        };
+      },
+    },
+  ),
 };
+
+const KEY_TYPENAME_CHECKED: Record<string | symbol, true> = {};
 
 type Schema = (typeof schema)['__schema'];
 
