@@ -10,7 +10,7 @@ import {
   PolicyRemoveIcon,
   PolicyRemoveOutlineIcon,
 } from '@theme/icons';
-import { match } from 'ts-pattern';
+import { P, match } from 'ts-pattern';
 
 const Policy = gql(/* GraphQL */ `
   fragment PolicyIcon_Policy on Policy {
@@ -38,8 +38,8 @@ export const PolicyIcon = ({
   const policy = useFragment(Policy, policyFragment);
 
   const icons = match(policy)
-    .with({ state: undefined }, () => [PolicyAddOutlineIcon, PolicyAddIcon] as const)
-    .with({ draft: undefined }, () => [PolicyActiveOutlineIcon, PolicyActiveIcon] as const)
+    .with({ state: P.nullish }, () => [PolicyAddOutlineIcon, PolicyAddIcon] as const)
+    .with({ draft: P.nullish }, () => [PolicyActiveOutlineIcon, PolicyActiveIcon] as const)
     .with(
       { draft: { isRemoved: true } },
       () => [PolicyRemoveOutlineIcon, PolicyRemoveIcon] as const,
