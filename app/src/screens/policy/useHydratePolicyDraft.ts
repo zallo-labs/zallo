@@ -1,10 +1,9 @@
 import { ALLOW_ALL_TARGETS, ALLOW_ALL_TRANSFERS_CONFIG, Address } from 'lib';
-import { useSetAtom } from 'jotai';
 import { FragmentType, gql, useFragment as getFragment } from '@api/generated';
-import { useEffect, useMemo } from 'react';
+import { useMemo } from 'react';
 import { useApproverAddress } from '@network/useApprover';
-import { useHydrateAtoms } from 'jotai/utils';
 import { POLICY_DRAFT_ATOM, PolicyDraft } from './PolicyDraft';
+import { useSyncAtom } from '~/util/useSyncAtom';
 
 const PolicyState = gql(/* GraphQL */ `
   fragment UseHydratePolicyDraft_PolicyState on PolicyState {
@@ -65,7 +64,7 @@ const Policy = gql(/* GraphQL */ `
 export function useHydratePolicyDraft(
   account: Address,
   policyFragment: FragmentType<typeof Policy> | null | undefined,
-  state: 'active' | 'draft',
+  view: 'active' | 'draft',
 ) {
   const policy = getFragment(Policy, policyFragment);
   const approver = useApproverAddress();
@@ -74,8 +73,8 @@ export function useHydratePolicyDraft(
     (): PolicyDraft => ({
       account,
       key: policy?.key,
-      name: 'New policy',
-      ...(state === 'active' && policy?.state
+      name: policy?.name ?? 'New policy',
+      ...(view === 'active' && policy?.state
         ? stateAsPolicy(policy.state)
         : policy?.draft
         ? stateAsPolicy(policy.draft)
@@ -88,15 +87,10 @@ export function useHydratePolicyDraft(
             threshold: 1,
           }),
     }),
-    [account, approver, policy, state],
+    [account, approver, policy, view],
   );
 
-  useHydrateAtoms([[POLICY_DRAFT_ATOM, init]]); // Ensures hydrates on first render - unlike useEffect
-
-  const setDraft = useSetAtom(POLICY_DRAFT_ATOM);
-  useEffect(() => {
-    if (init) setDraft(init);
-  }, [init, setDraft]);
+  useSyncAtom(POLICY_DRAFT_ATOM, init);
 
   return init;
 }
