@@ -7,6 +7,7 @@ import { FragmentType, gql, useFragment } from '@api/generated';
 import { useCanRespond } from '~/components/proposal/useCanRespond';
 import { useApprove } from './useApprove';
 import { useMutation } from 'urql';
+import { makeStyles } from '@theme/makeStyles';
 
 const BLOCK_EXPLORER_URL = CHAIN.blockExplorers?.default.url;
 
@@ -51,6 +52,7 @@ export interface ProposalActionsProps {
 }
 
 export const ProposalActions = (props: ProposalActionsProps) => {
+  const styles = useStyles();
   const p = useFragment(ProposalFragment, props.proposal);
 
   const { canApprove, canReject } = useCanRespond(p);
@@ -82,10 +84,25 @@ export const ProposalActions = (props: ProposalActionsProps) => {
       )}
 
       {p.status === 'Failed' && (
-        <Button mode="contained" icon={RetryIcon} onPress={() => execute({ proposal: p.hash })}>
+        <Button
+          mode="contained"
+          icon={RetryIcon}
+          onPress={() => execute({ proposal: p.hash })}
+          contentStyle={styles.retryContainer}
+          labelStyle={styles.retryLabel}
+        >
           Retry
         </Button>
       )}
     </Actions>
   );
 };
+
+const useStyles = makeStyles(({ colors }) => ({
+  retryContainer: {
+    backgroundColor: colors.errorContainer,
+  },
+  retryLabel: {
+    color: colors.onErrorContainer,
+  },
+}));
