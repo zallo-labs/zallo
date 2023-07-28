@@ -1,7 +1,9 @@
 import { Cache, CacheExchangeOpts, KeyGenerator, UpdateResolver } from '@urql/exchange-graphcache';
 import schema from './schema';
-import { MutationCreatePolicyArgs, Node } from '@api/generated/graphql';
+import { MutationCreatePolicyArgs, MutationRemovePolicyArgs, Node } from '@api/generated/graphql';
 import { gql } from './generated';
+import { Address } from 'lib';
+import { clog } from '~/util/format';
 
 export const CACHE_CONFIG: Pick<
   CacheExchangeOpts,
@@ -10,61 +12,50 @@ export const CACHE_CONFIG: Pick<
   updates: {
     Mutation: {
       createAccount: (_result, _args, cache) => {
-        invalidateQuery(cache, 'accounts');
+        invalidate(cache, 'Query', ['accounts']);
       },
       upsertContact: (_result, _args, cache) => {
-        invalidateQuery(cache, 'contacts');
+        invalidate(cache, 'Query', ['contacts']);
       },
       deleteContact: (result: string, _args, cache) => {
-        cache.invalidate({ __typename: 'Contact' as Typename, id: result });
-        invalidateQuery(cache, 'contacts');
+        invalidate(cache, { __typename: 'Contact', id: result });
+        invalidate(cache, 'Query', ['contacts']);
       },
       pair: (_result, _args, cache) => {
-        invalidateQuery(cache, 'accounts');
+        invalidate(cache, 'Query', ['user', 'accounts']);
       },
       createPolicy: (_result, { input }: MutationCreatePolicyArgs, cache) => {
-        // Invalidate account
-        const r = cache.readQuery({
-          query: gql(/* GraphQL */ `
-            query Account($account: Address!) {
-              account(input: { address: $account }) {
-                id
-              }
-            }
-          `),
-          variables: { account: input.account },
-        });
-
-        if (r?.account) cache.invalidate({ __typename: 'Account' as Typename, id: r.account.id });
+        invalidate(cache, getAccountEntity(cache, input.account), ['policies']);
       },
-      removePolicy: (result: Node, _args, cache) => {
-        cache.invalidate({ __typename: 'Policy' as Typename, id: result.id });
-        invalidateQuery(cache, 'policies');
+      removePolicy: (result: Node, { input }: MutationRemovePolicyArgs, cache) => {
+        invalidate(cache, { __typename: 'Policy', id: result.id });
+        invalidate(cache, getAccountEntity(cache, input.account), ['policies']);
       },
       propose: (_result, _args, cache) => {
-        invalidateQuery(cache, 'proposals');
+        invalidate(cache, 'Query', ['proposals']);
       },
       removeProposal: (result: string, _args, cache) => {
-        cache.invalidate({ __typename: 'Proposal' as Typename, id: result });
-        invalidateQuery(cache, 'proposals');
+        invalidate(cache, { __typename: 'Proposal', id: result });
+        invalidate(cache, 'Query', ['proposals']);
       },
       upsertToken: (_result, _args, cache) => {
-        invalidateQuery(cache, 'tokens');
+        invalidate(cache, 'Query', ['tokens']);
       },
       removeToken: (result: string, _args, cache) => {
-        cache.invalidate({ __typename: 'Token' as Typename, id: result });
-        invalidateQuery(cache, 'tokens');
+        invalidate(cache, { __typename: 'Token', id: result });
+        invalidate(cache, 'Query', ['tokens']);
       },
       requestTokens: (_result: string, _args, cache) => {
-        invalidateQuery(cache, 'requestableTokens');
+        invalidate(cache, 'Query', ['requestableTokens']);
       },
     } as /* satisfies */ Partial<Record<Mutation, UpdateResolver<unknown, unknown>>>,
     Subscription: {
       proposal: (_result, _args, cache) => {
-        invalidateQuery(cache, 'proposals');
+        // TODO: invalidate on proposal creation
+        // invalidate(cache, 'Query', ['proposals']);
       },
       transfer: (_result, _args, cache) => {
-        invalidateQuery(cache, 'transfers', 'tokens');
+        invalidate(cache, 'Query', ['transfers', 'tokens']);
       },
     } as /* satisfies */ Partial<Record<Subscription, UpdateResolver<unknown, unknown>>>,
   },
@@ -114,9 +105,42 @@ type Mutation = MutationType['name'];
 type SubscriptionType = Type<{ name: Schema['subscriptionType']['name'] }>['fields'][number];
 type Subscription = SubscriptionType['name'];
 
-function invalidateQuery(cache: Cache, ...queries: Query[]) {
-  cache
-    .inspectFields('Query')
-    .filter((field) => queries.includes(field.fieldName as Query))
-    .forEach((field) => cache.invalidate('Query', field.fieldKey));
+function invalidate<
+  Entity extends Type<{ kind: 'OBJECT' }>,
+  EntityName extends Entity['name'],
+  Fieldname extends Entity['fields'][number]['name'],
+>(
+  cache: Cache,
+  entity: EntityName | { __typename: EntityName; id: string } | undefined,
+  fieldnames: Fieldname[] = [],
+) {
+  const key = entity && cache.keyOfEntity(entity);
+  if (!key) return;
+
+  if (fieldnames.length) {
+    cache
+      .inspectFields(key)
+      .filter((field) => fieldnames.includes(field.fieldName as Fieldname))
+      .forEach((field) => cache.invalidate(key, field.fieldKey));
+  } else {
+    // Invalidate entire entity
+    cache.invalidate(key);
+  }
+}
+
+const AccountIdQuery = gql(/* GraphQL */ `
+  query Cache_Account($account: Address!) {
+    account(input: { address: $account }) {
+      id
+    }
+  }
+`);
+
+function getAccountEntity(cache: Cache, account: Address) {
+  const id = cache.readQuery({
+    query: AccountIdQuery,
+    variables: { account },
+  })?.account?.id;
+
+  return id ? ({ __typename: 'Account', id } as const) : undefined;
 }
