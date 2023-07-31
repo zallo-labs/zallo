@@ -7,7 +7,7 @@ import { retryExchange } from '@urql/exchange-retry';
 import { CONFIG } from '~/util/config';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { authExchange } from '@urql/exchange-auth';
-import { Approver } from 'lib';
+import { Approver, Hex, asHex } from 'lib';
 import { DateTime } from 'luxon';
 import { SiweMessage } from 'siwe';
 import { atom, useAtomValue } from 'jotai';
@@ -17,25 +17,43 @@ import schema from './schema';
 import { logError } from '~/util/analytics';
 import crypto from 'react-native-quick-crypto';
 import { CACHE_CONFIG } from './cache';
+import { E_ALREADY_LOCKED, Mutex, tryAcquire } from 'async-mutex';
 
 const TOKEN_KEY = 'apiToken';
+
+interface Token {
+  message: SiweMessage;
+  signature: Hex;
+}
 
 const client = atom(async (get) => {
   const approver = await get(DANGEROUS_approverAtom);
 
-  let token = await AsyncStorage.getItem(TOKEN_KEY);
-  const getHeaders = (): { Authorization: string } | Record<string, never> =>
-    token ? { Authorization: `Bearer ${token}` } : {};
+  let token = JSON.parse((await AsyncStorage.getItem(TOKEN_KEY)) || '') as Token | null;
+  let headers = getHeaders(token);
 
+  const refreshMutex = new Mutex();
   async function refreshAuth() {
-    token = await getToken(approver);
-    await AsyncStorage.setItem(TOKEN_KEY, token);
+    try {
+      await tryAcquire(refreshMutex).runExclusive(async () => {
+        token = await createToken(approver);
+        headers = getHeaders(token);
+        await AsyncStorage.setItem(TOKEN_KEY, JSON.stringify(token));
+      });
+    } catch (e) {
+      if (e === E_ALREADY_LOCKED) {
+        // Wait for token to be recreated
+        await refreshMutex.waitForUnlock();
+      } else {
+        throw e;
+      }
+    }
   }
 
-  function willAuthError() {
-    // TODO: check whether token has expired
-    return !token;
-  }
+  const willAuthError = () =>
+    !token ||
+    (!!token.message.expirationTime &&
+      DateTime.fromISO(token.message.expirationTime) <= DateTime.now());
 
   const wsClient = createWsClient({
     url: CONFIG.apiGqlWs,
@@ -43,7 +61,7 @@ const client = atom(async (get) => {
     retryAttempts: 10,
     async connectionParams() {
       if (willAuthError()) await refreshAuth();
-      return getHeaders();
+      return headers;
     },
   });
 
@@ -77,7 +95,7 @@ const client = atom(async (get) => {
       }),
       authExchange(async (utils) => ({
         addAuthToOperation(operation) {
-          return utils.appendHeaders(operation, getHeaders());
+          return utils.appendHeaders(operation, headers);
         },
         didAuthError(error, _operation) {
           return error.response?.status === 401; // Unauthorized
@@ -104,7 +122,7 @@ const client = atom(async (get) => {
 
 export const useUrqlApiClient = () => useAtomValue(client);
 
-async function getToken(approver: Approver): Promise<string> {
+async function createToken(approver: Approver): Promise<Token> {
   // Cookies are problematic on RN - https://github.com/facebook/react-native/issues/23185
   // const nonce = await (await fetch(`${CONFIG.apiUrl}/auth/nonce`, { credentials: 'include' })).text();
   const nonce = 'nonceless';
@@ -119,10 +137,12 @@ async function getToken(approver: Approver): Promise<string> {
     chainId: 0,
   });
 
-  const token = {
+  return {
     message,
-    signature: await approver.signMessage(message.prepareMessage()),
+    signature: asHex(await approver.signMessage(message.prepareMessage())),
   };
+}
 
-  return JSON.stringify(token);
+function getHeaders(token: Token | null): { Authorization?: string } {
+  return { Authorization: token ? JSON.stringify(token) : undefined };
 }
