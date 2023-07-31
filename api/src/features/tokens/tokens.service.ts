@@ -5,7 +5,7 @@ import { ShapeFunc } from '../database/database.select';
 import e from '~/edgeql-js';
 import { uuid } from 'edgedb/dist/codecs/ifaces';
 import { Address, ERC20_ABI, isAddress } from 'lib';
-import { or } from '../database/database.util';
+import { and, or } from '../database/database.util';
 import { ProviderService } from '../util/provider/provider.service';
 import { UserInputError } from '@nestjs/apollo';
 
@@ -26,18 +26,20 @@ export class TokensService {
     );
   }
 
-  async select({ query }: TokensInput = {}, shape?: ShapeFunc<typeof e.Token>) {
+  async select({ query, feeToken }: TokensInput = {}, shape?: ShapeFunc<typeof e.Token>) {
     const tokens = await this.db.query(
       e.select(e.Token, (t) => ({
         ...shape?.(t),
         address: true,
-        filter: query
-          ? or(
+        filter: and(
+          query &&
+            or(
               e.op(t.address, 'ilike', query),
               e.op(t.name, 'ilike', query),
               e.op(t.symbol, 'ilike', query),
-            )
-          : undefined,
+            ),
+          feeToken !== undefined && e.op(t.isFeeToken, '=', feeToken),
+        ),
         order_by: [
           {
             expression: t.address,

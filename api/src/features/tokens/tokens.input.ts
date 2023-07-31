@@ -12,6 +12,9 @@ export class TokenInput {
 export class TokensInput {
   @Field(() => String, { nullable: true })
   query?: string;
+
+  @Field(() => Boolean, { nullable: true })
+  feeToken?: boolean;
 }
 
 @InputType()

@@ -535,6 +535,7 @@ input TokenUnitInput {
 }
 
 input TokensInput {
+  feeToken: Boolean
   query: String
 }
 
