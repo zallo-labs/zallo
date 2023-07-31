@@ -7,7 +7,7 @@ export const TOKENS = [
     symbol: 'ETH',
     decimals: 18,
     address: '0x0000000000000000000000000000000000000000',
-    ethereumAddress: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
+    ethereumAddress: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
     iconUri:
       'https://cloudfront-us-east-1.images.arcpublishing.com/coindesk/ZJZZK5B2ZNF25LYQHMUTBTOMLU.png',
     units: [
@@ -20,7 +20,7 @@ export const TOKENS = [
     name: 'Wrapped ETH',
     symbol: 'wETH',
     decimals: 18,
-    address: '0x20b28b1e4665fff290650586ad76e977eab90c5d',
+    address: '0x20b28B1e4665FFf290650586ad76E977EAb90c5D',
     ethereumAddress: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
     iconUri:
       'https://cloudfront-us-east-1.images.arcpublishing.com/coindesk/ZJZZK5B2ZNF25LYQHMUTBTOMLU.png',
@@ -51,7 +51,7 @@ export const TOKENS = [
     symbol: 'USDT',
     decimals: 6,
     address: '0xfcEd12dEbc831D3a84931c63687C395837D42c2B',
-    ethereumAddress: '0xdac17f958d2ee523a2206206994597c13d831ec7',
+    ethereumAddress: '0xdAC17F958D2ee523a2206206994597C13D831ec7',
     iconUri:
       'https://raw.githubusercontent.com/compound-finance/token-list/master/assets/asset_USDT.svg',
     isFeeToken: true,
@@ -69,7 +69,7 @@ export const TOKENS = [
     symbol: 'LINK',
     decimals: 18,
     address: '0x40609141Db628BeEE3BfAB8034Fc2D8278D0Cc78',
-    ethereumAddress: '0x514910771af9ca656af840dff83e8264ecf986ca',
+    ethereumAddress: '0x514910771AF9Ca656af840dff83E8264EcF986CA',
     iconUri: 'https://s2.coinmarketcap.com/static/img/coins/64x64/1975.png',
   },
   {
@@ -85,7 +85,7 @@ export const TOKENS = [
     symbol: 'FRAX',
     decimals: 18,
     address: '0xB4fbFB7807C31268Dc1ac8c26fA4ef41115d0ece',
-    ethereumAddress: '0x853d955acef822db058eb8505911ed77f175b99e',
+    ethereumAddress: '0x853d955aCEf822Db058eb8505911ED77F175b99e',
     iconUri: 'https://cryptologos.cc/logos/frax-frax-logo.svg',
   },
 ] satisfies InsertShape<$Token>[];
