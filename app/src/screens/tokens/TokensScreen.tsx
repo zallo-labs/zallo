@@ -17,8 +17,8 @@ import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
 import { useQuery } from '~/gql';
 
 const Query = gql(/* GraphQL */ `
-  query TokensScreen($account: Address!, $query: String) {
-    tokens(input: { query: $query }) {
+  query TokensScreen($account: Address!, $query: String, $feeToken: Boolean) {
+    tokens(input: { query: $query, feeToken: $feeToken }) {
       id
       address
       balance(input: { account: $account })
@@ -34,6 +34,7 @@ export interface TokensScreenParams {
   account: Address;
   disabled?: Address[];
   enabled?: Address[];
+  feeToken?: boolean;
 }
 
 export type TokensScreenProps =
@@ -47,7 +48,11 @@ export const TokensScreen = withSuspense(
 
     const [query, setQuery] = useState('');
 
-    const { tokens } = useQuery(Query, { account: route.params.account, query }).data;
+    const { tokens } = useQuery(Query, {
+      account: route.params.account,
+      query,
+      feeToken: route.params.feeToken,
+    }).data;
 
     const onSelect = (token: Address) => () =>
       route.name === 'TokensModal' ? TOKEN_EMITTER.emit(token) : navigate('Token', { token });
