@@ -30,6 +30,8 @@ import {
 import { ACCOUNT_ABI, ERC20_ABI } from 'lib';
 import { match } from 'ts-pattern';
 import { ProviderService } from '../util/provider/provider.service';
+import { ETH_ADDRESS } from 'zksync-web3/build/src/utils';
+import { WETH } from '../tokens/tokens.list';
 
 @Injectable()
 export class OperationsService {
@@ -177,7 +179,11 @@ export class OperationsService {
             ...base,
             fromToken: path.tokenIn,
             fromAmount: path.amountIn,
-            toToken: pair[0] === path.tokenIn ? pair[1] : pair[0],
+            // ETH can be used as tokenIn, but uses the WETH pool
+            toToken:
+              (path.tokenIn === ETH_ADDRESS ? WETH.address : path.tokenIn) === pair[0]
+                ? pair[1]
+                : pair[0],
             minimumToAmount: f.args[1],
             deadline: new Date(Number(f.args[2]) * 1000),
           } satisfies SwapOp);
