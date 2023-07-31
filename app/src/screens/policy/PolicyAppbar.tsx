@@ -35,6 +35,7 @@ const Policy = gql(/* GraphQL */ `
     }
     draft {
       id
+      isRemoved
       proposal {
         id
         hash
@@ -116,7 +117,7 @@ export const PolicyAppbar = ({ view, reset, setParams, ...props }: PolicyAppbarP
                   />
                 )}
 
-                {policy && (
+                {policy && !policy.draft?.isRemoved && (
                   <Menu.Item
                     title="Remove policy"
                     onPress={async () => {
