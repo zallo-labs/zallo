@@ -23,7 +23,7 @@ import {
   TransferOp,
   TransferApprovalOp,
   TransferFromOp,
-  AddPolicyOp,
+  UpdatePolicyOp,
   RemovePolicyOp,
   SwapOp,
 } from './operations.model';
@@ -106,8 +106,8 @@ export class OperationsService {
     return (
       match(f)
         /* Account */
-        .with({ functionName: 'addPolicy' }, (f) =>
-          Object.assign(new AddPolicyOp(), {
+        .with({ functionName: 'addPolicy' }, async (f) =>
+          Object.assign(new UpdatePolicyOp(), {
             // TODO: include policy object and policyState object (the actual one being added)
             ...base,
             account: to,
@@ -115,7 +115,7 @@ export class OperationsService {
             threshold: f.args[0].threshold,
             approvers: f.args[0].approvers,
             targets: [],
-          } satisfies AddPolicyOp),
+          } satisfies UpdatePolicyOp),
         )
         .with({ functionName: 'removePolicy' }, (f) =>
           Object.assign(new RemovePolicyOp(), {

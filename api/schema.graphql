@@ -43,16 +43,6 @@ input AccountSubscriptionInput {
   events: AccountEvent
 }
 
-type AddPolicyOp {
-  _args: [JSON!]!
-  _name: String!
-  account: Address!
-  approvers: [Address!]!
-  key: PolicyKey!
-  targets: [Target!]!
-  threshold: Float!
-}
-
 """Ethereum address"""
 scalar Address
 
@@ -239,7 +229,7 @@ type Operation {
   value: Uint256
 }
 
-union OperationFunction = AddPolicyOp | GenericOp | RemovePolicyOp | SwapOp | TransferApprovalOp | TransferFromOp | TransferOp
+union OperationFunction = GenericOp | RemovePolicyOp | SwapOp | TransferApprovalOp | TransferFromOp | TransferOp | UpdatePolicyOp
 
 input OperationInput {
   data: Bytes
@@ -756,6 +746,16 @@ input UpdatePolicyInput {
 
   """Defaults to all approvers"""
   threshold: Float
+}
+
+type UpdatePolicyOp {
+  _args: [JSON!]!
+  _name: String!
+  account: Address!
+  approvers: [Address!]!
+  key: PolicyKey!
+  targets: [Target!]!
+  threshold: Float!
 }
 
 input UpdateProposalInput {

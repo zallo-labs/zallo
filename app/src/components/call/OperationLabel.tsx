@@ -13,7 +13,7 @@ const FragmentDoc = gql(/* GraphQL */ `
         _name
         _args
       }
-      ... on AddPolicyOp {
+      ... on UpdatePolicyOp {
         account
         key
       }
@@ -66,9 +66,9 @@ export function OperationLabel(props: OperationLabelProps) {
 
   return match(op.function)
     .with(
-      { __typename: 'AddPolicyOp' },
+      { __typename: 'UpdatePolicyOp' },
       (f) =>
-        `Add policy: ${
+        `Update policy: ${
           useQuery(PolicyQuery, { input: { account: f.account, key: f.key } }).data.policy?.name
         }`,
     )
