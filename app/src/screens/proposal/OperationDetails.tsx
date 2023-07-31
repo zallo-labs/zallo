@@ -19,14 +19,6 @@ const FragmentDoc = gql(/* GraphQL */ `
         _name
         _args
       }
-      ... on AddPolicyOp {
-        account
-        key
-      }
-      ... on RemovePolicyOp {
-        account
-        key
-      }
       ... on TransferOp {
         token
         to
