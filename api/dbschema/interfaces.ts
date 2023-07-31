@@ -61,11 +61,11 @@ export interface Account extends std.$Object {
   "isActive": boolean;
   "name": string;
   "salt": string;
-  "policies": Policy[];
   "approvers": Approver[];
   "proposals": Proposal[];
   "transactionProposals": TransactionProposal[];
   "transfers": Transfer[];
+  "policies": Policy[];
 }
 export interface ProposalResponse extends std.$Object {
   "approver": Approver;

@@ -257,6 +257,10 @@ input PermissionsInput {
   transfers: TransfersConfigInput
 }
 
+input PoliciesInput {
+  includeRemoved: Boolean! = false
+}
+
 type Policy {
   account: Account!
   draft: PolicyState
@@ -372,7 +376,7 @@ type Query {
   contractFunction(input: ContractFunctionInput!): ContractFunction
   label(input: LabelInput!): String
   paymaster: Address!
-  policies: [Policy!]!
+  policies(input: PoliciesInput! = {}): [Policy!]!
   policy(input: UniquePolicyInput!): Policy
   proposal(input: ProposalInput!): TransactionProposal
   proposals(input: ProposalsInput! = {}): [TransactionProposal!]!

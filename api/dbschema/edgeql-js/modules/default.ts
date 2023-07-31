@@ -62,11 +62,11 @@ export type $AccountλShape = $.typeutil.flatten<_std.$Object_169a5ce7108a11eeb5
   "isActive": $.PropertyDesc<_std.$bool, $.Cardinality.One, false, false, false, false>;
   "name": $.PropertyDesc<$Label, $.Cardinality.One, false, false, false, false>;
   "salt": $.PropertyDesc<$Bytes32, $.Cardinality.One, false, false, false, false>;
-  "policies": $.LinkDesc<$Policy, $.Cardinality.Many, {}, false, true,  false, false>;
   "approvers": $.LinkDesc<$Approver, $.Cardinality.Many, {}, false, true,  false, false>;
   "proposals": $.LinkDesc<$Proposal, $.Cardinality.Many, {}, false, true,  false, false>;
   "transactionProposals": $.LinkDesc<$TransactionProposal, $.Cardinality.Many, {}, false, true,  false, false>;
   "transfers": $.LinkDesc<$Transfer, $.Cardinality.Many, {}, false, true,  false, false>;
+  "policies": $.LinkDesc<$Policy, $.Cardinality.Many, {}, false, true,  false, false>;
   "<account[is TransferApproval]": $.LinkDesc<$TransferApproval, $.Cardinality.Many, {}, false, false,  false, false>;
   "<account[is Proposal]": $.LinkDesc<$Proposal, $.Cardinality.Many, {}, false, false,  false, false>;
   "<account[is TransactionProposal]": $.LinkDesc<$TransactionProposal, $.Cardinality.Many, {}, false, false,  false, false>;
@@ -263,10 +263,10 @@ export type $PolicyλShape = $.typeutil.flatten<_std.$Object_169a5ce7108a11eeb5a
   "draft": $.LinkDesc<$PolicyState, $.Cardinality.AtMostOne, {}, false, true,  false, false>;
   "state": $.LinkDesc<$PolicyState, $.Cardinality.AtMostOne, {}, false, true,  false, false>;
   "isActive": $.PropertyDesc<_std.$bool, $.Cardinality.One, false, true, false, false>;
-  "<policies[is Account]": $.LinkDesc<$Account, $.Cardinality.Many, {}, false, false,  false, false>;
   "<policy[is PolicyState]": $.LinkDesc<$PolicyState, $.Cardinality.Many, {}, false, false,  false, false>;
   "<policy[is Proposal]": $.LinkDesc<$Proposal, $.Cardinality.Many, {}, false, false,  false, false>;
   "<policy[is TransactionProposal]": $.LinkDesc<$TransactionProposal, $.Cardinality.Many, {}, false, false,  false, false>;
+  "<policies[is Account]": $.LinkDesc<$Account, $.Cardinality.Many, {}, false, false,  false, false>;
   "<policies": $.LinkDesc<$.ObjectType, $.Cardinality.Many, {}, false, false,  false, false>;
   "<policy": $.LinkDesc<$.ObjectType, $.Cardinality.Many, {}, false, false,  false, false>;
 }>;

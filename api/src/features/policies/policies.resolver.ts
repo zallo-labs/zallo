@@ -2,6 +2,7 @@ import { Info, Mutation, Parent, Query, Resolver } from '@nestjs/graphql';
 import { GraphQLResolveInfo } from 'graphql';
 import {
   CreatePolicyInput,
+  PoliciesInput,
   SatisfiabilityInput,
   UniquePolicyInput,
   UpdatePolicyInput,
@@ -24,8 +25,11 @@ export class PoliciesResolver {
   }
 
   @Query(() => [Policy])
-  async policies(@Info() info: GraphQLResolveInfo) {
-    return this.service.select(getShape(info));
+  async policies(
+    @Input({ defaultValue: {} }) input: PoliciesInput,
+    @Info() info: GraphQLResolveInfo,
+  ) {
+    return this.service.select(input, getShape(info));
   }
 
   @ComputedField<typeof e.Policy>(() => SatisfiabilityResult, {

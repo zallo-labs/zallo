@@ -11,7 +11,12 @@ import {
   Satisfiability,
 } from 'lib';
 import { ProposalsService, selectTransactionProposal } from '../proposals/proposals.service';
-import { CreatePolicyInput, UniquePolicyInput, UpdatePolicyInput } from './policies.input';
+import {
+  CreatePolicyInput,
+  PoliciesInput,
+  UniquePolicyInput,
+  UpdatePolicyInput,
+} from './policies.input';
 import _ from 'lodash';
 import { UserInputError } from '@nestjs/apollo';
 import { AccountsCacheService } from '../auth/accounts.cache.service';
@@ -67,8 +72,13 @@ export class PoliciesService {
       .run(this.db.client);
   }
 
-  async select(shape: ShapeFunc<typeof e.Policy>) {
-    return e.select(e.Policy, shape).run(this.db.client);
+  async select({ includeRemoved }: PoliciesInput, shape: ShapeFunc<typeof e.Policy>) {
+    return e
+      .select(e.Policy, (p) => ({
+        ...shape?.(p),
+        ...(!includeRemoved && { filter: e.op(p.state.isRemoved, '?=', false) }),
+      }))
+      .run(this.db.client);
   }
 
   async create({
