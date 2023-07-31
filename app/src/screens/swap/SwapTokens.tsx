@@ -10,6 +10,7 @@ import { ListItemHeight } from '~/components/list/ListItem';
 import { Pool } from '~/util/swap';
 import ToTokenItem from './ToTokenItem';
 import { FragmentType, gql, useFragment } from '@api/generated';
+import { TokenIcon } from '~/components/token/TokenIcon/TokenIcon';
 
 const DownArrow = materialCommunityIcon('arrow-down-thin');
 const ICON_BUTTON_SIZE = 24;
@@ -18,6 +19,7 @@ const FromFragment = gql(/* GraphQL */ `
   fragment SwapTokens_fromToken on Token {
     id
     address
+    ...TokenIcon_token
     ...UseFormattedTokenAmount_token
     ...ToTokenItem_fromToken
   }
@@ -71,7 +73,7 @@ export function SwapTokens({
 
     const token = await selectToken({
       account,
-      enabled: pool ? enabled : [from.address, ...enabled],
+      enabled: pool ? [from.address, ...enabled] : enabled,
     });
     if (token === from.address && to) setFromAddress(to.address);
     setToAddress(token);
@@ -80,7 +82,8 @@ export function SwapTokens({
   return (
     <View>
       <ListItem
-        leading={from.address}
+        leading={(props) => <TokenIcon {...props} token={from} />}
+        leadingSize="medium"
         overline="From"
         headline={useFormattedTokenAmount({ token: from, amount: fromAmount })}
         onPress={selectFrom}
