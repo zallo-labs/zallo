@@ -47,24 +47,14 @@ export class SimulationService {
           amount: f.amount,
         });
       } else if (f instanceof SwapOp) {
-        transfers.push(
-          {
-            account,
-            direction: 'Out',
-            from: accountAddress,
-            to: op.to,
-            tokenAddress: f.fromToken,
-            amount: -f.fromAmount,
-          },
-          {
-            account,
-            direction: e.cast(e.TransferDirection, 'In' satisfies TransferDetails['direction']),
-            from: op.to,
-            to: accountAddress,
-            tokenAddress: f.toToken,
-            amount: f.minimumToAmount,
-          },
-        );
+        transfers.push({
+          account,
+          direction: e.cast(e.TransferDirection, 'In' satisfies TransferDetails['direction']),
+          from: op.to,
+          to: accountAddress,
+          tokenAddress: f.toToken,
+          amount: f.minimumToAmount,
+        });
       }
     }
 

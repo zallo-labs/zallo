@@ -1,6 +1,17 @@
 import { InsertShape } from '~/edgeql-js/insert';
 import { $Token } from '~/edgeql-js/modules/default';
 
+export const WETH = {
+  name: 'Wrapped ETH',
+  symbol: 'wETH',
+  decimals: 18,
+  address: '0x20b28B1e4665FFf290650586ad76E977EAb90c5D',
+  ethereumAddress: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
+  iconUri:
+    'https://cloudfront-us-east-1.images.arcpublishing.com/coindesk/ZJZZK5B2ZNF25LYQHMUTBTOMLU.png',
+  isFeeToken: true,
+};
+
 export const TOKENS = [
   {
     name: 'Ether',
@@ -16,16 +27,7 @@ export const TOKENS = [
     ],
     isFeeToken: true,
   },
-  {
-    name: 'Wrapped ETH',
-    symbol: 'wETH',
-    decimals: 18,
-    address: '0x20b28B1e4665FFf290650586ad76E977EAb90c5D',
-    ethereumAddress: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
-    iconUri:
-      'https://cloudfront-us-east-1.images.arcpublishing.com/coindesk/ZJZZK5B2ZNF25LYQHMUTBTOMLU.png',
-    isFeeToken: true,
-  },
+  WETH,
   {
     name: 'Dai',
     symbol: 'DAI',
