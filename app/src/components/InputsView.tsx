@@ -43,10 +43,7 @@ export const InputsView = ({ input, setInput, type, setType, ...props }: InputsV
   const styles = useStyles();
   const token = useFragment(FragmentDoc, props.token);
 
-  const inputAmount = (() => {
-    const n = parseFloat(input);
-    return isNaN(n) ? '0' : n.toString();
-  })();
+  const inputAmount = input || '0';
 
   const tokenAmount =
     type === InputType.Token

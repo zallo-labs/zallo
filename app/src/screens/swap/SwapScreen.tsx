@@ -80,11 +80,7 @@ export const SwapScreen = withSuspense(({ route, navigation: { navigate } }: Swa
 
   if (!from) return null; // TODO: handle
 
-  const fromInput = (() => {
-    const n = parseFloat(input);
-    return isNaN(n) ? '0' : n.toString();
-  })();
-
+  const fromInput = input || '0';
   const fromAmount =
     type === InputType.Token
       ? parseUnits(fromInput, from.decimals).toBigInt()

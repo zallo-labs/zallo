@@ -62,11 +62,7 @@ export const SendScreen = withSuspense(
 
     if (!token) return null; // TODO: handle
 
-    const inputAmount = (() => {
-      const n = parseFloat(input);
-      return isNaN(n) ? '0' : n.toString();
-    })();
-
+    const inputAmount = input || '0';
     const tokenAmount =
       type === InputType.Token
         ? parseUnits(inputAmount, token.decimals).toBigInt()
