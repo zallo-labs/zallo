@@ -5,6 +5,7 @@ import { ListItem, ListItemProps } from '~/components/list/ListItem';
 import { ListItemSkeleton } from '~/components/list/ListItemSkeleton';
 import { withSuspense } from '~/components/skeleton/withSuspense';
 import { useFormattedTokenAmount } from '~/components/token/TokenAmount';
+import { TokenIcon } from '~/components/token/TokenIcon/TokenIcon';
 import { Pool, useEstimatedSwap } from '~/util/swap';
 
 const FromFragment = gql(/* GraphQL */ `
@@ -23,6 +24,7 @@ const ToFragment = gql(/* GraphQL */ `
     address
     symbol
     decimals
+    ...TokenIcon_token
     ...UseFormattedTokenAmount_token
   }
 `);
@@ -61,12 +63,16 @@ function ToTokenItem({
     pool,
     from: { token: from.address, amount: ratioFromAmount },
   });
+
+  const maxDecimals = Math.max(from.decimals, to.decimals);
   const ratio =
-    (ratioToAmount * RATIO_FACTOR) / tokenToToken(ratioFromAmount, from.decimals, to.decimals);
+    tokenToToken(ratioToAmount * RATIO_FACTOR, to.decimals, maxDecimals) /
+    tokenToToken(ratioFromAmount, from.decimals, maxDecimals);
 
   return (
     <ListItem
-      leading={to.address}
+      leading={(props) => <TokenIcon {...props} token={to} />}
+      leadingSize="medium"
       overline="To (estimated)"
       headline={useFormattedTokenAmount({
         token: to,
