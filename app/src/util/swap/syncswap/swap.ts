@@ -70,18 +70,18 @@ export const getSwapOperations = async ({
         args: [
           [
             {
-              tokenIn: from.token,
+              tokenIn: from.token, // ETH for ETH
               amountIn: from.amount,
               steps: [
                 {
                   pool: pool.contract,
                   data: encodeAbiParameters(
                     [
-                      { name: 'tokenIn', type: 'address' },
+                      { name: 'tokenIn', type: 'address' }, // WETH for ETH
                       { name: 'to', type: 'address' },
                       { name: 'withdrawMode', type: 'uint8' },
                     ],
-                    [from.token, account, withdrawMode],
+                    [normalizeSyncswapPoolToken(from.token), account, withdrawMode],
                   ),
                   callback: ZERO_ADDR,
                   callbackData: '0x',
