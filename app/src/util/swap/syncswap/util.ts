@@ -3,7 +3,7 @@ import { ETH_ADDRESS } from 'zksync-web3/build/src/utils';
 
 export const WETH_ADDRESSES = {
   mainnet: '0x5AEa5775959fBC2557Cc8789bC1bf90A239D9a91',
-  testnet: '0x20b28b1e4665fff290650586ad76e977eab90c5d',
+  testnet: '0x20b28B1e4665FFf290650586ad76E977EAb90c5D',
 } as const;
 export const WETH_ADDRESS = WETH_ADDRESSES.testnet; // mainnet TODO: chain specific address used
 
