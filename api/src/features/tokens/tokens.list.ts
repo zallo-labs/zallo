@@ -11,7 +11,7 @@ export const TOKENS = [
     iconUri:
       'https://cloudfront-us-east-1.images.arcpublishing.com/coindesk/ZJZZK5B2ZNF25LYQHMUTBTOMLU.png',
     units: [
-      { symbol: 'WEI', decimals: 1 },
+      { symbol: 'WEI', decimals: 0 },
       { symbol: 'GWEI', decimals: 9 },
     ],
     isFeeToken: true,
