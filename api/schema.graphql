@@ -438,7 +438,7 @@ input SelectorInput {
   selector: Bytes4!
 }
 
-type Simulation {
+type Simulation implements Node {
   id: ID!
   transfers: [SimulationTransfer!]!
 }

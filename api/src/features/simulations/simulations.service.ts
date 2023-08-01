@@ -8,7 +8,7 @@ import { SwapOp, TransferFromOp, TransferOp } from '../operations/operations.mod
 type TransferDetails = Parameters<typeof e.insert<typeof e.TransferDetails>>[1];
 
 @Injectable()
-export class SimulationService {
+export class SimulationsService {
   constructor(private operations: OperationsService) {}
 
   async getInsert(accountAddress: Address, { operations }: Tx) {

@@ -22,7 +22,7 @@ import { ShapeFunc } from '../database/database.select';
 import { and } from '../database/database.util';
 import { selectAccount } from '../accounts/accounts.util';
 import { PaymasterService } from '../paymaster/paymaster.service';
-import { SimulationService } from '../simulation/simulation.service';
+import { SimulationsService } from '../simulations/simulations.service';
 
 export interface ProposalSubscriptionPayload {
   hash: Hex;
@@ -59,7 +59,7 @@ export class ProposalsService {
     @Inject(forwardRef(() => TransactionsService))
     private transactions: TransactionsService,
     private paymaster: PaymasterService,
-    private simulation: SimulationService,
+    private simulations: SimulationsService,
   ) {}
 
   async selectUnique(id: UniqueProposal, shape?: ShapeFunc<typeof e.TransactionProposal>) {
@@ -121,7 +121,7 @@ export class ProposalsService {
           nonce: tx.nonce,
           gasLimit: gasLimit || (await estimateOpGas(this.provider, tx)),
           feeToken: await this.selectAndValidateFeeToken(feeToken),
-          simulation: await this.simulation.getInsert(account, tx),
+          simulation: await this.simulations.getInsert(account, tx),
         })
         .run(db);
 
