@@ -5,7 +5,11 @@ import * as zk from 'zksync-web3';
 import { Eip712Meta, TransactionRequest, TransactionResponse } from 'zksync-web3/build/src/types';
 import { EIP712_TX_TYPE } from 'zksync-web3/build/src/utils';
 import { Tx, asTransactionData } from './tx';
-import { estimateTxGas } from './gas';
+import {
+  FALLBACK_OPERATIONS_GAS,
+  estimateTransactionOperationsGas,
+  estimateTransactionTotalGas,
+} from './gas';
 import { Policy } from './policy';
 import { Approval } from './approvals';
 
@@ -45,7 +49,10 @@ const asTransactionRequest = async ({
     },
   };
 
-  request.gasLimit ||= await estimateTxGas([provider, request], approvals.length);
+  request.gasLimit ||= estimateTransactionTotalGas(
+    (await estimateTransactionOperationsGas(provider, from, tx)).unwrapOr(FALLBACK_OPERATIONS_GAS),
+    approvals.length,
+  );
 
   return request;
 };

@@ -1,17 +1,34 @@
 import * as zk from 'zksync-web3';
-import { TransactionRequest } from 'zksync-web3/build/src/types';
-import { tryOrAsync } from './util/try';
-import { asBigInt } from './bigint';
+import { Tx, asTransactionData } from './tx';
+import { Address } from './address';
+import { EIP712_TX_TYPE } from 'zksync-web3/build/src/utils';
+import { ResultAsync } from 'neverthrow';
 
-export const FALLBACK_GAS_LIMIT = 3_000_000n;
-const GAS_PER_SIGNER = 200_000n;
+const ESTIMATED_POLICY_VERIFICATION_GAS = 100_000n;
+const ESTIMATED_APPROVAL_GAS = 50_000n;
 
-export const estimateOpGas = async (provider: zk.Provider, req: TransactionRequest) =>
-  tryOrAsync(async () => asBigInt(await provider.estimateGas(req)), FALLBACK_GAS_LIMIT);
+export const estimateTransactionTotalGas = (operationsGasLimit: bigint, approvers: number) =>
+  operationsGasLimit +
+  ESTIMATED_POLICY_VERIFICATION_GAS +
+  ESTIMATED_APPROVAL_GAS * BigInt(approvers);
 
-type TxGasOptions = { opGasLimit: bigint } | Parameters<typeof estimateOpGas>;
+export const FALLBACK_OPERATIONS_GAS = 3_000_000n;
 
-export const estimateTxGas = async (options: TxGasOptions, approvers: number) => {
-  const opGasLimit = Array.isArray(options) ? await estimateOpGas(...options) : options.opGasLimit;
-  return opGasLimit + GAS_PER_SIGNER * BigInt(approvers);
+export const estimateTransactionOperationsGas = (
+  provider: zk.Provider,
+  account: Address,
+  tx: Tx,
+) => {
+  return ResultAsync.fromPromise(
+    (async () =>
+      (
+        await provider.estimateGas({
+          ...asTransactionData(account, tx),
+          from: account,
+          type: EIP712_TX_TYPE,
+          // customData.customSignature is always a 65 byte signature - https://github.com/zkSync-Community-Hub/zkync-developers/discussions/81
+        })
+      ).toBigInt())(),
+    (e) => new Error('Transaction gas estimation failed', { cause: e }),
+  );
 };

@@ -4,6 +4,7 @@
     "outDir": "dist",
     "rootDir": "src", // Root of outdir
     "tsBuildInfoFile": "dist/.tsbuildinfo",
+    "sourceMap": true,
     "skipLibCheck": true
   },
   "include": ["src/**/*"],

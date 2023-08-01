@@ -1,6 +1,14 @@
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { UserInputError } from '@nestjs/apollo';
-import { hashTx, Address, estimateOpGas, Hex, isHex, asTx } from 'lib';
+import {
+  hashTx,
+  Address,
+  Hex,
+  isHex,
+  asTx,
+  estimateTransactionOperationsGas,
+  FALLBACK_OPERATIONS_GAS,
+} from 'lib';
 import { ProviderService } from '~/features/util/provider/provider.service';
 import { PubsubService } from '~/features/util/pubsub/pubsub.service';
 import { TransactionsService } from '../transactions/transactions.service';
@@ -119,7 +127,11 @@ export class ProposalsService {
             ),
           ),
           nonce: tx.nonce,
-          gasLimit: gasLimit || (await estimateOpGas(this.provider, tx)),
+          gasLimit:
+            gasLimit ||
+            (
+              await estimateTransactionOperationsGas(this.provider, account, tx)
+            ).unwrapOr(FALLBACK_OPERATIONS_GAS),
           feeToken: await this.selectAndValidateFeeToken(feeToken),
           simulation: await this.simulations.getInsert(account, tx),
         })

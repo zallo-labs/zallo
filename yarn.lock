@@ -28775,6 +28775,7 @@ __metadata:
     keccak256: ^1.0.6
     lodash: ^4.17.21
     merkletreejs: ^0.3.10
+    neverthrow: ^6.0.0
     ts-jest: ^29.1.0
     ts-pattern: ^5.0.1
     ts-toolbelt: ^9.6.0
