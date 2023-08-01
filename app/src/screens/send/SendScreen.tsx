@@ -45,7 +45,7 @@ export interface SendScreenParams {
 export type SendScreenProps = StackNavigatorScreenProps<'Send'>;
 
 export const SendScreen = withSuspense(
-  ({ route, navigation: { navigate, goBack } }: SendScreenProps) => {
+  ({ route, navigation: { replace, goBack } }: SendScreenProps) => {
     const { account, to } = route.params;
     const propose = usePropose();
 
@@ -100,7 +100,7 @@ export const SendScreen = withSuspense(
               account,
               operations: [createTransferOp({ token: token.address, to, amount: tokenAmount })],
             });
-            navigate('Proposal', { proposal });
+            replace('Proposal', { proposal });
           }}
         >
           Propose

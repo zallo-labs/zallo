@@ -54,7 +54,7 @@ export interface SwapScreenParams {
 
 export type SwapScreenProps = StackNavigatorScreenProps<'Swap'>;
 
-export const SwapScreen = withSuspense(({ route, navigation: { navigate } }: SwapScreenProps) => {
+export const SwapScreen = withSuspense(({ route, navigation: { replace } }: SwapScreenProps) => {
   const { account } = route.params;
   const styles = useStyles();
   const propose = usePropose();
@@ -132,7 +132,7 @@ export const SwapScreen = withSuspense(({ route, navigation: { navigate } }: Swa
               deadline: DateTime.now().plus({ months: 3 }),
             }),
           });
-          navigate('Proposal', { proposal });
+          replace('Proposal', { proposal });
         }}
       >
         Propose
