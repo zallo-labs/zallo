@@ -12,6 +12,7 @@ import { OperationLabel } from '../call/OperationLabel';
 import { useCanRespond } from './useCanRespond';
 import { useNavigation } from '@react-navigation/native';
 import { ETH_ICON_URI, TokenIcon } from '../token/TokenIcon/TokenIcon';
+import { ProposalValue } from './ProposalValue';
 
 const Fragment = gql(/* GraphQL */ `
   fragment ProposalItem_TransactionProposalFragment on TransactionProposal {
@@ -29,19 +30,9 @@ const Fragment = gql(/* GraphQL */ `
       receipt {
         id
         timestamp
-        transferEvents {
-          id
-          value
-        }
       }
     }
-    simulation {
-      id
-      transfers {
-        id
-        value
-      }
-    }
+    ...ProposalValue_TransactionProposal
     ...UseCanRespond_TransactionProposalFragment
   }
 `);
@@ -60,10 +51,6 @@ export const ProposalItem = withSuspense(
     const { canApprove } = useCanRespond(p);
 
     const isMulti = p.operations.length > 1;
-
-    const totalValue = [
-      ...(p.transaction?.receipt?.transferEvents ?? p.simulation.transfers),
-    ].reduce((sum, t) => sum + (t.value ?? 0), 0);
 
     const supporting = match(p)
       .returnType<ListItemProps['supporting']>()
@@ -110,7 +97,7 @@ export const ProposalItem = withSuspense(
         supporting={supporting}
         trailing={({ Text }) => (
           <Text variant="labelLarge">
-            <FiatValue value={totalValue} hideZero />
+            <ProposalValue proposal={p} hideZero />
           </Text>
         )}
         onPress={() => navigate('Proposal', { proposal: p.hash })}

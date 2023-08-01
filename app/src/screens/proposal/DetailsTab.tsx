@@ -1,6 +1,5 @@
 import { makeStyles } from '@theme/makeStyles';
 import { ScrollView } from 'react-native';
-import { FiatValue } from '~/components/fiat/FiatValue';
 import { ListHeader } from '~/components/list/ListHeader';
 import { withSuspense } from '~/components/skeleton/withSuspense';
 import { TabScreenSkeleton } from '~/components/tab/TabScreenSkeleton';
@@ -14,6 +13,7 @@ import { Text } from 'react-native-paper';
 import { useQuery } from '~/gql';
 import { useSubscription } from 'urql';
 import { BOOTLOADER_FORMAL_ADDRESS } from 'zksync-web3/build/src/utils';
+import { ProposalValue } from '~/components/proposal/ProposalValue';
 
 const Query = gql(/* GraphQL */ `
   query DetailsTab($proposal: Bytes32!) {
@@ -44,7 +44,6 @@ const FragmentDoc = gql(/* GraphQL */ `
             ...TokenItem_token
           }
           amount
-          value
           from
           to
         }
@@ -59,12 +58,12 @@ const FragmentDoc = gql(/* GraphQL */ `
           ...TokenItem_token
         }
         amount
-        value
         from
         to
       }
     }
     ...OperationSection_TransactionProposalFragment
+    ...ProposalValue_TransactionProposal
     ...FeeToken_TransactionProposalFragment
   }
 `);
@@ -111,7 +110,7 @@ export const DetailsTab = withSuspense(({ route }: DetailsTabProps) => {
       <ListHeader
         trailing={({ Text }) => (
           <Text>
-            <FiatValue value={transfers.reduce((sum, t) => sum + (t.value ?? 0), 0)} />
+            <ProposalValue proposal={p} />
           </Text>
         )}
       >
