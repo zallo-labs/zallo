@@ -29,7 +29,7 @@ interface Token {
 const client = atom(async (get) => {
   const approver = await get(DANGEROUS_approverAtom);
 
-  let token = JSON.parse((await AsyncStorage.getItem(TOKEN_KEY)) || '') as Token | null;
+  let token = JSON.parse((await AsyncStorage.getItem(TOKEN_KEY))!) as Token | null;
   let headers = getHeaders(token);
 
   const refreshMutex = new Mutex();
