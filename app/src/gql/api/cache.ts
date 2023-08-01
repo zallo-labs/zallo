@@ -59,8 +59,7 @@ export const CACHE_CONFIG: Pick<
     } as /* satisfies */ Partial<Record<Mutation, UpdateResolver<unknown, unknown>>>,
     Subscription: {
       proposal: (_result, _args, cache) => {
-        // TODO: invalidate on proposal creation
-        // invalidate(cache, 'Query', ['proposals']);
+        invalidate(cache, 'Query', ['proposals']);
       },
       transfer: (_result, _args, cache) => {
         invalidate(cache, 'Query', ['transfers', 'tokens']);
