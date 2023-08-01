@@ -26,6 +26,7 @@ const FragmentDoc = gql(/* GraphQL */ `
         }
         state {
           id
+          threshold
           approvers {
             id
             address
@@ -93,12 +94,14 @@ export const PolicyTab = withSuspense(({ route }: PolicyTabProps) => {
   const selected =
     p.account.policies.find(({ id }) => id === p.policy?.id) ?? p.account.policies[0];
 
-  const awaitingApproval =
-    selected.state?.approvers.filter(
+  const remaining = selected.state && {
+    approvals: Math.max(selected.state.threshold - p.approvals.length, 0),
+    approvers: selected.state.approvers.filter(
       (approver) =>
         !p.approvals.find((a) => a.approver.address === approver.address) &&
         !p.rejections.find((r) => r.approver.address === approver.address),
-    ) ?? [];
+    ),
+  };
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
@@ -123,18 +126,24 @@ export const PolicyTab = withSuspense(({ route }: PolicyTabProps) => {
         />
       ))}
 
-      {awaitingApproval.length > 0 && <ListHeader>Awaiting approval from</ListHeader>}
-      {awaitingApproval.map((approver) => (
-        <ListItem
-          key={approver.id}
-          leading={approver.address}
-          headline={({ Text }) => (
-            <Text>
-              <AddressLabel address={approver.address} />
-            </Text>
-          )}
-        />
-      ))}
+      {remaining && remaining.approvals > 0 && (
+        <>
+          <ListHeader>
+            Awaiting for {remaining.approvals} approval{remaining.approvals !== 1 ? 's' : ''}
+          </ListHeader>
+          {remaining.approvers.map((approver) => (
+            <ListItem
+              key={approver.id}
+              leading={approver.address}
+              headline={({ Text }) => (
+                <Text>
+                  <AddressLabel address={approver.address} />
+                </Text>
+              )}
+            />
+          ))}
+        </>
+      )}
 
       {p.approvals.length > 0 && <ListHeader>Approvals</ListHeader>}
       {[...p.approvals].map((a) => (
