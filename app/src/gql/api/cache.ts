@@ -1,9 +1,14 @@
-import { Cache, CacheExchangeOpts, KeyGenerator, UpdateResolver } from '@urql/exchange-graphcache';
+import {
+  Cache,
+  CacheExchangeOpts,
+  KeyGenerator,
+  OptimisticMutationResolver,
+  UpdateResolver,
+} from '@urql/exchange-graphcache';
 import schema from './schema';
-import { MutationCreatePolicyArgs, MutationRemovePolicyArgs, Node } from '@api/generated/graphql';
+import { Node, MutationCreatePolicyArgs, MutationRemovePolicyArgs } from '@api/generated/graphql';
 import { gql } from './generated';
 import { Address } from 'lib';
-import { clog } from '~/util/format';
 
 export const CACHE_CONFIG: Pick<
   CacheExchangeOpts,
@@ -26,6 +31,9 @@ export const CACHE_CONFIG: Pick<
       },
       createPolicy: (_result, { input }: MutationCreatePolicyArgs, cache) => {
         invalidate(cache, getAccountEntity(cache, input.account), ['policies']);
+      },
+      updatePolicy: (result: Node, _args, cache) => {
+        invalidate(cache, { __typename: 'Policy', id: result.id }); // Required to update fields not fetched by mutation
       },
       removePolicy: (result: Node, { input }: MutationRemovePolicyArgs, cache) => {
         invalidate(cache, { __typename: 'Policy', id: result.id });
@@ -59,6 +67,7 @@ export const CACHE_CONFIG: Pick<
       },
     } as /* satisfies */ Partial<Record<Subscription, UpdateResolver<unknown, unknown>>>,
   },
+  optimistic: {} as /* satisfies */ Partial<Record<Mutation, OptimisticMutationResolver<unknown>>>,
   keys: new Proxy(
     {
       // Explicit keys
