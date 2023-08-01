@@ -37,7 +37,7 @@ export function useFormattedNumber({
 
   if (postFormat) formatted = postFormat(formatted);
 
-  return isLtMin ? `~ ${formatted}` : formatted;
+  return isLtMin ? `< ${formatted}` : formatted;
 }
 
 export interface FormattedNumberProps extends FormattedNumberOptions {}
