@@ -1,10 +1,9 @@
-import { Operation, ZERO_ADDR, asHex, ERC20_ABI, isPresent } from 'lib';
+import { Operation, ZERO_ADDR, asHex, ERC20_ABI } from 'lib';
 import { EstimateSwapParams, GetSwapOperationsParams, TokenAmount } from '../types';
-import { SYNCSWAP_ROUTER, SYNCSWAP_VAULT, getSyncswapPoolContract } from './contracts';
-import { ETH, WETH } from '@token/tokens';
+import { SYNCSWAP_ROUTER, getSyncswapPoolContract } from './contracts';
 import { encodeAbiParameters, encodeFunctionData } from 'viem';
-import { normalizeSyncswapPoolToken } from './util';
-import { createTransferOp } from '~/screens/send/transfer';
+import { WETH_ADDRESS, normalizeSyncswapPoolToken } from './util';
+import { ETH_ADDRESS } from 'zksync-web3/build/src/utils';
 
 const SLIPPAGE_FACTOR = 10 ** 5;
 const SLIPPAGE_FACTOR_BN = BigInt(SLIPPAGE_FACTOR);
@@ -39,7 +38,7 @@ export const getSwapOperations = async ({
   // 0 - vault internal transfer
   // 1 - withdraw and unwrap to naitve ETH
   // 2 - withdraw and wrap to wETH
-  const withdrawMode = from.token === WETH.address ? 2 : 1;
+  const withdrawMode = from.token === WETH_ADDRESS ? 2 : 1;
 
   const estimated = await estimateSwap({ pool, account, from });
 
@@ -48,7 +47,7 @@ export const getSwapOperations = async ({
     SLIPPAGE_FACTOR_BN;
 
   const transferOp: Operation | undefined =
-    from.token !== ETH.address
+    from.token !== ETH_ADDRESS
       ? {
           to: from.token,
           data: asHex(
@@ -71,18 +70,18 @@ export const getSwapOperations = async ({
         args: [
           [
             {
-              tokenIn: from.token,
+              tokenIn: from.token, // ETH for ETH
               amountIn: from.amount,
               steps: [
                 {
                   pool: pool.contract,
                   data: encodeAbiParameters(
                     [
-                      { name: 'tokenIn', type: 'address' },
+                      { name: 'tokenIn', type: 'address' }, // WETH for ETH
                       { name: 'to', type: 'address' },
                       { name: 'withdrawMode', type: 'uint8' },
                     ],
-                    [from.token, account, withdrawMode],
+                    [normalizeSyncswapPoolToken(from.token), account, withdrawMode],
                   ),
                   callback: ZERO_ADDR,
                   callbackData: '0x',

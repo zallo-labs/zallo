@@ -50,7 +50,7 @@ export const ErrorBoundary = ({ children }: ErrorBoundaryProps) => {
             </View>
 
             <View style={styles.form}>
-              <Text>If you'd like to help, tell us what happened</Text>
+              <Text>{`If you'd like to help, tell us what happened`}</Text>
 
               <FormTextField label="Name" control={control} name="name" />
 

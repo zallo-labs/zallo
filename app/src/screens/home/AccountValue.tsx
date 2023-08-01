@@ -1,29 +1,41 @@
+import { FragmentType, gql, useFragment } from '@api/generated';
 import { makeStyles } from '@theme/makeStyles';
-import { useTotalValue } from '@token/useTotalValue';
-import { Address } from 'lib';
+import { tokenToFiat } from 'lib';
 import { Text } from 'react-native-paper';
 import { FiatValue } from '~/components/fiat/FiatValue';
-import { LineSkeleton } from '~/components/skeleton/LineSkeleton';
-import { withSuspense } from '~/components/skeleton/withSuspense';
+
+const FragmentDoc = gql(/* GraphQL */ `
+  fragment AccountValue_tokensQuery on Query @argumentDefinitions(account: { type: "Address" }) {
+    tokens {
+      id
+      decimals
+      balance(input: { account: $account })
+      price {
+        id
+        current
+      }
+    }
+  }
+`);
 
 export interface AccountValueProps {
-  account: Address;
+  tokensQuery: FragmentType<typeof FragmentDoc>;
 }
 
-export const AccountValue = withSuspense(({ account }: AccountValueProps) => {
+export function AccountValue(props: AccountValueProps) {
   const styles = useStyles();
+  const { tokens } = useFragment(FragmentDoc, props.tokensQuery);
+
+  const total = tokens.reduce(
+    (sum, token) => tokenToFiat(token.balance, token.price?.current ?? 0, token.decimals) + sum,
+    0,
+  );
 
   return (
     <Text style={[styles.container, styles.font]}>
-      <FiatValue value={useTotalValue(account)} />
+      <FiatValue value={total} />
     </Text>
   );
-}, Skeleton);
-
-function Skeleton() {
-  const styles = useStyles();
-
-  return <LineSkeleton width={140} height={styles.font.lineHeight} style={styles.container} />;
 }
 
 const useStyles = makeStyles(({ fonts }) => ({

@@ -4,7 +4,7 @@ import { Text } from 'react-native-paper';
 import { AddressIcon } from '../Identicon/AddressIcon';
 import { useNavigation } from '@react-navigation/native';
 import { Chevron } from '../Chevron';
-import { FragmentType, gql, useFragment } from '@api/gen';
+import { FragmentType, gql, useFragment } from '@api/generated';
 
 const FragmentDoc = gql(/* GraphQL */ `
   fragment AccountSelector_account on Account {

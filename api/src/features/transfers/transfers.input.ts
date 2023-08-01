@@ -13,9 +13,9 @@ export class TransfersInput {
 
   @Field(() => Boolean, {
     nullable: true,
-    description: 'Not originating from an account transaction',
+    description: 'Originating from an account transaction',
   })
-  external?: boolean;
+  internal?: boolean;
 }
 
 @InputType()
@@ -23,12 +23,12 @@ export class TransferSubscriptionInput {
   @Field(() => [AddressScalar], { nullable: true })
   accounts?: Address[];
 
-  @Field(() => [TransferDirection], { nullable: true })
-  directions?: TransferDirection[];
+  @Field(() => TransferDirection, { nullable: true })
+  direction?: TransferDirection;
 
   @Field(() => Boolean, {
     nullable: true,
-    description: 'Not originating from an account transaction',
+    description: 'Originating from an account transaction',
   })
-  external?: boolean;
+  internal?: boolean;
 }

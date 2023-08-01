@@ -7,23 +7,19 @@ import { Appbar } from '~/components/Appbar/Appbar';
 import { useForm } from 'react-hook-form';
 import { FormTextField } from '~/components/fields/FormTextField';
 import { FormSubmitButton } from '~/components/fields/FormSubmitButton';
-import { gql, useSuspenseQuery } from '@apollo/client';
 import { withSuspense } from '~/components/skeleton/withSuspense';
 import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
-import {
-  ApproverDetailsDocument,
-  ApproverDetailsQuery,
-  ApproverDetailsQueryVariables,
-  useApproverUpdateMutation,
-} from '@api/generated';
 import { TextInput } from 'react-native-paper';
 import * as Device from 'expo-device';
 import { match, P } from 'ts-pattern';
 import { Button } from '~/components/Button';
 import { QrCodeIcon } from '@theme/icons';
 import { Address } from 'viem';
+import { gql } from '@api/generated';
+import { useMutation } from 'urql';
+import { useQuery } from '~/gql';
 
-gql`
+const Query = gql(/* GraphQL */ `
   query ApproverDetails($approver: Address) {
     approver(input: { address: $approver }) {
       id
@@ -40,15 +36,17 @@ gql`
       }
     }
   }
+`);
 
-  mutation ApproverUpdate($input: UpdateApproverInput!) {
-    updateApprover(input: $input) {
+const Update = gql(/* GraphQL */ `
+  mutation ApproverScreen_update($name: String!) {
+    updateApprover(input: { name: $name }) {
       id
       name
       label
     }
   }
-`;
+`);
 
 const modelName = match(Device.modelName)
   .with(P.string.includes('iPhone'), () => 'iPhone')
@@ -71,11 +69,8 @@ export const ApproverScreen = withSuspense(
   ({ route, navigation: { navigate } }: ApproverScreenProps) => {
     const { isOnboarding } = route.params;
 
-    const [update] = useApproverUpdateMutation();
-    const { approver, user } = useSuspenseQuery<
-      ApproverDetailsQuery,
-      ApproverDetailsQueryVariables
-    >(ApproverDetailsDocument, { variables: { approver: route.params.approver } }).data;
+    const { approver, user } = useQuery(Query, { approver: route.params.approver }).data;
+    const update = useMutation(Update)[1];
 
     const { control, handleSubmit } = useForm<Inputs>({
       defaultValues: { name: approver.name ?? modelName },
@@ -91,7 +86,7 @@ export const ApproverScreen = withSuspense(
           <FormTextField
             name="name"
             control={control}
-            left={<TextInput.Affix text={`${user.name}'s`} />}
+            left={user.name ? <TextInput.Affix text={`${user.name}'s`} /> : undefined}
             label="Label"
             supporting="This device"
             placeholder="iPhone"
@@ -103,7 +98,7 @@ export const ApproverScreen = withSuspense(
                 !takenNames.includes(v) || 'An approver with ths name already exists',
             }}
             onEndEditing={handleSubmit(async ({ name }) => {
-              await update({ variables: { input: { name } } });
+              await update({ name });
             })}
           />
         </View>

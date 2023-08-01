@@ -7,12 +7,26 @@ import { IconButton, Surface, Text } from 'react-native-paper';
 import { CloseIcon, ShareIcon, materialCommunityIcon } from '@theme/icons';
 import { Actions } from '~/components/layout/Actions';
 import { Share, View } from 'react-native';
-import { AddressLabel } from '~/components/address/AddressLabel';
+import { useAddressLabel } from '~/components/address/AddressLabel';
 import { buildAddressLink } from '~/util/addressLink';
 import { withSuspense } from '~/components/skeleton/withSuspense';
 import { Blur } from '~/components/Blur';
-import { useFaucet } from '@api/faucet';
 import { Button } from '~/components/Button';
+import { gql } from '@api/generated';
+import { useMutation } from 'urql';
+import { useQuery } from '~/gql';
+
+const Query = gql(/* GraphQL */ `
+  query QrModal($account: Address!) {
+    requestableTokens(input: { account: $account })
+  }
+`);
+
+const RequestTokens = gql(/* GraphQL */ `
+  mutation QrModal_RequestTokens($account: Address!) {
+    requestTokens(input: { account: $account })
+  }
+`);
 
 const FaucetIcon = materialCommunityIcon('water');
 
@@ -25,7 +39,9 @@ export type QrModalProps = StackNavigatorScreenProps<'QrModal'>;
 export const QrModal = withSuspense(({ route, navigation: { goBack } }: QrModalProps) => {
   const { address } = route.params;
   const styles = uesStyles();
-  const requestFromFaucet = useFaucet(address);
+  const requestTokens = useMutation(RequestTokens)[1];
+
+  const { requestableTokens } = useQuery(Query, { account: address }).data;
 
   const share = () => {
     const link = buildAddressLink(address);
@@ -39,7 +55,7 @@ export const QrModal = withSuspense(({ route, navigation: { goBack } }: QrModalP
 
         <View style={styles.qrContainer}>
           <Text variant="headlineLarge" style={styles.name}>
-            <AddressLabel address={address} />
+            {useAddressLabel(address)}
           </Text>
 
           <Surface style={styles.qrSurface}>
@@ -56,8 +72,12 @@ export const QrModal = withSuspense(({ route, navigation: { goBack } }: QrModalP
         </View>
 
         <Actions>
-          {requestFromFaucet && (
-            <Button mode="contained-tonal" icon={FaucetIcon} onPress={() => requestFromFaucet()}>
+          {requestableTokens.length > 0 && (
+            <Button
+              mode="contained-tonal"
+              icon={FaucetIcon}
+              onPress={() => requestTokens({ account: address })}
+            >
               Request testnet tokens
             </Button>
           )}

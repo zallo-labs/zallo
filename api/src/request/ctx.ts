@@ -20,7 +20,12 @@ export type IncomingContext = IncomingHttpContext | IncomingWsContext;
 
 export interface UserContext {
   approver: Address;
-  accounts: uuid[];
+  accounts: UserAccountContext[];
+}
+
+export interface UserAccountContext {
+  id: uuid;
+  address: Address;
 }
 
 export interface GqlContext {

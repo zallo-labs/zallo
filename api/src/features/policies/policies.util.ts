@@ -17,12 +17,12 @@ import { PolicyInput, TargetsConfigInput, TransfersConfigInput } from './policie
 export type UniquePolicy = { id: uuid } | { account: Address; key: PolicyKey };
 
 export const uniquePolicy = (unique: UniquePolicy) =>
-  e.shape(e.Policy, (p) => ({
+  e.shape(e.Policy, () => ({
     filter_single:
       'id' in unique
-        ? { id: unique.id }
+        ? { id: e.uuid(unique.id) }
         : {
-            account: e.select(p.account, () => ({ filter_single: { address: unique.account } })),
+            account: e.select(e.Account, () => ({ filter_single: { address: unique.account } })),
             key: unique.key,
           },
   }));

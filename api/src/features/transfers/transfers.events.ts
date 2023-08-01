@@ -25,7 +25,7 @@ export interface TransferSubscriptionPayload {
   transfer: uuid;
   account: Address;
   direction: TransferDirection;
-  isExternal: boolean;
+  internal: boolean;
 }
 
 @Injectable()
@@ -65,64 +65,72 @@ export class TransfersEvents {
 
     const { from, to, value: amount } = r.args;
 
-    const accounts = await this.db.query(
+    const accounts = (await this.db.query(
       e.select(e.Account, (account) => ({
         filter: e.op(account.address, 'in', e.set(from, to)),
         address: true,
       })).address,
-    );
+    )) as Address[];
 
-    if (accounts.length) {
-      Logger.debug(`Transfer ${from} -> ${to}`);
-      const block = await this.provider.getBlock(log.blockNumber);
-      const token = normalizeEthAddress(asAddress(log.address));
+    if (!accounts.length) return;
 
-      const transfers = await this.db.query(
-        e.set(
-          ...accounts.map((a) =>
-            e.select({
-              transfer: e
+    const token = normalizeEthAddress(asAddress(log.address));
+    const { timestamp } = await this.provider.getBlock(log.blockNumber);
+    const block = BigInt(log.blockNumber);
+
+    await Promise.all(
+      accounts.map(async (account) => {
+        const direction = account === from ? TransferDirection.Out : TransferDirection.In;
+
+        const r = await this.db.query(
+          e.select({
+            newTransfer: e.select(
+              e
                 .insert(e.Transfer, {
-                  account: selectAccount(a),
+                  account: selectAccount(account),
                   transactionHash: log.transactionHash,
                   logIndex: log.logIndex,
-                  block: BigInt(log.blockNumber),
-                  timestamp: new Date(block.timestamp * 1000),
-                  direction: e.cast(
-                    e.TransferDirection,
-                    a === from ? TransferDirection.Out : TransferDirection.In,
-                  ),
+                  block,
+                  timestamp: new Date(timestamp * 1000),
+                  direction: e.cast(e.TransferDirection, direction),
                   from,
                   to,
-                  token,
-                  amount,
+                  tokenAddress: token,
+                  amount: direction === TransferDirection.In ? amount : -amount,
                 })
                 .unlessConflict(),
-              isExternal: e.op(
-                e.select(e.Transaction, () => ({ filter_single: { hash: log.transactionHash } }))
-                  .proposal.account.address,
-                '?=',
-                a,
-              ),
-            }),
-          ),
-        ),
-      );
+              (t) => ({
+                id: true,
+                internal: e.op('exists', t.transaction),
+              }),
+            ),
+            existingTransfer: e.select(e.Transfer, (t) => ({
+              filter_single: { account: selectAccount(account), block, logIndex: log.logIndex },
+              id: true,
+              internal: e.op('exists', t.transaction),
+            })),
+          }),
+        );
 
-      await Promise.all(
-        transfers.map(async ({ transfer, isExternal }, index) => {
-          if (!transfer) return;
-          const account = accounts[index] as Address;
+        if (r.newTransfer) {
+          Logger.debug(
+            `[${account}]: token (${token}) transfer ${
+              from === account ? `to ${to}` : `from ${from}`
+            }`,
+          );
 
-          await this.pubsub.publish<TransferSubscriptionPayload>(getTransferTrigger(account), {
-            transfer: transfer.id,
-            account,
-            direction: account === from ? TransferDirection.Out : TransferDirection.In,
-            isExternal,
-          });
-        }),
-      );
-    }
+          this.provider.invalidateBalance({ account, token });
+        }
+
+        const transfer = (r.newTransfer ?? r.existingTransfer)!;
+        await this.pubsub.publish<TransferSubscriptionPayload>(getTransferTrigger(account), {
+          transfer: transfer.id,
+          account,
+          direction,
+          internal: transfer.internal,
+        });
+      }),
+    );
   }
 
   private async approval(event: EventData | TransactionEventData) {
@@ -150,7 +158,7 @@ export class TransfersEvents {
     if (accounts.length) {
       Logger.debug(`Transfer approval ${from} -> ${to}`);
       const block = await this.provider.getBlock(log.blockNumber);
-      const token = normalizeEthAddress(asAddress(log.address));
+      const tokenAddress = normalizeEthAddress(asAddress(log.address));
 
       const approvals = toArray(
         await this.db.query(
@@ -169,7 +177,7 @@ export class TransfersEvents {
                   ),
                   from,
                   to,
-                  token,
+                  tokenAddress,
                   amount,
                 })
                 .unlessConflict(),

@@ -1,74 +1,67 @@
 import type { CodegenConfig } from '@graphql-codegen/cli';
 
-const plugins = [
-  '@n1ru4l/graphql-codegen-relay-optimizer-plugin',
-  'typescript',
-  'typescript-operations',
-  'typescript-react-apollo',
-];
+const schema = '../api/schema.graphql';
+const documents = 'src/**/*';
+const scalars = {
+  Address: 'lib#Address',
+  BigInt: 'lib#BigIntlike',
+  Bytes: 'lib#Hex',
+  Bytes32: 'lib#Hex',
+  DateTime: 'string',
+  Decimal: 'lib#BigIntlike',
+  PolicyKey: 'lib#PolicyKey',
+  Selector: 'lib#Selector',
+  Uint256: 'lib#BigIntlike',
+};
 
 export default {
   overwrite: true,
   generates: {
-    'src/gql/api/generated.ts': {
-      schema: '../api/schema.graphql',
-      documents: ['src/**/*', '!src/gql/uniswap/**/*'],
-      plugins,
+    'src/gql/api/documents.generated.ts': {
+      schema,
+      documents,
+      plugins: [
+        '@n1ru4l/graphql-codegen-relay-optimizer-plugin',
+        'typescript',
+        'typescript-operations',
+        'typed-document-node',
+      ],
       config: {
         // https://the-guild.dev/graphql/codegen/plugins/typescript/typescript
         // defaultScalarType: 'unknown',
         enumsAsTypes: true,
-        scalars: {
-          Address: 'lib#Address',
-          BigInt: 'lib#BigIntlike',
-          Bytes: 'lib#Hex',
-          Bytes32: 'lib#Hex',
-          DateTime: 'string',
-          Decimal: 'lib#BigIntlike',
-          PolicyKey: 'lib#PolicyKey',
-          Selector: 'lib#Selector',
-          Uint256: 'lib#BigIntlike',
-        },
+        scalars,
+        withHooks: true,
         withHOC: false,
         withComponent: false,
-        withHooks: true,
         // https://the-guild.dev/graphql/codegen/plugins/typescript/relay-operation-optimizer
         skipDocumentsValidation: true,
         flattenGeneratedTypes: true,
       },
     },
-    'src/gql/api/gen/': {
-      schema: '../api/schema.graphql',
-      documents: ['src/**/*', '!src/gql/uniswap/**/*'],
+    'src/gql/api/generated/': {
+      schema,
+      documents,
       preset: 'client', // Enables useFragments - https://the-guild.dev/graphql/codegen/plugins/presets/preset-client
       presetConfig: {
         gqlTagName: 'gql',
       },
-      // plugins: ['@n1ru4l/graphql-codegen-relay-optimizer-plugin'], // Breaks )':
       config: {
         // https://the-guild.dev/graphql/codegen/plugins/typescript/typescript
         // defaultScalarType: 'unknown',
         enumsAsTypes: true,
-        scalars: {
-          Address: 'lib#Address',
-          BigInt: 'lib#BigIntlike',
-          Bytes: 'lib#Hex',
-          Bytes32: 'lib#Hex',
-          DateTime: 'string',
-          Decimal: 'lib#BigIntlike',
-          PolicyKey: 'lib#PolicyKey',
-          Selector: 'lib#Selector',
-          Uint256: 'lib#BigIntlike',
-        },
+        scalars,
         // https://the-guild.dev/graphql/codegen/plugins/typescript/relay-operation-optimizer
         skipDocumentsValidation: true,
         flattenGeneratedTypes: true,
       },
     },
-    'src/gql/uniswap/generated.ts': {
-      schema: 'https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v3',
-      documents: 'src/gql/uniswap/**/*.ts',
-      plugins,
+    'src/gql/api/schema.ts': {
+      schema,
+      plugins: ['urql-introspection'],
+      config: {
+        minify: true,
+      },
     },
   },
 } satisfies CodegenConfig;

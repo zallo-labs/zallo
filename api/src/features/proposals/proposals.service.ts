@@ -1,6 +1,14 @@
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { UserInputError } from '@nestjs/apollo';
-import { hashTx, Address, estimateOpGas, Hex, isHex, asTx } from 'lib';
+import {
+  hashTx,
+  Address,
+  Hex,
+  isHex,
+  asTx,
+  estimateTransactionOperationsGas,
+  FALLBACK_OPERATIONS_GAS,
+} from 'lib';
 import { ProviderService } from '~/features/util/provider/provider.service';
 import { PubsubService } from '~/features/util/pubsub/pubsub.service';
 import { TransactionsService } from '../transactions/transactions.service';
@@ -22,7 +30,7 @@ import { ShapeFunc } from '../database/database.select';
 import { and } from '../database/database.util';
 import { selectAccount } from '../accounts/accounts.util';
 import { PaymasterService } from '../paymaster/paymaster.service';
-import { SimulationService } from '../simulation/simulation.service';
+import { SimulationsService } from '../simulations/simulations.service';
 
 export interface ProposalSubscriptionPayload {
   hash: Hex;
@@ -59,7 +67,7 @@ export class ProposalsService {
     @Inject(forwardRef(() => TransactionsService))
     private transactions: TransactionsService,
     private paymaster: PaymasterService,
-    private simulation: SimulationService,
+    private simulations: SimulationsService,
   ) {}
 
   async selectUnique(id: UniqueProposal, shape?: ShapeFunc<typeof e.TransactionProposal>) {
@@ -95,7 +103,7 @@ export class ProposalsService {
     feeToken = ETH_ADDRESS as Address,
     signature,
   }: ProposeInput) {
-    const { id, hash } = await this.db.transaction(async (db) => {
+    return this.db.transaction(async (db) => {
       if (!operations.length) throw new UserInputError('No operations provided');
 
       const tx = asTx({
@@ -103,9 +111,6 @@ export class ProposalsService {
         nonce: nonce ?? (await this.getUnusedNonce(account)),
       });
       const hash = await hashTx(tx, { address: account, provider: this.provider });
-
-      if (!(await this.paymaster.isSupportedFeeToken(feeToken)))
-        throw new UserInputError(`Fee token not supported: ${feeToken}`);
 
       const { id } = await e
         .insert(e.TransactionProposal, {
@@ -122,20 +127,22 @@ export class ProposalsService {
             ),
           ),
           nonce: tx.nonce,
-          gasLimit: gasLimit || (await estimateOpGas(this.provider, tx)),
-          feeToken,
-          simulation: await this.simulation.getInsert(account, tx),
+          gasLimit:
+            gasLimit ||
+            (
+              await estimateTransactionOperationsGas(this.provider, account, tx)
+            ).unwrapOr(FALLBACK_OPERATIONS_GAS),
+          feeToken: await this.selectAndValidateFeeToken(feeToken),
+          simulation: await this.simulations.getInsert(account, tx),
         })
         .run(db);
 
       if (signature) await this.approve({ hash, signature });
 
+      this.db.afterTransaction(() => this.publishProposal({ account, hash }, ProposalEvent.create));
+
       return { id, hash };
     });
-
-    await this.publishProposal({ account, hash }, ProposalEvent.create);
-
-    return { id, hash };
   }
 
   async approve({ hash, signature }: ApproveInput) {
@@ -184,9 +191,10 @@ export class ProposalsService {
     await this.publishProposal(id, ProposalEvent.rejection);
   }
 
-  async update({ hash, policy, feeToken }: UpdateProposalInput) {
-    if (feeToken !== undefined && !(await this.paymaster.isSupportedFeeToken(feeToken)))
-      throw new UserInputError(`Fee token not supported: ${feeToken}`);
+  async update({ hash, policy, feeToken: feeTokenAddress }: UpdateProposalInput) {
+    const feeToken = feeTokenAddress
+      ? await this.selectAndValidateFeeToken(feeTokenAddress)
+      : undefined;
 
     const updatedProposal = e.assert_single(
       e.update(e.TransactionProposal, (p) => ({
@@ -205,7 +213,7 @@ export class ProposalsService {
               ? e.select(e.Policy, () => ({ filter_single: { account: p.account, key: policy } }))
               : null,
           }),
-          ...(feeToken !== undefined && { feeToken }), // TODO: validate paymaster supports fee tokens
+          feeToken,
         },
       })),
     );
@@ -288,6 +296,22 @@ export class ProposalsService {
       this.pubsub.publish<ProposalSubscriptionPayload>(getProposalTrigger(hash), payload),
       this.pubsub.publish<ProposalSubscriptionPayload>(getProposalAccountTrigger(account), payload),
     ]);
+  }
+
+  private async selectAndValidateFeeToken(feeTokenAddress: Address) {
+    const select = e.assert_single(
+      e.select(e.Token, (t) => ({
+        filter: e.op(t.address, '=', feeTokenAddress),
+        limit: 1,
+        id: true,
+        isFeeToken: true,
+      })),
+    );
+
+    const t = await this.db.query(select);
+    if (!t?.isFeeToken) throw new UserInputError(`Fee token is not supported; ${feeTokenAddress}`);
+
+    return select;
   }
 
   // private async notifyApprovers(proposalId: string) {

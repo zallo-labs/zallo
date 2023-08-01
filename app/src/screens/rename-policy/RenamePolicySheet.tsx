@@ -1,4 +1,3 @@
-import { useUpdatePolicy } from '@api/policy';
 import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
 import { POLICY_DRAFT_ATOM } from '../policy/PolicyDraft';
 import { useImmerAtom } from 'jotai-immer';
@@ -7,13 +6,37 @@ import { withSuspense } from '~/components/skeleton/withSuspense';
 import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
 import { Appbar } from '~/components/Appbar/Appbar';
 import { StyleSheet } from 'react-native';
-import { useAccount } from '@api/account';
 import { useForm } from 'react-hook-form';
 import { FormTextField } from '~/components/fields/FormTextField';
 import { Actions } from '~/components/layout/Actions';
 import { FormSubmitButton } from '~/components/fields/FormSubmitButton';
+import { gql } from '@api/generated';
+import { useQuery } from '~/gql';
+import { useMutation } from 'urql';
 
 const trimmed = (v: string) => v.trim();
+
+const Query = gql(/* GraphQL */ `
+  query RenamePolicySheet($account: Address!) {
+    account(input: { address: $account }) {
+      id
+      policies {
+        id
+        key
+        name
+      }
+    }
+  }
+`);
+
+const Rename = gql(/* GraphQL */ `
+  mutation RenamePolicySheet_Rename($account: Address!, $key: PolicyKey!, $name: String!) {
+    updatePolicy(input: { account: $account, key: $key, name: $name }) {
+      id
+      name
+    }
+  }
+`);
 
 interface Inputs {
   name: string;
@@ -25,9 +48,10 @@ export type RenamePolicyScreenProps = StackNavigatorScreenProps<'RenamePolicy'>;
 
 export const RenamePolicyScreen = withSuspense(
   ({ navigation: { goBack } }: RenamePolicyScreenProps) => {
-    const updatePolicy = useUpdatePolicy();
     const [draft, updateDraft] = useImmerAtom(POLICY_DRAFT_ATOM);
-    const account = useAccount(draft.account);
+
+    const { account } = useQuery(Query, { account: draft.account }).data;
+    const rename = useMutation(Rename)[1];
 
     const { control, handleSubmit } = useForm<Inputs>({
       defaultValues: { name: draft.name },
@@ -72,7 +96,7 @@ export const RenamePolicyScreen = withSuspense(
                 });
 
                 if (draft.key !== undefined)
-                  await updatePolicy({ account: draft.account, key: draft.key, name });
+                  await rename({ account: draft.account, key: draft.key, name });
               }
 
               goBack();

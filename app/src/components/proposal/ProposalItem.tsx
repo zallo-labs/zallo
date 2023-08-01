@@ -1,5 +1,3 @@
-import { ETH } from '@token/tokens';
-import { useMaybeToken } from '@token/useToken';
 import { Timestamp } from '~/components/format/Timestamp';
 import { ListItem, ListItemProps } from '~/components/list/ListItem';
 import { withSuspense } from '~/components/skeleton/withSuspense';
@@ -9,13 +7,14 @@ import { match } from 'ts-pattern';
 import { FiatValue } from '../fiat/FiatValue';
 import { materialCommunityIcon } from '@theme/icons';
 import { ICON_SIZE } from '@theme/paper';
-import { asBigInt } from 'lib';
-import { FragmentType, gql, useFragment } from '@api/gen';
+import { FragmentType, gql, useFragment } from '@api/generated';
 import { OperationLabel } from '../call/OperationLabel';
 import { useCanRespond } from './useCanRespond';
 import { useNavigation } from '@react-navigation/native';
+import { ETH_ICON_URI, TokenIcon } from '../token/TokenIcon/TokenIcon';
+import { ProposalValue } from './ProposalValue';
 
-const FragmentDoc = gql(/* GraphQL */ `
+const Fragment = gql(/* GraphQL */ `
   fragment ProposalItem_TransactionProposalFragment on TransactionProposal {
     id
     hash
@@ -31,18 +30,9 @@ const FragmentDoc = gql(/* GraphQL */ `
       receipt {
         id
         timestamp
-        transferEvents {
-          id
-          value
-        }
       }
     }
-    simulation {
-      transfers {
-        id
-        value
-      }
-    }
+    ...ProposalValue_TransactionProposal
     ...UseCanRespond_TransactionProposalFragment
   }
 `);
@@ -50,22 +40,17 @@ const FragmentDoc = gql(/* GraphQL */ `
 const MultiOperationIcon = materialCommunityIcon('multiplication');
 
 export interface ProposalItemProps extends Partial<ListItemProps> {
-  proposal: FragmentType<typeof FragmentDoc>;
+  proposal: FragmentType<typeof Fragment>;
 }
 
 export const ProposalItem = withSuspense(
   ({ proposal: proposalFragment, ...itemProps }: ProposalItemProps) => {
     const styles = useStyles();
-    const p = useFragment(FragmentDoc, proposalFragment);
+    const p = useFragment(Fragment, proposalFragment);
     const { navigate } = useNavigation();
-    const token = useMaybeToken(p.operations[0].to) ?? ETH;
     const { canApprove } = useCanRespond(p);
 
     const isMulti = p.operations.length > 1;
-
-    const totalValue = [
-      ...(p.transaction?.receipt?.transferEvents ?? p.simulation.transfers),
-    ].reduce((sum, t) => sum + asBigInt(t.value), 0n);
 
     const supporting = match(p)
       .returnType<ListItemProps['supporting']>()
@@ -75,23 +60,32 @@ export const ProposalItem = withSuspense(
           : 'Awaiting approval',
       )
       .with({ status: 'Executing' }, () => 'Executing...')
-      .with({ status: 'Failed' }, () => ({ Text }) => (
-        <Text style={styles.failed}>
-          <Timestamp timestamp={p.transaction!.receipt!.timestamp} />
-        </Text>
-      ))
-      .with({ status: 'Successful' }, () => (
-        <Timestamp timestamp={p.transaction!.receipt!.timestamp} />
-      ))
+      .with(
+        { status: 'Failed' },
+        () =>
+          ({ Text }) =>
+            p.transaction?.receipt && (
+              <Text style={styles.failed}>
+                <Timestamp timestamp={p.transaction.receipt.timestamp} />
+              </Text>
+            ),
+      )
+      .with(
+        { status: 'Successful' },
+        () => p.transaction?.receipt && <Timestamp timestamp={p.transaction.receipt.timestamp} />,
+      )
       .exhaustive();
 
     return (
       <ListItem
-        leading={
-          isMulti
-            ? (props) => <MultiOperationIcon {...props} size={ICON_SIZE.medium} />
-            : token.address
+        leading={(props) =>
+          isMulti ? (
+            <MultiOperationIcon {...props} size={ICON_SIZE.medium} />
+          ) : (
+            <TokenIcon token={p.operations[0].to} fallbackUri={ETH_ICON_URI} {...props} />
+          )
         }
+        leadingSize="medium"
         headline={
           p.label ??
           (isMulti ? (
@@ -103,7 +97,7 @@ export const ProposalItem = withSuspense(
         supporting={supporting}
         trailing={({ Text }) => (
           <Text variant="labelLarge">
-            <FiatValue value={totalValue} hideZero />
+            <ProposalValue proposal={p} hideZero />
           </Text>
         )}
         onPress={() => navigate('Proposal', { proposal: p.hash })}

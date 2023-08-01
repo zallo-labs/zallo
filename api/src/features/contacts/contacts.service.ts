@@ -101,7 +101,17 @@ export class ContactsService {
       label: true,
     })).label;
 
-    const r = await this.db.query(e.select(e.op(e.op(contact, '??', account), '??', approver)));
+    const token = e.assert_single(
+      e.select(e.Token, (t) => ({
+        filter: e.op(t.address, '=', address),
+        limit: 1,
+        name: true,
+      })).name,
+    );
+
+    const r = await this.db.query(
+      e.select(e.op(e.op(e.op(contact, '??', account), '??', approver), '??', token)),
+    );
 
     return r ?? this.hardcodedContracts[address];
   }

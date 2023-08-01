@@ -61,10 +61,17 @@ library TransactionUtil {
     }
   }
 
-  function hooks(Transaction calldata t) internal pure returns (Hook[] memory) {
+  function hooks(Transaction calldata t) internal pure returns (Hook[] memory hooks) {
+    if (isGasEstimation(t)) return new Hook[](0);
+
     Policy memory policy;
     (, policy, ) = abi.decode(t.signature, (uint32, Policy, Approvals));
 
     return policy.hooks;
+  }
+
+  /// @dev estimateGas always calls with a 65 byte signature
+  function isGasEstimation(Transaction calldata t) internal pure returns (bool) {
+    return t.signature.length == 65;
   }
 }

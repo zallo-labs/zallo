@@ -1,27 +1,10 @@
-import { persistAtom } from '~/util/effect/persistAtom';
+import { useAtomValue, useSetAtom } from 'jotai';
 import { Address } from 'lib';
-import { atom, DefaultValue, selector, useRecoilValue, useSetRecoilState } from 'recoil';
-import { Token } from '@token/token';
-import { ETH } from '@token/tokens';
-import { tokenAtom } from '@token/useToken';
+import { ETH_ADDRESS } from 'zksync-web3/build/src/utils';
+import { persistedAtom } from '~/util/persistedAtom';
 
-const selectedTokenAddressAtom = atom<Address>({
-  key: 'SelectedTokenAddress',
-  default: ETH.address,
-  effects: [persistAtom()],
-});
+const atom = persistedAtom('selectedToken', ETH_ADDRESS as Address);
 
-const selectedTokenSelector = selector<Token>({
-  key: 'selectedToken',
-  get: ({ get }) => {
-    const addr = get(selectedTokenAddressAtom);
-    return get(tokenAtom(addr));
-  },
-  set: ({ set }, token) => {
-    set(selectedTokenAddressAtom, token instanceof DefaultValue ? token : token.address);
-  },
-});
+export const useSelectedToken = () => useAtomValue(atom);
 
-export const useSelectedToken = () => useRecoilValue(selectedTokenSelector);
-
-export const useSetSelectedToken = () => useSetRecoilState(selectedTokenSelector);
+export const useSetSelectedToken = () => useSetAtom(atom);

@@ -9,9 +9,7 @@ import { Searchbar } from '~/components/fields/Searchbar';
 import { Screen } from '~/components/layout/Screen';
 import { ListItemHeight } from '~/components/list/ListItem';
 import { useScanAddress } from '../scan/ScanScreen';
-import { gql } from '@api/gen';
-import { useSuspenseQuery } from '@apollo/client';
-import { AddressesModalQuery, AddressesModalQueryVariables } from '@api/gen/graphql';
+import { gql } from '@api/generated';
 import { FlashList } from '@shopify/flash-list';
 import { P, match } from 'ts-pattern';
 import { AccountItem } from '../accounts/AccountItem';
@@ -19,11 +17,12 @@ import { UserApproverItem } from '../user/UserApproverItem';
 import { ContactItem } from '../contacts/ContactItem';
 import { ADDRESS_EMITTER } from './useSelectAddress';
 import { ListHeader } from '~/components/list/ListHeader';
-import { AddressesModalDocument } from '@api/generated';
+import { useQuery } from '~/gql';
 
-gql(/* GraphQL */ `
+const Query = gql(/* GraphQL */ `
   query AddressesModal($query: String) {
     accounts {
+      __typename
       id
       address
       ...AccountItem_AccountFragment
@@ -32,12 +31,15 @@ gql(/* GraphQL */ `
     user {
       id
       approvers {
+        __typename
+        id
         address
         ...UserApproverItem_UserApproverFragment
       }
     }
 
     contacts(input: { query: $query }) {
+      __typename
       id
       address
       ...ContactItem_ContactFragment
@@ -57,10 +59,7 @@ export const AddressesModal = withSuspense(({ route }: AddressesModalProps) => {
 
   const [query, setQuery] = useState('');
 
-  const { accounts, user, contacts } = useSuspenseQuery<
-    AddressesModalQuery,
-    AddressesModalQueryVariables
-  >(AddressesModalDocument, { variables: { query } }).data;
+  const { accounts, user, contacts } = useQuery(Query, { query }).data;
 
   return (
     <Screen>
@@ -115,9 +114,9 @@ export const AddressesModal = withSuspense(({ route }: AddressesModalProps) => {
             .otherwise(() => null)
         }
         extraData={[disabled]}
+        getItemType={(item) => (typeof item === 'object' ? item.__typename : 'header')}
         showsVerticalScrollIndicator={false}
         estimatedItemSize={ListItemHeight.DOUBLE_LINE}
-        getItemType={(item) => (typeof item === 'object' ? 'row' : 'header')}
       />
     </Screen>
   );

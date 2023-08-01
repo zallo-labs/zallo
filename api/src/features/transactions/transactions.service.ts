@@ -12,6 +12,7 @@ import {
   getTransactionSatisfiability,
   isHex,
   tryOrCatchAsync,
+  estimateTransactionTotalGas,
 } from 'lib';
 import { ProviderService } from '~/features/util/provider/provider.service';
 import {
@@ -72,7 +73,7 @@ export class TransactionsService {
         },
         hash: true,
         ...proposalTxShape(p),
-        feeToken: true,
+        feeToken: { address: true },
         approvals: {
           approver: { address: true },
           signature: true,
@@ -115,7 +116,10 @@ export class TransactionsService {
       return this.tryExecute(proposal.id);
     }
 
-    const tx = transactionProposalAsTx(proposal);
+    const tx = {
+      ...transactionProposalAsTx(proposal),
+      gasLimit: estimateTransactionTotalGas(proposal.gasLimit, approvals.length),
+    };
 
     const policy = await this.getExecutionPolicy(
       tx,
@@ -137,8 +141,8 @@ export class TransactionsService {
           gasPrice,
           customData: {
             paymasterParams: await this.paymaster.getPaymasterParams({
-              feeToken: proposal.feeToken as Address,
-              gasLimit: proposal.gasLimit,
+              feeToken: proposal.feeToken.address as Address,
+              gasLimit: tx.gasLimit,
               gasPrice,
             }),
           },

@@ -1,18 +1,20 @@
-import { NavigateNextIcon } from '@theme/icons';
-import { useToken } from '@token/useToken';
-import { ListItem } from '~/components/list/ListItem';
 import { useSelectToken } from '../tokens/TokensScreen';
-import { useGasPrice } from '@network/useGasPrice';
-import { TokenAmount, useFormattedTokenAmount } from '~/components/token/TokenAmount';
-import { FragmentType, gql, useFragment } from '@api/gen';
+import { FragmentType, gql, useFragment } from '@api/generated';
 import { asBigInt } from 'lib';
-import { useFeeTokenUpdateProposalMutation } from '@api/generated';
+import { useMutation } from 'urql';
+import { TokenItem } from '~/components/token/TokenItem';
+import { makeStyles } from '@theme/makeStyles';
 
 const FragmentDoc = gql(/* GraphQL */ `
   fragment FeeToken_TransactionProposalFragment on TransactionProposal {
     id
     hash
-    feeToken
+    feeToken {
+      id
+      name
+      gasPrice
+      ...TokenItem_token
+    }
     updatable
     gasLimit
     account {
@@ -30,11 +32,10 @@ const FragmentDoc = gql(/* GraphQL */ `
   }
 `);
 
-gql(/* GraphQL */ `
-  mutation FeeTokenUpdateProposal($hash: Bytes32!, $feeToken: Address!) {
+const Update = gql(/* GraphQL */ `
+  mutation FeeToken_Update($hash: Bytes32!, $feeToken: Address!) {
     updateProposal(input: { hash: $hash, feeToken: $feeToken }) {
-      id
-      feeToken
+      ...FeeToken_TransactionProposalFragment
     }
   }
 `);
@@ -44,37 +45,40 @@ export interface FeeTokenProps {
 }
 
 export function FeeToken(props: FeeTokenProps) {
+  const styles = useStyles();
   const p = useFragment(FragmentDoc, props.proposal);
 
-  const token = useToken(p.feeToken);
-  const [update] = useFeeTokenUpdateProposalMutation();
+  const update = useMutation(Update)[1];
   const selectToken = useSelectToken();
 
-  const estimatedFee = useGasPrice(token) * asBigInt(p.gasLimit);
+  const estimatedFee = asBigInt(p.feeToken.gasPrice ?? 0) * asBigInt(p.gasLimit);
   const actualFee =
     p.transaction?.receipt &&
     asBigInt(p.transaction.receipt.gasUsed) * asBigInt(p.transaction.gasPrice);
 
   return (
-    <ListItem
-      leading={p.feeToken}
-      headline="Network fee"
-      supporting={({ Text }) => (
+    <TokenItem
+      token={p.feeToken}
+      amount={-(actualFee ?? estimatedFee)}
+      headline={({ Text }) => (
         <Text>
-          {actualFee ? (
-            <TokenAmount token={token} amount={-actualFee} />
-          ) : (
-            `≤ ${useFormattedTokenAmount({ token, amount: -estimatedFee })}`
-          )}
+          {p.feeToken.name}
+          <Text style={styles.secondary}> ({typeof actualFee !== 'bigint' && 'max '}fee)</Text>
         </Text>
       )}
-      trailing={NavigateNextIcon}
       {...(p.updatable && {
-        onPress: async () => {
-          const token = await selectToken({ account: p.account.address });
-          await update({ variables: { hash: p.hash, feeToken: token.address } });
-        },
+        onPress: async () =>
+          await update({
+            hash: p.hash,
+            feeToken: await selectToken({ account: p.account.address, feeToken: true }),
+          }),
       })}
     />
   );
 }
+
+const useStyles = makeStyles(({ colors }) => ({
+  secondary: {
+    color: colors.onSurfaceVariant,
+  },
+}));

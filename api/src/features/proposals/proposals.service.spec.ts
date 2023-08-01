@@ -1,8 +1,8 @@
 import { Test } from '@nestjs/testing';
 import { createMock, DeepMocked } from '@golevelup/ts-jest';
 import { asUser, getApprover, getUserCtx, UserContext } from '~/request/ctx';
-import { randomAddress, randomHash, randomHex, randomUser } from '~/util/test';
-import { Address, CHAINS, randomDeploySalt, asHex, Hex } from 'lib';
+import { randomAddress, randomHash, randomUser } from '~/util/test';
+import { Address, CHAINS, randomDeploySalt, Hex } from 'lib';
 import { ProviderService } from '../util/provider/provider.service';
 import { ExpoService } from '../util/expo/expo.service';
 import { TransactionsService } from '../transactions/transactions.service';
@@ -14,7 +14,7 @@ import { selectAccount } from '../accounts/accounts.util';
 import { uuid } from 'edgedb/dist/codecs/ifaces';
 import { selectPolicy } from '../policies/policies.util';
 import { TransactionProposalStatus } from './proposals.model';
-import { SimulationService } from '../simulation/simulation.service';
+import { SimulationsService } from '../simulations/simulations.service';
 import { v1 as uuidv1 } from 'uuid';
 
 const signature = '0x1234' as Hex;
@@ -25,7 +25,7 @@ describe(ProposalsService.name, () => {
   let provider: DeepMocked<ProviderService>;
   let expo: DeepMocked<ExpoService>;
   let transactions: DeepMocked<TransactionsService>;
-  let simulation: DeepMocked<SimulationService>;
+  let simulations: DeepMocked<SimulationsService>;
 
   beforeEach(async () => {
     const module = await Test.createTestingModule({
@@ -39,7 +39,7 @@ describe(ProposalsService.name, () => {
     provider = module.get(ProviderService);
     expo = module.get(ExpoService);
     transactions = module.get(TransactionsService);
-    simulation = module.get(SimulationService);
+    simulations = module.get(SimulationsService);
 
     provider.verifySignature.mockImplementation(async () => true);
     provider.getNetwork.mockImplementation(async () => ({
@@ -48,7 +48,7 @@ describe(ProposalsService.name, () => {
     }));
 
     transactions.tryExecute.mockImplementation(async () => undefined);
-    simulation.getInsert.mockImplementation(async () => e.insert(e.Simulation, {}));
+    simulations.getInsert.mockImplementation(async () => e.insert(e.Simulation, {}));
   });
 
   let user1: UserContext;
@@ -66,7 +66,7 @@ describe(ProposalsService.name, () => {
   }: Partial<ProposeInput> = {}) => {
     // Create account with an active policy
     const accountId = uuidv1();
-    getUserCtx().accounts.push(accountId);
+    getUserCtx().accounts.push({ id: accountId, address: account });
 
     const inserted = await e
       .insert(e.Account, {
@@ -105,7 +105,7 @@ describe(ProposalsService.name, () => {
         .run(db.client);
     }
 
-    return service.propose({ account, operations, ...params });
+    return service.propose({ account, operations, gasLimit: 1n, ...params });
   };
 
   describe('propose', () => {

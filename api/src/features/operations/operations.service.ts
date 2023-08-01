@@ -23,13 +23,15 @@ import {
   TransferOp,
   TransferApprovalOp,
   TransferFromOp,
-  AddPolicyOp,
+  UpdatePolicyOp,
   RemovePolicyOp,
   SwapOp,
 } from './operations.model';
 import { ACCOUNT_ABI, ERC20_ABI } from 'lib';
 import { match } from 'ts-pattern';
 import { ProviderService } from '../util/provider/provider.service';
+import { ETH_ADDRESS } from 'zksync-web3/build/src/utils';
+import { WETH } from '../tokens/tokens.list';
 
 @Injectable()
 export class OperationsService {
@@ -106,8 +108,8 @@ export class OperationsService {
     return (
       match(f)
         /* Account */
-        .with({ functionName: 'addPolicy' }, (f) =>
-          Object.assign(new AddPolicyOp(), {
+        .with({ functionName: 'addPolicy' }, async (f) =>
+          Object.assign(new UpdatePolicyOp(), {
             // TODO: include policy object and policyState object (the actual one being added)
             ...base,
             account: to,
@@ -115,7 +117,7 @@ export class OperationsService {
             threshold: f.args[0].threshold,
             approvers: f.args[0].approvers,
             targets: [],
-          } satisfies AddPolicyOp),
+          } satisfies UpdatePolicyOp),
         )
         .with({ functionName: 'removePolicy' }, (f) =>
           Object.assign(new RemovePolicyOp(), {
@@ -177,7 +179,11 @@ export class OperationsService {
             ...base,
             fromToken: path.tokenIn,
             fromAmount: path.amountIn,
-            toToken: pair[0] === path.tokenIn ? pair[1] : pair[0],
+            // ETH can be used as tokenIn, but uses the WETH pool
+            toToken:
+              (path.tokenIn === ETH_ADDRESS ? WETH.address : path.tokenIn) === pair[0]
+                ? pair[1]
+                : pair[0],
             minimumToAmount: f.args[1],
             deadline: new Date(Number(f.args[2]) * 1000),
           } satisfies SwapOp);

@@ -27,8 +27,10 @@ import { PaymasterModule } from './features/paymaster/paymaster.module';
 import { SentryModule } from './features/util/sentry/sentry.module';
 import { SentryInterceptor } from './features/util/sentry/sentry.interceptor';
 import { OperationsModule } from './features/operations/operations.module';
-import { SimulationModule } from './features/simulation/simulation.module';
+import { SimulationsModule } from './features/simulations/simulations.module';
 import { BullModule } from './features/util/bull/bull.module';
+import { TokensModule } from './features/tokens/tokens.module';
+import { PricesModule } from './features/prices/prices.module';
 
 @Module({
   imports: [
@@ -54,9 +56,11 @@ import { BullModule } from './features/util/bull/bull.module';
     OperationsModule,
     PaymasterModule,
     PoliciesModule,
+    PricesModule,
     ProposalsModule,
     ReceiptsModule,
-    SimulationModule,
+    SimulationsModule,
+    TokensModule,
     TransactionsModule,
     TransfersModule,
     UsersModule,

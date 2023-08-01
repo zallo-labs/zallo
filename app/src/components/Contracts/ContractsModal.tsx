@@ -1,16 +1,29 @@
 import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
 import { Appbar } from '../Appbar/Appbar';
 import { Screen } from '../layout/Screen';
-import { useTokens } from '@token/useToken';
 import { Address } from 'lib';
 import { FlashList } from '@shopify/flash-list';
 import { ListItem, ListItemHeight } from '../list/ListItem';
 import { P, match } from 'ts-pattern';
 import { ListHeader } from '../list/ListHeader';
-import { AddressLabel } from '../address/AddressLabel';
 import { NavigateNextIcon } from '@theme/icons';
 import { truncateAddr } from '~/util/format';
 import { EventEmitter } from '~/util/EventEmitter';
+import { gql } from '@api/generated';
+import { TokenIcon } from '../token/TokenIcon/TokenIcon';
+import { useQuery } from '~/gql';
+
+const Query = gql(/* GraphQL */ `
+  query ContractsModal {
+    tokens {
+      __typename
+      id
+      address
+      name
+      ...TokenIcon_token
+    }
+  }
+`);
 
 export const CONTRACT_EMITTER = new EventEmitter<Address>('Contract');
 export const useSelectContract = CONTRACT_EMITTER.createUseSelect('ContractsModal');
@@ -21,9 +34,10 @@ export interface ContractsModalParams {
 
 export type ContractsModalProps = StackNavigatorScreenProps<'ContractsModal'>;
 
-export const ContractsModal = ({ route, navigation: { goBack } }: ContractsModalProps) => {
+export const ContractsModal = ({ route }: ContractsModalProps) => {
   const disabled = route.params.disabled && new Set(route.params.disabled);
-  const tokens = useTokens();
+
+  const { tokens } = useQuery(Query).data;
 
   return (
     <Screen>
@@ -34,21 +48,23 @@ export const ContractsModal = ({ route, navigation: { goBack } }: ContractsModal
         renderItem={({ item }) =>
           match(item)
             .with(P.string, (s) => <ListHeader>{s}</ListHeader>)
-            .otherwise(({ address }) => (
+            .with({ __typename: 'Token' }, (t) => (
               <ListItem
-                leading={address}
-                headline={<AddressLabel address={address} />}
-                supporting={truncateAddr(address)}
+                leading={(props) => <TokenIcon token={t} {...props} />}
+                leadingSize="medium"
+                headline={t.name}
+                supporting={truncateAddr(t.address)}
                 trailing={NavigateNextIcon}
-                disabled={disabled?.has(address)}
-                onPress={() => CONTRACT_EMITTER.emit(address)}
+                disabled={disabled?.has(t.address)}
+                onPress={() => CONTRACT_EMITTER.emit(t.address)}
               />
             ))
+            .exhaustive()
         }
         getItemType={(item) =>
           match(item)
             .with(P.string, () => 'header')
-            .otherwise(() => 'item')
+            .otherwise((t) => t.__typename)
         }
         estimatedItemSize={ListItemHeight.DOUBLE_LINE}
         showsVerticalScrollIndicator={false}

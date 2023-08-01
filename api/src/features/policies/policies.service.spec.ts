@@ -18,6 +18,7 @@ import {
 import assert from 'assert';
 import { PolicyInput } from './policies.input';
 import { v1 as uuidv1 } from 'uuid';
+import { TOKENS } from '../tokens/tokens.list';
 
 describe(PoliciesService.name, () => {
   let service: PoliciesService;
@@ -50,7 +51,7 @@ describe(PoliciesService.name, () => {
     const account = user1Account;
 
     const accountId = uuidv1();
-    userCtx.accounts.push(accountId);
+    userCtx.accounts.push({ id: accountId, address: account });
 
     await e
       .insert(e.Account, {
@@ -63,10 +64,10 @@ describe(PoliciesService.name, () => {
       })
       .run(db.client);
 
-    userAccounts.addCachedAccount.mockImplementation(async (p) => {
-      if (userCtx.approver === p.approver && accountId === p.account)
-        userCtx.accounts.push(accountId);
-    });
+    // userAccounts.addCachedAccount.mockImplementation(async (p) => {
+    //   if (userCtx.approver === p.approver && accountId === p.account)
+    //     userCtx.accounts.push(accountId);
+    // });
 
     await e.insert(e.Approver, { address: userCtx.approver }).unlessConflict().run(db.client);
 
@@ -78,7 +79,12 @@ describe(PoliciesService.name, () => {
           account: e.select(e.Account, () => ({ filter_single: { address: account } })),
           operations: e.insert(e.Operation, { to: ZERO_ADDR }),
           nonce: nonce++,
-          feeToken: ZERO_ADDR,
+          feeToken: e.assert_single(
+            e.select(e.Token, (t) => ({
+              filter: e.op(t.address, '=', TOKENS[0].address),
+              limit: 1,
+            })),
+          ),
           simulation: e.insert(e.Simulation, {}),
         })
         .run(db.client);

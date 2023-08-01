@@ -1,6 +1,5 @@
 import { makeStyles } from '@theme/makeStyles';
 import { ScrollView } from 'react-native';
-import { FiatValue } from '~/components/fiat/FiatValue';
 import { ListHeader } from '~/components/list/ListHeader';
 import { withSuspense } from '~/components/skeleton/withSuspense';
 import { TabScreenSkeleton } from '~/components/tab/TabScreenSkeleton';
@@ -8,13 +7,15 @@ import { TokenItem } from '~/components/token/TokenItem';
 import { TabNavigatorScreenProp } from './Tabs';
 import { FeeToken } from './FeeToken';
 import { OperationSection } from './OperationSection';
-import { Hex, asBigInt } from 'lib';
-import { gql, useFragment } from '@api/gen';
-import { useSuspenseQuery } from '@apollo/client';
-import { DetailsTabQuery, DetailsTabQueryVariables } from '@api/gen/graphql';
-import { DetailsTabDocument, useDetailsTabSubscriptionSubscription } from '@api/generated';
+import { Address, Hex } from 'lib';
+import { gql, useFragment } from '@api/generated';
+import { Text } from 'react-native-paper';
+import { useQuery } from '~/gql';
+import { useSubscription } from 'urql';
+import { BOOTLOADER_FORMAL_ADDRESS } from 'zksync-web3/build/src/utils';
+import { ProposalValue } from '~/components/proposal/ProposalValue';
 
-gql(/* GraphQL */ `
+const Query = gql(/* GraphQL */ `
   query DetailsTab($proposal: Bytes32!) {
     proposal(input: { hash: $proposal }) {
       ...DetailsTab_TransactionProposalFragment
@@ -38,9 +39,13 @@ const FragmentDoc = gql(/* GraphQL */ `
         id
         transferEvents {
           id
-          token
+          tokenAddress
+          token {
+            ...TokenItem_token
+          }
           amount
-          value
+          from
+          to
         }
       }
     }
@@ -48,23 +53,31 @@ const FragmentDoc = gql(/* GraphQL */ `
       id
       transfers {
         id
-        token
+        tokenAddress
+        token {
+          ...TokenItem_token
+        }
         amount
-        value
+        from
+        to
       }
     }
     ...OperationSection_TransactionProposalFragment
+    ...ProposalValue_TransactionProposal
     ...FeeToken_TransactionProposalFragment
   }
 `);
 
-gql(/* GraphQL */ `
-  subscription DetailsTabSubscription($proposal: Bytes32!) {
+const Subscription = gql(/* GraphQL */ `
+  subscription DetailsTab_Subscription($proposal: Bytes32!) {
     proposal(input: { proposals: [$proposal] }) {
       ...DetailsTab_TransactionProposalFragment
     }
   }
 `);
+
+const isFeeTransfer = ({ from, to }: { from: Address; to: Address }) =>
+  from !== BOOTLOADER_FORMAL_ADDRESS && to !== BOOTLOADER_FORMAL_ADDRESS;
 
 export interface DetailsTabParams {
   proposal: Hex;
@@ -75,10 +88,8 @@ export type DetailsTabProps = TabNavigatorScreenProp<'Details'>;
 export const DetailsTab = withSuspense(({ route }: DetailsTabProps) => {
   const styles = useStyles();
 
-  const { data } = useSuspenseQuery<DetailsTabQuery, DetailsTabQueryVariables>(DetailsTabDocument, {
-    variables: { proposal: route.params.proposal },
-  });
-  useDetailsTabSubscriptionSubscription({ variables: { proposal: route.params.proposal } });
+  const { data } = useQuery(Query, { proposal: route.params.proposal });
+  useSubscription({ query: Subscription, variables: { proposal: route.params.proposal } });
   const p = useFragment(FragmentDoc, data?.proposal);
 
   if (!p) return null;
@@ -99,7 +110,7 @@ export const DetailsTab = withSuspense(({ route }: DetailsTabProps) => {
       <ListHeader
         trailing={({ Text }) => (
           <Text>
-            <FiatValue value={transfers.reduce((sum, t) => sum + asBigInt(t.value), 0n)} />
+            <ProposalValue proposal={p} />
           </Text>
         )}
       >
@@ -107,9 +118,15 @@ export const DetailsTab = withSuspense(({ route }: DetailsTabProps) => {
       </ListHeader>
       <FeeToken proposal={p} />
 
-      {transfers.map((t, i) => (
-        <TokenItem key={i} account={p.account.address} token={t.token} amount={t.amount} />
-      ))}
+      {transfers
+        .filter(isFeeTransfer) // Ignore fee transfers, this is shown by FeeToken
+        .map((t) =>
+          t.token ? (
+            <TokenItem key={t.id} token={t.token} amount={t.amount} />
+          ) : (
+            <Text key={t.id}>{`${t.tokenAddress}: ${t.amount}`}</Text>
+          ),
+        )}
     </ScrollView>
   );
 }, TabScreenSkeleton);

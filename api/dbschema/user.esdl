@@ -56,4 +56,29 @@ module default {
       allow all
       using (.user ?= global current_user);
   }
+
+  type Token {
+    user: User { default := (<User>(global current_user).id); }
+    required address: Address;
+    ethereumAddress: Address;
+    required name: Label;
+    required symbol: Label;
+    required decimals: uint16;
+    iconUri: str;
+    units: array<tuple<symbol: Label, decimals: uint16>>;
+    required isFeeToken: bool { default := false; };
+
+    constraint exclusive on ((.user, .address));
+    constraint exclusive on ((.user, .name));
+    constraint exclusive on ((.user, .symbol));
+    index on (.address);
+
+    access policy anyone_select_allowlisted
+      allow select
+      using (not exists .user);
+
+    access policy user_all
+      allow all
+      using (.user ?= global current_user);
+  }
 }

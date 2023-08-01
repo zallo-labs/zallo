@@ -13,6 +13,7 @@ import { GraphQLBigInt } from 'graphql-scalars';
 import { EventBase } from '../events/events.model';
 import { uuid } from 'edgedb/dist/codecs/ifaces';
 import e from '~/edgeql-js';
+import { Token } from '../tokens/tokens.model';
 
 @InterfaceType()
 export class TransferDetails {
@@ -32,7 +33,10 @@ export class TransferDetails {
   to: string; // Address
 
   @AddressField()
-  token: string; // Address
+  tokenAddress: string; // Address
+
+  @Field(() => Token, { nullable: true })
+  token: Token;
 
   @Field(() => GraphQLBigInt)
   amount: bigint;

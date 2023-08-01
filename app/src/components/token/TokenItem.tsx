@@ -1,32 +1,42 @@
-import { makeStyles } from '@theme/makeStyles';
-import { useTokenBalance } from '@token/useTokenBalance';
-import { useTokenPriceData } from '@uniswap/useTokenPrice';
-import { StyleProp, View, ViewStyle } from 'react-native';
+import { StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
 import { FiatValue } from '../fiat/FiatValue';
 import { ListItem, ListItemProps } from '../list/ListItem';
 import { ListItemSkeleton } from '../list/ListItemSkeleton';
 import { withSuspense } from '../skeleton/withSuspense';
 import { TokenAmount } from './TokenAmount';
-import { Address, BigIntlike } from 'lib';
-import { useToken } from '@token/useToken';
+import { BigIntlike, tokenToFiat } from 'lib';
+import { FragmentType, gql, useFragment } from '@api/generated';
+import { TokenIcon } from './TokenIcon/TokenIcon';
+
+const FragmentDoc = gql(/* GraphQL */ `
+  fragment TokenItem_token on Token {
+    id
+    address
+    name
+    decimals
+    price {
+      id
+      current
+    }
+    ...TokenIcon_token
+    ...TokenAmount_token
+  }
+`);
 
 export interface TokenItemProps extends Partial<ListItemProps> {
-  token: Address;
-  account: Address;
-  amount?: BigIntlike;
+  token: FragmentType<typeof FragmentDoc>;
+  amount: BigIntlike;
   containerStyle?: StyleProp<ViewStyle>;
 }
 
 export const TokenItem = withSuspense(
-  ({ token: tokenProp, account, amount, containerStyle, ...itemProps }: TokenItemProps) => {
-    const styles = useStyles();
-    const token = useToken(tokenProp);
-    const balance = useTokenBalance(token, account);
-    amount ??= balance;
+  ({ token: tokenProp, amount, containerStyle, ...itemProps }: TokenItemProps) => {
+    const token = useFragment(FragmentDoc, tokenProp);
 
     return (
       <ListItem
-        leading={token.address}
+        leading={(props) => <TokenIcon token={token} {...props} />}
+        leadingSize="medium"
         headline={token.name}
         supporting={({ Text }) => (
           <View style={styles.supportingContainer}>
@@ -34,17 +44,21 @@ export const TokenItem = withSuspense(
               <TokenAmount token={token} amount={amount} />
             </Text>
 
-            <Text style={styles.price}>
-              {' @ '}
-              <FiatValue value={useTokenPriceData(token).current} maximumFractionDigits={0} />
-            </Text>
+            {token.price && (
+              <Text style={styles.price}>
+                {' @ '}
+                <FiatValue value={token.price.current} maximumFractionDigits={0} />
+              </Text>
+            )}
           </View>
         )}
-        trailing={({ Text }) => (
-          <Text variant="labelLarge">
-            <FiatValue value={{ token, amount: amount! }} />
-          </Text>
-        )}
+        trailing={({ Text }) =>
+          token.price && (
+            <Text variant="labelLarge">
+              <FiatValue value={tokenToFiat(amount, token.price.current, token.decimals)} />
+            </Text>
+          )
+        }
         containerStyle={containerStyle}
         {...itemProps}
       />
@@ -53,7 +67,7 @@ export const TokenItem = withSuspense(
   (props) => <ListItemSkeleton {...props} leading supporting trailing />,
 );
 
-const useStyles = makeStyles(({ colors }) => ({
+const styles = StyleSheet.create({
   price: {
     textAlignVertical: 'center',
   },
@@ -61,4 +75,4 @@ const useStyles = makeStyles(({ colors }) => ({
     flexDirection: 'row',
     alignItems: 'center',
   },
-}));
+});

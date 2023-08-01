@@ -1,4 +1,3 @@
-import { useTokensWithBalanceByValue } from '@token/useTokensWithBalanceByValue';
 import { FlashList } from '@shopify/flash-list';
 import { ListItemHeight } from '~/components/list/ListItem';
 import { TokenItem } from '~/components/token/TokenItem';
@@ -7,32 +6,56 @@ import { withSuspense } from '~/components/skeleton/withSuspense';
 import { TabScreenSkeleton } from '~/components/tab/TabScreenSkeleton';
 import { StyleSheet } from 'react-native';
 import { Text } from 'react-native-paper';
-import { Address } from 'lib';
+import { Address, tokenToFiat } from 'lib';
+import { gql } from '@api/generated';
+import { useQuery, usePollQuery } from '~/gql';
 
-export interface TokensTabParams {
-  account: Address;
-}
+const Query = gql(/* GraphQL */ `
+  query TokensTab($account: Address!) {
+    tokens {
+      id
+      decimals
+      price {
+        id
+        current
+      }
+      balance(input: { account: $account })
+      ...TokenItem_token
+    }
+  }
+`);
 
-export type TokensTabProps = TabNavigatorScreenProp<'Tokens'>;
+export interface TokensTabParams {}
+
+export type TokensTabProps = TabNavigatorScreenProp<'Tokens'> & { account: Address };
 
 export const TokensTab = withSuspense(
-  ({ route }: TokensTabProps) => {
-    const { account } = route.params;
-    const tokens = useTokensWithBalanceByValue(account);
+  (props: TokensTabProps) => {
+    const query = useQuery(Query, { account: props.account });
+    usePollQuery(query.reexecute, 15000);
+    const data = query.data!;
+
+    const tokens = (data?.tokens ?? [])
+      .map((t) => ({
+        ...t,
+        value: tokenToFiat(t.balance, t.price?.current ?? 0, t.decimals),
+      }))
+      .sort((a, b) => b.value - a.value);
 
     return (
       <FlashList
         data={tokens}
-        renderItem={({ item }) => <TokenItem token={item.address} account={account} />}
-        contentContainerStyle={styles.contentContainer}
-        estimatedItemSize={ListItemHeight.DOUBLE_LINE}
-        showsVerticalScrollIndicator={false}
+        renderItem={({ item }) => <TokenItem token={item} amount={item.balance} />}
         ListEmptyComponent={
           <Text variant="titleMedium" style={styles.emptyText}>
             You have no tokens{'\n'}
             Receive tokens to get started
           </Text>
         }
+        contentContainerStyle={styles.contentContainer}
+        estimatedItemSize={ListItemHeight.DOUBLE_LINE}
+        getItemType={(item) => item.__typename}
+        showsVerticalScrollIndicator={false}
       />
     );
   },

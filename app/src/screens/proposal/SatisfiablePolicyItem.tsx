@@ -1,4 +1,4 @@
-import { FragmentType, gql, useFragment } from '@api/gen';
+import { FragmentType, gql, useFragment } from '@api/generated';
 import { PolicyIcon } from '@theme/icons';
 import { match } from 'ts-pattern';
 import { ListItem, ListItemProps } from '~/components/list/ListItem';

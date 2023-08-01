@@ -88,7 +88,7 @@ contract Account is
     _incrementNonceIfEquals(transaction);
     _validateTransactionUnexecuted(txHash);
 
-    if (transaction.totalRequiredBalance() > address(this).balance) revert InsufficientBalance();
+    if (transaction.isGasEstimation()) return bytes4(0); // Gas estimation requires failure without reverting
 
     (Policy memory policy, Approvals memory approvals) = _decodeAndVerifySignature(
       transaction.signature

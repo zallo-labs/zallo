@@ -5,7 +5,7 @@
 import { parse, build } from 'eth-url-parser';
 import { Address, tryOrIgnore } from 'lib';
 import { CHAIN } from '~/util/network/provider';
-import { ETH } from '@token/tokens';
+import { ETH_ADDRESS } from 'zksync-web3/build/src/utils';
 
 export interface AddressLink {
   scheme: string;
@@ -52,7 +52,7 @@ export const buildAddressLink = (o: BuildAddressLinkOptions) => {
   };
 
   if (isTransferRequestOptions(o)) {
-    if (o.token === ETH.address) {
+    if (o.token === ETH_ADDRESS) {
       link.parameters.value = o.amount.toString();
     } else {
       link.function_name = 'transfer';

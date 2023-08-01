@@ -11,7 +11,12 @@ import {
   Satisfiability,
 } from 'lib';
 import { ProposalsService, selectTransactionProposal } from '../proposals/proposals.service';
-import { CreatePolicyInput, UniquePolicyInput, UpdatePolicyInput } from './policies.input';
+import {
+  CreatePolicyInput,
+  PoliciesInput,
+  UniquePolicyInput,
+  UpdatePolicyInput,
+} from './policies.input';
 import _ from 'lodash';
 import { UserInputError } from '@nestjs/apollo';
 import { AccountsCacheService } from '../auth/accounts.cache.service';
@@ -30,6 +35,9 @@ import {
 } from './policies.util';
 import { PolicyState, SatisfiabilityResult } from './policies.model';
 import { proposalTxShape, transactionProposalAsTx } from '../proposals/proposals.uitl';
+import { UserAccountContext } from '~/request/ctx';
+import { and } from '../database/database.util';
+import { selectAccount } from '../accounts/accounts.util';
 
 interface CreateParams extends CreatePolicyInput {
   accountId?: uuid;
@@ -46,16 +54,31 @@ export class PoliciesService {
   ) {}
 
   async selectUnique(unique: UniquePolicy, shape?: ShapeFunc<typeof e.Policy>) {
+    // assert exist with filter is a workaround for the issue - https://github.com/edgedb/edgedb-js/issues/708
     return e
-      .select(e.Policy, (p) => ({
-        ...(shape && shape(p)),
-        ...uniquePolicy(unique)(p),
-      }))
+      .assert_single(
+        e.select(e.Policy, (p) => ({
+          ...shape?.(p),
+          // ...uniquePolicy(unique)(p),
+          filter:
+            'id' in unique
+              ? e.op(p.id, '=', e.uuid(unique.id))
+              : and(
+                  e.op(p.account, '=', selectAccount(unique.account)),
+                  e.op(p.key, '=', unique.key),
+                ),
+        })),
+      )
       .run(this.db.client);
   }
 
-  async select(shape: ShapeFunc<typeof e.Policy>) {
-    return e.select(e.Policy, shape).run(this.db.client);
+  async select({ includeRemoved }: PoliciesInput, shape: ShapeFunc<typeof e.Policy>) {
+    return e
+      .select(e.Policy, (p) => ({
+        ...shape?.(p),
+        ...(!includeRemoved && { filter: e.op(p.state.isRemoved, '?=', false) }),
+      }))
+      .run(this.db.client);
   }
 
   async create({
@@ -74,7 +97,7 @@ export class PoliciesService {
       const key = keyArg ?? (await this.getFreeKey(accountId));
       const policy = inputAsPolicy(key, policyInput);
 
-      await this.upsertApprovers(accountId, policy);
+      await this.upsertApprovers({ id: accountId, address: account }, policy);
 
       const proposal = !skipProposal ? await this.proposeState(account, policy) : undefined;
 
@@ -156,24 +179,27 @@ export class PoliciesService {
       }
 
       // State
-      if (approvers || threshold !== undefined || permissions) {
+      if (approvers || threshold !== undefined || !_.isEmpty(permissions)) {
         // Get existing policy state
         // If approvers, threshold, or permissions are undefined then modify the policy accordingly
         // Propose new state
-        const existing = await e
-          .select(e.Policy, (p) => ({
-            filter_single: {
-              account: e.select(p.account, () => ({ filter_single: { address: account } })),
-              key,
-            },
-            accountId: p.account.id,
-            state: policyStateShape,
-            draft: policyStateShape,
-          }))
-          .run(db);
-        if (!existing) throw new UserInputError("Policy doesn't exist");
+        const selectAccount = e.select(e.Account, () => ({ filter_single: { address: account } }));
 
-        const policy = policyStateAsPolicy(key, existing?.draft ?? existing?.state!);
+        const existing = await e
+          .select({
+            account: selectAccount,
+            policy: e.select(e.Policy, () => ({
+              filter_single: { account: selectAccount, key },
+              state: policyStateShape,
+              draft: policyStateShape,
+            })),
+          })
+          .run(db);
+        if (!existing.account) throw new UserInputError("Account doesn't exist");
+        if (!existing.policy) throw new UserInputError("Policy doesn't exist");
+
+        const policy = policyStateAsPolicy(key, existing.policy.draft ?? existing.policy.state!);
+        const encodedOriginal = POLICY_ABI.encode(policy);
 
         if (approvers) policy.approvers = new Set(approvers);
         if (threshold !== undefined) policy.threshold = threshold;
@@ -181,7 +207,10 @@ export class PoliciesService {
         if (permissions?.transfers)
           policy.permissions.transfers = asTransfersConfig(permissions.transfers);
 
-        await this.upsertApprovers(existing.accountId, policy);
+        // Only update if policy would actually change
+        if (encodedOriginal === POLICY_ABI.encode(policy)) return;
+
+        await this.upsertApprovers({ id: existing.account.id, address: account }, policy);
 
         const proposal = await this.proposeState(account, policy);
 
@@ -314,7 +343,7 @@ export class PoliciesService {
   // These users will have account access until the cache expires.
   // This prevent loss of account access on an accidental draft
   // TODO: consider intended behaviour
-  private async upsertApprovers(account: uuid, policy: Policy) {
+  private async upsertApprovers(account: UserAccountContext, policy: Policy) {
     if (!policy.approvers.size) return;
 
     await Promise.all(

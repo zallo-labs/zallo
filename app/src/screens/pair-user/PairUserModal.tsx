@@ -9,26 +9,24 @@ import { Share, View } from 'react-native';
 import { withSuspense } from '~/components/skeleton/withSuspense';
 import { Blur } from '~/components/Blur';
 import { Button } from '~/components/Button';
-import { gql } from '@api/gen';
-import { useSuspenseQuery } from '@apollo/client';
-import {
-  PairUserTokenDocument,
-  PairUserTokenQuery,
-  PairUserTokenQueryVariables,
-  usePairUserSubscription,
-} from '@api/generated';
+import { gql } from '@api/generated';
 import { getPairingLink } from './pairing';
 import { showSuccess } from '~/provider/SnackbarProvider';
+import { useQuery } from '~/gql';
+import { useSubscription } from 'urql';
+import { useEffect } from 'react';
 
-gql(/* GraphQL */ `
-  query PairUserToken {
+const Query = gql(/* GraphQL */ `
+  query PairUserModal {
     user {
       id
       pairingToken
     }
   }
+`);
 
-  subscription PairUser {
+const Subscription = gql(/* GraphQL */ `
+  subscription PairUserModal_Subscription {
     user {
       id
       name
@@ -47,21 +45,17 @@ export const PairUserModal = withSuspense(
     const { isOnboarding } = route.params;
     const styles = uesStyles();
 
-    const { user } = useSuspenseQuery<PairUserTokenQuery, PairUserTokenQueryVariables>(
-      PairUserTokenDocument,
-    ).data;
-
+    const { user } = useQuery(Query).data;
     const link = getPairingLink(user.pairingToken);
 
-    usePairUserSubscription({
-      onData: ({ data }) => {
-        const u = data.data?.user;
-        if (!u) return;
-
-        showSuccess(`Paired with user${u.name ? `: ${u.name}` : ''}`);
+    const [subscription] = useSubscription({ query: Subscription });
+    useEffect(() => {
+      if (!subscription.stale && subscription.data) {
+        const { user } = subscription.data;
+        showSuccess(`Paired with user${user.name ? `: ${user.name}` : ''}`);
         navigate('Approver', { isOnboarding });
-      },
-    });
+      }
+    }, [isOnboarding, navigate, subscription.data, subscription.stale]);
 
     return (
       <Blur>

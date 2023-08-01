@@ -61,11 +61,11 @@ export interface Account extends std.$Object {
   "isActive": boolean;
   "name": string;
   "salt": string;
-  "policies": Policy[];
   "approvers": Approver[];
   "proposals": Proposal[];
   "transactionProposals": TransactionProposal[];
   "transfers": Transfer[];
+  "policies": Policy[];
 }
 export interface ProposalResponse extends std.$Object {
   "approver": Approver;
@@ -159,9 +159,9 @@ export interface Receipt extends std.$Object {
   "gasUsed": bigint;
   "timestamp": Date;
   "transaction": Transaction;
-  "events": Event[];
   "transferApprovalEvents": TransferApproval[];
   "transferEvents": Transfer[];
+  "events": Event[];
 }
 export interface Rejection extends ProposalResponse {}
 export interface Simulation extends std.$Object {
@@ -170,6 +170,17 @@ export interface Simulation extends std.$Object {
 export interface TargetsConfig extends std.$Object {
   "contracts": ContractTarget[];
   "default": Target;
+}
+export interface Token extends std.$Object {
+  "units"?: {symbol: string, decimals: number}[] | null;
+  "user"?: User | null;
+  "name": string;
+  "symbol": string;
+  "decimals": number;
+  "ethereumAddress"?: string | null;
+  "iconUri"?: string | null;
+  "address": string;
+  "isFeeToken": boolean;
 }
 export interface Transaction extends std.$Object {
   "proposal": TransactionProposal;
@@ -181,12 +192,12 @@ export interface Transaction extends std.$Object {
 export interface TransactionProposal extends Proposal {
   "nonce": bigint;
   "operations": Operation[];
-  "feeToken": string;
   "gasLimit": bigint;
   "transactions": Transaction[];
   "transaction"?: Transaction | null;
   "status": TransactionProposalStatus;
   "simulation": Simulation;
+  "feeToken": Token;
 }
 export type TransactionProposalStatus = "Pending" | "Executing" | "Successful" | "Failed";
 export interface TransferDetails extends std.$Object {
@@ -195,7 +206,8 @@ export interface TransferDetails extends std.$Object {
   "direction": TransferDirection;
   "from": string;
   "to": string;
-  "token": string;
+  "tokenAddress": string;
+  "token"?: Token | null;
 }
 export interface Transferlike extends Event, TransferDetails {}
 export interface Transfer extends Transferlike {}
@@ -480,6 +492,7 @@ export interface types {
     "Rejection": Rejection;
     "Simulation": Simulation;
     "TargetsConfig": TargetsConfig;
+    "Token": Token;
     "Transaction": Transaction;
     "TransactionProposal": TransactionProposal;
     "TransactionProposalStatus": TransactionProposalStatus;

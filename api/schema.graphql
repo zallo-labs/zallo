@@ -43,16 +43,6 @@ input AccountSubscriptionInput {
   events: AccountEvent
 }
 
-type AddPolicyOp {
-  _args: [JSON!]!
-  _name: String!
-  account: Address!
-  approvers: [Address!]!
-  key: PolicyKey!
-  targets: [Target!]!
-  threshold: Float!
-}
-
 """Ethereum address"""
 scalar Address
 
@@ -77,6 +67,10 @@ type Approver {
 input ApproverInput {
   """Defaults to current approver"""
   address: Address
+}
+
+input BalanceInput {
+  account: Address
 }
 
 """
@@ -213,6 +207,7 @@ type Mutation {
   reject(input: ProposalInput!): TransactionProposal!
   removePolicy(input: UniquePolicyInput!): Policy!
   removeProposal(input: ProposalInput!): ID
+  removeToken(input: TokenInput!): ID
   requestTokens(input: RequestTokensInput!): [Address!]!
   updateAccount(input: UpdateAccountInput!): Account!
   updateApprover(input: UpdateApproverInput!): UserApprover!
@@ -220,6 +215,11 @@ type Mutation {
   updateProposal(input: UpdateProposalInput!): TransactionProposal!
   updateUser(input: UpdateUserInput!): User!
   upsertContact(input: UpsertContactInput!): Contact!
+  upsertToken(input: UpsertTokenInput!): Token!
+}
+
+interface Node {
+  id: ID!
 }
 
 type Operation {
@@ -229,7 +229,7 @@ type Operation {
   value: Uint256
 }
 
-union OperationFunction = AddPolicyOp | GenericOp | RemovePolicyOp | SwapOp | TransferApprovalOp | TransferFromOp | TransferOp
+union OperationFunction = GenericOp | RemovePolicyOp | SwapOp | TransferApprovalOp | TransferFromOp | TransferOp | UpdatePolicyOp
 
 input OperationInput {
   data: Bytes
@@ -245,6 +245,10 @@ input PermissionsInput {
   """Targets that can be called"""
   targets: TargetsConfigInput
   transfers: TransfersConfigInput
+}
+
+input PoliciesInput {
+  includeRemoved: Boolean! = false
 }
 
 type Policy {
@@ -284,6 +288,12 @@ type PolicyState {
   targets: TargetsConfig!
   threshold: Float!
   transfers: TransfersConfig!
+}
+
+type Price {
+  current: Float!
+  id: ID!
+  token: Address!
 }
 
 type Proposal {
@@ -356,11 +366,14 @@ type Query {
   contractFunction(input: ContractFunctionInput!): ContractFunction
   label(input: LabelInput!): String
   paymaster: Address!
-  policies: [Policy!]!
+  policies(input: PoliciesInput! = {}): [Policy!]!
   policy(input: UniquePolicyInput!): Policy
   proposal(input: ProposalInput!): TransactionProposal
   proposals(input: ProposalsInput! = {}): [TransactionProposal!]!
   requestableTokens(input: RequestTokensInput!): [Address!]!
+  token(input: TokenInput!): Token
+  tokenMetadata(input: TokenInput!): TokenMetadata!
+  tokens(input: TokensInput! = {}): [Token!]!
   transaction(input: TransactionInput!): Transaction
   transfers(input: TransfersInput! = {}): [Transfer!]!
   user: User!
@@ -425,7 +438,7 @@ input SelectorInput {
   selector: Bytes4!
 }
 
-type Simulation {
+type Simulation implements Node {
   id: ID!
   transfers: [SimulationTransfer!]!
 }
@@ -437,8 +450,9 @@ type SimulationTransfer implements TransferDetails {
   from: Address!
   id: ID!
   to: Address!
-  token: Address!
-  value: BigInt!
+  token: Token
+  tokenAddress: Address!
+  value: Float
 }
 
 type Subscription {
@@ -480,6 +494,51 @@ input TargetsConfigInput {
   default: TargetInput! = {defaultAllow: true, functions: []}
 }
 
+type Token implements Node {
+  address: Address!
+  balance(input: BalanceInput!): BigInt!
+  decimals: Float!
+  ethereumAddress: Address
+  gasPrice: BigInt
+  iconUri: String
+  id: ID!
+  isFeeToken: Boolean!
+  name: String!
+  price: Price
+  removable: Boolean!
+  symbol: String!
+  units: [TokenUnit!]
+  userOwned: Boolean!
+}
+
+input TokenInput {
+  address: Address!
+}
+
+type TokenMetadata {
+  decimals: Float
+  ethereumAddress: Address
+  iconUri: String
+  id: ID!
+  name: String
+  symbol: String
+}
+
+type TokenUnit {
+  decimals: Float!
+  symbol: String!
+}
+
+input TokenUnitInput {
+  decimals: Float!
+  symbol: String!
+}
+
+input TokensInput {
+  feeToken: Boolean
+  query: String
+}
+
 type Transaction {
   gasPrice: BigInt!
   hash: Bytes32!
@@ -497,7 +556,7 @@ type TransactionProposal {
   account: Account!
   approvals: [Approval!]!
   createdAt: DateTime!
-  feeToken: Address!
+  feeToken: Token!
   gasLimit: BigInt!
   hash: Bytes32!
   id: ID!
@@ -532,8 +591,9 @@ type Transfer implements EventBase & TransferDetails & Transferlike {
   logIndex: Float!
   timestamp: DateTime!
   to: Address!
-  token: Address!
-  value: BigInt!
+  token: Token
+  tokenAddress: Address!
+  value: Float
 }
 
 type TransferApproval implements EventBase & TransferDetails & Transferlike {
@@ -547,8 +607,9 @@ type TransferApproval implements EventBase & TransferDetails & Transferlike {
   logIndex: Float!
   timestamp: DateTime!
   to: Address!
-  token: Address!
-  value: BigInt!
+  token: Token
+  tokenAddress: Address!
+  value: Float
 }
 
 type TransferApprovalOp {
@@ -566,8 +627,9 @@ interface TransferDetails {
   from: Address!
   id: ID!
   to: Address!
-  token: Address!
-  value: BigInt!
+  token: Token
+  tokenAddress: Address!
+  value: Float
 }
 
 enum TransferDirection {
@@ -611,10 +673,10 @@ type TransferOp {
 
 input TransferSubscriptionInput {
   accounts: [Address!]
-  directions: [TransferDirection!]
+  direction: TransferDirection
 
-  """Not originating from an account transaction"""
-  external: Boolean
+  """Originating from an account transaction"""
+  internal: Boolean
 }
 
 interface Transferlike implements EventBase & TransferDetails {
@@ -627,8 +689,9 @@ interface Transferlike implements EventBase & TransferDetails {
   logIndex: Float!
   timestamp: DateTime!
   to: Address!
-  token: Address!
-  value: BigInt!
+  token: Token
+  tokenAddress: Address!
+  value: Float
 }
 
 type TransfersConfig {
@@ -649,8 +712,8 @@ input TransfersInput {
   accounts: [Address!]
   direction: TransferDirection
 
-  """Not originating from an account transaction"""
-  external: Boolean
+  """Originating from an account transaction"""
+  internal: Boolean
 }
 
 """256-bit unsigned integer"""
@@ -686,6 +749,16 @@ input UpdatePolicyInput {
   threshold: Float
 }
 
+type UpdatePolicyOp {
+  _args: [JSON!]!
+  _name: String!
+  account: Address!
+  approvers: [Address!]!
+  key: PolicyKey!
+  targets: [Target!]!
+  threshold: Float!
+}
+
 input UpdateProposalInput {
   feeToken: Address
   hash: Bytes32!
@@ -700,6 +773,16 @@ input UpsertContactInput {
   address: Address!
   label: String!
   previousAddress: Address
+}
+
+input UpsertTokenInput {
+  address: Address!
+  decimals: Float
+  ethereumAddress: Address
+  iconUri: String
+  name: String
+  symbol: String
+  units: [TokenUnitInput!]! = []
 }
 
 type User {

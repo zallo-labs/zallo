@@ -6,14 +6,13 @@ import { FormTextField } from '~/components/fields/FormTextField';
 import { Actions } from '~/components/layout/Actions';
 import { Screen } from '~/components/layout/Screen';
 import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
-import { useSuspenseQuery } from '@apollo/client';
-import { useUserUpdateMutation } from '@api/generated';
 import { Button } from 'react-native-paper';
 import { PairIcon } from '../pair-confirm/PairConfirmSheet';
-import { gql } from '@api/gen';
-import { CreateUserQuery, CreateUserQueryVariables } from '@api/gen/graphql';
+import { gql } from '@api/generated';
+import { useMutation } from 'urql';
+import { useQuery } from '~/gql';
 
-const CreateUserDocument = gql(/* GraphQL */ `
+const Query = gql(/* GraphQL */ `
   query CreateUser {
     user {
       id
@@ -22,8 +21,8 @@ const CreateUserDocument = gql(/* GraphQL */ `
   }
 `);
 
-gql(/* GraphQL */ `
-  mutation CreateUserUpdate($name: String!) {
+const Upsert = gql(/* GraphQL */ `
+  mutation CreateUserScreen_Upsert($name: String!) {
     updateUser(input: { name: $name }) {
       id
       name
@@ -38,10 +37,8 @@ interface Inputs {
 export type CreateUserScreenProps = StackNavigatorScreenProps<'CreateUser'>;
 
 export const CreateUserScreen = ({ navigation: { navigate } }: CreateUserScreenProps) => {
-  const [update] = useUserUpdateMutation();
-  const { user } = useSuspenseQuery<CreateUserQuery, CreateUserQueryVariables>(
-    CreateUserDocument,
-  ).data;
+  const { user } = useQuery(Query).data;
+  const update = useMutation(Upsert)[1];
 
   const { control, handleSubmit } = useForm<Inputs>({
     defaultValues: { name: user.name ?? '' },
@@ -61,7 +58,7 @@ export const CreateUserScreen = ({ navigation: { navigate } }: CreateUserScreenP
         rules={{ required: true }}
         containerStyle={styles.nameContainer}
         onEndEditing={handleSubmit(async ({ name }) => {
-          await update({ variables: { name } });
+          await update({ name });
         })}
       />
 

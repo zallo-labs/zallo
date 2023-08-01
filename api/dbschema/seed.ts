@@ -2,12 +2,14 @@ import { ACCOUNT_INTERFACE, Erc20__factory, asSelector } from 'lib';
 import crypto from 'crypto';
 import e, { createClient } from './edgeql-js';
 import * as eql from './interfaces';
+import { TOKENS } from '../src/features/tokens/tokens.list';
 require('dotenv').config({ path: '../.env' });
 
 const client = createClient();
 
 const main = async () => {
   await createContractFunctions();
+  await upsertTokens();
 
   console.log('🌱 Seeded');
 };
@@ -54,5 +56,66 @@ async function createContractFunctions() {
           on: f.abiMd5,
         })),
     )
+    .run(client);
+}
+
+async function upsertTokens() {
+  const toUpdate = await e
+    .select(e.Token, (t) => ({
+      filter: e.op(
+        e.op(t.address, 'in', e.set(...TOKENS.map((t) => t.address))),
+        'and',
+        e.op('not', e.op('exists', t.user)),
+      ),
+      id: true,
+      address: true,
+    }))
+    .run(client);
+
+  await e
+    .select({
+      updated: e.assert_distinct(
+        e.cast(
+          e.uuid,
+          e.set(
+            ...TOKENS.map((token) => ({
+              token,
+              id: toUpdate.find((ut) => ut.address === token.address)?.id,
+            }))
+              .filter((t) => t.id)
+              .map(
+                ({ token, id }) =>
+                  e.update(e.Token, () => ({
+                    filter_single: { id: id! },
+                    set: token,
+                  })).id,
+              ),
+          ),
+        ),
+      ),
+      inserted: e.assert_distinct(
+        e.cast(
+          e.uuid,
+          e.set(
+            ...TOKENS.filter(
+              (t) => !toUpdate.find((ut) => ut.address === t.address),
+            ).map(
+              (token) =>
+                e.insert(e.Token, {
+                  user: e.cast(e.User, e.set()), // Required; default fails
+                  ...token,
+                }).id,
+            ),
+          ),
+        ),
+      ),
+      removed: e.delete(e.Token, (t) => ({
+        filter: e.op(
+          e.op(t.address, 'not in', e.set(...TOKENS.map((t) => t.address))),
+          'and',
+          e.op('not', e.op('exists', t.user)),
+        ),
+      })),
+    })
     .run(client);
 }

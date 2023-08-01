@@ -1,9 +1,8 @@
 import { match, P } from 'ts-pattern';
 import { useAddressLabel } from '../address/AddressLabel';
-import { usePolicy } from '@api/policy';
-import { useToken } from '@token/useToken';
 import { useFormattedTokenAmount } from '../token/TokenAmount';
-import { FragmentType, gql, useFragment } from '@api/gen';
+import { FragmentType, gql, useFragment } from '@api/generated';
+import { useQuery } from '~/gql';
 
 const FragmentDoc = gql(/* GraphQL */ `
   fragment OperationLabel_OperationFragment on Operation {
@@ -14,7 +13,7 @@ const FragmentDoc = gql(/* GraphQL */ `
         _name
         _args
       }
-      ... on AddPolicyOp {
+      ... on UpdatePolicyOp {
         account
         key
       }
@@ -49,6 +48,15 @@ const FragmentDoc = gql(/* GraphQL */ `
   }
 `);
 
+const PolicyQuery = gql(/* GraphQL */ `
+  query OperationLabel_Policy($input: UniquePolicyInput!) {
+    policy(input: $input) {
+      id
+      name
+    }
+  }
+`);
+
 export interface OperationLabelProps {
   operation: FragmentType<typeof FragmentDoc>;
 }
@@ -57,23 +65,35 @@ export function OperationLabel(props: OperationLabelProps) {
   const op = useFragment(FragmentDoc, props.operation);
 
   return match(op.function)
-    .with({ __typename: 'AddPolicyOp' }, (f) => `Add policy: ${usePolicy(f)?.name}`)
-    .with({ __typename: 'RemovePolicyOp' }, (f) => `Remove policy: ${usePolicy(f)?.name}`)
+    .with(
+      { __typename: 'UpdatePolicyOp' },
+      (f) =>
+        `Update policy: ${
+          useQuery(PolicyQuery, { input: { account: f.account, key: f.key } }).data.policy?.name
+        }`,
+    )
+    .with(
+      { __typename: 'RemovePolicyOp' },
+      (f) =>
+        `Remove policy: ${
+          useQuery(PolicyQuery, { input: { account: f.account, key: f.key } }).data.policy?.name
+        }`,
+    )
     .with(
       { __typename: 'TransferOp' },
       (f) => `Transfer ${useFormattedTokenAmount(f)} to ${useAddressLabel(f.to)}`,
     )
     .with(
       { __typename: 'TransferFromOp' },
-      (f) => `Transfer ${useToken(f.token).name} from ${useAddressLabel(f.from)}`,
+      (f) => `Transfer ${useAddressLabel(f.token)} from ${useAddressLabel(f.from)}`,
     )
     .with(
       { __typename: 'TransferApprovalOp' },
-      (f) => `Allow ${useAddressLabel(f.spender)} to spend ${useToken(f.token).name}`,
+      (f) => `Allow ${useAddressLabel(f.spender)} to spend ${useAddressLabel(f.token)}`,
     )
     .with(
       { __typename: 'SwapOp' },
-      (f) => `Swap ${useToken(f.fromToken).name} for ${useToken(f.toToken).name}`,
+      (f) => `Swap ${useAddressLabel(f.fromToken)} for ${useAddressLabel(f.toToken)}`,
     )
     .with({ __typename: 'GenericOp' }, (f) => `Call ${f._name} on ${useAddressLabel(op.to)}`)
     .with(P.nullish, () => `Call ${useAddressLabel(op.to)}`)

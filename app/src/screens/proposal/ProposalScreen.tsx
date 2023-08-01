@@ -9,14 +9,13 @@ import { useConfirmRemoval } from '../alert/useConfirm';
 import { Tabs } from './Tabs';
 import { ProposalActions } from './ProposalActions';
 import { Hex } from 'lib';
-import { gql } from '@api/gen';
-import { useSuspenseQuery } from '@apollo/client';
-import { ProposalQuery, ProposalQueryVariables } from '@api/gen/graphql';
+import { gql } from '@api/generated';
 import { NotFound } from '~/components/NotFound';
-import { ProposalDocument, useProposalScreen_RemoveProposalMutation } from '@api/generated';
+import { useQuery } from '~/gql';
+import { useMutation } from 'urql';
 
-gql(/* GraphQL */ `
-  query Proposal($proposal: Bytes32!) {
+const Query = gql(/* GraphQL */ `
+  query ProposalScreen($proposal: Bytes32!) {
     proposal(input: { hash: $proposal }) {
       id
       hash
@@ -29,8 +28,8 @@ gql(/* GraphQL */ `
   }
 `);
 
-gql(/* GraphQL */ `
-  mutation ProposalScreen_RemoveProposal($proposal: Bytes32!) {
+const Remove = gql(/* GraphQL */ `
+  mutation ProposalScreen_Remove($proposal: Bytes32!) {
     removeProposal(input: { hash: $proposal })
   }
 `);
@@ -43,11 +42,9 @@ export type ProposalScreenProps = StackNavigatorScreenProps<'Proposal'>;
 
 export const ProposalScreen = withSuspense(
   ({ route, navigation: { goBack } }: ProposalScreenProps) => {
-    const p = useSuspenseQuery<ProposalQuery, ProposalQueryVariables>(ProposalDocument, {
-      variables: { proposal: route.params.proposal },
-    }).data.proposal;
+    const p = useQuery(Query, { proposal: route.params.proposal }).data.proposal;
 
-    const [removeProposal] = useProposalScreen_RemoveProposalMutation();
+    const remove = useMutation(Remove)[1];
     const confirmRemoval = useConfirmRemoval({
       message: 'Are you sure you want to remove this proposal?',
     });
@@ -68,7 +65,7 @@ export const ProposalScreen = withSuspense(
                   onPress={async () => {
                     close();
                     if (await confirmRemoval()) {
-                      await removeProposal({ variables: { proposal: p.hash } });
+                      await remove({ proposal: p.hash });
                       goBack();
                     }
                   }}

@@ -46,6 +46,11 @@ export const logWarning = (message: string, opts?: LogEventOptions) =>
 export const logError = (message: string, opts?: LogEventOptions) =>
   logEvent({ level: 'error', message, ...opts });
 
+export const logTrace = (category: string, data: Record<string, any>) => {
+  Sentry.addBreadcrumb({ level: 'debug', category, data });
+  console.trace(category, data);
+};
+
 const CONSOLE: Record<EventLevel, typeof console.log> = {
   debug: console.debug,
   info: console.info,

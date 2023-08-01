@@ -1,5 +1,4 @@
-import { useToken, useTokens } from '@token/useToken';
-import { Address, compareAddress } from 'lib';
+import { Address } from 'lib';
 import { StyleSheet, View } from 'react-native';
 import { ListItem } from '~/components/list/ListItem';
 import { useFormattedTokenAmount } from '~/components/token/TokenAmount';
@@ -8,66 +7,85 @@ import { Button, IconButton } from 'react-native-paper';
 import { materialCommunityIcon } from '@theme/icons';
 import { Dispatch, SetStateAction } from 'react';
 import { ListItemHeight } from '~/components/list/ListItem';
-import { useSwapPools } from '~/util/swap';
-import deepEqual from 'fast-deep-equal';
+import { Pool } from '~/util/swap';
 import ToTokenItem from './ToTokenItem';
+import { FragmentType, gql, useFragment } from '@api/generated';
+import { TokenIcon } from '~/components/token/TokenIcon/TokenIcon';
 
 const DownArrow = materialCommunityIcon('arrow-down-thin');
 const ICON_BUTTON_SIZE = 24;
 
+const FromFragment = gql(/* GraphQL */ `
+  fragment SwapTokens_fromToken on Token {
+    id
+    address
+    ...TokenIcon_token
+    ...UseFormattedTokenAmount_token
+    ...ToTokenItem_fromToken
+  }
+`);
+
+const ToFragment = gql(/* GraphQL */ `
+  fragment SwapTokens_toToken on Token {
+    id
+    address
+    ...ToTokenItem_toToken
+  }
+`);
+
 export interface SwapTokensProps {
   account: Address;
-  from: Address;
-  setFrom: Dispatch<SetStateAction<Address>>;
+  from: FragmentType<typeof FromFragment>;
+  setFromAddress: Dispatch<SetStateAction<Address>>;
   fromAmount: bigint;
-  to?: Address;
-  setTo: Dispatch<SetStateAction<Address | undefined>>;
+  to: FragmentType<typeof ToFragment> | null | undefined;
+  setToAddress: Dispatch<SetStateAction<Address | undefined>>;
+  pools: Pool[];
+  pool?: Pool;
 }
 
 export function SwapTokens({
   account,
-  from,
-  setFrom,
+  setFromAddress,
   fromAmount,
-  to: toParam,
-  setTo,
+  setToAddress,
+  pools,
+  pool,
+  ...props
 }: SwapTokensProps) {
+  const from = useFragment(FromFragment, props.from);
+  const to = useFragment(ToFragment, props.to);
+
   const selectToken = useSelectToken();
 
-  const allTokens = useTokens().map((t) => t.address);
-  const pools = useSwapPools();
-
-  const pair = toParam ? ([from, toParam].sort(compareAddress) as [Address, Address]) : undefined;
-  const pool = pair ? pools.find((p) => deepEqual(p.pair, pair)) : undefined;
-
-  const fromToken = useToken(from);
-  const to = pool ? toParam : undefined;
-
   const selectFrom = async () => {
-    const disabled = allTokens.filter((t) => !pools.some((p) => p.pair.includes(t)));
+    const token = await selectToken({
+      account,
+      enabled: pools.map((p) => (p.pair[0] === from.address ? p.pair[1] : p.pair[0])),
+    });
 
-    const token = (await selectToken({ account, disabled })).address;
-    if (token === to) setTo(from);
-    setFrom(token);
+    if (token === to?.address) setToAddress(from.address);
+    setFromAddress(token);
   };
 
   const selectTo = async () => {
-    const disabled = allTokens.filter(
-      (t) => !pools.some((p) => deepEqual(p.pair, [from, t].sort(compareAddress))),
-    );
+    const enabled = pools.map((p) => (p.pair[0] === from.address ? p.pair[1] : p.pair[0]));
 
-    const token = (await selectToken({ account, disabled: to ? disabled : [from, ...disabled] }))
-      .address;
-    if (token === from && to) setFrom(to);
-    setTo(token);
+    const token = await selectToken({
+      account,
+      enabled: pool ? [from.address, ...enabled] : enabled,
+    });
+    if (token === from.address && to) setFromAddress(to.address);
+    setToAddress(token);
   };
 
   return (
     <View>
       <ListItem
-        leading={from}
+        leading={(props) => <TokenIcon {...props} token={from} />}
+        leadingSize="medium"
         overline="From"
-        headline={useFormattedTokenAmount({ token: fromToken, amount: fromAmount })}
+        headline={useFormattedTokenAmount({ token: from, amount: fromAmount })}
         onPress={selectFrom}
       />
 
@@ -76,7 +94,9 @@ export function SwapTokens({
           <ToTokenItem
             account={account}
             pool={pool}
-            from={{ token: from, amount: fromAmount }}
+            from={from}
+            fromAmount={fromAmount}
+            to={to}
             onPress={selectTo}
           />
 
@@ -86,9 +106,9 @@ export function SwapTokens({
             icon={DownArrow}
             style={styles.arrow}
             onPress={() => {
-              const prevFrom = from;
-              setFrom(to);
-              setTo(prevFrom);
+              const prevFrom = from.address;
+              setFromAddress(to.address);
+              setToAddress(prevFrom);
             }}
           />
         </>

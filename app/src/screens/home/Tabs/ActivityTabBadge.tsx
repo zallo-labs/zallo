@@ -2,12 +2,10 @@ import { StyleSheet } from 'react-native';
 import { withSuspense } from '~/components/skeleton/withSuspense';
 import { TabBadge } from '~/components/tab/TabBadge';
 import { Address } from 'lib';
-import { gql } from '@api/gen';
-import { useSuspenseQuery } from '@apollo/client';
-import { ActivityTabBadgeQuery, ActivityTabBadgeQueryVariables } from '@api/gen/graphql';
-import { ActivityTabBadgeDocument } from '@api/generated';
+import { gql } from '@api/generated';
+import { useQuery } from '~/gql';
 
-gql(/* GraphQL */ `
+const Query = gql(/* GraphQL */ `
   query ActivityTabBadge($accounts: [Address!]!) {
     proposals(input: { accounts: $accounts, statuses: [Pending] }) {
       id
@@ -21,10 +19,7 @@ export interface ActivityTabBadgeProps {
 
 export const ActivityTabBadge = withSuspense(
   ({ account }: ActivityTabBadgeProps) => {
-    const { proposals } = useSuspenseQuery<ActivityTabBadgeQuery, ActivityTabBadgeQueryVariables>(
-      ActivityTabBadgeDocument,
-      { variables: { accounts: [account] } },
-    ).data;
+    const { proposals } = useQuery(Query, { accounts: [account] }).data;
 
     return <TabBadge value={proposals.length} style={styles.badge} />;
   },

@@ -24,7 +24,7 @@ export const OperationFunction = createUnionType({
   name: 'OperationFunction',
   types: () =>
     [
-      AddPolicyOp,
+      UpdatePolicyOp,
       RemovePolicyOp,
       TransferOp,
       TransferFromOp,
@@ -44,7 +44,7 @@ export class GenericOp {
 }
 
 @ObjectType()
-export class AddPolicyOp extends GenericOp {
+export class UpdatePolicyOp extends GenericOp {
   @AddressField()
   account: Address;
 

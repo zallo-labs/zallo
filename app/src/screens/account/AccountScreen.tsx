@@ -1,20 +1,36 @@
-import { useAccount } from '@api/account';
+import { gql } from '@api/generated';
 import { FlashList } from '@shopify/flash-list';
 import { EditIcon, NavigateNextIcon, PlusIcon } from '@theme/icons';
-import { Address, PolicyKey } from 'lib';
+import { Address } from 'lib';
 import { StyleSheet, View } from 'react-native';
 import { Menu } from 'react-native-paper';
-import { match } from 'ts-pattern';
 import { Appbar } from '~/components/Appbar/Appbar';
 import { AppbarMore2 } from '~/components/Appbar/AppbarMore';
+import { NotFound } from '~/components/NotFound';
 import { Fab } from '~/components/buttons/Fab';
 import { Screen } from '~/components/layout/Screen';
 import { ListHeader } from '~/components/list/ListHeader';
-import { ListItem, ListItemHeight } from '~/components/list/ListItem';
-import { PolicyIcon } from '~/components/policy/PolicyIcon';
+import { ListItemHeight } from '~/components/list/ListItem';
 import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
 import { withSuspense } from '~/components/skeleton/withSuspense';
+import { useQuery } from '~/gql';
 import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
+import { PolicyItem } from './PolicyItem';
+
+const Query = gql(/* GraphQL */ `
+  query AccountScreen($account: Address!) {
+    account(input: { address: $account }) {
+      id
+      address
+      name
+      policies {
+        id
+        key
+        ...PolicyItem_Policy
+      }
+    }
+  }
+`);
 
 export interface AccountScreenParams {
   account: Address;
@@ -24,7 +40,9 @@ export type AccountScreenProps = StackNavigatorScreenProps<'Account'>;
 
 export const AccountScreen = withSuspense(
   ({ route, navigation: { navigate } }: AccountScreenProps) => {
-    const account = useAccount(route.params.account);
+    const { account } = useQuery(Query, { account: route.params.account }).data;
+
+    if (!account) return <NotFound name="Account" />;
 
     return (
       <Screen>
@@ -53,20 +71,16 @@ export const AccountScreen = withSuspense(
             data={account.policies}
             ListHeaderComponent={<ListHeader>Access Policies</ListHeader>}
             renderItem={({ item: policy }) => (
-              <ListItem
-                leading={(props) => <PolicyIcon policy={policy} {...props} />}
-                headline={policy.name}
-                supporting={match((policy.state ?? policy.draft)!.approvers.size)
-                  .with(0, () => 'No approvers')
-                  .with(1, () => '1 approver')
-                  .otherwise((approvers) => `${approvers} approvers`)}
+              <PolicyItem
+                policy={policy}
                 trailing={NavigateNextIcon}
                 onPress={() => {
-                  navigate('Policy', { account: policy.account, key: policy.key });
+                  navigate('Policy', { account: account.address, key: policy.key });
                 }}
               />
             )}
             estimatedItemSize={ListItemHeight.DOUBLE_LINE}
+            keyExtractor={(item) => item.id}
             contentContainerStyle={styles.contentContainer}
             showsVerticalScrollIndicator={false}
           />

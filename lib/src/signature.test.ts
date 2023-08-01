@@ -1,5 +1,0 @@
-describe('example', () => {
-  it('pass', () => {
-    //
-  });
-});

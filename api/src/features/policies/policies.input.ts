@@ -15,6 +15,12 @@ export class UniquePolicyInput implements PolicyId {
 }
 
 @InputType()
+export class PoliciesInput {
+  @Field(() => Boolean, { defaultValue: false })
+  includeRemoved: boolean;
+}
+
+@InputType()
 export class TransfersConfigInput {
   @Field(() => [TransferLimitInput], { defaultValue: [] })
   limits: TransferLimitInput[];

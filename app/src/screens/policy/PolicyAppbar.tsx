@@ -1,4 +1,3 @@
-import { WPolicy, useRemovePolicy } from '@api/policy';
 import {
   PolicyActiveIcon,
   PolicyActiveOutlineIcon,
@@ -16,19 +15,54 @@ import { P, match } from 'ts-pattern';
 import { POLICY_DRAFT_ATOM } from './PolicyDraft';
 import { useAtomValue } from 'jotai';
 import { useNavigation } from '@react-navigation/native';
-import { Hex } from 'lib';
+import { FragmentType, gql, useFragment } from '@api/generated';
+import { useMutation } from 'urql';
+
+const Policy = gql(/* GraphQL */ `
+  fragment PolicyAppbar_Policy on Policy {
+    id
+    key
+    account {
+      id
+      address
+    }
+    state {
+      id
+      proposal {
+        id
+        hash
+      }
+    }
+    draft {
+      id
+      isRemoved
+      proposal {
+        id
+        hash
+      }
+    }
+  }
+`);
+
+const Remove = gql(/* GraphQL */ `
+  mutation PolicyAppbar_Remove($account: Address!, $key: PolicyKey!) {
+    removePolicy(input: { account: $account, key: $key }) {
+      id
+    }
+  }
+`);
 
 export interface PolicyAppbarProps {
-  policy?: WPolicy;
-  proposal?: Hex;
-  state: PolicyViewState;
+  policy?: FragmentType<typeof Policy> | null;
+  view: PolicyViewState;
   reset?: () => void;
   setParams: (params: Partial<PolicyScreenParams>) => void;
 }
 
-export const PolicyAppbar = ({ policy, proposal, state, reset, setParams }: PolicyAppbarProps) => {
+export const PolicyAppbar = ({ view, reset, setParams, ...props }: PolicyAppbarProps) => {
+  const policy = useFragment(Policy, props.policy);
   const { navigate, goBack } = useNavigation();
-  const removePolicy = useRemovePolicy();
+  const remove = useMutation(Remove)[1];
   const confirmRemove = useConfirmRemoval({
     title: 'Remove policy',
     message: 'Are you sure you want to remove this policy?',
@@ -36,14 +70,16 @@ export const PolicyAppbar = ({ policy, proposal, state, reset, setParams }: Poli
 
   const { name } = useAtomValue(POLICY_DRAFT_ATOM);
 
+  const state = view === 'active' ? policy?.state : policy?.draft;
+
   const switchState =
-    state === 'active' && policy?.draft
-      ? () => setParams({ state: 'draft' })
-      : state === 'draft' && policy?.state
-      ? () => setParams({ state: 'active' })
+    view === 'active' && policy?.draft
+      ? () => setParams({ view: 'draft' })
+      : view === 'draft' && policy?.state
+      ? () => setParams({ view: 'active' })
       : undefined;
 
-  const StateIcon = match({ state, policy })
+  const StateIcon = match({ state: view, policy })
     .with({ policy: undefined }, () => PolicyAddIcon)
     .with({ state: 'active', policy: { draft: P.nullish } }, () => PolicyActiveOutlineIcon)
     .with({ state: 'active' }, () => PolicyActiveIcon)
@@ -71,23 +107,23 @@ export const PolicyAppbar = ({ policy, proposal, state, reset, setParams }: Poli
                   }}
                 />
 
-                {proposal && (
+                {state?.proposal && (
                   <Menu.Item
                     title="View proposal"
                     onPress={() => {
                       close();
-                      navigate('Proposal', { proposal });
+                      navigate('Proposal', { proposal: state.proposal!.hash });
                     }}
                   />
                 )}
 
-                {policy && (
+                {policy && !policy.draft?.isRemoved && (
                   <Menu.Item
                     title="Remove policy"
                     onPress={async () => {
                       close();
                       if (await confirmRemove()) {
-                        await removePolicy(policy);
+                        await remove({ account: policy.account.address, key: policy.key });
                         goBack();
                       }
                     }}

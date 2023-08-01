@@ -8,18 +8,23 @@ import { Splash } from '~/components/Splash';
 import { AccountValue } from './AccountValue';
 import { Address } from 'lib';
 import { NotFound } from '~/components/NotFound';
-import { gql } from '@api/gen';
-import { useSuspenseQuery } from '@apollo/client';
-import { HomeQuery, HomeQueryVariables } from '@api/gen/graphql';
-import { HomeDocument } from '@api/generated';
+import { gql } from '@api/generated';
+import { useQuery } from '~/gql';
+import { persistedAtom } from '~/util/persistedAtom';
+import { useAtomValue } from 'jotai';
+import { useSyncAtom } from '~/util/useSyncAtom';
 
-gql(/* GraphQL */ `
+const selectedAccount = persistedAtom<Address | null>('selectedAccount', null);
+
+const Query = gql(/* GraphQL */ `
   query Home($account: Address) {
     account(input: { address: $account }) {
       id
       address
       ...HomeAppbar_account
     }
+
+    ...AccountValue_tokensQuery @arguments(account: $account)
   }
 `);
 
@@ -30,9 +35,11 @@ export interface HomeScreenParams {
 export type HomeScreenProps = StackNavigatorScreenProps<'Home'>;
 
 export const HomeScreen = withSuspense(({ route }: HomeScreenProps) => {
-  const { account } = useSuspenseQuery<HomeQuery, HomeQueryVariables>(HomeDocument, {
-    variables: { account: route.params.account },
-  }).data;
+  const selected = useAtomValue(selectedAccount);
+  const query = useQuery(Query, { account: route.params.account ?? (selected || undefined) }).data;
+  const { account } = query;
+
+  useSyncAtom(selectedAccount, account?.address ?? null);
 
   if (!account) return <NotFound name="Account" />;
 
@@ -40,7 +47,7 @@ export const HomeScreen = withSuspense(({ route }: HomeScreenProps) => {
     <Screen>
       <HomeAppbar account={account} />
 
-      <AccountValue account={account.address} />
+      <AccountValue tokensQuery={query} />
 
       <QuickActions account={account.address} />
 

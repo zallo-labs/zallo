@@ -1,7 +1,6 @@
 import { CHAIN, VIEM_CLIENT } from '@network/provider';
-import { encodeAbiParameters, encodeFunctionData, getContract } from 'viem';
-import { Address, ZERO_ADDR, asHex, compareAddress } from 'lib';
-import { ETH, WETH } from '@token/tokens';
+import { getContract } from 'viem';
+import { Address, ZERO_ADDR } from 'lib';
 import vaultAbi from './vault.abi';
 import routerAbi from './router.abi';
 import classicPoolFactoryAbi from './classicPoolFactory.abi';
@@ -78,67 +77,3 @@ export const getSyncswapStablePoolContract = (address: Address) =>
     abi: stablePoolAbi,
     publicClient: VIEM_CLIENT,
   });
-
-const getSwapOperation = async (
-  account: Address,
-  fromTokenParam: Address,
-  fromAmount: bigint,
-  toToken: Address,
-) => {
-  const fromToken = fromTokenParam === ETH.address ? WETH.address : fromTokenParam;
-  const pair = [fromToken, toToken].sort(compareAddress) as [Address, Address];
-
-  // Determine withdraw mode, to withdraw native ETH or wETH on last step.
-  // 0 - vault internal transfer
-  // 1 - withdraw and unwrap to naitve ETH
-  // 2 - withdraw and wrap to wETH
-  const withdrawMode = fromToken === WETH.address ? 2 : 1;
-
-  const pool = await SYNCSWAP_CLASSIC_POOL_FACTORY.read.getPool(pair);
-
-  const swapData = asHex(
-    encodeAbiParameters(
-      [
-        { name: 'tokenIn', type: 'address' },
-        { name: 'to', type: 'address' },
-        { name: 'withdrawMode', type: 'uint8' },
-      ],
-      [fromToken, account, withdrawMode],
-    ),
-  );
-
-  const minAmountOut = 0n; // factor in slippage
-
-  const deadline = 0n; // no deadline
-
-  const poolContract = getContract({
-    address: pool,
-    abi: classicPoolAbi,
-    publicClient: VIEM_CLIENT,
-  });
-
-  const estimatedToAmount = poolContract.read.getAmountOut([fromToken, fromAmount, account]);
-
-  encodeFunctionData({
-    abi: SYNCSWAP_ROUTER.abi,
-    functionName: 'swap',
-    args: [
-      [
-        {
-          tokenIn: fromToken,
-          amountIn: fromAmount,
-          steps: [
-            {
-              pool,
-              data: swapData,
-              callback: ZERO_ADDR,
-              callbackData: '0x',
-            },
-          ],
-        },
-      ],
-      minAmountOut,
-      deadline,
-    ],
-  });
-};

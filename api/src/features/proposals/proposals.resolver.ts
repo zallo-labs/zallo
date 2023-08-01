@@ -29,18 +29,12 @@ import {
 import { getShape } from '../database/database.select';
 import e from '~/edgeql-js';
 import { Input, InputArgs } from '~/decorators/input.decorator';
-import { DatabaseService } from '../database/database.service';
-import { Address } from 'lib';
 import { uuid } from 'edgedb/dist/codecs/ifaces';
 import { ComputedField } from '~/decorators/computed.decorator';
 
 @Resolver(() => TransactionProposal)
 export class ProposalsResolver {
-  constructor(
-    private service: ProposalsService,
-    private db: DatabaseService,
-    private pubsub: PubsubService,
-  ) {}
+  constructor(private service: ProposalsService, private pubsub: PubsubService) {}
 
   @Query(() => TransactionProposal, { nullable: true })
   async proposal(@Input() { hash }: ProposalInput, @Info() info: GraphQLResolveInfo) {
@@ -83,14 +77,8 @@ export class ProposalsResolver {
     @Context() ctx: GqlContext,
   ) {
     return asUser(ctx, async () => {
-      if (!accounts && !proposals) {
-        accounts = (await this.db.query(
-          e.select(e.Account, (a) => ({
-            filter: e.op(a.id, 'in', e.cast(e.uuid, e.set(...getUserCtx().accounts))),
-            address: true,
-          })).address,
-        )) as Address[];
-      }
+      if (!accounts?.length && !proposals?.length)
+        accounts = getUserCtx().accounts.map((a) => a.address);
 
       return this.pubsub.asyncIterator([
         ...[...(proposals ?? [])].map(getProposalTrigger),

@@ -1,10 +1,10 @@
 import { Operation, asBigInt, signTx } from 'lib';
 import { useCallback } from 'react';
-import { useApproveProposalMutation } from '@api/generated';
 import { useApproverWallet } from '@network/useApprover';
 import { authenticate, useAuthSettings } from '~/provider/AuthGate';
 import { showError } from '~/provider/SnackbarProvider';
-import { gql, useFragment as getFragment, FragmentType } from '@api/gen';
+import { gql, useFragment as getFragment, FragmentType } from '@api/generated';
+import { useMutation } from 'urql';
 
 const TransactionProposalFragmentDoc = gql(/* GraphQL */ `
   fragment UseApprove_TransactionProposalFragment on TransactionProposal {
@@ -24,7 +24,7 @@ const TransactionProposalFragmentDoc = gql(/* GraphQL */ `
   }
 `);
 
-gql(/* GraphQL */ `
+const Approve = gql(/* GraphQL */ `
   mutation ApproveProposal($input: ApproveInput!) {
     approve(input: $input) {
       id
@@ -39,7 +39,7 @@ gql(/* GraphQL */ `
 `);
 
 export const useApprove = () => {
-  const [mutate] = useApproveProposalMutation();
+  const mutate = useMutation(Approve)[1];
   const approver = useApproverWallet();
   const { approval: authRequired } = useAuthSettings();
 
@@ -65,11 +65,9 @@ export const useApprove = () => {
       }
 
       return mutate({
-        variables: {
-          input: {
-            hash: p.hash,
-            signature,
-          },
+        input: {
+          hash: p.hash,
+          signature,
         },
       });
     },

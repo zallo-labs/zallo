@@ -9,10 +9,9 @@ import { TabScreenSkeleton } from '~/components/tab/TabScreenSkeleton';
 import { SelectedPolicy } from './SelectedPolicy';
 import { makeStyles } from '@theme/makeStyles';
 import { Hex } from 'lib';
-import { gql, useFragment } from '@api/gen';
-import { useSuspenseQuery } from '@apollo/client';
-import { PolicyTabQuery, PolicyTabQueryVariables } from '@api/gen/graphql';
-import { PolicyTabDocument, usePolicyTabSubscriptionSubscription } from '@api/generated';
+import { gql, useFragment } from '@api/generated';
+import { tryReplaceDocument, useQuery } from '~/gql';
+import { useSubscription } from 'urql';
 
 const FragmentDoc = gql(/* GraphQL */ `
   fragment PolicyTab_TransactionProposalFragment on TransactionProposal
@@ -27,6 +26,7 @@ const FragmentDoc = gql(/* GraphQL */ `
         }
         state {
           id
+          threshold
           approvers {
             id
             address
@@ -53,11 +53,16 @@ const FragmentDoc = gql(/* GraphQL */ `
         address
       }
     }
+    createdAt
+    proposedBy {
+      id
+      address
+    }
     ...SelectedPolicy_TransactionProposalFragment @arguments(proposal: $proposal)
   }
 `);
 
-gql(/* GraphQL */ `
+const Query = gql(/* GraphQL */ `
   query PolicyTab($proposal: Bytes32!) {
     proposal(input: { hash: $proposal }) {
       ...PolicyTab_TransactionProposalFragment @arguments(proposal: $proposal)
@@ -65,8 +70,8 @@ gql(/* GraphQL */ `
   }
 `);
 
-gql(/* GraphQL */ `
-  subscription PolicyTabSubscription($proposal: Bytes32!) {
+const Subscription = gql(/* GraphQL */ `
+  subscription PolicyTab_Subscription($proposal: Bytes32!) {
     proposal(input: { proposals: [$proposal] }) {
       ...PolicyTab_TransactionProposalFragment @arguments(proposal: $proposal)
     }
@@ -82,10 +87,11 @@ export type PolicyTabProps = TabNavigatorScreenProp<'Policy'>;
 export const PolicyTab = withSuspense(({ route }: PolicyTabProps) => {
   const styles = uesStyles();
 
-  const { data } = useSuspenseQuery<PolicyTabQuery, PolicyTabQueryVariables>(PolicyTabDocument, {
+  const { data } = useQuery(Query, { proposal: route.params.proposal });
+  useSubscription({
+    query: tryReplaceDocument(Subscription),
     variables: { proposal: route.params.proposal },
   });
-  usePolicyTabSubscriptionSubscription({ variables: { proposal: route.params.proposal } });
   const p = useFragment(FragmentDoc, data?.proposal);
 
   if (!p) return null;
@@ -93,16 +99,38 @@ export const PolicyTab = withSuspense(({ route }: PolicyTabProps) => {
   const selected =
     p.account.policies.find(({ id }) => id === p.policy?.id) ?? p.account.policies[0];
 
-  const awaitingApproval =
-    selected.state?.approvers.filter(
+  const remaining = selected.state && {
+    approvals: Math.max(selected.state.threshold - p.approvals.length, 0),
+    approvers: selected.state.approvers.filter(
       (approver) =>
         !p.approvals.find((a) => a.approver.address === approver.address) &&
         !p.rejections.find((r) => r.approver.address === approver.address),
-    ) ?? [];
+    ),
+  };
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <SelectedPolicy proposal={p} />
+
+      {remaining && remaining.approvals > 0 && (
+        <>
+          <ListHeader>
+            Awaiting for {remaining.approvals} approval{remaining.approvals !== 1 ? 's' : ''}
+          </ListHeader>
+          {remaining.approvers.map((approver) => (
+            <ListItem
+              key={approver.id}
+              leading={approver.address}
+              headline={({ Text }) => (
+                <Text>
+                  <AddressLabel address={approver.address} />
+                </Text>
+              )}
+              supporting={p.proposedBy.address === approver.address ? 'Proposer' : undefined}
+            />
+          ))}
+        </>
+      )}
 
       {p.rejections.length > 0 && <ListHeader>Rejected</ListHeader>}
       {[...p.rejections].map((r) => (
@@ -114,23 +142,10 @@ export const PolicyTab = withSuspense(({ route }: PolicyTabProps) => {
               <AddressLabel address={r.approver.address} />
             </Text>
           )}
-          supporting="Rejected"
+          supporting={p.proposedBy.address === r.approver.address ? 'Proposer' : undefined}
           trailing={({ Text }) => (
             <Text>
               <Timestamp timestamp={r.createdAt} />
-            </Text>
-          )}
-        />
-      ))}
-
-      {awaitingApproval.length > 0 && <ListHeader>Awaiting approval from</ListHeader>}
-      {awaitingApproval.map((approver) => (
-        <ListItem
-          key={approver.id}
-          leading={approver.address}
-          headline={({ Text }) => (
-            <Text>
-              <AddressLabel address={approver.address} />
             </Text>
           )}
         />
@@ -146,6 +161,7 @@ export const PolicyTab = withSuspense(({ route }: PolicyTabProps) => {
               <AddressLabel address={a.approver.address} />
             </Text>
           )}
+          supporting={p.proposedBy.address === a.approver.address ? 'Proposer' : undefined}
           trailing={({ Text }) => (
             <Text>
               <Timestamp timestamp={a.createdAt} />

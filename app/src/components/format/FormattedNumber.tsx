@@ -26,8 +26,8 @@ export function useFormattedNumber({
   let n = typeof valueProp === 'number' ? valueProp : parseFloat(formatUnits(valueProp, decimals));
   if (n === 0 && hideZero) return '';
 
-  const isLtMin = n < minNumber && n > 0;
-  if (isLtMin) n = minNumber;
+  const isLtMin = n !== 0 && Math.abs(n) < minNumber;
+  if (isLtMin) n = minNumber * (n < 0 ? -1 : 1);
 
   let formatted = intl.formatNumber(n, {
     maximumFractionDigits:

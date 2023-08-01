@@ -3,11 +3,11 @@ import { Actions } from '~/components/layout/Actions';
 import { CHAIN } from '@network/provider';
 import { RetryIcon, ShareIcon } from '@theme/icons';
 import { Share } from 'react-native';
-import { useExecute } from '@api/transaction/useExecute';
-import { FragmentType, gql, useFragment } from '@api/gen';
-import { useRejectProposalMutation } from '@api/generated';
+import { FragmentType, gql, useFragment } from '@api/generated';
 import { useCanRespond } from '~/components/proposal/useCanRespond';
 import { useApprove } from './useApprove';
+import { useMutation } from 'urql';
+import { makeStyles } from '@theme/makeStyles';
 
 const BLOCK_EXPLORER_URL = CHAIN.blockExplorers?.default.url;
 
@@ -25,7 +25,7 @@ const ProposalFragment = gql(/* GraphQL */ `
   }
 `);
 
-gql(/* GraphQL */ `
+const Reject = gql(/* GraphQL */ `
   mutation RejectProposal($proposal: Bytes32!) {
     reject(input: { hash: $proposal }) {
       id
@@ -39,23 +39,30 @@ gql(/* GraphQL */ `
   }
 `);
 
+const Execute = gql(/* GraphQL */ `
+  mutation ProposalActions_Execute($proposal: Bytes32!) {
+    execute(input: { proposalHash: $proposal }) {
+      id
+    }
+  }
+`);
+
 export interface ProposalActionsProps {
   proposal: FragmentType<typeof ProposalFragment>;
 }
 
 export const ProposalActions = (props: ProposalActionsProps) => {
+  const styles = useStyles();
   const p = useFragment(ProposalFragment, props.proposal);
 
   const { canApprove, canReject } = useCanRespond(p);
   const approve = useApprove();
-  const [reject] = useRejectProposalMutation();
-  const execute = useExecute();
+  const reject = useMutation(Reject)[1];
+  const execute = useMutation(Execute)[1];
 
   return (
     <Actions style={{ flexGrow: 0 }}>
-      {canReject && (
-        <Button onPress={() => reject({ variables: { proposal: p.hash } })}>Reject</Button>
-      )}
+      {canReject && <Button onPress={() => reject({ proposal: p.hash })}>Reject</Button>}
 
       {canApprove && (
         <Button mode="contained" onPress={() => approve(p)}>
@@ -77,10 +84,25 @@ export const ProposalActions = (props: ProposalActionsProps) => {
       )}
 
       {p.status === 'Failed' && (
-        <Button mode="contained" icon={RetryIcon} onPress={() => execute({ proposalHash: p.hash })}>
+        <Button
+          mode="contained"
+          icon={RetryIcon}
+          onPress={() => execute({ proposal: p.hash })}
+          contentStyle={styles.retryContainer}
+          labelStyle={styles.retryLabel}
+        >
           Retry
         </Button>
       )}
     </Actions>
   );
 };
+
+const useStyles = makeStyles(({ colors }) => ({
+  retryContainer: {
+    backgroundColor: colors.errorContainer,
+  },
+  retryLabel: {
+    color: colors.onErrorContainer,
+  },
+}));

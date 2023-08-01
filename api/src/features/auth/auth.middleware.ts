@@ -20,6 +20,8 @@ const SIGNATURE_PATTERN = /^0x[0-9a-f]{130}$/i;
 const tryParseAuth = (token?: string): AuthToken | string | undefined => {
   if (typeof token !== 'string') return undefined;
 
+  if (token.startsWith('Bearer ')) token = token.slice(7);
+
   try {
     const { message, signature }: AuthToken = JSON.parse(token);
     return { message: new SiweMessage(message), signature };
@@ -106,6 +108,6 @@ export class AuthMiddleware implements NestMiddleware {
       }
     }
 
-    return err('Invalid token');
+    return ok(undefined);
   }
 }

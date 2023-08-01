@@ -12,19 +12,11 @@ import { Input, InputArgs } from '~/decorators/input.decorator';
 import { GqlContext, asUser, getUserCtx } from '~/request/ctx';
 import { PubsubService } from '../util/pubsub/pubsub.service';
 import { TransferSubscriptionPayload, getTransferTrigger } from './transfers.events';
-import { DatabaseService } from '../database/database.service';
-import e from '~/edgeql-js';
-import { Address } from 'lib';
 import { ComputedField } from '~/decorators/computed.decorator';
-import { GraphQLBigInt } from 'graphql-scalars';
 
 @Resolver(() => TransferDetails)
 export class TransfersResolver {
-  constructor(
-    private service: TransfersService,
-    private db: DatabaseService,
-    private pubsub: PubsubService,
-  ) {}
+  constructor(private service: TransfersService, private pubsub: PubsubService) {}
 
   @Query(() => [Transfer])
   async transfers(
@@ -37,12 +29,12 @@ export class TransfersResolver {
   @Subscription(() => Transfer, {
     name: 'transfer',
     filter: (
-      { direction, isExternal }: TransferSubscriptionPayload,
-      { input: { directions, external } }: InputArgs<TransferSubscriptionInput>,
+      transfer: TransferSubscriptionPayload,
+      { input }: InputArgs<TransferSubscriptionInput>,
     ) => {
       return (
-        (!directions || directions.includes(direction)) &&
-        (external === undefined || external === isExternal)
+        (input.direction === undefined || input.direction === transfer.direction) &&
+        (input.internal === undefined || input.internal === transfer.internal)
       );
     },
     resolve(
@@ -61,19 +53,14 @@ export class TransfersResolver {
   ) {
     return asUser(ctx, async () => {
       // Subscribe to all available accounts if none are specified
-      accounts ??= (await this.db.query(
-        e.select(e.Account, (account) => ({
-          filter: e.op(account.id, 'in', e.cast(e.uuid, e.set(...getUserCtx().accounts))),
-          address: true,
-        })).address,
-      )) as Address[];
+      if (!accounts?.length) accounts = getUserCtx().accounts.map((a) => a.address);
 
       return this.pubsub.asyncIterator(accounts.map((account) => getTransferTrigger(account)));
     });
   }
 
-  @ComputedField(() => GraphQLBigInt, TRANSFER_VALUE_FIELDS_SHAPE)
-  async value(@Parent() parent: TransferValueSelectFields): Promise<bigint> {
+  @ComputedField(() => Number, TRANSFER_VALUE_FIELDS_SHAPE, { nullable: true })
+  async value(@Parent() parent: TransferValueSelectFields): Promise<number | null> {
     return this.service.value(parent);
   }
 }

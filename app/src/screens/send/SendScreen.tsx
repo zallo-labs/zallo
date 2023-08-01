@@ -1,9 +1,7 @@
-import { usePropose } from '@api/proposal';
+import { usePropose } from '@api/usePropose';
 import { CloseIcon } from '@theme/icons';
-import { fiatAsBigInt, fiatToToken, FIAT_DECIMALS } from '@token/fiat';
-import { useTokenPriceData } from '@uniswap/index';
 import { parseUnits } from 'ethers/lib/utils';
-import { Address } from 'lib';
+import { Address, FIAT_DECIMALS, fiatToToken } from 'lib';
 import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Appbar, Divider } from 'react-native-paper';
@@ -19,6 +17,25 @@ import { InputsView, InputType } from '../../components/InputsView';
 import { useSelectToken } from '../tokens/TokensScreen';
 import { Button } from '~/components/Button';
 import { createTransferOp } from './transfer';
+import { gql } from '@api/generated';
+import { useQuery } from '~/gql';
+
+const Query = gql(/* GraphQL */ `
+  query SendScreen($account: Address!, $token: Address!) {
+    token(input: { address: $token }) {
+      id
+      address
+      decimals
+      balance(input: { account: $account })
+      price {
+        id
+        current
+      }
+      ...InputsView_token @arguments(account: $account)
+      ...TokenItem_token
+    }
+  }
+`);
 
 export interface SendScreenParams {
   account: Address;
@@ -28,26 +45,28 @@ export interface SendScreenParams {
 export type SendScreenProps = StackNavigatorScreenProps<'Send'>;
 
 export const SendScreen = withSuspense(
-  ({ route, navigation: { navigate, goBack } }: SendScreenProps) => {
+  ({ route, navigation: { replace, goBack } }: SendScreenProps) => {
     const { account, to } = route.params;
     const propose = usePropose();
 
-    const [token, setToken] = [useSelectedToken(), useSetSelectedToken()];
+    const { token } = useQuery(Query, {
+      account: route.params.account,
+      token: useSelectedToken(),
+    }).data;
+
     const selectToken = useSelectToken();
-    const price = useTokenPriceData(token).current;
+    const setToken = useSetSelectedToken();
 
     const [input, setInput] = useState('');
     const [type, setType] = useState(InputType.Fiat);
 
-    const inputAmount = (() => {
-      const n = parseFloat(input);
-      return isNaN(n) ? '0' : n.toString();
-    })();
+    if (!token) return null; // TODO: handle
 
+    const inputAmount = input || '0';
     const tokenAmount =
       type === InputType.Token
         ? parseUnits(inputAmount, token.decimals).toBigInt()
-        : fiatToToken(fiatAsBigInt(inputAmount), price, token);
+        : fiatToToken(parseFloat(inputAmount), token.price?.current ?? 0, token.decimals);
 
     return (
       <Screen>
@@ -56,20 +75,13 @@ export const SendScreen = withSuspense(
           <Appbar.Content title={`Send to ${useAddressLabel(to)}`} />
         </Appbar.Header>
 
-        <InputsView
-          token={token}
-          account={account}
-          input={input}
-          setInput={setInput}
-          type={type}
-          setType={setType}
-        />
+        <InputsView token={token} input={input} setInput={setInput} type={type} setType={setType} />
 
         <View style={styles.spacer} />
 
         <TokenItem
-          token={token.address}
-          account={account}
+          token={token}
+          amount={token.balance}
           onPress={async () => setToken(await selectToken({ account }))}
         />
         <Divider horizontalInset />
@@ -86,9 +98,9 @@ export const SendScreen = withSuspense(
           onPress={async () => {
             const proposal = await propose({
               account,
-              operations: [createTransferOp(token.address, token.type, to, tokenAmount)],
+              operations: [createTransferOp({ token: token.address, to, amount: tokenAmount })],
             });
-            navigate('Proposal', { proposal });
+            replace('Proposal', { proposal });
           }}
         >
           Propose

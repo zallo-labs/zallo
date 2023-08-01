@@ -17,7 +17,7 @@ module default {
     required isActive: bool;
     required implementation: Address;
     required salt: Bytes32;
-    multi link policies := .<account[is Policy];
+    multi link policies := (select .<account[is Policy] filter .state.isRemoved ?= false);
     multi link proposals := .<account[is Proposal];
     multi link transactionProposals := .<account[is TransactionProposal];
     multi link transfers := .<account[is Transfer];
@@ -92,7 +92,7 @@ module default {
     }
     required nonce: uint64;
     required gasLimit: uint256 { default := 0n; }
-    required feeToken: Address;
+    required feeToken: Token;
     required simulation: Simulation;
     multi link transactions := .<proposal[is Transaction];
     link transaction := (
@@ -125,11 +125,12 @@ module default {
     required block: bigint { constraint min_value(0n); }
     required timestamp: datetime { default := datetime_of_statement(); }
     link transaction := (
-      with transactionHash := .transactionHash
-      select Transaction filter .hash = transactionHash
+      with transactionHash := .transactionHash,
+           account := .account
+      select Transaction filter .hash = transactionHash and .proposal.account = account
     );
 
-    constraint exclusive on ((.block, .logIndex));
+    constraint exclusive on ((.account, .block, .logIndex));
 
     access policy members_can_select
       allow select
@@ -143,8 +144,16 @@ module default {
     required direction: TransferDirection;
     required from: Address;
     required to: Address;
-    required token: Address;
+    required tokenAddress: Address;
     required amount: bigint;
+    link token := (
+      assert_single((
+        with address := .tokenAddress
+        select Token filter .address = address
+        order by (exists .user) desc
+        limit 1
+      ))
+    );
 
     access policy members_can_select_insert
       allow select, insert
@@ -158,7 +167,7 @@ module default {
   type TransferApproval extending Transferlike {
     link previous := (
       select TransferApproval
-      filter .token = .token and .from = .from and .to = .to
+      filter .tokenAddress = .tokenAddress and .from = .from and .to = .to
       order by .block desc then .logIndex desc
       limit 1
     );
@@ -188,9 +197,8 @@ module default {
     required success: bool;
     required responses: array<Bytes>;
     multi link events := (
-      with txHash := .transaction.hash
-      select Event
-      filter .transactionHash = txHash
+      with tx := .transaction
+      select Event filter .transaction = tx
     );
     multi link transferEvents := .events[is Transfer];
     multi link transferApprovalEvents := .events[is TransferApproval];

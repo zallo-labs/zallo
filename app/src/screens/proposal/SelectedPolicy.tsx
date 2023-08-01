@@ -4,8 +4,8 @@ import { SatisfiablePolicyItem } from './SatisfiablePolicyItem';
 import { Chevron } from '~/components/Chevron';
 import { useToggle } from '@hook/useToggle';
 import { Divider } from 'react-native-paper';
-import { FragmentType, gql, useFragment } from '@api/gen';
-import { useSelectedPolicyUpdateProposalMutation } from '@api/generated';
+import { FragmentType, gql, useFragment } from '@api/generated';
+import { useMutation } from 'urql';
 
 const FragmentDoc = gql(/* GraphQL */ `
   fragment SelectedPolicy_TransactionProposalFragment on TransactionProposal
@@ -30,13 +30,12 @@ const FragmentDoc = gql(/* GraphQL */ `
   }
 `);
 
-gql(/* GraphQL */ `
-  mutation SelectedPolicyUpdateProposal($hash: Bytes32!, $policy: PolicyKey!) {
+const Update = gql(/* GraphQL */ `
+  mutation SelectedPolicy_Update($hash: Bytes32!, $policy: PolicyKey!) {
     updateProposal(input: { hash: $hash, policy: $policy }) {
       id
       policy {
         id
-        key
       }
     }
   }
@@ -48,7 +47,7 @@ export interface SelectedPolicyProps {
 
 export const SelectedPolicy = (props: SelectedPolicyProps) => {
   const proposal = useFragment(FragmentDoc, props.proposal);
-  const [update] = useSelectedPolicyUpdateProposalMutation();
+  const update = useMutation(Update)[1];
 
   const [expanded, toggleExpanded] = useToggle(false);
 
@@ -85,8 +84,7 @@ export const SelectedPolicy = (props: SelectedPolicyProps) => {
             policy={p}
             selected={p.id === selected.id}
             onPress={() => {
-              if (p.key !== selected.key)
-                update({ variables: { hash: proposal.hash, policy: p.key } });
+              if (p.key !== selected.key) update({ hash: proposal.hash, policy: p.key });
               toggleExpanded();
             }}
           />

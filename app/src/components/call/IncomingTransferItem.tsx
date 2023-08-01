@@ -4,12 +4,15 @@ import { ListItem } from '~/components/list/ListItem';
 import { ListItemSkeleton } from '~/components/list/ListItemSkeleton';
 import { withSuspense } from '~/components/skeleton/withSuspense';
 import { FiatValue } from '~/components/fiat/FiatValue';
-import { FragmentType, gql, useFragment } from '@api/gen';
-import { asBigInt } from 'lib';
+import { FragmentType, gql, useFragment } from '@api/generated';
+import { TokenIcon } from '../token/TokenIcon/TokenIcon';
 
 const FragmentDoc = gql(/* GraphQL */ `
   fragment IncomingTransferItem_TransferFragment on Transfer {
-    token
+    token {
+      id
+      ...TokenIcon_token
+    }
     from
     timestamp
     value
@@ -25,14 +28,17 @@ export const IncomingTransferItem = withSuspense((props: IncomingTransferItemPro
 
   return (
     <ListItem
-      leading={transfer.token}
+      leading={(props) => <TokenIcon token={transfer.token} {...props} />}
+      leadingSize="medium"
       headline={`Transfer from ${useAddressLabel(transfer.from)}`}
       supporting={<Timestamp timestamp={transfer.timestamp} weekday />}
-      trailing={({ Text }) => (
-        <Text variant="labelLarge">
-          <FiatValue value={asBigInt(transfer.value)} />
-        </Text>
-      )}
+      trailing={({ Text }) =>
+        transfer.value !== null && transfer.value !== undefined ? (
+          <Text variant="labelLarge">
+            <FiatValue value={transfer.value} />
+          </Text>
+        ) : null
+      }
     />
   );
 }, <ListItemSkeleton leading supporting />);

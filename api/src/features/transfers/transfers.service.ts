@@ -7,18 +7,23 @@ import { ShapeFunc } from '../database/database.select';
 import { selectAccount } from '../accounts/accounts.util';
 import { uuid } from 'edgedb/dist/codecs/ifaces';
 import { Shape } from '../database/database.select';
+import { PricesService } from '../prices/prices.service';
+import { Address, tokenToFiat } from 'lib';
 
 export const TRANSFER_VALUE_FIELDS_SHAPE = {
-  token: true,
+  token: {
+    address: true,
+    ethereumAddress: true,
+    decimals: true,
+  },
   amount: true,
-  direction: true,
 } satisfies Shape<typeof e.TransferDetails>;
 const s = e.select(e.TransferDetails, () => TRANSFER_VALUE_FIELDS_SHAPE);
 export type TransferValueSelectFields = $infer<typeof s>[0];
 
 @Injectable()
 export class TransfersService {
-  constructor(private db: DatabaseService) {}
+  constructor(private db: DatabaseService, private prices: PricesService) {}
 
   async selectUnique(id: uuid, shape?: ShapeFunc<typeof e.Transfer>) {
     return this.db.query(
@@ -30,7 +35,7 @@ export class TransfersService {
   }
 
   async select(
-    { accounts, direction, external }: TransfersInput,
+    { accounts, direction, internal }: TransfersInput,
     shape?: ShapeFunc<typeof e.Transfer>,
   ) {
     return this.db.query(
@@ -39,17 +44,21 @@ export class TransfersService {
         filter: and(
           accounts && e.op(t.account, 'in', e.set(...accounts.map((a) => selectAccount(a)))),
           direction && e.op(t.direction, '=', e.cast(e.TransferDirection, direction)),
-          external !== undefined && external
-            ? e.op('not', e.op('exists', t.transaction))
-            : e.op('exists', t.transaction),
+          internal !== undefined && e.op(e.op('exists', t.transaction), '=', internal),
         ),
       })),
     );
   }
 
-  async value(f: TransferValueSelectFields): Promise<bigint> {
-    const v = f.amount; // TODO: multiply by price
+  async value({ token, amount }: TransferValueSelectFields): Promise<number | null> {
+    if (!token) return null;
 
-    return f.direction === 'In' ? v : -v;
+    const p = await this.prices.price(
+      token.address as Address,
+      token.ethereumAddress as Address | undefined,
+    );
+    if (!p) return null;
+
+    return tokenToFiat(amount, p.current, token.decimals);
   }
 }

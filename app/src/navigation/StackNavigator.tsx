@@ -55,6 +55,7 @@ import {
 } from '~/screens/pair-confirm/PairConfirmSheet';
 import { CreateUserScreen } from '~/screens/create-user/CreateUserScreen';
 import { AddressesModal, AddressesModalParams } from '~/screens/addresses/AddressesModal';
+import { TokenScreen, TokenScreenParams } from '~/screens/token/TokenScreen';
 
 export type StackNavigatorParamList = {
   Home: HomeScreenParams;
@@ -75,6 +76,7 @@ export type StackNavigatorParamList = {
   Sessions: SessionsScreenParams;
   Biometrics: BiometricsScreenParams;
   Tokens: TokensScreenParams;
+  Token: TokenScreenParams;
   NotificationSettings: NotificationSettingsParams;
   // Onboarding
   Onboard: undefined;
@@ -137,6 +139,7 @@ export const StackNavigator = () => {
       <Navigation.Screen name="Sessions" component={SessionsScreen} />
       <Navigation.Screen name="Biometrics" component={BiometricsScreen} />
       <Navigation.Screen name="Tokens" component={TokensScreen} />
+      <Navigation.Screen name="Token" component={TokenScreen} />
       <Navigation.Screen name="NotificationSettings" component={NotificationSettingsScreen} />
 
       <Navigation.Group screenOptions={{ presentation: 'transparentModal' }}>

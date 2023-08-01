@@ -24,10 +24,6 @@ export class PaymasterService {
     return asAddress(paymaster);
   }
 
-  async isSupportedFeeToken(token: Address) {
-    return true; // TODO: restrict to supported paymaster tokens
-  }
-
   async getPaymasterParams({ feeToken, gasPrice, gasLimit }: GetPaymasterParamsOptions) {
     if (feeToken === ETH_ADDRESS) return undefined;
 
@@ -39,5 +35,17 @@ export class PaymasterService {
       minimalAllowance: BigNumber.from(gasPrice * gasLimit), // Mainnet TODO: factor in conversion from token -> ETH; 1:1 on testnet
       innerInput: [],
     });
+  }
+
+  async getGasPrice(feeToken: Address) {
+    assert(this.provider.chain.testnet); // Mainnet TODO: get correct gas price
+    // On testnet the conversion is 1:1 token:ETH (wei)
+
+    try {
+      return (await this.provider.getGasPrice()).toBigInt();
+    } catch (e) {
+      console.warn(`Failed to fetch gas price for ${feeToken}: ${e}`);
+      return null;
+    }
   }
 }

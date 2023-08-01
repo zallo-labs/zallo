@@ -14,7 +14,7 @@ export class ContractFunction implements eql.Function {
   selector: string; // Selector
 
   @Field(() => GraphQLJSON)
-  abi: any;
+  abi: any; // TODO: type as AbiFunction
 
   @Field(() => String)
   abiMd5: string;

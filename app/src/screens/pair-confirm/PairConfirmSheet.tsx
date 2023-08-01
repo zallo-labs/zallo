@@ -5,14 +5,17 @@ import { View } from 'react-native';
 import { makeStyles } from '@theme/makeStyles';
 import { Text } from 'react-native-paper';
 import { Button } from '~/components/Button';
-import { gql } from '@api/gen';
-import { usePairConfirmMutation } from '@api/generated';
+import { gql } from '@api/generated';
 import { showSuccess } from '~/provider/SnackbarProvider';
+import { useMutation } from 'urql';
 
-gql(/* GraphQL */ `
-  mutation PairConfirm($input: PairInput!) {
-    pair(input: $input) {
+const Pair = gql(/* GraphQL */ `
+  mutation PairConfirmSheet_Pair($token: String!) {
+    pair(input: { token: $token }) {
       id
+      approvers {
+        id
+      }
     }
   }
 `);
@@ -29,7 +32,7 @@ export const PairConfirmSheet = ({ route, navigation: { goBack } }: PairConfirmS
   const { token } = route.params;
   const styles = useStyles();
 
-  const [pair] = usePairConfirmMutation({ variables: { input: { token } } });
+  const pair = useMutation(Pair)[1];
 
   return (
     <Sheet onClose={goBack} handle={false}>
@@ -56,7 +59,7 @@ export const PairConfirmSheet = ({ route, navigation: { goBack } }: PairConfirmS
           icon={PairIcon}
           style={styles.button}
           onPress={async () => {
-            await pair();
+            await pair({ token });
             showSuccess('Pairing successful');
             goBack();
           }}
