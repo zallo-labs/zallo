@@ -9,7 +9,7 @@
     "clean:services": "docker compose -f ./services.yml down -v",
     "format": "prettier --config ../.prettierrc --write \"src/**/*.ts\"",
     "start": "nest start --debug --watch",
-    "start:production": "yarn db:migrate && yarn db:seed && node dist/src/main.js",
+    "start:production": "yarn db:migrate && node dist/dbschema/seed.js && node dist/src/main.js",
     "start:services": "docker compose -f ./services.yml up",
     "test": "yarn with-env -- jest",
     "test:watch": "yarn test --watch",
