@@ -53,6 +53,11 @@ const FragmentDoc = gql(/* GraphQL */ `
         address
       }
     }
+    createdAt
+    proposedBy {
+      id
+      address
+    }
     ...SelectedPolicy_TransactionProposalFragment @arguments(proposal: $proposal)
   }
 `);
@@ -107,25 +112,6 @@ export const PolicyTab = withSuspense(({ route }: PolicyTabProps) => {
     <ScrollView contentContainerStyle={styles.container}>
       <SelectedPolicy proposal={p} />
 
-      {p.rejections.length > 0 && <ListHeader>Rejected</ListHeader>}
-      {[...p.rejections].map((r) => (
-        <ListItem
-          key={r.id}
-          leading={r.approver.address}
-          headline={({ Text }) => (
-            <Text>
-              <AddressLabel address={r.approver.address} />
-            </Text>
-          )}
-          supporting="Rejected"
-          trailing={({ Text }) => (
-            <Text>
-              <Timestamp timestamp={r.createdAt} />
-            </Text>
-          )}
-        />
-      ))}
-
       {remaining && remaining.approvals > 0 && (
         <>
           <ListHeader>
@@ -140,10 +126,30 @@ export const PolicyTab = withSuspense(({ route }: PolicyTabProps) => {
                   <AddressLabel address={approver.address} />
                 </Text>
               )}
+              supporting={p.proposedBy.address === approver.address ? 'Proposer' : undefined}
             />
           ))}
         </>
       )}
+
+      {p.rejections.length > 0 && <ListHeader>Rejected</ListHeader>}
+      {[...p.rejections].map((r) => (
+        <ListItem
+          key={r.id}
+          leading={r.approver.address}
+          headline={({ Text }) => (
+            <Text>
+              <AddressLabel address={r.approver.address} />
+            </Text>
+          )}
+          supporting={p.proposedBy.address === r.approver.address ? 'Proposer' : undefined}
+          trailing={({ Text }) => (
+            <Text>
+              <Timestamp timestamp={r.createdAt} />
+            </Text>
+          )}
+        />
+      ))}
 
       {p.approvals.length > 0 && <ListHeader>Approvals</ListHeader>}
       {[...p.approvals].map((a) => (
@@ -155,6 +161,7 @@ export const PolicyTab = withSuspense(({ route }: PolicyTabProps) => {
               <AddressLabel address={a.approver.address} />
             </Text>
           )}
+          supporting={p.proposedBy.address === a.approver.address ? 'Proposer' : undefined}
           trailing={({ Text }) => (
             <Text>
               <Timestamp timestamp={a.createdAt} />
