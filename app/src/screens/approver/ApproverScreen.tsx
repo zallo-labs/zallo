@@ -39,8 +39,8 @@ const Query = gql(/* GraphQL */ `
 `);
 
 const Update = gql(/* GraphQL */ `
-  mutation ApproverScreen_update($name: String!) {
-    updateApprover(input: { name: $name }) {
+  mutation ApproverScreen_update($approver: Address!, $name: String!) {
+    updateApprover(input: { address: $approver, name: $name }) {
       id
       name
       label
@@ -88,7 +88,6 @@ export const ApproverScreen = withSuspense(
             control={control}
             left={user.name ? <TextInput.Affix text={`${user.name}'s`} /> : undefined}
             label="Label"
-            supporting="This device"
             placeholder="iPhone"
             autoFocus={isOnboarding}
             containerStyle={styles.inset}
@@ -98,7 +97,7 @@ export const ApproverScreen = withSuspense(
                 !takenNames.includes(v) || 'An approver with ths name already exists',
             }}
             onEndEditing={handleSubmit(async ({ name }) => {
-              await update({ name });
+              await update({ approver: approver.address, name });
             })}
           />
         </View>
