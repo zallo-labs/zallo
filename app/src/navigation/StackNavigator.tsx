@@ -56,6 +56,7 @@ import {
 import { CreateUserScreen } from '~/screens/create-user/CreateUserScreen';
 import { AddressesModal, AddressesModalParams } from '~/screens/addresses/AddressesModal';
 import { TokenScreen, TokenScreenParams } from '~/screens/token/TokenScreen';
+import { PairLedgerScreen } from '~/screens/pair-ledger/PairLedgerScreen';
 
 export type StackNavigatorParamList = {
   Home: HomeScreenParams;
@@ -78,6 +79,7 @@ export type StackNavigatorParamList = {
   Tokens: TokensScreenParams;
   Token: TokenScreenParams;
   NotificationSettings: NotificationSettingsParams;
+  PairLedger: undefined;
   // Onboarding
   Onboard: undefined;
   CreateUser: undefined;
@@ -141,6 +143,7 @@ export const StackNavigator = () => {
       <Navigation.Screen name="Tokens" component={TokensScreen} />
       <Navigation.Screen name="Token" component={TokenScreen} />
       <Navigation.Screen name="NotificationSettings" component={NotificationSettingsScreen} />
+      <Navigation.Screen name="PairLedger" component={PairLedgerScreen} />
 
       <Navigation.Group screenOptions={{ presentation: 'transparentModal' }}>
         <Navigation.Screen name="AccountsSheet" component={AccountsSheet} />

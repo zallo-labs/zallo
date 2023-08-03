@@ -1,5 +1,9 @@
 import { ExpoConfig, ConfigContext } from '@expo/config';
+import { ConfigPlugin } from 'expo/config-plugins';
 import { PluginConfigType as BuildPropertiesConfig } from 'expo-build-properties/build/pluginConfig';
+import DefaultBleConfig from '@config-plugins/react-native-ble-plx';
+
+type configPluginType<Plugin> = Plugin extends ConfigPlugin<infer Config> ? Config : never;
 
 const ENV = process.env;
 
@@ -67,6 +71,16 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     '@react-native-firebase/app',
     '@react-native-firebase/perf',
     '@react-native-firebase/crashlytics',
+    '@config-plugins/react-native-ble-plx',
+    // [
+    //   '@config-plugins/react-native-ble-plx',
+    //   {
+    //     // isBackgroundEnabled: true, // Enables BLE
+    //     // neverForLocation: true,
+    //     bluetoothAlwaysPermission:
+    //       'Allow $(PRODUCT_NAME) to connect to hardware wallet bluetooth device                                                                                                                                                                                                                                             s',
+    //   } as configPluginType<typeof DefaultBleConfig>,
+    // ],
   ],
   hooks: {
     postPublish: [

@@ -13,6 +13,7 @@ import { UserApproverItem } from './UserApproverItem';
 import { gql } from '@api/generated';
 import { useQuery } from '~/gql';
 import { useMutation } from 'urql';
+import { LedgerIcon } from '@theme/icons';
 
 const Query = gql(/* GraphQL */ `
   query UserScreen {
@@ -82,12 +83,12 @@ export const UserScreen = ({ navigation: { navigate } }: UserScreenProps) => {
       </View>
 
       <Actions>
-        <Button
-          mode="contained-tonal"
-          icon={PairIcon}
-          onPress={() => navigate('PairUserModal', {})}
-        >
+        <Button mode="text" icon={PairIcon} onPress={() => navigate('PairUserModal', {})}>
           Pair with existing user
+        </Button>
+
+        <Button mode="contained-tonal" icon={LedgerIcon} onPress={() => navigate('PairLedger')}>
+          Pair with Ledger
         </Button>
       </Actions>
     </Screen>

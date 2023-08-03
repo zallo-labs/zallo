@@ -39,7 +39,7 @@ export const PairConfirmSheet = ({ route, navigation: { goBack } }: PairConfirmS
       <View style={styles.infoContainer}>
         <PairIcon style={styles.icon} />
 
-        <Text variant="titleLarge" style={[styles.primary, styles.text]}>
+        <Text variant="titleLarge" style={styles.text}>
           Are you sure you want to pair?
         </Text>
 
@@ -82,9 +82,6 @@ const useStyles = makeStyles(({ colors, iconSize }) => ({
   icon: {
     color: colors.onSurface,
     fontSize: iconSize.large,
-  },
-  primary: {
-    color: colors.primary,
   },
   text: {
     textAlign: 'center',
