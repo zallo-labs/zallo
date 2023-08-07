@@ -3,7 +3,7 @@ import { Address, Hex, PolicyId, PolicyKey, Selector } from 'lib';
 import { AddressField, AddressScalar } from '~/apollo/scalars/Address.scalar';
 import { PolicyKeyField } from '~/apollo/scalars/PolicyKey.scalar';
 import { GraphQLBigInt } from 'graphql-scalars';
-import { Bytes32Field, Bytes4Field } from '~/apollo/scalars/Bytes.scalar';
+import { Bytes32Field, SelectorField } from '~/apollo/scalars/Bytes.scalar';
 
 @InputType()
 export class UniquePolicyInput implements PolicyId {
@@ -46,7 +46,7 @@ export class TransferLimitInput {
 
 @InputType()
 export class SelectorInput {
-  @Bytes4Field()
+  @SelectorField()
   selector: Selector;
 
   @Field(() => Boolean)

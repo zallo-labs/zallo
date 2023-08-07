@@ -6,6 +6,8 @@ module default {
     multi link accounts := (select distinct .approvers.accounts);
   }
 
+  scalar type MAC extending str { constraint regexp(r'^([0-9A-F]{2}[:-]){5}([0-9A-F]{2})$'); }
+
   type Approver {
     required address: Address {
       readonly := true;
@@ -18,6 +20,7 @@ module default {
     name: Label;
     property label := .contact.label ?? (.user.name ++ ': ' ++ .name if exists(.user) and exists(.name) else <str>{});
     pushToken: str;
+    bluetoothDevices: array<MAC>;
     link contact := (
       assert_single((
         with address := .address

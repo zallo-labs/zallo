@@ -83,6 +83,7 @@ export interface Approver extends std.$Object {
   "accounts": Account[];
   "contact"?: Contact | null;
   "label"?: string | null;
+  "bluetoothDevices"?: string[] | null;
 }
 export interface Contact extends std.$Object {
   "user": User;

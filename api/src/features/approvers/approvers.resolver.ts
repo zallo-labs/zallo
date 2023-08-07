@@ -21,7 +21,6 @@ export class ApproversResolver {
   @Mutation(() => UserApprover)
   async updateApprover(@Input() input: UpdateApproverInput, @Info() info: GraphQLResolveInfo) {
     await this.service.upsert(input);
-
     return (await this.service.selectUnique(input.address, getShape(info)))!;
   }
 }
