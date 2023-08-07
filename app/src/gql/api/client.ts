@@ -7,7 +7,7 @@ import { retryExchange } from '@urql/exchange-retry';
 import { CONFIG } from '~/util/config';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { authExchange } from '@urql/exchange-auth';
-import { Address, Addresslike, Approver, Hex, asAddress, asHex } from 'lib';
+import { Addresslike, Hex, asAddress, asHex } from 'lib';
 import { DateTime } from 'luxon';
 import { SiweMessage } from 'siwe';
 import { atom, useAtomValue } from 'jotai';
@@ -18,8 +18,6 @@ import { logError } from '~/util/analytics';
 import crypto from 'react-native-quick-crypto';
 import { CACHE_CONFIG } from './cache';
 import { E_ALREADY_LOCKED, Mutex, tryAcquire } from 'async-mutex';
-import { clog } from '~/util/format';
-import { splitSignature } from 'ethers/lib/utils';
 
 const TOKEN_KEY = 'apiToken';
 
@@ -126,12 +124,12 @@ const client = atom(async (get) => {
 
 export const useUrqlApiClient = () => useAtomValue(client);
 
-interface CreateTokenOptions {
+interface CreateTokenApprover {
   address: Addresslike;
   signMessage: (message: string) => Promise<string>;
 }
 
-async function createToken({ address, signMessage }: CreateTokenOptions): Promise<Token> {
+async function createToken(approver: CreateTokenApprover): Promise<Token> {
   // Cookies are problematic on RN - https://github.com/facebook/react-native/issues/23185
   // const nonce = await (await fetch(`${CONFIG.apiUrl}/auth/nonce`, { credentials: 'include' })).text();
   const nonce = 'nonceless';
@@ -139,7 +137,7 @@ async function createToken({ address, signMessage }: CreateTokenOptions): Promis
   const message = new SiweMessage({
     version: '1',
     domain: new URL(CONFIG.apiUrl).host,
-    address: asAddress(address),
+    address: asAddress(approver.address),
     nonce,
     expirationTime: DateTime.now().plus({ days: 2 }).toString(),
     uri: 'https://app.zallo.com', // Required but unused
@@ -148,7 +146,7 @@ async function createToken({ address, signMessage }: CreateTokenOptions): Promis
 
   return {
     message,
-    signature: asHex(await signMessage(message.prepareMessage())),
+    signature: asHex(await approver.signMessage(message.prepareMessage())),
   };
 }
 
@@ -156,6 +154,6 @@ function getHeaders(token: Token | null): { Authorization?: string } {
   return { Authorization: token ? JSON.stringify(token) : undefined };
 }
 
-export async function getAuthHeaders(options: CreateTokenOptions) {
+export async function getAuthHeaders(options: CreateTokenApprover) {
   return getHeaders(await createToken(options));
 }

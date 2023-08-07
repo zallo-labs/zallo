@@ -5,27 +5,18 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as SecureStore from 'expo-secure-store';
 import { logError } from './analytics';
 
-export type StorageOptions<V, U extends AnyJson> = {
-  secure?: SecureStore.SecureStoreOptions;
-} & (
-  | {
-      stringifiy: (value: V) => U;
-      parse: (value: U) => V;
-    }
-  | {
-      stringifiy?: never;
-      parse?: never;
-    }
-);
+export type PersistedAtomOptions<V, U extends AnyJson> = StorageOptions<V, U> & {
+  skipInitialPersist?: boolean;
+};
 
 // Based off https://github.com/pmndrs/jotai/blob/main/src/vanilla/utils/atomWithStorage.ts
 // Primary difference is that this persists the initialValue
 export const persistedAtom = <V, U extends AnyJson = AnyJson>(
   key: string,
   initialValue: V,
-  options?: StorageOptions<V, U>,
+  { skipInitialPersist, ...storageOptions }: PersistedAtomOptions<V, U> = {},
 ): WritableAtom<V, [SetStateActionWithReset<V>], void> => {
-  const storage = getStorage(options);
+  const storage = getStorage(storageOptions);
   const initialPersistedValue = storage.getItem(key, initialValue);
 
   const baseAtom = atom(initialValue);
@@ -34,7 +25,7 @@ export const persistedAtom = <V, U extends AnyJson = AnyJson>(
   let mounted = false;
   baseAtom.onMount = (setAtom) => {
     initialPersistedValue.then((v) => {
-      if (v === initialValue) {
+      if (v === initialValue && !skipInitialPersist) {
         storage.setItem(key, initialValue);
       } else if (v !== initialValue) {
         setAtom(v);
@@ -68,6 +59,19 @@ export const persistedAtom = <V, U extends AnyJson = AnyJson>(
 
   return pAtom;
 };
+
+export type StorageOptions<V, U extends AnyJson> = {
+  secure?: SecureStore.SecureStoreOptions;
+} & (
+  | {
+      stringifiy: (value: V) => U;
+      parse: (value: U) => V;
+    }
+  | {
+      stringifiy?: never;
+      parse?: never;
+    }
+);
 
 const ASYNC_STORAGE = createJSONStorage(() => AsyncStorage);
 

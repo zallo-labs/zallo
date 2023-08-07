@@ -50,6 +50,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       'expo-build-properties',
       {
         android: {
+          minSdkVersion: 24, // 21 is Expo default, 24 is required by @ledgerhq/react-native-hid
           packagingOptions: {
             // https://github.com/margelo/react-native-quick-crypto/issues/90#issuecomment-1321129104
             pickFirst: [

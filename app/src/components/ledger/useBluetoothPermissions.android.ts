@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { PermissionsAndroid, Platform } from 'react-native';
-import { clog } from '~/util/format';
 import useAsyncEffect from 'use-async-effect';
 import type useBluetoothPermission_DEFAULT from './useBluetoothPermissions';
 import { BluetoothPermissionsOptions } from './useBluetoothPermissions';
@@ -38,7 +37,6 @@ const useBluetoothPermissions: typeof useBluetoothPermission_DEFAULT = ({
     Platform.OS;
 
     const results = await PermissionsAndroid.requestMultiple(REQUIRED_PERMISSIONS);
-    clog({ results });
     if (mounted.current) setGranted(Object.values(results).every((r) => r === 'granted'));
   }, []);
 

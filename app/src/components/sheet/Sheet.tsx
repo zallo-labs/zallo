@@ -9,7 +9,7 @@ import BottomSheet, {
 } from '@gorhom/bottom-sheet';
 import { makeStyles } from '@theme/makeStyles';
 import { Surface } from 'react-native-paper';
-import { StyleProp, ViewStyle } from 'react-native';
+import { StyleProp, View, ViewStyle } from 'react-native';
 
 export const CONTENT_HEIGHT_SNAP_POINT = 'CONTENT_HEIGHT';
 const DEFAULT_SNAP_POINTS = [CONTENT_HEIGHT_SNAP_POINT];
@@ -60,7 +60,7 @@ export const Sheet = forwardRef<BottomSheet, SheetProps>(
         backdropComponent={Backdrop}
         enablePanDownToClose
         {...props}
-        {...(!handle && { handleComponent: null })}
+        {...(!handle && { handleComponent: () => <View style={styles.emptyHandle} /> })}
         backgroundStyle={[styles.background, props.backgroundStyle]}
         handleStyle={[styles.handle, props.handleStyle]}
         handleIndicatorStyle={[styles.handleIndicator, props.handleIndicatorStyle]}
@@ -81,6 +81,9 @@ const useStyles = makeStyles(({ colors, corner }) => ({
     backgroundColor: colors.surface,
     borderTopLeftRadius: corner.xl,
     borderTopRightRadius: corner.xl,
+  },
+  emptyHandle: {
+    height: 36,
   },
   handle: {
     paddingTop: 16,
