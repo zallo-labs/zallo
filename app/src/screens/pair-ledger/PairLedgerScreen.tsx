@@ -10,10 +10,8 @@ import { Button } from '~/components/Button';
 import { gql } from '@api/generated';
 import { match } from 'ts-pattern';
 import { useQuery } from '~/gql';
-import { LedgerBleDevice, useLedgerBleDevices } from '~/components/ledger/useLedgerBleDevices';
+import { useBleDevices } from '~/components/ledger/useBleDevices';
 import { LedgerItem } from './LedgerItem';
-
-const getDeviceId = (device: LedgerBleDevice) => device.descriptor.id;
 
 const Query = gql(/* GraphQL */ `
   query PairLedgerScreen {
@@ -26,7 +24,7 @@ const Query = gql(/* GraphQL */ `
 export type PairLedgerScreenProps = StackNavigatorScreenProps<'PairLedger'>;
 
 export function PairLedgerScreen(_props: PairLedgerScreenProps) {
-  const devices = useLedgerBleDevices();
+  const devices = useBleDevices();
 
   const { user } = useQuery(Query).data;
 
@@ -53,7 +51,7 @@ export function PairLedgerScreen(_props: PairLedgerScreenProps) {
           renderItem={({ item }) => <LedgerItem user={user} device={item} />}
           extraData={[user]}
           contentContainerStyle={styles.listContainer}
-          keyExtractor={getDeviceId}
+          keyExtractor={(d) => d.id}
         />
       ) : (
         match(devices.error)
@@ -70,11 +68,11 @@ export function PairLedgerScreen(_props: PairLedgerScreenProps) {
               </Actions>
             </>
           ))
-          .with({ type: 'bluetooth-disabled' }, () => (
-            <Text variant="titleMedium" style={styles.errorText}>
-              Enable bluetooth to scan and connect
-            </Text>
-          ))
+          // .with({ type: 'bluetooth-disabled' }, () => (
+          //   <Text variant="titleMedium" style={styles.errorText}>
+          //     Enable bluetooth to scan and connect
+          //   </Text>
+          // ))
           .exhaustive()
       )}
     </Screen>

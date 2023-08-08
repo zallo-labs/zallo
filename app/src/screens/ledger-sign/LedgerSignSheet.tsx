@@ -1,8 +1,8 @@
 import { LedgerLogo, materialIcon } from '@theme/icons';
 import { makeStyles } from '@theme/makeStyles';
 import { ICON_SIZE } from '@theme/paper';
-import { Address, Hex, asHex } from 'lib';
-import { useState } from 'react';
+import { Address, Hex } from 'lib';
+import { useRef, useState } from 'react';
 import { View } from 'react-native';
 import { DeviceId } from 'react-native-ble-plx';
 import { ActivityIndicator, Text } from 'react-native-paper';
@@ -13,13 +13,11 @@ import { Sheet } from '~/components/sheet/Sheet';
 import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
 import { EventEmitter } from '~/util/EventEmitter';
 import { useLedger } from '~/components/ledger/useLedger';
-import { Result, ResultAsync } from 'neverthrow';
+import { Result } from 'neverthrow';
 import { Button } from '~/components/Button';
+import { EIP712Message } from '@ledgerhq/types-live';
 
 const RejectedIcon = materialIcon('error-outline');
-
-const isPersonalMessage = (c: SignContent): c is PersonalMessage => 'message' in c;
-const isEip712Message = (c: SignContent): c is Eip712Message => 'hashStructMessage' in c;
 
 export interface LedgerSignatureEvent {
   device: DeviceId;
@@ -39,16 +37,12 @@ export const getLedgerLazySignature = async (content: SignContent) => {
   return p;
 };
 
-type SignContent = PersonalMessage | Eip712Message;
+type SignContent = PersonalMessage | EIP712Message;
 
-interface PersonalMessage {
-  message: string;
-}
+type PersonalMessage = string;
 
-interface Eip712Message {
-  domainSeparator: string;
-  hashStructMessage: string;
-}
+const isPersonalMessage = (c: SignContent): c is PersonalMessage => typeof c === 'string';
+const isEip712Message = (c: SignContent): c is EIP712Message => typeof c === 'object';
 
 export type LedgerSignSheetParams = {
   device: DeviceId;
@@ -67,41 +61,42 @@ export function LedgerSignSheet({
 
   // TODO: handle disconnect after getting lazy message, but before signing
 
+  const lazyMessage = useRef<SignContent | undefined>();
+
   const [signature, setSignature] = useState<Result<Hex, 'user-rejected'> | undefined>();
-  const [_attempt, setAttempt] = useState(0);
   useAsyncEffect(
     async (isMounted) => {
-      if (!result.isOk()) return;
+      if (!result.isOk() || signature !== undefined) return;
 
       const ledger = result.value;
 
       LEDGER_ADDRESS_EMITTER.emit(ledger.address);
 
-      const sig = await ResultAsync.fromPromise(
-        match(params.content ?? (await LEDGER_LAZY_MESSAGE_EMITTER.getEvent()))
-          .when(isPersonalMessage, (c) => ledger.signMessage(c.message))
-          .when(isEip712Message, async (c) => asHex('0x'))
-          .exhaustive(),
-        () => 'user-rejected' as const,
-      );
+      const content =
+        params.content || (lazyMessage.current ??= await LEDGER_LAZY_MESSAGE_EMITTER.getEvent());
 
-      if (isMounted()) {
-        setSignature(sig);
+      const sig = await match(content)
+        .when(isPersonalMessage, ledger.signMessage)
+        .when(isEip712Message, ledger.signEip712Message)
+        .exhaustive();
 
-        if (sig.isOk()) {
-          setTimeout(
-            () =>
-              LEDGER_SIGNATURE_EMITTER.emit({
-                device: params.device,
-                address: ledger.address,
-                signature: sig.value,
-              }),
-            2000,
-          );
-        }
+      if (!isMounted()) return;
+
+      setSignature(sig);
+
+      if (sig.isOk()) {
+        setTimeout(
+          () =>
+            LEDGER_SIGNATURE_EMITTER.emit({
+              device: params.device,
+              address: ledger.address,
+              signature: sig.value,
+            }),
+          2000,
+        );
       }
     },
-    [result],
+    [result, signature],
   );
 
   return (
@@ -122,12 +117,12 @@ export function LedgerSignSheet({
               <>
                 <RejectedIcon size={ICON_SIZE.large} style={styles.error} />
                 <Text variant="labelLarge" style={styles.error}>
-                  Rejected
+                  Signature cancelled on device
                 </Text>
                 <Button
                   mode="contained"
                   style={styles.action}
-                  onPress={() => setAttempt((attempt) => attempt + 1)}
+                  onPress={() => setSignature(undefined)}
                 >
                   Retry
                 </Button>

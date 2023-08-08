@@ -1,5 +1,4 @@
 import { Field, ObjectType } from '@nestjs/graphql';
-import { uuid } from 'edgedb/dist/codecs/ifaces';
 import { GraphQLMAC } from 'graphql-scalars';
 import { Address } from 'lib';
 import { AddressField } from '~/apollo/scalars/Address.scalar';
@@ -23,6 +22,6 @@ export class UserApprover extends Approver implements Partial<eql.Approver> {
   @Field(() => String, { nullable: true })
   pushToken?: string;
 
-  @Field(() => [GraphQLMAC])
-  bluetoothDevices: string[];
+  @Field(() => [GraphQLMAC], { nullable: true })
+  bluetoothDevices?: string[];
 }

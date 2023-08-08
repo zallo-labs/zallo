@@ -1,21 +1,24 @@
 import { ethers } from 'ethers';
 import AppEth from '@ledgerhq/hw-app-eth';
 import { Address, Hex, asAddress, asHex, isAddress } from 'lib';
-import { LedgerBleDevice } from './useLedgerBleDevices';
 import TransportBLE from '@ledgerhq/react-native-hw-transport-ble';
+import { EIP712Message } from '@ledgerhq/types-live';
 import { ResultAsync, err } from 'neverthrow';
-import { Device as BleDescriptor, DeviceId } from 'react-native-ble-plx';
+import { DeviceId } from 'react-native-ble-plx';
 import useAsyncEffect from 'use-async-effect';
 import { useCallback, useState } from 'react';
-import { LockedDeviceError } from '@ledgerhq/errors';
+import { LockedDeviceError, StatusCodes } from '@ledgerhq/errors';
 import { P, match } from 'ts-pattern';
 import { clog } from '~/util/format';
-import { Observable, bufferTime, filter, map } from 'rxjs';
-import { HwTransportError } from '@ledgerhq/errors';
+import { bufferTime, filter } from 'rxjs';
 import { persistedAtom } from '~/util/persistedAtom';
 import { useAtomValue } from 'jotai';
 import { useQuery } from '~/gql';
 import { gql } from '@api/generated';
+import { getInfosForServiceUuid, DeviceModelId } from '@ledgerhq/devices';
+import { BleDevice, SharedBleManager } from './SharedBleManager';
+import { logWarning } from '~/util/analytics';
+import { toUtf8Bytes } from 'ethers/lib/utils';
 
 const Query = gql(/* GraphQL */ `
   query UseLedger($approver: Address!) {
@@ -45,6 +48,7 @@ export function useLedger(device: DeviceId | Address) {
         isAddress(device)
           ? [...(approverBluetoothIds[device] ?? []), ...(approver?.bluetoothDevices ?? [])]
           : [device],
+        () => setResult(undefined),
       );
 
       if (!isMounted()) return;
@@ -101,20 +105,12 @@ const PATH = "44'/60'/0'/0/0"; // HD path for Ethereum account
 
 type ConnectLedgerResult = Awaited<ReturnType<typeof connectLedger>>;
 
-function connectLedger(deviceIds: DeviceId[]) {
+function connectLedger(deviceIds: DeviceId[], reconnect: () => void) {
   const eth = ResultAsync.fromPromise(
-    new Promise<BleDescriptor>((resolve, reject) => {
-      const observable = new Observable<{ type: 'add' } & LedgerBleDevice>(
-        TransportBLE.listen,
-      ).pipe(
-        filter((d) => d.type === 'add' && deviceIds.includes(d.descriptor.id)),
-        map((d) => d.descriptor),
-      );
-
-      const handleErrors = {
-        complete: () => reject(new Error('Connection closed')),
-        error: (e: HwTransportError) => reject(e),
-      };
+    new Promise<BleDevice>((resolve, reject) => {
+      const observable = SharedBleManager.instance()
+        .listen()
+        .pipe(filter((d) => deviceIds.includes(d.id)));
 
       if (deviceIds.length === 1) {
         // Simply find the device if there is only one
@@ -122,19 +118,19 @@ function connectLedger(deviceIds: DeviceId[]) {
           next: (d) => {
             resolve(d);
           },
-          ...handleErrors,
+          error: reject,
         });
       } else {
-        // Find the closest device; batch advertisements in 200ms windows
+        // Find the closest device; batch advertisements in 100ms windows
         // The Ledger Nano S advertises every ~50ms
-        observable.pipe(bufferTime(200)).subscribe({
+        observable.pipe(bufferTime(100)).subscribe({
           next: (devices) => {
             if (devices.length > 0) {
               const bestMatch = devices.sort((a, b) => (a.rssi ?? 0) - (b.rssi ?? 0))[0];
               resolve(bestMatch);
             }
           },
-          ...handleErrors,
+          error: reject,
         });
       }
     }),
@@ -159,7 +155,7 @@ function connectLedger(deviceIds: DeviceId[]) {
           return { eth, address, transport };
         })(),
         (e) => {
-          transport.close(); // necessary?
+          transport.close();
 
           return match(e)
             .with(P.instanceOf(LockedDeviceError), () => 'locked' as const)
@@ -168,18 +164,57 @@ function connectLedger(deviceIds: DeviceId[]) {
       ),
     );
 
-  return eth.map(({ eth, address, transport }) => ({
-    eth,
-    address,
-    transport,
-    async signMessage(message: string | ethers.utils.Bytes): Promise<Hex> {
-      if (typeof message === 'string') message = ethers.utils.toUtf8Bytes(message);
+  return eth.map(({ eth, address, transport }) => {
+    const asResult = <R>(promise: Promise<R>, acceptableStatusCodes?: number[]) =>
+      ResultAsync.fromPromise(promise, (error) => {
+        const e = error as Error & { statusCode?: number };
 
-      const messageHex = ethers.utils.hexlify(message).substring(2);
+        if (typeof e.statusCode !== 'number' || !acceptableStatusCodes?.includes(e.statusCode)) {
+          if (!['DisconnectedDevice'].includes(e.name))
+            logWarning('Unexpected Ledger error', { error, deviceModel: transport.deviceModel.id });
 
-      return hexlifySignature(await eth.signPersonalMessage(PATH, messageHex));
-    },
-  }));
+          transport.close();
+          reconnect();
+        }
+
+        return e;
+      });
+
+    return {
+      eth,
+      address,
+      transport,
+      signMessage(message: string) {
+        const messageHex = asHex(toUtf8Bytes(message)).substring(2);
+
+        return asResult(eth.signPersonalMessage(PATH, messageHex), [
+          StatusCodes.CONDITIONS_OF_USE_NOT_SATISFIED,
+        ])
+          .mapErr(() => 'user-rejected' as const)
+          .map(hexlifySignature);
+      },
+      signEip712Message(m: EIP712Message) {
+        return asResult(
+          match(transport.deviceModel.id)
+            // The Nano S doesn't support eth.signEIP712Message()
+            .with(DeviceModelId.nanoS, () =>
+              eth.signEIP712HashedMessage(
+                PATH,
+                asHex(ethers.utils._TypedDataEncoder.hashDomain(m.domain)).substring(2),
+                asHex(
+                  ethers.utils._TypedDataEncoder.from(m.types).hash(m.message),
+                  /* Potentially _TypedDataEncoder.encode() instead? */
+                ).substring(2),
+              ),
+            )
+            .otherwise(() => eth.signEIP712Message(PATH, m)),
+          [StatusCodes.CONDITIONS_OF_USE_NOT_SATISFIED],
+        )
+          .mapErr(() => 'user-rejected' as const)
+          .map(hexlifySignature);
+      },
+    };
+  });
 }
 
 function hexlifySignature(sig: { v: number; r: string; s: string }): Hex {
@@ -195,4 +230,8 @@ function hexlifySignature(sig: { v: number; r: string; s: string }): Hex {
 const MAC_PATTERN = /^([0-9A-F]{2}[:-]){5}([0-9A-F]{2})$/;
 export function isMacAddress(v: unknown): v is string {
   return typeof v === 'string' && !!v.match(MAC_PATTERN);
+}
+
+export function getLedgerDeviceModel(d: BleDevice) {
+  return (d.serviceUUIDs?.length && getInfosForServiceUuid(d.serviceUUIDs[0])?.deviceModel) || null;
 }

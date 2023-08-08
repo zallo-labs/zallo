@@ -4,12 +4,16 @@ import { useNavigation } from '@react-navigation/native';
 import { BluetoothIcon } from '@theme/icons';
 import { useCallback } from 'react';
 import { OperationContext, useMutation } from 'urql';
-import { LedgerBleDevice } from '~/components/ledger/useLedgerBleDevices';
 import { ListItem } from '~/components/list/ListItem';
 import { LEDGER_ADDRESS_EMITTER, getLedgerLazySignature } from '../ledger-sign/LedgerSignSheet';
-import { APPROVER_BLUETOOTH_IDS, isMacAddress } from '~/components/ledger/useLedger';
+import {
+  APPROVER_BLUETOOTH_IDS,
+  getLedgerDeviceModel,
+  isMacAddress,
+} from '~/components/ledger/useLedger';
 import { showSuccess } from '~/provider/SnackbarProvider';
 import { useImmerAtom } from 'jotai-immer';
+import { BleDevice } from '~/components/ledger/SharedBleManager';
 
 const User = gql(/* GraphQL */ `
   fragment LedgerItem_user on User {
@@ -44,7 +48,7 @@ const Update = gql(/* GraphQL */ `
 
 export interface LedgerItemProps {
   user: FragmentType<typeof User>;
-  device: LedgerBleDevice;
+  device: BleDevice;
 }
 
 export function LedgerItem({ device: d, ...props }: LedgerItemProps) {
@@ -54,10 +58,13 @@ export function LedgerItem({ device: d, ...props }: LedgerItemProps) {
   const update = useMutation(Update)[1];
   const setApproverBluetoothIds = useImmerAtom(APPROVER_BLUETOOTH_IDS)[1];
 
+  const productName = getLedgerDeviceModel(d)?.productName;
+
   const connect = useCallback(async () => {
+    const name = d.name || productName || d.id;
     navigate('LedgerSign', {
-      device: d.descriptor.id,
-      name: d.descriptor.name || d.deviceModel.productName || d.descriptor.id,
+      device: d.id,
+      name,
       content: undefined,
     });
 
@@ -81,16 +88,16 @@ export function LedgerItem({ device: d, ...props }: LedgerItemProps) {
     const pairingToken = data?.user.pairingToken;
     if (!pairingToken) return; // TODO: handle
 
-    const mac = isMacAddress(d.descriptor.id) ? d.descriptor.id : null;
+    const mac = isMacAddress(d.id) ? d.id : null;
 
     update(
       {
         input: {
           address,
-          name: !data.approver.name ? d.descriptor.name || d.deviceModel.productName : undefined,
+          name: !data.approver.name ? name : undefined,
           bluetoothDevices:
-            mac && !data.approver.bluetoothDevices.includes(mac)
-              ? [...data.approver.bluetoothDevices, mac]
+            mac && !data.approver.bluetoothDevices?.includes(mac)
+              ? [...(data.approver.bluetoothDevices ?? []), mac]
               : undefined,
         },
       },
@@ -101,9 +108,7 @@ export function LedgerItem({ device: d, ...props }: LedgerItemProps) {
     if (!mac) {
       setApproverBluetoothIds((approverBluetoothIDs) => {
         const ids = approverBluetoothIDs[address] ?? [];
-        approverBluetoothIDs[address] = ids.includes(d.descriptor.id)
-          ? ids
-          : [...ids, d.descriptor.id];
+        approverBluetoothIDs[address] = ids.includes(d.id) ? ids : [...ids, d.id];
       });
     }
 
@@ -111,14 +116,14 @@ export function LedgerItem({ device: d, ...props }: LedgerItemProps) {
     if (data.user.id === user.id) return showSuccess('Pairing successful');
 
     navigate('PairConfirmSheet', { token: pairingToken });
-  }, [api, d, goBack, navigate, setApproverBluetoothIds, update, user.id]);
+  }, [api, d.id, d.name, goBack, navigate, productName, setApproverBluetoothIds, update, user.id]);
 
   return (
     <ListItem
       leading={BluetoothIcon}
-      headline={d.descriptor.name || d.descriptor.id}
-      supporting={d.deviceModel.productName}
-      trailing={d.descriptor.id}
+      headline={d.name || d.id}
+      supporting={productName}
+      trailing={d.id}
       lines={2}
       onPress={connect}
     />

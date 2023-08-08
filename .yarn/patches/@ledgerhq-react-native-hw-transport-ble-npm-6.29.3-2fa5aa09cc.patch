@@ -1,0 +1,76 @@
+diff --git a/lib/BleTransport.d.ts b/lib/BleTransport.d.ts
+index 8c4a245a1c1d886fd0d96d5f5ac2393f5cddb6df..844c9c1add8e3b70fdb8f8e320d1274a18ed2f73 100644
+--- a/lib/BleTransport.d.ts
++++ b/lib/BleTransport.d.ts
+@@ -5,8 +5,9 @@ import { DeviceId, Device, Characteristic } from "react-native-ble-plx";
+ import type { DeviceModel } from "@ledgerhq/devices";
+ import { Observable, Observer } from "rxjs";
+ import { HwTransportError } from "@ledgerhq/errors";
+-import { ReconnectionConfig } from "./types";
++import { BleManager, ReconnectionConfig } from "./types";
+ export declare const setReconnectionConfig: (config: ReconnectionConfig | null | undefined) => void;
++export declare const setBleManagerInstance: (manager: BleManager | null) => void;
+ export default class BleTransport extends Transport {
+     static disconnectTimeoutMs: number;
+     /**
+diff --git a/lib/BleTransport.js b/lib/BleTransport.js
+index 4ecdc4ceee881e7561995731c24b14c74c981400..dacd8f8c7aa89efb5c4ed19af78f3d518c13521d 100644
+--- a/lib/BleTransport.js
++++ b/lib/BleTransport.js
+@@ -89,6 +89,11 @@ const bleManagerInstance = () => {
+     }
+     return _bleManager;
+ };
++const setBleManagerInstance = (manager) => {
++    if (_bleManager && manager && _bleManager !== manager) console.error('BleTransport _bleManager already initialized');
++    _bleManager = manager;
++}
++exports.setBleManagerInstance = setBleManagerInstance;
+ const clearDisconnectTimeout = (deviceId) => {
+     const cachedTransport = transportsCache[deviceId];
+     if (cachedTransport && cachedTransport.disconnectTimeout) {
+diff --git a/lib-es/BleTransport.d.ts b/lib-es/BleTransport.d.ts
+index 8c4a245a1c1d886fd0d96d5f5ac2393f5cddb6df..844c9c1add8e3b70fdb8f8e320d1274a18ed2f73 100644
+--- a/lib-es/BleTransport.d.ts
++++ b/lib-es/BleTransport.d.ts
+@@ -5,8 +5,9 @@ import { DeviceId, Device, Characteristic } from "react-native-ble-plx";
+ import type { DeviceModel } from "@ledgerhq/devices";
+ import { Observable, Observer } from "rxjs";
+ import { HwTransportError } from "@ledgerhq/errors";
+-import { ReconnectionConfig } from "./types";
++import { BleManager, ReconnectionConfig } from "./types";
+ export declare const setReconnectionConfig: (config: ReconnectionConfig | null | undefined) => void;
++export declare const setBleManagerInstance: (manager: BleManager | null) => void;
+ export default class BleTransport extends Transport {
+     static disconnectTimeoutMs: number;
+     /**
+diff --git a/lib-es/BleTransport.js b/lib-es/BleTransport.js
+index 4edc417a02d0249fad463bae8a11ea8b1ff97d74..97af481fa5a361068a5b802af28c0c17ba4e861f 100644
+--- a/lib-es/BleTransport.js
++++ b/lib-es/BleTransport.js
+@@ -82,6 +82,10 @@ const bleManagerInstance = () => {
+     }
+     return _bleManager;
+ };
++export const setBleManagerInstance = (manager) => {
++    if (_bleManager && manager && _bleManager !== manager) console.error('BleTransport _bleManager already initialized');
++    _bleManager = manager;
++}
+ const clearDisconnectTimeout = (deviceId) => {
+     const cachedTransport = transportsCache[deviceId];
+     if (cachedTransport && cachedTransport.disconnectTimeout) {
+diff --git a/src/BleTransport.ts b/src/BleTransport.ts
+index 44c1697d4665c60e875f6eb7c1516bc1d4468c76..39ed7024439a7697cc001a5943187fc5bb7c2dea 100644
+--- a/src/BleTransport.ts
++++ b/src/BleTransport.ts
+@@ -107,6 +107,10 @@ const bleManagerInstance = (): BleManager => {
+ 
+   return _bleManager;
+ };
++export const setBleManagerInstance = (manager: BleManager | null) => {
++  if (_bleManager && manager && _bleManager !== manager) console.error('BleTransport _bleManager already initialized');
++  _bleManager = manager;
++}
+ 
+ const clearDisconnectTimeout = (deviceId: string): void => {
+   const cachedTransport = transportsCache[deviceId];
