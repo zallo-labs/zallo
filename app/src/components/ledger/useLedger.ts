@@ -20,6 +20,7 @@ import { logWarning } from '~/util/analytics';
 import { toUtf8Bytes } from 'ethers/lib/utils';
 import useBluetoothPermissions from './useBluetoothPermissions';
 import _ from 'lodash';
+import { retryAsync } from '~/util/retry';
 
 const UserApprover = gql(/* GraphQL */ `
   fragment UseLedger_UserApprover on UserApprover {
@@ -67,7 +68,7 @@ export function useLedger(device: DeviceId | FragmentType<typeof UserApprover>) 
         };
       } else {
         // Retry
-        const timer = setTimeout(() => tryConnect(isMounted), 500);
+        const timer = setTimeout(() => tryConnect(isMounted), 250);
 
         return () => clearTimeout(timer);
       }
@@ -75,22 +76,27 @@ export function useLedger(device: DeviceId | FragmentType<typeof UserApprover>) 
     [hasPermission, approver, approverBleIds, device],
   );
 
-  useAsyncEffect((isMounted) => tryConnect(isMounted), [tryConnect]);
-
   useAsyncEffect(
-    (isMounted) => {
-      if (!result?.isOk()) return;
-
-      const onDisconnect = () => isMounted() && setResult(undefined);
-      result.value.eth.transport.on('disconnect', onDisconnect);
-
-      return () => {
-        result.value.eth.transport.off('disconnect', onDisconnect);
-        result.value.eth.transport.close();
-      };
-    },
-    [result],
+    (isMounted) => tryConnect(isMounted),
+    (destroy) => destroy?.(),
+    [tryConnect],
   );
+
+  // useAsyncEffect(
+  //   (isMounted) => {
+  //     if (!result?.isOk()) return;
+
+  //     const onDisconnect = () => isMounted() && setResult(undefined);
+  //     result.value.eth.transport.on('disconnect', onDisconnect);
+
+  //     return () => {
+  //       result.value.eth.transport.off('disconnect', onDisconnect);
+  //       result.value.eth.transport.close();
+  //     };
+  //   },
+  //   (destroy) => destroy?.(),
+  //   [result],
+  // );
 
   return hasPermission
     ? result || err('connection-failed')
@@ -101,12 +107,17 @@ export function useLedger(device: DeviceId | FragmentType<typeof UserApprover>) 
 // Unfortunately the ethers version only supports HID devices and has been removed in ethers 6
 
 const PATH = "44'/60'/0'/0/0"; // HD path for Ethereum account
+const WRONG_APP_STATUS = 0x6511; // https://support.ledger.com/hc/en-us/articles/11190934937117-Solve-error-0x6511
 
 type ConnectLedgerResult = Awaited<ReturnType<typeof connectLedger>>;
 
-function connectLedger(deviceIds: DeviceId[], reconnect: () => void) {
+function connectLedger(
+  deviceIds: DeviceId[],
+  updateResult: (v: ConnectLedgerResult | undefined) => void,
+) {
   const eth = ResultAsync.fromPromise(
     new Promise<BleDevice>((resolve, reject) => {
+      console.log('find');
       const observable = SharedBleManager.instance()
         .listen()
         .pipe(filter((d) => deviceIds.includes(d.id)));
@@ -134,27 +145,44 @@ function connectLedger(deviceIds: DeviceId[], reconnect: () => void) {
       }
     }),
     (e) => {
-      clog({ find: e });
+      clog({ findError: e });
       return 'find-failed' as const;
     },
   )
-    .andThen((device) =>
-      ResultAsync.fromPromise(TransportBLE.open(device), (e) => {
-        clog({ connection: e });
+    .andThen((device) => {
+      console.log('TransportBLE.open');
+      updateResult(err('connection-failed' as const));
+      return ResultAsync.fromPromise(TransportBLE.open(device), (e) => {
+        clog({ connectionError: e, type: typeof e, name: (e as Error).name });
         return 'connection-failed' as const;
-      }),
-    )
+      });
+    })
     .andThen((transport) =>
       ResultAsync.fromPromise(
-        (async () => {
-          const eth = new AppEth(transport);
+        retryAsync(
+          async () => {
+            updateResult(err('eth-app-closed' as const));
+            console.log('AppEth');
+            const eth = new AppEth(transport);
 
-          const address = asAddress((await eth.getAddress(PATH, false, false)).address);
+            const address = asAddress((await eth.getAddress(PATH, false, false)).address);
 
-          return { eth, address, transport };
-        })(),
+            return { eth, address, transport };
+          },
+          {
+            maxAttempts: Infinity,
+            delayMs: 100,
+            retryIf: (e) =>
+              e instanceof Error &&
+              e.name === 'TransportStatusError' &&
+              'statusCode' in e &&
+              e.statusCode === WRONG_APP_STATUS,
+          },
+        ),
         (e) => {
-          transport.close();
+          // transport.close();
+
+          clog({ appEthError: e });
 
           return match(e)
             .with(P.instanceOf(LockedDeviceError), () => 'locked' as const)
@@ -173,7 +201,7 @@ function connectLedger(deviceIds: DeviceId[], reconnect: () => void) {
             logWarning('Unexpected Ledger error', { error, deviceModel: transport.deviceModel.id });
 
           transport.close();
-          reconnect();
+          updateResult(undefined);
         }
 
         return e;
