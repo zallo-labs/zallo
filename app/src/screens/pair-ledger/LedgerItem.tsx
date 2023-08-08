@@ -7,7 +7,7 @@ import { OperationContext, useMutation } from 'urql';
 import { ListItem } from '~/components/list/ListItem';
 import { LEDGER_ADDRESS_EMITTER, getLedgerLazySignature } from '../ledger-sign/LedgerSignSheet';
 import {
-  APPROVER_BLUETOOTH_IDS,
+  APPROVER_BLE_IDS,
   getLedgerDeviceModel,
   isMacAddress,
 } from '~/components/ledger/useLedger';
@@ -56,7 +56,7 @@ export function LedgerItem({ device: d, ...props }: LedgerItemProps) {
   const { navigate, goBack } = useNavigation();
   const api = useUrqlApiClient();
   const update = useMutation(Update)[1];
-  const setApproverBluetoothIds = useImmerAtom(APPROVER_BLUETOOTH_IDS)[1];
+  const setApproverBleIds = useImmerAtom(APPROVER_BLE_IDS)[1];
 
   const productName = getLedgerDeviceModel(d)?.productName;
 
@@ -72,7 +72,7 @@ export function LedgerItem({ device: d, ...props }: LedgerItemProps) {
 
     const headers = await getAuthHeaders({
       address,
-      signMessage: async (message) => (await getLedgerLazySignature({ message })).signature,
+      signMessage: async (message) => (await getLedgerLazySignature(message)).signature,
     });
 
     goBack(); // Return to this screen once the signature has been complete
@@ -106,7 +106,7 @@ export function LedgerItem({ device: d, ...props }: LedgerItemProps) {
 
     // Persist approver => deviceId association locally if OS doesn't provide device's MAC (iOS)
     if (!mac) {
-      setApproverBluetoothIds((approverBluetoothIDs) => {
+      setApproverBleIds((approverBluetoothIDs) => {
         const ids = approverBluetoothIDs[address] ?? [];
         approverBluetoothIDs[address] = ids.includes(d.id) ? ids : [...ids, d.id];
       });
@@ -116,7 +116,7 @@ export function LedgerItem({ device: d, ...props }: LedgerItemProps) {
     if (data.user.id === user.id) return showSuccess('Pairing successful');
 
     navigate('PairConfirmSheet', { token: pairingToken });
-  }, [api, d.id, d.name, goBack, navigate, productName, setApproverBluetoothIds, update, user.id]);
+  }, [api, d.id, d.name, goBack, navigate, productName, setApproverBleIds, update, user.id]);
 
   return (
     <ListItem

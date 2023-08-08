@@ -34,11 +34,28 @@ export const asTransactionData = (account: Address, tx: Tx): TransactionData => 
 
 export type TypedDataTypes = Record<string, TypedDataField[]>;
 
+export interface GetDomainParams {
+  address: Addresslike;
+  provider: ethers.providers.Provider;
+}
+
+export const getDomain = async ({
+  address,
+  provider,
+}: GetDomainParams): Promise<TypedDataDomain> => ({
+  chainId: (await provider.getNetwork()).chainId, // TODO: derrive from global address
+  verifyingContract: address,
+});
+
 export const TX_EIP712_TYPE: TypedDataTypes = {
-  /* Fields that probably SHOULD be included but are not yet: */
+  /* Consider: */
+  // Encoding operations (to, value, data)[] instead of packed operations
+  // Pros: improve HW wallet signing readability; allowing changing operation encoding without changing the Tx hashing
+  // Cons: higher gas - but likely by very little?
+  //
   // maxFeePerGas
   // maxPriorityFeePerGas
-  // paymaster: problematic as this would require re-signing for ETH <-> non-ETH feeToken switching
+  // paymaster: problematic as this would require re-signing for ETH <-> non-ETH feeToken switching (unless the same paymaster is used regardless)
 
   /* Fields NOT included: */
   // gasLimit: not dangerous and can't be predicted due to approvals requiring gas; a maxGasFee could be implemented instead
@@ -55,28 +72,22 @@ export const TX_EIP712_TYPE: TypedDataTypes = {
   ],
 };
 
-export interface GetDomainParams {
-  address: Addresslike;
-  provider: ethers.providers.Provider;
-}
+export const getTransactionEip712Value = async (tx: Tx, account: Address) => {
+  const txData = asTransactionData(account, tx);
 
-export const getDomain = async ({
-  address,
-  provider,
-}: GetDomainParams): Promise<TypedDataDomain> => ({
-  chainId: (await provider.getNetwork()).chainId,
-  verifyingContract: address,
-});
-
-export const hashTx = async (tx: Tx, domainParams: GetDomainParams) => {
-  const txData = asTransactionData(asAddress(domainParams.address), tx);
-
-  return asHex(
-    ethers.utils._TypedDataEncoder.hash(await getDomain(domainParams), TX_EIP712_TYPE, {
-      to: txData.to,
-      value: txData.value ?? 0n,
-      data: txData.data ?? EMPTY_HEX_BYTES,
-      nonce: txData.nonce,
-    } satisfies TransactionData),
-  );
+  return {
+    to: txData.to,
+    value: txData.value ?? 0n,
+    data: txData.data ?? EMPTY_HEX_BYTES,
+    nonce: txData.nonce,
+  } satisfies TransactionData;
 };
+
+export const hashTx = async (tx: Tx, domainParams: GetDomainParams) =>
+  asHex(
+    ethers.utils._TypedDataEncoder.hash(
+      await getDomain(domainParams),
+      TX_EIP712_TYPE,
+      getTransactionEip712Value(tx, asAddress(domainParams.address)),
+    ),
+  );

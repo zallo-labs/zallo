@@ -1,7 +1,7 @@
 import { LedgerLogo, materialIcon } from '@theme/icons';
 import { makeStyles } from '@theme/makeStyles';
 import { ICON_SIZE } from '@theme/paper';
-import { Address, Hex } from 'lib';
+import { Address, Hex, isAddress } from 'lib';
 import { useRef, useState } from 'react';
 import { View } from 'react-native';
 import { DeviceId } from 'react-native-ble-plx';
@@ -16,11 +16,12 @@ import { useLedger } from '~/components/ledger/useLedger';
 import { Result } from 'neverthrow';
 import { Button } from '~/components/Button';
 import { EIP712Message } from '@ledgerhq/types-live';
+import { gql } from '@api/generated';
+import { useQuery } from '~/gql';
 
 const RejectedIcon = materialIcon('error-outline');
 
 export interface LedgerSignatureEvent {
-  device: DeviceId;
   address: Address;
   signature: Hex;
 }
@@ -44,8 +45,18 @@ type PersonalMessage = string;
 const isPersonalMessage = (c: SignContent): c is PersonalMessage => typeof c === 'string';
 const isEip712Message = (c: SignContent): c is EIP712Message => typeof c === 'object';
 
+const Query = gql(/* GraphQL */ `
+  query LedgerSignSheet($approver: Address!) {
+    approver(input: { address: $approver }) {
+      id
+      name
+      ...UseLedger_UserApprover
+    }
+  }
+`);
+
 export type LedgerSignSheetParams = {
-  device: DeviceId;
+  device: DeviceId | Address;
   name?: string;
   content: SignContent | undefined;
 };
@@ -57,13 +68,17 @@ export function LedgerSignSheet({
   navigation: { goBack },
 }: LedgerSignSheetProps) {
   const styles = useStyles();
-  const result = useLedger(params.device);
 
-  // TODO: handle disconnect after getting lazy message, but before signing
+  const approver = useQuery(
+    Query,
+    { approver: params.device as Address },
+    { pause: !isAddress(params.device) },
+  ).data?.approver;
+  const result = useLedger(approver ?? params.device);
 
   const lazyMessage = useRef<SignContent | undefined>();
-
   const [signature, setSignature] = useState<Result<Hex, 'user-rejected'> | undefined>();
+
   useAsyncEffect(
     async (isMounted) => {
       if (!result.isOk() || signature !== undefined) return;
@@ -86,12 +101,7 @@ export function LedgerSignSheet({
 
       if (sig.isOk()) {
         setTimeout(
-          () =>
-            LEDGER_SIGNATURE_EMITTER.emit({
-              device: params.device,
-              address: ledger.address,
-              signature: sig.value,
-            }),
+          () => LEDGER_SIGNATURE_EMITTER.emit({ address: ledger.address, signature: sig.value }),
           2000,
         );
       }
@@ -105,14 +115,14 @@ export function LedgerSignSheet({
         <LedgerLogo width={144} height={48} />
 
         <Text variant="headlineSmall" style={styles.name}>
-          {params.name || params.device}
+          {approver.name || params.name || params.device}
         </Text>
       </View>
 
       <View style={styles.stateContainer}>
         {signature ? (
           signature.match(
-            () => <SuccessIcon size={80} />,
+            () => <SuccessIcon size={ICON_SIZE.extraLarge} />,
             () => (
               <>
                 <RejectedIcon size={ICON_SIZE.large} style={styles.error} />
@@ -142,6 +152,16 @@ export function LedgerSignSheet({
               ),
               (error) =>
                 match(error)
+                  .with({ type: 'permissions-required' }, ({ requestPermissions }) => (
+                    <>
+                      <Text variant="titleMedium">
+                        Bluetooth permissions are required to connect
+                      </Text>
+                      <Button mode="contained" style={styles.action} onPress={requestPermissions}>
+                        Grant
+                      </Button>
+                    </>
+                  ))
                   .with(P.union('find-failed', 'connection-failed'), () => (
                     <>
                       <Text variant="labelLarge">Connecting...</Text>

@@ -28,7 +28,7 @@ export function useBleDevices() {
     [hasPermission],
   );
 
-  if (!hasPermission) return err({ type: 'permission-required', requestPermissions } as const);
+  if (!hasPermission) return err({ type: 'permissions-required', requestPermissions } as const);
 
   return ok(devices);
 }

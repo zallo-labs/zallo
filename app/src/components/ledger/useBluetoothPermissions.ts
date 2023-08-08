@@ -4,6 +4,7 @@ export interface BluetoothPermissionsOptions {
 
 export default function useBluetoothPermissions(
   _options?: BluetoothPermissionsOptions,
-): [boolean, (() => void) | undefined] {
-  return [true, undefined];
+): [boolean, () => void] {
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  return [true, () => {}];
 }

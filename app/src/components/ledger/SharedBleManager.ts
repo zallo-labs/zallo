@@ -76,7 +76,6 @@ export class SharedBleManager extends BleManager {
 
   private addScanListener(listener: ScanListener) {
     if (this._scanListeners.size === 0) {
-      console.log('Starting device scan');
       super.startDeviceScan(ALLOWLISTED_SERVICE_UUIDS, null, (error, device) => {
         this._scanListeners.forEach((listener) => listener?.(error, device));
       });
@@ -94,7 +93,6 @@ export class SharedBleManager extends BleManager {
 
   stopDeviceScan(): void {
     if (this._scanListeners.size === 0) {
-      console.log('Stopping device scan');
       super.stopDeviceScan();
     }
   }

@@ -54,6 +54,8 @@ type Approval {
 }
 
 input ApproveInput {
+  """Defaults to current approver"""
+  approver: Address
   hash: Bytes32!
   signature: Bytes!
 }

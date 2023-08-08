@@ -148,7 +148,7 @@ export class TransactionsService {
           },
         }),
       (e) => {
-        throw new UserInputError(`Failed to execute transaction: ${e}`);
+        throw new Error(`Failed to execute transaction: ${e}`);
       },
     );
 

@@ -25,6 +25,11 @@ const Query = gql(/* GraphQL */ `
       }
       ...ProposalActions_TransactionProposalFragment
     }
+
+    user {
+      id
+      ...ProposalActions_User
+    }
   }
 `);
 
@@ -42,21 +47,21 @@ export type ProposalScreenProps = StackNavigatorScreenProps<'Proposal'>;
 
 export const ProposalScreen = withSuspense(
   ({ route, navigation: { goBack } }: ProposalScreenProps) => {
-    const p = useQuery(Query, { proposal: route.params.proposal }).data.proposal;
+    const { proposal, user } = useQuery(Query, { proposal: route.params.proposal }).data;
 
     const remove = useMutation(Remove)[1];
     const confirmRemoval = useConfirmRemoval({
       message: 'Are you sure you want to remove this proposal?',
     });
 
-    if (!p) return <NotFound name="Proposal" />;
+    if (!proposal) return <NotFound name="Proposal" />;
 
     return (
       <Screen>
         <Appbar
           mode="small"
           leading="back"
-          headline={p.account.name}
+          headline={proposal.account.name}
           trailing={(props) => (
             <AppbarMore2 iconProps={props}>
               {({ close }) => (
@@ -65,7 +70,7 @@ export const ProposalScreen = withSuspense(
                   onPress={async () => {
                     close();
                     if (await confirmRemoval()) {
-                      await remove({ proposal: p.hash });
+                      await remove({ proposal: proposal.hash });
                       goBack();
                     }
                   }}
@@ -75,9 +80,9 @@ export const ProposalScreen = withSuspense(
           )}
         />
 
-        <Tabs proposal={p.hash} />
+        <Tabs proposal={proposal.hash} />
 
-        <ProposalActions proposal={p} />
+        <ProposalActions proposal={proposal} user={user} />
       </Screen>
     );
   },

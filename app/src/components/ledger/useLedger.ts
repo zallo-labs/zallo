@@ -1,6 +1,6 @@
 import { ethers } from 'ethers';
 import AppEth from '@ledgerhq/hw-app-eth';
-import { Address, Hex, asAddress, asHex, isAddress } from 'lib';
+import { Address, Hex, asAddress, asHex } from 'lib';
 import TransportBLE from '@ledgerhq/react-native-hw-transport-ble';
 import { EIP712Message } from '@ledgerhq/types-live';
 import { ResultAsync, err } from 'neverthrow';
@@ -13,53 +13,52 @@ import { clog } from '~/util/format';
 import { bufferTime, filter } from 'rxjs';
 import { persistedAtom } from '~/util/persistedAtom';
 import { useAtomValue } from 'jotai';
-import { useQuery } from '~/gql';
-import { gql } from '@api/generated';
+import { FragmentType, gql, useFragment as getFragment } from '@api/generated';
 import { getInfosForServiceUuid, DeviceModelId } from '@ledgerhq/devices';
 import { BleDevice, SharedBleManager } from './SharedBleManager';
 import { logWarning } from '~/util/analytics';
 import { toUtf8Bytes } from 'ethers/lib/utils';
+import useBluetoothPermissions from './useBluetoothPermissions';
+import _ from 'lodash';
 
-const Query = gql(/* GraphQL */ `
-  query UseLedger($approver: Address!) {
-    approver(input: { address: $approver }) {
-      id
-      bluetoothDevices
-    }
+const UserApprover = gql(/* GraphQL */ `
+  fragment UseLedger_UserApprover on UserApprover {
+    id
+    address
+    bluetoothDevices
   }
 `);
 
-export const APPROVER_BLUETOOTH_IDS = persistedAtom<Record<Address, DeviceId[]>>(
-  'approverBluetoothIds',
+export const APPROVER_BLE_IDS = persistedAtom<Record<Address, DeviceId[]>>(
+  'approverBleIds',
   {},
   { skipInitialPersist: true },
 );
 
-export function useLedger(device: DeviceId | Address) {
-  const [result, setResult] = useState<ConnectLedgerResult | undefined>(undefined);
-  const approverBluetoothIds = useAtomValue(APPROVER_BLUETOOTH_IDS);
+export function useLedger(device: DeviceId | FragmentType<typeof UserApprover>) {
+  const [hasPermission, requestPermissions] = useBluetoothPermissions();
 
-  const approver = useQuery(Query, { approver: device as Address }, { pause: !isAddress(device) })
-    .data?.approver;
+  const [result, setResult] = useState<ConnectLedgerResult | undefined>(undefined);
+  const approverBleIds = useAtomValue(APPROVER_BLE_IDS);
+
+  const approver = typeof device !== 'string' ? getFragment(UserApprover, device) : undefined;
 
   const tryConnect = useCallback(
     async (isMounted: () => boolean) => {
-      const newResult = await connectLedger(
-        isAddress(device)
-          ? [...(approverBluetoothIds[device] ?? []), ...(approver?.bluetoothDevices ?? [])]
-          : [device],
-        () => setResult(undefined),
-      );
+      if (!hasPermission) return;
+
+      const deviceIds = approver
+        ? [...(approverBleIds[approver.address] ?? []), ...(approver?.bluetoothDevices ?? [])]
+        : [device as string];
+
+      const newResult = await connectLedger(deviceIds, () => setResult(undefined));
 
       if (!isMounted()) return;
 
       setResult(newResult);
 
       if (newResult.isOk()) {
-        const onDisconnect = () => {
-          if (isMounted()) setResult(undefined);
-        };
-
+        const onDisconnect = () => isMounted() && setResult(undefined);
         newResult.value.eth.transport.on('disconnect', onDisconnect);
 
         return () => {
@@ -73,7 +72,7 @@ export function useLedger(device: DeviceId | Address) {
         return () => clearTimeout(timer);
       }
     },
-    [approver?.bluetoothDevices, device, approverBluetoothIds],
+    [hasPermission, approver, approverBleIds, device],
   );
 
   useAsyncEffect((isMounted) => tryConnect(isMounted), [tryConnect]);
@@ -93,9 +92,9 @@ export function useLedger(device: DeviceId | Address) {
     [result],
   );
 
-  // TODO: remove on disconnect
-
-  return result || err('connection-failed');
+  return hasPermission
+    ? result || err('connection-failed')
+    : err({ type: 'permissions-required' as const, requestPermissions });
 }
 
 // Based off https://github.com/ethers-io/ethers.js/blob/v5.7/packages/hardware-wallets/src.ts/ledger.ts
@@ -202,8 +201,9 @@ function connectLedger(deviceIds: DeviceId[], reconnect: () => void) {
                 PATH,
                 asHex(ethers.utils._TypedDataEncoder.hashDomain(m.domain)).substring(2),
                 asHex(
-                  ethers.utils._TypedDataEncoder.from(m.types).hash(m.message),
-                  /* Potentially _TypedDataEncoder.encode() instead? */
+                  ethers.utils._TypedDataEncoder
+                    .from(_.omit(m.types, ['EIP712Domain'])) // ethers doesn't allowing including EIP712Domain in types
+                    .hash(m.message),
                 ).substring(2),
               ),
             )

@@ -55,14 +55,14 @@ export function PairLedgerScreen(_props: PairLedgerScreenProps) {
         />
       ) : (
         match(devices.error)
-          .with({ type: 'permission-required' }, (error) => (
+          .with({ type: 'permissions-required' }, ({ requestPermissions }) => (
             <>
               <Text variant="titleMedium" style={styles.errorText}>
                 Please grant bluetooth related permissions in order to scan and connect
               </Text>
 
               <Actions>
-                <Button mode="contained" onPress={() => error.requestPermissions?.()}>
+                <Button mode="contained" onPress={requestPermissions}>
                   Grant
                 </Button>
               </Actions>

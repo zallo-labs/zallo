@@ -59,6 +59,7 @@ export const PAPER_THEME = {
     small: 24,
     medium: 40,
     large: 60,
+    extraLarge: 80,
   } as const,
   iconButton: {
     size: 24,

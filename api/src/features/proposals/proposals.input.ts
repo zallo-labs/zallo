@@ -90,6 +90,9 @@ export class ProposeInput {
 
 @InputType()
 export class ApproveInput extends ProposalInput {
+  @AddressField({ nullable: true, description: 'Defaults to current approver' })
+  approver?: Address;
+
   @BytesField()
   signature: Hex;
 }
