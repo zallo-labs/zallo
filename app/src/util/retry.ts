@@ -2,6 +2,7 @@ export interface RetryOptions {
   maxAttempts?: number;
   delayMs?: number;
   retryIf?: (e: unknown) => boolean;
+  signal?: AbortSignal;
 }
 
 export async function retryAsync<R>(
@@ -14,9 +15,7 @@ export async function retryAsync<R>(
   try {
     return await f();
   } catch (e) {
-    if (attempt >= maxAttempts - 1) throw e;
-
-    if (retryIf?.(e) === false) throw e;
+    if (attempt >= maxAttempts - 1 || opts.signal?.aborted || retryIf?.(e) === false) throw e;
 
     return new Promise((resolve) => {
       setTimeout(() => resolve(retryAsync(f, opts, attempt + 1)), delayMs);

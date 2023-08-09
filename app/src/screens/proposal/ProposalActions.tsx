@@ -1,4 +1,4 @@
-import { Button } from '~/components/Button';
+import { Button } from 'react-native-paper';
 import { Actions } from '~/components/layout/Actions';
 import { CHAIN } from '@network/provider';
 import { BluetoothIcon, RetryIcon, ShareIcon } from '@theme/icons';
@@ -11,8 +11,6 @@ import { useApproverAddress } from '@network/useApprover';
 import { useSignWithApprover } from './useSignWithApprover';
 import { useSignWithLedger } from '../ledger-sign/LedgerSignSheet';
 import { proposalAsEip712Message } from '../ledger-sign/proposalAsEip712Message';
-import { clog } from '~/util/format';
-import { recoverAddress } from 'viem';
 
 const BLOCK_EXPLORER_URL = CHAIN.blockExplorers?.default.url;
 

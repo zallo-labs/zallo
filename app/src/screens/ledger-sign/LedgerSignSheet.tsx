@@ -162,7 +162,13 @@ export function LedgerSignSheet({
                       </Button>
                     </>
                   ))
-                  .with(P.union('find-failed', 'connection-failed'), () => (
+                  .with('not-found', () => (
+                    <>
+                      <Text variant="labelLarge">Finding...</Text>
+                      <Text style={styles.hint}>Unlock your Ledger and enable bluetooth</Text>
+                    </>
+                  ))
+                  .with('connection-failed', () => (
                     <>
                       <Text variant="labelLarge">Connecting...</Text>
                       <Text style={styles.hint}>Unlock your Ledger and enable bluetooth</Text>

@@ -8050,22 +8050,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@ledgerhq/react-native-hid@npm:^6.29.5":
-  version: 6.29.5
-  resolution: "@ledgerhq/react-native-hid@npm:6.29.5"
-  dependencies:
-    "@ledgerhq/devices": ^8.0.5
-    "@ledgerhq/errors": ^6.13.0
-    "@ledgerhq/hw-transport": ^6.28.6
-    "@ledgerhq/logs": ^6.10.1
-    rxjs: 6
-  peerDependencies:
-    react-native: "*"
-  checksum: 51d652bf85832cd5f0f7596767cf19b1d434d9abeeeb73dc2b73da417a1dfaeee82972737bad0b81ac64746e88799c44a4d9b05855665ed6c56e81d93eb99edd
-  languageName: node
-  linkType: hard
-
-"@ledgerhq/react-native-hw-transport-ble@npm:^6.29.3":
+"@ledgerhq/react-native-hw-transport-ble@npm:6.29.3":
   version: 6.29.3
   resolution: "@ledgerhq/react-native-hw-transport-ble@npm:6.29.3"
   dependencies:
@@ -8078,6 +8063,22 @@ __metadata:
     rxjs: 6
     uuid: ^3.4.0
   checksum: f1e0031b16d71cb56161f1bce2d8285cff3de1cc12ff5edaafdbd6db276b6960e348ab5da7ef4e907a07c3e4b874b5be8ee1ddd90e88d117ba2d906facf981fc
+  languageName: node
+  linkType: hard
+
+"@ledgerhq/react-native-hw-transport-ble@patch:@ledgerhq/react-native-hw-transport-ble@npm:6.29.3#../.yarn/patches/@ledgerhq-react-native-hw-transport-ble-npm-6.29.3-2fa5aa09cc.patch::locator=app%40workspace%3Aapp":
+  version: 6.29.3
+  resolution: "@ledgerhq/react-native-hw-transport-ble@patch:@ledgerhq/react-native-hw-transport-ble@npm%3A6.29.3#../.yarn/patches/@ledgerhq-react-native-hw-transport-ble-npm-6.29.3-2fa5aa09cc.patch::version=6.29.3&hash=d266e3&locator=app%40workspace%3Aapp"
+  dependencies:
+    "@ledgerhq/devices": ^8.0.5
+    "@ledgerhq/errors": ^6.13.0
+    "@ledgerhq/hw-transport": ^6.28.6
+    "@ledgerhq/logs": ^6.10.1
+    invariant: ^2.2.4
+    react-native-ble-plx: 2.0.3
+    rxjs: 6
+    uuid: ^3.4.0
+  checksum: eba5d3a21ea3d121a728f8d1e55b439892b6f3c58771dffa7a7dbf7e58da776d6a2b150cc354f11a2e59b8bed95d838a2c4d73103aa8597ba9117189f51dc710
   languageName: node
   linkType: hard
 
@@ -14847,8 +14848,7 @@ __metadata:
     "@graphql-codegen/urql-introspection": ^2.2.1
     "@graphql-typed-document-node/core": ^3.2.0
     "@ledgerhq/hw-app-eth": ^6.34.0
-    "@ledgerhq/react-native-hid": ^6.29.5
-    "@ledgerhq/react-native-hw-transport-ble": ^6.29.3
+    "@ledgerhq/react-native-hw-transport-ble": "patch:@ledgerhq/react-native-hw-transport-ble@npm:6.29.3#../.yarn/patches/@ledgerhq-react-native-hw-transport-ble-npm-6.29.3-2fa5aa09cc.patch"
     "@n1ru4l/graphql-codegen-relay-optimizer-plugin": ^5.0.0
     "@react-native-async-storage/async-storage": 1.17.11
     "@react-native-community/blur": ^4.3.2
