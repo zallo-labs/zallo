@@ -94,10 +94,10 @@ export function LedgerItem({ device: d, ...props }: LedgerItemProps) {
       {
         input: {
           address,
-          name: !data.approver.name ? name : undefined,
+          name: !data.approver?.name ? name : undefined,
           bluetoothDevices:
-            mac && !data.approver.bluetoothDevices?.includes(mac)
-              ? [...(data.approver.bluetoothDevices ?? []), mac]
+            mac && !data.approver?.bluetoothDevices?.includes(mac)
+              ? [...(data.approver?.bluetoothDevices ?? []), mac]
               : undefined,
         },
       },

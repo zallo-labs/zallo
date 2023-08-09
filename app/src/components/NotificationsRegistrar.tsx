@@ -75,7 +75,7 @@ export const NotificationsRegistrar = () => {
             })
           ).data;
 
-          if (pushToken !== approver.pushToken) await updatePushToken({ pushToken });
+          if (pushToken !== approver?.pushToken) await updatePushToken({ pushToken });
         },
         { max: 3 },
       );
