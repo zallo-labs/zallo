@@ -25,7 +25,7 @@ const Query = gql(/* GraphQL */ `
   }
 `);
 
-export const CONTRACT_EMITTER = new EventEmitter<Address>('Contract');
+export const CONTRACT_EMITTER = new EventEmitter<Address>();
 export const useSelectContract = CONTRACT_EMITTER.createUseSelect('ContractsModal');
 
 export interface ContractsModalParams {

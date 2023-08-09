@@ -26,11 +26,11 @@ export interface LedgerSignatureEvent {
   signature: Hex;
 }
 
-export const LEDGER_ADDRESS_EMITTER = new EventEmitter<Address>('Ledger::address');
-const LEDGER_SIGNATURE_EMITTER = new EventEmitter<LedgerSignatureEvent>('Ledger::sign');
+export const LEDGER_ADDRESS_EMITTER = new EventEmitter<Address>();
+const LEDGER_SIGNATURE_EMITTER = new EventEmitter<LedgerSignatureEvent>();
 export const useSignWithLedger = LEDGER_SIGNATURE_EMITTER.createUseSelect('LedgerSign');
 
-const LEDGER_LAZY_MESSAGE_EMITTER = new EventEmitter<SignContent>('Ledger::signContent');
+const LEDGER_LAZY_MESSAGE_EMITTER = new EventEmitter<SignContent>();
 
 export const getLedgerLazySignature = async (content: SignContent) => {
   const p = LEDGER_SIGNATURE_EMITTER.getEvent();

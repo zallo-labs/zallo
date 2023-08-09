@@ -7,8 +7,6 @@ export type Listener<T> = (params: T) => void;
 export class EventEmitter<T> {
   readonly listeners: Set<Listener<T>> = new Set();
 
-  constructor(public readonly name: string) {}
-
   emit(params: T) {
     const n = this.listeners.size;
     this.listeners.forEach((listener) => listener(params));

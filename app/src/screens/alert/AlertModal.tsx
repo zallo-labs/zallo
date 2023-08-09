@@ -5,7 +5,7 @@ import { DialogRoot } from '~/components/DialogRoot';
 import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
 import { EventEmitter } from '~/util/EventEmitter';
 
-const ALERT_EMITTER = new EventEmitter<true>('Alert');
+const ALERT_EMITTER = new EventEmitter<true>();
 export const useAlert = ALERT_EMITTER.createUseSelect('Alert');
 
 export interface AlertModalParams {
