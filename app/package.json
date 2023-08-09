@@ -20,7 +20,7 @@
     "//": "https://www.npmjs.com/package/expo-yarn-workspaces"
   },
   "dependencies": {
-    "@config-plugins/react-native-ble-plx": "^7.0.0",
+    "@config-plugins/react-native-ble-plx": "^6.0.0",
     "@ethersproject/shims": "5.7.0",
     "@expo/config": "~8.0.0",
     "@expo/vector-icons": "^13.0.0",
@@ -86,7 +86,6 @@
     "expo-linking": "~4.0.1",
     "expo-local-authentication": "~13.3.0",
     "expo-localization": "~14.1.1",
-    "expo-location": "~15.1.1",
     "expo-navigation-bar": "~2.1.1",
     "expo-notifications": "~0.18.1",
     "expo-secure-store": "~12.1.1",

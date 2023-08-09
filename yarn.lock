@@ -3509,12 +3509,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@config-plugins/react-native-ble-plx@npm:^7.0.0":
-  version: 7.0.0
-  resolution: "@config-plugins/react-native-ble-plx@npm:7.0.0"
+"@config-plugins/react-native-ble-plx@npm:^6.0.0":
+  version: 6.0.0
+  resolution: "@config-plugins/react-native-ble-plx@npm:6.0.0"
   peerDependencies:
-    expo: ^49
-  checksum: 4efafba84cebb05b73f42c1cd2f2dbcdd90c9e4831ba91fadab41d3fce296c3c53405181e4cdffa2f9f5c8253e3f4f98d5d1903ddf38fd4a0360e0813ea8fad6
+    expo: ^48
+  checksum: d4c0da09be59cf7717bf5550062ce980df7bdd897c3b9c6b35b823d9526c24e4e30f43c98cbf875539d22af2a53df2e28411a44fa230af927e64a8222fd4ea6e
   languageName: node
   linkType: hard
 
@@ -14829,7 +14829,7 @@ __metadata:
   resolution: "app@workspace:app"
   dependencies:
     "@babel/core": ^7.22.5
-    "@config-plugins/react-native-ble-plx": ^7.0.0
+    "@config-plugins/react-native-ble-plx": ^6.0.0
     "@ethersproject/shims": 5.7.0
     "@expo/config": ~8.0.0
     "@expo/vector-icons": ^13.0.0
@@ -14926,7 +14926,6 @@ __metadata:
     expo-linking: ~4.0.1
     expo-local-authentication: ~13.3.0
     expo-localization: ~14.1.1
-    expo-location: ~15.1.1
     expo-navigation-bar: ~2.1.1
     expo-notifications: ~0.18.1
     expo-secure-store: ~12.1.1
@@ -22312,15 +22311,6 @@ __metadata:
   peerDependencies:
     expo: "*"
   checksum: c449a590ff20ec49b21bcbdef3c4dc1566945cd82341662ff48d098f37cf943a1bc8af614a74dd306abe5b076e99488a1e296e64ba246fdf3257fc47e71fa7ae
-  languageName: node
-  linkType: hard
-
-"expo-location@npm:~15.1.1":
-  version: 15.1.1
-  resolution: "expo-location@npm:15.1.1"
-  peerDependencies:
-    expo: "*"
-  checksum: 96bf55821fbee5176d44fe81214923545d914860e7f769ee1380bdb5eeef0c98346bbcb759c29cba99488b3367498f57e3b750ad42cc1a5ae270640b7331d148
   languageName: node
   linkType: hard
 

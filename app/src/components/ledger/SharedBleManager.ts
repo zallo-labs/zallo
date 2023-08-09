@@ -11,10 +11,7 @@ import {
 import { Observable, Unsubscribable } from 'rxjs';
 import { DeviceModel as LedgerModel } from '@ledgerhq/devices';
 import { setBleManagerInstance as setLedgerBleManagerInstance } from '@ledgerhq/react-native-hw-transport-ble';
-import { LogBox } from 'react-native';
 import { getBluetoothServiceUuids as getLedgerServiceUuids } from '@ledgerhq/devices';
-
-LogBox.ignoreLogs(['new NativeEventEmitter()']); // Required due to misuse inside ledger dependency
 
 export type { BleDevice, LedgerModel };
 
@@ -52,7 +49,7 @@ export class SharedBleManager extends BleManager {
 
         scanListener?.unsubscribe();
         scanListener = this.addScanListener((error, device) => {
-          if (error) subscriber.error?.(error);
+          if (error) subscriber.error(error);
           if (device) subscriber.next(device);
         });
       }, true);
@@ -74,9 +71,13 @@ export class SharedBleManager extends BleManager {
 
   private addScanListener(listener: ScanListener) {
     if (this._scanListeners.size === 0) {
-      super.startDeviceScan(this.allowlistedServiceUuids, null, (error, device) => {
-        this._scanListeners.forEach((listener) => listener?.(error, device));
-      });
+      super.startDeviceScan(
+        this.allowlistedServiceUuids,
+        { allowDuplicates: true },
+        (error, device) => {
+          this._scanListeners.forEach((listener) => listener(error, device));
+        },
+      );
     }
 
     this._scanListeners.set(listener, listener);

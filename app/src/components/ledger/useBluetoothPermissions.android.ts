@@ -7,17 +7,20 @@ import { BluetoothPermissionsOptions } from './useBluetoothPermissions';
 const API_LEVEL =
   typeof Platform.Version === 'number' ? Platform.Version : parseFloat(Platform.Version);
 
+// https://developer.android.com/guide/topics/connectivity/bluetooth/permissions
 const REQUIRED_PERMISSIONS =
   API_LEVEL >= 31
     ? [
         PermissionsAndroid.PERMISSIONS.BLUETOOTH_SCAN,
         PermissionsAndroid.PERMISSIONS.BLUETOOTH_CONNECT,
+        // ACCESS_FINE_LOCATION *shouldn't* be required, but is due to a AndroidManifest bug in @config-plugins/react-native-ble-plx https://github.com/expo/config-plugins/pull/91
         PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
       ]
     : [
-        // TODO: check these
+        // <= 30
         PermissionsAndroid.PERMISSIONS.BLUETOOTH,
         PermissionsAndroid.PERMISSIONS.BLUETOOTH_ADMIN,
+        PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION, // Location is never used but "is necessary because, on Android 11 and lower, a Bluetooth scan could potentially be used to gather information about the location of the user."
       ];
 
 const useBluetoothPermissions: typeof useBluetoothPermission_DEFAULT = ({
