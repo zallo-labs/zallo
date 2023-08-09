@@ -88,6 +88,6 @@ export const hashTx = async (tx: Tx, domainParams: GetDomainParams) =>
     ethers.utils._TypedDataEncoder.hash(
       await getDomain(domainParams),
       TX_EIP712_TYPE,
-      getTransactionEip712Value(tx, asAddress(domainParams.address)),
+      await getTransactionEip712Value(tx, asAddress(domainParams.address)),
     ),
   );
