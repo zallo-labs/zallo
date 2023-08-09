@@ -11,6 +11,7 @@ import { showSuccess } from '~/provider/SnackbarProvider';
 import { useImmerAtom } from 'jotai-immer';
 import { BleDevice, isMacAddress } from '~/components/ledger/SharedBleManager';
 import { getLedgerDeviceModel } from '~/components/ledger/connectLedger';
+import { elipseTruncate } from '~/util/format';
 
 const User = gql(/* GraphQL */ `
   fragment LedgerItem_user on User {
@@ -120,7 +121,7 @@ export function LedgerItem({ device: d, ...props }: LedgerItemProps) {
       leading={BluetoothIcon}
       headline={d.name || d.id}
       supporting={productName}
-      trailing={d.id}
+      trailing={elipseTruncate(d.id, 9)}
       lines={2}
       onPress={connect}
     />
