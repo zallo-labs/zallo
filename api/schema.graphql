@@ -363,7 +363,7 @@ input ProposeInput {
 type Query {
   account(input: AccountInput! = {}): Account
   accounts: [Account!]!
-  approver(input: ApproverInput! = {}): UserApprover!
+  approver(input: ApproverInput! = {}): UserApprover
   contact(input: ContactInput!): Contact
   contacts(input: ContactsInput! = {}): [Contact!]!
   contract(input: ContractInput!): Contract

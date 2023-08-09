@@ -115,7 +115,7 @@ export function LedgerSignSheet({
         <LedgerLogo width={144} height={48} />
 
         <Text variant="headlineSmall" style={styles.name}>
-          {approver.name || params.name || params.device}
+          {approver?.name || params.name || params.device}
         </Text>
       </View>
 
