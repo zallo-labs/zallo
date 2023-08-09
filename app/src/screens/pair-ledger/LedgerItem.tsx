@@ -6,14 +6,11 @@ import { useCallback } from 'react';
 import { OperationContext, useMutation } from 'urql';
 import { ListItem } from '~/components/list/ListItem';
 import { LEDGER_ADDRESS_EMITTER, getLedgerLazySignature } from '../ledger-sign/LedgerSignSheet';
-import {
-  APPROVER_BLE_IDS,
-  getLedgerDeviceModel,
-  isMacAddress,
-} from '~/components/ledger/useLedger';
+import { APPROVER_BLE_IDS } from '~/components/ledger/useLedger';
 import { showSuccess } from '~/provider/SnackbarProvider';
 import { useImmerAtom } from 'jotai-immer';
-import { BleDevice } from '~/components/ledger/SharedBleManager';
+import { BleDevice, isMacAddress } from '~/components/ledger/SharedBleManager';
+import { getLedgerDeviceModel } from '~/components/ledger/connectLedger';
 
 const User = gql(/* GraphQL */ `
   fragment LedgerItem_user on User {

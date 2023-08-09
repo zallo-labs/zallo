@@ -20,15 +20,13 @@ export type { BleDevice, LedgerModel };
 
 type ScanListener = (error: BleError | null, scannedDevice: BleDevice | null) => void;
 
-const ALLOWLISTED_SERVICE_UUIDS = getLedgerServiceUuids();
-
-const BEACON_TIMEOUT_MS = 3000;
-
 export class SharedBleManager extends BleManager {
   private static _instance: SharedBleManager | null = null;
   private _devices = new Map<DeviceId, BleDevice>();
   private _timeouts = new Map<DeviceId, NodeJS.Timeout>();
   private _scanListeners = new Map<ScanListener, ScanListener>();
+  allowlistedServiceUuids = getLedgerServiceUuids();
+  beaconTimeoutMs = 3000;
 
   private constructor(_options?: BleManagerOptions) {
     if (_options) console.trace('SharedBleManager options ignored');
@@ -76,7 +74,7 @@ export class SharedBleManager extends BleManager {
 
   private addScanListener(listener: ScanListener) {
     if (this._scanListeners.size === 0) {
-      super.startDeviceScan(ALLOWLISTED_SERVICE_UUIDS, null, (error, device) => {
+      super.startDeviceScan(this.allowlistedServiceUuids, null, (error, device) => {
         this._scanListeners.forEach((listener) => listener?.(error, device));
       });
     }
@@ -137,7 +135,7 @@ export class SharedBleManager extends BleManager {
       setTimeout(() => {
         this._devices.delete(deviceId);
         this._onTimeoutListeners.forEach((f) => f());
-      }, BEACON_TIMEOUT_MS),
+      }, this.beaconTimeoutMs),
     );
   }
 
@@ -159,4 +157,9 @@ export class SharedBleManager extends BleManager {
 
     return d;
   }
+}
+
+const MAC_PATTERN = /^([0-9A-F]{2}[:-]){5}([0-9A-F]{2})$/;
+export function isMacAddress(v: unknown): v is string {
+  return typeof v === 'string' && !!v.match(MAC_PATTERN);
 }

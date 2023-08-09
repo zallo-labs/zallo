@@ -162,13 +162,13 @@ export function LedgerSignSheet({
                       </Button>
                     </>
                   ))
-                  .with('not-found', () => (
+                  .with('finding', () => (
                     <>
                       <Text variant="labelLarge">Finding...</Text>
                       <Text style={styles.hint}>Unlock your Ledger and enable bluetooth</Text>
                     </>
                   ))
-                  .with('connection-failed', () => (
+                  .with('connecting', () => (
                     <>
                       <Text variant="labelLarge">Connecting...</Text>
                       <Text style={styles.hint}>Unlock your Ledger and enable bluetooth</Text>
@@ -180,7 +180,7 @@ export function LedgerSignSheet({
                       <Text style={styles.hint}>Unlock your Ledger</Text>
                     </>
                   ))
-                  .with('eth-app-closed', () => (
+                  .with('waiting-for-app', () => (
                     <>
                       <Text variant="labelLarge">Connecting...</Text>
                       <Text style={styles.hint}>Open the Ethereum app on your Ledger</Text>
