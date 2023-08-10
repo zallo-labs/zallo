@@ -1,13 +1,15 @@
-import React, { ElementType, ComponentPropsWithoutRef, FC } from 'react';
+import { ElementType, ComponentPropsWithoutRef, FC } from 'react';
 import { ColorValue } from 'react-native';
 import { Ionicons, MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
 import { SvgProps } from 'react-native-svg';
+import { ICON_SIZE, useTheme } from './paper';
 import LogoSvg from '~/../assets/logo.svg';
 import MastercardSvg from '~/../assets/mastercard.svg';
 import WalletConnectSvg from '~/../assets/walletconnect.svg';
 import TwitterSvg from '~/../assets/twitter.svg';
 import GithubSvg from '~/../assets/github.svg';
-import { ICON_SIZE, useTheme } from './paper';
+import LedgerIconSvg from '~/../assets/ledger-icon.svg';
+import LedgerLogoSvg from '~/../assets/ledger-logo.svg';
 
 export interface IconProps {
   size?: number;
@@ -106,6 +108,7 @@ export const UnknownIcon = materialCommunityIcon('help-circle');
 export const UnknownOutlineIcon = materialCommunityIcon('help-circle-outline');
 export const NotificationsIcon = materialIcon('notifications');
 export const NotificationsOutlineIcon = materialIcon('notifications-none');
+export const BluetoothIcon = materialIcon('bluetooth');
 
 export const PolicyIcon = materialCommunityIcon('security');
 export const PolicyActiveIcon = materialCommunityIcon('shield');
@@ -122,9 +125,9 @@ export const PolicyUnsatisfiableIcon = materialCommunityIcon('shield-alert');
 export const PolicyUnsatisfiableOutlineIcon = materialCommunityIcon('shield-alert-outline');
 
 export const svgIcon =
-  (Svg: FC<SvgProps>): FC<IconProps> =>
-  ({ color, size }) =>
-    <Svg color={color} width={size} height={size} />;
+  (Svg: FC<SvgProps>): FC<IconProps & SvgProps> =>
+  ({ size, ...props }) =>
+    <Svg width={size} height={size} {...props} />;
 
 export const LogoIcon = LogoSvg;
 export const MastercardIcon = svgIcon(MastercardSvg);
@@ -132,4 +135,10 @@ export const WalletConnectIcon = svgIcon(WalletConnectSvg);
 export const TwitterIcon = svgIcon(TwitterSvg);
 export const GithubIcon = svgIcon((props) => (
   <GithubSvg {...props} fill={useTheme().dark ? 'white' : 'black'} />
+));
+export const LedgerIcon = svgIcon((props) => (
+  <LedgerIconSvg {...props} fill={useTheme().dark ? 'white' : 'black'} />
+));
+export const LedgerLogo = svgIcon((props) => (
+  <LedgerLogoSvg {...props} fill={useTheme().dark ? 'white' : 'black'} />
 ));

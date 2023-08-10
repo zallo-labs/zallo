@@ -1,4 +1,4 @@
-import { Address, PolicyKey } from 'lib';
+import { Address, PolicyKey, Selector } from 'lib';
 import { Permissions } from 'lib';
 import { atom } from 'jotai';
 import { PolicyInput } from '@api/generated/graphql';
@@ -25,7 +25,7 @@ export function asPolicyInput(p: PolicyDraft): PolicyInput {
         contracts: Object.entries(p.permissions.targets.contracts).map(([contract, target]) => ({
           contract: contract as Address,
           functions: Object.entries(target.functions).map(([selector, allow]) => ({
-            selector,
+            selector: selector as Selector,
             allow,
           })),
           defaultAllow: target.defaultAllow,
@@ -33,7 +33,7 @@ export function asPolicyInput(p: PolicyDraft): PolicyInput {
         default: {
           functions: Object.entries(p.permissions.targets.default.functions).map(
             ([selector, allow]) => ({
-              selector,
+              selector: selector as Selector,
               allow,
             }),
           ),

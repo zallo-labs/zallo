@@ -27,7 +27,7 @@ const Query = gql(/* GraphQL */ `
   }
 `);
 
-const TOKEN_EMITTER = new EventEmitter<Address>('Token');
+const TOKEN_EMITTER = new EventEmitter<Address>();
 export const useSelectToken = TOKEN_EMITTER.createUseSelect('TokensModal');
 
 export interface TokensScreenParams {

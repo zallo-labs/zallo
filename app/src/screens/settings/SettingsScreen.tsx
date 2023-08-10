@@ -16,7 +16,7 @@ import { ListItem } from '~/components/list/ListItem';
 import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
 import * as Linking from 'expo-linking';
 import { CONFIG } from '~/util/config';
-import { Address } from 'lib';
+import { Address, ZERO_ADDR } from 'lib';
 import { FingerprintIcon } from '../biometrics/BiometricsScreen';
 import { AddressIcon } from '~/components/Identicon/AddressIcon';
 import { gql } from '@api/generated';
@@ -60,14 +60,14 @@ export const SettingsScreen = withSuspense(
 
         <ScrollView style={styles.container}>
           <TouchableOpacity style={styles.userContainer} onPress={() => navigate('User')}>
-            <AddressIcon address={approver.address} size={ICON_SIZE.large} />
+            <AddressIcon address={approver?.address || ZERO_ADDR} size={ICON_SIZE.large} />
 
             <Text variant="titleLarge" style={styles.userName}>
               {user.name}
             </Text>
 
             <Text variant="bodyLarge" style={styles.approverItem}>
-              {approver.name}
+              {approver?.name}
             </Text>
           </TouchableOpacity>
 

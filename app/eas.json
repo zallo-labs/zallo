@@ -47,11 +47,6 @@
         "track": "beta"
       }
     },
-    "alpha": {
-      "android": {
-        "track": "alpha"
-      }
-    },
     "development": {
       "extends": "base",
       "android": {

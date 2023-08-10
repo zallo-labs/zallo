@@ -5,53 +5,55 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as SecureStore from 'expo-secure-store';
 import { logError } from './analytics';
 
-export type StorageOptions<V, U extends AnyJson> = {
-  secure?: SecureStore.SecureStoreOptions;
-} & (
-  | {
-      stringifiy: (value: V) => U;
-      parse: (value: U) => V;
-    }
-  | {
-      stringifiy?: never;
-      parse?: never;
-    }
-);
+export type PersistedAtomOptions<V, U extends AnyJson> = StorageOptions<V, U> & {
+  skipInitialPersist?: boolean;
+};
 
 // Based off https://github.com/pmndrs/jotai/blob/main/src/vanilla/utils/atomWithStorage.ts
 // Primary difference is that this persists the initialValue
 export const persistedAtom = <V, U extends AnyJson = AnyJson>(
   key: string,
   initialValue: V,
-  options?: StorageOptions<V, U>,
+  { skipInitialPersist, ...storageOptions }: PersistedAtomOptions<V, U> = {},
 ): WritableAtom<V, [SetStateActionWithReset<V>], void> => {
-  const storage = getStorage(options);
+  const storage = getStorage(storageOptions);
   const initialPersistedValue = storage.getItem(key, initialValue);
 
   const baseAtom = atom(initialValue);
   baseAtom.debugLabel = `${key}::base`;
 
-  let mounted = false;
+  let initialized = false;
   baseAtom.onMount = (setAtom) => {
-    initialPersistedValue.then((v) => {
-      if (v === initialValue) {
-        storage.setItem(key, initialValue);
-      } else if (v !== initialValue) {
-        setAtom(v);
-      }
-      mounted = true;
-    });
+    if (!initialized) {
+      /* Initialization */
+      initialPersistedValue.then((v) => {
+        if (v === initialValue && !skipInitialPersist) {
+          storage.setItem(key, initialValue);
+        } else if (v !== initialValue) {
+          setAtom(v);
+        }
+        initialized = true;
+      });
+    } else {
+      /* Previously initialized */
+      // Storage value may have been changed (externally) after unmount thereby not being picked up by the subscription
+      storage.getItem(key, initialValue).then((newValue) => setAtom(newValue));
+    }
 
-    if (storage.subscribe) return storage.subscribe(key, setAtom, initialValue);
+    const unsubscribe = storage.subscribe?.(key, setAtom, initialValue);
+
+    return () => {
+      unsubscribe?.();
+    };
   };
 
-  const getUnmountedValue = async (get: Getter) => {
+  const getUninitializedValue = async (get: Getter) => {
     get(baseAtom); // Trigger onMount
     return initialPersistedValue;
   };
 
   const pAtom = atom(
-    (get) => (mounted ? get(baseAtom) : (getUnmountedValue(get) as V)), // Actually V | Promise<V> but that's not allowed by jotai-immer and it will return V after mount anyway
+    (get) => (initialized ? get(baseAtom) : (getUninitializedValue(get) as V)), // Actually V | Promise<V> but that's not allowed by jotai-immer and it will return V after mount anyway
     (get, set, update: SetStateActionWithReset<V>) => {
       const nextValue =
         typeof update === 'function'
@@ -68,6 +70,19 @@ export const persistedAtom = <V, U extends AnyJson = AnyJson>(
 
   return pAtom;
 };
+
+export type StorageOptions<V, U extends AnyJson> = {
+  secure?: SecureStore.SecureStoreOptions;
+} & (
+  | {
+      stringifiy: (value: V) => U;
+      parse: (value: U) => V;
+    }
+  | {
+      stringifiy?: never;
+      parse?: never;
+    }
+);
 
 const ASYNC_STORAGE = createJSONStorage(() => AsyncStorage);
 

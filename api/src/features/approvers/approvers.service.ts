@@ -43,7 +43,12 @@ export class ApproversService {
     return r ?? { id: address, address };
   }
 
-  async upsert({ address = getUserCtx().approver, name, pushToken }: UpdateApproverInput) {
+  async upsert({
+    address = getUserCtx().approver,
+    name,
+    pushToken,
+    bluetoothDevices,
+  }: UpdateApproverInput) {
     return this.db.query(
       e.insert(e.Approver, { address, name, pushToken }).unlessConflict((a) => ({
         on: a.address,
@@ -51,6 +56,7 @@ export class ApproversService {
           set: {
             name,
             pushToken,
+            bluetoothDevices: bluetoothDevices && [...new Set(bluetoothDevices)],
           },
         })),
       })),

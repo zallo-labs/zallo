@@ -4,7 +4,6 @@ import { withSuspense } from '~/components/skeleton/withSuspense';
 import { ListItemSkeleton } from '~/components/list/ListItemSkeleton';
 import { makeStyles } from '@theme/makeStyles';
 import { match } from 'ts-pattern';
-import { FiatValue } from '../fiat/FiatValue';
 import { materialCommunityIcon } from '@theme/icons';
 import { ICON_SIZE } from '@theme/paper';
 import { FragmentType, gql, useFragment } from '@api/generated';
@@ -14,8 +13,8 @@ import { useNavigation } from '@react-navigation/native';
 import { ETH_ICON_URI, TokenIcon } from '../token/TokenIcon/TokenIcon';
 import { ProposalValue } from './ProposalValue';
 
-const Fragment = gql(/* GraphQL */ `
-  fragment ProposalItem_TransactionProposalFragment on TransactionProposal {
+const Proposal = gql(/* GraphQL */ `
+  fragment ProposalItem_TransactionProposal on TransactionProposal {
     id
     hash
     label
@@ -37,18 +36,27 @@ const Fragment = gql(/* GraphQL */ `
   }
 `);
 
+const User = gql(/* GraphQL */ `
+  fragment ProposalItem_User on User {
+    id
+    ...UseCanRespond_User
+  }
+`);
+
 const MultiOperationIcon = materialCommunityIcon('multiplication');
 
 export interface ProposalItemProps extends Partial<ListItemProps> {
-  proposal: FragmentType<typeof Fragment>;
+  proposal: FragmentType<typeof Proposal>;
+  user: FragmentType<typeof User>;
 }
 
 export const ProposalItem = withSuspense(
-  ({ proposal: proposalFragment, ...itemProps }: ProposalItemProps) => {
+  ({ proposal: proposalFragment, user: userFragment, ...itemProps }: ProposalItemProps) => {
     const styles = useStyles();
-    const p = useFragment(Fragment, proposalFragment);
+    const p = useFragment(Proposal, proposalFragment);
+    const user = useFragment(User, userFragment);
     const { navigate } = useNavigation();
-    const { canApprove } = useCanRespond(p);
+    const { canApprove } = useCanRespond({ proposal: p, user });
 
     const isMulti = p.operations.length > 1;
 

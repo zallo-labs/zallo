@@ -18,6 +18,7 @@ import { Address } from 'viem';
 import { gql } from '@api/generated';
 import { useMutation } from 'urql';
 import { useQuery } from '~/gql';
+import { NotFound } from '~/components/NotFound';
 
 const Query = gql(/* GraphQL */ `
   query ApproverDetails($approver: Address) {
@@ -39,8 +40,8 @@ const Query = gql(/* GraphQL */ `
 `);
 
 const Update = gql(/* GraphQL */ `
-  mutation ApproverScreen_update($name: String!) {
-    updateApprover(input: { name: $name }) {
+  mutation ApproverScreen_update($approver: Address!, $name: String!) {
+    updateApprover(input: { address: $approver, name: $name }) {
       id
       name
       label
@@ -73,8 +74,10 @@ export const ApproverScreen = withSuspense(
     const update = useMutation(Update)[1];
 
     const { control, handleSubmit } = useForm<Inputs>({
-      defaultValues: { name: approver.name ?? modelName },
+      defaultValues: { name: approver?.name ?? modelName },
     });
+
+    if (!approver) return <NotFound name="Approver" />;
 
     const takenNames = user.approvers.filter((a) => a.id !== approver.id).map((a) => a.name);
 
@@ -88,7 +91,6 @@ export const ApproverScreen = withSuspense(
             control={control}
             left={user.name ? <TextInput.Affix text={`${user.name}'s`} /> : undefined}
             label="Label"
-            supporting="This device"
             placeholder="iPhone"
             autoFocus={isOnboarding}
             containerStyle={styles.inset}
@@ -98,7 +100,7 @@ export const ApproverScreen = withSuspense(
                 !takenNames.includes(v) || 'An approver with ths name already exists',
             }}
             onEndEditing={handleSubmit(async ({ name }) => {
-              await update({ name });
+              await update({ approver: approver.address, name });
             })}
           />
         </View>

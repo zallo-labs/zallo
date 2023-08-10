@@ -1,5 +1,5 @@
 import { useForm } from 'react-hook-form';
-import { StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import { Appbar } from '~/components/Appbar/Appbar';
 import { FormTextField } from '~/components/fields/FormTextField';
 import { Actions } from '~/components/layout/Actions';
@@ -13,6 +13,7 @@ import { UserApproverItem } from './UserApproverItem';
 import { gql } from '@api/generated';
 import { useQuery } from '~/gql';
 import { useMutation } from 'urql';
+import { BluetoothIcon } from '@theme/icons';
 
 const Query = gql(/* GraphQL */ `
   query UserScreen {
@@ -60,41 +61,50 @@ export const UserScreen = ({ navigation: { navigate } }: UserScreenProps) => {
         trailing={(props) => <FormResetIcon control={control} reset={reset} {...props} />}
       />
 
-      <FormTextField
-        label="Name"
-        supporting="Only visible by account members"
-        name="name"
-        placeholder="Alisha"
-        control={control}
-        rules={{ required: true }}
-        containerStyle={styles.nameContainer}
-        onEndEditing={handleSubmit(async ({ name }) => {
-          await update({ name });
-        })}
-      />
+      <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
+        <FormTextField
+          label="Name"
+          supporting="Only visible by account members"
+          name="name"
+          placeholder="Alisha"
+          control={control}
+          rules={{ required: true }}
+          containerStyle={styles.nameContainer}
+          onEndEditing={handleSubmit(async ({ name }) => {
+            await update({ name });
+          })}
+        />
 
-      <View>
-        <ListHeader>Approvers</ListHeader>
+        <View>
+          <ListHeader>Approvers</ListHeader>
 
-        {user.approvers.map((approver) => (
-          <UserApproverItem key={approver.id} approver={approver} />
-        ))}
-      </View>
+          {user.approvers.map((approver) => (
+            <UserApproverItem key={approver.id} approver={approver} />
+          ))}
+        </View>
 
-      <Actions>
-        <Button
-          mode="contained-tonal"
-          icon={PairIcon}
-          onPress={() => navigate('PairUserModal', {})}
-        >
-          Pair with existing user
-        </Button>
-      </Actions>
+        <Actions>
+          <Button mode="text" icon={PairIcon} onPress={() => navigate('PairUserModal', {})}>
+            Pair with existing user
+          </Button>
+
+          <Button
+            mode="contained-tonal"
+            icon={BluetoothIcon}
+            onPress={() => navigate('PairLedger')}
+          >
+            Pair with Ledger
+          </Button>
+        </Actions>
+      </ScrollView>
     </Screen>
   );
 };
 
 const styles = StyleSheet.create({
+  container: {
+    flexGrow: 1,
+  },
   nameContainer: {
     margin: 16,
   },

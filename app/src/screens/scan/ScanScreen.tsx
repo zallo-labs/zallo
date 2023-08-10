@@ -19,10 +19,9 @@ import useAsyncEffect from 'use-async-effect';
 import { showError } from '~/provider/SnackbarProvider';
 import { useFocusEffect } from '@react-navigation/native';
 import { HideNavigationBar } from '~/components/NavigationBar/HideNavigationBar';
-import { P, match } from 'ts-pattern';
 import { getPairingTokenFromLink } from '../pair-user/pairing';
 
-export const SCAN_ADDRESS_EMITTER = new EventEmitter<Address>('Scan::Address');
+export const SCAN_ADDRESS_EMITTER = new EventEmitter<Address>();
 export const useScanAddress = SCAN_ADDRESS_EMITTER.createUseSelect('Scan');
 
 export interface ScanScreenParams {

@@ -7,7 +7,7 @@ import { retryExchange } from '@urql/exchange-retry';
 import { CONFIG } from '~/util/config';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { authExchange } from '@urql/exchange-auth';
-import { Approver, Hex, asHex } from 'lib';
+import { Addresslike, Hex, asAddress, asHex } from 'lib';
 import { DateTime } from 'luxon';
 import { SiweMessage } from 'siwe';
 import { atom, useAtomValue } from 'jotai';
@@ -95,6 +95,8 @@ const client = atom(async (get) => {
       }),
       authExchange(async (utils) => ({
         addAuthToOperation(operation) {
+          if (operation.context.skipAddAuthToOperation) return operation;
+
           return utils.appendHeaders(operation, headers);
         },
         didAuthError(error, _operation) {
@@ -122,7 +124,12 @@ const client = atom(async (get) => {
 
 export const useUrqlApiClient = () => useAtomValue(client);
 
-async function createToken(approver: Approver): Promise<Token> {
+interface CreateTokenApprover {
+  address: Addresslike;
+  signMessage: (message: string) => Promise<string>;
+}
+
+async function createToken(approver: CreateTokenApprover): Promise<Token> {
   // Cookies are problematic on RN - https://github.com/facebook/react-native/issues/23185
   // const nonce = await (await fetch(`${CONFIG.apiUrl}/auth/nonce`, { credentials: 'include' })).text();
   const nonce = 'nonceless';
@@ -130,7 +137,7 @@ async function createToken(approver: Approver): Promise<Token> {
   const message = new SiweMessage({
     version: '1',
     domain: new URL(CONFIG.apiUrl).host,
-    address: approver.address,
+    address: asAddress(approver.address),
     nonce,
     expirationTime: DateTime.now().plus({ days: 2 }).toString(),
     uri: 'https://app.zallo.com', // Required but unused
@@ -145,4 +152,8 @@ async function createToken(approver: Approver): Promise<Token> {
 
 function getHeaders(token: Token | null): { Authorization?: string } {
   return { Authorization: token ? JSON.stringify(token) : undefined };
+}
+
+export async function getAuthHeaders(options: CreateTokenApprover) {
+  return getHeaders(await createToken(options));
 }

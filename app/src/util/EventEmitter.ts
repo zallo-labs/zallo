@@ -1,13 +1,15 @@
 import { useNavigation } from '@react-navigation/native';
 import { useCallback, useEffect, useState } from 'react';
+import { Observable, firstValueFrom } from 'rxjs';
 import { StackNavigatorParamList } from '~/navigation/StackNavigator';
 
 export type Listener<T> = (params: T) => void;
 
+/**
+ * @deprecated Use `rxjs Subject` instead
+ */
 export class EventEmitter<T> {
   readonly listeners: Set<Listener<T>> = new Set();
-
-  constructor(public readonly name: string) {}
 
   emit(params: T) {
     const n = this.listeners.size;
@@ -26,6 +28,9 @@ export class EventEmitter<T> {
     });
   }
 
+  /**
+   * @deprecated Use `createUseEvent()` instead.
+   */
   createUseSelect<
     RouteName extends keyof StackNavigatorParamList,
     Defaults extends Partial<StackNavigatorParamList[RouteName]>,
@@ -74,3 +79,42 @@ export const useEvent = <T>(emitter: EventEmitter<T>) => {
 
   return value;
 };
+
+export function createUseEvent<
+  T,
+  RouteName extends keyof StackNavigatorParamList,
+  Defaults extends Partial<StackNavigatorParamList[RouteName]>,
+>(
+  observable: Observable<T>,
+  route: RouteName,
+  creationDefaults?: Partial<StackNavigatorParamList[RouteName]>,
+) {
+  return function useEvent(hookDefaults?: Defaults) {
+    const { navigate, goBack } = useNavigation();
+
+    return useCallback(
+      async (
+        params: Defaults extends StackNavigatorParamList[RouteName] | undefined
+          ? Partial<StackNavigatorParamList[RouteName]>
+          : StackNavigatorParamList[RouteName],
+        withObservable: (obs: Observable<T>) => Observable<T>,
+      ) => {
+        const p = withObservable
+          ? firstValueFrom(withObservable(observable))
+          : firstValueFrom(observable);
+
+        (navigate as any)(route, {
+          ...(creationDefaults ?? {}),
+          ...(hookDefaults ?? {}),
+          params,
+        });
+
+        await p;
+        goBack();
+
+        return p;
+      },
+      [goBack, hookDefaults, navigate],
+    );
+  };
+}

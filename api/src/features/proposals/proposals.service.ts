@@ -145,25 +145,28 @@ export class ProposalsService {
     });
   }
 
-  async approve({ hash, signature }: ApproveInput) {
-    const ctx = getUserCtx();
-
-    if (!(await this.provider.verifySignature({ digest: hash, approver: ctx.approver, signature })))
+  async approve({ hash, approver = getUserCtx().approver, signature }: ApproveInput) {
+    if (!(await this.provider.verifySignature({ digest: hash, approver, signature })))
       throw new UserInputError('Invalid signature');
 
     await this.db.transaction(async (db) => {
       const proposal = selectProposal(hash);
+      const selectApprover = e.select(e.Approver, () => ({ filter_single: { address: approver } }));
 
       // Remove prior response (if any)
       await e
         .delete(e.ProposalResponse, () => ({
-          filter_single: { proposal, approver: e.global.current_approver },
+          filter_single: {
+            proposal,
+            approver: selectApprover,
+          },
         }))
         .run(db);
 
       await e
         .insert(e.Approval, {
           proposal,
+          approver: selectApprover,
           signature,
         })
         .run(db);

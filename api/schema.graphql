@@ -54,11 +54,13 @@ type Approval {
 }
 
 input ApproveInput {
+  """Defaults to current approver"""
+  approver: Address
   hash: Bytes32!
   signature: Bytes!
 }
 
-type Approver {
+type Approver implements Node {
   address: Address!
   id: ID!
   label: String
@@ -80,9 +82,6 @@ scalar BigInt
 
 """bytes hex string"""
 scalar Bytes
-
-"""4-byte hex string"""
-scalar Bytes4
 
 """32-byte hex string"""
 scalar Bytes32
@@ -177,7 +176,7 @@ input ExecuteInput {
 
 type FunctionConfig {
   allow: Boolean!
-  selector: Bytes4!
+  selector: Selector!
 }
 
 type GenericOp {
@@ -193,6 +192,11 @@ scalar JSON @specifiedBy(url: "http://www.ecma-international.org/publications/fi
 input LabelInput {
   address: Address!
 }
+
+"""
+A field whose value is a IEEE 802 48-bit MAC address: https://en.wikipedia.org/wiki/MAC_address.
+"""
+scalar MAC
 
 type Mutation {
   approve(input: ApproveInput!): TransactionProposal!
@@ -359,7 +363,7 @@ input ProposeInput {
 type Query {
   account(input: AccountInput! = {}): Account
   accounts: [Account!]!
-  approver(input: ApproverInput! = {}): UserApprover!
+  approver(input: ApproverInput! = {}): UserApprover
   contact(input: ContactInput!): Contact
   contacts(input: ContactsInput! = {}): [Contact!]!
   contract(input: ContractInput!): Contract
@@ -435,7 +439,7 @@ scalar Selector
 
 input SelectorInput {
   allow: Boolean!
-  selector: Bytes4!
+  selector: Selector!
 }
 
 type Simulation implements Node {
@@ -732,6 +736,7 @@ input UpdateAccountInput {
 input UpdateApproverInput {
   """Defaults to current approver"""
   address: Address
+  bluetoothDevices: [MAC!]
   name: String
   pushToken: String
 }
@@ -793,8 +798,9 @@ type User {
   pairingToken: String!
 }
 
-type UserApprover {
+type UserApprover implements Node {
   address: Address!
+  bluetoothDevices: [MAC!]
   id: ID!
   label: String
   name: String

@@ -16,7 +16,7 @@ import { usePropose } from '@api/usePropose';
 import { useQuery } from '~/gql';
 import { useSubscription } from 'urql';
 
-const PROPOSAL_EXECUTED_EMITTER = new EventEmitter<Hex>('Proposal::exeucte');
+const PROPOSAL_EXECUTED_EMITTER = new EventEmitter<Hex>();
 
 const Query = gql(/* GraphQL */ `
   query UseSessionRequestListener {

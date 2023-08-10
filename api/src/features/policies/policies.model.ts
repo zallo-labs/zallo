@@ -14,8 +14,8 @@ import {
   SatisfiabilityResult as ISatisfiabilityResult,
   SatisfiabilityReason as ISatisfiabilityReason,
 } from 'lib';
-import { Bytes4Field } from '~/apollo/scalars/Bytes.scalar';
 import { Approver } from '../approvers/approvers.model';
+import { SelectorField } from '~/apollo/scalars/Bytes.scalar';
 
 @ObjectType()
 export class Policy {
@@ -67,7 +67,7 @@ export class ContractTarget extends Target implements eql.ContractTarget {
 
 @ObjectType()
 export class FunctionConfig {
-  @Bytes4Field()
+  @SelectorField()
   selector: Selector;
 
   @Field(() => Boolean)

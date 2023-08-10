@@ -1,5 +1,8 @@
 import { ExpoConfig, ConfigContext } from '@expo/config';
+import { ConfigPlugin } from 'expo/config-plugins';
 import { PluginConfigType as BuildPropertiesConfig } from 'expo-build-properties/build/pluginConfig';
+
+type PluginConfig<Plugin> = Plugin extends ConfigPlugin<infer Config> ? Config : never;
 
 const ENV = process.env;
 
@@ -46,6 +49,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       'expo-build-properties',
       {
         android: {
+          minSdkVersion: 24, // 21 is Expo default, 24 is required by @ledgerhq/react-native-hid
           packagingOptions: {
             // https://github.com/margelo/react-native-quick-crypto/issues/90#issuecomment-1321129104
             pickFirst: [
@@ -67,6 +71,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     '@react-native-firebase/app',
     '@react-native-firebase/perf',
     '@react-native-firebase/crashlytics',
+    '@config-plugins/react-native-ble-plx',
   ],
   hooks: {
     postPublish: [

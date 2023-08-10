@@ -56,6 +56,8 @@ import {
 import { CreateUserScreen } from '~/screens/create-user/CreateUserScreen';
 import { AddressesModal, AddressesModalParams } from '~/screens/addresses/AddressesModal';
 import { TokenScreen, TokenScreenParams } from '~/screens/token/TokenScreen';
+import { PairLedgerScreen } from '~/screens/pair-ledger/PairLedgerScreen';
+import { LedgerSignSheet, LedgerSignSheetParams } from '~/screens/ledger-sign/LedgerSignSheet';
 
 export type StackNavigatorParamList = {
   Home: HomeScreenParams;
@@ -78,6 +80,7 @@ export type StackNavigatorParamList = {
   Tokens: TokensScreenParams;
   Token: TokenScreenParams;
   NotificationSettings: NotificationSettingsParams;
+  PairLedger: undefined;
   // Onboarding
   Onboard: undefined;
   CreateUser: undefined;
@@ -91,6 +94,7 @@ export type StackNavigatorParamList = {
   ConnectSheet: ConnectSheetParams;
   PairingSheet: PairingSheetParams;
   Sign: SignSheetParams;
+  LedgerSign: LedgerSignSheetParams;
   // Card modal
   RenameAccountModal: RenameAccountModalParams;
   TokensModal: TokensScreenParams;
@@ -141,6 +145,7 @@ export const StackNavigator = () => {
       <Navigation.Screen name="Tokens" component={TokensScreen} />
       <Navigation.Screen name="Token" component={TokenScreen} />
       <Navigation.Screen name="NotificationSettings" component={NotificationSettingsScreen} />
+      <Navigation.Screen name="PairLedger" component={PairLedgerScreen} />
 
       <Navigation.Group screenOptions={{ presentation: 'transparentModal' }}>
         <Navigation.Screen name="AccountsSheet" component={AccountsSheet} />
@@ -152,6 +157,7 @@ export const StackNavigator = () => {
         <Navigation.Screen name="ConnectSheet" component={ConnectSheet} />
         <Navigation.Screen name="PairingSheet" component={PairingSheet} />
         <Navigation.Screen name="Sign" component={SignSheet} />
+        <Navigation.Screen name="LedgerSign" component={LedgerSignSheet} />
       </Navigation.Group>
 
       <Navigation.Group

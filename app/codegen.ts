@@ -8,7 +8,7 @@ const scalars = {
   Bytes: 'lib#Hex',
   Bytes32: 'lib#Hex',
   DateTime: 'string',
-  Decimal: 'lib#BigIntlike',
+  MAC: 'string',
   PolicyKey: 'lib#PolicyKey',
   Selector: 'lib#Selector',
   Uint256: 'lib#BigIntlike',

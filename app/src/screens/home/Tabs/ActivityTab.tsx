@@ -20,7 +20,12 @@ const Query = gql(/* GraphQL */ `
       __typename
       id
       timestamp: createdAt
-      ...ProposalItem_TransactionProposalFragment
+      ...ProposalItem_TransactionProposal
+    }
+
+    user {
+      id
+      ...ProposalItem_User
     }
 
     transfers(input: { accounts: $accounts, direction: In, internal: false }) {
@@ -38,7 +43,7 @@ const ProposalSubscription = gql(/* GraphQL */ `
       __typename
       id
       timestamp: createdAt
-      ...ProposalItem_TransactionProposalFragment
+      ...ProposalItem_TransactionProposal
     }
   }
 `);
@@ -60,7 +65,7 @@ export type ActivityTabProps = TabNavigatorScreenProp<'Activity'> & { account: A
 
 export const ActivityTab = withSuspense(
   ({ account }: ActivityTabProps) => {
-    const { proposals, transfers } = useQuery(Query, { accounts: [account] }).data;
+    const { proposals, transfers, user } = useQuery(Query, { accounts: [account] }).data;
     useSubscription({ query: ProposalSubscription, variables: { accounts: [account] } });
     useSubscription({ query: TransferSubscription, variables: { accounts: [account] } });
 
@@ -73,7 +78,9 @@ export const ActivityTab = withSuspense(
         data={data}
         renderItem={({ item }) =>
           match(item)
-            .with({ __typename: 'TransactionProposal' }, (p) => <ProposalItem proposal={p} />)
+            .with({ __typename: 'TransactionProposal' }, (p) => (
+              <ProposalItem proposal={p} user={user} />
+            ))
             .with({ __typename: 'Transfer' }, (transfer) => (
               <IncomingTransferItem transfer={transfer} />
             ))

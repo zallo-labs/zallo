@@ -9,7 +9,7 @@ import { StyleSheet } from 'react-native';
 import { Actions } from '~/components/layout/Actions';
 import { FormSubmitButton } from '~/components/fields/FormSubmitButton';
 
-const IMPORT_SELECTOR_EMITTER = new EventEmitter<Selector>('ImportSelector');
+const IMPORT_SELECTOR_EMITTER = new EventEmitter<Selector>();
 export const useImportSelector = IMPORT_SELECTOR_EMITTER.createUseSelect('ImportSelectorModal');
 
 interface Inputs {

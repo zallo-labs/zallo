@@ -10,7 +10,7 @@ import { getShape } from '../database/database.select';
 export class ApproversResolver {
   constructor(private service: ApproversService) {}
 
-  @Query(() => UserApprover)
+  @Query(() => UserApprover, { nullable: true })
   async approver(
     @Input({ defaultValue: {} }) { address }: ApproverInput,
     @Info() info: GraphQLResolveInfo,
@@ -21,7 +21,6 @@ export class ApproversResolver {
   @Mutation(() => UserApprover)
   async updateApprover(@Input() input: UpdateApproverInput, @Info() info: GraphQLResolveInfo) {
     await this.service.upsert(input);
-
     return (await this.service.selectUnique(input.address, getShape(info)))!;
   }
 }
