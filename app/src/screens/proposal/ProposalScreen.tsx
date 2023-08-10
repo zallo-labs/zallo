@@ -13,6 +13,7 @@ import { gql } from '@api/generated';
 import { NotFound } from '~/components/NotFound';
 import { useQuery } from '~/gql';
 import { useMutation } from 'urql';
+import { Suspend } from '~/components/Suspender';
 
 const Query = gql(/* GraphQL */ `
   query ProposalScreen($proposal: Bytes32!) {
@@ -47,14 +48,15 @@ export type ProposalScreenProps = StackNavigatorScreenProps<'Proposal'>;
 
 export const ProposalScreen = withSuspense(
   ({ route, navigation: { goBack } }: ProposalScreenProps) => {
-    const { proposal, user } = useQuery(Query, { proposal: route.params.proposal }).data;
+    const query = useQuery(Query, { proposal: route.params.proposal });
+    const { proposal, user } = query.data;
 
     const remove = useMutation(Remove)[1];
     const confirmRemoval = useConfirmRemoval({
       message: 'Are you sure you want to remove this proposal?',
     });
 
-    if (!proposal) return <NotFound name="Proposal" />;
+    if (!proposal) return query.stale ? <Suspend /> : <NotFound name="Proposal" />;
 
     return (
       <Screen>
