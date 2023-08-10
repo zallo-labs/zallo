@@ -22,27 +22,38 @@ export const persistedAtom = <V, U extends AnyJson = AnyJson>(
   const baseAtom = atom(initialValue);
   baseAtom.debugLabel = `${key}::base`;
 
-  let mounted = false;
+  let initialized = false;
   baseAtom.onMount = (setAtom) => {
-    initialPersistedValue.then((v) => {
-      if (v === initialValue && !skipInitialPersist) {
-        storage.setItem(key, initialValue);
-      } else if (v !== initialValue) {
-        setAtom(v);
-      }
-      mounted = true;
-    });
+    if (!initialized) {
+      /* Initialization */
+      initialPersistedValue.then((v) => {
+        if (v === initialValue && !skipInitialPersist) {
+          storage.setItem(key, initialValue);
+        } else if (v !== initialValue) {
+          setAtom(v);
+        }
+        initialized = true;
+      });
+    } else {
+      /* Previously initialized */
+      // Storage value may have been changed (externally) after unmount thereby not being picked up by the subscription
+      storage.getItem(key, initialValue).then((newValue) => setAtom(newValue));
+    }
 
-    if (storage.subscribe) return storage.subscribe(key, setAtom, initialValue);
+    const unsubscribe = storage.subscribe?.(key, setAtom, initialValue);
+
+    return () => {
+      unsubscribe?.();
+    };
   };
 
-  const getUnmountedValue = async (get: Getter) => {
+  const getUninitializedValue = async (get: Getter) => {
     get(baseAtom); // Trigger onMount
     return initialPersistedValue;
   };
 
   const pAtom = atom(
-    (get) => (mounted ? get(baseAtom) : (getUnmountedValue(get) as V)), // Actually V | Promise<V> but that's not allowed by jotai-immer and it will return V after mount anyway
+    (get) => (initialized ? get(baseAtom) : (getUninitializedValue(get) as V)), // Actually V | Promise<V> but that's not allowed by jotai-immer and it will return V after mount anyway
     (get, set, update: SetStateActionWithReset<V>) => {
       const nextValue =
         typeof update === 'function'
