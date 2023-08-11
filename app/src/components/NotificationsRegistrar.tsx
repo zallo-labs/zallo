@@ -8,10 +8,10 @@ import {
   NotificationChannelConfig,
   useNotificationSettings,
 } from '~/screens/notifications/NotificationSettingsScreen';
-import { retryAsPromised } from 'retry-as-promised';
 import { gql } from '@api/generated';
 import { useQuery } from '~/gql';
 import { useMutation } from 'urql';
+import { retryAsync } from '~/util/retry';
 
 const Query = gql(/* GraphQL */ `
   query NotificationsRegistrar {
@@ -55,30 +55,35 @@ export const NotificationsRegistrar = () => {
   useEffect(() => {
     if (!hasPermission) return;
 
-    const register = async (devicePushToken?: DevicePushToken) =>
-      retryAsPromised(
-        async () => {
-          if (Platform.OS === 'android') {
-            for (const [channel, config] of Object.entries(NotificationChannelConfig)) {
-              if (channelEnabled[channel as NotificationChannel]) {
-                Notifications.setNotificationChannelAsync(channel, config);
-              } else {
-                Notifications.deleteNotificationChannelAsync(channel);
+    const register = async (devicePushToken?: DevicePushToken) => {
+      try {
+        await retryAsync(
+          async () => {
+            if (Platform.OS === 'android') {
+              for (const [channel, config] of Object.entries(NotificationChannelConfig)) {
+                if (channelEnabled[channel as NotificationChannel]) {
+                  Notifications.setNotificationChannelAsync(channel, config);
+                } else {
+                  Notifications.deleteNotificationChannelAsync(channel);
+                }
               }
             }
-          }
 
-          const pushToken = (
-            await Notifications.getExpoPushTokenAsync({
-              projectId: PROJECT_ID,
-              devicePushToken: devicePushToken ?? (await Notifications.getDevicePushTokenAsync()),
-            })
-          ).data;
+            const pushToken = (
+              await Notifications.getExpoPushTokenAsync({
+                projectId: PROJECT_ID,
+                devicePushToken: devicePushToken ?? (await Notifications.getDevicePushTokenAsync()),
+              })
+            ).data;
 
-          if (pushToken !== approver?.pushToken) await updatePushToken({ pushToken });
-        },
-        { max: 3 },
-      );
+            if (pushToken !== approver?.pushToken) await updatePushToken({ pushToken });
+          },
+          { delayMs: 2000 },
+        );
+      } catch (e) {
+        if (!isMissingAndroidPlayServicesError(e)) throw e;
+      }
+    };
 
     register();
     const listener = Notifications.addPushTokenListener(register);
@@ -95,3 +100,7 @@ export const NotificationsRegistrar = () => {
 
   return null;
 };
+
+function isMissingAndroidPlayServicesError(e: unknown): boolean {
+  return e instanceof Error && e.message.includes('MISSING_INSTANCEID_SERVICE');
+}
