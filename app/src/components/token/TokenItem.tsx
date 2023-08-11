@@ -7,6 +7,8 @@ import { TokenAmount } from './TokenAmount';
 import { BigIntlike, tokenToFiat } from 'lib';
 import { FragmentType, gql, useFragment } from '@api/generated';
 import { TokenIcon } from './TokenIcon/TokenIcon';
+import { memo } from 'react';
+import deepEqual from 'fast-deep-equal';
 
 const FragmentDoc = gql(/* GraphQL */ `
   fragment TokenItem_token on Token {
@@ -30,7 +32,7 @@ export interface TokenItemProps extends Partial<ListItemProps> {
 }
 
 export const TokenItem = withSuspense(
-  ({ token: tokenProp, amount, containerStyle, ...itemProps }: TokenItemProps) => {
+  memo(({ token: tokenProp, amount, containerStyle, ...itemProps }: TokenItemProps) => {
     const token = useFragment(FragmentDoc, tokenProp);
 
     return (
@@ -63,7 +65,7 @@ export const TokenItem = withSuspense(
         {...itemProps}
       />
     );
-  },
+  }, deepEqual),
   (props) => <ListItemSkeleton {...props} leading supporting trailing />,
 );
 

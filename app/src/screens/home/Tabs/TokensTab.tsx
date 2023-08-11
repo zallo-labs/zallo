@@ -31,11 +31,10 @@ export type TokensTabProps = TabNavigatorScreenProp<'Tokens'> & { account: Addre
 
 export const TokensTab = withSuspense(
   (props: TokensTabProps) => {
-    const query = useQuery(Query, { account: props.account });
-    usePollQuery(query.reexecute, 15000);
-    const data = query.data!;
+    const { data, reexecute } = useQuery(Query, { account: props.account });
+    usePollQuery(reexecute, 15000);
 
-    const tokens = (data?.tokens ?? [])
+    const tokens = (data.tokens ?? [])
       .map((t) => ({
         ...t,
         value: tokenToFiat(t.balance, t.price?.current ?? 0, t.decimals),
@@ -55,6 +54,7 @@ export const TokensTab = withSuspense(
         contentContainerStyle={styles.contentContainer}
         estimatedItemSize={ListItemHeight.DOUBLE_LINE}
         getItemType={(item) => item.__typename}
+        keyExtractor={(item) => item.id}
         showsVerticalScrollIndicator={false}
       />
     );
