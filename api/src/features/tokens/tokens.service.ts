@@ -1,13 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { DatabaseService } from '../database/database.service';
 import { TokensInput, UpsertTokenInput } from './tokens.input';
-import { ShapeFunc } from '../database/database.select';
+import { Scope, ShapeFunc } from '../database/database.select';
 import e from '~/edgeql-js';
 import { uuid } from 'edgedb/dist/codecs/ifaces';
 import { Address, ERC20_ABI, isAddress } from 'lib';
 import { and, or } from '../database/database.util';
 import { ProviderService } from '../util/provider/provider.service';
 import { UserInputError } from '@nestjs/apollo';
+import { OrderByObjExpr } from '~/edgeql-js/select';
 
 @Injectable()
 export class TokensService {
@@ -19,7 +20,7 @@ export class TokensService {
         e.select(e.Token, (t) => ({
           filter: isAddress(id) ? e.op(t.address, '=', id) : e.op(t.id, '=', e.uuid(id)),
           limit: 1,
-          order_by: e.op('exists', t.user),
+          order_by: preferUserToken(t),
           ...shape?.(t),
         })),
       ),
@@ -45,11 +46,7 @@ export class TokensService {
             expression: t.address,
             direction: e.ASC,
           },
-          {
-            // user exists first
-            expression: e.op('exists', t.user),
-            direction: e.DESC,
-          },
+          preferUserToken(t),
         ],
       })),
     );
@@ -94,7 +91,7 @@ export class TokensService {
     const t = await this.db.query(
       e.assert_single(
         e.select(e.Token, (t) => ({
-          filter: e.op(t.address, '=', address),
+          filter: e.op(e.op(t.address, '=', address), 'and', e.op('not', e.op('exists', t.user))),
           limit: 1,
           ethereumAddress: true,
           name: true,
@@ -136,4 +133,11 @@ export class TokensService {
       iconUri: null,
     };
   }
+}
+
+function preferUserToken(t: Scope<typeof e.Token>): OrderByObjExpr {
+  return {
+    expression: e.op('exists', t.user),
+    direction: e.DESC,
+  };
 }
