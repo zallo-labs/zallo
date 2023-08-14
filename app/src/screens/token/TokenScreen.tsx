@@ -29,6 +29,11 @@ const Query = gql(/* GraphQL */ `
       id
       address
       userOwned
+      ethereumAddress
+      name
+      symbol
+      decimals
+      iconUri
     }
 
     metadata: tokenMetadata(input: { address: $token }) {
@@ -99,11 +104,11 @@ export const TokenScreen = withSuspense(
     ).data;
 
     useEffect(() => {
-      const m = query?.metadata;
+      const m = query?.token ?? query?.metadata;
       if (address && isAddressLike(address) && m) {
         reset({
           ...Object.fromEntries(
-            Object.entries(_.omit(m, ['__typename', 'id'])).filter(
+            Object.entries(_.omit(m, ['__typename', 'id', 'userOwned'])).filter(
               (_, v) => v !== null && v !== undefined,
             ),
           ),
@@ -111,7 +116,7 @@ export const TokenScreen = withSuspense(
           ...(typeof m.decimals === 'number' && { decimals: `${m.decimals}` as unknown as number }), // Only works if reset as string, even though input type is number
         });
       }
-    }, [reset, query?.metadata, address]);
+    }, [reset, address, query?.metadata, query?.token]);
 
     const [isValidIcon, setValidIcon] = useState(false);
 
