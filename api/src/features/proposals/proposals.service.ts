@@ -212,9 +212,10 @@ export class ProposalsService {
         ),
         set: {
           ...(policy !== undefined && {
-            policy: policy
-              ? e.select(e.Policy, () => ({ filter_single: { account: p.account, key: policy } }))
-              : null,
+            policy:
+              policy !== null
+                ? e.select(e.Policy, () => ({ filter_single: { account: p.account, key: policy } }))
+                : null,
           }),
           feeToken,
         },
@@ -229,6 +230,8 @@ export class ProposalsService {
         },
       })),
     );
+
+    if (policy !== undefined && p) await this.transactions.tryExecute(p.hash);
 
     if (p) {
       this.publishProposal(
