@@ -42,7 +42,7 @@ export const Overlay = ({ onData }: OverlayProps) => {
           onPress={async () => {
             const data = await Clipboard.getStringAsync();
             const handled = await onData(data);
-            if (!handled) showWarning('No handler found for data');
+            if (!handled) showWarning("Data doesn't match any known formats");
           }}
         />
       </View>
