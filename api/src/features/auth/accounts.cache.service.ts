@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Address } from 'lib';
-import { InjectRedis } from '@liaoliaots/nestjs-redis';
+import { InjectRedis } from '@songkeys/nestjs-redis';
 import Redis from 'ioredis';
 import { UserAccountContext, getUserCtx } from '~/request/ctx';
 import { DatabaseService } from '../database/database.service';
@@ -17,7 +17,10 @@ const userAccountsKey = (user: uuid) => `user:${user}:accounts`;
 
 @Injectable()
 export class AccountsCacheService {
-  constructor(@InjectRedis() private redis: Redis, private db: DatabaseService) {}
+  constructor(
+    @InjectRedis() private redis: Redis,
+    private db: DatabaseService,
+  ) {}
 
   private readonly DAY_IN_SECONDS = 60 * 60 * 24;
 

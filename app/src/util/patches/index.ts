@@ -31,8 +31,7 @@ import 'core-js/actual/url-search-params'; // Required by URQL persisted-exchang
 import '@total-typescript/ts-reset';
 
 // Immer features
-import { enableES5, enableMapSet } from 'immer';
-enableES5();
+import { enableMapSet } from 'immer';
 enableMapSet();
 
 // BigInt

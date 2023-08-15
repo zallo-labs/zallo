@@ -3,7 +3,7 @@ import { DatabaseService } from '../database/database.service';
 import { ShapeFunc } from '../database/database.select';
 import e from '~/edgeql-js';
 import { UpdateUserInput } from './users.input';
-import { InjectRedis } from '@liaoliaots/nestjs-redis';
+import { InjectRedis } from '@songkeys/nestjs-redis';
 import Redis from 'ioredis';
 import { randomBytes } from 'crypto';
 import { uuid } from 'edgedb/dist/codecs/ifaces';

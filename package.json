@@ -30,22 +30,23 @@
     "yarn": "3.x"
   },
   "devDependencies": {
-    "@types/node": "^16.18.36",
-    "@typescript-eslint/eslint-plugin": "^5.59.11",
-    "@typescript-eslint/parser": "^5.59.11",
-    "eslint": "^8.38.0",
-    "eslint-plugin-react": "^7.32.2",
+    "@types/node": "^16.18.40",
+    "@typescript-eslint/eslint-plugin": "^6.4.0",
+    "@typescript-eslint/parser": "^6.4.0",
+    "eslint": "^8.47.0",
+    "eslint-plugin-react": "^7.33.1",
     "eslint-plugin-react-hooks": "^4.6.0",
     "husky": "^8.0.3",
-    "lint-staged": "^13.2.2",
-    "prettier": "^2.8.8"
+    "lint-staged": "^14.0.0",
+    "prettier": "^3.0.2"
   },
   "resolutions": {
-    "graphql": "^16.6.0",
+    "graphql": "^16.8.0",
     "dotenv": "^16.3.1",
     "react-native-jazzicon@0.1.2": "patch:react-native-jazzicon@npm:0.1.2#.yarn/patches/react-native-jazzicon-npm-0.1.2-c1633b051f.patch",
     "@ethersproject/abstract-provider": "5.7.0",
-    "wonka": "^6.3.3"
+    "wonka": "^6.3.4",
+    "ioredis": "5.3.2"
   },
   "dependencies": {
     "eslint-plugin-neverthrow": "^1.1.4",
