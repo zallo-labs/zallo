@@ -45,3 +45,9 @@ export class UpdateAccountInput {
   @Field(() => String)
   name: string;
 }
+
+@InputType()
+export class ActivityInput {
+  @AddressField()
+  address: Address;
+}

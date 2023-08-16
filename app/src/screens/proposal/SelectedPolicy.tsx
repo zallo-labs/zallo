@@ -32,7 +32,7 @@ const FragmentDoc = gql(/* GraphQL */ `
 
 const Update = gql(/* GraphQL */ `
   mutation SelectedPolicy_Update($hash: Bytes32!, $policy: PolicyKey!) {
-    updateProposal(input: { hash: $hash, policy: $policy }) {
+    updateTransactionProposal(input: { hash: $hash, policy: $policy }) {
       id
       policy {
         id

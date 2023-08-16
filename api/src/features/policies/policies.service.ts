@@ -10,7 +10,10 @@ import {
   POLICY_ABI,
   Satisfiability,
 } from 'lib';
-import { ProposalsService, selectTransactionProposal } from '../proposals/proposals.service';
+import {
+  TransactionProposalsService,
+  selectTransactionProposal,
+} from '../transaction-proposals/transaction-proposals.service';
 import {
   CreatePolicyInput,
   PoliciesInput,
@@ -34,7 +37,10 @@ import {
   asTargetsConfig,
 } from './policies.util';
 import { PolicyState, SatisfiabilityResult } from './policies.model';
-import { proposalTxShape, transactionProposalAsTx } from '../proposals/proposals.uitl';
+import {
+  proposalTxShape,
+  transactionProposalAsTx,
+} from '../transaction-proposals/transaction-proposals.uitl';
 import { UserAccountContext } from '~/request/ctx';
 import { and } from '../database/database.util';
 import { selectAccount } from '../accounts/accounts.util';
@@ -48,8 +54,8 @@ interface CreateParams extends CreatePolicyInput {
 export class PoliciesService {
   constructor(
     private db: DatabaseService,
-    @Inject(forwardRef(() => ProposalsService))
-    private proposals: ProposalsService,
+    @Inject(forwardRef(() => TransactionProposalsService))
+    private proposals: TransactionProposalsService,
     private userAccounts: AccountsCacheService,
   ) {}
 

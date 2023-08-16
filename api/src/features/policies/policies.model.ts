@@ -1,7 +1,7 @@
 import { Field, ObjectType, registerEnumType } from '@nestjs/graphql';
 import { GraphQLBigInt } from 'graphql-scalars';
 import { Account } from '../accounts/accounts.model';
-import { TransactionProposal } from '../proposals/proposals.model';
+import { TransactionProposal } from '../transaction-proposals/transaction-proposals.model';
 import { IdField } from '~/apollo/scalars/Id.scalar';
 import * as eql from '~/edgeql-interfaces';
 import { uuid } from 'edgedb/dist/codecs/ifaces';

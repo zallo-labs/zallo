@@ -50,7 +50,7 @@ const TransactionProposal = gql(/* GraphQL */ `
 
 const Query = gql(/* GraphQL */ `
   query TransactionTab($proposal: Bytes32!) {
-    proposal(input: { hash: $proposal }) {
+    transactionProposal(input: { hash: $proposal }) {
       ...TransactionTab_TransactionProposalFragment
     }
   }
@@ -87,7 +87,7 @@ export const TransactionTab = withSuspense(({ route }: TransactionTabProps) => {
     query: tryReplaceDocument(Subscription),
     variables: { proposal: route.params.proposal },
   });
-  const p = useFragment(TransactionProposal, data?.proposal);
+  const p = useFragment(TransactionProposal, data?.transactionProposal);
 
   const tx = p?.transaction;
   const receipt = tx?.receipt;

@@ -1,7 +1,5 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
-import { ACCOUNT_ABI, asAddress, asHex, Hex, tryOrCatch, tryOrIgnore } from 'lib';
-import { ProposalsService } from '../proposals/proposals.service';
-import { ProposalEvent } from '../proposals/proposals.input';
+import { ACCOUNT_ABI, asAddress, asHex, Hex, tryOrCatch } from 'lib';
 import {
   TransactionData,
   TransactionEventData,
@@ -16,6 +14,8 @@ import { and } from '../database/database.util';
 import { ProviderService } from '../util/provider/provider.service';
 import { EIP712_TX_TYPE } from 'zksync-web3/build/src/utils';
 import { decodeEventLog, getAbiItem, getEventSelector } from 'viem';
+import { ProposalsService } from '../proposals/proposals.service';
+import { ProposalEvent } from '../proposals/proposals.input';
 
 @Injectable()
 export class TransactionsEvents implements OnModuleInit {

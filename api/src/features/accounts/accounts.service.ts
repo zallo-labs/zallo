@@ -3,7 +3,12 @@ import { DatabaseService } from '../database/database.service';
 import e from '~/edgeql-js';
 import { Address, DeploySalt, Policy, asHex, asPolicyKey, randomDeploySalt } from 'lib';
 import { ShapeFunc } from '../database/database.select';
-import { AccountEvent, CreateAccountInput, UpdateAccountInput } from './accounts.input';
+import {
+  AccountEvent,
+  ActivityInput,
+  CreateAccountInput,
+  UpdateAccountInput,
+} from './accounts.input';
 import { getApprover, getUserCtx } from '~/request/ctx';
 import { UserInputError } from '@nestjs/apollo';
 import { CONFIG } from '~/config';
@@ -139,6 +144,15 @@ export class AccountsService {
     if (!r) throw new UserInputError(`Must be a member of the account to update it`);
 
     this.publishAccount({ account: address, event: AccountEvent.update });
+  }
+
+  async activity(input: ActivityInput, shape?: ShapeFunc<any>) {
+    // const proposals = e.select(e.Transacti)
+    // return this.db.query(
+    //   e.select(
+    //     e.
+    //   )
+    // )
   }
 
   private async activateAccount(

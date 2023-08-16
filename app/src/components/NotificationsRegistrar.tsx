@@ -20,7 +20,7 @@ const Query = gql(/* GraphQL */ `
       pushToken
     }
 
-    proposals(input: { statuses: [Pending] }) {
+    transactionProposals(input: { statuses: [Pending] }) {
       id
     }
   }
@@ -46,7 +46,7 @@ Notifications.setNotificationHandler({
 export const NotificationsRegistrar = () => {
   const channelEnabled = useNotificationSettings();
 
-  const { approver, proposals } = useQuery(Query).data;
+  const { approver, transactionProposals: proposals } = useQuery(Query).data;
   const updatePushToken = useMutation(UpdatePushToken)[1];
 
   const hasPermission = Notifications.usePermissions()[0]?.granted;

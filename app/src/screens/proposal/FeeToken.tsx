@@ -34,7 +34,7 @@ const FragmentDoc = gql(/* GraphQL */ `
 
 const Update = gql(/* GraphQL */ `
   mutation FeeToken_Update($hash: Bytes32!, $feeToken: Address!) {
-    updateProposal(input: { hash: $hash, feeToken: $feeToken }) {
+    updateTransactionProposal(input: { hash: $hash, feeToken: $feeToken }) {
       ...FeeToken_TransactionProposalFragment
     }
   }

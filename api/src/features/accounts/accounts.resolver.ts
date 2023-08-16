@@ -5,10 +5,11 @@ import {
   UpdateAccountInput,
   CreateAccountInput,
   AccountSubscriptionInput,
+  ActivityInput,
 } from './accounts.input';
 import { PubsubService } from '../util/pubsub/pubsub.service';
 import { GqlContext, asUser, getApprover, getUserCtx } from '~/request/ctx';
-import { Account } from './accounts.model';
+import { Account, Activity } from './accounts.model';
 import {
   AccountSubscriptionPayload,
   AccountsService,
@@ -41,6 +42,23 @@ export class AccountsResolver {
     return this.service.select({}, getShape(info));
   }
 
+  @Query(() => [Activity])
+  async activity(@Input() input: ActivityInput, @Info() info: GraphQLResolveInfo) {
+    return this.service.activity(input, getShape(info));
+  }
+
+  @Mutation(() => Account)
+  async createAccount(@Input() input: CreateAccountInput, @Info() info: GraphQLResolveInfo) {
+    const { address } = await this.service.createAccount(input);
+    return this.service.selectUnique(address, getShape(info));
+  }
+
+  @Mutation(() => Account)
+  async updateAccount(@Input() input: UpdateAccountInput, @Info() info: GraphQLResolveInfo) {
+    await this.service.updateAccount(input);
+    return this.service.selectUnique(input.address, getShape(info));
+  }
+
   @Subscription(() => Account, {
     name: 'account',
     filter: (
@@ -71,17 +89,5 @@ export class AccountsResolver {
         accounts ? [...accounts].map(getAccountTrigger) : getAccountApproverTrigger(getApprover()),
       ),
     );
-  }
-
-  @Mutation(() => Account)
-  async createAccount(@Input() input: CreateAccountInput, @Info() info: GraphQLResolveInfo) {
-    const { address } = await this.service.createAccount(input);
-    return this.service.selectUnique(address, getShape(info));
-  }
-
-  @Mutation(() => Account)
-  async updateAccount(@Input() input: UpdateAccountInput, @Info() info: GraphQLResolveInfo) {
-    await this.service.updateAccount(input);
-    return this.service.selectUnique(input.address, getShape(info));
   }
 }

@@ -64,7 +64,7 @@ const FragmentDoc = gql(/* GraphQL */ `
 
 const Query = gql(/* GraphQL */ `
   query PolicyTab($proposal: Bytes32!) {
-    proposal(input: { hash: $proposal }) {
+    transactionProposal(input: { hash: $proposal }) {
       ...PolicyTab_TransactionProposalFragment @arguments(proposal: $proposal)
     }
   }
@@ -92,7 +92,7 @@ export const PolicyTab = withSuspense(({ route }: PolicyTabProps) => {
     query: tryReplaceDocument(Subscription),
     variables: { proposal: route.params.proposal },
   });
-  const p = useFragment(FragmentDoc, data?.proposal);
+  const p = useFragment(FragmentDoc, data?.transactionProposal);
 
   if (!p) return null;
 

@@ -43,7 +43,7 @@ const User = gql(/* GraphQL */ `
 
 const Approve = gql(/* GraphQL */ `
   mutation ApproveProposal($input: ApproveInput!) {
-    approve(input: $input) {
+    approveTransactionProposal(input: $input) {
       id
       approvals {
         id
@@ -57,7 +57,7 @@ const Approve = gql(/* GraphQL */ `
 
 const Reject = gql(/* GraphQL */ `
   mutation RejectProposal($proposal: Bytes32!) {
-    reject(input: { hash: $proposal }) {
+    rejectProposal(input: { hash: $proposal }) {
       id
       approvals {
         id
