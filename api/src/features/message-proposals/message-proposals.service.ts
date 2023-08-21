@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { DatabaseService } from '../database/database.service';
 import { ProposeMessageInput } from './message-proposals.input';
 import { ApproveInput, ProposalEvent } from '../proposals/proposals.input';
-import { hashMessage, hexToString } from 'viem';
+import { TypedDataDefinition, concat, hashMessage, hexToString, keccak256 } from 'viem';
 import e from '~/edgeql-js';
 import { selectAccount } from '../accounts/accounts.util';
 import { ProposalsService, UniqueProposal } from '../proposals/proposals.service';
@@ -10,6 +10,10 @@ import { Address, Hex, asHex, encodeAccountSignature, isHex, isPresent, mapAsync
 import { ShapeFunc } from '../database/database.select';
 import { policyStateAsPolicy, policyStateShape } from '../policies/policies.util';
 import { ProviderService } from '../util/provider/provider.service';
+import { UserInputError } from '@nestjs/apollo';
+import { ethers } from 'ethers';
+import _ from 'lodash';
+import { Writable, WritableDeep } from 'ts-toolbelt/out/Object/Writable';
 
 @Injectable()
 export class MessageProposalsService {
@@ -28,10 +32,27 @@ export class MessageProposalsService {
     );
   }
 
-  async propose({ account, message, label, iconUri, signature }: ProposeMessageInput) {
-    if (isHex(message)) message = hexToString(message);
+  async propose({
+    account,
+    message: messageInput,
+    typedData,
+    label,
+    iconUri,
+    signature,
+  }: ProposeMessageInput) {
+    if (!messageInput && !typedData)
+      throw new UserInputError('Either message or typedData is required');
 
-    const hash = asHex(hashMessage(message));
+    const [message, hash] = (() => {
+      if (typedData) {
+        const m = this.typedDataAsMessage(typedData);
+        return [hexToString(m), keccak256(m)];
+      } else {
+        // Personal message
+        const m = isHex(messageInput) ? hexToString(messageInput) : messageInput!;
+        return [m, hashMessage(m)];
+      }
+    })();
 
     // upsert can't be used as exclusive hash constraint exists on parent type (Proposal)
     const proposal =
@@ -42,6 +63,7 @@ export class MessageProposalsService {
             account: selectAccount(account),
             hash,
             message,
+            typedData,
             label,
             iconUri,
           }),
@@ -124,5 +146,21 @@ export class MessageProposalsService {
     );
 
     return signature;
+  }
+
+  private typedDataAsMessage(typedData: TypedDataDefinition): Hex {
+    return asHex(
+      concat(
+        (
+          [
+            '0x1901',
+            typedData.domain && ethers.utils._TypedDataEncoder.hashDomain(typedData.domain),
+            ethers.utils._TypedDataEncoder
+              .from(_.omit(typedData.types as WritableDeep<typeof typedData.types>, 'EIP712Domain'))
+              .hash(typedData.message),
+          ] as Hex[]
+        ).filter(isPresent),
+      ),
+    );
   }
 }

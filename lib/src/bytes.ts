@@ -6,9 +6,8 @@ import {
   isHexString as baseIsHexString,
   hexDataLength,
 } from 'ethers/lib/utils';
-import { A } from 'ts-toolbelt';
 
-export type Hex = A.Type<`0x${string}`, 'Hex'>;
+export type Hex = `0x${string}`;
 export const isHex = (v: unknown, len?: number): v is Hex => baseIsHexString(v, len);
 export const asHex = <V extends BytesLike | null | undefined>(v: V, len?: number) => {
   const hex = v !== undefined && v !== null ? hexlify(v) : undefined;

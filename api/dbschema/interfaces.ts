@@ -129,6 +129,7 @@ export interface Proposal extends std.$Object {
 export interface MessageProposal extends Proposal {
   "message": string;
   "signature"?: string | null;
+  "typedData"?: unknown | null;
 }
 export interface Operation extends std.$Object {
   "data"?: string | null;

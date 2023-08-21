@@ -121,6 +121,7 @@ module default {
 
   type MessageProposal extending Proposal {
     required message: str;
+    typedData: json;
     signature: Bytes;
   }
 

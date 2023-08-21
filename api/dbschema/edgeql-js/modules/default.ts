@@ -277,6 +277,7 @@ const Proposal: $.$expr_PathNode<$.TypeSet<$Proposal, $.Cardinality.Many>, null>
 export type $MessageProposalλShape = $.typeutil.flatten<$ProposalλShape & {
   "message": $.PropertyDesc<_std.$str, $.Cardinality.One, false, false, false, false>;
   "signature": $.PropertyDesc<$Bytes, $.Cardinality.AtMostOne, false, false, false, false>;
+  "typedData": $.PropertyDesc<_std.$json, $.Cardinality.AtMostOne, false, false, false, false>;
 }>;
 type $MessageProposal = $.ObjectType<"default::MessageProposal", $MessageProposalλShape, null, [
   ...$Proposal['__exclusives__'],

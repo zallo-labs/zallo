@@ -218,6 +218,7 @@ type MessageProposal implements Node & Proposal {
   rejections: [Rejection!]!
   responses: [ProposalResponse!]!
   signature: Bytes32
+  typedData: TypedData
   updatable: Boolean!
 }
 
@@ -382,10 +383,13 @@ input ProposeMessageInput {
   account: Address!
   iconUri: String
   label: String
-  message: String!
+
+  """Optional if typedData is provided"""
+  message: String
 
   """Approve the proposal"""
   signature: Bytes
+  typedData: TypedData
 }
 
 input ProposeTransactionInput {
@@ -770,6 +774,9 @@ input TransfersInput {
   """Originating from an account transaction"""
   internal: Boolean
 }
+
+"""EIP712 Typed Data"""
+scalar TypedData
 
 """256-bit unsigned integer"""
 scalar Uint256
