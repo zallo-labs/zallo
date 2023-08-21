@@ -8,7 +8,7 @@ import {
 } from 'urql';
 import { DocumentNode, Kind } from 'graphql';
 import * as documents from '~/gql/api/documents.generated';
-import { clog } from '~/util/format';
+import { logWarning } from '~/util/analytics';
 
 type Options<Data, Variables extends AnyVariables> = Omit<
   UseQueryArgs<Variables, Data>,
@@ -38,7 +38,7 @@ export function useQuery<Data, Variables extends AnyVariables>(
 ) {
   const [response, reexecute] = useBaseQuery({
     ...options,
-    query: tryReplaceDocument(query),
+    query: getOptimizedDocument(query),
     variables: variables!,
   });
 
@@ -50,7 +50,7 @@ export function useQuery<Data, Variables extends AnyVariables>(
 
 const CACHED_REPLACEMENTS = new Map<DocumentInput<unknown, unknown>, DocumentNode | null>();
 
-export function tryReplaceDocument<Data, Variables>(
+export function getOptimizedDocument<Data, Variables>(
   doc: DocumentInput<Data, Variables>,
 ): DocumentInput<Data, Variables> {
   // Replace document with Relay compiler optimized version (from api/generated)
@@ -58,7 +58,7 @@ export function tryReplaceDocument<Data, Variables>(
   if (cachedMatch) return cachedMatch;
   if (cachedMatch === null) return doc;
 
-  if (typeof doc === 'object' && doc.definitions.length >= 1) {
+  if (typeof doc === 'object' && doc?.definitions && doc.definitions.length >= 1) {
     const def = doc.definitions[0];
 
     if (def.kind === Kind.OPERATION_DEFINITION && def.name) {
@@ -70,7 +70,7 @@ export function tryReplaceDocument<Data, Variables>(
     }
   }
 
-  clog({ noMatch: doc });
+  logWarning('No matching optimized document found', { doc });
 
   CACHED_REPLACEMENTS.set(doc, null);
   return doc;
