@@ -3,41 +3,59 @@ import { useSessionPropsalListener } from './useSessionPropsalListener';
 import { useUpdateWalletConnect, useWalletConnectWithoutWatching } from '~/util/walletconnect';
 import { useSessionRequestListener } from './useSessionRequestListener';
 import { withSuspense } from '../skeleton/withSuspense';
+import { SignClientTypes } from '@walletconnect/types';
+import { SignClient } from '@walletconnect/sign-client/dist/types/client';
+import { logTrace } from '~/util/analytics';
 
 export const WalletConnectListeners = withSuspense(
   () => {
     const client = useWalletConnectWithoutWatching();
     const update = useUpdateWalletConnect();
-    const handleSessionProposal = useSessionPropsalListener();
-    const handleSessionRequest = useSessionRequestListener();
+
+    useSessionPropsalListener();
+    useSessionRequestListener();
 
     useEffect(() => {
-      const handlers = [
-        [
+      // https://specs.walletconnect.com/2.0/specs/clients/sign/session-events
+      const handlers: Parameters<typeof client.on>[] = [
+        ['session_update', update],
+        ['session_extend', update],
+        ['session_delete', update],
+        ['session_expire', update],
+        ...traceEvents(client, [
           'session_proposal',
-          (p) => {
-            handleSessionProposal(client, p);
-          },
-        ] as Parameters<typeof client.on<'session_proposal'>>,
-        [
-          'session_request',
-          (event) => {
-            handleSessionRequest(client, event);
-          },
-        ] as Parameters<typeof client.on<'session_request'>>,
-        ['session_update', update] as Parameters<typeof client.on<'session_update'>>,
-        ['session_expire', update] as Parameters<typeof client.on<'session_expire'>>,
-        ['session_delete', update] as Parameters<typeof client.on<'session_delete'>>,
-      ] as const;
+          'session_update',
+          'session_extend',
+          'session_delete',
+          'session_expire',
+          'session_request_sent',
+          'session_event',
+          'proposal_expire',
+        ]),
+      ];
 
-      handlers.forEach(([type, f]) => client.on(type, f as any)); // type error 🤷
+      handlers.forEach(([type, f]) => client.on(type, f));
 
       return () => {
-        handlers.forEach(([type, f]) => client.off(type, f as any)); // type error 🤷
+        handlers.forEach(([type, f]) => client.off(type, f));
       };
-    }, [client?.on, handleSessionProposal, handleSessionRequest]);
+    }, [client, update]);
 
     return null;
   },
   () => null,
 );
+
+function traceEvents(client: SignClient, events: SignClientTypes.Event[]) {
+  return events.map(
+    (event) =>
+      [
+        event,
+        (args) =>
+          logTrace(`WalletConnect`, {
+            event,
+            params: 'params' in args ? args.params : undefined,
+          }),
+      ] as Parameters<typeof client.on>,
+  );
+}

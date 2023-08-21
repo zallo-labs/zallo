@@ -4,7 +4,7 @@ import 'node-libs-react-native/globals';
 
 // Buffer
 import { Buffer } from '@craftzdog/react-native-buffer';
-global.Buffer = Buffer as any;
+global.Buffer = Buffer as unknown as typeof global.Buffer;
 
 // Crypto
 import 'react-native-quick-crypto'; // crypto
