@@ -14,6 +14,8 @@ import { logWarning } from '~/util/analytics';
 import { toUtf8Bytes } from 'ethers/lib/utils';
 import _ from 'lodash';
 import { retryAsync } from '~/util/retry';
+import { TypedDataDefinition } from 'viem';
+import { WritableDeep } from 'ts-toolbelt/out/Object/Writable';
 
 // Based off https://github.com/ethers-io/ethers.js/blob/v5.7/packages/hardware-wallets/src.ts/ledger.ts
 // Unfortunately the ethers version only supports HID devices and has been removed in ethers 6
@@ -28,7 +30,7 @@ export interface LedgerApprover {
   transport: TransportBLE;
   address: Address;
   signMessage(message: string): ResultAsync<Hex, 'user-rejected'>;
-  signEip712Message(m: EIP712Message): ResultAsync<Hex, 'user-rejected'>;
+  signEip712Message(m: TypedDataDefinition): ResultAsync<Hex, 'user-rejected'>;
 }
 
 export type LedgerConnectEvent = Result<LedgerApprover, ConnectState>;
@@ -188,22 +190,22 @@ export function connectLedger(deviceIds: DeviceId[]) {
                 .mapErr(() => 'user-rejected' as const)
                 .map(hexlifySignature);
             },
-            signEip712Message(m: EIP712Message) {
+            signEip712Message(m: TypedDataDefinition) {
               return asResult(
                 match(transport.deviceModel.id)
                   // The Nano S doesn't support eth.signEIP712Message()
                   .with(DeviceModelId.nanoS, () =>
                     eth.signEIP712HashedMessage(
                       PATH,
-                      asHex(ethers.utils._TypedDataEncoder.hashDomain(m.domain)).substring(2),
+                      asHex(ethers.utils._TypedDataEncoder.hashDomain(m.domain ?? {})).substring(2),
                       asHex(
                         ethers.utils._TypedDataEncoder
-                          .from(_.omit(m.types, ['EIP712Domain'])) // ethers doesn't allowing including EIP712Domain in types
+                          .from(_.omit(m.types as WritableDeep<typeof m.types>, ['EIP712Domain'])) // ethers doesn't allowing including EIP712Domain in types
                           .hash(m.message),
                       ).substring(2),
                     ),
                   )
-                  .otherwise(() => eth.signEIP712Message(PATH, m)),
+                  .otherwise(() => eth.signEIP712Message(PATH, m as unknown as EIP712Message)),
                 [StatusCodes.CONDITIONS_OF_USE_NOT_SATISFIED],
               )
                 .mapErr(() => 'user-rejected' as const)

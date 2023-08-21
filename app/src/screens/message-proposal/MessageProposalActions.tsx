@@ -14,6 +14,7 @@ const MessageProposal = gql(/* GraphQL */ `
     id
     hash
     message
+    typedData
     ...UseCanRespond_Proposal
     ...UseSignWithApprover_Propsosal
   }
@@ -89,7 +90,10 @@ export function MessageProposalActions(props: MessageProposalActionsProps) {
             mode="contained-tonal"
             icon={BluetoothIcon}
             onPress={async () => {
-              const { signature } = await signWithLedger({ device: approver, content: p.message });
+              const { signature } = await signWithLedger({
+                device: approver,
+                content: p.typedData ?? p.message,
+              });
               await approve({ input: { hash: p.hash, approver, signature } });
             }}
           >

@@ -2,7 +2,7 @@ import { gql } from '@api/generated';
 import { useNavigation } from '@react-navigation/native';
 import { asBigInt } from 'lib';
 import { useEffect, useState } from 'react';
-import { showInfo } from '~/provider/SnackbarProvider';
+import { showError, showInfo } from '~/provider/SnackbarProvider';
 import { logError } from '~/util/analytics';
 import { asWalletConnectResult, useWalletConnectWithoutWatching } from '~/util/walletconnect';
 import {
@@ -115,25 +115,23 @@ export const useSessionRequestListener = () => {
 
         navigate('Proposal', { proposal });
 
-        // sub is automatically unsubscribed due to proposalsExecuted unsubscribe on unmount
+        // sub is automatically unsubscribed on unmount due to proposals unsubscribe
       } else if (WC_SIGNING_METHODS.has(method)) {
-        const request = params.request as SigningRequest;
-        const { account, message } = normalizeSigningRequest(request);
-
-        // TODO: handle EIP712 messages
-        if (typeof message !== 'string') throw new Error('EIP712 signing unimplemented!');
+        const request = normalizeSigningRequest(params.request as SigningRequest);
 
         const proposal = (
           await proposeMessage({
             input: {
-              account,
-              message,
+              account: request.account,
               label: `${peer.name} signature request`,
               iconUri: peer.icons[0],
+              ...(request.method === 'personal-sign'
+                ? { message: request.message }
+                : { typedData: request.typedData }),
             },
           })
         ).data?.proposeMessage;
-        if (!proposal) return;
+        if (!proposal) return showError(`${peer.name}: failed to propose transaction`);
 
         // Respond immediately if message has previously been signed
         if (proposal.signature)
@@ -150,7 +148,7 @@ export const useSessionRequestListener = () => {
 
         navigate('MessageProposal', { proposal: proposal.hash });
 
-        // sub is automatically unsubscribed due to proposalsApproved unsubscribe on unmount
+        // sub is automatically unsubscribed on unmount due to proposals unsubscribe
       } else {
         logError('Unsupported session_request method executed', { params });
       }

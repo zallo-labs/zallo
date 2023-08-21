@@ -15,6 +15,7 @@ const Query = gql(/* GraphQL */ `
       id
       label
       message
+      typedData
       ...MessageIcon_MessageProposal
     }
   }
@@ -40,7 +41,7 @@ export const MessageDetailsTab = withSuspense(({ route }: MessageDetailsTabProps
         </Text>
       </View>
 
-      <DataView>{p.message}</DataView>
+      <DataView>{p.typedData ?? p.message}</DataView>
     </ScrollView>
   );
 }, TabScreenSkeleton);

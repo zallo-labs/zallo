@@ -15,9 +15,9 @@ import { EventEmitter } from '~/util/EventEmitter';
 import { useLedger } from '~/components/ledger/useLedger';
 import { Result } from 'neverthrow';
 import { Button } from '~/components/Button';
-import { EIP712Message } from '@ledgerhq/types-live';
 import { gql } from '@api/generated';
 import { useQuery } from '~/gql';
+import { TypedDataDefinition } from 'viem';
 
 const RejectedIcon = materialIcon('error-outline');
 
@@ -38,11 +38,11 @@ export const getLedgerLazySignature = async (content: SignContent) => {
   return p;
 };
 
-type SignContent = PersonalMessage | EIP712Message;
+type SignContent = PersonalMessage | TypedDataDefinition;
 type PersonalMessage = string;
 
 const isPersonalMessage = (c: SignContent): c is PersonalMessage => typeof c === 'string';
-const isEip712Message = (c: SignContent): c is EIP712Message => typeof c === 'object';
+const isEip712Message = (c: SignContent): c is TypedDataDefinition => typeof c === 'object';
 
 const Query = gql(/* GraphQL */ `
   query LedgerSignSheet($approver: Address!) {
