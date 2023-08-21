@@ -2,6 +2,7 @@ import { gql } from '@api/generated';
 import { makeStyles } from '@theme/makeStyles';
 import { getSdkError } from '@walletconnect/utils';
 import { tryOrCatchAsync } from 'lib';
+import { useEffect } from 'react';
 import { Text } from 'react-native-paper';
 import { useImmer } from 'use-immer';
 import { Button } from '~/components/Button';
@@ -12,12 +13,8 @@ import { PeerHeader } from '~/components/walletconnect/PeerHeader';
 import { useQuery } from '~/gql';
 import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
 import { showError, showSuccess } from '~/provider/SnackbarProvider';
-import {
-  WalletConnectEventArgs,
-  toNamespaces,
-  useUpdateWalletConnect,
-  useWalletConnect,
-} from '~/util/walletconnect';
+import { toNamespaces, useUpdateWalletConnect, useWalletConnect } from '~/util/walletconnect';
+import { SignClientTypes } from '@walletconnect/types';
 
 const Query = gql(/* GraphQL */ `
   query ConnectSheet {
@@ -29,7 +26,7 @@ const Query = gql(/* GraphQL */ `
   }
 `);
 
-export type ConnectSheetParams = WalletConnectEventArgs['session_proposal'];
+export type ConnectSheetParams = SignClientTypes.EventArguments['session_proposal'];
 
 export type ConnectSheetProps = StackNavigatorScreenProps<'ConnectSheet'>;
 
@@ -42,6 +39,21 @@ export const ConnectSheet = ({ navigation: { goBack }, route }: ConnectSheetProp
   const { accounts } = useQuery(Query).data;
 
   const [selected, updateSelected] = useImmer(new Set(accounts.map((a) => a.address)));
+
+  useEffect(() => {
+    const handleExpiry = (args: SignClientTypes.EventArguments['proposal_expire']) => {
+      if (args.id === id) {
+        showError('DApp connection proposal expired, please try again');
+        goBack();
+      }
+    };
+
+    client.on('proposal_expire', handleExpiry);
+
+    return () => {
+      client.off('proposal_expire', handleExpiry);
+    };
+  }, [client, goBack, id]);
 
   const connect = async () => {
     const req = await tryOrCatchAsync(
