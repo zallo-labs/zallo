@@ -33,6 +33,7 @@ const ProposeMessage = gql(/* GraphQL */ `
     proposeMessage(input: $input) {
       id
       hash
+      signature
     }
   }
 `);
@@ -131,19 +132,23 @@ export const useSessionRequestListener = () => {
               iconUri: peer.icons[0],
             },
           })
-        ).data?.proposeMessage.hash;
+        ).data?.proposeMessage;
         if (!proposal) return;
 
-        showInfo(`${peer.name} has requested a signature`);
+        // Respond immediately if message has previously been signed
+        if (proposal.signature)
+          return client.respond({ topic, response: asWalletConnectResult(id, proposal.signature) });
+
+        showInfo(`${peer.name} wants you to sign a message`);
 
         const sub = proposals.subscribe((p) => {
-          if (p.hash === proposal && p.__typename === 'MessageProposal' && p.signature) {
+          if (p.hash === proposal.hash && p.__typename === 'MessageProposal' && p.signature) {
             client.respond({ topic, response: asWalletConnectResult(id, p.signature) });
             sub.unsubscribe();
           }
         });
 
-        navigate('MessageProposal', { proposal });
+        navigate('MessageProposal', { proposal: proposal.hash });
 
         // sub is automatically unsubscribed due to proposalsApproved unsubscribe on unmount
       } else {
