@@ -8,7 +8,7 @@ import { FragmentType, gql, useFragment } from '@api/generated';
 import { useMutation } from 'urql';
 
 const FragmentDoc = gql(/* GraphQL */ `
-  fragment SelectedPolicy_TransactionProposalFragment on TransactionProposal
+  fragment SelectedPolicy_ProposalFragment on Proposal
   @argumentDefinitions(proposal: { type: "Bytes32!" }) {
     id
     hash
@@ -32,7 +32,7 @@ const FragmentDoc = gql(/* GraphQL */ `
 
 const Update = gql(/* GraphQL */ `
   mutation SelectedPolicy_Update($hash: Bytes32!, $policy: PolicyKey!) {
-    updateTransactionProposal(input: { hash: $hash, policy: $policy }) {
+    updateProposal(input: { hash: $hash, policy: $policy }) {
       id
       policy {
         id

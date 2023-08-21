@@ -1,7 +1,12 @@
 import { FragmentType, gql, useFragment as getFragment } from '@api/generated';
-import { PROVIDER } from '@network/provider';
 import { ethers } from 'ethers';
-import { Operation, TX_EIP712_TYPE, asBigInt, getDomain, getTransactionEip712Value } from 'lib';
+import {
+  Operation,
+  TX_EIP712_TYPES,
+  asBigInt,
+  getAccountTypedDataDomain,
+  getTransactionTypedDataMessage,
+} from 'lib';
 import { EIP712Message } from '@ledgerhq/types-live';
 
 const TransactionProposal = gql(/* GraphQL */ `
@@ -21,16 +26,15 @@ const TransactionProposal = gql(/* GraphQL */ `
   }
 `);
 
-export async function proposalAsEip712Message(
+export function proposalAsEip712Message(
   proposalFragment: FragmentType<typeof TransactionProposal>,
-): Promise<EIP712Message> {
+): EIP712Message {
   const p = getFragment(TransactionProposal, proposalFragment);
 
   return ethers.utils._TypedDataEncoder.getPayload(
-    // Mainnet TODO: getDomain should accept a global address
-    await getDomain({ address: p.account.address, provider: PROVIDER }),
-    TX_EIP712_TYPE,
-    await getTransactionEip712Value(
+    getAccountTypedDataDomain(p.account.address),
+    TX_EIP712_TYPES,
+    getTransactionTypedDataMessage(
       {
         operations: p.operations.map(
           (op): Operation => ({

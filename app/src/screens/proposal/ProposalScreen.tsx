@@ -24,7 +24,7 @@ const Query = gql(/* GraphQL */ `
         id
         name
       }
-      ...ProposalActions_TransactionProposalFragment
+      ...ProposalActions_TransactionProposal
     }
 
     user {
@@ -36,7 +36,7 @@ const Query = gql(/* GraphQL */ `
 
 const Remove = gql(/* GraphQL */ `
   mutation ProposalScreen_Remove($proposal: Bytes32!) {
-    removeTransactionProposal(input: { hash: $proposal })
+    removeTransaction(input: { hash: $proposal })
   }
 `);
 

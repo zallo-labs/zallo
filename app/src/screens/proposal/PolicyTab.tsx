@@ -10,11 +10,11 @@ import { SelectedPolicy } from './SelectedPolicy';
 import { makeStyles } from '@theme/makeStyles';
 import { Hex } from 'lib';
 import { gql, useFragment } from '@api/generated';
-import { tryReplaceDocument, useQuery } from '~/gql';
+import { getOptimizedDocument, useQuery } from '~/gql';
 import { useSubscription } from 'urql';
 
 const FragmentDoc = gql(/* GraphQL */ `
-  fragment PolicyTab_TransactionProposalFragment on TransactionProposal
+  fragment PolicyTab_ProposalFragment on Proposal
   @argumentDefinitions(proposal: { type: "Bytes32!" }) {
     id
     account {
@@ -58,14 +58,14 @@ const FragmentDoc = gql(/* GraphQL */ `
       id
       address
     }
-    ...SelectedPolicy_TransactionProposalFragment @arguments(proposal: $proposal)
+    ...SelectedPolicy_ProposalFragment @arguments(proposal: $proposal)
   }
 `);
 
 const Query = gql(/* GraphQL */ `
   query PolicyTab($proposal: Bytes32!) {
-    transactionProposal(input: { hash: $proposal }) {
-      ...PolicyTab_TransactionProposalFragment @arguments(proposal: $proposal)
+    proposal(input: { hash: $proposal }) {
+      ...PolicyTab_ProposalFragment @arguments(proposal: $proposal)
     }
   }
 `);
@@ -73,7 +73,7 @@ const Query = gql(/* GraphQL */ `
 const Subscription = gql(/* GraphQL */ `
   subscription PolicyTab_Subscription($proposal: Bytes32!) {
     proposal(input: { proposals: [$proposal] }) {
-      ...PolicyTab_TransactionProposalFragment @arguments(proposal: $proposal)
+      ...PolicyTab_ProposalFragment @arguments(proposal: $proposal)
     }
   }
 `);
@@ -89,10 +89,10 @@ export const PolicyTab = withSuspense(({ route }: PolicyTabProps) => {
 
   const { data } = useQuery(Query, { proposal: route.params.proposal });
   useSubscription({
-    query: tryReplaceDocument(Subscription),
+    query: getOptimizedDocument(Subscription),
     variables: { proposal: route.params.proposal },
   });
-  const p = useFragment(FragmentDoc, data?.transactionProposal);
+  const p = useFragment(FragmentDoc, data?.proposal);
 
   if (!p) return null;
 

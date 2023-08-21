@@ -13,6 +13,7 @@ import { asDateTime } from '~/components/format/Timestamp';
 import { gql } from '@api/generated';
 import { useQuery } from '~/gql';
 import { useSubscription } from 'urql';
+import { MessageProposalItem } from '~/components/proposal/MessageProposalItem';
 
 const Query = gql(/* GraphQL */ `
   query ActivityTab($accounts: [Address!]!) {
@@ -21,6 +22,7 @@ const Query = gql(/* GraphQL */ `
       id
       timestamp: createdAt
       ...ProposalItem_TransactionProposal
+      ...MessageProposalItem_MessageProposal
     }
 
     user {
@@ -65,7 +67,7 @@ export type ActivityTabProps = TabNavigatorScreenProp<'Activity'> & { account: A
 
 export const ActivityTab = withSuspense(
   ({ account }: ActivityTabProps) => {
-    const { proposals, transfers, user } = useQuery(Query, { accounts: [account] }).data;
+    const { proposals, transfers, user } = useQuery(Query, { accounts: [account] }).data ?? {};
     useSubscription({ query: ProposalSubscription, variables: { accounts: [account] } });
     useSubscription({ query: TransferSubscription, variables: { accounts: [account] } });
 
@@ -81,6 +83,7 @@ export const ActivityTab = withSuspense(
             .with({ __typename: 'TransactionProposal' }, (p) => (
               <ProposalItem proposal={p} user={user} />
             ))
+            .with({ __typename: 'MessageProposal' }, (p) => <MessageProposalItem proposal={p} />)
             .with({ __typename: 'Transfer' }, (transfer) => (
               <IncomingTransferItem transfer={transfer} />
             ))

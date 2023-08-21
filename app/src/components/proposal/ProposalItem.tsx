@@ -32,7 +32,7 @@ const Proposal = gql(/* GraphQL */ `
       }
     }
     ...ProposalValue_TransactionProposal
-    ...UseCanRespond_TransactionProposalFragment
+    ...UseCanRespond_Proposal
   }
 `);
 

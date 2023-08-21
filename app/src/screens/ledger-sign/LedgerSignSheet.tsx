@@ -39,7 +39,6 @@ export const getLedgerLazySignature = async (content: SignContent) => {
 };
 
 type SignContent = PersonalMessage | EIP712Message;
-
 type PersonalMessage = string;
 
 const isPersonalMessage = (c: SignContent): c is PersonalMessage => typeof c === 'string';

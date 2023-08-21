@@ -1,33 +1,22 @@
 import { FragmentType, gql, useFragment as getFragment } from '@api/generated';
 import { useApproverWallet } from '@network/useApprover';
-import { Operation, asBigInt, asHex, signTx } from 'lib';
+import { asHex, signDigest } from 'lib';
 import { ok, err } from 'neverthrow';
 import { useCallback } from 'react';
 import { match } from 'ts-pattern';
 import { authenticate, useAuthSettings } from '~/provider/AuthGate';
 import { showError } from '~/provider/SnackbarProvider';
 
-type PersonalMessage = string;
-
 type SignContent = PersonalMessage | TransactionProposalFragment;
+type PersonalMessage = string;
+type TransactionProposalFragment = FragmentType<typeof Proposal>;
 
-const TransactionProposal = gql(/* GraphQL */ `
-  fragment UseSignWithApprover_TransactionPropsosal on TransactionProposal {
+const Proposal = gql(/* GraphQL */ `
+  fragment UseSignWithApprover_Propsosal on Proposal {
     id
-    account {
-      id
-      address
-    }
-    operations {
-      to
-      value
-      data
-    }
-    nonce
-    gasLimit
+    hash
   }
 `);
-type TransactionProposalFragment = FragmentType<typeof TransactionProposal>;
 
 const isMessageContent = (c: SignContent): c is PersonalMessage => typeof c === 'string';
 const isTransactionProposal = (c: SignContent): c is TransactionProposalFragment =>
@@ -46,20 +35,9 @@ export function useSignWithApprover() {
 
       const signature = await match(c)
         .when(isMessageContent, async (message) => asHex(await approver.signMessage(message)))
-        .when(isTransactionProposal, (proposalFragment) => {
-          const p = getFragment(TransactionProposal, proposalFragment);
-          return signTx(approver, p.account.address, {
-            operations: p.operations.map(
-              (op): Operation => ({
-                to: op.to,
-                value: asBigInt(op.value),
-                data: op.data || undefined,
-              }),
-            ) as [Operation, ...Operation[]],
-            nonce: asBigInt(p.nonce),
-            gasLimit: asBigInt(p.gasLimit),
-          });
-        })
+        .when(isTransactionProposal, (proposalFragment) =>
+          signDigest(getFragment(Proposal, proposalFragment).hash, approver),
+        )
         .exhaustive();
 
       return ok(signature);

@@ -2,6 +2,7 @@ import { ethers } from 'ethers';
 import * as zk from 'zksync-web3';
 import { tryOr } from './util/try';
 import { compareBytes } from './bytes';
+import { CHAINS } from './chain';
 
 export type Address = `0x${string}`;
 export type Addresslike = Address | string;
@@ -24,6 +25,8 @@ export const isAddressLike = (v: unknown): v is Addresslike =>
 
 export const compareAddress = (a: Addresslike, b: Addresslike) =>
   compareBytes(asAddress(a), asAddress(b));
+
+export const asChainId = (address: Address) => CHAINS.testnet.id;
 
 /* Module augmentation; including in a .ts file to compile into lib's typings */
 declare module './contracts/index' {

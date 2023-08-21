@@ -39,11 +39,18 @@ export const CACHE_CONFIG: Pick<
         invalidate(cache, { __typename: 'Policy', id: result.id });
         invalidate(cache, getAccountEntity(cache, input.account), ['policies']);
       },
-      propose: (_result, _args, cache) => {
+      proposeTransaction: (_result, _args, cache) => {
         invalidate(cache, 'Query', ['proposals']);
       },
-      removeProposal: (result: string, _args, cache) => {
-        invalidate(cache, { __typename: 'Proposal', id: result });
+      removeTransaction: (result: string, _args, cache) => {
+        invalidate(cache, { __typename: 'TransactionProposal', id: result });
+        invalidate(cache, 'Query', ['proposals']);
+      },
+      removeMessage: (result: string, _args, cache) => {
+        invalidate(cache, { __typename: 'MessageProposal', id: result });
+        invalidate(cache, 'Query', ['proposals']);
+      },
+      proposeMessage: (_result, _args, cache) => {
         invalidate(cache, 'Query', ['proposals']);
       },
       upsertToken: (_result, _args, cache) => {
@@ -102,7 +109,7 @@ const KEY_TYPENAME_CHECKED: Record<string | symbol, true> = {};
 type Schema = (typeof schema)['__schema'];
 
 type Type<U> = Extract<Schema['types'][number], U>;
-type Typename = Type<{ kind: 'OBJECT' }>['name'];
+type Typename = Type<{ kind: 'OBJECT' | 'INTERFACE' }>['name'];
 
 type QueryType = Type<{ name: Schema['queryType']['name'] }>['fields'][number];
 type Query = QueryType['name'];
@@ -114,7 +121,7 @@ type SubscriptionType = Type<{ name: Schema['subscriptionType']['name'] }>['fiel
 type Subscription = SubscriptionType['name'];
 
 function invalidate<
-  Entity extends Type<{ kind: 'OBJECT' }>,
+  Entity extends Type<{ kind: 'OBJECT' | 'INTERFACE' }>,
   EntityName extends Entity['name'],
   Fieldname extends Entity['fields'][number]['name'],
 >(

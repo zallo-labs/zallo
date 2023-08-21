@@ -1,12 +1,13 @@
 import { ethers } from 'ethers';
 import { match } from 'ts-pattern';
 import { Addresslike, asAddress, asHex } from 'lib';
+import { hexToString, isHex } from 'viem';
 
 export type SigningRequest = EthSignRequest | PersonalSignRequest | SignTypedDataRequest;
 
 const WC_SIGNING_METHODS_ARRAY = [
+  // eth_sign is insecure and not supported
   'personal_sign',
-  'eth_sign',
   'eth_signTypedData', // v1
   'eth_signTypedData_v3',
   'eth_signTypedData_v4',
@@ -49,7 +50,7 @@ export const normalizeSigningRequest = (r: SigningRequest) =>
     .with({ method: 'personal_sign' }, ({ method, params: [message, account] }) => ({
       method,
       account: asAddress(account),
-      message: asHex(message),
+      message: isHex(message) ? hexToString(message) : message,
     }))
     .with({ method: 'eth_sign' }, ({ method, params: [account, message] }) => ({
       method,

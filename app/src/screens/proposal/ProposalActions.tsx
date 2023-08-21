@@ -15,7 +15,8 @@ import { proposalAsEip712Message } from '../ledger-sign/proposalAsEip712Message'
 const BLOCK_EXPLORER_URL = CHAIN.blockExplorers?.default.url;
 
 const Proposal = gql(/* GraphQL */ `
-  fragment ProposalActions_TransactionProposalFragment on TransactionProposal {
+  fragment ProposalActions_TransactionProposal on TransactionProposal {
+    __typename
     id
     hash
     status
@@ -23,8 +24,8 @@ const Proposal = gql(/* GraphQL */ `
       id
       hash
     }
-    ...UseCanRespond_TransactionProposalFragment
-    ...UseSignWithApprover_TransactionPropsosal
+    ...UseCanRespond_Proposal
+    ...UseSignWithApprover_Propsosal
     ...ProposalAsEip712Message_TransactionProposal
   }
 `);
@@ -42,8 +43,8 @@ const User = gql(/* GraphQL */ `
 `);
 
 const Approve = gql(/* GraphQL */ `
-  mutation ApproveProposal($input: ApproveInput!) {
-    approveTransactionProposal(input: $input) {
+  mutation ProposalActions_Approve($input: ApproveInput!) {
+    approveTransaction(input: $input) {
       id
       approvals {
         id
@@ -56,7 +57,7 @@ const Approve = gql(/* GraphQL */ `
 `);
 
 const Reject = gql(/* GraphQL */ `
-  mutation RejectProposal($proposal: Bytes32!) {
+  mutation ProposalActions_Reject($proposal: Bytes32!) {
     rejectProposal(input: { hash: $proposal }) {
       id
       approvals {
@@ -96,7 +97,7 @@ export const ProposalActions = (props: ProposalActionsProps) => {
   const execute = useMutation(Execute)[1];
 
   return (
-    <Actions style={{ flexGrow: 0 }}>
+    <Actions style={styles.container}>
       {canReject.includes(approver) && (
         <Button onPress={() => reject({ proposal: p.hash })}>Reject</Button>
       )}
@@ -111,7 +112,7 @@ export const ProposalActions = (props: ProposalActionsProps) => {
             onPress={async () => {
               const { signature } = await signWithLedger({
                 device: approver,
-                content: await proposalAsEip712Message(p),
+                content: proposalAsEip712Message(p),
               });
               await approve({ input: { hash: p.hash, approver, signature } });
             }}
@@ -162,6 +163,9 @@ export const ProposalActions = (props: ProposalActionsProps) => {
 };
 
 const useStyles = makeStyles(({ colors }) => ({
+  container: {
+    flexGrow: 0,
+  },
   retryContainer: {
     backgroundColor: colors.errorContainer,
   },
