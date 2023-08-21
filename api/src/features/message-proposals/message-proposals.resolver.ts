@@ -1,4 +1,4 @@
-import { ID, Info, Mutation, Query, Resolver } from '@nestjs/graphql';
+import { ID, Info, Mutation, Parent, Query, Resolver } from '@nestjs/graphql';
 import { MessageProposal } from './message-proposals.model';
 import { Input } from '~/decorators/input.decorator';
 import { ProposeMessageInput } from './message-proposals.input';
@@ -7,6 +7,7 @@ import { ApproveInput, ProposalInput } from '../proposals/proposals.input';
 import { MessageProposalsService } from './message-proposals.service';
 import { getShape } from '../database/database.select';
 import { ComputedField } from '~/decorators/computed.decorator';
+import e from '~/edgeql-js';
 
 @Resolver(() => MessageProposal)
 export class MessageProposalsResolver {
@@ -17,9 +18,9 @@ export class MessageProposalsResolver {
     return this.service.selectUnique(input.hash, getShape(info));
   }
 
-  @ComputedField(() => Boolean, {})
-  async updatable() {
-    return true;
+  @ComputedField<typeof e.MessageProposal>(() => Boolean, { signature: true })
+  async updatable(@Parent() { signature }: MessageProposal) {
+    return !!signature;
   }
 
   @Mutation(() => MessageProposal)
