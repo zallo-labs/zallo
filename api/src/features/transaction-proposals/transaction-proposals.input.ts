@@ -39,6 +39,9 @@ export class ProposeTransactionInput {
   @Field(() => String, { nullable: true })
   label?: string;
 
+  @Field(() => String, { nullable: true })
+  iconUri?: string;
+
   @Uint256Field({ nullable: true })
   nonce?: bigint;
 

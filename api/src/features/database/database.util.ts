@@ -1,4 +1,4 @@
-import { TypeSet } from '~/edgeql-js/reflection';
+import { ObjectTypeSet, TypeSet } from '~/edgeql-js/reflection';
 import e from '~/edgeql-js';
 import { isTruthy } from 'lib';
 import { orScalarLiteral } from '~/edgeql-js/castMaps';
@@ -25,3 +25,15 @@ export const or = (<Op extends orScalarLiteral<TypeSet<$bool>>>() => {
 
   return (...ops: (Op | undefined)[]) => chain(ops.filter(isTruthy));
 })();
+
+export const makeUnionTypeResolver = (mappings: [ObjectTypeSet, unknown][] = []) => {
+  const typenameMappings = Object.fromEntries(
+    mappings.map(([type, r]) => [type.__element__.__name__, r] as const),
+  );
+
+  return function resolveUnionType(value: any) {
+    const typename = value.__type__?.name; // Includes module name, e.g. default::Proposal
+
+    return typenameMappings[typename] || typename.split('::')[1];
+  };
+};

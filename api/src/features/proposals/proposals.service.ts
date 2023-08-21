@@ -7,9 +7,14 @@ import { getUserCtx } from '~/request/ctx';
 import { ShapeFunc } from '../database/database.select';
 import { DatabaseService } from '../database/database.service';
 import { ProviderService } from '~/features/util/provider/provider.service';
-import { ApproveInput, ProposalEvent, ProposalsInput } from './proposals.input';
+import {
+  ApproveInput,
+  ProposalEvent,
+  ProposalsInput,
+  UpdateProposalInput,
+} from './proposals.input';
 import { PubsubService } from '~/features/util/pubsub/pubsub.service';
-import { and, or } from '../database/database.util';
+import { and } from '../database/database.util';
 import { selectAccount } from '../accounts/accounts.util';
 
 export type UniqueProposal = uuid | Hex;
@@ -37,7 +42,12 @@ export class ProposalsService {
   ) {}
 
   async selectUnique(id: UniqueProposal, shape: ShapeFunc<typeof e.Proposal>) {
-    return this.db.query(selectProposal(id, shape));
+    return this.db.query(
+      selectProposal(id, (p) => ({
+        ...shape?.(p),
+        __type__: { name: true },
+      })),
+    );
   }
 
   async select({ accounts, pending }: ProposalsInput, shape: ShapeFunc<typeof e.Proposal>) {
@@ -108,6 +118,22 @@ export class ProposalsService {
     });
 
     await this.publishProposal(id, ProposalEvent.rejection);
+  }
+
+  async update({ hash, policy }: UpdateProposalInput) {
+    if (policy === undefined) return;
+
+    await this.db.query(
+      e.update(e.Proposal, (p) => ({
+        filter_single: { hash },
+        set: {
+          policy:
+            policy !== null
+              ? e.select(e.Policy, () => ({ filter_single: { account: p.account, key: policy } }))
+              : null,
+        },
+      })),
+    );
   }
 
   async publishProposal(

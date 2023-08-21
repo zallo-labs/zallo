@@ -77,6 +77,7 @@ export class TransactionProposalsService {
     account,
     operations,
     label,
+    iconUri,
     nonce,
     gasLimit,
     feeToken = ETH_ADDRESS as Address,
@@ -89,13 +90,14 @@ export class TransactionProposalsService {
         operations: operations as [OperationInput, ...OperationInput[]],
         nonce: nonce ?? (await this.getUnusedNonce(account)),
       });
-      const hash = await hashTx(tx, { address: account, provider: this.provider });
+      const hash = hashTx(account, tx);
 
       const { id } = await e
         .insert(e.TransactionProposal, {
           hash,
           account: selectAccount(account),
           label,
+          iconUri,
           operations: e.set(
             ...operations.map((op) =>
               e.insert(e.Operation, {

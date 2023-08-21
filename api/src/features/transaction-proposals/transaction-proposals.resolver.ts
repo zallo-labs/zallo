@@ -48,13 +48,13 @@ export class TransactionProposalsResolver {
   }
 
   @Mutation(() => TransactionProposal)
-  async approveTransactionProposal(@Input() input: ApproveInput, @Info() info: GraphQLResolveInfo) {
+  async approveTransaction(@Input() input: ApproveInput, @Info() info: GraphQLResolveInfo) {
     await this.service.approve(input);
     return this.service.selectUnique(input.hash, getShape(info));
   }
 
   @Mutation(() => TransactionProposal)
-  async updateTransactionProposal(
+  async updateTransaction(
     @Input() input: UpdateTransactionProposalInput,
     @Info() info: GraphQLResolveInfo,
   ) {
@@ -63,7 +63,7 @@ export class TransactionProposalsResolver {
   }
 
   @Mutation(() => ID, { nullable: true })
-  async removeTransactionProposal(@Input() { hash }: ProposalInput): Promise<uuid | null> {
+  async removeTransaction(@Input() { hash }: ProposalInput): Promise<uuid | null> {
     return this.service.delete(hash);
   }
 }

@@ -31,6 +31,8 @@ import { SimulationsModule } from './features/simulations/simulations.module';
 import { BullModule } from './features/util/bull/bull.module';
 import { TokensModule } from './features/tokens/tokens.module';
 import { PricesModule } from './features/prices/prices.module';
+import { MessageProposalsModule } from './features/message-proposals/message-proposals.module';
+import { ProposalsModule } from './features/proposals/proposals.module';
 
 @Module({
   imports: [
@@ -53,10 +55,12 @@ import { PricesModule } from './features/prices/prices.module';
     ExplorerModule,
     FaucetModule,
     HealthModule,
+    MessageProposalsModule,
     OperationsModule,
     PaymasterModule,
     PoliciesModule,
     PricesModule,
+    ProposalsModule,
     ReceiptsModule,
     SimulationsModule,
     TokensModule,

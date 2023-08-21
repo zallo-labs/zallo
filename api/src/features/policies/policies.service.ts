@@ -4,6 +4,7 @@ import {
   Address,
   asHex,
   asPolicyKey,
+  getMessageSatisfiability,
   getTransactionSatisfiability,
   Hex,
   Policy,
@@ -297,23 +298,39 @@ export class PoliciesService {
     if (!state)
       return { result: Satisfiability.unsatisfiable, reasons: [{ reason: 'Policy inactive' }] };
 
-    const policy = await this.db.query(
-      e.select(e.TransactionProposal, (p) => ({
+    const proposal = await this.db.query(
+      e.select(e.Proposal, () => ({
         filter_single: { hash: proposalHash },
-        ...proposalTxShape(p),
-        approvals: {
-          approver: { address: true },
-        },
+        approvals: { approver: { address: true } },
+        ...e.is(e.TransactionProposal, {
+          operations: {
+            to: true,
+            value: true,
+            data: true,
+          },
+          nonce: true,
+          gasLimit: true,
+        }),
       })),
     );
-    if (!policy)
+    if (!proposal)
       return { result: Satisfiability.unsatisfiable, reasons: [{ reason: 'Proposal not found' }] };
 
     const p = policyStateAsPolicy(key, state);
-    const tx = transactionProposalAsTx(policy);
-    const approvals = new Set(policy.approvals.map((a) => a.approver.address as Address));
+    const approvals = new Set(proposal.approvals.map((a) => a.approver.address as Address));
 
-    return getTransactionSatisfiability(p, tx, approvals);
+    return proposal.operations !== null && proposal.nonce !== null && proposal.gasLimit !== null
+      ? getTransactionSatisfiability(
+          p,
+          transactionProposalAsTx({
+            ...proposal,
+            operations: proposal.operations!,
+            nonce: proposal.nonce!,
+            gasLimit: proposal.gasLimit!,
+          }),
+          approvals,
+        )
+      : getMessageSatisfiability(p, approvals);
   }
 
   private async proposeState(account: Address, policy: Policy) {

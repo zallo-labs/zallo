@@ -12,7 +12,7 @@ enum AbiSourceConfidence {
   Medium
 }
 
-type Account {
+type Account implements Node {
   address: Address!
   id: ID!
   implementation: Address!
@@ -43,10 +43,16 @@ input AccountSubscriptionInput {
   events: AccountEvent
 }
 
+union Activity = MessageProposal | TransactionProposal | Transfer
+
+input ActivityInput {
+  address: Address!
+}
+
 """Ethereum address"""
 scalar Address
 
-type Approval {
+type Approval implements Node {
   approver: Approver!
   createdAt: DateTime!
   id: ID!
@@ -198,8 +204,26 @@ A field whose value is a IEEE 802 48-bit MAC address: https://en.wikipedia.org/w
 """
 scalar MAC
 
+type MessageProposal implements Node & Proposal {
+  account: Account!
+  approvals: [Approval!]!
+  createdAt: DateTime!
+  hash: Bytes32!
+  iconUri: String
+  id: ID!
+  label: String
+  message: String!
+  policy: Policy
+  proposedBy: Approver!
+  rejections: [Rejection!]!
+  responses: [ProposalResponse!]!
+  signature: Bytes32
+  updatable: Boolean!
+}
+
 type Mutation {
-  approve(input: ApproveInput!): TransactionProposal!
+  approveMessage(input: ApproveInput!): MessageProposal!
+  approveTransaction(input: ApproveInput!): TransactionProposal!
   createAccount(input: CreateAccountInput!): Account!
   createPolicy(input: CreatePolicyInput!): Policy!
   deleteContact(input: ContactInput!): ID
@@ -207,16 +231,19 @@ type Mutation {
 
   """Pair with another user - merging your approvers"""
   pair(input: PairInput!): User!
-  propose(input: ProposeInput!): TransactionProposal!
-  reject(input: ProposalInput!): TransactionProposal!
+  proposeMessage(input: ProposeMessageInput!): MessageProposal!
+  proposeTransaction(input: ProposeTransactionInput!): TransactionProposal!
+  rejectProposal(input: ProposalInput!): Proposal!
+  removeMessage(input: ProposalInput!): ID!
   removePolicy(input: UniquePolicyInput!): Policy!
-  removeProposal(input: ProposalInput!): ID
   removeToken(input: TokenInput!): ID
+  removeTransaction(input: ProposalInput!): ID
   requestTokens(input: RequestTokensInput!): [Address!]!
   updateAccount(input: UpdateAccountInput!): Account!
   updateApprover(input: UpdateApproverInput!): UserApprover!
   updatePolicy(input: UpdatePolicyInput!): Policy!
-  updateProposal(input: UpdateProposalInput!): TransactionProposal!
+  updateProposal(input: UpdateProposalInput!): Proposal!
+  updateTransaction(input: UpdateTransactionProposalInput!): TransactionProposal!
   updateUser(input: UpdateUserInput!): User!
   upsertContact(input: UpsertContactInput!): Contact!
   upsertToken(input: UpsertTokenInput!): Token!
@@ -300,21 +327,24 @@ type Price {
   token: Address!
 }
 
-type Proposal {
+interface Proposal implements Node {
   account: Account!
   approvals: [Approval!]!
   createdAt: DateTime!
   hash: Bytes32!
+  iconUri: String
   id: ID!
   label: String
   policy: Policy
   proposedBy: Approver!
   rejections: [Rejection!]!
   responses: [ProposalResponse!]!
+  updatable: Boolean!
 }
 
 enum ProposalEvent {
   approval
+  approved
   create
   delete
   executed
@@ -327,7 +357,7 @@ input ProposalInput {
   hash: Bytes32!
 }
 
-type ProposalResponse {
+type ProposalResponse implements Node {
   approver: Approver!
   createdAt: DateTime!
   id: ID!
@@ -345,13 +375,24 @@ input ProposalSubscriptionInput {
 
 input ProposalsInput {
   accounts: [Address!]
-  statuses: [TransactionProposalStatus!]
+  pending: Boolean
 }
 
-input ProposeInput {
+input ProposeMessageInput {
+  account: Address!
+  iconUri: String
+  label: String
+  message: String!
+
+  """Approve the proposal"""
+  signature: Bytes
+}
+
+input ProposeTransactionInput {
   account: Address!
   feeToken: Address
   gasLimit: Uint256
+  iconUri: String
   label: String
   nonce: Uint256
   operations: [OperationInput!]!
@@ -363,22 +404,26 @@ input ProposeInput {
 type Query {
   account(input: AccountInput! = {}): Account
   accounts: [Account!]!
+  activity(input: ActivityInput!): [Activity!]!
   approver(input: ApproverInput! = {}): UserApprover
   contact(input: ContactInput!): Contact
   contacts(input: ContactsInput! = {}): [Contact!]!
   contract(input: ContractInput!): Contract
   contractFunction(input: ContractFunctionInput!): ContractFunction
   label(input: LabelInput!): String
+  messageProposal(input: ProposalInput!): MessageProposal
   paymaster: Address!
   policies(input: PoliciesInput! = {}): [Policy!]!
   policy(input: UniquePolicyInput!): Policy
-  proposal(input: ProposalInput!): TransactionProposal
-  proposals(input: ProposalsInput! = {}): [TransactionProposal!]!
+  proposal(input: ProposalInput!): Proposal
+  proposals(input: ProposalsInput! = {}): [Proposal!]!
   requestableTokens(input: RequestTokensInput!): [Address!]!
   token(input: TokenInput!): Token
   tokenMetadata(input: TokenInput!): TokenMetadata!
   tokens(input: TokensInput! = {}): [Token!]!
   transaction(input: TransactionInput!): Transaction
+  transactionProposal(input: ProposalInput!): TransactionProposal
+  transactionProposals(input: TransactionProposalsInput!): [TransactionProposal!]!
   transfers(input: TransfersInput! = {}): [Transfer!]!
   user: User!
 }
@@ -396,7 +441,7 @@ type Receipt {
   transferEvents: [Transfer!]!
 }
 
-type Rejection {
+type Rejection implements Node {
   approver: Approver!
   createdAt: DateTime!
   id: ID!
@@ -461,7 +506,7 @@ type SimulationTransfer implements TransferDetails {
 
 type Subscription {
   account(input: AccountSubscriptionInput! = {}): Account!
-  proposal(input: ProposalSubscriptionInput! = {}): TransactionProposal!
+  proposal(input: ProposalSubscriptionInput! = {}): Proposal!
   transfer(input: TransferSubscriptionInput! = {}): Transfer!
   user: User!
 }
@@ -556,13 +601,14 @@ input TransactionInput {
   hash: Bytes32!
 }
 
-type TransactionProposal {
+type TransactionProposal implements Node & Proposal {
   account: Account!
   approvals: [Approval!]!
   createdAt: DateTime!
   feeToken: Token!
   gasLimit: BigInt!
   hash: Bytes32!
+  iconUri: String
   id: ID!
   label: String
   nonce: BigInt!
@@ -583,6 +629,11 @@ enum TransactionProposalStatus {
   Failed
   Pending
   Successful
+}
+
+input TransactionProposalsInput {
+  accounts: [Address!]
+  statuses: [TransactionProposalStatus!]
 }
 
 type Transfer implements EventBase & TransferDetails & Transferlike {
@@ -765,6 +816,11 @@ type UpdatePolicyOp {
 }
 
 input UpdateProposalInput {
+  hash: Bytes32!
+  policy: PolicyKey
+}
+
+input UpdateTransactionProposalInput {
   feeToken: Address
   hash: Bytes32!
   policy: PolicyKey

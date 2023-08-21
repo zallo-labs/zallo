@@ -1,17 +1,14 @@
-import {
-  Context,
-  Info,
-  Mutation,
-  Query,
-  ResolveField,
-  Resolver,
-  Subscription,
-} from '@nestjs/graphql';
+import { Context, Info, Mutation, Query, Resolver, Subscription } from '@nestjs/graphql';
 import { GraphQLResolveInfo } from 'graphql';
 import { InputArgs, Input } from '~/decorators/input.decorator';
 import { GqlContext, asUser, getUserCtx } from '~/request/ctx';
 import { getShape } from '../database/database.select';
-import { ProposalInput, ProposalSubscriptionInput, ProposalsInput } from './proposals.input';
+import {
+  ProposalInput,
+  ProposalSubscriptionInput,
+  ProposalsInput,
+  UpdateProposalInput,
+} from './proposals.input';
 import { Proposal } from './proposals.model';
 import {
   ProposalsService,
@@ -20,7 +17,6 @@ import {
   getProposalAccountTrigger,
 } from './proposals.service';
 import { PubsubService } from '../util/pubsub/pubsub.service';
-import { resolveProposalType } from './proposals.resolve';
 
 @Resolver(() => Proposal)
 export class ProposalsResolver {
@@ -28,11 +24,6 @@ export class ProposalsResolver {
     private service: ProposalsService,
     private pubsub: PubsubService,
   ) {}
-
-  // @ResolveField()
-  // __resolveType(value) {
-  //   return resolveProposalType(value);
-  // }
 
   @Query(() => Proposal, { nullable: true })
   async proposal(@Input() { hash }: ProposalInput, @Info() info: GraphQLResolveInfo) {
@@ -51,6 +42,12 @@ export class ProposalsResolver {
   async rejectProposal(@Input() { hash }: ProposalInput, @Info() info: GraphQLResolveInfo) {
     await this.service.reject(hash);
     return this.service.selectUnique(hash, getShape(info));
+  }
+
+  @Mutation(() => Proposal)
+  async updateProposal(@Input() input: UpdateProposalInput, @Info() info: GraphQLResolveInfo) {
+    await this.service.update(input);
+    return this.service.selectUnique(input.hash, getShape(info));
   }
 
   @Subscription(() => Proposal, {

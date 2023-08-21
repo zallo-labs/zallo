@@ -33,7 +33,8 @@ module default {
     required account: Account;
     policy: Policy;
     label: Label;
-    createdAt: datetime {
+    iconUri: str;
+    required createdAt: datetime {
       readonly := true;
       default := datetime_of_statement();
     }
@@ -57,10 +58,10 @@ module default {
     required approver: Approver {
       default := (<Approver>(global current_approver).id);
     }
-    createdAt: datetime {
+    required createdAt: datetime {
       readonly := true;
       default := datetime_of_statement();
-    }
+    } 
 
     constraint exclusive on ((.proposal, .approver));
 
@@ -116,6 +117,11 @@ module default {
 
   type Simulation {
     multi transfers: TransferDetails;
+  }
+
+  type MessageProposal extending Proposal {
+    required message: str;
+    signature: Bytes;
   }
 
   type Event {

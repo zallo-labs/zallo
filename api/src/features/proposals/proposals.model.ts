@@ -1,4 +1,4 @@
-import { Field, InterfaceType } from '@nestjs/graphql';
+import { Field, InterfaceType, ObjectType } from '@nestjs/graphql';
 import { Account } from '../accounts/accounts.model';
 import { Policy } from '../policies/policies.model';
 import { Bytes32Field } from '~/apollo/scalars/Bytes.scalar';
@@ -20,6 +20,9 @@ export class Proposal extends Node {
   @Field(() => String, { nullable: true })
   label?: string;
 
+  @Field(() => String, { nullable: true })
+  iconUri?: string;
+
   @Field(() => Date)
   createdAt: Date;
 
@@ -34,6 +37,10 @@ export class Proposal extends Node {
 
   @Field(() => [Rejection])
   rejections: Rejection[];
+
+  // ComputedField on both TransactionProposal & MessageProposal
+  @Field(() => Boolean)
+  updatable: boolean;
 }
 
 @NodeType({ isAbstract: true })

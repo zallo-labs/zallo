@@ -13,6 +13,7 @@ import { PoliciesResolver } from './features/policies/policies.resolver';
 import { TransactionProposalsResolver } from './features/transaction-proposals/transaction-proposals.resolver';
 import { TransfersResolver } from './features/transfers/transfers.resolver';
 import { UsersResolver } from './features/users/users.resolver';
+import { MessageProposalsResolver } from './features/message-proposals/message-proposals.resolver';
 
 const resolvers = [
   AccountsResolver,
@@ -20,6 +21,7 @@ const resolvers = [
   ContractFunctionsResolver,
   ContractsResolver,
   FaucetResolver,
+  MessageProposalsResolver,
   PoliciesResolver,
   TransactionProposalsResolver,
   TransfersResolver,

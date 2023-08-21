@@ -1,7 +1,8 @@
 import { Field, InputType, registerEnumType } from '@nestjs/graphql';
-import { Address, Hex } from 'lib';
+import { Address, Hex, PolicyKey } from 'lib';
 import { AddressField, AddressScalar } from '~/apollo/scalars/Address.scalar';
 import { Bytes32Field, Bytes32Scalar, BytesField } from '~/apollo/scalars/Bytes.scalar';
+import { PolicyKeyField } from '~/apollo/scalars/PolicyKey.scalar';
 
 @InputType()
 export class ProposalInput {
@@ -27,12 +28,19 @@ export class ApproveInput extends ProposalInput {
   signature: Hex;
 }
 
+@InputType()
+export class UpdateProposalInput extends ProposalInput {
+  @PolicyKeyField({ nullable: true })
+  policy?: PolicyKey | null;
+}
+
 export enum ProposalEvent {
   create,
   update,
   approval,
   rejection,
   delete,
+  approved,
   submitted,
   executed,
 }
