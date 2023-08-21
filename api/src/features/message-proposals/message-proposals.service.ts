@@ -35,16 +35,22 @@ export class MessageProposalsService {
 
     // upsert can't be used as exclusive hash constraint exists on parent type (Proposal)
     const proposal =
-      (await this.db.query(e.select(e.TransactionProposal, () => ({ filter_single: { hash } })))) ??
-      (await this.db.query(
-        e.insert(e.MessageProposal, {
-          account: selectAccount(account),
-          hash,
-          message,
-          label,
-          iconUri,
-        }),
-      ));
+      (await this.db.query(e.select(e.MessageProposal, () => ({ filter_single: { hash } })))) ??
+      (await (async () => {
+        const p = await this.db.query(
+          e.insert(e.MessageProposal, {
+            account: selectAccount(account),
+            hash,
+            message,
+            label,
+            iconUri,
+          }),
+        );
+
+        await this.proposals.publishProposal({ account, hash }, ProposalEvent.create);
+
+        return p;
+      })());
 
     if (signature) await this.approve({ hash, signature });
 
