@@ -17,7 +17,7 @@
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register ../node_modules/.bin/jest --runInBand",
     "with-env": "npx -y dotenv-cli -e ../.env",
     "generate:schema": "yarn prebuild && SKIP_ENV_CHECK=true nest start --entryFile generate-schema",
-    "generate:edgeql": "npx -y concurrently -n edgeql-js,interfaces -c blue,magenta \"npx @edgedb/generate edgeql-js --target ts\" \"npx @edgedb/generate interfaces\"",
+    "generate:edgeql": "npx -y concurrently -n edgeql-js,interfaces -c blue,magenta \"npx @edgedb/generate edgeql-js --target ts --force-overwrite\" \"npx @edgedb/generate interfaces\"",
     "generate:gql": "graphql-codegen --config codegen.ts",
     "db:seed": "npx -y ts-node ./dbschema/seed.ts",
     "db:migrate": "yarn with-env -- edgedb migrate"
