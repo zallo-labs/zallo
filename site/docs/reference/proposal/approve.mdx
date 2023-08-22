@@ -1,5 +1,5 @@
 import { ApproveExample } from './examples.tsx';
-import Schema from '../schema/mutations/propose.mdx';
+import Schema from '../schema/mutations/propose-transaction.mdx';
 
 # Approving a Proposal
 
@@ -7,7 +7,7 @@ Only members of the proposal policy can approve it.
 
 ## Signing
 
-Obtain your `signature` by signing the [Proposal](../schema/objects/proposal)'s `id` ([EIP-712](https://eips.ethereum.org/EIPS/eip-712) typed-data hash).
+Obtain your `signature` by signing the [Proposal](../schema/objects/transaction-proposal)'s `id` ([EIP-712](https://eips.ethereum.org/EIPS/eip-712) typed-data hash).
 
 ```typescript title="Ethers"
 const signature = ethers.utils.joinSignature(wallet._signingKey().signDigest(proposal.id));
