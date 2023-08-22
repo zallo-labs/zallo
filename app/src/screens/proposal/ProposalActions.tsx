@@ -10,7 +10,7 @@ import { makeStyles } from '@theme/makeStyles';
 import { useApproverAddress } from '@network/useApprover';
 import { useSignWithApprover } from './useSignWithApprover';
 import { useSignWithLedger } from '../ledger-sign/LedgerSignSheet';
-import { proposalAsEip712Message } from '../ledger-sign/proposalAsEip712Message';
+import { proposalAsTypedData } from '../ledger-sign/proposalAsTypedData';
 
 const BLOCK_EXPLORER_URL = CHAIN.blockExplorers?.default.url;
 
@@ -112,7 +112,7 @@ export const ProposalActions = (props: ProposalActionsProps) => {
             onPress={async () => {
               const { signature } = await signWithLedger({
                 device: approver,
-                content: proposalAsEip712Message(p),
+                content: proposalAsTypedData(p),
               });
               await approve({ input: { hash: p.hash, approver, signature } });
             }}

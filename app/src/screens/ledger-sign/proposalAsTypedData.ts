@@ -7,7 +7,7 @@ import {
   getAccountTypedDataDomain,
   getTransactionTypedDataMessage,
 } from 'lib';
-import { EIP712Message } from '@ledgerhq/types-live';
+import { TypedDataDefinition } from 'viem';
 
 const TransactionProposal = gql(/* GraphQL */ `
   fragment ProposalAsEip712Message_TransactionProposal on TransactionProposal {
@@ -26,9 +26,9 @@ const TransactionProposal = gql(/* GraphQL */ `
   }
 `);
 
-export function proposalAsEip712Message(
+export function proposalAsTypedData(
   proposalFragment: FragmentType<typeof TransactionProposal>,
-): EIP712Message {
+): TypedDataDefinition {
   const p = getFragment(TransactionProposal, proposalFragment);
 
   return ethers.utils._TypedDataEncoder.getPayload(
