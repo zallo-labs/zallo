@@ -1,4 +1,4 @@
-import { requiredEnv as required, optionalEnv as optional, getChain } from 'lib';
+import { requiredEnv as required, optionalEnv as optional, getChain, setFallbackChain } from 'lib';
 import localWallets from './local-wallets.json';
 require('dotenv').config({ path: '../.env' });
 
@@ -12,3 +12,4 @@ export const CONFIG = {
   etherscanApiKey: optional`ETHERSCAN_API_KEY`,
   coinmarketcapApiKey: optional`COINMARKETCAP_API_KEY`,
 };
+setFallbackChain(CONFIG.chain);
