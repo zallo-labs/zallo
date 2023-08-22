@@ -7,7 +7,7 @@ import { useQuery } from '~/gql';
 
 const Query = gql(/* GraphQL */ `
   query ActivityTabBadge($accounts: [Address!]!) {
-    transactionProposals(input: { accounts: $accounts, statuses: [Pending] }) {
+    proposals(input: { accounts: $accounts, pending: true }) {
       id
     }
   }
@@ -19,9 +19,9 @@ export interface ActivityTabBadgeProps {
 
 export const ActivityTabBadge = withSuspense(
   ({ account }: ActivityTabBadgeProps) => {
-    const { transactionProposals } = useQuery(Query, { accounts: [account] }).data;
+    const { proposals } = useQuery(Query, { accounts: [account] }).data;
 
-    return <TabBadge value={transactionProposals.length} style={styles.badge} />;
+    return <TabBadge value={proposals.length} style={styles.badge} />;
   },
   () => null,
 );
