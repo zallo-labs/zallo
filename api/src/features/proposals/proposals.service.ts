@@ -51,26 +51,36 @@ export class ProposalsService {
   }
 
   async select({ accounts, pending }: ProposalsInput, shape: ShapeFunc<typeof e.Proposal>) {
-    const r = await this.db.query(
-      e.select(e.Proposal, (p) => ({
-        ...shape?.(p),
-        __type__: { name: true },
-        order_by: p.createdAt,
-        filter: and(
-          accounts && e.op(p.account, 'in', e.set(...accounts.map((a) => selectAccount(a)))),
-          // pending !== undefined &&
-          //   or(
-          //     e.op(
-          //       p.is(e.TransactionProposal).status,
-          //       pending ? '?=' : ('?!=' as '?='),
-          //       e.TransactionProposalStatus.Pending,
-          //     ),
-          //   ),
-        ),
-      })),
-    );
+    return this.db.query(
+      e.select(e.Proposal, (p) => {
+        const pendingFilter = (() => {
+          if (pending === undefined) return undefined;
 
-    return r;
+          const isPending = e.select(
+            e.op(
+              e.op(p.is(e.TransactionProposal).status, '=', e.TransactionProposalStatus.Pending),
+              'if',
+              e.op('exists', p.is(e.TransactionProposal)),
+              'else',
+              e.op('not', e.op('exists', p.is(e.MessageProposal).signature)),
+            ),
+          );
+
+          return pending ? isPending : e.op('not', isPending);
+        })();
+
+        return {
+          ...shape?.(p),
+          __type__: { name: true },
+          ...(pendingFilter ? { pendingFilter } : {}), // Must be included in the select (not just the filter) to avoid bug
+          filter: and(
+            accounts && e.op(p.account, 'in', e.set(...accounts.map((a) => selectAccount(a)))),
+            pendingFilter,
+          ),
+          order_by: p.createdAt,
+        };
+      }),
+    );
   }
 
   async approve({ hash, approver = getUserCtx().approver, signature }: ApproveInput) {
