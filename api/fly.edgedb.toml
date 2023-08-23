@@ -1,4 +1,4 @@
-app = "zallo-edgedb-production"
+app = "zallo-production-edgedb"
 primary_region = "lax"  # Los Angeles
 
 [build]
