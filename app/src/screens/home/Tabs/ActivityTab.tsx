@@ -28,6 +28,7 @@ const Query = gql(/* GraphQL */ `
     user {
       id
       ...ProposalItem_User
+      ...MessageProposalItem_User
     }
 
     transfers(input: { accounts: $accounts, direction: In, internal: false }) {
@@ -83,7 +84,9 @@ export const ActivityTab = withSuspense(
             .with({ __typename: 'TransactionProposal' }, (p) => (
               <ProposalItem proposal={p} user={user} />
             ))
-            .with({ __typename: 'MessageProposal' }, (p) => <MessageProposalItem proposal={p} />)
+            .with({ __typename: 'MessageProposal' }, (p) => (
+              <MessageProposalItem proposal={p} user={user} />
+            ))
             .with({ __typename: 'Transfer' }, (transfer) => (
               <IncomingTransferItem transfer={transfer} />
             ))
