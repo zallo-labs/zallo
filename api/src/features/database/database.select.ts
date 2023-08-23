@@ -1,7 +1,6 @@
 import {
   FragmentDefinitionNode,
   GraphQLEnumType,
-  GraphQLField,
   GraphQLFieldMap,
   GraphQLInterfaceType,
   GraphQLObjectType,
@@ -13,11 +12,9 @@ import {
   InlineFragmentNode,
   Kind,
   SelectionNode,
-  isEnumType,
   isInterfaceType,
   isObjectType,
   isOutputType,
-  isScalarType,
   isUnionType,
 } from 'graphql';
 import { P, match } from 'ts-pattern';
@@ -29,7 +26,6 @@ import merge from 'ts-deepmerge';
 import assert from 'assert';
 import e from '~/edgeql-js';
 import _ from 'lodash';
-import { type } from 'os';
 
 export type Scope<Expr extends ObjectTypeExpression> = $scopify<Expr['__element__']> &
   $linkPropify<{
@@ -126,7 +122,7 @@ const getFragmentShape = (
   fragment: FragmentDefinitionNode | InlineFragmentNode,
   shape: any,
 ) => {
-  const fieldGqlBase = getGraphqlBaseType(field.graphql);
+  const fieldGql = getGraphqlBaseType(field.graphql);
   const fragmentGql = fragment.typeCondition
     ? graphqlInfo.schema.getType(fragment.typeCondition.name.value)
     : undefined;
@@ -138,12 +134,12 @@ const getFragmentShape = (
     // Fragment type differs from field type
     (
       fragmentGql &&
-      fragmentGql !== fieldGqlBase &&
+      fragmentGql !== fieldGql &&
       // Fragment is not a interface of the field type
       !(
         isInterfaceType(fragmentGql) &&
-        'getInterfaces' in fieldGqlBase &&
-        fieldGqlBase.getInterfaces().includes(fragmentGql)
+        'getInterfaces' in fieldGql &&
+        fieldGql.getInterfaces().includes(fragmentGql)
       )
     )
   );
@@ -162,6 +158,13 @@ const getFragmentShape = (
     return merge(shape, fragmentShape);
   }
 
+  // Type narrowing is only valid when the fragment extends the field; other cases may never occur
+  const fragmentExtendsField =
+    isInterfaceType(fieldGql) &&
+    'getInterfaces' in fragmentGql &&
+    fragmentGql.getInterfaces().includes(fieldGql);
+  if (!fragmentExtendsField) return shape;
+
   const fragmentEql: ObjectTypeExpression | undefined =
     fragmentGql.extensions.eqlType || e[fragmentGql.name];
   if (!fragmentEql)
@@ -176,9 +179,9 @@ const getFragmentShape = (
     graphqlInfo,
   );
 
-  // Duplicate polymorphic (e.is()) fields are shadowed; place on base type if possible - https://github.com/edgedb/edgedb-js/issues/630
+  // Duplicate polymorphic (e.is()) fields are shadowed (resulting in "PolyShape" error); place on base type or rename to be unique - https://github.com/edgedb/edgedb-js/issues/630
   const fieldEql: ObjectTypeExpression | undefined =
-    fieldGqlBase.extensions.eqlType || e[fieldGqlBase.name];
+    fieldGql.extensions.eqlType || e[fieldGql.name];
   const fieldEqlFields = fieldEql ? Object.keys(fieldEql?.__element__.__pointers__) : [];
 
   return {
