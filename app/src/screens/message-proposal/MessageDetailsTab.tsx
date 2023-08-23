@@ -37,7 +37,7 @@ export const MessageDetailsTab = withSuspense(({ route }: MessageDetailsTabProps
       <View style={styles.header}>
         <MessageIcon proposal={p} />
         <Text>
-          <Text variant="titleMedium">{p.label || 'Signature request'}</Text>
+          <Text variant="titleMedium">{p.label || 'Message'}</Text>
         </Text>
       </View>
 

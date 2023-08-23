@@ -123,7 +123,7 @@ export const useSessionRequestListener = () => {
           await proposeMessage({
             input: {
               account: request.account,
-              label: `${peer.name} signature request`,
+              label: `${peer.name} message`,
               iconUri: peer.icons[0],
               ...(request.method === 'personal-sign'
                 ? { message: request.message }
