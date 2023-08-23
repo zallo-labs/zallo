@@ -73,10 +73,7 @@ const client = atom(async (get) => {
     exchanges: [
       mapExchange({
         onError(error, _operation) {
-          logError('[urql] error: ' + error.message, {
-            error,
-            network: error.networkError?.message,
-          });
+          logError('[urql] error: ' + error.message, { error });
         },
       }),
       // refocusExchange(),

@@ -28,10 +28,17 @@ export const logEvent = ({ level, message, error: ep, ...contextParam }: LogEven
     crashlytics().recordError(error);
   }
 
-  CONSOLE[level](`Event: ${message}`, {
-    ...(error && { error }),
-    ...context,
-  });
+  CONSOLE[level](
+    `Event: ${message}`,
+    JSON.stringify(
+      {
+        ...(error && { error }),
+        ...context,
+      },
+      null,
+      2,
+    ),
+  );
 };
 
 export const logDebug = (message: string, opts?: LogEventOptions) =>
