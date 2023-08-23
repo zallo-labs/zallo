@@ -471,9 +471,9 @@ export type $TransactionProposalλShape = $.typeutil.flatten<Omit<$ProposalλSha
   "gasLimit": $.PropertyDesc<$uint256, $.Cardinality.One, false, false, false, true>;
   "transactions": $.LinkDesc<$Transaction, $.Cardinality.Many, {}, false, true,  false, false>;
   "transaction": $.LinkDesc<$Transaction, $.Cardinality.AtMostOne, {}, false, true,  false, false>;
-  "status": $.PropertyDesc<$TransactionProposalStatus, $.Cardinality.One, false, true, false, false>;
   "simulation": $.LinkDesc<$Simulation, $.Cardinality.One, {}, false, false,  false, false>;
   "feeToken": $.LinkDesc<$Token, $.Cardinality.One, {}, false, false,  false, false>;
+  "status": $.PropertyDesc<$TransactionProposalStatus, $.Cardinality.One, false, true, false, false>;
   "<proposal[is Transaction]": $.LinkDesc<$Transaction, $.Cardinality.Many, {}, false, false,  false, false>;
   "<proposal[is PolicyState]": $.LinkDesc<$PolicyState, $.Cardinality.Many, {}, false, false,  false, false>;
   "<transactionProposals[is Account]": $.LinkDesc<$Account, $.Cardinality.Many, {}, false, false,  false, false>;

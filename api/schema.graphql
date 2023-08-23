@@ -340,7 +340,6 @@ interface Proposal implements Node {
   proposedBy: Approver!
   rejections: [Rejection!]!
   responses: [ProposalResponse!]!
-  updatable: Boolean!
 }
 
 enum ProposalEvent {

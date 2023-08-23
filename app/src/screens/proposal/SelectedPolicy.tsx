@@ -12,7 +12,12 @@ const FragmentDoc = gql(/* GraphQL */ `
   @argumentDefinitions(proposal: { type: "Bytes32!" }) {
     id
     hash
-    updatable
+    ... on TransactionProposal {
+      updatable
+    }
+    ... on MessageProposal {
+      updatable
+    }
     account {
       id
       policies {

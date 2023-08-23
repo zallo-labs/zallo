@@ -201,9 +201,9 @@ export interface TransactionProposal extends Proposal {
   "gasLimit": bigint;
   "transactions": Transaction[];
   "transaction"?: Transaction | null;
-  "status": TransactionProposalStatus;
   "simulation": Simulation;
   "feeToken": Token;
+  "status": TransactionProposalStatus;
 }
 export type TransactionProposalStatus = "Pending" | "Executing" | "Successful" | "Failed";
 export interface TransferDetails extends std.$Object {

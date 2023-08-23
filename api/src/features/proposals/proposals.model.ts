@@ -37,10 +37,6 @@ export class Proposal extends Node {
 
   @Field(() => [Rejection])
   rejections: Rejection[];
-
-  // ComputedField on both TransactionProposal & MessageProposal
-  @Field(() => Boolean)
-  updatable: boolean;
 }
 
 @NodeType({ isAbstract: true })

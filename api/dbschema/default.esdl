@@ -102,11 +102,11 @@ module default {
       limit 1
     );
     required property status := (
-      select assert_exists(<TransactionProposalStatus>(
-        'Pending' if (not exists .transaction) else
-        'Executing' if (not exists .transaction.receipt) else
-        'Successful' if (.transaction.receipt.success) else
-        'Failed'
+      select assert_exists((
+        TransactionProposalStatus.Pending if (not exists .transaction) else
+        TransactionProposalStatus.Executing if (not exists .transaction.receipt) else
+        TransactionProposalStatus.Successful if (.transaction.receipt.success) else
+        TransactionProposalStatus.Failed
       ))
     );
 

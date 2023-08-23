@@ -7,7 +7,12 @@ import { APPROVER_BLE_IDS } from '../ledger/useLedger';
 const Proposal = gql(/* GraphQL */ `
   fragment UseCanRespond_Proposal on Proposal {
     id
-    updatable
+    ... on TransactionProposal {
+      updatable
+    }
+    ... on MessageProposal {
+      updatable
+    }
     account {
       id
       policies {
