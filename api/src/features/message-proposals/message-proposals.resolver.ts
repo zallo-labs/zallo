@@ -20,7 +20,7 @@ export class MessageProposalsResolver {
 
   @ComputedField<typeof e.MessageProposal>(() => Boolean, { signature: true })
   async updatable(@Parent() { signature }: MessageProposal) {
-    return !!signature;
+    return !signature;
   }
 
   @Mutation(() => MessageProposal)
