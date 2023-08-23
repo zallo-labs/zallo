@@ -35,7 +35,6 @@ import {
 } from '~/screens/rename-policy/RenamePolicySheet';
 import { ConnectSheet, ConnectSheetParams } from '~/screens/connect/ConnectSheet';
 import { PairingSheet, PairingSheetParams } from '~/screens/pairing/PairingSheet';
-import { SignSheet, SignSheetParams } from '~/screens/sign/SignSheet';
 import {
   NotificationSettingsParams,
   NotificationSettingsScreen,
@@ -58,12 +57,17 @@ import { AddressesModal, AddressesModalParams } from '~/screens/addresses/Addres
 import { TokenScreen, TokenScreenParams } from '~/screens/token/TokenScreen';
 import { PairLedgerScreen } from '~/screens/pair-ledger/PairLedgerScreen';
 import { LedgerSignSheet, LedgerSignSheetParams } from '~/screens/ledger-sign/LedgerSignSheet';
+import {
+  MessageProposalScreen,
+  MessageProposalScreenParams,
+} from '~/screens/message-proposal/MessageProposalScreen';
 
 export type StackNavigatorParamList = {
   Home: HomeScreenParams;
   CreateAccount: CreateAccountScreenParams;
   Scan: ScanScreenParams;
   Proposal: ProposalScreenParams;
+  MessageProposal: MessageProposalScreenParams;
   Send: SendScreenParams;
   Swap: SwapScreenParams;
   Contacts: ContactsScreenParams;
@@ -93,7 +97,6 @@ export type StackNavigatorParamList = {
   Alert: AlertModalParams;
   ConnectSheet: ConnectSheetParams;
   PairingSheet: PairingSheetParams;
-  Sign: SignSheetParams;
   LedgerSign: LedgerSignSheetParams;
   // Card modal
   RenameAccountModal: RenameAccountModalParams;
@@ -129,6 +132,7 @@ export const StackNavigator = () => {
       <Navigation.Screen name="CreateAccount" component={CreateAccountScreen} />
       <Navigation.Screen name="Scan" component={ScanScreen} />
       <Navigation.Screen name="Proposal" component={ProposalScreen} />
+      <Navigation.Screen name="MessageProposal" component={MessageProposalScreen} />
       <Navigation.Screen name="Send" component={SendScreen} />
       <Navigation.Screen name="Swap" component={SwapScreen} />
       <Navigation.Screen name="Contacts" component={ContactsScreen} />
@@ -156,7 +160,6 @@ export const StackNavigator = () => {
         <Navigation.Screen name="Alert" component={AlertModal} />
         <Navigation.Screen name="ConnectSheet" component={ConnectSheet} />
         <Navigation.Screen name="PairingSheet" component={PairingSheet} />
-        <Navigation.Screen name="Sign" component={SignSheet} />
         <Navigation.Screen name="LedgerSign" component={LedgerSignSheet} />
       </Navigation.Group>
 

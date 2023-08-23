@@ -5,7 +5,7 @@ import { Address, asHex, asPolicyKey, asSelector, randomDeploySalt, ZERO_ADDR } 
 import { asUser, getUserCtx, UserContext } from '~/request/ctx';
 import { randomAddress, randomUser } from '~/util/test';
 import { randomBytes } from 'ethers/lib/utils';
-import { ProposalsService } from '../proposals/proposals.service';
+import { TransactionProposalsService } from '../transaction-proposals/transaction-proposals.service';
 import { AccountsCacheService } from '../auth/accounts.cache.service';
 import { DatabaseService } from '../database/database.service';
 import e from '~/edgeql-js';
@@ -23,7 +23,7 @@ import { TOKENS } from '../tokens/tokens.list';
 describe(PoliciesService.name, () => {
   let service: PoliciesService;
   let db: DatabaseService;
-  let proposals: DeepMocked<ProposalsService>;
+  let proposals: DeepMocked<TransactionProposalsService>;
   let userAccounts: DeepMocked<AccountsCacheService>;
 
   beforeEach(async () => {
@@ -35,7 +35,7 @@ describe(PoliciesService.name, () => {
 
     service = module.get(PoliciesService);
     db = module.get(DatabaseService);
-    proposals = module.get(ProposalsService);
+    proposals = module.get(TransactionProposalsService);
     userAccounts = module.get(AccountsCacheService);
   });
 

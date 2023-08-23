@@ -1,17 +1,18 @@
-import { Field, ObjectType } from '@nestjs/graphql';
+import { Field } from '@nestjs/graphql';
 import { AddressField } from '~/apollo/scalars/Address.scalar';
 import { Bytes32Field } from '~/apollo/scalars/Bytes.scalar';
 import { Transfer } from '../transfers/transfers.model';
 import { Policy } from '../policies/policies.model';
-import { Proposal, TransactionProposal } from '../proposals/proposals.model';
-import { IdField } from '~/apollo/scalars/Id.scalar';
-import { uuid } from 'edgedb/dist/codecs/ifaces';
+import { Proposal } from '../proposals/proposals.model';
+import { TransactionProposal } from '../transaction-proposals/transaction-proposals.model';
+import { Node, NodeType } from '~/decorators/interface.decorator';
+import { createUnionType } from '@nestjs/graphql';
+import e from '~/edgeql-js';
+import { makeUnionTypeResolver } from '../database/database.util';
+import { MessageProposal } from '../message-proposals/message-proposals.model';
 
-@ObjectType()
-export class Account {
-  @IdField()
-  id: uuid;
-
+@NodeType()
+export class Account extends Node {
   @AddressField()
   address: string; // Address;
 
@@ -39,3 +40,13 @@ export class Account {
   @Field(() => [Transfer])
   transfers: Transfer[];
 }
+
+export const Activity = createUnionType({
+  name: 'Activity',
+  types: () => [TransactionProposal, MessageProposal, Transfer] as const,
+  resolveType: makeUnionTypeResolver([
+    [e.TransactionProposal, TransactionProposal],
+    [e.MessageProposal, MessageProposal],
+    [e.Transfer, Transfer],
+  ]),
+});

@@ -17,14 +17,14 @@ import { Suspend } from '~/components/Suspender';
 
 const Query = gql(/* GraphQL */ `
   query ProposalScreen($proposal: Bytes32!) {
-    proposal(input: { hash: $proposal }) {
+    transactionProposal(input: { hash: $proposal }) {
       id
       hash
       account {
         id
         name
       }
-      ...ProposalActions_TransactionProposalFragment
+      ...ProposalActions_TransactionProposal
     }
 
     user {
@@ -36,7 +36,7 @@ const Query = gql(/* GraphQL */ `
 
 const Remove = gql(/* GraphQL */ `
   mutation ProposalScreen_Remove($proposal: Bytes32!) {
-    removeProposal(input: { hash: $proposal })
+    removeTransaction(input: { hash: $proposal })
   }
 `);
 
@@ -49,7 +49,7 @@ export type ProposalScreenProps = StackNavigatorScreenProps<'Proposal'>;
 export const ProposalScreen = withSuspense(
   ({ route, navigation: { goBack } }: ProposalScreenProps) => {
     const query = useQuery(Query, { proposal: route.params.proposal });
-    const { proposal, user } = query.data;
+    const { transactionProposal: proposal, user } = query.data;
 
     const remove = useMutation(Remove)[1];
     const confirmRemoval = useConfirmRemoval({

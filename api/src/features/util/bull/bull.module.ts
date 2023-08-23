@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { BullModule as BaseModule } from '@nestjs/bull';
-import { DEFAULT_REDIS_NAMESPACE, RedisService } from '@liaoliaots/nestjs-redis';
+import { DEFAULT_REDIS_NAMESPACE, RedisService } from '@songkeys/nestjs-redis';
 import { REDIS_SUBSCRIBER } from '~/decorators/redis.decorator';
 import { match } from 'ts-pattern';
 import Redis from 'ioredis';

@@ -4,7 +4,7 @@ import { Public } from '~/decorators/public.decorator';
 import { RedisHealthIndicator } from '../util/redis/redis.indicator';
 import { DatabaseHealthIndicator } from '../database/database.health';
 import { ProviderHealthIndicator } from '../util/provider/provider.health';
-import { InjectRedis } from '@liaoliaots/nestjs-redis';
+import { InjectRedis } from '@songkeys/nestjs-redis';
 import Redis from 'ioredis';
 import { InjectRedisSubscriber } from '~/decorators/redis.decorator';
 

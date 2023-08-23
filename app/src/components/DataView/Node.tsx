@@ -2,18 +2,18 @@ import { Hex, isAddress, isHex } from 'lib';
 import { StyleProp, StyleSheet, TextStyle, View } from 'react-native';
 import { Text } from 'react-native-paper';
 import { tryDecodeHexString } from '~/util/decodeHex';
-import {
-  Eip712DataNode,
-  Eip712TypedDomainData,
-  asTypedDataNode,
-  isTypedData,
-  isTypedDataNode,
-} from '~/util/walletconnect/methods';
 import { AddressLabel } from '../address/AddressLabel';
 import { match } from 'ts-pattern';
 import { makeStyles } from '@theme/makeStyles';
+import { TypedDataDefinition } from 'viem';
 
-export type NodeValue = string | Hex | Eip712DataNode | Eip712TypedDomainData;
+export type NodeValue = string | Hex | TypedDataNode | TypedDataDefinition;
+
+export interface TypedDataNode {
+  type?: string;
+  name?: string;
+  children: TypedDataNode[] | string;
+}
 
 export interface NodeProps {
   children: NodeValue;
@@ -74,3 +74,45 @@ const useStyles = makeStyles(({ colors }) => ({
     color: colors.secondary,
   },
 }));
+
+function isTypedDataNode(v: NodeValue): v is TypedDataNode {
+  return v !== null && typeof v === 'object' && 'children' in v;
+}
+
+function isTypedData(v: NodeValue): v is TypedDataDefinition {
+  return (
+    v !== null &&
+    typeof v === 'object' &&
+    'domain' in v &&
+    'types' in v &&
+    'primaryType' in v &&
+    'message' in v
+  );
+}
+
+function asTypedDataNode(d: TypedDataDefinition): TypedDataNode {
+  const getNode = (
+    v: Record<string, unknown> | unknown,
+    name: string | undefined,
+    type: string,
+  ): TypedDataNode => {
+    if (typeof v !== 'object' || v === null)
+      return {
+        name,
+        type,
+        children: typeof v === 'string' ? v : JSON.stringify(v),
+      };
+
+    const childrenTypes = d.types[type];
+
+    return {
+      name,
+      type,
+      children: Object.entries(v).map(([key, value]) =>
+        getNode(value, key, childrenTypes.find((t) => t.name === key)!.type),
+      ),
+    };
+  };
+
+  return getNode(d.message, undefined, d.primaryType);
+}

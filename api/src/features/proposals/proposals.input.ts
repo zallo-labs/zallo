@@ -1,14 +1,7 @@
 import { Field, InputType, registerEnumType } from '@nestjs/graphql';
 import { Address, Hex, PolicyKey } from 'lib';
 import { AddressField, AddressScalar } from '~/apollo/scalars/Address.scalar';
-import { Uint256Field } from '~/apollo/scalars/BigInt.scalar';
-import {
-  Bytes32Field,
-  Bytes32Scalar,
-  BytesField,
-  BytesScalar,
-} from '~/apollo/scalars/Bytes.scalar';
-import { TransactionProposalStatus } from './proposals.model';
+import { Bytes32Field, Bytes32Scalar, BytesField } from '~/apollo/scalars/Bytes.scalar';
 import { PolicyKeyField } from '~/apollo/scalars/PolicyKey.scalar';
 
 @InputType()
@@ -22,8 +15,23 @@ export class ProposalsInput {
   @Field(() => [AddressScalar], { nullable: true })
   accounts?: Address[];
 
-  @Field(() => [TransactionProposalStatus], { nullable: true })
-  statuses?: TransactionProposalStatus[];
+  @Field(() => Boolean, { nullable: true })
+  pending?: boolean;
+}
+
+@InputType()
+export class ApproveInput extends ProposalInput {
+  @AddressField({ nullable: true, description: 'Defaults to current approver' })
+  approver?: Address;
+
+  @BytesField()
+  signature: Hex;
+}
+
+@InputType()
+export class UpdateProposalInput extends ProposalInput {
+  @PolicyKeyField({ nullable: true })
+  policy?: PolicyKey | null;
 }
 
 export enum ProposalEvent {
@@ -32,6 +40,7 @@ export enum ProposalEvent {
   approval,
   rejection,
   delete,
+  approved,
   submitted,
   executed,
 }
@@ -50,58 +59,4 @@ export class ProposalSubscriptionInput {
 
   @Field(() => [ProposalEvent], { nullable: true, description: 'Defaults to all events' })
   events?: ProposalEvent[];
-}
-
-@InputType()
-export class OperationInput {
-  @AddressField()
-  to: Address;
-
-  @Uint256Field({ nullable: true })
-  value?: bigint;
-
-  @BytesField({ nullable: true })
-  data?: Hex;
-}
-
-@InputType()
-export class ProposeInput {
-  @AddressField()
-  account: Address;
-
-  @Field(() => [OperationInput])
-  operations: OperationInput[];
-
-  @Field(() => String, { nullable: true })
-  label?: string;
-
-  @Uint256Field({ nullable: true })
-  nonce?: bigint;
-
-  @Uint256Field({ nullable: true })
-  gasLimit?: bigint;
-
-  @AddressField({ nullable: true })
-  feeToken?: Address;
-
-  @Field(() => BytesScalar, { nullable: true, description: 'Approve the proposal' })
-  signature?: Hex;
-}
-
-@InputType()
-export class ApproveInput extends ProposalInput {
-  @AddressField({ nullable: true, description: 'Defaults to current approver' })
-  approver?: Address;
-
-  @BytesField()
-  signature: Hex;
-}
-
-@InputType()
-export class UpdateProposalInput extends ProposalInput {
-  @PolicyKeyField({ nullable: true })
-  policy?: PolicyKey | null;
-
-  @AddressField({ nullable: true })
-  feeToken?: Address;
 }

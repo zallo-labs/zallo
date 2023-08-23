@@ -4,13 +4,17 @@ import {
   Address,
   asHex,
   asPolicyKey,
+  getMessageSatisfiability,
   getTransactionSatisfiability,
   Hex,
   Policy,
   POLICY_ABI,
   Satisfiability,
 } from 'lib';
-import { ProposalsService, selectTransactionProposal } from '../proposals/proposals.service';
+import {
+  TransactionProposalsService,
+  selectTransactionProposal,
+} from '../transaction-proposals/transaction-proposals.service';
 import {
   CreatePolicyInput,
   PoliciesInput,
@@ -34,7 +38,10 @@ import {
   asTargetsConfig,
 } from './policies.util';
 import { PolicyState, SatisfiabilityResult } from './policies.model';
-import { proposalTxShape, transactionProposalAsTx } from '../proposals/proposals.uitl';
+import {
+  proposalTxShape,
+  transactionProposalAsTx,
+} from '../transaction-proposals/transaction-proposals.uitl';
 import { UserAccountContext } from '~/request/ctx';
 import { and } from '../database/database.util';
 import { selectAccount } from '../accounts/accounts.util';
@@ -48,8 +55,8 @@ interface CreateParams extends CreatePolicyInput {
 export class PoliciesService {
   constructor(
     private db: DatabaseService,
-    @Inject(forwardRef(() => ProposalsService))
-    private proposals: ProposalsService,
+    @Inject(forwardRef(() => TransactionProposalsService))
+    private proposals: TransactionProposalsService,
     private userAccounts: AccountsCacheService,
   ) {}
 
@@ -291,23 +298,39 @@ export class PoliciesService {
     if (!state)
       return { result: Satisfiability.unsatisfiable, reasons: [{ reason: 'Policy inactive' }] };
 
-    const policy = await this.db.query(
-      e.select(e.TransactionProposal, (p) => ({
+    const proposal = await this.db.query(
+      e.select(e.Proposal, () => ({
         filter_single: { hash: proposalHash },
-        ...proposalTxShape(p),
-        approvals: {
-          approver: { address: true },
-        },
+        approvals: { approver: { address: true } },
+        ...e.is(e.TransactionProposal, {
+          operations: {
+            to: true,
+            value: true,
+            data: true,
+          },
+          nonce: true,
+          gasLimit: true,
+        }),
       })),
     );
-    if (!policy)
+    if (!proposal)
       return { result: Satisfiability.unsatisfiable, reasons: [{ reason: 'Proposal not found' }] };
 
     const p = policyStateAsPolicy(key, state);
-    const tx = transactionProposalAsTx(policy);
-    const approvals = new Set(policy.approvals.map((a) => a.approver.address as Address));
+    const approvals = new Set(proposal.approvals.map((a) => a.approver.address as Address));
 
-    return getTransactionSatisfiability(p, tx, approvals);
+    return proposal.operations !== null && proposal.nonce !== null && proposal.gasLimit !== null
+      ? getTransactionSatisfiability(
+          p,
+          transactionProposalAsTx({
+            ...proposal,
+            operations: proposal.operations!,
+            nonce: proposal.nonce!,
+            gasLimit: proposal.gasLimit!,
+          }),
+          approvals,
+        )
+      : getMessageSatisfiability(p, approvals);
   }
 
   private async proposeState(account: Address, policy: Policy) {

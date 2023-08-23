@@ -1,7 +1,6 @@
 import {
   FragmentDefinitionNode,
   GraphQLEnumType,
-  GraphQLField,
   GraphQLFieldMap,
   GraphQLInterfaceType,
   GraphQLObjectType,
@@ -13,10 +12,9 @@ import {
   InlineFragmentNode,
   Kind,
   SelectionNode,
-  isEnumType,
   isInterfaceType,
   isObjectType,
-  isScalarType,
+  isOutputType,
   isUnionType,
 } from 'graphql';
 import { P, match } from 'ts-pattern';
@@ -28,7 +26,6 @@ import merge from 'ts-deepmerge';
 import assert from 'assert';
 import e from '~/edgeql-js';
 import _ from 'lodash';
-import { type } from 'os';
 
 export type Scope<Expr extends ObjectTypeExpression> = $scopify<Expr['__element__']> &
   $linkPropify<{
@@ -47,7 +44,7 @@ export const getShape =
       {
         selections: info.fieldNodes.find((node) => node.name.value === info.fieldName)!.selectionSet
           ?.selections,
-        graphql: info.parentType.getFields()[info.fieldName],
+        graphql: info.parentType.getFields()[info.fieldName].type,
         edgeql: scope.__element__,
       },
       info,
@@ -58,7 +55,7 @@ export const getShape =
 
 interface FieldDetails {
   selections: readonly SelectionNode[] | undefined;
-  graphql: GraphQLField<unknown, unknown>;
+  graphql: GraphQLOutputType;
   edgeql: SomeType;
 }
 
@@ -67,11 +64,11 @@ const fieldToShape = (field: FieldDetails, graphqlInfo: GraphQLResolveInfo) => {
 
   // Type may define fields to select
   let shape = {};
-  const typeExtensions = getGraphqlTypeExtensions(field.graphql.type);
+  const typeExtensions = getGraphqlTypeExtensions(field.graphql);
   if (typeExtensions.select && typeof typeExtensions.select === 'object')
     shape = merge(shape, typeExtensions.select);
 
-  const graphqlFields = getGraphqlTypeFields(field.graphql.type);
+  const graphqlFields = getGraphqlTypeFields(field.graphql);
 
   return field.selections.reduce(
     (shape, node) =>
@@ -96,7 +93,7 @@ const fieldToShape = (field: FieldDetails, graphqlInfo: GraphQLResolveInfo) => {
             [childNode.name.value]: fieldToShape(
               {
                 selections: childNode.selectionSet?.selections,
-                graphql: childSchema,
+                graphql: childSchema.type,
                 edgeql: childEqlType,
               },
               graphqlInfo,
@@ -125,11 +122,27 @@ const getFragmentShape = (
   fragment: FragmentDefinitionNode | InlineFragmentNode,
   shape: any,
 ) => {
-  const fragmentType = fragment.typeCondition?.name.value || undefined;
-  const baseType = getGraphqlBaseType(field.graphql.type);
+  const fieldGql = getGraphqlBaseType(field.graphql);
+  const fragmentGql = fragment.typeCondition
+    ? graphqlInfo.schema.getType(fragment.typeCondition.name.value)
+    : undefined;
+  if (fragmentGql && !isOutputType(fragmentGql))
+    throw new Error(`GQL type is not a GraphQLOutputType: ${fragmentGql.name}`);
 
-  // Only type narrow when the fragment type is not the same as the field type
-  const typeNarrowingRequired = !!(fragmentType && fragmentType !== baseType.name);
+  // Only type narrow when:
+  const typeNarrowingRequired = !!(
+    // Fragment type differs from field type
+    (
+      fragmentGql &&
+      fragmentGql !== fieldGql &&
+      // Fragment is not a interface of the field type
+      !(
+        isInterfaceType(fragmentGql) &&
+        'getInterfaces' in fieldGql &&
+        fieldGql.getInterfaces().includes(fragmentGql)
+      )
+    )
+  );
 
   if (!typeNarrowingRequired) {
     // Simple case - just merge the fragment shape as-is
@@ -145,30 +158,39 @@ const getFragmentShape = (
     return merge(shape, fragmentShape);
   }
 
-  // Type narrowing required - we need to use e.is() to narrow the type
-  const eqlType: ObjectTypeExpression | undefined =
-    (fragmentType && graphqlInfo.schema.getType(fragmentType)?.extensions.eqlType) ||
-    e[fragmentType];
+  // Type narrowing is only valid when the fragment extends the field; other cases may never occur
+  const fragmentExtendsField =
+    isInterfaceType(fieldGql) &&
+    'getInterfaces' in fragmentGql &&
+    fragmentGql.getInterfaces().includes(fieldGql);
+  if (!fragmentExtendsField) return shape;
 
-  if (!eqlType)
-    throw new Error('No EQL type found for fragment with GraphQL type: ' + fragmentType);
+  const fragmentEql: ObjectTypeExpression | undefined =
+    fragmentGql.extensions.eqlType || e[fragmentGql.name];
+  if (!fragmentEql)
+    throw new Error(`No EQL type found for fragment with GraphQL type: ${fragmentGql.name}`);
 
   const fragmentShape = fieldToShape(
     {
       selections: fragment.selectionSet?.selections,
-      graphql: field.graphql,
-      edgeql: eqlType.__element__,
+      graphql: fragmentGql,
+      edgeql: fragmentEql.__element__,
     },
     graphqlInfo,
   );
 
-  // Where there exists duplicate fields (in different fragments), only the last one will be included - https://github.com/edgedb/edgedb-js/issues/630
+  // Duplicate polymorphic (e.is()) fields are shadowed (resulting in "PolyShape" error); place on base type or rename to be unique - https://github.com/edgedb/edgedb-js/issues/630
+  const fieldEql: ObjectTypeExpression | undefined =
+    fieldGql.extensions.eqlType || e[fieldGql.name];
+  const fieldEqlFields = fieldEql ? Object.keys(fieldEql?.__element__.__pointers__) : [];
+
   return {
     ...shape,
-    ...e.is(eqlType, fragmentShape),
+    ...e.is(fragmentEql, fragmentShape),
     ..._.pick(fragmentShape, [
       'id' /* ignored by e.is() */,
       '__type__' /* errors if included by e.is() */,
+      ...fieldEqlFields,
     ]),
   };
 };

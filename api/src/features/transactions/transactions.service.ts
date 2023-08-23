@@ -1,5 +1,5 @@
 import { InjectQueue } from '@nestjs/bull';
-import { forwardRef, Inject, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { Queue } from 'bull';
 import {
   executeTx,
@@ -15,12 +15,7 @@ import {
   estimateTransactionTotalGas,
 } from 'lib';
 import { ProviderService } from '~/features/util/provider/provider.service';
-import {
-  ProposalsService,
-  selectProposal,
-  selectTransactionProposal,
-  UniqueProposal,
-} from '../proposals/proposals.service';
+import { selectTransactionProposal } from '../transaction-proposals/transaction-proposals.service';
 import { TransactionEvent, TRANSACTIONS_QUEUE } from './transactions.queue';
 import {
   policyStateAsPolicy,
@@ -31,12 +26,16 @@ import {
 import { DatabaseService } from '../database/database.service';
 import e from '~/edgeql-js';
 import _ from 'lodash';
-import { ProposalEvent } from '../proposals/proposals.input';
 import { ShapeFunc } from '../database/database.select';
 import { UserInputError } from '@nestjs/apollo';
 import { PaymasterService } from '../paymaster/paymaster.service';
-import { proposalTxShape, transactionProposalAsTx } from '../proposals/proposals.uitl';
+import {
+  proposalTxShape,
+  transactionProposalAsTx,
+} from '../transaction-proposals/transaction-proposals.uitl';
 import { selectApprover } from '../approvers/approvers.service';
+import { ProposalsService, UniqueProposal } from '../proposals/proposals.service';
+import { ProposalEvent } from '../proposals/proposals.input';
 
 @Injectable()
 export class TransactionsService {
@@ -45,7 +44,7 @@ export class TransactionsService {
     private provider: ProviderService,
     @InjectQueue(TRANSACTIONS_QUEUE.name)
     private transactionsQueue: Queue<TransactionEvent>,
-    @Inject(forwardRef(() => ProposalsService))
+    // @Inject(forwardRef(() => ProposalsService))
     private proposals: ProposalsService,
     private paymaster: PaymasterService,
   ) {}
@@ -108,7 +107,7 @@ export class TransactionsService {
       await e
         .for(e.set(...expiredApprovals.map((approver) => selectApprover(approver))), (approver) =>
           e.delete(e.Approval, () => ({
-            filter_single: { proposal: selectProposal(proposal.id), approver },
+            filter_single: { proposal: selectTransactionProposal(proposal.id), approver },
           })),
         )
         .run(this.db.DANGEROUS_superuserClient);

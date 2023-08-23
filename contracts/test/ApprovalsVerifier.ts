@@ -27,7 +27,7 @@ describe('ApprovalsVerifier', () => {
   before(async () => {
     account = (await deployProxy({ nApprovers: 0 })).account;
     verifier = await deployTestVerifier();
-    txHash = await hashTx(tx, account);
+    txHash = hashTx(account.address, tx);
     approvalsInput = {
       approvers: policy.approvers,
       approvals: await getApprovals(account, policy.approvers, tx),

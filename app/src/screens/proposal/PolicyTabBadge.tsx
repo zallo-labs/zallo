@@ -6,7 +6,7 @@ import { useQuery } from '~/gql';
 
 const Query = gql(/* GraphQL */ `
   query PolicyTabBadge($proposal: Bytes32!) {
-    proposal(input: { hash: $proposal }) {
+    transactionProposal(input: { hash: $proposal }) {
       id
       status
       policy {
@@ -24,7 +24,7 @@ export interface PolicyTabBadgeProps {
 }
 
 export function PolicyTabBadge(props: PolicyTabBadgeProps) {
-  const { proposal: p } = useQuery(Query, { proposal: props.proposal }).data;
+  const { transactionProposal: p } = useQuery(Query, { proposal: props.proposal }).data;
 
   if (!p) return null;
 

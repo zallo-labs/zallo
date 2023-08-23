@@ -12,6 +12,7 @@ const scalars = {
   PolicyKey: 'lib#PolicyKey',
   Selector: 'lib#Selector',
   Uint256: 'lib#BigIntlike',
+  TypedData: 'viem#TypedDataDefinition',
 };
 
 export default {

@@ -68,3 +68,26 @@ export const verifyApprovals = (
     ? { result: 'satisfied' }
     : { result: 'satisfiable', reason: 'Awaiting approvals' };
 };
+
+export const getMessageSatisfiability = (
+  p: Policy,
+  approvals: Set<Address>,
+): SatisfiabilityResult => {
+  const r = [verifyApprovals(p, approvals)];
+
+  const unsatisfiable = r.filter((v) => v.result === 'unsatisfiable');
+  if (unsatisfiable.length)
+    return {
+      result: Satisfiability.unsatisfiable,
+      reasons: unsatisfiable.map((v) => ({ reason: v.reason!, operation: v.operation })),
+    };
+
+  const satisfiable = r.filter((v) => v.result === 'satisfiable');
+  if (satisfiable.length)
+    return {
+      result: Satisfiability.satisfiable,
+      reasons: satisfiable.map((v) => ({ reason: v.reason!, operation: v.operation })),
+    };
+
+  return { result: Satisfiability.satisfied, reasons: [] };
+};

@@ -1,21 +1,24 @@
 import { getSdkError } from '@walletconnect/utils';
-import { useCallback } from 'react';
+import { useEffect } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { showError } from '~/provider/SnackbarProvider';
 import { WC_METHODS } from '~/util/walletconnect/methods';
 import {
-  WcClient,
-  WalletConnectEventArgs,
   WC_NAMESPACE_KEY,
   WC_SUPPORTED_CHAINS,
+  useWalletConnectWithoutWatching,
 } from '~/util/walletconnect';
 import { isPresent } from 'lib';
+import { SignClientTypes } from '@walletconnect/types';
+
+type SessionProposalArgs = SignClientTypes.EventArguments['session_proposal'];
 
 export const useSessionPropsalListener = () => {
   const { navigate } = useNavigation();
+  const client = useWalletConnectWithoutWatching();
 
-  return useCallback(
-    (client: WcClient, proposal: WalletConnectEventArgs['session_proposal']) => {
+  useEffect(() => {
+    const handleProposal = async (proposal: SessionProposalArgs) => {
       const { requiredNamespaces, optionalNamespaces } = proposal.params;
       const proposer = proposal.params.proposer.metadata;
 
@@ -56,7 +59,12 @@ export const useSessionPropsalListener = () => {
       }
 
       navigate('ConnectSheet', proposal);
-    },
-    [navigate],
-  );
+    };
+
+    client.on('session_proposal', handleProposal);
+
+    return () => {
+      client.off('session_proposal', handleProposal);
+    };
+  }, [client, navigate]);
 };

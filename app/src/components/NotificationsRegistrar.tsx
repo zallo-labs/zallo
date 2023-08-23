@@ -20,7 +20,7 @@ const Query = gql(/* GraphQL */ `
       pushToken
     }
 
-    proposals(input: { statuses: [Pending] }) {
+    proposals(input: { pending: true }) {
       id
     }
   }

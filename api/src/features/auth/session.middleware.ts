@@ -6,7 +6,7 @@ import RedisStore from 'connect-redis';
 import { CONFIG } from '~/config';
 import { Duration } from 'luxon';
 import Redis from 'ioredis';
-import { InjectRedis } from '@liaoliaots/nestjs-redis';
+import { InjectRedis } from '@songkeys/nestjs-redis';
 
 @Injectable()
 export class SessionMiddleware implements NestMiddleware {

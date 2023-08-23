@@ -1,21 +1,13 @@
-import { Field, ObjectType, registerEnumType } from '@nestjs/graphql';
-import { GraphQLBigInt } from 'graphql-scalars';
+import { Field, InterfaceType, ObjectType } from '@nestjs/graphql';
 import { Account } from '../accounts/accounts.model';
 import { Policy } from '../policies/policies.model';
 import { Bytes32Field } from '~/apollo/scalars/Bytes.scalar';
-import { Transaction } from '../transactions/transactions.model';
-import { IdField } from '~/apollo/scalars/Id.scalar';
-import { uuid } from 'edgedb/dist/codecs/ifaces';
-import { Operation } from '../operations/operations.model';
 import { Approver } from '../approvers/approvers.model';
-import { Token } from '../tokens/tokens.model';
-import { Simulation } from '../simulations/simulations.model';
+import { Node, NodeType } from '~/decorators/interface.decorator';
+import { makeUnionTypeResolver } from '../database/database.util';
 
-@ObjectType({ isAbstract: true })
-export class Proposal {
-  @IdField()
-  id: uuid;
-
+@InterfaceType({ implements: () => Node, resolveType: makeUnionTypeResolver() })
+export class Proposal extends Node {
   @Bytes32Field()
   hash: string; // Hex
 
@@ -27,6 +19,9 @@ export class Proposal {
 
   @Field(() => String, { nullable: true })
   label?: string;
+
+  @Field(() => String, { nullable: true })
+  iconUri?: string;
 
   @Field(() => Date)
   createdAt: Date;
@@ -44,46 +39,8 @@ export class Proposal {
   rejections: Rejection[];
 }
 
-@ObjectType()
-export class TransactionProposal extends Proposal {
-  @Field(() => [Operation])
-  operations: Operation[];
-
-  @Field(() => GraphQLBigInt)
-  nonce: bigint;
-
-  @Field(() => GraphQLBigInt)
-  gasLimit: bigint;
-
-  @Field(() => Token)
-  feeToken: Token;
-
-  @Field(() => Simulation)
-  simulation: Simulation;
-
-  @Field(() => [Transaction])
-  transactions: Transaction[];
-
-  @Field(() => Transaction, { nullable: true })
-  transaction?: Transaction | null;
-
-  @Field(() => TransactionProposalStatus)
-  status: TransactionProposalStatus;
-}
-
-export enum TransactionProposalStatus {
-  Pending = 'Pending',
-  Executing = 'Executing',
-  Successful = 'Successful',
-  Failed = 'Failed',
-}
-registerEnumType(TransactionProposalStatus, { name: 'TransactionProposalStatus' });
-
-@ObjectType({ isAbstract: true })
-export class ProposalResponse {
-  @IdField()
-  id: uuid;
-
+@NodeType({ isAbstract: true })
+export class ProposalResponse extends Node {
   @Field(() => Proposal)
   proposal: Proposal;
 
@@ -94,10 +51,10 @@ export class ProposalResponse {
   createdAt: Date;
 }
 
-@ObjectType()
+@NodeType()
 export class Approval extends ProposalResponse {
-  // Don't include signature as user's may want to retract it later
+  // Don't include signature as user's may want to retract it later -
 }
 
-@ObjectType()
+@NodeType()
 export class Rejection extends ProposalResponse {}

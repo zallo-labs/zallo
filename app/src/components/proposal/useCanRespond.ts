@@ -5,9 +5,14 @@ import { useMemo } from 'react';
 import { APPROVER_BLE_IDS } from '../ledger/useLedger';
 
 const Proposal = gql(/* GraphQL */ `
-  fragment UseCanRespond_TransactionProposalFragment on TransactionProposal {
+  fragment UseCanRespond_Proposal on Proposal {
     id
-    status
+    ... on TransactionProposal {
+      updatable
+    }
+    ... on MessageProposal {
+      updatable
+    }
     account {
       id
       policies {
@@ -66,7 +71,7 @@ export function useCanRespond(opts: CanRespondOptions) {
   const pairedApproverBleIds = useAtomValue(APPROVER_BLE_IDS);
 
   return useMemo(() => {
-    if (p.status !== 'Pending') return { canApprove: [], canReject: [] };
+    if (!p.updatable) return { canApprove: [], canReject: [] };
 
     const policy =
       p.account.policies.find(({ key }) => key === p.policy?.key) ?? p.account.policies[0];
@@ -92,7 +97,7 @@ export function useCanRespond(opts: CanRespondOptions) {
     p.approvals,
     p.policy?.key,
     p.rejections,
-    p.status,
+    p.updatable,
     pairedApproverBleIds,
     user.approvers,
   ]);

@@ -2,7 +2,7 @@ import { ComponentPropsWithoutRef } from 'react';
 import { StyleSheet } from 'react-native';
 import { Keyboard } from 'react-native';
 import { FAB as PaperFAB } from 'react-native-paper';
-import { IconSource } from 'react-native-paper/lib/typescript/src/components/Icon';
+import { IconSource } from 'react-native-paper/lib/typescript/components/Icon';
 
 type BaseProps = ComponentPropsWithoutRef<typeof PaperFAB>;
 

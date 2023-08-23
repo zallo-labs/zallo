@@ -4,7 +4,7 @@ import 'node-libs-react-native/globals';
 
 // Buffer
 import { Buffer } from '@craftzdog/react-native-buffer';
-global.Buffer = Buffer as any;
+global.Buffer = Buffer as unknown as typeof global.Buffer;
 
 // Crypto
 import 'react-native-quick-crypto'; // crypto
@@ -31,8 +31,7 @@ import 'core-js/actual/url-search-params'; // Required by URQL persisted-exchang
 import '@total-typescript/ts-reset';
 
 // Immer features
-import { enableES5, enableMapSet } from 'immer';
-enableES5();
+import { enableMapSet } from 'immer';
 enableMapSet();
 
 // BigInt

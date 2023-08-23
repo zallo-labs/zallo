@@ -58,8 +58,8 @@ export const APPROVALS_ABI = newAbiType<ApprovalsParams, ApprovalsStruct>(
 export const signDigest = (digest: BytesLike, approver: Approver) =>
   asHex(ethers.utils.joinSignature(approver._signingKey().signDigest(digest)));
 
-export const signTx = async (approver: Approver, account: Address, tx: Tx) =>
-  signDigest(await hashTx(tx, { address: account, provider: approver.provider }), approver);
+export const signTx = (approver: Approver, account: Address, tx: Tx) =>
+  signDigest(hashTx(account, tx), approver);
 
 const ERC1271_INTERFACE = ['function isValidSignature(bytes32, bytes) view returns (bytes4)'];
 const ERC1271_SUCCESS = '0x1626ba7e';

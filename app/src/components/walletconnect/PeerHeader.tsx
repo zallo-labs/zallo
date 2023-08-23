@@ -3,10 +3,10 @@ import { Image } from 'expo-image';
 import { ReactNode } from 'react';
 import { View } from 'react-native';
 import { Text } from 'react-native-paper';
-import { WalletConnectPeer } from '~/util/walletconnect';
+import { SignClientTypes } from '@walletconnect/types';
 
 export interface PeerHeaderProps {
-  peer: WalletConnectPeer;
+  peer: SignClientTypes.Metadata;
   children: ReactNode;
 }
 

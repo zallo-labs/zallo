@@ -11,7 +11,7 @@ import { ProviderModule } from './features/util/provider/provider.module';
 import { ContactsModule } from './features/contacts/contacts.module';
 import { DatabaseModule } from './features/database/database.module';
 import { ContractFunctionsModule } from './features/contract-functions/contract-functions.module';
-import { ProposalsModule } from './features/proposals/proposals.module';
+import { TransactionProposalsModule } from './features/transaction-proposals/transaction-proposals.module';
 import { TransactionsModule } from './features/transactions/transactions.module';
 import { FaucetModule } from './features/faucet/faucet.module';
 import { ExpoModule } from './features/util/expo/expo.module';
@@ -31,6 +31,8 @@ import { SimulationsModule } from './features/simulations/simulations.module';
 import { BullModule } from './features/util/bull/bull.module';
 import { TokensModule } from './features/tokens/tokens.module';
 import { PricesModule } from './features/prices/prices.module';
+import { MessageProposalsModule } from './features/message-proposals/message-proposals.module';
+import { ProposalsModule } from './features/proposals/proposals.module';
 
 @Module({
   imports: [
@@ -53,6 +55,7 @@ import { PricesModule } from './features/prices/prices.module';
     ExplorerModule,
     FaucetModule,
     HealthModule,
+    MessageProposalsModule,
     OperationsModule,
     PaymasterModule,
     PoliciesModule,
@@ -61,6 +64,7 @@ import { PricesModule } from './features/prices/prices.module';
     ReceiptsModule,
     SimulationsModule,
     TokensModule,
+    TransactionProposalsModule,
     TransactionsModule,
     TransfersModule,
     UsersModule,

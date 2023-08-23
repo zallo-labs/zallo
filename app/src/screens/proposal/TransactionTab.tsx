@@ -15,7 +15,7 @@ import { makeStyles } from '@theme/makeStyles';
 import { Hex, asBigInt, tokenToFiat } from 'lib';
 import { ReactNode } from 'react';
 import { gql, useFragment } from '@api/generated';
-import { tryReplaceDocument, useQuery } from '~/gql';
+import { getOptimizedDocument, useQuery } from '~/gql';
 import { useSubscription } from 'urql';
 
 const TransactionProposal = gql(/* GraphQL */ `
@@ -50,7 +50,7 @@ const TransactionProposal = gql(/* GraphQL */ `
 
 const Query = gql(/* GraphQL */ `
   query TransactionTab($proposal: Bytes32!) {
-    proposal(input: { hash: $proposal }) {
+    transactionProposal(input: { hash: $proposal }) {
       ...TransactionTab_TransactionProposalFragment
     }
   }
@@ -84,10 +84,10 @@ export const TransactionTab = withSuspense(({ route }: TransactionTabProps) => {
 
   const { data } = useQuery(Query, { proposal: route.params.proposal });
   useSubscription({
-    query: tryReplaceDocument(Subscription),
+    query: getOptimizedDocument(Subscription),
     variables: { proposal: route.params.proposal },
   });
-  const p = useFragment(TransactionProposal, data?.proposal);
+  const p = useFragment(TransactionProposal, data?.transactionProposal);
 
   const tx = p?.transaction;
   const receipt = tx?.receipt;

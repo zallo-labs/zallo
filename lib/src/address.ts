@@ -2,6 +2,7 @@ import { ethers } from 'ethers';
 import * as zk from 'zksync-web3';
 import { tryOr } from './util/try';
 import { compareBytes } from './bytes';
+import { CHAINS, Chain } from './chain';
 
 export type Address = `0x${string}`;
 export type Addresslike = Address | string;
@@ -24,6 +25,11 @@ export const isAddressLike = (v: unknown): v is Addresslike =>
 
 export const compareAddress = (a: Addresslike, b: Addresslike) =>
   compareBytes(asAddress(a), asAddress(b));
+
+let fallbackChain = CHAINS.testnet;
+export const setFallbackChain = (c: Chain) => (fallbackChain = c);
+
+export const asChainId = (address: Address) => fallbackChain.id; // A stop-gap before implementing global addresses
 
 /* Module augmentation; including in a .ts file to compile into lib's typings */
 declare module './contracts/index' {

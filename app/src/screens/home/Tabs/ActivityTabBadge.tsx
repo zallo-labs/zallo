@@ -7,7 +7,7 @@ import { useQuery } from '~/gql';
 
 const Query = gql(/* GraphQL */ `
   query ActivityTabBadge($accounts: [Address!]!) {
-    proposals(input: { accounts: $accounts, statuses: [Pending] }) {
+    proposals(input: { accounts: $accounts, pending: true }) {
       id
     }
   }

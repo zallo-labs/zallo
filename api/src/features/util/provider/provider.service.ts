@@ -23,7 +23,7 @@ import { Mutex } from 'async-mutex';
 import { PublicClient, WebSocketTransport, createPublicClient, webSocket } from 'viem';
 import { ETH_ADDRESS } from 'zksync-web3/build/src/utils';
 import Redis from 'ioredis';
-import { InjectRedis } from '@liaoliaots/nestjs-redis';
+import { InjectRedis } from '@songkeys/nestjs-redis';
 
 interface BalanceArgs {
   account: Address;

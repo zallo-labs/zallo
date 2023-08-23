@@ -17,7 +17,7 @@ import { ProposalValue } from '~/components/proposal/ProposalValue';
 
 const Query = gql(/* GraphQL */ `
   query DetailsTab($proposal: Bytes32!) {
-    proposal(input: { hash: $proposal }) {
+    transactionProposal(input: { hash: $proposal }) {
       ...DetailsTab_TransactionProposalFragment
     }
   }
@@ -90,7 +90,7 @@ export const DetailsTab = withSuspense(({ route }: DetailsTabProps) => {
 
   const { data } = useQuery(Query, { proposal: route.params.proposal });
   useSubscription({ query: Subscription, variables: { proposal: route.params.proposal } });
-  const p = useFragment(FragmentDoc, data?.proposal);
+  const p = useFragment(FragmentDoc, data?.transactionProposal);
 
   if (!p) return null;
 

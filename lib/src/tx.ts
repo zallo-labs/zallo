@@ -1,9 +1,8 @@
-import { TypedDataDomain, TypedDataField } from '@ethersproject/abstract-signer';
-import { ethers } from 'ethers';
-import { Address, Addresslike, asAddress } from './address';
+import { Address, asChainId } from './address';
 import { asHex, EMPTY_HEX_BYTES } from './bytes';
 import { Operation, encodeOperationsData } from './operation';
 import _ from 'lodash';
+import { hashTypedData, TypedData, TypedDataDomain } from 'viem';
 
 export interface Tx {
   operations: [Operation, ...Operation[]];
@@ -32,22 +31,13 @@ export const asTransactionData = (account: Address, tx: Tx): TransactionData => 
   gasLimit: tx.gasLimit,
 });
 
-export type TypedDataTypes = Record<string, TypedDataField[]>;
+export const getAccountTypedDataDomain = (account: Address) =>
+  ({
+    chainId: asChainId(account),
+    verifyingContract: account,
+  }) satisfies TypedDataDomain;
 
-export interface GetDomainParams {
-  address: Addresslike;
-  provider: ethers.providers.Provider;
-}
-
-export const getDomain = async ({
-  address,
-  provider,
-}: GetDomainParams): Promise<TypedDataDomain> => ({
-  chainId: (await provider.getNetwork()).chainId, // TODO: derrive from global address
-  verifyingContract: address,
-});
-
-export const TX_EIP712_TYPE: TypedDataTypes = {
+export const TX_EIP712_TYPES = {
   /* Consider: */
   // Encoding operations (to, value, data)[] instead of packed operations
   // Pros: improve HW wallet signing readability; allowing changing operation encoding without changing the Tx hashing
@@ -59,7 +49,7 @@ export const TX_EIP712_TYPE: TypedDataTypes = {
 
   /* Fields NOT included: */
   // gasLimit: not dangerous and can't be predicted due to approvals requiring gas; a maxGasFee could be implemented instead
-  // gasPerPubdataByteLimit: not dangerous
+  // gasPerPubdataByteLimit: maybe it should be?
   // paymasterInput: minimalAllowance can't be predicted and changing fee token would require re-signing
   // factoryDeps: not dangerous
   // reserved:        maybe it should be? Currently unused by zkSync
@@ -70,9 +60,9 @@ export const TX_EIP712_TYPE: TypedDataTypes = {
     { name: 'data', type: 'bytes' },
     { name: 'nonce', type: 'uint256' },
   ],
-};
+} satisfies TypedData;
 
-export const getTransactionEip712Value = async (tx: Tx, account: Address) => {
+export const getTransactionTypedDataMessage = (tx: Tx, account: Address) => {
   const txData = asTransactionData(account, tx);
 
   return {
@@ -83,11 +73,12 @@ export const getTransactionEip712Value = async (tx: Tx, account: Address) => {
   } satisfies TransactionData;
 };
 
-export const hashTx = async (tx: Tx, domainParams: GetDomainParams) =>
+export const hashTx = (account: Address, tx: Tx) =>
   asHex(
-    ethers.utils._TypedDataEncoder.hash(
-      await getDomain(domainParams),
-      TX_EIP712_TYPE,
-      await getTransactionEip712Value(tx, asAddress(domainParams.address)),
-    ),
+    hashTypedData({
+      domain: getAccountTypedDataDomain(account),
+      types: TX_EIP712_TYPES,
+      primaryType: 'Tx',
+      message: getTransactionTypedDataMessage(tx, account),
+    }),
   );

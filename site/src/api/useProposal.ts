@@ -10,7 +10,6 @@ import {
 import { useDevice } from '../hooks/useDevice';
 import { useAccount } from './useAccount';
 import { useSuspenseQuery } from './useSuspenseQuery';
-import { TransactionProposalStatus } from '../api.generated';
 
 const useFirstPendingProposal = (account: string): string | undefined =>
   useSuspenseQuery<FirstPendingProposalQuery, FirstPendingProposalQueryVariables>(
@@ -26,23 +25,21 @@ const useFirstPendingProposal = (account: string): string | undefined =>
       variables: {
         input: {
           accounts: [account],
-          statuses: [TransactionProposalStatus.Pending],
+          pending: true,
         },
       },
     },
   ).data.proposals[0]?.hash;
 
 const usePropose = () =>
-  useMutation<ProposeTestMutation, ProposeTestMutationVariables>(
-    gql`
-      mutation ProposeTest($input: ProposeInput!) {
-        propose(input: $input) {
-          id
-          hash
-        }
+  useMutation<ProposeTestMutation, ProposeTestMutationVariables>(gql`
+    mutation ProposeTest($input: ProposeTransactionInput!) {
+      proposeTransaction(input: $input) {
+        id
+        hash
       }
-    `,
-  )[0];
+    }
+  `)[0];
 
 export const useProposal = () => {
   // Query for a pending proposal
@@ -61,7 +58,7 @@ export const useProposal = () => {
             input: { account, operations: [{ to: device.address, value: 15000 }] },
           },
         });
-        setProposal(data?.propose.hash);
+        setProposal(data?.proposeTransaction.hash);
       }
     })();
   }, [account, device.address, proposal, propose]);

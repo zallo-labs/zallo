@@ -33,7 +33,8 @@ module default {
     required account: Account;
     policy: Policy;
     label: Label;
-    createdAt: datetime {
+    iconUri: str;
+    required createdAt: datetime {
       readonly := true;
       default := datetime_of_statement();
     }
@@ -57,10 +58,10 @@ module default {
     required approver: Approver {
       default := (<Approver>(global current_approver).id);
     }
-    createdAt: datetime {
+    required createdAt: datetime {
       readonly := true;
       default := datetime_of_statement();
-    }
+    } 
 
     constraint exclusive on ((.proposal, .approver));
 
@@ -101,11 +102,11 @@ module default {
       limit 1
     );
     required property status := (
-      select assert_exists(<TransactionProposalStatus>(
-        'Pending' if (not exists .transaction) else
-        'Executing' if (not exists .transaction.receipt) else
-        'Successful' if (.transaction.receipt.success) else
-        'Failed'
+      select assert_exists((
+        TransactionProposalStatus.Pending if (not exists .transaction) else
+        TransactionProposalStatus.Executing if (not exists .transaction.receipt) else
+        TransactionProposalStatus.Successful if (.transaction.receipt.success) else
+        TransactionProposalStatus.Failed
       ))
     );
 
@@ -116,6 +117,12 @@ module default {
 
   type Simulation {
     multi transfers: TransferDetails;
+  }
+
+  type MessageProposal extending Proposal {
+    required message: str;
+    typedData: json;
+    signature: Bytes;
   }
 
   type Event {
