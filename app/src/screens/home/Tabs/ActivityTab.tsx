@@ -68,17 +68,22 @@ export type ActivityTabProps = TabNavigatorScreenProp<'Activity'> & { account: A
 
 export const ActivityTab = withSuspense(
   ({ account }: ActivityTabProps) => {
-    const { proposals, transfers, user } = useQuery(Query, { accounts: [account] }).data ?? {};
+    // When proposals are invalidated (on proposal sub) and the user is on a different screen this screen remains mounted but suspense doesn't occur
+    const {
+      proposals = [],
+      transfers = [],
+      user,
+    } = useQuery(Query, { accounts: [account] }).data ?? {};
     useSubscription({ query: ProposalSubscription, variables: { accounts: [account] } });
     useSubscription({ query: TransferSubscription, variables: { accounts: [account] } });
 
-    const data = [...proposals, ...transfers].sort(
+    const items = [...proposals, ...transfers].sort(
       (a, b) => asDateTime(b.timestamp).toMillis() - asDateTime(a.timestamp).toMillis(),
     );
 
     return (
       <FlashList
-        data={data}
+        data={items}
         renderItem={({ item }) =>
           match(item)
             .with({ __typename: 'TransactionProposal' }, (p) => (
@@ -97,6 +102,7 @@ export const ActivityTab = withSuspense(
             There is no activity to show
           </Text>
         }
+        extraData={[user]}
         contentContainerStyle={styles.contentContainer}
         estimatedItemSize={ListItemHeight.DOUBLE_LINE}
         showsVerticalScrollIndicator={false}

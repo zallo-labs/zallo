@@ -48,6 +48,13 @@ const Remove = gql(/* GraphQL */ `
   mutation PolicyAppbar_Remove($account: Address!, $key: PolicyKey!) {
     removePolicy(input: { account: $account, key: $key }) {
       id
+      draft {
+        id
+        proposal {
+          id
+          hash
+        }
+      }
     }
   }
 `);
@@ -123,8 +130,11 @@ export const PolicyAppbar = ({ view, reset, setParams, ...props }: PolicyAppbarP
                     onPress={async () => {
                       close();
                       if (await confirmRemove()) {
-                        await remove({ account: policy.account.address, key: policy.key });
-                        goBack();
+                        const proposal = (
+                          await remove({ account: policy.account.address, key: policy.key })
+                        ).data?.removePolicy.draft?.proposal?.hash;
+
+                        proposal ? navigate('Proposal', { proposal }) : goBack();
                       }
                     }}
                   />

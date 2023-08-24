@@ -151,26 +151,24 @@ export class TransactionsService {
       },
     );
 
-    const transactionHash = asHex(transaction.hash);
-    await e
-      .insert(e.Transaction, {
-        hash: transactionHash,
-        proposal: selectTransactionProposal(proposal.id),
-        gasPrice,
-      })
-      .run(this.db.client);
-
-    // Set executing policy if none was set
-    if (!proposal.policy?.state) {
-      await e
-        .update(e.TransactionProposal, () => ({
+    // Set executing policy if not already set
+    const selectedProposal = proposal.policy?.state
+      ? selectTransactionProposal(proposal.id)
+      : e.update(e.TransactionProposal, () => ({
           filter_single: { id: proposal.id },
           set: {
             policy: selectPolicy({ account: proposal.account.address as Address, key: policy.key }),
           },
-        }))
-        .run(this.db.client);
-    }
+        }));
+
+    const transactionHash = asHex(transaction.hash);
+    await this.db.query(
+      e.insert(e.Transaction, {
+        hash: transactionHash,
+        proposal: selectedProposal,
+        gasPrice,
+      }),
+    );
 
     await this.proposals.publishProposal(
       { hash: proposal.hash as Hex, account: proposal.account.address as Address },
