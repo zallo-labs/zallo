@@ -78,10 +78,10 @@ export type $AccountλShape = $.typeutil.flatten<_std.$Object_169a5ce7108a11eeb5
   "<account[is Transfer]": $.LinkDesc<$Transfer, $.Cardinality.Many, {}, false, false,  false, false>;
   "<account[is Policy]": $.LinkDesc<$Policy, $.Cardinality.Many, {}, false, false,  false, false>;
   "<accounts[is Approver]": $.LinkDesc<$Approver, $.Cardinality.Many, {}, false, false,  false, false>;
+  "<account[is MessageProposal]": $.LinkDesc<$MessageProposal, $.Cardinality.Many, {}, false, false,  false, false>;
   "<accounts[is current_approver]": $.LinkDesc<$current_approver, $.Cardinality.Many, {}, false, false,  false, false>;
   "<accounts[is User]": $.LinkDesc<$User, $.Cardinality.Many, {}, false, false,  false, false>;
   "<accounts[is current_user]": $.LinkDesc<$current_user, $.Cardinality.Many, {}, false, false,  false, false>;
-  "<account[is MessageProposal]": $.LinkDesc<$MessageProposal, $.Cardinality.Many, {}, false, false,  false, false>;
   "<account": $.LinkDesc<$.ObjectType, $.Cardinality.Many, {}, false, false,  false, false>;
   "<accounts": $.LinkDesc<$.ObjectType, $.Cardinality.Many, {}, false, false,  false, false>;
 }>;
@@ -141,8 +141,8 @@ export type $ApproverλShape = $.typeutil.flatten<_std.$Object_169a5ce7108a11eeb
   "<proposedBy[is Proposal]": $.LinkDesc<$Proposal, $.Cardinality.Many, {}, false, false,  false, false>;
   "<proposedBy[is TransactionProposal]": $.LinkDesc<$TransactionProposal, $.Cardinality.Many, {}, false, false,  false, false>;
   "<approvers[is PolicyState]": $.LinkDesc<$PolicyState, $.Cardinality.Many, {}, false, false,  false, false>;
-  "<approvers[is Account]": $.LinkDesc<$Account, $.Cardinality.Many, {}, false, false,  false, false>;
   "<proposedBy[is MessageProposal]": $.LinkDesc<$MessageProposal, $.Cardinality.Many, {}, false, false,  false, false>;
+  "<approvers[is Account]": $.LinkDesc<$Account, $.Cardinality.Many, {}, false, false,  false, false>;
   "<approver": $.LinkDesc<$.ObjectType, $.Cardinality.Many, {}, false, false,  false, false>;
   "<approvers": $.LinkDesc<$.ObjectType, $.Cardinality.Many, {}, false, false,  false, false>;
   "<proposedBy": $.LinkDesc<$.ObjectType, $.Cardinality.Many, {}, false, false,  false, false>;

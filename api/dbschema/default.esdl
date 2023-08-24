@@ -17,7 +17,7 @@ module default {
     required isActive: bool;
     required implementation: Address;
     required salt: Bytes32;
-    multi link policies := (select .<account[is Policy] filter .state.isRemoved ?= false);
+    multi link policies := (select .<account[is Policy] filter (.isActive or exists .draft));
     multi link proposals := .<account[is Proposal];
     multi link transactionProposals := .<account[is TransactionProposal];
     multi link transfers := .<account[is Transfer];
