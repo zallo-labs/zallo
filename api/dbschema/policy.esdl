@@ -23,7 +23,7 @@ module default {
         limit 1
       ) filter not exists .activationBlock
     );
-    property isActive := (exists .state);
+    required property isActive := (.state.isRemoved ?= false);
 
     constraint exclusive on ((.account, .key));
     constraint exclusive on ((.account, .name));
