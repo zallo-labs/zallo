@@ -8,7 +8,6 @@ import { View } from 'react-native';
 import { Button, IconButton, Text } from 'react-native-paper';
 import { FiatValue } from '~/components/fiat/FiatValue';
 import { TokenAmount } from '~/components/token/TokenAmount';
-import { logWarning } from '~/util/analytics';
 
 const FragmentDoc = gql(/* GraphQL */ `
   fragment InputsView_token on Token @argumentDefinitions(account: { type: "Address!" }) {
@@ -65,10 +64,6 @@ export const InputsView = ({ input, setInput, type, setType, ...props }: InputsV
             setType(InputType.Token);
             setInput(formatUnits(token.balance, token.decimals));
           }}
-          onLayout={(e) => {
-            if (e.nativeEvent.layout.width !== BUTTON_WIDTH)
-              logWarning(`BUTTON_WIDTH mismatch`, { width: e.nativeEvent.layout.width });
-          }}
         >
           Max
         </Button>
@@ -87,10 +82,6 @@ export const InputsView = ({ input, setInput, type, setType, ...props }: InputsV
           iconColor={styles.button.color}
           style={styles.iconButton}
           onPress={() => setType((type) => Number(!type))}
-          onLayout={(e) => {
-            if (e.nativeEvent.layout.width !== ICON_BUTTON_WIDTH)
-              logWarning('ICON_BUTTON_WIDTH mismatch', { width: e.nativeEvent.layout.width });
-          }}
         />
       </View>
 
