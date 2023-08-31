@@ -2,13 +2,13 @@ app = "zallo-api-prod"
 primary_region = "lax" # Los Angeles
 
 [build]
-dockerfile = "Dockerfile"
+  dockerfile = "Dockerfile"
 
 [env]
-API_PORT = 3000
+  API_PORT = 3000
 
-# Secrets
-# DOTENV_KEY                  # npx dotenv-vault keys
+  # Secrets
+  # DOTENV_KEY                  # npx dotenv-vault keys
 
 
 [http_service]

@@ -30,7 +30,7 @@ module default {
 
     access policy members_select_insert_update
       allow select, insert, update
-      using (.account.id in global current_user_accounts);
+      using (.account in global current_accounts);
 
     access policy can_be_deleted_when_inactive
       allow delete
@@ -43,14 +43,12 @@ module default {
       on source delete delete target; 
       on target delete delete source;
     }
-    required property isAccountInitState := not exists .proposal;
+    required property isAccountInitState := not exists .proposal and not .isRemoved;
     multi approvers: Approver;
     required threshold: uint16;
     required targets: TargetsConfig; 
     required transfers: TransfersConfig;
-    required isRemoved: bool {
-      default := false;
-    }
+    required isRemoved: bool { default := false; }
     activationBlock: bigint {
       constraint min_value(0n);
     }

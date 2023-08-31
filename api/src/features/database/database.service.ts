@@ -1,5 +1,5 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
-import { createClient, $infer } from '~/edgeql-js';
+import e, { createClient, $infer } from '~/edgeql-js';
 import { Expression } from '~/edgeql-js/typesystem';
 import { getRequestContext } from '~/request/ctx';
 import { AsyncLocalStorage } from 'async_hooks';
@@ -7,6 +7,7 @@ import type { Client } from 'edgedb';
 import { Transaction } from 'edgedb/dist/transaction';
 
 type Hook = () => void;
+type Globals = Partial<Record<keyof typeof e.global, any>>;
 
 interface Context {
   transaction: Transaction;
@@ -38,8 +39,8 @@ export class DatabaseService implements OnModuleInit {
     return user
       ? this.__client.withGlobals({
           current_approver_address: user.approver,
-          current_user_accounts_array: user.accounts.map((a) => a.id),
-        })
+          current_account_ids_array: user.accounts.map((a) => a.id),
+        } satisfies Globals)
       : this.DANGEROUS_superuserClient;
   }
 

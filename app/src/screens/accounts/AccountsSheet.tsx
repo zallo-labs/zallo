@@ -76,7 +76,7 @@ export const AccountsSheet = ({ route, navigation: { navigate, goBack } }: Accou
               style={styles.selectedAccountButton}
               onPress={() => navigate('Account', { account: selected.address })}
             >
-              Account
+              Settings
             </Button>
           </View>
         )}

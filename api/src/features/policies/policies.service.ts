@@ -38,10 +38,7 @@ import {
   asTargetsConfig,
 } from './policies.util';
 import { PolicyState, SatisfiabilityResult } from './policies.model';
-import {
-  proposalTxShape,
-  transactionProposalAsTx,
-} from '../transaction-proposals/transaction-proposals.uitl';
+import { transactionProposalAsTx } from '../transaction-proposals/transaction-proposals.uitl';
 import { UserAccountContext } from '~/request/ctx';
 import { and } from '../database/database.util';
 import { selectAccount } from '../accounts/accounts.util';
@@ -242,18 +239,21 @@ export class PoliciesService {
     await this.db.transaction(async (db) => {
       const selectAccount = e.select(e.Account, () => ({ filter_single: { address: account } }));
 
-      const isActive =
-        (
-          await e
-            .select(e.Policy, () => ({
-              isActive: true,
-              filter_single: { account: selectAccount, key },
-            }))
-            .run(db)
-        )?.isActive ?? false;
+      const policy = await e
+        .select(e.Policy, () => ({
+          filter_single: { account: selectAccount, key },
+          isActive: true,
+          draft: {
+            isRemoved: true,
+          },
+        }))
+        .run(db);
+      if (!policy) throw new UserInputError("Policy doesn't exist");
+
+      if (policy.draft?.isRemoved) return; // Don't do anything if removal draft already exists
 
       const proposal =
-        isActive &&
+        policy.isActive &&
         (await (async () => {
           const proposal = await this.proposals.propose({
             account,
@@ -268,7 +268,7 @@ export class PoliciesService {
           return selectTransactionProposal(proposal.id);
         })());
 
-      const r = await e
+      await e
         .update(e.Policy, () => ({
           filter_single: { account: selectAccount, key },
           set: {
@@ -286,7 +286,6 @@ export class PoliciesService {
           },
         }))
         .run(db);
-      if (!r) throw new UserInputError("Policy doesn't exist");
     });
   }
 

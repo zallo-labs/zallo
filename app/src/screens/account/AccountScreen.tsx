@@ -89,7 +89,7 @@ export const AccountScreen = withSuspense(
         <Fab
           icon={PlusIcon}
           label="Add policy"
-          onPress={() => navigate('Policy', { account: account.address })}
+          onPress={() => navigate('AddPolicy', { account: account.address })}
         />
       </Screen>
     );

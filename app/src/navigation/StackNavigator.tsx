@@ -61,6 +61,7 @@ import {
   MessageProposalScreen,
   MessageProposalScreenParams,
 } from '~/screens/message-proposal/MessageProposalScreen';
+import { AddPolicyScreen, AddPolicyScreenParams } from '~/screens/add-policy/AddPolicyScreen';
 
 export type StackNavigatorParamList = {
   Home: HomeScreenParams;
@@ -76,6 +77,7 @@ export type StackNavigatorParamList = {
   User: undefined;
   Approver: ApproverScreenParams;
   Account: AccountScreenParams;
+  AddPolicy: AddPolicyScreenParams;
   Policy: PolicyScreenParams;
   Approvers: ApproversScreenParams;
   ContractPermissions: ContractPermissionsScreenParams;
@@ -141,6 +143,7 @@ export const StackNavigator = () => {
       <Navigation.Screen name="User" component={UserScreen} />
       <Navigation.Screen name="Approver" component={ApproverScreen} />
       <Navigation.Screen name="Account" component={AccountScreen} />
+      <Navigation.Screen name="AddPolicy" component={AddPolicyScreen} />
       <Navigation.Screen name="Policy" component={PolicyScreen} />
       <Navigation.Screen name="Approvers" component={ApproversScreen} />
       <Navigation.Screen name="ContractPermissions" component={ContractPermissionsScreen} />
