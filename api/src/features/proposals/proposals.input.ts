@@ -3,6 +3,7 @@ import { Address, Hex, PolicyKey } from 'lib';
 import { AddressField, AddressScalar } from '~/apollo/scalars/Address.scalar';
 import { Bytes32Field, Bytes32Scalar, BytesField } from '~/apollo/scalars/Bytes.scalar';
 import { PolicyKeyField } from '~/apollo/scalars/PolicyKey.scalar';
+import { Risk } from './proposals.model';
 
 @InputType()
 export class ProposalInput {
@@ -32,6 +33,12 @@ export class ApproveInput extends ProposalInput {
 export class UpdateProposalInput extends ProposalInput {
   @PolicyKeyField({ nullable: true })
   policy?: PolicyKey | null;
+}
+
+@InputType()
+export class LabelProposalRiskInput extends ProposalInput {
+  @Field(() => Risk)
+  risk: Risk;
 }
 
 export enum ProposalEvent {

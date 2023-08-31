@@ -125,6 +125,7 @@ export interface Proposal extends std.$Object {
   "rejections": Rejection[];
   "responses": ProposalResponse[];
   "policy"?: Policy | null;
+  "riskLabel"?: ProposalRiskLabel | null;
 }
 export interface MessageProposal extends Proposal {
   "message": string;
@@ -156,6 +157,12 @@ export interface PolicyState extends std.$Object {
   "transfers": TransfersConfig;
   "threshold": number;
   "policy"?: Policy | null;
+}
+export type ProposalRisk = "Low" | "Medium" | "High";
+export interface ProposalRiskLabel extends std.$Object {
+  "proposal": Proposal;
+  "user": User;
+  "risk": ProposalRisk;
 }
 export interface Receipt extends std.$Object {
   "responses": string[];
@@ -495,6 +502,8 @@ export interface types {
     "Operation": Operation;
     "Policy": Policy;
     "PolicyState": PolicyState;
+    "ProposalRisk": ProposalRisk;
+    "ProposalRiskLabel": ProposalRiskLabel;
     "Receipt": Receipt;
     "Rejection": Rejection;
     "Simulation": Simulation;

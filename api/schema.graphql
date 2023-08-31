@@ -200,6 +200,11 @@ input LabelInput {
   address: Address!
 }
 
+input LabelProposalRiskInput {
+  hash: Bytes32!
+  risk: Risk!
+}
+
 """
 A field whose value is a IEEE 802 48-bit MAC address: https://en.wikipedia.org/wiki/MAC_address.
 """
@@ -218,6 +223,7 @@ type MessageProposal implements Node & Proposal {
   proposedBy: Approver!
   rejections: [Rejection!]!
   responses: [ProposalResponse!]!
+  riskLabel: Risk
   signature: Bytes32
   typedData: TypedData
   updatable: Boolean!
@@ -230,6 +236,7 @@ type Mutation {
   createPolicy(input: CreatePolicyInput!): Policy!
   deleteContact(input: ContactInput!): ID
   execute(input: ExecuteInput!): Transaction
+  labelProposalRisk(input: LabelProposalRiskInput!): Proposal!
 
   """Pair with another user - merging your approvers"""
   pair(input: PairInput!): User!
@@ -341,6 +348,7 @@ interface Proposal implements Node {
   proposedBy: Approver!
   rejections: [Rejection!]!
   responses: [ProposalResponse!]!
+  riskLabel: Risk
 }
 
 enum ProposalEvent {
@@ -461,6 +469,12 @@ type RemovePolicyOp {
 
 input RequestTokensInput {
   account: Address!
+}
+
+enum Risk {
+  High
+  Low
+  Medium
 }
 
 enum Satisfiability {
@@ -621,6 +635,7 @@ type TransactionProposal implements Node & Proposal {
   proposedBy: Approver!
   rejections: [Rejection!]!
   responses: [ProposalResponse!]!
+  riskLabel: Risk
   simulation: Simulation!
   status: TransactionProposalStatus!
   transaction: Transaction

@@ -26,6 +26,13 @@ const Label: $.scalarTypeWithConstructor<_std.$str, never> = $.makeType<$.scalar
 export type $MAC = $.ScalarType<"std::str", string>;
 const MAC: $.scalarTypeWithConstructor<_std.$str, never> = $.makeType<$.scalarTypeWithConstructor<_std.$str, never>>(_.spec, "4886e26d-47cd-11ee-9715-230dde101db0", _.syntax.literal);
 
+export type $ProposalRisk = {
+  "Low": $.$expr_Literal<$ProposalRisk>;
+  "Medium": $.$expr_Literal<$ProposalRisk>;
+  "High": $.$expr_Literal<$ProposalRisk>;
+} & $.EnumType<"default::ProposalRisk", ["Low", "Medium", "High"]>;
+const ProposalRisk: $ProposalRisk = $.makeType<$ProposalRisk>(_.spec, "a5b62d80-4854-11ee-8f43-9fa3da8befe6", _.syntax.literal);
+
 export type $TransactionProposalStatus = {
   "Pending": $.$expr_Literal<$TransactionProposalStatus>;
   "Executing": $.$expr_Literal<$TransactionProposalStatus>;
@@ -259,10 +266,12 @@ export type $ProposalλShape = $.typeutil.flatten<_std.$Object_169a5ce7108a11eeb
   "rejections": $.LinkDesc<$Rejection, $.Cardinality.Many, {}, false, true,  false, false>;
   "responses": $.LinkDesc<$ProposalResponse, $.Cardinality.Many, {}, false, true,  false, false>;
   "policy": $.LinkDesc<$Policy, $.Cardinality.AtMostOne, {}, false, false,  false, false>;
+  "riskLabel": $.LinkDesc<$ProposalRiskLabel, $.Cardinality.AtMostOne, {}, false, true,  false, false>;
   "<proposal[is ProposalResponse]": $.LinkDesc<$ProposalResponse, $.Cardinality.Many, {}, false, false,  false, false>;
   "<proposal[is Approval]": $.LinkDesc<$Approval, $.Cardinality.Many, {}, false, false,  false, false>;
   "<proposal[is Rejection]": $.LinkDesc<$Rejection, $.Cardinality.Many, {}, false, false,  false, false>;
   "<proposals[is Account]": $.LinkDesc<$Account, $.Cardinality.Many, {}, false, false,  false, false>;
+  "<proposal[is ProposalRiskLabel]": $.LinkDesc<$ProposalRiskLabel, $.Cardinality.Many, {}, false, false,  false, false>;
   "<proposal": $.LinkDesc<$.ObjectType, $.Cardinality.Many, {}, false, false,  false, false>;
   "<proposals": $.LinkDesc<$.ObjectType, $.Cardinality.Many, {}, false, false,  false, false>;
 }>;
@@ -350,6 +359,23 @@ type $PolicyState = $.ObjectType<"default::PolicyState", $PolicyStateλShape, nu
 const $PolicyState = $.makeType<$PolicyState>(_.spec, "4b1fe86c-47cd-11ee-b108-23a5ebe60d96", _.syntax.literal);
 
 const PolicyState: $.$expr_PathNode<$.TypeSet<$PolicyState, $.Cardinality.Many>, null> = _.syntax.$PathNode($.$toSet($PolicyState, $.Cardinality.Many), null);
+
+export type $ProposalRiskLabelλShape = $.typeutil.flatten<_std.$Object_169a5ce7108a11eeb5af6feb88c88f11λShape & {
+  "proposal": $.LinkDesc<$Proposal, $.Cardinality.One, {}, false, false,  false, false>;
+  "user": $.LinkDesc<$User, $.Cardinality.One, {}, false, false,  false, true>;
+  "risk": $.PropertyDesc<$ProposalRisk, $.Cardinality.One, false, false, false, false>;
+  "<riskLabel[is Proposal]": $.LinkDesc<$Proposal, $.Cardinality.Many, {}, false, false,  false, false>;
+  "<riskLabel[is MessageProposal]": $.LinkDesc<$MessageProposal, $.Cardinality.Many, {}, false, false,  false, false>;
+  "<riskLabel[is TransactionProposal]": $.LinkDesc<$TransactionProposal, $.Cardinality.Many, {}, false, false,  false, false>;
+  "<riskLabel": $.LinkDesc<$.ObjectType, $.Cardinality.Many, {}, false, false,  false, false>;
+}>;
+type $ProposalRiskLabel = $.ObjectType<"default::ProposalRiskLabel", $ProposalRiskLabelλShape, null, [
+  ..._std.$Object_169a5ce7108a11eeb5af6feb88c88f11['__exclusives__'],
+  {proposal: {__element__: $Proposal, __cardinality__: $.Cardinality.One | $.Cardinality.AtMostOne },user: {__element__: $User, __cardinality__: $.Cardinality.One | $.Cardinality.AtMostOne },},
+]>;
+const $ProposalRiskLabel = $.makeType<$ProposalRiskLabel>(_.spec, "a5b64a74-4854-11ee-9995-8b188d807f6e", _.syntax.literal);
+
+const ProposalRiskLabel: $.$expr_PathNode<$.TypeSet<$ProposalRiskLabel, $.Cardinality.Many>, null> = _.syntax.$PathNode($.$toSet($ProposalRiskLabel, $.Cardinality.Many), null);
 
 export type $ReceiptλShape = $.typeutil.flatten<_std.$Object_169a5ce7108a11eeb5af6feb88c88f11λShape & {
   "responses": $.PropertyDesc<$.ArrayType<$Bytes>, $.Cardinality.One, false, false, false, false>;
@@ -582,6 +608,7 @@ export type $UserλShape = $.typeutil.flatten<_std.$Object_169a5ce7108a11eeb5af6
   "<user[is current_approver]": $.LinkDesc<$current_approver, $.Cardinality.Many, {}, false, false,  false, false>;
   "<user[is Contact]": $.LinkDesc<$Contact, $.Cardinality.Many, {}, false, false,  false, false>;
   "<user[is Token]": $.LinkDesc<$Token, $.Cardinality.Many, {}, false, false,  false, false>;
+  "<user[is ProposalRiskLabel]": $.LinkDesc<$ProposalRiskLabel, $.Cardinality.Many, {}, false, false,  false, false>;
   "<user": $.LinkDesc<$.ObjectType, $.Cardinality.Many, {}, false, false,  false, false>;
 }>;
 type $User = $.ObjectType<"default::User", $UserλShape, null, [
@@ -648,7 +675,7 @@ const $default__globals: {  current_accounts: _.syntax.$expr_Global<
 
 
 
-export { AbiSource, Address, Bytes, Bytes32, Bytes4, Label, MAC, TransactionProposalStatus, TransferDirection, current_accounts, uint16, uint224, uint256, uint32, uint64, $Account, Account, $ProposalResponse, ProposalResponse, $Approval, Approval, $Approver, Approver, $Contact, Contact, $Contract, Contract, $Target, Target, $ContractTarget, ContractTarget, $Event, Event, $Function, Function, $Proposal, Proposal, $MessageProposal, MessageProposal, $Operation, Operation, $Policy, Policy, $PolicyState, PolicyState, $Receipt, Receipt, $Rejection, Rejection, $Simulation, Simulation, $TargetsConfig, TargetsConfig, $Token, Token, $Transaction, Transaction, $TransactionProposal, TransactionProposal, $TransferDetails, TransferDetails, $Transferlike, Transferlike, $Transfer, Transfer, $TransferApproval, TransferApproval, $TransferLimit, TransferLimit, $TransfersConfig, TransfersConfig, $User, User, $current_approver, current_approver, $current_user, current_user };
+export { AbiSource, Address, Bytes, Bytes32, Bytes4, Label, MAC, ProposalRisk, TransactionProposalStatus, TransferDirection, current_accounts, uint16, uint224, uint256, uint32, uint64, $Account, Account, $ProposalResponse, ProposalResponse, $Approval, Approval, $Approver, Approver, $Contact, Contact, $Contract, Contract, $Target, Target, $ContractTarget, ContractTarget, $Event, Event, $Function, Function, $Proposal, Proposal, $MessageProposal, MessageProposal, $Operation, Operation, $Policy, Policy, $PolicyState, PolicyState, $ProposalRiskLabel, ProposalRiskLabel, $Receipt, Receipt, $Rejection, Rejection, $Simulation, Simulation, $TargetsConfig, TargetsConfig, $Token, Token, $Transaction, Transaction, $TransactionProposal, TransactionProposal, $TransferDetails, TransferDetails, $Transferlike, Transferlike, $Transfer, Transfer, $TransferApproval, TransferApproval, $TransferLimit, TransferLimit, $TransfersConfig, TransfersConfig, $User, User, $current_approver, current_approver, $current_user, current_user };
 
 type __defaultExports = {
   "AbiSource": typeof AbiSource;
@@ -658,6 +685,7 @@ type __defaultExports = {
   "Bytes4": typeof Bytes4;
   "Label": typeof Label;
   "MAC": typeof MAC;
+  "ProposalRisk": typeof ProposalRisk;
   "TransactionProposalStatus": typeof TransactionProposalStatus;
   "TransferDirection": typeof TransferDirection;
   "current_accounts": typeof current_accounts;
@@ -681,6 +709,7 @@ type __defaultExports = {
   "Operation": typeof Operation;
   "Policy": typeof Policy;
   "PolicyState": typeof PolicyState;
+  "ProposalRiskLabel": typeof ProposalRiskLabel;
   "Receipt": typeof Receipt;
   "Rejection": typeof Rejection;
   "Simulation": typeof Simulation;
@@ -707,6 +736,7 @@ const __defaultExports: __defaultExports = {
   "Bytes4": Bytes4,
   "Label": Label,
   "MAC": MAC,
+  "ProposalRisk": ProposalRisk,
   "TransactionProposalStatus": TransactionProposalStatus,
   "TransferDirection": TransferDirection,
   "current_accounts": current_accounts,
@@ -730,6 +760,7 @@ const __defaultExports: __defaultExports = {
   "Operation": Operation,
   "Policy": Policy,
   "PolicyState": PolicyState,
+  "ProposalRiskLabel": ProposalRiskLabel,
   "Receipt": Receipt,
   "Rejection": Rejection,
   "Simulation": Simulation,

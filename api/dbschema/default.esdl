@@ -43,6 +43,7 @@ module default {
     multi link responses := .<proposal[is ProposalResponse];
     multi link approvals := .<proposal[is Approval];
     multi link rejections := .<proposal[is Rejection];
+    link riskLabel := assert_single((select .<proposal[is ProposalRiskLabel] filter .user = global current_user));
 
     access policy members_only
       allow all
@@ -70,6 +71,18 @@ module default {
     access policy members_can_select
       allow select
       using (.proposal.account in <Account>global current_accounts);
+  }
+
+  scalar type ProposalRisk extending enum<'Low', 'Medium', 'High'>;
+
+  type ProposalRiskLabel {
+    required proposal: Proposal {
+      on target delete delete source;
+    }
+    required user: User { default := (<User>(global current_user).id); }
+    required risk: ProposalRisk;
+
+    constraint exclusive on ((.proposal, .user));
   }
 
   type Approval extending ProposalResponse {

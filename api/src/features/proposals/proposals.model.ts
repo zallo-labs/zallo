@@ -1,4 +1,4 @@
-import { Field, InterfaceType, ObjectType } from '@nestjs/graphql';
+import { Field, InterfaceType, registerEnumType } from '@nestjs/graphql';
 import { Account } from '../accounts/accounts.model';
 import { Policy } from '../policies/policies.model';
 import { Bytes32Field } from '~/apollo/scalars/Bytes.scalar';
@@ -37,6 +37,9 @@ export class Proposal extends Node {
 
   @Field(() => [Rejection])
   rejections: Rejection[];
+
+  @Field(() => Risk, { nullable: true })
+  riskLabel?: Risk;
 }
 
 @NodeType({ isAbstract: true })
@@ -58,3 +61,10 @@ export class Approval extends ProposalResponse {
 
 @NodeType()
 export class Rejection extends ProposalResponse {}
+
+export enum Risk {
+  Low = 'Low',
+  Medium = 'Medium',
+  High = 'High',
+}
+registerEnumType(Risk, { name: 'Risk' });
