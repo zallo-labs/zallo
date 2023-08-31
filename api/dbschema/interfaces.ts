@@ -150,12 +150,12 @@ export interface PolicyState extends std.$Object {
   "createdAt": Date;
   "approvers": Approver[];
   "proposal"?: TransactionProposal | null;
-  "isAccountInitState": boolean;
   "targets": TargetsConfig;
   "transfers": TransfersConfig;
   "isRemoved": boolean;
   "threshold": number;
   "policy"?: Policy | null;
+  "isAccountInitState": boolean;
 }
 export interface Receipt extends std.$Object {
   "responses": string[];
