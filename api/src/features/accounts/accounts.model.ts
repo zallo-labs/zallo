@@ -10,6 +10,7 @@ import { createUnionType } from '@nestjs/graphql';
 import e from '~/edgeql-js';
 import { makeUnionTypeResolver } from '../database/database.util';
 import { MessageProposal } from '../message-proposals/message-proposals.model';
+import { Approver } from '../approvers/approvers.model';
 
 @NodeType()
 export class Account extends Node {
@@ -39,6 +40,9 @@ export class Account extends Node {
 
   @Field(() => [Transfer])
   transfers: Transfer[];
+
+  @Field(() => [Approver])
+  approvers: Approver[];
 }
 
 export const Activity = createUnionType({
