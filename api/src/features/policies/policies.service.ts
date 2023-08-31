@@ -38,10 +38,7 @@ import {
   asTargetsConfig,
 } from './policies.util';
 import { PolicyState, SatisfiabilityResult } from './policies.model';
-import {
-  proposalTxShape,
-  transactionProposalAsTx,
-} from '../transaction-proposals/transaction-proposals.uitl';
+import { transactionProposalAsTx } from '../transaction-proposals/transaction-proposals.uitl';
 import { UserAccountContext } from '~/request/ctx';
 import { and } from '../database/database.util';
 import { selectAccount } from '../accounts/accounts.util';
@@ -251,9 +248,9 @@ export class PoliciesService {
           },
         }))
         .run(db);
+      if (!policy) throw new UserInputError("Policy doesn't exist");
 
-      // Don't do anything if the policy doesn't exist, or it isn't active and has already been removed
-      if (!policy || (!policy.isActive && policy.draft?.isRemoved)) return;
+      if (policy.draft?.isRemoved) return; // Don't do anything if removal draft already exists
 
       const proposal =
         policy.isActive &&
