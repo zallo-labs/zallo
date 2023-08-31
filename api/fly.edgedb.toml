@@ -48,6 +48,5 @@ swap_size_mb = 1024
     tls_skip_verify = true
 
 [metrics]
-  type = "prometheus"
   port = 8080
   path = "/metrics"
