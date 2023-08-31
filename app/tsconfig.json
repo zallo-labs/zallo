@@ -5,6 +5,7 @@
 
     "baseUrl": "./",
     "paths": {
+      "@api": ["./src/gql/api/index"],
       "@api/*": ["./src/gql/api/*"],
       "@uniswap/*": ["./src/gql/uniswap/*"],
       "@hook/*": ["./src/util/hook/*"],

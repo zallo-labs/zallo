@@ -1,9 +1,8 @@
-import { ALLOW_ALL_TARGETS, ALLOW_ALL_TRANSFERS_CONFIG, Address } from 'lib';
 import { FragmentType, gql, useFragment as getFragment } from '@api/generated';
 import { useMemo } from 'react';
-import { useApproverAddress } from '@network/useApprover';
 import { POLICY_DRAFT_ATOM, PolicyDraft } from './PolicyDraft';
 import { useSyncAtom } from '~/util/useSyncAtom';
+import { PolicyTemplateType, usePolicyTemplates } from '../add-policy/usePolicyTemplate';
 
 const PolicyState = gql(/* GraphQL */ `
   fragment UseHydratePolicyDraft_PolicyState on PolicyState {
@@ -47,6 +46,14 @@ const PolicyState = gql(/* GraphQL */ `
   }
 `);
 
+const Account = gql(/* GraphQL */ `
+  fragment UseHydratePolicyDraft_Account on Account {
+    id
+    address
+    ...UsePolicyTemplate_Account
+  }
+`);
+
 const Policy = gql(/* GraphQL */ `
   fragment UseHydratePolicyDraft_Policy on Policy {
     id
@@ -62,32 +69,25 @@ const Policy = gql(/* GraphQL */ `
 `);
 
 export function useHydratePolicyDraft(
-  account: Address,
+  accountFragment: FragmentType<typeof Account> | null | undefined,
   policyFragment: FragmentType<typeof Policy> | null | undefined,
   view: 'active' | 'draft',
+  templateType: PolicyTemplateType,
 ) {
+  const account = getFragment(Account, accountFragment);
   const policy = getFragment(Policy, policyFragment);
-  const approver = useApproverAddress();
+  const template = usePolicyTemplates(account)[templateType];
 
   const init = useMemo(
     (): PolicyDraft => ({
-      account,
+      account: account?.address || '0x',
       key: policy?.key,
-      name: policy?.name ?? 'New policy',
-      ...(view === 'active' && policy?.state
-        ? stateAsPolicy(policy.state)
-        : policy?.draft
-        ? stateAsPolicy(policy.draft)
-        : {
-            permissions: {
-              targets: ALLOW_ALL_TARGETS,
-              transfers: ALLOW_ALL_TRANSFERS_CONFIG,
-            },
-            approvers: new Set([approver]),
-            threshold: 1,
-          }),
+      name: policy?.name ?? template.name,
+      ...((view === 'active' && stateAsPolicy(policy?.state)) ||
+        stateAsPolicy(policy?.draft) ||
+        template),
     }),
-    [account, approver, policy, view],
+    [account, policy, view, template],
   );
 
   useSyncAtom(POLICY_DRAFT_ATOM, init);
@@ -96,9 +96,10 @@ export function useHydratePolicyDraft(
 }
 
 function stateAsPolicy(
-  stateFragment: FragmentType<typeof PolicyState>,
-): Pick<PolicyDraft, 'approvers' | 'threshold' | 'permissions'> {
+  stateFragment: FragmentType<typeof PolicyState> | null | undefined,
+): Pick<PolicyDraft, 'approvers' | 'threshold' | 'permissions'> | undefined {
   const s = getFragment(PolicyState, stateFragment);
+  if (!s) return undefined;
 
   return {
     approvers: new Set(s.approvers.map((a) => a.address)),

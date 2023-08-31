@@ -17,16 +17,23 @@ import { useHydratePolicyDraft } from './useHydratePolicyDraft';
 import { useQuery } from '~/gql';
 import { NotFound } from '~/components/NotFound';
 import { useMutation } from 'urql';
+import { PolicyTemplateType } from '../add-policy/usePolicyTemplate';
+import { clog } from '~/util/format';
 
 const Query = gql(/* GraphQL */ `
-  query PolicyScreen($account: Address!, $key: PolicyKey!) {
-    policy(input: { account: $account, key: $key }) {
+  query PolicyScreen($account: Address!, $key: PolicyKey!, $queryPolicy: Boolean!) {
+    policy(input: { account: $account, key: $key }) @include(if: $queryPolicy) {
       id
       state {
         id
       }
       ...UseHydratePolicyDraft_Policy
       ...PolicyView_Policy
+    }
+
+    account(input: { address: $account }) {
+      id
+      ...UseHydratePolicyDraft_Account
     }
   }
 `);
@@ -77,18 +84,25 @@ export interface PolicyScreenParams {
   account: Address;
   key?: PolicyKey;
   view?: PolicyViewState;
+  template?: PolicyTemplateType;
 }
 
 export type PolicyScreenProps = StackNavigatorScreenProps<'Policy'>;
 
 export const PolicyScreen = withSuspense((props: PolicyScreenProps) => {
-  const { account, key } = props.route.params;
-  const { policy } =
-    useQuery(Query, { account, key: key! }, { pause: key === undefined }).data ?? {};
+  const { key, ...params } = props.route.params;
+  const { policy, account } = useQuery(Query, {
+    account: params.account,
+    key: key ?? (0 as PolicyKey),
+    queryPolicy: key !== undefined,
+  }).data;
 
-  const view = props.route.params.view ?? policy?.state ? 'active' : 'draft';
-  const init = useHydratePolicyDraft(account, policy, view);
+  const view = params.view ?? policy?.state ? 'active' : 'draft';
+  const init = useHydratePolicyDraft(account, policy, view, params.template ?? 'high');
 
+  clog({ params, account, policy });
+
+  if (!account) return <NotFound name="Account" />;
   if (key !== undefined && !policy) return <NotFound name="Policy" />;
 
   return <PolicyView {...props} policy={policy} init={init} view={view} />;
