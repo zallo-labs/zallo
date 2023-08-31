@@ -238,6 +238,7 @@ export interface User extends std.$Object {
   "accounts": Account[];
   "contacts": Contact[];
 }
+export interface current_accounts extends Account {}
 export interface current_approver extends Approver {}
 export interface current_user extends User {}
 export namespace schema {
@@ -511,6 +512,7 @@ export interface types {
     "TransferLimit": TransferLimit;
     "TransfersConfig": TransfersConfig;
     "User": User;
+    "current_accounts": current_accounts;
     "current_approver": current_approver;
     "current_user": current_user;
   };
