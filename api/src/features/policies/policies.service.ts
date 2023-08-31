@@ -242,18 +242,21 @@ export class PoliciesService {
     await this.db.transaction(async (db) => {
       const selectAccount = e.select(e.Account, () => ({ filter_single: { address: account } }));
 
-      const isActive =
-        (
-          await e
-            .select(e.Policy, () => ({
-              isActive: true,
-              filter_single: { account: selectAccount, key },
-            }))
-            .run(db)
-        )?.isActive ?? false;
+      const policy = await e
+        .select(e.Policy, () => ({
+          filter_single: { account: selectAccount, key },
+          isActive: true,
+          draft: {
+            isRemoved: true,
+          },
+        }))
+        .run(db);
+
+      // Don't do anything if the policy doesn't exist, or it isn't active and has already been removed
+      if (!policy || (!policy.isActive && policy.draft?.isRemoved)) return;
 
       const proposal =
-        isActive &&
+        policy.isActive &&
         (await (async () => {
           const proposal = await this.proposals.propose({
             account,
@@ -268,7 +271,7 @@ export class PoliciesService {
           return selectTransactionProposal(proposal.id);
         })());
 
-      const r = await e
+      await e
         .update(e.Policy, () => ({
           filter_single: { account: selectAccount, key },
           set: {
@@ -286,7 +289,6 @@ export class PoliciesService {
           },
         }))
         .run(db);
-      if (!r) throw new UserInputError("Policy doesn't exist");
     });
   }
 
