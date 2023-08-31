@@ -39,7 +39,7 @@ export class DatabaseService implements OnModuleInit {
     return user
       ? this.__client.withGlobals({
           current_approver_address: user.approver,
-          current_account_ids_array: user.accounts.map((a) => a.id),
+          current_accounts_array: user.accounts.map((a) => a.id),
         } satisfies Globals)
       : this.DANGEROUS_superuserClient;
   }

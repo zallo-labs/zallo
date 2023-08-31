@@ -60,29 +60,29 @@ export interface Account extends std.$Object {
   "isActive": boolean;
   "name": string;
   "salt": string;
+  "policies": Policy[];
   "approvers": Approver[];
   "proposals": Proposal[];
   "transactionProposals": TransactionProposal[];
   "transfers": Transfer[];
-  "policies": Policy[];
 }
 export interface ProposalResponse extends std.$Object {
   "approver": Approver;
-  "proposal": Proposal;
   "createdAt": Date;
+  "proposal": Proposal;
 }
 export interface Approval extends ProposalResponse {
   "signature": string;
 }
 export interface Approver extends std.$Object {
+  "bluetoothDevices"?: string[] | null;
   "address": string;
   "name"?: string | null;
   "pushToken"?: string | null;
-  "user": User;
   "accounts": Account[];
+  "user": User;
   "contact"?: Contact | null;
   "label"?: string | null;
-  "bluetoothDevices"?: string[] | null;
 }
 export interface Contact extends std.$Object {
   "user": User;
@@ -102,10 +102,10 @@ export interface ContractTarget extends Target {
 }
 export interface Event extends std.$Object {
   "account": Account;
+  "transactionHash": string;
   "block": bigint;
   "logIndex": number;
   "timestamp": Date;
-  "transactionHash": string;
   "transaction"?: Transaction | null;
 }
 export interface Function extends std.$Object {
@@ -115,16 +115,16 @@ export interface Function extends std.$Object {
   "source": AbiSource;
 }
 export interface Proposal extends std.$Object {
+  "account": Account;
   "proposedBy": Approver;
+  "createdAt": Date;
   "hash": string;
+  "iconUri"?: string | null;
   "label"?: string | null;
   "approvals": Approval[];
   "rejections": Rejection[];
   "responses": ProposalResponse[];
-  "account": Account;
   "policy"?: Policy | null;
-  "createdAt": Date;
-  "iconUri"?: string | null;
 }
 export interface MessageProposal extends Proposal {
   "message": string;
@@ -148,14 +148,14 @@ export interface Policy extends std.$Object {
 export interface PolicyState extends std.$Object {
   "activationBlock"?: bigint | null;
   "createdAt": Date;
+  "isRemoved": boolean;
   "approvers": Approver[];
   "proposal"?: TransactionProposal | null;
+  "isAccountInitState": boolean;
   "targets": TargetsConfig;
   "transfers": TransfersConfig;
-  "isRemoved": boolean;
   "threshold": number;
   "policy"?: Policy | null;
-  "isAccountInitState": boolean;
 }
 export interface Receipt extends std.$Object {
   "responses": string[];
@@ -165,9 +165,9 @@ export interface Receipt extends std.$Object {
   "gasUsed": bigint;
   "timestamp": Date;
   "transaction": Transaction;
+  "events": Event[];
   "transferApprovalEvents": TransferApproval[];
   "transferEvents": Transfer[];
-  "events": Event[];
 }
 export interface Rejection extends ProposalResponse {}
 export interface Simulation extends std.$Object {
@@ -179,30 +179,30 @@ export interface TargetsConfig extends std.$Object {
 }
 export interface Token extends std.$Object {
   "units"?: {symbol: string, decimals: number}[] | null;
-  "user"?: User | null;
+  "address": string;
   "name": string;
   "symbol": string;
   "decimals": number;
   "ethereumAddress"?: string | null;
   "iconUri"?: string | null;
-  "address": string;
   "isFeeToken": boolean;
+  "user"?: User | null;
 }
 export interface Transaction extends std.$Object {
-  "proposal": TransactionProposal;
   "receipt"?: Receipt | null;
-  "hash": string;
   "submittedAt": Date;
+  "hash": string;
   "gasPrice": bigint;
+  "proposal": TransactionProposal;
 }
 export interface TransactionProposal extends Proposal {
   "nonce": bigint;
   "operations": Operation[];
+  "simulation": Simulation;
+  "feeToken": Token;
   "gasLimit": bigint;
   "transactions": Transaction[];
   "transaction"?: Transaction | null;
-  "simulation": Simulation;
-  "feeToken": Token;
   "status": TransactionProposalStatus;
 }
 export type TransactionProposalStatus = "Pending" | "Executing" | "Successful" | "Failed";
@@ -238,7 +238,6 @@ export interface User extends std.$Object {
   "accounts": Account[];
   "contacts": Contact[];
 }
-export interface current_accounts extends Account {}
 export interface current_approver extends Approver {}
 export interface current_user extends User {}
 export namespace schema {
@@ -512,7 +511,6 @@ export interface types {
     "TransferLimit": TransferLimit;
     "TransfersConfig": TransfersConfig;
     "User": User;
-    "current_accounts": current_accounts;
     "current_approver": current_approver;
     "current_user": current_user;
   };
