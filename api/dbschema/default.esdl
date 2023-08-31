@@ -3,9 +3,8 @@ module default {
   global current_approver := (assert_single((select Approver filter .address = global current_approver_address)));
 
   global current_user := (select global current_approver.user);
-  global current_account_ids_array: array<uuid>;
-  global current_account_ids := (select array_unpack(global current_account_ids_array));
-  global current_accounts := (select <Account>(select array_unpack(global current_account_ids_array)));
+  global current_accounts_array: array<uuid>;
+  global current_accounts := (select array_unpack(global current_accounts_array));
 
   type Account {
     required address: Address {
@@ -24,7 +23,7 @@ module default {
 
     access policy members_select_insert_update
       allow select, insert, update
-      using (.id in global current_account_ids);
+      using (.id in global current_accounts);
   }
 
   abstract type Proposal {
@@ -47,7 +46,7 @@ module default {
 
     access policy members_only
       allow all
-      using (.account in global current_accounts);
+      using (.account in <Account>global current_accounts);
   }
 
   abstract type ProposalResponse {
@@ -70,7 +69,7 @@ module default {
 
     access policy members_can_select
       allow select
-      using (.proposal.account in global current_accounts);
+      using (.proposal.account in <Account>global current_accounts);
   }
 
   type Approval extending ProposalResponse {
@@ -140,7 +139,7 @@ module default {
 
     access policy members_can_select
       allow select
-      using (.account in global current_accounts);
+      using (.account in <Account>global current_accounts);
   }
 
   scalar type TransferDirection extending enum<'In', 'Out'>;
@@ -163,7 +162,7 @@ module default {
 
     access policy members_can_select_insert
       allow select, insert
-      using (.account in global current_accounts);
+      using (.account in <Account>global current_accounts);
   }
 
   abstract type Transferlike extending Event, TransferDetails {}
@@ -195,7 +194,7 @@ module default {
 
     access policy members_can_select_insert
       allow select, insert
-      using (.proposal.account in global current_accounts);
+      using (.proposal.account in <Account>global current_accounts);
   }
 
   type Receipt {
