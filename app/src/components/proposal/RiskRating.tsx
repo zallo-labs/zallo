@@ -49,7 +49,7 @@ export function RiskRating(props: RiskLabelProps) {
           labelProposal({ input: { hash: hash, risk: v as Risk } });
 
           if (!riskLabel) {
-            showInfo('Thank you for rating this proposal 🎉\n(+1 point)', {
+            showInfo('+1 point for rating this proposal 🎉', {
               action: { label: 'Learn more', onPress: () => Linking.openURL(CONFIG.riskRatingUrl) },
             });
           }
