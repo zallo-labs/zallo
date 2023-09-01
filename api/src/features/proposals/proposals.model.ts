@@ -1,10 +1,11 @@
-import { Field, InterfaceType, registerEnumType } from '@nestjs/graphql';
+import { Field, InterfaceType } from '@nestjs/graphql';
 import { Account } from '../accounts/accounts.model';
 import { Policy } from '../policies/policies.model';
 import { Bytes32Field } from '~/apollo/scalars/Bytes.scalar';
 import { Approver } from '../approvers/approvers.model';
 import { Node, NodeType } from '~/decorators/interface.decorator';
 import { makeUnionTypeResolver } from '../database/database.util';
+import { Risk } from './proposals.input';
 
 @InterfaceType({ implements: () => Node, resolveType: makeUnionTypeResolver() })
 export class Proposal extends Node {
@@ -61,10 +62,3 @@ export class Approval extends ProposalResponse {
 
 @NodeType()
 export class Rejection extends ProposalResponse {}
-
-export enum Risk {
-  Low = 'Low',
-  Medium = 'Medium',
-  High = 'High',
-}
-registerEnumType(Risk, { name: 'Risk' });
