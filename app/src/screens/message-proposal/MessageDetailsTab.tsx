@@ -8,6 +8,7 @@ import { useQuery } from '~/gql';
 import { DataView } from '~/components/DataView/DataView';
 import { Text } from 'react-native-paper';
 import { MessageIcon } from '~/components/proposal/MessageIcon';
+import { RiskRating } from '~/components/proposal/RiskRating';
 
 const Query = gql(/* GraphQL */ `
   query MessageDetailsTab($proposal: Bytes32!) {
@@ -17,6 +18,7 @@ const Query = gql(/* GraphQL */ `
       message
       typedData
       ...MessageIcon_MessageProposal
+      ...RiskRating_Proposal
     }
   }
 `);
@@ -42,6 +44,8 @@ export const MessageDetailsTab = withSuspense(({ route }: MessageDetailsTabProps
       </View>
 
       <DataView>{p.typedData ?? p.message}</DataView>
+
+      <RiskRating proposal={p} />
     </ScrollView>
   );
 }, TabScreenSkeleton);

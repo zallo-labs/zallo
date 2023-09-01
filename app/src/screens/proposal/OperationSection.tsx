@@ -1,8 +1,6 @@
 import { useToggle } from '@hook/useToggle';
 import { materialCommunityIcon } from '@theme/icons';
-import { StyleSheet } from 'react-native';
 import Collapsible from 'react-native-collapsible';
-import { Divider } from 'react-native-paper';
 import { Chevron } from '~/components/Chevron';
 import { ListItem } from '~/components/list/ListItem';
 import { OperationDetails } from './OperationDetails';
@@ -65,19 +63,6 @@ export function OperationSection({
           Data
         </Button> */}
       </Collapsible>
-
-      <Divider horizontalInset style={styles.divider} />
     </>
   );
 }
-
-const styles = StyleSheet.create({
-  dataButton: {
-    marginHorizontal: 16,
-    marginBottom: 8,
-    marginVertical: 8,
-  },
-  divider: {
-    marginVertical: 8,
-  },
-});

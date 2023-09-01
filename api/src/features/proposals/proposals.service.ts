@@ -9,6 +9,7 @@ import { DatabaseService } from '../database/database.service';
 import { ProviderService } from '~/features/util/provider/provider.service';
 import {
   ApproveInput,
+  LabelProposalRiskInput,
   ProposalEvent,
   ProposalsInput,
   UpdateProposalInput,
@@ -173,5 +174,16 @@ export class ProposalsService {
       this.pubsub.publish<ProposalSubscriptionPayload>(getProposalTrigger(hash), payload),
       this.pubsub.publish<ProposalSubscriptionPayload>(getProposalAccountTrigger(account), payload),
     ]);
+  }
+
+  async labelProposalRisk({ hash, risk }: LabelProposalRiskInput) {
+    await this.db.query(
+      e
+        .insert(e.ProposalRiskLabel, { proposal: selectProposal(hash), risk })
+        .unlessConflict((l) => ({
+          on: e.tuple([l.proposal, l.user]),
+          else: e.update(l, () => ({ set: { risk } })),
+        })),
+    );
   }
 }

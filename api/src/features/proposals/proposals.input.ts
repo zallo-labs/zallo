@@ -34,6 +34,19 @@ export class UpdateProposalInput extends ProposalInput {
   policy?: PolicyKey | null;
 }
 
+@InputType()
+export class LabelProposalRiskInput extends ProposalInput {
+  @Field(() => Risk)
+  risk: Risk;
+}
+
+export enum Risk {
+  Low = 'Low',
+  Medium = 'Medium',
+  High = 'High',
+}
+registerEnumType(Risk, { name: 'Risk' });
+
 export enum ProposalEvent {
   create,
   update,

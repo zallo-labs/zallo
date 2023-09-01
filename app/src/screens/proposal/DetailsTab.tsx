@@ -1,5 +1,4 @@
-import { makeStyles } from '@theme/makeStyles';
-import { ScrollView } from 'react-native';
+import { ScrollView, StyleSheet } from 'react-native';
 import { ListHeader } from '~/components/list/ListHeader';
 import { withSuspense } from '~/components/skeleton/withSuspense';
 import { TabScreenSkeleton } from '~/components/tab/TabScreenSkeleton';
@@ -9,11 +8,12 @@ import { FeeToken } from './FeeToken';
 import { OperationSection } from './OperationSection';
 import { Address, Hex } from 'lib';
 import { gql, useFragment } from '@api/generated';
-import { Text } from 'react-native-paper';
+import { Divider, Text } from 'react-native-paper';
 import { useQuery } from '~/gql';
 import { useSubscription } from 'urql';
 import { BOOTLOADER_FORMAL_ADDRESS } from 'zksync-web3/build/src/utils';
 import { ProposalValue } from '~/components/proposal/ProposalValue';
+import { RiskRating } from '~/components/proposal/RiskRating';
 
 const Query = gql(/* GraphQL */ `
   query DetailsTab($proposal: Bytes32!) {
@@ -62,6 +62,7 @@ const FragmentDoc = gql(/* GraphQL */ `
         to
       }
     }
+    ...RiskRating_Proposal
     ...OperationSection_TransactionProposalFragment
     ...ProposalValue_TransactionProposal
     ...FeeToken_TransactionProposalFragment
@@ -86,8 +87,6 @@ export interface DetailsTabParams {
 export type DetailsTabProps = TabNavigatorScreenProp<'Details'>;
 
 export const DetailsTab = withSuspense(({ route }: DetailsTabProps) => {
-  const styles = useStyles();
-
   const { data } = useQuery(Query, { proposal: route.params.proposal });
   useSubscription({ query: Subscription, variables: { proposal: route.params.proposal } });
   const p = useFragment(FragmentDoc, data?.transactionProposal);
@@ -106,6 +105,8 @@ export const DetailsTab = withSuspense(({ route }: DetailsTabProps) => {
           initiallyExpanded={p.operations.length === 1}
         />
       ))}
+
+      <Divider horizontalInset style={styles.divider} />
 
       <ListHeader
         trailing={({ Text }) => (
@@ -127,16 +128,22 @@ export const DetailsTab = withSuspense(({ route }: DetailsTabProps) => {
             <Text key={t.id}>{`${t.tokenAddress}: ${t.amount}`}</Text>
           ),
         )}
+
+      <RiskRating proposal={p} style={styles.riskLabel} />
     </ScrollView>
   );
 }, TabScreenSkeleton);
 
-const useStyles = makeStyles(({ colors }) => ({
+const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
     paddingTop: 8,
   },
-  transfersHeaderSupporting: {
-    color: colors.onSurfaceVariant,
+  divider: {
+    marginVertical: 8,
   },
-}));
+  riskLabel: {
+    marginVertical: 8,
+    marginHorizontal: 16,
+  },
+});

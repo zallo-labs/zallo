@@ -1,6 +1,8 @@
 app = "zallo-production-edgedb"
 primary_region = "lax"  # Los Angeles
 
+swap_size_mb = 1024
+
 [build]
   image = "edgedb/edgedb:3.2"
 
@@ -46,6 +48,5 @@ primary_region = "lax"  # Los Angeles
     tls_skip_verify = true
 
 [metrics]
-  type = "prometheus"
   port = 8080
   path = "/metrics"

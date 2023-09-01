@@ -1,4 +1,4 @@
-CREATE MIGRATION m1zysecb76lyakyxbgfruv473xa7fphl6fcrec5amjn2kcb6vfbyeq
+CREATE MIGRATION m12q2isam5fxdgkmxirhw6jrfiwm6slsadsospn4ljbx3ylyodlkla
     ONTO initial
 {
   CREATE SCALAR TYPE default::Bytes EXTENDING std::str {
@@ -106,6 +106,7 @@ CREATE MIGRATION m1zysecb76lyakyxbgfruv473xa7fphl6fcrec5amjn2kcb6vfbyeq
   CREATE TYPE default::Approval EXTENDING default::ProposalResponse {
       CREATE REQUIRED PROPERTY signature: default::Bytes;
   };
+  CREATE SCALAR TYPE default::ProposalRisk EXTENDING enum<Low, Medium, High>;
   CREATE ABSTRACT TYPE default::Proposal {
       CREATE REQUIRED LINK account: default::Account;
       CREATE REQUIRED LINK proposedBy: default::Approver {
@@ -122,23 +123,14 @@ CREATE MIGRATION m1zysecb76lyakyxbgfruv473xa7fphl6fcrec5amjn2kcb6vfbyeq
       CREATE PROPERTY iconUri: std::str;
       CREATE PROPERTY label: default::Label;
       CREATE ACCESS POLICY members_only
-          ALLOW ALL USING ((.account IN <default::Account>GLOBAL default::current_accounts));
+          ALLOW ALL USING ((.account.id IN GLOBAL default::current_accounts));
   };
   ALTER TYPE default::ProposalResponse {
       CREATE REQUIRED LINK proposal: default::Proposal {
           ON TARGET DELETE DELETE SOURCE;
       };
       CREATE ACCESS POLICY members_can_select
-          ALLOW SELECT USING ((.proposal.account IN <default::Account>GLOBAL default::current_accounts));
-  };
-  CREATE SCALAR TYPE default::uint256 EXTENDING std::bigint {
-      CREATE CONSTRAINT std::max_value(((2n ^ 256n) - 1n));
-      CREATE CONSTRAINT std::min_value(0);
-  };
-  CREATE TYPE default::Operation {
-      CREATE PROPERTY data: default::Bytes;
-      CREATE REQUIRED PROPERTY to: default::Address;
-      CREATE PROPERTY value: default::uint256;
+          ALLOW SELECT USING ((.proposal.account.id IN GLOBAL default::current_accounts));
   };
   CREATE SCALAR TYPE default::uint32 EXTENDING std::int64 {
       CREATE CONSTRAINT std::max_value(((2 ^ 32) - 1));
@@ -147,7 +139,7 @@ CREATE MIGRATION m1zysecb76lyakyxbgfruv473xa7fphl6fcrec5amjn2kcb6vfbyeq
   CREATE TYPE default::Event {
       CREATE REQUIRED LINK account: default::Account;
       CREATE ACCESS POLICY members_can_select
-          ALLOW SELECT USING ((.account IN <default::Account>GLOBAL default::current_accounts));
+          ALLOW SELECT USING ((.account.id IN GLOBAL default::current_accounts));
       CREATE REQUIRED PROPERTY transactionHash: default::Bytes32;
       CREATE REQUIRED PROPERTY block: std::bigint {
           CREATE CONSTRAINT std::min_value(0n);
@@ -168,7 +160,7 @@ CREATE MIGRATION m1zysecb76lyakyxbgfruv473xa7fphl6fcrec5amjn2kcb6vfbyeq
       CREATE REQUIRED PROPERTY to: default::Address;
       CREATE REQUIRED PROPERTY tokenAddress: default::Address;
       CREATE ACCESS POLICY members_can_select_insert
-          ALLOW SELECT, INSERT USING ((.account IN <default::Account>GLOBAL default::current_accounts));
+          ALLOW SELECT, INSERT USING ((.account.id IN GLOBAL default::current_accounts));
   };
   CREATE ABSTRACT TYPE default::Transferlike EXTENDING default::Event, default::TransferDetails;
   CREATE TYPE default::Transfer EXTENDING default::Transferlike;
@@ -184,6 +176,10 @@ CREATE MIGRATION m1zysecb76lyakyxbgfruv473xa7fphl6fcrec5amjn2kcb6vfbyeq
       );
       CREATE REQUIRED PROPERTY delta := ((.amount - (.previous.amount ?? 0)));
   };
+  CREATE SCALAR TYPE default::uint256 EXTENDING std::bigint {
+      CREATE CONSTRAINT std::max_value(((2n ^ 256n) - 1n));
+      CREATE CONSTRAINT std::min_value(0);
+  };
   CREATE TYPE default::Transaction {
       CREATE LINK receipt: default::Receipt {
           CREATE CONSTRAINT std::exclusive;
@@ -197,6 +193,11 @@ CREATE MIGRATION m1zysecb76lyakyxbgfruv473xa7fphl6fcrec5amjn2kcb6vfbyeq
           CREATE CONSTRAINT std::exclusive;
       };
       CREATE REQUIRED PROPERTY gasPrice: default::uint256;
+  };
+  CREATE TYPE default::Operation {
+      CREATE PROPERTY data: default::Bytes;
+      CREATE REQUIRED PROPERTY to: default::Address;
+      CREATE PROPERTY value: default::uint256;
   };
   ALTER TYPE default::Proposal {
       CREATE MULTI LINK approvals := (.<proposal[IS default::Approval]);
@@ -227,7 +228,7 @@ CREATE MIGRATION m1zysecb76lyakyxbgfruv473xa7fphl6fcrec5amjn2kcb6vfbyeq
   ALTER TYPE default::Transaction {
       CREATE REQUIRED LINK proposal: default::TransactionProposal;
       CREATE ACCESS POLICY members_can_select_insert
-          ALLOW SELECT, INSERT USING ((.proposal.account IN <default::Account>GLOBAL default::current_accounts));
+          ALLOW SELECT, INSERT USING ((.proposal.account.id IN GLOBAL default::current_accounts));
   };
   CREATE TYPE default::MessageProposal EXTENDING default::Proposal {
       CREATE REQUIRED PROPERTY message: std::str;
@@ -237,7 +238,7 @@ CREATE MIGRATION m1zysecb76lyakyxbgfruv473xa7fphl6fcrec5amjn2kcb6vfbyeq
   CREATE TYPE default::Policy {
       CREATE REQUIRED LINK account: default::Account;
       CREATE ACCESS POLICY members_select_insert_update
-          ALLOW SELECT, UPDATE, INSERT USING ((.account IN <default::Account>GLOBAL default::current_accounts));
+          ALLOW SELECT, UPDATE, INSERT USING ((.account.id IN GLOBAL default::current_accounts));
       CREATE REQUIRED PROPERTY name: default::Label;
       CREATE CONSTRAINT std::exclusive ON ((.account, .name));
       CREATE REQUIRED PROPERTY key: default::uint16;
@@ -433,6 +434,36 @@ CREATE MIGRATION m1zysecb76lyakyxbgfruv473xa7fphl6fcrec5amjn2kcb6vfbyeq
       )));
       CREATE PROPERTY label := ((.contact.label ?? (((.user.name ++ ': ') ++ .name) IF (EXISTS (.user) AND EXISTS (.name)) ELSE <std::str>{})));
   };
+  CREATE TYPE default::ProposalRiskLabel {
+      CREATE REQUIRED LINK user: default::User {
+          SET default := (<default::User>(GLOBAL default::current_user).id);
+      };
+      CREATE REQUIRED LINK proposal: default::Proposal {
+          ON TARGET DELETE DELETE SOURCE;
+      };
+      CREATE REQUIRED PROPERTY risk: default::ProposalRisk;
+      CREATE CONSTRAINT std::exclusive ON ((.proposal, .user));
+  };
+  ALTER TYPE default::Proposal {
+      CREATE PROPERTY riskLabel := ((std::assert_single((SELECT
+          .<proposal[IS default::ProposalRiskLabel]
+      FILTER
+          (.user = GLOBAL default::current_user)
+      ))).risk);
+      CREATE LINK policy: default::Policy;
+  };
+  ALTER TYPE default::TransactionProposal {
+      CREATE MULTI LINK transactions := (.<proposal[IS default::Transaction]);
+      CREATE LINK transaction := (SELECT
+          .transactions ORDER BY
+              .submittedAt DESC
+      LIMIT
+          1
+      );
+      CREATE REQUIRED PROPERTY status := (SELECT
+          std::assert_exists((default::TransactionProposalStatus.Pending IF NOT (EXISTS (.transaction)) ELSE (default::TransactionProposalStatus.Executing IF NOT (EXISTS (.transaction.receipt)) ELSE (default::TransactionProposalStatus.Successful IF .transaction.receipt.success ELSE default::TransactionProposalStatus.Failed))))
+      );
+  };
   ALTER TYPE default::User {
       CREATE MULTI LINK contacts := (.<user[IS default::Contact]);
   };
@@ -451,21 +482,6 @@ CREATE MIGRATION m1zysecb76lyakyxbgfruv473xa7fphl6fcrec5amjn2kcb6vfbyeq
       CREATE REQUIRED PROPERTY address: default::Address {
           CREATE CONSTRAINT std::exclusive;
       };
-  };
-  ALTER TYPE default::Proposal {
-      CREATE LINK policy: default::Policy;
-  };
-  ALTER TYPE default::TransactionProposal {
-      CREATE MULTI LINK transactions := (.<proposal[IS default::Transaction]);
-      CREATE LINK transaction := (SELECT
-          .transactions ORDER BY
-              .submittedAt DESC
-      LIMIT
-          1
-      );
-      CREATE REQUIRED PROPERTY status := (SELECT
-          std::assert_exists((default::TransactionProposalStatus.Pending IF NOT (EXISTS (.transaction)) ELSE (default::TransactionProposalStatus.Executing IF NOT (EXISTS (.transaction.receipt)) ELSE (default::TransactionProposalStatus.Successful IF .transaction.receipt.success ELSE default::TransactionProposalStatus.Failed))))
-      );
   };
   ALTER TYPE default::TransferDetails {
       CREATE LINK token := (std::assert_single((WITH

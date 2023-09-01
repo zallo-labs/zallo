@@ -45,11 +45,11 @@ export type scalarAssignableBy<T extends $.ScalarType> =
   T extends _std.$bigint ? _std.$bigint : 
   T extends _default.$uint16 ? _default.$uint16 : 
   T extends _std.$int32 ? _std.$int32 : 
-  T extends _default.$current_account_ids ? _default.$current_account_ids : 
-  T extends _default.$id_3598bcee479611eebba4837f181f96dd ? _default.$id_3598bcee479611eebba4837f181f96dd : 
+  T extends _default.$current_accounts ? _default.$current_accounts : 
   T extends _std.$uuid ? _std.$uuid : 
   T extends _default.$TransferDirection ? _default.$TransferDirection : 
   T extends _default.$TransactionProposalStatus ? _default.$TransactionProposalStatus : 
+  T extends _default.$ProposalRisk ? _default.$ProposalRisk : 
   T extends _default.$MAC ? _default.$MAC : 
   T extends _default.$Label ? _default.$Label : 
   T extends _default.$Bytes4 ? _default.$Bytes4 : 
@@ -104,11 +104,11 @@ export type scalarCastableFrom<T extends $.ScalarType> =
   T extends _std.$bigint ? _std.$bigint : 
   T extends _default.$uint16 ? _default.$uint16 : 
   T extends _std.$int32 ? _std.$int32 : 
-  T extends _default.$current_account_ids ? _default.$current_account_ids : 
-  T extends _default.$id_3598bcee479611eebba4837f181f96dd ? _default.$id_3598bcee479611eebba4837f181f96dd : 
+  T extends _default.$current_accounts ? _default.$current_accounts : 
   T extends _std.$uuid ? _std.$uuid : 
   T extends _default.$TransferDirection ? _default.$TransferDirection : 
   T extends _default.$TransactionProposalStatus ? _default.$TransactionProposalStatus : 
+  T extends _default.$ProposalRisk ? _default.$ProposalRisk : 
   T extends _default.$MAC ? _default.$MAC : 
   T extends _default.$Label ? _default.$Label : 
   T extends _default.$Bytes4 ? _default.$Bytes4 : 
@@ -344,14 +344,8 @@ type getSharedParentScalar<A, B> =
     :
     never
   :
-  A extends _default.$current_account_ids ?
-    B extends _default.$current_account_ids ?
-    B
-    :
-    never
-  :
-  A extends _default.$id_3598bcee479611eebba4837f181f96dd ?
-    B extends _default.$id_3598bcee479611eebba4837f181f96dd ?
+  A extends _default.$current_accounts ?
+    B extends _default.$current_accounts ?
     B
     :
     never
@@ -370,6 +364,12 @@ type getSharedParentScalar<A, B> =
   :
   A extends _default.$TransactionProposalStatus ?
     B extends _default.$TransactionProposalStatus ?
+    B
+    :
+    never
+  :
+  A extends _default.$ProposalRisk ?
+    B extends _default.$ProposalRisk ?
     B
     :
     never
@@ -703,14 +703,8 @@ function getSharedParentScalar<A extends $.ScalarType, B extends $.ScalarType>(a
     }
     throw new Error(`Types are not castable: ${a.__name__}, ${b.__name__}`);
     }
-  if (a.__name__ === "default::current_account_ids") {
-    if(b.__name__ === "default::current_account_ids") {
-      return b;
-    }
-    throw new Error(`Types are not castable: ${a.__name__}, ${b.__name__}`);
-    }
-  if (a.__name__ === "default::_id") {
-    if(b.__name__ === "default::_id") {
+  if (a.__name__ === "default::current_accounts") {
+    if(b.__name__ === "default::current_accounts") {
       return b;
     }
     throw new Error(`Types are not castable: ${a.__name__}, ${b.__name__}`);
@@ -729,6 +723,12 @@ function getSharedParentScalar<A extends $.ScalarType, B extends $.ScalarType>(a
     }
   if (a.__name__ === "default::TransactionProposalStatus") {
     if(b.__name__ === "default::TransactionProposalStatus") {
+      return b;
+    }
+    throw new Error(`Types are not castable: ${a.__name__}, ${b.__name__}`);
+    }
+  if (a.__name__ === "default::ProposalRisk") {
+    if(b.__name__ === "default::ProposalRisk") {
       return b;
     }
     throw new Error(`Types are not castable: ${a.__name__}, ${b.__name__}`);
