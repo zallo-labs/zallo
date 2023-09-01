@@ -4,7 +4,6 @@ import { useEffect } from 'react';
 import { StyleProp, TextStyle } from 'react-native';
 import { Snackbar, SnackbarProps, Text } from 'react-native-paper';
 import RnToast, { ToastConfig, ToastConfigParams, ToastOptions } from 'react-native-toast-message';
-import { match } from 'ts-pattern';
 import { LogEventParams, logEvent } from '~/util/analytics';
 
 type SnackVariant = 'info' | 'success' | 'warning' | 'error';
@@ -57,23 +56,31 @@ const Snack = ({
 };
 
 const useStyles = makeStyles(({ colors }, variant: SnackVariant) => {
-  const [backgroundColor, color] = match(variant)
-    .with('info', () => [colors.inverseSurface, colors.inverseOnSurface])
-    .with('success', () => [colors.successContainer, colors.onSuccessContainer])
-    .with('warning', () => [colors.warningContainer, colors.onWarningContainer])
-    .with('error', () => [colors.errorContainer, colors.onErrorContainer])
-    .exhaustive();
+  const s = {
+    info: {
+      snackbar: { backgroundColor: colors.inverseSurface },
+      message: { color: colors.inverseOnSurface },
+      actionLabel: { color: colors.inversePrimary },
+    },
+    success: {
+      snackbar: { backgroundColor: colors.successContainer },
+      message: { color: colors.onSuccessContainer },
+    },
+    warning: {
+      snackbar: { backgroundColor: colors.warningContainer },
+      message: { color: colors.onWarningContainer },
+    },
+    error: {
+      snackbar: { backgroundColor: colors.errorContainer },
+      message: { color: colors.onErrorContainer },
+    },
+  }[variant];
 
   return {
-    snackbar: {
-      backgroundColor,
-    },
-    message: {
-      color,
-    },
     actionLabel: {
       color: colors.primary,
     },
+    ...s,
   };
 });
 
