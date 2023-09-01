@@ -20,6 +20,7 @@ export const CONFIG = {
     twitter: ENV.TWITTER!,
     github: ENV.GITHUB!,
   },
+  riskRatingUrl: ENV.RISK_RATING_URL!,
 } as const;
 
 export type Config = typeof CONFIG;
