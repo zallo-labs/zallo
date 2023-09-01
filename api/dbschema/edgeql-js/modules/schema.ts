@@ -682,7 +682,6 @@ export type $ObjectTypeλShape = $.typeutil.flatten<$SourceλShape & Omit<$Consi
   "<__type__[is ProposalResponse]": $.LinkDesc<_default.$ProposalResponse, $.Cardinality.Many, {}, false, false,  false, false>;
   "<__type__[is Approval]": $.LinkDesc<_default.$Approval, $.Cardinality.Many, {}, false, false,  false, false>;
   "<__type__[is Proposal]": $.LinkDesc<_default.$Proposal, $.Cardinality.Many, {}, false, false,  false, false>;
-  "<__type__[is Operation]": $.LinkDesc<_default.$Operation, $.Cardinality.Many, {}, false, false,  false, false>;
   "<__type__[is Event]": $.LinkDesc<_default.$Event, $.Cardinality.Many, {}, false, false,  false, false>;
   "<__type__[is Rejection]": $.LinkDesc<_default.$Rejection, $.Cardinality.Many, {}, false, false,  false, false>;
   "<__type__[is TransferDetails]": $.LinkDesc<_default.$TransferDetails, $.Cardinality.Many, {}, false, false,  false, false>;
@@ -690,6 +689,7 @@ export type $ObjectTypeλShape = $.typeutil.flatten<$SourceλShape & Omit<$Consi
   "<__type__[is Transfer]": $.LinkDesc<_default.$Transfer, $.Cardinality.Many, {}, false, false,  false, false>;
   "<__type__[is TransferApproval]": $.LinkDesc<_default.$TransferApproval, $.Cardinality.Many, {}, false, false,  false, false>;
   "<__type__[is Transaction]": $.LinkDesc<_default.$Transaction, $.Cardinality.Many, {}, false, false,  false, false>;
+  "<__type__[is Operation]": $.LinkDesc<_default.$Operation, $.Cardinality.Many, {}, false, false,  false, false>;
   "<__type__[is Simulation]": $.LinkDesc<_default.$Simulation, $.Cardinality.Many, {}, false, false,  false, false>;
   "<__type__[is TransactionProposal]": $.LinkDesc<_default.$TransactionProposal, $.Cardinality.Many, {}, false, false,  false, false>;
   "<__type__[is MessageProposal]": $.LinkDesc<_default.$MessageProposal, $.Cardinality.Many, {}, false, false,  false, false>;
@@ -701,9 +701,9 @@ export type $ObjectTypeλShape = $.typeutil.flatten<$SourceλShape & Omit<$Consi
   "<__type__[is User]": $.LinkDesc<_default.$User, $.Cardinality.Many, {}, false, false,  false, false>;
   "<__type__[is current_user]": $.LinkDesc<_default.$current_user, $.Cardinality.Many, {}, false, false,  false, false>;
   "<__type__[is Contact]": $.LinkDesc<_default.$Contact, $.Cardinality.Many, {}, false, false,  false, false>;
+  "<__type__[is ProposalRiskLabel]": $.LinkDesc<_default.$ProposalRiskLabel, $.Cardinality.Many, {}, false, false,  false, false>;
   "<__type__[is Function]": $.LinkDesc<_default.$Function, $.Cardinality.Many, {}, false, false,  false, false>;
   "<__type__[is Contract]": $.LinkDesc<_default.$Contract, $.Cardinality.Many, {}, false, false,  false, false>;
-  "<__type__[is ProposalRiskLabel]": $.LinkDesc<_default.$ProposalRiskLabel, $.Cardinality.Many, {}, false, false,  false, false>;
   "<__type__": $.LinkDesc<$.ObjectType, $.Cardinality.Many, {}, false, false,  false, false>;
   "<intersection_of": $.LinkDesc<$.ObjectType, $.Cardinality.Many, {}, false, false,  false, false>;
   "<subject": $.LinkDesc<$.ObjectType, $.Cardinality.Many, {}, false, false,  false, false>;

@@ -43,11 +43,11 @@ module default {
     multi link responses := .<proposal[is ProposalResponse];
     multi link approvals := .<proposal[is Approval];
     multi link rejections := .<proposal[is Rejection];
-    link riskLabel := assert_single((select .<proposal[is ProposalRiskLabel] filter .user = global current_user));
+    property riskLabel := assert_single((select .<proposal[is ProposalRiskLabel] filter .user = global current_user)).risk;
 
     access policy members_only
       allow all
-      using (.account in <Account>global current_accounts);
+      using (.account.id in global current_accounts);
   }
 
   abstract type ProposalResponse {
@@ -70,7 +70,7 @@ module default {
 
     access policy members_can_select
       allow select
-      using (.proposal.account in <Account>global current_accounts);
+      using (.proposal.account.id in global current_accounts);
   }
 
   scalar type ProposalRisk extending enum<'Low', 'Medium', 'High'>;
@@ -152,7 +152,7 @@ module default {
 
     access policy members_can_select
       allow select
-      using (.account in <Account>global current_accounts);
+      using (.account.id in global current_accounts);
   }
 
   scalar type TransferDirection extending enum<'In', 'Out'>;
@@ -175,7 +175,7 @@ module default {
 
     access policy members_can_select_insert
       allow select, insert
-      using (.account in <Account>global current_accounts);
+      using (.account.id in global current_accounts);
   }
 
   abstract type Transferlike extending Event, TransferDetails {}
@@ -207,7 +207,7 @@ module default {
 
     access policy members_can_select_insert
       allow select, insert
-      using (.proposal.account in <Account>global current_accounts);
+      using (.proposal.account.id in global current_accounts);
   }
 
   type Receipt {
