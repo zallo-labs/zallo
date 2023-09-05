@@ -44,7 +44,7 @@ export const HomeScreen = withSuspense(({ route }: HomeScreenProps) => {
   if (!account) return <NotFound name="Account" />;
 
   return (
-    <Screen>
+    <Screen bottomInset={false}>
       <HomeAppbar account={account} />
 
       <AccountValue tokensQuery={query} />
