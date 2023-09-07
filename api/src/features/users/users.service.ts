@@ -35,10 +35,10 @@ export class UsersService {
     );
   }
 
-  async update({ name }: UpdateUserInput) {
+  async update({ name, photoUri }: UpdateUserInput) {
     return this.db.query(
       e.update(e.global.current_user, () => ({
-        set: { name },
+        set: { name, photoUri },
       })),
     );
   }
