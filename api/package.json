@@ -61,6 +61,7 @@
     "graphql-type-json": "^0.3.2",
     "graphql-ws": "^5.14.0",
     "ioredis": "^5.3.2",
+    "jose": "^4.14.6",
     "lib": "workspace:*",
     "luxon": "^3.4.0",
     "nestjs-request-context": "^3.0.0",

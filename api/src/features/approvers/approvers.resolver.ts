@@ -2,7 +2,7 @@ import { Info, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { UserApprover } from './approvers.model';
 import { ApproversService } from './approvers.service';
 import { Input } from '~/decorators/input.decorator';
-import { ApproverInput, UpdateApproverInput } from './approvers.input';
+import { ApproverInput, UniqueCloudShareInput, UpdateApproverInput } from './approvers.input';
 import { GraphQLResolveInfo } from 'graphql';
 import { getShape } from '../database/database.select';
 
@@ -18,9 +18,14 @@ export class ApproversResolver {
     return this.service.selectUnique(address, getShape(info));
   }
 
+  @Query(() => String, { nullable: true })
+  async cloudShare(@Input() input: UniqueCloudShareInput): Promise<string | null> {
+    return this.service.selectUniqueShare(input);
+  }
+
   @Mutation(() => UserApprover)
   async updateApprover(@Input() input: UpdateApproverInput, @Info() info: GraphQLResolveInfo) {
-    await this.service.upsert(input);
+    await this.service.update(input);
     return (await this.service.selectUnique(input.address, getShape(info)))!;
   }
 }
