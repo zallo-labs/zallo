@@ -907,7 +907,7 @@ type User {
   id: ID!
   name: String
   pairingToken: String!
-  photoUri: URL
+  photoUri: String
 }
 
 type UserApprover implements Node {

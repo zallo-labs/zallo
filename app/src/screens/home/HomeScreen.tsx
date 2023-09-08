@@ -13,6 +13,7 @@ import { useQuery } from '~/gql';
 import { persistedAtom } from '~/util/persistedAtom';
 import { useAtomValue } from 'jotai';
 import { useSyncAtom } from '~/util/useSyncAtom';
+import { Suspend } from '~/components/Suspender';
 
 const selectedAccount = persistedAtom<Address | null>('selectedAccount', null);
 
@@ -36,18 +37,18 @@ export type HomeScreenProps = StackNavigatorScreenProps<'Home'>;
 
 export const HomeScreen = withSuspense(({ route }: HomeScreenProps) => {
   const selected = useAtomValue(selectedAccount);
-  const query = useQuery(Query, { account: route.params.account ?? (selected || undefined) }).data;
-  const { account } = query;
+  const query = useQuery(Query, { account: route.params.account ?? (selected || undefined) });
+  const { account } = query.data;
 
   useSyncAtom(selectedAccount, account?.address ?? null);
 
-  if (!account) return <NotFound name="Account" />;
+  if (!account) return query.stale ? <Suspend /> : <NotFound name="Account" />;
 
   return (
     <Screen bottomInset={false}>
       <HomeAppbar account={account} />
 
-      <AccountValue tokensQuery={query} />
+      <AccountValue tokensQuery={query.data} />
 
       <QuickActions account={account.address} />
 

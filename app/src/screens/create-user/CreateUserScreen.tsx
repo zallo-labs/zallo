@@ -7,7 +7,7 @@ import { Actions } from '~/components/layout/Actions';
 import { Screen } from '~/components/layout/Screen';
 import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
 import { Button } from 'react-native-paper';
-import { PairIcon } from '../pair-confirm/PairConfirmSheet';
+import { QrCodeIcon } from '@theme/icons';
 import { gql } from '@api/generated';
 import { useMutation } from 'urql';
 import { useQuery } from '~/gql';
@@ -65,10 +65,10 @@ export const CreateUserScreen = ({ navigation: { navigate } }: CreateUserScreenP
       <Actions>
         <Button
           mode="contained-tonal"
-          icon={PairIcon}
+          icon={QrCodeIcon}
           onPress={() => navigate('PairUserModal', { isOnboarding: true })}
         >
-          Pair with existing user
+          Pair with user
         </Button>
 
         <FormSubmitButton

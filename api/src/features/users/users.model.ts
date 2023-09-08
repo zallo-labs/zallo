@@ -3,7 +3,6 @@ import { IdField } from '~/apollo/scalars/Id.scalar';
 import { Contact } from '../contacts/contacts.model';
 import { uuid } from 'edgedb/dist/codecs/ifaces';
 import { UserApprover } from '../approvers/approvers.model';
-import { GraphQLURL } from 'graphql-scalars';
 
 @ObjectType()
 export class User {
@@ -13,7 +12,7 @@ export class User {
   @Field(() => String, { nullable: true })
   name?: string;
 
-  @Field(() => GraphQLURL, { nullable: true })
+  @Field(() => String, { nullable: true })
   photoUri?: string;
 
   @Field(() => [UserApprover])

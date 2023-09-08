@@ -7,6 +7,9 @@ type PluginConfig<Plugin> = Plugin extends ConfigPlugin<infer Config> ? Config :
 const ENV = process.env;
 
 const chain = ENV?.CHAIN?.toUpperCase();
+const withVariant = (v: string) => `${v}${ENV.APP_VARIANT ? `.${ENV.APP_VARIANT}` : ''}`;
+const iosGoogleServicesFilePath = withVariant('./GoogleService-Info.secret.plist');
+
 export const CONFIG = {
   env: ENV.RELEASE_ENV === 'development' ? 'development' : 'production',
   chainName: chain!,
@@ -21,11 +24,14 @@ export const CONFIG = {
     github: ENV.GITHUB!,
   },
   riskRatingUrl: ENV.RISK_RATING_URL!,
+  googleOAuth: {
+    webClient: ENV.GOOGLE_OAUTH_WEB_CLIENT!,
+    iosClient: ENV.GOOGLE_OAUTH_IOS_CLIENT!,
+    iosGoogleServicesFilePath,
+  },
 } as const;
 
 export type Config = typeof CONFIG;
-
-const withVariant = (v: string) => `${v}${ENV.APP_VARIANT ? `.${ENV.APP_VARIANT}` : ''}`;
 
 export const PROJECT_ID = 'f8f4def1-b838-4dec-8b50-6c07995c4ff5';
 const packageId = withVariant('io.zallo');
@@ -73,6 +79,12 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     '@react-native-firebase/perf',
     '@react-native-firebase/crashlytics',
     '@config-plugins/react-native-ble-plx',
+    '@react-native-google-signin/google-signin',
+    'expo-apple-authentication',
+    [
+      'react-native-cloud-storage',
+      { iCloudContainerEnvironment: CONFIG.env === 'development' ? 'Development' : 'Production' },
+    ],
   ],
   hooks: {
     postPublish: [
@@ -115,6 +127,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   ios: {
     bundleIdentifier: packageId,
     supportsTablet: true,
+    usesAppleSignIn: true,
     infoPlist: {
       NSCameraUsageDescription: 'Allow Zallo to use the camera to scan QR codes.',
       NSFaceIDUsageDescription: 'Allow Zallo to (optionally) use Face ID for authentication.',
@@ -122,7 +135,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     config: {
       usesNonExemptEncryption: false,
     },
-    googleServicesFile: withVariant('./GoogleService-Info.secret.plist'),
+    googleServicesFile: iosGoogleServicesFilePath,
   },
   web: {
     bundler: 'metro',

@@ -1,9 +1,9 @@
-import { getAuthHeaders, useUrqlApiClient } from '@api/client';
+import { authContext, useUrqlApiClient } from '@api/client';
 import { FragmentType, gql, useFragment } from '@api/generated';
 import { useNavigation } from '@react-navigation/native';
 import { BluetoothIcon } from '@theme/icons';
 import { useCallback } from 'react';
-import { OperationContext, useMutation } from 'urql';
+import { useMutation } from 'urql';
 import { ListItem } from '~/components/list/ListItem';
 import { LEDGER_ADDRESS_EMITTER, getLedgerLazySignature } from '../ledger-sign/LedgerSignSheet';
 import { APPROVER_BLE_IDS } from '~/components/ledger/useLedger';
@@ -68,18 +68,12 @@ export function LedgerItem({ device: d, ...props }: LedgerItemProps) {
 
     const address = await LEDGER_ADDRESS_EMITTER.getEvent();
 
-    const headers = await getAuthHeaders({
+    const context = await authContext({
       address,
       signMessage: async (message) => (await getLedgerLazySignature(message)).signature,
     });
 
     goBack(); // Return to this screen once the signature has been complete
-
-    const context: Partial<OperationContext> = {
-      fetchOptions: { headers },
-      skipAddAuthToOperation: true,
-      suspense: false,
-    };
 
     const { data } = await api.query(PairingQuery, {}, context);
 

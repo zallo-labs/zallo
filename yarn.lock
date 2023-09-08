@@ -9713,6 +9713,20 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@react-native-google-signin/google-signin@npm:^10.0.1":
+  version: 10.0.1
+  resolution: "@react-native-google-signin/google-signin@npm:10.0.1"
+  peerDependencies:
+    expo: ">=47.0.0"
+    react: "*"
+    react-native: "*"
+  peerDependenciesMeta:
+    expo:
+      optional: true
+  checksum: d147a7ca4fbcc877efd21510670499a0be9f91b43d2b02bfee00f43d27ffe0920bbebc24b95f07443e375f4fd42f9403f91290541e120b1e9c26171b0796210a
+  languageName: node
+  linkType: hard
+
 "@react-native/assets@npm:1.0.0":
   version: 1.0.0
   resolution: "@react-native/assets@npm:1.0.0"
@@ -14355,6 +14369,7 @@ __metadata:
     ioredis: ^5.3.2
     jest: ^29.6.2
     jest-environment-node: ^29.6.2
+    jose: ^4.14.6
     lib: "workspace:*"
     luxon: ^3.4.0
     nestjs-request-context: ^3.0.0
@@ -14704,6 +14719,7 @@ __metadata:
     "@react-native-firebase/app": ^18.3.0
     "@react-native-firebase/crashlytics": ^18.3.0
     "@react-native-firebase/perf": ^18.3.0
+    "@react-native-google-signin/google-signin": ^10.0.1
     "@react-navigation/material-bottom-tabs": ^6.2.15
     "@react-navigation/material-top-tabs": ^6.6.2
     "@react-navigation/native": ^6.1.6
@@ -14757,6 +14773,7 @@ __metadata:
     eth-url-parser: ^1.0.4
     ethers: ^5.7.2
     expo: ^48.0.20
+    expo-apple-authentication: ~6.0.1
     expo-application: ~5.1.1
     expo-asset: ~8.9.1
     expo-barcode-scanner: ~12.3.2
@@ -14802,6 +14819,7 @@ __metadata:
     react-native: 0.71.8
     react-native-barcode-mask: ^1.2.4
     react-native-ble-plx: ^2.0.3
+    react-native-cloud-storage: ^0.7.0
     react-native-collapsible: ^1.6.1
     react-native-dashed-line: ^1.1.0
     react-native-gesture-handler: ~2.9.0
@@ -14830,6 +14848,7 @@ __metadata:
     recoil: ^0.7.7
     rxjs: ^7.8.1
     sentry-expo: ~6.2.0
+    shamir-secret-sharing: ^0.0.3
     siwe: ^1.1.6
     styled-components: ^5.3.11
     styled-system: ^5.1.5
@@ -22053,6 +22072,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"expo-apple-authentication@npm:~6.0.1":
+  version: 6.0.1
+  resolution: "expo-apple-authentication@npm:6.0.1"
+  peerDependencies:
+    expo: "*"
+  checksum: 1c467a175423a53475b56345b4332eedfdf8239cdf5b7563031aef38af4c07c7f255b09918c4dede44afc68e7b38944a343bcc96efbdda598829413f7c946a77
+  languageName: node
+  linkType: hard
+
 "expo-application@npm:~5.1.0, expo-application@npm:~5.1.1":
   version: 5.1.1
   resolution: "expo-application@npm:5.1.1"
@@ -28369,6 +28397,13 @@ __metadata:
   version: 4.14.4
   resolution: "jose@npm:4.14.4"
   checksum: 2d820a91a8fd97c05d8bc8eedc373b944a0cd7f5fe41063086da233d0473c73fb523912a9f026ea870782bd221f4a515f441a2d3af4de48c6f2c76dac5082377
+  languageName: node
+  linkType: hard
+
+"jose@npm:^4.14.6":
+  version: 4.14.6
+  resolution: "jose@npm:4.14.6"
+  checksum: eae81a234e7bf1446b1bd80722b3462b014e3835b155c3a7799c1c5043163a53a0dc28d347004151b031e6b7b863403aabf8814d9cc217ce21f8c2f3ebd4b335
   languageName: node
   linkType: hard
 
@@ -35481,6 +35516,22 @@ __metadata:
   languageName: node
   linkType: hard
 
+"react-native-cloud-storage@npm:^0.7.0":
+  version: 0.7.0
+  resolution: "react-native-cloud-storage@npm:0.7.0"
+  dependencies:
+    react-native-google-drive-api-wrapper-js: ^1.2.3
+  peerDependencies:
+    expo: ">=47.0.0"
+    react: "*"
+    react-native: "*"
+  peerDependenciesMeta:
+    expo:
+      optional: true
+  checksum: 3cc8a5e0f3ffa2edc20169b793f965ce1be7a9da098e8b13e6f6949a596bb97b1a66f0e03c306645afe83baf30d3c5c1c697c6e806b8c3ccf771cefc59dcb927
+  languageName: node
+  linkType: hard
+
 "react-native-codegen@npm:^0.71.5":
   version: 0.71.5
   resolution: "react-native-codegen@npm:0.71.5"
@@ -35563,6 +35614,17 @@ __metadata:
   peerDependencies:
     react-native: ">=0.56"
   checksum: 9163368ebd935d897f6ea0f9e95c476aa7608080e3848bb6c6f85db01b9de3498d857795c84df5492d6511a55aebf89492860ac886b652a9a7a3efdb19913f87
+  languageName: node
+  linkType: hard
+
+"react-native-google-drive-api-wrapper-js@npm:^1.2.3":
+  version: 1.2.3
+  resolution: "react-native-google-drive-api-wrapper-js@npm:1.2.3"
+  dependencies:
+    base64-js: ^1.5.1
+    simple-common-utils: ^2.3.0
+    utf8: ^3.0.0
+  checksum: fef52aa307cc5e2f7dbb7003fc55f70a4e96c5f13a48e47af08fad77a2372b5ec2a62e3b26bf0433c129e7f1e88a8bd73541a7293e551c7825b033cea1d3b1a2
   languageName: node
   linkType: hard
 
@@ -38013,6 +38075,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"shamir-secret-sharing@npm:^0.0.3":
+  version: 0.0.3
+  resolution: "shamir-secret-sharing@npm:0.0.3"
+  checksum: 29139f5376cfd2011db45f1b2901200f253238d1960d49a6cf564888e38f3fd641ef6cdfcec7584252b21322cdbf737a4eb2c0695732a69b942e64a5e4cc12b0
+  languageName: node
+  linkType: hard
+
 "shebang-command@npm:^1.2.0":
   version: 1.2.0
   resolution: "shebang-command@npm:1.2.0"
@@ -38108,6 +38177,13 @@ __metadata:
   version: 1.0.0
   resolution: "signedsource@npm:1.0.0"
   checksum: 64b2c8d7a48de9009cfd3aff62bb7c88abf3b8e0421f17ebb1d7f5ca9cc9c3ad10f5a1e3ae6cd804e4e6121c87b668202ae9057065f058ddfbf34ea65f63945d
+  languageName: node
+  linkType: hard
+
+"simple-common-utils@npm:^2.3.0":
+  version: 2.6.0
+  resolution: "simple-common-utils@npm:2.6.0"
+  checksum: 55da0f82463ac668d106c97180c89cea888b943ddc7f9c7f6f259fec8418d394fd707d8e3adc5168d3ffd7bfac467d821e8caaea463c5ed53c4b4a1a29d72e29
   languageName: node
   linkType: hard
 
@@ -41843,7 +41919,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"utf8@npm:3.0.0":
+"utf8@npm:3.0.0, utf8@npm:^3.0.0":
   version: 3.0.0
   resolution: "utf8@npm:3.0.0"
   checksum: cb89a69ad9ab393e3eae9b25305b3ff08bebca9adc839191a34f90777eb2942f86a96369d2839925fea58f8f722f7e27031d697f10f5f39690f8c5047303e62d

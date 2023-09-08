@@ -3,7 +3,7 @@ import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
 import { Screen } from '~/components/layout/Screen';
 import { makeStyles } from '@theme/makeStyles';
 import { IconButton, Surface, Text } from 'react-native-paper';
-import { CloseIcon, ShareIcon } from '@theme/icons';
+import { CloseIcon, PasteIcon, ScanIcon, ShareIcon } from '@theme/icons';
 import { Actions } from '~/components/layout/Actions';
 import { Share, View } from 'react-native';
 import { withSuspense } from '~/components/skeleton/withSuspense';
@@ -11,10 +11,13 @@ import { Blur } from '~/components/Blur';
 import { Button } from '~/components/Button';
 import { gql } from '@api/generated';
 import { getPairingLink } from './pairing';
-import { showSuccess } from '~/provider/SnackbarProvider';
 import { useQuery } from '~/gql';
 import { useSubscription } from 'urql';
 import { useEffect } from 'react';
+import { Subject } from 'rxjs';
+import { PairUserModal_SubscriptionSubscription } from '@api/generated/graphql';
+
+export const LINKINGS_FROM_TOKEN = new Subject<PairUserModal_SubscriptionSubscription>();
 
 const Query = gql(/* GraphQL */ `
   query PairUserModal {
@@ -34,15 +37,12 @@ const Subscription = gql(/* GraphQL */ `
   }
 `);
 
-export interface PairUserModalParams {
-  isOnboarding?: boolean;
-}
+export interface PairUserModalParams {}
 
 export type PairUserModalProps = StackNavigatorScreenProps<'PairUserModal'>;
 
 export const PairUserModal = withSuspense(
-  ({ route, navigation: { navigate, goBack } }: PairUserModalProps) => {
-    const { isOnboarding } = route.params;
+  ({ navigation: { navigate, goBack } }: PairUserModalProps) => {
     const styles = uesStyles();
 
     const { user } = useQuery(Query).data;
@@ -50,12 +50,8 @@ export const PairUserModal = withSuspense(
 
     const [subscription] = useSubscription({ query: Subscription });
     useEffect(() => {
-      if (!subscription.stale && subscription.data) {
-        const { user } = subscription.data;
-        showSuccess(`Paired with user${user.name ? `: ${user.name}` : ''}`);
-        navigate('Approver', { isOnboarding });
-      }
-    }, [isOnboarding, navigate, subscription.data, subscription.stale]);
+      if (!subscription.stale && subscription.data) LINKINGS_FROM_TOKEN.next(subscription.data);
+    }, [navigate, subscription.data, subscription.stale]);
 
     return (
       <Blur>
@@ -68,10 +64,6 @@ export const PairUserModal = withSuspense(
           />
 
           <View style={styles.qrContainer}>
-            <Text variant="headlineLarge" style={styles.name}>
-              Scan to pair
-            </Text>
-
             <Surface style={styles.qrSurface}>
               <QRCode
                 value={link}
@@ -83,15 +75,29 @@ export const PairUserModal = withSuspense(
                 linearGradient={[styles.primary.color, styles.tertiary.color]}
               />
             </Surface>
+
+            <View style={{ marginTop: 16 }}>
+              <Text variant="headlineMedium" style={styles.text}>
+                Linking a device
+              </Text>
+
+              <Text variant="bodyLarge" style={styles.text}>
+                1. Open Zallo on your existing device{'\n'}
+                2. Tap scan <ScanIcon size={styles.textIcon.fontSize} style={styles.text} />
+                {'\n'}
+                3. Scan the code on this screen, or share & paste{' '}
+                <PasteIcon size={styles.textIcon.fontSize} style={styles.text} /> the linking code
+              </Text>
+            </View>
           </View>
 
-          <Actions>
+          <Actions style={{ flexGrow: 0 }}>
             <Button
               mode="contained"
               icon={ShareIcon}
               onPress={() => Share.share({ url: link, message: link })}
             >
-              Share
+              Linking code
             </Button>
           </Actions>
         </Screen>
@@ -105,9 +111,13 @@ const uesStyles = makeStyles(({ colors, window }) => ({
   close: {
     marginHorizontal: 16,
   },
-  name: {
-    textAlign: 'center',
+  text: {
+    // textAlign: 'center',
     color: colors.onScrim,
+    marginHorizontal: 16,
+  },
+  textIcon: {
+    fontSize: 14,
   },
   qrContainer: {
     flex: 4,

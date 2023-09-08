@@ -7,7 +7,7 @@ export class UpdateUserInput {
   name?: string;
 
   @Field(() => GraphQLURL, { nullable: true })
-  photoUri?: string;
+  photoUri?: URL;
 }
 
 @InputType()

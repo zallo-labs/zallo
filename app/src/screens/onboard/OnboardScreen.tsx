@@ -5,10 +5,40 @@ import LogoSvg from '~/../assets/logo-color.svg';
 import { Actions } from '~/components/layout/Actions';
 import { StyleSheet } from 'react-native';
 import { Screen } from '~/components/layout/Screen';
+import { AppleButton } from '~/components/buttons/AppleButton';
+import { LinkGoogleButton } from '~/components/buttons/LinkGoogleButton';
+import { LinkingCodeButton } from '~/components/buttons/LinkingCodeButton';
+import { LinkLedgerButton } from '~/components/buttons/LinkLedgerButton';
+import { gql } from '@api';
+import { useUrqlApiClient } from '@api/client';
+import { clog } from '~/util/format';
+
+const Query = gql(/* GraphQL */ `
+  query OnboardScreen {
+    user {
+      id
+      name
+    }
+  }
+`);
 
 export type OnboardScreenProps = StackNavigatorScreenProps<'Onboard'>;
 
 export function OnboardScreen({ navigation: { navigate } }: OnboardScreenProps) {
+  const api = useUrqlApiClient();
+
+  const next = async () => {
+    const user = (await api.query(Query, {}, { requestPolicy: 'network-only' })).data?.user;
+
+    clog({ nextUser: user });
+
+    if (!user?.name) {
+      navigate('CreateUser');
+    } else {
+      navigate('Approver', { isOnboarding: true });
+    }
+  };
+
   return (
     <Screen topInset>
       <View style={styles.header}>
@@ -19,8 +49,22 @@ export function OnboardScreen({ navigation: { navigate } }: OnboardScreenProps) 
       </View>
 
       <Actions>
-        <Button mode="contained" style={styles.button} onPress={() => navigate('CreateUser')}>
-          Get started
+        <Text variant="titleMedium" style={styles.continueText}>
+          Continue with
+        </Text>
+
+        <View style={styles.methodsContainer}>
+          <AppleButton onLink={next} />
+
+          <LinkGoogleButton onLink={next} />
+
+          <LinkLedgerButton onLink={next} />
+
+          <LinkingCodeButton onLink={next} />
+        </View>
+
+        <Button mode="contained" onPress={() => navigate('CreateUser')}>
+          Continue
         </Button>
       </Actions>
     </Screen>
@@ -40,7 +84,14 @@ const styles = StyleSheet.create({
   description: {
     textAlign: 'center',
   },
-  button: {
-    alignSelf: 'stretch',
+  continueText: {
+    textAlign: 'center',
+  },
+  methodsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 16,
+    marginBottom: 16,
   },
 });

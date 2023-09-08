@@ -8,6 +8,10 @@ import { Button } from '~/components/Button';
 import { gql } from '@api/generated';
 import { showSuccess } from '~/provider/SnackbarProvider';
 import { useMutation } from 'urql';
+import { Subject } from 'rxjs';
+import { PairConfirmSheet_PairMutation } from '@api/generated/graphql';
+
+export const LINKINGS_FROM_DEVICE = new Subject<PairConfirmSheet_PairMutation>();
 
 const Pair = gql(/* GraphQL */ `
   mutation PairConfirmSheet_Pair($token: String!) {
@@ -59,7 +63,8 @@ export const PairConfirmSheet = ({ route, navigation: { goBack } }: PairConfirmS
           icon={PairIcon}
           style={styles.button}
           onPress={async () => {
-            await pair({ token });
+            const r = await pair({ token });
+            if (r.data) LINKINGS_FROM_DEVICE.next(r.data);
             showSuccess('Pairing successful');
             goBack();
           }}

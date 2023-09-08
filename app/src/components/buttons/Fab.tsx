@@ -1,3 +1,4 @@
+import { useWithLoading } from '@hook/useIsPromised';
 import { ComponentPropsWithoutRef } from 'react';
 import { StyleSheet } from 'react-native';
 import { Keyboard } from 'react-native';
@@ -9,16 +10,20 @@ type BaseProps = ComponentPropsWithoutRef<typeof PaperFAB>;
 export type FabProps = Omit<BaseProps, 'icon'> &
   Partial<Pick<BaseProps, 'icon'>> & {
     appbar?: boolean;
+    position?: 'absolute' | 'relative';
   };
 
-export const Fab = ({ appbar, onPress, style, ...props }: FabProps) => {
+export const Fab = ({ appbar, position = 'absolute', style, ...props }: FabProps) => {
+  const [loading, onPress] = useWithLoading(props.onPress);
+
   return (
     <PaperFAB
       icon={undefined as unknown as IconSource} // https://github.com/callstack/react-native-paper/issues/3594
       size={appbar ? 'small' : 'medium'}
       mode={appbar ? 'flat' : 'elevated'}
-      style={[styles.fab, style]}
+      style={[position === 'absolute' && styles.absolute, style]}
       {...props}
+      loading={props.loading || (props.loading !== false && loading)}
       {...(onPress && {
         onPress: (e) => {
           Keyboard.dismiss();
@@ -30,7 +35,7 @@ export const Fab = ({ appbar, onPress, style, ...props }: FabProps) => {
 };
 
 const styles = StyleSheet.create({
-  fab: {
+  absolute: {
     position: 'absolute',
     bottom: 22, // Should be 16, but that currently causes the shadow to be clipped by the navbar - https://github.com/callstack/react-native-paper/issues/3957
     right: 16,

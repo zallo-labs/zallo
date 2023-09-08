@@ -1,7 +1,7 @@
 import { gql } from '@api/generated';
 import { useNavigation } from '@react-navigation/native';
 import { asBigInt } from 'lib';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo } from 'react';
 import { showError, showInfo } from '~/provider/SnackbarProvider';
 import { logError } from '~/util/analytics';
 import { asWalletConnectResult, useWalletConnectWithoutWatching } from '~/util/walletconnect';
@@ -67,8 +67,9 @@ export const useSessionRequestListener = () => {
 
   const accounts = useQuery(Query).data.accounts.map((a) => a.address);
 
-  const [proposals] = useState(
-    new Subject<SessionRequestListener_ProposalSubscription['proposal']>(),
+  const proposals = useMemo(
+    () => new Subject<SessionRequestListener_ProposalSubscription['proposal']>(),
+    [],
   );
   useEffect(() => proposals.unsubscribe, [proposals]);
 

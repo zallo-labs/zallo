@@ -38,7 +38,7 @@ export class UsersService {
   async update({ name, photoUri }: UpdateUserInput) {
     return this.db.query(
       e.update(e.global.current_user, () => ({
-        set: { name, photoUri },
+        set: { name, photoUri: photoUri?.href },
       })),
     );
   }
