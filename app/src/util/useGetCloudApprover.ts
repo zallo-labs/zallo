@@ -26,7 +26,7 @@ const UpdateApprover = gql(/* GraphQL */ `
 
 export interface GetCloudApproverParams {
   idToken: string;
-  accessToken: string;
+  accessToken: string | null;
 }
 
 export function useGetCloudApprover() {
@@ -35,7 +35,7 @@ export function useGetCloudApprover() {
 
   return useCallback(
     async ({ idToken, accessToken }: GetCloudApproverParams) => {
-      CloudStorage.setGoogleDriveAccessToken(accessToken);
+      if (accessToken) CloudStorage.setGoogleDriveAccessToken(accessToken);
 
       const [cloudShare, apiShare] = await Promise.all([
         (async () => {

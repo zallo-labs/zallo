@@ -14,7 +14,9 @@ export function LinkLedgerButton({ onLink }: LinkLedgerButtonProps) {
 
   useEffect(() => {
     const sub = LINKINGS_FROM_DEVICE.subscribe({ next: () => onLink?.() });
-    return sub.unsubscribe;
+    return () => {
+      if (!sub.closed) sub.unsubscribe();
+    };
   }, [onLink]);
 
   return (

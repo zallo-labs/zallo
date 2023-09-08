@@ -1,32 +1,32 @@
-import { GoogleButton } from './GoogleButton';
 import { gql } from '@api';
+import { AppleButton } from './AppleButton';
 import { useMutation } from 'urql';
 import { useQuery } from '~/gql';
 import { authContext } from '@api/client';
+import { isPresent } from 'lib';
+import { clog } from '~/util/format';
 
 const Query = gql(/* GraphQL */ `
-  query SignInWithGoogleButton {
+  query LinkAppleButton {
     user {
       id
       name
-      photoUri
       pairingToken
     }
   }
 `);
 
 const UpdateUser = gql(/* GraphQL */ `
-  mutation SignInWithGoogleButton_UpdateUser($input: UpdateUserInput!) {
+  mutation LinkAppleButton_UpdateUser($input: UpdateUserInput!) {
     updateUser(input: $input) {
       id
       name
-      photoUri
     }
   }
 `);
 
 const Pair = gql(/* GraphQL */ `
-  mutation SignInWithGoogleButton_Pair($token: String!) {
+  mutation LinkAppleButton_Pair($token: String!) {
     pair(input: { token: $token }) {
       id
       approvers {
@@ -36,31 +36,24 @@ const Pair = gql(/* GraphQL */ `
   }
 `);
 
-export interface LinkGoogleButtonProps {
+export interface LinkAppleButtonProps {
   onLink?: () => void | Promise<void>;
-  signOut?: boolean;
 }
 
-export function LinkGoogleButton({ onLink, signOut }: LinkGoogleButtonProps) {
+export function LinkAppleButton({ onLink }: LinkAppleButtonProps) {
   const updateUser = useMutation(UpdateUser)[1];
   const pair = useMutation(Pair)[1];
 
   const { user } = useQuery(Query).data;
 
   return (
-    <GoogleButton
-      signOut={signOut}
-      onSignIn={async ({ user: { name, photo }, approver }) => {
+    <AppleButton
+      onSignIn={async ({ approver, credentials: { fullName, ...creds } }) => {
         await pair({ token: user.pairingToken }, await authContext(approver));
 
-        if (name || photo) {
-          await updateUser({
-            input: {
-              ...(!user.name && name && { name }),
-              ...(!user.photoUri && photo && { photoUri: photo }),
-            },
-          });
-        }
+        const name = [fullName?.givenName, fullName?.familyName].filter(isPresent).join(' ');
+
+        if (!user.name && name) await updateUser({ input: { name } });
 
         await onLink?.();
       }}

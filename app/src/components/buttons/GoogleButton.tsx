@@ -12,10 +12,8 @@ import { atom, useAtom } from 'jotai';
 import { CONFIG } from '~/util/config';
 import { ResultAsync } from 'neverthrow';
 import { withSuspense } from '../skeleton/withSuspense';
-import { clog } from '~/util/format';
 import { Approver } from 'lib';
 import { useGetCloudApprover } from '~/util/useGetCloudApprover';
-import { FAB } from 'react-native-paper';
 import { Fab } from './Fab';
 
 const GoogleIconSource: ImageRequireSource = require('assets/google.png');
@@ -37,23 +35,16 @@ export interface GoogleSignInResult {
   approver: Approver;
 }
 
-const hasPlayServicesAtom = atom(async () => {
-  try {
-    return await GoogleSignin.hasPlayServices();
-  } catch (e) {
-    clog({ googlePlayServicesError: e });
-    return false;
-  }
-});
+const hasPlayServicesAtom = atom(() => GoogleSignin.hasPlayServices());
 export const useHasPlayServices = () => useAtom(hasPlayServicesAtom);
 
 export interface GoogleButtonProps {
-  account?: string;
+  subject?: string;
   onSignIn: (result: GoogleSignInResult) => void | Promise<void>;
   signOut?: boolean;
 }
 
-export const GoogleButton = withSuspense(({ account, onSignIn, signOut }: GoogleButtonProps) => {
+export const GoogleButton = withSuspense(({ subject, onSignIn, signOut }: GoogleButtonProps) => {
   const styles = useStyles();
   const getCloudApprover = useGetCloudApprover();
 
@@ -67,7 +58,7 @@ export const GoogleButton = withSuspense(({ account, onSignIn, signOut }: Google
       )}
       style={styles.container}
       onPress={async () => {
-        GoogleSignin.configure({ ...PARAMS, accountName: account });
+        GoogleSignin.configure({ ...PARAMS, accountName: subject });
 
         if (signOut) GoogleSignin.signOut();
 
@@ -76,7 +67,7 @@ export const GoogleButton = withSuspense(({ account, onSignIn, signOut }: Google
           () => undefined,
         ).orElse(() =>
           ResultAsync.fromPromise(
-            GoogleSignin.signIn({ loginHint: account }),
+            GoogleSignin.signIn({ loginHint: subject }),
             (e) => (e as NativeModuleError).message as keyof typeof ErrorCode | 'INVALID_ACCOUNT',
           ),
         );
