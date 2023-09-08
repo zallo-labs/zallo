@@ -14351,7 +14351,7 @@ __metadata:
     connect-redis: ^7.1.0
     cross-fetch: ^4.0.0
     dotenv: ^16.3.1
-    edgedb: ^1.3.4
+    edgedb: ^1.3.5
     eslint: ^8.47.0
     eslint-config-prettier: ^9.0.0
     eslint-plugin-prettier: ^5.0.0
@@ -20436,12 +20436,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"edgedb@npm:^1.3.4":
-  version: 1.3.4
-  resolution: "edgedb@npm:1.3.4"
+"edgedb@npm:^1.3.5":
+  version: 1.3.5
+  resolution: "edgedb@npm:1.3.5"
   bin:
     edgeql-js: dist/cli.js
-  checksum: 44f52f629329e9928c0b097d6bf6bce857127da8267962176171aeff62ceda77d3f610c2872be53d7880bb8e5117ed3ba390414667c38b6e89b000fda4460ec6
+  checksum: dc395902a898eb68bd939be0333a1e3e50cf0a5fa92fb3c048b252990fc445a21d676854769cc67b6a9c6aeb3c22553c7d68aefec88d87ad8cc3e454f4dd7721
   languageName: node
   linkType: hard
 
