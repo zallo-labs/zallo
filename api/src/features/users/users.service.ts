@@ -85,24 +85,7 @@ export class UsersService {
       .select(
         e.update(e.Approver, (a) => ({
           filter: e.op(a.user.id, '=', e.cast(e.uuid, oldUser)),
-          set: {
-            user: e.select(e.User, () => ({ filter_single: { id: newUser } })),
-            // Append (from old user) to the name if it already exists
-            name: e.op(
-              a.name,
-              'if',
-              e.op(
-                a.name,
-                'not in',
-                e.select(e.Approver, () => ({
-                  filter: e.op(a.user.id, '=', e.cast(e.uuid, newUser)),
-                  name: true,
-                })).name,
-              ),
-              'else',
-              e.op(a.name, '++', ' (from old user)'),
-            ),
-          },
+          set: { user: e.select(e.User, () => ({ filter_single: { id: newUser } })) },
         })),
         () => ({ address: true }),
       )

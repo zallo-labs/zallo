@@ -37,7 +37,6 @@ module default {
     );
 
     constraint exclusive on ((.user, .address));
-    constraint exclusive on ((.user, .name));
 
     access policy anyone_select_insert
       allow select, insert;

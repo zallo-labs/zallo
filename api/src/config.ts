@@ -36,6 +36,10 @@ export const CONFIG = {
   bullBoardUser: optional`BULL_BOARD_USER`,
   bullBoardPassword: optional`BULL_BOARD_PASSWORD`,
   oauthClients: new Set<string>(
-    [optional`GOOGLE_OAUTH_WEB_CLIENT`, optional`GOOGLE_OAUTH_IOS_CLIENT`].filter(isPresent),
+    [
+      optional`GOOGLE_OAUTH_WEB_CLIENT`,
+      optional`GOOGLE_OAUTH_IOS_CLIENT`,
+      ...JSON.parse(optional`APPLE_OAUTH_CLIENTS` || '[]'),
+    ].filter(isPresent),
   ),
 } as const;
