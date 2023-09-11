@@ -184,15 +184,14 @@ const getFragmentShape = (
     fieldGql.extensions.eqlType || e[fieldGql.name];
   const fieldEqlFields = fieldEql ? Object.keys(fieldEql?.__element__.__pointers__) : [];
 
-  return {
-    ...shape,
+  return merge(shape, {
     ...e.is(fragmentEql, fragmentShape),
     ..._.pick(fragmentShape, [
       'id' /* ignored by e.is() */,
       '__type__' /* errors if included by e.is() */,
       ...fieldEqlFields,
     ]),
-  };
+  });
 };
 
 const getGraphqlBaseType = (
