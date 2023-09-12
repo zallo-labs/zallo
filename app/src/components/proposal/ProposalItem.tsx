@@ -8,7 +8,6 @@ import { materialCommunityIcon } from '@theme/icons';
 import { ICON_SIZE } from '@theme/paper';
 import { FragmentType, gql, useFragment } from '@api/generated';
 import { OperationLabel } from '../call/OperationLabel';
-import { useCanRespond } from './useCanRespond';
 import { useNavigation } from '@react-navigation/native';
 import { ETH_ICON_URI, TokenIcon } from '../token/TokenIcon/TokenIcon';
 import { ProposalValue } from './ProposalValue';
@@ -20,6 +19,7 @@ const Proposal = gql(/* GraphQL */ `
     label
     status
     createdAt
+    updatable
     operations {
       to
       ...OperationLabel_OperationFragment
@@ -31,15 +31,19 @@ const Proposal = gql(/* GraphQL */ `
         timestamp
       }
     }
+    potentialApprovers {
+      id
+    }
     ...ProposalValue_TransactionProposal
-    ...UseCanRespond_Proposal
   }
 `);
 
 const User = gql(/* GraphQL */ `
   fragment ProposalItem_User on User {
     id
-    ...UseCanRespond_User
+    approvers {
+      id
+    }
   }
 `);
 
@@ -56,9 +60,10 @@ export const ProposalItem = withSuspense(
     const p = useFragment(Proposal, proposalFragment);
     const user = useFragment(User, userFragment);
     const { navigate } = useNavigation();
-    const { canApprove } = useCanRespond({ proposal: p, user });
 
     const isMulti = p.operations.length > 1;
+    const canApprove =
+      p.updatable && p.potentialApprovers.find((a) => user.approvers.find((ua) => a.id === ua.id));
 
     const supporting = match(p)
       .returnType<ListItemProps['supporting']>()

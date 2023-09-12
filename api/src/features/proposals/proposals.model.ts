@@ -30,20 +30,23 @@ export class Proposal extends Node {
   @Field(() => Approver)
   proposedBy: Approver;
 
-  @Field(() => [ProposalResponse])
-  responses: ProposalResponse[];
-
   @Field(() => [Approval])
   approvals: Approval[];
 
   @Field(() => [Rejection])
   rejections: Rejection[];
 
+  @Field(() => [Approver])
+  potentialApprovers: Approver[];
+
+  @Field(() => [Approver])
+  potentialRejectors: Approver[];
+
   @Field(() => Risk, { nullable: true })
   riskLabel?: Risk;
 }
 
-@NodeType({ isAbstract: true })
+@InterfaceType({ implements: Node })
 export class ProposalResponse extends Node {
   @Field(() => Proposal)
   proposal: Proposal;
@@ -55,10 +58,10 @@ export class ProposalResponse extends Node {
   createdAt: Date;
 }
 
-@NodeType()
+@NodeType({ implements: ProposalResponse })
 export class Approval extends ProposalResponse {
   // Don't include signature as user's may want to retract it later -
 }
 
-@NodeType()
+@NodeType({ implements: ProposalResponse })
 export class Rejection extends ProposalResponse {}

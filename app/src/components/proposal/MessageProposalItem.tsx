@@ -2,7 +2,6 @@ import { FragmentType, gql, useFragment } from '@api/generated';
 import { ListItem, ListItemProps } from '../list/ListItem';
 import { useNavigation } from '@react-navigation/native';
 import { MessageIcon } from './MessageIcon';
-import { useCanRespond } from './useCanRespond';
 import { makeStyles } from '@theme/makeStyles';
 import { P, match } from 'ts-pattern';
 
@@ -12,15 +11,20 @@ const MessageProposal = gql(/* GraphQL */ `
     hash
     label
     signature
+    updatable
+    potentialApprovers {
+      id
+    }
     ...MessageIcon_MessageProposal
-    ...UseCanRespond_Proposal
   }
 `);
 
 const User = gql(/* GraphQL */ `
   fragment MessageProposalItem_User on User {
     id
-    ...UseCanRespond_User
+    approvers {
+      id
+    }
   }
 `);
 
@@ -34,7 +38,9 @@ export function MessageProposalItem(props: MessageProposalItemProps) {
   const p = useFragment(MessageProposal, props.proposal);
   const user = useFragment(User, props.user);
   const { navigate } = useNavigation();
-  const { canApprove } = useCanRespond({ proposal: p, user });
+
+  const canApprove =
+    p.updatable && p.potentialApprovers.find((a) => user.approvers.find((ua) => a.id === ua.id));
 
   const supporting = match(p)
     .returnType<ListItemProps['supporting']>()

@@ -1,8 +1,5 @@
 import { ScrollView } from 'react-native';
-import { AddressLabel } from '~/components/address/AddressLabel';
-import { Timestamp } from '~/components/format/Timestamp';
 import { ListHeader } from '~/components/list/ListHeader';
-import { ListItem } from '~/components/list/ListItem';
 import { TabNavigatorScreenProp } from './Tabs';
 import { withSuspense } from '~/components/skeleton/withSuspense';
 import { TabScreenSkeleton } from '~/components/tab/TabScreenSkeleton';
@@ -12,8 +9,11 @@ import { Hex } from 'lib';
 import { gql, useFragment } from '@api/generated';
 import { getOptimizedDocument, useQuery } from '~/gql';
 import { useSubscription } from 'urql';
+import { AwaitingApprovalItem } from './AwaitingApprovalItem';
+import { RejectionItem } from './RejectionItem';
+import { ApprovalItem } from './ApprovalItem';
 
-const FragmentDoc = gql(/* GraphQL */ `
+const Proposal = gql(/* GraphQL */ `
   fragment PolicyTab_ProposalFragment on Proposal
   @argumentDefinitions(proposal: { type: "Bytes32!" }) {
     id
@@ -30,6 +30,7 @@ const FragmentDoc = gql(/* GraphQL */ `
           approvers {
             id
             address
+            ...AwaitingApprovalItem_Approver
           }
         }
       }
@@ -39,19 +40,17 @@ const FragmentDoc = gql(/* GraphQL */ `
     }
     rejections {
       id
-      createdAt
       approver {
         id
-        address
       }
+      ...RejectionItem_Rejection
     }
     approvals {
       id
-      createdAt
       approver {
         id
-        address
       }
+      ...ApprovalItem_Approval
     }
     createdAt
     proposedBy {
@@ -59,6 +58,9 @@ const FragmentDoc = gql(/* GraphQL */ `
       address
     }
     ...SelectedPolicy_ProposalFragment @arguments(proposal: $proposal)
+    ...AwaitingApprovalItem_Proposal
+    ...RejectionItem_Proposal
+    ...ApprovalItem_Proposal
   }
 `);
 
@@ -66,6 +68,12 @@ const Query = gql(/* GraphQL */ `
   query PolicyTab($proposal: Bytes32!) {
     proposal(input: { hash: $proposal }) {
       ...PolicyTab_ProposalFragment @arguments(proposal: $proposal)
+    }
+
+    user {
+      ...AwaitingApprovalItem_User
+      ...RejectionItem_User
+      ...ApprovalItem_User
     }
   }
 `);
@@ -92,7 +100,8 @@ export const PolicyTab = withSuspense(({ route }: PolicyTabProps) => {
     query: getOptimizedDocument(Subscription),
     variables: { proposal: route.params.proposal },
   });
-  const p = useFragment(FragmentDoc, data?.proposal);
+  const p = useFragment(Proposal, data.proposal);
+  const user = data.user;
 
   if (!p) return null;
 
@@ -103,8 +112,8 @@ export const PolicyTab = withSuspense(({ route }: PolicyTabProps) => {
     approvals: Math.max(selected.state.threshold - p.approvals.length, 0),
     approvers: selected.state.approvers.filter(
       (approver) =>
-        !p.approvals.find((a) => a.approver.address === approver.address) &&
-        !p.rejections.find((r) => r.approver.address === approver.address),
+        !p.approvals.find((a) => a.approver.id === approver.id) &&
+        !p.rejections.find((r) => r.approver.id === approver.id),
     ),
   };
 
@@ -114,60 +123,21 @@ export const PolicyTab = withSuspense(({ route }: PolicyTabProps) => {
 
       {remaining && remaining.approvals > 0 && (
         <>
-          <ListHeader>
-            Awaiting for {remaining.approvals} approval{remaining.approvals !== 1 ? 's' : ''}
-          </ListHeader>
+          <ListHeader>Awaiting</ListHeader>
           {remaining.approvers.map((approver) => (
-            <ListItem
-              key={approver.id}
-              leading={approver.address}
-              headline={({ Text }) => (
-                <Text>
-                  <AddressLabel address={approver.address} />
-                </Text>
-              )}
-              supporting={p.proposedBy.address === approver.address ? 'Proposer' : undefined}
-            />
+            <AwaitingApprovalItem key={approver.id} user={user} proposal={p} approver={approver} />
           ))}
         </>
       )}
 
       {p.rejections.length > 0 && <ListHeader>Rejected</ListHeader>}
-      {[...p.rejections].map((r) => (
-        <ListItem
-          key={r.id}
-          leading={r.approver.address}
-          headline={({ Text }) => (
-            <Text>
-              <AddressLabel address={r.approver.address} />
-            </Text>
-          )}
-          supporting={p.proposedBy.address === r.approver.address ? 'Proposer' : undefined}
-          trailing={({ Text }) => (
-            <Text>
-              <Timestamp timestamp={r.createdAt} />
-            </Text>
-          )}
-        />
+      {p.rejections.map((rejection) => (
+        <RejectionItem key={rejection.id} user={user} rejection={rejection} proposal={p} />
       ))}
 
       {p.approvals.length > 0 && <ListHeader>Approvals</ListHeader>}
-      {[...p.approvals].map((a) => (
-        <ListItem
-          key={a.id}
-          leading={a.approver.address}
-          headline={({ Text }) => (
-            <Text>
-              <AddressLabel address={a.approver.address} />
-            </Text>
-          )}
-          supporting={p.proposedBy.address === a.approver.address ? 'Proposer' : undefined}
-          trailing={({ Text }) => (
-            <Text>
-              <Timestamp timestamp={a.createdAt} />
-            </Text>
-          )}
-        />
+      {p.approvals.map((approval) => (
+        <ApprovalItem key={approval.id} user={user} approval={approval} proposal={p} />
       ))}
     </ScrollView>
   );

@@ -53,7 +53,7 @@ input ActivityInput {
 """Ethereum address"""
 scalar Address
 
-type Approval implements Node {
+type Approval implements Node & ProposalResponse {
   approver: Approver!
   createdAt: DateTime!
   id: ID!
@@ -241,9 +241,10 @@ type MessageProposal implements Node & Proposal {
   label: String
   message: String!
   policy: Policy
+  potentialApprovers: [Approver!]!
+  potentialRejectors: [Approver!]!
   proposedBy: Approver!
   rejections: [Rejection!]!
-  responses: [ProposalResponse!]!
   riskLabel: Risk
   signature: Bytes32
   typedData: TypedData
@@ -366,9 +367,10 @@ interface Proposal implements Node {
   id: ID!
   label: String
   policy: Policy
+  potentialApprovers: [Approver!]!
+  potentialRejectors: [Approver!]!
   proposedBy: Approver!
   rejections: [Rejection!]!
-  responses: [ProposalResponse!]!
   riskLabel: Risk
 }
 
@@ -387,7 +389,7 @@ input ProposalInput {
   hash: Bytes32!
 }
 
-type ProposalResponse implements Node {
+interface ProposalResponse implements Node {
   approver: Approver!
   createdAt: DateTime!
   id: ID!
@@ -475,7 +477,7 @@ type Receipt {
   transferEvents: [Transfer!]!
 }
 
-type Rejection implements Node {
+type Rejection implements Node & ProposalResponse {
   approver: Approver!
   createdAt: DateTime!
   id: ID!
@@ -654,9 +656,10 @@ type TransactionProposal implements Node & Proposal {
   nonce: BigInt!
   operations: [Operation!]!
   policy: Policy
+  potentialApprovers: [Approver!]!
+  potentialRejectors: [Approver!]!
   proposedBy: Approver!
   rejections: [Rejection!]!
-  responses: [ProposalResponse!]!
   riskLabel: Risk
   simulation: Simulation!
   status: TransactionProposalStatus!
