@@ -1,6 +1,11 @@
 import { FragmentType, gql, useFragment } from '@api';
+import { authContext } from '@api/client';
+import { useApproverAddress } from '@network/useApprover';
 import { Address } from 'lib';
+import { match } from 'ts-pattern';
 import { useMutation } from 'urql';
+import { showError } from '~/provider/SnackbarProvider';
+import { useGetGoogleApprover } from '~/util/useGetGoogleApprover';
 
 const User = gql(/* GraphQL */ `
   fragment UseReject_User on User {
@@ -11,6 +16,7 @@ const User = gql(/* GraphQL */ `
       bluetoothDevices
       cloud {
         id
+        provider
         subject
       }
     }
@@ -21,20 +27,12 @@ const Proposal = gql(/* GraphQL */ `
   fragment UseReject_Proposal on Proposal {
     id
     hash
-    potentialApprovers {
+    potentialRejectors {
       id
-      address
     }
     policy {
       id
       key
-    }
-    rejections {
-      id
-      approver {
-        id
-        address
-      }
     }
     ... on TransactionProposal {
       updatable
@@ -46,8 +44,8 @@ const Proposal = gql(/* GraphQL */ `
 `);
 
 const Reject = gql(/* GraphQL */ `
-  mutation useReject_Reject($input: ProposalInput!) {
-    rejectProposal(input: $input) {
+  mutation useReject_Reject($proposal: Bytes32!) {
+    rejectProposal(input: { hash: $proposal }) {
       id
       approvals {
         id
@@ -69,12 +67,37 @@ export function useReject({ approver, ...params }: UseRejectParams) {
   const user = useFragment(User, params.user);
   const p = useFragment(Proposal, params.proposal);
   const reject = useMutation(Reject)[1];
+  const device = useApproverAddress();
+  const getGoogleApprover = useGetGoogleApprover();
 
   const userApprover = user.approvers.find((a) => a.address === approver);
   const canReject =
-    p.updatable && !!userApprover && !!p.potentialApprovers.find((a) => a.id === userApprover.id);
+    p.updatable && !!userApprover && !!p.potentialRejectors.find((a) => a.id === userApprover.id);
 
   if (!p.updatable || !canReject) return undefined;
 
-  return userApprover ? async () => reject({ input: { hash: p.hash } }) : undefined;
+  if (approver === device) {
+    return async () => {
+      await reject({ proposal: p.hash });
+    };
+  } else if (userApprover.cloud) {
+    return match(userApprover.cloud)
+      .with({ provider: 'Apple' }, ({ subject }) => {
+        // TODO: apple
+      })
+      .with({ provider: 'Google' }, ({ subject }) => {
+        if (!getGoogleApprover) return undefined;
+
+        return async () => {
+          const r = await getGoogleApprover({ subject });
+          if (r.isErr())
+            return showError('Failed to approve with Google', {
+              event: { error: r.error, subject },
+            });
+
+          await reject({ proposal: p.hash }, await authContext(r.value.approver));
+        };
+      })
+      .exhaustive();
+  }
 }
