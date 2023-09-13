@@ -5,7 +5,7 @@ import { split, combine } from 'shamir-secret-sharing';
 import { gql } from '@api';
 import { authContext, useUrqlApiClient } from '@api/client';
 import { useMutation } from 'urql';
-import { clog } from './format';
+import { showError } from '~/provider/SnackbarProvider';
 
 const CLOUD_SHARE_PATH = 'approver-share';
 const SCOPE = CloudStorageScope.AppData;
@@ -27,6 +27,7 @@ const UpdateApprover = gql(/* GraphQL */ `
 export interface GetCloudApproverParams {
   idToken: string;
   accessToken: string | null;
+  create?: { name: string };
 }
 
 export function useGetCloudApprover() {
@@ -34,7 +35,7 @@ export function useGetCloudApprover() {
   const updateApprover = useMutation(UpdateApprover)[1];
 
   return useCallback(
-    async ({ idToken, accessToken }: GetCloudApproverParams) => {
+    async ({ idToken, accessToken, create }: GetCloudApproverParams) => {
       if (accessToken) CloudStorage.setGoogleDriveAccessToken(accessToken);
 
       const [cloudShare, apiShare] = await Promise.all([
@@ -42,7 +43,6 @@ export function useGetCloudApprover() {
           try {
             return await CloudStorage.readFile(CLOUD_SHARE_PATH, SCOPE);
           } catch (e) {
-            clog({ cloudReadFileError: e });
             return undefined;
           }
         })(),
@@ -56,23 +56,15 @@ export function useGetCloudApprover() {
           ).data?.cloudShare)(),
       ]);
 
-      clog({ cloudShare, apiShare });
-
-      // if (!cloudDetails && apiShare) -- remove api share?
-
       if (cloudShare && apiShare) {
         const shares = [cloudShare, apiShare].map(
           (shareHex) => new Uint8Array(Buffer.from(shareHex, 'hex')),
         );
-
         const recoveredPrivateKey = Buffer.from(await combine(shares)).toString('utf-8');
-        const approver = new Approver(recoveredPrivateKey);
 
-        // TODO: handle an incorrect recovered pk; check against approver?
-
-        return approver;
-      } else {
-        // Create approver and shares; disable cache
+        return new Approver(recoveredPrivateKey);
+      } else if (!cloudShare && !apiShare) {
+        // Create approver and shares
         const approver = Approver.createRandom();
 
         const secret = new Uint8Array(Buffer.from(approver.privateKey, 'utf-8'));
@@ -86,7 +78,7 @@ export function useGetCloudApprover() {
             {
               input: {
                 address: asAddress(approver.address),
-                name: 'Google account',
+                name: create?.name,
                 cloud: {
                   idToken,
                   share: apiShare,
@@ -97,9 +89,15 @@ export function useGetCloudApprover() {
           ),
         ]);
 
-        console.log('Wrote shares');
-
         return approver;
+      } else {
+        showError("Something went wrong. We're investingating the issue", {
+          event: {
+            idToken,
+            hasCloudShare: Boolean(cloudShare),
+            hasApiShare: Boolean(apiShare),
+          },
+        });
       }
     },
     [api, updateApprover],
