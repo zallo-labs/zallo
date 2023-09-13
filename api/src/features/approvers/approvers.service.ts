@@ -109,7 +109,7 @@ export class ApproversService {
     }));
 
     const r = (await appleResult) ?? (await googleResult);
-    if (!r) throw new UserInputError('Invalid JWT: must be from Apple or Google');
+    if (!r) throw new UserInputError('Invalid JWT: must be from Apple or Google and not expired');
 
     // Verify JWT is for an acceptable oauth client
     if (!toArray(r.payload.aud ?? []).find((aud) => CONFIG.oauthClients.has(aud)))

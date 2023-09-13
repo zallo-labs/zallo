@@ -5,6 +5,7 @@ import { Address } from 'lib';
 import { match } from 'ts-pattern';
 import { useMutation } from 'urql';
 import { showError } from '~/provider/SnackbarProvider';
+import { useGetAppleApprover } from '~/util/useGetAppleApprover';
 import { useGetGoogleApprover } from '~/util/useGetGoogleApprover';
 
 const User = gql(/* GraphQL */ `
@@ -68,6 +69,7 @@ export function useReject({ approver, ...params }: UseRejectParams) {
   const p = useFragment(Proposal, params.proposal);
   const reject = useMutation(Reject)[1];
   const device = useApproverAddress();
+  const getAppleApprover = useGetAppleApprover();
   const getGoogleApprover = useGetGoogleApprover();
 
   const userApprover = user.approvers.find((a) => a.address === approver);
@@ -83,7 +85,17 @@ export function useReject({ approver, ...params }: UseRejectParams) {
   } else if (userApprover.cloud) {
     return match(userApprover.cloud)
       .with({ provider: 'Apple' }, ({ subject }) => {
-        // TODO: apple
+        if (!getAppleApprover) return undefined;
+
+        return async () => {
+          const r = await getAppleApprover({ subject });
+          if (r.isErr())
+            return showError('Failed to approve with Apple account', {
+              event: { error: r.error, subject },
+            });
+
+          await reject({ proposal: p.hash }, await authContext(r.value.approver));
+        };
       })
       .with({ provider: 'Google' }, ({ subject }) => {
         if (!getGoogleApprover) return undefined;
@@ -91,7 +103,7 @@ export function useReject({ approver, ...params }: UseRejectParams) {
         return async () => {
           const r = await getGoogleApprover({ subject });
           if (r.isErr())
-            return showError('Failed to approve with Google', {
+            return showError('Failed to approve with Google account', {
               event: { error: r.error, subject },
             });
 

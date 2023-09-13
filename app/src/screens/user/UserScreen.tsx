@@ -6,18 +6,17 @@ import { Actions } from '~/components/layout/Actions';
 import { Screen } from '~/components/layout/Screen';
 import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
 import { FormResetIcon } from '~/components/fields/ResetFormIcon';
-import { Button, Text } from 'react-native-paper';
+import { Text } from 'react-native-paper';
 import { ListHeader } from '~/components/list/ListHeader';
 import { UserApproverItem } from './UserApproverItem';
 import { gql } from '@api/generated';
 import { useQuery } from '~/gql';
 import { useMutation } from 'urql';
-import { BluetoothIcon, QrCodeIcon } from '@theme/icons';
-import { AppleButton } from '~/components/buttons/AppleButton';
 import { LinkGoogleButton } from '~/components/buttons/LinkGoogleButton';
 import { LinkLedgerButton } from '~/components/buttons/LinkLedgerButton';
 import { LinkingCodeButton } from '~/components/buttons/LinkingCodeButton';
 import { showSuccess } from '~/provider/SnackbarProvider';
+import { LinkAppleButton } from '~/components/buttons/LinkAppleButton';
 
 const Query = gql(/* GraphQL */ `
   query UserScreen {
@@ -93,7 +92,7 @@ export const UserScreen = ({ navigation: { navigate } }: UserScreenProps) => {
           </Text>
 
           <View style={styles.methodsContainer}>
-            <AppleButton />
+            <LinkAppleButton />
 
             <LinkGoogleButton signOut onLink={() => showSuccess('Linked Google account')} />
 

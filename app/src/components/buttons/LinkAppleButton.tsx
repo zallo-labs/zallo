@@ -1,10 +1,14 @@
 import { gql } from '@api';
-import { AppleButton } from './AppleButton';
 import { useMutation } from 'urql';
 import { useQuery } from '~/gql';
 import { authContext } from '@api/client';
 import { isPresent } from 'lib';
 import { clog } from '~/util/format';
+import { makeStyles } from '@theme/makeStyles';
+import AppleIconSvg from '../../../assets/apple.svg';
+import { Fab } from './Fab';
+import { useGetAppleApprover } from '~/util/useGetAppleApprover';
+import { showError } from '~/provider/SnackbarProvider';
 
 const Query = gql(/* GraphQL */ `
   query LinkAppleButton {
@@ -41,14 +45,34 @@ export interface LinkAppleButtonProps {
 }
 
 export function LinkAppleButton({ onLink }: LinkAppleButtonProps) {
+  const styles = useStyles();
+  const getApprover = useGetAppleApprover();
   const updateUser = useMutation(UpdateUser)[1];
   const pair = useMutation(Pair)[1];
 
   const { user } = useQuery(Query).data;
 
+  if (!getApprover) return null;
+
   return (
-    <AppleButton
-      onSignIn={async ({ approver, credentials: { fullName, ...creds } }) => {
+    <Fab
+      position="relative"
+      icon={({ size }) => (
+        <AppleIconSvg fill={styles.icon.color} style={{ aspectRatio: 1, width: size }} />
+      )}
+      color={styles.icon.color}
+      style={styles.container}
+      onPress={async () => {
+        const r = await getApprover({});
+        if (r.isErr()) return showError('Failed to link Apple account');
+
+        const {
+          approver,
+          credentials: { fullName },
+        } = r.value;
+
+        clog(r.value);
+
         await pair({ token: user.pairingToken }, await authContext(approver));
 
         const name = [fullName?.givenName, fullName?.familyName].filter(isPresent).join(' ');
@@ -60,3 +84,12 @@ export function LinkAppleButton({ onLink }: LinkAppleButtonProps) {
     />
   );
 }
+
+const useStyles = makeStyles(({ dark }) => ({
+  container: {
+    backgroundColor: dark ? 'white' : 'black',
+  },
+  icon: {
+    color: dark ? 'black' : 'white',
+  },
+}));

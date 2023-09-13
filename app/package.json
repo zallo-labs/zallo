@@ -102,6 +102,7 @@
     "immer": "^9.0.21",
     "jotai": "^2.3.1",
     "jotai-immer": "^0.2.0",
+    "jwt-decode": "^3.1.2",
     "lib": "workspace:*",
     "luxon": "^3.4.0",
     "neverthrow": "^6.0.0",
