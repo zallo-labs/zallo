@@ -14,23 +14,23 @@ import { useBleDevices } from '~/components/ledger/useBleDevices';
 import { LedgerItem } from './LedgerItem';
 
 const Query = gql(/* GraphQL */ `
-  query PairLedgerScreen {
+  query LinkLedgerScreen {
     user {
       ...LedgerItem_user
     }
   }
 `);
 
-export type PairLedgerScreenProps = StackNavigatorScreenProps<'PairLedger'>;
+export type LinkLedgerScreenProps = StackNavigatorScreenProps<'LinkLedger'>;
 
-export function PairLedgerScreen(_props: PairLedgerScreenProps) {
+export function LinkLedgerScreen(_props: LinkLedgerScreenProps) {
   const devices = useBleDevices();
 
   const { user } = useQuery(Query).data;
 
   return (
     <Screen>
-      <Appbar mode="small" headline="Pair" />
+      <Appbar mode="small" headline="Link Ledger" />
 
       <View style={styles.headerContainer}>
         <LedgerLogo width={undefined} height={64} />

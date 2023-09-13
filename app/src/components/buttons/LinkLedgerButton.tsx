@@ -2,7 +2,7 @@ import { useNavigation } from '@react-navigation/native';
 import { LedgerIcon } from '@theme/icons';
 import { StyleSheet } from 'react-native';
 import { Fab } from './Fab';
-import { LINKINGS_FROM_DEVICE } from '~/screens/pair-confirm/PairConfirmSheet';
+import { LINKINGS_FROM_DEVICE } from '~/screens/confirm-link/ConfirmLinkSheet';
 import { useEffect } from 'react';
 
 export interface LinkLedgerButtonProps {
@@ -24,7 +24,7 @@ export function LinkLedgerButton({ onLink }: LinkLedgerButtonProps) {
       position="relative"
       icon={(props) => <LedgerIcon {...props} color={styles.icon.color} />}
       style={styles.container}
-      onPress={() => navigate('PairLedger')}
+      onPress={() => navigate('LinkLedger')}
     />
   );
 }

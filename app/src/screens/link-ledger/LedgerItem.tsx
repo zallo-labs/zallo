@@ -19,11 +19,11 @@ const User = gql(/* GraphQL */ `
   }
 `);
 
-const PairingQuery = gql(/* GraphQL */ `
-  query LedgerItem_pair {
+const Query = gql(/* GraphQL */ `
+  query LedgerItem {
     user {
       id
-      pairingToken
+      linkingToken
     }
 
     approver {
@@ -75,10 +75,10 @@ export function LedgerItem({ device: d, ...props }: LedgerItemProps) {
 
     goBack(); // Return to this screen once the signature has been complete
 
-    const { data } = await api.query(PairingQuery, {}, context);
+    const { data } = await api.query(Query, {}, context);
 
-    const pairingToken = data?.user.pairingToken;
-    if (!pairingToken) return; // TODO: handle
+    const linkingToken = data?.user.linkingToken;
+    if (!linkingToken) return; // TODO: handle
 
     const mac = isMacAddress(d.id) ? d.id : null;
 
@@ -104,10 +104,10 @@ export function LedgerItem({ device: d, ...props }: LedgerItemProps) {
       });
     }
 
-    // Check if already paired
-    if (data.user.id === user.id) return showSuccess('Pairing successful');
+    // Check if already link
+    if (data.user.id === user.id) return showSuccess('Linked');
 
-    navigate('PairConfirmSheet', { token: pairingToken });
+    navigate('ConfirmLinkSheet', { token: linkingToken });
   }, [api, d.id, d.name, goBack, navigate, productName, setApproverBleIds, update, user.id]);
 
   return (

@@ -11,7 +11,7 @@ export class UpdateUserInput {
 }
 
 @InputType()
-export class PairInput {
+export class LinkInput {
   @Field(() => String)
   token: string;
 }

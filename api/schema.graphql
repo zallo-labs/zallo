@@ -226,6 +226,10 @@ input LabelProposalRiskInput {
   risk: Risk!
 }
 
+input LinkInput {
+  token: String!
+}
+
 """
 A field whose value is a IEEE 802 48-bit MAC address: https://en.wikipedia.org/wiki/MAC_address.
 """
@@ -259,9 +263,7 @@ type Mutation {
   deleteContact(input: ContactInput!): ID
   execute(input: ExecuteInput!): Transaction
   labelProposalRisk(input: LabelProposalRiskInput!): Proposal!
-
-  """Pair with another user - merging your approvers"""
-  pair(input: PairInput!): User!
+  link(input: LinkInput!): User!
   proposeMessage(input: ProposeMessageInput!): MessageProposal!
   proposeTransaction(input: ProposeTransactionInput!): TransactionProposal!
   rejectProposal(input: ProposalInput!): Proposal!
@@ -297,10 +299,6 @@ input OperationInput {
   data: Bytes
   to: Address!
   value: Uint256
-}
-
-input PairInput {
-  token: String!
 }
 
 input PermissionsInput {
@@ -908,8 +906,8 @@ type User {
   approvers: [UserApprover!]!
   contacts: [Contact!]!
   id: ID!
+  linkingToken: String!
   name: String
-  pairingToken: String!
   photoUri: String
 }
 

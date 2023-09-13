@@ -10,26 +10,26 @@ import { withSuspense } from '~/components/skeleton/withSuspense';
 import { Blur } from '~/components/Blur';
 import { Button } from '~/components/Button';
 import { gql } from '@api/generated';
-import { getPairingLink } from './pairing';
+import { getLinkingUri } from './util';
 import { useQuery } from '~/gql';
 import { useSubscription } from 'urql';
 import { useEffect } from 'react';
 import { Subject } from 'rxjs';
-import { PairUserModal_SubscriptionSubscription } from '@api/generated/graphql';
+import { LinkingTokenModal_SubscriptionSubscription } from '@api/generated/graphql';
 
-export const LINKINGS_FROM_TOKEN = new Subject<PairUserModal_SubscriptionSubscription>();
+export const LINKINGS_FROM_TOKEN = new Subject<LinkingTokenModal_SubscriptionSubscription>();
 
 const Query = gql(/* GraphQL */ `
-  query PairUserModal {
+  query LinkingTokenModal {
     user {
       id
-      pairingToken
+      linkingToken
     }
   }
 `);
 
 const Subscription = gql(/* GraphQL */ `
-  subscription PairUserModal_Subscription {
+  subscription LinkingTokenModal_Subscription {
     user {
       id
       name
@@ -37,16 +37,16 @@ const Subscription = gql(/* GraphQL */ `
   }
 `);
 
-export interface PairUserModalParams {}
+export interface LinkingTokenModalParams {}
 
-export type PairUserModalProps = StackNavigatorScreenProps<'PairUserModal'>;
+export type LinkingTokenModalProps = StackNavigatorScreenProps<'LinkingTokenModal'>;
 
-export const PairUserModal = withSuspense(
-  ({ navigation: { navigate, goBack } }: PairUserModalProps) => {
+export const LinkingTokenModal = withSuspense(
+  ({ navigation: { navigate, goBack } }: LinkingTokenModalProps) => {
     const styles = uesStyles();
 
     const { user } = useQuery(Query).data;
-    const link = getPairingLink(user.pairingToken);
+    const link = getLinkingUri(user.linkingToken);
 
     const [subscription] = useSubscription({ query: Subscription });
     useEffect(() => {
@@ -112,7 +112,6 @@ const uesStyles = makeStyles(({ colors, window }) => ({
     marginHorizontal: 16,
   },
   text: {
-    // textAlign: 'center',
     color: colors.onScrim,
     marginHorizontal: 16,
   },

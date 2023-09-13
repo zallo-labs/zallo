@@ -9,14 +9,15 @@ import { gql } from '@api/generated';
 import { showSuccess } from '~/provider/SnackbarProvider';
 import { useMutation } from 'urql';
 import { Subject } from 'rxjs';
-import { PairConfirmSheet_PairMutation } from '@api/generated/graphql';
+import { ConfirmLinkSheet_LinkMutation } from '@api/generated/graphql';
 
-export const LINKINGS_FROM_DEVICE = new Subject<PairConfirmSheet_PairMutation>();
+export const LINKINGS_FROM_DEVICE = new Subject<ConfirmLinkSheet_LinkMutation>();
 
-const Pair = gql(/* GraphQL */ `
-  mutation PairConfirmSheet_Pair($token: String!) {
-    pair(input: { token: $token }) {
+const Link = gql(/* GraphQL */ `
+  mutation ConfirmLinkSheet_Link($token: String!) {
+    link(input: { token: $token }) {
       id
+      name
       approvers {
         id
       }
@@ -24,32 +25,32 @@ const Pair = gql(/* GraphQL */ `
   }
 `);
 
-export const PairIcon = materialCommunityIcon('link-variant');
+export const LinkIcon = materialCommunityIcon('link-variant');
 
-export interface PairConfirmSheetScreenParams {
+export interface ConfirmLinkSheetParams {
   token: string;
 }
 
-export type PairConfirmSheetProps = StackNavigatorScreenProps<'PairConfirmSheet'>;
+export type ConfirmLinkSheetProps = StackNavigatorScreenProps<'ConfirmLinkSheet'>;
 
-export const PairConfirmSheet = ({ route, navigation: { goBack } }: PairConfirmSheetProps) => {
+export const ConfirmLinkSheet = ({ route, navigation: { goBack } }: ConfirmLinkSheetProps) => {
   const { token } = route.params;
   const styles = useStyles();
 
-  const pair = useMutation(Pair)[1];
+  const link = useMutation(Link)[1];
 
   return (
     <Sheet onClose={goBack} handle={false}>
       <View style={styles.infoContainer}>
-        <PairIcon style={styles.icon} />
+        <LinkIcon style={styles.icon} />
 
         <Text variant="titleLarge" style={styles.text}>
-          Are you sure you want to pair?
+          Are you sure you want to link these users?
         </Text>
 
         <View>
           <Text variant="titleMedium" style={styles.text}>
-            Only pair with your own device
+            Only link with your own device
           </Text>
 
           <Text variant="bodyLarge" style={styles.text}>
@@ -60,16 +61,16 @@ export const PairConfirmSheet = ({ route, navigation: { goBack } }: PairConfirmS
 
         <Button
           mode="contained"
-          icon={PairIcon}
+          icon={LinkIcon}
           style={styles.button}
           onPress={async () => {
-            const r = await pair({ token });
+            const r = await link({ token });
             if (r.data) LINKINGS_FROM_DEVICE.next(r.data);
-            showSuccess('Pairing successful');
+            showSuccess('Linked');
             goBack();
           }}
         >
-          Pair
+          Link
         </Button>
       </View>
     </Sheet>

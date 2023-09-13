@@ -54,7 +54,7 @@ export class UsersService {
     ]);
   }
 
-  async getPairingToken(user: uuid) {
+  async getLinkingToken(user: uuid) {
     const key = this.getLinkingSecretKey(user);
     let secret = await this.redis.get(key);
     if (!secret) {
@@ -71,7 +71,7 @@ export class UsersService {
 
     const expectedSecret = await this.redis.get(this.getLinkingSecretKey(oldUser));
     if (secret !== expectedSecret)
-      throw new UserInputError(`Invalid pairing token; token may have expired (1h)`);
+      throw new UserInputError(`Invalid linking token; token may have expired (1h)`);
 
     const newUser = await this.db.query(
       e.assert_exists(e.select(e.global.current_user, () => ({ id: true }))).id,

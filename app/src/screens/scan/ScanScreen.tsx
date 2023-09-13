@@ -18,7 +18,7 @@ import { EventEmitter } from '~/util/EventEmitter';
 import useAsyncEffect from 'use-async-effect';
 import { showError } from '~/provider/SnackbarProvider';
 import { useFocusEffect } from '@react-navigation/native';
-import { getPairingTokenFromLink } from '../pair-user/pairing';
+import { getLinkingTokenFromLink } from '../linking-token/util';
 
 export const SCAN_ADDRESS_EMITTER = new EventEmitter<Address>();
 export const useScanAddress = SCAN_ADDRESS_EMITTER.createUseSelect('Scan');
@@ -54,8 +54,8 @@ export const ScanScreen = withSuspense(
         } catch {
           showError('Failed to connect. Please refresh the DApp and try again');
         }
-      } else if (getPairingTokenFromLink(data)) {
-        navigate('PairConfirmSheet', { token: getPairingTokenFromLink(data)! });
+      } else if (getLinkingTokenFromLink(data)) {
+        navigate('ConfirmLinkSheet', { token: getLinkingTokenFromLink(data)! });
         return true;
       }
 

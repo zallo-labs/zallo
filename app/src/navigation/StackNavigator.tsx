@@ -47,15 +47,15 @@ import {
 } from '~/screens/contract-permissions/ContractPermissionsScreen';
 import { ApproverScreen, ApproverScreenParams } from '~/screens/approver/ApproverScreen';
 import { BiometricsScreen, BiometricsScreenParams } from '~/screens/biometrics/BiometricsScreen';
-import { PairUserModal, PairUserModalParams } from '~/screens/pair-user/PairUserModal';
 import {
-  PairConfirmSheet,
-  PairConfirmSheetScreenParams,
-} from '~/screens/pair-confirm/PairConfirmSheet';
+  LinkingTokenModal,
+  LinkingTokenModalParams,
+} from '~/screens/linking-token/LinkingTokenModal';
+import { ConfirmLinkSheet, ConfirmLinkSheetParams } from '~/screens/confirm-link/ConfirmLinkSheet';
 import { CreateUserScreen } from '~/screens/create-user/CreateUserScreen';
 import { AddressesModal, AddressesModalParams } from '~/screens/addresses/AddressesModal';
 import { TokenScreen, TokenScreenParams } from '~/screens/token/TokenScreen';
-import { PairLedgerScreen } from '~/screens/pair-ledger/PairLedgerScreen';
+import { LinkLedgerScreen } from '~/screens/link-ledger/LinkLedgerScreen';
 import { LedgerSignSheet, LedgerSignSheetParams } from '~/screens/ledger-sign/LedgerSignSheet';
 import {
   MessageProposalScreen,
@@ -86,7 +86,7 @@ export type StackNavigatorParamList = {
   Tokens: TokensScreenParams;
   Token: TokenScreenParams;
   NotificationSettings: NotificationSettingsParams;
-  PairLedger: undefined;
+  LinkLedger: undefined;
   // Onboarding
   Onboard: undefined;
   CreateUser: undefined;
@@ -94,8 +94,8 @@ export type StackNavigatorParamList = {
   AccountsSheet: AccountsSheetParams;
   AddressSheet: AddressSheetScreenParams;
   QrModal: QrModalParams;
-  PairUserModal: PairUserModalParams;
-  PairConfirmSheet: PairConfirmSheetScreenParams;
+  LinkingTokenModal: LinkingTokenModalParams;
+  ConfirmLinkSheet: ConfirmLinkSheetParams;
   Alert: AlertModalParams;
   ConnectSheet: ConnectSheetParams;
   PairingSheet: PairingSheetParams;
@@ -152,14 +152,14 @@ export const StackNavigator = () => {
       <Navigation.Screen name="Tokens" component={TokensScreen} />
       <Navigation.Screen name="Token" component={TokenScreen} />
       <Navigation.Screen name="NotificationSettings" component={NotificationSettingsScreen} />
-      <Navigation.Screen name="PairLedger" component={PairLedgerScreen} />
+      <Navigation.Screen name="LinkLedger" component={LinkLedgerScreen} />
 
       <Navigation.Group screenOptions={{ presentation: 'transparentModal' }}>
         <Navigation.Screen name="AccountsSheet" component={AccountsSheet} />
         <Navigation.Screen name="AddressSheet" component={AddressSheet} />
         <Navigation.Screen name="QrModal" component={QrModal} />
-        <Navigation.Screen name="PairUserModal" component={PairUserModal} />
-        <Navigation.Screen name="PairConfirmSheet" component={PairConfirmSheet} />
+        <Navigation.Screen name="LinkingTokenModal" component={LinkingTokenModal} />
+        <Navigation.Screen name="ConfirmLinkSheet" component={ConfirmLinkSheet} />
         <Navigation.Screen name="Alert" component={AlertModal} />
         <Navigation.Screen name="ConnectSheet" component={ConnectSheet} />
         <Navigation.Screen name="PairingSheet" component={PairingSheet} />

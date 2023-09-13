@@ -4,7 +4,7 @@ import { StyleSheet } from 'react-native';
 import { Fab } from './Fab';
 import { useEffect } from 'react';
 import { showSuccess } from '~/provider/SnackbarProvider';
-import { LINKINGS_FROM_TOKEN } from '~/screens/pair-user/PairUserModal';
+import { LINKINGS_FROM_TOKEN } from '~/screens/linking-token/LinkingTokenModal';
 
 export interface LinkingCodeButtonProps {
   onLink?: () => void;
@@ -26,7 +26,7 @@ export function LinkingCodeButton({ onLink }: LinkingCodeButtonProps) {
     <Fab
       position="relative"
       icon={(props) => <QrCodeIcon {...props} color={styles.icon.color} />}
-      onPress={() => navigate('PairUserModal', {})}
+      onPress={() => navigate('LinkingTokenModal', {})}
       style={styles.container}
     />
   );
