@@ -1,11 +1,11 @@
 import { useGetCloudApprover } from './useGetCloudApprover';
 import * as Auth from 'expo-apple-authentication';
-import { atom, useAtom } from 'jotai';
+import { atom, useAtomValue } from 'jotai';
 import { Result, ResultAsync, err, okAsync } from 'neverthrow';
 import { CodedError } from 'expo-modules-core';
 import { showError } from '~/provider/SnackbarProvider';
 
-const isAvailable = atom(Auth.isAvailableAsync);
+const isAvailableAtom = atom(Auth.isAvailableAsync);
 
 export interface GetAppleApproverParams {
   subject?: string;
@@ -14,7 +14,7 @@ export interface GetAppleApproverParams {
 export function useGetAppleApprover() {
   const getCloudApprover = useGetCloudApprover();
 
-  if (!useAtom(isAvailable)) return undefined;
+  if (!useAtomValue(isAvailableAtom)) return undefined;
 
   const signIn = async ({ subject }: GetAppleApproverParams) =>
     ResultAsync.fromPromise(
