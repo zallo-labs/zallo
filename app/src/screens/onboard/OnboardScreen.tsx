@@ -10,7 +10,6 @@ import { LinkingCodeButton } from '~/components/buttons/LinkingCodeButton';
 import { LinkLedgerButton } from '~/components/buttons/LinkLedgerButton';
 import { gql } from '@api';
 import { useUrqlApiClient } from '@api/client';
-import { clog } from '~/util/format';
 import { withSuspense } from '~/components/skeleton/withSuspense';
 import { LinkAppleButton } from '~/components/buttons/LinkAppleButton';
 
@@ -31,8 +30,6 @@ export const OnboardScreen = withSuspense(
 
     const next = async () => {
       const user = (await api.query(Query, {}, { requestPolicy: 'network-only' })).data?.user;
-
-      clog({ nextUser: user });
 
       if (!user?.name) {
         navigate('CreateUser');

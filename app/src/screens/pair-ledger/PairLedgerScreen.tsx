@@ -68,11 +68,6 @@ export function PairLedgerScreen(_props: PairLedgerScreenProps) {
               </Actions>
             </>
           ))
-          // .with({ type: 'bluetooth-disabled' }, () => (
-          //   <Text variant="titleMedium" style={styles.errorText}>
-          //     Enable bluetooth to scan and connect
-          //   </Text>
-          // ))
           .exhaustive()
       )}
     </Screen>

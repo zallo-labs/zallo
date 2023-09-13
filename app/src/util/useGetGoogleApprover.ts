@@ -10,7 +10,6 @@ import { Result, ResultAsync, err, okAsync } from 'neverthrow';
 import { Approver } from 'lib';
 import { useGetCloudApprover } from '~/util/useGetCloudApprover';
 import { showError } from '~/provider/SnackbarProvider';
-import { clog } from './format';
 import decodeJwt from 'jwt-decode';
 import { DateTime } from 'luxon';
 
@@ -86,7 +85,6 @@ export function useGetGoogleApprover() {
         ),
       )
       .andThen((details) => {
-        clog({ details, subject });
         if (!subject || details.user.id === subject) return okAsync(details);
 
         return new ResultAsync(
@@ -108,14 +106,15 @@ export function useGetGoogleApprover() {
   };
 
   return async ({ subject, signOut }: GetGoogleApproverParams) =>
-    new ResultAsync(signIn({ subject, signOut })).map(async (details) => {
-      const { idToken, accessToken } = await GoogleSignin.getTokens();
-      const approver = await getCloudApprover({
-        idToken,
-        accessToken,
-        create: { name: 'Google account' },
-      });
-
-      return { idToken, user: details.user, approver };
-    });
+    new ResultAsync(signIn({ subject, signOut })).andThen((details) =>
+      ResultAsync.fromSafePromise(GoogleSignin.getTokens()).andThen(({ idToken, accessToken }) =>
+        new ResultAsync(
+          getCloudApprover({ idToken, accessToken, create: { name: 'Google account' } }),
+        ).map((approver) => ({
+          idToken,
+          user: details.user,
+          approver,
+        })),
+      ),
+    );
 }

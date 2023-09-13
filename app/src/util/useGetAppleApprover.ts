@@ -43,15 +43,17 @@ export function useGetAppleApprover() {
     );
 
   return async ({ subject }: GetAppleApproverParams) => {
-    return new ResultAsync(signIn({ subject })).map(async (credentials) => {
-      return {
-        credentials,
-        approver: await getCloudApprover({
+    return new ResultAsync(signIn({ subject })).andThen((credentials) =>
+      new ResultAsync(
+        getCloudApprover({
           idToken: credentials.identityToken!,
           accessToken: null,
           create: { name: 'Apple account' },
         }),
-      };
-    });
+      ).map((approver) => ({
+        credentials,
+        approver,
+      })),
+    );
   };
 }

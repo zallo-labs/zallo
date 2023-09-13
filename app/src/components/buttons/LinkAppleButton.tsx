@@ -3,7 +3,6 @@ import { useMutation } from 'urql';
 import { useQuery } from '~/gql';
 import { authContext } from '@api/client';
 import { isPresent } from 'lib';
-import { clog } from '~/util/format';
 import { makeStyles } from '@theme/makeStyles';
 import AppleIconSvg from '../../../assets/apple.svg';
 import { Fab } from './Fab';
@@ -70,8 +69,6 @@ export function LinkAppleButton({ onLink }: LinkAppleButtonProps) {
           approver,
           credentials: { fullName },
         } = r.value;
-
-        clog(r.value);
 
         await pair({ token: user.pairingToken }, await authContext(approver));
 

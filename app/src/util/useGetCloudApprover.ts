@@ -6,6 +6,8 @@ import { gql } from '@api';
 import { authContext, useUrqlApiClient } from '@api/client';
 import { useMutation } from 'urql';
 import { showError } from '~/provider/SnackbarProvider';
+import { Result, err, ok } from 'neverthrow';
+import { logError } from './analytics';
 
 const CLOUD_SHARE_PATH = 'approver-share';
 const SCOPE = CloudStorageScope.AppData;
@@ -62,7 +64,10 @@ export function useGetCloudApprover() {
         );
         const recoveredPrivateKey = Buffer.from(await combine(shares)).toString('utf-8');
 
-        return new Approver(recoveredPrivateKey);
+        return Result.fromThrowable(
+          () => new Approver(recoveredPrivateKey),
+          () => 'invalid-private-key' as const,
+        )();
       } else if (!cloudShare && !apiShare) {
         // Create approver and shares
         const approver = Approver.createRandom();
@@ -89,15 +94,14 @@ export function useGetCloudApprover() {
           ),
         ]);
 
-        return approver;
+        return ok(approver);
       } else {
-        showError("Something went wrong. We're investingating the issue", {
-          event: {
-            idToken,
-            hasCloudShare: Boolean(cloudShare),
-            hasApiShare: Boolean(apiShare),
-          },
+        logError('Cloud approver share mismatch', {
+          idToken,
+          hasCloudShare: Boolean(cloudShare),
+          hasApiShare: Boolean(apiShare),
         });
+        return err('share-mismatch' as const);
       }
     },
     [api, updateApprover],
