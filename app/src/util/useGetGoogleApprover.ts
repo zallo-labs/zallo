@@ -1,17 +1,18 @@
 import {
   GoogleSignin,
   ConfigureParams as GoogleConfigureParams,
-  NativeModuleError,
   statusCodes as ErrorCode,
   User as UserDetails,
 } from '@react-native-google-signin/google-signin';
 import { atom, useAtom } from 'jotai';
 import { CONFIG } from '~/util/config';
-import { Result, ResultAsync, err, errAsync, ok, okAsync } from 'neverthrow';
+import { Result, ResultAsync, err, okAsync } from 'neverthrow';
 import { Approver } from 'lib';
 import { useGetCloudApprover } from '~/util/useGetCloudApprover';
 import { showError } from '~/provider/SnackbarProvider';
 import { clog } from './format';
+import decodeJwt from 'jwt-decode';
+import { DateTime } from 'luxon';
 
 const PARAMS = {
   scopes: [
@@ -46,7 +47,7 @@ export function useGetGoogleApprover() {
 
   if (!useHasPlayServices()) return null;
 
-  const login = async ({
+  const signIn = async ({
     subject,
     signOut,
   }: GetGoogleApproverParams): Promise<Result<UserDetails, GoogleSignInError>> => {
@@ -56,15 +57,28 @@ export function useGetGoogleApprover() {
 
     return ResultAsync.fromPromise(
       (async () => {
-        return (await GoogleSignin.getCurrentUser()) ?? (await GoogleSignin.signInSilently());
+        const details =
+          (await GoogleSignin.getCurrentUser()) ?? (await GoogleSignin.signInSilently());
+
+        if (subject && details.user.id !== subject) throw new Error('Wrong account');
+
+        if (!details.idToken) throw new Error('idToken missing');
+
+        const decoded = decodeJwt(details.idToken);
+        if (
+          typeof decoded === 'object' &&
+          decoded !== null &&
+          'exp' in decoded &&
+          typeof decoded.exp === 'number' &&
+          DateTime.fromSeconds(decoded.exp) <= DateTime.now()
+        ) {
+          throw new Error('Expired');
+        }
+
+        return details;
       })(),
       () => undefined,
     )
-      .andThen((details) =>
-        !subject || details.user.id === subject
-          ? okAsync(details)
-          : errAsync('SUBJECT_NOT_AVAILABLE' as const),
-      )
       .orElse(() =>
         ResultAsync.fromPromise(
           GoogleSignin.signIn(),
@@ -84,7 +98,7 @@ export function useGetGoogleApprover() {
                 label: 'Retry',
                 onPress: () => {
                   clearTimeout(timeout);
-                  login({ subject, signOut }).then((v) => resolve(v));
+                  signIn({ subject, signOut }).then((v) => resolve(v));
                 },
               },
             });
@@ -93,13 +107,15 @@ export function useGetGoogleApprover() {
       });
   };
 
-  const get = async ({ subject, signOut }: GetGoogleApproverParams) =>
-    new ResultAsync(login({ subject, signOut })).map(async (details) => {
+  return async ({ subject, signOut }: GetGoogleApproverParams) =>
+    new ResultAsync(signIn({ subject, signOut })).map(async (details) => {
       const { idToken, accessToken } = await GoogleSignin.getTokens();
-      const approver = await getCloudApprover({ idToken, accessToken });
+      const approver = await getCloudApprover({
+        idToken,
+        accessToken,
+        create: { name: 'Google account' },
+      });
 
       return { idToken, user: details.user, approver };
     });
-
-  return get;
 }
