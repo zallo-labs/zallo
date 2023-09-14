@@ -19,6 +19,7 @@ import { gql } from '@api/generated';
 import { useMutation } from 'urql';
 import { useQuery } from '~/gql';
 import { NotFound } from '~/components/NotFound';
+import { Suspend } from '~/components/Suspender';
 
 const Query = gql(/* GraphQL */ `
   query ApproverDetails($approver: Address) {
@@ -70,14 +71,15 @@ export const ApproverScreen = withSuspense(
   ({ route, navigation: { navigate } }: ApproverScreenProps) => {
     const { isOnboarding } = route.params;
 
-    const { approver, user } = useQuery(Query, { approver: route.params.approver }).data;
+    const query = useQuery(Query, { approver: route.params.approver });
+    const { approver, user } = query.data;
     const update = useMutation(Update)[1];
 
     const { control, handleSubmit } = useForm<Inputs>({
       defaultValues: { name: approver?.name ?? modelName },
     });
 
-    if (!approver) return <NotFound name="Approver" />;
+    if (!approver) return query.stale ? <Suspend /> : <NotFound name="Approver" />;
 
     const takenNames = user.approvers.filter((a) => a.id !== approver.id).map((a) => a.name);
 

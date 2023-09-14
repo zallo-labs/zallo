@@ -51,7 +51,7 @@ describe('TokensService', () => {
   };
 
   describe('upsert', () => {
-    it.only('insert a new token', async () =>
+    it('insert a new token', async () =>
       asUser(user1, async () => {
         const { id } = await upsert();
 

@@ -26,7 +26,7 @@ export const CACHE_CONFIG: Pick<
         invalidate(cache, { __typename: 'Contact', id: result });
         invalidate(cache, 'Query', ['contacts']);
       },
-      pair: (_result, _args, cache) => {
+      link: (_result, _args, cache) => {
         invalidate(cache, 'Query', ['user', 'accounts']);
       },
       createPolicy: (_result, { input }: MutationCreatePolicyArgs, cache) => {

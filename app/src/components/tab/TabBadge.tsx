@@ -22,7 +22,9 @@ export const TabBadge = memo(({ style, ...props }: TabBadgeProps) => {
     : '';
 
   const flattened: ViewStyle | undefined = StyleSheet.flatten(style);
-  const translateX = flattened?.transform?.find((t): t is TranslateXTransform => 'translateX' in t);
+  const translateX =
+    typeof flattened?.transform === 'object' &&
+    flattened.transform?.find((t): t is TranslateXTransform => 'translateX' in t);
 
   const width = flattened?.width || isLarge(props) ? 12 + 4 * value.length : 6;
 

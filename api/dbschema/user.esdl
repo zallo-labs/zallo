@@ -1,6 +1,7 @@
 module default {
   type User {
     name: Label;
+    photoUri: str;
     multi link approvers := .<user[is Approver];
     multi link contacts := .<user[is Contact];
     multi link accounts := (select distinct .approvers.accounts);
@@ -21,6 +22,7 @@ module default {
     property label := .contact.label ?? (.user.name ++ ': ' ++ .name if exists(.user) and exists(.name) else <str>{});
     pushToken: str;
     bluetoothDevices: array<MAC>;
+    cloud: CloudShare { constraint exclusive; };
     link contact := (
       assert_single((
         with address := .address
@@ -35,7 +37,6 @@ module default {
     );
 
     constraint exclusive on ((.user, .address));
-    constraint exclusive on ((.user, .name));
 
     access policy anyone_select_insert
       allow select, insert;
@@ -45,10 +46,20 @@ module default {
       using (.user ?= global current_user);
   }
 
+  scalar type CloudProvider extending enum<'Apple', 'Google'>;
+
+  type CloudShare {
+    required provider: CloudProvider;
+    required subject: str;
+    required share: str;
+
+    constraint exclusive on ((.provider, .subject));
+    
+    # Needs to be accessable to anyone that can provide a valid JWT
+  }
+
   type Contact {
-    required user: User {
-      default := (<User>(global current_user).id);
-    }
+    required user: User { default := (<User>(global current_user).id); }
     required address: Address;
     required label: Label;
 

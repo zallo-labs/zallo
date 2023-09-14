@@ -36,7 +36,7 @@ export const BiometricsScreen = withSuspense(
     // Enable on 'open' (if supported) when this screen is first opened
     useEffect(() => {
       if (settings.open === null) updateSettings((s) => ({ ...s, open: hasSupport }));
-    }, [settings.open]);
+    }, [hasSupport, settings.open, updateSettings]);
 
     return (
       <Screen>

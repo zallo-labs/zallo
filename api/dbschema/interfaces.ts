@@ -83,6 +83,13 @@ export interface Approver extends std.$Object {
   "user": User;
   "contact"?: Contact | null;
   "label"?: string | null;
+  "cloud"?: CloudShare | null;
+}
+export type CloudProvider = "Apple" | "Google";
+export interface CloudShare extends std.$Object {
+  "provider": CloudProvider;
+  "subject": string;
+  "share": string;
 }
 export interface Contact extends std.$Object {
   "user": User;
@@ -123,9 +130,10 @@ export interface Proposal extends std.$Object {
   "label"?: string | null;
   "approvals": Approval[];
   "rejections": Rejection[];
-  "responses": ProposalResponse[];
   "riskLabel"?: ProposalRisk | null;
   "policy"?: Policy | null;
+  "potentialApprovers": Approver[];
+  "potentialRejectors": Approver[];
 }
 export interface MessageProposal extends Proposal {
   "message": string;
@@ -244,6 +252,7 @@ export interface User extends std.$Object {
   "approvers": Approver[];
   "accounts": Account[];
   "contacts": Contact[];
+  "photoUri"?: string | null;
 }
 export interface current_approver extends Approver {}
 export interface current_user extends User {}
@@ -491,6 +500,8 @@ export interface types {
     "ProposalResponse": ProposalResponse;
     "Approval": Approval;
     "Approver": Approver;
+    "CloudProvider": CloudProvider;
+    "CloudShare": CloudShare;
     "Contact": Contact;
     "Contract": Contract;
     "Target": Target;

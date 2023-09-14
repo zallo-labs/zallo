@@ -1,5 +1,5 @@
 import 'core-js/full/symbol/async-iterator';
-import { Client, fetchExchange, subscriptionExchange, mapExchange } from 'urql';
+import { Client, fetchExchange, subscriptionExchange, mapExchange, OperationContext } from 'urql';
 import { offlineExchange } from '@urql/exchange-graphcache';
 import { makeAsyncStorage } from '@urql/storage-rn';
 import { persistedExchange } from '@urql/exchange-persisted';
@@ -151,6 +151,11 @@ function getHeaders(token: Token | null): { Authorization?: string } {
   return { Authorization: token ? JSON.stringify(token) : undefined };
 }
 
-export async function getAuthHeaders(options: CreateTokenApprover) {
-  return getHeaders(await createToken(options));
+export async function authContext(
+  options: CreateTokenApprover,
+): Promise<Partial<OperationContext>> {
+  return {
+    fetchOptions: { headers: getHeaders(await createToken(options)) },
+    skipAddAuthToOperation: true,
+  };
 }

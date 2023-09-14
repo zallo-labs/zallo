@@ -18,7 +18,6 @@ import { useQuery } from '~/gql';
 import { NotFound } from '~/components/NotFound';
 import { useMutation } from 'urql';
 import { PolicyTemplateType } from '../add-policy/usePolicyTemplate';
-import { clog } from '~/util/format';
 
 const Query = gql(/* GraphQL */ `
   query PolicyScreen($account: Address!, $key: PolicyKey!, $queryPolicy: Boolean!) {
@@ -99,8 +98,6 @@ export const PolicyScreen = withSuspense((props: PolicyScreenProps) => {
 
   const view = params.view ?? policy?.state ? 'active' : 'draft';
   const init = useHydratePolicyDraft(account, policy, view, params.template ?? 'high');
-
-  clog({ params, account, policy });
 
   if (!account) return <NotFound name="Account" />;
   if (key !== undefined && !policy) return <NotFound name="Policy" />;

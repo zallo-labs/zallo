@@ -1,6 +1,5 @@
 import { gql } from '@api/generated';
 import { useApproverAddress } from '@network/useApprover';
-import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { StyleSheet, View } from 'react-native';
 import { useMutation } from 'urql';
@@ -11,18 +10,8 @@ import { Actions } from '~/components/layout/Actions';
 import { Screen } from '~/components/layout/Screen';
 import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
 import { withSuspense } from '~/components/skeleton/withSuspense';
-import { useQuery } from '~/gql';
 import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
 import { showError } from '~/provider/SnackbarProvider';
-
-const Query = gql(/* GraphQL */ `
-  query CreateAccountScreen {
-    accounts {
-      id
-      address
-    }
-  }
-`);
 
 const Create = gql(/* GraphQL */ `
   mutation CreateAccountScreen_Create($input: CreateAccountInput!) {
@@ -37,25 +26,16 @@ interface Inputs {
   name: string;
 }
 
-export interface CreateAccountScreenParams {
-  isOnboarding?: boolean;
-}
+export interface CreateAccountScreenParams {}
 
 export type CreateAccountScreenProps = StackNavigatorScreenProps<'CreateAccount'>;
 
 export const CreateAccountScreen = withSuspense(
-  ({ route, navigation: { replace } }: CreateAccountScreenProps) => {
-    const { isOnboarding } = route.params;
+  ({ navigation: { replace } }: CreateAccountScreenProps) => {
     const approver = useApproverAddress();
-
-    const { accounts } = useQuery(Query).data;
     const create = useMutation(Create)[1];
 
     const { control, handleSubmit } = useForm<Inputs>();
-
-    useEffect(() => {
-      if (isOnboarding && accounts.length) replace('Home', { account: accounts[0].address });
-    }, [accounts, isOnboarding, replace]);
 
     return (
       <Screen>

@@ -53,7 +53,7 @@ input ActivityInput {
 """Ethereum address"""
 scalar Address
 
-type Approval implements Node {
+type Approval implements Node & ProposalResponse {
   approver: Approver!
   createdAt: DateTime!
   id: ID!
@@ -92,6 +92,22 @@ scalar Bytes
 
 """32-byte hex string"""
 scalar Bytes32
+
+enum CloudProvider {
+  Apple
+  Google
+}
+
+type CloudShare implements Node {
+  id: ID!
+  provider: CloudProvider!
+  subject: String!
+}
+
+input CloudShareInput {
+  idToken: JWT!
+  share: String!
+}
 
 type Contact {
   address: Address!
@@ -196,6 +212,11 @@ The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://
 """
 scalar JSON @specifiedBy(url: "http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf")
 
+"""
+A field whose value is a JSON Web Token (JWT): https://jwt.io/introduction.
+"""
+scalar JWT
+
 input LabelInput {
   address: Address!
 }
@@ -203,6 +224,10 @@ input LabelInput {
 input LabelProposalRiskInput {
   hash: Bytes32!
   risk: Risk!
+}
+
+input LinkInput {
+  token: String!
 }
 
 """
@@ -220,9 +245,10 @@ type MessageProposal implements Node & Proposal {
   label: String
   message: String!
   policy: Policy
+  potentialApprovers: [Approver!]!
+  potentialRejectors: [Approver!]!
   proposedBy: Approver!
   rejections: [Rejection!]!
-  responses: [ProposalResponse!]!
   riskLabel: Risk
   signature: Bytes32
   typedData: TypedData
@@ -237,9 +263,7 @@ type Mutation {
   deleteContact(input: ContactInput!): ID
   execute(input: ExecuteInput!): Transaction
   labelProposalRisk(input: LabelProposalRiskInput!): Proposal!
-
-  """Pair with another user - merging your approvers"""
-  pair(input: PairInput!): User!
+  link(input: LinkInput!): User!
   proposeMessage(input: ProposeMessageInput!): MessageProposal!
   proposeTransaction(input: ProposeTransactionInput!): TransactionProposal!
   rejectProposal(input: ProposalInput!): Proposal!
@@ -275,10 +299,6 @@ input OperationInput {
   data: Bytes
   to: Address!
   value: Uint256
-}
-
-input PairInput {
-  token: String!
 }
 
 input PermissionsInput {
@@ -345,9 +365,10 @@ interface Proposal implements Node {
   id: ID!
   label: String
   policy: Policy
+  potentialApprovers: [Approver!]!
+  potentialRejectors: [Approver!]!
   proposedBy: Approver!
   rejections: [Rejection!]!
-  responses: [ProposalResponse!]!
   riskLabel: Risk
 }
 
@@ -366,7 +387,7 @@ input ProposalInput {
   hash: Bytes32!
 }
 
-type ProposalResponse implements Node {
+interface ProposalResponse implements Node {
   approver: Approver!
   createdAt: DateTime!
   id: ID!
@@ -418,6 +439,7 @@ type Query {
   accounts: [Account!]!
   activity(input: ActivityInput!): [Activity!]!
   approver(input: ApproverInput! = {}): UserApprover
+  cloudShare(input: UniqueCloudShareInput!): String
   contact(input: ContactInput!): Contact
   contacts(input: ContactsInput! = {}): [Contact!]!
   contract(input: ContractInput!): Contract
@@ -453,7 +475,7 @@ type Receipt {
   transferEvents: [Transfer!]!
 }
 
-type Rejection implements Node {
+type Rejection implements Node & ProposalResponse {
   approver: Approver!
   createdAt: DateTime!
   id: ID!
@@ -632,9 +654,10 @@ type TransactionProposal implements Node & Proposal {
   nonce: BigInt!
   operations: [Operation!]!
   policy: Policy
+  potentialApprovers: [Approver!]!
+  potentialRejectors: [Approver!]!
   proposedBy: Approver!
   rejections: [Rejection!]!
-  responses: [ProposalResponse!]!
   riskLabel: Risk
   simulation: Simulation!
   status: TransactionProposalStatus!
@@ -793,8 +816,17 @@ input TransfersInput {
 """EIP712 Typed Data"""
 scalar TypedData
 
+"""
+A field whose value conforms to the standard URL format as specified in RFC3986: https://www.ietf.org/rfc/rfc3986.txt.
+"""
+scalar URL
+
 """256-bit unsigned integer"""
 scalar Uint256
+
+input UniqueCloudShareInput {
+  idToken: JWT!
+}
 
 input UniquePolicyInput {
   account: Address!
@@ -810,6 +842,7 @@ input UpdateApproverInput {
   """Defaults to current approver"""
   address: Address
   bluetoothDevices: [MAC!]
+  cloud: CloudShareInput
   name: String
   pushToken: String
 }
@@ -850,6 +883,7 @@ input UpdateTransactionProposalInput {
 
 input UpdateUserInput {
   name: String
+  photoUri: URL
 }
 
 input UpsertContactInput {
@@ -872,13 +906,15 @@ type User {
   approvers: [UserApprover!]!
   contacts: [Contact!]!
   id: ID!
+  linkingToken: String!
   name: String
-  pairingToken: String!
+  photoUri: String
 }
 
 type UserApprover implements Node {
   address: Address!
   bluetoothDevices: [MAC!]
+  cloud: CloudShare
   id: ID!
   label: String
   name: String

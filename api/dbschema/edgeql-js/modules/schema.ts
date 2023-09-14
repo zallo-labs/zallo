@@ -704,6 +704,7 @@ export type $ObjectTypeλShape = $.typeutil.flatten<$SourceλShape & Omit<$Consi
   "<__type__[is ProposalRiskLabel]": $.LinkDesc<_default.$ProposalRiskLabel, $.Cardinality.Many, {}, false, false,  false, false>;
   "<__type__[is Function]": $.LinkDesc<_default.$Function, $.Cardinality.Many, {}, false, false,  false, false>;
   "<__type__[is Contract]": $.LinkDesc<_default.$Contract, $.Cardinality.Many, {}, false, false,  false, false>;
+  "<__type__[is CloudShare]": $.LinkDesc<_default.$CloudShare, $.Cardinality.Many, {}, false, false,  false, false>;
   "<__type__": $.LinkDesc<$.ObjectType, $.Cardinality.Many, {}, false, false,  false, false>;
   "<intersection_of": $.LinkDesc<$.ObjectType, $.Cardinality.Many, {}, false, false,  false, false>;
   "<subject": $.LinkDesc<$.ObjectType, $.Cardinality.Many, {}, false, false,  false, false>;

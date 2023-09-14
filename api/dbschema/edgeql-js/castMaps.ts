@@ -52,6 +52,7 @@ export type scalarAssignableBy<T extends $.ScalarType> =
   T extends _default.$ProposalRisk ? _default.$ProposalRisk : 
   T extends _default.$MAC ? _default.$MAC : 
   T extends _default.$Label ? _default.$Label : 
+  T extends _default.$CloudProvider ? _default.$CloudProvider : 
   T extends _default.$Bytes4 ? _default.$Bytes4 : 
   T extends _default.$Bytes32 ? _default.$Bytes32 : 
   T extends _default.$Bytes ? _default.$Bytes : 
@@ -111,6 +112,7 @@ export type scalarCastableFrom<T extends $.ScalarType> =
   T extends _default.$ProposalRisk ? _default.$ProposalRisk : 
   T extends _default.$MAC ? _default.$MAC : 
   T extends _default.$Label ? _default.$Label : 
+  T extends _default.$CloudProvider ? _default.$CloudProvider : 
   T extends _default.$Bytes4 ? _default.$Bytes4 : 
   T extends _default.$Bytes32 ? _default.$Bytes32 : 
   T extends _default.$Bytes ? _default.$Bytes : 
@@ -382,6 +384,12 @@ type getSharedParentScalar<A, B> =
   :
   A extends _default.$Label ?
     B extends _default.$Label ?
+    B
+    :
+    never
+  :
+  A extends _default.$CloudProvider ?
+    B extends _default.$CloudProvider ?
     B
     :
     never
@@ -741,6 +749,12 @@ function getSharedParentScalar<A extends $.ScalarType, B extends $.ScalarType>(a
     }
   if (a.__name__ === "default::Label") {
     if(b.__name__ === "default::Label") {
+      return b;
+    }
+    throw new Error(`Types are not castable: ${a.__name__}, ${b.__name__}`);
+    }
+  if (a.__name__ === "default::CloudProvider") {
+    if(b.__name__ === "default::CloudProvider") {
       return b;
     }
     throw new Error(`Types are not castable: ${a.__name__}, ${b.__name__}`);

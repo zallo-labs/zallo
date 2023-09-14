@@ -10,6 +10,11 @@ const UserApproverItem_UserApproverFragment = gql(/* GraphQL */ `
     id
     address
     name
+    cloud {
+      id
+      provider
+      subject
+    }
   }
 `);
 

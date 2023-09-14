@@ -12,6 +12,9 @@ export class User {
   @Field(() => String, { nullable: true })
   name?: string;
 
+  @Field(() => String, { nullable: true })
+  photoUri?: string;
+
   @Field(() => [UserApprover])
   approvers: UserApprover[];
 

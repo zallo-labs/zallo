@@ -40,9 +40,18 @@ module default {
       readonly := true;
       default := (<Approver>(global current_approver).id);
     }
-    multi link responses := .<proposal[is ProposalResponse];
     multi link approvals := .<proposal[is Approval];
     multi link rejections := .<proposal[is Rejection];
+    multi link potentialApprovers := (
+      with potentialResponses := distinct ((select .policy) ?? .account.policies).state.approvers.id,
+           ids := potentialResponses except .approvals.approver.id
+      select Approver filter .id in ids
+    );
+    multi link potentialRejectors := (
+      with potentialResponses := distinct ((select .policy) ?? .account.policies).state.approvers.id,
+           ids := potentialResponses except .rejections.approver.id
+      select Approver filter .id in ids
+    );
     property riskLabel := assert_single((select .<proposal[is ProposalRiskLabel] filter .user = global current_user)).risk;
 
     access policy members_only

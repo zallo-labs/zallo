@@ -1,4 +1,4 @@
-import { getChain, makeRequiredEnv, optionalEnv as optional, tryAsAddress } from 'lib';
+import { getChain, isPresent, makeRequiredEnv, optionalEnv as optional, tryAsAddress } from 'lib';
 import os from 'os';
 require('dotenv').config({ path: '../.env' });
 
@@ -35,4 +35,11 @@ export const CONFIG = {
   serverId: optional`FLY_ALLOC_ID` || os.hostname(),
   bullBoardUser: optional`BULL_BOARD_USER`,
   bullBoardPassword: optional`BULL_BOARD_PASSWORD`,
+  oauthClients: new Set<string>(
+    [
+      optional`GOOGLE_OAUTH_WEB_CLIENT`,
+      optional`GOOGLE_OAUTH_IOS_CLIENT`,
+      ...JSON.parse(optional`APPLE_OAUTH_CLIENTS` || '[]'),
+    ].filter(isPresent),
+  ),
 } as const;

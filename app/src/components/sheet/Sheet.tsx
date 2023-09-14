@@ -10,6 +10,7 @@ import BottomSheet, {
 import { makeStyles } from '@theme/makeStyles';
 import { Surface } from 'react-native-paper';
 import { StyleProp, View, ViewStyle } from 'react-native';
+import { EdgeInsets, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export const CONTENT_HEIGHT_SNAP_POINT = 'CONTENT_HEIGHT';
 const DEFAULT_SNAP_POINTS = [CONTENT_HEIGHT_SNAP_POINT];
@@ -45,7 +46,7 @@ export const Sheet = forwardRef<BottomSheet, SheetProps>(
     },
     ref,
   ) => {
-    const styles = useStyles();
+    const styles = useStyles(useSafeAreaInsets());
 
     const { animatedHandleHeight, animatedSnapPoints, animatedContentHeight, handleContentLayout } =
       useBottomSheetDynamicSnapPoints(initialSnapPoints);
@@ -76,7 +77,7 @@ export const Sheet = forwardRef<BottomSheet, SheetProps>(
   },
 );
 
-const useStyles = makeStyles(({ colors, corner }) => ({
+const useStyles = makeStyles(({ colors, corner }, insets: EdgeInsets) => ({
   background: {
     backgroundColor: colors.surface,
     borderTopLeftRadius: corner.xl,
@@ -96,6 +97,7 @@ const useStyles = makeStyles(({ colors, corner }) => ({
   },
   contentContainer: {
     paddingTop: 8,
+    paddingBottom: insets?.bottom,
   },
   backdrop: {
     backgroundColor: colors.scrim,

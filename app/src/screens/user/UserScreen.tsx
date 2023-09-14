@@ -6,14 +6,17 @@ import { Actions } from '~/components/layout/Actions';
 import { Screen } from '~/components/layout/Screen';
 import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
 import { FormResetIcon } from '~/components/fields/ResetFormIcon';
-import { Button } from 'react-native-paper';
-import { PairIcon } from '../pair-confirm/PairConfirmSheet';
+import { Text } from 'react-native-paper';
 import { ListHeader } from '~/components/list/ListHeader';
 import { UserApproverItem } from './UserApproverItem';
 import { gql } from '@api/generated';
 import { useQuery } from '~/gql';
 import { useMutation } from 'urql';
-import { BluetoothIcon } from '@theme/icons';
+import { LinkGoogleButton } from '~/components/buttons/LinkGoogleButton';
+import { LinkLedgerButton } from '~/components/buttons/LinkLedgerButton';
+import { LinkingCodeButton } from '~/components/buttons/LinkingCodeButton';
+import { showSuccess } from '~/provider/SnackbarProvider';
+import { LinkAppleButton } from '~/components/buttons/LinkAppleButton';
 
 const Query = gql(/* GraphQL */ `
   query UserScreen {
@@ -53,7 +56,7 @@ export const UserScreen = ({ navigation: { navigate } }: UserScreenProps) => {
   });
 
   return (
-    <Screen>
+    <Screen bottomInset={false}>
       <Appbar
         mode="large"
         leading="back"
@@ -84,17 +87,19 @@ export const UserScreen = ({ navigation: { navigate } }: UserScreenProps) => {
         </View>
 
         <Actions>
-          <Button mode="text" icon={PairIcon} onPress={() => navigate('PairUserModal', {})}>
-            Pair with existing user
-          </Button>
+          <Text variant="titleMedium" style={styles.linkText}>
+            Link
+          </Text>
 
-          <Button
-            mode="contained-tonal"
-            icon={BluetoothIcon}
-            onPress={() => navigate('PairLedger')}
-          >
-            Pair with Ledger
-          </Button>
+          <View style={styles.methodsContainer}>
+            <LinkAppleButton />
+
+            <LinkGoogleButton signOut onLink={() => showSuccess('Linked Google account')} />
+
+            <LinkLedgerButton />
+
+            <LinkingCodeButton />
+          </View>
         </Actions>
       </ScrollView>
     </Screen>
@@ -107,6 +112,16 @@ const styles = StyleSheet.create({
   },
   nameContainer: {
     margin: 16,
+  },
+  linkText: {
+    textAlign: 'center',
+  },
+  methodsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 16,
+    marginBottom: 16,
   },
   actionButton: {
     alignSelf: 'stretch',

@@ -1,18 +1,17 @@
 import { Context, Info, Mutation, Parent, Query, Resolver, Subscription } from '@nestjs/graphql';
 import { GraphQLResolveInfo } from 'graphql';
-import { PairInput, UpdateUserInput } from './users.input';
+import { LinkInput, UpdateUserInput } from './users.input';
 import { User } from './users.model';
 import { UsersService, UserSubscriptionPayload } from './users.service';
 import { getShape } from '../database/database.select';
 import { Input } from '~/decorators/input.decorator';
 import { ComputedField } from '~/decorators/computed.decorator';
 import e from '~/edgeql-js';
-import { PubsubService } from '../util/pubsub/pubsub.service';
 import { GqlContext, asUser } from '~/request/ctx';
 
 @Resolver(() => User)
 export class UsersResolver {
-  constructor(private service: UsersService, private pubsub: PubsubService) {}
+  constructor(private service: UsersService) {}
 
   @Query(() => User)
   async user(@Info() info: GraphQLResolveInfo) {
@@ -20,8 +19,8 @@ export class UsersResolver {
   }
 
   @ComputedField<typeof e.User>(() => String, { id: true })
-  async pairingToken(@Parent() { id }: User): Promise<string> {
-    return this.service.getPairingToken(id);
+  async linkingToken(@Parent() { id }: User): Promise<string> {
+    return this.service.getLinkingToken(id);
   }
 
   @Subscription(() => User, {
@@ -46,9 +45,9 @@ export class UsersResolver {
     return this.service.selectUnique(getShape(info));
   }
 
-  @Mutation(() => User, { description: 'Pair with another user - merging your approvers' })
-  async pair(@Input() { token }: PairInput, @Info() info: GraphQLResolveInfo) {
-    await this.service.pair(token);
+  @Mutation(() => User)
+  async link(@Input() { token }: LinkInput, @Info() info: GraphQLResolveInfo) {
+    await this.service.link(token);
     return this.service.selectUnique(getShape(info));
   }
 }

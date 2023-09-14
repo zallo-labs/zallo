@@ -23,7 +23,10 @@ export type TransferValueSelectFields = $infer<typeof s>[0];
 
 @Injectable()
 export class TransfersService {
-  constructor(private db: DatabaseService, private prices: PricesService) {}
+  constructor(
+    private db: DatabaseService,
+    private prices: PricesService,
+  ) {}
 
   async selectUnique(id: uuid, shape?: ShapeFunc<typeof e.Transfer>) {
     return this.db.query(

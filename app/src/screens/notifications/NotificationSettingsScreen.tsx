@@ -17,6 +17,7 @@ import { ListItem } from '~/components/list/ListItem';
 import { NotificationsOutlineIcon } from '@theme/icons';
 import { useAtomValue } from 'jotai';
 import { ListHeader } from '~/components/list/ListHeader';
+import { useNavigateToCreateAccountOnboardScreen } from '../create-account/useNavigateToCreateAccountOnboardScreen';
 
 export type NotificationChannel = 'activity' | 'product';
 export const NotificationChannelConfig: Record<NotificationChannel, NotificationChannelInput> = {
@@ -49,9 +50,11 @@ export interface NotificationSettingsParams {
 export type NotificationSettingsScreenProps = StackNavigatorScreenProps<'NotificationSettings'>;
 
 export const NotificationSettingsScreen = withSuspense(
-  ({ navigation, route }: NotificationSettingsScreenProps) => {
+  ({ route }: NotificationSettingsScreenProps) => {
     const { isOnboarding } = route.params;
     const [settings, update] = useImmerAtom(NOTIFICATIONS_ATOM);
+    const navigateToCreateAccountOnboarding = useNavigateToCreateAccountOnboardScreen();
+    const next = isOnboarding ? navigateToCreateAccountOnboarding : undefined;
 
     const [perm, requestPerm] = Notifications.usePermissions({
       ios: {
@@ -62,10 +65,6 @@ export const NotificationSettingsScreen = withSuspense(
         provideAppNotificationSettings: true,
       },
     });
-
-    const next = isOnboarding
-      ? () => navigation.navigate('CreateAccount', { isOnboarding: true })
-      : undefined;
 
     return (
       <Screen>

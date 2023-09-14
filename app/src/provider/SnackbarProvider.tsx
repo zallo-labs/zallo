@@ -92,7 +92,7 @@ export type ShowSnackOptions = Pick<
 
 export const showSnack = (
   message: string,
-  { autoHide = true, visibilityTime = 7000, position, onHide, ...props }: ShowSnackOptions = {},
+  { autoHide = true, visibilityTime = 5000, position, onHide, ...props }: ShowSnackOptions = {},
 ) =>
   RnToast.show({
     type: Snack.name,

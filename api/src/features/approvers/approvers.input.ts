@@ -1,5 +1,5 @@
 import { Field, InputType } from '@nestjs/graphql';
-import { GraphQLMAC } from 'graphql-scalars';
+import { GraphQLMAC, GraphQLJWT } from 'graphql-scalars';
 import { Address } from 'lib';
 import { AddressField } from '~/apollo/scalars/Address.scalar';
 
@@ -7,6 +7,21 @@ import { AddressField } from '~/apollo/scalars/Address.scalar';
 export class ApproverInput {
   @AddressField({ nullable: true, description: 'Defaults to current approver' })
   address?: Address;
+}
+
+@InputType()
+export class UniqueCloudShareInput {
+  @Field(() => GraphQLJWT)
+  idToken: string;
+}
+
+@InputType()
+export class CloudShareInput {
+  @Field(() => GraphQLJWT)
+  idToken: string;
+
+  @Field(() => String)
+  share: string;
 }
 
 @InputType()
@@ -19,4 +34,7 @@ export class UpdateApproverInput extends ApproverInput {
 
   @Field(() => [GraphQLMAC], { nullable: true })
   bluetoothDevices?: string[];
+
+  @Field(() => CloudShareInput, { nullable: true })
+  cloud?: CloudShareInput;
 }
