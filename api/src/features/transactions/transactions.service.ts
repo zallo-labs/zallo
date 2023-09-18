@@ -44,7 +44,6 @@ export class TransactionsService {
     private provider: ProviderService,
     @InjectQueue(TRANSACTIONS_QUEUE.name)
     private transactionsQueue: Queue<TransactionEvent>,
-    // @Inject(forwardRef(() => ProposalsService))
     private proposals: ProposalsService,
     private paymaster: PaymasterService,
   ) {}

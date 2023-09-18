@@ -85,7 +85,6 @@ describe(PoliciesService.name, () => {
               limit: 1,
             })),
           ),
-          simulation: e.insert(e.Simulation, {}),
         })
         .run(db.client);
 

@@ -30,7 +30,7 @@
     "@formatjs/intl-locale": "^3.3.4",
     "@formatjs/intl-numberformat": "^8.7.2",
     "@formatjs/intl-pluralrules": "^5.2.6",
-    "@gorhom/bottom-sheet": "^4.5.0",
+    "@gorhom/bottom-sheet": "^4.5.1",
     "@graphql-codegen/client-preset": "^4.1.0",
     "@graphql-typed-document-node/core": "^3.2.0",
     "@ledgerhq/hw-app-eth": "^6.34.0",
@@ -194,6 +194,6 @@
     "react-test-renderer": "18.2.0",
     "ts-node": "^10.9.1",
     "ts-toolbelt": "^9.6.0",
-    "typescript": "^5.1.6"
+    "typescript": "^5.2.2"
   }
 }

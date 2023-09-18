@@ -213,12 +213,12 @@ export interface Transaction extends std.$Object {
 export interface TransactionProposal extends Proposal {
   "nonce": bigint;
   "operations": Operation[];
-  "simulation": Simulation;
   "feeToken": Token;
   "gasLimit": bigint;
   "transactions": Transaction[];
   "transaction"?: Transaction | null;
   "status": TransactionProposalStatus;
+  "simulation"?: Simulation | null;
 }
 export type TransactionProposalStatus = "Pending" | "Executing" | "Successful" | "Failed";
 export interface TransferDetails extends std.$Object {

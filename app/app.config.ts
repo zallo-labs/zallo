@@ -8,7 +8,6 @@ const ENV = process.env;
 
 const chain = ENV?.CHAIN?.toUpperCase();
 const withVariant = (v: string) => `${v}${ENV.APP_VARIANT ? `.${ENV.APP_VARIANT}` : ''}`;
-const iosGoogleServicesFilePath = withVariant('./GoogleService-Info.secret.plist');
 
 export const CONFIG = {
   env: ENV.RELEASE_ENV === 'development' ? 'development' : 'production',
@@ -27,7 +26,6 @@ export const CONFIG = {
   googleOAuth: {
     webClient: ENV.GOOGLE_OAUTH_WEB_CLIENT!,
     iosClient: ENV.GOOGLE_OAUTH_IOS_CLIENT!,
-    iosGoogleServicesFilePath,
   },
 } as const;
 
@@ -135,7 +133,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     config: {
       usesNonExemptEncryption: false,
     },
-    googleServicesFile: iosGoogleServicesFilePath,
+    googleServicesFile: withVariant('./GoogleService-Info.secret.plist'),
   },
   web: {
     bundler: 'metro',

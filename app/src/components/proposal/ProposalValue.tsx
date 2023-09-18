@@ -51,7 +51,7 @@ export function ProposalValue(props: ProposalValueProps) {
       p.feeToken.decimals,
     );
 
-  const transfers = [...(p.transaction?.receipt?.transferEvents ?? p.simulation.transfers)];
+  const transfers = [...(p.transaction?.receipt?.transferEvents ?? p.simulation?.transfers ?? [])];
 
   const value = transfers.reduce((sum, t) => sum + (t.value ?? 0), estimatedFeeValue || 0);
 

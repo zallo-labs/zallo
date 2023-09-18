@@ -659,7 +659,7 @@ type TransactionProposal implements Node & Proposal {
   proposedBy: Approver!
   rejections: [Rejection!]!
   riskLabel: Risk
-  simulation: Simulation!
+  simulation: Simulation
   status: TransactionProposalStatus!
   transaction: Transaction
   transactions: [Transaction!]!
