@@ -1,9 +1,10 @@
 import { useWithLoading } from '@hook/useIsPromised';
+import { makeStyles } from '@theme/makeStyles';
 import { ComponentPropsWithoutRef } from 'react';
-import { StyleSheet } from 'react-native';
 import { Keyboard } from 'react-native';
 import { FAB as PaperFAB } from 'react-native-paper';
 import { IconSource } from 'react-native-paper/lib/typescript/components/Icon';
+import { EdgeInsets, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 type BaseProps = ComponentPropsWithoutRef<typeof PaperFAB>;
 
@@ -14,6 +15,7 @@ export type FabProps = Omit<BaseProps, 'icon'> &
   };
 
 export const Fab = ({ appbar, position = 'absolute', style, ...props }: FabProps) => {
+  const styles = useStyles(useSafeAreaInsets());
   const [loading, onPress] = useWithLoading(props.onPress);
 
   return (
@@ -34,10 +36,10 @@ export const Fab = ({ appbar, position = 'absolute', style, ...props }: FabProps
   );
 };
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((_, insets: EdgeInsets) => ({
   absolute: {
     position: 'absolute',
-    bottom: 22, // Should be 16, but that currently causes the shadow to be clipped by the navbar - https://github.com/callstack/react-native-paper/issues/3957
+    bottom: 16 + insets.bottom,
     right: 16,
   },
-});
+}));
