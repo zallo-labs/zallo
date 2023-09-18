@@ -6105,9 +6105,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@gorhom/bottom-sheet@npm:^4.5.0":
-  version: 4.5.0
-  resolution: "@gorhom/bottom-sheet@npm:4.5.0"
+"@gorhom/bottom-sheet@npm:^4.5.1":
+  version: 4.5.1
+  resolution: "@gorhom/bottom-sheet@npm:4.5.1"
   dependencies:
     "@gorhom/portal": 1.0.14
     invariant: ^2.2.4
@@ -6123,7 +6123,7 @@ __metadata:
       optional: true
     "@types/react-native":
       optional: true
-  checksum: 4a1b69c1077ab70f39c0ba219110d7382fef5bec1fb5f1dc569f700afac055d3478b6f871237b14474aee60d6e55c86c1ade77f41f8ae6601aac1710796b8ea4
+  checksum: dbfc900b7111f723ae1ef9e36facba8779b917427d3fc820172a9547dc94ccf359bf96f66c521aa838379d0371c30ed7933e8ed241929cb01b7a801ad8757f47
   languageName: node
   linkType: hard
 
@@ -14433,7 +14433,7 @@ __metadata:
     ts-pattern: ^5.0.5
     ts-toolbelt: ^9.6.0
     tsconfig-paths: ^4.2.0
-    typescript: ^5.1.6
+    typescript: ^5.2.2
     uuid: ^9.0.0
     viem: ^1.6.0
     zksync-web3: ^0.14.3
@@ -14748,7 +14748,7 @@ __metadata:
     "@formatjs/intl-locale": ^3.3.4
     "@formatjs/intl-numberformat": ^8.7.2
     "@formatjs/intl-pluralrules": ^5.2.6
-    "@gorhom/bottom-sheet": ^4.5.0
+    "@gorhom/bottom-sheet": ^4.5.1
     "@graphql-codegen/cli": ^5.0.0
     "@graphql-codegen/client-preset": ^4.1.0
     "@graphql-codegen/typed-document-node": ^5.0.1
@@ -14900,7 +14900,7 @@ __metadata:
     ts-pattern: ^5.0.5
     ts-toolbelt: ^9.6.0
     typechain: ^8.3.1
-    typescript: ^5.1.6
+    typescript: ^5.2.2
     url: ^0.11.2
     urql: ^4.0.5
     use-async-effect: ^2.2.7
@@ -18428,7 +18428,7 @@ __metadata:
     solidity-coverage: ^0.8.2
     ts-node: ^10.9.1
     typechain: ^8.3.1
-    typescript: ^5.1.6
+    typescript: ^5.2.2
     viem: ^1.6.0
     zksync-web3: ^0.14.4
   languageName: unknown
@@ -28966,7 +28966,7 @@ __metadata:
     ts-pattern: ^5.0.5
     ts-toolbelt: ^9.6.0
     typechain: ^8.3.1
-    typescript: ^5.1.6
+    typescript: ^5.2.2
     viem: ^1.6.0
     yarn: ^1.22.19
     zksync-web3: ^0.14.4
@@ -38028,7 +38028,7 @@ __metadata:
     react-dom: ^17.0.2
     recoil: ^0.7.7
     sass: ^1.58.1
-    typescript: ^5.1.6
+    typescript: ^5.2.2
     use-deep-compare-effect: ^1.8.1
     utf-8-validate: ^5.0.10
   languageName: unknown
@@ -40905,7 +40905,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript@npm:5.1.6, typescript@npm:^5.1.6":
+"typescript@npm:5.1.6":
   version: 5.1.6
   resolution: "typescript@npm:5.1.6"
   bin:
@@ -40925,7 +40925,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript@patch:typescript@5.1.6#~builtin<compat/typescript>, typescript@patch:typescript@^5.1.6#~builtin<compat/typescript>":
+"typescript@npm:^5.2.2":
+  version: 5.2.2
+  resolution: "typescript@npm:5.2.2"
+  bin:
+    tsc: bin/tsc
+    tsserver: bin/tsserver
+  checksum: 7912821dac4d962d315c36800fe387cdc0a6298dba7ec171b350b4a6e988b51d7b8f051317786db1094bd7431d526b648aba7da8236607febb26cf5b871d2d3c
+  languageName: node
+  linkType: hard
+
+"typescript@patch:typescript@5.1.6#~builtin<compat/typescript>":
   version: 5.1.6
   resolution: "typescript@patch:typescript@npm%3A5.1.6#~builtin<compat/typescript>::version=5.1.6&hash=5da071"
   bin:
@@ -40942,6 +40952,16 @@ __metadata:
     tsc: bin/tsc
     tsserver: bin/tsserver
   checksum: 6f0a9dca6bf4ce9dcaf4e282aade55ef4c56ecb5fb98d0a4a5c0113398815aea66d871b5611e83353e5953a19ed9ef103cf5a76ac0f276d550d1e7cd5344f61e
+  languageName: node
+  linkType: hard
+
+"typescript@patch:typescript@^5.2.2#~builtin<compat/typescript>":
+  version: 5.2.2
+  resolution: "typescript@patch:typescript@npm%3A5.2.2#~builtin<compat/typescript>::version=5.2.2&hash=5da071"
+  bin:
+    tsc: bin/tsc
+    tsserver: bin/tsserver
+  checksum: 07106822b4305de3f22835cbba949a2b35451cad50888759b6818421290ff95d522b38ef7919e70fb381c5fe9c1c643d7dea22c8b31652a717ddbd57b7f4d554
   languageName: node
   linkType: hard
 
