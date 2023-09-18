@@ -5,7 +5,6 @@ import { split, combine } from 'shamir-secret-sharing';
 import { gql } from '@api';
 import { authContext, useUrqlApiClient } from '@api/client';
 import { useMutation } from 'urql';
-import { showError } from '~/provider/SnackbarProvider';
 import { Result, err, ok } from 'neverthrow';
 import { logError } from './analytics';
 
