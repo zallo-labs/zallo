@@ -18,30 +18,27 @@ interface Context {
 export class DatabaseService implements OnModuleInit {
   protected __client: Client;
   protected context = new AsyncLocalStorage<Context>();
+  readonly DANGEROUS_superuserClient: Client;
 
   constructor() {
     this.__client = createClient()
       .withConfig({ allow_user_specified_id: true })
       .withRetryOptions({ attempts: 5 });
+    this.DANGEROUS_superuserClient = this.__client.withConfig({ apply_access_policies: false });
   }
 
   async onModuleInit() {
     await this.__client.ensureConnected();
   }
 
-  get DANGEROUS_superuserClient() {
-    return this.__client.withConfig({ apply_access_policies: false });
-  }
-
   get client() {
-    const user = getRequestContext()?.user;
+    const ctx = getRequestContext()?.user;
+    if (!ctx) return this.DANGEROUS_superuserClient;
 
-    return user
-      ? this.__client.withGlobals({
-          current_approver_address: user.approver,
-          current_accounts_array: user.accounts.map((a) => a.id),
-        } satisfies Globals)
-      : this.DANGEROUS_superuserClient;
+    return this.__client.withGlobals({
+      current_approver_address: ctx.approver,
+      current_accounts_array: ctx.accounts.map((a) => a.id),
+    } satisfies Globals);
   }
 
   async query<Expr extends Expression>(expression: Expr): Promise<$infer<Expr>> {

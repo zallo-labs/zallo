@@ -6,6 +6,7 @@ import { UserAccountContext, getUserCtx } from '~/request/ctx';
 import { DatabaseService } from '../database/database.service';
 import { uuid } from 'edgedb/dist/codecs/ifaces';
 import e from '~/edgeql-js';
+import { Duration } from 'luxon';
 
 interface AdApproverToAccountParams {
   approver: Address;
@@ -17,46 +18,47 @@ const userAccountsKey = (user: uuid) => `user:${user}:accounts`;
 
 @Injectable()
 export class AccountsCacheService {
+  private readonly EXPIRY_SECONDS = Duration.fromObject({ day: 1 }).as('seconds');
+
   constructor(
     @InjectRedis() private redis: Redis,
     private db: DatabaseService,
   ) {}
 
-  private readonly DAY_IN_SECONDS = 60 * 60 * 24;
-
   async getApproverAccounts(approver: Address): Promise<UserAccountContext[]> {
     const cachedAccounts = await this.getCachedAccounts(approver);
     if (cachedAccounts) return cachedAccounts;
 
-    const selectApprover = e.insert(e.Approver, { address: approver }).unlessConflict((a) => ({
-      on: a.address,
-      else: a,
-    }));
-
-    const a = await this.db.query(
-      e.select(selectApprover, () => ({
-        user: {
-          id: true,
-          accounts: { id: true, address: true },
-        },
-      })),
+    const { user } = await this.db.query(
+      e.select(
+        e.insert(e.Approver, { address: approver }).unlessConflict((a) => ({
+          on: a.address,
+          else: a,
+        })),
+        () => ({
+          user: {
+            id: true,
+            accounts: { id: true, address: true },
+          },
+        }),
+      ),
     );
 
-    const accounts =
-      a?.user.accounts.map(
-        (a): UserAccountContext => ({ id: a.id, address: a.address as Address }),
-      ) ?? [];
-    if (a) await this.setCachedAccounts(a.user.id, approver, accounts);
+    const accounts = user.accounts.map(
+      (a): UserAccountContext => ({ id: a.id, address: a.address as Address }),
+    );
+
+    await this.setCachedAccounts(user.id, approver, accounts);
 
     return accounts;
   }
 
   async addCachedAccount({ approver, account }: AdApproverToAccountParams) {
-    const accounts = await this.getCachedAccounts(approver);
-    if (!accounts) return;
+    const accounts = (await this.getCachedAccounts(approver)) ?? [];
 
-    if (!accounts.includes(account)) accounts.push(account);
-    if (!getUserCtx().accounts.includes(account)) getUserCtx().accounts.push(account);
+    if (!accounts.find((a) => a.id === account.id)) accounts.push(account);
+    if (!getUserCtx().accounts.find((a) => a.id === account.id))
+      getUserCtx().accounts.push(account);
 
     const user = await this.db.query(
       e.select(e.Approver, () => ({
@@ -89,12 +91,9 @@ export class AccountsCacheService {
   }
 
   private async setCachedAccounts(user: uuid, approver: Address, accounts: UserAccountContext[]) {
-    await this.redis.set(approverUserKey(approver), user, 'EX', this.DAY_IN_SECONDS);
-    await this.redis.set(
-      userAccountsKey(user),
-      JSON.stringify(accounts),
-      'EX',
-      this.DAY_IN_SECONDS,
-    );
+    await Promise.all([
+      this.redis.set(approverUserKey(approver), user, 'EX', this.EXPIRY_SECONDS),
+      this.redis.set(userAccountsKey(user), JSON.stringify(accounts), 'EX', this.EXPIRY_SECONDS),
+    ]);
   }
 }

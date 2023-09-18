@@ -1,20 +1,11 @@
-CREATE MIGRATION m12q2isam5fxdgkmxirhw6jrfiwm6slsadsospn4ljbx3ylyodlkla
+CREATE MIGRATION m1nzn2nnrlbdshjgquvdlmotag2ti4gt6aiqeihhhqqv627rq5rvba
     ONTO initial
 {
   CREATE SCALAR TYPE default::Bytes EXTENDING std::str {
       CREATE CONSTRAINT std::regexp('0x(?:[0-9a-fA-F]{2})*$');
   };
   CREATE GLOBAL default::current_accounts_array -> array<std::uuid>;
-  CREATE GLOBAL default::current_accounts := (SELECT
-      std::array_unpack(GLOBAL default::current_accounts_array)
-  );
-  CREATE SCALAR TYPE default::Address EXTENDING std::str {
-      CREATE CONSTRAINT std::regexp('^0x[0-9a-fA-F]{40}$');
-  };
-  CREATE GLOBAL default::current_approver_address -> default::Address;
-  CREATE SCALAR TYPE default::MAC EXTENDING std::str {
-      CREATE CONSTRAINT std::regexp('^([0-9A-F]{2}[:-]){5}([0-9A-F]{2})$');
-  };
+  CREATE GLOBAL default::current_accounts_set := (std::array_unpack(GLOBAL default::current_accounts_array));
   CREATE TYPE default::Receipt {
       CREATE REQUIRED PROPERTY responses: array<default::Bytes>;
       CREATE REQUIRED PROPERTY success: std::bool;
@@ -31,12 +22,29 @@ CREATE MIGRATION m12q2isam5fxdgkmxirhw6jrfiwm6slsadsospn4ljbx3ylyodlkla
           SET default := (std::datetime_of_statement());
       };
   };
+  CREATE SCALAR TYPE default::MAC EXTENDING std::str {
+      CREATE CONSTRAINT std::regexp('^([0-9A-F]{2}[:-]){5}([0-9A-F]{2})$');
+  };
+  CREATE SCALAR TYPE default::CloudProvider EXTENDING enum<Apple, Google>;
+  CREATE TYPE default::CloudShare {
+      CREATE REQUIRED PROPERTY provider: default::CloudProvider;
+      CREATE REQUIRED PROPERTY subject: std::str;
+      CREATE CONSTRAINT std::exclusive ON ((.provider, .subject));
+      CREATE REQUIRED PROPERTY share: std::str;
+  };
+  CREATE SCALAR TYPE default::Address EXTENDING std::str {
+      CREATE CONSTRAINT std::regexp('^0x[0-9a-fA-F]{40}$');
+  };
+  CREATE GLOBAL default::current_approver_address -> default::Address;
   CREATE SCALAR TYPE default::Label EXTENDING std::str {
       CREATE CONSTRAINT std::max_len_value(50);
       CREATE CONSTRAINT std::min_len_value(1);
   };
   CREATE TYPE default::Approver {
       CREATE PROPERTY bluetoothDevices: array<default::MAC>;
+      CREATE LINK cloud: default::CloudShare {
+          CREATE CONSTRAINT std::exclusive;
+      };
       CREATE REQUIRED PROPERTY address: default::Address {
           SET readonly := true;
           CREATE CONSTRAINT std::exclusive;
@@ -83,8 +91,6 @@ CREATE MIGRATION m12q2isam5fxdgkmxirhw6jrfiwm6slsadsospn4ljbx3ylyodlkla
       CREATE CONSTRAINT std::regexp('^0x[0-9a-fA-F]{64}$');
   };
   CREATE TYPE default::Account {
-      CREATE ACCESS POLICY members_select_insert_update
-          ALLOW SELECT, UPDATE, INSERT USING ((.id IN GLOBAL default::current_accounts));
       CREATE REQUIRED PROPERTY address: default::Address {
           SET readonly := true;
           CREATE CONSTRAINT std::exclusive;
@@ -93,7 +99,10 @@ CREATE MIGRATION m12q2isam5fxdgkmxirhw6jrfiwm6slsadsospn4ljbx3ylyodlkla
       CREATE REQUIRED PROPERTY isActive: std::bool;
       CREATE REQUIRED PROPERTY name: default::Label;
       CREATE REQUIRED PROPERTY salt: default::Bytes32;
+      CREATE ACCESS POLICY members_select_insert_update
+          ALLOW SELECT, UPDATE, INSERT USING ((.id IN GLOBAL default::current_accounts_set));
   };
+  CREATE GLOBAL default::current_accounts := (<default::Account>GLOBAL default::current_accounts_set);
   CREATE ABSTRACT TYPE default::ProposalResponse {
       CREATE REQUIRED LINK approver: default::Approver {
           SET default := (<default::Approver>(GLOBAL default::current_approver).id);
@@ -123,14 +132,14 @@ CREATE MIGRATION m12q2isam5fxdgkmxirhw6jrfiwm6slsadsospn4ljbx3ylyodlkla
       CREATE PROPERTY iconUri: std::str;
       CREATE PROPERTY label: default::Label;
       CREATE ACCESS POLICY members_only
-          ALLOW ALL USING ((.account.id IN GLOBAL default::current_accounts));
+          ALLOW ALL USING ((.account IN GLOBAL default::current_accounts));
   };
   ALTER TYPE default::ProposalResponse {
       CREATE REQUIRED LINK proposal: default::Proposal {
           ON TARGET DELETE DELETE SOURCE;
       };
       CREATE ACCESS POLICY members_can_select
-          ALLOW SELECT USING ((.proposal.account.id IN GLOBAL default::current_accounts));
+          ALLOW SELECT USING ((.proposal.account IN GLOBAL default::current_accounts));
   };
   CREATE SCALAR TYPE default::uint32 EXTENDING std::int64 {
       CREATE CONSTRAINT std::max_value(((2 ^ 32) - 1));
@@ -139,7 +148,7 @@ CREATE MIGRATION m12q2isam5fxdgkmxirhw6jrfiwm6slsadsospn4ljbx3ylyodlkla
   CREATE TYPE default::Event {
       CREATE REQUIRED LINK account: default::Account;
       CREATE ACCESS POLICY members_can_select
-          ALLOW SELECT USING ((.account.id IN GLOBAL default::current_accounts));
+          ALLOW SELECT USING ((.account IN GLOBAL default::current_accounts));
       CREATE REQUIRED PROPERTY transactionHash: default::Bytes32;
       CREATE REQUIRED PROPERTY block: std::bigint {
           CREATE CONSTRAINT std::min_value(0n);
@@ -160,7 +169,7 @@ CREATE MIGRATION m12q2isam5fxdgkmxirhw6jrfiwm6slsadsospn4ljbx3ylyodlkla
       CREATE REQUIRED PROPERTY to: default::Address;
       CREATE REQUIRED PROPERTY tokenAddress: default::Address;
       CREATE ACCESS POLICY members_can_select_insert
-          ALLOW SELECT, INSERT USING ((.account.id IN GLOBAL default::current_accounts));
+          ALLOW SELECT, INSERT USING ((.account IN GLOBAL default::current_accounts));
   };
   CREATE ABSTRACT TYPE default::Transferlike EXTENDING default::Event, default::TransferDetails;
   CREATE TYPE default::Transfer EXTENDING default::Transferlike;
@@ -202,7 +211,6 @@ CREATE MIGRATION m12q2isam5fxdgkmxirhw6jrfiwm6slsadsospn4ljbx3ylyodlkla
   ALTER TYPE default::Proposal {
       CREATE MULTI LINK approvals := (.<proposal[IS default::Approval]);
       CREATE MULTI LINK rejections := (.<proposal[IS default::Rejection]);
-      CREATE MULTI LINK responses := (.<proposal[IS default::ProposalResponse]);
   };
   CREATE TYPE default::Simulation {
       CREATE MULTI LINK transfers: default::TransferDetails;
@@ -228,7 +236,7 @@ CREATE MIGRATION m12q2isam5fxdgkmxirhw6jrfiwm6slsadsospn4ljbx3ylyodlkla
   ALTER TYPE default::Transaction {
       CREATE REQUIRED LINK proposal: default::TransactionProposal;
       CREATE ACCESS POLICY members_can_select_insert
-          ALLOW SELECT, INSERT USING ((.proposal.account.id IN GLOBAL default::current_accounts));
+          ALLOW SELECT, INSERT USING ((.proposal.account IN GLOBAL default::current_accounts));
   };
   CREATE TYPE default::MessageProposal EXTENDING default::Proposal {
       CREATE REQUIRED PROPERTY message: std::str;
@@ -238,7 +246,7 @@ CREATE MIGRATION m12q2isam5fxdgkmxirhw6jrfiwm6slsadsospn4ljbx3ylyodlkla
   CREATE TYPE default::Policy {
       CREATE REQUIRED LINK account: default::Account;
       CREATE ACCESS POLICY members_select_insert_update
-          ALLOW SELECT, UPDATE, INSERT USING ((.account.id IN GLOBAL default::current_accounts));
+          ALLOW SELECT, UPDATE, INSERT USING ((.account IN GLOBAL default::current_accounts));
       CREATE REQUIRED PROPERTY name: default::Label;
       CREATE CONSTRAINT std::exclusive ON ((.account, .name));
       CREATE REQUIRED PROPERTY key: default::uint16;
@@ -333,17 +341,15 @@ CREATE MIGRATION m12q2isam5fxdgkmxirhw6jrfiwm6slsadsospn4ljbx3ylyodlkla
       CREATE MULTI LINK transfers := (.<account[IS default::Transfer]);
   };
   ALTER TYPE default::Approver {
-      CREATE LINK accounts := (WITH
-          id := 
-              .id
-      SELECT
+      CREATE LINK accounts := (SELECT
           default::Account
       FILTER
-          (id IN (.policies.state.approvers.id UNION .policies.draft.approvers.id))
+          (__source__ IN .approvers)
       );
   };
   CREATE TYPE default::User {
       CREATE PROPERTY name: default::Label;
+      CREATE PROPERTY photoUri: std::str;
   };
   ALTER TYPE default::Approver {
       CREATE REQUIRED LINK user: default::User {
@@ -359,9 +365,7 @@ CREATE MIGRATION m12q2isam5fxdgkmxirhw6jrfiwm6slsadsospn4ljbx3ylyodlkla
           DISTINCT (.approvers.accounts)
       );
   };
-  CREATE GLOBAL default::current_user := (SELECT
-      (GLOBAL default::current_approver).user
-  );
+  CREATE GLOBAL default::current_user := ((GLOBAL default::current_approver).user);
   ALTER TYPE default::Event {
       CREATE LINK transaction := (WITH
           transactionHash := 
@@ -391,9 +395,38 @@ CREATE MIGRATION m12q2isam5fxdgkmxirhw6jrfiwm6slsadsospn4ljbx3ylyodlkla
   ALTER TYPE default::PolicyState {
       CREATE LINK policy := (.<stateHistory[IS default::Policy]);
   };
+  ALTER TYPE default::Proposal {
+      CREATE LINK policy: default::Policy;
+      CREATE MULTI LINK potentialApprovers := (WITH
+          potentialResponses := 
+              DISTINCT ((((SELECT
+                  .policy
+              ) ?? .account.policies)).state.approvers.id)
+          ,
+          ids := 
+              (potentialResponses EXCEPT .approvals.approver.id)
+      SELECT
+          default::Approver
+      FILTER
+          (.id IN ids)
+      );
+      CREATE MULTI LINK potentialRejectors := (WITH
+          potentialResponses := 
+              DISTINCT ((((SELECT
+                  .policy
+              ) ?? .account.policies)).state.approvers.id)
+          ,
+          ids := 
+              (potentialResponses EXCEPT .rejections.approver.id)
+      SELECT
+          default::Approver
+      FILTER
+          (.id IN ids)
+      );
+  };
   ALTER TYPE default::ProposalResponse {
       CREATE ACCESS POLICY user_all
-          ALLOW ALL USING (((.approver.user ?= GLOBAL default::current_user) OR (.approver ?= GLOBAL default::current_approver)));
+          ALLOW ALL USING ((.approver.user ?= GLOBAL default::current_user));
       CREATE CONSTRAINT std::exclusive ON ((.proposal, .approver));
   };
   CREATE TYPE default::Contact {
@@ -422,7 +455,6 @@ CREATE MIGRATION m12q2isam5fxdgkmxirhw6jrfiwm6slsadsospn4ljbx3ylyodlkla
   ALTER TYPE default::Approver {
       CREATE ACCESS POLICY user_select_update
           ALLOW SELECT, UPDATE USING ((.user ?= GLOBAL default::current_user));
-      CREATE CONSTRAINT std::exclusive ON ((.user, .name));
       CREATE CONSTRAINT std::exclusive ON ((.user, .address));
       CREATE LINK contact := (std::assert_single((WITH
           address := 
@@ -450,7 +482,6 @@ CREATE MIGRATION m12q2isam5fxdgkmxirhw6jrfiwm6slsadsospn4ljbx3ylyodlkla
       FILTER
           (.user = GLOBAL default::current_user)
       ))).risk);
-      CREATE LINK policy: default::Policy;
   };
   ALTER TYPE default::TransactionProposal {
       CREATE MULTI LINK transactions := (.<proposal[IS default::Transaction]);

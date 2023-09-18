@@ -76,6 +76,7 @@ export interface Approval extends ProposalResponse {
 }
 export interface Approver extends std.$Object {
   "bluetoothDevices"?: string[] | null;
+  "cloud"?: CloudShare | null;
   "address": string;
   "name"?: string | null;
   "pushToken"?: string | null;
@@ -83,7 +84,6 @@ export interface Approver extends std.$Object {
   "user": User;
   "contact"?: Contact | null;
   "label"?: string | null;
-  "cloud"?: CloudShare | null;
 }
 export type CloudProvider = "Apple" | "Google";
 export interface CloudShare extends std.$Object {
@@ -130,10 +130,10 @@ export interface Proposal extends std.$Object {
   "label"?: string | null;
   "approvals": Approval[];
   "rejections": Rejection[];
-  "riskLabel"?: ProposalRisk | null;
   "policy"?: Policy | null;
   "potentialApprovers": Approver[];
   "potentialRejectors": Approver[];
+  "riskLabel"?: ProposalRisk | null;
 }
 export interface MessageProposal extends Proposal {
   "message": string;
@@ -249,11 +249,12 @@ export interface TransfersConfig extends std.$Object {
 }
 export interface User extends std.$Object {
   "name"?: string | null;
+  "photoUri"?: string | null;
   "approvers": Approver[];
   "accounts": Account[];
   "contacts": Contact[];
-  "photoUri"?: string | null;
 }
+export interface current_accounts extends Account {}
 export interface current_approver extends Approver {}
 export interface current_user extends User {}
 export namespace schema {
@@ -531,6 +532,7 @@ export interface types {
     "TransferLimit": TransferLimit;
     "TransfersConfig": TransfersConfig;
     "User": User;
+    "current_accounts": current_accounts;
     "current_approver": current_approver;
     "current_user": current_user;
   };

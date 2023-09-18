@@ -1,0 +1,32 @@
+app = "zallo-production-redis"
+primary_region = "lax"  # Los Angeles
+
+[build]
+  image = "flyio/redis:6.2.6" # https://github.com/fly-apps/redis
+
+[env]
+  MAXMEMORY_POLICY = "allkeys-lru"
+
+  # Secrets
+  # REDIS_PASSWORD    # Randomly generated
+
+[mounts]
+  source = "redis_data"   # fly volume create --app $APP redis_data
+  destination = "/data"
+
+[metrics]
+  port = 9091
+  path = "/metrics"
+
+[[services]]
+  internal_port = 6379
+  protocol = "tcp"
+
+  [[services.ports]]
+    port = "6379"
+
+  [[services.tcp_checks]]
+    interval = 10000
+    timeout  = 2000
+
+

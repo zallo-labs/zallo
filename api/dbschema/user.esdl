@@ -30,11 +30,7 @@ module default {
         filter .address = address
       ))
     );
-    link accounts := (
-      with id := .id
-      select Account
-      filter id in (.policies.state.approvers.id union .policies.draft.approvers.id)
-    );
+    link accounts := (select Account filter __source__ in .approvers);
 
     constraint exclusive on ((.user, .address));
 

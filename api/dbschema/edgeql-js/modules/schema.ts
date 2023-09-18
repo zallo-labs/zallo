@@ -673,12 +673,14 @@ export type $ObjectTypeλShape = $.typeutil.flatten<$SourceλShape & Omit<$Consi
   "<__type__[is schema::ObjectType]": $.LinkDesc<$ObjectType, $.Cardinality.Many, {}, false, false,  false, false>;
   "<__type__[is schema::Extension]": $.LinkDesc<$Extension, $.Cardinality.Many, {}, false, false,  false, false>;
   "<__type__[is Receipt]": $.LinkDesc<_default.$Receipt, $.Cardinality.Many, {}, false, false,  false, false>;
+  "<__type__[is CloudShare]": $.LinkDesc<_default.$CloudShare, $.Cardinality.Many, {}, false, false,  false, false>;
   "<__type__[is Approver]": $.LinkDesc<_default.$Approver, $.Cardinality.Many, {}, false, false,  false, false>;
   "<__type__[is Target]": $.LinkDesc<_default.$Target, $.Cardinality.Many, {}, false, false,  false, false>;
   "<__type__[is ContractTarget]": $.LinkDesc<_default.$ContractTarget, $.Cardinality.Many, {}, false, false,  false, false>;
   "<__type__[is current_approver]": $.LinkDesc<_default.$current_approver, $.Cardinality.Many, {}, false, false,  false, false>;
   "<__type__[is Token]": $.LinkDesc<_default.$Token, $.Cardinality.Many, {}, false, false,  false, false>;
   "<__type__[is Account]": $.LinkDesc<_default.$Account, $.Cardinality.Many, {}, false, false,  false, false>;
+  "<__type__[is current_accounts]": $.LinkDesc<_default.$current_accounts, $.Cardinality.Many, {}, false, false,  false, false>;
   "<__type__[is ProposalResponse]": $.LinkDesc<_default.$ProposalResponse, $.Cardinality.Many, {}, false, false,  false, false>;
   "<__type__[is Approval]": $.LinkDesc<_default.$Approval, $.Cardinality.Many, {}, false, false,  false, false>;
   "<__type__[is Proposal]": $.LinkDesc<_default.$Proposal, $.Cardinality.Many, {}, false, false,  false, false>;
@@ -704,7 +706,6 @@ export type $ObjectTypeλShape = $.typeutil.flatten<$SourceλShape & Omit<$Consi
   "<__type__[is ProposalRiskLabel]": $.LinkDesc<_default.$ProposalRiskLabel, $.Cardinality.Many, {}, false, false,  false, false>;
   "<__type__[is Function]": $.LinkDesc<_default.$Function, $.Cardinality.Many, {}, false, false,  false, false>;
   "<__type__[is Contract]": $.LinkDesc<_default.$Contract, $.Cardinality.Many, {}, false, false,  false, false>;
-  "<__type__[is CloudShare]": $.LinkDesc<_default.$CloudShare, $.Cardinality.Many, {}, false, false,  false, false>;
   "<__type__": $.LinkDesc<$.ObjectType, $.Cardinality.Many, {}, false, false,  false, false>;
   "<intersection_of": $.LinkDesc<$.ObjectType, $.Cardinality.Many, {}, false, false,  false, false>;
   "<subject": $.LinkDesc<$.ObjectType, $.Cardinality.Many, {}, false, false,  false, false>;

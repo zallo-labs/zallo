@@ -30,7 +30,7 @@ module default {
 
     access policy members_select_insert_update
       allow select, insert, update
-      using (.account.id in global current_accounts);
+      using (.account in global current_accounts);
 
     access policy can_be_deleted_when_inactive
       allow delete

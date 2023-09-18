@@ -45,7 +45,8 @@ export type scalarAssignableBy<T extends $.ScalarType> =
   T extends _std.$bigint ? _std.$bigint : 
   T extends _default.$uint16 ? _default.$uint16 : 
   T extends _std.$int32 ? _std.$int32 : 
-  T extends _default.$current_accounts ? _default.$current_accounts : 
+  T extends _default.$current_accounts_set ? _default.$current_accounts_set : 
+  T extends _default.$id_b9af7bad55b911eeb17bcf816eb97440 ? _default.$id_b9af7bad55b911eeb17bcf816eb97440 : 
   T extends _std.$uuid ? _std.$uuid : 
   T extends _default.$TransferDirection ? _default.$TransferDirection : 
   T extends _default.$TransactionProposalStatus ? _default.$TransactionProposalStatus : 
@@ -105,7 +106,8 @@ export type scalarCastableFrom<T extends $.ScalarType> =
   T extends _std.$bigint ? _std.$bigint : 
   T extends _default.$uint16 ? _default.$uint16 : 
   T extends _std.$int32 ? _std.$int32 : 
-  T extends _default.$current_accounts ? _default.$current_accounts : 
+  T extends _default.$current_accounts_set ? _default.$current_accounts_set : 
+  T extends _default.$id_b9af7bad55b911eeb17bcf816eb97440 ? _default.$id_b9af7bad55b911eeb17bcf816eb97440 : 
   T extends _std.$uuid ? _std.$uuid : 
   T extends _default.$TransferDirection ? _default.$TransferDirection : 
   T extends _default.$TransactionProposalStatus ? _default.$TransactionProposalStatus : 
@@ -346,8 +348,14 @@ type getSharedParentScalar<A, B> =
     :
     never
   :
-  A extends _default.$current_accounts ?
-    B extends _default.$current_accounts ?
+  A extends _default.$current_accounts_set ?
+    B extends _default.$current_accounts_set ?
+    B
+    :
+    never
+  :
+  A extends _default.$id_b9af7bad55b911eeb17bcf816eb97440 ?
+    B extends _default.$id_b9af7bad55b911eeb17bcf816eb97440 ?
     B
     :
     never
@@ -711,8 +719,14 @@ function getSharedParentScalar<A extends $.ScalarType, B extends $.ScalarType>(a
     }
     throw new Error(`Types are not castable: ${a.__name__}, ${b.__name__}`);
     }
-  if (a.__name__ === "default::current_accounts") {
-    if(b.__name__ === "default::current_accounts") {
+  if (a.__name__ === "default::current_accounts_set") {
+    if(b.__name__ === "default::current_accounts_set") {
+      return b;
+    }
+    throw new Error(`Types are not castable: ${a.__name__}, ${b.__name__}`);
+    }
+  if (a.__name__ === "default::_id") {
+    if(b.__name__ === "default::_id") {
       return b;
     }
     throw new Error(`Types are not castable: ${a.__name__}, ${b.__name__}`);
