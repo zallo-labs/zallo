@@ -47,9 +47,7 @@ export class DatabaseService implements OnModuleInit {
 
   async transaction<T>(action: (transaction: Transaction) => Promise<T>): Promise<T> {
     const transaction = this.context.getStore()?.transaction;
-    if (transaction) {
-      return action(transaction);
-    }
+    if (transaction) return action(transaction);
 
     const afterTransactionHooks: Hook[] = [];
 

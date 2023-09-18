@@ -115,7 +115,7 @@ module default {
     required nonce: uint64;
     required gasLimit: uint256 { default := 0n; }
     required feeToken: Token;
-    required simulation: Simulation;
+    simulation: Simulation { constraint exclusive; }
     multi link transactions := .<proposal[is Transaction];
     link transaction := (
       select .transactions

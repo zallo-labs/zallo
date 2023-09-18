@@ -20,8 +20,8 @@ export class TransactionProposal extends Proposal {
   @Field(() => Token)
   feeToken: Token;
 
-  @Field(() => Simulation)
-  simulation: Simulation;
+  @Field(() => Simulation, { nullable: true })
+  simulation?: Simulation;
 
   @Field(() => [Transaction])
   transactions: Transaction[];

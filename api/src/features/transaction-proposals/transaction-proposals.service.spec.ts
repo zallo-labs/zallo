@@ -17,7 +17,6 @@ import { selectAccount } from '../accounts/accounts.util';
 import { uuid } from 'edgedb/dist/codecs/ifaces';
 import { selectPolicy } from '../policies/policies.util';
 import { TransactionProposalStatus } from './transaction-proposals.model';
-import { SimulationsService } from '../simulations/simulations.service';
 import { v1 as uuidv1 } from 'uuid';
 
 const signature = '0x1234' as Hex;
@@ -28,7 +27,6 @@ describe(TransactionProposalsService.name, () => {
   let provider: DeepMocked<ProviderService>;
   let expo: DeepMocked<ExpoService>;
   let transactions: DeepMocked<TransactionsService>;
-  let simulations: DeepMocked<SimulationsService>;
 
   beforeEach(async () => {
     const module = await Test.createTestingModule({
@@ -42,7 +40,6 @@ describe(TransactionProposalsService.name, () => {
     provider = module.get(ProviderService);
     expo = module.get(ExpoService);
     transactions = module.get(TransactionsService);
-    simulations = module.get(SimulationsService);
 
     provider.verifySignature.mockImplementation(async () => true);
     provider.getNetwork.mockImplementation(async () => ({
@@ -51,7 +48,6 @@ describe(TransactionProposalsService.name, () => {
     }));
 
     transactions.tryExecute.mockImplementation(async () => undefined);
-    simulations.getInsert.mockImplementation(async () => e.insert(e.Simulation, {}));
   });
 
   let user1: UserContext;
@@ -64,7 +60,7 @@ describe(TransactionProposalsService.name, () => {
 
   const propose = async ({
     account = user1Account1,
-    operations = [{ to: randomAddress() }],
+    operations = [{ to: randomAddress(), value: 1n }],
     ...params
   }: Partial<ProposeTransactionInput> = {}) => {
     // Create account with an active policy

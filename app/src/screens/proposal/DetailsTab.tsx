@@ -93,7 +93,7 @@ export const DetailsTab = withSuspense(({ route }: DetailsTabProps) => {
 
   if (!p) return null;
 
-  const transfers = [...(p.transaction?.receipt?.transferEvents ?? p.simulation.transfers)];
+  const transfers = [...(p.transaction?.receipt?.transferEvents ?? p.simulation?.transfers ?? [])];
 
   return (
     <ScrollView contentContainerStyle={styles.container}>

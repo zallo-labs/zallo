@@ -24,9 +24,9 @@ import e from '~/edgeql-js';
 import { ShapeFunc } from '../database/database.select';
 import { and } from '../database/database.util';
 import { selectAccount } from '../accounts/accounts.util';
-import { SimulationsService } from '../simulations/simulations.service';
 import { ProposalsService, UniqueProposal } from '../proposals/proposals.service';
 import { ApproveInput, ProposalEvent } from '../proposals/proposals.input';
+import { SimulationsService } from '../simulations/simulations.service';
 
 export const selectTransactionProposal = (
   id: UniqueProposal,
@@ -114,15 +114,15 @@ export class TransactionProposalsService {
               FALLBACK_OPERATIONS_GAS,
             ),
           feeToken: await this.selectAndValidateFeeToken(feeToken),
-          simulation: await this.simulations.getInsert(account, tx),
         })
         .run(db);
 
       if (signature) await this.approve({ hash, signature });
 
-      this.db.afterTransaction(() =>
-        this.proposals.publishProposal({ account, hash }, ProposalEvent.create),
-      );
+      this.db.afterTransaction(() => {
+        this.simulations.request({ transactionProposalHash: hash });
+        this.proposals.publishProposal({ account, hash }, ProposalEvent.create);
+      });
 
       return { id, hash };
     });
