@@ -5,11 +5,15 @@ import BottomSheet, {
   BottomSheetBackgroundProps,
   BottomSheetProps,
   BottomSheetView,
+  useBottomSheetDynamicSnapPoints,
 } from '@gorhom/bottom-sheet';
 import { makeStyles } from '@theme/makeStyles';
 import { Surface } from 'react-native-paper';
 import { StyleProp, View, ViewStyle } from 'react-native';
 import { EdgeInsets, useSafeAreaInsets } from 'react-native-safe-area-context';
+
+export const CONTENT_HEIGHT_SNAP_POINT = 'CONTENT_HEIGHT';
+const DEFAULT_SNAP_POINTS = [CONTENT_HEIGHT_SNAP_POINT];
 
 const Background = ({ children, style }: PropsWithChildren<BottomSheetBackgroundProps>) => (
   <Surface elevation={1} style={style}>
@@ -26,28 +30,46 @@ const Backdrop = (props: BottomSheetBackdropProps) => (
 );
 
 export interface SheetProps extends Omit<BottomSheetProps, 'ref' | 'snapPoints'> {
+  initialSnapPoints?: (string | number)[];
   handle?: boolean;
   contentContainerStyle?: StyleProp<ViewStyle>;
 }
 
 export const Sheet = forwardRef<BottomSheet, SheetProps>(
-  ({ children, handle = true, contentContainerStyle, ...props }, ref) => {
+  (
+    {
+      children,
+      initialSnapPoints = DEFAULT_SNAP_POINTS,
+      handle = true,
+      contentContainerStyle,
+      ...props
+    },
+    ref,
+  ) => {
     const styles = useStyles(useSafeAreaInsets());
+
+    const { animatedHandleHeight, animatedSnapPoints, animatedContentHeight, handleContentLayout } =
+      useBottomSheetDynamicSnapPoints(initialSnapPoints);
 
     return (
       <BottomSheet
         ref={ref}
+        handleHeight={animatedHandleHeight}
+        snapPoints={animatedSnapPoints}
+        contentHeight={animatedContentHeight}
         backgroundComponent={Background}
         backdropComponent={Backdrop}
         enablePanDownToClose
-        enableDynamicSizing
         {...props}
         {...(!handle && { handleComponent: () => <View style={styles.emptyHandle} /> })}
         backgroundStyle={[styles.background, props.backgroundStyle]}
         handleStyle={[styles.handle, props.handleStyle]}
         handleIndicatorStyle={[styles.handleIndicator, props.handleIndicatorStyle]}
       >
-        <BottomSheetView style={[styles.contentContainer, contentContainerStyle]}>
+        <BottomSheetView
+          onLayout={handleContentLayout}
+          style={[styles.contentContainer, contentContainerStyle]}
+        >
           <>{children}</>
         </BottomSheetView>
       </BottomSheet>
