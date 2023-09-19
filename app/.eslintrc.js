@@ -25,10 +25,6 @@ module.exports = {
     '@typescript-eslint/no-non-null-assertion': 'off',
     '@typescript-eslint/no-empty-interface': 'off',
     'react-hooks/rules-of-hooks': 'error',
-    'react-hooks/exhaustive-deps': [
-      'warn',
-      { additionalHooks: '(useRecoilCallback|useRecoilTransaction_UNSTABLE)' },
-    ],
     'react/display-name': 'off',
     'react/prop-types': ['error', { skipUndeclared: true }],
   },
