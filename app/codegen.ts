@@ -21,12 +21,7 @@ export default {
     'src/gql/api/documents.generated.ts': {
       schema,
       documents,
-      plugins: [
-        '@n1ru4l/graphql-codegen-relay-optimizer-plugin',
-        'typescript',
-        'typescript-operations',
-        'typed-document-node',
-      ],
+      plugins: ['typescript', 'typescript-operations', 'typed-document-node'],
       config: {
         // https://the-guild.dev/graphql/codegen/plugins/typescript/typescript
         // defaultScalarType: 'unknown',
@@ -36,7 +31,6 @@ export default {
         withHOC: false,
         withComponent: false,
         // https://the-guild.dev/graphql/codegen/plugins/typescript/relay-operation-optimizer
-        skipDocumentsValidation: true,
         flattenGeneratedTypes: true,
       },
     },
@@ -44,17 +38,13 @@ export default {
       schema,
       documents,
       preset: 'client', // Enables useFragments - https://the-guild.dev/graphql/codegen/plugins/presets/preset-client
-      presetConfig: {
-        gqlTagName: 'gql',
-      },
+      presetConfig: { gqlTagName: 'gql' },
       config: {
-        // https://the-guild.dev/graphql/codegen/plugins/typescript/typescript
+        // Allowed options: https://github.com/dotansimha/graphql-code-generator/issues/8562
         // defaultScalarType: 'unknown',
         enumsAsTypes: true,
         scalars,
-        // https://the-guild.dev/graphql/codegen/plugins/typescript/relay-operation-optimizer
-        skipDocumentsValidation: true,
-        flattenGeneratedTypes: true,
+        dedupeFragments: true,
       },
     },
     'src/gql/api/schema.ts': {

@@ -6,6 +6,7 @@ import { ImageRequireSource, StyleSheet } from 'react-native';
 import { Fab } from './Fab';
 import { Image } from 'expo-image';
 import { useGetGoogleApprover } from '~/util/useGetGoogleApprover';
+import { showError } from '~/provider/SnackbarProvider';
 
 const Query = gql(/* GraphQL */ `
   query SignInWithGoogleButton {
@@ -65,7 +66,10 @@ export function LinkGoogleButton({ onLink, signOut }: LinkGoogleButtonProps) {
       style={styles.container}
       onPress={async () => {
         const r = await getApprover({ signOut });
-        if (r.isErr()) return;
+        if (r.isErr())
+          return showError('Something went wrong, failed to link Google account', {
+            event: { error: r.error },
+          });
 
         const {
           user: { name, photo },

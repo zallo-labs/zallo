@@ -64,7 +64,10 @@ export function LinkAppleButton({ onLink }: LinkAppleButtonProps) {
       style={styles.container}
       onPress={async () => {
         const r = await getApprover({});
-        if (r.isErr()) return showError('Failed to link Apple account');
+        if (r.isErr())
+          return showError('Something went wrong, failed to link Apple account', {
+            event: { error: r.error },
+          });
 
         const {
           approver,
