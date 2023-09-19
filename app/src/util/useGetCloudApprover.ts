@@ -5,7 +5,7 @@ import { split, combine } from 'shamir-secret-sharing';
 import { gql } from '@api';
 import { authContext, useUrqlApiClient } from '@api/client';
 import { useMutation } from 'urql';
-import { Result, err, ok } from 'neverthrow';
+import { Result, ResultAsync, err, ok } from 'neverthrow';
 import { logError } from './analytics';
 
 const CLOUD_SHARE_PATH = 'approver-share';
@@ -39,24 +39,29 @@ export function useGetCloudApprover() {
     async ({ idToken, accessToken, create }: GetCloudApproverParams) => {
       if (accessToken) CloudStorage.setGoogleDriveAccessToken(accessToken);
 
-      const [cloudShare, apiShare] = await Promise.all([
-        (async () => {
-          try {
-            return await CloudStorage.readFile(CLOUD_SHARE_PATH, SCOPE);
-          } catch (e) {
-            return undefined;
-          }
-        })(),
-        (async () =>
-          (
-            await api.query(
-              Query,
-              { input: { idToken } },
-              { requestPolicy: 'network-only' /* prevents caching */ },
-            )
-          ).data?.cloudShare)(),
-      ]);
+      const readResult = await ResultAsync.fromPromise(
+        Promise.all([
+          (async () => {
+            if (await CloudStorage.exists(CLOUD_SHARE_PATH, SCOPE))
+              return CloudStorage.readFile(CLOUD_SHARE_PATH, SCOPE);
+          })(),
+          (async () =>
+            (
+              await api.query(
+                Query,
+                { input: { idToken } },
+                { requestPolicy: 'network-only' /* prevents caching */ },
+              )
+            ).data?.cloudShare)(),
+        ]),
+        (e) => e as Error,
+      );
+      if (readResult.isErr()) {
+        logError('Cloud approver share read failed', { error: readResult.error });
+        return err('read-failed' as const);
+      }
 
+      const [cloudShare, apiShare] = readResult.value;
       if (cloudShare && apiShare) {
         const shares = [cloudShare, apiShare].map(
           (shareHex) => new Uint8Array(Buffer.from(shareHex, 'hex')),
@@ -76,22 +81,29 @@ export function useGetCloudApprover() {
           Buffer.from(share).toString('hex'),
         );
 
-        await Promise.all([
-          CloudStorage.writeFile(CLOUD_SHARE_PATH, cloudShare, SCOPE),
-          updateApprover(
-            {
-              input: {
-                address: asAddress(approver.address),
-                name: create?.name,
-                cloud: {
-                  idToken,
-                  share: apiShare,
+        const writeResult = await ResultAsync.fromPromise(
+          Promise.all([
+            CloudStorage.writeFile(CLOUD_SHARE_PATH, cloudShare, SCOPE),
+            updateApprover(
+              {
+                input: {
+                  address: asAddress(approver.address),
+                  name: create?.name,
+                  cloud: {
+                    idToken,
+                    share: apiShare,
+                  },
                 },
               },
-            },
-            await authContext(approver),
-          ),
-        ]);
+              await authContext(approver),
+            ),
+          ]),
+          (e) => e as Error,
+        );
+        if (writeResult.isErr()) {
+          logError('Cloud approver share read failed', { error: writeResult.error });
+          return err('new-approver-write-failed' as const);
+        }
 
         return ok(approver);
       } else {

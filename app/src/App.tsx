@@ -2,7 +2,6 @@ import '~/util/patches';
 
 import { Suspense } from 'react';
 import { StyleSheet } from 'react-native';
-import { RecoilEnv, RecoilRoot } from 'recoil';
 import { Background } from '~/components/layout/Background';
 import { LocalizatonProvider } from '~/provider/LocalizationProvider';
 import { GqlProvider } from '~/gql/GqlProvider';
@@ -24,9 +23,6 @@ import { UpdateProvider } from './provider/UpdateProvider';
 import * as SplashScreen from 'expo-splash-screen';
 import { HideSplash } from './components/HideSplash';
 
-// Disable Recoil atom key checking due to hotreloading issues
-RecoilEnv.RECOIL_DUPLICATE_ATOM_KEY_CHECKING_ENABLED = false;
-
 SplashScreen.preventAutoHideAsync();
 
 export default () => (
@@ -37,31 +33,29 @@ export default () => (
           <ThemeProvider>
             <Background>
               <GestureHandlerRootView style={styles.flex}>
-                <RecoilRoot>
-                  <ErrorBoundary>
-                    <Suspense fallback={<Splash />}>
-                      <AuthGate>
-                        <GqlProvider>
-                          <NavigationProvider>
-                            <ErrorBoundary>
-                              <Suspense fallback={<Splash />}>
-                                <StackNavigator />
-                              </Suspense>
-                            </ErrorBoundary>
-                            <MinimalErrorBoundary>
-                              <Suspense fallback={null}>
-                                <AnalyticsUser />
-                                <WalletConnectListeners />
-                                <HideSplash />
-                                <NotificationsRegistrar />
-                              </Suspense>
-                            </MinimalErrorBoundary>
-                          </NavigationProvider>
-                        </GqlProvider>
-                      </AuthGate>
-                    </Suspense>
-                  </ErrorBoundary>
-                </RecoilRoot>
+                <ErrorBoundary>
+                  <Suspense fallback={<Splash />}>
+                    <AuthGate>
+                      <GqlProvider>
+                        <NavigationProvider>
+                          <ErrorBoundary>
+                            <Suspense fallback={<Splash />}>
+                              <StackNavigator />
+                            </Suspense>
+                          </ErrorBoundary>
+                          <MinimalErrorBoundary>
+                            <Suspense fallback={null}>
+                              <AnalyticsUser />
+                              <WalletConnectListeners />
+                              <HideSplash />
+                              <NotificationsRegistrar />
+                            </Suspense>
+                          </MinimalErrorBoundary>
+                        </NavigationProvider>
+                      </GqlProvider>
+                    </AuthGate>
+                  </Suspense>
+                </ErrorBoundary>
               </GestureHandlerRootView>
             </Background>
             <SnackbarProvider />
