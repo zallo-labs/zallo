@@ -61,6 +61,6 @@
     "zksync-web3": "^0.14.3"
   },
   "dependencies": {
-    "viem": "^1.10.14"
+    "viem": "^1.6.0"
   }
 }
