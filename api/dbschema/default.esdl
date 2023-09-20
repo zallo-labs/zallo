@@ -147,29 +147,16 @@ module default {
   }
 
   type Event {
-    required account: Account;
     required transactionHash: Bytes32;
-    required logIndex: uint32;
+    transaction: Transaction;
     required block: bigint { constraint min_value(0n); }
+    required logIndex: uint32;
     required timestamp: datetime { default := datetime_of_statement(); }
-    link transaction := (
-      with transactionHash := .transactionHash,
-           account := .account
-      select Transaction filter .hash = transactionHash and .proposal.account = account
-    );
-
-    constraint exclusive on ((.account, .block, .logIndex));
-
-    access policy members_can_select
-      allow select
-      using (.account in global current_accounts);
+    required property internal := exists .transaction;
   }
-
-  scalar type TransferDirection extending enum<'In', 'Out'>;
 
   type TransferDetails {
     required account: Account;
-    required direction: TransferDirection;
     required from: Address;
     required to: Address;
     required tokenAddress: Address;
@@ -190,7 +177,9 @@ module default {
 
   abstract type Transferlike extending Event, TransferDetails {}
 
-  type Transfer extending Transferlike {}
+  type Transfer extending Transferlike {
+    constraint exclusive on ((.account, .block, .logIndex));
+  }
 
   type TransferApproval extending Transferlike {
     link previous := (
@@ -203,10 +192,7 @@ module default {
   }
 
   type Transaction {
-    required hash: Bytes32 { 
-      readonly := true;
-      constraint exclusive;
-    }
+    required hash: Bytes32 { constraint exclusive; }
     required proposal: TransactionProposal;
     required gasPrice: uint256;
     required submittedAt: datetime {
@@ -214,6 +200,7 @@ module default {
       default := datetime_of_statement();
     }
     receipt: Receipt { constraint exclusive; }
+    multi link events := .<transaction[is Event];
 
     access policy members_can_select_insert
       allow select, insert
@@ -224,16 +211,13 @@ module default {
     required link transaction := assert_exists(.<receipt[is Transaction]);
     required success: bool;
     required responses: array<Bytes>;
-    multi link events := (
-      with tx := .transaction
-      select Event filter .transaction = tx
-    );
-    multi link transferEvents := .events[is Transfer];
-    multi link transferApprovalEvents := .events[is TransferApproval];
     required gasUsed: bigint { constraint min_value(0n); }
     required fee: bigint { constraint min_value(0n); }
     required block: bigint { constraint min_value(0n); }
     required timestamp: datetime { default := datetime_of_statement(); }
+    multi link events := .transaction.events;
+    multi link transferEvents := .events[is Transfer];
+    multi link transferApprovalEvents := .events[is TransferApproval];
   }
 
   type Contract {

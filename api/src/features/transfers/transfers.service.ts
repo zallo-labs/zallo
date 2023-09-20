@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { TransfersInput } from './transfers.input';
+import { TransferDirection, TransfersInput } from './transfers.input';
 import { DatabaseService } from '../database/database.service';
 import e, { $infer } from '~/edgeql-js';
 import { and } from '../database/database.util';
@@ -46,8 +46,9 @@ export class TransfersService {
         ...shape?.(t),
         filter: and(
           accounts && e.op(t.account, 'in', e.set(...accounts.map((a) => selectAccount(a)))),
-          direction && e.op(t.direction, '=', e.cast(e.TransferDirection, direction)),
-          internal !== undefined && e.op(e.op('exists', t.transaction), '=', internal),
+          direction &&
+            e.op(t.account.address, '=', direction === TransferDirection.Out ? t.from : t.to),
+          internal !== undefined && e.op(t.internal, '=', internal),
         ),
       })),
     );

@@ -7,7 +7,6 @@ import { Address, ZERO_ADDR, randomDeploySalt } from 'lib';
 import { ZERO_HASH, randomAddress, randomUser } from '~/util/test';
 import e from '~/edgeql-js';
 import { v1 as uuidv1 } from 'uuid';
-import { TransferDirection } from '~/edgeql-js/modules/default';
 import { InsertShape } from '~/edgeql-js/insert';
 
 describe(TransfersService.name, () => {
@@ -62,7 +61,6 @@ describe(TransfersService.name, () => {
         transactionHash: ZERO_HASH,
         logIndex: 0,
         block: BigInt(Math.floor(Math.random() * 1000)),
-        direction: TransferDirection.In,
         from: ZERO_ADDR,
         to: account,
         tokenAddress: ZERO_ADDR,
@@ -125,8 +123,8 @@ describe(TransfersService.name, () => {
 
       it('direction', () =>
         asUser(user1, async () => {
-          const inTransfer = await insert(account1, { direction: TransferDirection.In });
-          const outTransfer = await insert(account1, { direction: TransferDirection.Out });
+          const inTransfer = await insert(account1, { from: ZERO_ADDR, to: account1 });
+          const outTransfer = await insert(account1, { from: account1, to: ZERO_ADDR });
 
           expect((await service.select({ direction: 'In' as any })).map((t) => t.id)).toEqual([
             inTransfer,

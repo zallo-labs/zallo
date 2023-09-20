@@ -1,7 +1,12 @@
-import { Field, InputType } from '@nestjs/graphql';
+import { Field, InputType, registerEnumType } from '@nestjs/graphql';
 import { Address } from 'lib';
 import { AddressScalar } from '~/apollo/scalars/Address.scalar';
-import { TransferDirection } from './transfers.model';
+
+export enum TransferDirection {
+  In = 'In',
+  Out = 'Out',
+}
+registerEnumType(TransferDirection, { name: 'TransferDirection' });
 
 @InputType()
 export class TransfersInput {

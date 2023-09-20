@@ -535,7 +535,6 @@ type Simulation implements Node {
 type SimulationTransfer implements TransferDetails {
   account: Account!
   amount: BigInt!
-  direction: TransferDirection!
   from: Address!
   id: ID!
   to: Address!
@@ -682,7 +681,6 @@ type Transfer implements EventBase & TransferDetails & Transferlike {
   account: Account!
   amount: BigInt!
   block: BigInt!
-  direction: TransferDirection!
   from: Address!
   id: ID!
   logIndex: Float!
@@ -698,7 +696,6 @@ type TransferApproval implements EventBase & TransferDetails & Transferlike {
   amount: BigInt!
   block: BigInt!
   delta: BigInt!
-  direction: TransferDirection!
   from: Address!
   id: ID!
   logIndex: Float!
@@ -720,7 +717,6 @@ type TransferApprovalOp {
 interface TransferDetails {
   account: Account!
   amount: BigInt!
-  direction: TransferDirection!
   from: Address!
   id: ID!
   to: Address!
@@ -780,7 +776,6 @@ interface Transferlike implements EventBase & TransferDetails {
   account: Account!
   amount: BigInt!
   block: BigInt!
-  direction: TransferDirection!
   from: Address!
   id: ID!
   logIndex: Float!
