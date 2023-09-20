@@ -108,12 +108,12 @@ export interface ContractTarget extends Target {
   "contract": string;
 }
 export interface Event extends std.$Object {
-  "account": Account;
-  "transactionHash": string;
+  "transaction"?: Transaction | null;
   "block": bigint;
+  "internal": boolean;
   "logIndex": number;
   "timestamp": Date;
-  "transaction"?: Transaction | null;
+  "transactionHash": string;
 }
 export interface Function extends std.$Object {
   "selector": string;
@@ -206,9 +206,10 @@ export interface Token extends std.$Object {
 export interface Transaction extends std.$Object {
   "receipt"?: Receipt | null;
   "submittedAt": Date;
-  "hash": string;
   "gasPrice": bigint;
+  "hash": string;
   "proposal": TransactionProposal;
+  "events": Event[];
 }
 export interface TransactionProposal extends Proposal {
   "nonce": bigint;
@@ -224,7 +225,6 @@ export type TransactionProposalStatus = "Pending" | "Executing" | "Successful" |
 export interface TransferDetails extends std.$Object {
   "account": Account;
   "amount": bigint;
-  "direction": TransferDirection;
   "from": string;
   "to": string;
   "tokenAddress": string;
@@ -236,7 +236,6 @@ export interface TransferApproval extends Transferlike {
   "previous"?: TransferApproval | null;
   "delta": bigint;
 }
-export type TransferDirection = "In" | "Out";
 export interface TransferLimit extends std.$Object {
   "amount": bigint;
   "duration": number;
@@ -528,7 +527,6 @@ export interface types {
     "Transferlike": Transferlike;
     "Transfer": Transfer;
     "TransferApproval": TransferApproval;
-    "TransferDirection": TransferDirection;
     "TransferLimit": TransferLimit;
     "TransfersConfig": TransfersConfig;
     "User": User;

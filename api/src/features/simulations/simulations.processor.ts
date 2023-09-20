@@ -60,11 +60,10 @@ export class SimulationsProcessor implements OnModuleInit {
       if (op.value) {
         transfers.push({
           account,
-          direction: e.cast(e.TransferDirection, 'Out' satisfies TransferDetails['direction']),
           from: accountAddress,
           to: op.to,
           tokenAddress: ZERO_ADDR,
-          amount: -op.value,
+          amount: op.to === accountAddress ? 0n : -op.value,
         });
       }
 
@@ -76,16 +75,14 @@ export class SimulationsProcessor implements OnModuleInit {
       if (f instanceof TransferOp && f.token !== ZERO_ADDR) {
         transfers.push({
           account,
-          direction: e.cast(e.TransferDirection, 'Out' satisfies TransferDetails['direction']),
           from: accountAddress,
           to: f.to,
           tokenAddress: f.token,
-          amount: -f.amount,
+          amount: f.to === accountAddress ? 0n : -f.amount,
         });
       } else if (f instanceof TransferFromOp) {
         transfers.push({
           account,
-          direction: e.cast(e.TransferDirection, 'In' satisfies TransferDetails['direction']),
           from: f.from,
           to: f.to,
           tokenAddress: f.token,
@@ -94,7 +91,6 @@ export class SimulationsProcessor implements OnModuleInit {
       } else if (f instanceof SwapOp) {
         transfers.push({
           account,
-          direction: e.cast(e.TransferDirection, 'In' satisfies TransferDetails['direction']),
           from: op.to,
           to: accountAddress,
           tokenAddress: f.toToken,

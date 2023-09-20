@@ -1,10 +1,4 @@
-import {
-  Extensions,
-  Field,
-  InterfaceType,
-  IntersectionType,
-  registerEnumType,
-} from '@nestjs/graphql';
+import { Extensions, Field, InterfaceType, IntersectionType } from '@nestjs/graphql';
 import { ObjectType } from '@nestjs/graphql';
 import { AddressField } from '~/apollo/scalars/Address.scalar';
 import { Account } from '../accounts/accounts.model';
@@ -23,9 +17,6 @@ export class TransferDetails {
   @Field(() => Account)
   account: Account;
 
-  @Field(() => TransferDirection)
-  direction: TransferDirection;
-
   @AddressField()
   from: string; // Address
 
@@ -41,12 +32,6 @@ export class TransferDetails {
   @Field(() => GraphQLBigInt)
   amount: bigint;
 }
-
-export enum TransferDirection {
-  In = 'In',
-  Out = 'Out',
-}
-registerEnumType(TransferDirection, { name: 'TransferDirection' });
 
 @InterfaceType({ implements: [EventBase, TransferDetails] })
 export class Transferlike extends IntersectionType(EventBase, TransferDetails) {}

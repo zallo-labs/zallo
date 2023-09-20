@@ -16,7 +16,10 @@ import { ComputedField } from '~/decorators/computed.decorator';
 
 @Resolver(() => TransferDetails)
 export class TransfersResolver {
-  constructor(private service: TransfersService, private pubsub: PubsubService) {}
+  constructor(
+    private service: TransfersService,
+    private pubsub: PubsubService,
+  ) {}
 
   @Query(() => [Transfer])
   async transfers(
@@ -33,7 +36,7 @@ export class TransfersResolver {
       { input }: InputArgs<TransferSubscriptionInput>,
     ) => {
       return (
-        (input.direction === undefined || input.direction === transfer.direction) &&
+        (input.direction === undefined || transfer.directions.includes(input.direction)) &&
         (input.internal === undefined || input.internal === transfer.internal)
       );
     },
