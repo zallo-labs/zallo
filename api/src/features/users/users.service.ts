@@ -101,6 +101,13 @@ export class UsersService {
               'else',
               e.select(e.User, () => ({ filter_single: { id: oldUser }, name: true })).name,
             ),
+            photoUri: e.op(
+              u.photoUri,
+              'if',
+              e.op('exists', u.photoUri),
+              'else',
+              e.select(e.User, () => ({ filter_single: { id: oldUser }, photoUri: true })).photoUri,
+            ),
           },
         })),
         oldUserRiskLabels: e.update(e.ProposalRiskLabel, (l) => ({
