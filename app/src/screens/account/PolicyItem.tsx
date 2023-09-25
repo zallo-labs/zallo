@@ -9,12 +9,14 @@ const Policy = gql(/* GraphQL */ `
     name
     state {
       id
+      threshold
       approvers {
         id
       }
     }
     draft {
       id
+      threshold
       approvers {
         id
       }
@@ -30,14 +32,16 @@ export interface PolicyItemProps extends Partial<ListItemProps> {
 export function PolicyItem(props: PolicyItemProps) {
   const policy = useFragment(Policy, props.policy);
 
+  const state = (policy.state ?? policy.draft)!;
+
   return (
     <ListItem
       leading={(props) => <PolicyIcon policy={policy} {...props} />}
       headline={policy.name}
-      supporting={match((policy.state ?? policy.draft)!.approvers.length)
+      supporting={match(state.approvers.length)
         .with(0, () => 'No approvers')
         .with(1, () => '1 approver')
-        .otherwise((approvers) => `${approvers} approvers`)}
+        .otherwise((approvers) => `${state.threshold}/${approvers} approvers`)}
       {...props}
     />
   );

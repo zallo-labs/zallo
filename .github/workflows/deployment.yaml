@@ -58,6 +58,7 @@ jobs:
 
     env:
       DOTENV_KEY: ${{ secrets.DOTENV_KEY }}
+      NODE_OPTIONS: '--max-old-space-size=4096'
 
     steps:
       - name: 🚧 Checkout
