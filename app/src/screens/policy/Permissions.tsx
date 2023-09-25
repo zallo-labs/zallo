@@ -18,7 +18,7 @@ export const Permissions = (props: PermissionsProps) => {
   const [{ account, permissions }] = useImmerAtom(POLICY_DRAFT_ATOM);
 
   const contracts = [
-    ...Object.keys(permissions.targets),
+    ...Object.keys(permissions.targets.contracts),
     ...Object.keys(permissions.transfers.limits),
   ].filter((contract): contract is Address => isAddress(contract) && contract !== account);
 
