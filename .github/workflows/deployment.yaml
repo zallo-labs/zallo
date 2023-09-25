@@ -81,12 +81,8 @@ jobs:
       - name: 🏗️ Prebuild
         run: yarn app prebuild
 
-      # Update both android & ios, but not web (thus not all). Web build fails when bundling @react-native-community/blur
-      - name: 🚀 Publish update (Android)
-        run: yarn app eas update --auto --non-interactive --platform android
-
-      - name: 🚀 Publish update (iOS)
-        run: yarn app eas update --auto --non-interactive --platform ios
+      - name: 🚀 Publish update
+        run: yarn app eas update --auto --non-interactive --platform all
 
   site:
     environment: main - site
