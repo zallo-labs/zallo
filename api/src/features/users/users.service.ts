@@ -79,13 +79,15 @@ export class UsersService {
 
     if (oldUser === newUser) return;
 
+    const selectNewUser = e.select(e.User, () => ({ filter_single: { id: newUser } }));
+
     // Pair with the user - merging their approvers into the current user
     const approvers = await e
       .select({
         approvers: e.select(
           e.update(e.Approver, (a) => ({
             filter: e.op(a.user.id, '=', e.cast(e.uuid, oldUser)),
-            set: { user: e.select(e.User, () => ({ filter_single: { id: newUser } })) },
+            set: { user: selectNewUser },
           })),
           () => ({ address: true }),
         ).address,
@@ -99,6 +101,16 @@ export class UsersService {
               'else',
               e.select(e.User, () => ({ filter_single: { id: oldUser }, name: true })).name,
             ),
+          },
+        })),
+        oldUserRiskLabels: e.update(e.ProposalRiskLabel, (l) => ({
+          filter: e.op(
+            l.user,
+            '=',
+            e.select(e.User, () => ({ filter_single: { id: oldUser } })),
+          ),
+          set: {
+            user: selectNewUser,
           },
         })),
       })
