@@ -66,6 +66,7 @@
     "luxon": "^3.4.3",
     "nestjs-request-context": "^3.0.0",
     "neverthrow": "^6.0.0",
+    "redis-semaphore": "^5.5.0",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.8.1",
     "siwe": "^1.1.6",

@@ -13960,6 +13960,7 @@ __metadata:
     luxon: ^3.4.3
     nestjs-request-context: ^3.0.0
     neverthrow: ^6.0.0
+    redis-semaphore: ^5.5.0
     reflect-metadata: ^0.1.13
     rxjs: ^7.8.1
     siwe: ^1.1.6
@@ -35044,6 +35045,17 @@ __metadata:
   dependencies:
     redis-errors: ^1.0.0
   checksum: 89290ae530332f2ae37577647fa18208d10308a1a6ba750b9d9a093e7398f5e5253f19855b64c98757f7129cccce958e4af2573fdc33bad41405f87f1943459a
+  languageName: node
+  linkType: hard
+
+"redis-semaphore@npm:^5.5.0":
+  version: 5.5.0
+  resolution: "redis-semaphore@npm:5.5.0"
+  dependencies:
+    debug: ^4.3.4
+  peerDependencies:
+    ioredis: ^4.1.0 || ^5
+  checksum: 1a7eddafa370703a17dc27a0cc9a971b1a3d3b6bf796ed0b104ff4d66ab15872f12754c7f4f83580b8a8cf6b8d068b5638d07c17c132491635369baf55400f39
   languageName: node
   linkType: hard
 
