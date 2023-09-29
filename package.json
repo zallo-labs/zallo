@@ -9,8 +9,7 @@
     "app",
     "contracts",
     "lib",
-    "site",
-    "subgraph"
+    "site"
   ],
   "scripts": {
     "api": "yarn workspace api",
@@ -18,7 +17,6 @@
     "contracts": "yarn workspace contracts",
     "lib": "yarn workspace lib",
     "site": "yarn workspace site",
-    "subgraph": "yarn workspace subgraph",
     "postinstall": "husky install .config/husky",
     "lint": "eslint \"**/*.{js,ts,jsx,tsx}\"",
     "lint:fix": "yarn lint --fix",

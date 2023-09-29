@@ -83,28 +83,6 @@ jobs:
       - name: 🧪 Typecheck
         run: yarn site typecheck
 
-  # subgraph:
-  #   runs-on: ubuntu-latest
-
-  #   steps:
-  #     - name: 🚧 Checkout
-  #       uses: actions/checkout@v3
-
-  #     - name: 🚧 Setup Node
-  #       uses: actions/setup-node@v3
-  #       with:
-  #         node-version: 18
-  #         cache: 'yarn'
-
-  #     - name: 📦 Install
-  #       run: yarn install
-
-  #     - name: 🏗️ Generate
-  #       run: yarn subgraph generate
-
-  #     - name: 🏗️ Build
-  #       run: yarn subgraph build:testnet
-
   api:
     runs-on: ubuntu-latest
 

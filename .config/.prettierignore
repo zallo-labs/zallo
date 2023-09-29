@@ -56,10 +56,3 @@
 ## Lib
 ../lib/src/contracts
 ../lib/src/typechain
-
-
-## Subgraph
-../subgraph/build
-../subgraph/data
-../subgraph/generated
-../subgraph/subgraph.yaml
