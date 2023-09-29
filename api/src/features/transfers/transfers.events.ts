@@ -16,6 +16,7 @@ import { PubsubService } from '../util/pubsub/pubsub.service';
 import { decodeEventLog, getAbiItem, getEventSelector } from 'viem';
 import { and } from '../database/database.util';
 import { TransferDirection } from './transfers.input';
+import { AccountsCacheService } from '../auth/accounts.cache.service';
 
 const altEthAddress = asAddress(L2_ETH_TOKEN_ADDRESS);
 const normalizeEthAddress = (address: Address) =>
@@ -37,6 +38,7 @@ export class TransfersEvents {
     private transactionsProcessor: TransactionsProcessor,
     private provider: ProviderService,
     private pubsub: PubsubService,
+    private accountsCache: AccountsCacheService,
   ) {
     /*
      * Events processor handles events `to` account
@@ -66,12 +68,8 @@ export class TransfersEvents {
 
     const { from, to, value: amount } = r.args;
 
-    const accounts = (await this.db.query(
-      e.select(e.Account, (account) => ({
-        filter: e.op(account.address, 'in', e.set(from, to)),
-        address: true,
-      })).address,
-    )) as Address[];
+    const isAccount = await this.accountsCache.isAccount([from, to]);
+    const accounts = [isAccount[0] && from, isAccount[1] && to].filter(isTruthy);
 
     if (!accounts.length) return;
 
