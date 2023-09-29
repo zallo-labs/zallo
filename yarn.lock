@@ -13930,7 +13930,6 @@ __metadata:
     "@urql/exchange-request-policy": ^1.0.2
     "@urql/exchange-retry": ^1.2.0
     abitype: ^0.9.8
-    async-mutex: ^0.4.0
     bull: ^4.11.3
     chardet: ^1.6.0
     class-transformer: ^0.5.1
