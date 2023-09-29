@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { Address } from 'lib';
 import { InjectRedis } from '@songkeys/nestjs-redis';
 import Redis from 'ioredis';
@@ -13,17 +13,33 @@ interface AdApproverToAccountParams {
   account: UserAccountContext;
 }
 
+const ACCOUNTS_ADDRESS_SET = 'accounts';
 const approverUserKey = (approver: Address) => `approver:${approver}:user`;
 const userAccountsKey = (user: uuid) => `user:${user}:accounts`;
 
 @Injectable()
-export class AccountsCacheService {
+export class AccountsCacheService implements OnModuleInit {
   private readonly EXPIRY_SECONDS = Duration.fromObject({ day: 1 }).as('seconds');
 
   constructor(
     @InjectRedis() private redis: Redis,
     private db: DatabaseService,
   ) {}
+
+  async onModuleInit() {
+    if ((await this.redis.scard(ACCOUNTS_ADDRESS_SET)) > 0) return;
+
+    const addresses = await this.db.query(e.select(e.Account, () => ({ address: true })).address);
+    await this.redis.sadd(ACCOUNTS_ADDRESS_SET, addresses);
+  }
+
+  async isAccount<T extends Address | Address[]>(address: T) {
+    return (
+      Array.isArray(address)
+        ? (await this.redis.smismember(ACCOUNTS_ADDRESS_SET, ...address)).map((r) => r === 1)
+        : (await this.redis.sismember(ACCOUNTS_ADDRESS_SET, address)) === 1
+    ) as T extends Address[] ? boolean[] : boolean;
+  }
 
   async getApproverAccounts(approver: Address): Promise<UserAccountContext[]> {
     const cachedAccounts = await this.getCachedAccounts(approver);
@@ -54,8 +70,9 @@ export class AccountsCacheService {
   }
 
   async addCachedAccount({ approver, account }: AdApproverToAccountParams) {
-    const accounts = (await this.getCachedAccounts(approver)) ?? [];
+    this.redis.sadd(ACCOUNTS_ADDRESS_SET, account.address);
 
+    const accounts = (await this.getCachedAccounts(approver)) ?? [];
     if (!accounts.find((a) => a.id === account.id)) accounts.push(account);
     if (!getUserCtx().accounts.find((a) => a.id === account.id))
       getUserCtx().accounts.push(account);
