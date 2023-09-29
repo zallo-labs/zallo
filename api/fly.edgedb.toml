@@ -1,24 +1,27 @@
 app = "zallo-production-edgedb"
 primary_region = "lax"  # Los Angeles
 
-swap_size_mb = 1024
+swap_size_mb = 2048
 
 [build]
-  image = "edgedb/edgedb:3.3"
+  image = "edgedb/edgedb:3.4"
 
 [env]
-  EDGEDB_SERVER_PORT = 8080
-  EDGEDB_SERVER_BACKEND_DSN_ENV = "DATABASE_URL"
+  EDGEDB_SERVER_PORT = 10700 # default
   EDGEDB_SERVER_TLS_CERT_MODE = "generate_self_signed"
+  EDGEDB_SERVER_DATADIR = "/var/lib/edgedb/data" # default; only for local postgres instance
 
   # Secrets
-  # DATABASE_URL                # fly pg attach ...
   # EDGEDB_PASSWORD             # Randomly generated
   # EDGEDB_SERVER_TLS_KEY       # Exported from app after first start
   # EDGEDB_SERVER_TLS_CERT      # ^
 
+  # For remote postgres instance
+  # EDGEDB_SERVER_BACKEND_DSN_ENV = "DATABASE_URL"
+  # DATABASE_URL secret                # fly pg attach ... # only for remote postgres instance
+
 [[services]]
-  internal_port = 8080
+  internal_port = 10700
   protocol = "tcp"
   auto_stop_machines = false
   auto_start_machines = true
@@ -40,7 +43,7 @@ swap_size_mb = 1024
 
   [[services.http_checks]]
     interval = "10s"
-    grace_period = "30s"
+    grace_period = "60s"
     method = "get"
     path = "/server/status/alive"
     protocol = "https"
@@ -48,5 +51,10 @@ swap_size_mb = 1024
     tls_skip_verify = true
 
 [metrics]
-  port = 8080
+  port = 10700
   path = "/metrics"
+
+# Only required for local postgres instance
+[mounts]
+  source = "edgedb_data"
+  destination = "/var/lib/edgedb" # EDGEDB_SERVER_DATADIR parent; can't be /data dir directly
