@@ -69,7 +69,7 @@ export const AccountScreen = withSuspense(
         <View style={styles.listContainer}>
           <FlashList
             data={account.policies}
-            ListHeaderComponent={<ListHeader>Access Policies</ListHeader>}
+            ListHeaderComponent={<ListHeader>Security Policies</ListHeader>}
             renderItem={({ item: policy }) => (
               <PolicyItem
                 policy={policy}
