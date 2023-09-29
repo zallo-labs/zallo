@@ -1,10 +1,11 @@
-import { Test, TestingModule } from '@nestjs/testing';
+import { Test } from '@nestjs/testing';
 import { EVENTS_QUEUE, EventsProcessor, EventJobData } from './events.processor';
 import { DeepMocked, createMock } from '@golevelup/ts-jest';
 import { ProviderService } from '../util/provider/provider.service';
 import { BullModule, getQueueToken } from '@nestjs/bull';
 import { Job, Queue } from 'bull';
 import { Log } from 'zksync-web3/build/src/types';
+import { DEFAULT_REDIS_NAMESPACE, getRedisToken } from '@songkeys/nestjs-redis';
 
 describe(EventsProcessor.name, () => {
   let processor: EventsProcessor;
@@ -22,7 +23,10 @@ describe(EventsProcessor.name, () => {
   beforeEach(async () => {
     const module = await Test.createTestingModule({
       imports: [BullModule.registerQueue(EVENTS_QUEUE)],
-      providers: [EventsProcessor],
+      providers: [
+        EventsProcessor,
+        { provide: getRedisToken(DEFAULT_REDIS_NAMESPACE), useValue: createMock() },
+      ],
     })
       .overrideProvider(getQueueToken(EVENTS_QUEUE.name))
       .useValue(createMock())

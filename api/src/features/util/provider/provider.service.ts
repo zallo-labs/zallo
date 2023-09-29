@@ -19,11 +19,11 @@ import {
   ERC20_ABI,
   tryOrIgnoreAsync,
 } from 'lib';
-import { Mutex } from 'async-mutex';
 import { PublicClient, WebSocketTransport, createPublicClient, webSocket } from 'viem';
 import { ETH_ADDRESS } from 'zksync-web3/build/src/utils';
 import Redis from 'ioredis';
 import { InjectRedis } from '@songkeys/nestjs-redis';
+import { Mutex } from 'redis-semaphore';
 
 interface BalanceArgs {
   account: Address;
@@ -37,7 +37,6 @@ export class ProviderService extends zk.Provider {
   public chain: Chain;
   public client: PublicClient<WebSocketTransport, typeof CONFIG.chain>;
   private wallet: zk.Wallet;
-  private walletMutex = new Mutex(); // TODO: replace with distributed mutex - https://linear.app/zallo/issue/ZAL-91
   private proxyFactory: Factory;
 
   constructor(@InjectRedis() private redis: Redis) {
@@ -63,13 +62,19 @@ export class ProviderService extends zk.Provider {
     return this.wallet.address;
   }
 
-  useWallet<R>(f: (wallet: zk.Wallet) => R): Promise<R> {
-    return this.walletMutex.runExclusive(() => f(this.wallet));
+  async useWallet<R>(f: (wallet: zk.Wallet) => R): Promise<R> {
+    const mutex = new Mutex(this.redis, `provider-wallet:${this.wallet.address}`);
+    try {
+      await mutex.acquire();
+      return await f(this.wallet);
+    } finally {
+      await mutex.release();
+    }
   }
 
   useProxyFactory<R>(f: (factory: Factory) => R): Promise<R> {
     // Proxy factory is connect to the wallet
-    return this.walletMutex.runExclusive(() => f(this.proxyFactory));
+    return this.useWallet(() => f(this.proxyFactory));
   }
 
   connectAccount(account: Addresslike): Account {

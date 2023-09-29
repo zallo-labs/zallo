@@ -9,6 +9,9 @@ import { DatabaseService } from '../database/database.service';
 import e from '~/edgeql-js';
 import { P, match } from 'ts-pattern';
 import { tryOrCatchAsync } from 'lib';
+import { InjectRedis } from '@songkeys/nestjs-redis';
+import Redis from 'ioredis';
+import { Mutex } from 'redis-semaphore';
 
 const DEFAULT_CHUNK_SIZE = 200;
 const BLOCK_TIME_MS = 500;
@@ -52,10 +55,16 @@ export class EventsProcessor implements OnModuleInit {
     private queue: Queue<EventJobData>,
     private provider: ProviderService,
     private db: DatabaseService,
+    @InjectRedis() private redis: Redis,
   ) {}
 
-  onModuleInit() {
-    this.addMissingJob();
+  async onModuleInit() {
+    const mutex = new Mutex(this.redis, 'events-missing-job');
+    try {
+      if (await mutex.tryAcquire()) await this.addMissingJob();
+    } finally {
+      await mutex.release();
+    }
   }
 
   on(topic: string, listener: EventListener) {
@@ -116,8 +125,8 @@ export class EventsProcessor implements OnModuleInit {
     }
 
     await Promise.all(
-      logs.flatMap((log) =>
-        this.listeners.get(log.topics[0])?.map((listener) => listener({ log })),
+      logs.flatMap(
+        (log) => this.listeners.get(log.topics[0])?.map((listener) => listener({ log })),
       ),
     );
     Logger.verbose(`Processed ${logs.length} events from ${to - from + 1} blocks [${from}, ${to}]`);
