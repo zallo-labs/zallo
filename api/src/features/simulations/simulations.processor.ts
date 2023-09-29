@@ -8,6 +8,9 @@ import { and } from '../database/database.util';
 import { OperationsService } from '../operations/operations.service';
 import { selectAccount } from '../accounts/accounts.util';
 import { SwapOp, TransferFromOp, TransferOp } from '../operations/operations.model';
+import { InjectRedis } from '@songkeys/nestjs-redis';
+import Redis from 'ioredis';
+import { Mutex } from 'redis-semaphore';
 
 type TransferDetails = Parameters<typeof e.insert<typeof e.TransferDetails>>[1];
 
@@ -26,11 +29,17 @@ export class SimulationsProcessor implements OnModuleInit {
     @InjectQueue(SIMULATIONS_QUEUE.name)
     private queue: Queue<SimulationRequest>,
     private db: DatabaseService,
+    @InjectRedis() private redis: Redis,
     private operations: OperationsService,
   ) {}
 
-  onModuleInit() {
-    this.addMissingJobs();
+  async onModuleInit() {
+    const mutex = new Mutex(this.redis, 'simulations-missing-jobs');
+    try {
+      if (await mutex.tryAcquire()) await this.addMissingJobs();
+    } finally {
+      await mutex.release();
+    }
   }
 
   @Process()
