@@ -16,6 +16,9 @@ import { EIP712_TX_TYPE } from 'zksync-web3/build/src/utils';
 import { decodeEventLog, getAbiItem, getEventSelector } from 'viem';
 import { ProposalsService } from '../proposals/proposals.service';
 import { ProposalEvent } from '../proposals/proposals.input';
+import { InjectRedis } from '@songkeys/nestjs-redis';
+import Redis from 'ioredis';
+import { Mutex } from 'redis-semaphore';
 
 @Injectable()
 export class TransactionsEvents implements OnModuleInit {
@@ -23,6 +26,7 @@ export class TransactionsEvents implements OnModuleInit {
     @InjectQueue(TRANSACTIONS_QUEUE.name)
     private queue: Queue<TransactionEvent>,
     private db: DatabaseService,
+    @InjectRedis() private redis: Redis,
     private provider: ProviderService,
     private transactionsProcessor: TransactionsProcessor,
     private proposals: ProposalsService,
@@ -38,8 +42,13 @@ export class TransactionsEvents implements OnModuleInit {
     this.transactionsProcessor.onTransaction((data) => this.reverted(data));
   }
 
-  onModuleInit() {
-    this.addMissingJobs();
+  async onModuleInit() {
+    const mutex = new Mutex(this.redis, 'transactions-missing-jobs');
+    try {
+      if (await mutex.tryAcquire()) await this.addMissingJobs();
+    } finally {
+      await mutex.release();
+    }
   }
 
   private async executed({ log, receipt, block }: TransactionEventData) {
