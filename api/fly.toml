@@ -1,4 +1,4 @@
-app = "zallo-api-prod"
+app = "zallo-production-api"
 primary_region = "lax" # Los Angeles
 
 swap_size_mb = 512
