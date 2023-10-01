@@ -18,16 +18,19 @@ export const logEvent = ({ level, message, error: ep, ...contextParam }: LogEven
   const error = ep !== undefined ? (ep instanceof Error ? ep : new Error(`${ep}`)) : undefined;
   const context = _.mapValues(contextParam, (v) => JSON.stringify(v ?? null, null, 2));
 
-  crashlytics().log(`${level}: ${message}`);
-  if (context) crashlytics().setAttributes(context);
-
-  Sentry.captureMessage(message, { level, extra: context });
-
+  // Sentry
   if (error) {
-    Sentry.captureException(error);
-    crashlytics().recordError(error);
+    Sentry.captureException(error, { level, extra: { ...context, message } });
+  } else {
+    Sentry.captureMessage(message, { level, extra: context });
   }
 
+  // Crashlytics
+  crashlytics().setAttributes(context);
+  crashlytics().log(`${level}: ${message}`);
+  if (error) crashlytics().recordError(error);
+
+  // Console
   CONSOLE[level](
     `Event: ${message}`,
     JSON.stringify(
