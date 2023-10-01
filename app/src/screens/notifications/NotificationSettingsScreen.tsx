@@ -19,29 +19,46 @@ import { useAtomValue } from 'jotai';
 import { ListHeader } from '~/components/list/ListHeader';
 import { useNavigateToCreateAccountOnboardScreen } from '../create-account/useNavigateToCreateAccountOnboardScreen';
 
-export type NotificationChannel = 'activity' | 'product';
+export type NotificationChannel = 'product' | 'activity' | 'transfers';
 export const NotificationChannelConfig: Record<NotificationChannel, NotificationChannelInput> = {
+  product: {
+    name: 'Product updates',
+    description: 'New features and announcements',
+    importance: Notifications.AndroidImportance.DEFAULT,
+  },
+  transfers: {
+    name: 'Transfers',
+    description: 'Receipt of tokens and spending allowances',
+    importance: Notifications.AndroidImportance.DEFAULT,
+    showBadge: false,
+    enableLights: false,
+    enableVibrate: false,
+  },
   activity: {
-    name: 'activity',
-    description: 'Account activity',
+    name: 'Account activity',
+    description: '',
     importance: Notifications.AndroidImportance.MAX,
     showBadge: true,
     enableLights: true,
     enableVibrate: true,
   },
-  product: {
-    name: 'product',
-    description: 'Product updates',
-    importance: Notifications.AndroidImportance.DEFAULT,
-  },
 };
 
-const NOTIFICATIONS_ATOM = persistedAtom<Record<NotificationChannel, boolean>>('Notifications', {
+const DEFAULT_SETTINGS: Record<NotificationChannel, boolean> = {
   activity: true,
   product: true,
-});
+  transfers: true,
+};
 
-export const useNotificationSettings = () => useAtomValue(NOTIFICATIONS_ATOM);
+const NOTIFICATIONS_ATOM = persistedAtom<Partial<Record<NotificationChannel, boolean>>>(
+  'Notifications',
+  DEFAULT_SETTINGS,
+);
+
+export const useNotificationSettings = () => ({
+  ...DEFAULT_SETTINGS,
+  ...useAtomValue(NOTIFICATIONS_ATOM),
+});
 
 export interface NotificationSettingsParams {
   isOnboarding?: boolean;
@@ -84,10 +101,11 @@ export const NotificationSettingsScreen = withSuspense(
           {Object.entries(NotificationChannelConfig).map(([channel, config]) => (
             <ListItem
               key={channel}
-              headline={config.description}
+              headline={config.name}
+              supporting={config.description}
               trailing={
                 <Switch
-                  value={settings[channel as NotificationChannel]}
+                  value={settings[channel as NotificationChannel] ?? true}
                   onValueChange={(v) =>
                     update((s) => {
                       s[channel as NotificationChannel] = v;
