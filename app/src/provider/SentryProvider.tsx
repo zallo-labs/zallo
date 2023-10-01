@@ -13,8 +13,8 @@ export const SentryProvider = ({ children }: SentryProviderProps) => {
     dsn: CONFIG.sentryDsn,
     environment: CONFIG.env,
     enableInExpoDevelopment: false,
-    sampleRate: 1, // Error sampling
-    tracesSampleRate: 0.25, // Performance sampling
+    sampleRate: 1.0, // Error sampling
+    tracesSampleRate: 1.0, // Performance sampling
     attachStacktrace: true,
     integrations: [
       new Sentry.ReactNativeTracing({

@@ -72,8 +72,8 @@ const client = atom(async (get) => {
     requestPolicy: 'cache-and-network',
     exchanges: [
       mapExchange({
-        onError(error, _operation) {
-          logError('[urql] error: ' + error.message, { error });
+        onError(error, operation) {
+          logError('[urql] error: ' + error.message, { error, operation });
         },
       }),
       // refocusExchange(),

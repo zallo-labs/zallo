@@ -174,7 +174,6 @@
     "@typescript-eslint/eslint-plugin": "^6.7.2",
     "babel-plugin-lodash": "^3.3.4",
     "babel-plugin-transform-remove-console": "^6.9.4",
-    "concurrently": "^8.2.1",
     "eslint": "^8.49.0",
     "eslint-config-prettier": "^9.0.0",
     "eslint-config-standard-with-typescript": "^39.0.0",

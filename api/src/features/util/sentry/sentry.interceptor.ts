@@ -8,7 +8,7 @@ import {
 import { HttpArgumentsHost, RpcArgumentsHost, WsArgumentsHost } from '@nestjs/common/interfaces';
 import type { GqlContextType, GraphQLArgumentsHost } from '@nestjs/graphql';
 import { GqlArgumentsHost } from '@nestjs/graphql';
-import { captureException, Scope, withScope, addRequestDataToEvent } from '@sentry/node';
+import * as Sentry from '@sentry/node';
 import { Request } from 'express';
 import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
@@ -29,7 +29,7 @@ export class SentryInterceptor implements NestInterceptor {
       tap({
         error: (exception) => {
           if (this.shouldReport(exception)) {
-            withScope((scope) => {
+            Sentry.withScope((scope) => {
               match(context.getType<GqlContextType>())
                 .with('graphql', () =>
                   this.addGraphQLExceptionMetadatas(scope, GqlArgumentsHost.create(context)),
@@ -39,7 +39,7 @@ export class SentryInterceptor implements NestInterceptor {
                 .with('rpc', () => this.addRpcExceptionMetadatas(scope, context.switchToRpc()))
                 .exhaustive();
 
-              return captureException(exception);
+              return Sentry.captureException(exception);
             });
           }
         },
@@ -47,7 +47,7 @@ export class SentryInterceptor implements NestInterceptor {
     );
   }
 
-  private addGraphQLExceptionMetadatas(scope: Scope, gqlHost: GraphQLArgumentsHost): void {
+  private addGraphQLExceptionMetadatas(scope: Sentry.Scope, gqlHost: GraphQLArgumentsHost): void {
     const context = gqlHost.getContext();
     this.addRequestToScope(scope, context?.req || context);
 
@@ -58,21 +58,21 @@ export class SentryInterceptor implements NestInterceptor {
     scope.setExtra('args', args);
   }
 
-  private addHttpExceptionMetadatas(scope: Scope, http: HttpArgumentsHost): void {
+  private addHttpExceptionMetadatas(scope: Sentry.Scope, http: HttpArgumentsHost): void {
     this.addRequestToScope(scope, http.getRequest());
   }
 
-  private addRequestToScope(scope: Scope, req: Request) {
-    const event = addRequestDataToEvent({}, req);
+  private addRequestToScope(scope: Sentry.Scope, req: Request) {
+    const event = Sentry.addRequestDataToEvent({}, req);
 
     if (event.user) scope.setUser(event.user);
   }
 
-  private addRpcExceptionMetadatas(scope: Scope, rpc: RpcArgumentsHost): void {
+  private addRpcExceptionMetadatas(scope: Sentry.Scope, rpc: RpcArgumentsHost): void {
     scope.setExtra('rpc_data', rpc.getData());
   }
 
-  private addWsExceptionMetadatas(scope: Scope, ws: WsArgumentsHost): void {
+  private addWsExceptionMetadatas(scope: Sentry.Scope, ws: WsArgumentsHost): void {
     scope.setExtra('ws_client', ws.getClient());
     scope.setExtra('ws_data', ws.getData());
   }
