@@ -60,7 +60,9 @@ export class EventsProcessor implements OnModuleInit {
   ) {}
 
   async onModuleInit() {
-    const mutex = new Mutex(this.redis, 'events-missing-job');
+    const mutex = new Mutex(this.redis, 'events-missing-job', {
+      lockTimeout: Number.POSITIVE_INFINITY,
+    });
     try {
       if (await mutex.tryAcquire()) await this.addMissingJob();
     } finally {

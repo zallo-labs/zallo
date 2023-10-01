@@ -44,7 +44,9 @@ export class TransactionsEvents implements OnModuleInit {
   }
 
   async onModuleInit() {
-    const mutex = new Mutex(this.redis, 'transactions-missing-jobs');
+    const mutex = new Mutex(this.redis, 'transactions-missing-jobs', {
+      lockTimeout: Number.POSITIVE_INFINITY,
+    });
     try {
       if (await mutex.tryAcquire()) await this.addMissingJobs();
     } finally {
