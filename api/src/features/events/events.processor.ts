@@ -12,6 +12,7 @@ import { tryOrCatchAsync } from 'lib';
 import { InjectRedis } from '@songkeys/nestjs-redis';
 import Redis from 'ioredis';
 import { Mutex } from 'redis-semaphore';
+import { RUNNING_JOB_STATUSES } from '../util/bull/bull.util';
 
 const DEFAULT_CHUNK_SIZE = 200;
 const BLOCK_TIME_MS = 500;
@@ -139,7 +140,7 @@ export class EventsProcessor implements OnModuleInit {
   }
 
   private async addMissingJob() {
-    const nExistingJobs = await this.queue.getJobCountByTypes(['waiting', 'active', 'delayed']);
+    const nExistingJobs = await this.queue.getJobCountByTypes(RUNNING_JOB_STATUSES);
     Logger.log(`Events starting with jobs: ${nExistingJobs}`);
     if (nExistingJobs) return;
 

@@ -11,6 +11,7 @@ import { SwapOp, TransferFromOp, TransferOp } from '../operations/operations.mod
 import { InjectRedis } from '@songkeys/nestjs-redis';
 import Redis from 'ioredis';
 import { Mutex } from 'redis-semaphore';
+import { RUNNING_JOB_STATUSES } from '../util/bull/bull.util';
 
 type TransferDetails = Parameters<typeof e.insert<typeof e.TransferDetails>>[1];
 
@@ -123,7 +124,7 @@ export class SimulationsProcessor implements OnModuleInit {
   }
 
   private async addMissingJobs() {
-    const jobs = await this.queue.getJobs(['waiting', 'active', 'delayed', 'paused']);
+    const jobs = await this.queue.getJobs(RUNNING_JOB_STATUSES);
 
     const orphanedProposals = await this.db.query(
       e.select(e.TransactionProposal, (p) => ({

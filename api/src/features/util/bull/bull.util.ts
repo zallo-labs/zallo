@@ -4,6 +4,7 @@ import { BullBoardModule, BullBoardQueueOptions } from '@bull-board/nestjs';
 import { BullAdapter } from '@bull-board/api/bullAdapter';
 import { CONFIG } from '~/config';
 import { isTruthy } from 'lib';
+import { JobStatus } from 'bull';
 
 export const BULL_BOARD_CREDS =
   CONFIG.bullBoardUser && CONFIG.bullBoardPassword
@@ -28,3 +29,10 @@ export const registerBullQueue = (...queues: (BullModuleOptions & { name: string
         ),
       ),
   ].filter(isTruthy);
+
+export const RUNNING_JOB_STATUSES = [
+  'waiting',
+  'active',
+  'delayed',
+  'paused',
+] satisfies JobStatus[];
