@@ -14,7 +14,6 @@ import { MinimalErrorBoundary } from './MinimalErrorBoundary';
 import { ReactNode } from 'react';
 
 interface Inputs {
-  name?: string;
   email?: string;
   comments?: string;
 }
@@ -30,7 +29,7 @@ export const ErrorBoundary = ({ children }: ErrorBoundaryProps) => {
 
   return (
     <MinimalErrorBoundary
-      fallback={({ eventId, error, resetError }) => (
+      fallback={({ eventId, error, resetError, componentStack }) => (
         <Screen>
           <Appbar
             mode="small"
@@ -52,8 +51,6 @@ export const ErrorBoundary = ({ children }: ErrorBoundaryProps) => {
             <View style={styles.form}>
               <Text>{`If you'd like to help, tell us what happened`}</Text>
 
-              <FormTextField label="Name" control={control} name="name" />
-
               <FormTextField label="Email" control={control} name="email" />
 
               <FormTextField
@@ -69,13 +66,15 @@ export const ErrorBoundary = ({ children }: ErrorBoundaryProps) => {
               <FormSubmitButton
                 mode="contained"
                 control={control}
-                onPress={handleSubmit(({ name, email, comments }) => {
-                  if (name || email || comments) {
+                onPress={handleSubmit(({ email, comments }) => {
+                  if (email || comments) {
                     Sentry.captureUserFeedback({
                       event_id:
                         eventId ||
-                        Sentry.captureException(error, { extra: { errorBoundary: true } }),
-                      name: name ?? '',
+                        Sentry.captureException(error, {
+                          extra: { errorBoundary: true, componentStack },
+                        }),
+                      name: '',
                       email: email,
                       comments: comments ?? '',
                     });
