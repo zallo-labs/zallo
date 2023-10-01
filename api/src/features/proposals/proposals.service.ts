@@ -134,17 +134,25 @@ export class ProposalsService {
   async update({ hash, policy }: UpdateProposalInput) {
     if (policy === undefined) return;
 
-    await this.db.query(
-      e.update(e.Proposal, (p) => ({
-        filter_single: { hash },
-        set: {
-          policy:
-            policy !== null
-              ? e.select(e.Policy, () => ({ filter_single: { account: p.account, key: policy } }))
-              : null,
-        },
-      })),
+    const p = await this.db.query(
+      e.select(
+        e.update(e.Proposal, (p) => ({
+          filter_single: { hash },
+          set: {
+            policy:
+              policy !== null
+                ? e.select(e.Policy, () => ({ filter_single: { account: p.account, key: policy } }))
+                : null,
+          },
+        })),
+        () => ({
+          account: { address: true },
+        }),
+      ),
     );
+
+    if (p)
+      this.publishProposal({ hash, account: p.account.address as Address }, ProposalEvent.update);
   }
 
   async publishProposal(
