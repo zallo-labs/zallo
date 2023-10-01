@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { Address, ERC20_ABI, Hex, asAddress, isPresent, isTruthy, toArray, tryOrIgnore } from 'lib';
+import { Address, ERC20_ABI, Hex, asAddress, isTruthy, tryOrIgnore } from 'lib';
 import {
   TransactionEventData,
   TransactionsProcessor,
@@ -9,14 +9,15 @@ import { DatabaseService } from '../database/database.service';
 import e from '~/edgeql-js';
 import { selectAccount } from '../accounts/accounts.util';
 import { ProviderService } from '../util/provider/provider.service';
-import { ETH_ADDRESS } from 'zksync-web3/build/src/utils';
+import { BOOTLOADER_FORMAL_ADDRESS, ETH_ADDRESS } from 'zksync-web3/build/src/utils';
 import { L2_ETH_TOKEN_ADDRESS } from 'zksync-web3/build/src/utils';
 import { uuid } from 'edgedb/dist/codecs/ifaces';
 import { PubsubService } from '../util/pubsub/pubsub.service';
-import { decodeEventLog, getAbiItem, getEventSelector } from 'viem';
+import { decodeEventLog, formatUnits, getAbiItem, getEventSelector } from 'viem';
 import { and } from '../database/database.util';
 import { TransferDirection } from './transfers.input';
 import { AccountsCacheService } from '../auth/accounts.cache.service';
+import { ExpoService } from '../util/expo/expo.service';
 
 const altEthAddress = asAddress(L2_ETH_TOKEN_ADDRESS);
 const normalizeEthAddress = (address: Address) =>
@@ -39,6 +40,7 @@ export class TransfersEvents {
     private provider: ProviderService,
     private pubsub: PubsubService,
     private accountsCache: AccountsCacheService,
+    private expo: ExpoService,
   ) {
     /*
      * Events processor handles events `to` account
@@ -55,6 +57,7 @@ export class TransfersEvents {
 
   private async transfer(event: EventData | TransactionEventData) {
     const { log } = event;
+    const isFromTransaction = 'receipt' in event;
 
     const r = tryOrIgnore(() =>
       decodeEventLog({
@@ -70,7 +73,6 @@ export class TransfersEvents {
 
     const isAccount = await this.accountsCache.isAccount([from, to]);
     const accounts = [isAccount[0] && from, isAccount[1] && to].filter(isTruthy);
-
     if (!accounts.length) return;
 
     const token = normalizeEthAddress(asAddress(log.address));
@@ -114,15 +116,9 @@ export class TransfersEvents {
           ),
         );
 
-        Logger.debug(
-          `[${account}]: token (${token}) transfer ${
-            from === account ? `to ${to}` : `from ${from}`
-          }`,
-        );
-
         this.provider.invalidateBalance({ account, token });
 
-        await this.pubsub.publish<TransferSubscriptionPayload>(getTransferTrigger(account), {
+        this.pubsub.publish<TransferSubscriptionPayload>(getTransferTrigger(account), {
           transfer: transfer.id,
           account,
           directions: [
@@ -131,6 +127,16 @@ export class TransfersEvents {
           ].filter(isTruthy),
           internal: transfer.internal,
         });
+
+        if (!isFromTransaction && from !== BOOTLOADER_FORMAL_ADDRESS) {
+          Logger.debug(
+            `[${account}]: token (${token}) transfer ${
+              from === account ? `to ${to}` : `from ${from}`
+            }`,
+          );
+
+          if (to === account) this.notifyMembers('transfer', account, from, token, amount);
+        }
       }),
     );
   }
@@ -150,39 +156,105 @@ export class TransfersEvents {
 
     const { owner: from, spender: to, value: amount } = r.args;
 
-    const accounts = await this.db.query(
-      e.select(e.Account, (account) => ({
-        filter: e.op(account.address, 'in', e.set(from, to)),
-        address: true,
-      })).address,
+    const isAccount = await this.accountsCache.isAccount([from, to]);
+    const accounts = [isAccount[0] && from, isAccount[1] && to].filter(isTruthy);
+    if (!accounts.length) return;
+
+    Logger.debug(`Transfer approval ${from} -> ${to}`);
+    const block = await this.provider.getBlock(log.blockNumber);
+    const tokenAddress = normalizeEthAddress(asAddress(log.address));
+
+    await Promise.all(
+      accounts.map(async (account) => {
+        await this.db.query(
+          e
+            .insert(e.TransferApproval, {
+              account: selectAccount(account),
+              transactionHash: log.transactionHash,
+              logIndex: log.logIndex,
+              block: BigInt(log.blockNumber),
+              timestamp: new Date(block.timestamp * 1000),
+              from,
+              to,
+              tokenAddress,
+              amount: from === to ? 0n : to === account ? amount : -amount,
+            })
+            .unlessConflict(),
+        );
+
+        if (to === account) this.notifyMembers('approval', account, from, tokenAddress, amount);
+      }),
+    );
+  }
+
+  private async notifyMembers(
+    type: 'transfer' | 'approval',
+    account: Address,
+    from: Address,
+    token: Address,
+    amount: bigint,
+  ) {
+    const { acc, tokenMetadata } = await this.db.query(
+      e.select({
+        acc: e.select(e.Account, (a) => ({
+          filter_single: { address: account },
+          name: true,
+          approvers: e.select(a.approvers, (approver) => ({
+            filter: e.op('exists', approver.pushToken),
+            pushToken: approver.pushToken,
+            fromContactLabel: e.assert_single(
+              e.select(approver.user.contacts, (c) => ({
+                filter: e.op(c.address, '=', from),
+                label: true,
+              })).label,
+            ),
+            token: e.select(e.Token, () => ({
+              filter_single: { address: token, user: approver.user },
+              symbol: true,
+              decimals: true,
+            })),
+          })),
+        })),
+        tokenMetadata: e.assert_single(
+          e.select(e.Token, (t) => ({
+            filter: e.op(e.op(t.address, '=', token), 'and', e.op('not', e.op('exists', t.user))),
+            limit: 1,
+            symbol: true,
+            decimals: true,
+          })),
+        ),
+      }),
     );
 
-    if (accounts.length) {
-      Logger.debug(`Transfer approval ${from} -> ${to}`);
-      const block = await this.provider.getBlock(log.blockNumber);
-      const tokenAddress = normalizeEthAddress(asAddress(log.address));
+    if (!acc) return;
 
-      const approvals = toArray(
-        await this.db.query(
-          e.set(
-            ...accounts.map((account) =>
-              e
-                .insert(e.TransferApproval, {
-                  account: selectAccount(account),
-                  transactionHash: log.transactionHash,
-                  logIndex: log.logIndex,
-                  block: BigInt(log.blockNumber),
-                  timestamp: new Date(block.timestamp * 1000),
-                  from,
-                  to,
-                  tokenAddress,
-                  amount: from === to ? 0n : to === account ? amount : -amount,
-                })
-                .unlessConflict(),
-            ),
-          ),
-        ),
-      ).filter(isPresent);
-    }
+    const truncatedTokenLabel = `${token.slice(0, 5)}...${token.length - 3}`;
+    const truncatedFromLabel = `${from.slice(0, 5)}...${from.length - 3}`;
+
+    await this.expo.sendNotification(
+      acc.approvers.map((a) => {
+        const fromLabel = a.fromContactLabel || truncatedFromLabel;
+        const t = a.token ?? tokenMetadata;
+
+        return {
+          to: a.pushToken!,
+          title:
+            type === 'transfer' ? `${acc.name}: tokens received` : `${acc.name}: spending approval`,
+          body:
+            type === 'transfer'
+              ? t
+                ? `${formatUnits(amount, t.decimals)} ${t.symbol} received from ${fromLabel}`
+                : `Tokens (${truncatedTokenLabel}) received from ${fromLabel}`
+              : t
+              ? `${fromLabel} has allowed you to spend ${formatUnits(
+                  amount,
+                  t.decimals,
+                )} of their ${t.symbol} `
+              : `${fromLabel} has allowed you to spend their tokens (${truncatedTokenLabel})`,
+          channelId: 'transfers',
+          priority: 'normal',
+        };
+      }),
+    );
   }
 }
