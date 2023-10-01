@@ -63,9 +63,16 @@ export const NotificationsRegistrar = () => {
               for (const [channel, config] of Object.entries(NotificationChannelConfig)) {
                 if (channelEnabled[channel as NotificationChannel]) {
                   Notifications.setNotificationChannelAsync(channel, config);
-                } else {
-                  Notifications.deleteNotificationChannelAsync(channel);
                 }
+              }
+
+              const channelsToDelete = (await Notifications.getNotificationChannelsAsync()).filter(
+                (c) =>
+                  channelEnabled[c.id as NotificationChannel] === false ||
+                  !(c.id in NotificationChannelConfig),
+              );
+              for (const channel of channelsToDelete) {
+                Notifications.deleteNotificationChannelAsync(channel.id);
               }
             }
 
