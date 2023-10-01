@@ -72,7 +72,7 @@ export class AccountsCacheService implements OnModuleInit {
   async addCachedAccount({ approver, account }: AdApproverToAccountParams) {
     this.redis.sadd(ACCOUNTS_ADDRESS_SET, account.address);
 
-    const accounts = (await this.getCachedAccounts(approver)) ?? [];
+    const accounts = await this.getApproverAccounts(approver);
     if (!accounts.find((a) => a.id === account.id)) accounts.push(account);
     if (!getUserCtx().accounts.find((a) => a.id === account.id))
       getUserCtx().accounts.push(account);

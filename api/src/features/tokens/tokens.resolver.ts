@@ -43,9 +43,11 @@ export class TokensResolver {
   @ComputedField<typeof e.Token>(() => GraphQLBigInt, { address: true })
   async balance(
     @Parent() { address: token }: Token,
-    @Input() { account }: BalanceInput,
+    @Input() { account = getUserCtx().accounts[0]?.address }: BalanceInput,
   ): Promise<bigint> {
-    return this.provider.balance({ account: account ?? getUserCtx().accounts[0].address, token });
+    if (!account) return 0n;
+
+    return this.provider.balance({ account, token });
   }
 
   @ComputedField<typeof e.Token>(

@@ -5,9 +5,10 @@ import { EventsModule } from '../events/events.module';
 import { TransfersEvents } from './transfers.events';
 import { TransactionsModule } from '../transactions/transactions.module';
 import { PricesModule } from '../prices/prices.module';
+import { ExpoModule } from '../util/expo/expo.module';
 
 @Module({
-  imports: [EventsModule, TransactionsModule, EventsModule, PricesModule],
+  imports: [EventsModule, TransactionsModule, EventsModule, PricesModule, ExpoModule],
   providers: [TransfersService, TransfersResolver, TransfersEvents],
 })
 export class TransfersModule {}

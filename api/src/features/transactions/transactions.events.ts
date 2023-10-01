@@ -19,6 +19,7 @@ import { ProposalEvent } from '../proposals/proposals.input';
 import { InjectRedis } from '@songkeys/nestjs-redis';
 import Redis from 'ioredis';
 import { Mutex } from 'redis-semaphore';
+import { RUNNING_JOB_STATUSES } from '../util/bull/bull.util';
 
 @Injectable()
 export class TransactionsEvents implements OnModuleInit {
@@ -43,7 +44,9 @@ export class TransactionsEvents implements OnModuleInit {
   }
 
   async onModuleInit() {
-    const mutex = new Mutex(this.redis, 'transactions-missing-jobs');
+    const mutex = new Mutex(this.redis, 'transactions-missing-jobs', {
+      lockTimeout: Number.POSITIVE_INFINITY,
+    });
     try {
       if (await mutex.tryAcquire()) await this.addMissingJobs();
     } finally {
@@ -125,7 +128,7 @@ export class TransactionsEvents implements OnModuleInit {
   }
 
   private async addMissingJobs() {
-    const jobs = await this.queue.getJobs(['waiting', 'active', 'delayed', 'paused']);
+    const jobs = await this.queue.getJobs(RUNNING_JOB_STATUSES);
 
     const orphanedTransactionHashes = await this.db.query(
       e.select(e.Transaction, (t) => ({

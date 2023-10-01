@@ -63,7 +63,11 @@ export class ProviderService extends zk.Provider {
   }
 
   async useWallet<R>(f: (wallet: zk.Wallet) => R): Promise<R> {
-    const mutex = new Mutex(this.redis, `provider-wallet:${this.wallet.address}`);
+    const mutex = new Mutex(this.redis, `provider-wallet:${this.wallet.address}`, {
+      lockTimeout: Number.POSITIVE_INFINITY,
+      acquireTimeout: Number.POSITIVE_INFINITY,
+    });
+
     try {
       await mutex.acquire();
       return await f(this.wallet);
