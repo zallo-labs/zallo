@@ -35,7 +35,7 @@ export class SimulationsProcessor implements OnModuleInit {
   ) {}
 
   async onModuleInit() {
-    const mutex = new Mutex(this.redis, 'simulations-missing-jobs', { lockTimeout: 300 });
+    const mutex = new Mutex(this.redis, 'simulations-missing-jobs', { lockTimeout: 60_000 });
     try {
       if (await mutex.tryAcquire()) await this.addMissingJobs();
     } finally {
