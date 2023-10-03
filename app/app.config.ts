@@ -144,6 +144,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   experiments: {
     // @ts-expect-error not sure why
     typedRoutes: true,
+    tsconfigPaths: true, // Expo 50 TODO: remove; this is now the default
   },
   updates: {
     url: `https://u.expo.dev/${PROJECT_ID}`,

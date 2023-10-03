@@ -1,16 +1,4 @@
-const tsconfig = require('./tsconfig.json');
 const { babelOptimizerPlugin: gqlBabelOptimizer } = require('@graphql-codegen/client-preset');
-
-const getAliasPaths = () => {
-  const trimPath = (path) => (path.endsWith('/*') ? path.substr(0, path.length - 2) : path);
-
-  return Object.fromEntries(
-    Object.entries(tsconfig.compilerOptions.paths).map(([key, paths]) => [
-      trimPath(key),
-      trimPath(paths[0]),
-    ]),
-  );
-};
 
 module.exports = function (api) {
   api.cache(true);
@@ -33,7 +21,6 @@ module.exports = function (api) {
             '@ledgerhq/domain-service': '@ledgerhq/domain-service/lib-es',
             '@ledgerhq/evm-tools': '@ledgerhq/evm-tools/lib-es',
             '@ledgerhq/live-network': '@ledgerhq/live-network/lib-es',
-            ...getAliasPaths(),
           },
         },
       ],
