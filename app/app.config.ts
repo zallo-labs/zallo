@@ -70,6 +70,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
         },
       } as BuildPropertiesConfig,
     ],
+    'expo-router',
     'expo-notifications', // https://docs.expo.dev/versions/latest/sdk/notifications/#configurable-properties
     'expo-localization',
     'sentry-expo',
@@ -137,7 +138,12 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   },
   web: {
     bundler: 'metro',
+    output: 'static',
     favicon: './assets/favicon.png',
+  },
+  experiments: {
+    // @ts-expect-error not sure why
+    typedRoutes: true,
   },
   updates: {
     url: `https://u.expo.dev/${PROJECT_ID}`,
