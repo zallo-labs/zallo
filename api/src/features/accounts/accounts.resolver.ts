@@ -42,11 +42,6 @@ export class AccountsResolver {
     return this.service.select({}, getShape(info));
   }
 
-  @Query(() => [Activity])
-  async activity(@Input() input: ActivityInput, @Info() info: GraphQLResolveInfo) {
-    return this.service.activity(input, getShape(info));
-  }
-
   @Mutation(() => Account)
   async createAccount(@Input() input: CreateAccountInput, @Info() info: GraphQLResolveInfo) {
     const { address } = await this.service.createAccount(input);

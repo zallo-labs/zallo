@@ -44,12 +44,6 @@ input AccountSubscriptionInput {
   events: AccountEvent
 }
 
-union Activity = MessageProposal | TransactionProposal | Transfer
-
-input ActivityInput {
-  address: Address!
-}
-
 """Ethereum address"""
 scalar Address
 
@@ -437,7 +431,6 @@ input ProposeTransactionInput {
 type Query {
   account(input: AccountInput! = {}): Account
   accounts: [Account!]!
-  activity(input: ActivityInput!): [Activity!]!
   approver(input: ApproverInput! = {}): UserApprover
   cloudShare(input: UniqueCloudShareInput!): String
   contact(input: ContactInput!): Contact
