@@ -1,4 +1,5 @@
 const { babelOptimizerPlugin: gqlBabelOptimizer } = require('@graphql-codegen/client-preset');
+const path = require('path');
 
 module.exports = function (api) {
   api.cache(true);
@@ -10,7 +11,7 @@ module.exports = function (api) {
         'module-resolver',
         {
           alias: {
-            crypto: 'react-native-quick-crypto',
+            crypto: path.resolve(__dirname, 'src/util/patches/crypto.ts'),
             stream: 'stream-browserify',
             buffer: '@craftzdog/react-native-buffer',
             '@ethersproject/pbkdf2': './src/util/patches/pbkdf2.js',
