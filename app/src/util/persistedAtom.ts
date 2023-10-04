@@ -2,7 +2,7 @@ import { Getter, WritableAtom, atom } from 'jotai';
 import { RESET, createJSONStorage } from 'jotai/utils';
 import type { AsyncStorage as TAsyncStorage } from 'jotai/vanilla/utils/atomWithStorage';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import * as SecureStore from 'expo-secure-store';
+import { getSecureStore, SecureStoreOptions } from '~/util/secure-storage';
 import { logError } from './analytics';
 
 export type PersistedAtomOptions<V, U extends AnyJson> = StorageOptions<V, U> & {
@@ -72,7 +72,7 @@ export const persistedAtom = <V, U extends AnyJson = AnyJson>(
 };
 
 export type StorageOptions<V, U extends AnyJson> = {
-  secure?: SecureStore.SecureStoreOptions;
+  secure?: SecureStoreOptions;
 } & (
   | {
       stringifiy: (value: V) => U;
@@ -87,29 +87,12 @@ export type StorageOptions<V, U extends AnyJson> = {
 const ASYNC_STORAGE = createJSONStorage(() => AsyncStorage);
 
 const getStorage = <V, U extends AnyJson>({
-  secure,
+  secure: secureOptions,
   parse,
   stringifiy,
 }: StorageOptions<V, U> = {}): TAsyncStorage<V> => {
-  const store = secure
-    ? createJSONStorage<U | undefined>(() => ({
-        getItem: async (key) => {
-          try {
-            return await SecureStore.getItemAsync(key, secure);
-          } catch (e) {
-            if (
-              e instanceof Error &&
-              e.message !== 'Could not encrypt/decrypt the value for SecureStore'
-            ) {
-              logError(`SecureStore.getItemAsync error: ${e.message}`, { error: e, key });
-            }
-
-            return null;
-          }
-        },
-        setItem: (key, newValue) => SecureStore.setItemAsync(key, newValue, secure),
-        removeItem: (key) => SecureStore.deleteItemAsync(key, secure),
-      }))
+  const store = secureOptions
+    ? createJSONStorage<U | undefined>(() => getSecureStore(secureOptions))
     : (ASYNC_STORAGE as TAsyncStorage<U | undefined>);
 
   const getItem: TAsyncStorage<V>['getItem'] = parse
