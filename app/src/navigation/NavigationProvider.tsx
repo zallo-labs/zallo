@@ -1,13 +1,11 @@
 import { NavigationContainer, useNavigationContainerRef } from '@react-navigation/native';
-import { SENTRY_ROUTING_INSTRUMENTATION } from '~/provider/SentryProvider';
 import { NAVIGATION_THEME } from '~/util/theme/navigation';
 import { ReactNode, useCallback, useRef } from 'react';
 import { LogBox } from 'react-native';
 import * as NotificationsLinking from '~/util/notifications/notificationLinking';
 import * as Linking from 'expo-linking';
 import { ROUTES } from './routes';
-import analytics from '@react-native-firebase/analytics';
-import { Native as Sentry } from 'sentry-expo';
+// import analytics from '@react-native-firebase/analytics';
 
 LogBox.ignoreLogs(['Non-serializable values were found in the navigation state']);
 
@@ -22,8 +20,6 @@ export const NavigationProvider = ({ children }: NavigationProviderProps) => {
   const routeNameRef = useRef<string | undefined>();
 
   const handleReady = useCallback(() => {
-    SENTRY_ROUTING_INSTRUMENTATION.registerNavigationContainer(navigationRef);
-
     routeNameRef.current = navigationRef?.getCurrentRoute()?.name;
   }, [navigationRef]);
 
@@ -32,19 +28,18 @@ export const NavigationProvider = ({ children }: NavigationProviderProps) => {
     const currentRouteName = navigationRef.getCurrentRoute()?.name;
 
     if (previousRouteName !== currentRouteName) {
-      analytics().logScreenView({
-        screen_name: currentRouteName,
-        screen_class: currentRouteName,
-      });
-
-      Sentry.addBreadcrumb({
-        level: 'info',
-        type: 'navigation',
-        data: {
-          from: previousRouteName,
-          to: currentRouteName,
-        },
-      });
+      // analytics().logScreenView({
+      //   screen_name: currentRouteName,
+      //   screen_class: currentRouteName,
+      // });
+      // Sentry.addBreadcrumb({
+      //   level: 'info',
+      //   type: 'navigation',
+      //   data: {
+      //     from: previousRouteName,
+      //     to: currentRouteName,
+      //   },
+      // });
     }
 
     routeNameRef.current = currentRouteName;

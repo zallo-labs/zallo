@@ -1,5 +1,5 @@
 import { ComponentPropsWithoutRef, ReactNode } from 'react';
-import { Native as Sentry } from 'sentry-expo';
+import * as Sentry from '~/util/sentry/sentry';
 import { logError } from '~/util/analytics';
 
 type SentryErrorBoundaryProps = ComponentPropsWithoutRef<typeof Sentry.ErrorBoundary>;
