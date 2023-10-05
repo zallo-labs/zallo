@@ -1,7 +1,6 @@
 const { getDefaultConfig } = require('expo/metro-config');
 const path = require('path');
 const findWorkspaceRoot = require('find-yarn-workspace-root');
-const getSymlinkedNodeModulesForDirectory = require('expo-yarn-workspaces/common/get-symlinked-modules');
 
 const config = getDefaultConfig(__dirname, {
   isCSSEnabled: true,
@@ -20,11 +19,15 @@ config.resolver.nodeModulesPaths = [
   path.resolve(config.projectRoot, 'node_modules'),
   path.resolve(workspaceRoot, 'node_modules'),
 ];
+
+// const getSymlinkedNodeModulesForDirectory = require('expo-yarn-workspaces/common/get-symlinked-modules');
 // config.resolver.extraNodeModules = {
 //   ...config.resolver.extraNodeModules,
 //   ...getSymlinkedNodeModulesForDirectory(workspaceRoot),
 //   ...getSymlinkedNodeModulesForDirectory(config.projectRoot),
 // };
+
+config.resolver.sourceExts.push('cjs', 'mjs');
 
 // Symlinks
 // config.resolver.unstable_enableSymlinks = true;
