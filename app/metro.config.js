@@ -29,11 +29,6 @@ config.resolver.nodeModulesPaths = [
 // Symlinks
 // config.resolver.unstable_enableSymlinks = true;
 
-// SVG imports (react-native-svg-transformer)
-config.resolver.assetExts.filter((e) => e !== 'svg');
-config.resolver.sourceExts.push('svg');
-config.transformer.babelTransformerPath = require.resolve('react-native-svg-transformer');
-
 // node-libs-react-native
 // config.resolver.extraNodeModules = {
 //   ...config.resolver.extraNodeModules,
