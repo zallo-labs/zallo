@@ -4,6 +4,7 @@ import { offlineExchange } from '@urql/exchange-graphcache';
 import { makeAsyncStorage } from '@urql/storage-rn';
 import { persistedExchange } from '@urql/exchange-persisted';
 import { retryExchange } from '@urql/exchange-retry';
+import { devtoolsExchange } from '@urql/devtools';
 import { CONFIG } from '~/util/config';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { authExchange } from '@urql/exchange-auth';
@@ -71,6 +72,7 @@ const client = atom(async (get) => {
     suspense: true,
     requestPolicy: 'cache-and-network',
     exchanges: [
+      __DEV__ && devtoolsExchange,
       mapExchange({
         onError(error, operation) {
           logError('[urql] error: ' + error.message, { error, operation });
@@ -102,7 +104,7 @@ const client = atom(async (get) => {
         refreshAuth,
         willAuthError,
       })),
-      retryExchange({ maxNumberAttempts: 5 }),
+      retryExchange({}),
       fetchExchange,
       subscriptionExchange({
         forwardSubscription(request) {
@@ -115,7 +117,7 @@ const client = atom(async (get) => {
           };
         },
       }),
-    ],
+    ].filter(Boolean),
   });
 });
 
