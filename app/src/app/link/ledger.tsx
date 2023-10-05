@@ -1,9 +1,9 @@
+import { SearchParams } from 'expo-router';
 import { LedgerLogo } from '@theme/icons';
 import { FlatList, StyleSheet, View } from 'react-native';
 import { ActivityIndicator, Text } from 'react-native-paper';
 import { Appbar } from '~/components/Appbar/Appbar';
 import { Screen } from '~/components/layout/Screen';
-import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
 import { ListHeader } from '~/components/list/ListHeader';
 import { Actions } from '~/components/layout/Actions';
 import { Button } from '~/components/Button';
@@ -11,7 +11,7 @@ import { gql } from '@api/generated';
 import { match } from 'ts-pattern';
 import { useQuery } from '~/gql';
 import { useBleDevices } from '~/hooks/ledger/useBleDevices';
-import { LedgerItem } from './LedgerItem';
+import { LedgerItem } from '~/components/link/ledger/LedgerItem';
 
 const Query = gql(/* GraphQL */ `
   query LinkLedgerScreen {
@@ -21,9 +21,10 @@ const Query = gql(/* GraphQL */ `
   }
 `);
 
-export type LinkLedgerScreenProps = StackNavigatorScreenProps<'LinkLedger'>;
+export type LinkLedgerScreenRoute = `/link/ledger`;
+export type LinkLedgerScreenParams = SearchParams<LinkLedgerScreenRoute>;
 
-export function LinkLedgerScreen(_props: LinkLedgerScreenProps) {
+export default function LinkLedgerScreen() {
   const devices = useBleDevices();
 
   const { user } = useQuery(Query).data;

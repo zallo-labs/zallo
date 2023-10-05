@@ -18,7 +18,6 @@ import { UserOutlineIcon } from '~/util/theme/icons';
 import { ICON_SIZE } from '@theme/paper';
 import { SelectChip } from '~/components/fields/SelectChip';
 import { CHAIN, SUPPORTED_CHAINS } from '@network/provider';
-import { Unimplemented } from '~/util/error/unimplemented';
 import { FormResetIcon } from '~/components/fields/ResetFormIcon';
 import { gql, useFragment } from '@api/generated';
 import { ADDRESS_FIELD_RULES } from '~/util/form.rules';
@@ -155,7 +154,7 @@ export const ContactScreen = withSuspense(
               ]}
               chipProps={{ icon: NetworkIcon, disabled: true }}
               onChange={(name) => {
-                throw new Unimplemented('Changing contact address chain');
+                // TODO: global address
               }}
             />
           </View>

@@ -1,13 +1,13 @@
-import { gql } from '@api';
+import { isPresent } from 'lib';
 import { useMutation } from 'urql';
 import { useQuery } from '~/gql';
-import { authContext } from '@api/client';
-import { isPresent } from 'lib';
-import { makeStyles } from '@theme/makeStyles';
-import AppleIconSvg from '../../../assets/apple.svg';
-import { Fab } from '../Fab';
 import { useGetAppleApprover } from '~/hooks/cloud/useGetAppleApprover';
 import { showError } from '~/provider/SnackbarProvider';
+import { gql } from '@api';
+import { authContext } from '@api/client';
+import { makeStyles } from '@theme/makeStyles';
+import { Fab } from '~/components/Fab';
+import { AppleIcon } from '@theme/icons';
 
 const Query = gql(/* GraphQL */ `
   query LinkAppleButton {
@@ -57,9 +57,7 @@ export function LinkAppleButton({ onLink }: LinkAppleButtonProps) {
   return (
     <Fab
       position="relative"
-      icon={({ size }) => (
-        <AppleIconSvg fill={styles.icon.color} style={{ aspectRatio: 1, width: size }} />
-      )}
+      icon={AppleIcon}
       color={styles.icon.color}
       style={styles.container}
       onPress={async () => {

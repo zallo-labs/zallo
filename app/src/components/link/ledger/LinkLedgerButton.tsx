@@ -1,16 +1,16 @@
-import { useNavigation } from '@react-navigation/native';
+import { useEffect } from 'react';
 import { StyleSheet } from 'react-native';
+import { useRouter } from 'expo-router';
 import { Fab } from '~/components/Fab';
 import { LINKINGS_FROM_DEVICE } from '~/screens/confirm-link/ConfirmLinkSheet';
-import { useEffect } from 'react';
-import { Image } from 'expo-image';
+import { LedgerIcon } from '@theme/icons';
 
 export interface LinkLedgerButtonProps {
   onLink?: () => void;
 }
 
 export function LinkLedgerButton({ onLink }: LinkLedgerButtonProps) {
-  const { navigate } = useNavigation();
+  const router = useRouter();
 
   useEffect(() => {
     const sub = LINKINGS_FROM_DEVICE.subscribe({ next: () => onLink?.() });
@@ -22,9 +22,9 @@ export function LinkLedgerButton({ onLink }: LinkLedgerButtonProps) {
   return (
     <Fab
       position="relative"
-      icon={(props) => <Image {...props} source={require('assets/ledger-icon.svg')} />}
+      icon={LedgerIcon}
       style={styles.container}
-      onPress={() => navigate('LinkLedger')}
+      onPress={() => router.push('/link/ledger')}
     />
   );
 }

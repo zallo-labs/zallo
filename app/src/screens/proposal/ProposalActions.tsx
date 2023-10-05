@@ -2,13 +2,13 @@ import { Button } from 'react-native-paper';
 import { Actions } from '~/components/layout/Actions';
 import { CHAIN } from '@network/provider';
 import { RetryIcon, ShareIcon } from '@theme/icons';
-import { Share } from 'react-native';
 import { FragmentType, gql, useFragment } from '@api/generated';
 import { useMutation } from 'urql';
 import { makeStyles } from '@theme/makeStyles';
 import { useApproverAddress } from '@network/useApprover';
 import { useApprove } from '~/hooks/useApprove';
 import { useReject } from '~/hooks/useReject';
+import { share } from '~/lib/share';
 
 const BLOCK_EXPLORER_URL = CHAIN.blockExplorers?.default.url;
 
@@ -71,10 +71,7 @@ export const ProposalActions = (props: ProposalActionsProps) => {
         <Button
           mode="contained-tonal"
           icon={ShareIcon}
-          onPress={() => {
-            const url = `${BLOCK_EXPLORER_URL}/tx/${p.transaction!.hash}`;
-            Share.share({ message: url, url });
-          }}
+          onPress={() => share({ url: `${BLOCK_EXPLORER_URL}/tx/${p.transaction!.hash}` })}
         >
           Share receipt
         </Button>

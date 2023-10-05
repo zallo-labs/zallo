@@ -13,8 +13,8 @@ import { gql } from '@api/generated';
 import { useQuery } from '~/gql';
 import { useMutation } from 'urql';
 import { LinkGoogleButton } from '~/components/link/LinkGoogleButton';
-import { LinkLedgerButton } from '~/components/link/LinkLedgerButton';
-import { LinkingCodeButton } from '~/components/link/LinkingCodeButton';
+import { LinkLedgerButton } from '~/components/link/ledger/LinkLedgerButton';
+import { LinkingButton } from '~/components/link/LinkingButton';
 import { LinkAppleButton } from '~/components/link/LinkAppleButton';
 import { showSuccess } from '~/provider/SnackbarProvider';
 
@@ -98,7 +98,7 @@ export const UserScreen = ({ navigation: { navigate } }: UserScreenProps) => {
 
             <LinkLedgerButton />
 
-            <LinkingCodeButton />
+            <LinkingButton />
           </View>
         </Actions>
       </ScrollView>

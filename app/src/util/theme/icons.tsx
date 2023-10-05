@@ -1,8 +1,10 @@
-import { ElementType, ComponentPropsWithoutRef, FC } from 'react';
-import { ColorValue } from 'react-native';
-import { Ionicons, MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
-import { ICON_SIZE } from './paper';
 import { Image, ImageProps, ImageSource } from 'expo-image';
+import { ComponentPropsWithoutRef, ElementType, FC } from 'react';
+import { ColorValue } from 'react-native';
+
+import { Ionicons, MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
+
+import { ICON_SIZE } from './paper';
 
 export interface IconProps {
   size?: number;
@@ -127,13 +129,20 @@ export const TwitterIcon = fromSource(require('assets/twitter.svg'));
 export const GithubIcon = fromSource(require('assets/github.svg'));
 export const LedgerIcon = fromSource(require('assets/ledger-icon.svg'));
 export const LedgerLogo = fromSource(require('assets/ledger-logo.svg'));
+export const AppleIcon = fromSource(require('assets/apple.svg'));
 
 function fromSource(source: ImageSource) {
   return (props: ImageProps & { size?: number }) => (
     <Image
       {...props}
       source={source}
-      {...(props.size && { style: [{ width: props.size, height: props.size }, props.style] })}
+      style={[
+        {
+          ...(props.size && { width: props.size, height: props.size }),
+          aspectRatio: 1,
+        },
+        props.style,
+      ]}
     />
   );
 }

@@ -9158,6 +9158,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@react-native-clipboard/clipboard@npm:^1.12.1":
+  version: 1.12.1
+  resolution: "@react-native-clipboard/clipboard@npm:1.12.1"
+  peerDependencies:
+    react: ">=16.0"
+    react-native: ">=0.57.0"
+  checksum: e9d8922d6a41f47db5def3988c6d0622346bf2ad022e90b37a31591c6a21bae2a15a155872fd0d112a83ff0e3fe45cc88d2c352cdfc9c53fdf07de18bed5ce90
+  languageName: node
+  linkType: hard
+
 "@react-native-community/blur@npm:^4.3.2":
   version: 4.3.2
   resolution: "@react-native-community/blur@npm:4.3.2"
@@ -9599,7 +9609,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@react-navigation/native-stack@npm:~6.9.12":
+"@react-navigation/native-stack@npm:^6.9.14, @react-navigation/native-stack@npm:~6.9.12":
   version: 6.9.14
   resolution: "@react-navigation/native-stack@npm:6.9.14"
   dependencies:
@@ -14063,6 +14073,7 @@ __metadata:
     "@ledgerhq/hw-app-eth": ^6.34.0
     "@ledgerhq/react-native-hw-transport-ble": "patch:@ledgerhq/react-native-hw-transport-ble@npm:6.29.3#../.yarn/patches/@ledgerhq-react-native-hw-transport-ble-npm-6.29.3-2fa5aa09cc.patch"
     "@react-native-async-storage/async-storage": 1.18.2
+    "@react-native-clipboard/clipboard": ^1.12.1
     "@react-native-community/blur": ^4.3.2
     "@react-native-community/netinfo": 9.3.10
     "@react-native-firebase/analytics": ^18.4.0
@@ -14073,6 +14084,7 @@ __metadata:
     "@react-navigation/material-bottom-tabs": ^6.2.16
     "@react-navigation/material-top-tabs": ^6.6.3
     "@react-navigation/native": ^6.1.7
+    "@react-navigation/native-stack": ^6.9.14
     "@react-navigation/stack": ^6.3.17
     "@sentry/react-native": 5.5.0
     "@shopify/flash-list": 1.4.3

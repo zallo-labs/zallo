@@ -5,13 +5,17 @@ import { BluetoothIcon } from '@theme/icons';
 import { useCallback } from 'react';
 import { useMutation } from 'urql';
 import { ListItem } from '~/components/list/ListItem';
-import { LEDGER_ADDRESS_EMITTER, getLedgerLazySignature } from '../ledger-sign/LedgerSignSheet';
+import {
+  LEDGER_ADDRESS_EMITTER,
+  getLedgerLazySignature,
+} from '../../../screens/ledger-sign/LedgerSignSheet';
 import { APPROVER_BLE_IDS } from '~/hooks/ledger/useLedger';
 import { showSuccess } from '~/provider/SnackbarProvider';
 import { useImmerAtom } from 'jotai-immer';
 import { BleDevice, isMacAddress } from '~/hooks/ledger/SharedBleManager';
 import { getLedgerDeviceModel } from '~/hooks/ledger/connectLedger';
 import { elipseTruncate } from '~/util/format';
+import { useRouter } from 'expo-router';
 
 const User = gql(/* GraphQL */ `
   fragment LedgerItem_user on User {
@@ -52,6 +56,7 @@ export interface LedgerItemProps {
 export function LedgerItem({ device: d, ...props }: LedgerItemProps) {
   const user = useFragment(User, props.user);
   const { navigate, goBack } = useNavigation();
+  const router = useRouter();
   const api = useUrqlApiClient();
   const update = useMutation(Update)[1];
   const setApproverBleIds = useImmerAtom(APPROVER_BLE_IDS)[1];
@@ -107,7 +112,7 @@ export function LedgerItem({ device: d, ...props }: LedgerItemProps) {
     // Check if already link
     if (data.user.id === user.id) return showSuccess('Linked');
 
-    navigate('ConfirmLinkSheet', { token: linkingToken });
+    router.push({ pathname: `/link/[token]`, params: { token: linkingToken } });
   }, [api, d.id, d.name, goBack, navigate, productName, setApproverBleIds, update, user.id]);
 
   return (

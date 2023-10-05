@@ -1,17 +1,17 @@
-import { useNavigation } from '@react-navigation/native';
 import { QrCodeIcon } from '@theme/icons';
 import { StyleSheet } from 'react-native';
 import { Fab } from '~/components/Fab';
 import { useEffect } from 'react';
 import { showSuccess } from '~/provider/SnackbarProvider';
-import { LINKINGS_FROM_TOKEN } from '~/screens/linking-token/LinkingTokenModal';
+import { LINKINGS_FROM_TOKEN } from '~/app/link';
+import { useRouter } from 'expo-router';
 
-export interface LinkingCodeButtonProps {
+export interface LinkingButtonProps {
   onLink?: () => void;
 }
 
-export function LinkingCodeButton({ onLink }: LinkingCodeButtonProps) {
-  const { navigate } = useNavigation();
+export function LinkingButton({ onLink }: LinkingButtonProps) {
+  const router = useRouter();
 
   useEffect(() => {
     const sub = LINKINGS_FROM_TOKEN.subscribe(() => {
@@ -26,7 +26,7 @@ export function LinkingCodeButton({ onLink }: LinkingCodeButtonProps) {
     <Fab
       position="relative"
       icon={(props) => <QrCodeIcon {...props} color={styles.icon.color} />}
-      onPress={() => navigate('LinkingTokenModal', {})}
+      onPress={() => router.push(`/link`)}
       style={styles.container}
     />
   );

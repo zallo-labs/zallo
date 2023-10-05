@@ -6,7 +6,7 @@ import { makeStyles } from '@theme/makeStyles';
 import { IconButton, Surface, Text } from 'react-native-paper';
 import { CloseIcon, ShareIcon, materialCommunityIcon } from '@theme/icons';
 import { Actions } from '~/components/layout/Actions';
-import { Share, View } from 'react-native';
+import { View } from 'react-native';
 import { useAddressLabel } from '~/components/address/AddressLabel';
 import { buildAddressLink } from '~/util/addressLink';
 import { withSuspense } from '~/components/skeleton/withSuspense';
@@ -15,6 +15,7 @@ import { Button } from '~/components/Button';
 import { gql } from '@api/generated';
 import { useMutation } from 'urql';
 import { useQuery } from '~/gql';
+import { share } from '~/lib/share';
 
 const Query = gql(/* GraphQL */ `
   query QrModal($account: Address!) {
@@ -42,11 +43,6 @@ export const QrModal = withSuspense(({ route, navigation: { goBack } }: QrModalP
   const requestTokens = useMutation(RequestTokens)[1];
 
   const { requestableTokens } = useQuery(Query, { account: address }).data;
-
-  const share = () => {
-    const link = buildAddressLink(address);
-    Share.share({ url: link, message: link });
-  };
 
   return (
     <Blur>
@@ -82,7 +78,11 @@ export const QrModal = withSuspense(({ route, navigation: { goBack } }: QrModalP
             </Button>
           )}
 
-          <Button mode="contained" icon={ShareIcon} onPress={share}>
+          <Button
+            mode="contained"
+            icon={ShareIcon}
+            onPress={() => share({ url: buildAddressLink(address) })}
+          >
             Share
           </Button>
         </Actions>
