@@ -1,6 +1,7 @@
 import { ExpoConfig, ConfigContext } from '@expo/config';
 import { ConfigPlugin } from 'expo/config-plugins';
 import { PluginConfigType as BuildPropertiesConfig } from 'expo-build-properties/build/pluginConfig';
+import expoRouterPlugin from 'expo-router/plugin';
 
 type PluginConfig<Plugin> = Plugin extends ConfigPlugin<infer Config> ? Config : never;
 
@@ -70,7 +71,13 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
         },
       } as BuildPropertiesConfig,
     ],
-    'expo-router',
+    [
+      'expo-router',
+      {
+        origin: ENV.APP_WEB_ORIGIN,
+        asyncRoutes: 'development',
+      } as PluginConfig<typeof expoRouterPlugin>,
+    ],
     'expo-notifications', // https://docs.expo.dev/versions/latest/sdk/notifications/#configurable-properties
     'expo-localization',
     'sentry-expo',
