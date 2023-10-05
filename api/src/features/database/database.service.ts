@@ -21,9 +21,9 @@ export class DatabaseService implements OnModuleInit {
   readonly DANGEROUS_superuserClient: Client;
 
   constructor() {
-    this.__client = createClient()
-      .withConfig({ allow_user_specified_id: true })
-      .withRetryOptions({ attempts: 5 });
+    this.__client = createClient().withConfig({
+      allow_user_specified_id: true /* Required for account insertion */,
+    });
     this.DANGEROUS_superuserClient = this.__client.withConfig({ apply_access_policies: false });
   }
 
