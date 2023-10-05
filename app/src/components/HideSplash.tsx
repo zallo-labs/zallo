@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import * as SplashScreen from 'expo-splash-screen';
+import { SplashScreen } from 'expo-router';
 
 export const HideSplash = () => {
   useEffect(() => {
