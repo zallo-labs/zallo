@@ -3,7 +3,7 @@ import { StyleSheet } from 'react-native';
 import { Text } from 'react-native-paper';
 import { match } from 'ts-pattern';
 import { ListItemHeight } from '~/components/list/ListItem';
-import { IncomingTransferItem } from '~/components/call/IncomingTransferItem';
+import { IncomingTransferItem } from '~/components/activity/IncomingTransferItem';
 import { ProposalItem } from '~/components/proposal/ProposalItem';
 import { TabNavigatorScreenProp } from '.';
 import { withSuspense } from '~/components/skeleton/withSuspense';

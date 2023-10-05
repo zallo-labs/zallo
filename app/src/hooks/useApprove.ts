@@ -7,8 +7,8 @@ import { showError } from '~/provider/SnackbarProvider';
 import { useSignWithLedger } from '~/screens/ledger-sign/LedgerSignSheet';
 import { proposalAsTypedData } from '~/screens/ledger-sign/proposalAsTypedData';
 import { useSignWithApprover } from '~/screens/proposal/useSignWithApprover';
-import { useGetAppleApprover } from '~/util/useGetAppleApprover';
-import { useGetGoogleApprover } from '~/util/useGetGoogleApprover';
+import { useGetAppleApprover } from '~/hooks/cloud/useGetAppleApprover';
+import { useGetGoogleApprover } from '~/hooks/cloud/useGetGoogleApprover';
 
 const User = gql(/* GraphQL */ `
   fragment UseApprove_User on User {

@@ -5,8 +5,8 @@ import { authContext } from '@api/client';
 import { isPresent } from 'lib';
 import { makeStyles } from '@theme/makeStyles';
 import AppleIconSvg from '../../../assets/apple.svg';
-import { Fab } from './Fab';
-import { useGetAppleApprover } from '~/util/useGetAppleApprover';
+import { Fab } from '../Fab';
+import { useGetAppleApprover } from '~/hooks/cloud/useGetAppleApprover';
 import { showError } from '~/provider/SnackbarProvider';
 
 const Query = gql(/* GraphQL */ `

@@ -5,9 +5,9 @@ import { Address } from 'lib';
 import { StyleSheet, View } from 'react-native';
 import { Menu } from 'react-native-paper';
 import { Appbar } from '~/components/Appbar/Appbar';
-import { AppbarMore2 } from '~/components/Appbar/AppbarMore';
+import { AppbarMore } from '~/components/Appbar/AppbarMore';
 import { NotFound } from '~/components/NotFound';
-import { Fab } from '~/components/buttons/Fab';
+import { Fab } from '~/components/Fab';
 import { Screen } from '~/components/layout/Screen';
 import { ListHeader } from '~/components/list/ListHeader';
 import { ListItemHeight } from '~/components/list/ListItem';
@@ -51,7 +51,7 @@ export const AccountScreen = withSuspense(
           leading="back"
           headline={account.name}
           trailing={(props) => (
-            <AppbarMore2 iconProps={props}>
+            <AppbarMore iconProps={props}>
               {({ close }) => (
                 <Menu.Item
                   leadingIcon={EditIcon}
@@ -62,7 +62,7 @@ export const AccountScreen = withSuspense(
                   }}
                 />
               )}
-            </AppbarMore2>
+            </AppbarMore>
           )}
         />
 

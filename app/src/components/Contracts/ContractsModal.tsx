@@ -10,7 +10,7 @@ import { NavigateNextIcon } from '@theme/icons';
 import { truncateAddr } from '~/util/format';
 import { EventEmitter } from '~/util/EventEmitter';
 import { gql } from '@api/generated';
-import { TokenIcon } from '../token/TokenIcon/TokenIcon';
+import { TokenIcon } from '../token/TokenIcon';
 import { useQuery } from '~/gql';
 
 const Query = gql(/* GraphQL */ `

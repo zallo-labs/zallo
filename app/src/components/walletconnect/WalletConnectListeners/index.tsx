@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { useSessionPropsalListener } from './useSessionPropsalListener';
 import { useUpdateWalletConnect, useWalletConnectWithoutWatching } from '~/util/walletconnect';
 import { useSessionRequestListener } from './useSessionRequestListener';
-import { withSuspense } from '../skeleton/withSuspense';
+import { withSuspense } from '~/components/skeleton/withSuspense';
 import { SignClientTypes } from '@walletconnect/types';
 import { SignClient } from '@walletconnect/sign-client/dist/types/client';
 import { logTrace } from '~/util/analytics';

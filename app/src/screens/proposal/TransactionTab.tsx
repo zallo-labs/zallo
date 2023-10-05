@@ -2,14 +2,14 @@ import { CheckIcon, ClockOutlineIcon, CloseIcon, GasOutlineIcon } from '@theme/i
 import { ScrollView } from 'react-native';
 import { ActivityIndicator } from 'react-native-paper';
 import { match } from 'ts-pattern';
-import { FiatValue } from '~/components/fiat/FiatValue';
+import { FiatValue } from '~/components/FiatValue';
 import { FormattedNumber } from '~/components/format/FormattedNumber';
 import { Timestamp } from '~/components/format/Timestamp';
 import { ListItem, ListItemProps } from '~/components/list/ListItem';
 import { withSuspense } from '~/components/skeleton/withSuspense';
 import { TabScreenSkeleton } from '~/components/tab/TabScreenSkeleton';
 import { TokenAmount } from '~/components/token/TokenAmount';
-import { TokenIcon } from '~/components/token/TokenIcon/TokenIcon';
+import { TokenIcon } from '~/components/token/TokenIcon';
 import { TabNavigatorScreenProp } from './Tabs';
 import { makeStyles } from '@theme/makeStyles';
 import { Hex, asBigInt, tokenToFiat } from 'lib';

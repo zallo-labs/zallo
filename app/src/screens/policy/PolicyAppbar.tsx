@@ -8,7 +8,7 @@ import {
 } from '@theme/icons';
 import { Menu } from 'react-native-paper';
 import { Appbar } from '~/components/Appbar/Appbar';
-import { AppbarMore2 } from '~/components/Appbar/AppbarMore';
+import { AppbarMore } from '~/components/Appbar/AppbarMore';
 import { useConfirmRemoval } from '../alert/useConfirm';
 import type { PolicyScreenParams, PolicyViewState } from './PolicyScreen';
 import { P, match } from 'ts-pattern';
@@ -103,7 +103,7 @@ export const PolicyAppbar = ({ view, reset, setParams, ...props }: PolicyAppbarP
         (props) => (reset ? <UndoIcon {...props} onPress={reset} /> : null),
         (props) => <StateIcon {...props} onPress={switchState} />,
         (props) => (
-          <AppbarMore2 iconProps={props}>
+          <AppbarMore iconProps={props}>
             {({ close }) => (
               <>
                 <Menu.Item
@@ -141,7 +141,7 @@ export const PolicyAppbar = ({ view, reset, setParams, ...props }: PolicyAppbarP
                 )}
               </>
             )}
-          </AppbarMore2>
+          </AppbarMore>
         ),
       ]}
     />

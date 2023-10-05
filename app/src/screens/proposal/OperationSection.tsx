@@ -1,11 +1,11 @@
-import { useToggle } from '@hook/useToggle';
+import { useToggle } from '~/hooks/useToggle';
 import { materialCommunityIcon } from '@theme/icons';
 import Collapsible from 'react-native-collapsible';
 import { Chevron } from '~/components/Chevron';
 import { ListItem } from '~/components/list/ListItem';
 import { OperationDetails } from './OperationDetails';
 import { FragmentType, gql, useFragment } from '@api/generated';
-import { OperationLabel } from '~/components/call/OperationLabel';
+import { OperationLabel } from '~/components/proposal/OperationLabel';
 
 const ProposalFragmentDoc = gql(/* GraphQL */ `
   fragment OperationSection_TransactionProposalFragment on TransactionProposal {

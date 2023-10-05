@@ -14,7 +14,7 @@ import { gql } from '@api/generated';
 import { FlashList } from '@shopify/flash-list';
 import { ContactItem } from './ContactItem';
 import { Text } from 'react-native-paper';
-import { Fab } from '~/components/buttons/Fab';
+import { Fab } from '~/components/Fab';
 import { makeStyles } from '@theme/makeStyles';
 import { useQuery } from '~/gql';
 

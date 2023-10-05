@@ -14,7 +14,7 @@ export interface GetAppleApproverParams {
 export function useGetAppleApprover() {
   const getCloudApprover = useGetCloudApprover();
 
-  if (!useAtomValue(isAvailableAtom)) return undefined;
+  if (!useAtomValue(isAvailableAtom)) return null;
 
   const signIn = async ({ subject }: GetAppleApproverParams) =>
     ResultAsync.fromPromise(

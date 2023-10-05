@@ -12,7 +12,7 @@ import { SuccessIcon } from '~/components/SuccessIcon';
 import { Sheet } from '~/components/sheet/Sheet';
 import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
 import { EventEmitter } from '~/util/EventEmitter';
-import { useLedger } from '~/components/ledger/useLedger';
+import { useLedger } from '~/hooks/ledger/useLedger';
 import { Result } from 'neverthrow';
 import { Button } from '~/components/Button';
 import { gql } from '@api/generated';
@@ -111,7 +111,7 @@ export function LedgerSignSheet({
   return (
     <Sheet handle={false} onClose={goBack} contentContainerStyle={{ paddingBottom: 16 }}>
       <View style={styles.container}>
-        <LedgerLogo width={144} height={48} />
+        <LedgerLogo style={{ width: 144, height: 48 }} />
 
         <Text variant="headlineSmall" style={styles.name}>
           {approver?.name || params.name || params.device}

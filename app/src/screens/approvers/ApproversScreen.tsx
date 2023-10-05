@@ -10,7 +10,7 @@ import { ThresholdChip } from './ThresholdChip';
 import { FlashList } from '@shopify/flash-list';
 import { ApproverItem } from './ApproverItem';
 import { ListItemHeight } from '~/components/list/ListItem';
-import { Fab } from '~/components/buttons/Fab';
+import { Fab } from '~/components/Fab';
 import { AddIcon } from '@theme/icons';
 import { makeStyles } from '@theme/makeStyles';
 import { Text } from 'react-native-paper';

@@ -1,7 +1,7 @@
 import { useNavigation } from '@react-navigation/native';
 import { QrCodeIcon } from '@theme/icons';
 import { StyleSheet } from 'react-native';
-import { Fab } from './Fab';
+import { Fab } from '~/components/Fab';
 import { useEffect } from 'react';
 import { showSuccess } from '~/provider/SnackbarProvider';
 import { LINKINGS_FROM_TOKEN } from '~/screens/linking-token/LinkingTokenModal';

@@ -6,7 +6,6 @@ import { View } from 'react-native';
 import { Surface } from 'react-native-paper';
 import { EdgeInsets, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Box } from '../layout/Box';
-import { Container } from '../layout/Container';
 import { BasicTextField, BasicTextFieldProps } from './BasicTextField';
 
 export interface SearchbarProps extends BasicTextFieldProps {
@@ -40,10 +39,6 @@ export const Searchbar = ({
           <Trailing key={i} size={styles.trailingIcon.fontSize} color={styles.trailingIcon.color} />
         ))}
       </View>
-
-      {trailing && (
-        <Container style={styles.trailingContainer} separator={<Box mr={2} />}></Container>
-      )}
     </Surface>
   );
 };

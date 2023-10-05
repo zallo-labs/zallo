@@ -5,7 +5,7 @@ import { StyleSheet } from 'react-native';
 import { View } from 'react-native';
 import { Menu } from 'react-native-paper';
 import { Appbar } from '~/components/Appbar/Appbar';
-import { AppbarMore2 } from '~/components/Appbar/AppbarMore';
+import { AppbarMore } from '~/components/Appbar/AppbarMore';
 import { FormSubmitButton } from '~/components/fields/FormSubmitButton';
 import { FormTextField } from '~/components/fields/FormTextField';
 import { Actions } from '~/components/layout/Actions';
@@ -97,7 +97,7 @@ export const ContactScreen = withSuspense(
             trailing: [
               (props) => <FormResetIcon control={control} reset={reset} {...props} />,
               (props) => (
-                <AppbarMore2 iconProps={props}>
+                <AppbarMore iconProps={props}>
                   {({ close }) => (
                     <Menu.Item
                       leadingIcon={RemoveIcon}
@@ -111,7 +111,7 @@ export const ContactScreen = withSuspense(
                       }}
                     />
                   )}
-                </AppbarMore2>
+                </AppbarMore>
               ),
             ],
           })}

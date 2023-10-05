@@ -3,7 +3,7 @@ import { CheckIcon } from '@theme/icons';
 import { IconButton } from 'react-native-paper';
 import { AddressLabel } from '~/components/address/AddressLabel';
 import { ListItem } from '~/components/list/ListItem';
-import { useApprove } from '~/components/proposal/useApprove';
+import { useApprove } from '~/hooks/useApprove';
 
 const User = gql(/* GraphQL */ `
   fragment AwaitingApprovalItem_User on User {

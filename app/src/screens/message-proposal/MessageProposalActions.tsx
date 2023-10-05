@@ -3,8 +3,8 @@ import { useApproverAddress } from '@network/useApprover';
 import { StyleSheet } from 'react-native';
 import { Actions } from '~/components/layout/Actions';
 import { Button } from 'react-native-paper';
-import { useApprove } from '~/components/proposal/useApprove';
-import { useReject } from '~/components/proposal/useReject';
+import { useApprove } from '~/hooks/useApprove';
+import { useReject } from '~/hooks/useReject';
 
 const MessageProposal = gql(/* GraphQL */ `
   fragment MessageProposalActions_MessageProposal on MessageProposal {

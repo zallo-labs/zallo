@@ -21,7 +21,7 @@ import { FingerprintIcon } from '../biometrics/BiometricsScreen';
 import { AddressIcon } from '~/components/Identicon/AddressIcon';
 import { gql } from '@api/generated';
 import { ICON_SIZE } from '@theme/paper';
-import { ETH_ICON_URI } from '~/components/token/TokenIcon/TokenIcon';
+import { ETH_ICON_URI } from '~/components/token/TokenIcon';
 import { withSuspense } from '~/components/skeleton/withSuspense';
 import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
 import { useQuery } from '~/gql';

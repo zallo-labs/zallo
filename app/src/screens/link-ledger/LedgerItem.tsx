@@ -6,11 +6,11 @@ import { useCallback } from 'react';
 import { useMutation } from 'urql';
 import { ListItem } from '~/components/list/ListItem';
 import { LEDGER_ADDRESS_EMITTER, getLedgerLazySignature } from '../ledger-sign/LedgerSignSheet';
-import { APPROVER_BLE_IDS } from '~/components/ledger/useLedger';
+import { APPROVER_BLE_IDS } from '~/hooks/ledger/useLedger';
 import { showSuccess } from '~/provider/SnackbarProvider';
 import { useImmerAtom } from 'jotai-immer';
-import { BleDevice, isMacAddress } from '~/components/ledger/SharedBleManager';
-import { getLedgerDeviceModel } from '~/components/ledger/connectLedger';
+import { BleDevice, isMacAddress } from '~/hooks/ledger/SharedBleManager';
+import { getLedgerDeviceModel } from '~/hooks/ledger/connectLedger';
 import { elipseTruncate } from '~/util/format';
 
 const User = gql(/* GraphQL */ `

@@ -8,7 +8,7 @@ import { useQuery } from '~/gql';
 import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
 import { Tabs } from './Tabs';
 import { MessageProposalActions } from './MessageProposalActions';
-import { AppbarMore2 } from '~/components/Appbar/AppbarMore';
+import { AppbarMore } from '~/components/Appbar/AppbarMore';
 import { Menu } from 'react-native-paper';
 import { useMutation } from 'urql';
 import { useConfirmRemoval } from '../alert/useConfirm';
@@ -65,7 +65,7 @@ export function MessageProposalScreen({
         leading="back"
         headline={proposal.account.name}
         trailing={(props) => (
-          <AppbarMore2 iconProps={props}>
+          <AppbarMore iconProps={props}>
             {({ close }) => (
               <Menu.Item
                 title="Remove proposal"
@@ -78,7 +78,7 @@ export function MessageProposalScreen({
                 }}
               />
             )}
-          </AppbarMore2>
+          </AppbarMore>
         )}
       />
 

@@ -2,7 +2,7 @@ import { FragmentType, gql, useFragment } from '@api/generated';
 import { makeStyles } from '@theme/makeStyles';
 import { tokenToFiat } from 'lib';
 import { Text } from 'react-native-paper';
-import { FiatValue } from '~/components/fiat/FiatValue';
+import { FiatValue } from '~/components/FiatValue';
 
 const FragmentDoc = gql(/* GraphQL */ `
   fragment AccountValue_tokensQuery on Query @argumentDefinitions(account: { type: "Address" }) {

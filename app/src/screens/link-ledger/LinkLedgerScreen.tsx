@@ -10,7 +10,7 @@ import { Button } from '~/components/Button';
 import { gql } from '@api/generated';
 import { match } from 'ts-pattern';
 import { useQuery } from '~/gql';
-import { useBleDevices } from '~/components/ledger/useBleDevices';
+import { useBleDevices } from '~/hooks/ledger/useBleDevices';
 import { LedgerItem } from './LedgerItem';
 
 const Query = gql(/* GraphQL */ `
@@ -33,7 +33,7 @@ export function LinkLedgerScreen(_props: LinkLedgerScreenProps) {
       <Appbar mode="small" headline="Link Ledger" />
 
       <View style={styles.headerContainer}>
-        <LedgerLogo width={undefined} height={64} />
+        <LedgerLogo style={{ height: 64 }} />
 
         <Text variant="titleLarge" style={styles.headerText}>
           Unlock your Ledger, enable bluetooth, and open the Ethereum app

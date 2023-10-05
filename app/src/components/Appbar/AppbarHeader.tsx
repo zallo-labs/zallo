@@ -6,6 +6,8 @@ export interface AppbarHeaderProps extends Omit<NativeStackHeaderProps, 'options
   options: NativeStackHeaderProps['options'] & { appbar?: AppbarOptionsProps };
 }
 
-export function AppbarHeader({ route, options }: AppbarHeaderProps) {
-  return <Appbar headline={route.name} {...options.appbar} />;
+export function AppbarHeader({ options }: AppbarHeaderProps) {
+  if (!options.appbar) return null;
+
+  return <Appbar {...options.appbar} />;
 }

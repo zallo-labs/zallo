@@ -68,16 +68,14 @@ export function OperationLabel(props: OperationLabelProps) {
     .with(
       { __typename: 'UpdatePolicyOp' },
       (f) =>
-        `Update policy: ${
-          useQuery(PolicyQuery, { input: { account: f.account, key: f.key } }).data.policy?.name
-        }`,
+        `Update policy: ${useQuery(PolicyQuery, { input: { account: f.account, key: f.key } }).data
+          .policy?.name}`,
     )
     .with(
       { __typename: 'RemovePolicyOp' },
       (f) =>
-        `Remove policy: ${
-          useQuery(PolicyQuery, { input: { account: f.account, key: f.key } }).data.policy?.name
-        }`,
+        `Remove policy: ${useQuery(PolicyQuery, { input: { account: f.account, key: f.key } }).data
+          .policy?.name}`,
     )
     .with(
       { __typename: 'TransferOp' },

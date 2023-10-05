@@ -6,7 +6,7 @@ import { gql } from '@api';
 import { authContext, useUrqlApiClient } from '@api/client';
 import { useMutation } from 'urql';
 import { Result, ResultAsync, err, ok } from 'neverthrow';
-import { logError } from './analytics';
+import { logError } from '~/util/analytics';
 
 const CLOUD_SHARE_PATH = 'approver-share';
 const SCOPE = CloudStorageScope.AppData;

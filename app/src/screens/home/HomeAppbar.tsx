@@ -1,7 +1,7 @@
 import { ScanIcon, SettingsOutlineIcon } from '@theme/icons';
 import { StyleSheet, View } from 'react-native';
 import { Appbar as BaseAppbar } from 'react-native-paper';
-import { AccountSelector } from '~/components/AccountSelector/AccountSelector';
+import { AccountSelector } from '~/components/AccountSelector';
 import { useNavigation } from '@react-navigation/native';
 import { FragmentType, gql, useFragment } from '@api/generated';
 

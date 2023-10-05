@@ -12,11 +12,11 @@ import { UserApproverItem } from './UserApproverItem';
 import { gql } from '@api/generated';
 import { useQuery } from '~/gql';
 import { useMutation } from 'urql';
-import { LinkGoogleButton } from '~/components/buttons/LinkGoogleButton';
-import { LinkLedgerButton } from '~/components/buttons/LinkLedgerButton';
-import { LinkingCodeButton } from '~/components/buttons/LinkingCodeButton';
+import { LinkGoogleButton } from '~/components/link/LinkGoogleButton';
+import { LinkLedgerButton } from '~/components/link/LinkLedgerButton';
+import { LinkingCodeButton } from '~/components/link/LinkingCodeButton';
+import { LinkAppleButton } from '~/components/link/LinkAppleButton';
 import { showSuccess } from '~/provider/SnackbarProvider';
-import { LinkAppleButton } from '~/components/buttons/LinkAppleButton';
 
 const Query = gql(/* GraphQL */ `
   query UserScreen {

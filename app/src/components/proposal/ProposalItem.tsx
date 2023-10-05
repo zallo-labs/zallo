@@ -7,9 +7,9 @@ import { match } from 'ts-pattern';
 import { materialCommunityIcon } from '@theme/icons';
 import { ICON_SIZE } from '@theme/paper';
 import { FragmentType, gql, useFragment } from '@api/generated';
-import { OperationLabel } from '../call/OperationLabel';
+import { OperationLabel } from './OperationLabel';
 import { useNavigation } from '@react-navigation/native';
-import { ETH_ICON_URI, TokenIcon } from '../token/TokenIcon/TokenIcon';
+import { ETH_ICON_URI, TokenIcon } from '../token/TokenIcon';
 import { ProposalValue } from './ProposalValue';
 
 const Proposal = gql(/* GraphQL */ `

@@ -4,7 +4,7 @@ import { IconButton } from 'react-native-paper';
 import { AddressLabel } from '~/components/address/AddressLabel';
 import { Timestamp } from '~/components/format/Timestamp';
 import { ListItem } from '~/components/list/ListItem';
-import { useReject } from '~/components/proposal/useReject';
+import { useReject } from '~/hooks/useReject';
 
 const User = gql(/* GraphQL */ `
   fragment ApprovalItem_User on User {

@@ -7,7 +7,7 @@ import { useAddressLabel } from '~/components/address/AddressLabel';
 import { useTimestamp } from '~/components/format/Timestamp';
 import { ListItem } from '~/components/list/ListItem';
 import { useFormattedTokenAmount } from '~/components/token/TokenAmount';
-import { TokenIcon } from '~/components/token/TokenIcon/TokenIcon';
+import { TokenIcon } from '~/components/token/TokenIcon';
 
 const FragmentDoc = gql(/* GraphQL */ `
   fragment OperationDetails_OperationFragment on Operation {

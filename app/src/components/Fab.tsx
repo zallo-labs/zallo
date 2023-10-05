@@ -1,4 +1,4 @@
-import { useWithLoading } from '@hook/useIsPromised';
+import { useWithLoading } from '~/hooks/useWithLoading';
 import { makeStyles } from '@theme/makeStyles';
 import { ComponentPropsWithoutRef } from 'react';
 import { Keyboard } from 'react-native';

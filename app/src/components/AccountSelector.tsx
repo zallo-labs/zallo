@@ -1,9 +1,9 @@
 import { makeStyles } from '@theme/makeStyles';
 import { TouchableOpacity } from 'react-native';
 import { Text } from 'react-native-paper';
-import { AddressIcon } from '../Identicon/AddressIcon';
+import { AddressIcon } from './Identicon/AddressIcon';
 import { useNavigation } from '@react-navigation/native';
-import { Chevron } from '../Chevron';
+import { Chevron } from './Chevron';
 import { FragmentType, gql, useFragment } from '@api/generated';
 
 const FragmentDoc = gql(/* GraphQL */ `

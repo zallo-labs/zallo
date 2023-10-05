@@ -5,7 +5,7 @@ import { useState } from 'react';
 import { InputType, InputsView } from '~/components/InputsView';
 import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
 import { withSuspense } from '~/components/skeleton/withSuspense';
-import { useSelectedToken } from '~/components/token/useSelectedToken';
+import { useSelectedToken } from '~/hooks/useSelectedToken';
 import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
 import { Divider } from 'react-native-paper';
 import { makeStyles } from '@theme/makeStyles';

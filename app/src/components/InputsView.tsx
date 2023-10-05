@@ -6,7 +6,7 @@ import { asBigInt, fiatToToken, tokenToFiat } from 'lib';
 import { Dispatch, SetStateAction } from 'react';
 import { View } from 'react-native';
 import { Button, IconButton, Text } from 'react-native-paper';
-import { FiatValue } from '~/components/fiat/FiatValue';
+import { FiatValue } from '~/components/FiatValue';
 import { TokenAmount } from '~/components/token/TokenAmount';
 
 const FragmentDoc = gql(/* GraphQL */ `

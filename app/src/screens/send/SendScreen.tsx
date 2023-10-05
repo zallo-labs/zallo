@@ -11,7 +11,7 @@ import { Screen } from '~/components/layout/Screen';
 import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
 import { withSuspense } from '~/components/skeleton/withSuspense';
 import { TokenItem } from '~/components/token/TokenItem';
-import { useSelectedToken, useSetSelectedToken } from '~/components/token/useSelectedToken';
+import { useSelectedToken, useSetSelectedToken } from '~/hooks/useSelectedToken';
 import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
 import { InputsView, InputType } from '../../components/InputsView';
 import { useSelectToken } from '../tokens/TokensScreen';

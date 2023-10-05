@@ -5,7 +5,7 @@ import { ListItem, ListItemProps } from '~/components/list/ListItem';
 import { ListItemSkeleton } from '~/components/list/ListItemSkeleton';
 import { withSuspense } from '~/components/skeleton/withSuspense';
 import { useFormattedTokenAmount } from '~/components/token/TokenAmount';
-import { TokenIcon } from '~/components/token/TokenIcon/TokenIcon';
+import { TokenIcon } from '~/components/token/TokenIcon';
 import { Pool, useEstimatedSwap } from '~/util/swap';
 
 const FromFragment = gql(/* GraphQL */ `

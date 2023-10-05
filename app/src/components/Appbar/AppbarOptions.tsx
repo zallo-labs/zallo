@@ -4,7 +4,7 @@ import { useLayoutEffect } from 'react';
 
 /* Derrived from expo-router/src/views/Screen.tsx */
 
-export interface AppbarOptionsProps extends Partial<AppbarProps> {}
+export interface AppbarOptionsProps extends AppbarProps {}
 
 export function AppbarOptions(options: AppbarOptionsProps) {
   const navigation = useNavigation();

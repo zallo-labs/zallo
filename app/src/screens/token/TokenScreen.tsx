@@ -14,11 +14,11 @@ import { Actions } from '~/components/layout/Actions';
 import { Screen } from '~/components/layout/Screen';
 import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
 import { withSuspense } from '~/components/skeleton/withSuspense';
-import { UnknownTokenIcon } from '~/components/token/TokenIcon/TokenIcon';
+import { UnknownTokenIcon } from '~/components/token/TokenIcon';
 import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
 import { ADDRESS_FIELD_RULES } from '~/util/form.rules';
 import { useConfirmRemoval } from '../alert/useConfirm';
-import { AppbarMore2 } from '~/components/Appbar/AppbarMore';
+import { AppbarMore } from '~/components/Appbar/AppbarMore';
 import { Menu } from 'react-native-paper';
 import { useQuery } from '~/gql';
 import { useMutation } from 'urql';
@@ -128,7 +128,7 @@ export const TokenScreen = withSuspense(
           trailing={
             query?.token?.userOwned
               ? (props) => (
-                  <AppbarMore2 iconProps={props}>
+                  <AppbarMore iconProps={props}>
                     {({ close }) => (
                       <Menu.Item
                         title="Remove token"
@@ -141,7 +141,7 @@ export const TokenScreen = withSuspense(
                         }}
                       />
                     )}
-                  </AppbarMore2>
+                  </AppbarMore>
                 )
               : undefined
           }

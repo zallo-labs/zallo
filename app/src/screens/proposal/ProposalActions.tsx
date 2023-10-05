@@ -7,8 +7,8 @@ import { FragmentType, gql, useFragment } from '@api/generated';
 import { useMutation } from 'urql';
 import { makeStyles } from '@theme/makeStyles';
 import { useApproverAddress } from '@network/useApprover';
-import { useApprove } from '~/components/proposal/useApprove';
-import { useReject } from '~/components/proposal/useReject';
+import { useApprove } from '~/hooks/useApprove';
+import { useReject } from '~/hooks/useReject';
 
 const BLOCK_EXPLORER_URL = CHAIN.blockExplorers?.default.url;
 

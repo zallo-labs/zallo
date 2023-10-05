@@ -9,7 +9,7 @@ import { POLICY_DRAFT_ATOM, PolicyDraft, asPolicyInput } from './PolicyDraft';
 import { Permissions } from './Permissions';
 import { useAtom } from 'jotai';
 import _ from 'lodash';
-import { Fab } from '~/components/buttons/Fab';
+import { Fab } from '~/components/Fab';
 import { DoubleCheckIcon, NavigateNextIcon, SendIcon } from '@theme/icons';
 import { ListItem } from '~/components/list/ListItem';
 import { FragmentType, gql, useFragment } from '@api/generated';

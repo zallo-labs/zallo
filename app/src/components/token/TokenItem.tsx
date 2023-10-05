@@ -1,12 +1,12 @@
 import { StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
-import { FiatValue } from '../fiat/FiatValue';
+import { FiatValue } from '../FiatValue';
 import { ListItem, ListItemProps } from '../list/ListItem';
 import { ListItemSkeleton } from '../list/ListItemSkeleton';
 import { withSuspense } from '../skeleton/withSuspense';
 import { TokenAmount } from './TokenAmount';
 import { BigIntlike, tokenToFiat } from 'lib';
 import { FragmentType, gql, useFragment } from '@api/generated';
-import { TokenIcon } from './TokenIcon/TokenIcon';
+import { TokenIcon } from './TokenIcon';
 import { memo } from 'react';
 import deepEqual from 'fast-deep-equal';
 

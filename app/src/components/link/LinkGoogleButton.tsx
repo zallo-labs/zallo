@@ -3,9 +3,9 @@ import { useMutation } from 'urql';
 import { useQuery } from '~/gql';
 import { authContext } from '@api/client';
 import { ImageRequireSource, StyleSheet } from 'react-native';
-import { Fab } from './Fab';
+import { Fab } from '~/components/Fab';
 import { Image } from 'expo-image';
-import { useGetGoogleApprover } from '~/util/useGetGoogleApprover';
+import { useGetGoogleApprover } from '~/hooks/cloud/useGetGoogleApprover';
 import { showError } from '~/provider/SnackbarProvider';
 
 const Query = gql(/* GraphQL */ `

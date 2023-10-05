@@ -8,7 +8,7 @@ import { atom, useAtom } from 'jotai';
 import { CONFIG } from '~/util/config';
 import { Result, ResultAsync, err, okAsync } from 'neverthrow';
 import { Approver } from 'lib';
-import { useGetCloudApprover } from '~/util/useGetCloudApprover';
+import { useGetCloudApprover } from './useGetCloudApprover';
 import { showError } from '~/provider/SnackbarProvider';
 import decodeJwt from 'jwt-decode';
 import { DateTime } from 'luxon';

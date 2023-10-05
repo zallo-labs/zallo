@@ -1,4 +1,4 @@
-import { FormattedNumberOptions, useFormattedNumber } from '../format/FormattedNumber';
+import { FormattedNumberOptions, useFormattedNumber } from './format/FormattedNumber';
 
 const currency = 'USD';
 

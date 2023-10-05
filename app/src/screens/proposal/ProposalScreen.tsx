@@ -1,6 +1,6 @@
 import { Menu } from 'react-native-paper';
 import { Appbar } from '~/components/Appbar/Appbar';
-import { AppbarMore2 } from '~/components/Appbar/AppbarMore';
+import { AppbarMore } from '~/components/Appbar/AppbarMore';
 import { Screen } from '~/components/layout/Screen';
 import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
 import { withSuspense } from '~/components/skeleton/withSuspense';
@@ -65,7 +65,7 @@ export const ProposalScreen = withSuspense(
           leading="back"
           headline={proposal.account.name}
           trailing={(props) => (
-            <AppbarMore2 iconProps={props}>
+            <AppbarMore iconProps={props}>
               {({ close }) => (
                 <Menu.Item
                   title="Remove proposal"
@@ -78,7 +78,7 @@ export const ProposalScreen = withSuspense(
                   }}
                 />
               )}
-            </AppbarMore2>
+            </AppbarMore>
           )}
         />
 

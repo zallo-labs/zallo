@@ -5,8 +5,8 @@ import { Address } from 'lib';
 import { match } from 'ts-pattern';
 import { useMutation } from 'urql';
 import { showError } from '~/provider/SnackbarProvider';
-import { useGetAppleApprover } from '~/util/useGetAppleApprover';
-import { useGetGoogleApprover } from '~/util/useGetGoogleApprover';
+import { useGetAppleApprover } from '~/hooks/cloud/useGetAppleApprover';
+import { useGetGoogleApprover } from '~/hooks/cloud/useGetGoogleApprover';
 
 const User = gql(/* GraphQL */ `
   fragment UseReject_User on User {
