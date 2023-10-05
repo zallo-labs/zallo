@@ -21,6 +21,6 @@ export default function RootScreen() {
   return accounts.length ? (
     <Redirect href={{ pathname: `/[account]/`, params: { account: accounts[0].address } }} />
   ) : (
-    <Redirect href={`/onboarding/`} />
+    <Redirect href={`/onboard/`} />
   );
 }
