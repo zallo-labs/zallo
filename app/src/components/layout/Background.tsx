@@ -1,4 +1,4 @@
-import { Platform, View } from 'react-native';
+import { Platform, StyleSheet, View } from 'react-native';
 import { ReactNode, useEffect } from 'react';
 import { makeStyles } from '@theme/makeStyles';
 import { StatusBar } from 'expo-status-bar';
@@ -19,7 +19,7 @@ export const Background = ({ children }: BackgroundProps) => {
   }, []);
 
   return (
-    <View style={styles.background}>
+    <View style={[StyleSheet.absoluteFill, styles.background]}>
       <>
         <StatusBar backgroundColor="transparent" />
         {children}
@@ -30,8 +30,6 @@ export const Background = ({ children }: BackgroundProps) => {
 
 const useStyles = makeStyles(({ colors }) => ({
   background: {
-    width: '100%',
-    height: '100%',
     display: 'flex',
     backgroundColor: colors.background,
   },
