@@ -6,7 +6,7 @@ import { Screen } from '~/components/layout/Screen';
 import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
 import { withSuspense } from '~/components/skeleton/withSuspense';
 import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
-import { persistedAtom } from '~/util/persistedAtom';
+import { persistedAtom } from '~/lib/persistedAtom';
 import { useImmerAtom } from 'jotai-immer';
 import * as Notifications from 'expo-notifications';
 import type { NotificationChannelInput } from 'expo-notifications';

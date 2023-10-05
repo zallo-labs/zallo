@@ -10,9 +10,9 @@ import { Address } from 'lib';
 import { NotFound } from '~/components/NotFound';
 import { gql } from '@api/generated';
 import { useQuery } from '~/gql';
-import { persistedAtom } from '~/util/persistedAtom';
+import { persistedAtom } from '~/lib/persistedAtom';
 import { useAtomValue } from 'jotai';
-import { useSyncAtom } from '~/util/useSyncAtom';
+import { useSyncAtom } from '~/hooks/useSyncAtom';
 import { Suspend } from '~/components/Suspender';
 
 const selectedAccount = persistedAtom<Address | null>('selectedAccount', null);

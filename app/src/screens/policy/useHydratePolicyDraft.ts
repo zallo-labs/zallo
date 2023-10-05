@@ -1,7 +1,7 @@
 import { FragmentType, gql, useFragment as getFragment } from '@api/generated';
 import { useMemo } from 'react';
 import { POLICY_DRAFT_ATOM, PolicyDraft } from './PolicyDraft';
-import { useSyncAtom } from '~/util/useSyncAtom';
+import { useSyncAtom } from '~/hooks/useSyncAtom';
 import { PolicyTemplateType, usePolicyTemplates } from '../add-policy/usePolicyTemplate';
 
 const PolicyState = gql(/* GraphQL */ `

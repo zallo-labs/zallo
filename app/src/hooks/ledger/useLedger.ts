@@ -3,7 +3,7 @@ import { err } from 'neverthrow';
 import { DeviceId } from 'react-native-ble-plx';
 import useAsyncEffect from 'use-async-effect';
 import { useState } from 'react';
-import { persistedAtom } from '~/util/persistedAtom';
+import { persistedAtom } from '~/lib/persistedAtom';
 import { useAtomValue } from 'jotai';
 import { FragmentType, gql, useFragment as getFragment } from '@api/generated';
 import useBluetoothPermissions from './useBluetoothPermissions';

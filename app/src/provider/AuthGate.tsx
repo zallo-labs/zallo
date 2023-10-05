@@ -2,7 +2,7 @@ import { ReactNode, useEffect, useState } from 'react';
 import * as Auth from 'expo-local-authentication';
 import useAsyncEffect from 'use-async-effect';
 import { DateTime, Duration } from 'luxon';
-import { persistedAtom } from '~/util/persistedAtom';
+import { persistedAtom } from '~/lib/persistedAtom';
 import { Blur } from '~/components/Blur';
 import { useAtomValue } from 'jotai';
 import { AppState } from 'react-native';

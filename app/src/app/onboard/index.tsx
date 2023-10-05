@@ -7,7 +7,7 @@ import { Button } from '~/components/Button';
 import { Actions } from '~/components/layout/Actions';
 import { LinkAppleButton } from '~/components/link/LinkAppleButton';
 import { LinkGoogleButton } from '~/components/link/LinkGoogleButton';
-import { LinkingTokenButton } from '~/components/link/LinkingTokenButton';
+import { LinkingButton } from '~/components/link/LinkingButton';
 import { LinkLedgerButton } from '~/components/link/ledger/LinkLedgerButton';
 import { useUrqlApiClient } from '@api/client';
 
@@ -61,7 +61,7 @@ export default function OnboardScreen() {
           <LinkAppleButton onLink={next} />
           <LinkGoogleButton onLink={next} />
           <LinkLedgerButton onLink={next} />
-          <LinkingTokenButton onLink={next} />
+          <LinkingButton onLink={next} />
         </View>
 
         <Button mode="contained" onPress={() => push(`/onboard/user`)}>

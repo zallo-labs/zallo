@@ -1,6 +1,6 @@
 import { PROVIDER } from '~/util/network/provider';
 import { Address, Approver } from 'lib';
-import { persistedAtom } from '../persistedAtom';
+import { persistedAtom } from '~/lib/persistedAtom';
 import { useAtomValue, useSetAtom } from 'jotai';
 
 export const DANGEROUS_approverAtom = persistedAtom<Approver, string>(
