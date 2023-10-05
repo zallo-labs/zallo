@@ -18,7 +18,8 @@ import { EventEmitter } from '~/util/EventEmitter';
 import useAsyncEffect from 'use-async-effect';
 import { showError } from '~/provider/SnackbarProvider';
 import { useFocusEffect } from '@react-navigation/native';
-import { getLinkingTokenFromLink } from '../linking-token/util';
+import { getPathFromDeepLink } from '~/util/config';
+import { useRouter } from 'expo-router';
 
 export const SCAN_ADDRESS_EMITTER = new EventEmitter<Address>();
 export const useScanAddress = SCAN_ADDRESS_EMITTER.createUseSelect('Scan');
@@ -32,6 +33,7 @@ export type ScanScreenProps = StackNavigatorScreenProps<'Scan'>;
 export const ScanScreen = withSuspense(
   ({ route, navigation: { goBack, navigate } }: ScanScreenProps) => {
     const { account } = route.params;
+    const router = useRouter();
     const walletconnect = useWalletConnect();
 
     const [scan, setScan] = useState(true);
@@ -54,8 +56,8 @@ export const ScanScreen = withSuspense(
         } catch {
           showError('Failed to connect. Please refresh the DApp and try again');
         }
-      } else if (getLinkingTokenFromLink(data)) {
-        navigate('ConfirmLinkSheet', { token: getLinkingTokenFromLink(data)! });
+      } else if (getPathFromDeepLink(data)) {
+        router.push(getPathFromDeepLink(data) as any);
         return true;
       }
 
