@@ -33,9 +33,9 @@ config.resolver.sourceExts.push('cjs', 'mjs');
 // config.resolver.unstable_enableSymlinks = true;
 
 // node-libs-react-native
-// config.resolver.extraNodeModules = {
-//   ...config.resolver.extraNodeModules,
-//   ...require('node-libs-react-native'),
-// };
+config.resolver.extraNodeModules = {
+  ...config.resolver.extraNodeModules,
+  ...require('node-libs-react-native'),
+};
 
 module.exports = config;
