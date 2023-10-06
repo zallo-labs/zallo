@@ -7,7 +7,5 @@ export interface AppbarHeaderProps extends Omit<NativeStackHeaderProps, 'options
 }
 
 export function AppbarHeader({ options }: AppbarHeaderProps) {
-  if (!options.appbar) return null;
-
   return <Appbar {...options.appbar} />;
 }

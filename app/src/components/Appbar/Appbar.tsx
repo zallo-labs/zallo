@@ -14,7 +14,7 @@ export interface AppbarProps extends Pick<StyleOptions, 'center'> {
   mode?: StyleOptions['mode'];
   leading?: FC<IconProps> | 'back' | 'close';
   trailing?: Arraylike<FC<IconProps>>;
-  headline: ReactNode | FC<Omit<TextProps, 'children'>>;
+  headline?: ReactNode | FC<Omit<TextProps, 'children'>>;
   elevated?: boolean;
   inset?: boolean;
 }
@@ -23,7 +23,7 @@ export const Appbar = ({
   mode = 'small',
   leading = 'back',
   trailing,
-  headline: Headline,
+  headline: Headline = '',
   center,
   elevated,
   inset = true,
