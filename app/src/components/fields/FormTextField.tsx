@@ -27,9 +27,12 @@ export const FormTextField = <
   return (
     <TextField
       {...fieldProps}
-      value={value}
+      value={value ?? ''}
       onChangeText={(value) => onChange(value)}
-      onBlur={onBlur}
+      onBlur={(e) => {
+        onBlur();
+        fieldProps.onBlur?.(e);
+      }}
       error={error?.message || _.capitalize(error?.type)}
       {...(rules?.required && { required: true })}
     />
