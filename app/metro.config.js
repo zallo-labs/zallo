@@ -1,3 +1,4 @@
+// https://facebook.github.io/metro/docs/configuration/
 const { getDefaultConfig } = require('expo/metro-config');
 const path = require('path');
 const findWorkspaceRoot = require('find-yarn-workspace-root');
@@ -12,7 +13,7 @@ config.watcher.healthCheck = { enabled: true };
 // 1. Watch all files within the monorepo
 config.projectRoot = __dirname;
 const workspaceRoot = findWorkspaceRoot(config.projectRoot);
-config.watchFolders = [workspaceRoot];
+config.watchFolders = [workspaceRoot]; // Metro will only resolve projectRoot and watchFolders
 
 // 2. Let Metro know where to resolve packages and in what order
 config.resolver.nodeModulesPaths = [
