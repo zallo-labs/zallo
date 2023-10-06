@@ -107,6 +107,7 @@ export const UnknownOutlineIcon = materialCommunityIcon('help-circle-outline');
 export const NotificationsIcon = materialIcon('notifications');
 export const NotificationsOutlineIcon = materialIcon('notifications-none');
 export const BluetoothIcon = materialIcon('bluetooth');
+export const FingerprintIcon = materialIcon('fingerprint');
 
 export const PolicyIcon = materialCommunityIcon('security');
 export const PolicyActiveIcon = materialCommunityIcon('shield');
