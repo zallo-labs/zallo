@@ -1,6 +1,6 @@
 import '~/util/sentry/init';
 import { locale } from 'expo-localization';
-import { Slot, Stack } from 'expo-router';
+import { Stack } from 'expo-router';
 import { Suspense } from 'react';
 import { IntlProvider } from 'react-intl';
 import { Analytics } from '~/components/Analytics';
@@ -16,6 +16,12 @@ import { SnackbarProvider } from '~/provider/SnackbarProvider';
 import { UpdateProvider } from '~/provider/UpdateProvider';
 import { ThemeProvider } from '~/util/theme/ThemeProvider';
 import { AppbarHeader } from '~/components/Appbar/AppbarHeader';
+import { NativeStackNavigationOptions } from '@react-navigation/native-stack';
+
+const transparentModal: NativeStackNavigationOptions = {
+  presentation: 'transparentModal',
+  headerShown: false,
+};
 
 export const unstable_settings = {
   initialRouteName: 'index',
@@ -24,9 +30,28 @@ export const unstable_settings = {
 function Layout() {
   return (
     <Stack screenOptions={{ header: AppbarHeader }}>
-      <Slot />
-      <Stack.Screen name="/link/token" options={{ presentation: 'modal' }} />
-      <Stack.Screen name="/link/[token]" options={{ presentation: 'modal' }} />
+      <Stack.Screen name={`[account]/(home)`} />
+      <Stack.Screen name={`[account]/settings`} />
+      <Stack.Screen name={`[account]/tokens`} options={{ headerShown: false }} />
+      <Stack.Screen name={`[account]/transfer`} />
+      <Stack.Screen name={`accounts/create`} />
+      <Stack.Screen name={`contacts/[address]`} />
+      <Stack.Screen name={`contacts/add`} />
+      <Stack.Screen name={`contacts/index`} />
+      <Stack.Screen name={`link/index`} options={transparentModal} />
+      <Stack.Screen name={`link/[token]`} options={transparentModal} />
+      <Stack.Screen name={`link/ledger`} />
+      <Stack.Screen name={`onboard/index`} />
+      <Stack.Screen name={`onboard/user`} />
+      <Stack.Screen name={`scan/index`} options={{ headerShown: false }} />
+      <Stack.Screen name={`scan/[address]`} options={transparentModal} />
+      <Stack.Screen name={`settings/auth`} />
+      <Stack.Screen name={`settings/notifications`} />
+      <Stack.Screen name={`token/[token]`} />
+      <Stack.Screen name={`token/add`} />
+      <Stack.Screen name={`[...unmatched]`} />
+      <Stack.Screen name={`confirm`} />
+      <Stack.Screen name={`index`} />
     </Stack>
   );
 }
