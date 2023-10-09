@@ -6,7 +6,6 @@ import { useForm } from 'react-hook-form';
 import { FormTextField } from '~/components/fields/FormTextField';
 import { FormSubmitButton } from '~/components/fields/FormSubmitButton';
 import { TextInput } from 'react-native-paper';
-import * as Device from 'expo-device';
 import { gql } from '@api/generated';
 import { useMutation } from 'urql';
 import { useQuery } from '~/gql';
@@ -57,9 +56,6 @@ export default function ApproverOnboardingScreen() {
   const query = useQuery(Query);
   const { approver, user } = query.data;
   const update = useMutation(Update)[1];
-
-  console.log(Device);
-  1;
 
   const { control, handleSubmit } = useForm<Inputs>({
     defaultValues: { name: approver?.name ?? DEVICE_MODEL ?? '' },
