@@ -3,7 +3,7 @@ import { StyleSheet, View } from 'react-native';
 import { Button } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
 import { Address } from 'lib';
-import { useSelectAddress } from '../addresses/useSelectAddress';
+import { useSelectAddress } from '~/screens/addresses/useSelectAddress';
 
 export interface QuickActionsProps {
   account: Address;

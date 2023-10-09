@@ -1,3 +1,4 @@
+import { SearchParams, useLocalSearchParams } from 'expo-router';
 import { FlashList } from '@shopify/flash-list';
 import { StyleSheet } from 'react-native';
 import { Text } from 'react-native-paper';
@@ -5,10 +6,9 @@ import { match } from 'ts-pattern';
 import { ListItemHeight } from '~/components/list/ListItem';
 import { IncomingTransferItem } from '~/components/activity/IncomingTransferItem';
 import { ProposalItem } from '~/components/proposal/ProposalItem';
-import { TabNavigatorScreenProp } from '.';
 import { withSuspense } from '~/components/skeleton/withSuspense';
 import { TabScreenSkeleton } from '~/components/tab/TabScreenSkeleton';
-import { Address } from 'lib';
+import { asAddress } from 'lib';
 import { asDateTime } from '~/components/format/Timestamp';
 import { gql } from '@api/generated';
 import { useQuery } from '~/gql';
@@ -62,59 +62,61 @@ const TransferSubscription = gql(/* GraphQL */ `
   }
 `);
 
-export interface ActivityTabParams {}
+export type ActivityTabRoute = `/[account]/(home)/activity`;
+export type ActivityTabParams = SearchParams<ActivityTabRoute>;
 
-export type ActivityTabProps = TabNavigatorScreenProp<'Activity'> & { account: Address };
+function ActivityTab() {
+  const account = asAddress(useLocalSearchParams<ActivityTabParams>().account);
 
-export const ActivityTab = withSuspense(
-  ({ account }: ActivityTabProps) => {
-    // When proposals are invalidated (on proposal sub) and the user is on a different screen this screen remains mounted but suspense doesn't occur
-    const {
-      proposals = [],
-      transfers = [],
-      user,
-    } = useQuery(Query, { accounts: [account] }).data ?? {};
-    useSubscription({ query: ProposalSubscription, variables: { accounts: [account] } });
-    useSubscription({ query: TransferSubscription, variables: { accounts: [account] } });
+  // When proposals are invalidated (on proposal sub) and the user is on a different screen this screen remains mounted but suspense doesn't occur
+  const {
+    proposals = [],
+    transfers = [],
+    user,
+  } = useQuery(Query, { accounts: [account] }).data ?? {};
+  useSubscription({ query: ProposalSubscription, variables: { accounts: [account] } });
+  useSubscription({ query: TransferSubscription, variables: { accounts: [account] } });
 
-    const items = [...proposals, ...transfers].sort(
-      (a, b) => asDateTime(b.timestamp).toMillis() - asDateTime(a.timestamp).toMillis(),
-    );
+  const items = [...proposals, ...transfers].sort(
+    (a, b) => asDateTime(b.timestamp).toMillis() - asDateTime(a.timestamp).toMillis(),
+  );
 
-    return (
-      <FlashList
-        data={items}
-        renderItem={({ item }) =>
-          match(item)
-            .with({ __typename: 'TransactionProposal' }, (p) => (
-              <ProposalItem proposal={p} user={user} />
-            ))
-            .with({ __typename: 'MessageProposal' }, (p) => (
-              <MessageProposalItem proposal={p} user={user} />
-            ))
-            .with({ __typename: 'Transfer' }, (transfer) => (
-              <IncomingTransferItem transfer={transfer} />
-            ))
-            .exhaustive()
-        }
-        ListEmptyComponent={
-          <Text variant="bodyLarge" style={styles.emptyListText}>
-            There is no activity to show
-          </Text>
-        }
-        extraData={[user]}
-        contentContainerStyle={styles.contentContainer}
-        estimatedItemSize={ListItemHeight.DOUBLE_LINE}
-        showsVerticalScrollIndicator={false}
-        keyExtractor={(item) => item.id}
-        getItemType={(item) => item.__typename}
-      />
-    );
-  },
-  (props) => (
-    <TabScreenSkeleton {...props} listItems={{ leading: true, supporting: true, trailing: true }} />
-  ),
-);
+  return (
+    <FlashList
+      data={items}
+      renderItem={({ item }) =>
+        match(item)
+          .with({ __typename: 'TransactionProposal' }, (p) => (
+            <ProposalItem proposal={p} user={user} />
+          ))
+          .with({ __typename: 'MessageProposal' }, (p) => (
+            <MessageProposalItem proposal={p} user={user} />
+          ))
+          .with({ __typename: 'Transfer' }, (transfer) => (
+            <IncomingTransferItem transfer={transfer} />
+          ))
+          .exhaustive()
+      }
+      ListEmptyComponent={
+        <Text variant="bodyLarge" style={styles.emptyListText}>
+          There is no activity to show
+        </Text>
+      }
+      extraData={[user]}
+      contentContainerStyle={styles.contentContainer}
+      estimatedItemSize={ListItemHeight.DOUBLE_LINE}
+      showsVerticalScrollIndicator={false}
+      keyExtractor={(item) => item.id}
+      getItemType={(item) => item.__typename}
+    />
+  );
+}
+
+// export default ActivityTab;
+
+export default withSuspense(ActivityTab, (props) => (
+  <TabScreenSkeleton {...props} listItems={{ leading: true, supporting: true, trailing: true }} />
+));
 
 const styles = StyleSheet.create({
   contentContainer: {
