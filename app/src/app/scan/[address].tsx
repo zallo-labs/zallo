@@ -1,7 +1,7 @@
 import { SearchParams, useLocalSearchParams, useRouter } from 'expo-router';
 import { asAddress, tryAsAddress } from 'lib';
 import { Sheet } from '~/components/sheet/Sheet';
-import { ContactsIcon, NavigateNextIcon, SendIcon } from '@theme/icons';
+import { ContactsIcon, NavigateNextIcon, TransferIcon } from '@theme/icons';
 import { ListItem } from '~/components/list/ListItem';
 import { StyleSheet } from 'react-native';
 
@@ -19,7 +19,7 @@ export default function ScannedAddressSheet() {
     <Sheet handle={false} contentContainerStyle={styles.contentContainer}>
       {account && (
         <ListItem
-          leading={SendIcon}
+          leading={TransferIcon}
           headline="Send"
           trailing={NavigateNextIcon}
           onPress={() =>

@@ -1,23 +1,23 @@
-import { SearchParams, useRouter } from 'expo-router';
+import { SearchParams, useLocalSearchParams, useRouter } from 'expo-router';
+import { asAddress } from 'lib';
 import { View } from 'react-native';
 import { Actions } from '~/components/layout/Actions';
 import { StyleSheet } from 'react-native';
 import { useForm } from 'react-hook-form';
 import { FormTextField } from '~/components/fields/FormTextField';
-import { FormSubmitButton } from '~/components/fields/FormSubmitButton';
 import { TextInput } from 'react-native-paper';
+import { Button } from '~/components/Button';
+import { QrCodeIcon } from '@theme/icons';
 import { gql } from '@api/generated';
 import { useMutation } from 'urql';
 import { useQuery } from '~/gql';
 import { NotFound } from '~/components/NotFound';
-import { Suspend } from '~/components/Suspender';
 import { AppbarOptions } from '~/components/Appbar/AppbarOptions';
-import { AuthSettingsScreenParams } from '~/app/settings/auth';
 import { getDeviceModel } from '~/lib/device';
 
 const Query = gql(/* GraphQL */ `
-  query ApproverOnboarding {
-    approver {
+  query ApproverDetails($approver: Address) {
+    approver(input: { address: $approver }) {
       id
       address
       name
@@ -35,8 +35,8 @@ const Query = gql(/* GraphQL */ `
 `);
 
 const Update = gql(/* GraphQL */ `
-  mutation ApproverOnboarding_update($name: String!) {
-    updateApprover(input: { name: $name }) {
+  mutation ApproverScreen_update($approver: Address!, $name: String!) {
+    updateApprover(input: { address: $approver, name: $name }) {
       id
       name
       label
@@ -48,20 +48,22 @@ interface Inputs {
   name: string;
 }
 
-export type ApproverOnboardingScreenRoute = `/onboard/approver`;
-export type ApproverOnboardingScreenParams = SearchParams<ApproverOnboardingScreenRoute>;
+export type ApproverScreenRoute = `/approver/[address]/`;
+export type ApproverScreenParams = SearchParams<ApproverScreenRoute>;
 
-export default function ApproverOnboardingScreen() {
+export default function ApproverScreen() {
+  const params = useLocalSearchParams<ApproverScreenParams>();
   const router = useRouter();
-  const query = useQuery(Query);
-  const { approver, user } = query.data;
   const update = useMutation(Update)[1];
 
+  const query = useQuery(Query, { approver: asAddress(params.address) });
+  const { approver, user } = query.data;
+
   const { control, handleSubmit } = useForm<Inputs>({
-    defaultValues: { name: approver?.name ?? getDeviceModel() ?? '' },
+    defaultValues: { name: approver?.name ?? getDeviceModel() },
   });
 
-  if (!approver) return query.stale ? <Suspend /> : <NotFound name="Approver" />;
+  if (!approver) return query.stale ? null : <NotFound name="Approver" />;
 
   const takenNames = user.approvers.filter((a) => a.id !== approver.id).map((a) => a.name);
 
@@ -76,30 +78,30 @@ export default function ApproverOnboardingScreen() {
           left={user.name ? <TextInput.Affix text={`${user.name}'s`} /> : undefined}
           label="Label"
           placeholder="iPhone"
-          autoFocus
           containerStyle={styles.inset}
           rules={{
             required: true,
             validate: (v) => !takenNames.includes(v) || 'An approver with ths name already exists',
           }}
           onBlur={handleSubmit(async ({ name }) => {
-            await update({ name });
+            await update({ approver: approver.address, name });
           })}
         />
       </View>
 
       <Actions>
-        <FormSubmitButton
+        <Button
           mode="contained"
-          style={styles.button}
-          control={control}
-          onPress={() => {
-            const params: AuthSettingsScreenParams = { onboard: 'true' };
-            router.push({ pathname: `/settings/auth`, params });
-          }}
+          icon={QrCodeIcon}
+          onPress={() =>
+            router.push({
+              pathname: `/approver/[address]/qr`,
+              params: { address: approver.address },
+            })
+          }
         >
-          Continue
-        </FormSubmitButton>
+          View
+        </Button>
       </Actions>
     </View>
   );
