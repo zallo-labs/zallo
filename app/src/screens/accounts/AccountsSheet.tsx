@@ -13,7 +13,7 @@ import { AddressIcon } from '~/components/Identicon/AddressIcon';
 import { ICON_SIZE } from '@theme/paper';
 import { makeStyles } from '@theme/makeStyles';
 import { truncateAddr } from '~/util/format';
-import { AccountItem } from './AccountItem';
+import { AccountItem } from '../../components/item/AccountItem';
 import { useQuery } from '~/gql';
 
 const SwitchIcon = materialCommunityIcon('swap-horizontal');

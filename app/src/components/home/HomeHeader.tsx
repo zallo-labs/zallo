@@ -2,7 +2,6 @@ import { Address } from 'lib';
 import { NotFound } from '~/components/NotFound';
 import { gql } from '@api/generated';
 import { useQuery } from '~/gql';
-import { Suspend } from '~/components/Suspender';
 import { View } from 'react-native';
 import { AccountValue } from './AccountValue';
 import { HomeAppbar } from './HomeAppbar';
@@ -31,8 +30,7 @@ export const HomeHeader = withSuspense(
     const query = useQuery(Query, { account: props.account });
     const { account } = query.data;
 
-    // if (!account) return query.stale ? <Suspend /> : <NotFound name="Account" />;
-    if (!account) return null;
+    if (!account) return query.stale ? null : <NotFound name="Account" />;
 
     return (
       <View>

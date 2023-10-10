@@ -2,9 +2,9 @@ import { makeStyles } from '@theme/makeStyles';
 import { TouchableOpacity } from 'react-native';
 import { Text } from 'react-native-paper';
 import { AddressIcon } from './Identicon/AddressIcon';
-import { useNavigation } from '@react-navigation/native';
 import { Chevron } from './Chevron';
 import { FragmentType, gql, useFragment } from '@api/generated';
+import { useRouter } from 'expo-router';
 
 const FragmentDoc = gql(/* GraphQL */ `
   fragment AccountSelector_account on Account {
@@ -19,15 +19,12 @@ export interface AccountSelectorParams {
 }
 
 export const AccountSelector = (props: AccountSelectorParams) => {
-  const styles = useStyles();
-  const { navigate } = useNavigation();
   const account = useFragment(FragmentDoc, props.account);
+  const styles = useStyles();
+  const router = useRouter();
 
   return (
-    <TouchableOpacity
-      style={styles.container}
-      onPress={() => navigate('AccountsSheet', { account: account.address })}
-    >
+    <TouchableOpacity style={styles.container} onPress={() => router.push(`/accounts/`)}>
       <AddressIcon address={account.address} size={styles.icon.fontSize} />
 
       <Text variant="titleLarge" numberOfLines={1} style={styles.text}>

@@ -17,6 +17,6 @@ export function useCreateFirsAccount() {
 
   return async () =>
     accounts?.length
-      ? router.push({ pathname: `/[account]/`, params: { account: accounts[0].address } })
+      ? router.push({ pathname: `/[account]/(home)/`, params: { account: accounts[0].address } })
       : router.push(`/accounts/create`);
 }

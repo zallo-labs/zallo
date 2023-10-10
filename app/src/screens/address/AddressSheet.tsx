@@ -1,6 +1,6 @@
 import { Sheet } from '~/components/sheet/Sheet';
 import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
-import { ContactsIcon, NavigateNextIcon, SendIcon } from '@theme/icons';
+import { ContactsIcon, NavigateNextIcon, TransferIcon } from '@theme/icons';
 import { ListItem } from '~/components/list/ListItem';
 import { Address } from 'lib';
 import { StyleSheet } from 'react-native';
@@ -18,7 +18,7 @@ export const AddressSheet = ({ route, navigation: { replace, goBack } }: Address
   return (
     <Sheet onClose={goBack} handle={false} contentContainerStyle={styles.contentContainer}>
       <ListItem
-        leading={SendIcon}
+        leading={TransferIcon}
         headline="Send"
         trailing={NavigateNextIcon}
         onPress={() => replace('Send', { account, to: address })}

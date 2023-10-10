@@ -23,7 +23,6 @@ export const Actions = ({ children, horizontal, style }: ActionsProps) => (
 
 const styles = StyleSheet.create({
   rootContainer: {
-    // borderWidth: 1,
     flexGrow: 1,
     justifyContent: 'flex-end',
   },

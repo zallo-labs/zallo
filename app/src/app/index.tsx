@@ -19,7 +19,7 @@ export default function RootScreen() {
   const accounts = useQuery(Query).data?.accounts ?? [];
 
   return accounts.length ? (
-    <Redirect href={{ pathname: `/[account]/`, params: { account: accounts[0].address } }} />
+    <Redirect href={{ pathname: `/[account]/(home)/`, params: { account: accounts[0].address } }} />
   ) : (
     <Redirect href={`/onboard/`} />
   );

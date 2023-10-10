@@ -2,8 +2,6 @@ import { View } from 'react-native';
 import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
 import { Actions } from '~/components/layout/Actions';
 import { StyleSheet } from 'react-native';
-import { Screen } from '~/components/layout/Screen';
-import { Appbar } from '~/components/Appbar/Appbar';
 import { useForm } from 'react-hook-form';
 import { FormTextField } from '~/components/fields/FormTextField';
 import { FormSubmitButton } from '~/components/fields/FormSubmitButton';
@@ -20,6 +18,7 @@ import { useMutation } from 'urql';
 import { useQuery } from '~/gql';
 import { NotFound } from '~/components/NotFound';
 import { Suspend } from '~/components/Suspender';
+import { AppbarOptions } from '~/components/Appbar/AppbarOptions';
 
 const Query = gql(/* GraphQL */ `
   query ApproverDetails($approver: Address) {
@@ -84,8 +83,8 @@ export const ApproverScreen = withSuspense(
     const takenNames = user.approvers.filter((a) => a.id !== approver.id).map((a) => a.name);
 
     return (
-      <Screen>
-        <Appbar mode="large" leading="back" headline="Approver" />
+      <View style={styles.root}>
+        <AppbarOptions mode="large" headline="Approver" />
 
         <View style={styles.fields}>
           <FormTextField
@@ -101,7 +100,7 @@ export const ApproverScreen = withSuspense(
               validate: (v) =>
                 !takenNames.includes(v) || 'An approver with ths name already exists',
             }}
-            onEndEditing={handleSubmit(async ({ name }) => {
+            onBlur={handleSubmit(async ({ name }) => {
               await update({ approver: approver.address, name });
             })}
           />
@@ -131,13 +130,16 @@ export const ApproverScreen = withSuspense(
             </Button>
           )}
         </Actions>
-      </Screen>
+      </View>
     );
   },
   ScreenSkeleton,
 );
 
 const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+  },
   fields: {
     marginVertical: 16,
     gap: 16,

@@ -1,8 +1,10 @@
 import { SearchParams, useLocalSearchParams } from 'expo-router';
 import { asAddress } from 'lib';
+import { useEffect } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { TopTabs } from '~/components/TopTabs';
 import { HomeHeader } from '~/components/home/HomeHeader';
+import { useSetSelectedAccont } from '~/hooks/useSelectedAccount';
 
 export const unstable_settings = {
   initialRouteName: 'index',
@@ -12,8 +14,9 @@ type Params = SearchParams<`/[account]/(home)/_layout`>;
 
 export default function HomeLayout() {
   const account = asAddress(useLocalSearchParams<Params>().account);
+  const setSelectedAccount = useSetSelectedAccont();
 
-  console.log({ HomeLayout: account });
+  useEffect(() => setSelectedAccount(account), [account]);
 
   return (
     <View style={styles.root}>

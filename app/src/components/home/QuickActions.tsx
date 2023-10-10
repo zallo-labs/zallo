@@ -1,29 +1,42 @@
-import { QrCodeIcon, SendIcon, SwapIcon } from '@theme/icons';
+import { QrCodeIcon, TransferIcon, SwapIcon } from '@theme/icons';
 import { StyleSheet, View } from 'react-native';
 import { Button } from 'react-native-paper';
-import { useNavigation } from '@react-navigation/native';
 import { Address } from 'lib';
 import { useSelectAddress } from '~/screens/addresses/useSelectAddress';
+import { useRouter } from 'expo-router';
+import { TransferScreenParams } from '~/app/[account]/transfer';
 
 export interface QuickActionsProps {
   account: Address;
 }
 
 export const QuickActions = ({ account }: QuickActionsProps) => {
-  const { navigate } = useNavigation();
+  const { push } = useRouter();
   const selectAddress = useSelectAddress();
-
-  const send = async () =>
-    navigate('Send', { account, to: await selectAddress({ disabled: ['approvers'] }) });
-  const receive = () => navigate('QrModal', { address: account });
 
   return (
     <View style={styles.container}>
-      <Button icon={SendIcon} mode="contained-tonal" style={styles.button} onPress={send}>
-        Send
+      <Button
+        icon={TransferIcon}
+        mode="contained-tonal"
+        style={styles.button}
+        onPress={async () => {
+          const params: TransferScreenParams = {
+            account,
+            to: await selectAddress({ disabled: ['approvers'] }),
+          };
+          push({ pathname: `/[account]/transfer`, params });
+        }}
+      >
+        Transfer
       </Button>
 
-      <Button icon={QrCodeIcon} mode="contained-tonal" style={styles.button} onPress={receive}>
+      <Button
+        icon={QrCodeIcon}
+        mode="contained-tonal"
+        style={styles.button}
+        onPress={() => push({ pathname: `/[account]/receive`, params: { account } })}
+      >
         Receive
       </Button>
 
@@ -31,7 +44,7 @@ export const QuickActions = ({ account }: QuickActionsProps) => {
         icon={SwapIcon}
         mode="contained-tonal"
         style={styles.button}
-        onPress={() => navigate('Swap', { account })}
+        onPress={() => push({ pathname: `/[account]/swap`, params: { account } })}
       >
         Swap
       </Button>

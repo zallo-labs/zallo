@@ -7,7 +7,7 @@ import {
   NotificationChannel,
   NotificationChannelConfig,
   useNotificationSettings,
-} from '~/screens/notifications/NotificationSettingsScreen';
+} from '~/app/settings/notifications';
 import { gql } from '@api/generated';
 import { useQuery } from '~/gql';
 import { useMutation } from 'urql';

@@ -65,7 +65,10 @@ export default function CreateAccountScreen() {
                 })
               ).data?.createAccount;
 
-              router.push({ pathname: `/[account]/`, params: { account: account!.address } });
+              router.push({
+                pathname: `/[account]/(home)/`,
+                params: { account: account!.address },
+              });
             } catch (error) {
               showError('Failed to create account', { event: { error } });
             }

@@ -50,7 +50,7 @@ export const RenameAccountModal = withSuspense(
 
     const { control, handleSubmit } = useForm<Inputs>({ defaultValues: { name: account?.name } });
 
-    if (!account) return <NotFound name="Account" appbarProps={{ inset: false }} />;
+    if (!account) return <NotFound name="Account" />;
 
     return (
       <Screen>

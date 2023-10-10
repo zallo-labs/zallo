@@ -8,16 +8,16 @@ import { AppbarBack2 } from '~/components/Appbar/AppbarBack';
 import { Searchbar } from '~/components/fields/Searchbar';
 import { Screen } from '~/components/layout/Screen';
 import { ListItemHeight } from '~/components/list/ListItem';
-import { useScanAddress } from '../scan/ScanScreen';
 import { gql } from '@api/generated';
 import { FlashList } from '@shopify/flash-list';
 import { P, match } from 'ts-pattern';
-import { AccountItem } from '../accounts/AccountItem';
-import { UserApproverItem } from '../user/UserApproverItem';
-import { ContactItem } from '../contacts/ContactItem';
-import { ADDRESS_EMITTER } from './useSelectAddress';
+import { AccountItem } from '../../components/item/AccountItem';
+import { UserApproverItem } from '../../components/item/UserApproverItem';
+import { ContactItem } from '../../components/item/ContactItem';
+import { ADDRESS_SELECTED } from './useSelectAddress';
 import { ListHeader } from '~/components/list/ListHeader';
 import { useQuery } from '~/gql';
+import { useScanAddress } from '~/app/scan';
 
 const Query = gql(/* GraphQL */ `
   query AddressesModal($query: String) {
@@ -69,7 +69,7 @@ export const AddressesModal = withSuspense(({ route }: AddressesModalProps) => {
         trailing={[
           SearchIcon,
           (props) => (
-            <ScanIcon {...props} onPress={async () => ADDRESS_EMITTER.emit(await scanAddress())} />
+            <ScanIcon {...props} onPress={async () => ADDRESS_SELECTED.next(await scanAddress())} />
           ),
         ]}
         inset={false}
@@ -92,7 +92,7 @@ export const AddressesModal = withSuspense(({ route }: AddressesModalProps) => {
                 account={item}
                 trailing={NavigateNextIcon}
                 disabled={disabled?.has(item.address)}
-                onPress={() => ADDRESS_EMITTER.emit(item.address)}
+                onPress={() => ADDRESS_SELECTED.next(item.address)}
               />
             ))
             .with({ __typename: 'UserApprover' }, (item) => (
@@ -100,7 +100,7 @@ export const AddressesModal = withSuspense(({ route }: AddressesModalProps) => {
                 approver={item}
                 trailing={NavigateNextIcon}
                 disabled={disabled?.has(item.address)}
-                onPress={() => ADDRESS_EMITTER.emit(item.address)}
+                onPress={() => ADDRESS_SELECTED.next(item.address)}
               />
             ))
             .with({ __typename: 'Contact' }, (item) => (
@@ -108,7 +108,7 @@ export const AddressesModal = withSuspense(({ route }: AddressesModalProps) => {
                 contact={item}
                 trailing={NavigateNextIcon}
                 disabled={disabled?.has(item.address)}
-                onPress={() => ADDRESS_EMITTER.emit(item.address)}
+                onPress={() => ADDRESS_SELECTED.next(item.address)}
               />
             ))
             .otherwise(() => null)

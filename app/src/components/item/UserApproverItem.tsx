@@ -1,6 +1,6 @@
 import { FragmentType, gql, useFragment } from '@api/generated';
 import { useApproverAddress } from '@network/useApprover';
-import { useNavigation } from '@react-navigation/native';
+import { useRouter } from 'expo-router';
 import { RadioButton } from 'react-native-paper';
 import { ListItem, ListItemProps } from '~/components/list/ListItem';
 import { truncateAddr } from '~/util/format';
@@ -24,7 +24,7 @@ export interface UserApproverItemProps extends Partial<ListItemProps> {
 
 export function UserApproverItem(props: UserApproverItemProps) {
   const a = useFragment(UserApproverItem_UserApproverFragment, props.approver);
-  const { navigate } = useNavigation();
+  const router = useRouter();
   const selected = useApproverAddress() === a.address;
 
   return (
@@ -37,7 +37,9 @@ export function UserApproverItem(props: UserApproverItemProps) {
           <RadioButton.IOS value={a.address} status={selected ? 'checked' : 'unchecked'} />
         ),
       })}
-      onPress={() => navigate('Approver', { approver: a.address })}
+      onPress={() =>
+        router.push({ pathname: `/approver/[address]/`, params: { address: a.address } })
+      }
       {...props}
     />
   );

@@ -1,35 +1,36 @@
+import { SearchParams, useLocalSearchParams, useRouter } from 'expo-router';
+import { asAddress } from 'lib';
 import { ScanIcon, WalletConnectIcon } from '@theme/icons';
-import { StyleSheet } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { EmptyListFallback } from '~/components/EmptyListFallback';
-import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
 import { useWalletConnect } from '~/util/walletconnect';
-import { Screen } from '~/components/layout/Screen';
-import { Appbar } from '~/components/Appbar/Appbar';
 import { FlashList } from '@shopify/flash-list';
-import { PairingItem } from './PairingItem';
+import { PairingItem } from '~/components/walletconnect/PairingItem';
 import { ListItemHeight } from '~/components/list/ListItem';
 import { Divider } from 'react-native-paper';
-import { Address } from 'lib';
+import { AppbarOptions } from '~/components/Appbar/AppbarOptions';
 
-export interface SessionsScreenParams {
-  account: Address;
-}
+export type SessionsScreenRoute = `/[account]/sessions`;
+export type SessionsScreenParams = SearchParams<SessionsScreenRoute>;
 
-export type SessionsScreenProps = StackNavigatorScreenProps<'Sessions'>;
-
-export const SessionsScreen = ({ route, navigation: { navigate } }: SessionsScreenProps) => {
-  const { account } = route.params;
+export default function SessionsScreen() {
+  const account = asAddress(useLocalSearchParams<SessionsScreenParams>().account);
+  const router = useRouter();
   const client = useWalletConnect();
 
   const pairings = client.pairing.values;
 
   return (
-    <Screen>
-      <Appbar
+    <View style={styles.root}>
+      <AppbarOptions
         mode="large"
-        leading="back"
         headline="Sessions"
-        trailing={(props) => <ScanIcon {...props} onPress={() => navigate('Scan', { account })} />}
+        trailing={(props) => (
+          <ScanIcon
+            {...props}
+            onPress={() => router.push({ pathname: `/scan/`, params: { account } })}
+          />
+        )}
       />
 
       <FlashList
@@ -51,11 +52,14 @@ export const SessionsScreen = ({ route, navigation: { navigate } }: SessionsScre
         showsVerticalScrollIndicator={false}
         estimatedItemSize={ListItemHeight.TRIPLE_LINE}
       />
-    </Screen>
+    </View>
   );
-};
+}
 
 const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+  },
   contentContainer: {
     paddingBottom: 8,
   },

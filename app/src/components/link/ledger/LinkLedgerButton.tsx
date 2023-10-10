@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Fab } from '~/components/Fab';
-import { LINKINGS_FROM_DEVICE } from '~/screens/confirm-link/ConfirmLinkSheet';
+import { LINKINGS_FROM_DEVICE } from '~/app/link/[token]';
 import { LedgerIcon } from '@theme/icons';
 
 export interface LinkLedgerButtonProps {

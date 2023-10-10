@@ -1,5 +1,12 @@
 import { Address } from 'lib';
-import { EventEmitter } from '~/util/EventEmitter';
+import { Subject } from 'rxjs';
+import { useGetEvent } from '~/hooks/useGetEvent';
+import { AddressesModalParams } from '~/screens/addresses/AddressesModal';
 
-export const ADDRESS_EMITTER = new EventEmitter<Address>();
-export const useSelectAddress = ADDRESS_EMITTER.createUseSelect('AddressesModal');
+export const ADDRESS_SELECTED = new Subject<Address>();
+export const useSelectAddress = () => {
+  const getEvent = useGetEvent();
+
+  return (params: AddressesModalParams = {}) =>
+    getEvent({ pathname: `/addresses`, params }, ADDRESS_SELECTED);
+};

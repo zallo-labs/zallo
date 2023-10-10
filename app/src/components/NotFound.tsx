@@ -1,28 +1,23 @@
 import { BackIcon } from '@theme/icons';
-import { Appbar, AppbarProps } from './Appbar/Appbar';
 import { Button } from './Button';
 import { Actions } from './layout/Actions';
-import { Screen } from './layout/Screen';
 import { View } from 'react-native';
 import { makeStyles } from '@theme/makeStyles';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { ICON_SIZE } from '@theme/paper';
 import { Text } from 'react-native-paper';
-import { useNavigation } from '@react-navigation/native';
+import { useRouter } from 'expo-router';
 
 export interface NotFoundProps {
   name: string;
-  appbarProps?: Partial<AppbarProps>;
 }
 
-export function NotFound({ name, appbarProps }: NotFoundProps) {
+export function NotFound({ name }: NotFoundProps) {
   const styles = useStyles();
-  const { goBack } = useNavigation();
+  const router = useRouter();
 
   return (
-    <Screen>
-      <Appbar mode="small" leading="back" headline="" {...appbarProps} />
-
+    <View style={styles.root}>
       <View style={styles.container}>
         <MaterialCommunityIcons name="robot-confused" size={ICON_SIZE.large} style={styles.error} />
 
@@ -32,15 +27,18 @@ export function NotFound({ name, appbarProps }: NotFoundProps) {
       </View>
 
       <Actions>
-        <Button mode="contained" icon={BackIcon} onPress={goBack}>
+        <Button mode="contained" icon={BackIcon} onPress={router.back}>
           Back
         </Button>
       </Actions>
-    </Screen>
+    </View>
   );
 }
 
 const useStyles = makeStyles(({ colors }) => ({
+  root: {
+    flex: 1,
+  },
   container: {
     flex: 1,
     justifyContent: 'center',

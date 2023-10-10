@@ -3,7 +3,7 @@ import { materialCommunityIcon } from '@theme/icons';
 import { makeStyles } from '@theme/makeStyles';
 import { Image, ImageProps } from 'expo-image';
 import { Address, isAddress } from 'lib';
-import { ImageStyle } from 'react-native';
+import { ImageStyle, StyleProp } from 'react-native';
 import { CircleSkeleton } from '~/components/skeleton/CircleSkeleton';
 import { withSuspense } from '~/components/skeleton/withSuspense';
 import { useQuery } from '~/gql';
@@ -33,7 +33,7 @@ export interface TokenIconProps extends Omit<ImageProps, 'source' | 'style'> {
   token: FragmentType<typeof Fragment> | Address | null | undefined;
   fallbackUri?: string;
   size?: number;
-  style?: ImageStyle;
+  style?: StyleProp<ImageStyle>;
 }
 
 export const TokenIcon = withSuspense(

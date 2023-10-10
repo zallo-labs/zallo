@@ -1,6 +1,6 @@
 import { Image, ImageProps, ImageSource } from 'expo-image';
 import { ComponentPropsWithoutRef, ElementType, FC } from 'react';
-import { ColorValue } from 'react-native';
+import { ColorValue, FlexStyle, ImageStyle, StyleProp, TextStyle } from 'react-native';
 
 import { Ionicons, MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
 
@@ -9,6 +9,7 @@ import { ICON_SIZE } from './paper';
 export interface IconProps {
   size?: number;
   color?: ColorValue;
+  // style?: StyleProp<ImageStyle | TextStyle>;
 }
 
 type NameProp<Props> = Props extends { name: infer Name } ? Name : never;
@@ -30,8 +31,8 @@ export const ionIcon: Curried<typeof Ionicons> = (name) => (props) => (
 
 export const HomeIcon = materialIcon('home');
 export const ActivityIcon = materialCommunityIcon('chart-timeline-variant');
-export const SendIcon = materialCommunityIcon('send');
-export const SendOutlineIcon = materialCommunityIcon('send-outline');
+export const TransferIcon = materialCommunityIcon('send');
+export const TransferOutlineIcon = materialCommunityIcon('send-outline');
 export const ReceiveIcon = materialCommunityIcon('arrow-bottom-left');
 export const UserIcon = materialIcon('person');
 export const UserOutlineIcon = materialIcon('person-outline');
@@ -42,7 +43,6 @@ export const DeleteOutlineIcon = materialCommunityIcon('delete-outline');
 export const EditIcon = materialCommunityIcon('pencil');
 export const EditOutlineIcon = materialCommunityIcon('pencil-outline');
 export const ScanIcon = materialCommunityIcon('line-scan');
-export const MenuIcon = materialCommunityIcon('menu');
 export const ShareIcon = materialCommunityIcon('share-variant');
 export const CheckIcon = materialCommunityIcon('check');
 export const FinalizedIcon = materialCommunityIcon('send-check');

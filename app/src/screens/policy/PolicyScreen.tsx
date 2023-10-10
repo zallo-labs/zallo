@@ -10,7 +10,7 @@ import { Permissions } from './Permissions';
 import { useAtom } from 'jotai';
 import _ from 'lodash';
 import { Fab } from '~/components/Fab';
-import { DoubleCheckIcon, NavigateNextIcon, SendIcon } from '@theme/icons';
+import { DoubleCheckIcon, NavigateNextIcon, TransferIcon } from '@theme/icons';
 import { ListItem } from '~/components/list/ListItem';
 import { FragmentType, gql, useFragment } from '@api/generated';
 import { useHydratePolicyDraft } from './useHydratePolicyDraft';
@@ -146,7 +146,7 @@ const PolicyView = ({
 
       {(!policy || isModified) && (
         <Fab
-          icon={SendIcon}
+          icon={TransferIcon}
           label={draft.key !== undefined ? 'Update' : 'Create'}
           onPress={async () => {
             const input = { ...asPolicyInput(draft), account: draft.account };

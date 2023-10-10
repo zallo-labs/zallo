@@ -1,6 +1,5 @@
 import QRCode from 'react-native-qrcode-svg';
 import { Address } from 'lib';
-import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
 import { Screen } from '~/components/layout/Screen';
 import { makeStyles } from '@theme/makeStyles';
 import { IconButton, Surface, Text } from 'react-native-paper';
@@ -9,13 +8,13 @@ import { Actions } from '~/components/layout/Actions';
 import { View } from 'react-native';
 import { useAddressLabel } from '~/components/address/AddressLabel';
 import { buildAddressLink } from '~/util/addressLink';
-import { withSuspense } from '~/components/skeleton/withSuspense';
 import { Blur } from '~/components/Blur';
 import { Button } from '~/components/Button';
 import { gql } from '@api/generated';
-import { useMutation } from 'urql';
+import { OperationContext, useMutation } from 'urql';
 import { useQuery } from '~/gql';
 import { share } from '~/lib/share';
+import { useRouter } from 'expo-router';
 
 const Query = gql(/* GraphQL */ `
   query QrModal($account: Address!) {
@@ -31,23 +30,30 @@ const RequestTokens = gql(/* GraphQL */ `
 
 const FaucetIcon = materialCommunityIcon('water');
 
-export interface QrModalParams {
+const queryContext: Partial<OperationContext> = { suspense: false };
+
+export interface QrModalProps {
   address: Address;
+  faucet?: boolean;
 }
 
-export type QrModalProps = StackNavigatorScreenProps<'QrModal'>;
-
-export const QrModal = withSuspense(({ route, navigation: { goBack } }: QrModalProps) => {
-  const { address } = route.params;
+export function QrModal({ address, faucet }: QrModalProps) {
   const styles = uesStyles();
+  const router = useRouter();
   const requestTokens = useMutation(RequestTokens)[1];
 
-  const { requestableTokens } = useQuery(Query, { account: address }).data;
+  const { requestableTokens = [] } =
+    useQuery(Query, { account: address }, { pause: !faucet, context: queryContext }).data ?? {};
 
   return (
     <Blur>
       <Screen topInset>
-        <IconButton mode="contained-tonal" icon={CloseIcon} style={styles.close} onPress={goBack} />
+        <IconButton
+          mode="contained-tonal"
+          icon={CloseIcon}
+          style={styles.close}
+          onPress={router.back}
+        />
 
         <View style={styles.qrContainer}>
           <Text variant="headlineLarge" style={styles.name}>
@@ -67,7 +73,7 @@ export const QrModal = withSuspense(({ route, navigation: { goBack } }: QrModalP
           </Surface>
         </View>
 
-        <Actions>
+        <Actions style={styles.actions}>
           {requestableTokens.length > 0 && (
             <Button
               mode="contained-tonal"
@@ -89,9 +95,9 @@ export const QrModal = withSuspense(({ route, navigation: { goBack } }: QrModalP
       </Screen>
     </Blur>
   );
-}, Blur);
+}
 
-const uesStyles = makeStyles(({ colors, window }) => ({
+const uesStyles = makeStyles(({ colors, width, height }) => ({
   close: {
     marginHorizontal: 16,
   },
@@ -100,7 +106,7 @@ const uesStyles = makeStyles(({ colors, window }) => ({
     color: colors.onScrim,
   },
   qrContainer: {
-    flex: 4,
+    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     gap: 32,
@@ -110,8 +116,11 @@ const uesStyles = makeStyles(({ colors, window }) => ({
     borderRadius: 16,
   },
   qr: {
-    fontSize: window.width - 64,
+    fontSize: Math.min(width, height) * 0.75,
     color: colors.onSurface,
+  },
+  actions: {
+    flexGrow: 0,
   },
   primary: {
     color: colors.primary,
