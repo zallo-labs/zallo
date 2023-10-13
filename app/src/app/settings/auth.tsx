@@ -10,7 +10,7 @@ import { ListItem } from '~/components/list/ListItem';
 import { FingerprintIcon } from '@theme/icons';
 import { ListHeader } from '~/components/list/ListHeader';
 import { atom, useAtomValue } from 'jotai';
-import { AUTH_SETTINGS_ATOM, SUPPORTS_BIOMETRICS } from '~/provider/AuthGate';
+import { AUTH_SETTINGS_ATOM, SUPPORTS_BIOMETRICS } from '~/components/provider/AuthGate';
 import { useEffect } from 'react';
 
 const biometricsAvailableAtom = atom(SUPPORTS_BIOMETRICS);

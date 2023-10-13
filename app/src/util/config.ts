@@ -16,5 +16,5 @@ export const makeDeepLink = (path: string) => {
 const PATTERN = new RegExp(`^${SCHEME}://[/]?(.+)$`);
 export const getPathFromDeepLink = (link: string) => {
   const path = link.match(PATTERN)?.[1];
-  return path && `/${path};`;
+  return path && `/${path}`;
 };

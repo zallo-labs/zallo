@@ -3,9 +3,9 @@ import { makeStyles } from '~/util/theme/makeStyles';
 import { IconButton } from 'react-native-paper';
 import { StyleSheet, View } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
-import { showWarning } from '~/provider/SnackbarProvider';
+import { showWarning } from '~/components/provider/SnackbarProvider';
 import { Screen } from '~/components/layout/Screen';
-import { useSelectAddress } from '~/screens/addresses/useSelectAddress';
+import { useSelectAddress } from '~/hooks/useSelectAddress';
 import { Rect, useSafeAreaFrame } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 
@@ -38,7 +38,7 @@ export function ScanOverlay({ onData }: OverlayProps) {
         <IconButton
           icon={ContactsIcon}
           mode="contained-tonal"
-          onPress={async () => onData(await selectAddress())}
+          onPress={async () => onData(await selectAddress({ include: ['accounts', 'contacts'] }))}
         />
 
         <IconButton

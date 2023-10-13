@@ -14,7 +14,7 @@ import { LinkGoogleButton } from '~/components/link/LinkGoogleButton';
 import { LinkLedgerButton } from '~/components/link/ledger/LinkLedgerButton';
 import { LinkingButton } from '~/components/link/LinkingButton';
 import { LinkAppleButton } from '~/components/link/LinkAppleButton';
-import { showSuccess } from '~/provider/SnackbarProvider';
+import { showSuccess } from '~/components/provider/SnackbarProvider';
 import { AppbarOptions } from '~/components/Appbar/AppbarOptions';
 
 const Query = gql(/* GraphQL */ `
@@ -25,7 +25,7 @@ const Query = gql(/* GraphQL */ `
 
       approvers {
         id
-        ...UserApproverItem_UserApproverFragment
+        ...UserApproverItem_UserApprover
       }
     }
   }

@@ -2,9 +2,8 @@ import { QrCodeIcon, TransferIcon, SwapIcon } from '@theme/icons';
 import { StyleSheet, View } from 'react-native';
 import { Button } from 'react-native-paper';
 import { Address } from 'lib';
-import { useSelectAddress } from '~/screens/addresses/useSelectAddress';
 import { useRouter } from 'expo-router';
-import { TransferScreenParams } from '~/app/[account]/transfer';
+import { useTransfer } from '~/hooks/useTransfer';
 
 export interface QuickActionsProps {
   account: Address;
@@ -12,7 +11,7 @@ export interface QuickActionsProps {
 
 export const QuickActions = ({ account }: QuickActionsProps) => {
   const { push } = useRouter();
-  const selectAddress = useSelectAddress();
+  const transfer = useTransfer();
 
   return (
     <View style={styles.container}>
@@ -20,13 +19,7 @@ export const QuickActions = ({ account }: QuickActionsProps) => {
         icon={TransferIcon}
         mode="contained-tonal"
         style={styles.button}
-        onPress={async () => {
-          const params: TransferScreenParams = {
-            account,
-            to: await selectAddress({ disabled: ['approvers'] }),
-          };
-          push({ pathname: `/[account]/transfer`, params });
-        }}
+        onPress={() => transfer({ account })}
       >
         Transfer
       </Button>

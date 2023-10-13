@@ -21,7 +21,7 @@ const Query = gql(/* GraphQL */ `
       id
       address
       balance(input: { account: $account })
-      ...TokenItem_token
+      ...TokenItem_Token
     }
   }
 `);

@@ -2,8 +2,8 @@ import { FragmentType, gql, useFragment } from '@api/generated';
 import { ListItem, ListItemProps } from '~/components/list/ListItem';
 import { truncateAddr } from '~/util/format';
 
-const FragmentDoc = gql(/* GraphQL */ `
-  fragment AccountItem_AccountFragment on Account {
+const Account = gql(/* GraphQL */ `
+  fragment AccountItem_Account on Account {
     id
     address
     name
@@ -11,11 +11,11 @@ const FragmentDoc = gql(/* GraphQL */ `
 `);
 
 export interface AccountItemProps extends Partial<ListItemProps> {
-  account: FragmentType<typeof FragmentDoc>;
+  account: FragmentType<typeof Account>;
 }
 
 export function AccountItem(props: AccountItemProps) {
-  const a = useFragment(FragmentDoc, props.account);
+  const a = useFragment(Account, props.account);
 
   return (
     <ListItem

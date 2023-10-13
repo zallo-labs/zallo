@@ -20,14 +20,15 @@ export const CONFIG = {
   metadata: {
     site: ENV.SITE!,
     iconUri: ENV.ICON_URI!,
-    twitter: ENV.TWITTER!,
-    github: ENV.GITHUB!,
+    twitter: ENV.TWITTER! as `http${string}`,
+    github: ENV.GITHUB! as `http${string}`,
   },
   riskRatingUrl: ENV.RISK_RATING_URL!,
   googleOAuth: {
     webClient: ENV.GOOGLE_OAUTH_WEB_CLIENT!,
     iosClient: ENV.GOOGLE_OAUTH_IOS_CLIENT!,
   },
+  webOrigin: ENV.APP_WEB_ORIGIN,
 } as const;
 
 export type Config = typeof CONFIG;
@@ -75,7 +76,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       'expo-router',
       {
         origin: ENV.APP_WEB_ORIGIN,
-        asyncRoutes: 'development',
+        // asyncRoutes: 'development',
       } as PluginConfig<typeof expoRouterPlugin>,
     ],
     'expo-notifications', // https://docs.expo.dev/versions/latest/sdk/notifications/#configurable-properties

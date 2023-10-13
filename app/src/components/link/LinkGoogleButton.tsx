@@ -6,7 +6,7 @@ import { ImageRequireSource, StyleSheet } from 'react-native';
 import { Fab } from '~/components/Fab';
 import { Image } from 'expo-image';
 import { useGetGoogleApprover } from '~/hooks/cloud/useGetGoogleApprover';
-import { showError } from '~/provider/SnackbarProvider';
+import { showError } from '~/components/provider/SnackbarProvider';
 
 const Query = gql(/* GraphQL */ `
   query SignInWithGoogleButton {

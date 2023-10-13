@@ -21,7 +21,7 @@ const Query = gql(/* GraphQL */ `
       id
       address
       name
-      ...AccountItem_AccountFragment
+      ...AccountItem_Account
     }
   }
 `);

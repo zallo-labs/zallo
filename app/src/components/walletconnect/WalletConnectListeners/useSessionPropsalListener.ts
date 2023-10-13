@@ -1,7 +1,6 @@
 import { getSdkError } from '@walletconnect/utils';
 import { useEffect } from 'react';
-import { useNavigation } from '@react-navigation/native';
-import { showError } from '~/provider/SnackbarProvider';
+import { showError } from '~/components/provider/SnackbarProvider';
 import { WC_METHODS } from '~/util/walletconnect/methods';
 import {
   WC_NAMESPACE_KEY,
@@ -10,11 +9,12 @@ import {
 } from '~/util/walletconnect';
 import { isPresent } from 'lib';
 import { SignClientTypes } from '@walletconnect/types';
+import { useRouter } from 'expo-router';
 
 type SessionProposalArgs = SignClientTypes.EventArguments['session_proposal'];
 
 export const useSessionPropsalListener = () => {
-  const { navigate } = useNavigation();
+  const router = useRouter();
   const client = useWalletConnectWithoutWatching();
 
   useEffect(() => {
@@ -58,7 +58,7 @@ export const useSessionPropsalListener = () => {
         return client.reject({ id: proposal.id, reason: getSdkError('UNSUPPORTED_METHODS') });
       }
 
-      navigate('ConnectSheet', proposal);
+      router.push({ pathname: `/sessions/connect/[id]`, params: { id: proposal.id } });
     };
 
     client.on('session_proposal', handleProposal);
@@ -66,5 +66,5 @@ export const useSessionPropsalListener = () => {
     return () => {
       client.off('session_proposal', handleProposal);
     };
-  }, [client, navigate]);
+  }, [client, router.push]);
 };

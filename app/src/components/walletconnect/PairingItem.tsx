@@ -6,19 +6,19 @@ import { StyleSheet } from 'react-native';
 import { useWalletConnect } from '~/util/walletconnect';
 import { useTimestamp } from '~/components/format/Timestamp';
 import { DateTime } from 'luxon';
-import { useNavigation } from '@react-navigation/native';
 import { MoreVerticalIcon } from '@theme/icons';
+import { useRouter } from 'expo-router';
 
 export interface PairingItemProps {
   pairing: PairingTypes.Struct;
 }
 
 export const PairingItem = ({ pairing }: PairingItemProps) => {
-  const { navigate } = useNavigation();
   const client = useWalletConnect();
+  const router = useRouter();
   const session: SessionTypes.Struct | undefined = client.session.getAll({
     pairingTopic: pairing.topic,
-  })[0];
+  })?.[0];
   const peer = pairing.peerMetadata ?? session?.peer.metadata;
 
   const expiry = useTimestamp({ timestamp: DateTime.fromSeconds(pairing.expiry) });
@@ -36,7 +36,9 @@ export const PairingItem = ({ pairing }: PairingItemProps) => {
       supporting={`${status}\n${expires}`}
       lines={3}
       trailing={MoreVerticalIcon}
-      onPress={() => navigate('PairingSheet', { topic: pairing.topic })}
+      onPress={() =>
+        router.push({ pathname: `/sessions/[topic]`, params: { topic: pairing.topic } })
+      }
     />
   );
 };

@@ -140,7 +140,7 @@ function fromSource(source: ImageSource) {
       style={[
         {
           ...(props.size && { width: props.size, height: props.size }),
-          aspectRatio: 1,
+          // aspectRatio: 1,
         },
         props.style,
       ]}

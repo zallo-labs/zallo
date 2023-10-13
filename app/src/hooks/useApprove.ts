@@ -3,12 +3,12 @@ import { useApproverAddress } from '@network/useApprover';
 import { Address, asAddress, asHex, signDigest } from 'lib';
 import { match } from 'ts-pattern';
 import { useMutation } from 'urql';
-import { showError } from '~/provider/SnackbarProvider';
-import { useSignWithLedger } from '~/screens/ledger-sign/LedgerSignSheet';
-import { proposalAsTypedData } from '~/screens/ledger-sign/proposalAsTypedData';
-import { useSignWithApprover } from '~/screens/proposal/useSignWithApprover';
+import { showError } from '~/components/provider/SnackbarProvider';
+import { proposalAsTypedData } from '~/lib/proposalAsTypedData';
 import { useGetAppleApprover } from '~/hooks/cloud/useGetAppleApprover';
 import { useGetGoogleApprover } from '~/hooks/cloud/useGetGoogleApprover';
+import { useGetSignWithLedger } from '~/app/ledger/sign';
+import { useSignWithApprover } from '~/components/transaction/useSignWithApprover';
 
 const User = gql(/* GraphQL */ `
   fragment UseApprove_User on User {
@@ -86,7 +86,7 @@ export function useApprove({ approver, ...params }: UseApproveParams) {
   const p = useFragment(Proposal, params.proposal);
   const device = useApproverAddress();
   const signWithDevice = useSignWithApprover();
-  const signWithLedger = useSignWithLedger();
+  const getSignWithLedger = useGetSignWithLedger();
   const approveTransaction = useMutation(ApproveTransaction)[1];
   const approveMessage = useMutation(ApproveMessage)[1];
   const approve = p.__typename === 'TransactionProposal' ? approveTransaction : approveMessage;
@@ -106,13 +106,14 @@ export function useApprove({ approver, ...params }: UseApproveParams) {
     };
   } else if (userApprover?.bluetoothDevices?.length) {
     return async () => {
-      const { signature } = await signWithLedger({
-        device: approver,
-        content: match(p)
+      const signature = await (
+        await getSignWithLedger({ device: approver })
+      ).sign(
+        match(p)
           .with({ __typename: 'TransactionProposal' }, (p) => proposalAsTypedData(p))
           .with({ __typename: 'MessageProposal' }, (p) => p.typedData ?? p.message)
           .exhaustive(),
-      });
+      );
       await approve({ input: { hash: p.hash, approver, signature } });
     };
   } else if (userApprover.cloud) {

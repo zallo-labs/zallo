@@ -2,7 +2,7 @@ import { isPresent } from 'lib';
 import { useMutation } from 'urql';
 import { useQuery } from '~/gql';
 import { useGetAppleApprover } from '~/hooks/cloud/useGetAppleApprover';
-import { showError } from '~/provider/SnackbarProvider';
+import { showError } from '~/components/provider/SnackbarProvider';
 import { gql } from '@api';
 import { authContext } from '@api/client';
 import { makeStyles } from '@theme/makeStyles';

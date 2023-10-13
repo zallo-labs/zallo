@@ -1,21 +1,18 @@
 import { authContext, useUrqlApiClient } from '@api/client';
 import { FragmentType, gql, useFragment } from '@api/generated';
-import { useNavigation } from '@react-navigation/native';
 import { BluetoothIcon } from '@theme/icons';
 import { useCallback } from 'react';
 import { useMutation } from 'urql';
 import { ListItem } from '~/components/list/ListItem';
-import {
-  LEDGER_ADDRESS_EMITTER,
-  getLedgerLazySignature,
-} from '../../../screens/ledger-sign/LedgerSignSheet';
+import { useGetSignWithLedger } from '~/app/ledger/sign';
 import { APPROVER_BLE_IDS } from '~/hooks/ledger/useLedger';
-import { showSuccess } from '~/provider/SnackbarProvider';
+import { showError, showInfo } from '~/components/provider/SnackbarProvider';
 import { useImmerAtom } from 'jotai-immer';
-import { BleDevice, isMacAddress } from '~/hooks/ledger/SharedBleManager';
 import { getLedgerDeviceModel } from '~/hooks/ledger/connectLedger';
 import { elipseTruncate } from '~/util/format';
 import { useRouter } from 'expo-router';
+import { BleDevice, isUniqueBleDeviceId } from '~/lib/ble/util';
+import { LinkWithTokenSheetParams } from '~/app/link/token';
 
 const User = gql(/* GraphQL */ `
   fragment LedgerItem_user on User {
@@ -55,37 +52,26 @@ export interface LedgerItemProps {
 
 export function LedgerItem({ device: d, ...props }: LedgerItemProps) {
   const user = useFragment(User, props.user);
-  const { navigate, goBack } = useNavigation();
   const router = useRouter();
   const api = useUrqlApiClient();
   const update = useMutation(Update)[1];
   const setApproverBleIds = useImmerAtom(APPROVER_BLE_IDS)[1];
+  const getSign = useGetSignWithLedger();
 
   const productName = getLedgerDeviceModel(d)?.productName;
 
   const connect = useCallback(async () => {
     const name = d.name || productName || d.id;
-    navigate('LedgerSign', {
-      device: d.id,
-      name,
-      content: undefined,
-    });
 
-    const address = await LEDGER_ADDRESS_EMITTER.getEvent();
-
-    const context = await authContext({
-      address,
-      signMessage: async (message) => (await getLedgerLazySignature(message)).signature,
-    });
-
-    goBack(); // Return to this screen once the signature has been complete
+    const { address, sign } = await getSign({ device: d.id, name });
+    const context = await authContext({ address, signMessage: sign });
 
     const { data } = await api.query(Query, {}, context);
 
     const linkingToken = data?.user.linkingToken;
-    if (!linkingToken) return; // TODO: handle
+    if (!linkingToken) return showError('Failed to get linking token, please try again');
 
-    const mac = isMacAddress(d.id) ? d.id : null;
+    const uniqueId = isUniqueBleDeviceId(d.id) ? d.id : null;
 
     update(
       {
@@ -93,8 +79,8 @@ export function LedgerItem({ device: d, ...props }: LedgerItemProps) {
           address,
           name: !data.approver?.name ? name : undefined,
           bluetoothDevices:
-            mac && !data.approver?.bluetoothDevices?.includes(mac)
-              ? [...(data.approver?.bluetoothDevices ?? []), mac]
+            uniqueId && !data.approver?.bluetoothDevices?.includes(uniqueId)
+              ? [...(data.approver?.bluetoothDevices ?? []), uniqueId]
               : undefined,
         },
       },
@@ -102,7 +88,7 @@ export function LedgerItem({ device: d, ...props }: LedgerItemProps) {
     );
 
     // Persist approver => deviceId association locally if OS doesn't provide device's MAC (iOS)
-    if (!mac) {
+    if (!uniqueId) {
       setApproverBleIds((approverBluetoothIDs) => {
         const ids = approverBluetoothIDs[address] ?? [];
         approverBluetoothIDs[address] = ids.includes(d.id) ? ids : [...ids, d.id];
@@ -110,10 +96,21 @@ export function LedgerItem({ device: d, ...props }: LedgerItemProps) {
     }
 
     // Check if already link
-    if (data.user.id === user.id) return showSuccess('Linked');
+    if (data.user.id === user.id) return showInfo('Already linked');
 
-    router.push({ pathname: `/link/[token]`, params: { token: linkingToken } });
-  }, [api, d.id, d.name, goBack, navigate, productName, setApproverBleIds, update, user.id]);
+    const params: LinkWithTokenSheetParams = { token: linkingToken };
+    router.push({ pathname: `/link/token`, params });
+  }, [
+    api,
+    d.id,
+    d.name,
+    router.push,
+    router.back,
+    productName,
+    setApproverBleIds,
+    update,
+    user.id,
+  ]);
 
   return (
     <ListItem

@@ -2,7 +2,7 @@ import { QrCodeIcon } from '@theme/icons';
 import { StyleSheet } from 'react-native';
 import { Fab } from '~/components/Fab';
 import { useEffect } from 'react';
-import { showSuccess } from '~/provider/SnackbarProvider';
+import { showSuccess } from '~/components/provider/SnackbarProvider';
 import { LINKINGS_FROM_TOKEN } from '~/app/link';
 import { useRouter } from 'expo-router';
 

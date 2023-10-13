@@ -1,21 +1,22 @@
 import { ethers } from 'ethers';
 import AppEth from '@ledgerhq/hw-app-eth';
 import { Address, Hex, asAddress, asHex } from 'lib';
-import TransportBLE from '@ledgerhq/react-native-hw-transport-ble';
+import TransportBLE from '~/lib/ble/ledger';
 import { EIP712Message } from '@ledgerhq/types-live';
-import { Result, ResultAsync, err } from 'neverthrow';
+import { Ok, Result, ResultAsync, err } from 'neverthrow';
 import { DeviceId } from 'react-native-ble-plx';
 import { LockedDeviceError, StatusCodes, DisconnectedDevice } from '@ledgerhq/errors';
 import { P, match } from 'ts-pattern';
 import { Observable, bufferTime, filter } from 'rxjs';
 import { getInfosForServiceUuid, DeviceModelId } from '@ledgerhq/devices';
-import { BleDevice, SharedBleManager } from './SharedBleManager';
 import { logWarning } from '~/util/analytics';
 import { toUtf8Bytes } from 'ethers/lib/utils';
 import _ from 'lodash';
 import { retryAsync } from '~/util/retry';
 import { TypedDataDefinition } from 'viem';
 import { WritableDeep } from 'ts-toolbelt/out/Object/Writable';
+import { bleListen } from '~/lib/ble/manager';
+import { BleDevice } from '~/lib/ble/util';
 
 // Based off https://github.com/ethers-io/ethers.js/blob/v5.7/packages/hardware-wallets/src.ts/ledger.ts
 // Unfortunately the ethers version only supports HID devices and has been removed in ethers 6
@@ -71,29 +72,35 @@ export function connectLedger(deviceIds: DeviceId[]) {
           sub.next(err('finding' as const));
           signal.addEventListener('abort', reject);
 
-          const observable = SharedBleManager.instance()
-            .listen()
-            .pipe(filter((d) => deviceIds.includes(d.id)));
+          const observable = bleListen().pipe(
+            filter((r) => r.isErr() || deviceIds.includes(r.value.id)),
+          );
 
           if (deviceIds.length === 1) {
             // Simply find the device if there is only one
-            observable.subscribe({
-              next: (d) => {
-                resolve(d);
-              },
-              error: reject,
+            observable.subscribe((result) => {
+              if (result.isOk()) {
+                resolve(result.value);
+              } else {
+                reject(result.error);
+              }
             });
           } else {
             // Find the closest device; batch advertisements in 100ms windows
             // The Ledger Nano S advertises every ~50ms
-            observable.pipe(bufferTime(100)).subscribe({
-              next: (devices) => {
-                if (devices.length > 0) {
-                  const bestMatch = devices.sort((a, b) => (a.rssi ?? 0) - (b.rssi ?? 0))[0];
+            observable.pipe(bufferTime(100)).subscribe((r) => {
+              if (r.length > 0) {
+                const bestMatch = r
+                  .filter((r): r is Ok<BleDevice, never> => r.isOk())
+                  .sort((a, b) => (a.value.rssi ?? 0) - (b.value.rssi ?? 0))?.[0]?.value;
+
+                if (bestMatch) {
                   resolve(bestMatch);
+                } else {
+                  const err = r.findLast((r) => r.isErr());
+                  if (err?.isErr()) reject(err.error);
                 }
-              },
-              error: reject,
+              }
             });
           }
         }),

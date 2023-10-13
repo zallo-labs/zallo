@@ -1,7 +1,10 @@
-import { atom, useAtomValue, useSetAtom } from 'jotai';
+import { useAtomValue, useSetAtom } from 'jotai';
 import { Address } from 'lib';
+import { persistedAtom } from '~/lib/persistedAtom';
 
-const addressAtom = atom<Address | undefined>(undefined);
+const addressAtom = persistedAtom<Address | undefined>('selectedAccount', undefined, {
+  skipInitialPersist: true,
+});
 
 export function useSelectedAccount() {
   return useAtomValue(addressAtom);

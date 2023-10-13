@@ -4,7 +4,7 @@ import { useApproverAddress } from '@network/useApprover';
 import { Address } from 'lib';
 import { match } from 'ts-pattern';
 import { useMutation } from 'urql';
-import { showError } from '~/provider/SnackbarProvider';
+import { showError } from '~/components/provider/SnackbarProvider';
 import { useGetAppleApprover } from '~/hooks/cloud/useGetAppleApprover';
 import { useGetGoogleApprover } from '~/hooks/cloud/useGetGoogleApprover';
 

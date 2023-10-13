@@ -20,7 +20,7 @@ const Query = gql(/* GraphQL */ `
         current
       }
       balance(input: { account: $account })
-      ...TokenItem_token
+      ...TokenItem_Token
     }
   }
 `);

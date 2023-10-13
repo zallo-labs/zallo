@@ -7,7 +7,7 @@ import { useMutation } from 'urql';
 import { FormSubmitButton } from '~/components/fields/FormSubmitButton';
 import { FormTextField } from '~/components/fields/FormTextField';
 import { Actions } from '~/components/layout/Actions';
-import { showError } from '~/provider/SnackbarProvider';
+import { showError } from '~/components/provider/SnackbarProvider';
 import { AppbarOptions } from '~/components/Appbar/AppbarOptions';
 
 const Create = gql(/* GraphQL */ `

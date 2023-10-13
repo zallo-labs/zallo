@@ -21,7 +21,7 @@ const Query = gql(/* GraphQL */ `
     contacts(input: { query: $query }) {
       id
       address
-      ...ContactItem_ContactFragment
+      ...ContactItem_Contact
     }
   }
 `);

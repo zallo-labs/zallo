@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Fab } from '~/components/Fab';
-import { LINKINGS_FROM_DEVICE } from '~/app/link/[token]';
+import { LINKINGS_FROM_DEVICE } from '~/app/link/token';
 import { LedgerIcon } from '@theme/icons';
 
 export interface LinkLedgerButtonProps {
@@ -24,7 +24,7 @@ export function LinkLedgerButton({ onLink }: LinkLedgerButtonProps) {
       position="relative"
       icon={LedgerIcon}
       style={styles.container}
-      onPress={() => router.push('/link/ledger')}
+      onPress={() => router.push(`/ledger/link`)}
     />
   );
 }

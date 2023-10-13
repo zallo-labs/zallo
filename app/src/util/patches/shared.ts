@@ -13,7 +13,7 @@ import 'react-native-get-random-values';
 import './crypto';
 
 // Log ethers events
-import './ethersLogger';
+// import './ethersLogger';
 
 // Immer features
 import { enableMapSet } from 'immer';

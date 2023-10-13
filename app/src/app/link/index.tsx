@@ -97,7 +97,7 @@ export default function LinkingModal() {
   );
 }
 
-const uesStyles = makeStyles(({ colors, window }) => ({
+const uesStyles = makeStyles(({ colors, width, height }) => ({
   close: {
     marginHorizontal: 16,
   },
@@ -119,7 +119,7 @@ const uesStyles = makeStyles(({ colors, window }) => ({
     borderRadius: 16,
   },
   qr: {
-    fontSize: Math.min(512, window.width - 64, window.height - 128),
+    fontSize: Math.min(512, width - 64, height - 128),
     color: colors.onSurface,
   },
   primary: {

@@ -1,6 +1,11 @@
 // node-libs-react-native provides many shims
 // Among those, which are overridden below: Buffer, atob, btoa
-import 'node-libs-react-native/globals'; // This is needed for atob for some reason, even though react-native-quick-base64 should override it
+// import 'node-libs-react-native/globals'; // This is needed for atob for some reason, even though react-native-quick-base64 should override it
+
+global.process = require('process');
+
+// @ts-expect-error Some modules expect userAgent to be a string
+global.navigator.userAgent ??= 'React Native';
 
 import './shared';
 

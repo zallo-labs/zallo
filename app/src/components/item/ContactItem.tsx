@@ -3,8 +3,8 @@ import { NavigateNextIcon } from '@theme/icons';
 import { ListItem, ListItemProps } from '~/components/list/ListItem';
 import { truncateAddr } from '~/util/format';
 
-const ContactFragmentDoc = gql(/* GraphQL */ `
-  fragment ContactItem_ContactFragment on Contact {
+const Contact = gql(/* GraphQL */ `
+  fragment ContactItem_Contact on Contact {
     id
     address
     label
@@ -12,11 +12,11 @@ const ContactFragmentDoc = gql(/* GraphQL */ `
 `);
 
 export interface ContactItemProps extends Partial<ListItemProps> {
-  contact: FragmentType<typeof ContactFragmentDoc>;
+  contact: FragmentType<typeof Contact>;
 }
 
 export function ContactItem(props: ContactItemProps) {
-  const c = useFragment(ContactFragmentDoc, props.contact);
+  const c = useFragment(Contact, props.contact);
 
   return (
     <ListItem

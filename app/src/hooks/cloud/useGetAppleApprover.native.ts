@@ -3,7 +3,7 @@ import * as Auth from 'expo-apple-authentication';
 import { atom, useAtomValue } from 'jotai';
 import { Result, ResultAsync, err, okAsync } from 'neverthrow';
 import { CodedError } from 'expo-modules-core';
-import { showError } from '~/provider/SnackbarProvider';
+import { showError } from '~/components/provider/SnackbarProvider';
 
 const isAvailableAtom = atom(Auth.isAvailableAsync);
 

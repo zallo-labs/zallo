@@ -12,7 +12,7 @@ import { Address, tryAsAddress } from 'lib';
 import { AppbarBack } from '~/components/Appbar/AppbarBack';
 import * as Linking from 'expo-linking';
 import useAsyncEffect from 'use-async-effect';
-import { showError } from '~/provider/SnackbarProvider';
+import { showError } from '~/components/provider/SnackbarProvider';
 import { getPathFromDeepLink } from '~/util/config';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { ScanOverlay } from '~/components/ScanOverlay';

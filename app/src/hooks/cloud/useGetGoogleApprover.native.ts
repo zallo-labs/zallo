@@ -9,7 +9,7 @@ import { CONFIG } from '~/util/config';
 import { Result, ResultAsync, err, okAsync } from 'neverthrow';
 import { Approver } from 'lib';
 import { useGetCloudApprover } from './useGetCloudApprover';
-import { showError } from '~/provider/SnackbarProvider';
+import { showError } from '~/components/provider/SnackbarProvider';
 import decodeJwt from 'jwt-decode';
 import { DateTime } from 'luxon';
 

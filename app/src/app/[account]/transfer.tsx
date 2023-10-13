@@ -1,4 +1,4 @@
-import { SearchParams, useLocalSearchParams, useRouter } from 'expo-router';
+import { useRouter } from 'expo-router';
 import { usePropose } from '@api/usePropose';
 import { parseUnits } from 'ethers/lib/utils';
 import { FIAT_DECIMALS, asAddress, fiatToToken } from 'lib';
@@ -16,6 +16,9 @@ import { useQuery } from '~/gql';
 import { useSelectToken } from '~/app/[account]/tokens';
 import { createTransferOp } from '~/lib/transfer';
 import { AppbarOptions } from '~/components/Appbar/AppbarOptions';
+import { z } from 'zod';
+import { zAddress } from '~/lib/zod';
+import { useLocalParams } from '~/hooks/useLocalParams';
 
 const Query = gql(/* GraphQL */ `
   query TransferScreen($account: Address!, $token: Address!) {
@@ -29,18 +32,19 @@ const Query = gql(/* GraphQL */ `
         current
       }
       ...InputsView_token @arguments(account: $account)
-      ...TokenItem_token
+      ...TokenItem_Token
     }
   }
 `);
 
-export type TransferScreenRoute = `/[account]/transfer`;
-export type TransferScreenParams = SearchParams<TransferScreenRoute> & {
-  to: string;
-};
+const paramsSchema = z.object({
+  account: zAddress,
+  to: zAddress,
+});
+export type TransferScreenParams = z.infer<typeof paramsSchema>;
 
 export default function TransferScreen() {
-  const params = useLocalSearchParams<TransferScreenParams>();
+  const params = useLocalParams(`/[account]/transfer`, paramsSchema);
   const [account, to] = [asAddress(params.account), asAddress(params.to)];
   const router = useRouter();
   const propose = usePropose();
@@ -94,7 +98,7 @@ export default function TransferScreen() {
             account,
             operations: [createTransferOp({ token: token.address, to, amount: tokenAmount })],
           });
-          router.replace({ pathname: `/proposal/[hash]`, params: { hash: proposal } });
+          router.replace({ pathname: `/transaction/[hash]/`, params: { hash: proposal } });
         }}
       >
         Propose

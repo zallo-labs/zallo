@@ -19,7 +19,7 @@ import { AppbarMore } from '~/components/Appbar/AppbarMore';
 import { Menu } from 'react-native-paper';
 import { useQuery } from '~/gql';
 import { useMutation } from 'urql';
-import { useConfirmRemoval } from '~/screens/alert/useConfirm';
+import { useConfirmRemoval } from '~/hooks/useConfirm';
 
 const Query = gql(/* GraphQL */ `
   query TokenScreen($token: Address!) {

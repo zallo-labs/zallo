@@ -5,8 +5,8 @@ import { RadioButton } from 'react-native-paper';
 import { ListItem, ListItemProps } from '~/components/list/ListItem';
 import { truncateAddr } from '~/util/format';
 
-const UserApproverItem_UserApproverFragment = gql(/* GraphQL */ `
-  fragment UserApproverItem_UserApproverFragment on UserApprover {
+const UserApprover = gql(/* GraphQL */ `
+  fragment UserApproverItem_UserApprover on UserApprover {
     id
     address
     name
@@ -19,11 +19,11 @@ const UserApproverItem_UserApproverFragment = gql(/* GraphQL */ `
 `);
 
 export interface UserApproverItemProps extends Partial<ListItemProps> {
-  approver: FragmentType<typeof UserApproverItem_UserApproverFragment>;
+  approver: FragmentType<typeof UserApprover>;
 }
 
 export function UserApproverItem(props: UserApproverItemProps) {
-  const a = useFragment(UserApproverItem_UserApproverFragment, props.approver);
+  const a = useFragment(UserApprover, props.approver);
   const router = useRouter();
   const selected = useApproverAddress() === a.address;
 
