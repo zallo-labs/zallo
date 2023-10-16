@@ -24,7 +24,7 @@ export const Blur = ({ children, ...props }: Partial<BlurProps>) => {
   );
 };
 
-const useStyles = makeStyles((_, { blurType, blurAmount = 5 }: BlurProps) => ({
+const useStyles = makeStyles((_, { blurType, blurAmount = 16 }: BlurProps) => ({
   blur: {
     backdropFilter: `blur(${blurAmount}px)`,
     backgroundColor: BACKGROUND_COLOR[blurType ?? 'transparent'],
