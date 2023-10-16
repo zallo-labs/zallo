@@ -15,7 +15,7 @@ export function DrawerItem<R>({ href, label, icon, ...props }: DrawerItemProps<R
   const currentPath = `/${useSegments().join('/')}`;
   const hrefPath = getHrefPath(href);
   const router = useRouter();
-  const { toggle } = useDrawerContext();
+  const { close } = useDrawerContext();
 
   return (
     // <Link href={href} asChild>
@@ -25,7 +25,7 @@ export function DrawerItem<R>({ href, label, icon, ...props }: DrawerItemProps<R
       active={currentPath === hrefPath}
       onPress={() => {
         router.push(href);
-        toggle();
+        close();
       }}
       {...props}
     />

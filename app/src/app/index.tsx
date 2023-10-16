@@ -1,6 +1,5 @@
-import { Redirect, SearchParams } from 'expo-router';
+import { Redirect } from 'expo-router';
 import { useQuery } from '~/gql';
-
 import { gql } from '@api';
 import { useSelectedAccount } from '~/hooks/useSelectedAccount';
 
@@ -13,9 +12,6 @@ const Query = gql(/* GraphQL */ `
   }
 `);
 
-export type RootScreenRoute = `/`;
-export type RootScreenParams = SearchParams<RootScreenRoute>;
-
 export default function RootScreen() {
   const selectedAccount = useSelectedAccount();
   const accounts = useQuery(Query).data?.accounts ?? [];
@@ -23,7 +19,7 @@ export default function RootScreen() {
   return accounts.length ? (
     <Redirect
       href={{
-        pathname: `/[account]/(home)/`,
+        pathname: `/(drawer)/[account]/(home)/`,
         params: { account: selectedAccount ?? accounts[0].address },
       }}
     />

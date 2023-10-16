@@ -62,7 +62,10 @@ export default function AccountsSheet() {
               account={a}
               trailing={selected ? CheckCircleIcon : SwitchIcon}
               onPress={() =>
-                router.push({ pathname: `/[account]/(home)/`, params: { account: a.address } })
+                router.push({
+                  pathname: `/(drawer)/[account]/(home)/`,
+                  params: { account: a.address },
+                })
               }
               selected={selected}
             />

@@ -27,7 +27,7 @@ export function Permissions(props: PermissionsProps) {
 
   const pushContractScreen = (contract: Address) =>
     router.push({
-      pathname: `/[account]/policies/[key]/[contract]/`,
+      pathname: `/(drawer)/[account]/policies/[key]/[contract]/`,
       params: { account: props.account, key: props.policyKey, contract },
     });
 

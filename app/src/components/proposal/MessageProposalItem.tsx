@@ -58,7 +58,9 @@ export function MessageProposalItem(props: MessageProposalItemProps) {
       leadingSize="medium"
       headline={p.label || 'Message'}
       supporting={supporting}
-      onPress={() => router.push({ pathname: `/message/[hash]/`, params: { hash: p.hash } })}
+      onPress={() =>
+        router.push({ pathname: `/(drawer)/message/[hash]/`, params: { hash: p.hash } })
+      }
     />
   );
 }

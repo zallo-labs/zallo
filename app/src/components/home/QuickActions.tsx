@@ -37,7 +37,7 @@ export const QuickActions = ({ account }: QuickActionsProps) => {
         icon={SwapIcon}
         mode="contained-tonal"
         style={styles.button}
-        onPress={() => push({ pathname: `/[account]/swap`, params: { account } })}
+        onPress={() => push({ pathname: `/(drawer)/[account]/swap`, params: { account } })}
       >
         Swap
       </Button>

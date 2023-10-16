@@ -17,7 +17,6 @@ import { UpdateProvider } from '~/components/provider/UpdateProvider';
 import { ThemeProvider } from '~/util/theme/ThemeProvider';
 import { AppbarHeader } from '~/components/Appbar/AppbarHeader';
 import { NativeStackNavigationOptions } from '@react-navigation/native-stack';
-import { Drawer } from '~/components/drawer/Drawer';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 const modal: NativeStackNavigationOptions = {
@@ -30,55 +29,37 @@ const transparentModal: NativeStackNavigationOptions = {
 };
 
 export const unstable_settings = {
-  initialRouteName: 'index',
+  initialRouteName: `index`,
 };
 
 function Layout() {
   return (
     <Stack screenOptions={{ header: AppbarHeader }}>
-      <Stack.Screen name={`[account]/(home)`} />
+      <Stack.Screen name={`(drawer)`} options={{ headerShown: false }} />
       <Stack.Screen name={`[account]/policies/[key]/[contract]/add-selector`} options={modal} />
-      <Stack.Screen name={`[account]/policies/[key]/[contract]/index`} />
-      <Stack.Screen name={`[account]/policies/[key]/approvers`} />
-      <Stack.Screen name={`[account]/policies/[key]/index`} />
       <Stack.Screen name={`[account]/policies/[key]/name`} options={modal} />
-      <Stack.Screen name={`[account]/policies/index`} />
       <Stack.Screen name={`[account]/policies/template`} options={modal} />
       <Stack.Screen name={`[account]/name`} options={modal} />
       <Stack.Screen name={`[account]/receive`} options={transparentModal} />
-      <Stack.Screen name={`[account]/swap`} />
-      <Stack.Screen name={`[account]/tokens`} options={{ headerShown: false }} />
-      <Stack.Screen name={`[account]/transfer`} />
-      <Stack.Screen name={`accounts/create`} />
+      <Stack.Screen name={`accounts/create`} options={modal} />
       <Stack.Screen name={`accounts/index`} options={transparentModal} />
-      <Stack.Screen name={`approver/[address]/index`} />
       <Stack.Screen name={`approver/[address]/qr`} options={transparentModal} />
-      <Stack.Screen name={`contacts/[address]`} />
-      <Stack.Screen name={`contacts/add`} />
-      <Stack.Screen name={`contacts/index`} options={{ headerShown: false }} />
       <Stack.Screen name={`ledger/sign`} options={transparentModal} />
-      <Stack.Screen name={`ledger/link`} />
       <Stack.Screen name={`link/token`} options={transparentModal} />
       <Stack.Screen name={`link/index`} options={transparentModal} />
-      <Stack.Screen name={`message/[hash]`} />
       <Stack.Screen name={`onboard/approver`} />
+      <Stack.Screen name={`onboard/auth`} />
       <Stack.Screen name={`onboard/index`} />
+      <Stack.Screen name={`onboard/notifications`} />
       <Stack.Screen name={`onboard/user`} />
       <Stack.Screen name={`scan/[address]`} options={transparentModal} />
       <Stack.Screen name={`scan/index`} options={{ headerShown: false }} />
       <Stack.Screen name={`sessions/connect/[id]`} options={transparentModal} />
       <Stack.Screen name={`sessions/[topic]`} options={transparentModal} />
-      <Stack.Screen name={`sessions/index`} />
-      <Stack.Screen name={`settings/auth`} />
-      <Stack.Screen name={`settings/notifications`} />
-      <Stack.Screen name={`token/[token]`} />
-      <Stack.Screen name={`token/add`} />
-      <Stack.Screen name={`transaction/[hash]`} />
       <Stack.Screen name={`[...unmatched]`} />
-      <Stack.Screen name={`addresses`} options={modal} />
-      <Stack.Screen name={`confirm`} />
+      <Stack.Screen name={`addresses`} options={{ ...modal, headerShown: false }} />
+      <Stack.Screen name={`confirm`} options={transparentModal} />
       <Stack.Screen name={`index`} />
-      <Stack.Screen name={`user`} />
       <Stack.Screen
         name={`_sitemap`} /* Implicit: https://docs.expo.dev/router/reference/sitemap/ */
       />
@@ -98,9 +79,7 @@ export default function RootLayout() {
                   <AuthGate>
                     <GqlProvider>
                       <ErrorBoundary>
-                        <Drawer>
-                          <Layout />
-                        </Drawer>
+                        <Layout />
                       </ErrorBoundary>
                       <MinimalErrorBoundary>
                         <Suspense fallback={null}>

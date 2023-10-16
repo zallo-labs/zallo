@@ -125,7 +125,7 @@ export function PolicyAppbar({ view, reset, setView, ...props }: PolicyAppbarPro
                     onPress={() => {
                       close();
                       router.push({
-                        pathname: `/transaction/[hash]/`,
+                        pathname: `/(drawer)/transaction/[hash]/`,
                         params: { hash: state.proposal!.hash },
                       });
                     }}
@@ -144,7 +144,7 @@ export function PolicyAppbar({ view, reset, setView, ...props }: PolicyAppbarPro
 
                         proposal
                           ? router.push({
-                              pathname: `/transaction/[hash]/`,
+                              pathname: `/(drawer)/transaction/[hash]/`,
                               params: { hash: proposal.hash },
                             })
                           : router.back();

@@ -1,5 +1,5 @@
 import { useImmerAtom } from 'jotai-immer';
-import { ContractPermissionsScheme } from '~/app/[account]/policies/[key]/[contract]/';
+import { ContractPermissionsScheme } from '~/app/(drawer)/[account]/policies/[key]/[contract]';
 import { useLocalParams } from '~/hooks/useLocalParams';
 import { POLICY_DRAFT_ATOM } from '~/lib/policy/draft';
 import { Selector } from 'lib';

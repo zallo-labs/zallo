@@ -23,7 +23,10 @@ export default function ScannedAddressSheet() {
           headline="Send"
           trailing={NavigateNextIcon}
           onPress={() =>
-            router.replace({ pathname: `/[account]/transfer`, params: { account, to: address } })
+            router.replace({
+              pathname: `/(drawer)/[account]/transfer`,
+              params: { account, to: address },
+            })
           }
         />
       )}
@@ -32,7 +35,9 @@ export default function ScannedAddressSheet() {
         leading={ContactsIcon}
         headline="Add as contact"
         trailing={NavigateNextIcon}
-        onPress={() => router.replace({ pathname: `/contacts/[address]`, params: { address } })}
+        onPress={() =>
+          router.replace({ pathname: `/(drawer)/contacts/[address]`, params: { address } })
+        }
       />
     </Sheet>
   );

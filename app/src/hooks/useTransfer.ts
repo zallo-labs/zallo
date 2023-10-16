@@ -1,5 +1,5 @@
 import { useSelectAddress } from '~/hooks/useSelectAddress';
-import { TransferScreenParams } from '~/app/[account]/transfer';
+import { TransferScreenParams } from '~/app/(drawer)/[account]/transfer';
 import { O } from 'ts-toolbelt';
 import { useRouter } from 'expo-router';
 
@@ -13,6 +13,6 @@ export function useTransfer() {
       disabled: [params.account],
     });
 
-    return router.push({ pathname: `/[account]/transfer`, params });
+    return router.push({ pathname: `/(drawer)/[account]/transfer`, params });
   };
 }

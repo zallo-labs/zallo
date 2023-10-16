@@ -10,7 +10,7 @@ import { Pool } from '~/util/swap';
 import ToTokenItem from './ToTokenItem';
 import { FragmentType, gql, useFragment } from '@api/generated';
 import { TokenIcon } from '~/components/token/TokenIcon';
-import { useSelectToken } from '~/app/[account]/tokens';
+import { useSelectToken } from '~/app/(drawer)/[account]/tokens';
 
 const DownArrow = materialCommunityIcon('arrow-down-thin');
 const ICON_BUTTON_SIZE = 24;

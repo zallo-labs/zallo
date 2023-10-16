@@ -32,7 +32,7 @@ function InternalUserHeader() {
   if (!approver) return null;
 
   return (
-    <TouchableOpacity style={styles.userContainer} onPress={() => router.push(`/user`)}>
+    <TouchableOpacity style={styles.userContainer} onPress={() => router.push(`/(drawer)/user`)}>
       <AddressIcon address={approver.address} size={ICON_SIZE.large} />
 
       <Text variant="titleLarge" style={styles.userName}>

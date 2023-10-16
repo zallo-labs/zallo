@@ -114,7 +114,7 @@ export const useSessionRequestListener = () => {
           }
         });
 
-        router.push({ pathname: `/transaction/[hash]/`, params: { hash: proposal } });
+        router.push({ pathname: `/(drawer)/transaction/[hash]/`, params: { hash: proposal } });
 
         // sub is automatically unsubscribed on unmount due to proposals unsubscribe
       } else if (WC_SIGNING_METHODS.has(method)) {
@@ -147,7 +147,7 @@ export const useSessionRequestListener = () => {
           }
         });
 
-        router.push({ pathname: `/message/[hash]/`, params: { hash: proposal.hash } });
+        router.push({ pathname: `/(drawer)/message/[hash]/`, params: { hash: proposal.hash } });
 
         // sub is automatically unsubscribed on unmount due to proposals unsubscribe
       } else {

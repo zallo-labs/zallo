@@ -7,8 +7,8 @@ import { ListItem } from '~/components/list/ListItem';
 import { StyleSheet, View } from 'react-native';
 import { AppbarOptions } from '~/components/Appbar/AppbarOptions';
 import { PolicyTemplateType } from '~/lib/policy/template';
-import { PoliciesScreenParams } from '~/app/[account]/policies';
-import { PolicyScreenParams } from '~/app/[account]/policies/[key]';
+import { PoliciesScreenParams } from '~/app/(drawer)/[account]/policies';
+import { PolicyScreenParams } from '~/app/(drawer)/[account]/policies/[key]';
 
 export const PolicyTemplateModalParams = PoliciesScreenParams;
 export type PolicyTemplateModalParams = z.infer<typeof PolicyTemplateModalParams>;
@@ -19,7 +19,7 @@ export default function PolicyTemplateModal() {
 
   const handle = (template: PolicyTemplateType) => () => {
     const params: PolicyScreenParams = { account, key: 'add', template };
-    router.replace({ pathname: `/[account]/policies/[key]/`, params });
+    router.replace({ pathname: `/(drawer)/[account]/policies/[key]/`, params });
   };
 
   return (

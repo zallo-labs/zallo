@@ -50,7 +50,7 @@ export function DrawerContent() {
 
           {account ? (
             <Item
-              href={{ pathname: `/[account]/(home)/`, params: { account } }}
+              href={{ pathname: `/(drawer)/[account]/(home)/`, params: { account } }}
               icon={HomeIcon}
               label="Home"
             />
@@ -58,12 +58,12 @@ export function DrawerContent() {
             <Item href={`/`} icon={HomeIcon} label="Home" />
           )}
 
-          <Item href={`/contacts/`} icon={ContactsIcon} label="Contacts" />
-          <Item href={`/sessions/`} icon={WalletConnectIcon} label="Sessions" />
+          <Item href={`/(drawer)/contacts/`} icon={ContactsIcon} label="Contacts" />
+          <Item href={`/(drawer)/sessions/`} icon={WalletConnectIcon} label="Sessions" />
 
           {account && (
             <Item
-              href={{ pathname: `/[account]/tokens`, params: { account } }}
+              href={{ pathname: `/(drawer)/[account]/tokens`, params: { account } }}
               icon={() => <Image source={ETH_ICON_URI} style={styles.icon} />}
               label="Tokens"
             />
@@ -73,7 +73,7 @@ export function DrawerContent() {
         {account && (
           <Section title="Actions">
             <Item
-              href={{ pathname: `/[account]/transfer`, params: { account } }}
+              href={{ pathname: `/(drawer)/[account]/transfer`, params: { account } }}
               icon={TransferIcon}
               label="Transfer"
               onPress={() => transfer({ account })}
@@ -86,7 +86,7 @@ export function DrawerContent() {
             />
 
             <Item
-              href={{ pathname: `/[account]/swap`, params: { account } }}
+              href={{ pathname: `/(drawer)/[account]/swap`, params: { account } }}
               icon={SwapIcon}
               label="Swap"
             />
@@ -96,7 +96,7 @@ export function DrawerContent() {
         <Section title="Settings">
           {account && (
             <Item
-              href={{ pathname: `/[account]/policies/`, params: { account } }}
+              href={{ pathname: `/(drawer)/[account]/policies/`, params: { account } }}
               icon={PolicyIcon}
               label="Policies"
             />

@@ -1,4 +1,4 @@
-import { PROJECT_ID } from '../../../../app.config';
+import { PROJECT_ID } from 'app.config';
 import * as Notifications from 'expo-notifications';
 import type { DevicePushToken } from 'expo-notifications';
 import { useEffect } from 'react';
@@ -7,7 +7,7 @@ import {
   NotificationChannel,
   NotificationChannelConfig,
   useNotificationSettings,
-} from '~/app/settings/notifications';
+} from '~/components/NotificationSettings';
 import { gql } from '@api/generated';
 import { useQuery } from '~/gql';
 import { useMutation } from 'urql';

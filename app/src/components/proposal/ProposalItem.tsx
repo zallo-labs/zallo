@@ -113,7 +113,9 @@ export const ProposalItem = withSuspense(
             <ProposalValue proposal={p} hideZero />
           </Text>
         )}
-        onPress={() => router.push({ pathname: `/transaction/[hash]/`, params: { hash: p.hash } })}
+        onPress={() =>
+          router.push({ pathname: `/(drawer)/transaction/[hash]/`, params: { hash: p.hash } })
+        }
         {...itemProps}
       />
     );

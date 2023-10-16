@@ -66,7 +66,7 @@ export default function CreateAccountScreen() {
               ).data?.createAccount;
 
               router.push({
-                pathname: `/[account]/(home)/`,
+                pathname: `/(drawer)/[account]/(home)/`,
                 params: { account: account!.address },
               });
             } catch (error) {

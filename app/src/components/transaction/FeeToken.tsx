@@ -3,7 +3,7 @@ import { asBigInt } from 'lib';
 import { useMutation } from 'urql';
 import { TokenItem } from '~/components/token/TokenItem';
 import { makeStyles } from '@theme/makeStyles';
-import { useSelectToken } from '~/app/[account]/tokens';
+import { useSelectToken } from '~/app/(drawer)/[account]/tokens';
 
 const FragmentDoc = gql(/* GraphQL */ `
   fragment FeeToken_TransactionProposalFragment on TransactionProposal {

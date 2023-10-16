@@ -1,4 +1,3 @@
-import { PrimitiveAtom } from 'jotai';
 import { ReactNode, createContext, useContext } from 'react';
 
 const CONTEXT = createContext<DrawerContext | undefined>(undefined);
@@ -12,9 +11,10 @@ export function useDrawerContext() {
 export type DrawerType = 'standard' | 'modal';
 
 export interface DrawerContext {
-  openAtom: PrimitiveAtom<boolean>;
-  toggle: () => void;
   type: DrawerType;
+  toggle: () => void;
+  open: () => void;
+  close: () => void;
 }
 
 export interface DrawerContextProviderProps extends DrawerContext {

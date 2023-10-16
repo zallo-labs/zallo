@@ -38,7 +38,7 @@ export function UserApproverItem(props: UserApproverItemProps) {
         ),
       })}
       onPress={() =>
-        router.push({ pathname: `/approver/[address]/`, params: { address: a.address } })
+        router.push({ pathname: `/(drawer)/approver/[address]/`, params: { address: a.address } })
       }
       {...props}
     />

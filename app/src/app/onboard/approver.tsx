@@ -12,7 +12,6 @@ import { useQuery } from '~/gql';
 import { NotFound } from '~/components/NotFound';
 import { Suspend } from '~/components/Suspender';
 import { AppbarOptions } from '~/components/Appbar/AppbarOptions';
-import { AuthSettingsScreenParams } from '~/app/settings/auth';
 import { getDeviceModel } from '~/lib/device';
 
 const Query = gql(/* GraphQL */ `
@@ -93,10 +92,7 @@ export default function ApproverOnboardingScreen() {
           mode="contained"
           style={styles.button}
           control={control}
-          onPress={() => {
-            const params: AuthSettingsScreenParams = { onboard: 'true' };
-            router.push({ pathname: `/settings/auth`, params });
-          }}
+          onPress={() => router.push(`/onboard/auth`)}
         >
           Continue
         </FormSubmitButton>
