@@ -89,6 +89,7 @@ export default function ContactsScreen() {
           </Text>
         }
         extraData={[disabled, router.push]}
+        contentContainerStyle={styles.container}
         showsVerticalScrollIndicator={false}
         estimatedItemSize={ListItemHeight.DOUBLE_LINE}
       />
@@ -99,6 +100,9 @@ export default function ContactsScreen() {
 }
 
 const useStyles = makeStyles(({ colors }) => ({
+  container: {
+    paddingVertical: 8,
+  },
   emptyText: {
     marginHorizontal: 16,
     marginVertical: 8,
