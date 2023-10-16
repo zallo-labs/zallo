@@ -1,4 +1,4 @@
-import { SearchParams, useRouter } from 'expo-router';
+import { useRouter } from 'expo-router';
 import { useForm } from 'react-hook-form';
 import { StyleSheet, View } from 'react-native';
 import { FormSubmitButton } from '~/components/fields/FormSubmitButton';
@@ -30,9 +30,6 @@ const Update = gql(/* GraphQL */ `
 interface Inputs {
   name: string;
 }
-
-export type UserOnboardingScreenRoute = `/onboard/user`;
-export type OnboardUserScreenParams = SearchParams<UserOnboardingScreenRoute>;
 
 export default function UserOnboardingScreen() {
   const router = useRouter();

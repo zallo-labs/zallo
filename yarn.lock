@@ -5886,15 +5886,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@expo/metro-runtime@npm:2.2.10":
-  version: 2.2.10
-  resolution: "@expo/metro-runtime@npm:2.2.10"
+"@expo/metro-runtime@npm:2.2.11":
+  version: 2.2.11
+  resolution: "@expo/metro-runtime@npm:2.2.11"
   dependencies:
     "@bacons/react-views": ^1.1.3
     qs: ^6.10.3
   peerDependencies:
     react-native: "*"
-  checksum: 6b1f8392e6e1be684d8389ef1ca44a8b91fded722d085c23feaadab060e1d19cf959c0a64c9693b463f1d9659c9a4b40e2c0bd6dbf0c3cd81db12f9af19d6e93
+  checksum: b5933a96a884793bede5f87331a7ab67448dc743fe00e659dc9a722543087ff5899f3ac2842115e665c7de2e25c4c82e3c9479268025230fa86461c25307e1b4
   languageName: node
   linkType: hard
 
@@ -14345,7 +14345,7 @@ __metadata:
     expo-localization: ~14.3.0
     expo-navigation-bar: ~2.3.0
     expo-notifications: ~0.20.1
-    expo-router: ^2.0.0
+    expo-router: ^2.0.9
     expo-secure-store: ~12.3.1
     expo-splash-screen: ~0.20.5
     expo-status-bar: ~1.6.0
@@ -21590,16 +21590,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"expo-head@npm:0.0.14":
-  version: 0.0.14
-  resolution: "expo-head@npm:0.0.14"
+"expo-head@npm:0.0.15":
+  version: 0.0.15
+  resolution: "expo-head@npm:0.0.15"
   dependencies:
     react-helmet-async: ^1.3.0
   peerDependencies:
     expo: "*"
     react: "*"
     react-native: "*"
-  checksum: 9f4d2b00f4a969c327635cc57e451496fdc1281d6e26bde56301510eb7d3fa2364dbbf958272c3c295055bd0d780d3f500a110b655609e4c9107d0693b81a799
+  checksum: d17b98c7ad9ad3b995ed2f41d3e7d439d890cd52cd5e82c613227c082887ae0b6c725c5876acdbe2ba2b256f31d7af2bc4f00220cc19efe72eed0911e89945d1
   languageName: node
   linkType: hard
 
@@ -21754,17 +21754,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"expo-router@npm:^2.0.0":
-  version: 2.0.8
-  resolution: "expo-router@npm:2.0.8"
+"expo-router@npm:^2.0.9":
+  version: 2.0.9
+  resolution: "expo-router@npm:2.0.9"
   dependencies:
     "@bacons/react-views": ^1.1.3
-    "@expo/metro-runtime": 2.2.10
+    "@expo/metro-runtime": 2.2.11
     "@radix-ui/react-slot": 1.0.1
     "@react-navigation/bottom-tabs": ~6.5.7
     "@react-navigation/native": ~6.1.6
     "@react-navigation/native-stack": ~6.9.12
-    expo-head: 0.0.14
+    expo-head: 0.0.15
     expo-splash-screen: ~0.20.2
     query-string: 7.1.3
     react-helmet-async: ^1.3.0
@@ -21788,7 +21788,7 @@ __metadata:
       optional: true
     react-native-reanimated:
       optional: true
-  checksum: b7cf02fa32c765f0afe8b3cdea51f27c5a4b0258f2e2692ba90557ad1b7680d99da0a89d55b2629ae5b437859689b3f43593fd31e3f50468525d2f37848632c0
+  checksum: 91badfc85f44b532d2dbb4735a3a6ab4d50f33cb98533412328fe70cec98f1ef6af0750c8f77b62097dd78311d325b8eec7d27d97d35b5c4cfc389eb5cd8e4b3
   languageName: node
   linkType: hard
 

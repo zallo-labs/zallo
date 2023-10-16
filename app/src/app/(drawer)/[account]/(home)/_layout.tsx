@@ -7,11 +7,7 @@ import { useLocalParams } from '~/hooks/useLocalParams';
 import { useSetSelectedAccont } from '~/hooks/useSelectedAccount';
 import { zAddress } from '~/lib/zod';
 
-export const unstable_settings = {
-  initialRouteName: 'index',
-};
-
-const HomeLayoutParams = z.object({ account: zAddress.optional() });
+const HomeLayoutParams = z.object({ account: zAddress });
 
 export default function HomeLayout() {
   const { account } = useLocalParams(`/(drawer)/[account]/(home)/_layout`, HomeLayoutParams);
@@ -20,8 +16,6 @@ export default function HomeLayout() {
   useEffect(() => {
     if (account) setSelectedAccount(account);
   }, [account]);
-
-  if (!account) return null;
 
   return (
     <View style={styles.root}>

@@ -4,7 +4,6 @@ import { DrawerContent } from '~/components/drawer/DrawerContent';
 import { makeStyles } from '@theme/makeStyles';
 import { useLayout } from '~/hooks/useLayout';
 import { DrawerContextProvider, DrawerType } from './DrawerContextProvider';
-import { DrawerActions, useNavigation } from '@react-navigation/native';
 import { AppbarHeader } from '~/components/Appbar/AppbarHeader';
 
 type DrawerLayoutProps = ComponentPropsWithoutRef<typeof DrawerLayout>;
@@ -16,17 +15,12 @@ export function Drawer({ children, ...props }: DrawerProps) {
   const layout = useLayout();
   const type: DrawerType = layout.class === 'expanded' ? 'standard' : 'modal';
   const styles = useStyles(type);
-  const navigation = useNavigation();
 
   return (
-    <DrawerContextProvider
-      type={type}
-      toggle={() => navigation.dispatch(DrawerActions.toggleDrawer())}
-      open={() => navigation.dispatch(DrawerActions.openDrawer())}
-      close={() => navigation.dispatch(DrawerActions.closeDrawer())}
-    >
+    <DrawerContextProvider type={type}>
       <DrawerLayout
         drawerContent={DrawerContent}
+        backBehavior="history"
         {...props}
         screenOptions={{
           header: AppbarHeader,

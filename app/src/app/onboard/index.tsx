@@ -1,5 +1,5 @@
 import { Image } from 'expo-image';
-import { SearchParams, useRouter } from 'expo-router';
+import { SearchParams, Stack, useRouter } from 'expo-router';
 import { StyleSheet, View } from 'react-native';
 import { Text } from 'react-native-paper';
 import { gql } from 'urql';
@@ -39,6 +39,8 @@ export default function OnboardScreen() {
 
   return (
     <View style={styles.root}>
+      <Stack.Screen options={{ headerShown: false }} />
+
       <View style={styles.header}>
         <Image
           source={require('assets/logo-color.svg')}
