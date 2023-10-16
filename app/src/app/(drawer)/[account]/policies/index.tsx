@@ -47,6 +47,7 @@ export default function PoliciesScreen() {
     <Screen>
       <AppbarOptions
         mode="large"
+        leading="menu"
         headline={account.name}
         trailing={(props) => (
           <AppbarMore iconProps={props}>

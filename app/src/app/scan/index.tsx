@@ -9,7 +9,7 @@ import { isWalletConnectUri, useWalletConnect } from '~/util/walletconnect';
 import { Screen } from '~/components/layout/Screen';
 import { Actions } from '~/components/layout/Actions';
 import { Address, tryAsAddress } from 'lib';
-import { AppbarBack } from '~/components/Appbar/AppbarBack';
+import { AppbarBackContained } from '~/components/Appbar/AppbarBack';
 import * as Linking from 'expo-linking';
 import useAsyncEffect from 'use-async-effect';
 import { showError } from '~/components/provider/SnackbarProvider';
@@ -98,7 +98,7 @@ export default function ScanScreen() {
   ) : (
     <Screen>
       <Appbar.Header>
-        <AppbarBack />
+        <AppbarBackContained />
         <Appbar.Content title="Permission required" />
       </Appbar.Header>
 

@@ -22,6 +22,7 @@ export default function SessionsScreen() {
     <View style={styles.root}>
       <AppbarOptions
         mode="large"
+        leading="menu"
         headline="Sessions"
         trailing={(props) => <ScanIcon {...props} onPress={() => router.push(`/scan/`)} />}
       />

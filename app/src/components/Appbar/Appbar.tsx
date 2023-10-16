@@ -2,17 +2,24 @@ import { IconProps } from '@theme/icons';
 import { makeStyles } from '@theme/makeStyles';
 import { Arraylike, toArray } from 'lib';
 import { FC, ReactNode } from 'react';
-import { View } from 'react-native';
+import { StyleProp, View, ViewStyle } from 'react-native';
 import { Surface, Text } from 'react-native-paper';
 import { EdgeInsets, useSafeAreaInsets } from 'react-native-safe-area-context';
-import { AppbarBack2 } from './AppbarBack';
+import { AppbarBack } from './AppbarBack';
 import { AppbarClose } from './AppbarClose';
 import { TextProps } from '@theme/types';
 import { P, match } from 'ts-pattern';
+import { AppbarMenu } from '~/components/Appbar/AppbarMenu';
+
+const LEADING_COMPONENT = {
+  back: AppbarBack,
+  close: AppbarClose,
+  menu: AppbarMenu,
+};
 
 export interface AppbarProps extends Pick<StyleOptions, 'center'> {
   mode?: StyleOptions['mode'];
-  leading?: FC<IconProps> | 'back' | 'close';
+  leading?: FC<IconProps & { style?: StyleProp<ViewStyle> }> | keyof typeof LEADING_COMPONENT;
   trailing?: Arraylike<FC<IconProps>>;
   headline?: ReactNode | FC<Omit<TextProps, 'children'>>;
   elevated?: boolean;
@@ -31,7 +38,7 @@ export const Appbar = ({
   const insets = useSafeAreaInsets();
   const styles = useStyles({ mode, center, insets: inset ? insets : undefined });
 
-  const Leading = leading === 'back' ? AppbarBack2 : leading === 'close' ? AppbarClose : leading;
+  const Leading = typeof leading === 'string' ? LEADING_COMPONENT[leading] : leading;
 
   const HeadlineView = () => (
     <View style={styles.headlineContainer}>
@@ -46,9 +53,11 @@ export const Appbar = ({
   return (
     <Surface elevation={elevated ? 2 : 0} style={styles.root}>
       <View style={styles.headerContainer}>
-        <View style={styles.leadingContainer}>
-          <Leading size={styles.leadingIcon.fontSize} color={styles.leadingIcon.color} />
-        </View>
+        <Leading
+          size={styles.leadingIcon.fontSize}
+          color={styles.leadingIcon.color}
+          style={styles.leadingContainer}
+        />
 
         <View style={{ flex: 1 }}>{mode === 'small' && <HeadlineView />}</View>
 

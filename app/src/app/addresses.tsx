@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { NavigateNextIcon, ScanIcon, SearchIcon } from '~/util/theme/icons';
-import { AppbarBack2 } from '~/components/Appbar/AppbarBack';
+import { AppbarBack } from '~/components/Appbar/AppbarBack';
 import { Searchbar } from '~/components/fields/Searchbar';
 import { ListItemHeight } from '~/components/list/ListItem';
 import { gql } from '@api/generated';
@@ -84,7 +84,7 @@ export default function AddressesModal() {
   return (
     <View style={styles.root}>
       <Searchbar
-        leading={AppbarBack2}
+        leading={AppbarBack}
         placeholder="Search"
         trailing={[
           SearchIcon,

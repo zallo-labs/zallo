@@ -85,7 +85,7 @@ export default function SwapScreen() {
 
   return (
     <View style={styles.root}>
-      <AppbarOptions headline="Swap" />
+      <AppbarOptions leading="menu" headline="Swap" />
 
       <InputsView token={from} input={input} setInput={setInput} type={type} setType={setType} />
 

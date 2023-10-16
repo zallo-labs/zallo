@@ -2,7 +2,6 @@ import { SearchParams, Stack, useLocalSearchParams, useRouter } from 'expo-route
 import { StyleSheet, View } from 'react-native';
 import { Address } from 'lib';
 import { Searchbar } from '~/components/fields/Searchbar';
-import { AppbarBack2 } from '~/components/Appbar/AppbarBack';
 import { AddIcon, SearchIcon } from '@theme/icons';
 import { ListHeader } from '~/components/list/ListHeader';
 import { TokenItem } from '~/components/token/TokenItem';
@@ -14,6 +13,7 @@ import { useQuery } from '~/gql';
 import { Subject } from 'rxjs';
 import { useGetEvent } from '~/hooks/useGetEvent';
 import { OperationContext } from 'urql';
+import { AppbarMenu } from '~/components/Appbar/AppbarMenu';
 
 const Query = gql(/* GraphQL */ `
   query TokensScreen($account: Address!, $query: String, $feeToken: Boolean) {
@@ -70,7 +70,7 @@ export default function TokensScreen() {
       {params.modal === 'true' && <Stack.Screen options={{ presentation: 'modal' }} />}
 
       <Searchbar
-        leading={AppbarBack2}
+        leading={AppbarMenu}
         placeholder="Search tokens"
         trailing={[
           SearchIcon,

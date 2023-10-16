@@ -1,7 +1,7 @@
 import { useRouter } from 'expo-router';
 import { usePropose } from '@api/usePropose';
 import { parseUnits } from 'ethers/lib/utils';
-import { FIAT_DECIMALS, asAddress, fiatToToken } from 'lib';
+import { FIAT_DECIMALS, fiatToToken } from 'lib';
 import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Divider } from 'react-native-paper';
@@ -44,14 +44,13 @@ const paramsSchema = z.object({
 export type TransferScreenParams = z.infer<typeof paramsSchema>;
 
 export default function TransferScreen() {
-  const params = useLocalParams(`/(drawer)/[account]/transfer`, paramsSchema);
-  const [account, to] = [asAddress(params.account), asAddress(params.to)];
+  const { account, to } = useLocalParams(`/(drawer)/[account]/transfer`, paramsSchema);
   const router = useRouter();
   const propose = usePropose();
   const toLabel = useAddressLabel(to);
 
   const { token } = useQuery(Query, {
-    account: asAddress(params.account),
+    account,
     token: useSelectedToken(),
   }).data;
 
@@ -71,7 +70,7 @@ export default function TransferScreen() {
 
   return (
     <View style={styles.root}>
-      <AppbarOptions headline={`Transfer to ${toLabel}`} />
+      <AppbarOptions leading="menu" headline={`Transfer to ${toLabel}`} />
 
       <InputsView token={token} input={input} setInput={setInput} type={type} setType={setType} />
 

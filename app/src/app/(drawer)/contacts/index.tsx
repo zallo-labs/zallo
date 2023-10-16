@@ -2,7 +2,6 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useState } from 'react';
 import { NavigateNextIcon, ScanIcon, SearchIcon, materialCommunityIcon } from '~/util/theme/icons';
 import { Address } from 'lib';
-import { AppbarBack2 } from '~/components/Appbar/AppbarBack';
 import { Searchbar } from '~/components/fields/Searchbar';
 import { ListHeader } from '~/components/list/ListHeader';
 import { Screen } from '~/components/layout/Screen';

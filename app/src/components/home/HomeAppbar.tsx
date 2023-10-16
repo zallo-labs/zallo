@@ -4,7 +4,6 @@ import { AccountSelector } from '~/components/AccountSelector';
 import { FragmentType, gql, useFragment } from '@api/generated';
 import { AppbarOptions } from '~/components/Appbar/AppbarOptions';
 import { useRouter } from 'expo-router';
-import { AppbarMenu } from '~/components/Appbar/AppbarMenu';
 
 const FragmentDoc = gql(/* GraphQL */ `
   fragment HomeAppbar_account on Account {
@@ -24,7 +23,7 @@ export const HomeAppbar = (props: HomeAppbarProps) => {
 
   return (
     <AppbarOptions
-      leading={AppbarMenu}
+      leading="menu"
       headline={() => (
         <View style={styles.selectorContainer}>
           <AccountSelector account={account} />
