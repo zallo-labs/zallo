@@ -87,7 +87,7 @@ export default function LinkingModal() {
           </View>
         </View>
 
-        <Actions style={{ flexGrow: 0 }}>
+        <Actions flex={false}>
           <Button mode="contained" icon={ShareIcon} onPress={() => share({ url: link })}>
             Linking token
           </Button>

@@ -73,7 +73,7 @@ export function QrModal({ address, faucet }: QrModalProps) {
           </Surface>
         </View>
 
-        <Actions style={styles.actions}>
+        <Actions flex={false}>
           {requestableTokens.length > 0 && (
             <Button
               mode="contained-tonal"
@@ -118,9 +118,6 @@ const uesStyles = makeStyles(({ colors, width, height }) => ({
   qr: {
     fontSize: Math.min(width, height) * 0.75,
     color: colors.onSurface,
-  },
-  actions: {
-    flexGrow: 0,
   },
   primary: {
     color: colors.primary,

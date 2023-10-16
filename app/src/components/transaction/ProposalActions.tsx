@@ -58,7 +58,7 @@ export const ProposalActions = (props: ProposalActionsProps) => {
   const execute = useMutation(Execute)[1];
 
   return (
-    <Actions style={styles.container}>
+    <Actions flex={false}>
       {reject && <Button onPress={reject}>Reject</Button>}
 
       {approve && (
@@ -93,9 +93,6 @@ export const ProposalActions = (props: ProposalActionsProps) => {
 };
 
 const useStyles = makeStyles(({ colors }) => ({
-  container: {
-    flexGrow: 0,
-  },
   retryContainer: {
     backgroundColor: colors.errorContainer,
   },

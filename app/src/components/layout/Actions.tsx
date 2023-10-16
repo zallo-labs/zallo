@@ -1,40 +1,31 @@
-import React, { ReactNode } from 'react';
-import { StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
+import { ReactNode } from 'react';
+import { StyleProp, View, ViewStyle } from 'react-native';
+import { makeStyles } from '@theme/makeStyles';
 
 export interface ActionsProps {
   children?: ReactNode;
-  horizontal?: boolean;
   style?: StyleProp<ViewStyle>;
+  flex?: boolean;
 }
 
-export const Actions = ({ children, horizontal, style }: ActionsProps) => (
-  <View style={[styles.rootContainer, style]}>
-    {horizontal ? (
-      <View style={styles.hContainer}>
-        {React.Children.count(children) === 1 ? <View /> : null}
+export function Actions({ children, style, flex = true }: ActionsProps) {
+  const styles = useStyles(flex);
 
-        {children}
-      </View>
-    ) : (
-      <View style={styles.vContainer}>{children}</View>
-    )}
-  </View>
-);
+  return (
+    <View style={[styles.container, style]}>
+      <View style={styles.content}>{children}</View>
+    </View>
+  );
+}
 
-const styles = StyleSheet.create({
-  rootContainer: {
-    flexGrow: 1,
+const useStyles = makeStyles((_, flex: boolean) => ({
+  container: {
+    ...(flex && { flexGrow: 1 }),
     justifyContent: 'flex-end',
   },
-  hContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    margin: 16,
-  },
-  vContainer: {
+  content: {
     alignItems: 'stretch',
     gap: 8,
     margin: 16,
   },
-});
+}));

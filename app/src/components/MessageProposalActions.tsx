@@ -1,6 +1,5 @@
 import { FragmentType, gql, useFragment } from '@api/generated';
 import { useApproverAddress } from '@network/useApprover';
-import { StyleSheet } from 'react-native';
 import { Actions } from '~/components/layout/Actions';
 import { Button } from 'react-native-paper';
 import { useApprove } from '~/hooks/useApprove';
@@ -33,7 +32,7 @@ export function MessageProposalActions(props: MessageProposalActionsProps) {
   const reject = useReject({ proposal: p, user, approver });
 
   return (
-    <Actions style={styles.container}>
+    <Actions flex={false}>
       {reject && <Button onPress={reject}>Reject</Button>}
 
       {approve && (
@@ -44,9 +43,3 @@ export function MessageProposalActions(props: MessageProposalActionsProps) {
     </Actions>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flexGrow: 0,
-  },
-});
