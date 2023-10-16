@@ -6,13 +6,11 @@ import _ from 'lodash';
 import { useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { ScrollView, StyleSheet } from 'react-native';
-import { Appbar } from '~/components/Appbar/Appbar';
 import { AddressIcon } from '~/components/Identicon/AddressIcon';
 import { FormSubmitButton } from '~/components/fields/FormSubmitButton';
 import { FormTextField } from '~/components/fields/FormTextField';
 import { Indented } from '~/components/fields/Indented';
 import { Actions } from '~/components/layout/Actions';
-import { Screen } from '~/components/layout/Screen';
 import { UnknownTokenIcon } from '~/components/token/TokenIcon';
 import { ADDRESS_FIELD_RULES } from '~/util/form.rules';
 import { AppbarMore } from '~/components/Appbar/AppbarMore';
@@ -20,6 +18,7 @@ import { Menu } from 'react-native-paper';
 import { useQuery } from '~/gql';
 import { useMutation } from 'urql';
 import { useConfirmRemoval } from '~/hooks/useConfirm';
+import { AppbarOptions } from '~/components/Appbar/AppbarOptions';
 
 const Query = gql(/* GraphQL */ `
   query TokenScreen($token: Address!) {
@@ -126,9 +125,8 @@ export function InternalTokenScreen(props: InternalTokenScreenProps) {
   const [isValidIcon, setValidIcon] = useState(false);
 
   return (
-    <Screen>
-      <Appbar
-        mode="small"
+    <ScrollView contentContainerStyle={styles.container}>
+      <AppbarOptions
         headline="Tokens"
         trailing={
           query?.token?.userOwned
@@ -152,125 +150,123 @@ export function InternalTokenScreen(props: InternalTokenScreenProps) {
         }
       />
 
-      <ScrollView contentContainerStyle={styles.container}>
-        <Indented
-          leading={
-            isAddressLike(address)
-              ? (props) => <AddressIcon address={asAddress(address)} {...props} />
-              : undefined
-          }
+      <Indented
+        leading={
+          isAddressLike(address)
+            ? (props) => <AddressIcon address={asAddress(address)} {...props} />
+            : undefined
+        }
+      >
+        <FormTextField
+          label="Address"
+          name="address"
+          placeholder="0x..."
+          multiline
+          control={control}
+          rules={{
+            ...ADDRESS_FIELD_RULES,
+            required: true,
+          }}
+          containerStyle={styles.field}
+        />
+      </Indented>
+
+      <Indented
+        leading={
+          isAddressLike(ethereumAddress)
+            ? (props) => <AddressIcon address={asAddress(ethereumAddress)} {...props} />
+            : undefined
+        }
+      >
+        <FormTextField
+          label="Ethereum address"
+          name="ethereumAddress"
+          placeholder="0x..."
+          multiline
+          control={control}
+          containerStyle={styles.field}
+        />
+      </Indented>
+
+      <Indented>
+        <FormTextField
+          label="Name"
+          name="name"
+          placeholder="USD Coin"
+          rules={{ required: true }}
+          control={control}
+          containerStyle={styles.field}
+        />
+      </Indented>
+
+      <Indented>
+        <FormTextField
+          label="Symbol"
+          name="symbol"
+          placeholder="USDC"
+          rules={{ required: true }}
+          control={control}
+          containerStyle={styles.field}
+        />
+      </Indented>
+
+      <Indented>
+        <FormTextField
+          label="Decimals"
+          name="decimals"
+          placeholder="6"
+          rules={{ required: true }}
+          control={control}
+          containerStyle={styles.field}
+          inputMode="numeric"
+        />
+      </Indented>
+
+      <Indented
+        leading={
+          iconUri
+            ? ({ size }) => (
+                <Image
+                  source={[{ uri: iconUri }]}
+                  onError={() => setValidIcon(false)}
+                  onLoad={() => setValidIcon(true)}
+                  style={{ width: size, height: size }}
+                />
+              )
+            : UnknownTokenIcon
+        }
+      >
+        <FormTextField
+          label="Icon URL"
+          name="iconUri"
+          multiline
+          rules={{
+            pattern: {
+              value: /https?:\/\//,
+              message: 'Must start with https or http',
+            },
+            validate: (v) => !v || isValidIcon || 'Invalid',
+          }}
+          control={control}
+          containerStyle={styles.field}
+        />
+      </Indented>
+
+      <Actions>
+        <FormSubmitButton
+          mode="contained"
+          requireChanges
+          control={control}
+          onPress={handleSubmit(async (input) => {
+            await upsert({
+              input: { ...input, decimals: parseFloat(input.decimals as unknown as string) },
+            });
+          })}
         >
-          <FormTextField
-            label="Address"
-            name="address"
-            placeholder="0x..."
-            multiline
-            control={control}
-            rules={{
-              ...ADDRESS_FIELD_RULES,
-              required: true,
-            }}
-            containerStyle={styles.field}
-          />
-        </Indented>
-
-        <Indented
-          leading={
-            isAddressLike(ethereumAddress)
-              ? (props) => <AddressIcon address={asAddress(ethereumAddress)} {...props} />
-              : undefined
-          }
-        >
-          <FormTextField
-            label="Ethereum address"
-            name="ethereumAddress"
-            placeholder="0x..."
-            multiline
-            control={control}
-            containerStyle={styles.field}
-          />
-        </Indented>
-
-        <Indented>
-          <FormTextField
-            label="Name"
-            name="name"
-            placeholder="USD Coin"
-            rules={{ required: true }}
-            control={control}
-            containerStyle={styles.field}
-          />
-        </Indented>
-
-        <Indented>
-          <FormTextField
-            label="Symbol"
-            name="symbol"
-            placeholder="USDC"
-            rules={{ required: true }}
-            control={control}
-            containerStyle={styles.field}
-          />
-        </Indented>
-
-        <Indented>
-          <FormTextField
-            label="Decimals"
-            name="decimals"
-            placeholder="6"
-            rules={{ required: true }}
-            control={control}
-            containerStyle={styles.field}
-            inputMode="numeric"
-          />
-        </Indented>
-
-        <Indented
-          leading={
-            iconUri
-              ? ({ size }) => (
-                  <Image
-                    source={[{ uri: iconUri }]}
-                    onError={() => setValidIcon(false)}
-                    onLoad={() => setValidIcon(true)}
-                    style={{ width: size, height: size }}
-                  />
-                )
-              : UnknownTokenIcon
-          }
-        >
-          <FormTextField
-            label="Icon URL"
-            name="iconUri"
-            multiline
-            rules={{
-              pattern: {
-                value: /https?:\/\//,
-                message: 'Must start with https or http',
-              },
-              validate: (v) => !v || isValidIcon || 'Invalid',
-            }}
-            control={control}
-            containerStyle={styles.field}
-          />
-        </Indented>
-
-        <Actions>
-          <FormSubmitButton
-            mode="contained"
-            requireChanges
-            control={control}
-            onPress={handleSubmit(async (input) => {
-              await upsert({
-                input: { ...input, decimals: parseFloat(input.decimals as unknown as string) },
-              });
-            })}
-          >
-            Save
-          </FormSubmitButton>
-        </Actions>
-      </ScrollView>
-    </Screen>
+          Save
+        </FormSubmitButton>
+      </Actions>
+    </ScrollView>
   );
 }
 

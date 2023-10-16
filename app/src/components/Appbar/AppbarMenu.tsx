@@ -1,10 +1,11 @@
 import { materialCommunityIcon } from '@theme/icons';
-import { useDrawerContext } from '~/components/drawer/DrawerContextProvider';
+import { useDrawerActions, useDrawerContext } from '~/components/drawer/DrawerContextProvider';
 
 const MenuIcon = materialCommunityIcon('menu');
 
 export function AppbarMenu() {
-  const { toggle, type } = useDrawerContext();
+  const { type } = useDrawerContext();
+  const { toggle } = useDrawerActions();
 
   if (type === 'standard') return null;
 

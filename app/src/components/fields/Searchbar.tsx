@@ -6,6 +6,7 @@ import { StyleProp, View, ViewStyle } from 'react-native';
 import { Surface } from 'react-native-paper';
 import { EdgeInsets, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BasicTextField, BasicTextFieldProps } from './BasicTextField';
+import { Stack } from 'expo-router';
 
 export interface SearchbarProps extends BasicTextFieldProps {
   leading?: FC<IconProps & { style?: StyleProp<ViewStyle> }>;
@@ -25,6 +26,8 @@ export const Searchbar = ({
 
   return (
     <Surface elevation={3} style={styles.container}>
+      <Stack.Screen options={{ headerShown: false }} />
+
       {Leading && (
         <Leading
           size={styles.leadingIcon.fontSize}
