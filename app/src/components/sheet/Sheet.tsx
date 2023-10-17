@@ -1,4 +1,4 @@
-import { forwardRef } from 'react';
+import { forwardRef, useEffect } from 'react';
 import BottomSheet, {
   BottomSheetProps,
   BottomSheetView,
@@ -10,6 +10,7 @@ import { EdgeInsets, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Stack, useRouter } from 'expo-router';
 import { SheetBackground } from '~/components/sheet/SheetBackground';
 import { SheetBackdrop } from '~/components/sheet/SheetBackdrop';
+import { useLayout } from '~/hooks/useLayout';
 
 export const CONTENT_HEIGHT_SNAP_POINT = 'CONTENT_HEIGHT';
 const DEFAULT_SNAP_POINTS = [CONTENT_HEIGHT_SNAP_POINT];
@@ -40,11 +41,11 @@ export const Sheet = forwardRef<BottomSheet, SheetProps>(
     return (
       <BottomSheet
         ref={ref}
-        containerStyle={styles.container}
         handleHeight={animatedHandleHeight}
         snapPoints={animatedSnapPoints}
         contentHeight={animatedContentHeight}
         backgroundComponent={SheetBackground}
+        backgroundStyle={styles.background}
         backdropComponent={SheetBackdrop}
         enablePanDownToClose
         onClose={router.back}
@@ -66,10 +67,8 @@ export const Sheet = forwardRef<BottomSheet, SheetProps>(
 );
 
 const useStyles = makeStyles(({ colors, layout }, insets: EdgeInsets) => ({
-  container: {
-    ...(layout === 'expanded' && {
-      marginHorizontal: 56,
-    }),
+  background: {
+    ...(layout === 'expanded' && { marginHorizontal: 56 }),
   },
   emptyHandle: {
     height: 12,
@@ -86,5 +85,6 @@ const useStyles = makeStyles(({ colors, layout }, insets: EdgeInsets) => ({
   contentContainer: {
     paddingTop: 8,
     paddingBottom: insets?.bottom,
+    ...(layout === 'expanded' && { marginHorizontal: 56 }),
   },
 }));
