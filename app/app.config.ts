@@ -115,6 +115,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     resizeMode: 'contain',
     backgroundColor: '#FFFBFE',
   },
+  primaryColor: '#6750A4', // primary (light)
   assetBundlePatterns: ['**/*'],
   scheme: 'zallo',
   android: {
@@ -124,6 +125,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       backgroundColor: '#E8DEF8',
     },
     googleServicesFile: withVariant('./firebase-google-services.secret.json'),
+    playStoreUrl: ENV.PLAY_STORE_URL,
   },
   androidStatusBar: {
     backgroundColor: '#00000000', // Transparent
@@ -143,9 +145,11 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       usesNonExemptEncryption: false,
     },
     googleServicesFile: withVariant('./GoogleService-Info.secret.plist'),
+    appStoreUrl: ENV.APP_STORE_URL,
   },
   web: {
     bundler: 'metro',
+    output: 'single',
     favicon: './assets/favicon.png',
   },
   experiments: {

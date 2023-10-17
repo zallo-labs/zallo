@@ -1,0 +1,30 @@
+{
+  "background_color": "#FFFBFE",
+  "display": "standalone",
+  "lang": "en",
+  "name": "Zallo",
+  "short_name": "Zallo",
+  "start_url": "/?utm_source=web_app_manifest",
+  "theme_color": "#6750A4",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "./assets/icon@2x.png",
+      "sizes": "1024x1024",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "related_applications": [
+    {
+      "platform": "itunes",
+      "id": "io.zallo"
+    },
+    {
+      "platform": "play",
+      "url": "http://play.google.com/store/apps/details?id=io.zallo",
+      "id": "io.zallo"
+    }
+  ],
+  "prefer_related_applications": true
+}
