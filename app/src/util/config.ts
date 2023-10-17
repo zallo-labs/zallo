@@ -1,5 +1,7 @@
 import constants from 'expo-constants';
 import type { Config } from '../../app.config';
+import { Href } from 'expo-router';
+import { resolveHref } from 'expo-router/src/link/href';
 
 export const CONFIG = constants.expoConfig!.extra as Config;
 
@@ -7,10 +9,8 @@ export const SCHEME = Array.isArray(constants.expoConfig?.scheme)
   ? constants.expoConfig?.scheme[0]
   : constants.expoConfig?.scheme;
 
-export const makeDeepLink = (path: string) => {
-  if (path.startsWith('/')) path = path.slice(1);
-
-  return `${SCHEME}://${path}`;
+export const getDeepLink = <T>(href: Href<T>) => {
+  return `${SCHEME}:/${resolveHref(href)}`;
 };
 
 const PATTERN = new RegExp(`^${SCHEME}://[/]?(.+)$`);
