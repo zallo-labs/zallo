@@ -20,19 +20,16 @@ export const Background = ({ children }: BackgroundProps) => {
 
   return (
     <View style={styles.background}>
-      <>
-        <StatusBar backgroundColor="transparent" />
-        {children}
-      </>
+      <StatusBar backgroundColor="transparent" />
+      {children}
     </View>
   );
 };
 
 const useStyles = makeStyles(({ colors }) => ({
   background: {
-    width: '100%',
-    height: '100%',
     display: 'flex',
+    flex: 1,
     backgroundColor: colors.background,
   },
 }));

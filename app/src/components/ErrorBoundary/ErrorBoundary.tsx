@@ -1,13 +1,12 @@
 import { ScrollView, View } from 'react-native';
 import { Appbar } from '../Appbar/Appbar';
-import { Screen } from '../layout/Screen';
 import { makeStyles } from '@theme/makeStyles';
 import { Text } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useForm } from 'react-hook-form';
 import { Actions } from '../layout/Actions';
 import { FormSubmitButton } from '../fields/FormSubmitButton';
-import { Native as Sentry } from 'sentry-expo';
+import * as Sentry from '~/util/sentry/sentry';
 import { FormTextField } from '../fields/FormTextField';
 import { CloseIcon } from '@theme/icons';
 import { MinimalErrorBoundary } from './MinimalErrorBoundary';
@@ -30,14 +29,17 @@ export const ErrorBoundary = ({ children }: ErrorBoundaryProps) => {
   return (
     <MinimalErrorBoundary
       fallback={({ eventId, error, resetError, componentStack }) => (
-        <Screen>
+        <View style={styles.container}>
           <Appbar
             mode="small"
             leading={(props) => <CloseIcon {...props} onPress={resetError} />}
             headline=""
           />
 
-          <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
+          <ScrollView
+            contentContainerStyle={styles.contentContainer}
+            showsVerticalScrollIndicator={false}
+          >
             <View style={styles.header}>
               <MaterialCommunityIcons name="robot-confused" size={60} style={styles.error} />
 
@@ -89,7 +91,7 @@ export const ErrorBoundary = ({ children }: ErrorBoundaryProps) => {
               </FormSubmitButton>
             </Actions>
           </ScrollView>
-        </Screen>
+        </View>
       )}
     >
       {children}
@@ -99,6 +101,9 @@ export const ErrorBoundary = ({ children }: ErrorBoundaryProps) => {
 
 const useStyles = makeStyles(({ colors }) => ({
   container: {
+    flex: 1,
+  },
+  contentContainer: {
     flexGrow: 1,
   },
   header: {

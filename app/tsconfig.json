@@ -2,17 +2,16 @@
   "extends": "expo/tsconfig.base",
   "compilerOptions": {
     "strict": true,
-
     "baseUrl": "./",
     "paths": {
       "@api": ["./src/gql/api/index"],
       "@api/*": ["./src/gql/api/*"],
       "@uniswap/*": ["./src/gql/uniswap/*"],
-      "@hook/*": ["./src/util/hook/*"],
       "@network/*": ["./src/util/network/*"],
       "@theme/*": ["./src/util/theme/*"],
       "@token/*": ["./src/util/token/*"],
       "~/*": ["./src/*"]
     }
-  }
+  },
+  "include": ["src/**/*.ts", "src/**/*.tsx", ".expo/types/**/*.ts", "expo-env.d.ts"]
 }

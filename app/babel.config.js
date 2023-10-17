@@ -1,27 +1,17 @@
-const tsconfig = require('./tsconfig.json');
 const { babelOptimizerPlugin: gqlBabelOptimizer } = require('@graphql-codegen/client-preset');
-
-const getAliasPaths = () => {
-  const trimPath = (path) => (path.endsWith('/*') ? path.substr(0, path.length - 2) : path);
-
-  return Object.fromEntries(
-    Object.entries(tsconfig.compilerOptions.paths).map(([key, paths]) => [
-      trimPath(key),
-      trimPath(paths[0]),
-    ]),
-  );
-};
+const path = require('path');
 
 module.exports = function (api) {
   api.cache(true);
   return {
     presets: ['babel-preset-expo'],
     plugins: [
+      'expo-router/babel',
       [
         'module-resolver',
         {
           alias: {
-            crypto: 'react-native-quick-crypto',
+            crypto: path.resolve(__dirname, 'src/util/patches/crypto.ts'),
             stream: 'stream-browserify',
             buffer: '@craftzdog/react-native-buffer',
             '@ethersproject/pbkdf2': './src/util/patches/pbkdf2.js',
@@ -29,10 +19,10 @@ module.exports = function (api) {
             // https://github.com/LedgerHQ/ledger-live/issues/763
             // https://reactnative.dev/blog/2023/06/21/0.72-metro-package-exports-symlinks#enabling-beta-features
             '@ledgerhq/cryptoassets': '@ledgerhq/cryptoassets/lib-es',
+            '@ledgerhq/devices/ble': '@ledgerhq/devices/lib-es/ble',
             '@ledgerhq/domain-service': '@ledgerhq/domain-service/lib-es',
             '@ledgerhq/evm-tools': '@ledgerhq/evm-tools/lib-es',
             '@ledgerhq/live-network': '@ledgerhq/live-network/lib-es',
-            ...getAliasPaths(),
           },
         },
       ],

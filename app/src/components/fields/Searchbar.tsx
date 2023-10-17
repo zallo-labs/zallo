@@ -2,15 +2,14 @@ import { IconProps } from '@theme/icons';
 import { makeStyles } from '@theme/makeStyles';
 import { toArray } from 'lib';
 import { FC } from 'react';
-import { View } from 'react-native';
+import { StyleProp, View, ViewStyle } from 'react-native';
 import { Surface } from 'react-native-paper';
 import { EdgeInsets, useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Box } from '../layout/Box';
-import { Container } from '../layout/Container';
 import { BasicTextField, BasicTextFieldProps } from './BasicTextField';
+import { Stack } from 'expo-router';
 
 export interface SearchbarProps extends BasicTextFieldProps {
-  leading?: FC<IconProps>;
+  leading?: FC<IconProps & { style?: StyleProp<ViewStyle> }>;
   trailing?: FC<IconProps> | FC<IconProps>[];
   placeholder: string;
   inset?: boolean;
@@ -27,10 +26,14 @@ export const Searchbar = ({
 
   return (
     <Surface elevation={3} style={styles.container}>
+      <Stack.Screen options={{ headerShown: false }} />
+
       {Leading && (
-        <Box style={styles.leadingContainer}>
-          {<Leading size={styles.leadingIcon.fontSize} color={styles.leadingIcon.color} />}
-        </Box>
+        <Leading
+          size={styles.leadingIcon.fontSize}
+          color={styles.leadingIcon.color}
+          style={styles.leadingContainer}
+        />
       )}
 
       <BasicTextField {...inputProps} style={[styles.input, inputProps.style]} />
@@ -40,10 +43,6 @@ export const Searchbar = ({
           <Trailing key={i} size={styles.trailingIcon.fontSize} color={styles.trailingIcon.color} />
         ))}
       </View>
-
-      {trailing && (
-        <Container style={styles.trailingContainer} separator={<Box mr={2} />}></Container>
-      )}
     </Surface>
   );
 };

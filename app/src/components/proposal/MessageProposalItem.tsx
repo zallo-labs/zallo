@@ -1,9 +1,9 @@
 import { FragmentType, gql, useFragment } from '@api/generated';
 import { ListItem, ListItemProps } from '../list/ListItem';
-import { useNavigation } from '@react-navigation/native';
 import { MessageIcon } from './MessageIcon';
 import { makeStyles } from '@theme/makeStyles';
 import { P, match } from 'ts-pattern';
+import { useRouter } from 'expo-router';
 
 const MessageProposal = gql(/* GraphQL */ `
   fragment MessageProposalItem_MessageProposal on MessageProposal {
@@ -35,9 +35,9 @@ export interface MessageProposalItemProps {
 
 export function MessageProposalItem(props: MessageProposalItemProps) {
   const styles = useStyles();
+  const router = useRouter();
   const p = useFragment(MessageProposal, props.proposal);
   const user = useFragment(User, props.user);
-  const { navigate } = useNavigation();
 
   const canApprove =
     p.updatable && p.potentialApprovers.find((a) => user.approvers.find((ua) => a.id === ua.id));
@@ -58,7 +58,9 @@ export function MessageProposalItem(props: MessageProposalItemProps) {
       leadingSize="medium"
       headline={p.label || 'Message'}
       supporting={supporting}
-      onPress={() => navigate('MessageProposal', { proposal: p.hash })}
+      onPress={() =>
+        router.push({ pathname: `/(drawer)/message/[hash]/`, params: { hash: p.hash } })
+      }
     />
   );
 }

@@ -1,5 +1,5 @@
-import { Native as Sentry } from 'sentry-expo';
-import crashlytics from '@react-native-firebase/crashlytics';
+import * as Sentry from '~/util/sentry/sentry';
+// import crashlytics from '@react-native-firebase/crashlytics';
 import _ from 'lodash';
 
 export type EventLevel = 'debug' | 'info' | 'warning' | 'error';
@@ -26,9 +26,9 @@ export const logEvent = ({ level, message, error: ep, ...contextParam }: LogEven
   }
 
   // Crashlytics
-  crashlytics().setAttributes(context);
-  crashlytics().log(`${level}: ${message}`);
-  if (error) crashlytics().recordError(error);
+  // crashlytics().setAttributes(context);
+  // crashlytics().log(`${level}: ${message}`);
+  // if (error) crashlytics().recordError(error);
 
   // Console
   CONSOLE[level](
@@ -71,6 +71,6 @@ const CONSOLE: Record<EventLevel, typeof console.log> = {
 export const setContext = (key: string, value: unknown) => {
   if (value !== undefined) {
     Sentry.setExtra(key, value);
-    crashlytics().setAttribute(key, JSON.stringify(value, null, 2));
+    // crashlytics().setAttribute(key, JSON.stringify(value, null, 2));
   }
 };

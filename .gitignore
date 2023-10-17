@@ -29,18 +29,6 @@ yarn-error.log*
 **/.DS_Store
 
 
-## Api
-
-
-## App
-app/.expo
-app/.vscode/.react
-app/web-build
-app/**/*generated.ts
-app/src/gql/api/generated
-app/src/gql/api/schema.ts
-
-
 ## Contracts
 contracts/artifacts
 contracts/artifacts-zk

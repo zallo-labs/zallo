@@ -44,6 +44,7 @@
     "react-native-jazzicon@0.1.2": "patch:react-native-jazzicon@npm:0.1.2#.yarn/patches/react-native-jazzicon-npm-0.1.2-c1633b051f.patch",
     "@ethersproject/abstract-provider": "5.7.0",
     "wonka": "^6.3.4",
+    "react-refresh": "~0.14.0",
     "ioredis": "5.3.2"
   },
   "dependencies": {

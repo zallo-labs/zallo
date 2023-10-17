@@ -1,33 +1,18 @@
-import { forwardRef, PropsWithChildren } from 'react';
+import { forwardRef } from 'react';
 import BottomSheet, {
-  BottomSheetBackdrop,
-  BottomSheetBackdropProps,
-  BottomSheetBackgroundProps,
   BottomSheetProps,
   BottomSheetView,
   useBottomSheetDynamicSnapPoints,
 } from '@gorhom/bottom-sheet';
 import { makeStyles } from '@theme/makeStyles';
-import { Surface } from 'react-native-paper';
 import { StyleProp, View, ViewStyle } from 'react-native';
 import { EdgeInsets, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Stack, useRouter } from 'expo-router';
+import { SheetBackground } from '~/components/sheet/SheetBackground';
+import { SheetBackdrop } from '~/components/sheet/SheetBackdrop';
 
 export const CONTENT_HEIGHT_SNAP_POINT = 'CONTENT_HEIGHT';
 const DEFAULT_SNAP_POINTS = [CONTENT_HEIGHT_SNAP_POINT];
-
-const Background = ({ children, style }: PropsWithChildren<BottomSheetBackgroundProps>) => (
-  <Surface elevation={1} style={style}>
-    {children}
-  </Surface>
-);
-
-const Backdrop = (props: BottomSheetBackdropProps) => (
-  <BottomSheetBackdrop
-    disappearsOnIndex={-1}
-    {...props}
-    style={[props.style, useStyles().backdrop]}
-  />
-);
 
 export interface SheetProps extends Omit<BottomSheetProps, 'ref' | 'snapPoints'> {
   initialSnapPoints?: (string | number)[];
@@ -47,6 +32,7 @@ export const Sheet = forwardRef<BottomSheet, SheetProps>(
     ref,
   ) => {
     const styles = useStyles(useSafeAreaInsets());
+    const router = useRouter();
 
     const { animatedHandleHeight, animatedSnapPoints, animatedContentHeight, handleContentLayout } =
       useBottomSheetDynamicSnapPoints(initialSnapPoints);
@@ -57,34 +43,35 @@ export const Sheet = forwardRef<BottomSheet, SheetProps>(
         handleHeight={animatedHandleHeight}
         snapPoints={animatedSnapPoints}
         contentHeight={animatedContentHeight}
-        backgroundComponent={Background}
-        backdropComponent={Backdrop}
+        backgroundComponent={SheetBackground}
+        backgroundStyle={styles.background}
+        backdropComponent={SheetBackdrop}
         enablePanDownToClose
+        onClose={router.back}
         {...props}
         {...(!handle && { handleComponent: () => <View style={styles.emptyHandle} /> })}
-        backgroundStyle={[styles.background, props.backgroundStyle]}
         handleStyle={[styles.handle, props.handleStyle]}
         handleIndicatorStyle={[styles.handleIndicator, props.handleIndicatorStyle]}
       >
+        <Stack.Screen options={{ presentation: 'transparentModal', headerShown: false }} />
+
         <BottomSheetView
           onLayout={handleContentLayout}
           style={[styles.contentContainer, contentContainerStyle]}
         >
-          <>{children}</>
+          {children}
         </BottomSheetView>
       </BottomSheet>
     );
   },
 );
 
-const useStyles = makeStyles(({ colors, corner }, insets: EdgeInsets) => ({
+const useStyles = makeStyles(({ colors, layout }, insets: EdgeInsets) => ({
   background: {
-    backgroundColor: colors.surface,
-    borderTopLeftRadius: corner.xl,
-    borderTopRightRadius: corner.xl,
+    ...(layout === 'expanded' && { marginHorizontal: 56 }),
   },
   emptyHandle: {
-    height: 36,
+    height: 12,
   },
   handle: {
     paddingTop: 16,
@@ -98,8 +85,6 @@ const useStyles = makeStyles(({ colors, corner }, insets: EdgeInsets) => ({
   contentContainer: {
     paddingTop: 8,
     paddingBottom: insets?.bottom,
-  },
-  backdrop: {
-    backgroundColor: colors.scrim,
+    ...(layout === 'expanded' && { marginHorizontal: 56 }),
   },
 }));

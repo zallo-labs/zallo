@@ -1,6 +1,6 @@
 import { FragmentType, gql, useFragment } from '@api/generated';
 import { tokenToFiat } from 'lib';
-import { FiatValue } from '../fiat/FiatValue';
+import { FiatValue } from '../FiatValue';
 
 const TransactionProposal = gql(/* GraphQL */ `
   fragment ProposalValue_TransactionProposal on TransactionProposal {

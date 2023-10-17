@@ -15,6 +15,7 @@ export const PAPER_THEME = {
     surfaceDisabled: c(overrided.colors.onSurface, (c) => c.alpha(0.12)),
     onSurfaceOpaque: c(overrided.colors.onSurface, (c) => c.alpha(0.6)),
 
+    scrim: c(Palette.neutral20, (c) => c.alpha(0.4)),
     onScrim: '#F4EFF4',
 
     success: Palette.success40, // Dark - Palette.success80

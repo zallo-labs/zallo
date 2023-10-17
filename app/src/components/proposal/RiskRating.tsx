@@ -5,7 +5,7 @@ import { SegmentedButtons, SegmentedButtonsProps } from 'react-native-paper';
 import { useMutation } from 'urql';
 import { ListHeader } from '../list/ListHeader';
 import { StyleSheet } from 'react-native';
-import { showInfo } from '~/provider/SnackbarProvider';
+import { showInfo } from '~/components/provider/SnackbarProvider';
 import { CONFIG } from '~/util/config';
 import * as Linking from 'expo-linking';
 

@@ -1,17 +1,17 @@
 import { StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
-import { FiatValue } from '../fiat/FiatValue';
+import { FiatValue } from '../FiatValue';
 import { ListItem, ListItemProps } from '../list/ListItem';
 import { ListItemSkeleton } from '../list/ListItemSkeleton';
 import { withSuspense } from '../skeleton/withSuspense';
 import { TokenAmount } from './TokenAmount';
 import { BigIntlike, tokenToFiat } from 'lib';
 import { FragmentType, gql, useFragment } from '@api/generated';
-import { TokenIcon } from './TokenIcon/TokenIcon';
+import { TokenIcon } from './TokenIcon';
 import { memo } from 'react';
 import deepEqual from 'fast-deep-equal';
 
-const FragmentDoc = gql(/* GraphQL */ `
-  fragment TokenItem_token on Token {
+const Token = gql(/* GraphQL */ `
+  fragment TokenItem_Token on Token {
     id
     address
     name
@@ -26,14 +26,14 @@ const FragmentDoc = gql(/* GraphQL */ `
 `);
 
 export interface TokenItemProps extends Partial<ListItemProps> {
-  token: FragmentType<typeof FragmentDoc>;
-  amount: BigIntlike;
+  token: FragmentType<typeof Token>;
+  amount: BigIntlike | undefined;
   containerStyle?: StyleProp<ViewStyle>;
 }
 
 export const TokenItem = withSuspense(
   memo(({ token: tokenProp, amount, containerStyle, ...itemProps }: TokenItemProps) => {
-    const token = useFragment(FragmentDoc, tokenProp);
+    const token = useFragment(Token, tokenProp);
 
     return (
       <ListItem
@@ -42,20 +42,23 @@ export const TokenItem = withSuspense(
         headline={token.name}
         supporting={({ Text }) => (
           <View style={styles.supportingContainer}>
-            <Text>
-              <TokenAmount token={token} amount={amount} />
-            </Text>
+            {amount !== undefined && (
+              <Text>
+                <TokenAmount token={token} amount={amount} />
+              </Text>
+            )}
 
             {token.price && (
               <Text style={styles.price}>
-                {' @ '}
+                {amount !== undefined && ' @ '}
                 <FiatValue value={token.price.current} maximumFractionDigits={0} />
               </Text>
             )}
           </View>
         )}
         trailing={({ Text }) =>
-          token.price && (
+          token.price &&
+          amount !== undefined && (
             <Text variant="labelLarge">
               <FiatValue value={tokenToFiat(amount, token.price.current, token.decimals)} />
             </Text>

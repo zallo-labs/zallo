@@ -1,4 +1,4 @@
-import { useToggle } from '@hook/useToggle';
+import { useToggle } from '~/hooks/useToggle';
 import { ReactNode } from 'react';
 import { TouchableOpacity, TouchableOpacityProps } from 'react-native';
 

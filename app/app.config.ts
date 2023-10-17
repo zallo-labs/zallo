@@ -1,6 +1,7 @@
 import { ExpoConfig, ConfigContext } from '@expo/config';
 import { ConfigPlugin } from 'expo/config-plugins';
 import { PluginConfigType as BuildPropertiesConfig } from 'expo-build-properties/build/pluginConfig';
+import expoRouterPlugin from 'expo-router/plugin';
 
 type PluginConfig<Plugin> = Plugin extends ConfigPlugin<infer Config> ? Config : never;
 
@@ -19,14 +20,15 @@ export const CONFIG = {
   metadata: {
     site: ENV.SITE!,
     iconUri: ENV.ICON_URI!,
-    twitter: ENV.TWITTER!,
-    github: ENV.GITHUB!,
+    twitter: ENV.TWITTER! as `http${string}`,
+    github: ENV.GITHUB! as `http${string}`,
   },
   riskRatingUrl: ENV.RISK_RATING_URL!,
   googleOAuth: {
     webClient: ENV.GOOGLE_OAUTH_WEB_CLIENT!,
     iosClient: ENV.GOOGLE_OAUTH_IOS_CLIENT!,
   },
+  webOrigin: ENV.APP_WEB_ORIGIN,
 } as const;
 
 export type Config = typeof CONFIG;
@@ -70,6 +72,13 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
         },
       } as BuildPropertiesConfig,
     ],
+    [
+      'expo-router',
+      {
+        origin: ENV.APP_WEB_ORIGIN,
+        // asyncRoutes: 'development',
+      } as PluginConfig<typeof expoRouterPlugin>,
+    ],
     'expo-notifications', // https://docs.expo.dev/versions/latest/sdk/notifications/#configurable-properties
     'expo-localization',
     'sentry-expo',
@@ -106,6 +115,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     resizeMode: 'contain',
     backgroundColor: '#FFFBFE',
   },
+  primaryColor: '#6750A4', // primary (light)
   assetBundlePatterns: ['**/*'],
   scheme: 'zallo',
   android: {
@@ -115,6 +125,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       backgroundColor: '#E8DEF8',
     },
     googleServicesFile: withVariant('./firebase-google-services.secret.json'),
+    playStoreUrl: ENV.PLAY_STORE_URL,
   },
   androidStatusBar: {
     backgroundColor: '#00000000', // Transparent
@@ -134,10 +145,16 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       usesNonExemptEncryption: false,
     },
     googleServicesFile: withVariant('./GoogleService-Info.secret.plist'),
+    appStoreUrl: ENV.APP_STORE_URL,
   },
   web: {
     bundler: 'metro',
     favicon: './assets/favicon.png',
+  },
+  experiments: {
+    // @ts-expect-error not sure why
+    typedRoutes: true,
+    tsconfigPaths: true, // Expo 50 TODO: remove; this is now the default
   },
   updates: {
     url: `https://u.expo.dev/${PROJECT_ID}`,

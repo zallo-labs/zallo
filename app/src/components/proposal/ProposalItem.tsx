@@ -7,10 +7,10 @@ import { match } from 'ts-pattern';
 import { materialCommunityIcon } from '@theme/icons';
 import { ICON_SIZE } from '@theme/paper';
 import { FragmentType, gql, useFragment } from '@api/generated';
-import { OperationLabel } from '../call/OperationLabel';
-import { useNavigation } from '@react-navigation/native';
-import { ETH_ICON_URI, TokenIcon } from '../token/TokenIcon/TokenIcon';
+import { OperationLabel } from './OperationLabel';
+import { ETH_ICON_URI, TokenIcon } from '../token/TokenIcon';
 import { ProposalValue } from './ProposalValue';
+import { useRouter } from 'expo-router';
 
 const Proposal = gql(/* GraphQL */ `
   fragment ProposalItem_TransactionProposal on TransactionProposal {
@@ -57,9 +57,9 @@ export interface ProposalItemProps extends Partial<ListItemProps> {
 export const ProposalItem = withSuspense(
   ({ proposal: proposalFragment, user: userFragment, ...itemProps }: ProposalItemProps) => {
     const styles = useStyles();
+    const router = useRouter();
     const p = useFragment(Proposal, proposalFragment);
     const user = useFragment(User, userFragment);
-    const { navigate } = useNavigation();
 
     const isMulti = p.operations.length > 1;
     const canApprove =
@@ -113,7 +113,9 @@ export const ProposalItem = withSuspense(
             <ProposalValue proposal={p} hideZero />
           </Text>
         )}
-        onPress={() => navigate('Proposal', { proposal: p.hash })}
+        onPress={() =>
+          router.push({ pathname: `/(drawer)/transaction/[hash]/`, params: { hash: p.hash } })
+        }
         {...itemProps}
       />
     );

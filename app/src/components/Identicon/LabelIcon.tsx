@@ -1,6 +1,13 @@
 import { makeStyles } from '@theme/makeStyles';
 import { memo } from 'react';
-import { StyleProp, TextStyle, View, ViewProps, ViewStyle } from 'react-native';
+import {
+  StyleProp,
+  TextStyle,
+  View,
+  ViewProps,
+  ViewStyle,
+  useWindowDimensions,
+} from 'react-native';
 import { Text } from 'react-native-paper';
 
 export interface LabelIconProps extends Omit<ViewProps, 'style'> {
@@ -12,7 +19,7 @@ export interface LabelIconProps extends Omit<ViewProps, 'style'> {
 
 export const LabelIcon = memo(
   ({ label: l, size, containerStyle, labelStyle, ...viewProps }: LabelIconProps) => {
-    const styles = useStyles(size);
+    const styles = useStyles({ size, fontScale: useWindowDimensions().fontScale });
 
     const label = l.slice(0, Math.min(l?.length, 1)).toUpperCase();
 
@@ -26,20 +33,27 @@ export const LabelIcon = memo(
   },
 );
 
-const useStyles = makeStyles(({ colors, iconSize, window }, size: number = iconSize.medium) => ({
-  container: {
-    width: size,
-    height: size,
-    borderRadius: size / 2,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: colors.tertiaryContainer,
-  },
-  label: {
-    fontSize: size / 2,
-    lineHeight: size / window.fontScale,
-    color: colors.tertiary,
-    textAlign: 'center',
-    textAlignVertical: 'center',
-  },
-}));
+interface StyleParams {
+  size?: number;
+  fontScale: number;
+}
+
+const useStyles = makeStyles(
+  ({ colors, iconSize }, { size = iconSize.medium, fontScale }: StyleParams) => ({
+    container: {
+      width: size,
+      height: size,
+      borderRadius: size / 2,
+      justifyContent: 'center',
+      alignItems: 'center',
+      backgroundColor: colors.tertiaryContainer,
+    },
+    label: {
+      fontSize: size / 2,
+      lineHeight: size / fontScale,
+      color: colors.tertiary,
+      textAlign: 'center',
+      textAlignVertical: 'center',
+    },
+  }),
+);

@@ -90,16 +90,16 @@ export class AccountsService {
     });
 
     // The account id must be in the user's list of accounts prior to starting the transaction for the globals to be set correctly
-    const accountId = uuid1();
+    const id = uuid1();
     await this.accountsCache.addCachedAccount({
       approver,
-      account: { id: accountId, address: account },
+      account: { id: id, address: account },
     });
 
-    const id = await this.db.transaction(async (db) => {
-      const { id } = await e
+    await this.db.transaction(async (db) => {
+      await e
         .insert(e.Account, {
-          id: accountId,
+          id,
           address: account,
           name,
           isActive: false,
@@ -119,8 +119,6 @@ export class AccountsService {
           }),
         ),
       );
-
-      return id;
     });
 
     await this.activateAccount(account, implementation, salt, policies);
@@ -144,15 +142,6 @@ export class AccountsService {
     if (!r) throw new UserInputError(`Must be a member of the account to update it`);
 
     this.publishAccount({ account: address, event: AccountEvent.update });
-  }
-
-  async activity(input: ActivityInput, shape?: ShapeFunc<any>) {
-    // const proposals = e.select(e.Transacti)
-    // return this.db.query(
-    //   e.select(
-    //     e.
-    //   )
-    // )
   }
 
   private async activateAccount(

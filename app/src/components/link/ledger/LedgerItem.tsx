@@ -1,0 +1,125 @@
+import { authContext, useUrqlApiClient } from '@api/client';
+import { FragmentType, gql, useFragment } from '@api/generated';
+import { BluetoothIcon } from '@theme/icons';
+import { useCallback } from 'react';
+import { useMutation } from 'urql';
+import { ListItem } from '~/components/list/ListItem';
+import { useGetSignWithLedger } from '~/app/ledger/sign';
+import { APPROVER_BLE_IDS } from '~/hooks/ledger/useLedger';
+import { showError, showInfo } from '~/components/provider/SnackbarProvider';
+import { useImmerAtom } from 'jotai-immer';
+import { getLedgerDeviceModel } from '~/hooks/ledger/connectLedger';
+import { elipseTruncate } from '~/util/format';
+import { useRouter } from 'expo-router';
+import { BleDevice, isUniqueBleDeviceId } from '~/lib/ble/util';
+import { LinkWithTokenSheetParams } from '~/app/link/token';
+
+const User = gql(/* GraphQL */ `
+  fragment LedgerItem_user on User {
+    id
+  }
+`);
+
+const Query = gql(/* GraphQL */ `
+  query LedgerItem {
+    user {
+      id
+      linkingToken
+    }
+
+    approver {
+      id
+      name
+      bluetoothDevices
+    }
+  }
+`);
+
+const Update = gql(/* GraphQL */ `
+  mutation LedgerItem_update($input: UpdateApproverInput!) {
+    updateApprover(input: $input) {
+      id
+      name
+      bluetoothDevices
+    }
+  }
+`);
+
+export interface LedgerItemProps {
+  user: FragmentType<typeof User>;
+  device: BleDevice;
+}
+
+export function LedgerItem({ device: d, ...props }: LedgerItemProps) {
+  const user = useFragment(User, props.user);
+  const router = useRouter();
+  const api = useUrqlApiClient();
+  const update = useMutation(Update)[1];
+  const setApproverBleIds = useImmerAtom(APPROVER_BLE_IDS)[1];
+  const getSign = useGetSignWithLedger();
+
+  const productName = getLedgerDeviceModel(d)?.productName;
+
+  const connect = useCallback(async () => {
+    const name = d.name || productName || d.id;
+
+    const { address, sign } = await getSign({ device: d.id, name });
+    const context = await authContext({ address, signMessage: sign });
+
+    const { data } = await api.query(Query, {}, context);
+
+    const linkingToken = data?.user.linkingToken;
+    if (!linkingToken) return showError('Failed to get linking token, please try again');
+
+    const uniqueId = isUniqueBleDeviceId(d.id) ? d.id : null;
+
+    update(
+      {
+        input: {
+          address,
+          name: !data.approver?.name ? name : undefined,
+          bluetoothDevices:
+            uniqueId && !data.approver?.bluetoothDevices?.includes(uniqueId)
+              ? [...(data.approver?.bluetoothDevices ?? []), uniqueId]
+              : undefined,
+        },
+      },
+      context,
+    );
+
+    // Persist approver => deviceId association locally if OS doesn't provide device's MAC (iOS)
+    if (!uniqueId) {
+      setApproverBleIds((approverBluetoothIDs) => {
+        const ids = approverBluetoothIDs[address] ?? [];
+        approverBluetoothIDs[address] = ids.includes(d.id) ? ids : [...ids, d.id];
+      });
+    }
+
+    // Check if already link
+    if (data.user.id === user.id) return showInfo('Already linked');
+
+    const params: LinkWithTokenSheetParams = { token: linkingToken };
+    router.push({ pathname: `/link/token`, params });
+  }, [
+    api,
+    d.id,
+    d.name,
+    router.push,
+    router.back,
+    productName,
+    setApproverBleIds,
+    update,
+    user.id,
+  ]);
+
+  return (
+    <ListItem
+      leading={BluetoothIcon}
+      headline={d.name || d.id}
+      supporting={productName}
+      trailing={elipseTruncate(d.id, 9)}
+      lines={2}
+      onPress={connect}
+    />
+  );
+}
