@@ -1,12 +1,11 @@
 import { SearchParams, useRouter } from 'expo-router';
-import { ScanIcon, WalletConnectIcon } from '@theme/icons';
+import { ScanIcon } from '@theme/icons';
 import { StyleSheet, View } from 'react-native';
-import { EmptyListFallback } from '~/components/EmptyListFallback';
 import { useWalletConnect } from '~/util/walletconnect';
 import { FlashList } from '@shopify/flash-list';
 import { PairingItem } from '~/components/walletconnect/PairingItem';
 import { ListItemHeight } from '~/components/list/ListItem';
-import { Divider } from 'react-native-paper';
+import { Divider, Text } from 'react-native-paper';
 import { AppbarOptions } from '~/components/Appbar/AppbarOptions';
 
 export type SessionsScreenRoute = `/sessions/`;
@@ -36,11 +35,12 @@ export default function SessionsScreen() {
           </>
         )}
         ListEmptyComponent={
-          <EmptyListFallback
-            Icon={WalletConnectIcon}
-            title="No active sessions"
-            subtitle="Pair by scanning a WalletConnect QR code"
-          />
+          <View style={styles.emptyContainer}>
+            <Text variant="headlineMedium">No active sessions</Text>
+            <Text variant="titleMedium">
+              Start a session by scanning a WalletConnect QR code on a DApp
+            </Text>
+          </View>
         }
         contentContainerStyle={styles.contentContainer}
         showsVerticalScrollIndicator={false}
@@ -56,5 +56,10 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     paddingBottom: 8,
+  },
+  emptyContainer: {
+    marginVertical: 8,
+    marginHorizontal: 16,
+    gap: 8,
   },
 });
