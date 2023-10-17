@@ -18,7 +18,7 @@ export function Actions({ children, style, flex = true }: ActionsProps) {
   );
 }
 
-const useStyles = makeStyles((_, flex: boolean) => ({
+const useStyles = makeStyles(({ insets }, flex: boolean) => ({
   container: {
     ...(flex && { flexGrow: 1 }),
     justifyContent: 'flex-end',
@@ -26,6 +26,8 @@ const useStyles = makeStyles((_, flex: boolean) => ({
   content: {
     alignItems: 'stretch',
     gap: 8,
-    margin: 16,
+    marginHorizontal: 16,
+    marginTop: 16,
+    marginBottom: 16 + insets.bottom,
   },
 }));
