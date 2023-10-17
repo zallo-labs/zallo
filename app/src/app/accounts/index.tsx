@@ -1,4 +1,4 @@
-import { SearchParams, useRouter } from 'expo-router';
+import { useRouter } from 'expo-router';
 import { useRef } from 'react';
 import BottomSheet, { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import { Sheet } from '~/components/sheet/Sheet';
@@ -25,9 +25,6 @@ const Query = gql(/* GraphQL */ `
     }
   }
 `);
-
-export type AccountsSheetRoute = `/accounts/`;
-export type AccountsSheetParams = SearchParams<AccountsSheetRoute>;
 
 export default function AccountsSheet() {
   const styles = useStyles();
@@ -67,7 +64,6 @@ export default function AccountsSheet() {
                   params: { account: a.address },
                 })
               }
-              selected={selected}
             />
           );
         })}
