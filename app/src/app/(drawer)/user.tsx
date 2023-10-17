@@ -16,6 +16,7 @@ import { LinkingButton } from '~/components/link/LinkingButton';
 import { LinkAppleButton } from '~/components/link/LinkAppleButton';
 import { showSuccess } from '~/components/provider/SnackbarProvider';
 import { AppbarOptions } from '~/components/Appbar/AppbarOptions';
+import { AppbarMenu } from '~/components/Appbar/AppbarMenu';
 
 const Query = gql(/* GraphQL */ `
   query UserScreen {
@@ -59,6 +60,7 @@ export default function UserScreen() {
     <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
       <AppbarOptions
         mode="large"
+        leading={AppbarMenu}
         headline="User"
         trailing={(props) => <FormResetIcon control={control} reset={reset} {...props} />}
       />
