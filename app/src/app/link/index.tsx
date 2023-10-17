@@ -12,7 +12,7 @@ import { useSubscription } from 'urql';
 import { useEffect } from 'react';
 import { Subject } from 'rxjs';
 import { LinkingTokenModal_SubscriptionSubscription } from '@api/generated/graphql';
-import { useRouter } from 'expo-router';
+import { Stack, useRouter } from 'expo-router';
 import { getDeepLink } from '~/util/config';
 import { share } from '~/lib/share';
 
@@ -50,6 +50,8 @@ export default function LinkingModal() {
 
   return (
     <Blur>
+      <Stack.Screen options={{ presentation: 'transparentModal', headerShown: false }} />
+
       <View style={styles.container}>
         <IconButton
           mode="contained-tonal"

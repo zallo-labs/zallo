@@ -1,4 +1,4 @@
-import { SearchParams, useRouter } from 'expo-router';
+import { SearchParams, Stack, useRouter } from 'expo-router';
 import { useImmerAtom } from 'jotai-immer';
 import { StyleSheet, View } from 'react-native';
 import { useForm } from 'react-hook-form';
@@ -58,6 +58,7 @@ export default function PolicyNameModal() {
 
   return (
     <View style={styles.root}>
+      <Stack.Screen options={{ presentation: 'modal' }} />
       <AppbarOptions mode="large" leading="close" headline="Rename policy" />
 
       <FormTextField

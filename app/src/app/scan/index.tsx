@@ -1,14 +1,13 @@
-import { Route, useLocalSearchParams } from 'expo-router';
+import { Route, Stack, useLocalSearchParams } from 'expo-router';
 import { useCallback, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { Platform, StyleSheet, View } from 'react-native';
 import { Camera } from 'expo-camera';
 import { BarCodeScanner } from 'expo-barcode-scanner';
-import { Appbar, Button, Text } from 'react-native-paper';
+import { Button, Text } from 'react-native-paper';
 import { parseAddressLink } from '~/util/addressLink';
 import { isWalletConnectUri, useWalletConnect } from '~/util/walletconnect';
 import { Actions } from '~/components/layout/Actions';
 import { Address, tryAsAddress } from 'lib';
-import { AppbarBackContained } from '~/components/Appbar/AppbarBack';
 import * as Linking from 'expo-linking';
 import useAsyncEffect from 'use-async-effect';
 import { showError } from '~/components/provider/SnackbarProvider';
@@ -17,6 +16,7 @@ import { useFocusEffect, useRouter } from 'expo-router';
 import { ScanOverlay } from '~/components/ScanOverlay';
 import { Subject } from 'rxjs';
 import { useGetEvent } from '~/hooks/useGetEvent';
+import { AppbarOptions } from '~/components/Appbar/AppbarOptions';
 
 export const SCANNED_ADDRESSES = new Subject<Address>();
 export function useScanAddress() {
@@ -92,29 +92,30 @@ export default function ScanScreen() {
       ratio="16:9"
       useCamera2Api={false} // Causes crash on screen unmount - https://github.com/expo/expo/issues/18996
     >
+      <Stack.Screen options={{ headerShown: false }} />
       <ScanOverlay onData={tryHandle} />
     </Camera>
   ) : (
     <View style={styles.grantContainer}>
-      <Appbar.Header>
-        <AppbarBackContained />
-        <Appbar.Content title="Permission required" />
-      </Appbar.Header>
+      <Stack.Screen options={{ headerShown: true }} />
+      <AppbarOptions headline="Camera permission required" />
 
       <Text variant="headlineMedium" style={styles.grantText}>
         Please grant camera permissions in order to scan a QR code
       </Text>
 
       <Actions>
-        <Button
-          mode="contained"
-          onPress={async () => {
-            await Linking.openSettings();
-            requestPermission();
-          }}
-        >
-          Open app settings
-        </Button>
+        {Platform.OS !== 'web' && (
+          <Button
+            mode="contained"
+            onPress={async () => {
+              await Linking.openSettings();
+              requestPermission();
+            }}
+          >
+            Open app settings
+          </Button>
+        )}
       </Actions>
     </View>
   );

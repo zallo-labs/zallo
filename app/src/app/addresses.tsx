@@ -18,6 +18,7 @@ import { TokenItem } from '~/components/token/TokenItem';
 import { z } from 'zod';
 import { zAddress, zArray } from '~/lib/zod';
 import { useLocalParams } from '~/hooks/useLocalParams';
+import { Stack } from 'expo-router';
 
 const Query = gql(/* GraphQL */ `
   query AddressesModal(
@@ -83,6 +84,7 @@ export default function AddressesModal() {
 
   return (
     <View style={styles.root}>
+      <Stack.Screen options={{ presentation: 'modal' }} />
       <Searchbar
         leading={AppbarBack}
         placeholder="Search"

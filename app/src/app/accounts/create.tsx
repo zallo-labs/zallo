@@ -1,4 +1,4 @@
-import { SearchParams, useRouter } from 'expo-router';
+import { SearchParams, Stack, useRouter } from 'expo-router';
 import { gql } from '@api/generated';
 import { useApproverAddress } from '@network/useApprover';
 import { useForm } from 'react-hook-form';
@@ -35,6 +35,7 @@ export default function CreateAccountScreen() {
 
   return (
     <View style={styles.root}>
+      <Stack.Screen options={{ presentation: 'modal' }} />
       <AppbarOptions mode="large" headline="Account" />
 
       <View style={styles.fields}>

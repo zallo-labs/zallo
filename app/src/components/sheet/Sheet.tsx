@@ -1,4 +1,4 @@
-import { forwardRef, useEffect } from 'react';
+import { forwardRef } from 'react';
 import BottomSheet, {
   BottomSheetProps,
   BottomSheetView,
@@ -10,7 +10,6 @@ import { EdgeInsets, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Stack, useRouter } from 'expo-router';
 import { SheetBackground } from '~/components/sheet/SheetBackground';
 import { SheetBackdrop } from '~/components/sheet/SheetBackdrop';
-import { useLayout } from '~/hooks/useLayout';
 
 export const CONTENT_HEIGHT_SNAP_POINT = 'CONTENT_HEIGHT';
 const DEFAULT_SNAP_POINTS = [CONTENT_HEIGHT_SNAP_POINT];
@@ -54,11 +53,12 @@ export const Sheet = forwardRef<BottomSheet, SheetProps>(
         handleStyle={[styles.handle, props.handleStyle]}
         handleIndicatorStyle={[styles.handleIndicator, props.handleIndicatorStyle]}
       >
+        <Stack.Screen options={{ presentation: 'transparentModal', headerShown: false }} />
+
         <BottomSheetView
           onLayout={handleContentLayout}
           style={[styles.contentContainer, contentContainerStyle]}
         >
-          <Stack.Screen options={{ presentation: 'transparentModal', headerShown: false }} />
           {children}
         </BottomSheetView>
       </BottomSheet>
