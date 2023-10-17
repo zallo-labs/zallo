@@ -1,4 +1,4 @@
-import { SearchParams, Stack, useLocalSearchParams, useRouter } from 'expo-router';
+import { useRouter } from 'expo-router';
 import { StyleSheet, View } from 'react-native';
 import { Address } from 'lib';
 import { Searchbar } from '~/components/fields/Searchbar';
@@ -14,6 +14,9 @@ import { Subject } from 'rxjs';
 import { useGetEvent } from '~/hooks/useGetEvent';
 import { OperationContext } from 'urql';
 import { AppbarMenu } from '~/components/Appbar/AppbarMenu';
+import { z } from 'zod';
+import { zAddress, zArray } from '~/lib/zod';
+import { useLocalParams } from '~/hooks/useLocalParams';
 
 const Query = gql(/* GraphQL */ `
   query TokensScreen($account: Address!, $query: String, $feeToken: Boolean) {
@@ -36,18 +39,18 @@ export const useSelectToken = () => {
 };
 
 export type TokensScreenRoute = `/(drawer)/[account]/tokens`;
-export type TokensScreenParams = SearchParams<TokensScreenRoute> & {
-  account: Address;
-  disabled?: Address[];
-  enabled?: Address[];
-  feeToken?: 'true';
-  modal?: 'true';
-};
+export const TokensScreenParams = z.object({
+  account: zAddress,
+  disabled: zArray(zAddress).optional(),
+  enabled: zArray(zAddress).optional(),
+  feeToken: z.literal('true').optional(),
+});
+export type TokensScreenParams = z.infer<typeof TokensScreenParams>;
 
 const queryContext: Partial<OperationContext> = { suspense: false };
 
 export default function TokensScreen() {
-  const params = useLocalSearchParams<TokensScreenParams>();
+  const params = useLocalParams(`/(drawer)/[account]/tokens`, TokensScreenParams);
   const router = useRouter();
   const disabled = new Set(params.disabled);
   const enabled = params.enabled && new Set(params.enabled);
@@ -67,8 +70,6 @@ export default function TokensScreen() {
 
   return (
     <View style={styles.root}>
-      {params.modal === 'true' && <Stack.Screen options={{ presentation: 'modal' }} />}
-
       <Searchbar
         leading={AppbarMenu}
         placeholder="Search tokens"
@@ -111,7 +112,7 @@ export default function TokensScreen() {
 
 const styles = StyleSheet.create({
   root: {
-    flex: 1,
+    flexGrow: 1,
   },
   container: {
     paddingVertical: 8,
