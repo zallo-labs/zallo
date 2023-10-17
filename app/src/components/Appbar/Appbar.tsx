@@ -26,7 +26,7 @@ export interface AppbarProps extends Pick<StyleOptions, 'center'> {
   inset?: boolean;
 }
 
-export const Appbar = ({
+export function Appbar({
   mode = 'small',
   leading = 'back',
   trailing,
@@ -34,7 +34,7 @@ export const Appbar = ({
   center,
   elevated,
   inset = true,
-}: AppbarProps) => {
+}: AppbarProps) {
   const insets = useSafeAreaInsets();
   const styles = useStyles({ mode, center, insets: inset ? insets : undefined });
 
@@ -75,7 +75,7 @@ export const Appbar = ({
       {mode !== 'small' && <HeadlineView />}
     </Surface>
   );
-};
+}
 
 interface StyleOptions {
   mode: 'small' | 'medium' | 'large';

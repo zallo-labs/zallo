@@ -98,7 +98,7 @@ export function QrModal({ address, faucet }: QrModalProps) {
   );
 }
 
-const uesStyles = makeStyles(({ colors, width, height, insets }) => ({
+const uesStyles = makeStyles(({ colors, window, insets }) => ({
   container: {
     flex: 1,
     marginTop: insets.top,
@@ -121,7 +121,7 @@ const uesStyles = makeStyles(({ colors, width, height, insets }) => ({
     borderRadius: 16,
   },
   qr: {
-    fontSize: Math.min(width, height) * 0.75,
+    fontSize: Math.min(window.width, window.height) * 0.75,
     color: colors.onSurface,
   },
   primary: {

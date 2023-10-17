@@ -12,8 +12,8 @@ export interface DrawerProps extends DrawerLayoutProps {}
 
 // TODO: only use 'modal' type in compact and medium layouts
 export function Drawer({ children, ...props }: DrawerProps) {
-  const layout = useLayout();
-  const type: DrawerType = layout.class === 'expanded' ? 'standard' : 'modal';
+  const { layout } = useLayout();
+  const type: DrawerType = layout === 'expanded' ? 'standard' : 'modal';
   const styles = useStyles(type);
 
   return (
