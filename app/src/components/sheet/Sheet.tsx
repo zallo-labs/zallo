@@ -1,19 +1,14 @@
-import { forwardRef, PropsWithChildren, useMemo } from 'react';
+import { forwardRef } from 'react';
 import BottomSheet, {
-  BottomSheetBackdrop,
-  BottomSheetBackdropProps,
-  BottomSheetBackgroundProps,
   BottomSheetProps,
   BottomSheetView,
   useBottomSheetDynamicSnapPoints,
 } from '@gorhom/bottom-sheet';
 import { makeStyles } from '@theme/makeStyles';
-import { Surface } from 'react-native-paper';
-import { StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
+import { StyleProp, View, ViewStyle } from 'react-native';
 import { EdgeInsets, useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useRouter } from 'expo-router';
+import { Stack, useRouter } from 'expo-router';
 import { SheetBackground } from '~/components/sheet/SheetBackground';
-import Animated, { Extrapolate, interpolate, useAnimatedStyle } from 'react-native-reanimated';
 import { SheetBackdrop } from '~/components/sheet/SheetBackdrop';
 
 export const CONTENT_HEIGHT_SNAP_POINT = 'CONTENT_HEIGHT';
@@ -45,7 +40,7 @@ export const Sheet = forwardRef<BottomSheet, SheetProps>(
     return (
       <BottomSheet
         ref={ref}
-        containerStyle={StyleSheet.absoluteFill}
+        containerStyle={styles.container}
         handleHeight={animatedHandleHeight}
         snapPoints={animatedSnapPoints}
         contentHeight={animatedContentHeight}
@@ -62,14 +57,20 @@ export const Sheet = forwardRef<BottomSheet, SheetProps>(
           onLayout={handleContentLayout}
           style={[styles.contentContainer, contentContainerStyle]}
         >
-          <>{children}</>
+          <Stack.Screen options={{ presentation: 'transparentModal', headerShown: false }} />
+          {children}
         </BottomSheetView>
       </BottomSheet>
     );
   },
 );
 
-const useStyles = makeStyles(({ colors }, insets: EdgeInsets) => ({
+const useStyles = makeStyles(({ colors, layout }, insets: EdgeInsets) => ({
+  container: {
+    ...(layout === 'expanded' && {
+      marginHorizontal: 56,
+    }),
+  },
   emptyHandle: {
     height: 12,
   },
