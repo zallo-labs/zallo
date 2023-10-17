@@ -1,4 +1,5 @@
-.expo
+.expo/*
+!.expo/types
 .vscode/.react
 web-build
 **/*generated.ts
