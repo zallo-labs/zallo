@@ -1,17 +1,18 @@
-import { useSafeAreaFrame, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useWindowDimensions } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { P, match } from 'ts-pattern';
 
 export type LayoutDetails = ReturnType<typeof useLayout>;
 export type LayoutClass = ReturnType<typeof getLayoutClass>;
 
 export function useLayout() {
-  const frame = useSafeAreaFrame();
+  const window = useWindowDimensions();
   const insets = useSafeAreaInsets();
 
   return {
-    ...frame,
+    window,
     insets,
-    class: getLayoutClass(frame.width),
+    layout: getLayoutClass(window.width),
   };
 }
 

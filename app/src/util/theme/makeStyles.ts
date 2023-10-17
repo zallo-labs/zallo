@@ -18,6 +18,6 @@ export function makeStyles<T extends NamedStyles<T> | NamedStyles<any>, Params =
       return typeof styles === 'function'
         ? StyleSheet.create(styles({ ...theme, ...layout }, params!))
         : StyleSheet.create(styles);
-    }, [params, theme]);
+    }, [styles, params, theme, layout]);
   };
 }
