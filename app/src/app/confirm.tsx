@@ -2,7 +2,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { makeStyles } from '@theme/makeStyles';
 import { Dialog, Text } from 'react-native-paper';
 import { Button } from '~/components/Button';
-import { DialogRoot } from '~/components/DialogRoot';
+import { DialogModal } from '~/components/DialogModal';
 import { Subject } from 'rxjs';
 
 export const CONFIRMATIONS = new Subject<true>();
@@ -22,7 +22,7 @@ export default function ConfirmModal() {
   const router = useRouter();
 
   return (
-    <DialogRoot>
+    <DialogModal>
       {title && <Dialog.Title>{title}</Dialog.Title>}
 
       {message && (
@@ -45,7 +45,7 @@ export default function ConfirmModal() {
           {confirmLabel || 'Ok'}
         </Button>
       </Dialog.Actions>
-    </DialogRoot>
+    </DialogModal>
   );
 }
 
