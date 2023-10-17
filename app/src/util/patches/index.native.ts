@@ -21,6 +21,4 @@ import './intl';
 import 'core-js/actual/url';
 import 'core-js/actual/url-search-params'; // Required by URQL persisted-exchange
 
-import '@total-typescript/ts-reset';
-
 export default {};
