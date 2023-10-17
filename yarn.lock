@@ -5390,12 +5390,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@expo/apple-utils@npm:1.3.1":
-  version: 1.3.1
-  resolution: "@expo/apple-utils@npm:1.3.1"
+"@expo/apple-utils@npm:1.3.2":
+  version: 1.3.2
+  resolution: "@expo/apple-utils@npm:1.3.2"
   bin:
     apple-utils: bin.js
-  checksum: 6d8d99536db227c4007c526dd265b473dc6dc606e0265c65fbb3352339bdf8ba48d6b05a4caeb00dc52a32826448f2edc45525c7e11cf4c4d7e3008874e4fbae
+  checksum: 5b945d41d5c1570b0307b4a9af7e27baffe0e29e942569abbfe277bd55c11c3d0955130a67b1df4009774a8fcc92216fe747720b73fa3311e28029348abe465e
   languageName: node
   linkType: hard
 
@@ -5415,9 +5415,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@expo/cli@npm:0.10.12":
-  version: 0.10.12
-  resolution: "@expo/cli@npm:0.10.12"
+"@expo/cli@npm:0.10.13":
+  version: 0.10.13
+  resolution: "@expo/cli@npm:0.10.13"
   dependencies:
     "@babel/runtime": ^7.20.0
     "@expo/code-signing-certificates": 0.0.5
@@ -5483,7 +5483,7 @@ __metadata:
     ws: ^8.12.1
   bin:
     expo-internal: build/bin/cli
-  checksum: c9fe63a9c2a7c688bf5cbb7a2766aa06e1ba71f5d7fbc976f6a2ea24d54772018df1c3e7c4f927bf4dc75fd866311be2e86405f7b5137c714d17c2e6f821ab72
+  checksum: 3dda76f39a9658317bd80715fe075e8f6d3e09c0ca2ce38b5042f72c2ac7d5c8d2229beed614104d396a1dd1d40d09755707e671a8dab6fbdc9d9b5dd9d060e2
   languageName: node
   linkType: hard
 
@@ -5680,9 +5680,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@expo/eas-json@npm:5.2.0":
-  version: 5.2.0
-  resolution: "@expo/eas-json@npm:5.2.0"
+"@expo/eas-build-job@npm:1.0.43":
+  version: 1.0.43
+  resolution: "@expo/eas-build-job@npm:1.0.43"
+  dependencies:
+    joi: ^17.9.2
+    semver: ^7.5.4
+  checksum: 8740e60af1b49fc681206ed2255a3f7793ecfc116d90bb8aaafb1daf673b85626236969468739afe32f66baddac1cbce0b649a34a49122aa2f24b3acc435a12f
+  languageName: node
+  linkType: hard
+
+"@expo/eas-json@npm:5.3.1":
+  version: 5.3.1
+  resolution: "@expo/eas-json@npm:5.3.1"
   dependencies:
     "@babel/code-frame": 7.18.6
     "@expo/eas-build-job": 1.0.39
@@ -5695,7 +5705,7 @@ __metadata:
     semver: 7.5.2
     terminal-link: 2.1.1
     tslib: 2.4.1
-  checksum: 0478086b851c89a0296fc5e11403bf4177f2f83bc68235a21d26353c15616bb38ef200fec55888d465b8db9613263a08aa6c3a769e7f1e09a82376d617667d30
+  checksum: 2f290a1f1663fb8cf135199eb490d0d24f1850a3e408bed687ba687419c6050127bbaa228d9d7729e80614accecefb694e2d34d23299369e9ca2c7d9e0ce8878
   languageName: node
   linkType: hard
 
@@ -14143,7 +14153,7 @@ __metadata:
     core-js: ^3.32.2
     crypto-browserify: ^3.12.0
     dotenv: ^16.3.1
-    eas-cli: ^5.2.0
+    eas-cli: ^5.4.0
     eslint: ^8.49.0
     eslint-config-prettier: ^9.0.0
     eslint-config-standard-with-typescript: ^39.0.0
@@ -14154,7 +14164,7 @@ __metadata:
     eslint-plugin-react: ^7.33.2
     eth-url-parser: ^1.0.4
     ethers: ^5.7.2
-    expo: ^49.0.10
+    expo: ^49.0.13
     expo-apple-authentication: ~6.1.0
     expo-application: ~5.3.0
     expo-asset: ~8.10.1
@@ -19506,17 +19516,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eas-cli@npm:^5.2.0":
-  version: 5.2.0
-  resolution: "eas-cli@npm:5.2.0"
+"eas-cli@npm:^5.4.0":
+  version: 5.4.0
+  resolution: "eas-cli@npm:5.4.0"
   dependencies:
-    "@expo/apple-utils": 1.3.1
+    "@expo/apple-utils": 1.3.2
     "@expo/code-signing-certificates": 0.0.5
     "@expo/config": 8.1.2
     "@expo/config-plugins": 7.2.4
     "@expo/config-types": 49.0.0
-    "@expo/eas-build-job": 1.0.39
-    "@expo/eas-json": 5.2.0
+    "@expo/eas-build-job": 1.0.43
+    "@expo/eas-json": 5.3.1
     "@expo/json-file": 8.2.37
     "@expo/multipart-body-parser": 1.1.0
     "@expo/osascript": 2.0.33
@@ -19586,7 +19596,7 @@ __metadata:
     wrap-ansi: 7.0.0
   bin:
     eas: bin/run
-  checksum: b43aba683372dd61c7abda80cb7560b54073df108cd552dda21a6c67f0b5a07237c6cf9d595602767ad92381f4485e2351a7d260f322490afd3d2a23b1a3c260
+  checksum: 12101974257403d4171761ed40b6d570cff0d18255137d0e42337ee8b372570bf6e4c3bc632f5e78856cffba779cb0256cff1d9f9ac0c9b16676a4c0a0ecf244
   languageName: node
   linkType: hard
 
@@ -21678,12 +21688,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"expo@npm:^49.0.10":
-  version: 49.0.10
-  resolution: "expo@npm:49.0.10"
+"expo@npm:^49.0.13":
+  version: 49.0.14
+  resolution: "expo@npm:49.0.14"
   dependencies:
     "@babel/runtime": ^7.20.0
-    "@expo/cli": 0.10.12
+    "@expo/cli": 0.10.13
     "@expo/config": 8.1.2
     "@expo/config-plugins": 7.2.5
     "@expo/vector-icons": ^13.0.0
@@ -21704,7 +21714,7 @@ __metadata:
     uuid: ^3.4.0
   bin:
     expo: bin/cli
-  checksum: 22750da3cda7f616d2c9eea19619a6e0130d624cd4f19301ace3478bd88700a7b4f904e933ed07ffc3b192cdabd2426df217b629072e9d830175fb7308849df3
+  checksum: 56a1cb91b5cfaaa3e2ccf722252746af50bcfd972ed45a708fd177efc08b2b2449803565683524b60a2e7b546dd6bd660516b1cf8b035566b065202b2f388c40
   languageName: node
   linkType: hard
 
