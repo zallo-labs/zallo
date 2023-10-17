@@ -1,12 +1,11 @@
 import { Route, useLocalSearchParams } from 'expo-router';
 import { useCallback, useState } from 'react';
-import { StyleSheet } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { Camera } from 'expo-camera';
 import { BarCodeScanner } from 'expo-barcode-scanner';
 import { Appbar, Button, Text } from 'react-native-paper';
 import { parseAddressLink } from '~/util/addressLink';
 import { isWalletConnectUri, useWalletConnect } from '~/util/walletconnect';
-import { Screen } from '~/components/layout/Screen';
 import { Actions } from '~/components/layout/Actions';
 import { Address, tryAsAddress } from 'lib';
 import { AppbarBackContained } from '~/components/Appbar/AppbarBack';
@@ -96,13 +95,13 @@ export default function ScanScreen() {
       <ScanOverlay onData={tryHandle} />
     </Camera>
   ) : (
-    <Screen>
+    <View style={styles.grantContainer}>
       <Appbar.Header>
         <AppbarBackContained />
         <Appbar.Content title="Permission required" />
       </Appbar.Header>
 
-      <Text variant="headlineMedium" style={styles.pleaseGrantText}>
+      <Text variant="headlineMedium" style={styles.grantText}>
         Please grant camera permissions in order to scan a QR code
       </Text>
 
@@ -117,12 +116,15 @@ export default function ScanScreen() {
           Open app settings
         </Button>
       </Actions>
-    </Screen>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  pleaseGrantText: {
+  grantContainer: {
+    flex: 1,
+  },
+  grantText: {
     textAlign: 'center',
     marginHorizontal: 16,
     marginVertical: 32,

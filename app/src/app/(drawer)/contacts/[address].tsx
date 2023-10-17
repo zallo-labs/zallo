@@ -9,7 +9,6 @@ import { AppbarMore } from '~/components/Appbar/AppbarMore';
 import { FormSubmitButton } from '~/components/fields/FormSubmitButton';
 import { FormTextField } from '~/components/fields/FormTextField';
 import { Actions } from '~/components/layout/Actions';
-import { Screen } from '~/components/layout/Screen';
 import { UserOutlineIcon } from '~/util/theme/icons';
 import { ICON_SIZE } from '@theme/paper';
 import { SelectChip } from '~/components/fields/SelectChip';
@@ -92,7 +91,7 @@ export function InternalContactScreen({ address }: InternalContactScreenProps) {
   });
 
   return (
-    <Screen>
+    <View style={styles.container}>
       <AppbarOptions
         mode="large"
         headline="Contact"
@@ -173,11 +172,14 @@ export function InternalContactScreen({ address }: InternalContactScreenProps) {
           {current ? 'Update' : 'Add'}
         </FormSubmitButton>
       </Actions>
-    </Screen>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
   fields: {
     gap: 16,
     marginHorizontal: 16,

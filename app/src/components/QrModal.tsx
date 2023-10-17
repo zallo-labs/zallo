@@ -1,6 +1,5 @@
 import QRCode from 'react-native-qrcode-svg';
 import { Address } from 'lib';
-import { Screen } from '~/components/layout/Screen';
 import { makeStyles } from '@theme/makeStyles';
 import { IconButton, Surface, Text } from 'react-native-paper';
 import { CloseIcon, ShareIcon, materialCommunityIcon } from '@theme/icons';
@@ -14,7 +13,7 @@ import { gql } from '@api/generated';
 import { OperationContext, useMutation } from 'urql';
 import { useQuery } from '~/gql';
 import { share } from '~/lib/share';
-import { useRouter } from 'expo-router';
+import { Stack, useRouter } from 'expo-router';
 
 const Query = gql(/* GraphQL */ `
   query QrModal($account: Address!) {
@@ -47,7 +46,9 @@ export function QrModal({ address, faucet }: QrModalProps) {
 
   return (
     <Blur>
-      <Screen topInset>
+      <Stack.Screen options={{ presentation: 'transparentModal', headerShown: false }} />
+
+      <View style={styles.container}>
         <IconButton
           mode="contained-tonal"
           icon={CloseIcon}
@@ -92,12 +93,16 @@ export function QrModal({ address, faucet }: QrModalProps) {
             Share
           </Button>
         </Actions>
-      </Screen>
+      </View>
     </Blur>
   );
 }
 
-const uesStyles = makeStyles(({ colors, width, height }) => ({
+const uesStyles = makeStyles(({ colors, width, height, insets }) => ({
+  container: {
+    flex: 1,
+    marginTop: insets.top,
+  },
   close: {
     marginHorizontal: 16,
   },

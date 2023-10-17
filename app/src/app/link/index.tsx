@@ -1,5 +1,4 @@
 import QRCode from 'react-native-qrcode-svg';
-import { Screen } from '~/components/layout/Screen';
 import { makeStyles } from '@theme/makeStyles';
 import { IconButton, Surface, Text } from 'react-native-paper';
 import { CloseIcon, PasteIcon, ScanIcon, ShareIcon } from '@theme/icons';
@@ -14,7 +13,7 @@ import { useEffect } from 'react';
 import { Subject } from 'rxjs';
 import { LinkingTokenModal_SubscriptionSubscription } from '@api/generated/graphql';
 import { useRouter } from 'expo-router';
-import { makeDeepLink } from '~/util/config';
+import { getDeepLink } from '~/util/config';
 import { share } from '~/lib/share';
 
 export const LINKINGS_FROM_TOKEN = new Subject<LinkingTokenModal_SubscriptionSubscription>();
@@ -42,7 +41,7 @@ export default function LinkingModal() {
   const router = useRouter();
 
   const { user } = useQuery(Query).data;
-  const link = makeDeepLink(`/link/${user.linkingToken}`);
+  const link = getDeepLink({ pathname: `/link/token`, params: { token: user.linkingToken } });
 
   const [subscription] = useSubscription({ query: Subscription });
   useEffect(() => {
@@ -51,7 +50,7 @@ export default function LinkingModal() {
 
   return (
     <Blur>
-      <Screen topInset>
+      <View style={styles.container}>
         <IconButton
           mode="contained-tonal"
           icon={CloseIcon}
@@ -92,12 +91,16 @@ export default function LinkingModal() {
             Linking token
           </Button>
         </Actions>
-      </Screen>
+      </View>
     </Blur>
   );
 }
 
-const uesStyles = makeStyles(({ colors, width, height }) => ({
+const uesStyles = makeStyles(({ colors, width, height, insets }) => ({
+  container: {
+    flex: 1,
+    marginTop: insets.top,
+  },
   close: {
     marginHorizontal: 16,
   },

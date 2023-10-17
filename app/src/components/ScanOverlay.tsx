@@ -4,7 +4,6 @@ import { IconButton } from 'react-native-paper';
 import { StyleSheet, View } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
 import { showWarning } from '~/components/provider/SnackbarProvider';
-import { Screen } from '~/components/layout/Screen';
 import { useSelectAddress } from '~/hooks/useSelectAddress';
 import { Rect, useSafeAreaFrame } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -18,7 +17,7 @@ export function ScanOverlay({ onData }: OverlayProps) {
   const selectAddress = useSelectAddress();
 
   return (
-    <Screen topInset>
+    <View style={styles.container}>
       <View
         style={{ alignItems: 'center', justifyContent: 'center', ...StyleSheet.absoluteFillObject }}
       >
@@ -51,7 +50,7 @@ export function ScanOverlay({ onData }: OverlayProps) {
           }}
         />
       </View>
-    </Screen>
+    </View>
   );
 }
 
@@ -59,7 +58,7 @@ interface StyleProps {
   area: Rect;
 }
 
-const useStyles = makeStyles(({ colors }, { area }: StyleProps) => {
+const useStyles = makeStyles(({ colors, insets }, { area }: StyleProps) => {
   const size = Math.min(area.width / 1.5, area.height / 1.5, 600);
   const finderWidth = 8;
   const finderRadius = size * 0.08;
@@ -72,8 +71,9 @@ const useStyles = makeStyles(({ colors }, { area }: StyleProps) => {
   } as const;
 
   return {
-    root: {
+    container: {
       flex: 1,
+      marginTop: insets.top,
     },
     actions: {
       flexDirection: 'row',

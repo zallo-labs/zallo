@@ -1,6 +1,5 @@
 import { SearchParams } from 'expo-router';
 import { useImmerAtom } from 'jotai-immer';
-import { Appbar } from '~/components/Appbar/Appbar';
 import { View } from 'react-native';
 import { FlashList } from '@shopify/flash-list';
 import { ListItemHeight } from '~/components/list/ListItem';
@@ -14,6 +13,7 @@ import { ThresholdChip } from '~/components/policy/ThresholdChip';
 import { ApproverItem } from '~/components/policy/ApproverItem';
 import { POLICY_DRAFT_ATOM } from '~/lib/policy/draft';
 import { useSelectAddress } from '~/hooks/useSelectAddress';
+import { AppbarOptions } from '~/components/Appbar/AppbarOptions';
 
 export type PolicyApproversScreenRoute = `/(drawer)/[account]/policies/[key]/approvers`;
 export type PolicyApproversScreenParams = SearchParams<PolicyApproversScreenRoute>;
@@ -56,7 +56,7 @@ export default function PolicyApproversScreen() {
 
   return (
     <View style={styles.root}>
-      <Appbar mode="large" leading="back" headline={`${policy.name} approvers`} />
+      <AppbarOptions mode="large" headline={`${policy.name} approvers`} />
 
       <View style={styles.chipContainer}>
         <ThresholdChip />

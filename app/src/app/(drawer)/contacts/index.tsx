@@ -1,10 +1,10 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useState } from 'react';
+import { View } from 'react-native';
 import { NavigateNextIcon, ScanIcon, SearchIcon, materialCommunityIcon } from '~/util/theme/icons';
 import { Address } from 'lib';
 import { Searchbar } from '~/components/fields/Searchbar';
 import { ListHeader } from '~/components/list/ListHeader';
-import { Screen } from '~/components/layout/Screen';
 import { ListItemHeight } from '~/components/list/ListItem';
 import { gql } from '@api/generated';
 import { FlashList } from '@shopify/flash-list';
@@ -45,7 +45,7 @@ export default function ContactsScreen() {
   const { contacts } = useQuery(Query, { query }).data;
 
   return (
-    <Screen>
+    <View style={styles.container}>
       <Searchbar
         leading={AppbarMenu}
         placeholder="Search contacts"
@@ -89,18 +89,21 @@ export default function ContactsScreen() {
           </Text>
         }
         extraData={[disabled, router.push]}
-        contentContainerStyle={styles.container}
+        contentContainerStyle={styles.contentContainer}
         showsVerticalScrollIndicator={false}
         estimatedItemSize={ListItemHeight.DOUBLE_LINE}
       />
 
       <Fab icon={AddContactIcon} label="Add" onPress={async () => router.push(`/contacts/add`)} />
-    </Screen>
+    </View>
   );
 }
 
 const useStyles = makeStyles(({ colors }) => ({
   container: {
+    flex: 1,
+  },
+  contentContainer: {
     paddingVertical: 8,
   },
   emptyText: {

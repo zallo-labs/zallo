@@ -7,7 +7,6 @@ import { Menu } from 'react-native-paper';
 import { AppbarMore } from '~/components/Appbar/AppbarMore';
 import { NotFound } from '~/components/NotFound';
 import { Fab } from '~/components/Fab';
-import { Screen } from '~/components/layout/Screen';
 import { ListHeader } from '~/components/list/ListHeader';
 import { ListItemHeight } from '~/components/list/ListItem';
 import { useQuery } from '~/gql';
@@ -44,7 +43,7 @@ export default function PoliciesScreen() {
   if (!account) return <NotFound name="Account" />;
 
   return (
-    <Screen>
+    <View style={styles.container}>
       <AppbarOptions
         mode="large"
         leading="menu"
@@ -68,28 +67,26 @@ export default function PoliciesScreen() {
         )}
       />
 
-      <View style={styles.listContainer}>
-        <FlashList
-          data={account.policies}
-          ListHeaderComponent={<ListHeader>Security Policies</ListHeader>}
-          renderItem={({ item: policy }) => (
-            <PolicyItem
-              policy={policy}
-              trailing={NavigateNextIcon}
-              onPress={() => {
-                router.push({
-                  pathname: `/(drawer)/[account]/policies/[key]/`,
-                  params: { account: account.address, key: policy.key },
-                });
-              }}
-            />
-          )}
-          estimatedItemSize={ListItemHeight.DOUBLE_LINE}
-          keyExtractor={(item) => item.id}
-          contentContainerStyle={styles.contentContainer}
-          showsVerticalScrollIndicator={false}
-        />
-      </View>
+      <FlashList
+        data={account.policies}
+        ListHeaderComponent={<ListHeader>Security Policies</ListHeader>}
+        renderItem={({ item: policy }) => (
+          <PolicyItem
+            policy={policy}
+            trailing={NavigateNextIcon}
+            onPress={() => {
+              router.push({
+                pathname: `/(drawer)/[account]/policies/[key]/`,
+                params: { account: account.address, key: policy.key },
+              });
+            }}
+          />
+        )}
+        estimatedItemSize={ListItemHeight.DOUBLE_LINE}
+        keyExtractor={(item) => item.id}
+        contentContainerStyle={styles.contentContainer}
+        showsVerticalScrollIndicator={false}
+      />
 
       <Fab
         icon={PlusIcon}
@@ -101,12 +98,12 @@ export default function PoliciesScreen() {
           })
         }
       />
-    </Screen>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  listContainer: {
+  container: {
     flex: 1,
   },
   contentContainer: {

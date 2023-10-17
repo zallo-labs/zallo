@@ -1,15 +1,17 @@
-import { SearchParams, useLocalSearchParams, useRouter } from 'expo-router';
+import { useRouter } from 'expo-router';
 import { gql } from '@api/generated';
-import { asAddress } from 'lib';
 import { useForm } from 'react-hook-form';
 import { StyleSheet, View } from 'react-native';
 import { useMutation } from 'urql';
-import { Appbar } from '~/components/Appbar/Appbar';
 import { NotFound } from '~/components/NotFound';
 import { FormSubmitButton } from '~/components/fields/FormSubmitButton';
 import { FormTextField } from '~/components/fields/FormTextField';
 import { Actions } from '~/components/layout/Actions';
 import { useQuery } from '~/gql';
+import { AppbarOptions } from '~/components/Appbar/AppbarOptions';
+import { z } from 'zod';
+import { zAddress } from '~/lib/zod';
+import { useLocalParams } from '~/hooks/useLocalParams';
 
 const Query = gql(/* GraphQL */ `
   query AccountNameModal($account: Address!) {
@@ -34,22 +36,21 @@ interface Inputs {
   name: string;
 }
 
-export type AccountNameModalRoute = `/[account]/name`;
-export type AccountNameModalParams = SearchParams<AccountNameModalRoute>;
+export const AccountNameModalParams = z.object({ account: zAddress });
 
 export default function AccountNameModal() {
-  const params = useLocalSearchParams<AccountNameModalParams>();
+  const params = useLocalParams(`/[account]/name`, AccountNameModalParams);
   const router = useRouter();
   const update = useMutation(Update)[1];
 
-  const { account } = useQuery(Query, { account: asAddress(params.account) }).data;
+  const { account } = useQuery(Query, { account: params.account }).data;
   const { control, handleSubmit } = useForm<Inputs>({ defaultValues: { name: account?.name } });
 
   if (!account) return <NotFound name="Account" />;
 
   return (
     <View style={styles.root}>
-      <Appbar mode="large" inset={false} leading="close" headline="Rename Account" />
+      <AppbarOptions mode="large" leading="close" headline="Rename Account" />
 
       <View style={styles.fields}>
         <FormTextField label="Name" control={control} name="name" rules={{ required: true }} />
