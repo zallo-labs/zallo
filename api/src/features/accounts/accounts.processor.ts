@@ -39,24 +39,23 @@ export class AccountsProcessor {
 
     await this.db.transaction(async (db) => {
       await e
-        .update(e.Account, () => ({
-          filter_single: { address: account },
-          set: {
-            isActive: true,
-          },
-        }))
-        .run(db);
-
-      await e
-        .update(e.PolicyState, (ps) => ({
-          filter: and(
-            e.op(ps.policy.account.address, '=', account),
-            e.op(ps.isAccountInitState, '=', true),
-          ),
-          set: {
-            activationBlock: BigInt(receipt.blockNumber),
-          },
-        }))
+        .select({
+          account: e.update(e.Account, () => ({
+            filter_single: { address: account },
+            set: {
+              isActive: true,
+            },
+          })),
+          policyState: e.update(e.PolicyState, (ps) => ({
+            filter: and(
+              e.op(ps.policy.account.address, '=', account),
+              e.op(ps.isAccountInitState, '=', true),
+            ),
+            set: {
+              activationBlock: BigInt(receipt.blockNumber),
+            },
+          })),
+        })
         .run(db);
     });
 
