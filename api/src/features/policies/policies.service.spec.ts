@@ -71,10 +71,12 @@ describe(PoliciesService.name, () => {
 
     await e.insert(e.Approver, { address: userCtx.approver }).unlessConflict().run(db.client);
 
-    proposals.propose.mockImplementation(async () => {
+    proposals.getProposal.mockImplementation(async () => {
       const hash = asHex(randomBytes(32));
-      const { id } = await e
-        .insert(e.TransactionProposal, {
+
+      return {
+        hash,
+        insert: e.insert(e.TransactionProposal, {
           hash,
           account: e.select(e.Account, () => ({ filter_single: { address: account } })),
           operations: e.insert(e.Operation, { to: ZERO_ADDR }),
@@ -85,10 +87,8 @@ describe(PoliciesService.name, () => {
               limit: 1,
             })),
           ),
-        })
-        .run(db.client);
-
-      return { id, hash };
+        }),
+      };
     });
 
     const { id, key } = await service.create({
@@ -149,7 +149,7 @@ describe(PoliciesService.name, () => {
     it('proposes an upsert', () =>
       asUser(user1, async () => {
         await create();
-        expect(proposals.propose).toHaveBeenCalledTimes(1);
+        expect(proposals.getProposal).toHaveBeenCalledTimes(1);
       }));
 
     it('inserts correct policy', () =>
@@ -232,7 +232,7 @@ describe(PoliciesService.name, () => {
       asUser(user1, async () => {
         const policy = await create();
 
-        expect(proposals.propose).toBeCalledTimes(1);
+        expect(proposals.getProposal).toBeCalledTimes(1);
         await service.update({ ...policy, approvers: [] });
       }));
 
@@ -280,18 +280,18 @@ describe(PoliciesService.name, () => {
       asUser(user1, async () => {
         const policy = await create({ activate: true });
 
-        expect(proposals.propose).toHaveBeenCalledTimes(1);
+        expect(proposals.getProposal).toHaveBeenCalledTimes(1);
         await service.remove(policy);
-        expect(proposals.propose).toHaveBeenCalledTimes(2);
+        expect(proposals.getProposal).toHaveBeenCalledTimes(2);
       }));
 
     it('removes without a proposal if the policy is inactive', () =>
       asUser(user1, async () => {
         const policy = await create();
 
-        expect(proposals.propose).toHaveBeenCalledTimes(1);
+        expect(proposals.getProposal).toHaveBeenCalledTimes(1);
         await service.remove(policy);
-        expect(proposals.propose).toHaveBeenCalledTimes(1);
+        expect(proposals.getProposal).toHaveBeenCalledTimes(1);
       }));
 
     it("throws if the user isn't a member of the account", async () => {

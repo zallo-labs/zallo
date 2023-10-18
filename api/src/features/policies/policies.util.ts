@@ -13,6 +13,7 @@ import { uuid } from 'edgedb/dist/codecs/ifaces';
 import e, { $infer } from '~/edgeql-js';
 import { Shape, ShapeFunc } from '../database/database.select';
 import { PolicyInput, TargetsConfigInput, TransfersConfigInput } from './policies.input';
+import { selectAccount } from '~/features/accounts/accounts.util';
 
 export type UniquePolicy = { id: uuid } | { account: Address; key: PolicyKey };
 
@@ -21,10 +22,7 @@ export const uniquePolicy = (unique: UniquePolicy) =>
     filter_single:
       'id' in unique
         ? { id: e.uuid(unique.id) }
-        : {
-            account: e.select(e.Account, () => ({ filter_single: { address: unique.account } })),
-            key: unique.key,
-          },
+        : { account: selectAccount(unique.account), key: unique.key },
   }));
 
 export const selectPolicy = (id: UniquePolicy, shape?: ShapeFunc<typeof e.Policy>) =>

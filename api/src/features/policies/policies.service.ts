@@ -11,10 +11,7 @@ import {
   POLICY_ABI,
   Satisfiability,
 } from 'lib';
-import {
-  TransactionProposalsService,
-  selectTransactionProposal,
-} from '../transaction-proposals/transaction-proposals.service';
+import { TransactionProposalsService } from '../transaction-proposals/transaction-proposals.service';
 import {
   CreatePolicyInput,
   PoliciesInput,
@@ -24,7 +21,6 @@ import {
 import _ from 'lodash';
 import { UserInputError } from '@nestjs/apollo';
 import { AccountsCacheService } from '../auth/accounts.cache.service';
-import { uuid } from 'edgedb/dist/codecs/ifaces';
 import { DatabaseService } from '../database/database.service';
 import e from '~/edgeql-js';
 import { ShapeFunc } from '../database/database.select';
@@ -39,12 +35,10 @@ import {
 } from './policies.util';
 import { PolicyState, SatisfiabilityResult } from './policies.model';
 import { transactionProposalAsTx } from '../transaction-proposals/transaction-proposals.uitl';
-import { UserAccountContext } from '~/request/ctx';
 import { and } from '../database/database.util';
 import { selectAccount } from '../accounts/accounts.util';
 
 interface CreateParams extends CreatePolicyInput {
-  accountId?: uuid;
   skipProposal?: boolean;
 }
 
@@ -58,12 +52,11 @@ export class PoliciesService {
   ) {}
 
   async selectUnique(unique: UniquePolicy, shape?: ShapeFunc<typeof e.Policy>) {
-    // assert exist with filter is a workaround for the issue - https://github.com/edgedb/edgedb-js/issues/708
     return e
       .assert_single(
         e.select(e.Policy, (p) => ({
+          // ...uniquePolicy(unique)(p), // assert single with filter is a workaround for the issue - https://github.com/edgedb/edgedb-js/issues/708
           ...shape?.(p),
-          // ...uniquePolicy(unique)(p),
           filter:
             'id' in unique
               ? e.op(p.id, '=', e.uuid(unique.id))
@@ -85,37 +78,46 @@ export class PoliciesService {
       .run(this.db.client);
   }
 
-  async create({
-    account,
-    accountId: accountIdArg,
-    name,
-    key: keyArg,
-    skipProposal,
-    ...policyInput
-  }: CreateParams) {
-    const selectAccount = e.select(e.Account, () => ({ filter_single: { address: account } }));
-    const accountId = accountIdArg ?? (await this.db.query(selectAccount.id));
-    if (!accountId) throw new UserInputError('Account not found');
+  async create({ account, name, key: keyArg, skipProposal, ...policyInput }: CreateParams) {
+    const selectedAccount = selectAccount(account);
 
-    return await this.db.transaction(async (db) => {
-      const key = keyArg ?? (await this.getFreeKey(accountId));
+    return this.db.transaction(async (db) => {
+      const key =
+        keyArg ??
+        (await (async () => {
+          const maxKey = (await e
+            .select(
+              e.max(e.select(selectedAccount['<account[is Policy]'], () => ({ key: true })).key),
+            )
+            .run(db)) as number | null;
+
+          return asPolicyKey(maxKey !== null ? maxKey + 1 : 0);
+        })());
       const policy = inputAsPolicy(key, policyInput);
 
-      await this.upsertApprovers({ id: accountId, address: account }, policy);
+      const proposal = !skipProposal && (await this.getStateProposal(account, policy));
 
-      const proposal = !skipProposal ? await this.proposeState(account, policy) : undefined;
-
+      // with proposal required - https://github.com/edgedb/edgedb/issues/6305
       const { id } = await e
-        .insert(e.Policy, {
-          account: selectAccount,
-          key,
-          name: name || `Policy ${key}`,
-          stateHistory: e.insert(e.PolicyState, {
-            proposal,
-            ...this.insertStateShape(policy),
-          }),
-        })
+        .with(
+          proposal ? [proposal] : [],
+          e.select(
+            e.insert(e.Policy, {
+              account: selectedAccount,
+              key,
+              name: name || `Policy ${key}`,
+              stateHistory: e.insert(e.PolicyState, {
+                ...(proposal && { proposal }),
+                ...this.insertStateShape(policy),
+              }),
+            }),
+          ),
+        )
         .run(db);
+
+      this.db.afterTransaction(() =>
+        this.userAccounts.invalidateApproverUserAccountsCache(...policy.approvers),
+      );
 
       return { id, key };
     });
@@ -187,13 +189,13 @@ export class PoliciesService {
         // Get existing policy state
         // If approvers, threshold, or permissions are undefined then modify the policy accordingly
         // Propose new state
-        const selectAccount = e.select(e.Account, () => ({ filter_single: { address: account } }));
+        const selectedAccount = selectAccount(account);
 
         const existing = await e
           .select({
-            account: selectAccount,
+            account: selectedAccount,
             policy: e.select(e.Policy, () => ({
-              filter_single: { account: selectAccount, key },
+              filter_single: { account: selectedAccount, key },
               state: policyStateShape,
               draft: policyStateShape,
             })),
@@ -214,34 +216,41 @@ export class PoliciesService {
         // Only update if policy would actually change
         if (encodedOriginal === POLICY_ABI.encode(policy)) return;
 
-        await this.upsertApprovers({ id: existing.account.id, address: account }, policy);
-
-        const proposal = await this.proposeState(account, policy);
+        const proposal = await this.getStateProposal(account, policy);
 
         await e
-          .update(e.Policy, (p) => ({
-            ...uniquePolicy({ account, key })(p),
-            set: {
-              stateHistory: {
-                '+=': e.insert(e.PolicyState, {
-                  proposal,
-                  ...this.insertStateShape(policy),
-                }),
-              },
-            },
-          }))
+          .with(
+            [proposal],
+            e.select(
+              e.update(e.Policy, (p) => ({
+                ...uniquePolicy({ account, key })(p),
+                set: {
+                  stateHistory: {
+                    '+=': e.insert(e.PolicyState, {
+                      proposal,
+                      ...this.insertStateShape(policy),
+                    }),
+                  },
+                },
+              })),
+            ),
+          )
           .run(db);
+
+        this.db.afterTransaction(() =>
+          this.userAccounts.invalidateApproverUserAccountsCache(...policy.approvers),
+        );
       }
     });
   }
 
   async remove({ account, key }: UniquePolicyInput) {
     await this.db.transaction(async (db) => {
-      const selectAccount = e.select(e.Account, () => ({ filter_single: { address: account } }));
+      const selectedAccount = selectAccount(account);
 
       const policy = await e
         .select(e.Policy, () => ({
-          filter_single: { account: selectAccount, key },
+          filter_single: { account: selectedAccount, key },
           isActive: true,
           draft: {
             isRemoved: true,
@@ -254,8 +263,8 @@ export class PoliciesService {
 
       const proposal =
         policy.isActive &&
-        (await (async () => {
-          const proposal = await this.proposals.propose({
+        (
+          await this.proposals.getProposal({
             account,
             operations: [
               {
@@ -263,28 +272,31 @@ export class PoliciesService {
                 data: asHex(ACCOUNT_INTERFACE.encodeFunctionData('removePolicy', [key])),
               },
             ],
-          });
-
-          return selectTransactionProposal(proposal.id);
-        })());
+          })
+        ).insert;
 
       await e
-        .update(e.Policy, () => ({
-          filter_single: { account: selectAccount, key },
-          set: {
-            stateHistory: {
-              '+=': e.insert(e.PolicyState, {
-                ...(proposal && { proposal }),
-                isRemoved: true,
-                threshold: 0,
-                targets: e.insert(e.TargetsConfig, {
-                  default: e.insert(e.Target, { functions: [], defaultAllow: true }),
-                }),
-                transfers: e.insert(e.TransfersConfig, { budget: key }),
-              }),
-            },
-          },
-        }))
+        .with(
+          proposal ? [proposal] : [],
+          e.select(
+            e.update(e.Policy, () => ({
+              filter_single: { account: selectedAccount, key },
+              set: {
+                stateHistory: {
+                  '+=': e.insert(e.PolicyState, {
+                    ...(proposal && { proposal }),
+                    isRemoved: true,
+                    threshold: 0,
+                    targets: e.insert(e.TargetsConfig, {
+                      default: e.insert(e.Target, { functions: [], defaultAllow: true }),
+                    }),
+                    transfers: e.insert(e.TransfersConfig, { budget: key }),
+                  }),
+                },
+              },
+            })),
+          ),
+        )
         .run(db);
     });
   }
@@ -332,46 +344,19 @@ export class PoliciesService {
       : getMessageSatisfiability(p, approvals);
   }
 
-  private async proposeState(account: Address, policy: Policy) {
-    const proposal = await this.proposals.propose({
-      account,
-      operations: [
-        {
-          to: account,
-          data: asHex(
-            ACCOUNT_INTERFACE.encodeFunctionData('addPolicy', [POLICY_ABI.asStruct(policy)]),
-          ),
-        },
-      ],
-    });
-
-    return e.select(e.TransactionProposal, () => ({ filter_single: { id: proposal.id } }));
-  }
-
-  private async getFreeKey(account: uuid) {
-    const acc = await e
-      .select(e.Account, () => ({
-        policies: {
-          key: true,
-        },
-        filter_single: { id: account },
-      }))
-      .run(this.db.client);
-
-    return asPolicyKey(acc ? acc.policies.reduce((max, { key }) => Math.max(max, key), 0) + 1 : 0);
-  }
-
-  // Note. approvers aren't removed when a draft is replaced they were previously an approver of
-  // These users will have account access until the cache expires.
-  // This prevent loss of account access on an accidental draft
-  // TODO: consider intended behaviour
-  private async upsertApprovers(account: UserAccountContext, policy: Policy) {
-    if (!policy.approvers.size) return;
-
-    await Promise.all(
-      [...policy.approvers].map((approver) =>
-        this.userAccounts.addCachedAccount({ approver, account }),
-      ),
-    );
+  private async getStateProposal(account: Address, policy: Policy) {
+    return (
+      await this.proposals.getProposal({
+        account,
+        operations: [
+          {
+            to: account,
+            data: asHex(
+              ACCOUNT_INTERFACE.encodeFunctionData('addPolicy', [POLICY_ABI.asStruct(policy)]),
+            ),
+          },
+        ],
+      })
+    ).insert;
   }
 }

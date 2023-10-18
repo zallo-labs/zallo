@@ -73,56 +73,72 @@ export class TransactionProposalsService {
     );
   }
 
-  async propose({
+  async getProposal({
     account,
     operations,
     label,
     iconUri,
-    nonce,
+    nonce: nonceArg,
     gasLimit,
     feeToken = ETH_ADDRESS as Address,
-    signature,
-  }: ProposeTransactionInput) {
+  }: Omit<ProposeTransactionInput, 'signature'>) {
+    if (!operations.length) throw new UserInputError('No operations provided');
+
+    const selectedAccount = selectAccount(account);
+    const tx = asTx({
+      operations: operations as [OperationInput, ...OperationInput[]],
+      nonce:
+        nonceArg ??
+        (await (async () => {
+          const maxNonce = (await this.db.query(
+            e.max(
+              e.select(selectedAccount['<account[is TransactionProposal]'], () => ({ nonce: true }))
+                .nonce,
+            ),
+          )) as bigint | unknown; // https://github.com/edgedb/edgedb-js/issues/594
+
+          return typeof maxNonce === 'bigint' ? maxNonce + 1n : 0n;
+        })()),
+    });
+    const hash = hashTx(account, tx);
+
+    const insert = e.insert(e.TransactionProposal, {
+      hash,
+      account: selectedAccount,
+      label,
+      iconUri,
+      operations: e.set(
+        ...operations.map((op) =>
+          e.insert(e.Operation, {
+            to: op.to,
+            value: op.value,
+            data: op.data,
+          }),
+        ),
+      ),
+      nonce: tx.nonce,
+      gasLimit:
+        gasLimit ||
+        (await estimateTransactionOperationsGas(this.provider, account, tx)).unwrapOr(
+          FALLBACK_OPERATIONS_GAS,
+        ),
+      feeToken: this.selectFeeToken(feeToken),
+    });
+
+    this.db.afterTransaction(() => {
+      this.simulations.request({ transactionProposalHash: hash });
+      this.proposals.publishProposal({ account, hash }, ProposalEvent.create);
+    });
+
+    return { insert, hash };
+  }
+
+  async propose({ signature, ...args }: ProposeTransactionInput) {
     return this.db.transaction(async (db) => {
-      if (!operations.length) throw new UserInputError('No operations provided');
-
-      const tx = asTx({
-        operations: operations as [OperationInput, ...OperationInput[]],
-        nonce: nonce ?? (await this.getUnusedNonce(account)),
-      });
-      const hash = hashTx(account, tx);
-
-      const { id } = await e
-        .insert(e.TransactionProposal, {
-          hash,
-          account: selectAccount(account),
-          label,
-          iconUri,
-          operations: e.set(
-            ...operations.map((op) =>
-              e.insert(e.Operation, {
-                to: op.to,
-                value: op.value,
-                data: op.data,
-              }),
-            ),
-          ),
-          nonce: tx.nonce,
-          gasLimit:
-            gasLimit ||
-            (await estimateTransactionOperationsGas(this.provider, account, tx)).unwrapOr(
-              FALLBACK_OPERATIONS_GAS,
-            ),
-          feeToken: await this.selectAndValidateFeeToken(feeToken),
-        })
-        .run(db);
+      const { hash, insert } = await this.getProposal(args);
+      const { id } = await insert.run(db);
 
       if (signature) await this.approve({ hash, signature });
-
-      this.db.afterTransaction(() => {
-        this.simulations.request({ transactionProposalHash: hash });
-        this.proposals.publishProposal({ account, hash }, ProposalEvent.create);
-      });
 
       return { id, hash };
     });
@@ -134,10 +150,6 @@ export class TransactionProposalsService {
   }
 
   async update({ hash, policy, feeToken: feeTokenAddress }: UpdateTransactionProposalInput) {
-    const feeToken = feeTokenAddress
-      ? await this.selectAndValidateFeeToken(feeTokenAddress)
-      : undefined;
-
     const updatedProposal = e.assert_single(
       e.update(e.TransactionProposal, (p) => ({
         filter: and(
@@ -156,7 +168,7 @@ export class TransactionProposalsService {
                 ? e.select(e.Policy, () => ({ filter_single: { account: p.account, key: policy } }))
                 : null,
           }),
-          feeToken,
+          feeToken: feeTokenAddress ? this.selectFeeToken(feeTokenAddress) : undefined,
         },
       })),
     );
@@ -214,20 +226,15 @@ export class TransactionProposalsService {
     return typeof maxNonce === 'bigint' ? maxNonce + 1n : 0n;
   }
 
-  private async selectAndValidateFeeToken(feeTokenAddress: Address) {
-    const select = e.assert_single(
+  private selectFeeToken(feeTokenAddress: Address) {
+    return e.assert_single(
       e.select(e.Token, (t) => ({
-        filter: e.op(t.address, '=', feeTokenAddress),
+        filter: and(e.op(t.address, '=', feeTokenAddress), e.op(t.isFeeToken, '=', true)),
         limit: 1,
         id: true,
         isFeeToken: true,
       })),
     );
-
-    const t = await this.db.query(select);
-    if (!t?.isFeeToken) throw new UserInputError(`Fee token is not supported; ${feeTokenAddress}`);
-
-    return select;
   }
 
   // private async notifyApprovers(proposalId: string) {
