@@ -4,7 +4,7 @@ import { Address } from './address';
 import { EIP712_TX_TYPE } from 'zksync-web3/build/src/utils';
 import { ResultAsync } from 'neverthrow';
 
-const ESTIMATED_POLICY_VERIFICATION_GAS = 100_000n;
+const ESTIMATED_POLICY_VERIFICATION_GAS = 500_000n;
 const ESTIMATED_APPROVAL_GAS = 50_000n;
 
 export const estimateTransactionTotalGas = (operationsGasLimit: bigint, approvers: number) =>
