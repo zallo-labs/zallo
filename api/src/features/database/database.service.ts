@@ -3,10 +3,11 @@ import e, { createClient, $infer } from '~/edgeql-js';
 import { Expression } from '~/edgeql-js/typesystem';
 import { getRequestContext } from '~/request/ctx';
 import { AsyncLocalStorage } from 'async_hooks';
-import type { Client } from 'edgedb';
+import { type Client } from 'edgedb';
 import { Transaction } from 'edgedb/dist/transaction';
+import { MaybePromise } from 'lib';
 
-type Hook = () => void;
+type Hook = () => MaybePromise<void>;
 type Globals = Partial<Record<keyof typeof e.global, any>>;
 
 interface Context {
@@ -32,6 +33,13 @@ export class DatabaseService implements OnModuleInit {
   }
 
   get client() {
+    const transaction = this.context.getStore()?.transaction;
+    if (transaction) return transaction;
+
+    return this._client;
+  }
+
+  private get _client() {
     const ctx = getRequestContext()?.user;
     if (!ctx) return this.DANGEROUS_superuserClient;
 
@@ -51,21 +59,28 @@ export class DatabaseService implements OnModuleInit {
 
     const afterTransactionHooks: Hook[] = [];
 
-    const result = await this.client.transaction((transaction) =>
+    const result = await this._client.transaction((transaction) =>
       this.context.run({ transaction, afterTransactionHooks }, () => action(transaction)),
     );
 
-    afterTransactionHooks.forEach((f) => f());
+    this.processHooks(afterTransactionHooks);
 
     return result;
   }
 
-  afterTransaction(hook: Hook) {
+  async afterTransaction(hook: Hook) {
     const store = this.context.getStore();
     if (store) {
       store.afterTransactionHooks.push(hook);
     } else {
-      hook();
+      await hook();
+    }
+  }
+
+  async processHooks(hooks: Hook[]) {
+    // Executed serially
+    for (const hook of hooks) {
+      await hook();
     }
   }
 }
