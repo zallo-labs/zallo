@@ -108,17 +108,14 @@ export class AccountsService {
         })
         .run(db);
 
-      await Promise.all(
-        policyInputs.map((policy, i) =>
-          this.policies.create({
-            ...policy,
-            account,
-            accountId: id,
-            key: policyKeys[i],
-            skipProposal: true,
-          }),
-        ),
-      );
+      for (const [i, policy] of policyInputs.entries()) {
+        await this.policies.create({
+          ...policy,
+          account,
+          key: policyKeys[i],
+          skipProposal: true,
+        });
+      }
     });
 
     await this.activateAccount(account, implementation, salt, policies);
