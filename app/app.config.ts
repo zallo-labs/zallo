@@ -145,7 +145,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       usesNonExemptEncryption: false,
     },
     googleServicesFile: withVariant('./GoogleService-Info.secret.plist'),
-    appStoreUrl: ENV.APP_STORE_URL,
+    // appStoreUrl: ENV.APP_STORE_URL,
   },
   web: {
     bundler: 'metro',
