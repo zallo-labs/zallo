@@ -17,10 +17,6 @@
   ],
   "related_applications": [
     {
-      "platform": "itunes",
-      "id": "io.zallo"
-    },
-    {
       "platform": "play",
       "url": "http://play.google.com/store/apps/details?id=io.zallo",
       "id": "io.zallo"
