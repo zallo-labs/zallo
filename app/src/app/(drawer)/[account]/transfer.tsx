@@ -19,6 +19,7 @@ import { AppbarOptions } from '~/components/Appbar/AppbarOptions';
 import { z } from 'zod';
 import { zAddress } from '~/lib/zod';
 import { useLocalParams } from '~/hooks/useLocalParams';
+import { Actions } from '~/components/layout/Actions';
 
 const Query = gql(/* GraphQL */ `
   query TransferScreen($account: Address!, $token: Address!) {
@@ -89,19 +90,24 @@ export default function TransferScreen() {
         maxDecimals={type === InputType.Token ? token.decimals : FIAT_DECIMALS}
       />
 
-      <Button
-        mode="contained"
-        style={styles.action}
-        onPress={async () => {
-          const proposal = await propose({
-            account,
-            operations: [createTransferOp({ token: token.address, to, amount: tokenAmount })],
-          });
-          router.replace({ pathname: `/(drawer)/transaction/[hash]/`, params: { hash: proposal } });
-        }}
-      >
-        Propose
-      </Button>
+      <Actions flex={false}>
+        <Button
+          mode="contained"
+          style={styles.action}
+          onPress={async () => {
+            const proposal = await propose({
+              account,
+              operations: [createTransferOp({ token: token.address, to, amount: tokenAmount })],
+            });
+            router.replace({
+              pathname: `/(drawer)/transaction/[hash]/`,
+              params: { hash: proposal },
+            });
+          }}
+        >
+          Propose
+        </Button>
+      </Actions>
     </View>
   );
 }
