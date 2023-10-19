@@ -303,7 +303,7 @@ input PermissionsInput {
 }
 
 input PoliciesInput {
-  includeRemoved: Boolean! = false
+  includeDisabled: Boolean! = false
 }
 
 type Policy {

@@ -69,11 +69,11 @@ export class PoliciesService {
       .run(this.db.client);
   }
 
-  async select({ includeRemoved }: PoliciesInput, shape: ShapeFunc<typeof e.Policy>) {
+  async select({ includeDisabled }: PoliciesInput, shape: ShapeFunc<typeof e.Policy>) {
     return e
       .select(e.Policy, (p) => ({
         ...shape?.(p),
-        ...(!includeRemoved && { filter: e.op(p.state.isRemoved, '?=', false) }),
+        ...(!includeDisabled && { filter: p.isEnabled }),
       }))
       .run(this.db.client);
   }
