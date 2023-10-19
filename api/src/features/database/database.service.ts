@@ -22,9 +22,11 @@ export class DatabaseService implements OnModuleInit {
   readonly DANGEROUS_superuserClient: Client;
 
   constructor() {
-    this.__client = createClient().withConfig({
-      allow_user_specified_id: true /* Required for account insertion */,
-    });
+    this.__client = createClient()
+      .withConfig({
+        allow_user_specified_id: true /* Required for account insertion */,
+      })
+      .withRetryOptions({ attempts: 5 });
     this.DANGEROUS_superuserClient = this.__client.withConfig({ apply_access_policies: false });
   }
 
@@ -33,13 +35,10 @@ export class DatabaseService implements OnModuleInit {
   }
 
   get client() {
-    const transaction = this.context.getStore()?.transaction;
-    if (transaction) return transaction;
-
-    return this._client;
+    return this.context.getStore()?.transaction ?? this._client;
   }
 
-  private get _client() {
+  protected get _client() {
     const ctx = getRequestContext()?.user;
     if (!ctx) return this.DANGEROUS_superuserClient;
 
