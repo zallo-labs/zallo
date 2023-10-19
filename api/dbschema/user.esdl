@@ -82,6 +82,7 @@ module default {
     constraint exclusive on ((.user, .name));
     constraint exclusive on ((.user, .symbol));
     index on (.address);
+    index on ((.address, .isFeeToken));
 
     access policy anyone_select_allowlisted
       allow select

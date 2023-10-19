@@ -38,6 +38,7 @@ export class MessageProposalsService {
     typedData,
     label,
     iconUri,
+    validFrom = new Date(),
     signature,
   }: ProposeMessageInput) {
     if (!messageInput && !typedData)
@@ -66,6 +67,7 @@ export class MessageProposalsService {
             typedData,
             label,
             iconUri,
+            validFrom,
           }),
         );
 

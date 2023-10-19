@@ -42,8 +42,8 @@ export class ProposeTransactionInput {
   @Field(() => String, { nullable: true })
   iconUri?: string;
 
-  @Uint256Field({ nullable: true })
-  nonce?: bigint;
+  @Field(() => Date, { nullable: true })
+  validFrom?: Date;
 
   @Uint256Field({ nullable: true })
   gasLimit?: bigint;

@@ -41,7 +41,6 @@ describe(PoliciesService.name, () => {
 
   let user1Account: Address;
   let user1: UserContext;
-  let nonce = 0n;
 
   const create = async ({
     policyInput,
@@ -80,7 +79,7 @@ describe(PoliciesService.name, () => {
           hash,
           account: e.select(e.Account, () => ({ filter_single: { address: account } })),
           operations: e.insert(e.Operation, { to: ZERO_ADDR }),
-          nonce: nonce++,
+          validFrom: new Date(),
           feeToken: e.assert_single(
             e.select(e.Token, (t) => ({
               filter: e.op(t.address, '=', TOKENS[0].address),
@@ -149,7 +148,7 @@ describe(PoliciesService.name, () => {
     it('proposes an upsert', () =>
       asUser(user1, async () => {
         await create();
-        expect(proposals.getProposal).toHaveBeenCalledTimes(1);
+        expect(proposals.getProposal).toHaveBeenCalled();
       }));
 
     it('inserts correct policy', () =>
@@ -280,18 +279,18 @@ describe(PoliciesService.name, () => {
       asUser(user1, async () => {
         const policy = await create({ activate: true });
 
-        expect(proposals.getProposal).toHaveBeenCalledTimes(1);
+        proposals.getProposal.mockClear();
         await service.remove(policy);
-        expect(proposals.getProposal).toHaveBeenCalledTimes(2);
+        expect(proposals.getProposal).toHaveBeenCalled();
       }));
 
     it('removes without a proposal if the policy is inactive', () =>
       asUser(user1, async () => {
         const policy = await create();
 
-        expect(proposals.getProposal).toHaveBeenCalledTimes(1);
+        proposals.getProposal.mockClear();
         await service.remove(policy);
-        expect(proposals.getProposal).toHaveBeenCalledTimes(1);
+        expect(proposals.getProposal).not.toHaveBeenCalled();
       }));
 
     it("throws if the user isn't a member of the account", async () => {

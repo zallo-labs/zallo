@@ -78,7 +78,7 @@ export class TransactionProposalsService {
     operations,
     label,
     iconUri,
-    nonce: nonceArg,
+    validFrom = new Date(),
     gasLimit,
     feeToken = ETH_ADDRESS as Address,
   }: Omit<ProposeTransactionInput, 'signature'>) {
@@ -87,18 +87,7 @@ export class TransactionProposalsService {
     const selectedAccount = selectAccount(account);
     const tx = asTx({
       operations: operations as [OperationInput, ...OperationInput[]],
-      nonce:
-        nonceArg ??
-        (await (async () => {
-          const maxNonce = (await this.db.query(
-            e.max(
-              e.select(selectedAccount['<account[is TransactionProposal]'], () => ({ nonce: true }))
-                .nonce,
-            ),
-          )) as bigint | unknown; // https://github.com/edgedb/edgedb-js/issues/594
-
-          return typeof maxNonce === 'bigint' ? maxNonce + 1n : 0n;
-        })()),
+      nonce: BigInt(Math.floor(validFrom.getTime() / 1000)),
     });
     const hash = hashTx(account, tx);
 
@@ -116,7 +105,7 @@ export class TransactionProposalsService {
           }),
         ),
       ),
-      nonce: tx.nonce,
+      validFrom,
       gasLimit:
         gasLimit ||
         (await estimateTransactionOperationsGas(this.provider, account, tx)).unwrapOr(
@@ -133,12 +122,18 @@ export class TransactionProposalsService {
     return { insert, hash };
   }
 
-  async propose({ signature, ...args }: ProposeTransactionInput) {
+  propose({ signature, ...args }: ProposeTransactionInput) {
     return this.db.transaction(async (db) => {
+      console.log(`[${args.gasLimit}]: start`);
+      // await new Promise((resolve) => setTimeout(resolve, 5000));
+      const start = performance.now();
+
       const { hash, insert } = await this.getProposal(args);
       const { id } = await insert.run(db);
 
       if (signature) await this.approve({ hash, signature });
+
+      console.log(`[${args.gasLimit}]: end (${Math.floor(performance.now() - start)}ms)`);
 
       return { id, hash };
     });
@@ -168,7 +163,7 @@ export class TransactionProposalsService {
                 ? e.select(e.Policy, () => ({ filter_single: { account: p.account, key: policy } }))
                 : null,
           }),
-          feeToken: feeTokenAddress ? this.selectFeeToken(feeTokenAddress) : undefined,
+          feeToken: feeTokenAddress && this.selectFeeToken(feeTokenAddress),
         },
       })),
     );
@@ -213,19 +208,6 @@ export class TransactionProposalsService {
     });
   }
 
-  private async getUnusedNonce(account: Address) {
-    const maxNonce = (await this.db.query(
-      e.max(
-        e.select(e.TransactionProposal, (p) => ({
-          filter: e.op(p.account, '=', selectAccount(account)),
-          nonce: true,
-        })).nonce,
-      ),
-    )) as bigint | unknown; // https://github.com/edgedb/edgedb-js/issues/594
-
-    return typeof maxNonce === 'bigint' ? maxNonce + 1n : 0n;
-  }
-
   private selectFeeToken(feeTokenAddress: Address) {
     return e.assert_single(
       e.select(e.Token, (t) => ({
@@ -236,48 +218,4 @@ export class TransactionProposalsService {
       })),
     );
   }
-
-  // private async notifyApprovers(proposalId: string) {
-  //   // TODO: implement
-  //   const { approvals, quorum } = await this.prisma.asUser.proposal.findUniqueOrThrow({
-  //     where: { id: proposalId },
-  //     select: {
-  //       approvals: { select: { userId: true } },
-  //       quorum: {
-  //         select: {
-  //           key: true,
-  //           activeState: {
-  //             select: {
-  //               approvers: {
-  //                 select: {
-  //                   user: {
-  //                     select: {
-  //                       id: true,
-  //                       pushToken: true,
-  //                     },
-  //                   },
-  //                 },
-  //               },
-  //             },
-  //           },
-  //         },
-  //       },
-  //     },
-  //   });
-  //   const alreadyApproved = new Set(approvals.map((a) => a.userId));
-  //   const approverPushTokens = (quorum.activeState?.approvers ?? [])
-  //     .filter((a) => !alreadyApproved.has(a.user.id) && a.user.pushToken)
-  //     .map((a) => a.user.pushToken)
-  //     .filter(isPresent);
-  //   // Send a notification to specified users that haven't approved yet
-  //   this.expo.chunkPushNotifications([
-  //     {
-  //       to: approverPushTokens,
-  //       title: 'Approval Request',
-  //       body: 'Your approval has been required on a proposal',
-  //       data: { url: `zallo://proposal/?id=${proposalId}` },
-  //     },
-  //   ]);
-  //   // TODO: handle failed notifications, removing push tokens of users that have uninstalled or disabled notifications
-  // }
 }
