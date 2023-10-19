@@ -33,7 +33,7 @@ export class SentryInterceptor implements NestInterceptor {
             Sentry.withScope((scope) => {
               const userCtx = getUserCtx();
               if (userCtx) scope.setUser({ id: userCtx.approver });
-              scope.setExtra('exceptionData', JSON.stringify(exception));
+              scope.setExtra('exceptionData', JSON.stringify(exception, null, 2));
 
               match(context.getType<GqlContextType>())
                 .with('graphql', () =>
@@ -60,7 +60,7 @@ export class SentryInterceptor implements NestInterceptor {
     const info = gqlHost.getInfo();
     scope.setExtra('fieldName', info.fieldName);
     const args = gqlHost.getArgs();
-    scope.setExtra('args', args);
+    scope.setExtra('args', JSON.stringify(args, null, 2));
   }
 
   private addHttpExceptionMetadatas(scope: Sentry.Scope, http: HttpArgumentsHost): void {
