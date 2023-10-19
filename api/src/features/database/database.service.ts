@@ -3,9 +3,10 @@ import e, { createClient, $infer } from '~/edgeql-js';
 import { Expression } from '~/edgeql-js/typesystem';
 import { getRequestContext } from '~/request/ctx';
 import { AsyncLocalStorage } from 'async_hooks';
-import { type Client } from 'edgedb';
+import { EdgeDBError, type Client } from 'edgedb';
 import { Transaction } from 'edgedb/dist/transaction';
 import { MaybePromise } from 'lib';
+import * as Sentry from '@sentry/node';
 
 type Hook = () => MaybePromise<void>;
 type Globals = Partial<Record<keyof typeof e.global, any>>;
@@ -49,7 +50,12 @@ export class DatabaseService implements OnModuleInit {
   }
 
   async query<Expr extends Expression>(expression: Expr): Promise<$infer<Expr>> {
-    return expression.run(this.client);
+    try {
+      return await expression.run(this.client);
+    } catch (e) {
+      if (e instanceof EdgeDBError && e['_query']) Sentry.setExtra('EdgeQL', e['_query']);
+      throw e;
+    }
   }
 
   async transaction<T>(action: (transaction: Transaction) => Promise<T>): Promise<T> {

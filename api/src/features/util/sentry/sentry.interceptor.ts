@@ -30,6 +30,8 @@ export class SentryInterceptor implements NestInterceptor {
         error: (exception) => {
           if (this.shouldReport(exception)) {
             Sentry.withScope((scope) => {
+              scope.setExtra('exceptionData', JSON.stringify(exception));
+
               match(context.getType<GqlContextType>())
                 .with('graphql', () =>
                   this.addGraphQLExceptionMetadatas(scope, GqlArgumentsHost.create(context)),
