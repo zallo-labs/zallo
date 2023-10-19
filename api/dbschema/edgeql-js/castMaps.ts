@@ -46,8 +46,9 @@ export type scalarAssignableBy<T extends $.ScalarType> =
   T extends _default.$uint16 ? _default.$uint16 : 
   T extends _std.$int32 ? _std.$int32 : 
   T extends _default.$current_accounts_set ? _default.$current_accounts_set : 
-  T extends _default.$id_84d86d246e3111ee9de7f54823103646 ? _default.$id_84d86d246e3111ee9de7f54823103646 : 
+  T extends _default.$id_b6dfad9f6e5c11eea4af49b598bbb800 ? _default.$id_b6dfad9f6e5c11eea4af49b598bbb800 : 
   T extends _std.$uuid ? _std.$uuid : 
+  T extends _default.$TransferDirection ? _default.$TransferDirection : 
   T extends _default.$TransactionProposalStatus ? _default.$TransactionProposalStatus : 
   T extends _default.$ProposalRisk ? _default.$ProposalRisk : 
   T extends _default.$MAC ? _default.$MAC : 
@@ -106,8 +107,9 @@ export type scalarCastableFrom<T extends $.ScalarType> =
   T extends _default.$uint16 ? _default.$uint16 : 
   T extends _std.$int32 ? _std.$int32 : 
   T extends _default.$current_accounts_set ? _default.$current_accounts_set : 
-  T extends _default.$id_84d86d246e3111ee9de7f54823103646 ? _default.$id_84d86d246e3111ee9de7f54823103646 : 
+  T extends _default.$id_b6dfad9f6e5c11eea4af49b598bbb800 ? _default.$id_b6dfad9f6e5c11eea4af49b598bbb800 : 
   T extends _std.$uuid ? _std.$uuid : 
+  T extends _default.$TransferDirection ? _default.$TransferDirection : 
   T extends _default.$TransactionProposalStatus ? _default.$TransactionProposalStatus : 
   T extends _default.$ProposalRisk ? _default.$ProposalRisk : 
   T extends _default.$MAC ? _default.$MAC : 
@@ -352,14 +354,20 @@ type getSharedParentScalar<A, B> =
     :
     never
   :
-  A extends _default.$id_84d86d246e3111ee9de7f54823103646 ?
-    B extends _default.$id_84d86d246e3111ee9de7f54823103646 ?
+  A extends _default.$id_b6dfad9f6e5c11eea4af49b598bbb800 ?
+    B extends _default.$id_b6dfad9f6e5c11eea4af49b598bbb800 ?
     B
     :
     never
   :
   A extends _std.$uuid ?
     B extends _std.$uuid ?
+    B
+    :
+    never
+  :
+  A extends _default.$TransferDirection ?
+    B extends _default.$TransferDirection ?
     B
     :
     never
@@ -725,6 +733,12 @@ function getSharedParentScalar<A extends $.ScalarType, B extends $.ScalarType>(a
     }
   if (a.__name__ === "std::uuid") {
     if(b.__name__ === "std::uuid") {
+      return b;
+    }
+    throw new Error(`Types are not castable: ${a.__name__}, ${b.__name__}`);
+    }
+  if (a.__name__ === "default::TransferDirection") {
+    if(b.__name__ === "default::TransferDirection") {
       return b;
     }
     throw new Error(`Types are not castable: ${a.__name__}, ${b.__name__}`);

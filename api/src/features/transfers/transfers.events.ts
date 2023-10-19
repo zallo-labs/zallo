@@ -104,6 +104,9 @@ export class TransfersEvents {
                 to,
                 tokenAddress: token,
                 amount: from === to ? 0n : to === account ? amount : -amount,
+                direction: [account === to && 'In', account === from && 'Out'].filter(Boolean) as [
+                  'In',
+                ],
               })
               .unlessConflict((t) => ({
                 on: e.tuple([t.account, t.block, t.logIndex]),
@@ -178,6 +181,9 @@ export class TransfersEvents {
               to,
               tokenAddress,
               amount: from === to ? 0n : to === account ? amount : -amount,
+              direction: [account === to && 'In', account === from && 'Out'].filter(Boolean) as [
+                'In',
+              ],
             })
             .unlessConflict(),
         );

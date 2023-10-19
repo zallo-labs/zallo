@@ -60,11 +60,11 @@ export interface Account extends std.$Object {
   "isActive": boolean;
   "name": string;
   "salt": string;
+  "policies": Policy[];
   "approvers": Approver[];
   "proposals": Proposal[];
   "transactionProposals": TransactionProposal[];
   "transfers": Transfer[];
-  "policies": Policy[];
 }
 export interface ProposalResponse extends std.$Object {
   "approver": Approver;
@@ -80,8 +80,8 @@ export interface Approver extends std.$Object {
   "cloud"?: CloudShare | null;
   "name"?: string | null;
   "pushToken"?: string | null;
-  "accounts": Account[];
   "user": User;
+  "accounts": Account[];
   "contact"?: Contact | null;
   "label"?: string | null;
 }
@@ -128,13 +128,13 @@ export interface Proposal extends std.$Object {
   "hash": string;
   "iconUri"?: string | null;
   "label"?: string | null;
+  "validFrom": Date;
   "approvals": Approval[];
   "rejections": Rejection[];
   "policy"?: Policy | null;
   "potentialApprovers": Approver[];
   "potentialRejectors": Approver[];
   "riskLabel"?: ProposalRisk | null;
-  "validFrom": Date;
 }
 export interface MessageProposal extends Proposal {
   "message": string;
@@ -199,10 +199,10 @@ export interface Token extends std.$Object {
   "address": string;
   "name": string;
   "symbol": string;
+  "isFeeToken": boolean;
   "decimals": number;
   "ethereumAddress"?: string | null;
   "iconUri"?: string | null;
-  "isFeeToken": boolean;
   "user"?: User | null;
 }
 export interface Transaction extends std.$Object {
@@ -217,11 +217,11 @@ export interface TransactionProposal extends Proposal {
   "operations": Operation[];
   "feeToken": Token;
   "gasLimit": bigint;
+  "nonce": bigint;
   "transactions": Transaction[];
   "transaction"?: Transaction | null;
   "status": TransactionProposalStatus;
   "simulation"?: Simulation | null;
-  "nonce": bigint;
 }
 export type TransactionProposalStatus = "Pending" | "Executing" | "Successful" | "Failed";
 export interface TransferDetails extends std.$Object {
@@ -231,6 +231,7 @@ export interface TransferDetails extends std.$Object {
   "to": string;
   "tokenAddress": string;
   "token"?: Token | null;
+  "direction": TransferDirection[];
 }
 export interface Transferlike extends Event, TransferDetails {}
 export interface Transfer extends Transferlike {}
@@ -238,6 +239,7 @@ export interface TransferApproval extends Transferlike {
   "previous"?: TransferApproval | null;
   "delta": bigint;
 }
+export type TransferDirection = "In" | "Out";
 export interface TransferLimit extends std.$Object {
   "amount": bigint;
   "duration": number;
@@ -529,6 +531,7 @@ export interface types {
     "Transferlike": Transferlike;
     "Transfer": Transfer;
     "TransferApproval": TransferApproval;
+    "TransferDirection": TransferDirection;
     "TransferLimit": TransferLimit;
     "TransfersConfig": TransfersConfig;
     "User": User;

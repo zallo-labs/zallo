@@ -46,9 +46,8 @@ export class TransfersService {
         ...shape?.(t),
         filter: and(
           accounts && e.op(t.account, 'in', e.set(...accounts.map((a) => selectAccount(a)))),
-          direction &&
-            e.op(t.account.address, '=', direction === TransferDirection.Out ? t.from : t.to),
           internal !== undefined && e.op(t.internal, '=', internal),
+          direction && e.op(e.cast(e.TransferDirection, direction), 'in', t.direction),
         ),
       })),
     );

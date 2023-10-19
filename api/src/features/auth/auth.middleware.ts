@@ -23,7 +23,7 @@ const tryParseAuth = (token?: string): AuthToken | string | undefined => {
   if (token.startsWith('Bearer ')) token = token.slice(7);
 
   try {
-    const { message, signature }: AuthToken = JSON.parse(token);
+    const { message, signature } = JSON.parse(token) as AuthToken;
     return { message: new SiweMessage(message), signature };
   } catch {
     if (SIGNATURE_PATTERN.test(token)) return token;
@@ -34,7 +34,10 @@ const tryParseAuth = (token?: string): AuthToken | string | undefined => {
 export class AuthMiddleware implements NestMiddleware {
   private cache: Map<string, { address: Address; expirationTime?: number }> = new Map();
 
-  constructor(private provider: ProviderService, private accountsCache: AccountsCacheService) {}
+  constructor(
+    private provider: ProviderService,
+    private accountsCache: AccountsCacheService,
+  ) {}
 
   async use(req: Request, _res: Response, next: NextFunction) {
     (await this.tryAuthenticate(req)).match(

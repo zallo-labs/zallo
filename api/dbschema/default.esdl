@@ -150,12 +150,15 @@ module default {
     required property internal := exists .transaction;
   }
 
+  scalar type TransferDirection extending enum<`In`, `Out`>;
+
   type TransferDetails {
     required account: Account;
     required from: Address;
     required to: Address;
     required tokenAddress: Address;
     required amount: bigint;
+    required multi direction: TransferDirection;
     link token := (
       assert_single((
         with address := .tokenAddress
@@ -174,6 +177,7 @@ module default {
 
   type Transfer extending Transferlike {
     constraint exclusive on ((.account, .block, .logIndex));
+    index on ((.account, .internal));
   }
 
   type TransferApproval extending Transferlike {

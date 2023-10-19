@@ -124,16 +124,10 @@ export class TransactionProposalsService {
 
   propose({ signature, ...args }: ProposeTransactionInput) {
     return this.db.transaction(async (db) => {
-      console.log(`[${args.gasLimit}]: start`);
-      // await new Promise((resolve) => setTimeout(resolve, 5000));
-      const start = performance.now();
-
       const { hash, insert } = await this.getProposal(args);
       const { id } = await insert.run(db);
 
       if (signature) await this.approve({ hash, signature });
-
-      console.log(`[${args.gasLimit}]: end (${Math.floor(performance.now() - start)}ms)`);
 
       return { id, hash };
     });
