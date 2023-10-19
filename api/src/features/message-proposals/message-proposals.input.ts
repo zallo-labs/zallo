@@ -22,6 +22,9 @@ export class ProposeMessageInput {
   @Field(() => String, { nullable: true })
   iconUri?: string;
 
+  @Field(() => Date, { nullable: true })
+  validFrom?: Date;
+
   @Field(() => BytesScalar, { nullable: true, description: 'Approve the proposal' })
   signature?: Hex;
 }

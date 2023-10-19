@@ -17,7 +17,7 @@ export class UniquePolicyInput implements PolicyId {
 @InputType()
 export class PoliciesInput {
   @Field(() => Boolean, { defaultValue: false })
-  includeRemoved: boolean;
+  includeDisabled: boolean;
 }
 
 @InputType()

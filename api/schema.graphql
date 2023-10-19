@@ -247,6 +247,7 @@ type MessageProposal implements Node & Proposal {
   signature: Bytes32
   typedData: TypedData
   updatable: Boolean!
+  validFrom: DateTime!
 }
 
 type Mutation {
@@ -302,7 +303,7 @@ input PermissionsInput {
 }
 
 input PoliciesInput {
-  includeRemoved: Boolean! = false
+  includeDisabled: Boolean! = false
 }
 
 type Policy {
@@ -364,6 +365,7 @@ interface Proposal implements Node {
   proposedBy: Approver!
   rejections: [Rejection!]!
   riskLabel: Risk
+  validFrom: DateTime!
 }
 
 enum ProposalEvent {
@@ -413,6 +415,7 @@ input ProposeMessageInput {
   """Approve the proposal"""
   signature: Bytes
   typedData: TypedData
+  validFrom: DateTime
 }
 
 input ProposeTransactionInput {
@@ -421,11 +424,11 @@ input ProposeTransactionInput {
   gasLimit: Uint256
   iconUri: String
   label: String
-  nonce: Uint256
   operations: [OperationInput!]!
 
   """Approve the proposal"""
   signature: Bytes
+  validFrom: DateTime
 }
 
 type Query {
@@ -656,6 +659,7 @@ type TransactionProposal implements Node & Proposal {
   transaction: Transaction
   transactions: [Transaction!]!
   updatable: Boolean!
+  validFrom: DateTime!
 }
 
 enum TransactionProposalStatus {

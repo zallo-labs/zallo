@@ -12,7 +12,10 @@ const md5 = (value: crypto.BinaryLike) => crypto.createHash('md5').update(value)
 
 @Injectable()
 export class ContractsService {
-  constructor(private db: DatabaseService, private explorer: ExplorerService) {}
+  constructor(
+    private db: DatabaseService,
+    private explorer: ExplorerService,
+  ) {}
 
   async select(contract: Address, shape?: ShapeFunc<typeof e.Contract>) {
     const stored = await e
@@ -60,8 +63,8 @@ export class ContractsService {
       }),
     );
 
-    return e
-      .insert(e.Contract, {
+    return this.db.query(
+      e.insert(e.Contract, {
         address,
         functions: e.for(e.cast(e.json, functionsSet), (item) =>
           e
@@ -76,8 +79,8 @@ export class ContractsService {
               else: f,
             })),
         ),
-      })
-      .run(this.db.client);
+      }),
+    );
   }
 
   // private async tryFetchEtherscanAbi(contract: Address) {

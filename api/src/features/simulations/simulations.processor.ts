@@ -74,6 +74,7 @@ export class SimulationsProcessor implements OnModuleInit {
           to: op.to,
           tokenAddress: ZERO_ADDR,
           amount: op.to === accountAddress ? 0n : -op.value,
+          direction: ['Out' as const, ...(op.to === accountAddress ? (['In'] as const) : [])],
         });
       }
 
@@ -89,6 +90,7 @@ export class SimulationsProcessor implements OnModuleInit {
           to: f.to,
           tokenAddress: f.token,
           amount: f.to === accountAddress ? 0n : -f.amount,
+          direction: ['Out' as const, ...(accountAddress === f.to ? (['In'] as const) : [])],
         });
       } else if (f instanceof TransferFromOp) {
         transfers.push({
@@ -97,6 +99,7 @@ export class SimulationsProcessor implements OnModuleInit {
           to: f.to,
           tokenAddress: f.token,
           amount: f.amount,
+          direction: ['Out' as const, ...(accountAddress === f.to ? (['In'] as const) : [])],
         });
       } else if (f instanceof SwapOp) {
         transfers.push({
@@ -105,6 +108,7 @@ export class SimulationsProcessor implements OnModuleInit {
           to: accountAddress,
           tokenAddress: f.toToken,
           amount: f.minimumToAmount,
+          direction: ['In' as const],
         });
       }
     }

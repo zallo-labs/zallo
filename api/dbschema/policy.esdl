@@ -24,6 +24,7 @@ module default {
       ) filter not exists .activationBlock
     );
     required property isActive := (.state.isRemoved ?= false);
+    required property isEnabled := (.isActive or .draft.isRemoved ?= false);
 
     constraint exclusive on ((.account, .key));
     constraint exclusive on ((.account, .name));
@@ -49,13 +50,14 @@ module default {
     required targets: TargetsConfig; 
     required transfers: TransfersConfig;
     required isRemoved: bool { default := false; }
-    activationBlock: bigint {
-      constraint min_value(0n);
-    }
+    activationBlock: bigint { constraint min_value(0n); }
     required createdAt: datetime {
       readonly := true;
       default := datetime_of_statement();
     }
+
+    index on (.activationBlock);
+    index on (.createdAt);
   }
 
   type TargetsConfig {

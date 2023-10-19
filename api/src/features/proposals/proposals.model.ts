@@ -25,6 +25,9 @@ export class Proposal extends Node {
   iconUri?: string;
 
   @Field(() => Date)
+  validFrom: Date;
+
+  @Field(() => Date)
   createdAt: Date;
 
   @Field(() => Approver)

@@ -8,6 +8,7 @@ import { ZERO_HASH, randomAddress, randomUser } from '~/util/test';
 import e from '~/edgeql-js';
 import { v1 as uuidv1 } from 'uuid';
 import { InsertShape } from '~/edgeql-js/insert';
+import { $Transfer } from '~/edgeql-js/modules/default';
 
 describe(TransfersService.name, () => {
   let service: TransfersService;
@@ -51,10 +52,7 @@ describe(TransfersService.name, () => {
     account1 = (await asUser(user1, createAccount)).address;
   });
 
-  const insert = (
-    account = account1,
-    params?: Partial<InsertShape<(typeof e.Transfer)['__element__']>>,
-  ) =>
+  const insert = (account = account1, params?: Partial<InsertShape<$Transfer>>) =>
     db.query(
       e.insert(e.Transfer, {
         account: e.select(e.Account, () => ({ filter_single: { address: account } })),
@@ -65,6 +63,10 @@ describe(TransfersService.name, () => {
         to: account,
         tokenAddress: ZERO_ADDR,
         amount: 1n,
+        direction: [
+          account === (params?.to ?? account) && 'In',
+          account === (params?.from ?? ZERO_ADDR) && 'Out',
+        ].filter(Boolean) as ['Out'],
         ...params,
       }).id,
     );

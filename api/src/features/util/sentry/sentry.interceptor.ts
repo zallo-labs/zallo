@@ -13,6 +13,7 @@ import { Request } from 'express';
 import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { match } from 'ts-pattern';
+import { getUserCtx } from '~/request/ctx';
 
 type Filter<E = any> = [type: new (...args: any[]) => E, shouldReport: (exception: E) => boolean];
 
@@ -30,6 +31,10 @@ export class SentryInterceptor implements NestInterceptor {
         error: (exception) => {
           if (this.shouldReport(exception)) {
             Sentry.withScope((scope) => {
+              const userCtx = getUserCtx();
+              if (userCtx) scope.setUser({ id: userCtx.approver });
+              scope.setExtra('exceptionData', JSON.stringify(exception, null, 2));
+
               match(context.getType<GqlContextType>())
                 .with('graphql', () =>
                   this.addGraphQLExceptionMetadatas(scope, GqlArgumentsHost.create(context)),
@@ -55,7 +60,7 @@ export class SentryInterceptor implements NestInterceptor {
     const info = gqlHost.getInfo();
     scope.setExtra('fieldName', info.fieldName);
     const args = gqlHost.getArgs();
-    scope.setExtra('args', args);
+    scope.setExtra('args', JSON.stringify(args, null, 2));
   }
 
   private addHttpExceptionMetadatas(scope: Sentry.Scope, http: HttpArgumentsHost): void {
@@ -63,9 +68,7 @@ export class SentryInterceptor implements NestInterceptor {
   }
 
   private addRequestToScope(scope: Sentry.Scope, req: Request) {
-    const event = Sentry.addRequestDataToEvent({}, req);
-
-    if (event.user) scope.setUser(event.user);
+    scope.setExtra('request', Sentry.addRequestDataToEvent({}, req));
   }
 
   private addRpcExceptionMetadatas(scope: Sentry.Scope, rpc: RpcArgumentsHost): void {

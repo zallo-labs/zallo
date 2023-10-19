@@ -16,7 +16,7 @@ module default {
     required isActive: bool;
     required implementation: Address;
     required salt: Bytes32;
-    multi link policies := (select .<account[is Policy] filter (.isActive or .draft.isRemoved ?= false)); # Active and non-removed policies
+    multi link policies := (select .<account[is Policy] filter .isEnabled);
     multi link proposals := .<account[is Proposal];
     multi link transactionProposals := .<account[is TransactionProposal];
     multi link transfers := .<account[is Transfer];
@@ -33,6 +33,7 @@ module default {
     policy: Policy;
     label: Label;
     iconUri: str;
+    required validFrom: datetime;
     required createdAt: datetime {
       readonly := true;
       default := datetime_of_statement();
@@ -112,16 +113,11 @@ module default {
       constraint exclusive;
       on source delete delete target;
     }
-    required nonce: uint64;
     required gasLimit: uint256 { default := 0n; }
     required feeToken: Token;
     simulation: Simulation { constraint exclusive; }
     multi link transactions := .<proposal[is Transaction];
-    link transaction := (
-      select .transactions
-      order by .submittedAt desc
-      limit 1
-    );
+    link transaction := (select .transactions order by .submittedAt desc limit 1);
     required property status := (
       select assert_exists((
         TransactionProposalStatus.Pending if (not exists .transaction) else
@@ -130,8 +126,7 @@ module default {
         TransactionProposalStatus.Failed
       ))
     );
-
-    constraint exclusive on ((.account, .nonce));
+    required property nonce := <bigint>math::floor(datetime_get(.validFrom, 'epochseconds'));
   }
 
   scalar type TransactionProposalStatus extending enum<'Pending', 'Executing', 'Successful', 'Failed'>;
@@ -155,12 +150,15 @@ module default {
     required property internal := exists .transaction;
   }
 
+  scalar type TransferDirection extending enum<`In`, `Out`>;
+
   type TransferDetails {
     required account: Account;
     required from: Address;
     required to: Address;
     required tokenAddress: Address;
     required amount: bigint;
+    required multi direction: TransferDirection;
     link token := (
       assert_single((
         with address := .tokenAddress
@@ -179,6 +177,7 @@ module default {
 
   type Transfer extending Transferlike {
     constraint exclusive on ((.account, .block, .logIndex));
+    index on ((.account, .internal));
   }
 
   type TransferApproval extending Transferlike {
