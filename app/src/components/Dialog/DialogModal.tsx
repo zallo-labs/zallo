@@ -1,19 +1,14 @@
-import { Dialog as InternalDialog, DialogProps as InternalDialogProps } from 'react-native-paper';
+import { Dialog, DialogProps } from 'react-native-paper';
 import { useRouter } from 'expo-router';
 import { makeStyles } from '@theme/makeStyles';
 
-export interface DialogModalProps extends Omit<InternalDialogProps, 'visible' | 'onDismiss'> {}
+export interface DialogModalProps extends Omit<DialogProps, 'visible' | 'onDismiss'> {}
 
 export function DialogModal(props: DialogModalProps) {
   const styles = useStyles();
 
   return (
-    <InternalDialog
-      visible
-      onDismiss={useRouter().back}
-      {...props}
-      style={[styles.dialog, props.style]}
-    />
+    <Dialog visible onDismiss={useRouter().back} {...props} style={[styles.dialog, props.style]} />
   );
 }
 
