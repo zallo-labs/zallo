@@ -14,6 +14,8 @@ import { bleDevices } from '~/lib/ble/manager';
 import { ok } from 'neverthrow';
 import useBluetoothPermissions from '~/hooks/ble/useBluetoothPermissions';
 import { useMemo } from 'react';
+import { withSuspense } from '~/components/skeleton/withSuspense';
+import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
 
 const Query = gql(/* GraphQL */ `
   query LinkLedgerScreen {
@@ -23,7 +25,7 @@ const Query = gql(/* GraphQL */ `
   }
 `);
 
-export default function LinkLedgerScreen() {
+function LinkLedgerScreen() {
   const [hasPermission, requestPermissions] = useBluetoothPermissions();
 
   const devices =
@@ -112,3 +114,5 @@ const styles = StyleSheet.create({
     margin: 16,
   },
 });
+
+export default withSuspense(LinkLedgerScreen, <ScreenSkeleton />);

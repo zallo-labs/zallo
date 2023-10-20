@@ -19,9 +19,11 @@ import { z } from 'zod';
 import { zAddress, zArray } from '~/lib/zod';
 import { useLocalParams } from '~/hooks/useLocalParams';
 import { Stack } from 'expo-router';
+import { withSuspense } from '~/components/skeleton/withSuspense';
+import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
 
 const Query = gql(/* GraphQL */ `
-  query AddressesModal(
+  query AddressesScreen(
     $query: String
     $includeAccounts: Boolean!
     $includeApprovers: Boolean!
@@ -67,7 +69,7 @@ const paramsSchema = z.object({
 });
 export type AddressesModalParams = z.infer<typeof paramsSchema>;
 
-export default function AddressesModal() {
+function AddressesScreen() {
   const params = useLocalParams(`/addresses`, paramsSchema);
   const disabled = params.disabled && new Set(params.disabled);
   const scanAddress = useScanAddress();
@@ -164,3 +166,5 @@ const styles = StyleSheet.create({
     flex: 1,
   },
 });
+
+export default withSuspense(AddressesScreen, <ScreenSkeleton />);

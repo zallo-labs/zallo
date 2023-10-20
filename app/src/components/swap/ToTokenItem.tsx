@@ -40,7 +40,7 @@ export interface ToTokenItemProps extends Partial<ListItemProps> {
   pool: Pool;
 }
 
-function ToTokenItem({
+function ToTokenItem_({
   account,
   from: fromFragment,
   fromAmount,
@@ -90,4 +90,4 @@ function ToTokenItem({
   );
 }
 
-export default withSuspense(ToTokenItem, () => <ListItemSkeleton leading trailing />);
+export const ToTokenItem = withSuspense(ToTokenItem_, <ListItemSkeleton leading trailing />);

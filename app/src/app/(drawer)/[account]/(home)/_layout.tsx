@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { z } from 'zod';
-import { TopTabs } from '~/components/TopTabs';
+import { TopTabs } from '~/components/layout/TopTabs';
 import { HomeHeader } from '~/components/home/HomeHeader';
 import { useLocalParams } from '~/hooks/useLocalParams';
 import { useSetSelectedAccont } from '~/hooks/useSelectedAccount';

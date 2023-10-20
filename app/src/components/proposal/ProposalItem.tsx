@@ -54,74 +54,75 @@ export interface ProposalItemProps extends Partial<ListItemProps> {
   user: FragmentType<typeof User>;
 }
 
-export const ProposalItem = withSuspense(
-  ({ proposal: proposalFragment, user: userFragment, ...itemProps }: ProposalItemProps) => {
-    const styles = useStyles();
-    const router = useRouter();
-    const p = useFragment(Proposal, proposalFragment);
-    const user = useFragment(User, userFragment);
+function ProposalItem_({
+  proposal: proposalFragment,
+  user: userFragment,
+  ...itemProps
+}: ProposalItemProps) {
+  const styles = useStyles();
+  const router = useRouter();
+  const p = useFragment(Proposal, proposalFragment);
+  const user = useFragment(User, userFragment);
 
-    const isMulti = p.operations.length > 1;
-    const canApprove =
-      p.updatable && p.potentialApprovers.find((a) => user.approvers.find((ua) => a.id === ua.id));
+  const isMulti = p.operations.length > 1;
+  const canApprove =
+    p.updatable && p.potentialApprovers.find((a) => user.approvers.find((ua) => a.id === ua.id));
 
-    const supporting = match(p)
-      .returnType<ListItemProps['supporting']>()
-      .with({ status: 'Pending' }, () =>
-        canApprove
-          ? ({ Text }) => <Text style={styles.approvalRequired}>Approval required</Text>
-          : 'Awaiting approval',
-      )
-      .with({ status: 'Executing' }, () => 'Executing...')
-      .with(
-        { status: 'Failed' },
-        () =>
-          ({ Text }) =>
-            p.transaction?.receipt && (
-              <Text style={styles.failed}>
-                <Timestamp timestamp={p.transaction.receipt.timestamp} />
-              </Text>
-            ),
-      )
-      .with(
-        { status: 'Successful' },
-        () => p.transaction?.receipt && <Timestamp timestamp={p.transaction.receipt.timestamp} />,
-      )
-      .exhaustive();
+  const supporting = match(p)
+    .returnType<ListItemProps['supporting']>()
+    .with({ status: 'Pending' }, () =>
+      canApprove
+        ? ({ Text }) => <Text style={styles.approvalRequired}>Approval required</Text>
+        : 'Awaiting approval',
+    )
+    .with({ status: 'Executing' }, () => 'Executing...')
+    .with(
+      { status: 'Failed' },
+      () =>
+        ({ Text }) =>
+          p.transaction?.receipt && (
+            <Text style={styles.failed}>
+              <Timestamp timestamp={p.transaction.receipt.timestamp} />
+            </Text>
+          ),
+    )
+    .with(
+      { status: 'Successful' },
+      () => p.transaction?.receipt && <Timestamp timestamp={p.transaction.receipt.timestamp} />,
+    )
+    .exhaustive();
 
-    return (
-      <ListItem
-        leading={(props) =>
-          isMulti ? (
-            <MultiOperationIcon {...props} size={ICON_SIZE.medium} />
-          ) : (
-            <TokenIcon token={p.operations[0].to} fallbackUri={ETH_ICON_URI} {...props} />
-          )
-        }
-        leadingSize="medium"
-        headline={
-          p.label ??
-          (isMulti ? (
-            `${p.operations.length} operations`
-          ) : (
-            <OperationLabel operation={p.operations[0]} />
-          ))
-        }
-        supporting={supporting}
-        trailing={({ Text }) => (
-          <Text variant="labelLarge">
-            <ProposalValue proposal={p} hideZero />
-          </Text>
-        )}
-        onPress={() =>
-          router.push({ pathname: `/(drawer)/transaction/[hash]/`, params: { hash: p.hash } })
-        }
-        {...itemProps}
-      />
-    );
-  },
-  <ListItemSkeleton leading supporting />,
-);
+  return (
+    <ListItem
+      leading={(props) =>
+        isMulti ? (
+          <MultiOperationIcon {...props} size={ICON_SIZE.medium} />
+        ) : (
+          <TokenIcon token={p.operations[0].to} fallbackUri={ETH_ICON_URI} {...props} />
+        )
+      }
+      leadingSize="medium"
+      headline={
+        p.label ??
+        (isMulti ? (
+          `${p.operations.length} operations`
+        ) : (
+          <OperationLabel operation={p.operations[0]} />
+        ))
+      }
+      supporting={supporting}
+      trailing={({ Text }) => (
+        <Text variant="labelLarge">
+          <ProposalValue proposal={p} hideZero />
+        </Text>
+      )}
+      onPress={() =>
+        router.push({ pathname: `/(drawer)/transaction/[hash]/`, params: { hash: p.hash } })
+      }
+      {...itemProps}
+    />
+  );
+}
 
 const useStyles = makeStyles(({ colors }) => ({
   approvalRequired: {
@@ -134,3 +135,5 @@ const useStyles = makeStyles(({ colors }) => ({
     color: colors.error,
   },
 }));
+
+export const ProposalItem = withSuspense(ProposalItem_, <ListItemSkeleton leading supporting />);

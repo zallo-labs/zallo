@@ -17,6 +17,8 @@ import { ReactNode } from 'react';
 import { gql, useFragment } from '@api/generated';
 import { getOptimizedDocument, useQuery } from '~/gql';
 import { useSubscription } from 'urql';
+import { withSuspense } from '~/components/skeleton/withSuspense';
+import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
 
 const TransactionProposal = gql(/* GraphQL */ `
   fragment TransactionTab_TransactionProposalFragment on TransactionProposal {
@@ -76,7 +78,7 @@ const Item = (props: Omit<ListItemProps, 'trailing'> & { trailing: ReactNode }) 
 export const TransactionTabParams = TransactionLayoutParams;
 export type TransactionTabParams = z.infer<typeof TransactionTabParams>;
 
-export default function TransactionTab() {
+function TransactionTab() {
   const params = useLocalParams(`/(drawer)/transaction/[hash]/transaction`, TransactionTabParams);
   const styles = useStyles();
 
@@ -200,3 +202,5 @@ const useStyles = makeStyles(({ colors }) => ({
     color: colors.error,
   },
 }));
+
+export default withSuspense(TransactionTab, <ScreenSkeleton />);

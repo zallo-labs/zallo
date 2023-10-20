@@ -15,6 +15,8 @@ import { useQuery } from '~/gql';
 import { useScanAddress } from '~/app/scan';
 import { ContactItem } from '~/components/item/ContactItem';
 import { AppbarMenu } from '~/components/Appbar/AppbarMenu';
+import { withSuspense } from '~/components/skeleton/withSuspense';
+import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
 
 const Query = gql(/* GraphQL */ `
   query ContactsScreen($query: String) {
@@ -33,7 +35,7 @@ export type ContactsScreenParams = {
   disabled?: Address[];
 };
 
-export default function ContactsScreen() {
+function ContactsScreen() {
   const params = useLocalSearchParams<ContactsScreenParams>();
   const styles = useStyles();
   const disabled = params.disabled && new Set(params.disabled);
@@ -112,3 +114,5 @@ const useStyles = makeStyles(({ colors }) => ({
     color: colors.onSurfaceVariant,
   },
 }));
+
+export default withSuspense(ContactsScreen, ScreenSkeleton);

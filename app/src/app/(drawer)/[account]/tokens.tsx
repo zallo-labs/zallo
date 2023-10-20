@@ -17,6 +17,8 @@ import { AppbarMenu } from '~/components/Appbar/AppbarMenu';
 import { z } from 'zod';
 import { zAddress, zArray } from '~/lib/zod';
 import { useLocalParams } from '~/hooks/useLocalParams';
+import { withSuspense } from '~/components/skeleton/withSuspense';
+import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
 
 const Query = gql(/* GraphQL */ `
   query TokensScreen($account: Address!, $query: String, $feeToken: Boolean) {
@@ -52,7 +54,7 @@ export type TokensScreenParams = z.infer<typeof TokensScreenParams>;
 
 const queryContext: Partial<OperationContext> = { suspense: false };
 
-export default function TokensScreen() {
+function TokensScreen() {
   const params = useLocalParams(`/(drawer)/[account]/tokens`, TokensScreenParams);
   const router = useRouter();
   const disabled = new Set(params.disabled);
@@ -121,3 +123,5 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
   },
 });
+
+export default withSuspense(TokensScreen, ScreenSkeleton);

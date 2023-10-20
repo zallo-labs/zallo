@@ -9,11 +9,13 @@ import { AppbarOptions } from '~/components/Appbar/AppbarOptions';
 import { PolicyTemplateType } from '~/lib/policy/template';
 import { PoliciesScreenParams } from '~/app/(drawer)/[account]/policies';
 import { PolicyScreenParams } from '~/app/(drawer)/[account]/policies/[key]';
+import { withSuspense } from '~/components/skeleton/withSuspense';
+import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
 
 export const PolicyTemplateModalParams = PoliciesScreenParams;
 export type PolicyTemplateModalParams = z.infer<typeof PolicyTemplateModalParams>;
 
-export default function PolicyTemplateModal() {
+function PolicyTemplateModal() {
   const { account } = useLocalParams(`/[account]/policies/template`, PolicyTemplateModalParams);
   const router = useRouter();
 
@@ -57,3 +59,5 @@ const styles = StyleSheet.create({
     flex: 1,
   },
 });
+
+export default withSuspense(PolicyTemplateModal, <ScreenSkeleton />);

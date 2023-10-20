@@ -25,6 +25,8 @@ import { PlusIcon } from '@theme/icons';
 import { z } from 'zod';
 import { zAddress } from '~/lib/zod';
 import { useLocalParams } from '~/hooks/useLocalParams';
+import { withSuspense } from '~/components/skeleton/withSuspense';
+import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
 
 const Query = gql(/* GraphQL */ `
   query ContractPermissionsScreen($contract: Address!) {
@@ -57,7 +59,7 @@ export const ContractPermissionsScheme = z.object({
   contract: zAddress,
 });
 
-export default function ContractPermissionsScreen() {
+function ContractPermissionsScreen() {
   const params = useLocalParams(
     `/(drawer)/[account]/policies/[key]/[contract]/`,
     ContractPermissionsScheme,
@@ -151,3 +153,5 @@ const styles = StyleSheet.create({
     flexGrow: 1,
   },
 });
+
+export default withSuspense(ContractPermissionsScreen, ScreenSkeleton);

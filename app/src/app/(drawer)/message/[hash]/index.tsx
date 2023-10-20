@@ -8,6 +8,8 @@ import { DataView } from '~/components/DataView/DataView';
 import { Text } from 'react-native-paper';
 import { MessageIcon } from '~/components/proposal/MessageIcon';
 import { RiskRating } from '~/components/proposal/RiskRating';
+import { withSuspense } from '~/components/skeleton/withSuspense';
+import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
 
 const Query = gql(/* GraphQL */ `
   query MessageDetailsTab($proposal: Bytes32!) {
@@ -25,7 +27,7 @@ const Query = gql(/* GraphQL */ `
 export const MessageDetailsTabParams = MessageLayoutParams;
 export type MessageDetailsTabParams = z.infer<typeof MessageDetailsTabParams>;
 
-export default function MessageDetailsTab() {
+function MessageDetailsTab() {
   const params = useLocalParams(`/(drawer)/message/[hash]/`, MessageDetailsTabParams);
   const p = useQuery(Query, { proposal: params.hash }).data?.messageProposal;
 
@@ -61,3 +63,5 @@ const styles = StyleSheet.create({
     gap: 8,
   },
 });
+
+export default withSuspense(MessageDetailsTab, <ScreenSkeleton />);

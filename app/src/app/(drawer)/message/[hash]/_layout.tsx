@@ -3,15 +3,14 @@ import { useLocalParams } from '~/hooks/useLocalParams';
 import { zHash } from '~/lib/zod';
 import { gql } from '@api/generated';
 import { NotFound } from '~/components/NotFound';
-import { Suspend } from '~/components/Suspender';
 import { useQuery } from '~/gql';
 import { AppbarMore } from '~/components/Appbar/AppbarMore';
 import { Menu } from 'react-native-paper';
 import { useMutation } from 'urql';
 import { useConfirmRemoval } from '~/hooks/useConfirm';
 import { useRouter } from 'expo-router';
-import { TopTabs } from '~/components/TopTabs';
-import { MessageProposalActions } from '~/components/MessageProposalActions';
+import { TopTabs } from '~/components/layout/TopTabs';
+import { MessageProposalActions } from '~/components/proposal/MessageProposalActions';
 import { AppbarOptions } from '~/components/Appbar/AppbarOptions';
 import { StyleSheet, View } from 'react-native';
 
@@ -54,7 +53,7 @@ export default function MessageLayout() {
   const query = useQuery(Query, { proposal: params.hash });
   const proposal = query.data?.messageProposal;
 
-  if (!proposal) return query.stale ? <Suspend /> : <NotFound name="Proposal" />;
+  if (!proposal) return query.stale ? null : <NotFound name="Proposal" />;
 
   return (
     <View style={styles.root}>

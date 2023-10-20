@@ -36,33 +36,32 @@ export interface TokenIconProps extends Omit<ImageProps, 'source' | 'style'> {
   style?: StyleProp<ImageStyle>;
 }
 
-export const TokenIcon = withSuspense(
-  ({ token: tokenFragment, fallbackUri, size, style, ...imageProps }: TokenIconProps) => {
-    const styles = useStyles(size);
+function TokenIcon_({
+  token: tokenFragment,
+  fallbackUri,
+  size,
+  style,
+  ...imageProps
+}: TokenIconProps) {
+  const styles = useStyles(size);
 
-    const query = useQuery(
-      Query,
-      { token: isAddress(tokenFragment) ? tokenFragment : '0x' },
-      { pause: !isAddress(tokenFragment) },
-    ).data;
+  const query = useQuery(
+    Query,
+    { token: isAddress(tokenFragment) ? tokenFragment : '0x' },
+    { pause: !isAddress(tokenFragment) },
+  ).data;
 
-    const iconUri =
-      getFragment(Fragment, !isAddress(tokenFragment) ? tokenFragment : query?.token)?.iconUri ??
-      fallbackUri;
+  const iconUri =
+    getFragment(Fragment, !isAddress(tokenFragment) ? tokenFragment : query?.token)?.iconUri ??
+    fallbackUri;
 
-    if (!iconUri)
-      return <UnknownTokenIcon {...imageProps} size={size} style={[style, styles.icon]} />;
+  if (!iconUri)
+    return <UnknownTokenIcon {...imageProps} size={size} style={[style, styles.icon]} />;
 
-    return (
-      <Image
-        {...imageProps}
-        source={{ uri: iconUri }}
-        style={[style, styles.icon].filter(Boolean)}
-      />
-    );
-  },
-  CircleSkeleton,
-);
+  return (
+    <Image {...imageProps} source={{ uri: iconUri }} style={[style, styles.icon].filter(Boolean)} />
+  );
+}
 
 const useStyles = makeStyles(({ iconSize }, size: number = iconSize.medium) => ({
   icon: {
@@ -71,3 +70,5 @@ const useStyles = makeStyles(({ iconSize }, size: number = iconSize.medium) => (
     backgroundColor: undefined,
   },
 }));
+
+export const TokenIcon = withSuspense(TokenIcon_, ({ size }) => <CircleSkeleton size={size} />);

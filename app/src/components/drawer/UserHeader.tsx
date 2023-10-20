@@ -23,7 +23,7 @@ const Query = gql(/* GraphQL */ `
   }
 `);
 
-function InternalUserHeader() {
+function UserHeader_() {
   const styles = useStyles();
   const router = useRouter();
 
@@ -46,7 +46,7 @@ function InternalUserHeader() {
   );
 }
 
-export const UserHeader = withSuspense(InternalUserHeader, () => null);
+export const UserHeader = withSuspense(UserHeader_);
 
 const useStyles = makeStyles(({ colors }) => ({
   userContainer: {

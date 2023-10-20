@@ -1,5 +1,5 @@
-import { InternalTokenScreen } from '~/app/(drawer)/token/[token]';
+import TokenScreen from '~/components/shared/TokenScreen';
 
 export default function AddTokenScreen() {
-  return <InternalTokenScreen />;
+  return <TokenScreen />;
 }

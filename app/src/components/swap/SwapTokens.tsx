@@ -7,7 +7,7 @@ import { materialCommunityIcon } from '@theme/icons';
 import { Dispatch, SetStateAction } from 'react';
 import { ListItemHeight } from '~/components/list/ListItem';
 import { Pool } from '~/util/swap';
-import ToTokenItem from './ToTokenItem';
+import { ToTokenItem } from './ToTokenItem';
 import { FragmentType, gql, useFragment } from '@api/generated';
 import { TokenIcon } from '~/components/token/TokenIcon';
 import { useSelectToken } from '~/app/(drawer)/[account]/tokens';

@@ -59,9 +59,10 @@ function TokensTab() {
   );
 }
 
-export default withSuspense(TokensTab, (props) => (
-  <TabScreenSkeleton {...props} listItems={{ leading: true, supporting: true, trailing: true }} />
-));
+export default withSuspense(
+  TokensTab,
+  <TabScreenSkeleton listItems={{ leading: true, supporting: true, trailing: true }} />,
+);
 
 const styles = StyleSheet.create({
   contentContainer: {

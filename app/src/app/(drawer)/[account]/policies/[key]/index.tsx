@@ -16,8 +16,9 @@ import { useQuery } from '~/gql';
 import { useHydratePolicyDraft } from '~/hooks/useHydratePolicyDraft';
 import { useLocalParams } from '~/hooks/useLocalParams';
 import { POLICY_DRAFT_ATOM, asPolicyInput } from '~/lib/policy/draft';
-import { zAddress } from '~/lib/zod';
 import { showError } from '~/components/provider/SnackbarProvider';
+import { withSuspense } from '~/components/skeleton/withSuspense';
+import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
 
 const Query = gql(/* GraphQL */ `
   query PolicyScreen($account: Address!, $key: PolicyKey!, $queryPolicy: Boolean!) {
@@ -84,7 +85,7 @@ export const PolicyScreenParams = z.intersection(
 );
 export type PolicyScreenParams = z.infer<typeof PolicyScreenParams>;
 
-export default function PolicyScreen() {
+function PolicyScreen() {
   const params = useLocalParams(`/(drawer)/[account]/policies/[key]/`, PolicyScreenParams);
   const router = useRouter();
   const create = useMutation(Create)[1];
@@ -171,3 +172,5 @@ const styles = StyleSheet.create({
     flexGrow: 1,
   },
 });
+
+export default withSuspense(PolicyScreen, ScreenSkeleton);

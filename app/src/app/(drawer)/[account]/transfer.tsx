@@ -20,6 +20,8 @@ import { z } from 'zod';
 import { zAddress } from '~/lib/zod';
 import { useLocalParams } from '~/hooks/useLocalParams';
 import { Actions } from '~/components/layout/Actions';
+import { withSuspense } from '~/components/skeleton/withSuspense';
+import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
 
 const Query = gql(/* GraphQL */ `
   query TransferScreen($account: Address!, $token: Address!) {
@@ -44,7 +46,7 @@ const paramsSchema = z.object({
 });
 export type TransferScreenParams = z.infer<typeof paramsSchema>;
 
-export default function TransferScreen() {
+function TransferScreen() {
   const { account, to } = useLocalParams(`/(drawer)/[account]/transfer`, paramsSchema);
   const router = useRouter();
   const propose = usePropose();
@@ -99,7 +101,7 @@ export default function TransferScreen() {
               account,
               operations: [createTransferOp({ token: token.address, to, amount: tokenAmount })],
             });
-            router.replace({
+            router.push({
               pathname: `/(drawer)/transaction/[hash]/`,
               params: { hash: proposal },
             });
@@ -125,3 +127,5 @@ const styles = StyleSheet.create({
     alignSelf: 'stretch',
   },
 });
+
+export default withSuspense(TransferScreen, ScreenSkeleton);

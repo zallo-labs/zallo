@@ -6,8 +6,10 @@ export interface CircleSkeletonProps {
   size?: number;
 }
 
-export const CircleSkeleton = ({ size = ICON_SIZE.medium }: CircleSkeletonProps) => (
-  <Skeleton width={size} height={size}>
-    <Circle cx={size / 2} cy={size / 2} r={size / 2} />
-  </Skeleton>
-);
+export function CircleSkeleton({ size = ICON_SIZE.medium }: CircleSkeletonProps) {
+  return (
+    <Skeleton width={size} height={size}>
+      <Circle cx={size / 2} cy={size / 2} r={size / 2} />
+    </Skeleton>
+  );
+}

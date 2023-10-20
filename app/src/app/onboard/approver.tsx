@@ -1,4 +1,4 @@
-import { SearchParams, useRouter } from 'expo-router';
+import { useRouter } from 'expo-router';
 import { View } from 'react-native';
 import { Actions } from '~/components/layout/Actions';
 import { StyleSheet } from 'react-native';
@@ -10,9 +10,10 @@ import { gql } from '@api/generated';
 import { useMutation } from 'urql';
 import { useQuery } from '~/gql';
 import { NotFound } from '~/components/NotFound';
-import { Suspend } from '~/components/Suspender';
 import { AppbarOptions } from '~/components/Appbar/AppbarOptions';
 import { getDeviceModel } from '~/lib/device';
+import { withSuspense } from '~/components/skeleton/withSuspense';
+import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
 
 const Query = gql(/* GraphQL */ `
   query ApproverOnboarding {
@@ -47,10 +48,7 @@ interface Inputs {
   name: string;
 }
 
-export type ApproverOnboardingScreenRoute = `/onboard/approver`;
-export type ApproverOnboardingScreenParams = SearchParams<ApproverOnboardingScreenRoute>;
-
-export default function ApproverOnboardingScreen() {
+function ApproverOnboardingScreen() {
   const router = useRouter();
   const query = useQuery(Query);
   const { approver, user } = query.data;
@@ -60,7 +58,7 @@ export default function ApproverOnboardingScreen() {
     defaultValues: { name: approver?.name ?? getDeviceModel() ?? '' },
   });
 
-  if (!approver) return query.stale ? <Suspend /> : <NotFound name="Approver" />;
+  if (!approver) return query.stale ? null : <NotFound name="Approver" />;
 
   const takenNames = user.approvers.filter((a) => a.id !== approver.id).map((a) => a.name);
 
@@ -116,3 +114,5 @@ const styles = StyleSheet.create({
     alignSelf: 'stretch',
   },
 });
+
+export default withSuspense(ApproverOnboardingScreen, <ScreenSkeleton />);

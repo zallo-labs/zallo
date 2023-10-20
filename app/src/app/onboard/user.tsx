@@ -8,6 +8,8 @@ import { gql } from '@api/generated';
 import { useMutation } from 'urql';
 import { useQuery } from '~/gql';
 import { AppbarOptions } from '~/components/Appbar/AppbarOptions';
+import { withSuspense } from '~/components/skeleton/withSuspense';
+import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
 
 const Query = gql(/* GraphQL */ `
   query CreateUser {
@@ -31,7 +33,7 @@ interface Inputs {
   name: string;
 }
 
-export default function UserOnboardingScreen() {
+function UserOnboardingScreen() {
   const router = useRouter();
   const { user } = useQuery(Query).data;
   const update = useMutation(Update)[1];
@@ -83,3 +85,5 @@ const styles = StyleSheet.create({
     alignSelf: 'stretch',
   },
 });
+
+export default withSuspense(UserOnboardingScreen, <ScreenSkeleton />);

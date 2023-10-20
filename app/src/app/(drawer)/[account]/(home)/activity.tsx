@@ -112,11 +112,10 @@ function ActivityTab() {
   );
 }
 
-// export default ActivityTab;
-
-export default withSuspense(ActivityTab, (props) => (
-  <TabScreenSkeleton {...props} listItems={{ leading: true, supporting: true, trailing: true }} />
-));
+export default withSuspense(
+  ActivityTab,
+  <TabScreenSkeleton listItems={{ leading: true, supporting: true, trailing: true }} />,
+);
 
 const styles = StyleSheet.create({
   contentContainer: {

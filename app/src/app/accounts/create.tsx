@@ -1,4 +1,4 @@
-import { SearchParams, useRouter } from 'expo-router';
+import { useRouter } from 'expo-router';
 import { gql } from '@api/generated';
 import { useApproverAddress } from '@network/useApprover';
 import { useForm } from 'react-hook-form';
@@ -9,6 +9,8 @@ import { FormTextField } from '~/components/fields/FormTextField';
 import { Actions } from '~/components/layout/Actions';
 import { showError } from '~/components/provider/SnackbarProvider';
 import { AppbarOptions } from '~/components/Appbar/AppbarOptions';
+import { withSuspense } from '~/components/skeleton/withSuspense';
+import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
 
 const Create = gql(/* GraphQL */ `
   mutation CreateAccountScreen_Create($input: CreateAccountInput!) {
@@ -23,10 +25,7 @@ interface Inputs {
   name: string;
 }
 
-export type CreateAccountScreenRoute = `/accounts/create`;
-export type CreateAccountScreenParams = SearchParams<CreateAccountScreenRoute>;
-
-export default function CreateAccountScreen() {
+function CreateAccountScreen() {
   const router = useRouter();
   const approver = useApproverAddress();
   const create = useMutation(Create)[1];
@@ -93,3 +92,5 @@ const styles = StyleSheet.create({
     alignSelf: 'stretch',
   },
 });
+
+export default withSuspense(CreateAccountScreen, <ScreenSkeleton />);

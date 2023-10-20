@@ -9,6 +9,8 @@ import { ApprovalItem } from '~/components/transaction/ApprovalItem';
 import { SelectedPolicy } from '~/components/transaction/SelectedPolicy';
 import { AwaitingApprovalItem } from '~/components/transaction/AwaitingApprovalItem';
 import { RejectionItem } from '~/components/transaction/RejectionItem';
+import { withSuspense } from '~/components/skeleton/withSuspense';
+import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
 
 const Proposal = gql(/* GraphQL */ `
   fragment PolicyTab_ProposalFragment on Proposal
@@ -87,7 +89,7 @@ export interface PolicyTabProps {
   hash: Hex;
 }
 
-export function PolicyTab({ hash }: PolicyTabProps) {
+function PolicyTab_({ hash }: PolicyTabProps) {
   const styles = uesStyles();
 
   const { data } = useQuery(Query, { proposal: hash });
@@ -148,3 +150,5 @@ const uesStyles = makeStyles(({ colors }) => ({
     margin: 16,
   },
 }));
+
+export const PolicyTab = withSuspense(PolicyTab_, <ScreenSkeleton />);

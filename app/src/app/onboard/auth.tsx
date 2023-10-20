@@ -1,6 +1,6 @@
 import { useRouter } from 'expo-router';
 import { Button } from 'react-native-paper';
-import { AuthSettings } from '~/components/AuthSettings';
+import { AuthSettings } from '~/components/shared/AuthSettings';
 
 export default function NotificationsOnboardingScreen() {
   const router = useRouter();
