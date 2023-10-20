@@ -14,6 +14,7 @@ import { OperationContext, useMutation } from 'urql';
 import { useQuery } from '~/gql';
 import { share } from '~/lib/share';
 import { useRouter } from 'expo-router';
+import { LayoutClass } from '~/hooks/useLayout';
 
 const Query = gql(/* GraphQL */ `
   query QrModal($account: Address!) {
@@ -54,11 +55,13 @@ export function QrModal({ address, faucet }: QrModalProps) {
           onPress={router.back}
         />
 
-        <View style={styles.qrContainer}>
-          <Text variant="headlineLarge" style={styles.name}>
+        <View style={styles.headerContainer}>
+          <Text variant="displaySmall" style={styles.name}>
             {useAddressLabel(address)}
           </Text>
+        </View>
 
+        <View style={styles.qrContainer}>
           <Surface style={styles.qrSurface}>
             <QRCode
               value={address}
@@ -72,7 +75,7 @@ export function QrModal({ address, faucet }: QrModalProps) {
           </Surface>
         </View>
 
-        <Actions flex={false}>
+        <Actions>
           {requestableTokens.length > 0 && (
             <Button
               mode="contained-tonal"
@@ -96,7 +99,13 @@ export function QrModal({ address, faucet }: QrModalProps) {
   );
 }
 
-const uesStyles = makeStyles(({ colors, window, insets }) => ({
+const QR_SCALING_FACTOR: Record<LayoutClass, number> = {
+  compact: 0.8,
+  medium: 0.6,
+  expanded: 0.5,
+};
+
+const uesStyles = makeStyles(({ colors, window, insets, layout }) => ({
   container: {
     flex: 1,
     marginTop: insets.top,
@@ -108,8 +117,12 @@ const uesStyles = makeStyles(({ colors, window, insets }) => ({
     textAlign: 'center',
     color: colors.onScrim,
   },
-  qrContainer: {
+  headerContainer: {
     flex: 1,
+    justifyContent: 'flex-end',
+    marginBottom: 32,
+  },
+  qrContainer: {
     justifyContent: 'center',
     alignItems: 'center',
     gap: 32,
@@ -119,7 +132,7 @@ const uesStyles = makeStyles(({ colors, window, insets }) => ({
     borderRadius: 16,
   },
   qr: {
-    fontSize: Math.min(window.width, window.height) * 0.75,
+    fontSize: Math.min(window.width, window.height) * QR_SCALING_FACTOR[layout],
     color: colors.onSurface,
   },
   primary: {
