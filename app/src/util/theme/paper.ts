@@ -79,6 +79,7 @@ export const PAPER_THEME = {
 
 export const ICON_SIZE = PAPER_THEME.iconSize;
 export const CORNER = PAPER_THEME.corner;
+export const ROUNDNESS = PAPER_THEME.roundness;
 
 export type Theme = typeof PAPER_THEME;
 type AppTheme = Theme;

@@ -1,4 +1,4 @@
-import NotificationSettings from '~/components/NotificationSettings';
+import NotificationSettings from '~/components/shared/NotificationSettings';
 import { useCreateFirsAccount } from '~/hooks/useCreateFirstAccount';
 
 export default function NotificationsOnboardingScreen() {

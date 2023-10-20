@@ -4,7 +4,6 @@ import { gql } from '@api/generated';
 import { NotFound } from '~/components/NotFound';
 import { useQuery } from '~/gql';
 import { useMutation } from 'urql';
-import { Suspend } from '~/components/Suspender';
 import { useConfirmRemoval } from '~/hooks/useConfirm';
 import { z } from 'zod';
 import { isHash } from 'viem';
@@ -14,7 +13,7 @@ import { StyleSheet } from 'react-native';
 import { ProposalActions } from '~/components/transaction/ProposalActions';
 import { AppbarOptions } from '~/components/Appbar/AppbarOptions';
 import { useRouter } from 'expo-router';
-import { TopTabs } from '~/components/TopTabs';
+import { TopTabs } from '~/components/layout/TopTabs';
 
 const Query = gql(/* GraphQL */ `
   query TransactionLayout($hash: Bytes32!) {
@@ -54,7 +53,7 @@ export default function TransactionLayout() {
   const query = useQuery(Query, { hash });
   const { transactionProposal: proposal, user } = query.data;
 
-  if (!proposal) return query.stale ? <Suspend /> : <NotFound name="Proposal" />;
+  if (!proposal) return query.stale ? null : <NotFound name="Proposal" />;
 
   return (
     <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>

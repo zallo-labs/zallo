@@ -1,4 +1,4 @@
-import { SearchParams, Stack, useRouter } from 'expo-router';
+import { useRouter } from 'expo-router';
 import { useImmerAtom } from 'jotai-immer';
 import { StyleSheet, View } from 'react-native';
 import { useForm } from 'react-hook-form';
@@ -10,6 +10,8 @@ import { useQuery } from '~/gql';
 import { useMutation } from 'urql';
 import { AppbarOptions } from '~/components/Appbar/AppbarOptions';
 import { POLICY_DRAFT_ATOM } from '~/lib/policy/draft';
+import { withSuspense } from '~/components/skeleton/withSuspense';
+import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
 
 const trimmed = (v: string) => v.trim();
 
@@ -39,10 +41,7 @@ interface Inputs {
   name: string;
 }
 
-export type PolicyNameModalRoute = `/[account]/policies/[key]/name`;
-export type PolicyNameModalParams = SearchParams<PolicyNameModalRoute>;
-
-export default function PolicyNameModal() {
+function PolicyNameModal() {
   const router = useRouter();
   const rename = useMutation(Rename)[1];
 
@@ -58,7 +57,6 @@ export default function PolicyNameModal() {
 
   return (
     <View style={styles.root}>
-      <Stack.Screen options={{ presentation: 'modal' }} />
       <AppbarOptions mode="large" leading="close" headline="Rename policy" />
 
       <FormTextField
@@ -113,3 +111,5 @@ const styles = StyleSheet.create({
     margin: 16,
   },
 });
+
+export default withSuspense(PolicyNameModal, <ScreenSkeleton />);

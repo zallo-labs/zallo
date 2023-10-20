@@ -1,4 +1,4 @@
-import { SearchParams, useRouter } from 'expo-router';
+import { useRouter } from 'expo-router';
 import { ScanIcon } from '@theme/icons';
 import { StyleSheet, View } from 'react-native';
 import { useWalletConnect } from '~/util/walletconnect';
@@ -7,11 +7,10 @@ import { PairingItem } from '~/components/walletconnect/PairingItem';
 import { ListItemHeight } from '~/components/list/ListItem';
 import { Divider, Text } from 'react-native-paper';
 import { AppbarOptions } from '~/components/Appbar/AppbarOptions';
+import { withSuspense } from '~/components/skeleton/withSuspense';
+import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
 
-export type SessionsScreenRoute = `/sessions/`;
-export type SessionsScreenParams = SearchParams<SessionsScreenRoute>;
-
-export default function SessionsScreen() {
+function SessionsScreen() {
   const router = useRouter();
   const client = useWalletConnect();
 
@@ -63,3 +62,5 @@ const styles = StyleSheet.create({
     gap: 8,
   },
 });
+
+export default withSuspense(SessionsScreen, <ScreenSkeleton />);

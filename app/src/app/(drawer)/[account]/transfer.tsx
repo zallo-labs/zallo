@@ -19,6 +19,9 @@ import { AppbarOptions } from '~/components/Appbar/AppbarOptions';
 import { z } from 'zod';
 import { zAddress } from '~/lib/zod';
 import { useLocalParams } from '~/hooks/useLocalParams';
+import { Actions } from '~/components/layout/Actions';
+import { withSuspense } from '~/components/skeleton/withSuspense';
+import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
 
 const Query = gql(/* GraphQL */ `
   query TransferScreen($account: Address!, $token: Address!) {
@@ -43,7 +46,7 @@ const paramsSchema = z.object({
 });
 export type TransferScreenParams = z.infer<typeof paramsSchema>;
 
-export default function TransferScreen() {
+function TransferScreen() {
   const { account, to } = useLocalParams(`/(drawer)/[account]/transfer`, paramsSchema);
   const router = useRouter();
   const propose = usePropose();
@@ -79,7 +82,10 @@ export default function TransferScreen() {
       <TokenItem
         token={token}
         amount={token.balance}
-        onPress={async () => setToken(await selectToken({ account }))}
+        onPress={async () => {
+          const token = await selectToken({ account });
+          if (token) setToken(token);
+        }}
       />
       <Divider horizontalInset />
 
@@ -89,19 +95,24 @@ export default function TransferScreen() {
         maxDecimals={type === InputType.Token ? token.decimals : FIAT_DECIMALS}
       />
 
-      <Button
-        mode="contained"
-        style={styles.action}
-        onPress={async () => {
-          const proposal = await propose({
-            account,
-            operations: [createTransferOp({ token: token.address, to, amount: tokenAmount })],
-          });
-          router.replace({ pathname: `/(drawer)/transaction/[hash]/`, params: { hash: proposal } });
-        }}
-      >
-        Propose
-      </Button>
+      <Actions flex={false}>
+        <Button
+          mode="contained"
+          style={styles.action}
+          onPress={async () => {
+            const proposal = await propose({
+              account,
+              operations: [createTransferOp({ token: token.address, to, amount: tokenAmount })],
+            });
+            router.push({
+              pathname: `/(drawer)/transaction/[hash]/`,
+              params: { hash: proposal },
+            });
+          }}
+        >
+          Propose
+        </Button>
+      </Actions>
     </View>
   );
 }
@@ -119,3 +130,5 @@ const styles = StyleSheet.create({
     alignSelf: 'stretch',
   },
 });
+
+export default withSuspense(TransferScreen, ScreenSkeleton);

@@ -37,7 +37,10 @@ export function ScanOverlay({ onData }: OverlayProps) {
         <IconButton
           icon={ContactsIcon}
           mode="contained-tonal"
-          onPress={async () => onData(await selectAddress({ include: ['accounts', 'contacts'] }))}
+          onPress={async () => {
+            const address = await selectAddress({ include: ['accounts', 'contacts'] });
+            if (address) onData(address);
+          }}
         />
 
         <IconButton

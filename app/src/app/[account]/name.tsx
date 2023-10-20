@@ -1,4 +1,4 @@
-import { Stack, useRouter } from 'expo-router';
+import { useRouter } from 'expo-router';
 import { gql } from '@api/generated';
 import { useForm } from 'react-hook-form';
 import { StyleSheet, View } from 'react-native';
@@ -12,6 +12,8 @@ import { AppbarOptions } from '~/components/Appbar/AppbarOptions';
 import { z } from 'zod';
 import { zAddress } from '~/lib/zod';
 import { useLocalParams } from '~/hooks/useLocalParams';
+import { withSuspense } from '~/components/skeleton/withSuspense';
+import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
 
 const Query = gql(/* GraphQL */ `
   query AccountNameModal($account: Address!) {
@@ -38,7 +40,7 @@ interface Inputs {
 
 export const AccountNameModalParams = z.object({ account: zAddress });
 
-export default function AccountNameModal() {
+function AccountNameModal() {
   const params = useLocalParams(`/[account]/name`, AccountNameModalParams);
   const router = useRouter();
   const update = useMutation(Update)[1];
@@ -50,7 +52,6 @@ export default function AccountNameModal() {
 
   return (
     <View style={styles.root}>
-      <Stack.Screen options={{ presentation: 'modal' }} />
       <AppbarOptions mode="large" leading="close" headline="Rename Account" />
 
       <View style={styles.fields}>
@@ -82,3 +83,5 @@ const styles = StyleSheet.create({
     margin: 16,
   },
 });
+
+export default withSuspense(AccountNameModal, <ScreenSkeleton />);

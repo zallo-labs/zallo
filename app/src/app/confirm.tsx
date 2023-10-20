@@ -2,8 +2,9 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { makeStyles } from '@theme/makeStyles';
 import { Dialog, Text } from 'react-native-paper';
 import { Button } from '~/components/Button';
-import { DialogModal } from '~/components/DialogModal';
+import { DialogModal } from '~/components/Dialog/DialogModal';
 import { Subject } from 'rxjs';
+import { DialogActions } from '~/components/Dialog/DialogActions';
 
 export const CONFIRMATIONS = new Subject<true>();
 
@@ -31,7 +32,7 @@ export default function ConfirmModal() {
         </Dialog.Content>
       )}
 
-      <Dialog.Actions>
+      <DialogActions>
         <Button textColor={styles.cancel.color} onPress={router.back}>
           Cancel
         </Button>
@@ -44,7 +45,7 @@ export default function ConfirmModal() {
         >
           {confirmLabel || 'Ok'}
         </Button>
-      </Dialog.Actions>
+      </DialogActions>
     </DialogModal>
   );
 }

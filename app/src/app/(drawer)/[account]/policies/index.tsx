@@ -15,6 +15,8 @@ import { AppbarOptions } from '~/components/Appbar/AppbarOptions';
 import { z } from 'zod';
 import { zAddress } from '~/lib/zod';
 import { useLocalParams } from '~/hooks/useLocalParams';
+import { withSuspense } from '~/components/skeleton/withSuspense';
+import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
 
 const Query = gql(/* GraphQL */ `
   query PoliciesScreen($account: Address!) {
@@ -34,7 +36,7 @@ const Query = gql(/* GraphQL */ `
 export const PoliciesScreenParams = z.object({ account: zAddress });
 export type PoliciesScreenParams = z.infer<typeof PoliciesScreenParams>;
 
-export default function PoliciesScreen() {
+function PoliciesScreen() {
   const params = useLocalParams(`/(drawer)/[account]/policies/`, PoliciesScreenParams);
   const router = useRouter();
 
@@ -110,3 +112,5 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
   },
 });
+
+export default withSuspense(PoliciesScreen, ScreenSkeleton);

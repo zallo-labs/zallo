@@ -41,7 +41,7 @@ export function useGetSignWithLedger() {
       address: await firstValueFrom(LEDGER_ADDRESS),
       sign: async (content: SignContent) => {
         CONTENT_TO_SIGN.next(content);
-        return (await r).signature;
+        return (await r)?.signature;
       },
     };
   };

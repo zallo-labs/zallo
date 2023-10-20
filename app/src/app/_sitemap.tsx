@@ -1,3 +1,4 @@
+import { Redirect } from 'expo-router';
 import { Sitemap as InternalSitemap } from 'expo-router/src/views/Sitemap';
 
 /**
@@ -5,5 +6,5 @@ import { Sitemap as InternalSitemap } from 'expo-router/src/views/Sitemap';
  * https://docs.expo.dev/router/reference/sitemap/
  */
 export default function Sitemap() {
-  return __DEV__ ? <InternalSitemap /> : null;
+  return __DEV__ ? <InternalSitemap /> : <Redirect href={`/`} />;
 }

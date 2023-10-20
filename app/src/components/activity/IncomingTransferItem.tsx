@@ -23,25 +23,27 @@ export interface IncomingTransferItemProps {
   transfer: FragmentType<typeof FragmentDoc>;
 }
 
-export const IncomingTransferItem = withSuspense(
-  (props: IncomingTransferItemProps) => {
-    const transfer = useFragment(FragmentDoc, props.transfer);
+function IncomingTransferItem_(props: IncomingTransferItemProps) {
+  const transfer = useFragment(FragmentDoc, props.transfer);
 
-    return (
-      <ListItem
-        leading={(props) => <TokenIcon token={transfer.token} {...props} />}
-        leadingSize="medium"
-        headline={`Transfer from ${useAddressLabel(transfer.from)}`}
-        supporting={<Timestamp timestamp={transfer.timestamp} weekday />}
-        trailing={({ Text }) =>
-          transfer.value !== null && transfer.value !== undefined ? (
-            <Text variant="labelLarge">
-              <FiatValue value={transfer.value} />
-            </Text>
-          ) : null
-        }
-      />
-    );
-  },
+  return (
+    <ListItem
+      leading={(props) => <TokenIcon token={transfer.token} {...props} />}
+      leadingSize="medium"
+      headline={`Transfer from ${useAddressLabel(transfer.from)}`}
+      supporting={<Timestamp timestamp={transfer.timestamp} weekday />}
+      trailing={({ Text }) =>
+        transfer.value !== null && transfer.value !== undefined ? (
+          <Text variant="labelLarge">
+            <FiatValue value={transfer.value} />
+          </Text>
+        ) : null
+      }
+    />
+  );
+}
+
+export const IncomingTransferItem = withSuspense(
+  IncomingTransferItem_,
   <ListItemSkeleton leading supporting />,
 );

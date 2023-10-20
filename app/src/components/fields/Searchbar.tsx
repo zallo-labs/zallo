@@ -4,9 +4,7 @@ import { toArray } from 'lib';
 import { FC } from 'react';
 import { StyleProp, View, ViewStyle } from 'react-native';
 import { Surface } from 'react-native-paper';
-import { EdgeInsets, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BasicTextField, BasicTextFieldProps } from './BasicTextField';
-import { Stack } from 'expo-router';
 
 export interface SearchbarProps extends BasicTextFieldProps {
   leading?: FC<IconProps & { style?: StyleProp<ViewStyle> }>;
@@ -21,13 +19,10 @@ export const Searchbar = ({
   inset = true,
   ...inputProps
 }: SearchbarProps) => {
-  const insets = useSafeAreaInsets();
-  const styles = useStyles(inset ? insets : undefined);
+  const styles = useStyles(inset);
 
   return (
     <Surface elevation={3} style={styles.container}>
-      <Stack.Screen options={{ headerShown: false }} />
-
       {Leading && (
         <Leading
           size={styles.leadingIcon.fontSize}
@@ -47,7 +42,7 @@ export const Searchbar = ({
   );
 };
 
-const useStyles = makeStyles(({ colors, corner, fonts }, insets?: EdgeInsets) => ({
+const useStyles = makeStyles(({ colors, corner, fonts, insets }, inset: boolean) => ({
   // https://m3.material.io/components/search/specs
   container: {
     flexDirection: 'row',
@@ -58,7 +53,7 @@ const useStyles = makeStyles(({ colors, corner, fonts }, insets?: EdgeInsets) =>
     borderRadius: corner.full,
     paddingHorizontal: 16,
     marginHorizontal: 16,
-    marginTop: 16 + (insets?.top ?? 0),
+    marginTop: 16 + (inset ? insets.top : 0),
     marginBottom: 8,
   },
   leadingContainer: {

@@ -7,7 +7,7 @@ import { materialCommunityIcon } from '@theme/icons';
 import { Dispatch, SetStateAction } from 'react';
 import { ListItemHeight } from '~/components/list/ListItem';
 import { Pool } from '~/util/swap';
-import ToTokenItem from './ToTokenItem';
+import { ToTokenItem } from './ToTokenItem';
 import { FragmentType, gql, useFragment } from '@api/generated';
 import { TokenIcon } from '~/components/token/TokenIcon';
 import { useSelectToken } from '~/app/(drawer)/[account]/tokens';
@@ -62,6 +62,7 @@ export function SwapTokens({
       account,
       enabled: pools.map((p) => (p.pair[0] === from.address ? p.pair[1] : p.pair[0])),
     });
+    if (!token) return;
 
     if (token === to?.address) setToAddress(from.address);
     setFromAddress(token);

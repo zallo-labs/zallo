@@ -10,7 +10,7 @@ export function NotificationsRouter() {
 
     const handleResponse = (r: Notifications.NotificationResponse | null) => {
       const url = r?.notification.request.content.data.url;
-      if (url) router.replace(url);
+      if (url) router.push(url);
     };
 
     // User opened up through pressing notification

@@ -17,6 +17,8 @@ import { AppbarMenu } from '~/components/Appbar/AppbarMenu';
 import { z } from 'zod';
 import { zAddress, zArray } from '~/lib/zod';
 import { useLocalParams } from '~/hooks/useLocalParams';
+import { withSuspense } from '~/components/skeleton/withSuspense';
+import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
 
 const Query = gql(/* GraphQL */ `
   query TokensScreen($account: Address!, $query: String, $feeToken: Boolean) {
@@ -34,7 +36,10 @@ export const useSelectToken = () => {
   const getEvent = useGetEvent();
 
   return (params: TokensScreenParams) => {
-    return getEvent({ pathname: `/(drawer)/[account]/tokens`, params }, TOKEN_SELECTED);
+    return getEvent(
+      { pathname: `/(drawer)/[account]/tokens`, params: params as any },
+      TOKEN_SELECTED,
+    );
   };
 };
 
@@ -43,13 +48,13 @@ export const TokensScreenParams = z.object({
   account: zAddress,
   disabled: zArray(zAddress).optional(),
   enabled: zArray(zAddress).optional(),
-  feeToken: z.literal('true').optional(),
+  feeToken: z.coerce.boolean().optional(),
 });
 export type TokensScreenParams = z.infer<typeof TokensScreenParams>;
 
 const queryContext: Partial<OperationContext> = { suspense: false };
 
-export default function TokensScreen() {
+function TokensScreen() {
   const params = useLocalParams(`/(drawer)/[account]/tokens`, TokensScreenParams);
   const router = useRouter();
   const disabled = new Set(params.disabled);
@@ -63,7 +68,7 @@ export default function TokensScreen() {
       {
         account: params.account,
         query,
-        feeToken: params.feeToken === 'true',
+        feeToken: params.feeToken,
       },
       queryContext,
     ).data.tokens ?? [];
@@ -118,3 +123,5 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
   },
 });
+
+export default withSuspense(TokensScreen, ScreenSkeleton);

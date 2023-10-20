@@ -9,7 +9,6 @@ import { StyleSheet, View } from 'react-native';
 import { Actions } from '~/components/layout/Actions';
 import { FormSubmitButton } from '~/components/fields/FormSubmitButton';
 import { AppbarOptions } from '~/components/Appbar/AppbarOptions';
-import { Stack } from 'expo-router';
 
 interface Inputs {
   selector: string;
@@ -26,7 +25,6 @@ export default function AddSelectorModal() {
 
   return (
     <View style={styles.root}>
-      <Stack.Screen options={{ presentation: 'modal' }} />
       <AppbarOptions mode="large" headline="Add interaction" />
 
       <FormTextField

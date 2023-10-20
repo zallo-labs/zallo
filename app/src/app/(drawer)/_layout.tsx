@@ -1,4 +1,3 @@
-import { Stack } from 'expo-router';
 import { Drawer } from '~/components/drawer/Drawer';
 
 export const unstable_settings = {
@@ -6,10 +5,5 @@ export const unstable_settings = {
 };
 
 export default function DrawerLayout() {
-  return (
-    <>
-      <Stack.Screen options={{ headerShown: false }} />
-      <Drawer />
-    </>
-  );
+  return <Drawer />;
 }

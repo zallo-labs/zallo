@@ -12,6 +12,8 @@ import { ListItem } from '~/components/list/ListItem';
 import { NotificationsOutlineIcon } from '@theme/icons';
 import { useAtomValue } from 'jotai';
 import { ListHeader } from '~/components/list/ListHeader';
+import { withSuspense } from '~/components/skeleton/withSuspense';
+import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
 
 export type NotificationChannel = 'product' | 'activity' | 'transfers';
 export const NotificationChannelConfig: Record<NotificationChannel, NotificationChannelInput> = {
@@ -58,7 +60,7 @@ export interface NotificationSettingsProps {
   next?: () => void;
 }
 
-export default function NotificationSettings({ next }: NotificationSettingsProps) {
+function NotificationSettings({ next }: NotificationSettingsProps) {
   const [settings, update] = useImmerAtom(NOTIFICATIONS_ATOM);
 
   const [perm, requestPerm] = Notifications.usePermissions({
@@ -137,3 +139,5 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
 });
+
+export default withSuspense(NotificationSettings, <ScreenSkeleton />);

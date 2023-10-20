@@ -7,7 +7,7 @@ import { AccountValue } from './AccountValue';
 import { HomeAppbar } from './HomeAppbar';
 import { QuickActions } from './QuickActions';
 import { withSuspense } from '~/components/skeleton/withSuspense';
-import { Text } from 'react-native-paper';
+import { Suspend } from '~/components/Suspend';
 
 const Query = gql(/* GraphQL */ `
   query HomeHeader($account: Address) {
@@ -25,22 +25,21 @@ export interface HomeHeaderProps {
   account: Address;
 }
 
-export const HomeHeader = withSuspense(
-  (props: HomeHeaderProps) => {
-    const query = useQuery(Query, { account: props.account });
-    const { account } = query.data;
+function Header(props: HomeHeaderProps) {
+  const query = useQuery(Query, { account: props.account });
+  const { account } = query.data;
 
-    if (!account) return query.stale ? null : <NotFound name="Account" />;
+  if (!account) return query.stale ? <Suspend /> : <NotFound name="Account" />;
 
-    return (
-      <View>
-        <HomeAppbar account={account} />
+  return (
+    <View>
+      <HomeAppbar account={account} />
 
-        <AccountValue tokensQuery={query.data} />
+      <AccountValue tokensQuery={query.data} />
 
-        <QuickActions account={account.address} />
-      </View>
-    );
-  },
-  () => <Text>Suspended</Text>,
-);
+      <QuickActions account={account.address} />
+    </View>
+  );
+}
+
+export const HomeHeader = withSuspense(Header);

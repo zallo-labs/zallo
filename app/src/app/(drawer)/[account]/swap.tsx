@@ -20,6 +20,8 @@ import { AppbarOptions } from '~/components/Appbar/AppbarOptions';
 import { z } from 'zod';
 import { zAddress } from '~/lib/zod';
 import { useLocalParams } from '~/hooks/useLocalParams';
+import { withSuspense } from '~/components/skeleton/withSuspense';
+import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
 
 const Query = gql(/* GraphQL */ `
   query SwapScreen($account: Address!, $from: Address!, $to: Address!, $skipTo: Boolean!) {
@@ -50,7 +52,7 @@ const Query = gql(/* GraphQL */ `
 
 const SwapScreenParams = z.object({ account: zAddress });
 
-export default function SwapScreen() {
+function SwapScreen() {
   const { account } = useLocalParams(`/(drawer)/[account]/swap`, SwapScreenParams);
   const styles = useStyles();
   const router = useRouter();
@@ -129,7 +131,7 @@ export default function SwapScreen() {
               deadline: DateTime.now().plus({ months: 3 }),
             }),
           });
-          router.replace({ pathname: `/(drawer)/transaction/[hash]/`, params: { hash: proposal } });
+          router.push({ pathname: `/(drawer)/transaction/[hash]/`, params: { hash: proposal } });
         }}
       >
         Propose
@@ -151,3 +153,5 @@ const useStyles = makeStyles(() => ({
     alignSelf: 'stretch',
   },
 }));
+
+export default withSuspense(SwapScreen, ScreenSkeleton);

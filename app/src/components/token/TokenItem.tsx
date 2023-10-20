@@ -31,8 +31,8 @@ export interface TokenItemProps extends Partial<ListItemProps> {
   containerStyle?: StyleProp<ViewStyle>;
 }
 
-export const TokenItem = withSuspense(
-  memo(({ token: tokenProp, amount, containerStyle, ...itemProps }: TokenItemProps) => {
+const TokenItem_ = memo(
+  ({ token: tokenProp, amount, containerStyle, ...itemProps }: TokenItemProps) => {
     const token = useFragment(Token, tokenProp);
 
     return (
@@ -68,8 +68,8 @@ export const TokenItem = withSuspense(
         {...itemProps}
       />
     );
-  }, deepEqual),
-  (props) => <ListItemSkeleton {...props} leading supporting trailing />,
+  },
+  deepEqual,
 );
 
 const styles = StyleSheet.create({
@@ -81,3 +81,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
 });
+
+export const TokenItem = withSuspense(TokenItem_, (props) => (
+  <ListItemSkeleton {...props} leading supporting trailing />
+));

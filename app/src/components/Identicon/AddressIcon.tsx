@@ -13,16 +13,23 @@ export interface AddressIconProps {
   labelStyle?: StyleProp<TextStyle>;
 }
 
-export const AddressIcon = withSuspense(
-  ({ address, size = ICON_SIZE.medium, style, labelStyle, ...props }: AddressIconProps) => {
-    // const name = useAddressLabel(address);
+function AddressIcon_({
+  address,
+  size = ICON_SIZE.medium,
+  style,
+  labelStyle,
+  ...props
+}: AddressIconProps) {
+  // const name = useAddressLabel(address);
 
-    // if (name)
-    //   return <LabelIcon label={name} size={size} containerStyle={style} labelStyle={labelStyle} />;
+  // if (name)
+  //   return <LabelIcon label={name} size={size} containerStyle={style} labelStyle={labelStyle} />;
 
-    // return <Jazzicon size={size} {...props} address={address} containerStyle={style} />;
+  // return <Jazzicon size={size} {...props} address={address} containerStyle={style} />;
 
-    return <Blockie seed={address} size={size} style={style} />;
-  },
-  ({ size = ICON_SIZE.medium }) => <CircleSkeleton size={size} />,
-);
+  return <Blockie seed={address} size={size} style={style} />;
+}
+
+export const AddressIcon = withSuspense(AddressIcon_, ({ size = ICON_SIZE.medium }) => (
+  <CircleSkeleton size={size} />
+));

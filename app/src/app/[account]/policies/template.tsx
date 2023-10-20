@@ -1,4 +1,4 @@
-import { Stack, useRouter } from 'expo-router';
+import { useRouter } from 'expo-router';
 import { z } from 'zod';
 import { useLocalParams } from '~/hooks/useLocalParams';
 import { AddIcon } from '@theme/icons';
@@ -9,11 +9,13 @@ import { AppbarOptions } from '~/components/Appbar/AppbarOptions';
 import { PolicyTemplateType } from '~/lib/policy/template';
 import { PoliciesScreenParams } from '~/app/(drawer)/[account]/policies';
 import { PolicyScreenParams } from '~/app/(drawer)/[account]/policies/[key]';
+import { withSuspense } from '~/components/skeleton/withSuspense';
+import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
 
 export const PolicyTemplateModalParams = PoliciesScreenParams;
 export type PolicyTemplateModalParams = z.infer<typeof PolicyTemplateModalParams>;
 
-export default function PolicyTemplateModal() {
+function PolicyTemplateModal() {
   const { account } = useLocalParams(`/[account]/policies/template`, PolicyTemplateModalParams);
   const router = useRouter();
 
@@ -24,7 +26,6 @@ export default function PolicyTemplateModal() {
 
   return (
     <View style={styles.root}>
-      <Stack.Screen options={{ presentation: 'modal' }} />
       <AppbarOptions mode="large" leading="back" headline="Add policy" />
 
       <ListHeader>Policy for transactions that are</ListHeader>
@@ -58,3 +59,5 @@ const styles = StyleSheet.create({
     flex: 1,
   },
 });
+
+export default withSuspense(PolicyTemplateModal, <ScreenSkeleton />);

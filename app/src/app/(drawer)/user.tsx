@@ -1,4 +1,3 @@
-import { SearchParams } from 'expo-router';
 import { useForm } from 'react-hook-form';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { FormTextField } from '~/components/fields/FormTextField';
@@ -17,6 +16,8 @@ import { LinkAppleButton } from '~/components/link/LinkAppleButton';
 import { showSuccess } from '~/components/provider/SnackbarProvider';
 import { AppbarOptions } from '~/components/Appbar/AppbarOptions';
 import { AppbarMenu } from '~/components/Appbar/AppbarMenu';
+import { withSuspense } from '~/components/skeleton/withSuspense';
+import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
 
 const Query = gql(/* GraphQL */ `
   query UserScreen {
@@ -45,10 +46,7 @@ interface Inputs {
   name: string;
 }
 
-export type UserScreenRoute = `/user`;
-export type UserScreenParams = SearchParams<UserScreenRoute>;
-
-export default function UserScreen() {
+function UserScreen() {
   const update = useMutation(Update)[1];
   const { user } = useQuery(Query).data;
 
@@ -126,3 +124,5 @@ const styles = StyleSheet.create({
     alignSelf: 'stretch',
   },
 });
+
+export default withSuspense(UserScreen, <ScreenSkeleton />);

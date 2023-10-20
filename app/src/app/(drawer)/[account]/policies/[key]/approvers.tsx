@@ -14,11 +14,13 @@ import { ApproverItem } from '~/components/policy/ApproverItem';
 import { POLICY_DRAFT_ATOM } from '~/lib/policy/draft';
 import { useSelectAddress } from '~/hooks/useSelectAddress';
 import { AppbarOptions } from '~/components/Appbar/AppbarOptions';
+import { withSuspense } from '~/components/skeleton/withSuspense';
+import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
 
 export type PolicyApproversScreenRoute = `/(drawer)/[account]/policies/[key]/approvers`;
 export type PolicyApproversScreenParams = SearchParams<PolicyApproversScreenRoute>;
 
-export default function PolicyApproversScreen() {
+function PolicyApproversScreen() {
   const styles = useStyles();
   const [policy, updatePolicy] = useImmerAtom(POLICY_DRAFT_ATOM);
   const selectAddress = useSelectAddress();
@@ -28,10 +30,12 @@ export default function PolicyApproversScreen() {
       include: ['approvers', 'contacts'],
       disabled: [...policy.approvers],
     });
-    updatePolicy((draft) => {
-      draft.approvers.add(address);
-      draft.threshold++;
-    });
+    if (address) {
+      updatePolicy((draft) => {
+        draft.approvers.add(address);
+        draft.threshold++;
+      });
+    }
   };
 
   const remove = (approver: Address) => {
@@ -75,7 +79,15 @@ export default function PolicyApproversScreen() {
         }
       />
 
-      <Fab icon={AddIcon} label="Add approver" onPress={addApprover} variant="primary" />
+      <Fab
+        icon={AddIcon}
+        label="Add approver"
+        onPress={() => {
+          addApprover();
+          console.log('pressed');
+        }}
+        variant="primary"
+      />
     </View>
   );
 }
@@ -97,3 +109,5 @@ const useStyles = makeStyles(({ colors }) => ({
     color: colors.warning,
   },
 }));
+
+export default withSuspense(PolicyApproversScreen, ScreenSkeleton);

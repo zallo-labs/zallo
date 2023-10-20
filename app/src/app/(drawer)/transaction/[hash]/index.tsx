@@ -14,6 +14,8 @@ import { ProposalValue } from '~/components/proposal/ProposalValue';
 import { RiskRating } from '~/components/proposal/RiskRating';
 import { FeeToken } from '~/components/transaction/FeeToken';
 import { OperationSection } from '~/components/transaction/OperationSection';
+import { withSuspense } from '~/components/skeleton/withSuspense';
+import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
 
 const Query = gql(/* GraphQL */ `
   query TransactionDetailsTab($hash: Bytes32!) {
@@ -83,7 +85,7 @@ const isFeeTransfer = ({ from, to }: { from: Address; to: Address }) =>
 export const TransactionDetailsTabParams = TransactionLayoutParams;
 export type TransactionDetailsTabParams = z.infer<typeof TransactionDetailsTabParams>;
 
-export default function TransactionDetailsTab() {
+function DetailsTab() {
   const { hash } = useLocalParams(`/(drawer)/transaction/[hash]/`, TransactionDetailsTabParams);
 
   const { data } = useQuery(Query, { hash });
@@ -146,3 +148,5 @@ const styles = StyleSheet.create({
     marginHorizontal: 16,
   },
 });
+
+export default withSuspense(DetailsTab, <ScreenSkeleton />);

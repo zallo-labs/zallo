@@ -1,4 +1,4 @@
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { useState } from 'react';
 import { View } from 'react-native';
 import { NavigateNextIcon, ScanIcon, SearchIcon, materialCommunityIcon } from '~/util/theme/icons';
@@ -15,6 +15,8 @@ import { useQuery } from '~/gql';
 import { useScanAddress } from '~/app/scan';
 import { ContactItem } from '~/components/item/ContactItem';
 import { AppbarMenu } from '~/components/Appbar/AppbarMenu';
+import { withSuspense } from '~/components/skeleton/withSuspense';
+import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
 
 const Query = gql(/* GraphQL */ `
   query ContactsScreen($query: String) {
@@ -33,7 +35,7 @@ export type ContactsScreenParams = {
   disabled?: Address[];
 };
 
-export default function ContactsScreen() {
+function ContactsScreen() {
   const params = useLocalSearchParams<ContactsScreenParams>();
   const styles = useStyles();
   const disabled = params.disabled && new Set(params.disabled);
@@ -46,6 +48,7 @@ export default function ContactsScreen() {
 
   return (
     <View style={styles.container}>
+      <Stack.Screen options={{ headerShown: false }} />
       <Searchbar
         leading={AppbarMenu}
         placeholder="Search contacts"
@@ -54,12 +57,15 @@ export default function ContactsScreen() {
           (props) => (
             <ScanIcon
               {...props}
-              onPress={async () =>
-                router.push({
-                  pathname: `/(drawer)/contacts/[address]`,
-                  params: { address: await scanAddress() },
-                })
-              }
+              onPress={async () => {
+                const address = await scanAddress();
+                if (address) {
+                  router.push({
+                    pathname: `/(drawer)/contacts/[address]`,
+                    params: { address },
+                  });
+                }
+              }}
             />
           ),
         ]}
@@ -112,3 +118,5 @@ const useStyles = makeStyles(({ colors }) => ({
     color: colors.onSurfaceVariant,
   },
 }));
+
+export default withSuspense(ContactsScreen, ScreenSkeleton);

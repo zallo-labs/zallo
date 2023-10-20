@@ -10,6 +10,8 @@ import { ListHeader } from '~/components/list/ListHeader';
 import { atom, useAtomValue } from 'jotai';
 import { AUTH_SETTINGS_ATOM, SUPPORTS_BIOMETRICS } from '~/components/provider/AuthGate';
 import { ReactNode, useEffect } from 'react';
+import { withSuspense } from '~/components/skeleton/withSuspense';
+import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
 
 const biometricsAvailableAtom = atom(SUPPORTS_BIOMETRICS);
 
@@ -17,7 +19,7 @@ export interface AuthSettingsProps {
   actions?: ReactNode;
 }
 
-export function AuthSettings({ actions }: AuthSettingsProps) {
+function AuthSettings_({ actions }: AuthSettingsProps) {
   const hasSupport = useAtomValue(biometricsAvailableAtom);
 
   const [settings, updateSettings] = useImmerAtom(AUTH_SETTINGS_ATOM);
@@ -87,3 +89,5 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
 });
+
+export const AuthSettings = withSuspense(AuthSettings_, <ScreenSkeleton />);

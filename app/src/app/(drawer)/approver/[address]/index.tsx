@@ -14,6 +14,8 @@ import { useQuery } from '~/gql';
 import { NotFound } from '~/components/NotFound';
 import { AppbarOptions } from '~/components/Appbar/AppbarOptions';
 import { getDeviceModel } from '~/lib/device';
+import { withSuspense } from '~/components/skeleton/withSuspense';
+import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
 
 const Query = gql(/* GraphQL */ `
   query ApproverDetails($approver: Address) {
@@ -51,7 +53,7 @@ interface Inputs {
 export type ApproverScreenRoute = `/(drawer)/approver/[address]/`;
 export type ApproverScreenParams = SearchParams<ApproverScreenRoute>;
 
-export default function ApproverScreen() {
+function ApproverScreen() {
   const params = useLocalSearchParams<ApproverScreenParams>();
   const router = useRouter();
   const update = useMutation(Update)[1];
@@ -122,3 +124,5 @@ const styles = StyleSheet.create({
     alignSelf: 'stretch',
   },
 });
+
+export default withSuspense(ApproverScreen, ScreenSkeleton);
