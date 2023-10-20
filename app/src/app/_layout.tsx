@@ -26,6 +26,15 @@ const modal: NativeStackNavigationOptions = {
 const transparentModal: NativeStackNavigationOptions = {
   presentation: 'transparentModal',
   headerShown: false,
+  animation: 'fade',
+  animationDuration: 100,
+};
+
+const sheet: NativeStackNavigationOptions = {
+  presentation: 'transparentModal',
+  headerShown: false,
+  animation: 'fade',
+  animationDuration: 0,
 };
 
 export const unstable_settings = {
@@ -42,27 +51,25 @@ function Layout() {
       <Stack.Screen name={`[account]/name`} options={modal} />
       <Stack.Screen name={`[account]/receive`} options={transparentModal} />
       <Stack.Screen name={`accounts/create`} options={modal} />
-      <Stack.Screen name={`accounts/index`} options={transparentModal} />
+      <Stack.Screen name={`accounts/index`} options={sheet} />
       <Stack.Screen name={`approver/[address]/qr`} options={transparentModal} />
-      <Stack.Screen name={`ledger/sign`} options={transparentModal} />
-      <Stack.Screen name={`link/token`} options={transparentModal} />
+      <Stack.Screen name={`ledger/sign`} options={sheet} />
+      <Stack.Screen name={`link/token`} options={sheet} />
       <Stack.Screen name={`link/index`} options={transparentModal} />
       <Stack.Screen name={`onboard/approver`} />
       <Stack.Screen name={`onboard/auth`} />
       <Stack.Screen name={`onboard/index`} />
       <Stack.Screen name={`onboard/notifications`} />
-      <Stack.Screen name={`onboard/user`} options={modal} />
-      <Stack.Screen name={`scan/[address]`} options={transparentModal} />
+      <Stack.Screen name={`onboard/user`} />
+      <Stack.Screen name={`scan/[address]`} options={sheet} />
       <Stack.Screen name={`scan/index`} options={{ headerShown: false }} />
-      <Stack.Screen name={`sessions/connect/[id]`} options={transparentModal} />
-      <Stack.Screen name={`sessions/[topic]`} options={transparentModal} />
+      <Stack.Screen name={`sessions/connect/[id]`} options={sheet} />
+      <Stack.Screen name={`sessions/[topic]`} options={sheet} />
       <Stack.Screen name={`[...unmatched]`} />
       <Stack.Screen name={`addresses`} options={{ ...modal, headerShown: false }} />
       <Stack.Screen name={`confirm`} options={transparentModal} />
       <Stack.Screen name={`index`} />
-      <Stack.Screen
-        name={`_sitemap`} /* Implicit: https://docs.expo.dev/router/reference/sitemap/ */
-      />
+      <Stack.Screen name={`_sitemap`} />
     </Stack>
   );
 }
