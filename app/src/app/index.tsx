@@ -20,7 +20,10 @@ export default function RootScreen() {
     <Redirect
       href={{
         pathname: `/(drawer)/[account]/(home)/`,
-        params: { account: selectedAccount ?? accounts[0].address },
+        params: {
+          account:
+            accounts.find((a) => a.address === selectedAccount)?.address ?? accounts[0].address,
+        },
       }}
     />
   ) : (
