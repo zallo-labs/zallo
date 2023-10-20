@@ -1,4 +1,4 @@
-import { Stack, useRouter } from 'expo-router';
+import { useRouter } from 'expo-router';
 import { z } from 'zod';
 import { useLocalParams } from '~/hooks/useLocalParams';
 import { AddIcon } from '@theme/icons';
@@ -24,7 +24,6 @@ export default function PolicyTemplateModal() {
 
   return (
     <View style={styles.root}>
-      <Stack.Screen options={{ presentation: 'modal' }} />
       <AppbarOptions mode="large" leading="back" headline="Add policy" />
 
       <ListHeader>Policy for transactions that are</ListHeader>

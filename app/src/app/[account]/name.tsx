@@ -1,4 +1,4 @@
-import { Stack, useRouter } from 'expo-router';
+import { useRouter } from 'expo-router';
 import { gql } from '@api/generated';
 import { useForm } from 'react-hook-form';
 import { StyleSheet, View } from 'react-native';
@@ -50,7 +50,6 @@ export default function AccountNameModal() {
 
   return (
     <View style={styles.root}>
-      <Stack.Screen options={{ presentation: 'modal' }} />
       <AppbarOptions mode="large" leading="close" headline="Rename Account" />
 
       <View style={styles.fields}>

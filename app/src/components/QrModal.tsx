@@ -13,7 +13,7 @@ import { gql } from '@api/generated';
 import { OperationContext, useMutation } from 'urql';
 import { useQuery } from '~/gql';
 import { share } from '~/lib/share';
-import { Stack, useRouter } from 'expo-router';
+import { useRouter } from 'expo-router';
 
 const Query = gql(/* GraphQL */ `
   query QrModal($account: Address!) {
@@ -46,8 +46,6 @@ export function QrModal({ address, faucet }: QrModalProps) {
 
   return (
     <Blur>
-      <Stack.Screen options={{ presentation: 'transparentModal', headerShown: false }} />
-
       <View style={styles.container}>
         <IconButton
           mode="contained-tonal"

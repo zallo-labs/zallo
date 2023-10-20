@@ -7,7 +7,7 @@ import BottomSheet, {
 import { makeStyles } from '@theme/makeStyles';
 import { StyleProp, View, ViewStyle } from 'react-native';
 import { EdgeInsets, useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Stack, useRouter } from 'expo-router';
+import { useRouter } from 'expo-router';
 import { SheetBackground } from '~/components/sheet/SheetBackground';
 import { SheetBackdrop } from '~/components/sheet/SheetBackdrop';
 
@@ -53,8 +53,6 @@ export const Sheet = forwardRef<BottomSheet, SheetProps>(
         handleStyle={[styles.handle, props.handleStyle]}
         handleIndicatorStyle={[styles.handleIndicator, props.handleIndicatorStyle]}
       >
-        <Stack.Screen options={{ presentation: 'transparentModal', headerShown: false }} />
-
         <BottomSheetView
           onLayout={handleContentLayout}
           style={[styles.contentContainer, contentContainerStyle]}
