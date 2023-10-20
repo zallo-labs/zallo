@@ -114,7 +114,7 @@ export function useApprove({ approver, ...params }: UseApproveParams) {
           .with({ __typename: 'MessageProposal' }, (p) => p.typedData ?? p.message)
           .exhaustive(),
       );
-      await approve({ input: { hash: p.hash, approver, signature } });
+      if (signature) await approve({ input: { hash: p.hash, approver, signature } });
     };
   } else if (userApprover.cloud) {
     return match(userApprover.cloud)

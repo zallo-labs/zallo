@@ -1,37 +1,42 @@
 import { Href, useRouter } from 'expo-router';
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useRef } from 'react';
 import { Observable, firstValueFrom } from 'rxjs';
 
 export function useGetEvent() {
   const router = useRouter();
 
-  const isMounted = useRef(true);
-  useEffect(() => {
-    isMounted.current = true;
-
-    return () => {
-      isMounted.current = false;
-    };
-  }, []);
+  const controller = useRef<AbortController | undefined>();
 
   return useCallback(
-    async <T, R>(
+    <T, R>(
       route: Href<R>,
       observable: Observable<T>,
       withObservable?: (obs: Observable<T>) => Observable<T>,
-    ) => {
-      const p = withObservable
-        ? firstValueFrom(withObservable(observable))
-        : firstValueFrom(observable);
+    ) =>
+      new Promise<T | undefined>((resolve) => {
+        controller.current?.abort(); // Abort any existing promises
+        controller.current = new AbortController();
 
-      router.push(route);
+        let resolved = false;
+        controller.current.signal.onabort = () => {
+          if (!resolved) {
+            resolved = true;
+            resolve(undefined);
+          }
+        };
 
-      await p;
+        const p = firstValueFrom(withObservable ? withObservable(observable) : observable);
+        router.push(route);
 
-      if (isMounted) router.back();
+        p.then((r) => {
+          if (!resolved) {
+            resolved = true;
 
-      return p;
-    },
-    [router.push, router.back],
+            router.back();
+            resolve(r);
+          }
+        });
+      }),
+    [router],
   );
 }

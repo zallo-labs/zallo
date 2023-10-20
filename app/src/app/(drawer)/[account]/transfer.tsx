@@ -82,7 +82,10 @@ function TransferScreen() {
       <TokenItem
         token={token}
         amount={token.balance}
-        onPress={async () => setToken(await selectToken({ account }))}
+        onPress={async () => {
+          const token = await selectToken({ account });
+          if (token) setToken(token);
+        }}
       />
       <Divider horizontalInset />
 

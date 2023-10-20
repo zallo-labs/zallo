@@ -13,6 +13,7 @@ import { elipseTruncate } from '~/util/format';
 import { useRouter } from 'expo-router';
 import { BleDevice, isUniqueBleDeviceId } from '~/lib/ble/util';
 import { LinkWithTokenSheetParams } from '~/app/link/token';
+import { tryOr, tryOrIgnoreAsync } from 'lib';
 
 const User = gql(/* GraphQL */ `
   fragment LedgerItem_user on User {
@@ -64,7 +65,21 @@ export function LedgerItem({ device: d, ...props }: LedgerItemProps) {
     const name = d.name || productName || d.id;
 
     const { address, sign } = await getSign({ device: d.id, name });
-    const context = await authContext({ address, signMessage: sign });
+
+    const context = await tryOrIgnoreAsync(() =>
+      authContext({
+        address,
+        signMessage: async (message) => {
+          const signature = await sign(message);
+          if (!signature) throw new Error('Cancelled');
+          return signature;
+        },
+      }),
+    );
+    if (!context)
+      return showError('Connection request cancelled', {
+        action: { label: 'Try again', onPress: connect },
+      });
 
     const { data } = await api.query(Query, {}, context);
 

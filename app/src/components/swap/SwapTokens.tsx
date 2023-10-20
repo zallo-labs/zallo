@@ -62,6 +62,7 @@ export function SwapTokens({
       account,
       enabled: pools.map((p) => (p.pair[0] === from.address ? p.pair[1] : p.pair[0])),
     });
+    if (!token) return;
 
     if (token === to?.address) setToAddress(from.address);
     setFromAddress(token);

@@ -56,12 +56,15 @@ function ContactsScreen() {
           (props) => (
             <ScanIcon
               {...props}
-              onPress={async () =>
-                router.push({
-                  pathname: `/(drawer)/contacts/[address]`,
-                  params: { address: await scanAddress() },
-                })
-              }
+              onPress={async () => {
+                const address = await scanAddress();
+                if (address) {
+                  router.push({
+                    pathname: `/(drawer)/contacts/[address]`,
+                    params: { address },
+                  });
+                }
+              }}
             />
           ),
         ]}

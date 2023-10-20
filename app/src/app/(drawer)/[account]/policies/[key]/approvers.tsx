@@ -30,10 +30,12 @@ function PolicyApproversScreen() {
       include: ['approvers', 'contacts'],
       disabled: [...policy.approvers],
     });
-    updatePolicy((draft) => {
-      draft.approvers.add(address);
-      draft.threshold++;
-    });
+    if (address) {
+      updatePolicy((draft) => {
+        draft.approvers.add(address);
+        draft.threshold++;
+      });
+    }
   };
 
   const remove = (approver: Address) => {
@@ -77,7 +79,15 @@ function PolicyApproversScreen() {
         }
       />
 
-      <Fab icon={AddIcon} label="Add approver" onPress={addApprover} variant="primary" />
+      <Fab
+        icon={AddIcon}
+        label="Add approver"
+        onPress={() => {
+          addApprover();
+          console.log('pressed');
+        }}
+        variant="primary"
+      />
     </View>
   );
 }

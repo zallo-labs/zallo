@@ -93,7 +93,13 @@ function AddressesScreen() {
         trailing={[
           SearchIcon,
           (props) => (
-            <ScanIcon {...props} onPress={async () => ADDRESS_SELECTED.next(await scanAddress())} />
+            <ScanIcon
+              {...props}
+              onPress={async () => {
+                const address = await scanAddress();
+                if (address) ADDRESS_SELECTED.next(address);
+              }}
+            />
           ),
         ]}
         inset={false}

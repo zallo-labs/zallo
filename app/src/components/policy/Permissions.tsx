@@ -52,14 +52,13 @@ export function Permissions(props: PermissionsProps) {
         leading={AddIcon}
         headline="Add permssions for contract"
         trailing={NavigateNextIcon}
-        onPress={async () =>
-          pushContractScreen(
-            await selectAddress({
-              include: ['accounts', 'tokens', 'contacts'],
-              disabled: [...contracts, account],
-            }),
-          )
-        }
+        onPress={async () => {
+          const address = await selectAddress({
+            include: ['accounts', 'tokens', 'contacts'],
+            disabled: [...contracts, account],
+          });
+          if (address) pushContractScreen(address);
+        }}
       />
     </>
   );
