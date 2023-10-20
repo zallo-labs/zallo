@@ -34,7 +34,10 @@ export const useSelectToken = () => {
   const getEvent = useGetEvent();
 
   return (params: TokensScreenParams) => {
-    return getEvent({ pathname: `/(drawer)/[account]/tokens`, params }, TOKEN_SELECTED);
+    return getEvent(
+      { pathname: `/(drawer)/[account]/tokens`, params: params as any },
+      TOKEN_SELECTED,
+    );
   };
 };
 
@@ -43,7 +46,7 @@ export const TokensScreenParams = z.object({
   account: zAddress,
   disabled: zArray(zAddress).optional(),
   enabled: zArray(zAddress).optional(),
-  feeToken: z.literal('true').optional(),
+  feeToken: z.coerce.boolean().optional(),
 });
 export type TokensScreenParams = z.infer<typeof TokensScreenParams>;
 
@@ -63,7 +66,7 @@ export default function TokensScreen() {
       {
         account: params.account,
         query,
-        feeToken: params.feeToken === 'true',
+        feeToken: params.feeToken,
       },
       queryContext,
     ).data.tokens ?? [];

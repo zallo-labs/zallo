@@ -70,7 +70,7 @@ export function FeeToken(props: FeeTokenProps) {
         onPress: async () =>
           await update({
             hash: p.hash,
-            feeToken: await selectToken({ account: p.account.address, feeToken: 'true' }),
+            feeToken: await selectToken({ account: p.account.address, feeToken: true }),
           }),
       })}
     />
