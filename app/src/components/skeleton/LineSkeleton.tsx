@@ -1,4 +1,4 @@
-import { Rect } from 'react-content-loader/native';
+import { Rect } from './ContentLoader';
 import { Skeleton, SkeletonProps } from './Skeleton';
 import { O } from 'ts-toolbelt';
 import { ROUNDNESS } from '@theme/paper';

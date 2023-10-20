@@ -1,4 +1,4 @@
-import { Circle } from 'react-content-loader/native';
+import { Circle } from './ContentLoader';
 import { Skeleton } from './Skeleton';
 import { ICON_SIZE } from '@theme/paper';
 

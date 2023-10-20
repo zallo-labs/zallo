@@ -1,6 +1,5 @@
 import { useTheme } from '@theme/paper';
-import { memo } from 'react';
-import ContentLoader, { IContentLoaderProps } from 'react-content-loader/native';
+import { ContentLoader, IContentLoaderProps } from './ContentLoader';
 import { NumberProp } from 'react-native-svg';
 
 export type SkeletonProps = IContentLoaderProps & {
@@ -11,7 +10,7 @@ export type SkeletonProps = IContentLoaderProps & {
 /*
  * Skeleton generator: https://skeletonreact.com
  */
-export const Skeleton = memo(({ children, width, height, ...props }: SkeletonProps) => {
+export function Skeleton({ children, width, height, ...props }: SkeletonProps) {
   const { colors } = useTheme();
 
   return (
@@ -27,4 +26,4 @@ export const Skeleton = memo(({ children, width, height, ...props }: SkeletonPro
       {children}
     </ContentLoader>
   );
-});
+}
