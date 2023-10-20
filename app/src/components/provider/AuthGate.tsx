@@ -11,8 +11,10 @@ export const SUPPORTS_BIOMETRICS = Auth.isEnrolledAsync();
 const TIMEOUT_AFTER = Duration.fromObject({ minutes: 5 }).toMillis();
 
 export const authenticate = async (opts?: Auth.LocalAuthenticationOptions) => {
-  const resp = await Auth.authenticateAsync({ promptMessage: 'Authenticate to continue', ...opts });
-  return resp.success || !(await SUPPORTS_BIOMETRICS); // Succeed if the user has removed biometrics
+  return (
+    !(await SUPPORTS_BIOMETRICS) ||
+    (await Auth.authenticateAsync({ promptMessage: 'Authenticate to continue', ...opts })).success
+  );
 };
 
 export const AUTH_SETTINGS_ATOM = persistedAtom('AuthenticationSettings', {
