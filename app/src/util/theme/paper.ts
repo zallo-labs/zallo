@@ -1,7 +1,13 @@
-import { MD3LightTheme as overrided, useTheme as baseUseTheme } from 'react-native-paper';
+import {
+  MD3LightTheme as overrided,
+  useTheme as baseUseTheme,
+  configureFonts,
+} from 'react-native-paper';
 import color from 'color';
 import { match } from 'ts-pattern';
 import { Palette } from './palette';
+import { MD3Type } from 'react-native-paper/lib/typescript/types';
+import { FONT_BY_WEIGHT } from '~/components/Fonts';
 
 const c = (c: string, f: (color: color<string>) => color<string>) => f(color(c)).hexa();
 
@@ -75,6 +81,20 @@ export const PAPER_THEME = {
     xl: 28,
     full: 1000,
   } as const,
+
+  // Android doesn't support different font variants based on weight like web; so we change the family name
+  fonts: configureFonts({
+    isV3: true,
+    config: Object.fromEntries(
+      Object.entries(overrided.fonts).map(([variant, properties]): [string, Partial<MD3Type>] => {
+        const fontFamily = FONT_BY_WEIGHT[properties.fontWeight ?? '400'];
+        if (__DEV__ && !fontFamily)
+          throw new Error(`No font family configured for weight: ${properties.fontWeight}`);
+
+        return [variant, { ...(fontFamily && { fontFamily }) }];
+      }),
+    ),
+  }),
 };
 
 export const ICON_SIZE = PAPER_THEME.iconSize;

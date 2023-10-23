@@ -18,6 +18,7 @@ import { ThemeProvider } from '~/util/theme/ThemeProvider';
 import { AppbarHeader } from '~/components/Appbar/AppbarHeader';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { NativeStackNavigationOptions } from '@react-navigation/native-stack';
+import { Fonts } from '~/components/Fonts';
 
 const modal: NativeStackNavigationOptions = {
   presentation: 'modal',
@@ -77,6 +78,7 @@ function Layout() {
 export default function RootLayout() {
   return (
     <MinimalErrorBoundary>
+      <Fonts />
       <IntlProvider locale={locale} defaultLocale="en-US">
         <SafeAreaProvider>
           <ThemeProvider>
