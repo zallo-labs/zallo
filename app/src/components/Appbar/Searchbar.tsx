@@ -1,35 +1,31 @@
-import { IconProps } from '@theme/icons';
+import { IconProps, SearchIcon } from '@theme/icons';
 import { makeStyles } from '@theme/makeStyles';
 import { toArray } from 'lib';
 import { FC } from 'react';
 import { StyleProp, View, ViewStyle } from 'react-native';
 import { Surface } from 'react-native-paper';
-import { BasicTextField, BasicTextFieldProps } from './BasicTextField';
+import { BasicTextField, BasicTextFieldProps } from '../fields/BasicTextField';
 
 export interface SearchbarProps extends BasicTextFieldProps {
   leading?: FC<IconProps & { style?: StyleProp<ViewStyle> }>;
   trailing?: FC<IconProps> | FC<IconProps>[];
-  placeholder: string;
+  placeholder?: string;
   inset?: boolean;
 }
 
-export const Searchbar = ({
-  leading: Leading,
+export function Searchbar({
+  leading: Leading = SearchIcon,
   trailing,
   inset = true,
   ...inputProps
-}: SearchbarProps) => {
+}: SearchbarProps) {
   const styles = useStyles(inset);
 
   return (
     <Surface elevation={3} style={styles.container}>
-      {Leading && (
-        <Leading
-          size={styles.leadingIcon.fontSize}
-          color={styles.leadingIcon.color}
-          style={styles.leadingContainer}
-        />
-      )}
+      <View style={styles.leadingContainer}>
+        {Leading && <Leading size={styles.leadingIcon.fontSize} color={styles.leadingIcon.color} />}
+      </View>
 
       <BasicTextField {...inputProps} style={[styles.input, inputProps.style]} />
 
@@ -40,7 +36,7 @@ export const Searchbar = ({
       </View>
     </Surface>
   );
-};
+}
 
 const useStyles = makeStyles(({ colors, corner, fonts, insets }, inset: boolean) => ({
   // https://m3.material.io/components/search/specs

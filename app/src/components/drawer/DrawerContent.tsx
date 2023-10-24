@@ -101,8 +101,12 @@ export function DrawerContent() {
               label="Policies"
             />
           )}
-          <Item href={`/settings/auth`} icon={FingerprintIcon} label="Auth" />
-          <Item href={`/settings/notifications`} icon={NotificationsIcon} label="Notifications" />
+          <Item href={`/(drawer)/settings/auth`} icon={FingerprintIcon} label="Auth" />
+          <Item
+            href={`/(drawer)/settings/notifications`}
+            icon={NotificationsIcon}
+            label="Notifications"
+          />
         </Section>
 
         <Section title="Contact us" showDivider={false}>

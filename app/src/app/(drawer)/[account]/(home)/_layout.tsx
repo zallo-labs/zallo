@@ -1,11 +1,11 @@
 import { useEffect } from 'react';
-import { StyleSheet, View } from 'react-native';
 import { z } from 'zod';
 import { TopTabs } from '~/components/layout/TopTabs';
 import { HomeHeader } from '~/components/home/HomeHeader';
 import { useLocalParams } from '~/hooks/useLocalParams';
 import { useSetSelectedAccont } from '~/hooks/useSelectedAccount';
 import { zAddress } from '~/lib/zod';
+import { ScreenSurface } from '~/components/layout/ScreenSurface';
 
 const HomeLayoutParams = z.object({ account: zAddress });
 
@@ -18,7 +18,7 @@ export default function HomeLayout() {
   }, [account]);
 
   return (
-    <View style={styles.root}>
+    <ScreenSurface>
       <HomeHeader account={account} />
 
       <TopTabs>
@@ -29,12 +29,6 @@ export default function HomeLayout() {
           initialParams={{ account }}
         />
       </TopTabs>
-    </View>
+    </ScreenSurface>
   );
 }
-
-const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-  },
-});

@@ -1,7 +1,8 @@
 import { useState } from 'react';
+import { Platform } from 'react-native';
 import { NavigateNextIcon, ScanIcon, SearchIcon } from '~/util/theme/icons';
 import { AppbarBack } from '~/components/Appbar/AppbarBack';
-import { Searchbar } from '~/components/fields/Searchbar';
+import { Searchbar } from '~/components/Appbar/Searchbar';
 import { ListItemHeight } from '~/components/list/ListItem';
 import { gql } from '@api/generated';
 import { FlashList } from '@shopify/flash-list';
@@ -18,7 +19,6 @@ import { TokenItem } from '~/components/token/TokenItem';
 import { z } from 'zod';
 import { zAddress, zArray } from '~/lib/zod';
 import { useLocalParams } from '~/hooks/useLocalParams';
-import { Stack } from 'expo-router';
 import { withSuspense } from '~/components/skeleton/withSuspense';
 import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
 
@@ -86,7 +86,6 @@ function AddressesScreen() {
 
   return (
     <View style={styles.root}>
-      <Stack.Screen options={{ presentation: 'modal' }} />
       <Searchbar
         leading={AppbarBack}
         placeholder="Search"
@@ -102,7 +101,7 @@ function AddressesScreen() {
             />
           ),
         ]}
-        inset={false}
+        inset={Platform.OS === 'android'}
         value={query}
         onChangeText={setQuery}
       />

@@ -16,6 +16,7 @@ import { AppbarOptions } from '~/components/Appbar/AppbarOptions';
 import { getDeviceModel } from '~/lib/device';
 import { withSuspense } from '~/components/skeleton/withSuspense';
 import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
+import { ScreenSurface } from '~/components/layout/ScreenSurface';
 
 const Query = gql(/* GraphQL */ `
   query ApproverDetails($approver: Address) {
@@ -70,49 +71,49 @@ function ApproverScreen() {
   const takenNames = user.approvers.filter((a) => a.id !== approver.id).map((a) => a.name);
 
   return (
-    <View style={styles.root}>
+    <>
       <AppbarOptions mode="large" headline="Approver" />
 
-      <View style={styles.fields}>
-        <FormTextField
-          name="name"
-          control={control}
-          left={user.name ? <TextInput.Affix text={`${user.name}'s`} /> : undefined}
-          label="Label"
-          placeholder="iPhone"
-          containerStyle={styles.inset}
-          rules={{
-            required: true,
-            validate: (v) => !takenNames.includes(v) || 'An approver with ths name already exists',
-          }}
-          onBlur={handleSubmit(async ({ name }) => {
-            await update({ approver: approver.address, name });
-          })}
-        />
-      </View>
+      <ScreenSurface>
+        <View style={styles.fields}>
+          <FormTextField
+            name="name"
+            control={control}
+            left={user.name ? <TextInput.Affix text={`${user.name}'s`} /> : undefined}
+            label="Label"
+            placeholder="iPhone"
+            containerStyle={styles.inset}
+            rules={{
+              required: true,
+              validate: (v) =>
+                !takenNames.includes(v) || 'An approver with ths name already exists',
+            }}
+            onBlur={handleSubmit(async ({ name }) => {
+              await update({ approver: approver.address, name });
+            })}
+          />
+        </View>
 
-      <Actions>
-        <Button
-          mode="contained"
-          icon={QrCodeIcon}
-          onPress={() =>
-            router.push({
-              pathname: `/approver/[address]/qr`,
-              params: { address: approver.address },
-            })
-          }
-        >
-          View
-        </Button>
-      </Actions>
-    </View>
+        <Actions>
+          <Button
+            mode="contained"
+            icon={QrCodeIcon}
+            onPress={() =>
+              router.push({
+                pathname: `/approver/[address]/qr`,
+                params: { address: approver.address },
+              })
+            }
+          >
+            View
+          </Button>
+        </Actions>
+      </ScreenSurface>
+    </>
   );
 }
 
 const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-  },
   fields: {
     marginVertical: 16,
     gap: 16,

@@ -1,7 +1,7 @@
-import { useRouter } from 'expo-router';
+import { Stack, useRouter } from 'expo-router';
 import { StyleSheet, View } from 'react-native';
 import { Address } from 'lib';
-import { Searchbar } from '~/components/fields/Searchbar';
+import { Searchbar } from '~/components/Appbar/Searchbar';
 import { AddIcon, SearchIcon } from '@theme/icons';
 import { ListHeader } from '~/components/list/ListHeader';
 import { TokenItem } from '~/components/token/TokenItem';
@@ -19,6 +19,10 @@ import { zAddress, zArray } from '~/lib/zod';
 import { useLocalParams } from '~/hooks/useLocalParams';
 import { withSuspense } from '~/components/skeleton/withSuspense';
 import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
+import { SearchbarOptions } from '~/components/Appbar/SearchbarOptions';
+import { ScreenSurface } from '~/components/layout/ScreenSurface';
+import { Drawer } from '~/components/drawer/Drawer';
+import { SearchbarHeader } from '~/components/Appbar/SearchbarHeader';
 
 const Query = gql(/* GraphQL */ `
   query TokensScreen($account: Address!, $query: String, $feeToken: Boolean) {
@@ -74,44 +78,43 @@ function TokensScreen() {
     ).data.tokens ?? [];
 
   return (
-    <View style={styles.root}>
-      <Searchbar
-        leading={AppbarMenu}
+    <>
+      <SearchbarOptions
+        leading={(props) => <AppbarMenu fallback={SearchIcon} {...props} />}
         placeholder="Search tokens"
-        trailing={[
-          SearchIcon,
-          (props) => <AddIcon {...props} onPress={() => router.push(`/token/add`)} />,
-        ]}
+        trailing={(props) => <AddIcon {...props} onPress={() => router.push(`/token/add`)} />}
         value={query}
         onChangeText={setQuery}
       />
 
-      <FlashList
-        data={tokens}
-        ListHeaderComponent={<ListHeader>Tokens</ListHeader>}
-        renderItem={({ item: token }) => (
-          <TokenItem
-            token={token}
-            amount={token.balance}
-            onPress={() => {
-              if (TOKEN_SELECTED.observed) {
-                TOKEN_SELECTED.next(token.address);
-              } else {
-                router.push({
-                  pathname: `/(drawer)/token/[token]`,
-                  params: { token: token.address },
-                });
-              }
-            }}
-            disabled={disabled?.has(token.address) || (enabled && !enabled.has(token.address))}
-          />
-        )}
-        contentContainerStyle={styles.container}
-        showsVerticalScrollIndicator={false}
-        estimatedItemSize={ListItemHeight.DOUBLE_LINE}
-        keyExtractor={(item) => item.id}
-      />
-    </View>
+      <ScreenSurface>
+        <FlashList
+          data={tokens}
+          ListHeaderComponent={<ListHeader>Tokens</ListHeader>}
+          renderItem={({ item: token }) => (
+            <TokenItem
+              token={token}
+              amount={token.balance}
+              onPress={() => {
+                if (TOKEN_SELECTED.observed) {
+                  TOKEN_SELECTED.next(token.address);
+                } else {
+                  router.push({
+                    pathname: `/(drawer)/token/[token]`,
+                    params: { token: token.address },
+                  });
+                }
+              }}
+              disabled={disabled?.has(token.address) || (enabled && !enabled.has(token.address))}
+            />
+          )}
+          contentContainerStyle={styles.container}
+          showsVerticalScrollIndicator={false}
+          estimatedItemSize={ListItemHeight.DOUBLE_LINE}
+          keyExtractor={(item) => item.id}
+        />
+      </ScreenSurface>
+    </>
   );
 }
 

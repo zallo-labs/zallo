@@ -108,6 +108,8 @@ export const NotificationsIcon = materialIcon('notifications');
 export const NotificationsOutlineIcon = materialIcon('notifications-none');
 export const BluetoothIcon = materialIcon('bluetooth');
 export const FingerprintIcon = materialIcon('fingerprint');
+export const LockOpenIcon = materialIcon('lock-open');
+export const UpdateIcon = materialIcon('update');
 
 export const PolicyIcon = materialCommunityIcon('security');
 export const PolicyActiveIcon = materialCommunityIcon('shield');
@@ -123,6 +125,7 @@ export const PolicySatisfiableOutlineIcon = materialCommunityIcon('shield-check-
 export const PolicyUnsatisfiableIcon = materialCommunityIcon('shield-alert');
 export const PolicyUnsatisfiableOutlineIcon = materialCommunityIcon('shield-alert-outline');
 
+export const ZalloIcon = fromSource(require('assets/icon-rounded.svg'));
 export const LogoIcon = fromSource(require('assets/logo.svg'));
 export const AppScreenshots = fromSource(require('assets/screenshots.png'));
 export const AppStoreBadge = fromSource(require('assets/app-store-badge.svg'));
@@ -140,7 +143,7 @@ function fromSource(source: ImageSource) {
     onPress,
     ...props
   }: ImageProps & { size?: number } & Pick<TouchableOpacityProps, 'onPress'>) => (
-    <TouchableOpacity onPress={onPress}>
+    <TouchableOpacity onPress={onPress} disabled={!onPress}>
       <Image
         {...props}
         source={source}

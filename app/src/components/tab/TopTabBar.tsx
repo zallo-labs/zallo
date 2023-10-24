@@ -147,7 +147,7 @@ interface StyleParams {
 
 const useStyles = makeStyles(({ colors, fonts }, { variant, withIcon }: StyleParams) => ({
   container: {
-    backgroundColor: colors.surface,
+    backgroundColor: 'transparent',
     height: withIcon ? 64 : 48,
     // Divider
     borderBottomWidth: StyleSheet.hairlineWidth,

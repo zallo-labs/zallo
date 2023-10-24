@@ -2,7 +2,7 @@ import { useRouter } from 'expo-router';
 import { gql } from '@api/generated';
 import { FlashList } from '@shopify/flash-list';
 import { EditIcon, NavigateNextIcon, PlusIcon } from '@theme/icons';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet } from 'react-native';
 import { Menu } from 'react-native-paper';
 import { AppbarMore } from '~/components/Appbar/AppbarMore';
 import { NotFound } from '~/components/NotFound';
@@ -17,6 +17,7 @@ import { zAddress } from '~/lib/zod';
 import { useLocalParams } from '~/hooks/useLocalParams';
 import { withSuspense } from '~/components/skeleton/withSuspense';
 import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
+import { ScreenSurface } from '~/components/layout/ScreenSurface';
 
 const Query = gql(/* GraphQL */ `
   query PoliciesScreen($account: Address!) {
@@ -45,7 +46,7 @@ function PoliciesScreen() {
   if (!account) return <NotFound name="Account" />;
 
   return (
-    <View style={styles.container}>
+    <>
       <AppbarOptions
         mode="large"
         leading="menu"
@@ -69,45 +70,44 @@ function PoliciesScreen() {
         )}
       />
 
-      <FlashList
-        data={account.policies}
-        ListHeaderComponent={<ListHeader>Security Policies</ListHeader>}
-        renderItem={({ item: policy }) => (
-          <PolicyItem
-            policy={policy}
-            trailing={NavigateNextIcon}
-            onPress={() => {
-              router.push({
-                pathname: `/(drawer)/[account]/policies/[key]/`,
-                params: { account: account.address, key: policy.key },
-              });
-            }}
-          />
-        )}
-        estimatedItemSize={ListItemHeight.DOUBLE_LINE}
-        keyExtractor={(item) => item.id}
-        contentContainerStyle={styles.contentContainer}
-        showsVerticalScrollIndicator={false}
-      />
+      <ScreenSurface>
+        <FlashList
+          data={account.policies}
+          ListHeaderComponent={<ListHeader>Security Policies</ListHeader>}
+          renderItem={({ item: policy }) => (
+            <PolicyItem
+              policy={policy}
+              trailing={NavigateNextIcon}
+              onPress={() => {
+                router.push({
+                  pathname: `/(drawer)/[account]/policies/[key]/`,
+                  params: { account: account.address, key: policy.key },
+                });
+              }}
+            />
+          )}
+          estimatedItemSize={ListItemHeight.DOUBLE_LINE}
+          keyExtractor={(item) => item.id}
+          contentContainerStyle={styles.contentContainer}
+          showsVerticalScrollIndicator={false}
+        />
 
-      <Fab
-        icon={PlusIcon}
-        label="Add policy"
-        onPress={() =>
-          router.push({
-            pathname: `/[account]/policies/template`,
-            params: { account: account.address },
-          })
-        }
-      />
-    </View>
+        <Fab
+          icon={PlusIcon}
+          label="Add policy"
+          onPress={() =>
+            router.push({
+              pathname: `/[account]/policies/template`,
+              params: { account: account.address },
+            })
+          }
+        />
+      </ScreenSurface>
+    </>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
   contentContainer: {
     paddingVertical: 8,
   },

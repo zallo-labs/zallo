@@ -18,6 +18,7 @@ import { AppbarOptions } from '~/components/Appbar/AppbarOptions';
 import { AppbarMenu } from '~/components/Appbar/AppbarMenu';
 import { withSuspense } from '~/components/skeleton/withSuspense';
 import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
+import { ScreenSurface } from '~/components/layout/ScreenSurface';
 
 const Query = gql(/* GraphQL */ `
   query UserScreen {
@@ -55,7 +56,7 @@ function UserScreen() {
   });
 
   return (
-    <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
+    <>
       <AppbarOptions
         mode="large"
         leading={AppbarMenu}
@@ -63,43 +64,47 @@ function UserScreen() {
         trailing={(props) => <FormResetIcon control={control} reset={reset} {...props} />}
       />
 
-      <FormTextField
-        label="Name"
-        supporting="Only visible by account members"
-        name="name"
-        placeholder="Alisha"
-        control={control}
-        rules={{ required: true }}
-        containerStyle={styles.nameContainer}
-        onBlur={handleSubmit(async ({ name }) => {
-          await update({ name });
-        })}
-      />
+      <ScreenSurface>
+        <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
+          <FormTextField
+            label="Name"
+            supporting="Only visible by account members"
+            name="name"
+            placeholder="Alisha"
+            control={control}
+            rules={{ required: true }}
+            containerStyle={styles.nameContainer}
+            onBlur={handleSubmit(async ({ name }) => {
+              await update({ name });
+            })}
+          />
 
-      <View>
-        <ListHeader>Approvers</ListHeader>
+          <View>
+            <ListHeader>Approvers</ListHeader>
 
-        {user.approvers.map((approver) => (
-          <UserApproverItem key={approver.id} approver={approver} />
-        ))}
-      </View>
+            {user.approvers.map((approver) => (
+              <UserApproverItem key={approver.id} approver={approver} />
+            ))}
+          </View>
 
-      <Actions>
-        <Text variant="titleMedium" style={styles.linkText}>
-          Link
-        </Text>
+          <Actions>
+            <Text variant="titleMedium" style={styles.linkText}>
+              Link
+            </Text>
 
-        <View style={styles.methodsContainer}>
-          <LinkAppleButton />
+            <View style={styles.methodsContainer}>
+              <LinkAppleButton />
 
-          <LinkGoogleButton signOut onLink={() => showSuccess('Linked Google account')} />
+              <LinkGoogleButton signOut onLink={() => showSuccess('Linked Google account')} />
 
-          <LinkLedgerButton />
+              <LinkLedgerButton />
 
-          <LinkingButton />
-        </View>
-      </Actions>
-    </ScrollView>
+              <LinkingButton />
+            </View>
+          </Actions>
+        </ScrollView>
+      </ScreenSurface>
+    </>
   );
 }
 

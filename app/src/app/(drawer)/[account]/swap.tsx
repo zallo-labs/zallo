@@ -22,6 +22,7 @@ import { zAddress } from '~/lib/zod';
 import { useLocalParams } from '~/hooks/useLocalParams';
 import { withSuspense } from '~/components/skeleton/withSuspense';
 import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
+import { ScreenSurface } from '~/components/layout/ScreenSurface';
 
 const Query = gql(/* GraphQL */ `
   query SwapScreen($account: Address!, $from: Address!, $to: Address!, $skipTo: Boolean!) {
@@ -86,64 +87,63 @@ function SwapScreen() {
       : fiatToToken(parseFloat(fromInput), from.price?.current ?? 0, from.decimals);
 
   return (
-    <View style={styles.root}>
+    <>
       <AppbarOptions leading="menu" headline="Swap" />
 
-      <InputsView token={from} input={input} setInput={setInput} type={type} setType={setType} />
+      <ScreenSurface>
+        <InputsView token={from} input={input} setInput={setInput} type={type} setType={setType} />
 
-      <View style={styles.spacer} />
+        <View style={styles.spacer} />
 
-      <SwapTokens
-        account={account}
-        from={from}
-        setFromAddress={setFromAddress}
-        fromAmount={fromAmount}
-        to={to}
-        setToAddress={setToAddress}
-        pools={pools}
-        pool={pool}
-      />
+        <SwapTokens
+          account={account}
+          from={from}
+          setFromAddress={setFromAddress}
+          fromAmount={fromAmount}
+          to={to}
+          setToAddress={setToAddress}
+          pools={pools}
+          pool={pool}
+        />
 
-      <Divider horizontalInset />
+        <Divider horizontalInset />
 
-      <NumericInput
-        value={input}
-        onChange={setInput}
-        maxDecimals={type === InputType.Token ? from.decimals : FIAT_DECIMALS}
-      />
+        <NumericInput
+          value={input}
+          onChange={setInput}
+          maxDecimals={type === InputType.Token ? from.decimals : FIAT_DECIMALS}
+        />
 
-      <Button
-        mode="contained"
-        disabled={!fromAmount || !pool}
-        style={styles.action}
-        onPress={async () => {
-          const proposal = await propose({
-            account,
-            label: `Swap ${from.symbol} for ${to!.symbol}`,
-            operations: await getSwapOperations({
+        <Button
+          mode="contained"
+          disabled={!fromAmount || !pool}
+          style={styles.action}
+          onPress={async () => {
+            const proposal = await propose({
               account,
-              pool: pool!,
-              from: {
-                token: fromAddress,
-                amount: fromAmount,
-              },
-              slippage: 0.01, // 1%
-              deadline: DateTime.now().plus({ months: 3 }),
-            }),
-          });
-          router.push({ pathname: `/(drawer)/transaction/[hash]/`, params: { hash: proposal } });
-        }}
-      >
-        Propose
-      </Button>
-    </View>
+              label: `Swap ${from.symbol} for ${to!.symbol}`,
+              operations: await getSwapOperations({
+                account,
+                pool: pool!,
+                from: {
+                  token: fromAddress,
+                  amount: fromAmount,
+                },
+                slippage: 0.01, // 1%
+                deadline: DateTime.now().plus({ months: 3 }),
+              }),
+            });
+            router.push({ pathname: `/(drawer)/transaction/[hash]/`, params: { hash: proposal } });
+          }}
+        >
+          Propose
+        </Button>
+      </ScreenSurface>
+    </>
   );
 }
 
 const useStyles = makeStyles(() => ({
-  root: {
-    flex: 1,
-  },
   spacer: {
     flex: 1,
   },
