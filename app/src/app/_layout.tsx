@@ -46,7 +46,6 @@ function Layout() {
   return (
     <Stack screenOptions={{ header: AppbarHeader }}>
       <Stack.Screen name={`(drawer)`} options={{ headerShown: false }} />
-      <Stack.Screen name={`[account]/policies/[key]/[contract]/add-selector`} options={modal} />
       <Stack.Screen name={`[account]/policies/[key]/name`} options={modal} />
       <Stack.Screen name={`[account]/policies/template`} options={modal} />
       <Stack.Screen name={`[account]/name`} options={modal} />
@@ -70,6 +69,7 @@ function Layout() {
       <Stack.Screen name={`addresses`} options={{ ...modal, headerShown: false }} />
       <Stack.Screen name={`confirm`} options={transparentModal} />
       <Stack.Screen name={`index`} />
+      <Stack.Screen name={`selector`} options={modal} />
       <Stack.Screen name={`_sitemap`} />
     </Stack>
   );

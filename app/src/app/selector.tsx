@@ -1,26 +1,26 @@
-import { useImmerAtom } from 'jotai-immer';
-import { ContractPermissionsScheme } from '~/app/(drawer)/[account]/policies/[key]/[contract]';
-import { useLocalParams } from '~/hooks/useLocalParams';
-import { POLICY_DRAFT_ATOM } from '~/lib/policy/draft';
-import { Selector } from 'lib';
+import { Selector, asSelector } from 'lib';
 import { useForm } from 'react-hook-form';
 import { FormTextField } from '~/components/fields/FormTextField';
 import { StyleSheet, View } from 'react-native';
 import { Actions } from '~/components/layout/Actions';
 import { FormSubmitButton } from '~/components/fields/FormSubmitButton';
 import { AppbarOptions } from '~/components/Appbar/AppbarOptions';
+import { Subject } from 'rxjs';
+import { useGetEvent } from '~/hooks/useGetEvent';
+
+const SELECTOR_ADDED = new Subject<Selector>();
+
+export function useGetSelector() {
+  const getEvent = useGetEvent();
+
+  return () => getEvent(`/selector`, SELECTOR_ADDED);
+}
 
 interface Inputs {
   selector: string;
 }
 
-export default function AddSelectorModal() {
-  const { account } = useLocalParams(
-    `/[account]/policies/[key]/[contract]/add-selector`,
-    ContractPermissionsScheme,
-  );
-
-  const [, updatePolicy] = useImmerAtom(POLICY_DRAFT_ATOM);
+export default function SelectorModal() {
   const { control, handleSubmit } = useForm<Inputs>();
 
   return (
@@ -47,12 +47,10 @@ export default function AddSelectorModal() {
           mode="contained"
           control={control}
           onPress={handleSubmit(({ selector }) => {
-            updatePolicy((draft) => {
-              draft.permissions.targets.contracts[account].functions[selector as Selector] = true;
-            });
+            SELECTOR_ADDED.next(asSelector(selector));
           })}
         >
-          Add interaction
+          Add action
         </FormSubmitButton>
       </Actions>
     </View>
