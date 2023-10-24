@@ -86,7 +86,6 @@ function PolicyApproversScreen() {
           label="Add approver"
           onPress={() => {
             addApprover();
-            console.log('pressed');
           }}
           variant="primary"
         />

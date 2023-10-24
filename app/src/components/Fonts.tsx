@@ -21,9 +21,6 @@ SplashScreen.preventAutoHideAsync();
 export function Fonts() {
   useEffect(() => {
     loadAsync(FONTS)
-      .then(() => {
-        console.log('loaded');
-      })
       .catch((error) => logError('Failed to load fonts', { error }))
       .finally(SplashScreen.hideAsync);
   }, []);
