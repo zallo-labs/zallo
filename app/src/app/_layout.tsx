@@ -56,11 +56,8 @@ function Layout() {
       <Stack.Screen name={`ledger/sign`} options={sheet} />
       <Stack.Screen name={`link/token`} options={sheet} />
       <Stack.Screen name={`link/index`} options={transparentModal} />
-      <Stack.Screen name={`onboard/approver`} />
-      <Stack.Screen name={`onboard/auth`} />
-      <Stack.Screen name={`onboard/index`} />
-      <Stack.Screen name={`onboard/notifications`} />
-      <Stack.Screen name={`onboard/user`} />
+      <Stack.Screen name={`onboard/(drawer)`} options={{ headerShown: false }} />
+      <Stack.Screen name={`onboard/landing`} />
       <Stack.Screen name={`scan/[address]`} options={sheet} />
       <Stack.Screen name={`scan/index`} options={{ headerShown: false }} />
       <Stack.Screen name={`sessions/connect/[id]`} options={sheet} />

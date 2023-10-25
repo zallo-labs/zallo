@@ -4,6 +4,10 @@ import { ReactNode, createContext, useContext } from 'react';
 
 const CONTEXT = createContext<DrawerContext | undefined>(undefined);
 
+export function useMaybeDrawerContext() {
+  return useContext(CONTEXT);
+}
+
 export function useDrawerContext() {
   const context = useContext(CONTEXT);
   if (!context) throw new Error('Drawer context not found');

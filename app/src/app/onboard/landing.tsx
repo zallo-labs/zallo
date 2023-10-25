@@ -1,14 +1,12 @@
-import { SearchParams, useRouter } from 'expo-router';
+import { useRouter } from 'expo-router';
 import { Platform, View, ScrollView } from 'react-native';
 import { Text } from 'react-native-paper';
-import { gql } from 'urql';
 import { Button } from '~/components/Button';
 import { Actions } from '~/components/layout/Actions';
 import { LinkAppleButton } from '~/components/link/LinkAppleButton';
 import { LinkGoogleButton } from '~/components/link/LinkGoogleButton';
 import { LinkingButton } from '~/components/link/LinkingButton';
 import { LinkLedgerButton } from '~/components/link/ledger/LinkLedgerButton';
-import { useUrqlApiClient } from '@api/client';
 import { AppbarOptions } from '~/components/Appbar/AppbarOptions';
 import {
   AppScreenshots,
@@ -21,32 +19,11 @@ import {
 import { CONFIG } from '~/util/config';
 import { makeStyles } from '@theme/makeStyles';
 
-const Query = gql(/* GraphQL */ `
-  query OnboardScreen {
-    user {
-      id
-      name
-    }
-  }
-`);
-
-export type OnboardScreenRoute = `/onboard/`;
-export type OnboardScreenParams = SearchParams<OnboardScreenRoute>;
-
-export default function OnboardScreen() {
+export default function LandingScreen() {
   const styles = useStyles();
   const { push } = useRouter();
-  const api = useUrqlApiClient();
 
-  const next = async () => {
-    const user = (await api.query(Query, {}, { requestPolicy: 'network-only' })).data?.user;
-
-    if (!user?.name) {
-      push(`/onboard/user`);
-    } else {
-      push(`/onboard/approver`);
-    }
-  };
+  const next = () => push(`/onboard/(drawer)/user`);
 
   return (
     <ScrollView contentContainerStyle={styles.root}>
@@ -70,7 +47,7 @@ export default function OnboardScreen() {
 
           <View style={styles.companionContainer}>
             <Text variant="titleMedium" style={styles.text}>
-              Get the companion app
+              Use your account across all devices
             </Text>
 
             <View style={styles.appStores}>
@@ -97,7 +74,7 @@ export default function OnboardScreen() {
           <LinkingButton onLink={next} />
         </View>
 
-        <Button mode="contained" onPress={() => push(`/onboard/user`)}>
+        <Button mode="contained" onPress={next}>
           Continue
         </Button>
       </Actions>
@@ -105,7 +82,7 @@ export default function OnboardScreen() {
   );
 }
 
-const useStyles = makeStyles(({ layout, window }) => ({
+const useStyles = makeStyles(({ layout }) => ({
   root: {
     flexGrow: 1,
   },

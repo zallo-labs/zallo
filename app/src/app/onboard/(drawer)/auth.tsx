@@ -8,7 +8,7 @@ export default function NotificationsOnboardingScreen() {
   return (
     <AuthSettings
       actions={
-        <Button mode="contained" onPress={() => router.push(`/onboard/notifications`)}>
+        <Button mode="contained" onPress={() => router.push(`/onboard/(drawer)/notifications`)}>
           Continue
         </Button>
       }

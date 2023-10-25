@@ -1,14 +1,14 @@
 import { makeStyles } from '@theme/makeStyles';
 import { Surface, SurfaceProps } from 'react-native-paper';
-import { useDrawerContext } from '~/components/drawer/DrawerContextProvider';
+import { useMaybeDrawerContext } from '~/components/drawer/DrawerContextProvider';
 
 export interface ScreenSurfaceProps extends SurfaceProps {}
 
 export function ScreenSurface(props: ScreenSurfaceProps) {
   const styles = useStyles();
-  const drawer = useDrawerContext();
+  const drawer = useMaybeDrawerContext();
 
-  if (drawer.type !== 'standard') return <>{props.children}</>;
+  if (drawer?.type !== 'standard') return <>{props.children}</>;
 
   return <Surface elevation={0} {...props} style={[styles.container, props.style]} />;
 }
