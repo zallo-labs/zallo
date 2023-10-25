@@ -24,11 +24,10 @@
     "clean": "yarn workspaces foreach run clean"
   },
   "engines": {
-    "node": "18.12.1",
+    "node": "20.9.0",
     "yarn": "3.x"
   },
   "devDependencies": {
-    "@types/node": "^16.18.40",
     "@typescript-eslint/eslint-plugin": "^6.7.2",
     "@typescript-eslint/parser": "^6.7.2",
     "eslint": "^8.49.0",
