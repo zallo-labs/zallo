@@ -1,6 +1,5 @@
 import { ComponentPropsWithoutRef } from 'react';
 import { Drawer as DrawerLayout } from 'expo-router/drawer';
-import { DrawerContent } from '~/components/drawer/DrawerContent';
 import { makeStyles } from '@theme/makeStyles';
 import { useLayout } from '~/hooks/useLayout';
 import { DrawerContextProvider, DrawerType } from './DrawerContextProvider';
@@ -10,7 +9,6 @@ type DrawerLayoutProps = ComponentPropsWithoutRef<typeof DrawerLayout>;
 
 export interface DrawerProps extends DrawerLayoutProps {}
 
-// TODO: only use 'modal' type in compact and medium layouts
 export function Drawer({ children, ...props }: DrawerProps) {
   const { layout } = useLayout();
   const type: DrawerType = layout === 'expanded' ? 'standard' : 'modal';
@@ -19,7 +17,6 @@ export function Drawer({ children, ...props }: DrawerProps) {
   return (
     <DrawerContextProvider type={type}>
       <DrawerLayout
-        drawerContent={DrawerContent}
         backBehavior="history"
         {...props}
         screenOptions={{
