@@ -89,12 +89,33 @@ jobs:
     environment: main - app
     runs-on: ubuntu-latest
 
+    env:
+      DOTENV_KEY: ${{ secrets.DOTENV_KEY }}
+      NODE_OPTIONS: '--max-old-space-size=4096'
+
     steps:
-      - name: 🚀 Deploy
-        uses: fjogeleit/http-request-action@v1
+      - name: 🚧 Checkout
+        uses: actions/checkout@v3
+
+      - name: 🚧 Setup Node
+        uses: actions/setup-node@v3
         with:
-          url: ${{ secrets.WEB_DEPLOY_HOOK }}
-          method: POST
+          node-version: 18
+          cache: 'yarn'
+
+      - name: 📦 Install
+        run: yarn install
+
+      - name: 🏗️ Build
+        run: yarn app build:web
+
+      - name: 🚀 Publish
+        uses: netlify/actions/cli@master
+        with:
+          args: deploy --dir app/dist
+        env:
+          NETLIFY_SITE_ID: ${{ env.NETLIFY_SITE_ID }}
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
 
   # docs:
   #   environment: main - docs
