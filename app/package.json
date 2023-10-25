@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "prebuild": "(cd .. && yarn lib build) && yarn generate:gql && yarn expo customize tsconfig.json",
+    "build:web": "yarn prebuild && yarn expo export -p web",
     "start": "APP_VARIANT=dev yarn expo start --dev-client",
     "test": "yarn typecheck && jest",
     "typecheck": "tsc --noEmit",
