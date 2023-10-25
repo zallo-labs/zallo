@@ -52,7 +52,7 @@ jobs:
           working_directory: './api'
           sourcemaps: './dist'
 
-  app:
+  'app: native':
     environment: main - app
     runs-on: ubuntu-latest
 
@@ -85,8 +85,19 @@ jobs:
       - name: 🚀 Publish update
         run: yarn app eas update --auto --non-interactive --platform all
 
-  site:
-    environment: main - site
+  'app: web':
+    environment: main - app
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 🚀 Deploy
+        uses: fjogeleit/http-request-action@v1
+        with:
+          url: ${{ secrets.WEB_DEPLOY_HOOK }}
+          method: POST
+
+  docs:
+    environment: main - docs
     runs-on: ubuntu-latest
 
     steps:
