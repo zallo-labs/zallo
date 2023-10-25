@@ -30,7 +30,7 @@ export const NotificationChannelConfig: Record<
   },
   transfers: {
     name: 'Transfers',
-    description: 'Receipt of tokens and spending allowances',
+    description: 'Incoming tokens and allowances',
     icon: TransferIcon,
     importance: Notifications.AndroidImportance.DEFAULT,
     showBadge: false,
@@ -91,7 +91,7 @@ function NotificationSettings({ next, appbarMenu }: NotificationSettingsProps) {
       />
 
       <ScreenSurface style={styles.surface}>
-        <ListHeader>Receive notifications for</ListHeader>
+        <ListHeader>Receive</ListHeader>
 
         {Object.entries(NotificationChannelConfig).map(([channel, config]) => (
           <ListItem

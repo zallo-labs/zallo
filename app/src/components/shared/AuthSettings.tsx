@@ -40,7 +40,7 @@ function AuthSettings_({ actions, appbarMenu }: AuthSettingsProps) {
       />
 
       <ScreenSurface style={styles.surface}>
-        <ListHeader>Require biometrics when</ListHeader>
+        <ListHeader>Required</ListHeader>
 
         <ListItem
           leading={LockOpenIcon}
