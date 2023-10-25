@@ -52,7 +52,7 @@ jobs:
           working_directory: './api'
           sourcemaps: './dist'
 
-  'app: native':
+  app-native:
     environment: main - app
     runs-on: ubuntu-latest
 
@@ -85,7 +85,7 @@ jobs:
       - name: 🚀 Publish update
         run: yarn app eas update --auto --non-interactive --platform all
 
-  'app: web':
+  app-web:
     environment: main - app
     runs-on: ubuntu-latest
 
