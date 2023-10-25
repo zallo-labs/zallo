@@ -96,13 +96,13 @@ jobs:
           url: ${{ secrets.WEB_DEPLOY_HOOK }}
           method: POST
 
-  docs:
-    environment: main - docs
-    runs-on: ubuntu-latest
+  # docs:
+  #   environment: main - docs
+  #   runs-on: ubuntu-latest
 
-    steps:
-      - name: 🚀 Deploy
-        uses: fjogeleit/http-request-action@v1
-        with:
-          url: ${{ secrets.DEPLOY_HOOK }}
-          method: POST
+  #   steps:
+  #     - name: 🚀 Deploy
+  #       uses: fjogeleit/http-request-action@v1
+  #       with:
+  #         url: ${{ secrets.DEPLOY_HOOK }}
+  #         method: POST
