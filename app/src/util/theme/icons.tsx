@@ -1,6 +1,6 @@
 import { Image, ImageProps, ImageSource } from 'expo-image';
 import { ComponentPropsWithoutRef, ElementType, FC } from 'react';
-import { ColorValue, FlexStyle, ImageStyle, StyleProp, TextStyle } from 'react-native';
+import { ColorValue, TouchableOpacity, TouchableOpacityProps } from 'react-native';
 
 import { Ionicons, MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
 
@@ -108,6 +108,8 @@ export const NotificationsIcon = materialIcon('notifications');
 export const NotificationsOutlineIcon = materialIcon('notifications-none');
 export const BluetoothIcon = materialIcon('bluetooth');
 export const FingerprintIcon = materialIcon('fingerprint');
+export const LockOpenIcon = materialIcon('lock-open');
+export const UpdateIcon = materialIcon('update');
 
 export const PolicyIcon = materialCommunityIcon('security');
 export const PolicyActiveIcon = materialCommunityIcon('shield');
@@ -123,7 +125,11 @@ export const PolicySatisfiableOutlineIcon = materialCommunityIcon('shield-check-
 export const PolicyUnsatisfiableIcon = materialCommunityIcon('shield-alert');
 export const PolicyUnsatisfiableOutlineIcon = materialCommunityIcon('shield-alert-outline');
 
+export const ZalloIcon = fromSource(require('assets/icon-rounded.svg'));
 export const LogoIcon = fromSource(require('assets/logo.svg'));
+export const AppScreenshots = fromSource(require('assets/screenshots.png'));
+export const AppStoreBadge = fromSource(require('assets/app-store-badge.svg'));
+export const GooglePlayBadge = fromSource(require('assets/google-play-badge.png'));
 export const MastercardIcon = fromSource(require('assets/mastercard.svg'));
 export const WalletConnectIcon = fromSource(require('assets/walletconnect.svg'));
 export const TwitterIcon = fromSource(require('assets/twitter.svg'));
@@ -133,17 +139,16 @@ export const LedgerLogo = fromSource(require('assets/ledger-logo.svg'));
 export const AppleIcon = fromSource(require('assets/apple.svg'));
 
 function fromSource(source: ImageSource) {
-  return (props: ImageProps & { size?: number }) => (
-    <Image
-      {...props}
-      source={source}
-      style={[
-        {
-          ...(props.size && { width: props.size, height: props.size }),
-          // aspectRatio: 1,
-        },
-        props.style,
-      ]}
-    />
+  return ({
+    onPress,
+    ...props
+  }: ImageProps & { size?: number } & Pick<TouchableOpacityProps, 'onPress'>) => (
+    <TouchableOpacity onPress={onPress} disabled={!onPress}>
+      <Image
+        {...props}
+        source={source}
+        style={[{ ...(props.size && { width: props.size, height: props.size }) }, props.style]}
+      />
+    </TouchableOpacity>
   );
 }

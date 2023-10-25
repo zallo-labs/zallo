@@ -16,6 +16,7 @@ import { useSelectAddress } from '~/hooks/useSelectAddress';
 import { AppbarOptions } from '~/components/Appbar/AppbarOptions';
 import { withSuspense } from '~/components/skeleton/withSuspense';
 import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
+import { ScreenSurface } from '~/components/layout/ScreenSurface';
 
 export type PolicyApproversScreenRoute = `/(drawer)/[account]/policies/[key]/approvers`;
 export type PolicyApproversScreenParams = SearchParams<PolicyApproversScreenRoute>;
@@ -59,36 +60,37 @@ function PolicyApproversScreen() {
   };
 
   return (
-    <View style={styles.root}>
+    <>
       <AppbarOptions mode="large" headline={`${policy.name} approvers`} />
 
-      <View style={styles.chipContainer}>
-        <ThresholdChip />
-      </View>
+      <ScreenSurface>
+        <View style={styles.chipContainer}>
+          <ThresholdChip />
+        </View>
 
-      <FlashList
-        data={[...policy.approvers]}
-        renderItem={({ item }) => <ApproverItem address={item} remove={() => remove(item)} />}
-        keyExtractor={(item) => item}
-        estimatedItemSize={ListItemHeight.SINGLE_LINE}
-        ListEmptyComponent={
-          <Text variant="titleMedium" style={styles.noApproversText}>
-            No approvals are required - literally anyone may execute a transaction using this
-            policy. Make sure this is intended!
-          </Text>
-        }
-      />
+        <FlashList
+          data={[...policy.approvers]}
+          renderItem={({ item }) => <ApproverItem address={item} remove={() => remove(item)} />}
+          keyExtractor={(item) => item}
+          estimatedItemSize={ListItemHeight.SINGLE_LINE}
+          ListEmptyComponent={
+            <Text variant="titleMedium" style={styles.noApproversText}>
+              No approvals are required - literally anyone may execute a transaction using this
+              policy. Make sure this is intended!
+            </Text>
+          }
+        />
 
-      <Fab
-        icon={AddIcon}
-        label="Add approver"
-        onPress={() => {
-          addApprover();
-          console.log('pressed');
-        }}
-        variant="primary"
-      />
-    </View>
+        <Fab
+          icon={AddIcon}
+          label="Add approver"
+          onPress={() => {
+            addApprover();
+          }}
+          variant="primary"
+        />
+      </ScreenSurface>
+    </>
   );
 }
 
@@ -99,8 +101,7 @@ const useStyles = makeStyles(({ colors }) => ({
   chipContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
-    marginTop: 8,
-    marginBottom: 16,
+    marginVertical: 16,
   },
   noApproversText: {
     textAlign: 'center',

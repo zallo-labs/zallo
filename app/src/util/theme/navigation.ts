@@ -7,5 +7,6 @@ export const NAVIGATION_THEME = {
   colors: {
     ...NavTheme.colors,
     ...PAPER_THEME.colors,
+    background: 'transparent',
   },
 };

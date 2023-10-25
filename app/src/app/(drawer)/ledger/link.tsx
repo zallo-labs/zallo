@@ -16,6 +16,7 @@ import useBluetoothPermissions from '~/hooks/ble/useBluetoothPermissions';
 import { useMemo } from 'react';
 import { withSuspense } from '~/components/skeleton/withSuspense';
 import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
+import { ScreenSurface } from '~/components/layout/ScreenSurface';
 
 const Query = gql(/* GraphQL */ `
   query LinkLedgerScreen {
@@ -34,65 +35,64 @@ function LinkLedgerScreen() {
   const { user } = useQuery(Query).data;
 
   return (
-    <View style={styles.root}>
+    <>
       <AppbarOptions headline="Link Ledger" />
 
-      <View style={styles.headerContainer}>
-        <LedgerLogo style={styles.logo} />
+      <ScreenSurface>
+        <View style={styles.headerContainer}>
+          <LedgerLogo style={styles.logo} />
 
-        <Text variant="titleLarge" style={styles.headerText}>
-          Unlock your Ledger, enable bluetooth, and open the Ethereum app
-        </Text>
-      </View>
+          <Text variant="titleLarge" style={styles.headerText}>
+            Unlock your Ledger, enable bluetooth, and open the Ethereum app
+          </Text>
+        </View>
 
-      {devices.isOk() ? (
-        <FlatList
-          data={devices.value}
-          ListHeaderComponent={
-            <ListHeader trailing={() => <ActivityIndicator size={16} />}>
-              Available devices
-            </ListHeader>
-          }
-          renderItem={({ item }) => <LedgerItem user={user} device={item} />}
-          extraData={[user]}
-          contentContainerStyle={styles.listContainer}
-          keyExtractor={(d) => d.id}
-        />
-      ) : (
-        match(devices.error)
-          .with('permissions-required', () => (
-            <>
+        {devices.isOk() ? (
+          <FlatList
+            data={devices.value}
+            ListHeaderComponent={
+              <ListHeader trailing={() => <ActivityIndicator size={16} />}>
+                Available devices
+              </ListHeader>
+            }
+            renderItem={({ item }) => <LedgerItem user={user} device={item} />}
+            extraData={[user]}
+            contentContainerStyle={styles.listContainer}
+            keyExtractor={(d) => d.id}
+          />
+        ) : (
+          match(devices.error)
+            .with('permissions-required', () => (
+              <>
+                <Text variant="titleMedium" style={styles.errorText}>
+                  Please grant bluetooth related permissions in order to scan and connect
+                </Text>
+
+                <Actions>
+                  <Button mode="contained" onPress={requestPermissions}>
+                    Grant
+                  </Button>
+                </Actions>
+              </>
+            ))
+            .with('disabled', () => (
               <Text variant="titleMedium" style={styles.errorText}>
-                Please grant bluetooth related permissions in order to scan and connect
+                Please enable bluetooth
               </Text>
-
-              <Actions>
-                <Button mode="contained" onPress={requestPermissions}>
-                  Grant
-                </Button>
-              </Actions>
-            </>
-          ))
-          .with('disabled', () => (
-            <Text variant="titleMedium" style={styles.errorText}>
-              Please enable bluetooth
-            </Text>
-          ))
-          .with('unsupported', () => (
-            <Text variant="titleMedium" style={styles.errorText}>
-              Bluetooth is unsupported
-            </Text>
-          ))
-          .exhaustive()
-      )}
-    </View>
+            ))
+            .with('unsupported', () => (
+              <Text variant="titleMedium" style={styles.errorText}>
+                Bluetooth is unsupported
+              </Text>
+            ))
+            .exhaustive()
+        )}
+      </ScreenSurface>
+    </>
   );
 }
 
 const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-  },
   headerContainer: {
     marginHorizontal: 16,
     marginVertical: 32,

@@ -1,6 +1,4 @@
-import { ICON_SIZE } from '@theme/paper';
-import { StyleSheet, View } from 'react-native';
-import { Text } from 'react-native-paper';
+import { StyleSheet } from 'react-native';
 import { persistedAtom } from '~/lib/persistedAtom';
 import { useImmerAtom } from 'jotai-immer';
 import * as Notifications from 'expo-notifications';
@@ -9,22 +7,31 @@ import { Switch } from 'react-native-paper';
 import { Actions } from '~/components/layout/Actions';
 import { Button } from '~/components/Button';
 import { ListItem } from '~/components/list/ListItem';
-import { NotificationsOutlineIcon } from '@theme/icons';
 import { useAtomValue } from 'jotai';
 import { ListHeader } from '~/components/list/ListHeader';
 import { withSuspense } from '~/components/skeleton/withSuspense';
 import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
+import { AppbarOptions } from '~/components/Appbar/AppbarOptions';
+import { ScreenSurface } from '~/components/layout/ScreenSurface';
+import { ActivityIcon, IconProps, TransferIcon, UpdateIcon } from '@theme/icons';
+import { FC } from 'react';
+import { AppbarMenu } from '~/components/Appbar/AppbarMenu';
 
 export type NotificationChannel = 'product' | 'activity' | 'transfers';
-export const NotificationChannelConfig: Record<NotificationChannel, NotificationChannelInput> = {
+export const NotificationChannelConfig: Record<
+  NotificationChannel,
+  NotificationChannelInput & { icon?: FC<IconProps> }
+> = {
   product: {
     name: 'Product updates',
     description: 'New features and announcements',
+    icon: UpdateIcon,
     importance: Notifications.AndroidImportance.DEFAULT,
   },
   transfers: {
     name: 'Transfers',
-    description: 'Receipt of tokens and spending allowances',
+    description: 'Incoming tokens and allowances',
+    icon: TransferIcon,
     importance: Notifications.AndroidImportance.DEFAULT,
     showBadge: false,
     enableLights: false,
@@ -32,7 +39,8 @@ export const NotificationChannelConfig: Record<NotificationChannel, Notification
   },
   activity: {
     name: 'Account activity',
-    description: '',
+    description: 'Proposal approvals',
+    icon: ActivityIcon,
     importance: Notifications.AndroidImportance.MAX,
     showBadge: true,
     enableLights: true,
@@ -58,9 +66,10 @@ export const useNotificationSettings = () => ({
 
 export interface NotificationSettingsProps {
   next?: () => void;
+  appbarMenu?: boolean;
 }
 
-function NotificationSettings({ next }: NotificationSettingsProps) {
+function NotificationSettings({ next, appbarMenu }: NotificationSettingsProps) {
   const [settings, update] = useImmerAtom(NOTIFICATIONS_ATOM);
 
   const [perm, requestPerm] = Notifications.usePermissions({
@@ -74,21 +83,20 @@ function NotificationSettings({ next }: NotificationSettingsProps) {
   });
 
   return (
-    <View style={styles.root}>
-      <View style={styles.header}>
-        <NotificationsOutlineIcon size={ICON_SIZE.medium} />
+    <>
+      <AppbarOptions
+        mode="large"
+        {...(appbarMenu && { leading: AppbarMenu })}
+        headline="Notifications"
+      />
 
-        <Text variant="headlineMedium" style={styles.text}>
-          Notifications
-        </Text>
-      </View>
-
-      <View>
-        <ListHeader>Receive notifications for</ListHeader>
+      <ScreenSurface style={styles.surface}>
+        <ListHeader>Receive</ListHeader>
 
         {Object.entries(NotificationChannelConfig).map(([channel, config]) => (
           <ListItem
             key={channel}
+            leading={config.icon}
             headline={config.name}
             supporting={config.description}
             trailing={
@@ -103,40 +111,30 @@ function NotificationSettings({ next }: NotificationSettingsProps) {
             }
           />
         ))}
-      </View>
 
-      <Actions>
-        {!perm?.granted && next && <Button onPress={next}>Skip</Button>}
+        <Actions>
+          {!perm?.granted && next && <Button onPress={next}>Skip</Button>}
 
-        {(!perm?.granted || next) && (
-          <Button
-            mode="contained"
-            onPress={async () => {
-              await requestPerm();
-              next?.();
-            }}
-          >
-            {perm?.granted ? 'Continue' : 'Enable'}
-          </Button>
-        )}
-      </Actions>
-    </View>
+          {(!perm?.granted || next) && (
+            <Button
+              mode="contained"
+              onPress={async () => {
+                await requestPerm();
+                next?.();
+              }}
+            >
+              {perm?.granted ? 'Continue' : 'Enable'}
+            </Button>
+          )}
+        </Actions>
+      </ScreenSurface>
+    </>
   );
 }
 
 const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-  },
-  header: {
-    alignItems: 'center',
-    gap: 4,
-    marginVertical: 32,
-    marginHorizontal: 16,
-  },
-  text: {
-    textAlign: 'center',
-    marginBottom: 8,
+  surface: {
+    paddingTop: 8,
   },
 });
 

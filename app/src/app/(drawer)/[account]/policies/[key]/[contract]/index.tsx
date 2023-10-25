@@ -1,4 +1,3 @@
-import { useRouter } from 'expo-router';
 import { useImmerAtom } from 'jotai-immer';
 import {
   ERC20_ABI,
@@ -27,6 +26,8 @@ import { zAddress } from '~/lib/zod';
 import { useLocalParams } from '~/hooks/useLocalParams';
 import { withSuspense } from '~/components/skeleton/withSuspense';
 import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
+import { ScreenSurface } from '~/components/layout/ScreenSurface';
+import { useGetSelector } from '~/app/selector';
 
 const Query = gql(/* GraphQL */ `
   query ContractPermissionsScreen($contract: Address!) {
@@ -53,20 +54,21 @@ const ERC20_FUNCTIONS = ERC20_ABI.filter(
   abi,
 }));
 
-export const ContractPermissionsScheme = z.object({
+export const ContractPermissionsParams = z.object({
   account: zAddress,
   key: z.string(),
   contract: zAddress,
 });
+export type ContractPermissionsParams = z.infer<typeof ContractPermissionsParams>;
 
 function ContractPermissionsScreen() {
   const params = useLocalParams(
     `/(drawer)/[account]/policies/[key]/[contract]/`,
-    ContractPermissionsScheme,
+    ContractPermissionsParams,
   );
-  const address = params.account;
-  const router = useRouter();
+  const address = params.contract;
   const { contract, token } = useQuery(Query, { contract: address }).data;
+  const getSelector = useGetSelector();
 
   const [{ permissions }, updatePolicy] = useImmerAtom(POLICY_DRAFT_ATOM);
 
@@ -89,66 +91,82 @@ function ContractPermissionsScreen() {
   );
 
   return (
-    <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
+    <>
       <AppbarOptions
         mode="large"
         headline={useAddressLabel(address)}
         trailing={(props) => (
           <PlusIcon
             {...props}
-            onPress={() =>
-              router.push({ pathname: `/[account]/policies/[key]/[contract]/add-selector`, params })
-            }
+            onPress={async () => {
+              const selector = await getSelector();
+              if (!selector) return;
+
+              updatePolicy((draft) => {
+                draft.permissions.targets.contracts[address] ??= {
+                  defaultAllow: draft.permissions.targets.default.defaultAllow,
+                  functions: {},
+                };
+                draft.permissions.targets.contracts[address].functions[selector] = true;
+              });
+            }}
           />
         )}
       />
 
-      {token && <SpendingLimit token={token} />}
+      <ScreenSurface style={styles.surface}>
+        <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
+          {token && <SpendingLimit token={token} />}
 
-      <ListHeader>Actions</ListHeader>
+          <ListHeader>Actions</ListHeader>
 
-      <ListItem
-        headline="Allow unlisted actions"
-        trailing={
-          <Switch
-            value={target?.defaultAllow ?? permissions.targets.default.defaultAllow}
-            onValueChange={(enabled) =>
-              updatePolicy((draft) => {
-                draft.permissions.targets.contracts[address] = {
-                  functions: draft.permissions.targets.contracts[address]?.functions ?? {},
-                  defaultAllow: enabled,
-                };
-              })
-            }
-          />
-        }
-      />
-
-      {functions.map((f) => {
-        if (SPENDING_TRANSFER_FUNCTIONS.has(f.selector)) return null; // Handled by SpendingLimit
-
-        return (
           <ListItem
-            key={f.selector}
-            headline={f.abi?.name ?? f.selector}
+            headline="Allow unlisted actions"
             trailing={
               <Switch
-                value={isTargetAllowed(permissions.targets, address, f.selector)}
+                value={target?.defaultAllow ?? permissions.targets.default.defaultAllow}
                 onValueChange={(enabled) =>
                   updatePolicy((draft) => {
-                    setTargetAllowed(draft.permissions.targets, address, f.selector, enabled);
+                    draft.permissions.targets.contracts[address] = {
+                      functions: draft.permissions.targets.contracts[address]?.functions ?? {},
+                      defaultAllow: enabled,
+                    };
                   })
                 }
               />
             }
           />
-        );
-      })}
-    </ScrollView>
+
+          {functions.map((f) => {
+            if (SPENDING_TRANSFER_FUNCTIONS.has(f.selector)) return null; // Handled by SpendingLimit
+
+            return (
+              <ListItem
+                key={f.selector}
+                headline={f.abi?.name ?? f.selector}
+                trailing={
+                  <Switch
+                    value={isTargetAllowed(permissions.targets, address, f.selector)}
+                    onValueChange={(enabled) =>
+                      updatePolicy((draft) => {
+                        setTargetAllowed(draft.permissions.targets, address, f.selector, enabled);
+                      })
+                    }
+                  />
+                }
+              />
+            );
+          })}
+        </ScrollView>
+      </ScreenSurface>
+    </>
   );
 }
 
 const styles = StyleSheet.create({
+  surface: {
+    paddingTop: 8,
+  },
   container: {
     flexGrow: 1,
   },

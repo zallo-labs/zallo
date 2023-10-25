@@ -5,7 +5,7 @@ import { QrModal } from '~/components/QrModal';
 export type ApproverQrModalRoute = `/approver/[address]/qr`;
 export type ApproverQrModalParams = SearchParams<ApproverQrModalRoute>;
 
-export function ApproverQrModal() {
+export default function ApproverQrModal() {
   const params = useLocalSearchParams<ApproverQrModalParams>();
 
   return <QrModal address={asAddress(params.address)} />;

@@ -12,7 +12,8 @@ import { useRouter } from 'expo-router';
 import { TopTabs } from '~/components/layout/TopTabs';
 import { MessageProposalActions } from '~/components/proposal/MessageProposalActions';
 import { AppbarOptions } from '~/components/Appbar/AppbarOptions';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, ScrollView } from 'react-native';
+import { ScreenSurface } from '~/components/layout/ScreenSurface';
 
 const Query = gql(/* GraphQL */ `
   query MessageLayout($proposal: Bytes32!) {
@@ -56,7 +57,7 @@ export default function MessageLayout() {
   if (!proposal) return query.stale ? null : <NotFound name="Proposal" />;
 
   return (
-    <View style={styles.root}>
+    <>
       <AppbarOptions
         headline={proposal.account.name}
         trailing={(props) => (
@@ -77,26 +78,30 @@ export default function MessageLayout() {
         )}
       />
 
-      <TopTabs>
-        <TopTabs.Screen
-          name="index"
-          options={{ title: 'Details' }}
-          initialParams={{ hash: params.hash }}
-        />
-        <TopTabs.Screen
-          name="policy"
-          options={{ title: 'Policy' }}
-          initialParams={{ hash: params.hash }}
-        />
-      </TopTabs>
+      <ScreenSurface>
+        <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
+          <TopTabs>
+            <TopTabs.Screen
+              name="index"
+              options={{ title: 'Details' }}
+              initialParams={{ hash: params.hash }}
+            />
+            <TopTabs.Screen
+              name="policy"
+              options={{ title: 'Policy' }}
+              initialParams={{ hash: params.hash }}
+            />
+          </TopTabs>
 
-      <MessageProposalActions proposal={proposal} user={query.data.user} />
-    </View>
+          <MessageProposalActions proposal={proposal} user={query.data.user} />
+        </ScrollView>
+      </ScreenSurface>
+    </>
   );
 }
 
 const styles = StyleSheet.create({
-  root: {
-    flex: 1,
+  container: {
+    flexGrow: 1,
   },
 });

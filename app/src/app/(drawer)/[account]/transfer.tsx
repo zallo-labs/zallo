@@ -22,6 +22,7 @@ import { useLocalParams } from '~/hooks/useLocalParams';
 import { Actions } from '~/components/layout/Actions';
 import { withSuspense } from '~/components/skeleton/withSuspense';
 import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
+import { ScreenSurface } from '~/components/layout/ScreenSurface';
 
 const Query = gql(/* GraphQL */ `
   query TransferScreen($account: Address!, $token: Address!) {
@@ -72,48 +73,50 @@ function TransferScreen() {
       : fiatToToken(parseFloat(inputAmount), token.price?.current ?? 0, token.decimals);
 
   return (
-    <View style={styles.root}>
+    <>
       <AppbarOptions leading="menu" headline={`Transfer to ${toLabel}`} />
 
-      <InputsView token={token} input={input} setInput={setInput} type={type} setType={setType} />
+      <ScreenSurface>
+        <InputsView token={token} input={input} setInput={setInput} type={type} setType={setType} />
 
-      <View style={styles.spacer} />
+        <View style={styles.spacer} />
 
-      <TokenItem
-        token={token}
-        amount={token.balance}
-        onPress={async () => {
-          const token = await selectToken({ account });
-          if (token) setToken(token);
-        }}
-      />
-      <Divider horizontalInset />
-
-      <NumericInput
-        value={input}
-        onChange={setInput}
-        maxDecimals={type === InputType.Token ? token.decimals : FIAT_DECIMALS}
-      />
-
-      <Actions flex={false}>
-        <Button
-          mode="contained"
-          style={styles.action}
+        <TokenItem
+          token={token}
+          amount={token.balance}
           onPress={async () => {
-            const proposal = await propose({
-              account,
-              operations: [createTransferOp({ token: token.address, to, amount: tokenAmount })],
-            });
-            router.push({
-              pathname: `/(drawer)/transaction/[hash]/`,
-              params: { hash: proposal },
-            });
+            const token = await selectToken({ account });
+            if (token) setToken(token);
           }}
-        >
-          Propose
-        </Button>
-      </Actions>
-    </View>
+        />
+        <Divider horizontalInset />
+
+        <NumericInput
+          value={input}
+          onChange={setInput}
+          maxDecimals={type === InputType.Token ? token.decimals : FIAT_DECIMALS}
+        />
+
+        <Actions flex={false}>
+          <Button
+            mode="contained"
+            style={styles.action}
+            onPress={async () => {
+              const proposal = await propose({
+                account,
+                operations: [createTransferOp({ token: token.address, to, amount: tokenAmount })],
+              });
+              router.push({
+                pathname: `/(drawer)/transaction/[hash]/`,
+                params: { hash: proposal },
+              });
+            }}
+          >
+            Propose
+          </Button>
+        </Actions>
+      </ScreenSurface>
+    </>
   );
 }
 

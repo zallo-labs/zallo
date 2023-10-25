@@ -1,25 +1,27 @@
-import { ICON_SIZE } from '@theme/paper';
-import { StyleSheet, View } from 'react-native';
-import { Text } from 'react-native-paper';
+import { StyleSheet } from 'react-native';
 import { useImmerAtom } from 'jotai-immer';
 import { Switch } from 'react-native-paper';
 import { Actions } from '~/components/layout/Actions';
 import { ListItem } from '~/components/list/ListItem';
-import { FingerprintIcon } from '@theme/icons';
+import { LockOpenIcon, TransferIcon } from '@theme/icons';
 import { ListHeader } from '~/components/list/ListHeader';
 import { atom, useAtomValue } from 'jotai';
 import { AUTH_SETTINGS_ATOM, SUPPORTS_BIOMETRICS } from '~/components/provider/AuthGate';
 import { ReactNode, useEffect } from 'react';
 import { withSuspense } from '~/components/skeleton/withSuspense';
 import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
+import { ScreenSurface } from '~/components/layout/ScreenSurface';
+import { AppbarOptions } from '~/components/Appbar/AppbarOptions';
+import { AppbarMenu } from '~/components/Appbar/AppbarMenu';
 
 const biometricsAvailableAtom = atom(SUPPORTS_BIOMETRICS);
 
 export interface AuthSettingsProps {
   actions?: ReactNode;
+  appbarMenu?: boolean;
 }
 
-function AuthSettings_({ actions }: AuthSettingsProps) {
+function AuthSettings_({ actions, appbarMenu }: AuthSettingsProps) {
   const hasSupport = useAtomValue(biometricsAvailableAtom);
 
   const [settings, updateSettings] = useImmerAtom(AUTH_SETTINGS_ATOM);
@@ -30,24 +32,22 @@ function AuthSettings_({ actions }: AuthSettingsProps) {
   }, [hasSupport, settings.open, updateSettings]);
 
   return (
-    <View style={styles.root}>
-      <View style={styles.header}>
-        <FingerprintIcon size={ICON_SIZE.medium} />
+    <>
+      <AppbarOptions
+        mode="large"
+        {...(appbarMenu && { leading: AppbarMenu })}
+        headline="Authentication"
+      />
 
-        <Text variant="headlineMedium" style={styles.text}>
-          Authentication
-        </Text>
-      </View>
-
-      <View>
-        <ListHeader>Require biometrics when</ListHeader>
+      <ScreenSurface style={styles.surface}>
+        <ListHeader>Required</ListHeader>
 
         <ListItem
-          leading={(props) => <FingerprintIcon {...props} size={ICON_SIZE.medium} />}
+          leading={LockOpenIcon}
           headline="Opening the app"
           trailing={({ disabled }) => (
             <Switch
-              value={settings.open ?? true}
+              value={hasSupport && (settings.open ?? true)}
               onValueChange={() => updateSettings((s) => ({ ...s, open: !s.open }))}
               disabled={disabled}
             />
@@ -56,27 +56,27 @@ function AuthSettings_({ actions }: AuthSettingsProps) {
         />
 
         <ListItem
-          leading={(props) => <FingerprintIcon {...props} size={ICON_SIZE.medium} />}
+          leading={TransferIcon}
           headline="Approving a proposal"
           trailing={({ disabled }) => (
             <Switch
-              value={settings.approval}
+              value={hasSupport && settings.approval}
               onValueChange={() => updateSettings((s) => ({ ...s, approval: !s.approval }))}
               disabled={disabled}
             />
           )}
           disabled={!hasSupport}
         />
-      </View>
 
-      <Actions>{actions}</Actions>
-    </View>
+        <Actions>{actions}</Actions>
+      </ScreenSurface>
+    </>
   );
 }
 
 const styles = StyleSheet.create({
-  root: {
-    flex: 1,
+  surface: {
+    paddingTop: 8,
   },
   header: {
     alignItems: 'center',

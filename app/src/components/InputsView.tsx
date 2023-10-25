@@ -109,7 +109,6 @@ export const InputsView = ({ input, setInput, type, setType, ...props }: InputsV
 
 const useStyles = makeStyles(({ colors }) => ({
   container: {
-    alignItems: 'center',
     marginHorizontal: 16,
     marginVertical: 32,
   },
@@ -134,7 +133,8 @@ const useStyles = makeStyles(({ colors }) => ({
     textAlign: 'center',
   },
   balanceWarning: {
-    marginVertical: 8,
     color: colors.warning,
+    textAlign: 'center',
+    marginVertical: 8,
   },
 }));

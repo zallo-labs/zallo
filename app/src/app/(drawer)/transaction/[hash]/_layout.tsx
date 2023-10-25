@@ -14,6 +14,7 @@ import { ProposalActions } from '~/components/transaction/ProposalActions';
 import { AppbarOptions } from '~/components/Appbar/AppbarOptions';
 import { useRouter } from 'expo-router';
 import { TopTabs } from '~/components/layout/TopTabs';
+import { ScreenSurface } from '~/components/layout/ScreenSurface';
 
 const Query = gql(/* GraphQL */ `
   query TransactionLayout($hash: Bytes32!) {
@@ -56,7 +57,7 @@ export default function TransactionLayout() {
   if (!proposal) return query.stale ? null : <NotFound name="Proposal" />;
 
   return (
-    <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
+    <>
       <AppbarOptions
         headline={proposal.account.name}
         trailing={(props) => (
@@ -77,18 +78,22 @@ export default function TransactionLayout() {
         )}
       />
 
-      <TopTabs>
-        <TopTabs.Screen name="index" options={{ title: 'Details' }} initialParams={{ hash }} />
-        <TopTabs.Screen name="policy" options={{ title: 'Policy' }} initialParams={{ hash }} />
-        <TopTabs.Screen
-          name="transaction"
-          options={{ title: 'Transaction' }}
-          initialParams={{ hash }}
-        />
-      </TopTabs>
+      <ScreenSurface>
+        <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
+          <TopTabs>
+            <TopTabs.Screen name="index" options={{ title: 'Details' }} initialParams={{ hash }} />
+            <TopTabs.Screen name="policy" options={{ title: 'Policy' }} initialParams={{ hash }} />
+            <TopTabs.Screen
+              name="transaction"
+              options={{ title: 'Transaction' }}
+              initialParams={{ hash }}
+            />
+          </TopTabs>
 
-      <ProposalActions proposal={proposal} user={user} />
-    </ScrollView>
+          <ProposalActions proposal={proposal} user={user} />
+        </ScrollView>
+      </ScreenSurface>
+    </>
   );
 }
 

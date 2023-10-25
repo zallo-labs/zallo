@@ -19,6 +19,7 @@ import { POLICY_DRAFT_ATOM, asPolicyInput } from '~/lib/policy/draft';
 import { showError } from '~/components/provider/SnackbarProvider';
 import { withSuspense } from '~/components/skeleton/withSuspense';
 import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
+import { ScreenSurface } from '~/components/layout/ScreenSurface';
 
 const Query = gql(/* GraphQL */ `
   query PolicyScreen($account: Address!, $key: PolicyKey!, $queryPolicy: Boolean!) {
@@ -116,7 +117,7 @@ function PolicyScreen() {
   if (!account) return null;
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
+    <>
       <PolicyAppbar
         account={account.address}
         policyKey={params.key}
@@ -126,44 +127,48 @@ function PolicyScreen() {
         reset={isModified ? () => setDraft(init) : undefined}
       />
 
-      <ListItem
-        leading={DoubleCheckIcon}
-        headline="Approvals"
-        supporting={`${draft.threshold}/${draft.approvers.size} required`}
-        trailing={NavigateNextIcon}
-        onPress={() =>
-          router.push({
-            pathname: `/(drawer)/[account]/policies/[key]/approvers`,
-            params: { account: draft.account, key: draft.key ?? 'add' },
-          })
-        }
-      />
+      <ScreenSurface>
+        <ScrollView contentContainerStyle={styles.container}>
+          <ListItem
+            leading={DoubleCheckIcon}
+            headline="Approvals"
+            supporting={`${draft.threshold}/${draft.approvers.size} required`}
+            trailing={NavigateNextIcon}
+            onPress={() =>
+              router.push({
+                pathname: `/(drawer)/[account]/policies/[key]/approvers`,
+                params: { account: draft.account, key: draft.key ?? 'add' },
+              })
+            }
+          />
 
-      <Permissions account={account.address} policyKey={params.key} />
+          <Permissions account={account.address} policyKey={params.key} />
 
-      {(draft.key === undefined || isModified) && (
-        <Fab
-          icon={TransferIcon}
-          label={draft.key === undefined ? 'Create' : 'Update'}
-          onPress={async () => {
-            const input = { ...asPolicyInput(draft), account: draft.account };
-            const r =
-              input.key !== undefined
-                ? (await update({ input })).data?.updatePolicy
-                : (await create({ input })).data?.createPolicy;
+          {(draft.key === undefined || isModified) && (
+            <Fab
+              icon={TransferIcon}
+              label={draft.key === undefined ? 'Create' : 'Update'}
+              onPress={async () => {
+                const input = { ...asPolicyInput(draft), account: draft.account };
+                const r =
+                  input.key !== undefined
+                    ? (await update({ input })).data?.updatePolicy
+                    : (await create({ input })).data?.createPolicy;
 
-            const proposal = r?.draft?.proposal;
-            if (!proposal) return showError('Failed to propose changes');
+                const proposal = r?.draft?.proposal;
+                if (!proposal) return showError('Failed to propose changes');
 
-            router.setParams({ ...params, key: `${r.key}`, view: 'draft' });
-            router.push({
-              pathname: `/(drawer)/transaction/[hash]/`,
-              params: { hash: proposal.hash },
-            });
-          }}
-        />
-      )}
-    </ScrollView>
+                router.setParams({ ...params, key: `${r.key}`, view: 'draft' });
+                router.push({
+                  pathname: `/(drawer)/transaction/[hash]/`,
+                  params: { hash: proposal.hash },
+                });
+              }}
+            />
+          )}
+        </ScrollView>
+      </ScreenSurface>
+    </>
   );
 }
 

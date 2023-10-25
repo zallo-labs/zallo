@@ -18,6 +18,7 @@ import { ThemeProvider } from '~/util/theme/ThemeProvider';
 import { AppbarHeader } from '~/components/Appbar/AppbarHeader';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { NativeStackNavigationOptions } from '@react-navigation/native-stack';
+import { Fonts } from '~/components/Fonts';
 
 const modal: NativeStackNavigationOptions = {
   presentation: 'modal',
@@ -45,7 +46,6 @@ function Layout() {
   return (
     <Stack screenOptions={{ header: AppbarHeader }}>
       <Stack.Screen name={`(drawer)`} options={{ headerShown: false }} />
-      <Stack.Screen name={`[account]/policies/[key]/[contract]/add-selector`} options={modal} />
       <Stack.Screen name={`[account]/policies/[key]/name`} options={modal} />
       <Stack.Screen name={`[account]/policies/template`} options={modal} />
       <Stack.Screen name={`[account]/name`} options={modal} />
@@ -56,11 +56,8 @@ function Layout() {
       <Stack.Screen name={`ledger/sign`} options={sheet} />
       <Stack.Screen name={`link/token`} options={sheet} />
       <Stack.Screen name={`link/index`} options={transparentModal} />
-      <Stack.Screen name={`onboard/approver`} />
-      <Stack.Screen name={`onboard/auth`} />
-      <Stack.Screen name={`onboard/index`} />
-      <Stack.Screen name={`onboard/notifications`} />
-      <Stack.Screen name={`onboard/user`} />
+      <Stack.Screen name={`onboard/(drawer)`} options={{ headerShown: false }} />
+      <Stack.Screen name={`onboard/landing`} />
       <Stack.Screen name={`scan/[address]`} options={sheet} />
       <Stack.Screen name={`scan/index`} options={{ headerShown: false }} />
       <Stack.Screen name={`sessions/connect/[id]`} options={sheet} />
@@ -69,6 +66,7 @@ function Layout() {
       <Stack.Screen name={`addresses`} options={{ ...modal, headerShown: false }} />
       <Stack.Screen name={`confirm`} options={transparentModal} />
       <Stack.Screen name={`index`} />
+      <Stack.Screen name={`selector`} options={modal} />
       <Stack.Screen name={`_sitemap`} />
     </Stack>
   );
@@ -77,6 +75,7 @@ function Layout() {
 export default function RootLayout() {
   return (
     <MinimalErrorBoundary>
+      <Fonts />
       <IntlProvider locale={locale} defaultLocale="en-US">
         <SafeAreaProvider>
           <ThemeProvider>

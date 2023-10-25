@@ -22,6 +22,7 @@ import { useConfirmRemoval } from '~/hooks/useConfirm';
 import { AppbarOptions } from '~/components/Appbar/AppbarOptions';
 import { withSuspense } from '~/components/skeleton/withSuspense';
 import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
+import { ScreenSurface } from '~/components/layout/ScreenSurface';
 
 const Fragment = gql(/* GraphQL */ `
   fragment ContactScreen_contact on Contact {
@@ -83,7 +84,7 @@ function ContactScreen_({ address }: ContactScreenProps) {
   });
 
   return (
-    <View style={styles.container}>
+    <>
       <AppbarOptions
         mode="large"
         headline="Contact"
@@ -111,70 +112,71 @@ function ContactScreen_({ address }: ContactScreenProps) {
         })}
       />
 
-      <View style={styles.fields}>
-        <View style={styles.fieldContainer}>
-          <UserOutlineIcon style={styles.fieldIcon} size={styles.fieldIcon.width} />
-          <FormTextField
-            label="Label"
-            name="label"
+      <ScreenSurface>
+        <View style={styles.fields}>
+          <View style={styles.fieldContainer}>
+            <UserOutlineIcon style={styles.fieldIcon} size={styles.fieldIcon.width} />
+            <FormTextField
+              label="Label"
+              name="label"
+              control={control}
+              rules={{ required: true }}
+              containerStyle={styles.fieldInput}
+            />
+          </View>
+
+          <View style={styles.fieldContainer}>
+            <View style={styles.fieldIcon} />
+            <FormTextField
+              label="Address"
+              placeholder="0x"
+              wrap
+              name="address"
+              control={control}
+              rules={{
+                ...ADDRESS_FIELD_RULES,
+                required: true,
+              }}
+              containerStyle={styles.fieldInput}
+            />
+          </View>
+
+          <View style={[styles.fieldContainer, styles.networkFieldContainer]}>
+            <SelectChip
+              value={CHAIN.name}
+              entries={[
+                ...Object.values(SUPPORTED_CHAINS).map(
+                  (chain) => [chain.name, chain.name] as const,
+                ),
+              ]}
+              chipProps={{ icon: NetworkIcon, disabled: true }}
+              onChange={(name) => {
+                // TODO: global address
+              }}
+            />
+          </View>
+        </View>
+
+        <Actions>
+          <FormSubmitButton
+            mode="contained"
+            onPress={submit}
+            requireChanges={!!current}
             control={control}
-            rules={{ required: true }}
-            containerStyle={styles.fieldInput}
-          />
-        </View>
-
-        <View style={styles.fieldContainer}>
-          <View style={styles.fieldIcon} />
-          <FormTextField
-            label="Address"
-            placeholder="0x"
-            wrap
-            name="address"
-            control={control}
-            rules={{
-              ...ADDRESS_FIELD_RULES,
-              required: true,
-            }}
-            containerStyle={styles.fieldInput}
-          />
-        </View>
-
-        <View style={[styles.fieldContainer, styles.networkFieldContainer]}>
-          <SelectChip
-            value={CHAIN.name}
-            entries={[
-              ...Object.values(SUPPORTED_CHAINS).map((chain) => [chain.name, chain.name] as const),
-            ]}
-            chipProps={{ icon: NetworkIcon, disabled: true }}
-            onChange={(name) => {
-              // TODO: global address
-            }}
-          />
-        </View>
-      </View>
-
-      <Actions>
-        <FormSubmitButton
-          mode="contained"
-          onPress={submit}
-          requireChanges={!!current}
-          control={control}
-          style={styles.action}
-        >
-          {current ? 'Update' : 'Add'}
-        </FormSubmitButton>
-      </Actions>
-    </View>
+            style={styles.action}
+          >
+            {current ? 'Update' : 'Add'}
+          </FormSubmitButton>
+        </Actions>
+      </ScreenSurface>
+    </>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
   fields: {
     gap: 16,
-    marginHorizontal: 16,
+    margin: 16,
   },
   fieldContainer: {
     flexDirection: 'row',

@@ -1,6 +1,5 @@
 import { ComponentPropsWithoutRef } from 'react';
 import { Drawer as DrawerLayout } from 'expo-router/drawer';
-import { DrawerContent } from '~/components/drawer/DrawerContent';
 import { makeStyles } from '@theme/makeStyles';
 import { useLayout } from '~/hooks/useLayout';
 import { DrawerContextProvider, DrawerType } from './DrawerContextProvider';
@@ -10,7 +9,6 @@ type DrawerLayoutProps = ComponentPropsWithoutRef<typeof DrawerLayout>;
 
 export interface DrawerProps extends DrawerLayoutProps {}
 
-// TODO: only use 'modal' type in compact and medium layouts
 export function Drawer({ children, ...props }: DrawerProps) {
   const { layout } = useLayout();
   const type: DrawerType = layout === 'expanded' ? 'standard' : 'modal';
@@ -19,7 +17,6 @@ export function Drawer({ children, ...props }: DrawerProps) {
   return (
     <DrawerContextProvider type={type}>
       <DrawerLayout
-        drawerContent={DrawerContent}
         backBehavior="history"
         {...props}
         screenOptions={{
@@ -28,6 +25,7 @@ export function Drawer({ children, ...props }: DrawerProps) {
           drawerType: type === 'standard' ? 'permanent' : 'front',
           drawerStyle: styles.drawer,
           overlayColor: styles.overlay.backgroundColor,
+          sceneContainerStyle: styles.sceneContainer,
           ...props.screenOptions,
         }}
       >
@@ -39,12 +37,22 @@ export function Drawer({ children, ...props }: DrawerProps) {
 
 Drawer.Screen = DrawerLayout.Screen;
 
-const useStyles = makeStyles(({ colors }, type: DrawerType) => ({
-  drawer: {
-    backgroundColor: 'transparent',
-    width: 360,
-  },
-  overlay: {
-    backgroundColor: colors.scrim,
-  },
-}));
+const useStyles = makeStyles(({ colors }, type: DrawerType) => {
+  const backgroundColor = type === 'standard' ? colors.elevation.level1 : 'transparent';
+
+  return {
+    drawer: {
+      backgroundColor,
+      width: 360,
+      //  Unset borders
+      borderLeftWidth: undefined,
+      borderRightWidth: undefined,
+    },
+    overlay: {
+      backgroundColor: colors.scrim,
+    },
+    sceneContainer: {
+      backgroundColor,
+    },
+  };
+});
