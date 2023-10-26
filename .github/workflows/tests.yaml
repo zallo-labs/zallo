@@ -139,7 +139,7 @@ jobs:
       - name: 🧪 Test
         run: yarn app test
 
-  app-web-build-test:
+  app-web-build:
     runs-on: ubuntu-latest
 
     steps:
@@ -157,44 +157,3 @@ jobs:
 
       - name: 🏗️ Build
         run: yarn app build:web
-
-  app-web-preview:
-    environment: main - app
-    runs-on: ubuntu-latest
-
-    env:
-      DOTENV_KEY: ${{ secrets.DOTENV_KEY }}
-      NODE_OPTIONS: '--max-old-space-size=4096'
-      NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
-      NETLIFY_SITE_ID: ${{ env.NETLIFY_SITE_ID }}
-
-    steps:
-      - name: 🚧 Checkout
-        uses: actions/checkout@v4
-
-      - name: 🚧 Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: 'yarn'
-
-      - name: 📦 Install
-        run: yarn install
-
-      - name: 🏗️ Build
-        run: yarn app build:web
-
-      # - name: 🚀 Publish
-      #   uses: netlify/actions/cli@master
-      #   with:
-      #     args: deploy --filter app --dir dist
-      #   env:
-      #     NETLIFY_SITE_ID: ${{ env.NETLIFY_SITE_ID }}
-      #     NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
-
-      - name: 🚀 Publish
-        uses: nwtgck/actions-netlify@v2.0 # https://github.com/nwtgck/actions-netlify
-        with:
-          publish-dir: './app/dist'
-          alias: deploy-preview-${{ github.event.number }}
-        timeout-minutes: 1
