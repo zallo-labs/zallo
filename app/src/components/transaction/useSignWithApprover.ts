@@ -1,11 +1,12 @@
 import { FragmentType, gql, useFragment as getFragment } from '@api/generated';
 import { useApproverWallet } from '@network/useApprover';
+import { useAtomValue } from 'jotai';
 import { asHex, signDigest } from 'lib';
 import { ok, err } from 'neverthrow';
 import { useCallback } from 'react';
 import { match } from 'ts-pattern';
-import { authenticate, useAuthSettings } from '~/components/provider/AuthGate';
 import { showError } from '~/components/provider/SnackbarProvider';
+import { AUTH_SETTINGS, useAuthenticate } from '~/hooks/useAuthenticate';
 
 type SignContent = PersonalMessage | TransactionProposalFragment;
 type PersonalMessage = string;
@@ -24,7 +25,8 @@ const isTransactionProposal = (c: SignContent): c is TransactionProposalFragment
 
 export function useSignWithApprover() {
   const approver = useApproverWallet();
-  const { approval: authRequired } = useAuthSettings();
+  const authenticate = useAuthenticate();
+  const { approval: authRequired } = useAtomValue(AUTH_SETTINGS);
 
   return useCallback(
     async (c: SignContent) => {

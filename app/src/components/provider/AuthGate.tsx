@@ -1,27 +1,12 @@
 import { ReactNode, useEffect, useState } from 'react';
-import * as Auth from 'expo-local-authentication';
 import useAsyncEffect from 'use-async-effect';
 import { DateTime, Duration } from 'luxon';
-import { persistedAtom } from '~/lib/persistedAtom';
 import { Blur } from '~/components/Blur';
-import { useAtomValue } from 'jotai';
 import { AppState } from 'react-native';
+import { useAtomValue } from 'jotai';
+import { AUTH_SETTINGS, useAuthenticate } from '~/hooks/useAuthenticate';
 
-export const SUPPORTS_BIOMETRICS = Auth.isEnrolledAsync();
 const TIMEOUT_AFTER = Duration.fromObject({ minutes: 5 }).toMillis();
-
-export const authenticate = async (opts?: Auth.LocalAuthenticationOptions) => {
-  return (
-    !(await SUPPORTS_BIOMETRICS) ||
-    (await Auth.authenticateAsync({ promptMessage: 'Authenticate to continue', ...opts })).success
-  );
-};
-
-export const AUTH_SETTINGS_ATOM = persistedAtom('AuthenticationSettings', {
-  open: null as null | boolean,
-  approval: true,
-});
-export const useAuthSettings = () => useAtomValue(AUTH_SETTINGS_ATOM);
 
 interface AuthState {
   success?: boolean;
@@ -33,19 +18,20 @@ export interface AuthGateProps {
 }
 
 export const AuthGate = ({ children }: AuthGateProps) => {
-  const { open: require } = useAuthSettings();
+  const authenticate = useAuthenticate();
+  const { open: require } = useAtomValue(AUTH_SETTINGS);
 
-  const [auth, setAuth] = useState<AuthState>({ success: !require });
+  const [state, setState] = useState<AuthState>({ success: !require });
 
   // Try authenticate
   useAsyncEffect(
     async (isMounted) => {
-      if (!auth.success) {
-        const success = await authenticate();
-        if (isMounted()) setAuth({ success });
+      if (!state.success) {
+        const success = await authenticate({ retry: true });
+        if (isMounted() && success) setState({ success });
       }
     },
-    [auth, setAuth],
+    [state, setState],
   );
 
   // Unauthenticate if app had left foreground
@@ -54,13 +40,13 @@ export const AuthGate = ({ children }: AuthGateProps) => {
 
     const listener = AppState.addEventListener('change', (newState) => {
       if (newState === 'active') {
-        setAuth((prev) =>
+        setState((prev) =>
           prev.lastAuthenticated
             ? { success: DateTime.now().diff(prev.lastAuthenticated).toMillis() < TIMEOUT_AFTER }
             : prev,
         );
       } else if (newState === 'background') {
-        setAuth((prev) =>
+        setState((prev) =>
           prev.success
             ? { ...prev, lastAuthenticated: DateTime.now() }
             : // Re-render to prompt authentication
@@ -70,12 +56,12 @@ export const AuthGate = ({ children }: AuthGateProps) => {
     });
 
     return () => listener.remove();
-  }, [require, setAuth]);
+  }, [require, setState]);
 
   return (
     <>
       {children}
-      {!auth.success && <Blur blurAmount={16} />}
+      {!state.success && <Blur blurAmount={16} />}
     </>
   );
 };

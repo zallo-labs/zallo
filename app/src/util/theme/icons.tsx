@@ -110,6 +110,7 @@ export const BluetoothIcon = materialIcon('bluetooth');
 export const FingerprintIcon = materialIcon('fingerprint');
 export const LockOpenIcon = materialIcon('lock-open');
 export const UpdateIcon = materialIcon('update');
+export const PasswordIcon = materialCommunityIcon('key');
 
 export const PolicyIcon = materialCommunityIcon('security');
 export const PolicyActiveIcon = materialCommunityIcon('shield');
