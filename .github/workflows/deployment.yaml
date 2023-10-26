@@ -15,7 +15,7 @@ jobs:
 
     steps:
       - name: 🚧 Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: 🚧 Setup Fly
         uses: superfly/flyctl-actions/setup-flyctl@master
@@ -36,7 +36,7 @@ jobs:
 
     steps:
       - name: 🚧 Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 200 # Sentry looks for the previous release in the git history
 
@@ -62,12 +62,12 @@ jobs:
 
     steps:
       - name: 🚧 Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: 🚧 Setup Node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 20
           cache: 'yarn'
 
       - name: 🚧 Setup Expo
@@ -82,19 +82,9 @@ jobs:
       - name: 🏗️ Prebuild
         run: yarn app prebuild
 
+      # Updates iOS and Android; web app is deployed via Vercel
       - name: 🚀 Publish update
         run: yarn app eas update --auto --non-interactive --platform all
-
-  app-web:
-    environment: main - app
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: 🚀 Deploy
-        uses: fjogeleit/http-request-action@v1
-        with:
-          url: ${{ secrets.WEB_DEPLOY_HOOK }}
-          method: POST
 
   # docs:
   #   environment: main - docs

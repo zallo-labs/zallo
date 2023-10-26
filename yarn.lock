@@ -11602,13 +11602,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:^16.18.40":
-  version: 16.18.40
-  resolution: "@types/node@npm:16.18.40"
-  checksum: a683930491b4fd7cb2dc7684e32bbeedc4a83fb1949a7b15ea724fbfaa9988cec59091f169a3f1090cb91992caba8c1a7d50315b2c67c6e2579a3788bb09eec4
-  languageName: node
-  linkType: hard
-
 "@types/node@npm:^20.2.5":
   version: 20.4.5
   resolution: "@types/node@npm:20.4.5"
@@ -41429,7 +41422,6 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "zallo@workspace:."
   dependencies:
-    "@types/node": ^16.18.40
     "@typescript-eslint/eslint-plugin": ^6.7.2
     "@typescript-eslint/parser": ^6.7.2
     eslint: ^8.49.0

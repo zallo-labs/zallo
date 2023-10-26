@@ -10,12 +10,12 @@ jobs:
 
     steps:
       - name: 🚧 Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: 🚧 Setup Node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 20
           cache: 'yarn'
 
       - name: 📦 Install
@@ -32,10 +32,10 @@ jobs:
 
     steps:
       - name: 🚧 Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: 🚧 Checkout zksync-local
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: hbriese/zksync-local
           path: zksync-local
@@ -44,9 +44,9 @@ jobs:
         run: (cd zksync-local && ./start.sh)
 
       - name: 🚧 Setup Node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 20
           cache: 'yarn'
 
       - name: 📦 Install
@@ -66,12 +66,12 @@ jobs:
 
     steps:
       - name: 🚧 Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: 🚧 Setup Node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 20
           cache: 'yarn'
 
       - name: 📦 Install
@@ -92,12 +92,12 @@ jobs:
 
     steps:
       - name: 🚧 Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: 🚧 Setup Node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 20
           cache: 'yarn'
 
       - name: 💾 Setup EdgeDB
@@ -122,12 +122,12 @@ jobs:
 
     steps:
       - name: 🚧 Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: 🚧 Setup Node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 20
           cache: 'yarn'
 
       - name: 📦 Install
@@ -139,17 +139,17 @@ jobs:
       - name: 🧪 Test
         run: yarn app test
 
-  app-web-build-test:
+  app-web-build:
     runs-on: ubuntu-latest
 
     steps:
       - name: 🚧 Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: 🚧 Setup Node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 20
           cache: 'yarn'
 
       - name: 📦 Install
