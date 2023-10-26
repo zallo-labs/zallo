@@ -165,6 +165,8 @@ jobs:
     env:
       DOTENV_KEY: ${{ secrets.DOTENV_KEY }}
       NODE_OPTIONS: '--max-old-space-size=4096'
+      NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+      NETLIFY_SITE_ID: ${{ env.NETLIFY_SITE_ID }}
 
     steps:
       - name: 🚧 Checkout
@@ -191,10 +193,8 @@ jobs:
       #     NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
 
       - name: 🚀 Publish
-        uses: nwtgck/actions-netlify@v2.0
+        uses: nwtgck/actions-netlify@v2.0 # https://github.com/nwtgck/actions-netlify
         with:
           publish-dir: './app/dist'
-        env:
-          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
-          NETLIFY_SITE_ID: ${{ env.NETLIFY_SITE_ID }}
+          alias: deploy-preview-${{ github.event.number }}
         timeout-minutes: 1
