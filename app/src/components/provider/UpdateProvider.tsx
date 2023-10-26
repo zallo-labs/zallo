@@ -4,15 +4,16 @@ import { logError } from '~/util/analytics';
 import { AppState } from 'react-native';
 import { showInfo } from './SnackbarProvider';
 import { showWarning } from './SnackbarProvider';
+import { __WEB__ } from '~/util/config';
 
 const onError = (error: unknown) => {
   showWarning('Failed to download update. You may experience issues.');
   logError('Error encountered during update', { error });
 };
 
-export const UpdateProvider = () => {
+export function UpdateProvider() {
   useEffect(() => {
-    if (__DEV__) return; // Updates don't work in development mode as bundle is always served from server
+    if (__DEV__ || __WEB__) return;
 
     const onStartUpdateListener = Updates.addListener((e) => {
       if (e.type === Updates.UpdateEventType.UPDATE_AVAILABLE) {
@@ -46,4 +47,4 @@ export const UpdateProvider = () => {
   }, []);
 
   return null;
-};
+}
