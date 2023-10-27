@@ -14,13 +14,16 @@ import { AppbarOptions } from '~/components/Appbar/AppbarOptions';
 import { AppbarMenu } from '~/components/Appbar/AppbarMenu';
 import { Button } from '~/components/Button';
 import { AUTH_METHODS, AUTH_SETTINGS, BIOMETRICS_AVAILABLE } from '~/hooks/useAuthenticate';
+import { Href, useRouter } from 'expo-router';
 
 export interface AuthSettingsProps {
   actions?: ReactNode;
   appbarMenu?: boolean;
+  passwordHref: Href<`/`>;
 }
 
-function AuthSettings_({ actions, appbarMenu }: AuthSettingsProps) {
+function AuthSettings_({ actions, appbarMenu, passwordHref }: AuthSettingsProps) {
+  const router = useRouter();
   const biometicsAvailable = useAtomValue(BIOMETRICS_AVAILABLE);
 
   const [methods, updateMethods] = useImmerAtom(AUTH_METHODS);
@@ -49,7 +52,11 @@ function AuthSettings_({ actions, appbarMenu }: AuthSettingsProps) {
           <ListItem
             leading={PasswordIcon}
             headline="Password"
-            trailing={() => <Button mode="contained">Setup</Button>}
+            trailing={() => (
+              <Button mode="contained" onPress={() => router.push(passwordHref)}>
+                {methods.passwordHash ? 'Configure' : 'Create'}
+              </Button>
+            )}
           />
 
           <ListItem

@@ -35,7 +35,7 @@ export function useAuthenticate() {
         }
 
         if (passwordHash) {
-          // TODO: verify password
+          // TODO: verify password and unlock secure storage
         }
 
         return true;
