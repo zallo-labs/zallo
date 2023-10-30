@@ -21,7 +21,7 @@ export const AuthGate = ({ children }: AuthGateProps) => {
   const { open: required } = useAuthSettings();
 
   const [state, setState] = useState<AuthState>({ success: !required });
-  const onUnlock = useCallback((password?: string) => {
+  const onAuth = useCallback((password?: string) => {
     setState((s) => ({ ...s, success: true }));
     unlockSecureStorage(password);
   }, []);
@@ -53,7 +53,7 @@ export const AuthGate = ({ children }: AuthGateProps) => {
     <>
       {children}
 
-      {!state.success && <AuthenticateScreen onUnlock={onUnlock} container={Blur} />}
+      {!state.success && <AuthenticateScreen onAuth={onAuth} container={Blur} />}
     </>
   );
 };

@@ -39,9 +39,12 @@ const client = atom(async (get) => {
   async function refreshAuth() {
     try {
       await tryAcquire(refreshMutex).runExclusive(async () => {
-        token = await createToken(await approver);
+        token ??= await initialToken;
+        if (isInvalidToken(token)) {
+          token = await createToken(await approver);
+          storage.setItem(TOKEN_KEY, token);
+        }
         headers = getHeaders(token);
-        storage.setItem(TOKEN_KEY, token);
       });
     } catch (e) {
       if (e === E_ALREADY_LOCKED) {
@@ -53,17 +56,17 @@ const client = atom(async (get) => {
     }
   }
 
-  const willAuthError = () =>
+  const isInvalidToken = (token: Token | null) =>
     !token ||
     (!!token.message.expirationTime &&
       DateTime.fromISO(token.message.expirationTime) <= DateTime.now());
+  const willAuthError = () => isInvalidToken(token);
 
   const wsClient = createWsClient({
     url: CONFIG.apiGqlWs,
     lazy: true,
     retryAttempts: 10,
     async connectionParams() {
-      token ??= await initialToken;
       if (willAuthError()) await refreshAuth();
       return headers;
     },

@@ -14,9 +14,10 @@ import { withSuspense } from '~/components/skeleton/withSuspense';
 import { useBiometrics } from '~/hooks/useBiometrics';
 import { useGetEvent } from '~/hooks/useGetEvent';
 import { verifyPassword } from '~/lib/crypto/password';
+import { secureStorageLocked } from '~/lib/secure-storage';
 
 export const UNLOCKED = new Subject<true>();
-const onUnlockDefault = () => UNLOCKED.next(true);
+const emitOnAuth = () => UNLOCKED.next(true);
 
 export function useAuthenticate() {
   const getEvent = useGetEvent();
@@ -35,12 +36,12 @@ interface Inputs {
 }
 
 export interface AuthenticateScreenProps {
-  onUnlock?: (password?: string) => void;
+  onAuth?: (password?: string) => void;
   container?: ComponentType<PropsWithChildren>;
 }
 
 function AuthenticateScreen({
-  onUnlock: unlock = onUnlockDefault,
+  onAuth = emitOnAuth,
   container: Container = Fragment,
 }: AuthenticateScreenProps) {
   const styles = useStyles();
@@ -53,19 +54,19 @@ function AuthenticateScreen({
 
   // Unlock immediately if no auth methods are available
   useEffect(() => {
-    if (!available) unlock();
-  }, [available, unlock]);
+    if (!available) onAuth();
+  }, [available, onAuth]);
 
   // Try biometrics first if available
   useAsyncEffect(
     async (isMounted) => {
       const success = await biometrics.auth?.();
-      if (isMounted()) success ? unlock() : setShow(true);
+      if (isMounted()) success ? onAuth() : setShow(true);
     },
-    [biometrics.auth, unlock],
+    [biometrics.auth, onAuth],
   );
 
-  const unlockWithPassword = handleSubmit(({ password }) => unlock(password));
+  const onPasswordAuth = handleSubmit(({ password }) => onAuth(password));
 
   if (!available || !show) return null;
 
@@ -90,19 +91,19 @@ function AuthenticateScreen({
                 (await verifyPassword(p, passwordHash)) || 'Incorrect password',
             }}
             onChangeText={async (p) => {
-              if (await verifyPassword(p, passwordHash)) unlockWithPassword();
+              if (await verifyPassword(p, passwordHash)) onPasswordAuth();
             }}
           />
         )}
 
         <Actions flex={false}>
-          {biometrics.auth && (
+          {biometrics.auth && !(passwordHash && secureStorageLocked()) && (
             <Button
               icon={FingerprintIcon}
               mode="contained-tonal"
               labelStyle={styles.buttonLabel}
               onPress={async () => {
-                if (await biometrics.auth?.()) unlock();
+                if (await biometrics.auth?.()) onAuth();
               }}
             >
               Biometrics
@@ -110,7 +111,7 @@ function AuthenticateScreen({
           )}
 
           {passwordHash && (
-            <Button mode="contained" labelStyle={styles.buttonLabel} onPress={unlockWithPassword}>
+            <Button mode="contained" labelStyle={styles.buttonLabel} onPress={onPasswordAuth}>
               Unlock
             </Button>
           )}

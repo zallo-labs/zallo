@@ -18,6 +18,7 @@ import { usePasswordHash } from '~/app/(drawer)/settings/password';
 import { persistedAtom } from '~/lib/persistedAtom';
 import { useAtomValue } from 'jotai';
 
+// Security note: this has weak security guarantees as an attacker with local access may change these settings, or even the whole JS bundle...
 const AUTH_SETTINGS = persistedAtom('AuthenticationSettings', {
   open: true,
   approval: true,

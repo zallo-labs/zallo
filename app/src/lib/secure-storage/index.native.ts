@@ -24,3 +24,9 @@ export const getSecureStore = (options?: SecureStoreOptions): SecureStore => ({
 export function unlockSecureStorage(_password: string) {}
 
 export function lockSecureStorage() {}
+
+export function secureStorageLocked() {
+  return false;
+}
+
+export function changeSecureStorePassword(_newPassword: string) {}

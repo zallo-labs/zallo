@@ -45,6 +45,10 @@ export function lockSecureStorage() {
   CIPHER.next(null);
 }
 
+export function secureStorageLocked() {
+  return !CIPHER.getValue();
+}
+
 function getCipher() {
   return firstValueFrom(CIPHER.pipe(filter(Boolean)));
 }
