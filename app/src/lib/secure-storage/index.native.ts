@@ -20,3 +20,13 @@ export const getSecureStore = (options?: SecureStoreOptions): SecureStore => ({
   setItem: (key, value) => Store.setItemAsync(key, value, options),
   removeItem: (key) => Store.deleteItemAsync(key, options),
 });
+
+export function unlockSecureStorage(_password: string) {}
+
+export function lockSecureStorage() {}
+
+export function secureStorageLocked() {
+  return false;
+}
+
+export function changeSecureStorePassword(_newPassword: string) {}

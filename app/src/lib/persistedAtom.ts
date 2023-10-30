@@ -2,7 +2,6 @@ import { Getter, WritableAtom, atom } from 'jotai';
 import { RESET, createJSONStorage } from 'jotai/utils';
 import type { AsyncStorage as TAsyncStorage } from 'jotai/vanilla/utils/atomWithStorage';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { getSecureStore, SecureStoreOptions } from '~/lib/secure-storage';
 
 export type PersistedAtomOptions<V, U extends AnyJson> = StorageOptions<V, U> & {
   skipInitialPersist?: boolean;
@@ -10,13 +9,21 @@ export type PersistedAtomOptions<V, U extends AnyJson> = StorageOptions<V, U> & 
 
 // Based off https://github.com/pmndrs/jotai/blob/main/src/vanilla/utils/atomWithStorage.ts
 // Primary difference is that this persists the initialValue
-export const persistedAtom = <V, U extends AnyJson = AnyJson>(
+export const persistedAtom = <
+  V extends string | number | boolean | object | null,
+  U extends AnyJson = AnyJson,
+>(
   key: string,
-  initialValue: V,
+  initializer: V | (() => V),
   { skipInitialPersist, ...storageOptions }: PersistedAtomOptions<V, U> = {},
-): WritableAtom<V, [SetStateActionWithReset<V>], void> => {
+) => {
+  const initialValue: V = typeof initializer === 'function' ? initializer() : initializer;
+
   const storage = getStorage(storageOptions);
-  const initialPersistedValue = storage.getItem(key, initialValue);
+  const getPersisted = () => storage.getItem(key, initialValue);
+  const setPersisted = (value: V) => storage.setItem(key, value);
+
+  const initialPersistedValue = getPersisted();
 
   const baseAtom = atom(initialValue);
   baseAtom.debugLabel = `${key}::base`;
@@ -64,14 +71,19 @@ export const persistedAtom = <V, U extends AnyJson = AnyJson>(
       set(baseAtom, newValue);
       storage.setItem(key, newValue);
     },
-  );
+  ) as WritableAtom<V, [SetStateActionWithReset<V>], void> & {
+    getPersisted: () => PromiseLike<V>;
+    setPersited: (v: V) => void;
+  };
   pAtom.debugLabel = key;
+  pAtom.getPersisted = getPersisted;
+  pAtom.setPersited = setPersisted;
 
   return pAtom;
 };
 
 export type StorageOptions<V, U extends AnyJson> = {
-  secure?: SecureStoreOptions;
+  storage?: TAsyncStorage<U | undefined>;
 } & (
   | {
       stringifiy: (value: V) => U;
@@ -86,13 +98,11 @@ export type StorageOptions<V, U extends AnyJson> = {
 const ASYNC_STORAGE = createJSONStorage(() => AsyncStorage);
 
 const getStorage = <V, U extends AnyJson>({
-  secure: secureOptions,
+  storage,
   parse,
   stringifiy,
 }: StorageOptions<V, U> = {}): TAsyncStorage<V> => {
-  const store = secureOptions
-    ? createJSONStorage<U | undefined>(() => getSecureStore(secureOptions))
-    : (ASYNC_STORAGE as TAsyncStorage<U | undefined>);
+  const store = storage ?? (ASYNC_STORAGE as TAsyncStorage<U | undefined>);
 
   const getItem: TAsyncStorage<V>['getItem'] = parse
     ? async (key, initialValue) => {

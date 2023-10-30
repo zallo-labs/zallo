@@ -4,8 +4,9 @@ import { asHex, signDigest } from 'lib';
 import { ok, err } from 'neverthrow';
 import { useCallback } from 'react';
 import { match } from 'ts-pattern';
-import { authenticate, useAuthSettings } from '~/components/provider/AuthGate';
+import { useAuthenticate } from '~/app/auth';
 import { showError } from '~/components/provider/SnackbarProvider';
+import { useAuthSettings } from '~/components/shared/AuthSettings';
 
 type SignContent = PersonalMessage | TransactionProposalFragment;
 type PersonalMessage = string;
@@ -24,11 +25,12 @@ const isTransactionProposal = (c: SignContent): c is TransactionProposalFragment
 
 export function useSignWithApprover() {
   const approver = useApproverWallet();
+  const authenticate = useAuthenticate();
   const { approval: authRequired } = useAuthSettings();
 
   return useCallback(
     async (c: SignContent) => {
-      if (authRequired && !(await authenticate({ promptMessage: 'Authenticate to approve' }))) {
+      if (authRequired && !(await authenticate())) {
         showError('Authentication is required for approval');
         return err('authentication-refused' as const);
       }

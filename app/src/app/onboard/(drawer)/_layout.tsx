@@ -3,7 +3,7 @@ import { DrawerSurface } from '~/components/drawer/DrawerSurface';
 import { Drawer as RnpDrawer } from 'react-native-paper';
 import { DrawerItem } from '~/components/drawer/DrawerItem';
 import { StyleSheet } from 'react-native';
-import { FingerprintIcon, LogoIcon, NotificationsIcon, UserIcon } from '@theme/icons';
+import { FingerprintIcon, ZalloLogo, NotificationsIcon, UserIcon } from '@theme/icons';
 import { DrawerContentComponentProps } from '@react-navigation/drawer';
 
 export const unstable_settings = {
@@ -34,7 +34,7 @@ function Content({ state }: DrawerContentComponentProps) {
 
   return (
     <DrawerSurface contentContainerStyle={styles.surface}>
-      <LogoIcon style={styles.logo} contentFit="contain" />
+      <ZalloLogo style={styles.logo} contentFit="contain" />
 
       <RnpDrawer.Section title="Onboarding" showDivider={false}>
         <DrawerItem href={`/onboard/(drawer)/user`} icon={UserIcon} label="User" />

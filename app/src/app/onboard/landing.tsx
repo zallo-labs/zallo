@@ -13,7 +13,7 @@ import {
   AppStoreBadge,
   GithubIcon,
   GooglePlayBadge,
-  LogoIcon,
+  ZalloLogo,
   TwitterIcon,
 } from '@theme/icons';
 import { CONFIG } from '~/util/config';
@@ -39,7 +39,7 @@ export default function LandingScreen() {
         <View style={styles.spacer} />
 
         <View style={styles.mainContent}>
-          <LogoIcon style={styles.logo} contentFit="contain" />
+          <ZalloLogo style={styles.logo} contentFit="contain" />
 
           <Text variant="headlineSmall" style={styles.text}>
             Self-custody without compromise

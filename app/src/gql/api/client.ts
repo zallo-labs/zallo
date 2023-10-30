@@ -6,7 +6,6 @@ import { persistedExchange } from '@urql/exchange-persisted';
 import { retryExchange } from '@urql/exchange-retry';
 import { devtoolsExchange } from '@urql/devtools';
 import { CONFIG } from '~/util/config';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { authExchange } from '@urql/exchange-auth';
 import { Addresslike, Hex, asAddress, asHex } from 'lib';
 import { DateTime } from 'luxon';
@@ -19,6 +18,7 @@ import { logError } from '~/util/analytics';
 import crypto from 'crypto';
 import { CACHE_CONFIG } from './cache';
 import { E_ALREADY_LOCKED, Mutex, tryAcquire } from 'async-mutex';
+import { secureJsonStorage } from '~/lib/secure-storage/json';
 
 const TOKEN_KEY = 'apiToken';
 
@@ -28,18 +28,23 @@ interface Token {
 }
 
 const client = atom(async (get) => {
-  const approver = await get(DANGEROUS_approverAtom);
+  const approver = get(DANGEROUS_approverAtom);
 
-  let token = JSON.parse((await AsyncStorage.getItem(TOKEN_KEY))!) as Token | null;
+  const storage = secureJsonStorage<Token | null>();
+  const initialToken = storage.getItem(TOKEN_KEY, null);
+  let token: Token | null = null;
   let headers = getHeaders(token);
 
   const refreshMutex = new Mutex();
   async function refreshAuth() {
     try {
       await tryAcquire(refreshMutex).runExclusive(async () => {
-        token = await createToken(approver);
+        token ??= await initialToken;
+        if (isInvalidToken(token)) {
+          token = await createToken(await approver);
+          storage.setItem(TOKEN_KEY, token);
+        }
         headers = getHeaders(token);
-        await AsyncStorage.setItem(TOKEN_KEY, JSON.stringify(token));
       });
     } catch (e) {
       if (e === E_ALREADY_LOCKED) {
@@ -51,10 +56,11 @@ const client = atom(async (get) => {
     }
   }
 
-  const willAuthError = () =>
+  const isInvalidToken = (token: Token | null) =>
     !token ||
     (!!token.message.expirationTime &&
       DateTime.fromISO(token.message.expirationTime) <= DateTime.now());
+  const willAuthError = () => isInvalidToken(token);
 
   const wsClient = createWsClient({
     url: CONFIG.apiGqlWs,

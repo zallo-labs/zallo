@@ -7,6 +7,7 @@ export default function NotificationsOnboardingScreen() {
 
   return (
     <AuthSettings
+      passwordHref={`/onboard/(drawer)/password`}
       actions={
         <Button mode="contained" onPress={() => router.push(`/onboard/(drawer)/notifications`)}>
           Continue

@@ -6,7 +6,7 @@ export interface FormTextFieldProps<
   TFieldValues extends FieldValues,
   TName extends FieldPath<TFieldValues>,
 > extends UseControllerProps<TFieldValues, TName>,
-    Omit<TextFieldProps, 'value' | 'onChangeText' | 'onChange' | 'defaultValue'> {}
+    Omit<TextFieldProps, 'value' | 'onChange' | 'defaultValue'> {}
 
 export const FormTextField = <
   TFieldValues extends FieldValues = FieldValues,
@@ -17,6 +17,7 @@ export const FormTextField = <
   shouldUnregister,
   defaultValue,
   control,
+  onChangeText,
   ...fieldProps
 }: FormTextFieldProps<TFieldValues, TName>) => {
   const {
@@ -28,7 +29,10 @@ export const FormTextField = <
     <TextField
       {...fieldProps}
       value={value ?? ''}
-      onChangeText={(value) => onChange(value)}
+      onChangeText={(value) => {
+        onChange(value);
+        onChangeText?.(value);
+      }}
       onBlur={(e) => {
         onBlur();
         fieldProps.onBlur?.(e);

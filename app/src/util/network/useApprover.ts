@@ -2,14 +2,15 @@ import { PROVIDER } from '~/util/network/provider';
 import { Address, Approver } from 'lib';
 import { persistedAtom } from '~/lib/persistedAtom';
 import { useAtomValue, useSetAtom } from 'jotai';
+import { secureJsonStorage } from '~/lib/secure-storage/json';
 
 export const DANGEROUS_approverAtom = persistedAtom<Approver, string>(
   'Approver',
-  Approver.createRandom().connect(PROVIDER),
+  () => Approver.createRandom().connect(PROVIDER),
   {
     stringifiy: (approver) => approver.privateKey,
     parse: (privateKey) => new Approver(privateKey, PROVIDER),
-    secure: {},
+    storage: secureJsonStorage(),
   },
 );
 

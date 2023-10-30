@@ -1,35 +1,47 @@
-import { StyleSheet } from 'react-native';
+import { ScrollView, StyleSheet } from 'react-native';
 import { useImmerAtom } from 'jotai-immer';
 import { Switch } from 'react-native-paper';
 import { Actions } from '~/components/layout/Actions';
 import { ListItem } from '~/components/list/ListItem';
-import { LockOpenIcon, TransferIcon } from '@theme/icons';
+import { FingerprintIcon, LockOpenIcon, PasswordIcon, TransferIcon } from '@theme/icons';
 import { ListHeader } from '~/components/list/ListHeader';
-import { atom, useAtomValue } from 'jotai';
-import { AUTH_SETTINGS_ATOM, SUPPORTS_BIOMETRICS } from '~/components/provider/AuthGate';
 import { ReactNode, useEffect } from 'react';
 import { withSuspense } from '~/components/skeleton/withSuspense';
 import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
 import { ScreenSurface } from '~/components/layout/ScreenSurface';
 import { AppbarOptions } from '~/components/Appbar/AppbarOptions';
 import { AppbarMenu } from '~/components/Appbar/AppbarMenu';
+import { Button } from '~/components/Button';
+import { Href, useRouter } from 'expo-router';
+import { useBiometrics } from '~/hooks/useBiometrics';
+import { usePasswordHash } from '~/app/(drawer)/settings/password';
+import { persistedAtom } from '~/lib/persistedAtom';
+import { useAtomValue } from 'jotai';
 
-const biometricsAvailableAtom = atom(SUPPORTS_BIOMETRICS);
+// Security note: this has weak security guarantees as an attacker with local access may change these settings, or even the whole JS bundle...
+const AUTH_SETTINGS = persistedAtom('AuthenticationSettings', {
+  open: true,
+  approval: true,
+});
+export const useAuthSettings = () => useAtomValue(AUTH_SETTINGS);
 
 export interface AuthSettingsProps {
   actions?: ReactNode;
   appbarMenu?: boolean;
+  passwordHref: Href<`/`>;
 }
 
-function AuthSettings_({ actions, appbarMenu }: AuthSettingsProps) {
-  const hasSupport = useAtomValue(biometricsAvailableAtom);
+function AuthSettings_({ actions, appbarMenu, passwordHref }: AuthSettingsProps) {
+  const router = useRouter();
+  const biometrics = useBiometrics();
+  const passwordConfigured = !!usePasswordHash();
 
-  const [settings, updateSettings] = useImmerAtom(AUTH_SETTINGS_ATOM);
+  const [settings, updateSettings] = useImmerAtom(AUTH_SETTINGS);
 
-  // Enable on 'open' (if supported) when this screen is first opened
+  // Enable biometrics (if supported) when this screen is first opened
   useEffect(() => {
-    if (settings.open === null) updateSettings((s) => ({ ...s, open: hasSupport }));
-  }, [hasSupport, settings.open, updateSettings]);
+    biometrics.setEnabled((enabled) => (enabled === null ? biometrics.available : enabled));
+  }, [biometrics.setEnabled, biometrics.available]);
 
   return (
     <>
@@ -40,35 +52,58 @@ function AuthSettings_({ actions, appbarMenu }: AuthSettingsProps) {
       />
 
       <ScreenSurface style={styles.surface}>
-        <ListHeader>Required</ListHeader>
+        <ScrollView contentContainerStyle={styles.container}>
+          <ListHeader>Methods</ListHeader>
 
-        <ListItem
-          leading={LockOpenIcon}
-          headline="Opening the app"
-          trailing={({ disabled }) => (
-            <Switch
-              value={hasSupport && (settings.open ?? true)}
-              onValueChange={() => updateSettings((s) => ({ ...s, open: !s.open }))}
-              disabled={disabled}
-            />
-          )}
-          disabled={!hasSupport}
-        />
+          <ListItem
+            leading={PasswordIcon}
+            headline="Password"
+            trailing={() => (
+              <Button mode="contained" onPress={() => router.push(passwordHref)}>
+                {passwordConfigured ? 'Configure' : 'Create'}
+              </Button>
+            )}
+          />
 
-        <ListItem
-          leading={TransferIcon}
-          headline="Approving a proposal"
-          trailing={({ disabled }) => (
-            <Switch
-              value={hasSupport && settings.approval}
-              onValueChange={() => updateSettings((s) => ({ ...s, approval: !s.approval }))}
-              disabled={disabled}
-            />
-          )}
-          disabled={!hasSupport}
-        />
+          <ListItem
+            leading={FingerprintIcon}
+            headline="Biometrics"
+            trailing={({ disabled }) => (
+              <Switch
+                value={!!biometrics.enabled}
+                onValueChange={(v) => biometrics.setEnabled(v)}
+                disabled={disabled}
+              />
+            )}
+            disabled={!biometrics.available}
+          />
 
-        <Actions>{actions}</Actions>
+          <ListHeader>Required</ListHeader>
+
+          <ListItem
+            leading={LockOpenIcon}
+            headline="Opening the app"
+            trailing={() => (
+              <Switch
+                value={settings.open}
+                onValueChange={(v) => updateSettings((s) => ({ ...s, open: v }))}
+              />
+            )}
+          />
+
+          <ListItem
+            leading={TransferIcon}
+            headline="Approving a proposal"
+            trailing={() => (
+              <Switch
+                value={settings.approval}
+                onValueChange={(v) => updateSettings((s) => ({ ...s, approval: v }))}
+              />
+            )}
+          />
+
+          <Actions>{actions}</Actions>
+        </ScrollView>
       </ScreenSurface>
     </>
   );
@@ -77,6 +112,9 @@ function AuthSettings_({ actions, appbarMenu }: AuthSettingsProps) {
 const styles = StyleSheet.create({
   surface: {
     paddingTop: 8,
+  },
+  container: {
+    flexGrow: 1,
   },
   header: {
     alignItems: 'center',

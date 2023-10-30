@@ -110,6 +110,7 @@ export const BluetoothIcon = materialIcon('bluetooth');
 export const FingerprintIcon = materialIcon('fingerprint');
 export const LockOpenIcon = materialIcon('lock-open');
 export const UpdateIcon = materialIcon('update');
+export const PasswordIcon = materialCommunityIcon('key');
 
 export const PolicyIcon = materialCommunityIcon('security');
 export const PolicyActiveIcon = materialCommunityIcon('shield');
@@ -126,7 +127,7 @@ export const PolicyUnsatisfiableIcon = materialCommunityIcon('shield-alert');
 export const PolicyUnsatisfiableOutlineIcon = materialCommunityIcon('shield-alert-outline');
 
 export const ZalloIcon = fromSource(require('assets/icon-rounded.svg'));
-export const LogoIcon = fromSource(require('assets/logo.svg'));
+export const ZalloLogo = fromSource(require('assets/logo.svg'));
 export const AppScreenshots = fromSource(require('assets/screenshots.png'));
 export const AppStoreBadge = fromSource(require('assets/app-store-badge.svg'));
 export const GooglePlayBadge = fromSource(require('assets/google-play-badge.png'));
