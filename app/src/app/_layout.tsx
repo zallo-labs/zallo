@@ -64,6 +64,7 @@ function Layout() {
       <Stack.Screen name={`sessions/[topic]`} options={sheet} />
       <Stack.Screen name={`[...unmatched]`} />
       <Stack.Screen name={`addresses`} options={{ ...modal, headerShown: false }} />
+      <Stack.Screen name={`auth`} options={transparentModal} />
       <Stack.Screen name={`confirm`} options={transparentModal} />
       <Stack.Screen name={`index`} />
       <Stack.Screen name={`selector`} options={modal} />

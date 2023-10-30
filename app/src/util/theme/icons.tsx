@@ -127,7 +127,7 @@ export const PolicyUnsatisfiableIcon = materialCommunityIcon('shield-alert');
 export const PolicyUnsatisfiableOutlineIcon = materialCommunityIcon('shield-alert-outline');
 
 export const ZalloIcon = fromSource(require('assets/icon-rounded.svg'));
-export const LogoIcon = fromSource(require('assets/logo.svg'));
+export const ZalloLogo = fromSource(require('assets/logo.svg'));
 export const AppScreenshots = fromSource(require('assets/screenshots.png'));
 export const AppStoreBadge = fromSource(require('assets/app-store-badge.svg'));
 export const GooglePlayBadge = fromSource(require('assets/google-play-badge.png'));

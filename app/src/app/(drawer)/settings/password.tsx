@@ -1,30 +1,34 @@
 import { useMemo } from 'react';
 import { View } from 'react-native';
 import { useForm } from 'react-hook-form';
-import { useImmerAtom } from 'jotai-immer';
 import { z } from 'zod';
 import { AppbarOptions } from '~/components/Appbar/AppbarOptions';
 import { ScreenSurface } from '~/components/layout/ScreenSurface';
-import { AUTH_METHODS } from '~/hooks/useAuthenticate';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Actions } from '~/components/layout/Actions';
 import { FormSubmitButton } from '~/components/fields/FormSubmitButton';
-import { Button } from '~/components/Button';
 import { makeStyles } from '@theme/makeStyles';
-import { FormPasswordField } from '~/components/fields/FormPasswordField';
-import { hashPassword } from '~/lib/hashPassword';
-import { showSuccess } from '~/components/provider/SnackbarProvider';
+import { showInfo } from '~/components/provider/SnackbarProvider';
+import { useHashPassword } from '~/hooks/useHashPassword';
+import { persistedAtom } from '~/lib/persistedAtom';
+import { useAtom, useAtomValue } from 'jotai';
+import { FormTextField } from '~/components/fields/FormTextField';
+import { withSuspense } from '~/components/skeleton/withSuspense';
+import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
 
-const getSchema = (currentHash: string | null) =>
+const PASSWORD_HASH = persistedAtom<string | null>('passwordHash', null);
+export const usePasswordHash = () => useAtomValue(PASSWORD_HASH);
+
+const getSchema = (hash: (p: string) => Promise<string>, passwordHash: string | null) =>
   z
     .object({
-      ...(currentHash && {
-        current: z.string().refine((p) => hashPassword(p) === currentHash, {
+      ...(passwordHash && {
+        current: z.string().refine(async (p) => (await hash(p)) === passwordHash, {
           message: 'Must match current password',
         }),
       }),
-      password: z.string().min(1, { message: 'Must be at least 1 character' }),
-      confirm: z.string(),
+      password: z.string().optional(),
+      confirm: z.string().optional(),
     })
     .refine((inputs) => inputs.password === inputs.confirm, {
       message: 'Passwords must match',
@@ -37,21 +41,18 @@ interface Inputs {
   confirm: string;
 }
 
-export default function PasswordScreen() {
+function PasswordScreen() {
   const styles = useStyles();
-  const [{ passwordHash }, update] = useImmerAtom(AUTH_METHODS);
+  const hash = useHashPassword();
+  const [passwordHash, update] = useAtom(PASSWORD_HASH);
 
   const { control, handleSubmit, watch, reset } = useForm<Inputs>({
     mode: 'onBlur',
     defaultValues: { password: '', confirm: '' },
-    resolver: zodResolver(useMemo(() => getSchema(passwordHash), [passwordHash])),
+    resolver: zodResolver(useMemo(() => getSchema(hash, passwordHash), [hash, passwordHash])),
   });
 
-  const currentPassword = watch('current');
-  const isPasswordConfirmed = useMemo(
-    () => currentPassword && hashPassword(currentPassword) === passwordHash,
-    [currentPassword, passwordHash],
-  );
+  const newPassword = !!watch('password');
 
   return (
     <>
@@ -60,52 +61,65 @@ export default function PasswordScreen() {
       <ScreenSurface>
         <View style={styles.fields}>
           {passwordHash && (
-            <FormPasswordField
+            <FormTextField
               label="Current password"
               required
               control={control}
               name="current"
               containerStyle={styles.current}
+              secureTextEntry
               autoComplete="current-password"
             />
           )}
 
-          <FormPasswordField
+          <FormTextField
             label="New password"
-            required
             control={control}
             name="password"
+            secureTextEntry
             autoComplete="new-password"
           />
 
-          <FormPasswordField
+          <FormTextField
             label="Re-enter new password"
-            required
+            required={newPassword}
             control={control}
             name="confirm"
+            secureTextEntry
             autoComplete="new-password"
           />
         </View>
 
         <Actions>
-          {passwordHash && (
-            <Button mode="text" disabled={!isPasswordConfirmed} labelStyle={styles.removeLabel}>
+          {newPassword || !passwordHash ? (
+            <FormSubmitButton
+              mode="contained"
+              control={control}
+              onPress={handleSubmit(async ({ password }) => {
+                update(await hash(password));
+                showInfo(`Password ${passwordHash ? 'updated' : 'created'}`, {
+                  visibilityTime: 2000,
+                });
+                reset();
+              })}
+            >
+              {passwordHash ? 'Update' : 'Create'}
+            </FormSubmitButton>
+          ) : (
+            <FormSubmitButton
+              mode="contained"
+              control={control}
+              onPress={handleSubmit(() => {
+                update(null);
+                showInfo(`Password removed`, { visibilityTime: 2000 });
+                reset();
+              })}
+              contentStyle={styles.removeContainer}
+              labelStyle={styles.removeLabel}
+            >
               Remove
-            </Button>
+            </FormSubmitButton>
           )}
-          <FormSubmitButton
-            mode="contained"
-            control={control}
-            onPress={handleSubmit(({ password }) => {
-              update((v) => {
-                v.passwordHash = hashPassword(password);
-              });
-              showSuccess(`Password ${passwordHash ? 'updated' : 'created'}`);
-              reset();
-            })}
-          >
-            {passwordHash ? 'Update' : 'Create'}
-          </FormSubmitButton>
         </Actions>
       </ScreenSurface>
     </>
@@ -124,6 +138,8 @@ const useStyles = makeStyles(({ colors }) => ({
     backgroundColor: colors.errorContainer,
   },
   removeLabel: {
-    color: colors.error,
+    color: colors.onErrorContainer,
   },
 }));
+
+export default withSuspense(PasswordScreen, ScreenSkeleton);

@@ -5,7 +5,6 @@ import { Actions } from '~/components/layout/Actions';
 import { ListItem } from '~/components/list/ListItem';
 import { FingerprintIcon, LockOpenIcon, PasswordIcon, TransferIcon } from '@theme/icons';
 import { ListHeader } from '~/components/list/ListHeader';
-import { useAtomValue } from 'jotai';
 import { ReactNode, useEffect } from 'react';
 import { withSuspense } from '~/components/skeleton/withSuspense';
 import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
@@ -13,8 +12,17 @@ import { ScreenSurface } from '~/components/layout/ScreenSurface';
 import { AppbarOptions } from '~/components/Appbar/AppbarOptions';
 import { AppbarMenu } from '~/components/Appbar/AppbarMenu';
 import { Button } from '~/components/Button';
-import { AUTH_METHODS, AUTH_SETTINGS, BIOMETRICS_AVAILABLE } from '~/hooks/useAuthenticate';
 import { Href, useRouter } from 'expo-router';
+import { useBiometrics } from '~/hooks/useBiometrics';
+import { usePasswordHash } from '~/app/(drawer)/settings/password';
+import { persistedAtom } from '~/lib/persistedAtom';
+import { useAtomValue } from 'jotai';
+
+const AUTH_SETTINGS = persistedAtom('AuthenticationSettings', {
+  open: true,
+  approval: true,
+});
+export const useAuthSettings = () => useAtomValue(AUTH_SETTINGS);
 
 export interface AuthSettingsProps {
   actions?: ReactNode;
@@ -24,18 +32,15 @@ export interface AuthSettingsProps {
 
 function AuthSettings_({ actions, appbarMenu, passwordHref }: AuthSettingsProps) {
   const router = useRouter();
-  const biometicsAvailable = useAtomValue(BIOMETRICS_AVAILABLE);
+  const biometrics = useBiometrics();
+  const passwordConfigured = !!usePasswordHash();
 
-  const [methods, updateMethods] = useImmerAtom(AUTH_METHODS);
   const [settings, updateSettings] = useImmerAtom(AUTH_SETTINGS);
 
   // Enable biometrics (if supported) when this screen is first opened
   useEffect(() => {
-    if (methods.biometrics === null)
-      updateMethods((s) => {
-        s.biometrics = true;
-      });
-  }, [biometicsAvailable, methods.biometrics, updateMethods]);
+    biometrics.setEnabled((enabled) => (enabled === null ? biometrics.available : enabled));
+  }, [biometrics.setEnabled, biometrics.available]);
 
   return (
     <>
@@ -54,7 +59,7 @@ function AuthSettings_({ actions, appbarMenu, passwordHref }: AuthSettingsProps)
             headline="Password"
             trailing={() => (
               <Button mode="contained" onPress={() => router.push(passwordHref)}>
-                {methods.passwordHash ? 'Configure' : 'Create'}
+                {passwordConfigured ? 'Configure' : 'Create'}
               </Button>
             )}
           />
@@ -64,12 +69,12 @@ function AuthSettings_({ actions, appbarMenu, passwordHref }: AuthSettingsProps)
             headline="Biometrics"
             trailing={({ disabled }) => (
               <Switch
-                value={biometicsAvailable && !!methods.biometrics}
-                onValueChange={(v) => updateMethods((s) => ({ ...s, biometics: v }))}
+                value={!!biometrics.enabled}
+                onValueChange={(v) => biometrics.setEnabled(v)}
                 disabled={disabled}
               />
             )}
-            disabled={!biometicsAvailable}
+            disabled={!biometrics.available}
           />
 
           <ListHeader>Required</ListHeader>

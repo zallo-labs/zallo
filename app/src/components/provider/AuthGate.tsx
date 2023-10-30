@@ -1,10 +1,10 @@
-import { ReactNode, useEffect, useState } from 'react';
-import useAsyncEffect from 'use-async-effect';
+import { ReactNode, useCallback, useEffect, useState } from 'react';
 import { DateTime, Duration } from 'luxon';
-import { Blur } from '~/components/Blur';
 import { AppState } from 'react-native';
-import { useAtomValue } from 'jotai';
-import { AUTH_SETTINGS, useAuthenticate } from '~/hooks/useAuthenticate';
+import { lockSecureStorage } from '~/lib/secure-storage';
+import AuthenticateScreen, { useAuthAvailable } from '~/app/auth';
+import { Blur } from '~/components/Blur';
+import { useAuthSettings } from '~/components/shared/AuthSettings';
 
 const TIMEOUT_AFTER = Duration.fromObject({ minutes: 5 }).toMillis();
 
@@ -18,25 +18,15 @@ export interface AuthGateProps {
 }
 
 export const AuthGate = ({ children }: AuthGateProps) => {
-  const authenticate = useAuthenticate();
-  const { open: require } = useAtomValue(AUTH_SETTINGS);
+  const { open: required } = useAuthSettings();
+  const available = useAuthAvailable();
 
-  const [state, setState] = useState<AuthState>({ success: !require });
-
-  // Try authenticate
-  useAsyncEffect(
-    async (isMounted) => {
-      if (!state.success) {
-        const success = await authenticate({ retry: true });
-        if (isMounted() && success) setState({ success });
-      }
-    },
-    [state, setState],
-  );
+  const [state, setState] = useState<AuthState>({ success: !required || !available });
+  const onUnlock = useCallback(() => setState((s) => ({ ...s, success: true })), []);
 
   // Unauthenticate if app had left foreground
   useEffect(() => {
-    if (!require) return;
+    if (!required) return;
 
     const listener = AppState.addEventListener('change', (newState) => {
       if (newState === 'active') {
@@ -46,22 +36,26 @@ export const AuthGate = ({ children }: AuthGateProps) => {
             : prev,
         );
       } else if (newState === 'background') {
-        setState((prev) =>
-          prev.success
-            ? { ...prev, lastAuthenticated: DateTime.now() }
-            : // Re-render to prompt authentication
-              {},
-        );
+        setState((prev) => (prev.success ? { ...prev, lastAuthenticated: DateTime.now() } : prev));
       }
     });
 
     return () => listener.remove();
-  }, [require, setState]);
+  }, [required, setState]);
+
+  useEffect(() => {
+    if (!state.success) lockSecureStorage();
+  }, [state.success]);
 
   return (
     <>
       {children}
-      {!state.success && <Blur blurAmount={16} />}
+
+      {!state.success && (
+        <Blur>
+          <AuthenticateScreen onUnlock={onUnlock} />
+        </Blur>
+      )}
     </>
   );
 };
