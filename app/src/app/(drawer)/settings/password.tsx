@@ -9,21 +9,24 @@ import { Actions } from '~/components/layout/Actions';
 import { FormSubmitButton } from '~/components/fields/FormSubmitButton';
 import { makeStyles } from '@theme/makeStyles';
 import { showInfo } from '~/components/provider/SnackbarProvider';
-import { useHashPassword } from '~/hooks/useHashPassword';
+import { hashPassword, verifyPassword } from '~/lib/crypto/password';
 import { persistedAtom } from '~/lib/persistedAtom';
 import { useAtom, useAtomValue } from 'jotai';
 import { FormTextField } from '~/components/fields/FormTextField';
 import { withSuspense } from '~/components/skeleton/withSuspense';
 import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
+import { changeSecureStorePassword } from '~/lib/secure-storage';
 
-const PASSWORD_HASH = persistedAtom<string | null>('passwordHash', null);
+const PASSWORD_HASH = persistedAtom<string | null>('passwordHash', null, {
+  skipInitialPersist: true,
+});
 export const usePasswordHash = () => useAtomValue(PASSWORD_HASH);
 
-const getSchema = (hash: (p: string) => Promise<string>, passwordHash: string | null) =>
+const getSchema = (expectedHash: string | null) =>
   z
     .object({
-      ...(passwordHash && {
-        current: z.string().refine(async (p) => (await hash(p)) === passwordHash, {
+      ...(expectedHash && {
+        current: z.string().refine(async (p) => await verifyPassword(p, expectedHash), {
           message: 'Must match current password',
         }),
       }),
@@ -43,13 +46,12 @@ interface Inputs {
 
 function PasswordScreen() {
   const styles = useStyles();
-  const hash = useHashPassword();
   const [passwordHash, update] = useAtom(PASSWORD_HASH);
 
   const { control, handleSubmit, watch, reset } = useForm<Inputs>({
     mode: 'onBlur',
     defaultValues: { password: '', confirm: '' },
-    resolver: zodResolver(useMemo(() => getSchema(hash, passwordHash), [hash, passwordHash])),
+    resolver: zodResolver(useMemo(() => getSchema(passwordHash), [passwordHash])),
   });
 
   const newPassword = !!watch('password');
@@ -96,7 +98,8 @@ function PasswordScreen() {
               mode="contained"
               control={control}
               onPress={handleSubmit(async ({ password }) => {
-                update(await hash(password));
+                update(await hashPassword(password));
+                changeSecureStorePassword(password);
                 showInfo(`Password ${passwordHash ? 'updated' : 'created'}`, {
                   visibilityTime: 2000,
                 });

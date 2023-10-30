@@ -2,6 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import type { getSecureStore as _getSecureStore } from './index.native';
 import type { SecureStoreOptions } from 'expo-secure-store';
 import { BehaviorSubject, filter, firstValueFrom } from 'rxjs';
+import { createCipher } from '../crypto/cipher';
 
 export type { SecureStoreOptions };
 
@@ -12,46 +13,61 @@ export interface SecureStore {
 }
 
 // TODO: encrypt data with user password - https://linear.app/zallo/issue/Z-195/password-security
-export const getSecureStore: typeof _getSecureStore = (options) => ({
+export const getSecureStore: typeof _getSecureStore = (_options) => ({
   getItem: async (key) => {
-    const [encryptedValue, password] = await Promise.all([
-      AsyncStorage.getItem(key),
-      getPassword(),
-    ]);
+    key = namespaceKey(key);
+    const encryptedValue = await AsyncStorage.getItem(key);
+    console.log(`${key}: get`);
     if (!encryptedValue) return null;
 
-    return decrypt(encryptedValue, password);
+    return (await getCipher()).decrypt(encryptedValue);
   },
   setItem: async (key, value) => {
-    const encryptedValue = await encrypt(value, await getPassword());
+    key = namespaceKey(key);
+    console.log(`${key}: set`);
+    const encryptedValue = await (await getCipher()).encrypt(value);
+    console.log(`${key}: encrypted`);
     return AsyncStorage.setItem(key, encryptedValue);
   },
-  removeItem: (key) => AsyncStorage.removeItem(key),
+  removeItem: (key) => {
+    key = namespaceKey(key);
+    return AsyncStorage.removeItem(key);
+  },
 });
 
-const PASSWORD = new BehaviorSubject<string | null>(null);
+const CIPHER = new BehaviorSubject<Awaited<ReturnType<typeof createCipher>> | null>(null);
 
-export function unlockSecureStorage(password: string) {
-  console.log('UNLOCKED');
-  PASSWORD.next(password);
+export async function unlockSecureStorage(password: string | undefined) {
+  CIPHER.next(await createCipher(password ?? ''));
 }
 
 export function lockSecureStorage() {
-  PASSWORD.next(null);
+  CIPHER.next(null);
 }
 
-function getPassword() {
-  return firstValueFrom(PASSWORD.pipe(filter(Boolean)));
+function getCipher() {
+  return firstValueFrom(CIPHER.pipe(filter(Boolean)));
 }
 
-async function encrypt(value: string, password: string | null): Promise<string> {
-  // TODO:
-
-  return value;
+const NAMESPACE = 'secret::';
+function namespaceKey(key: string) {
+  return key.startsWith(NAMESPACE) ? key : NAMESPACE + key;
 }
 
-async function decrypt(encrypted: string, password: string | null): Promise<string> {
-  // TODO:
+export async function changeSecureStorePassword(newPassword: string) {
+  const currentCipher = await getCipher();
+  const newCipher = await createCipher(newPassword);
 
-  return encrypted;
+  const encryptedKeys = (await AsyncStorage.getAllKeys()).filter((k) => k.startsWith(NAMESPACE));
+
+  const reEncryptedItems = (await AsyncStorage.multiGet(encryptedKeys))
+    .filter((pair): pair is [string, string] => pair[1] !== null)
+    .map(async ([key, currentEncrypted]): Promise<[string, string]> => {
+      const decrypted = await currentCipher.decrypt(currentEncrypted);
+      return [key, await newCipher.encrypt(decrypted)];
+    });
+
+  await AsyncStorage.multiSet(await Promise.all(reEncryptedItems));
+
+  unlockSecureStorage(newPassword);
 }

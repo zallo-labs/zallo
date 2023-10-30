@@ -1,8 +1,8 @@
 import { ReactNode, useCallback, useEffect, useState } from 'react';
 import { DateTime, Duration } from 'luxon';
 import { AppState } from 'react-native';
-import { lockSecureStorage } from '~/lib/secure-storage';
-import AuthenticateScreen, { useAuthAvailable } from '~/app/auth';
+import { lockSecureStorage, unlockSecureStorage } from '~/lib/secure-storage';
+import AuthenticateScreen from '~/app/auth';
 import { Blur } from '~/components/Blur';
 import { useAuthSettings } from '~/components/shared/AuthSettings';
 
@@ -19,10 +19,12 @@ export interface AuthGateProps {
 
 export const AuthGate = ({ children }: AuthGateProps) => {
   const { open: required } = useAuthSettings();
-  const available = useAuthAvailable();
 
-  const [state, setState] = useState<AuthState>({ success: !required || !available });
-  const onUnlock = useCallback(() => setState((s) => ({ ...s, success: true })), []);
+  const [state, setState] = useState<AuthState>({ success: !required });
+  const onUnlock = useCallback((password?: string) => {
+    setState((s) => ({ ...s, success: true }));
+    unlockSecureStorage(password);
+  }, []);
 
   // Unauthenticate if app had left foreground
   useEffect(() => {
@@ -51,11 +53,7 @@ export const AuthGate = ({ children }: AuthGateProps) => {
     <>
       {children}
 
-      {!state.success && (
-        <Blur>
-          <AuthenticateScreen onUnlock={onUnlock} />
-        </Blur>
-      )}
+      {!state.success && <AuthenticateScreen onUnlock={onUnlock} container={Blur} />}
     </>
   );
 };
