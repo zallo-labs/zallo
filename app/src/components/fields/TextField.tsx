@@ -1,28 +1,35 @@
+import { makeStyles } from '@theme/makeStyles';
 import { ComponentPropsWithoutRef } from 'react';
 import { StyleProp, TextStyle, View, ViewStyle } from 'react-native';
-import Collapsible from 'react-native-collapsible';
+import Collapsible, { CollapsibleProps } from 'react-native-collapsible';
 import { HelperText, TextInput } from 'react-native-paper';
 
 type TextInputProps = ComponentPropsWithoutRef<typeof TextInput>;
 
 export type TextFieldProps = Omit<TextInputProps, 'error' | 'style'> & {
   supporting?: string;
+  supportingStyle?: StyleProp<TextStyle>;
   error?: string | false;
   required?: boolean;
   wrap?: boolean;
   containerStyle?: StyleProp<ViewStyle>;
   textStyle?: StyleProp<TextStyle>;
+  collapsible?: Partial<CollapsibleProps>;
 };
 
 export function TextField({
   supporting,
+  supportingStyle,
   error,
   required,
   wrap,
   containerStyle,
   textStyle,
+  collapsible,
   ...props
 }: TextFieldProps) {
+  const styles = useStyles();
+
   return (
     <View style={containerStyle}>
       <TextInput
@@ -38,9 +45,20 @@ export function TextField({
         {...(props.label && required && { label: `${props.label}*` })}
       />
 
-      <Collapsible collapsed={!(error || supporting)}>
-        <HelperText type={error ? 'error' : 'info'}>{error || supporting}</HelperText>
+      <Collapsible collapsed={!(error || supporting)} {...collapsible}>
+        <HelperText
+          type={error ? 'error' : 'info'}
+          style={[supportingStyle, error && styles.errorText].filter(Boolean) as any}
+        >
+          {error || supporting}
+        </HelperText>
       </Collapsible>
     </View>
   );
 }
+
+const useStyles = makeStyles(({ colors }) => ({
+  errorText: {
+    color: colors.error,
+  },
+}));
