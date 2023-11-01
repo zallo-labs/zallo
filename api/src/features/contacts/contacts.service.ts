@@ -8,6 +8,7 @@ import { uuid } from 'edgedb/dist/codecs/ifaces';
 import { isAddress } from 'ethers/lib/utils';
 import { or } from '../database/database.util';
 import { ProviderService } from '../util/provider/provider.service';
+import { CONFIG } from '~/config';
 
 type UniqueContact = uuid | Address;
 
@@ -20,7 +21,10 @@ export const uniqueContact = (u: UniqueContact) =>
 export class ContactsService {
   private hardcodedContracts: Record<Address, string>;
 
-  constructor(private db: DatabaseService, private provider: ProviderService) {
+  constructor(
+    private db: DatabaseService,
+    private provider: ProviderService,
+  ) {
     this.hardcodedContracts = {
       [this.provider.walletAddress]: 'Zallo',
       // mainnet TODO: handle chain
@@ -91,10 +95,17 @@ export class ContactsService {
       label: true,
     })).label;
 
-    const account = e.select(e.Account, () => ({
+    const accountLabel = e.select(e.Account, () => ({
       filter_single: { address },
-      name: true,
-    })).name;
+      label: true,
+    })).label;
+    const account = e.op(
+      e.op(accountLabel, '++', CONFIG.ensSuffix),
+      'if',
+      e.op('exists', accountLabel),
+      'else',
+      e.cast(e.str, e.set()),
+    );
 
     const approver = e.select(e.Approver, () => ({
       filter_single: { address },

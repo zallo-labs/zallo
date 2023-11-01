@@ -3,12 +3,7 @@ import { DatabaseService } from '../database/database.service';
 import e from '~/edgeql-js';
 import { Address, DeploySalt, Policy, asHex, asPolicyKey, randomDeploySalt } from 'lib';
 import { ShapeFunc } from '../database/database.select';
-import {
-  AccountEvent,
-  ActivityInput,
-  CreateAccountInput,
-  UpdateAccountInput,
-} from './accounts.input';
+import { AccountEvent, CreateAccountInput, UpdateAccountInput } from './accounts.input';
 import { getApprover, getUserCtx } from '~/request/ctx';
 import { UserInputError } from '@nestjs/apollo';
 import { CONFIG } from '~/config';
@@ -72,7 +67,18 @@ export class AccountsService {
     );
   }
 
-  async createAccount({ name, policies: policyInputs }: CreateAccountInput) {
+  private labelPattern = /^[0-9a-zA-Z$-]{4,40}$/;
+  async labelAvailable(label: string): Promise<boolean> {
+    if (!this.labelPattern.exec(label)) return false;
+
+    const selectedAccount = e.select(e.Account, () => ({ filter_single: { label } }));
+
+    return e
+      .select(e.op('not', e.op('exists', selectedAccount)))
+      .run(this.db.DANGEROUS_superuserClient);
+  }
+
+  async createAccount({ label, policies: policyInputs }: CreateAccountInput) {
     const approver = getApprover();
 
     if (!policyInputs.find((p) => p.approvers.includes(approver)))
@@ -101,7 +107,7 @@ export class AccountsService {
         .insert(e.Account, {
           id,
           address: account,
-          name,
+          label,
           isActive: false,
           implementation,
           salt,
@@ -126,11 +132,11 @@ export class AccountsService {
     return { id, address: account };
   }
 
-  async updateAccount({ address, name, photoUri }: UpdateAccountInput) {
+  async updateAccount({ address, label, photoUri }: UpdateAccountInput) {
     const r = await e
       .update(e.Account, () => ({
         set: {
-          name,
+          label,
           photoUri: photoUri?.href,
         },
         filter_single: { address },

@@ -4,7 +4,7 @@ import { createMock } from '@golevelup/ts-jest';
 import { DatabaseService } from '../database/database.service';
 import { UserContext, asUser, getUserCtx } from '~/request/ctx';
 import { Address, ZERO_ADDR, randomDeploySalt } from 'lib';
-import { ZERO_HASH, randomAddress, randomName, randomUser } from '~/util/test';
+import { ZERO_HASH, randomAddress, randomLabel, randomUser } from '~/util/test';
 import e from '~/edgeql-js';
 import { v1 as uuidv1 } from 'uuid';
 import { InsertShape } from '~/edgeql-js/insert';
@@ -33,7 +33,7 @@ describe(TransfersService.name, () => {
       .insert(e.Account, {
         id,
         address,
-        name: randomName(),
+        label: randomLabel(),
         implementation: address,
         salt: randomDeploySalt(),
         isActive: true,

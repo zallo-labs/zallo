@@ -1,15 +1,15 @@
-import { Context, Info, Mutation, Query, Resolver, Subscription } from '@nestjs/graphql';
+import { Context, Info, Mutation, Parent, Query, Resolver, Subscription } from '@nestjs/graphql';
 import { GraphQLResolveInfo } from 'graphql';
 import {
   AccountInput,
   UpdateAccountInput,
   CreateAccountInput,
   AccountSubscriptionInput,
-  ActivityInput,
+  LabelAvailableInput,
 } from './accounts.input';
 import { PubsubService } from '../util/pubsub/pubsub.service';
 import { GqlContext, asUser, getApprover, getUserCtx } from '~/request/ctx';
-import { Account, Activity } from './accounts.model';
+import { Account } from './accounts.model';
 import {
   AccountSubscriptionPayload,
   AccountsService,
@@ -19,6 +19,9 @@ import {
 import { getShape } from '../database/database.select';
 import { Input, InputArgs } from '~/decorators/input.decorator';
 import { AccountsCacheService } from '../auth/accounts.cache.service';
+import { ComputedField } from '~/decorators/computed.decorator';
+import e from '~/edgeql-js';
+import { CONFIG } from '~/config';
 
 @Resolver(() => Account)
 export class AccountsResolver {
@@ -27,6 +30,11 @@ export class AccountsResolver {
     private pubsub: PubsubService,
     private accountsCache: AccountsCacheService,
   ) {}
+
+  @ComputedField<typeof e.Account>(() => String, { label: true })
+  name(@Parent() { label }: Account): String {
+    return label + CONFIG.ensSuffix;
+  }
 
   @Query(() => Account, { nullable: true })
   async account(
@@ -40,6 +48,11 @@ export class AccountsResolver {
   @Query(() => [Account])
   async accounts(@Info() info: GraphQLResolveInfo) {
     return this.service.select({}, getShape(info));
+  }
+
+  @Query(() => Boolean)
+  async labelAvailable(@Input() { label }: LabelAvailableInput) {
+    return this.service.labelAvailable(label);
   }
 
   @Mutation(() => Account)

@@ -18,6 +18,7 @@ type Account implements Node {
   id: ID!
   implementation: Address!
   isActive: Boolean!
+  label: String!
   name: String!
   photoUri: String
   policies: [Policy!]!
@@ -156,7 +157,7 @@ input ContractTargetInput {
 }
 
 input CreateAccountInput {
-  name: String!
+  label: String!
   policies: [PolicyInput!]!
 }
 
@@ -211,6 +212,10 @@ scalar JSON @specifiedBy(url: "http://www.ecma-international.org/publications/fi
 A field whose value is a JSON Web Token (JWT): https://jwt.io/introduction.
 """
 scalar JWT
+
+input LabelAvailableInput {
+  label: String!
+}
 
 input LabelInput {
   address: Address!
@@ -442,6 +447,7 @@ type Query {
   contract(input: ContractInput!): Contract
   contractFunction(input: ContractFunctionInput!): ContractFunction
   label(input: LabelInput!): String
+  labelAvailable(input: LabelAvailableInput!): Boolean!
   messageProposal(input: ProposalInput!): MessageProposal
   paymaster: Address!
   policies(input: PoliciesInput! = {}): [Policy!]!
@@ -828,7 +834,7 @@ input UniquePolicyInput {
 
 input UpdateAccountInput {
   address: Address!
-  name: String!
+  label: String!
   photoUri: URL
 }
 

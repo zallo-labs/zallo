@@ -18,7 +18,7 @@ export class Account extends Node {
   address: string; // Address;
 
   @Field(() => String)
-  name: string;
+  label: string;
 
   @Field(() => Boolean)
   isActive: boolean;

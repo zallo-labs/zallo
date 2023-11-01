@@ -12,7 +12,7 @@ module default {
       readonly := true;
       constraint exclusive;
     }
-    required name: str {
+    required label: str {
       constraint exclusive;
       constraint regexp(r'^[0-9a-zA-Z$-]{4,40}$');
     }

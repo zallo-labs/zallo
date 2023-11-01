@@ -21,6 +21,7 @@ export const CONFIG = {
   logLevel: Object.values(LogLevel).find((l) => l === optional`LOG_LEVEL`) ?? LogLevel.Debug,
   apiPort: optional`API_PORT` || 3000,
   expoToken: required`EXPO_TOKEN`,
+  ensSuffix: required`ENS_SUFFIX`,
   redisUrl: required`REDIS_URL`,
   redisFamily: optional`REDIS_FAMILY` === '6' ? 6 : undefined,
   sessionSecret: required`SESSION_SECRET`,

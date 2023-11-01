@@ -11,6 +11,12 @@ export class AccountInput {
   address?: Address;
 }
 
+@InputType()
+export class LabelAvailableInput {
+  @Field(() => String)
+  label: string;
+}
+
 export enum AccountEvent {
   create,
   update,
@@ -32,7 +38,7 @@ export class AccountSubscriptionInput {
 @InputType()
 export class CreateAccountInput {
   @Field(() => String)
-  name: string;
+  label: string;
 
   @Field(() => [PolicyInput], { middleware: [minLengthMiddleware(1)] })
   policies: PolicyInput[];
@@ -44,7 +50,7 @@ export class UpdateAccountInput {
   address: Address;
 
   @Field(() => String)
-  name: string;
+  label: string;
 
   @Field(() => GraphQLURL, { nullable: true })
   photoUri?: URL;

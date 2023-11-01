@@ -3,7 +3,7 @@ import { Test } from '@nestjs/testing';
 import { ProviderService } from '../util/provider/provider.service';
 import { CONFIG } from '~/config';
 import { asUser, getUserCtx, UserContext } from '~/request/ctx';
-import { randomAddress, randomHash, randomName, randomUser } from '~/util/test';
+import { randomAddress, randomHash, randomLabel, randomUser } from '~/util/test';
 import { Address } from 'lib';
 import { PoliciesService } from '../policies/policies.service';
 import { BullModule, getQueueToken } from '@nestjs/bull';
@@ -64,7 +64,7 @@ describe(AccountsService.name, () => {
     );
 
     return service.createAccount({
-      name: randomName(),
+      label: randomLabel(),
       policies: [{ approvers: [userCtx.approver], permissions: {} }],
     });
   };
@@ -135,27 +135,27 @@ describe(AccountsService.name, () => {
   });
 
   describe('updateAccountMetadata', () => {
-    const newName = 'foo';
+    const newLabel = 'foo';
 
     it('updates metadata', () =>
       asUser(user1, async () => {
-        await service.updateAccount({ address: user1Account, name: newName });
-        expect((await service.selectUnique(user1Account, () => ({ name: true })))?.name).toEqual(
-          newName,
+        await service.updateAccount({ address: user1Account, label: newLabel });
+        expect((await service.selectUnique(user1Account, () => ({ label: true })))?.label).toEqual(
+          newLabel,
         );
       }));
 
     it('publishes account', () =>
       asUser(user1, async () => {
         service.publishAccount = jest.fn();
-        await service.updateAccount({ address: user1Account, name: newName });
+        await service.updateAccount({ address: user1Account, label: newLabel });
         expect(service.publishAccount).toBeCalledTimes(1);
       }));
 
     it('throws if user is not member of account being updated', () =>
       asUser(randomUser(), async () => {
         await expect(
-          service.updateAccount({ address: user1Account, name: newName }),
+          service.updateAccount({ address: user1Account, label: newLabel }),
         ).rejects.toThrow();
       }));
   });
