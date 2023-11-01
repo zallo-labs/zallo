@@ -18,7 +18,7 @@ import { useSelectedAccount } from '~/hooks/useSelectedAccount';
 import { Image } from 'expo-image';
 import { ETH_ICON_URI } from '~/components/token/TokenIcon';
 import { CONFIG } from '~/util/config';
-import { UserHeader } from '~/components/drawer/UserHeader';
+import { AccountDrawerHeader } from '~/components/drawer/AccountDrawerHeader';
 import { useTransfer } from '~/hooks/useTransfer';
 import { DrawerContentComponentProps } from '@react-navigation/drawer';
 import { DrawerSurface } from './DrawerSurface';
@@ -35,7 +35,7 @@ export function RootDrawer(_props: RootDrawerProps) {
   return (
     <DrawerSurface>
       <Section>
-        <UserHeader />
+        <AccountDrawerHeader />
 
         {account ? (
           <Item
