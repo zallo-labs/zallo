@@ -23,7 +23,7 @@ export default function LandingScreen() {
   const styles = useStyles();
   const { push } = useRouter();
 
-  const next = () => push(`/onboard/(drawer)/user`);
+  const next = () => push(`/onboard/(drawer)/account`);
 
   return (
     <ScrollView contentContainerStyle={styles.root}>
