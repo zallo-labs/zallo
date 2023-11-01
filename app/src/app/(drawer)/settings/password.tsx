@@ -24,15 +24,20 @@ export const usePasswordHash = () => useAtomValue(PASSWORD_HASH);
 
 const getSchema = (expectedHash: string | null) =>
   z
-    .object({
-      ...(expectedHash && {
-        current: z.string().refine(async (p) => await verifyPassword(p, expectedHash), {
-          message: 'Must match current password',
-        }),
-      }),
-      password: z.string().optional(),
-      confirm: z.string().optional(),
-    })
+    .object(
+      expectedHash
+        ? {
+            current: z.string().refine(async (p) => await verifyPassword(p, expectedHash), {
+              message: 'Must match current password',
+            }),
+            password: z.string().optional(),
+            confirm: z.string().optional(),
+          }
+        : {
+            password: z.string().min(1, 'Must be at least 1 character'),
+            confirm: z.string(),
+          },
+    )
     .refine((inputs) => inputs.password === inputs.confirm, {
       message: 'Passwords must match',
       path: ['confirm'],
