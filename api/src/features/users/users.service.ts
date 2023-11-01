@@ -13,6 +13,7 @@ import { Address } from 'lib';
 import { PubsubService } from '../util/pubsub/pubsub.service';
 import { getUserCtx } from '~/request/ctx';
 import { Mutex } from 'redis-semaphore';
+import { selectAccount } from '~/features/accounts/accounts.util';
 
 export interface UserSubscriptionPayload {}
 const getUserTrigger = (user: uuid) => `user.${user}`;
@@ -36,10 +37,10 @@ export class UsersService {
     );
   }
 
-  async update({ name, photoUri }: UpdateUserInput) {
+  async update({ primaryAccount }: UpdateUserInput) {
     return this.db.query(
       e.update(e.global.current_user, () => ({
-        set: { name, photoUri: photoUri?.href },
+        set: { primaryAccount: primaryAccount && selectAccount(primaryAccount) },
       })),
     );
   }
@@ -102,26 +103,6 @@ export class UsersService {
             })),
             () => ({ address: true }),
           ).address,
-          newUserUpdate: e.update(e.User, (u) => ({
-            filter_single: { id: newUser },
-            set: {
-              name: e.op(
-                u.name,
-                'if',
-                e.op('exists', u.name),
-                'else',
-                e.select(e.User, () => ({ filter_single: { id: oldUser }, name: true })).name,
-              ),
-              photoUri: e.op(
-                u.photoUri,
-                'if',
-                e.op('exists', u.photoUri),
-                'else',
-                e.select(e.User, () => ({ filter_single: { id: oldUser }, photoUri: true }))
-                  .photoUri,
-              ),
-            },
-          })),
           oldUserRiskLabels: e.update(e.ProposalRiskLabel, (l) => ({
             filter: e.op(
               l.user,

@@ -29,6 +29,9 @@ export class Account extends Node {
   @Bytes32Field()
   salt: string; // Hex
 
+  @Field(() => String, { nullable: true })
+  photoUri?: string;
+
   @Field(() => [Policy])
   policies: Policy[];
 

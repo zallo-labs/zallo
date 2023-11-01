@@ -3,6 +3,7 @@ import { Address } from 'lib';
 import { AddressField, AddressScalar } from '~/apollo/scalars/Address.scalar';
 import { minLengthMiddleware } from '~/apollo/scalars/util';
 import { PolicyInput } from '../policies/policies.input';
+import { GraphQLURL } from 'graphql-scalars';
 
 @InputType()
 export class AccountInput {
@@ -44,6 +45,9 @@ export class UpdateAccountInput {
 
   @Field(() => String)
   name: string;
+
+  @Field(() => GraphQLURL, { nullable: true })
+  photoUri?: URL;
 }
 
 @InputType()

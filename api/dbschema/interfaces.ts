@@ -58,13 +58,14 @@ export interface Account extends std.$Object {
   "address": string;
   "implementation": string;
   "isActive": boolean;
-  "name": string;
   "salt": string;
-  "policies": Policy[];
   "approvers": Approver[];
   "proposals": Proposal[];
   "transactionProposals": TransactionProposal[];
   "transfers": Transfer[];
+  "policies": Policy[];
+  "name": string;
+  "photoUri"?: string | null;
 }
 export interface ProposalResponse extends std.$Object {
   "approver": Approver;
@@ -76,12 +77,12 @@ export interface Approval extends ProposalResponse {
 }
 export interface Approver extends std.$Object {
   "bluetoothDevices"?: string[] | null;
-  "address": string;
   "cloud"?: CloudShare | null;
+  "address": string;
   "name"?: string | null;
   "pushToken"?: string | null;
-  "user": User;
   "accounts": Account[];
+  "user": User;
   "contact"?: Contact | null;
   "label"?: string | null;
 }
@@ -128,13 +129,13 @@ export interface Proposal extends std.$Object {
   "hash": string;
   "iconUri"?: string | null;
   "label"?: string | null;
-  "validFrom": Date;
   "approvals": Approval[];
   "rejections": Rejection[];
   "policy"?: Policy | null;
   "potentialApprovers": Approver[];
   "potentialRejectors": Approver[];
   "riskLabel"?: ProposalRisk | null;
+  "validFrom": Date;
 }
 export interface MessageProposal extends Proposal {
   "message": string;
@@ -199,10 +200,10 @@ export interface Token extends std.$Object {
   "address": string;
   "name": string;
   "symbol": string;
-  "isFeeToken": boolean;
   "decimals": number;
   "ethereumAddress"?: string | null;
   "iconUri"?: string | null;
+  "isFeeToken": boolean;
   "user"?: User | null;
 }
 export interface Transaction extends std.$Object {
@@ -217,11 +218,11 @@ export interface TransactionProposal extends Proposal {
   "operations": Operation[];
   "feeToken": Token;
   "gasLimit": bigint;
-  "nonce": bigint;
   "transactions": Transaction[];
   "transaction"?: Transaction | null;
   "status": TransactionProposalStatus;
   "simulation"?: Simulation | null;
+  "nonce": bigint;
 }
 export type TransactionProposalStatus = "Pending" | "Executing" | "Successful" | "Failed";
 export interface TransferDetails extends std.$Object {
@@ -251,11 +252,10 @@ export interface TransfersConfig extends std.$Object {
   "defaultAllow": boolean;
 }
 export interface User extends std.$Object {
-  "name"?: string | null;
-  "photoUri"?: string | null;
   "approvers": Approver[];
   "accounts": Account[];
   "contacts": Contact[];
+  "primaryAccount"?: Account | null;
 }
 export interface current_accounts extends Account {}
 export interface current_approver extends Approver {}

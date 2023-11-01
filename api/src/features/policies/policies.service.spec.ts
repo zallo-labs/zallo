@@ -3,7 +3,7 @@ import { createMock, DeepMocked } from '@golevelup/ts-jest';
 import { PoliciesService } from './policies.service';
 import { Address, asHex, asPolicyKey, asSelector, randomDeploySalt, ZERO_ADDR } from 'lib';
 import { asUser, getUserCtx, UserContext } from '~/request/ctx';
-import { randomAddress, randomUser } from '~/util/test';
+import { randomAddress, randomName, randomUser } from '~/util/test';
 import { randomBytes } from 'ethers/lib/utils';
 import { TransactionProposalsService } from '../transaction-proposals/transaction-proposals.service';
 import { AccountsCacheService } from '../auth/accounts.cache.service';
@@ -56,7 +56,7 @@ describe(PoliciesService.name, () => {
       .insert(e.Account, {
         id: accountId,
         address: account,
-        name: 'Test account',
+        name: randomName(),
         implementation: account,
         salt: randomDeploySalt(),
         isActive: false,

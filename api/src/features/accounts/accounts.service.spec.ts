@@ -3,7 +3,7 @@ import { Test } from '@nestjs/testing';
 import { ProviderService } from '../util/provider/provider.service';
 import { CONFIG } from '~/config';
 import { asUser, getUserCtx, UserContext } from '~/request/ctx';
-import { randomAddress, randomHash, randomUser } from '~/util/test';
+import { randomAddress, randomHash, randomName, randomUser } from '~/util/test';
 import { Address } from 'lib';
 import { PoliciesService } from '../policies/policies.service';
 import { BullModule, getQueueToken } from '@nestjs/bull';
@@ -63,17 +63,8 @@ describe(AccountsService.name, () => {
       }))() as any,
     );
 
-    // policies.create.mockImplementation(async (p): Promise<any> => {
-    //   if (
-    //     p.approvers.includes(userCtx.approver) &&
-    //     p.accountId &&
-    //     !userCtx.accounts.includes(p.accountId)
-    //   )
-    //     userCtx.accounts.push(p.accountId);
-    // });
-
     return service.createAccount({
-      name: 'Test account',
+      name: randomName(),
       policies: [{ approvers: [userCtx.approver], permissions: {} }],
     });
   };

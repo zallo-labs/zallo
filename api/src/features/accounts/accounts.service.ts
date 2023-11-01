@@ -126,11 +126,12 @@ export class AccountsService {
     return { id, address: account };
   }
 
-  async updateAccount({ address, name }: UpdateAccountInput) {
+  async updateAccount({ address, name, photoUri }: UpdateAccountInput) {
     const r = await e
       .update(e.Account, () => ({
         set: {
           name,
+          photoUri: photoUri?.href,
         },
         filter_single: { address },
       }))

@@ -19,6 +19,7 @@ type Account implements Node {
   implementation: Address!
   isActive: Boolean!
   name: String!
+  photoUri: String
   policies: [Policy!]!
   proposals: [Proposal!]!
   salt: Bytes32!
@@ -828,6 +829,7 @@ input UniquePolicyInput {
 input UpdateAccountInput {
   address: Address!
   name: String!
+  photoUri: URL
 }
 
 input UpdateApproverInput {
@@ -874,8 +876,7 @@ input UpdateTransactionProposalInput {
 }
 
 input UpdateUserInput {
-  name: String
-  photoUri: URL
+  primaryAccount: Address
 }
 
 input UpsertContactInput {
@@ -899,8 +900,7 @@ type User {
   contacts: [Contact!]!
   id: ID!
   linkingToken: String!
-  name: String
-  photoUri: String
+  primaryAccount: Account
 }
 
 type UserApprover implements Node {
