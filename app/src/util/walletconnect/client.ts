@@ -16,7 +16,7 @@ const WALLET_CONNECT = atom(
       metadata: {
         name: 'Zallo',
         description: 'Smart wallet',
-        url: CONFIG.metadata.site,
+        url: CONFIG.webAppUrl,
         icons: [CONFIG.metadata.iconUri],
       },
     }),
