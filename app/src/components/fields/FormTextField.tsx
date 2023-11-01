@@ -13,13 +13,16 @@ export const FormTextField = <
   TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
 >({
   name,
-  rules,
+  rules = {},
   shouldUnregister,
   defaultValue,
   control,
   onChangeText,
+  required = !!rules.required,
   ...fieldProps
 }: FormTextFieldProps<TFieldValues, TName>) => {
+  if (required && !rules.required) rules.required = true;
+
   const {
     field: { value, onChange, onBlur },
     fieldState: { error },
@@ -37,8 +40,8 @@ export const FormTextField = <
         onBlur();
         fieldProps.onBlur?.(e);
       }}
+      required={required}
       error={error?.message || _.capitalize(error?.type)}
-      {...(rules?.required && { required: true })}
     />
   );
 };
