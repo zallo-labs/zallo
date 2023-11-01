@@ -11964,6 +11964,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/ua-parser-js@npm:^0.7.38":
+  version: 0.7.38
+  resolution: "@types/ua-parser-js@npm:0.7.38"
+  checksum: 8a44887f7c782ed4c59c4d9cb254674f2ff41d8f653da0c2bd6d4ace79cc3de1ce5648b77f906e337fb97328e1114583e54c3b8882d194e1b8cb281f407a1ef7
+  languageName: node
+  linkType: hard
+
 "@types/uglify-js@npm:*":
   version: 3.17.2
   resolution: "@types/uglify-js@npm:3.17.2"
@@ -14135,6 +14142,7 @@ __metadata:
     "@types/react-native-snap-carousel": ^3.8.5
     "@types/react-native-vector-icons": ^6.4.13
     "@types/react-test-renderer": ^17.0.2
+    "@types/ua-parser-js": ^0.7.38
     "@types/url-parse": ^1.4.9
     "@typescript-eslint/eslint-plugin": ^6.7.2
     "@urql/devtools": ^2.0.3
@@ -14249,6 +14257,7 @@ __metadata:
     ts-toolbelt: ^9.6.0
     typechain: ^8.3.1
     typescript: ^5.2.2
+    ua-parser-js: ^1.0.37
     urql: ^4.0.5
     use-async-effect: ^2.2.7
     use-immer: ^0.9.0
@@ -39078,6 +39087,13 @@ __metadata:
   version: 0.7.34
   resolution: "ua-parser-js@npm:0.7.34"
   checksum: ddb7b8b590af49f37eaac37579ac98274f59fff3990610f45e33893aa62ce5b8fc265459cb78b9c9fa3fbbbaad5b2d7939303f18cbd7e8c25c96e57009443c42
+  languageName: node
+  linkType: hard
+
+"ua-parser-js@npm:^1.0.37":
+  version: 1.0.37
+  resolution: "ua-parser-js@npm:1.0.37"
+  checksum: 4d481c720d523366d7762dc8a46a1b58967d979aacf786f9ceceb1cd767de069f64a4bdffb63956294f1c0696eb465ddb950f28ba90571709e33521b4bd75e07
   languageName: node
   linkType: hard
 
