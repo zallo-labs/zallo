@@ -19,6 +19,7 @@ import { AppbarHeader } from '~/components/Appbar/AppbarHeader';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { NativeStackNavigationOptions } from '@react-navigation/native-stack';
 import { Fonts } from '~/components/Fonts';
+import { ApproverNameUpdater } from '~/components/ApproverNameUpdater';
 
 const modal: NativeStackNavigationOptions = {
   presentation: 'modal',
@@ -50,7 +51,6 @@ function Layout() {
       <Stack.Screen name={`[account]/policies/template`} options={modal} />
       <Stack.Screen name={`[account]/name`} options={modal} />
       <Stack.Screen name={`[account]/receive`} options={transparentModal} />
-      <Stack.Screen name={`accounts/create`} options={modal} />
       <Stack.Screen name={`accounts/index`} options={sheet} />
       <Stack.Screen name={`approver/[address]/qr`} options={transparentModal} />
       <Stack.Screen name={`ledger/sign`} options={sheet} />
@@ -93,6 +93,7 @@ export default function RootLayout() {
                           <Analytics />
                           <WalletConnectListeners />
                           <NotificationsProvider />
+                          <ApproverNameUpdater />
                         </Suspense>
                       </MinimalErrorBoundary>
                     </GqlProvider>
