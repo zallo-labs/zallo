@@ -64,8 +64,8 @@ export interface Account extends std.$Object {
   "transactionProposals": TransactionProposal[];
   "transfers": Transfer[];
   "policies": Policy[];
-  "name": string;
   "photoUri"?: string | null;
+  "label": string;
 }
 export interface ProposalResponse extends std.$Object {
   "approver": Approver;

@@ -1,11 +1,12 @@
-CREATE MIGRATION m1bghqjm2x32q3hm5nyduxqeshjty3bfn72ekuqfpjw47jgajx3sfa
+CREATE MIGRATION m162uluw73cwoo6yfgudvwlwzssygzxpbsezixtnkfgn5nyfkdhqha
     ONTO m1s34xs3feijy2o7fvqa6rcy5ydmr3jzzeua2vovgwph3lxolevl2a
 {
   ALTER TYPE default::Account {
       ALTER PROPERTY name {
+          RENAME TO label;
+          SET TYPE std::str;
           CREATE CONSTRAINT std::exclusive;
           CREATE CONSTRAINT std::regexp('^[0-9a-zA-Z$-]{4,40}$');
-          SET TYPE std::str;
       };
       CREATE PROPERTY photoUri: std::str;
   };
