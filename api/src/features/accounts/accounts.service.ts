@@ -18,6 +18,8 @@ import { inputAsPolicy } from '../policies/policies.util';
 import { Queue } from 'bull';
 import { AccountsCacheService } from '../auth/accounts.cache.service';
 import { v1 as uuid1 } from 'uuid';
+import { and } from '~/features/database/database.util';
+import { selectAccount } from '~/features/accounts/accounts.util';
 
 export const getAccountTrigger = (address: Address) => `account.${address}`;
 export const getAccountApproverTrigger = (user: Address) => `account.user.${user}`;
@@ -128,6 +130,7 @@ export class AccountsService {
     this.contracts.addAccountAsVerified(account);
     this.faucet.requestTokens(account);
     this.publishAccount({ account, event: AccountEvent.create });
+    this.setAsPrimaryAccountIfNotConfigured(id);
 
     return { id, address: account };
   }
@@ -190,5 +193,19 @@ export class AccountsService {
         ),
       ),
     ]);
+  }
+
+  async setAsPrimaryAccountIfNotConfigured(accountId: string) {
+    return this.db.query(
+      e.update(e.User, (u) => ({
+        filter: and(
+          e.op(u, '=', e.global.current_user),
+          e.op('not', e.op('exists', u.primaryAccount)),
+        ),
+        set: {
+          primaryAccount: selectAccount(accountId),
+        },
+      })),
+    );
   }
 }
