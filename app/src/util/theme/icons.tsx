@@ -111,6 +111,7 @@ export const FingerprintIcon = materialIcon('fingerprint');
 export const LockOpenIcon = materialIcon('lock-open');
 export const UpdateIcon = materialIcon('update');
 export const PasswordIcon = materialCommunityIcon('key');
+export const ApproversIcon = materialIcon('devices');
 
 export const PolicyIcon = materialCommunityIcon('security');
 export const PolicyActiveIcon = materialCommunityIcon('shield');

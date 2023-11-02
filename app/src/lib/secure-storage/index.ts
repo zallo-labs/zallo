@@ -55,9 +55,9 @@ function namespaceKey(key: string) {
   return key.startsWith(NAMESPACE) ? key : NAMESPACE + key;
 }
 
-export async function changeSecureStorePassword(newPassword: string) {
+export async function changeSecureStorePassword(newPassword: string | undefined) {
   const currentCipher = await getCipher();
-  const newCipher = await createCipher(newPassword);
+  const newCipher = await createCipher(newPassword ?? '');
 
   const encryptedKeys = (await AsyncStorage.getAllKeys()).filter((k) => k.startsWith(NAMESPACE));
 

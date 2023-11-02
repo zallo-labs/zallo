@@ -31,7 +31,6 @@ const Subscription = gql(/* GraphQL */ `
   subscription LinkingTokenModal_Subscription {
     user {
       id
-      name
     }
   }
 `);

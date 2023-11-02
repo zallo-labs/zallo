@@ -19,7 +19,6 @@ const Link = gql(/* GraphQL */ `
   mutation ConfirmLinkSheet_Link($token: String!) {
     link(input: { token: $token }) {
       id
-      name
       approvers {
         id
       }
