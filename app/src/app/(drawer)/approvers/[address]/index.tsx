@@ -1,11 +1,9 @@
-import { SearchParams, useLocalSearchParams, useRouter } from 'expo-router';
-import { asAddress } from 'lib';
+import { useRouter } from 'expo-router';
 import { View } from 'react-native';
 import { Actions } from '~/components/layout/Actions';
 import { StyleSheet } from 'react-native';
 import { useForm } from 'react-hook-form';
 import { FormTextField } from '~/components/fields/FormTextField';
-import { TextInput } from 'react-native-paper';
 import { Button } from '~/components/Button';
 import { QrCodeIcon } from '@theme/icons';
 import { gql } from '@api/generated';
@@ -13,13 +11,16 @@ import { useMutation } from 'urql';
 import { useQuery } from '~/gql';
 import { NotFound } from '~/components/NotFound';
 import { AppbarOptions } from '~/components/Appbar/AppbarOptions';
-import { getDeviceModel } from '~/lib/device';
 import { withSuspense } from '~/components/skeleton/withSuspense';
 import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
 import { ScreenSurface } from '~/components/layout/ScreenSurface';
+import { z } from 'zod';
+import { zAddress } from '~/lib/zod';
+import { useLocalParams } from '~/hooks/useLocalParams';
+import { useEffect } from 'react';
 
 const Query = gql(/* GraphQL */ `
-  query ApproverDetails($approver: Address) {
+  query ApproverScreen($approver: Address) {
     approver(input: { address: $approver }) {
       id
       address
@@ -28,7 +29,6 @@ const Query = gql(/* GraphQL */ `
 
     user {
       id
-      name
       approvers {
         id
         name
@@ -51,20 +51,23 @@ interface Inputs {
   name: string;
 }
 
-export type ApproverScreenRoute = `/(drawer)/approver/[address]/`;
-export type ApproverScreenParams = SearchParams<ApproverScreenRoute>;
+const ApproverScreenParams = z.object({ address: zAddress });
 
 function ApproverScreen() {
-  const params = useLocalSearchParams<ApproverScreenParams>();
+  const params = useLocalParams(`/(drawer)/approvers/[address]/`, ApproverScreenParams);
   const router = useRouter();
   const update = useMutation(Update)[1];
 
-  const query = useQuery(Query, { approver: asAddress(params.address) });
+  const query = useQuery(Query, { approver: params.address });
   const { approver, user } = query.data;
 
-  const { control, handleSubmit } = useForm<Inputs>({
-    defaultValues: { name: approver?.name ?? getDeviceModel() },
+  const { control, handleSubmit, reset } = useForm<Inputs>({
+    defaultValues: { name: approver?.name ?? '' },
   });
+
+  useEffect(() => {
+    if (approver?.name) reset({ name: approver.name });
+  }, [reset, approver?.name]);
 
   if (!approver) return query.stale ? null : <NotFound name="Approver" />;
 
@@ -79,7 +82,6 @@ function ApproverScreen() {
           <FormTextField
             name="name"
             control={control}
-            left={user.name ? <TextInput.Affix text={`${user.name}'s`} /> : undefined}
             label="Label"
             placeholder="iPhone"
             containerStyle={styles.inset}
@@ -100,7 +102,7 @@ function ApproverScreen() {
             icon={QrCodeIcon}
             onPress={() =>
               router.push({
-                pathname: `/approver/[address]/qr`,
+                pathname: `/approvers/[address]/qr`,
                 params: { address: approver.address },
               })
             }
@@ -126,4 +128,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default withSuspense(ApproverScreen, ScreenSkeleton);
+export default withSuspense(ApproverScreen, <ScreenSkeleton />);

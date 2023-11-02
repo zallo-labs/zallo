@@ -1,14 +1,10 @@
-import { useForm } from 'react-hook-form';
 import { ScrollView, StyleSheet, View } from 'react-native';
-import { FormTextField } from '~/components/fields/FormTextField';
 import { Actions } from '~/components/layout/Actions';
-import { FormResetIcon } from '~/components/fields/ResetFormIcon';
 import { Text } from 'react-native-paper';
 import { ListHeader } from '~/components/list/ListHeader';
 import { UserApproverItem } from '~/components/item/UserApproverItem';
 import { gql } from '@api/generated';
 import { useQuery } from '~/gql';
-import { useMutation } from 'urql';
 import { LinkGoogleButton } from '~/components/link/LinkGoogleButton';
 import { LinkLedgerButton } from '~/components/link/ledger/LinkLedgerButton';
 import { LinkingButton } from '~/components/link/LinkingButton';
@@ -21,11 +17,9 @@ import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
 import { ScreenSurface } from '~/components/layout/ScreenSurface';
 
 const Query = gql(/* GraphQL */ `
-  query UserScreen {
+  query MyApproversScreen {
     user {
       id
-      name
-
       approvers {
         id
         ...UserApproverItem_UserApprover
@@ -34,58 +28,25 @@ const Query = gql(/* GraphQL */ `
   }
 `);
 
-const Update = gql(/* GraphQL */ `
-  mutation UserScreen_Update($name: String!) {
-    updateUser(input: { name: $name }) {
-      id
-      name
-    }
-  }
-`);
-
-interface Inputs {
-  name: string;
-}
-
-function UserScreen() {
-  const update = useMutation(Update)[1];
+function MyApproversScreen() {
   const { user } = useQuery(Query).data;
-
-  const { control, handleSubmit, reset } = useForm<Inputs>({
-    defaultValues: { name: user.name ?? '' },
-  });
 
   return (
     <>
-      <AppbarOptions
-        mode="large"
-        leading={AppbarMenu}
-        headline="User"
-        trailing={(props) => <FormResetIcon control={control} reset={reset} {...props} />}
-      />
+      <AppbarOptions mode="large" leading={AppbarMenu} headline="My Approvers" />
 
       <ScreenSurface>
         <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
-          <FormTextField
-            label="Name"
-            supporting="Only visible by account members"
-            name="name"
-            placeholder="Alisha"
-            control={control}
-            rules={{ required: true }}
-            containerStyle={styles.nameContainer}
-            onBlur={handleSubmit(async ({ name }) => {
-              await update({ name });
-            })}
-          />
+          <Text variant="bodyMedium" style={styles.description}>
+            This device can access accounts from any of your approvers, but may not approve on their
+            behalf
+          </Text>
 
-          <View>
-            <ListHeader>Approvers</ListHeader>
+          <ListHeader>Approvers</ListHeader>
 
-            {user.approvers.map((approver) => (
-              <UserApproverItem key={approver.id} approver={approver} />
-            ))}
-          </View>
+          {user.approvers.map((approver) => (
+            <UserApproverItem key={approver.id} approver={approver} />
+          ))}
 
           <Actions>
             <Text variant="titleMedium" style={styles.linkText}>
@@ -112,8 +73,10 @@ const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
   },
-  nameContainer: {
-    margin: 16,
+  description: {
+    marginHorizontal: 16,
+    marginTop: 16,
+    marginBottom: 8,
   },
   linkText: {
     textAlign: 'center',
@@ -130,4 +93,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default withSuspense(UserScreen, <ScreenSkeleton />);
+export default withSuspense(MyApproversScreen, <ScreenSkeleton />);

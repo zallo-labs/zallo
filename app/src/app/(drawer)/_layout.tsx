@@ -14,6 +14,7 @@ import {
   PolicyIcon,
   QrCodeIcon,
   GenericTokenIcon,
+  ApproversIcon,
 } from '@theme/icons';
 import { DrawerItem as Item } from '~/components/drawer/DrawerItem';
 import { useSelectedAccount } from '~/hooks/useSelectedAccount';
@@ -101,6 +102,7 @@ function Content() {
           icon={NotificationsIcon}
           label="Notifications"
         />
+        <Item href={`/(drawer)/approvers`} icon={ApproversIcon} label="My approvers" />
       </Section>
 
       <Section title="Contact us" showDivider={false}>
