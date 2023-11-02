@@ -14,28 +14,30 @@ import { zAddress } from '~/lib/zod';
 import { useLocalParams } from '~/hooks/useLocalParams';
 import { withSuspense } from '~/components/skeleton/withSuspense';
 import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
+import { AccountNameFormField } from '~/components/fields/AccountNameFormField';
 
 const Query = gql(/* GraphQL */ `
   query AccountNameModal($account: Address!) {
     account(input: { address: $account }) {
       id
       address
-      name
+      label
     }
   }
 `);
 
 const Update = gql(/* GraphQL */ `
-  mutation AccountNameModal_Update($account: Address!, $name: String!) {
-    updateAccount(input: { address: $account, name: $name }) {
+  mutation AccountNameModal_Update($account: Address!, $label: String!) {
+    updateAccount(input: { address: $account, label: $label }) {
       id
+      label
       name
     }
   }
 `);
 
 interface Inputs {
-  name: string;
+  label: string;
 }
 
 export const AccountNameModalParams = z.object({ account: zAddress });
@@ -46,7 +48,7 @@ function AccountNameModal() {
   const update = useMutation(Update)[1];
 
   const { account } = useQuery(Query, { account: params.account }).data;
-  const { control, handleSubmit } = useForm<Inputs>({ defaultValues: { name: account?.name } });
+  const { control, handleSubmit } = useForm<Inputs>({ defaultValues: { label: account?.label } });
 
   if (!account) return <NotFound name="Account" />;
 
@@ -55,7 +57,7 @@ function AccountNameModal() {
       <AppbarOptions mode="large" leading="close" headline="Rename Account" />
 
       <View style={styles.fields}>
-        <FormTextField label="Name" control={control} name="name" rules={{ required: true }} />
+        <AccountNameFormField name="label" control={control} required autoFocus />
       </View>
 
       <Actions>
@@ -63,8 +65,8 @@ function AccountNameModal() {
           mode="contained"
           requireChanges
           control={control}
-          onPress={handleSubmit(async ({ name }) => {
-            await update({ account: account.address, name });
+          onPress={handleSubmit(async ({ label }) => {
+            await update({ account: account.address, label });
             router.back();
           })}
         >
