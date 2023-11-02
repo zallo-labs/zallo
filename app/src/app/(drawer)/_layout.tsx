@@ -11,10 +11,10 @@ import {
   WalletConnectIcon,
   TwitterIcon,
   GithubIcon,
-  PolicyIcon,
   QrCodeIcon,
   GenericTokenIcon,
   ApproversIcon,
+  AccountIcon,
 } from '@theme/icons';
 import { DrawerItem as Item } from '~/components/drawer/DrawerItem';
 import { useSelectedAccount } from '~/hooks/useSelectedAccount';
@@ -91,18 +91,18 @@ function Content() {
       <Section title="Settings">
         {account && (
           <Item
-            href={{ pathname: `/(drawer)/[account]/policies/`, params: { account } }}
-            icon={PolicyIcon}
-            label="Policies"
+            href={{ pathname: `/(drawer)/[account]/settings`, params: { account } }}
+            icon={AccountIcon}
+            label="Account"
           />
         )}
+        <Item href={`/(drawer)/approvers`} icon={ApproversIcon} label="My approvers" />
         <Item href={`/(drawer)/settings/auth`} icon={FingerprintIcon} label="Auth" />
         <Item
           href={`/(drawer)/settings/notifications`}
           icon={NotificationsIcon}
           label="Notifications"
         />
-        <Item href={`/(drawer)/approvers`} icon={ApproversIcon} label="My approvers" />
       </Section>
 
       <Section title="Contact us" showDivider={false}>

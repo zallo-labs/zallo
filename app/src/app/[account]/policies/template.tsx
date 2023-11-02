@@ -7,12 +7,12 @@ import { ListItem } from '~/components/list/ListItem';
 import { StyleSheet, View } from 'react-native';
 import { AppbarOptions } from '~/components/Appbar/AppbarOptions';
 import { PolicyTemplateType } from '~/lib/policy/template';
-import { PoliciesScreenParams } from '~/app/(drawer)/[account]/policies';
 import { PolicyScreenParams } from '~/app/(drawer)/[account]/policies/[key]';
 import { withSuspense } from '~/components/skeleton/withSuspense';
 import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
+import { zAddress } from '~/lib/zod';
 
-export const PolicyTemplateModalParams = PoliciesScreenParams;
+export const PolicyTemplateModalParams = z.object({ account: zAddress });
 export type PolicyTemplateModalParams = z.infer<typeof PolicyTemplateModalParams>;
 
 function PolicyTemplateModal() {
