@@ -59,7 +59,7 @@ export function Appbar({
           style={styles.leadingContainer}
         />
 
-        <View style={{ flex: 1 }}>{mode === 'small' && <HeadlineView />}</View>
+        <View style={styles.mainHeadlineSection}>{mode === 'small' && <HeadlineView />}</View>
 
         <View style={styles.trailingContainer}>
           {toArray(trailing ?? []).map((Trailing, index) => (
@@ -125,12 +125,17 @@ const useStyles = makeStyles(({ colors, fonts }, { mode, center, insets }: Style
     flexDirection: 'row',
     alignItems: 'center',
     gap: 16,
+    marginLeft: 16,
   },
   trailingIcon: {
     color: colors.onSurfaceVariant,
     fontSize: 24,
   },
+  mainHeadlineSection: {
+    flex: 1,
+  },
   headlineContainer: {
+    ...(center && { flexGrow: 1 }),
     alignItems: center ? 'center' : 'flex-start',
   },
   headline: {

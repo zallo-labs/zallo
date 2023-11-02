@@ -32,13 +32,9 @@ export function UserApproverItem(props: UserApproverItemProps) {
       leading={a.address}
       headline={a.name}
       supporting={truncateAddr(a.address)}
-      {...(selected && {
-        trailing: () => (
-          <RadioButton.IOS value={a.address} status={selected ? 'checked' : 'unchecked'} />
-        ),
-      })}
+      {...(selected && { trailing: 'This device' })}
       onPress={() =>
-        router.push({ pathname: `/(drawer)/approver/[address]/`, params: { address: a.address } })
+        router.push({ pathname: `/(drawer)/approvers/[address]/`, params: { address: a.address } })
       }
       {...props}
     />

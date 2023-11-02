@@ -111,6 +111,7 @@ export const FingerprintIcon = materialIcon('fingerprint');
 export const LockOpenIcon = materialIcon('lock-open');
 export const UpdateIcon = materialIcon('update');
 export const PasswordIcon = materialCommunityIcon('key');
+export const ApproversIcon = materialIcon('devices');
 
 export const PolicyIcon = materialCommunityIcon('security');
 export const PolicyActiveIcon = materialCommunityIcon('shield');
@@ -132,12 +133,14 @@ export const AppScreenshots = fromSource(require('assets/screenshots.png'));
 export const AppStoreBadge = fromSource(require('assets/app-store-badge.svg'));
 export const GooglePlayBadge = fromSource(require('assets/google-play-badge.png'));
 export const MastercardIcon = fromSource(require('assets/mastercard.svg'));
-export const WalletConnectIcon = fromSource(require('assets/walletconnect.svg'));
+export const WalletConnectIcon = fromSource(require('assets/walletconnect-light.svg'));
+export const WalletConnectColorIcon = fromSource(require('assets/walletconnect.svg'));
 export const TwitterIcon = fromSource(require('assets/twitter.svg'));
 export const GithubIcon = fromSource(require('assets/github.svg'));
 export const LedgerIcon = fromSource(require('assets/ledger-icon.svg'));
 export const LedgerLogo = fromSource(require('assets/ledger-logo.svg'));
 export const AppleIcon = fromSource(require('assets/apple.svg'));
+export const GenericTokenIcon = fromSource(require('assets/ethereum-light.svg'));
 
 function fromSource(source: ImageSource) {
   return ({

@@ -24,14 +24,16 @@ export const HomeAppbar = (props: HomeAppbarProps) => {
   return (
     <AppbarOptions
       leading="menu"
+      center
       headline={() => (
         <View style={styles.selectorContainer}>
           <AccountSelector account={account} />
         </View>
       )}
-      trailing={() => (
+      trailing={(props) => (
         <ScanIcon
           onPress={() => router.push({ pathname: `/scan/`, params: { account: account.address } })}
+          {...props}
         />
       )}
     />

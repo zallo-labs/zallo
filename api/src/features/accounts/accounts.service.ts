@@ -3,12 +3,7 @@ import { DatabaseService } from '../database/database.service';
 import e from '~/edgeql-js';
 import { Address, DeploySalt, Policy, asHex, asPolicyKey, randomDeploySalt } from 'lib';
 import { ShapeFunc } from '../database/database.select';
-import {
-  AccountEvent,
-  ActivityInput,
-  CreateAccountInput,
-  UpdateAccountInput,
-} from './accounts.input';
+import { AccountEvent, CreateAccountInput, UpdateAccountInput } from './accounts.input';
 import { getApprover, getUserCtx } from '~/request/ctx';
 import { UserInputError } from '@nestjs/apollo';
 import { CONFIG } from '~/config';
@@ -23,6 +18,8 @@ import { inputAsPolicy } from '../policies/policies.util';
 import { Queue } from 'bull';
 import { AccountsCacheService } from '../auth/accounts.cache.service';
 import { v1 as uuid1 } from 'uuid';
+import { and } from '~/features/database/database.util';
+import { selectAccount } from '~/features/accounts/accounts.util';
 
 export const getAccountTrigger = (address: Address) => `account.${address}`;
 export const getAccountApproverTrigger = (user: Address) => `account.user.${user}`;
@@ -72,7 +69,18 @@ export class AccountsService {
     );
   }
 
-  async createAccount({ name, policies: policyInputs }: CreateAccountInput) {
+  private labelPattern = /^[0-9a-zA-Z$-]{4,40}$/;
+  async labelAvailable(label: string): Promise<boolean> {
+    if (!this.labelPattern.exec(label)) return false;
+
+    const selectedAccount = e.select(e.Account, () => ({ filter_single: { label } }));
+
+    return e
+      .select(e.op('not', e.op('exists', selectedAccount)))
+      .run(this.db.DANGEROUS_superuserClient);
+  }
+
+  async createAccount({ label, policies: policyInputs }: CreateAccountInput) {
     const approver = getApprover();
 
     if (!policyInputs.find((p) => p.approvers.includes(approver)))
@@ -101,7 +109,7 @@ export class AccountsService {
         .insert(e.Account, {
           id,
           address: account,
-          name,
+          label,
           isActive: false,
           implementation,
           salt,
@@ -122,15 +130,17 @@ export class AccountsService {
     this.contracts.addAccountAsVerified(account);
     this.faucet.requestTokens(account);
     this.publishAccount({ account, event: AccountEvent.create });
+    this.setAsPrimaryAccountIfNotConfigured(id);
 
     return { id, address: account };
   }
 
-  async updateAccount({ address, name }: UpdateAccountInput) {
+  async updateAccount({ address, label, photoUri }: UpdateAccountInput) {
     const r = await e
       .update(e.Account, () => ({
         set: {
-          name,
+          label,
+          photoUri: photoUri?.href,
         },
         filter_single: { address },
       }))
@@ -183,5 +193,19 @@ export class AccountsService {
         ),
       ),
     ]);
+  }
+
+  async setAsPrimaryAccountIfNotConfigured(accountId: string) {
+    return this.db.query(
+      e.update(e.User, (u) => ({
+        filter: and(
+          e.op(u.id, '=', e.global.current_user.id),
+          e.op('not', e.op('exists', u.primaryAccount)),
+        ),
+        set: {
+          primaryAccount: selectAccount(accountId),
+        },
+      })),
+    );
   }
 }

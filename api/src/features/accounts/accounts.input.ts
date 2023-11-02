@@ -3,11 +3,18 @@ import { Address } from 'lib';
 import { AddressField, AddressScalar } from '~/apollo/scalars/Address.scalar';
 import { minLengthMiddleware } from '~/apollo/scalars/util';
 import { PolicyInput } from '../policies/policies.input';
+import { GraphQLURL } from 'graphql-scalars';
 
 @InputType()
 export class AccountInput {
   @AddressField({ nullable: true, description: 'Defaults to random user account' })
   address?: Address;
+}
+
+@InputType()
+export class LabelAvailableInput {
+  @Field(() => String)
+  label: string;
 }
 
 export enum AccountEvent {
@@ -31,7 +38,7 @@ export class AccountSubscriptionInput {
 @InputType()
 export class CreateAccountInput {
   @Field(() => String)
-  name: string;
+  label: string;
 
   @Field(() => [PolicyInput], { middleware: [minLengthMiddleware(1)] })
   policies: PolicyInput[];
@@ -43,7 +50,10 @@ export class UpdateAccountInput {
   address: Address;
 
   @Field(() => String)
-  name: string;
+  label: string;
+
+  @Field(() => GraphQLURL, { nullable: true })
+  photoUri?: URL;
 }
 
 @InputType()

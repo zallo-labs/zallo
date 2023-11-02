@@ -8,6 +8,8 @@ export const randomAddress = () => asAddress(randomHex(20));
 
 export const randomHash = () => asHex(randomHex(32));
 
+export const randomLabel = () => randomHex(19);
+
 export const ZERO_HASH = zeroHexBytes(32);
 
 export const randomUser = (): UserContext => ({ approver: randomAddress(), accounts: [] });

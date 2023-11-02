@@ -17,16 +17,13 @@ export const getSecureStore: typeof _getSecureStore = (_options) => ({
   getItem: async (key) => {
     key = namespaceKey(key);
     const encryptedValue = await AsyncStorage.getItem(key);
-    console.log(`${key}: get`);
     if (!encryptedValue) return null;
 
     return (await getCipher()).decrypt(encryptedValue);
   },
   setItem: async (key, value) => {
     key = namespaceKey(key);
-    console.log(`${key}: set`);
     const encryptedValue = await (await getCipher()).encrypt(value);
-    console.log(`${key}: encrypted`);
     return AsyncStorage.setItem(key, encryptedValue);
   },
   removeItem: (key) => {
@@ -58,9 +55,9 @@ function namespaceKey(key: string) {
   return key.startsWith(NAMESPACE) ? key : NAMESPACE + key;
 }
 
-export async function changeSecureStorePassword(newPassword: string) {
+export async function changeSecureStorePassword(newPassword: string | undefined) {
   const currentCipher = await getCipher();
-  const newCipher = await createCipher(newPassword);
+  const newCipher = await createCipher(newPassword ?? '');
 
   const encryptedKeys = (await AsyncStorage.getAllKeys()).filter((k) => k.startsWith(NAMESPACE));
 

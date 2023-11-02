@@ -1,7 +1,7 @@
 import { Test } from '@nestjs/testing';
 import { createMock, DeepMocked } from '@golevelup/ts-jest';
 import { asUser, getApprover, getUserCtx, UserContext } from '~/request/ctx';
-import { randomAddress, randomHash, randomUser } from '~/util/test';
+import { randomAddress, randomHash, randomLabel, randomUser } from '~/util/test';
 import { Address, CHAINS, randomDeploySalt, Hex } from 'lib';
 import { ProviderService } from '../util/provider/provider.service';
 import { ExpoService } from '../util/expo/expo.service';
@@ -71,7 +71,7 @@ describe(TransactionProposalsService.name, () => {
       .insert(e.Account, {
         id: accountId,
         address: account,
-        name: 'test account',
+        label: randomLabel(),
         implementation: account,
         salt: randomDeploySalt(),
         isActive: true,

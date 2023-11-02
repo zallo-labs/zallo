@@ -12,10 +12,14 @@ module default {
       readonly := true;
       constraint exclusive;
     }
-    required name: Label;
-    required isActive: bool;
+    required label: str {
+      constraint exclusive;
+      constraint regexp(r'^[0-9a-zA-Z$-]{4,40}$');
+    }
     required implementation: Address;
     required salt: Bytes32;
+    required isActive: bool;
+    photoUri: str;
     multi link policies := (select .<account[is Policy] filter .isEnabled);
     multi link proposals := .<account[is Proposal];
     multi link transactionProposals := .<account[is TransactionProposal];

@@ -1,7 +1,6 @@
-import { Stack, useRouter } from 'expo-router';
-import { StyleSheet, View } from 'react-native';
+import { useRouter } from 'expo-router';
+import { StyleSheet } from 'react-native';
 import { Address } from 'lib';
-import { Searchbar } from '~/components/Appbar/Searchbar';
 import { AddIcon, SearchIcon } from '@theme/icons';
 import { ListHeader } from '~/components/list/ListHeader';
 import { TokenItem } from '~/components/token/TokenItem';
@@ -21,8 +20,6 @@ import { withSuspense } from '~/components/skeleton/withSuspense';
 import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
 import { SearchbarOptions } from '~/components/Appbar/SearchbarOptions';
 import { ScreenSurface } from '~/components/layout/ScreenSurface';
-import { Drawer } from '~/components/drawer/Drawer';
-import { SearchbarHeader } from '~/components/Appbar/SearchbarHeader';
 
 const Query = gql(/* GraphQL */ `
   query TokensScreen($account: Address!, $query: String, $feeToken: Boolean) {

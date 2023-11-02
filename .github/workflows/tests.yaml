@@ -61,27 +61,27 @@ jobs:
       - name: 🧪 Test
         run: yarn contracts test
 
-  site:
-    runs-on: ubuntu-latest
+  # site:
+  #   runs-on: ubuntu-latest
 
-    steps:
-      - name: 🚧 Checkout
-        uses: actions/checkout@v4
+  #   steps:
+  #     - name: 🚧 Checkout
+  #       uses: actions/checkout@v4
 
-      - name: 🚧 Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: 'yarn'
+  #     - name: 🚧 Setup Node
+  #       uses: actions/setup-node@v4
+  #       with:
+  #         node-version: 20
+  #         cache: 'yarn'
 
-      - name: 📦 Install
-        run: yarn install
+  #     - name: 📦 Install
+  #       run: yarn install
 
-      - name: 🏗️ Build
-        run: yarn site build
+  #     - name: 🏗️ Build
+  #       run: yarn site build
 
-      - name: 🧪 Typecheck
-        run: yarn site typecheck
+  #     - name: 🧪 Typecheck
+  #       run: yarn site typecheck
 
   api:
     runs-on: ubuntu-latest

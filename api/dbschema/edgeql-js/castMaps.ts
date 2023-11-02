@@ -46,7 +46,7 @@ export type scalarAssignableBy<T extends $.ScalarType> =
   T extends _default.$uint16 ? _default.$uint16 : 
   T extends _std.$int32 ? _std.$int32 : 
   T extends _default.$current_accounts_set ? _default.$current_accounts_set : 
-  T extends _default.$id_b6dfad9f6e5c11eea4af49b598bbb800 ? _default.$id_b6dfad9f6e5c11eea4af49b598bbb800 : 
+  T extends _default.$id_435afe04795511ee99c77584d5d93f56 ? _default.$id_435afe04795511ee99c77584d5d93f56 : 
   T extends _std.$uuid ? _std.$uuid : 
   T extends _default.$TransferDirection ? _default.$TransferDirection : 
   T extends _default.$TransactionProposalStatus ? _default.$TransactionProposalStatus : 
@@ -107,7 +107,7 @@ export type scalarCastableFrom<T extends $.ScalarType> =
   T extends _default.$uint16 ? _default.$uint16 : 
   T extends _std.$int32 ? _std.$int32 : 
   T extends _default.$current_accounts_set ? _default.$current_accounts_set : 
-  T extends _default.$id_b6dfad9f6e5c11eea4af49b598bbb800 ? _default.$id_b6dfad9f6e5c11eea4af49b598bbb800 : 
+  T extends _default.$id_435afe04795511ee99c77584d5d93f56 ? _default.$id_435afe04795511ee99c77584d5d93f56 : 
   T extends _std.$uuid ? _std.$uuid : 
   T extends _default.$TransferDirection ? _default.$TransferDirection : 
   T extends _default.$TransactionProposalStatus ? _default.$TransactionProposalStatus : 
@@ -354,8 +354,8 @@ type getSharedParentScalar<A, B> =
     :
     never
   :
-  A extends _default.$id_b6dfad9f6e5c11eea4af49b598bbb800 ?
-    B extends _default.$id_b6dfad9f6e5c11eea4af49b598bbb800 ?
+  A extends _default.$id_435afe04795511ee99c77584d5d93f56 ?
+    B extends _default.$id_435afe04795511ee99c77584d5d93f56 ?
     B
     :
     never

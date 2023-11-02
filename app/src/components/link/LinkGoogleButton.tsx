@@ -12,19 +12,7 @@ const Query = gql(/* GraphQL */ `
   query SignInWithGoogleButton {
     user {
       id
-      name
-      photoUri
       linkingToken
-    }
-  }
-`);
-
-const UpdateUser = gql(/* GraphQL */ `
-  mutation SignInWithGoogleButton_UpdateUser($input: UpdateUserInput!) {
-    updateUser(input: $input) {
-      id
-      name
-      photoUri
     }
   }
 `);
@@ -33,7 +21,6 @@ const Link = gql(/* GraphQL */ `
   mutation SignInWithGoogleButton_Link($token: String!) {
     link(input: { token: $token }) {
       id
-      name
       approvers {
         id
       }
@@ -50,7 +37,6 @@ export interface LinkGoogleButtonProps {
 
 export function LinkGoogleButton({ onLink, signOut }: LinkGoogleButtonProps) {
   const getApprover = useGetGoogleApprover();
-  const updateUser = useMutation(UpdateUser)[1];
   const link = useMutation(Link)[1];
 
   const { user } = useQuery(Query).data;
@@ -71,21 +57,8 @@ export function LinkGoogleButton({ onLink, signOut }: LinkGoogleButtonProps) {
             event: { error: r.error },
           });
 
-        const {
-          user: { name, photo },
-          approver,
-        } = r.value;
-
+        const { approver } = r.value;
         await link({ token: user.linkingToken }, await authContext(approver));
-
-        if (name || photo) {
-          await updateUser({
-            input: {
-              ...(!user.name && name && { name }),
-              ...(!user.photoUri && photo && { photoUri: photo }),
-            },
-          });
-        }
 
         await onLink?.();
       }}

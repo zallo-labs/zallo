@@ -24,15 +24,20 @@ export const usePasswordHash = () => useAtomValue(PASSWORD_HASH);
 
 const getSchema = (expectedHash: string | null) =>
   z
-    .object({
-      ...(expectedHash && {
-        current: z.string().refine(async (p) => await verifyPassword(p, expectedHash), {
-          message: 'Must match current password',
-        }),
-      }),
-      password: z.string().optional(),
-      confirm: z.string().optional(),
-    })
+    .object(
+      expectedHash
+        ? {
+            current: z.string().refine(async (p) => await verifyPassword(p, expectedHash), {
+              message: 'Must match current password',
+            }),
+            password: z.string().optional(),
+            confirm: z.string().optional(),
+          }
+        : {
+            password: z.string().min(1, 'Must be at least 1 character'),
+            confirm: z.string(),
+          },
+    )
     .refine((inputs) => inputs.password === inputs.confirm, {
       message: 'Passwords must match',
       path: ['confirm'],
@@ -46,15 +51,19 @@ interface Inputs {
 
 function PasswordScreen() {
   const styles = useStyles();
-  const [passwordHash, update] = useAtom(PASSWORD_HASH);
+  const [passwordHash, updateHash] = useAtom(PASSWORD_HASH);
 
   const { control, handleSubmit, watch, reset } = useForm<Inputs>({
     mode: 'onBlur',
     defaultValues: { password: '', confirm: '' },
     resolver: zodResolver(useMemo(() => getSchema(passwordHash), [passwordHash])),
   });
-
   const newPassword = !!watch('password');
+
+  const update = async (password: string | null) => {
+    updateHash(password && (await hashPassword(password)));
+    changeSecureStorePassword(password || undefined);
+  };
 
   return (
     <>
@@ -98,8 +107,7 @@ function PasswordScreen() {
               mode="contained"
               control={control}
               onPress={handleSubmit(async ({ password }) => {
-                update(await hashPassword(password));
-                changeSecureStorePassword(password);
+                update(password);
                 showInfo(`Password ${passwordHash ? 'updated' : 'created'}`, {
                   visibilityTime: 2000,
                 });

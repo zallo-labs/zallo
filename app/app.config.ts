@@ -28,7 +28,8 @@ export const CONFIG = {
     webClient: ENV.GOOGLE_OAUTH_WEB_CLIENT!,
     iosClient: ENV.GOOGLE_OAUTH_IOS_CLIENT!,
   },
-  webOrigin: ENV.APP_WEB_ORIGIN,
+  webAppUrl: ENV.WEB_APP_URL!,
+  ensSuffix: ENV.ENS_SUFFIX!,
 } as const;
 
 export type Config = typeof CONFIG;
@@ -75,7 +76,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     [
       'expo-router',
       {
-        origin: ENV.APP_WEB_ORIGIN,
+        origin: CONFIG.webAppUrl,
         // asyncRoutes: 'development',
       } as PluginConfig<typeof expoRouterPlugin>,
     ],

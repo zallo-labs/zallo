@@ -1,7 +1,6 @@
 module default {
   type User {
-    name: Label;
-    photoUri: str;
+    link primaryAccount: Account;
     multi link approvers := .<user[is Approver];
     multi link contacts := .<user[is Contact];
     multi link accounts := (select distinct .approvers.accounts);
@@ -19,7 +18,7 @@ module default {
       on source delete delete target if orphan;
     }
     name: Label;
-    property label := .contact.label ?? (.user.name ++ ': ' ++ .name if exists(.user) and exists(.name) else <str>{});
+    property label := .contact.label ?? .name;
     pushToken: str;
     bluetoothDevices: array<MAC>;
     cloud: CloudShare { constraint exclusive; };

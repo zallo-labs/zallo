@@ -18,7 +18,7 @@ export class Account extends Node {
   address: string; // Address;
 
   @Field(() => String)
-  name: string;
+  label: string;
 
   @Field(() => Boolean)
   isActive: boolean;
@@ -28,6 +28,9 @@ export class Account extends Node {
 
   @Bytes32Field()
   salt: string; // Hex
+
+  @Field(() => String, { nullable: true })
+  photoUri?: string;
 
   @Field(() => [Policy])
   policies: Policy[];

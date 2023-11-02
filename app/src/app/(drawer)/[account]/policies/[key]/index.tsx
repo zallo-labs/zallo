@@ -7,7 +7,6 @@ import _ from 'lodash';
 import { ScrollView, StyleSheet } from 'react-native';
 import { useMutation } from 'urql';
 import { z } from 'zod';
-import { PoliciesScreenParams } from '~/app/(drawer)/[account]/policies';
 import { Fab } from '~/components/Fab';
 import { ListItem } from '~/components/list/ListItem';
 import { Permissions } from '~/components/policy/Permissions';
@@ -20,6 +19,7 @@ import { showError } from '~/components/provider/SnackbarProvider';
 import { withSuspense } from '~/components/skeleton/withSuspense';
 import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
 import { ScreenSurface } from '~/components/layout/ScreenSurface';
+import { zAddress } from '~/lib/zod';
 
 const Query = gql(/* GraphQL */ `
   query PolicyScreen($account: Address!, $key: PolicyKey!, $queryPolicy: Boolean!) {
@@ -76,14 +76,12 @@ const Update = gql(/* GraphQL */ `
   }
 `);
 
-export const PolicyScreenParams = z.intersection(
-  PoliciesScreenParams,
-  z.object({
-    key: z.union([z.coerce.number().transform(asPolicyKey), z.literal('add')]),
-    view: z.enum(['state', 'draft']).optional(),
-    template: z.enum(['low', 'medium', 'high']).optional(),
-  }),
-);
+export const PolicyScreenParams = z.object({
+  account: zAddress,
+  key: z.union([z.coerce.number().transform(asPolicyKey), z.literal('add')]),
+  view: z.enum(['state', 'draft']).optional(),
+  template: z.enum(['low', 'medium', 'high']).optional(),
+});
 export type PolicyScreenParams = z.infer<typeof PolicyScreenParams>;
 
 function PolicyScreen() {

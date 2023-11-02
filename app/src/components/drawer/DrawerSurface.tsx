@@ -32,7 +32,7 @@ const useStyles = makeStyles(({ corner, insets }) => ({
     borderBottomRightRadius: corner.l,
   },
   container: {
-    paddingTop: insets.top + 16,
+    paddingTop: insets.top + 12,
     paddingBottom: insets.bottom,
   },
 }));
