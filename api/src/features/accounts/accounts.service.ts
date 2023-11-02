@@ -199,7 +199,7 @@ export class AccountsService {
     return this.db.query(
       e.update(e.User, (u) => ({
         filter: and(
-          e.op(u, '=', e.global.current_user),
+          e.op(u.id, '=', e.global.current_user.id),
           e.op('not', e.op('exists', u.primaryAccount)),
         ),
         set: {
