@@ -135,10 +135,9 @@ describe(AccountsService.name, () => {
   });
 
   describe('updateAccountMetadata', () => {
-    const newLabel = 'foo';
-
     it('updates metadata', () =>
       asUser(user1, async () => {
+        const newLabel = randomLabel();
         await service.updateAccount({ address: user1Account, label: newLabel });
         expect((await service.selectUnique(user1Account, () => ({ label: true })))?.label).toEqual(
           newLabel,
@@ -147,6 +146,7 @@ describe(AccountsService.name, () => {
 
     it('publishes account', () =>
       asUser(user1, async () => {
+        const newLabel = randomLabel();
         service.publishAccount = jest.fn();
         await service.updateAccount({ address: user1Account, label: newLabel });
         expect(service.publishAccount).toBeCalledTimes(1);
@@ -154,6 +154,7 @@ describe(AccountsService.name, () => {
 
     it('throws if user is not member of account being updated', () =>
       asUser(randomUser(), async () => {
+        const newLabel = randomLabel();
         await expect(
           service.updateAccount({ address: user1Account, label: newLabel }),
         ).rejects.toThrow();
