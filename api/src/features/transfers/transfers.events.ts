@@ -18,6 +18,7 @@ import { and } from '../database/database.util';
 import { TransferDirection } from './transfers.input';
 import { AccountsCacheService } from '../auth/accounts.cache.service';
 import { ExpoService } from '../util/expo/expo.service';
+import { CONFIG } from '~/config';
 
 const altEthAddress = asAddress(L2_ETH_TOKEN_ADDRESS);
 const normalizeEthAddress = (address: Address) =>
@@ -204,7 +205,7 @@ export class TransfersEvents {
       e.select({
         acc: e.select(e.Account, (a) => ({
           filter_single: { address: account },
-          name: true,
+          label: true,
           approvers: e.select(a.approvers, (approver) => ({
             filter: e.op('exists', approver.pushToken),
             pushToken: approver.pushToken,
@@ -234,6 +235,7 @@ export class TransfersEvents {
 
     if (!acc) return;
 
+    const accountName = acc.label + CONFIG.ensSuffix;
     const truncatedTokenLabel = `${token.slice(0, 5)}...${token.length - 3}`;
     const truncatedFromLabel = `${from.slice(0, 5)}...${from.length - 3}`;
 
@@ -245,7 +247,9 @@ export class TransfersEvents {
         return {
           to: a.pushToken!,
           title:
-            type === 'transfer' ? `${acc.name}: tokens received` : `${acc.name}: spending approval`,
+            type === 'transfer'
+              ? `${accountName}: tokens received`
+              : `${accountName}: spending approval`,
           body:
             type === 'transfer'
               ? t
