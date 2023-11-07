@@ -65,7 +65,7 @@ describe(AccountsService.name, () => {
 
     return service.createAccount({
       label: randomLabel(),
-      policies: [{ approvers: [userCtx.approver], permissions: {} }],
+      policies: [{ approvers: [userCtx.approver] }],
     });
   };
 

@@ -47,7 +47,7 @@ module default {
     required property isAccountInitState := not exists .proposal and not .isRemoved;
     multi approvers: Approver;
     required threshold: uint16;
-    required targets: TargetsConfig; 
+    multi actions: Action;
     required transfers: TransfersConfig;
     required isRemoved: bool { default := false; }
     activationBlock: bigint { constraint min_value(0n); }
@@ -60,18 +60,17 @@ module default {
     index on (.createdAt);
   }
 
-  type TargetsConfig {
-    multi contracts: ContractTarget { constraint exclusive; }
-    required default: Target { constraint exclusive; }
+  type Action {
+    required label: Label;
+    required multi functions: ActionFunction;
+    required allow: bool;
+    description: str;
   }
 
-  type Target {
-    required functions: array<tuple<selector: Bytes4, allow: bool>>;
-    required defaultAllow: bool;
-  }
-
-  type ContractTarget extending Target {
-    required contract: Address;
+  type ActionFunction {
+    contract: Address;  # Applies to all contracts if undefined
+    selector: Bytes4;   # Applies to all selectors if undefined
+    abi: json;
   }
 
   type TransfersConfig {

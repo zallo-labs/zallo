@@ -93,7 +93,6 @@ describe(PoliciesService.name, () => {
     const { id, key } = await service.create({
       account,
       approvers: [userCtx.approver],
-      permissions: {},
       ...policyInput,
     });
 
@@ -158,25 +157,26 @@ describe(PoliciesService.name, () => {
           key,
           approvers: [getUserCtx().approver, randomAddress()],
           threshold: 1,
-          permissions: {
-            targets: {
-              contracts: [
-                {
-                  contract: randomAddress(),
-                  functions: [{ selector: asSelector('0x12345678'), allow: true }],
-                  defaultAllow: false,
-                },
+          actions: [
+            {
+              label: 'my action',
+              functions: [
+                { contract: randomAddress(), selector: asSelector('0x12345678') },
+                { contract: randomAddress() },
+                { selector: asSelector('0x12345678') },
               ],
-              default: {
-                functions: [{ selector: asSelector('0x12345678'), allow: false }],
-                defaultAllow: true,
-              },
+              allow: true,
             },
-            transfers: {
-              limits: [{ token: randomAddress(), amount: 4n, duration: 25 }],
-              budget: 10,
-              defaultAllow: false,
+            {
+              label: 'Anything else',
+              functions: [{}],
+              allow: false,
             },
+          ],
+          transfers: {
+            limits: [{ token: randomAddress(), amount: 4n, duration: 25 }],
+            budget: 10,
+            defaultAllow: false,
           },
         };
         const expectedPolicy = inputAsPolicy(key, policyInput);

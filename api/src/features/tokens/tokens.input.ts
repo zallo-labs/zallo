@@ -1,6 +1,6 @@
 import { Field, InputType } from '@nestjs/graphql';
 import { Address } from 'lib';
-import { AddressField } from '~/apollo/scalars/Address.scalar';
+import { AddressField, AddressScalar } from '~/apollo/scalars/Address.scalar';
 
 @InputType()
 export class TokenInput {
@@ -10,6 +10,9 @@ export class TokenInput {
 
 @InputType()
 export class TokensInput {
+  @Field(() => [AddressScalar], { nullable: true })
+  address?: Address[];
+
   @Field(() => String, { nullable: true })
   query?: string;
 

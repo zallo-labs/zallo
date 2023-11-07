@@ -4,6 +4,8 @@ import { AddressField, AddressScalar } from '~/apollo/scalars/Address.scalar';
 import { PolicyKeyField } from '~/apollo/scalars/PolicyKey.scalar';
 import { GraphQLBigInt } from 'graphql-scalars';
 import { Bytes32Field, SelectorField } from '~/apollo/scalars/Bytes.scalar';
+import { AbiFunctionField } from '~/apollo/scalars/AbiFunction.scalar';
+import { AbiFunction } from 'abitype';
 
 @InputType()
 export class UniquePolicyInput implements PolicyId {
@@ -18,6 +20,33 @@ export class UniquePolicyInput implements PolicyId {
 export class PoliciesInput {
   @Field(() => Boolean, { defaultValue: false })
   includeDisabled: boolean;
+}
+
+@InputType()
+export class ActionFunctionInput {
+  @AddressField({ nullable: true, description: 'Default: apply to all contracts' })
+  contract?: Address;
+
+  @SelectorField({ nullable: true, description: 'Default: apply to all selectors' })
+  selector?: Selector;
+
+  @AbiFunctionField({ nullable: true })
+  abi?: AbiFunction;
+}
+
+@InputType()
+export class ActionInput {
+  @Field(() => String)
+  label: string;
+
+  @Field(() => [ActionFunctionInput])
+  functions: ActionFunctionInput[];
+
+  @Field(() => Boolean)
+  allow: boolean;
+
+  @Field(() => String, { nullable: true })
+  description?: string;
 }
 
 @InputType()
@@ -45,48 +74,6 @@ export class TransferLimitInput {
 }
 
 @InputType()
-export class SelectorInput {
-  @SelectorField()
-  selector: Selector;
-
-  @Field(() => Boolean)
-  allow: boolean;
-}
-
-@InputType()
-export class TargetInput {
-  @Field(() => [SelectorInput], { defaultValue: [] })
-  functions: SelectorInput[];
-
-  @Field(() => Boolean, { defaultValue: true })
-  defaultAllow: boolean;
-}
-
-@InputType()
-export class ContractTargetInput extends TargetInput {
-  @AddressField()
-  contract: Address;
-}
-
-@InputType()
-export class TargetsConfigInput {
-  @Field(() => [ContractTargetInput], { defaultValue: [] })
-  contracts: ContractTargetInput[];
-
-  @Field(() => TargetInput, { defaultValue: { functions: [], defaultAllow: true } })
-  default: TargetInput;
-}
-
-@InputType()
-export class PermissionsInput {
-  @Field(() => TargetsConfigInput, { nullable: true, description: 'Targets that can be called' })
-  targets?: TargetsConfigInput;
-
-  @Field(() => TransfersConfigInput, { nullable: true })
-  transfers?: TransfersConfigInput;
-}
-
-@InputType()
 export class PolicyInput {
   @PolicyKeyField({ nullable: true })
   key?: PolicyKey;
@@ -94,17 +81,17 @@ export class PolicyInput {
   @Field(() => String, { nullable: true })
   name?: string;
 
-  @Field(() => [AddressScalar], {
-    nullable: true,
-    description: 'Signers that are required to approve',
-  })
+  @Field(() => [AddressScalar], { nullable: true })
   approvers: Address[];
 
-  @Field(() => Number, { nullable: true, description: 'Defaults to all approvers' })
+  @Field(() => Number, { nullable: true })
   threshold?: number;
 
-  @Field(() => PermissionsInput, { defaultValue: {} })
-  permissions: PermissionsInput;
+  @Field(() => [ActionInput], { nullable: true })
+  actions?: ActionInput[];
+
+  @Field(() => TransfersConfigInput, { nullable: true })
+  transfers?: TransfersConfigInput;
 }
 
 @InputType()
