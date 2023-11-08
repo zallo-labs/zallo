@@ -17,13 +17,16 @@ import { useBiometrics } from '~/hooks/useBiometrics';
 import { usePasswordHash } from '~/app/(drawer)/settings/password';
 import { persistedAtom } from '~/lib/persistedAtom';
 import { useAtomValue } from 'jotai';
+import { SECURE_STORE_PASSWORD_ENCRYPTED as ALWAYS_REQUIRED_ON_OPEN } from '~/lib/secure-storage';
 
 // Security note: this has weak security guarantees as an attacker with local access may change these settings, or even the whole JS bundle...
 const AUTH_SETTINGS = persistedAtom('AuthenticationSettings', {
   open: true,
   approval: true,
 });
-export const useAuthSettings = () => useAtomValue(AUTH_SETTINGS);
+export const useAuthRequiredOnOpen = () =>
+  useAtomValue(AUTH_SETTINGS).open || ALWAYS_REQUIRED_ON_OPEN;
+export const useAuthRequiredOnApproval = () => useAtomValue(AUTH_SETTINGS).approval;
 
 export interface AuthSettingsProps {
   actions?: ReactNode;
@@ -80,16 +83,18 @@ function AuthSettings_({ actions, appbarMenu, passwordHref }: AuthSettingsProps)
 
           <ListHeader>Required</ListHeader>
 
-          <ListItem
-            leading={LockOpenIcon}
-            headline="Opening the app"
-            trailing={() => (
-              <Switch
-                value={settings.open}
-                onValueChange={(v) => updateSettings((s) => ({ ...s, open: v }))}
-              />
-            )}
-          />
+          {!ALWAYS_REQUIRED_ON_OPEN && (
+            <ListItem
+              leading={LockOpenIcon}
+              headline="Opening the app"
+              trailing={() => (
+                <Switch
+                  value={settings.open}
+                  onValueChange={(v) => updateSettings((s) => ({ ...s, open: v }))}
+                />
+              )}
+            />
+          )}
 
           <ListItem
             leading={TransferIcon}

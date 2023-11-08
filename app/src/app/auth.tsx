@@ -97,7 +97,7 @@ function AuthenticateScreen({
         )}
 
         <Actions flex={false}>
-          {biometrics.auth && !(passwordHash && secureStorageLocked()) && (
+          {biometrics.auth && !secureStorageLocked() && (
             <Button
               icon={FingerprintIcon}
               mode="contained-tonal"

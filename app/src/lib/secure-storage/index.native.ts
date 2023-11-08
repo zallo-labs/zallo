@@ -29,4 +29,6 @@ export function secureStorageLocked() {
   return false;
 }
 
+export const SECURE_STORE_PASSWORD_ENCRYPTED: boolean = false;
+
 export function changeSecureStorePassword(_newPassword: string) {}
