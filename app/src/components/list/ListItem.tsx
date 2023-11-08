@@ -33,7 +33,7 @@ export type ListItemProps = Pick<TouchableRippleProps, 'onPress'> &
     textStyle?: StyleProp<TextStyle>;
   };
 
-export const ListItem = ({
+export function ListItem({
   leading: Leading,
   leadingSize = typeof Leading === 'string' ? 'medium' : 'small',
   overline: Overline,
@@ -47,7 +47,7 @@ export const ListItem = ({
   containerStyle,
   textStyle,
   ...touchableProps
-}: ListItemProps) => {
+}: ListItemProps) {
   const styles = useStyles({ lines, leadingSize, selected, disabled, avatarLeadingSize });
 
   const OverlineText = ({ style, ...props }: TextProps) => (
@@ -143,7 +143,7 @@ export const ListItem = ({
       </>
     </TouchableRipple>
   );
-};
+}
 
 interface StyleProps {
   lines: Lines;

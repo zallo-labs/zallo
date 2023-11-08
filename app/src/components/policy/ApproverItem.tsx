@@ -22,7 +22,7 @@ export function ApproverItem({ address, remove }: ApproverItemProps) {
   const ref = useRef<Swipeable | null>(null);
 
   const handleRightPress = () => {
-    ref.current?.close();
+    // ref.current?.close();    // Causes `Maximum call stack size exceeded` on web
     remove();
   };
 

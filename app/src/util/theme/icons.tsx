@@ -111,7 +111,9 @@ export const FingerprintIcon = materialIcon('fingerprint');
 export const LockOpenIcon = materialIcon('lock-open');
 export const UpdateIcon = materialIcon('update');
 export const PasswordIcon = materialCommunityIcon('key');
-export const ApproversIcon = materialIcon('devices');
+export const DevicesIcon = materialIcon('devices');
+export const GenericTokenIcon = materialIcon('monetization-on');
+export const CustomActionIcon = materialCommunityIcon('pentagon-outline');
 
 export const PolicyIcon = materialCommunityIcon('security');
 export const PolicyActiveIcon = materialCommunityIcon('shield');
@@ -127,22 +129,22 @@ export const PolicySatisfiableOutlineIcon = materialCommunityIcon('shield-check-
 export const PolicyUnsatisfiableIcon = materialCommunityIcon('shield-alert');
 export const PolicyUnsatisfiableOutlineIcon = materialCommunityIcon('shield-alert-outline');
 
-export const ZalloIcon = fromSource(require('assets/icon-rounded.svg'));
-export const ZalloLogo = fromSource(require('assets/logo.svg'));
-export const AppScreenshots = fromSource(require('assets/screenshots.png'));
-export const AppStoreBadge = fromSource(require('assets/app-store-badge.svg'));
-export const GooglePlayBadge = fromSource(require('assets/google-play-badge.png'));
-export const MastercardIcon = fromSource(require('assets/mastercard.svg'));
-export const WalletConnectIcon = fromSource(require('assets/walletconnect-light.svg'));
-export const WalletConnectColorIcon = fromSource(require('assets/walletconnect.svg'));
-export const TwitterIcon = fromSource(require('assets/twitter.svg'));
-export const GithubIcon = fromSource(require('assets/github.svg'));
-export const LedgerIcon = fromSource(require('assets/ledger-icon.svg'));
-export const LedgerLogo = fromSource(require('assets/ledger-logo.svg'));
-export const AppleIcon = fromSource(require('assets/apple.svg'));
-export const GenericTokenIcon = fromSource(require('assets/ethereum-light.svg'));
+export const ZalloIcon = imageFromSource(require('assets/icon-rounded.svg'));
+export const ZalloLogo = imageFromSource(require('assets/logo.svg'));
+export const AppScreenshots = imageFromSource(require('assets/screenshots.png'));
+export const AppStoreBadge = imageFromSource(require('assets/app-store-badge.svg'));
+export const GooglePlayBadge = imageFromSource(require('assets/google-play-badge.png'));
+export const MastercardIcon = imageFromSource(require('assets/mastercard.svg'));
+export const WalletConnectIcon = imageFromSource(require('assets/walletconnect-light.svg'));
+export const WalletConnectColorIcon = imageFromSource(require('assets/walletconnect.svg'));
+export const TwitterIcon = imageFromSource(require('assets/twitter.svg'));
+export const GithubIcon = imageFromSource(require('assets/github.svg'));
+export const LedgerIcon = imageFromSource(require('assets/ledger-icon.svg'));
+export const LedgerLogo = imageFromSource(require('assets/ledger-logo.svg'));
+export const AppleIcon = imageFromSource(require('assets/apple.svg'));
+// export const GenericTokenIcon = fromSource(require('assets/ethereum-light.svg'));
 
-function fromSource(source: ImageSource) {
+export function imageFromSource(source: ImageSource) {
   return ({
     onPress,
     ...props

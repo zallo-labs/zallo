@@ -63,10 +63,11 @@ function AccountSettingsScreen() {
   const router = useRouter();
   const updateUser = useMutation(UpdateUser)[1];
 
-  const { account, user } = useQuery(Query, { account: params.account }).data;
+  const query = useQuery(Query, { account: params.account });
+  const { account, user } = query.data;
   const isPrimaryAccount = user.primaryAccount?.id === account?.id;
 
-  if (!account) return <NotFound name="Account" />;
+  if (!account) return query.stale ? null : <NotFound name="Account" />;
 
   return (
     <>
@@ -131,8 +132,8 @@ function AccountSettingsScreen() {
             mode="contained"
             onPress={() =>
               router.push({
-                pathname: `/[account]/policies/template`,
-                params: { account: account.address },
+                pathname: `/(drawer)/[account]/policies/[key]/`,
+                params: { account: account.address, key: 'add' },
               })
             }
           >

@@ -13,7 +13,7 @@ import {
   GithubIcon,
   QrCodeIcon,
   GenericTokenIcon,
-  ApproversIcon,
+  DevicesIcon,
   AccountIcon,
 } from '@theme/icons';
 import { DrawerItem as Item } from '~/components/drawer/DrawerItem';
@@ -96,7 +96,7 @@ function Content() {
             label="Account"
           />
         )}
-        <Item href={`/(drawer)/approvers`} icon={ApproversIcon} label="My approvers" />
+        <Item href={`/(drawer)/approvers`} icon={DevicesIcon} label="My approvers" />
         <Item href={`/(drawer)/settings/auth`} icon={FingerprintIcon} label="Auth" />
         <Item
           href={`/(drawer)/settings/notifications`}

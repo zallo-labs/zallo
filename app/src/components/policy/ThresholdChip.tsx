@@ -1,5 +1,5 @@
 import { useImmerAtom } from 'jotai-immer';
-import { DoubleCheckIcon, DownArrowIcon } from '@theme/icons';
+import { DownArrowIcon } from '@theme/icons';
 import { SelectChip } from '~/components/fields/SelectChip';
 import _ from 'lodash';
 import { match } from 'ts-pattern';
@@ -38,7 +38,6 @@ export function ThresholdChip() {
         })
       }
       chipProps={{
-        icon: ({ color: _, ...props }) => <DoubleCheckIcon {...props} />,
         closeIcon: DownArrowIcon,
         style: styles.chip,
         textStyle: styles.chipLabel,

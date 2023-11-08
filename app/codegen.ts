@@ -13,6 +13,7 @@ const scalars = {
   Selector: 'lib#Selector',
   Uint256: 'lib#BigIntlike',
   TypedData: 'viem#TypedDataDefinition',
+  AbiFunction: 'abitype#AbiFunction',
 };
 
 export default {

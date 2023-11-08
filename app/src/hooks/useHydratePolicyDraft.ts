@@ -4,7 +4,7 @@ import { useHydrateAtoms } from 'jotai/utils';
 import { ZERO_ADDR } from 'lib';
 import { useEffect, useMemo } from 'react';
 import { POLICY_DRAFT_ATOM, PolicyDraft, policyAsDraft } from '~/lib/policy/draft';
-import { PolicyTemplateType, getPolicyTemplates } from '~/lib/policy/template';
+import { getPolicyPresets } from '~/lib/policy/presets';
 
 const Account = gql(/* GraphQL */ `
   fragment useHydratePolicyDraft_Account on Account {
@@ -34,7 +34,6 @@ export interface UseHydratePolicyDraftParams {
   account: FragmentType<typeof Account> | null | undefined;
   policy: FragmentType<typeof Policy> | null | undefined;
   view: PolicyView;
-  template: PolicyTemplateType;
 }
 
 export function useHydratePolicyDraft(params: UseHydratePolicyDraftParams) {
@@ -49,9 +48,16 @@ export function useHydratePolicyDraft(params: UseHydratePolicyDraftParams) {
       ...((params.view === 'state' && policy?.state && policyAsDraft(policy.state)) ||
         (policy?.draft && policyAsDraft(policy.draft)) ||
         (policy?.state && policyAsDraft(policy.state)) ||
-        getPolicyTemplates(account)[params.template]),
+        (account
+          ? getPolicyPresets(account).high
+          : {
+              approvers: new Set(),
+              threshold: 0,
+              actions: [],
+              transfers: { defaultAllow: false, limits: {} },
+            })),
     }),
-    [account, policy],
+    [account, policy, params.view],
   );
 
   const setDraft = useSetAtom(POLICY_DRAFT_ATOM);
