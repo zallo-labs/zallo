@@ -13,8 +13,8 @@ import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
 import { ScreenSurface } from '~/components/layout/ScreenSurface';
 import { Address } from 'lib';
 import { Text } from 'react-native-paper';
-import { makeStyles } from '@theme/makeStyles';
 import { AccountNameFormField } from '~/components/fields/AccountNameFormField';
+import { createStyles } from '@theme/styles';
 
 const Create = gql(/* GraphQL */ `
   mutation CreateAccountScreen_Create($input: CreateAccountInput!) {
@@ -34,7 +34,6 @@ export interface CreateAccountScreenProps {
 }
 
 function CreateAccountScreen({ onCreate }: CreateAccountScreenProps) {
-  const styles = useStyles();
   const router = useRouter();
   const approver = useApproverAddress();
   const create = useMutation(Create)[1];
@@ -92,7 +91,7 @@ function CreateAccountScreen({ onCreate }: CreateAccountScreenProps) {
   );
 }
 
-const useStyles = makeStyles(() => ({
+const styles = createStyles({
   root: {
     flex: 1,
   },
@@ -103,6 +102,6 @@ const useStyles = makeStyles(() => ({
   button: {
     alignSelf: 'stretch',
   },
-}));
+});
 
 export default withSuspense(CreateAccountScreen, <ScreenSkeleton />);

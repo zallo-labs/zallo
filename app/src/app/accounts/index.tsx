@@ -8,10 +8,10 @@ import { ListItem } from '~/components/list/ListItem';
 import { View } from 'react-native';
 import { gql } from '@api/generated';
 import { ICON_SIZE } from '@theme/paper';
-import { makeStyles } from '@theme/makeStyles';
 import { AccountItem } from '../../components/item/AccountItem';
 import { useQuery } from '~/gql';
 import { useSelectedAccount } from '~/hooks/useSelectedAccount';
+import { createStyles, useStyles } from '@theme/styles';
 
 const SwitchIcon = materialCommunityIcon('swap-horizontal');
 
@@ -27,7 +27,7 @@ const Query = gql(/* GraphQL */ `
 `);
 
 export default function AccountsSheet() {
-  const styles = useStyles();
+  const { styles } = useStyles(stylesheet);
   const router = useRouter();
   const selectedAddress = useSelectedAccount();
 
@@ -85,7 +85,7 @@ export default function AccountsSheet() {
   );
 }
 
-const useStyles = makeStyles(({ colors }) => ({
+const stylesheet = createStyles(({ colors }) => ({
   contentContaiiner: {
     paddingBottom: 8,
   },

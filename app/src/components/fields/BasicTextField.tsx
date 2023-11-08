@@ -1,10 +1,10 @@
-import { makeStyles } from '@theme/makeStyles';
+import { createStyles, useStyles } from '@theme/styles';
 import { TextInput, TextInputProps } from 'react-native';
 
 export interface BasicTextFieldProps extends TextInputProps {}
 
 export const BasicTextField = ({ ...props }: BasicTextFieldProps) => {
-  const styles = useStyles();
+  const { styles } = useStyles(stylesheet);
 
   return (
     <TextInput
@@ -16,7 +16,7 @@ export const BasicTextField = ({ ...props }: BasicTextFieldProps) => {
   );
 };
 
-const useStyles = makeStyles(({ colors, fonts }) => ({
+const stylesheet = createStyles(({ colors, fonts }) => ({
   input: {
     color: colors.onSurface,
     ...fonts.bodyLarge,

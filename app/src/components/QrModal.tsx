@@ -1,10 +1,9 @@
 import QRCode from 'react-native-qrcode-svg';
 import { Address } from 'lib';
-import { makeStyles } from '@theme/makeStyles';
 import { IconButton, Surface, Text } from 'react-native-paper';
 import { CloseIcon, ShareIcon, materialCommunityIcon } from '@theme/icons';
 import { Actions } from '~/components/layout/Actions';
-import { View } from 'react-native';
+import { ScaledSize, View, useWindowDimensions } from 'react-native';
 import { useAddressLabel } from '~/components/address/AddressLabel';
 import { buildAddressLink } from '~/util/addressLink';
 import { Blur } from '~/components/Blur';
@@ -14,7 +13,8 @@ import { OperationContext, useMutation } from 'urql';
 import { useQuery } from '~/gql';
 import { share } from '~/lib/share';
 import { useRouter } from 'expo-router';
-import { LayoutClass } from '~/hooks/useLayout';
+import { createStyles, useStyles } from '@theme/styles';
+import { EdgeInsets, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const Query = gql(/* GraphQL */ `
   query QrModal($account: Address!) {
@@ -38,7 +38,7 @@ export interface QrModalProps {
 }
 
 export function QrModal({ address, faucet }: QrModalProps) {
-  const styles = uesStyles();
+  const { styles } = useStyles(stylesheet);
   const router = useRouter();
   const requestTokens = useMutation(RequestTokens)[1];
 
@@ -47,7 +47,7 @@ export function QrModal({ address, faucet }: QrModalProps) {
 
   return (
     <Blur>
-      <View style={styles.container}>
+      <View style={styles.container(useSafeAreaInsets())}>
         <IconButton
           mode="contained-tonal"
           icon={CloseIcon}
@@ -66,7 +66,7 @@ export function QrModal({ address, faucet }: QrModalProps) {
             <QRCode
               value={address}
               color={styles.qr.color}
-              size={styles.qr.fontSize}
+              size={styles.qrSize(useWindowDimensions()).fontSize}
               backgroundColor="transparent"
               ecl="M"
               enableLinearGradient
@@ -99,17 +99,11 @@ export function QrModal({ address, faucet }: QrModalProps) {
   );
 }
 
-const QR_SCALING_FACTOR: Record<LayoutClass, number> = {
-  compact: 0.8,
-  medium: 0.6,
-  expanded: 0.5,
-};
-
-const uesStyles = makeStyles(({ colors, window, insets, layout }) => ({
-  container: {
+const stylesheet = createStyles(({ colors }) => ({
+  container: (insets: EdgeInsets) => ({
     flex: 1,
     marginTop: insets.top,
-  },
+  }),
   close: {
     marginHorizontal: 16,
   },
@@ -131,8 +125,14 @@ const uesStyles = makeStyles(({ colors, window, insets, layout }) => ({
     padding: 16,
     borderRadius: 16,
   },
+  qrSize: (window: ScaledSize) => ({
+    fontSize: {
+      compact: Math.min(window.width * 0.8, window.height * 0.8),
+      medium: Math.min(window.width * 0.7, window.height * 0.7),
+      expanded: Math.min(window.width * 0.5, window.height * 0.5),
+    },
+  }),
   qr: {
-    fontSize: Math.min(window.width, window.height) * QR_SCALING_FACTOR[layout],
     color: colors.onSurface,
   },
   primary: {

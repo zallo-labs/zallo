@@ -1,4 +1,4 @@
-import { makeStyles } from '@theme/makeStyles';
+import { createStyles, useStyles } from '@theme/styles';
 import { ScrollView, ScrollViewProps, StyleProp, ViewStyle } from 'react-native';
 import { Surface, SurfaceProps } from 'react-native-paper';
 import { useMaybeDrawerContext } from '~/components/drawer/DrawerContextProvider';
@@ -8,7 +8,7 @@ export interface ScreenSurfaceProps extends ScrollViewProps {
 }
 
 export function ScreenSurface({ children, surfaceStyle, ...scrollViewProps }: ScreenSurfaceProps) {
-  const styles = useStyles();
+  const { styles } = useStyles(stylesheet);
 
   return (
     <>
@@ -24,7 +24,7 @@ export function ScreenSurface({ children, surfaceStyle, ...scrollViewProps }: Sc
   );
 }
 
-const useStyles = makeStyles(({ colors, corner }) => ({
+const stylesheet = createStyles(({ colors, corner }) => ({
   surface: {
     flex: 1,
     marginTop: 8,

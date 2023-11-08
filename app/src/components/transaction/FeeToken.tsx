@@ -2,8 +2,8 @@ import { FragmentType, gql, useFragment } from '@api/generated';
 import { asBigInt } from 'lib';
 import { useMutation } from 'urql';
 import { TokenItem } from '~/components/token/TokenItem';
-import { makeStyles } from '@theme/makeStyles';
 import { useSelectToken } from '~/app/(drawer)/[account]/tokens';
+import { createStyles, useStyles } from '@theme/styles';
 
 const FragmentDoc = gql(/* GraphQL */ `
   fragment FeeToken_TransactionProposalFragment on TransactionProposal {
@@ -45,7 +45,7 @@ export interface FeeTokenProps {
 }
 
 export function FeeToken(props: FeeTokenProps) {
-  const styles = useStyles();
+  const { styles } = useStyles(stylesheet);
   const p = useFragment(FragmentDoc, props.proposal);
 
   const update = useMutation(Update)[1];
@@ -76,7 +76,7 @@ export function FeeToken(props: FeeTokenProps) {
   );
 }
 
-const useStyles = makeStyles(({ colors }) => ({
+const stylesheet = createStyles(({ colors }) => ({
   secondary: {
     color: colors.onSurfaceVariant,
   },

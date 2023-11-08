@@ -1,5 +1,5 @@
 import { useRouter } from 'expo-router';
-import { Platform, View, ScrollView } from 'react-native';
+import { View, ScrollView } from 'react-native';
 import { Text } from 'react-native-paper';
 import { Button } from '~/components/Button';
 import { Actions } from '~/components/layout/Actions';
@@ -17,10 +17,10 @@ import {
   TwitterIcon,
 } from '@theme/icons';
 import { CONFIG } from '~/util/config';
-import { makeStyles } from '@theme/makeStyles';
+import { createStyles, useStyles } from '@theme/styles';
 
 export default function LandingScreen() {
-  const styles = useStyles();
+  const { styles } = useStyles(stylesheet);
   const { push } = useRouter();
 
   const next = () => push(`/onboard/(drawer)/account`);
@@ -36,7 +36,7 @@ export default function LandingScreen() {
       />
 
       <View style={styles.content}>
-        <View style={styles.spacer} />
+        <View style={[styles.spacer, styles.onlyExpanded]} />
 
         <View style={styles.mainContent}>
           <ZalloLogo style={styles.logo} contentFit="contain" />
@@ -57,7 +57,7 @@ export default function LandingScreen() {
           </View>
         </View>
 
-        <View style={styles.screenshotsContainer}>
+        <View style={[styles.screenshotsContainer, styles.onlyExpanded]}>
           <AppScreenshots style={styles.screenshots} contentFit="contain" />
         </View>
       </View>
@@ -82,9 +82,16 @@ export default function LandingScreen() {
   );
 }
 
-const useStyles = makeStyles(({ layout }) => ({
+const stylesheet = createStyles({
   root: {
     flexGrow: 1,
+  },
+  onlyExpanded: {
+    display: {
+      compact: 'none',
+      medium: 'none',
+      expanded: 'flex',
+    },
   },
   content: {
     flex: 1,
@@ -96,7 +103,6 @@ const useStyles = makeStyles(({ layout }) => ({
     flexWrap: 'wrap',
   },
   spacer: {
-    ...(!(Platform.OS === 'web' && layout === 'expanded') && { display: 'none' }),
     flex: 1,
   },
   mainContent: {
@@ -110,7 +116,6 @@ const useStyles = makeStyles(({ layout }) => ({
     minHeight: 104,
   },
   companionContainer: {
-    ...(Platform.OS !== 'web' && { display: 'none' }),
     gap: 16,
     marginVertical: 16,
   },
@@ -130,7 +135,6 @@ const useStyles = makeStyles(({ layout }) => ({
     height: 48,
   },
   screenshotsContainer: {
-    ...(!(Platform.OS === 'web' && layout === 'expanded') && { display: 'none' }),
     flex: 1,
     alignItems: 'center',
     minWidth: 'auto',
@@ -151,4 +155,4 @@ const useStyles = makeStyles(({ layout }) => ({
     gap: 16,
     marginBottom: 16,
   },
-}));
+});

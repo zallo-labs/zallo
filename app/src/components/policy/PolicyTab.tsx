@@ -1,6 +1,5 @@
 import { ScrollView } from 'react-native';
 import { ListHeader } from '~/components/list/ListHeader';
-import { makeStyles } from '@theme/makeStyles';
 import { Hex } from 'lib';
 import { gql, useFragment } from '@api/generated';
 import { getOptimizedDocument, useQuery } from '~/gql';
@@ -11,6 +10,7 @@ import { AwaitingApprovalItem } from '~/components/transaction/AwaitingApprovalI
 import { RejectionItem } from '~/components/transaction/RejectionItem';
 import { withSuspense } from '~/components/skeleton/withSuspense';
 import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
+import { createStyles, useStyles } from '@theme/styles';
 
 const Proposal = gql(/* GraphQL */ `
   fragment PolicyTab_ProposalFragment on Proposal
@@ -90,7 +90,7 @@ export interface PolicyTabProps {
 }
 
 function PolicyTab_({ hash }: PolicyTabProps) {
-  const styles = uesStyles();
+  const { styles } = useStyles(stylesheet);
 
   const { data } = useQuery(Query, { proposal: hash });
   useSubscription({
@@ -140,7 +140,7 @@ function PolicyTab_({ hash }: PolicyTabProps) {
   );
 }
 
-const uesStyles = makeStyles(({ colors }) => ({
+const stylesheet = createStyles(({ colors }) => ({
   container: {
     flexGrow: 1,
     paddingTop: 8,

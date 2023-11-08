@@ -1,5 +1,5 @@
 import { MaterialIcons } from '@expo/vector-icons';
-import { makeStyles } from '@theme/makeStyles';
+import { createStyles, useStyles } from '@theme/styles';
 import { Dispatch, memo, SetStateAction, useCallback } from 'react';
 import { View } from 'react-native';
 import { Button, ButtonProps } from 'react-native-paper';
@@ -11,7 +11,7 @@ interface BProps extends ButtonProps {
 }
 
 const B = memo(({ onChange, ...props }: BProps) => {
-  const styles = useStyles();
+  const { styles } = useStyles(stylesheet);
   return (
     <Button
       mode="text"
@@ -34,7 +34,7 @@ export interface NumericInputProps {
 }
 
 export const NumericInput = ({ value, onChange, maxDecimals }: NumericInputProps) => {
-  const styles = useStyles();
+  const { styles } = useStyles(stylesheet);
 
   const decimalPointIndex = value.indexOf('.');
   const decimals = decimalPointIndex !== -1 ? value.length - decimalPointIndex - 1 : 0;
@@ -99,7 +99,7 @@ export const NumericInput = ({ value, onChange, maxDecimals }: NumericInputProps
   );
 };
 
-const useStyles = makeStyles(({ colors, fonts }) => ({
+const stylesheet = createStyles(({ colors, fonts }) => ({
   container: {
     flexDirection: 'column',
     margin: 16,

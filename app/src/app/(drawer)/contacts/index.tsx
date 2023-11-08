@@ -1,6 +1,5 @@
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { useState } from 'react';
-import { View } from 'react-native';
 import { NavigateNextIcon, ScanIcon, SearchIcon, materialCommunityIcon } from '~/util/theme/icons';
 import { Address } from 'lib';
 import { Searchbar } from '~/components/Appbar/Searchbar';
@@ -8,9 +7,8 @@ import { ListHeader } from '~/components/list/ListHeader';
 import { ListItemHeight } from '~/components/list/ListItem';
 import { gql } from '@api/generated';
 import { FlashList } from '@shopify/flash-list';
-import { Text, Surface } from 'react-native-paper';
+import { Text } from 'react-native-paper';
 import { Fab } from '~/components/Fab';
-import { makeStyles } from '@theme/makeStyles';
 import { useQuery } from '~/gql';
 import { useScanAddress } from '~/app/scan';
 import { ContactItem } from '~/components/item/ContactItem';
@@ -18,6 +16,7 @@ import { AppbarMenu } from '~/components/Appbar/AppbarMenu';
 import { withSuspense } from '~/components/skeleton/withSuspense';
 import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
 import { ScreenSurface } from '~/components/layout/ScreenSurface';
+import { createStyles, useStyles } from '@theme/styles';
 
 const Query = gql(/* GraphQL */ `
   query ContactsScreen($query: String) {
@@ -38,7 +37,7 @@ export type ContactsScreenParams = {
 
 function ContactsScreen() {
   const params = useLocalSearchParams<ContactsScreenParams>();
-  const styles = useStyles();
+  const { styles } = useStyles(stylesheet);
   const disabled = params.disabled && new Set(params.disabled);
   const router = useRouter();
   const scanAddress = useScanAddress();
@@ -105,7 +104,7 @@ function ContactsScreen() {
   );
 }
 
-const useStyles = makeStyles(({ colors, corner }) => ({
+const stylesheet = createStyles(({ colors }) => ({
   contentContainer: {
     paddingVertical: 8,
   },

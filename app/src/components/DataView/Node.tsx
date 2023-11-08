@@ -4,8 +4,8 @@ import { Text } from 'react-native-paper';
 import { tryDecodeHexString } from '~/util/decodeHex';
 import { AddressLabel } from '../address/AddressLabel';
 import { match } from 'ts-pattern';
-import { makeStyles } from '@theme/makeStyles';
 import { TypedDataDefinition } from 'viem';
+import { createStyles, useStyles } from '@theme/styles';
 
 export type NodeValue = string | Hex | TypedDataNode | TypedDataDefinition;
 
@@ -21,7 +21,7 @@ export interface NodeProps {
 }
 
 export const Node = ({ children: value, style }: NodeProps) => {
-  const styles = useStyles();
+  const { styles } = useStyles(stylesheet);
   const marginLeft = (StyleSheet.flatten(style)?.marginLeft as number) ?? 0;
 
   return match(value)
@@ -62,7 +62,7 @@ export const Node = ({ children: value, style }: NodeProps) => {
     .otherwise((v) => <Text style={style}>{v}</Text>);
 };
 
-const useStyles = makeStyles(({ colors }) => ({
+const stylesheet = createStyles(({ colors }) => ({
   name: {
     // color: colors.onSurface,
     // color: colors.tertiary,

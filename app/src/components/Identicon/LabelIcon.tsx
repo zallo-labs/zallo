@@ -1,4 +1,4 @@
-import { makeStyles } from '@theme/makeStyles';
+import { createStyles, useStyles } from '@theme/styles';
 import { memo } from 'react';
 import {
   StyleProp,
@@ -9,6 +9,7 @@ import {
   useWindowDimensions,
 } from 'react-native';
 import { Text } from 'react-native-paper';
+import { useMemoApply } from '~/hooks/useMemoized';
 
 export interface LabelIconProps extends Omit<ViewProps, 'style'> {
   label: string;
@@ -19,7 +20,9 @@ export interface LabelIconProps extends Omit<ViewProps, 'style'> {
 
 export const LabelIcon = memo(
   ({ label: l, size, containerStyle, labelStyle, ...viewProps }: LabelIconProps) => {
-    const styles = useStyles({ size, fontScale: useWindowDimensions().fontScale });
+    const { styles } = useStyles(
+      useMemoApply(getStylesheet, { size, fontScale: useWindowDimensions().fontScale }),
+    );
 
     const label = l.slice(0, Math.min(l?.length, 1)).toUpperCase();
 
@@ -38,22 +41,25 @@ interface StyleParams {
   fontScale: number;
 }
 
-const useStyles = makeStyles(
-  ({ colors, iconSize }, { size = iconSize.medium, fontScale }: StyleParams) => ({
-    container: {
-      width: size,
-      height: size,
-      borderRadius: size / 2,
-      justifyContent: 'center',
-      alignItems: 'center',
-      backgroundColor: colors.tertiaryContainer,
-    },
-    label: {
-      fontSize: size / 2,
-      lineHeight: size / fontScale,
-      color: colors.tertiary,
-      textAlign: 'center',
-      textAlignVertical: 'center',
-    },
-  }),
-);
+const getStylesheet = ({ size, fontScale }: StyleParams) =>
+  createStyles(({ colors, iconSize }) => {
+    size ??= iconSize.medium;
+
+    return {
+      container: {
+        width: size,
+        height: size,
+        borderRadius: size / 2,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: colors.tertiaryContainer,
+      },
+      label: {
+        fontSize: size / 2,
+        lineHeight: size / fontScale,
+        color: colors.tertiary,
+        textAlign: 'center',
+        textAlignVertical: 'center',
+      },
+    };
+  });

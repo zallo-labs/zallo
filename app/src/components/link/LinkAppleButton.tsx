@@ -1,13 +1,12 @@
-import { isPresent } from 'lib';
 import { useMutation } from 'urql';
 import { useQuery } from '~/gql';
 import { useGetAppleApprover } from '~/hooks/cloud/useGetAppleApprover';
 import { showError } from '~/components/provider/SnackbarProvider';
 import { gql } from '@api';
 import { authContext } from '@api/client';
-import { makeStyles } from '@theme/makeStyles';
 import { Fab } from '~/components/Fab';
 import { AppleIcon } from '@theme/icons';
+import { createStyles, useStyles } from '@theme/styles';
 
 const Query = gql(/* GraphQL */ `
   query LinkAppleButton {
@@ -34,7 +33,7 @@ export interface LinkAppleButtonProps {
 }
 
 export function LinkAppleButton({ onLink }: LinkAppleButtonProps) {
-  const styles = useStyles();
+  const { styles } = useStyles(stylesheet);
   const getApprover = useGetAppleApprover();
   const link = useMutation(Link)[1];
 
@@ -64,7 +63,7 @@ export function LinkAppleButton({ onLink }: LinkAppleButtonProps) {
   );
 }
 
-const useStyles = makeStyles(({ dark }) => ({
+const stylesheet = createStyles(({ dark }) => ({
   container: {
     backgroundColor: dark ? 'white' : 'black',
   },

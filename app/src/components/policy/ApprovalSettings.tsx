@@ -1,6 +1,6 @@
 import { FlashList } from '@shopify/flash-list';
 import { AddIcon, ContactsIcon } from '@theme/icons';
-import { makeStyles } from '@theme/makeStyles';
+import { createStyles, useStyles } from '@theme/styles';
 import { Address } from 'lib';
 import { View } from 'react-native';
 import Collapsible from 'react-native-collapsible';
@@ -21,7 +21,7 @@ export interface ApprovalSettingsProps {
 }
 
 export function ApprovalSettings(props: ApprovalSettingsProps) {
-  const styles = useStyles();
+  const { styles } = useStyles(stylesheet);
   const selectAddress = useSelectAddress();
 
   const [policy, update] = usePolicyDraftState();
@@ -97,7 +97,7 @@ export function ApprovalSettings(props: ApprovalSettingsProps) {
   );
 }
 
-const useStyles = makeStyles(({ colors }) => ({
+const stylesheet = createStyles(({ colors }) => ({
   headerContainer: {
     flexDirection: 'row',
     marginLeft: 16,

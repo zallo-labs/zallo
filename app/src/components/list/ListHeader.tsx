@@ -1,9 +1,9 @@
 import { FC, ReactNode } from 'react';
 import { View, ViewStyle } from 'react-native';
 import { Text } from 'react-native-paper';
-import { makeStyles } from '@theme/makeStyles';
 import { TextProps } from '@theme/types';
 import { StyleProp } from 'react-native';
+import { createStyles, useStyles } from '@theme/styles';
 
 export interface TrailingItemProps {
   Text: FC<TextProps>;
@@ -20,7 +20,7 @@ export const ListHeader = ({
   style: textStyle,
   ...props
 }: ListHeaderProps) => {
-  const styles = useStyles();
+  const { styles } = useStyles(stylesheet);
 
   const TrailingText = ({ style, ...props }: TextProps) => (
     <Text
@@ -43,7 +43,7 @@ export const ListHeader = ({
   );
 };
 
-const useStyles = makeStyles(({ colors }) => ({
+const stylesheet = createStyles(({ colors }) => ({
   container: {
     flexDirection: 'row',
     alignItems: 'center',

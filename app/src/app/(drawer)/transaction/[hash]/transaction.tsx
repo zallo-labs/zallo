@@ -11,7 +11,6 @@ import { Timestamp } from '~/components/format/Timestamp';
 import { ListItem, ListItemProps } from '~/components/list/ListItem';
 import { TokenAmount } from '~/components/token/TokenAmount';
 import { TokenIcon } from '~/components/token/TokenIcon';
-import { makeStyles } from '@theme/makeStyles';
 import { asBigInt, tokenToFiat } from 'lib';
 import { ReactNode } from 'react';
 import { gql, useFragment } from '@api/generated';
@@ -19,6 +18,7 @@ import { getOptimizedDocument, useQuery } from '~/gql';
 import { useSubscription } from 'urql';
 import { withSuspense } from '~/components/skeleton/withSuspense';
 import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
+import { createStyles, useStyles } from '@theme/styles';
 
 const TransactionProposal = gql(/* GraphQL */ `
   fragment TransactionTab_TransactionProposalFragment on TransactionProposal {
@@ -80,7 +80,7 @@ export type TransactionTabParams = z.infer<typeof TransactionTabParams>;
 
 function TransactionTab() {
   const params = useLocalParams(`/(drawer)/transaction/[hash]/transaction`, TransactionTabParams);
-  const styles = useStyles();
+  const { styles } = useStyles(stylesheet);
 
   const { data } = useQuery(Query, { proposal: params.hash });
   useSubscription({
@@ -193,7 +193,7 @@ function TransactionTab() {
   );
 }
 
-const useStyles = makeStyles(({ colors }) => ({
+const stylesheet = createStyles(({ colors }) => ({
   container: {
     flexGrow: 1,
     paddingTop: 8,

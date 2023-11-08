@@ -1,15 +1,15 @@
 import { Platform, View } from 'react-native';
 import { ReactNode, useEffect } from 'react';
-import { makeStyles } from '@theme/makeStyles';
 import { StatusBar } from 'expo-status-bar';
 import * as AndroidNav from 'expo-navigation-bar';
+import { createStyles, useStyles } from '@theme/styles';
 
 export interface BackgroundProps {
   children: ReactNode;
 }
 
 export const Background = ({ children }: BackgroundProps) => {
-  const styles = useStyles();
+  const { styles } = useStyles(stylesheet);
 
   useEffect(() => {
     if (Platform.OS === 'android') {
@@ -26,7 +26,7 @@ export const Background = ({ children }: BackgroundProps) => {
   );
 };
 
-const useStyles = makeStyles(({ colors }) => ({
+const stylesheet = createStyles(({ colors }) => ({
   background: {
     display: 'flex',
     flex: 1,

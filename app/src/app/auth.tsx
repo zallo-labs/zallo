@@ -1,5 +1,5 @@
 import { FingerprintIcon } from '@theme/icons';
-import { makeStyles } from '@theme/makeStyles';
+import { createStyles, useStyles } from '@theme/styles';
 import { ComponentType, Fragment, PropsWithChildren, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Text } from 'react-native-paper';
@@ -44,7 +44,7 @@ function AuthenticateScreen({
   onAuth = emitOnAuth,
   container: Container = Fragment,
 }: AuthenticateScreenProps) {
-  const styles = useStyles();
+  const { styles } = useStyles(stylesheet);
   const biometrics = useBiometrics();
   const passwordHash = usePasswordHash();
   const available = biometrics.enabled || !!passwordHash;
@@ -121,7 +121,7 @@ function AuthenticateScreen({
   );
 }
 
-const useStyles = makeStyles(({ colors }) => ({
+const stylesheet = createStyles(({ colors }) => ({
   title: {
     color: colors.onSurfaceVariant,
     marginHorizontal: 16,

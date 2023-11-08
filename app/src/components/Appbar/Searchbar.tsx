@@ -1,10 +1,11 @@
 import { IconProps, SearchIcon } from '@theme/icons';
-import { makeStyles } from '@theme/makeStyles';
 import { toArray } from 'lib';
 import { FC } from 'react';
 import { StyleProp, View, ViewStyle } from 'react-native';
 import { Surface } from 'react-native-paper';
 import { BasicTextField, BasicTextFieldProps } from '../fields/BasicTextField';
+import { createStyles, useStyles } from '@theme/styles';
+import { EdgeInsets, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export interface SearchbarProps extends BasicTextFieldProps {
   leading?: FC<IconProps & { style?: StyleProp<ViewStyle> }>;
@@ -19,10 +20,11 @@ export function Searchbar({
   inset = true,
   ...inputProps
 }: SearchbarProps) {
-  const styles = useStyles(inset);
+  const { styles } = useStyles(stylesheet);
+  const insets = useSafeAreaInsets();
 
   return (
-    <Surface elevation={3} style={styles.container}>
+    <Surface elevation={3} style={styles.container(inset ? insets : undefined)}>
       <View style={styles.leadingContainer}>
         {Leading && <Leading size={styles.leadingIcon.fontSize} color={styles.leadingIcon.color} />}
       </View>
@@ -38,9 +40,9 @@ export function Searchbar({
   );
 }
 
-const useStyles = makeStyles(({ colors, corner, fonts, insets }, inset: boolean) => ({
+const stylesheet = createStyles(({ colors, corner, fonts }) => ({
   // https://m3.material.io/components/search/specs
-  container: {
+  container: (insets?: EdgeInsets) => ({
     flexDirection: 'row',
     alignItems: 'center',
     height: 56,
@@ -49,9 +51,9 @@ const useStyles = makeStyles(({ colors, corner, fonts, insets }, inset: boolean)
     borderRadius: corner.full,
     paddingHorizontal: 16,
     marginHorizontal: 16,
-    marginTop: 16 + (inset ? insets.top : 0),
+    marginTop: 16 + (insets?.top ?? 0),
     marginBottom: 8,
-  },
+  }),
   leadingContainer: {
     paddingRight: 16,
   },

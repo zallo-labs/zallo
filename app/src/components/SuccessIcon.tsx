@@ -1,5 +1,5 @@
 import { materialIcon } from '@theme/icons';
-import { makeStyles } from '@theme/makeStyles';
+import { createStyles, useStyles } from '@theme/styles';
 import { ComponentPropsWithoutRef } from 'react';
 
 const BaseIcon = materialIcon('check-circle-outline');
@@ -7,12 +7,12 @@ const BaseIcon = materialIcon('check-circle-outline');
 export interface SuccessIconProps extends ComponentPropsWithoutRef<typeof BaseIcon> {}
 
 export function SuccessIcon(props: SuccessIconProps) {
-  const styles = useStyles();
+  const { styles } = useStyles(stylesheet);
 
   return <BaseIcon {...props} style={[styles.icon, props.style]} />;
 }
 
-const useStyles = makeStyles(({ colors }) => ({
+const stylesheet = createStyles(({ colors }) => ({
   icon: {
     color: colors.success,
   },

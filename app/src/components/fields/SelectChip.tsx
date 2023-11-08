@@ -1,4 +1,4 @@
-import { makeStyles } from '@theme/makeStyles';
+import { createStyles, useStyles } from '@theme/styles';
 import { useState } from 'react';
 import { Chip, ChipProps, Menu, MenuProps } from 'react-native-paper';
 
@@ -19,7 +19,7 @@ export function SelectChip<T>({
   chipProps,
   equals = (a, b) => a === b,
 }: SelectChipProps<T>) {
-  const styles = useStyles();
+  const { styles } = useStyles(stylesheet);
 
   const [visible, setVisible] = useState(false);
   const close = () => setVisible(false);
@@ -53,7 +53,7 @@ export function SelectChip<T>({
   );
 }
 
-const useStyles = makeStyles(({ colors }) => ({
+const stylesheet = createStyles(({ colors }) => ({
   selected: {
     color: colors.primary,
   },

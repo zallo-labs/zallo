@@ -1,6 +1,5 @@
 import { gql } from '@api';
-import { makeStyles } from '@theme/makeStyles';
-import { ICON_SIZE } from '@theme/paper';
+import { createStyles, useStyles } from '@theme/styles';
 import { Image } from 'expo-image';
 import { View } from 'react-native';
 import { Text } from 'react-native-paper';
@@ -21,7 +20,7 @@ const Query = gql(/* GraphQL */ `
 `);
 
 function AccountDrawerHeader_() {
-  const styles = useStyles();
+  const { styles } = useStyles(stylesheet);
 
   const { account } = useQuery(Query, { account: useSelectedAccount() }).data;
 
@@ -42,7 +41,7 @@ function AccountDrawerHeader_() {
   );
 }
 
-const useStyles = makeStyles(({ colors }) => ({
+const stylesheet = createStyles(({ colors, iconSize }) => ({
   container: {
     alignItems: 'center',
     marginHorizontal: 16,
@@ -50,9 +49,9 @@ const useStyles = makeStyles(({ colors }) => ({
     gap: 8,
   },
   icon: {
-    width: ICON_SIZE.large,
-    height: ICON_SIZE.large,
-    borderRadius: ICON_SIZE.large / 2,
+    width: iconSize.large,
+    height: iconSize.large,
+    borderRadius: iconSize.large / 2,
   },
   name: {
     color: colors.onSurfaceVariant,

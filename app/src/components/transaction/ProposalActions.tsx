@@ -4,11 +4,11 @@ import { CHAIN } from '@network/provider';
 import { RetryIcon, ShareIcon } from '@theme/icons';
 import { FragmentType, gql, useFragment } from '@api/generated';
 import { useMutation } from 'urql';
-import { makeStyles } from '@theme/makeStyles';
 import { useApproverAddress } from '@network/useApprover';
 import { useApprove } from '~/hooks/useApprove';
 import { useReject } from '~/hooks/useReject';
 import { share } from '~/lib/share';
+import { createStyles, useStyles } from '@theme/styles';
 
 const BLOCK_EXPLORER_URL = CHAIN.blockExplorers?.default.url;
 
@@ -49,7 +49,7 @@ export interface ProposalActionsProps {
 }
 
 export const ProposalActions = (props: ProposalActionsProps) => {
-  const styles = useStyles();
+  const { styles } = useStyles(stylesheet);
   const p = useFragment(Proposal, props.proposal);
   const user = useFragment(User, props.user);
   const approver = useApproverAddress();
@@ -92,7 +92,7 @@ export const ProposalActions = (props: ProposalActionsProps) => {
   );
 };
 
-const useStyles = makeStyles(({ colors }) => ({
+const stylesheet = createStyles(({ colors }) => ({
   retryContainer: {
     backgroundColor: colors.errorContainer,
   },

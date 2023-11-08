@@ -1,4 +1,4 @@
-import { makeStyles } from '@theme/makeStyles';
+import { createStyles } from '@theme/styles';
 import { View } from 'react-native';
 import Svg, { Rect, SvgProps } from 'react-native-svg';
 
@@ -76,9 +76,7 @@ export interface BlockieProps extends Omit<SvgProps, 'width' | 'height' | 'color
 }
 
 export const Blockie = ({ size = 24, nBlocks = 8, style, ...props }: BlockieProps) => {
-  const styles = useStyles(size);
   const pxPerBlock = size / nBlocks;
-
   const seed = seedrand(props.seed || Math.floor(Math.random() * Math.pow(10, 16)).toString(16));
 
   const color = createColor(seed);
@@ -88,7 +86,7 @@ export const Blockie = ({ size = 24, nBlocks = 8, style, ...props }: BlockieProp
   const imageData = createImageData(seed, nBlocks);
 
   return (
-    <View style={[styles.container, style]}>
+    <View style={[styles.container(size), style]}>
       <Svg {...props} width={size} height={size}>
         {imageData.map((item, i) => (
           <Rect
@@ -105,9 +103,9 @@ export const Blockie = ({ size = 24, nBlocks = 8, style, ...props }: BlockieProp
   );
 };
 
-const useStyles = makeStyles((_, size: number) => ({
-  container: {
+const styles = createStyles({
+  container: (size: number) => ({
     borderRadius: size / 2,
     overflow: 'hidden',
-  },
-}));
+  }),
+});

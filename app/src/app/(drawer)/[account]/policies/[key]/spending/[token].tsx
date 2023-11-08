@@ -1,7 +1,6 @@
 import { PolicyScreenParams } from '~/app/(drawer)/[account]/policies/[key]';
 import { useLocalParams } from '~/hooks/useLocalParams';
 import { zAddress } from '~/lib/zod';
-import { makeStyles } from '@theme/makeStyles';
 import { TransferLimit } from 'lib';
 import { Duration } from 'luxon';
 import { View } from 'react-native';
@@ -21,6 +20,7 @@ import { Actions } from '~/components/layout/Actions';
 import { Button } from '~/components/Button';
 import { useRouter } from 'expo-router';
 import { useEffect } from 'react';
+import { createStyles, useStyles } from '@theme/styles';
 
 const Query = gql(/* GraphQL */ `
   query TokenLimitScreen($token: Address!) {
@@ -52,7 +52,7 @@ export default function TokenLimitScreen() {
     `/(drawer)/[account]/policies/[key]/spending/[token]`,
     TokenLimitScreenParams,
   );
-  const styles = useStyles();
+  const { styles } = useStyles(stylesheet);
   const router = useRouter();
 
   const { token: t } = useQuery(Query, { token: address }).data;
@@ -141,7 +141,7 @@ export default function TokenLimitScreen() {
   );
 }
 
-const useStyles = makeStyles(({ colors, fonts }) => ({
+const stylesheet = createStyles(({ colors, fonts }) => ({
   surface: {
     paddingTop: 8,
   },

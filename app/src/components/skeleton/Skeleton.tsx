@@ -1,4 +1,4 @@
-import { useTheme } from '@theme/paper';
+import { createStyles, useStyles } from '@theme/styles';
 import { ContentLoader, IContentLoaderProps } from './ContentLoader';
 import { NumberProp } from 'react-native-svg';
 
@@ -11,7 +11,7 @@ export type SkeletonProps = IContentLoaderProps & {
  * Skeleton generator: https://skeletonreact.com
  */
 export function Skeleton({ children, width, height, ...props }: SkeletonProps) {
-  const { colors } = useTheme();
+  const { styles } = useStyles(stylesheet);
 
   return (
     <ContentLoader
@@ -19,11 +19,18 @@ export function Skeleton({ children, width, height, ...props }: SkeletonProps) {
       width={width}
       height={height}
       viewBox={`0 0 ${width} ${height}`}
-      backgroundColor={colors.surfaceVariant}
-      foregroundColor={colors.surface}
+      foregroundColor={styles.loader.color}
+      backgroundColor={styles.loader.backgroundColor}
       {...props}
     >
       {children}
     </ContentLoader>
   );
 }
+
+const stylesheet = createStyles(({ colors }) => ({
+  loader: {
+    color: colors.surface,
+    backgroundColor: colors.surfaceVariant,
+  },
+}));

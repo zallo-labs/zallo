@@ -4,12 +4,12 @@ import BottomSheet, {
   BottomSheetView,
   useBottomSheetDynamicSnapPoints,
 } from '@gorhom/bottom-sheet';
-import { makeStyles } from '@theme/makeStyles';
 import { StyleProp, View, ViewStyle } from 'react-native';
 import { EdgeInsets, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { SheetBackground } from '~/components/sheet/SheetBackground';
 import { SheetBackdrop } from '~/components/sheet/SheetBackdrop';
+import { createStyles, useStyles } from '@theme/styles';
 
 export const CONTENT_HEIGHT_SNAP_POINT = 'CONTENT_HEIGHT';
 const DEFAULT_SNAP_POINTS = [CONTENT_HEIGHT_SNAP_POINT];
@@ -31,7 +31,7 @@ export const Sheet = forwardRef<BottomSheet, SheetProps>(
     },
     ref,
   ) => {
-    const styles = useStyles(useSafeAreaInsets());
+    const { styles } = useStyles(stylesheet);
     const router = useRouter();
 
     const { animatedHandleHeight, animatedSnapPoints, animatedContentHeight, handleContentLayout } =
@@ -55,7 +55,7 @@ export const Sheet = forwardRef<BottomSheet, SheetProps>(
       >
         <BottomSheetView
           onLayout={handleContentLayout}
-          style={[styles.contentContainer, contentContainerStyle]}
+          style={[styles.contentContainer(useSafeAreaInsets()), contentContainerStyle]}
         >
           {children}
         </BottomSheetView>
@@ -64,9 +64,11 @@ export const Sheet = forwardRef<BottomSheet, SheetProps>(
   },
 );
 
-const useStyles = makeStyles(({ colors, layout }, insets: EdgeInsets) => ({
+const stylesheet = createStyles(({ colors }) => ({
   background: {
-    ...(layout === 'expanded' && { marginHorizontal: 56 }),
+    marginHorizontal: {
+      expanded: 56,
+    },
   },
   emptyHandle: {
     height: 12,
@@ -80,9 +82,11 @@ const useStyles = makeStyles(({ colors, layout }, insets: EdgeInsets) => ({
     height: 4,
     opacity: 0.4,
   },
-  contentContainer: {
+  contentContainer: (insets: EdgeInsets) => ({
     paddingTop: 8,
     paddingBottom: insets?.bottom,
-    ...(layout === 'expanded' && { marginHorizontal: 56 }),
-  },
+    marginHorizontal: {
+      expanded: 56,
+    },
+  }),
 }));

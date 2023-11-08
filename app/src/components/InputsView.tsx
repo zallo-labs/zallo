@@ -1,6 +1,6 @@
 import { FragmentType, gql, useFragment } from '@api/generated';
 import { SwapVerticalIcon } from '@theme/icons';
-import { makeStyles } from '@theme/makeStyles';
+import { createStyles, useStyles } from '@theme/styles';
 import { formatUnits, parseUnits } from 'ethers/lib/utils';
 import { asBigInt, fiatToToken, tokenToFiat } from 'lib';
 import { Dispatch, SetStateAction } from 'react';
@@ -39,7 +39,7 @@ export interface InputsViewProps {
 }
 
 export const InputsView = ({ input, setInput, type, setType, ...props }: InputsViewProps) => {
-  const styles = useStyles();
+  const { styles } = useStyles(stylesheet);
   const token = useFragment(FragmentDoc, props.token);
 
   const inputAmount = input || '0';
@@ -107,7 +107,7 @@ export const InputsView = ({ input, setInput, type, setType, ...props }: InputsV
   );
 };
 
-const useStyles = makeStyles(({ colors }) => ({
+const stylesheet = createStyles(({ colors }) => ({
   container: {
     marginHorizontal: 16,
     marginVertical: 32,

@@ -2,7 +2,6 @@ import { Timestamp } from '~/components/format/Timestamp';
 import { ListItem, ListItemProps } from '~/components/list/ListItem';
 import { withSuspense } from '~/components/skeleton/withSuspense';
 import { ListItemSkeleton } from '~/components/list/ListItemSkeleton';
-import { makeStyles } from '@theme/makeStyles';
 import { match } from 'ts-pattern';
 import { materialCommunityIcon } from '@theme/icons';
 import { ICON_SIZE } from '@theme/paper';
@@ -11,6 +10,7 @@ import { OperationLabel } from './OperationLabel';
 import { ETH_ICON_URI, TokenIcon } from '../token/TokenIcon';
 import { ProposalValue } from './ProposalValue';
 import { useRouter } from 'expo-router';
+import { createStyles, useStyles } from '@theme/styles';
 
 const Proposal = gql(/* GraphQL */ `
   fragment ProposalItem_TransactionProposal on TransactionProposal {
@@ -59,7 +59,7 @@ function ProposalItem_({
   user: userFragment,
   ...itemProps
 }: ProposalItemProps) {
-  const styles = useStyles();
+  const { styles } = useStyles(stylesheet);
   const router = useRouter();
   const p = useFragment(Proposal, proposalFragment);
   const user = useFragment(User, userFragment);
@@ -124,7 +124,7 @@ function ProposalItem_({
   );
 }
 
-const useStyles = makeStyles(({ colors }) => ({
+const stylesheet = createStyles(({ colors }) => ({
   approvalRequired: {
     color: colors.primary,
   },
