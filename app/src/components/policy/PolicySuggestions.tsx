@@ -5,12 +5,12 @@ import { useState } from 'react';
 import { View } from 'react-native';
 import { Chip, Text } from 'react-native-paper';
 import { POLICY_DRAFT_ATOM } from '~/lib/policy/draft';
-import { getPolicyPresets } from '~/lib/policy/presets';
+import { usePolicyPresets } from '~/lib/policy/presets';
 
 const Account = gql(/* GraphQL */ `
   fragment PolicySuggestions_Account on Account {
     id
-    ...getPolicyTemplate_Account
+    ...getPolicyPresets_Account
   }
 `);
 
@@ -20,7 +20,7 @@ export interface PolicySuggestionsProps {
 
 export function PolicySuggestions(props: PolicySuggestionsProps) {
   const account = useFragment(Account, props.account);
-  const presets = getPolicyPresets(account);
+  const presets = usePolicyPresets(account);
 
   const policy = useAtomValue(POLICY_DRAFT_ATOM);
   const setDraft = useSetAtom(POLICY_DRAFT_ATOM);

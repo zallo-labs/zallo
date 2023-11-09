@@ -1,4 +1,4 @@
-import { AddIcon, CustomActionIcon, materialIcon } from '@theme/icons';
+import { CustomActionIcon, materialIcon } from '@theme/icons';
 import { createStyles } from '@theme/styles';
 import { Divider, Switch } from 'react-native-paper';
 import Collapsible from 'react-native-collapsible';
@@ -8,7 +8,7 @@ import { ListItemHorizontalTrailing } from '~/components/list/ListItemHorizontal
 import { ListItemTrailingText } from '~/components/list/ListItemTrailingText';
 import { useToggle } from '~/hooks/useToggle';
 import { PolicyDraftAction, usePolicyDraftState } from '~/lib/policy/draft';
-import { getActionPresets } from '~/lib/policy/presets';
+import { ACTION_PRESETS } from '~/lib/policy/presets';
 
 export const INTERNAL_ACTION_LABEL_PREFIX = '__app__: ';
 
@@ -21,10 +21,10 @@ export interface ActionsSettingsProps {
 }
 
 export function ActionsSettings(props: ActionsSettingsProps) {
-  const [{ account, actions }, update] = usePolicyDraftState();
+  const [{ actions }, update] = usePolicyDraftState();
   const [expanded, toggleExpanded] = useToggle(props.initiallyExpanded);
 
-  const actionPresets = Object.values(getActionPresets(account));
+  const actionPresets = Object.values(ACTION_PRESETS);
 
   const defaultAllow = actions.find(isDefaultAllowAction)?.allow;
   const allowedExplicitActions = actions.filter((a) => a.allow && !isDefaultAllowAction(a)).length;
