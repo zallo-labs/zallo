@@ -116,9 +116,6 @@ function TokensScreen() {
 }
 
 const styles = StyleSheet.create({
-  root: {
-    flexGrow: 1,
-  },
   container: {
     paddingVertical: 8,
   },

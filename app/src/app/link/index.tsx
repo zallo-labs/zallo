@@ -71,7 +71,7 @@ export default function LinkingModal() {
             />
           </Surface>
 
-          <View style={{ marginTop: 16 }}>
+          <View style={styles.textContainer}>
             <Text variant="headlineMedium" style={styles.text}>
               Linking a device
             </Text>
@@ -103,6 +103,9 @@ const stylesheet = createStyles(({ colors }) => ({
   }),
   close: {
     marginHorizontal: 16,
+  },
+  textContainer: {
+    marginTop: 16,
   },
   text: {
     color: colors.onScrim,

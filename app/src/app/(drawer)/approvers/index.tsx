@@ -88,9 +88,6 @@ const styles = StyleSheet.create({
     gap: 16,
     marginBottom: 16,
   },
-  actionButton: {
-    alignSelf: 'stretch',
-  },
 });
 
 export default withSuspense(MyApproversScreen, <ScreenSkeleton />);

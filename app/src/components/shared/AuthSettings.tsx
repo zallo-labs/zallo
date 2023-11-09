@@ -121,16 +121,6 @@ const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
   },
-  header: {
-    alignItems: 'center',
-    gap: 4,
-    marginVertical: 32,
-    marginHorizontal: 16,
-  },
-  text: {
-    textAlign: 'center',
-    marginBottom: 8,
-  },
 });
 
 export const AuthSettings = withSuspense(AuthSettings_, <ScreenSkeleton />);

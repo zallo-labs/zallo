@@ -123,9 +123,6 @@ const styles = StyleSheet.create({
   inset: {
     marginHorizontal: 16,
   },
-  button: {
-    alignSelf: 'stretch',
-  },
 });
 
 export default withSuspense(ApproverScreen, <ScreenSkeleton />);

@@ -2,11 +2,12 @@ import { gql } from '@api';
 import { useMutation } from 'urql';
 import { useQuery } from '~/gql';
 import { authContext } from '@api/client';
-import { ImageRequireSource, StyleSheet } from 'react-native';
+import { ImageRequireSource } from 'react-native';
 import { Fab } from '~/components/Fab';
 import { Image } from 'expo-image';
 import { useGetGoogleApprover } from '~/hooks/cloud/useGetGoogleApprover';
 import { showError } from '~/components/provider/SnackbarProvider';
+import { createStyles } from '@theme/styles';
 
 const Query = gql(/* GraphQL */ `
   query SignInWithGoogleButton {
@@ -46,9 +47,7 @@ export function LinkGoogleButton({ onLink, signOut }: LinkGoogleButtonProps) {
   return (
     <Fab
       position="relative"
-      icon={(iconProps) => (
-        <Image source={GoogleIconSource} style={{ aspectRatio: 1, height: iconProps.size }} />
-      )}
+      icon={(iconProps) => <Image source={GoogleIconSource} style={styles.icon(iconProps.size)} />}
       style={styles.container}
       onPress={async () => {
         const r = await getApprover({ signOut });
@@ -66,8 +65,12 @@ export function LinkGoogleButton({ onLink, signOut }: LinkGoogleButtonProps) {
   );
 }
 
-const styles = StyleSheet.create({
+const styles = createStyles({
   container: {
     backgroundColor: 'white',
   },
+  icon: (size: number) => ({
+    aspectRatio: 1,
+    height: size,
+  }),
 });

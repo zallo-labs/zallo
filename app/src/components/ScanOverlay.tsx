@@ -26,10 +26,8 @@ export function ScanOverlay({ onData }: OverlayProps) {
 
   return (
     <View style={styles.container}>
-      <View
-        style={{ alignItems: 'center', justifyContent: 'center', ...StyleSheet.absoluteFillObject }}
-      >
-        <View style={styles.finderContainer}>
+      <View style={styles.finderContainer}>
+        <View style={styles.finder}>
           <View style={styles.finderTopLeft} />
           <View style={styles.finderTopRight} />
           <View style={styles.finderBottomLeft} />
@@ -97,6 +95,11 @@ const getStylesheet = ({ area, insets }: StyleProps) =>
         flex: 1,
       },
       finderContainer: {
+        alignItems: 'center',
+        justifyContent: 'center',
+        ...StyleSheet.absoluteFillObject,
+      },
+      finder: {
         width: size,
         height: size,
       },

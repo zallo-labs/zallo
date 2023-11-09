@@ -115,7 +115,7 @@ export default function SignWithLedgerSheet() {
   return (
     <Sheet handle={false}>
       <View style={styles.container}>
-        <LedgerLogo style={{ width: 144, height: 48 }} />
+        <LedgerLogo style={styles.logo} />
 
         <Text variant="headlineSmall" style={styles.name}>
           {approver?.name || params.name || params.device}
@@ -204,6 +204,10 @@ const stylesheet = createStyles(({ colors }) => ({
     gap: 8,
     marginHorizontal: 16,
     marginBottom: 16,
+  },
+  logo: {
+    width: 144,
+    height: 48,
   },
   name: {
     color: colors.primary,

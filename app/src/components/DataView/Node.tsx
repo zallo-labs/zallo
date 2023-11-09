@@ -51,7 +51,7 @@ export const Node = ({ children: value, style }: NodeProps) => {
           <Text style={style}>{'}'}</Text>
         </View>
       ) : (
-        <View style={{ flexDirection: 'row', justifyContent: 'space-between', gap: 4 }}>
+        <View style={styles.valueNodeContainer}>
           <Text style={[style, styles.name]}>{name}</Text>
           {/* Omit type */}
 
@@ -63,6 +63,11 @@ export const Node = ({ children: value, style }: NodeProps) => {
 };
 
 const stylesheet = createStyles(({ colors }) => ({
+  valueNodeContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: 4,
+  },
   name: {
     // color: colors.onSurface,
     // color: colors.tertiary,
