@@ -44,7 +44,6 @@ export const useSelectToken = () => {
   };
 };
 
-export type TokensScreenRoute = `/(drawer)/[account]/tokens`;
 export const TokensScreenParams = z.object({
   account: zAddress,
   disabled: zArray(zAddress).optional(),
@@ -121,4 +120,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default withSuspense(TokensScreen, ScreenSkeleton);
+export default withSuspense(TokensScreen, <ScreenSkeleton />);

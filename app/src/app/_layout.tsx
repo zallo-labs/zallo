@@ -85,7 +85,9 @@ export default function RootLayout() {
                   <AuthGate>
                     <GqlProvider>
                       <ErrorBoundary>
-                        <Layout />
+                        <Suspense fallback={<Splash />}>
+                          <Layout />
+                        </Suspense>
                       </ErrorBoundary>
                       <MinimalErrorBoundary>
                         <Suspense fallback={null}>
