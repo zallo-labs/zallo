@@ -1,5 +1,5 @@
 import { IconProps } from '@theme/icons';
-import { useTheme } from '@theme/paper';
+import { useStyles } from '@theme/styles';
 import { Href, Link, useRouter, useSegments } from 'expo-router';
 import { ComponentPropsWithoutRef, FC } from 'react';
 import { Drawer } from 'react-native-paper';
@@ -18,7 +18,7 @@ export function DrawerItem<R>({ href, label, icon: Icon, disabled, ...props }: D
   const hrefPath = getHrefPath(href);
   const router = useRouter();
   const { close } = useDrawerActions();
-  const { stateLayer } = useTheme();
+  const { stateLayer } = useStyles().theme;
 
   return (
     // <Link href={href} asChild>

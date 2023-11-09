@@ -46,7 +46,7 @@ export const asPolicy = (p: {
   const approvers = toSet(p.approvers);
 
   if (p.threshold !== undefined && p.threshold > approvers.size)
-    throw new Error(`Policy threshold must be greater than approvers`);
+    throw new Error(`Policy threshold must be <= approvers`);
 
   return {
     key: asPolicyKey(p.key),

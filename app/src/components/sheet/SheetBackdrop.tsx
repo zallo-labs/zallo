@@ -1,8 +1,8 @@
 import { BottomSheetBackdrop, BottomSheetBackdropProps } from '@gorhom/bottom-sheet';
-import { makeStyles } from '@theme/makeStyles';
+import { createStyles, useStyles } from '@theme/styles';
 
 export function SheetBackdrop(props: BottomSheetBackdropProps) {
-  const styles = useStyles();
+  const { styles } = useStyles(stylesheet);
 
   return (
     <BottomSheetBackdrop
@@ -14,7 +14,7 @@ export function SheetBackdrop(props: BottomSheetBackdropProps) {
   );
 }
 
-const useStyles = makeStyles(({ colors }) => ({
+const stylesheet = createStyles(({ colors }) => ({
   backdrop: {
     backgroundColor: colors.backdrop,
   },

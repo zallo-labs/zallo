@@ -1,6 +1,5 @@
 import { ScrollView, View } from 'react-native';
 import { Appbar } from '../Appbar/Appbar';
-import { makeStyles } from '@theme/makeStyles';
 import { Text } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useForm } from 'react-hook-form';
@@ -11,6 +10,7 @@ import { FormTextField } from '../fields/FormTextField';
 import { CloseIcon } from '@theme/icons';
 import { MinimalErrorBoundary } from './MinimalErrorBoundary';
 import { ReactNode } from 'react';
+import { createStyles, useStyles } from '@theme/styles';
 
 interface Inputs {
   email?: string;
@@ -22,7 +22,7 @@ export interface ErrorBoundaryProps {
 }
 
 export const ErrorBoundary = ({ children }: ErrorBoundaryProps) => {
-  const styles = useStyles();
+  const { styles } = useStyles(stylesheet);
 
   const { control, handleSubmit, resetField } = useForm<Inputs>();
 
@@ -99,7 +99,7 @@ export const ErrorBoundary = ({ children }: ErrorBoundaryProps) => {
   );
 };
 
-const useStyles = makeStyles(({ colors }) => ({
+const stylesheet = createStyles(({ colors }) => ({
   container: {
     flex: 1,
   },

@@ -7,7 +7,6 @@ import { ScreenSurface } from '~/components/layout/ScreenSurface';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Actions } from '~/components/layout/Actions';
 import { FormSubmitButton } from '~/components/fields/FormSubmitButton';
-import { makeStyles } from '@theme/makeStyles';
 import { showInfo } from '~/components/provider/SnackbarProvider';
 import { hashPassword, verifyPassword } from '~/lib/crypto/password';
 import { persistedAtom } from '~/lib/persistedAtom';
@@ -16,6 +15,7 @@ import { FormTextField } from '~/components/fields/FormTextField';
 import { withSuspense } from '~/components/skeleton/withSuspense';
 import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
 import { changeSecureStorePassword } from '~/lib/secure-storage';
+import { createStyles, useStyles } from '@theme/styles';
 
 const PASSWORD_HASH = persistedAtom<string | null>('passwordHash', null, {
   skipInitialPersist: true,
@@ -50,7 +50,7 @@ interface Inputs {
 }
 
 function PasswordScreen() {
-  const styles = useStyles();
+  const { styles } = useStyles(stylesheet);
   const [passwordHash, updateHash] = useAtom(PASSWORD_HASH);
 
   const { control, handleSubmit, watch, reset } = useForm<Inputs>({
@@ -137,7 +137,7 @@ function PasswordScreen() {
   );
 }
 
-const useStyles = makeStyles(({ colors }) => ({
+const stylesheet = createStyles(({ colors }) => ({
   fields: {
     margin: 16,
     gap: 16,

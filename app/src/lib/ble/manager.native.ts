@@ -7,7 +7,6 @@ import {
   BleError as InternalBleError,
   ScanOptions,
   ConnectionOptions,
-  BleErrorCode,
 } from 'react-native-ble-plx';
 import { Observable, Unsubscribable } from 'rxjs';
 import { setBleManagerInstance as setLedgerBleManagerInstance } from '@ledgerhq/react-native-hw-transport-ble';

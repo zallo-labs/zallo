@@ -1,6 +1,5 @@
 import { SearchParams, useLocalSearchParams, useRouter } from 'expo-router';
 import { gql } from '@api/generated';
-import { makeStyles } from '@theme/makeStyles';
 import { getSdkError } from '@walletconnect/utils';
 import { tryOrCatchAsync } from 'lib';
 import { useEffect } from 'react';
@@ -15,6 +14,7 @@ import { useQuery } from '~/gql';
 import { showError, showSuccess } from '~/components/provider/SnackbarProvider';
 import { toNamespaces, useUpdateWalletConnect, useWalletConnect } from '~/util/walletconnect';
 import { SignClientTypes } from '@walletconnect/types';
+import { createStyles, useStyles } from '@theme/styles';
 
 const Query = gql(/* GraphQL */ `
   query ConnectSessionSheet {
@@ -31,7 +31,7 @@ export type ConnectSessionSheetParams = SearchParams<ConnectSessionSheetRoute>;
 
 export default function ConnectSessionSheet() {
   const id = parseInt(useLocalSearchParams<ConnectSessionSheetParams>().id);
-  const styles = useStyles();
+  const { styles } = useStyles(stylesheet);
   const router = useRouter();
   const client = useWalletConnect();
   const update = useUpdateWalletConnect();
@@ -54,7 +54,7 @@ export default function ConnectSessionSheet() {
     return () => {
       client.off('proposal_expire', handleExpiry);
     };
-  }, [client, router.back, id]);
+  }, [client, id, router]);
 
   const connect = async () => {
     const req = await tryOrCatchAsync(
@@ -104,7 +104,7 @@ export default function ConnectSessionSheet() {
   );
 }
 
-const useStyles = makeStyles(({ colors }) => ({
+const stylesheet = createStyles(({ colors }) => ({
   pairWarning: {
     marginHorizontal: 16,
     textAlign: 'center',

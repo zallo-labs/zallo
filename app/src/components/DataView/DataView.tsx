@@ -1,6 +1,6 @@
 import { StyleProp, View, ViewStyle } from 'react-native';
 import { Node, NodeValue } from './Node';
-import { makeStyles } from '@theme/makeStyles';
+import { createStyles, useStyles } from '@theme/styles';
 
 export interface DataViewProps {
   children: NodeValue;
@@ -8,7 +8,7 @@ export interface DataViewProps {
 }
 
 export const DataView = ({ children, style }: DataViewProps) => {
-  const styles = useStyles();
+  const { styles } = useStyles(stylesheet);
 
   return (
     <View style={[styles.container, style]}>
@@ -17,7 +17,7 @@ export const DataView = ({ children, style }: DataViewProps) => {
   );
 };
 
-const useStyles = makeStyles(({ colors }) => ({
+const stylesheet = createStyles(({ colors }) => ({
   container: {
     backgroundColor: colors.surfaceVariant,
     borderRadius: 16,

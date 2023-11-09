@@ -1,19 +1,12 @@
-import {
-  Address,
-  ALLOW_ALL_TARGETS,
-  ALLOW_ALL_TRANSFERS_CONFIG,
-  asPolicy,
-  Policy,
-  PolicyKey,
-  Selector,
-  TargetsConfig,
-  TransfersConfig,
-} from 'lib';
+import { Address, asPolicy, Policy, PolicyKey, Target, TargetsConfig, TransfersConfig } from 'lib';
 import { uuid } from 'edgedb/dist/codecs/ifaces';
 import e, { $infer } from '~/edgeql-js';
 import { Shape, ShapeFunc } from '../database/database.select';
-import { PolicyInput, TargetsConfigInput, TransfersConfigInput } from './policies.input';
+import { PolicyInput, TransfersConfigInput } from './policies.input';
 import { selectAccount } from '~/features/accounts/accounts.util';
+import merge from 'ts-deepmerge';
+import { match, P } from 'ts-pattern';
+import { getUserCtx } from '~/request/ctx';
 
 export type UniquePolicy = { id: uuid } | { account: Address; key: PolicyKey };
 
@@ -34,16 +27,15 @@ export const selectPolicy = (id: UniquePolicy, shape?: ShapeFunc<typeof e.Policy
 export const policyStateShape = {
   approvers: { address: true },
   threshold: true,
-  targets: {
-    contracts: {
+  actions: {
+    label: true,
+    functions: {
       contract: true,
-      functions: true,
-      defaultAllow: true,
+      selector: true,
+      abi: true,
     },
-    default: {
-      functions: true,
-      defaultAllow: true,
-    },
+    allow: true,
+    description: true,
   },
   transfers: {
     limits: {
@@ -66,20 +58,48 @@ export const policyStateAsPolicy = <S extends PolicyStateShape>(key: number, sta
         approvers: new Set(state.approvers.map((a) => a.address as Address)),
         threshold: state.threshold,
         permissions: {
-          targets: asTargetsConfig({
-            contracts: state.targets.contracts.map((t) => ({
-              ...t,
-              functions: t.functions.map((s) => ({ ...s, selector: s.selector as Selector })),
-              contract: t.contract as Address,
-            })),
-            default: {
-              functions: state.targets.default.functions.map((s) => ({
-                ...s,
-                selector: s.selector as Selector,
-              })),
-              defaultAllow: state.targets.default.defaultAllow,
-            },
-          }),
+          targets: merge(
+            {
+              default: { defaultAllow: false, functions: {} },
+              contracts: {},
+            } satisfies Partial<TargetsConfig>,
+            ...state.actions.flatMap((a) =>
+              a.functions.map(
+                (f) =>
+                  match({ contract: f.contract, selector: f.selector, allow: a.allow })
+                    .returnType<Partial<TargetsConfig>>()
+                    .with({ contract: P.string, selector: P.string }, (v) => ({
+                      contracts: {
+                        [v.contract]: {
+                          functions: { [v.selector]: v.allow },
+                          // defaultAllow is not defined; this allows overwriting in actions, or will be evaluated as false if undefiend
+                        } as Target,
+                      },
+                    }))
+                    .with({ contract: P.string, selector: P.nullish }, (v) => ({
+                      contracts: {
+                        [v.contract]: {
+                          functions: {},
+                          defaultAllow: v.allow,
+                        },
+                      },
+                    }))
+                    .with({ contract: P.nullish, selector: P.string }, (v) => ({
+                      default: {
+                        functions: { [v.selector]: v.allow },
+                        // defaultAllow is not defined; this allows overwriting in actions, or will be evaluated as false if undefiend
+                      } as Target,
+                    }))
+                    .with({ contract: P.nullish, selector: P.nullish }, (v) => ({
+                      default: {
+                        functions: {},
+                        defaultAllow: v.allow,
+                      },
+                    }))
+                    .exhaustive() as TargetsConfig,
+              ),
+            ),
+          ),
           transfers: asTransfersConfig({
             ...state.transfers,
             limits: state.transfers.limits.map((l) => ({ ...l, token: l.token as Address })),
@@ -88,34 +108,35 @@ export const policyStateAsPolicy = <S extends PolicyStateShape>(key: number, sta
       })
     : null) as S extends null ? Policy | null : Policy;
 
-export const inputAsPolicy = (key: PolicyKey, p: PolicyInput): Policy =>
-  asPolicy({
-    key,
-    approvers: p.approvers,
-    threshold: p.threshold,
-    permissions: {
-      targets: p.permissions.targets ? asTargetsConfig(p.permissions.targets) : ALLOW_ALL_TARGETS,
-      transfers: p.permissions.transfers
-        ? asTransfersConfig(p.permissions.transfers)
-        : ALLOW_ALL_TRANSFERS_CONFIG,
-    },
-  });
-
-export const asTargetsConfig = (c: TargetsConfigInput): TargetsConfig => ({
-  contracts: Object.fromEntries(
-    c.contracts.map((t) => [
-      t.contract,
+export const policyInputAsStateShape = (
+  key: PolicyKey,
+  p: Partial<PolicyInput>,
+  defaults: NonNullable<PolicyStateShape> = {
+    approvers: [{ address: getUserCtx().approver }],
+    threshold: p.approvers ? p.approvers.length : 1,
+    actions: [
       {
-        functions: Object.fromEntries(t.functions.map((s) => [s.selector, s.allow])),
-        defaultAllow: t.defaultAllow,
+        label: 'Anything else',
+        functions: [{ contract: null, selector: null, abi: null }],
+        allow: false,
+        description: null,
       },
-    ]),
-  ),
-  default: {
-    functions: Object.fromEntries(c.default.functions.map((s) => [s.selector, s.allow])),
-    defaultAllow: c.default.defaultAllow,
+    ],
+    transfers: { limits: [], defaultAllow: false, budget: key },
   },
+): NonNullable<PolicyStateShape> => ({
+  ...defaults,
+  threshold: p.threshold ?? p.approvers?.length ?? defaults.approvers.length,
+  ...(p.approvers && { approvers: p.approvers.map((a) => ({ address: a })) }),
+  ...(p.threshold !== undefined && { threshold: p.threshold }),
+  ...(p.actions?.length && {
+    actions: p.actions as unknown as NonNullable<PolicyStateShape>['actions'],
+  }),
+  ...(p.transfers && { transfers: p.transfers }),
 });
+
+export const inputAsPolicy = (key: PolicyKey, p: PolicyInput) =>
+  policyStateAsPolicy(key, policyInputAsStateShape(key, p));
 
 export const asTransfersConfig = (c: TransfersConfigInput): TransfersConfig => ({
   defaultAllow: c.defaultAllow,

@@ -160,5 +160,5 @@ export const useSessionRequestListener = () => {
     return () => {
       client.off('session_request', handleRequest);
     };
-  }, [client, router.push, proposals, proposeMessage, proposeTransaction]);
+  }, [client, router, proposals, proposeMessage, proposeTransaction]);
 };

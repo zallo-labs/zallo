@@ -2,7 +2,6 @@ import { useRouter } from 'expo-router';
 import { Sheet } from '~/components/sheet/Sheet';
 import { materialCommunityIcon } from '@theme/icons';
 import { View } from 'react-native';
-import { makeStyles } from '@theme/makeStyles';
 import { Text } from 'react-native-paper';
 import { Button } from '~/components/Button';
 import { gql } from '@api/generated';
@@ -12,6 +11,7 @@ import { Subject } from 'rxjs';
 import { ConfirmLinkSheet_LinkMutation } from '@api/generated/graphql';
 import { z } from 'zod';
 import { useLocalParams } from '~/hooks/useLocalParams';
+import { createStyles, useStyles } from '@theme/styles';
 
 export const LINKINGS_FROM_DEVICE = new Subject<ConfirmLinkSheet_LinkMutation>();
 
@@ -33,7 +33,7 @@ export type LinkWithTokenSheetParams = z.infer<typeof LinkWithTokenSheetParams>;
 
 export default function LinkWithTokenSheet() {
   const { token } = useLocalParams(`/link/token`, LinkWithTokenSheetParams);
-  const styles = useStyles();
+  const { styles } = useStyles(stylesheet);
   const { back } = useRouter();
   const link = useMutation(Link)[1];
 
@@ -75,7 +75,7 @@ export default function LinkWithTokenSheet() {
   );
 }
 
-const useStyles = makeStyles(({ colors, iconSize }) => ({
+const stylesheet = createStyles(({ colors, iconSize }) => ({
   infoContainer: {
     alignItems: 'center',
     marginHorizontal: 16,

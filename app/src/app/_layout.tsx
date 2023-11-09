@@ -48,7 +48,6 @@ function Layout() {
     <Stack screenOptions={{ header: AppbarHeader }}>
       <Stack.Screen name={`(drawer)`} options={{ headerShown: false }} />
       <Stack.Screen name={`[account]/policies/[key]/name`} options={modal} />
-      <Stack.Screen name={`[account]/policies/template`} options={modal} />
       <Stack.Screen name={`[account]/name`} options={modal} />
       <Stack.Screen name={`[account]/receive`} options={transparentModal} />
       <Stack.Screen name={`accounts/index`} options={sheet} />
@@ -86,7 +85,9 @@ export default function RootLayout() {
                   <AuthGate>
                     <GqlProvider>
                       <ErrorBoundary>
-                        <Layout />
+                        <Suspense fallback={<Splash />}>
+                          <Layout />
+                        </Suspense>
                       </ErrorBoundary>
                       <MinimalErrorBoundary>
                         <Suspense fallback={null}>

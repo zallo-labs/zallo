@@ -6,7 +6,6 @@ import { useState } from 'react';
 import { InputType, InputsView } from '~/components/InputsView';
 import { useSelectedToken } from '~/hooks/useSelectedToken';
 import { Divider } from 'react-native-paper';
-import { makeStyles } from '@theme/makeStyles';
 import { View } from 'react-native';
 import { NumericInput } from '~/components/fields/NumericInput';
 import { SwapTokens } from '~/components/swap/SwapTokens';
@@ -23,6 +22,7 @@ import { useLocalParams } from '~/hooks/useLocalParams';
 import { withSuspense } from '~/components/skeleton/withSuspense';
 import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
 import { ScreenSurface } from '~/components/layout/ScreenSurface';
+import { createStyles } from '@theme/styles';
 
 const Query = gql(/* GraphQL */ `
   query SwapScreen($account: Address!, $from: Address!, $to: Address!, $skipTo: Boolean!) {
@@ -55,7 +55,6 @@ const SwapScreenParams = z.object({ account: zAddress });
 
 function SwapScreen() {
   const { account } = useLocalParams(`/(drawer)/[account]/swap`, SwapScreenParams);
-  const styles = useStyles();
   const router = useRouter();
   const propose = usePropose();
 
@@ -143,7 +142,7 @@ function SwapScreen() {
   );
 }
 
-const useStyles = makeStyles(() => ({
+const styles = createStyles({
   spacer: {
     flex: 1,
   },
@@ -152,6 +151,6 @@ const useStyles = makeStyles(() => ({
     marginBottom: 16,
     alignSelf: 'stretch',
   },
-}));
+});
 
 export default withSuspense(SwapScreen, ScreenSkeleton);

@@ -1,5 +1,5 @@
 import { FragmentType, gql, useFragment } from '@api/generated';
-import { makeStyles } from '@theme/makeStyles';
+import { createStyles } from '@theme/styles';
 import { tokenToFiat } from 'lib';
 import { Text } from 'react-native-paper';
 import { FiatValue } from '~/components/FiatValue';
@@ -23,7 +23,6 @@ export interface AccountValueProps {
 }
 
 export function AccountValue(props: AccountValueProps) {
-  const styles = useStyles();
   const { tokens } = useFragment(FragmentDoc, props.tokensQuery);
 
   const total = tokens.reduce(
@@ -32,15 +31,14 @@ export function AccountValue(props: AccountValueProps) {
   );
 
   return (
-    <Text style={[styles.container, styles.font]}>
+    <Text variant="displayMedium" style={styles.text}>
       <FiatValue value={total} />
     </Text>
   );
 }
 
-const useStyles = makeStyles(({ fonts }) => ({
-  container: {
+const styles = createStyles({
+  text: {
     margin: 16,
   },
-  font: fonts.displayMedium,
-}));
+});

@@ -1,18 +1,16 @@
 import { ComponentPropsWithoutRef } from 'react';
 import { Drawer as DrawerLayout } from 'expo-router/drawer';
-import { makeStyles } from '@theme/makeStyles';
-import { useLayout } from '~/hooks/useLayout';
 import { DrawerContextProvider, DrawerType } from './DrawerContextProvider';
 import { AppbarHeader } from '~/components/Appbar/AppbarHeader';
+import { createStyles, useStyles } from '@theme/styles';
 
 type DrawerLayoutProps = ComponentPropsWithoutRef<typeof DrawerLayout>;
 
 export interface DrawerProps extends DrawerLayoutProps {}
 
 export function Drawer({ children, ...props }: DrawerProps) {
-  const { layout } = useLayout();
-  const type: DrawerType = layout === 'expanded' ? 'standard' : 'modal';
-  const styles = useStyles(type);
+  const { styles, breakpoint } = useStyles(stylesheet);
+  const type: DrawerType = breakpoint === 'expanded' ? 'standard' : 'modal';
 
   return (
     <DrawerContextProvider type={type}>
@@ -37,8 +35,10 @@ export function Drawer({ children, ...props }: DrawerProps) {
 
 Drawer.Screen = DrawerLayout.Screen;
 
-const useStyles = makeStyles(({ colors }, type: DrawerType) => {
-  const backgroundColor = type === 'standard' ? colors.elevation.level1 : 'transparent';
+const stylesheet = createStyles(({ colors }) => {
+  const backgroundColor = {
+    expanded: colors.elevation.level1, // standard type
+  };
 
   return {
     drawer: {

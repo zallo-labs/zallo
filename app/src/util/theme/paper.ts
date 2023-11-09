@@ -1,8 +1,4 @@
-import {
-  MD3LightTheme as overrided,
-  useTheme as baseUseTheme,
-  configureFonts,
-} from 'react-native-paper';
+import { MD3LightTheme as overrided, configureFonts } from 'react-native-paper';
 import color from 'color';
 import { match } from 'ts-pattern';
 import { Palette } from './palette';
@@ -111,5 +107,3 @@ declare global {
     // interface Theme extends AppTheme {}
   }
 }
-
-export const useTheme = (overrides?: Partial<Theme>): Theme => baseUseTheme<Theme>(overrides);

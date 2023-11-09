@@ -5,10 +5,11 @@ import {
   OptimisticMutationResolver,
   UpdateResolver,
 } from '@urql/exchange-graphcache';
-import schema from './schema';
+import schema from './schema.generated';
 import { Node, MutationCreatePolicyArgs, MutationRemovePolicyArgs } from '@api/generated/graphql';
 import { gql } from './generated';
 import { Address } from 'lib';
+import { WritableDeep } from 'ts-toolbelt/out/Object/Writable';
 
 export const CACHE_CONFIG: Pick<
   CacheExchangeOpts,
@@ -63,7 +64,7 @@ export const CACHE_CONFIG: Pick<
       requestTokens: (_result: string, _args, cache) => {
         invalidate(cache, 'Query', ['requestableTokens']);
       },
-    } as /* satisfies */ Partial<Record<Mutation, UpdateResolver<unknown, unknown>>>,
+    } as Partial<Record<Mutation, UpdateResolver<unknown, unknown>>>,
     Subscription: {
       proposal: (_result, _args, cache) => {
         invalidate(cache, 'Query', ['proposals']);
@@ -71,13 +72,13 @@ export const CACHE_CONFIG: Pick<
       transfer: (_result, _args, cache) => {
         invalidate(cache, 'Query', ['transfers', 'tokens']);
       },
-    } as /* satisfies */ Partial<Record<Subscription, UpdateResolver<unknown, unknown>>>,
+    } satisfies Partial<Record<Subscription, UpdateResolver<unknown, unknown>>>,
   },
-  optimistic: {} as /* satisfies */ Partial<Record<Mutation, OptimisticMutationResolver<unknown>>>,
-  keys: new Proxy(
+  optimistic: {} satisfies Partial<Record<Mutation, OptimisticMutationResolver<unknown>>>,
+  keys: new Proxy<Partial<Record<Typename, KeyGenerator>>>(
     {
       // Explicit keys
-    } as /* satisfies */ Partial<Record<Typename, KeyGenerator>>,
+    } satisfies Partial<Record<Typename, KeyGenerator>>,
     {
       get: (target, p) => {
         const explicit = target[p as Typename];
@@ -90,7 +91,12 @@ export const CACHE_CONFIG: Pick<
           if (__DEV__ && !KEY_TYPENAME_CHECKED[p]) {
             KEY_TYPENAME_CHECKED[p] = true;
             const type = schema['__schema']['types'].find((t) => t.name === p);
-            if (type?.kind === 'OBJECT' && (type.fields as any).find((f: any) => f.name === 'id')) {
+            if (
+              type?.kind === 'OBJECT' &&
+              (type.fields as unknown as WritableDeep<(typeof type.fields)[0]>[]).find(
+                (f) => f.name === 'id',
+              )
+            ) {
               console.error(
                 `Type '${p.toString()}' has a selection set but no key could be generated. Specify 'id' in the selection set or add an explicit key function for this type`,
               );
@@ -112,6 +118,7 @@ type Type<U> = Extract<Schema['types'][number], U>;
 type Typename = Type<{ kind: 'OBJECT' | 'INTERFACE' }>['name'];
 
 type QueryType = Type<{ name: Schema['queryType']['name'] }>['fields'][number];
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 type Query = QueryType['name'];
 
 type MutationType = Type<{ name: Schema['mutationType']['name'] }>['fields'][number];

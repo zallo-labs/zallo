@@ -2,18 +2,18 @@ import { BackIcon } from '@theme/icons';
 import { Button } from './Button';
 import { Actions } from './layout/Actions';
 import { View } from 'react-native';
-import { makeStyles } from '@theme/makeStyles';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { ICON_SIZE } from '@theme/paper';
 import { Text } from 'react-native-paper';
 import { useRouter } from 'expo-router';
+import { createStyles, useStyles } from '@theme/styles';
 
 export interface NotFoundProps {
   name: string;
 }
 
 export function NotFound({ name }: NotFoundProps) {
-  const styles = useStyles();
+  const { styles } = useStyles(stylesheet);
   const router = useRouter();
 
   return (
@@ -35,7 +35,7 @@ export function NotFound({ name }: NotFoundProps) {
   );
 }
 
-const useStyles = makeStyles(({ colors }) => ({
+const stylesheet = createStyles(({ colors }) => ({
   root: {
     flex: 1,
   },

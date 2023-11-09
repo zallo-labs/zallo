@@ -28,7 +28,7 @@ export function ApproverNameUpdater() {
 
   useEffect(() => {
     if (approver && !approver.name) update({ name: getDeviceModel() });
-  }, [approver?.name, update]);
+  }, [approver, update]);
 
   return null;
 }

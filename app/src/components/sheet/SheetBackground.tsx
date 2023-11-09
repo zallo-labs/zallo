@@ -1,5 +1,5 @@
 import { BottomSheetBackgroundProps } from '@gorhom/bottom-sheet';
-import { makeStyles } from '@theme/makeStyles';
+import { createStyles, useStyles } from '@theme/styles';
 import { PropsWithChildren } from 'react';
 import { Surface } from 'react-native-paper';
 
@@ -7,7 +7,7 @@ export function SheetBackground({
   children,
   style,
 }: PropsWithChildren<BottomSheetBackgroundProps>) {
-  const styles = useStyles();
+  const { styles } = useStyles(stylesheet);
 
   return (
     <Surface elevation={2} style={[styles.background, style]}>
@@ -16,7 +16,7 @@ export function SheetBackground({
   );
 }
 
-const useStyles = makeStyles(({ corner }) => ({
+const stylesheet = createStyles(({ corner }) => ({
   background: {
     borderTopLeftRadius: corner.xl,
     borderTopRightRadius: corner.xl,

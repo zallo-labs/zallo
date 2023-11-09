@@ -12,7 +12,10 @@ import { OrderByObjExpr } from '~/edgeql-js/select';
 
 @Injectable()
 export class TokensService {
-  constructor(private db: DatabaseService, private provider: ProviderService) {}
+  constructor(
+    private db: DatabaseService,
+    private provider: ProviderService,
+  ) {}
 
   async selectUnique(id: uuid | Address, shape?: ShapeFunc<typeof e.Token>) {
     return this.db.query(
@@ -27,12 +30,13 @@ export class TokensService {
     );
   }
 
-  async select({ query, feeToken }: TokensInput = {}, shape?: ShapeFunc<typeof e.Token>) {
+  async select({ address, query, feeToken }: TokensInput = {}, shape?: ShapeFunc<typeof e.Token>) {
     const tokens = await this.db.query(
       e.select(e.Token, (t) => ({
         ...shape?.(t),
         address: true,
         filter: and(
+          address && address.length > 0 && e.op(t.address, 'in', e.set(...address)),
           query &&
             or(
               e.op(t.address, 'ilike', query),
@@ -140,4 +144,25 @@ function preferUserToken(t: Scope<typeof e.Token>): OrderByObjExpr {
     expression: e.op('exists', t.user),
     direction: e.DESC,
   };
+}
+
+function userTokens() {
+  const grouped = e.group(e.Token, (t) => ({
+    by: { address: t.address },
+  }));
+
+  return e.with(
+    [grouped],
+    e.select(
+      e.select(grouped, () => ({
+        elements: (t) => ({
+          order_by: {
+            expression: e.op('exists', t.user),
+            direction: e.DESC,
+          },
+          limit: 1,
+        }),
+      })).elements,
+    ),
+  ) as any as typeof e.Token;
 }

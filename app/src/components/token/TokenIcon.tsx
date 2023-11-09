@@ -1,6 +1,6 @@
 import { FragmentType, gql, useFragment as getFragment } from '@api/generated';
 import { materialCommunityIcon } from '@theme/icons';
-import { makeStyles } from '@theme/makeStyles';
+import { createStyles, useStyles } from '@theme/styles';
 import { Image, ImageProps } from 'expo-image';
 import { Address, isAddress } from 'lib';
 import { ImageStyle, StyleProp } from 'react-native';
@@ -43,7 +43,7 @@ function TokenIcon_({
   style,
   ...imageProps
 }: TokenIconProps) {
-  const styles = useStyles(size);
+  const { styles } = useStyles(stylesheet);
 
   const query = useQuery(
     Query,
@@ -56,19 +56,23 @@ function TokenIcon_({
     fallbackUri;
 
   if (!iconUri)
-    return <UnknownTokenIcon {...imageProps} size={size} style={[style, styles.icon]} />;
+    return <UnknownTokenIcon {...imageProps} size={size} style={[style, styles.icon(size)]} />;
 
   return (
-    <Image {...imageProps} source={{ uri: iconUri }} style={[style, styles.icon].filter(Boolean)} />
+    <Image
+      {...imageProps}
+      source={{ uri: iconUri }}
+      style={[style, styles.icon(size)].filter(Boolean)}
+    />
   );
 }
 
-const useStyles = makeStyles(({ iconSize }, size: number = iconSize.medium) => ({
-  icon: {
+const stylesheet = createStyles(({ iconSize }) => ({
+  icon: (size: number = iconSize.medium) => ({
     width: size,
     height: size,
     backgroundColor: undefined,
-  },
+  }),
 }));
 
 export const TokenIcon = withSuspense(TokenIcon_, ({ size }) => <CircleSkeleton size={size} />);

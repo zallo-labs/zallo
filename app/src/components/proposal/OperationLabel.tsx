@@ -61,6 +61,8 @@ export interface OperationLabelProps {
   operation: FragmentType<typeof FragmentDoc>;
 }
 
+// FIXME: terrible abuse of hoooks...
+/* eslint-disable react-hooks/rules-of-hooks */
 export function OperationLabel(props: OperationLabelProps) {
   const op = useFragment(FragmentDoc, props.operation);
 
@@ -97,3 +99,5 @@ export function OperationLabel(props: OperationLabelProps) {
     .with(P.nullish, () => `Call ${useAddressLabel(op.to)}`)
     .exhaustive();
 }
+
+/* eslint-enable react-hooks/rules-of-hooks */

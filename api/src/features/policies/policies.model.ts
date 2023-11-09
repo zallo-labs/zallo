@@ -16,6 +16,9 @@ import {
 } from 'lib';
 import { Approver } from '../approvers/approvers.model';
 import { SelectorField } from '~/apollo/scalars/Bytes.scalar';
+import { Node, NodeType } from '~/decorators/interface.decorator';
+import { AbiFunctionField } from '~/apollo/scalars/AbiFunction.scalar';
+import { AbiFunction } from 'abitype';
 
 @ObjectType()
 export class Policy {
@@ -44,46 +47,37 @@ export class Policy {
   isActive: boolean;
 }
 
-@ObjectType()
-export class Target implements eql.Target {
+@NodeType()
+export class ActionFunction implements Node, eql.ActionFunction {
   @IdField()
   id: uuid;
 
-  @Field(() => [FunctionConfig])
-  functions: FunctionConfig[];
+  @AddressField({ nullable: true, description: 'Default: apply to all contracts' })
+  contract: Address | null;
 
-  @Field(() => Boolean)
-  defaultAllow: boolean;
+  @SelectorField({ nullable: true, description: 'Default: apply to all selectors' })
+  selector: Selector | null;
+
+  @AbiFunctionField({ nullable: true })
+  abi: AbiFunction | null;
 }
 
-@ObjectType()
-export class ContractTarget extends Target implements eql.ContractTarget {
+@NodeType()
+export class Action implements Node, eql.Action {
   @IdField()
   id: uuid;
 
-  @AddressField()
-  contract: Address;
-}
+  @Field(() => String)
+  label: string;
 
-@ObjectType()
-export class FunctionConfig {
-  @SelectorField()
-  selector: Selector;
+  @Field(() => [ActionFunction])
+  functions: [ActionFunction, ...ActionFunction[]];
 
   @Field(() => Boolean)
   allow: boolean;
-}
 
-@ObjectType()
-export class TargetsConfig implements eql.TargetsConfig {
-  @IdField()
-  id: uuid;
-
-  @Field(() => [ContractTarget])
-  contracts: ContractTarget[];
-
-  @Field(() => Target)
-  default: Target;
+  @Field(() => String, { nullable: true })
+  description: string | null;
 }
 
 @ObjectType()
@@ -133,8 +127,8 @@ export class PolicyState {
   @Field(() => Number)
   threshold: number;
 
-  @Field(() => TargetsConfig)
-  targets: TargetsConfig;
+  @Field(() => [Action])
+  actions: Action[];
 
   @Field(() => TransfersConfig)
   transfers: TransfersConfig;

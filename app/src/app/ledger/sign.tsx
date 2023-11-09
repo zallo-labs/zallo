@@ -1,5 +1,4 @@
 import { LedgerLogo, materialIcon } from '@theme/icons';
-import { makeStyles } from '@theme/makeStyles';
 import { ICON_SIZE } from '@theme/paper';
 import { Address, Hex, isAddress } from 'lib';
 import { useRef, useState } from 'react';
@@ -19,6 +18,7 @@ import { z } from 'zod';
 import { useLocalParams } from '~/hooks/useLocalParams';
 import { Subject, firstValueFrom } from 'rxjs';
 import { useGetEvent } from '~/hooks/useGetEvent';
+import { createStyles, useStyles } from '@theme/styles';
 
 const RejectedIcon = materialIcon('error-outline');
 
@@ -71,7 +71,7 @@ export type SignWithLedgerParams = z.infer<typeof SignWithLedgerParams>;
 
 export default function SignWithLedgerSheet() {
   const params = useLocalParams(`/ledger/sign`, SignWithLedgerParams);
-  const styles = useStyles();
+  const { styles } = useStyles(stylesheet);
 
   const approver = useQuery(
     Query,
@@ -115,7 +115,7 @@ export default function SignWithLedgerSheet() {
   return (
     <Sheet handle={false}>
       <View style={styles.container}>
-        <LedgerLogo style={{ width: 144, height: 48 }} />
+        <LedgerLogo style={styles.logo} />
 
         <Text variant="headlineSmall" style={styles.name}>
           {approver?.name || params.name || params.device}
@@ -198,12 +198,16 @@ export default function SignWithLedgerSheet() {
   );
 }
 
-const useStyles = makeStyles(({ colors }) => ({
+const stylesheet = createStyles(({ colors }) => ({
   container: {
     alignItems: 'center',
     gap: 8,
     marginHorizontal: 16,
     marginBottom: 16,
+  },
+  logo: {
+    width: 144,
+    height: 48,
   },
   name: {
     color: colors.primary,

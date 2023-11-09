@@ -1,9 +1,9 @@
-import { makeStyles } from '@theme/makeStyles';
-import { useTheme } from '@theme/paper';
+import { createStyles, useStyles } from '@theme/styles';
 import { useEffect } from 'react';
 import { StyleProp, TextStyle } from 'react-native';
 import { Snackbar, SnackbarProps, Text } from 'react-native-paper';
 import RnToast, { ToastConfig, ToastConfigParams, ToastOptions } from 'react-native-toast-message';
+import { useMemoApply } from '~/hooks/useMemoized';
 import { LogEventParams, logEvent } from '~/util/analytics';
 
 type SnackVariant = 'info' | 'success' | 'warning' | 'error';
@@ -22,7 +22,7 @@ const Snack = ({
   hide,
   props: { message, variant = 'info', messageStyle, event: eventProp, action, style, ...props },
 }: SnackProps) => {
-  const styles = useStyles(variant);
+  const { styles, theme } = useStyles(useMemoApply(getStylesheet, { variant }));
 
   useEffect(() => {
     if (eventProp && (variant === 'warning' || variant === 'error')) {
@@ -41,7 +41,7 @@ const Snack = ({
       visible={isVisible}
       onDismiss={hide}
       duration={Infinity} // Duration is handled by RnToast, mutating isVisible on hide
-      theme={useTheme()}
+      theme={theme}
       style={[styles.snackbar, style]}
       {...(action && {
         action: {
@@ -55,34 +55,35 @@ const Snack = ({
   );
 };
 
-const useStyles = makeStyles(({ colors }, variant: SnackVariant) => {
-  const s = {
-    info: {
-      snackbar: { backgroundColor: colors.inverseSurface },
-      message: { color: colors.inverseOnSurface },
-      actionLabel: { color: colors.inversePrimary },
-    },
-    success: {
-      snackbar: { backgroundColor: colors.successContainer },
-      message: { color: colors.onSuccessContainer },
-    },
-    warning: {
-      snackbar: { backgroundColor: colors.warningContainer },
-      message: { color: colors.onWarningContainer },
-    },
-    error: {
-      snackbar: { backgroundColor: colors.errorContainer },
-      message: { color: colors.onErrorContainer },
-    },
-  }[variant];
+const getStylesheet = ({ variant }: { variant: SnackVariant }) =>
+  createStyles(({ colors }) => {
+    const s = {
+      info: {
+        snackbar: { backgroundColor: colors.inverseSurface },
+        message: { color: colors.inverseOnSurface },
+        actionLabel: { color: colors.inversePrimary },
+      },
+      success: {
+        snackbar: { backgroundColor: colors.successContainer },
+        message: { color: colors.onSuccessContainer },
+      },
+      warning: {
+        snackbar: { backgroundColor: colors.warningContainer },
+        message: { color: colors.onWarningContainer },
+      },
+      error: {
+        snackbar: { backgroundColor: colors.errorContainer },
+        message: { color: colors.onErrorContainer },
+      },
+    }[variant];
 
-  return {
-    actionLabel: {
-      color: colors.primary,
-    },
-    ...s,
-  };
-});
+    return {
+      actionLabel: {
+        color: colors.primary,
+      },
+      ...s,
+    };
+  });
 
 export type ShowSnackOptions = Pick<
   ToastOptions,

@@ -4,7 +4,7 @@ import { AppState } from 'react-native';
 import { lockSecureStorage, unlockSecureStorage } from '~/lib/secure-storage';
 import AuthenticateScreen from '~/app/auth';
 import { Blur } from '~/components/Blur';
-import { useAuthSettings } from '~/components/shared/AuthSettings';
+import { useAuthRequiredOnOpen } from '~/components/shared/AuthSettings';
 
 const TIMEOUT_AFTER = Duration.fromObject({ minutes: 5 }).toMillis();
 
@@ -18,7 +18,7 @@ export interface AuthGateProps {
 }
 
 export const AuthGate = ({ children }: AuthGateProps) => {
-  const { open: required } = useAuthSettings();
+  const required = useAuthRequiredOnOpen();
 
   const [state, setState] = useState<AuthState>({ success: !required });
   const onAuth = useCallback((password?: string) => {

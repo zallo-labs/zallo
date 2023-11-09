@@ -13,6 +13,7 @@ export interface FormSubmitButtonProps<TFieldValues extends FieldValues>
 export function FormSubmitButton<TFieldValues extends FieldValues>({
   requireChanges,
   control,
+  onPress: onPressProp,
   ...props
 }: FormSubmitButtonProps<TFieldValues>) {
   const { isValid, isSubmitting, isSubmitted, isDirty } = useFormState({ control });
@@ -22,19 +23,19 @@ export function FormSubmitButton<TFieldValues extends FieldValues>({
 
   const expectOnPress = useRef(false);
   useEffect(() => {
-    if (isSubmitted && expectOnPress.current) props.onPress?.();
-  }, [isSubmitted]);
+    if (isSubmitted && expectOnPress.current) onPressProp?.();
+  }, [isSubmitted, onPressProp]);
 
   return (
     <Button
       {...props}
       disabled={disabled}
       loading={isSubmitting}
-      {...(props.onPress && {
+      {...(onPressProp && {
         onPointerDown: () => (expectOnPress.current = true),
         onPress: (e) => {
           expectOnPress.current = false;
-          props.onPress?.(e);
+          onPressProp?.(e);
         },
       })}
     />

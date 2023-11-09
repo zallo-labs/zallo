@@ -1,7 +1,7 @@
 import { gql } from '@api';
 import { useRouter } from 'expo-router';
 import { Address } from 'lib';
-import { useEffect } from 'react';
+import { useCallback, useEffect } from 'react';
 import CreateAccountScreen from '~/app/(drawer)/accounts/create';
 import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
 import { withSuspense } from '~/components/skeleton/withSuspense';
@@ -23,14 +23,17 @@ function AccountOnboardingScreen() {
 
   const { accounts } = useQuery(Query).data;
 
-  const next = (account: Address) => {
-    setSelected(account);
-    router.push(`/onboard/(drawer)/auth`);
-  };
+  const next = useCallback(
+    (account: Address) => {
+      setSelected(account);
+      router.push(`/onboard/(drawer)/auth`);
+    },
+    [router, setSelected],
+  );
 
   useEffect(() => {
     if (accounts.length) next(accounts[0].address);
-  }, [accounts]);
+  }, [accounts, next]);
 
   return <CreateAccountScreen onCreate={next} />;
 }

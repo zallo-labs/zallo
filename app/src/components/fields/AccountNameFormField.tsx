@@ -1,6 +1,6 @@
 import { gql } from '@api';
 import { useUrqlApiClient } from '@api/client';
-import { makeStyles } from '@theme/makeStyles';
+import { createStyles, useStyles } from '@theme/styles';
 import { useState } from 'react';
 import { FieldValues, FieldPath } from 'react-hook-form';
 import { TextInput } from 'react-native-paper';
@@ -22,7 +22,7 @@ export function AccountNameFormField<
   TFieldValues extends FieldValues = FieldValues,
   TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
 >(props: AccountNameFormFieldProps<TFieldValues, TName>) {
-  const styles = useStyles();
+  const { styles } = useStyles(stylesheet);
   const api = useUrqlApiClient();
 
   const [isAvailable, setAvailable] = useState<boolean | 'checking'>(false);
@@ -61,7 +61,7 @@ export function AccountNameFormField<
   );
 }
 
-const useStyles = makeStyles(({ colors }) => ({
+const stylesheet = createStyles(({ colors }) => ({
   available: {
     color: colors.success,
   },

@@ -136,6 +136,9 @@ jobs:
       - name: 🏗️ Pre-Build
         run: yarn app prebuild
 
+      - name: 👕 Lint
+        run: yarn app lint
+
       - name: 🧪 Test
         run: yarn app test
 

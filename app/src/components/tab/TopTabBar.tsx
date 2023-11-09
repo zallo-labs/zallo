@@ -1,6 +1,6 @@
 import { ParamListBase, Route, TabNavigationState } from '@react-navigation/core';
 import { MaterialTopTabBarProps } from '@react-navigation/material-top-tabs';
-import { makeStyles } from '@theme/makeStyles';
+import { createStyles, useStyles } from '@theme/styles';
 import { StyleSheet, View } from 'react-native';
 import { Text } from 'react-native-paper';
 import { TabBar, TabBarIndicator } from 'react-native-tab-view';
@@ -18,8 +18,8 @@ export const TopTabBar = ({
   descriptors,
   ...rest
 }: TopTabBarProps) => {
+  const { styles } = useStyles(stylesheet);
   const focusedOptions = descriptors[state.routes[state.index]!.key]!.options;
-  const styles = useStyles({ variant, withIcon: !!focusedOptions.tabBarIcon });
 
   return (
     <TabBar
@@ -32,12 +32,12 @@ export const TopTabBar = ({
       pressColor={focusedOptions.tabBarPressColor}
       pressOpacity={focusedOptions.tabBarPressOpacity}
       tabStyle={[focusedOptions.tabBarItemStyle]}
-      indicatorStyle={[styles.indicator, focusedOptions.tabBarIndicatorStyle]}
+      indicatorStyle={[styles.indicator(variant), focusedOptions.tabBarIndicatorStyle]}
       gap={focusedOptions.tabBarGap}
       android_ripple={focusedOptions.tabBarAndroidRipple}
       indicatorContainerStyle={focusedOptions.tabBarIndicatorContainerStyle}
       contentContainerStyle={focusedOptions.tabBarContentContainerStyle}
-      style={[styles.container, focusedOptions.tabBarStyle]}
+      style={[styles.container(!!focusedOptions.tabBarIcon), focusedOptions.tabBarStyle]}
       getAccessibilityLabel={({ route }) =>
         descriptors[route.key]!.options.tabBarAccessibilityLabel
       }
@@ -140,13 +140,8 @@ export const TopTabBar = ({
   );
 };
 
-interface StyleParams {
-  variant: TopTabBarVariant;
-  withIcon?: boolean;
-}
-
-const useStyles = makeStyles(({ colors, fonts }, { variant, withIcon }: StyleParams) => ({
-  container: {
+const stylesheet = createStyles(({ colors, fonts }) => ({
+  container: (withIcon: boolean) => ({
     backgroundColor: 'transparent',
     height: withIcon ? 64 : 48,
     // Divider
@@ -157,9 +152,9 @@ const useStyles = makeStyles(({ colors, fonts }, { variant, withIcon }: StylePar
     shadowColor: undefined,
     shadowOpacity: undefined,
     shadowRadius: undefined,
-    shadowOffset: undefined,
+    // shadowOffset: undefined, // TODO: enable when resolved https://github.com/jpudysz/react-native-unistyles/issues/66
     zIndex: undefined,
-  },
+  }),
   active: {
     color: colors.primary,
   },
@@ -173,12 +168,12 @@ const useStyles = makeStyles(({ colors, fonts }, { variant, withIcon }: StylePar
   label: {
     ...fonts.titleSmall,
   },
-  indicator: {
+  indicator: (variant: TopTabBarVariant) => ({
     height: variant === 'primary' ? 3 : 2,
     backgroundColor: colors.primary,
     borderTopLeftRadius: 3,
     borderTopRightRadius: 3,
-  },
+  }),
   divider: {
     height: 1,
   },

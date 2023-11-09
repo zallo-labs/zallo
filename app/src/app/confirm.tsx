@@ -1,10 +1,10 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { makeStyles } from '@theme/makeStyles';
 import { Dialog, Text } from 'react-native-paper';
 import { Button } from '~/components/Button';
 import { DialogModal } from '~/components/Dialog/DialogModal';
 import { Subject } from 'rxjs';
 import { DialogActions } from '~/components/Dialog/DialogActions';
+import { createStyles, useStyles } from '@theme/styles';
 
 export const CONFIRMATIONS = new Subject<true>();
 
@@ -19,7 +19,7 @@ export type ConfirmModalParams = {
 export default function ConfirmModal() {
   const { title, message, confirmLabel, confirmTextColor } =
     useLocalSearchParams<ConfirmModalParams>();
-  const styles = useStyles();
+  const { styles } = useStyles(stylesheet);
   const router = useRouter();
 
   return (
@@ -50,7 +50,7 @@ export default function ConfirmModal() {
   );
 }
 
-const useStyles = makeStyles(({ colors }) => ({
+const stylesheet = createStyles(({ colors }) => ({
   cancel: {
     color: colors.onSurfaceVariant,
   },

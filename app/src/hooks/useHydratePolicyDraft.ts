@@ -4,13 +4,13 @@ import { useHydrateAtoms } from 'jotai/utils';
 import { ZERO_ADDR } from 'lib';
 import { useEffect, useMemo } from 'react';
 import { POLICY_DRAFT_ATOM, PolicyDraft, policyAsDraft } from '~/lib/policy/draft';
-import { PolicyTemplateType, getPolicyTemplates } from '~/lib/policy/template';
+import { usePolicyPresets } from '~/lib/policy/presets';
 
 const Account = gql(/* GraphQL */ `
   fragment useHydratePolicyDraft_Account on Account {
     id
     address
-    ...getPolicyTemplate_Account
+    ...getPolicyPresets_Account
   }
 `);
 
@@ -34,12 +34,12 @@ export interface UseHydratePolicyDraftParams {
   account: FragmentType<typeof Account> | null | undefined;
   policy: FragmentType<typeof Policy> | null | undefined;
   view: PolicyView;
-  template: PolicyTemplateType;
 }
 
 export function useHydratePolicyDraft(params: UseHydratePolicyDraftParams) {
   const account = useFragment(Account, params.account);
   const policy = useFragment(Policy, params.policy);
+  const presets = usePolicyPresets(account);
 
   const init = useMemo(
     (): PolicyDraft => ({
@@ -49,16 +49,24 @@ export function useHydratePolicyDraft(params: UseHydratePolicyDraftParams) {
       ...((params.view === 'state' && policy?.state && policyAsDraft(policy.state)) ||
         (policy?.draft && policyAsDraft(policy.draft)) ||
         (policy?.state && policyAsDraft(policy.state)) ||
-        getPolicyTemplates(account)[params.template]),
+        presets.low),
     }),
-    [account, policy],
+    [
+      account?.address,
+      policy?.key,
+      policy?.name,
+      policy?.state,
+      policy?.draft,
+      params.view,
+      presets.low,
+    ],
   );
 
   const setDraft = useSetAtom(POLICY_DRAFT_ATOM);
   useHydrateAtoms([[POLICY_DRAFT_ATOM, init]]);
   useEffect(() => {
     setDraft(init);
-  }, [init]);
+  }, [init, setDraft]);
 
   return { init };
 }

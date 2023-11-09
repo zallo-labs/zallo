@@ -1,5 +1,4 @@
 import { IconProps } from '@theme/icons';
-import { makeStyles } from '@theme/makeStyles';
 import { Arraylike, toArray } from 'lib';
 import { FC, ReactNode } from 'react';
 import { StyleProp, View, ViewStyle } from 'react-native';
@@ -10,6 +9,8 @@ import { AppbarClose } from './AppbarClose';
 import { TextProps } from '@theme/types';
 import { P, match } from 'ts-pattern';
 import { AppbarMenu } from '~/components/Appbar/AppbarMenu';
+import { createStyles, useStyles } from '@theme/styles';
+import { useMemoApply } from '~/hooks/useMemoized';
 
 const LEADING_COMPONENT = {
   back: AppbarBack,
@@ -36,7 +37,9 @@ export function Appbar({
   inset = true,
 }: AppbarProps) {
   const insets = useSafeAreaInsets();
-  const styles = useStyles({ mode, center, insets: inset ? insets : undefined });
+  const { styles } = useStyles(
+    useMemoApply(stylesheet, { mode, center, insets: inset ? insets : undefined }),
+  );
 
   const Leading = typeof leading === 'string' ? LEADING_COMPONENT[leading] : leading;
 
@@ -83,74 +86,75 @@ interface StyleOptions {
   insets?: EdgeInsets;
 }
 
-const useStyles = makeStyles(({ colors, fonts }, { mode, center, insets }: StyleOptions) => ({
-  root: {
-    display: 'flex',
-    justifyContent: match(mode)
-      .with('small', () => 'center' as const)
-      .with(P.union('medium', 'large'), () => 'space-between' as const)
-      .exhaustive(),
-    height:
-      (insets?.top ?? 0) +
-      {
-        small: 64,
-        medium: 112,
-        large: 154,
-      }[mode],
-    paddingTop:
-      (insets?.top ?? 0) +
-      match(mode)
-        .with('small', () => 0)
-        .with(P.union('medium', 'large'), () => 20)
+const stylesheet = ({ mode, center, insets }: StyleOptions) =>
+  createStyles(({ colors, fonts }) => ({
+    root: {
+      display: 'flex',
+      justifyContent: match(mode)
+        .with('small', () => 'center' as const)
+        .with(P.union('medium', 'large'), () => 'space-between' as const)
         .exhaustive(),
-    paddingBottom: {
-      small: 0,
-      medium: 24,
-      large: 28,
-    }[mode],
-    paddingHorizontal: 16,
-  },
-  headerContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  leadingContainer: {
-    marginRight: 16,
-  },
-  leadingIcon: {
-    color: colors.onSurface,
-    fontSize: 24,
-  },
-  trailingContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 16,
-    marginLeft: 16,
-  },
-  trailingIcon: {
-    color: colors.onSurfaceVariant,
-    fontSize: 24,
-  },
-  mainHeadlineSection: {
-    flex: 1,
-  },
-  headlineContainer: {
-    ...(center && { flexGrow: 1 }),
-    alignItems: center ? 'center' : 'flex-start',
-  },
-  headline: {
-    ...fonts[
-      (
+      height:
+        (insets?.top ?? 0) +
         {
-          small: 'titleLarge',
-          medium: 'headlineSmall',
-          large: 'headlineMedium',
-        } as const
-      )[mode]
-    ],
-    color: colors.onSurface,
-  },
-  supporting: {
-    color: colors.onSurfaceVariant,
-  },
-}));
+          small: 64,
+          medium: 112,
+          large: 154,
+        }[mode],
+      paddingTop:
+        (insets?.top ?? 0) +
+        match(mode)
+          .with('small', () => 0)
+          .with(P.union('medium', 'large'), () => 20)
+          .exhaustive(),
+      paddingBottom: {
+        small: 0,
+        medium: 24,
+        large: 28,
+      }[mode],
+      paddingHorizontal: 16,
+    },
+    headerContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+    },
+    leadingContainer: {
+      marginRight: 16,
+    },
+    leadingIcon: {
+      color: colors.onSurface,
+      fontSize: 24,
+    },
+    trailingContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 16,
+      marginLeft: 16,
+    },
+    trailingIcon: {
+      color: colors.onSurfaceVariant,
+      fontSize: 24,
+    },
+    mainHeadlineSection: {
+      flex: 1,
+    },
+    headlineContainer: {
+      ...(center && { flexGrow: 1 }),
+      alignItems: center ? 'center' : 'flex-start',
+    },
+    headline: {
+      ...fonts[
+        (
+          {
+            small: 'titleLarge',
+            medium: 'headlineSmall',
+            large: 'headlineMedium',
+          } as const
+        )[mode]
+      ],
+      color: colors.onSurface,
+    },
+    supporting: {
+      color: colors.onSurfaceVariant,
+    },
+  }));

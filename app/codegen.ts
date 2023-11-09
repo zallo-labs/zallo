@@ -13,6 +13,7 @@ const scalars = {
   Selector: 'lib#Selector',
   Uint256: 'lib#BigIntlike',
   TypedData: 'viem#TypedDataDefinition',
+  AbiFunction: 'abitype#AbiFunction',
 };
 
 export default {
@@ -47,7 +48,7 @@ export default {
         dedupeFragments: true,
       },
     },
-    'src/gql/api/schema.ts': {
+    'src/gql/api/schema.generated.ts': {
       schema,
       plugins: ['urql-introspection'],
       config: {

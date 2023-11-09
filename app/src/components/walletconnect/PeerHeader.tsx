@@ -1,9 +1,9 @@
-import { makeStyles } from '@theme/makeStyles';
 import { Image } from 'expo-image';
 import { ReactNode } from 'react';
 import { View } from 'react-native';
 import { Text } from 'react-native-paper';
 import { SignClientTypes } from '@walletconnect/types';
+import { createStyles, useStyles } from '@theme/styles';
 
 export interface PeerHeaderProps {
   peer: SignClientTypes.Metadata;
@@ -11,7 +11,7 @@ export interface PeerHeaderProps {
 }
 
 export const PeerHeader = ({ peer, children: action }: PeerHeaderProps) => {
-  const styles = useStyles();
+  const { styles } = useStyles(stylesheet);
 
   return (
     <View style={styles.container}>
@@ -27,7 +27,7 @@ export const PeerHeader = ({ peer, children: action }: PeerHeaderProps) => {
   );
 };
 
-const useStyles = makeStyles(({ colors }) => ({
+const stylesheet = createStyles(({ colors }) => ({
   container: {
     padding: 16,
     alignItems: 'center',

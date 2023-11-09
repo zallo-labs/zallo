@@ -1,5 +1,5 @@
 import { HrefObject, useLocalSearchParams } from 'expo-router';
-import { z, ZodType, ZodTypeDef } from 'zod';
+import { ZodType, ZodTypeDef } from 'zod';
 
 type AllRoute<Pathname extends string = `/`> = HrefObject<{ pathname: Pathname }>['pathname'];
 

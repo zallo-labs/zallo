@@ -1,6 +1,7 @@
 import { ReactNode } from 'react';
 import { StyleProp, View, ViewStyle } from 'react-native';
-import { makeStyles } from '@theme/makeStyles';
+import { EdgeInsets, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { createStyles } from '@theme/styles';
 
 export interface ActionsProps {
   children?: ReactNode;
@@ -9,25 +10,23 @@ export interface ActionsProps {
 }
 
 export function Actions({ children, style, flex = true }: ActionsProps) {
-  const styles = useStyles(flex);
-
   return (
-    <View style={[styles.container, style]}>
-      <View style={styles.content}>{children}</View>
+    <View style={[styles.container(flex), style]}>
+      <View style={styles.content(useSafeAreaInsets())}>{children}</View>
     </View>
   );
 }
 
-const useStyles = makeStyles(({ insets }, flex: boolean) => ({
-  container: {
+const styles = createStyles({
+  container: (flex: boolean) => ({
     ...(flex && { flexGrow: 1 }),
     justifyContent: 'flex-end',
-  },
-  content: {
+  }),
+  content: (insets: EdgeInsets) => ({
     alignItems: 'stretch',
     gap: 8,
     marginHorizontal: 16,
     marginTop: 16,
     marginBottom: 16 + insets.bottom,
-  },
-}));
+  }),
+});

@@ -1,15 +1,10 @@
 import { gql } from '@api';
-import { DoubleCheckIcon, NavigateNextIcon, TransferIcon } from '@theme/icons';
 import { useRouter } from 'expo-router';
 import { useAtom } from 'jotai';
 import { PolicyKey, asAddress, asPolicyKey } from 'lib';
 import _ from 'lodash';
-import { ScrollView, StyleSheet } from 'react-native';
 import { useMutation } from 'urql';
 import { z } from 'zod';
-import { Fab } from '~/components/Fab';
-import { ListItem } from '~/components/list/ListItem';
-import { Permissions } from '~/components/policy/Permissions';
 import { PolicyAppbar } from '~/components/policy/PolicyAppbar';
 import { useQuery } from '~/gql';
 import { useHydratePolicyDraft } from '~/hooks/useHydratePolicyDraft';
@@ -20,6 +15,14 @@ import { withSuspense } from '~/components/skeleton/withSuspense';
 import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
 import { ScreenSurface } from '~/components/layout/ScreenSurface';
 import { zAddress } from '~/lib/zod';
+import { ApprovalSettings } from '~/components/policy/ApprovalSettings';
+import { SpendingSettings } from '~/components/policy/SpendingSettings';
+import { useLayout } from '~/hooks/useLayout';
+import { ActionsSettings } from '~/components/policy/ActionsSettings';
+import { PolicySuggestions } from '~/components/policy/PolicySuggestions';
+import { createStyles } from '@theme/styles';
+import { Actions } from '~/components/layout/Actions';
+import { Button } from '~/components/Button';
 
 const Query = gql(/* GraphQL */ `
   query PolicyScreen($account: Address!, $key: PolicyKey!, $queryPolicy: Boolean!) {
@@ -40,6 +43,7 @@ const Query = gql(/* GraphQL */ `
       id
       address
       ...useHydratePolicyDraft_Account
+      ...PolicySuggestions_Account
     }
   }
 `);
@@ -80,7 +84,6 @@ export const PolicyScreenParams = z.object({
   account: zAddress,
   key: z.union([z.coerce.number().transform(asPolicyKey), z.literal('add')]),
   view: z.enum(['state', 'draft']).optional(),
-  template: z.enum(['low', 'medium', 'high']).optional(),
 });
 export type PolicyScreenParams = z.infer<typeof PolicyScreenParams>;
 
@@ -102,15 +105,10 @@ function PolicyScreen() {
   const view =
     (params.view === 'state' && policy?.state && 'state') || (policy?.draft && 'draft') || 'state';
 
-  const { init } = useHydratePolicyDraft({
-    account: account!,
-    policy,
-    template: params.template ?? 'high',
-    view,
-  });
-
+  const { init } = useHydratePolicyDraft({ account, policy, view });
   const [draft, setDraft] = useAtom(POLICY_DRAFT_ATOM);
   const isModified = !_.isEqual(init, draft);
+  const initiallyExpanded = useLayout().layout === 'expanded';
 
   if (!account) return null;
 
@@ -125,27 +123,16 @@ function PolicyScreen() {
         reset={isModified ? () => setDraft(init) : undefined}
       />
 
-      <ScreenSurface>
-        <ScrollView contentContainerStyle={styles.container}>
-          <ListItem
-            leading={DoubleCheckIcon}
-            headline="Approvals"
-            supporting={`${draft.threshold}/${draft.approvers.size} required`}
-            trailing={NavigateNextIcon}
-            onPress={() =>
-              router.push({
-                pathname: `/(drawer)/[account]/policies/[key]/approvers`,
-                params: { account: draft.account, key: draft.key ?? 'add' },
-              })
-            }
-          />
+      <ScreenSurface contentContainerStyle={styles.container}>
+        <PolicySuggestions account={account} />
+        <ApprovalSettings initiallyExpanded={initiallyExpanded} />
+        <SpendingSettings initiallyExpanded={initiallyExpanded} />
+        <ActionsSettings initiallyExpanded={initiallyExpanded} />
 
-          <Permissions account={account.address} policyKey={params.key} />
-
-          {(draft.key === undefined || isModified) && (
-            <Fab
-              icon={TransferIcon}
-              label={draft.key === undefined ? 'Create' : 'Update'}
+        {(draft.key === undefined || isModified) && (
+          <Actions>
+            <Button
+              mode="contained"
               onPress={async () => {
                 const input = { ...asPolicyInput(draft), account: draft.account };
                 const r =
@@ -162,17 +149,20 @@ function PolicyScreen() {
                   params: { hash: proposal.hash },
                 });
               }}
-            />
-          )}
-        </ScrollView>
+            >
+              {draft.key === undefined ? 'Create' : 'Update'}
+            </Button>
+          </Actions>
+        )}
       </ScreenSurface>
     </>
   );
 }
 
-const styles = StyleSheet.create({
+const styles = createStyles({
   container: {
     flexGrow: 1,
+    paddingVertical: 8,
   },
 });
 

@@ -4,6 +4,7 @@ import { useRouter } from 'expo-router';
 import { Fab } from '~/components/Fab';
 import { LINKINGS_FROM_DEVICE } from '~/app/link/token';
 import { LedgerIcon } from '@theme/icons';
+import { __WEB__ } from '~/util/config';
 
 export interface LinkLedgerButtonProps {
   onLink?: () => void;
@@ -18,6 +19,8 @@ export function LinkLedgerButton({ onLink }: LinkLedgerButtonProps) {
       if (!sub.closed) sub.unsubscribe();
     };
   }, [onLink]);
+
+  if (__WEB__) return null;
 
   return (
     <Fab

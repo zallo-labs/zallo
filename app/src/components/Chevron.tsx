@@ -1,5 +1,5 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { makeStyles } from '@theme/makeStyles';
+import { createStyles, useStyles } from '@theme/styles';
 import { ComponentPropsWithoutRef, useEffect } from 'react';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 
@@ -15,7 +15,7 @@ export interface ChevronProps extends Omit<MaterialCommunityIconsProps, 'name'> 
 }
 
 export const Chevron = ({ expanded, style, ...iconProps }: ChevronProps) => {
-  const styles = useStyles();
+  const { styles } = useStyles(stylesheet);
 
   const rotation = useSharedValue(getRotation(expanded));
   const transformStyle = useAnimatedStyle(() => ({
@@ -35,7 +35,7 @@ export const Chevron = ({ expanded, style, ...iconProps }: ChevronProps) => {
   );
 };
 
-const useStyles = makeStyles(({ colors, iconSize }) => ({
+const stylesheet = createStyles(({ colors, iconSize }) => ({
   icon: {
     fontSize: iconSize.small,
     color: colors.onSurface,

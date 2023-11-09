@@ -2,6 +2,8 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
+scalar AbiFunction @specifiedBy(url: "https://docs.soliditylang.org/en/latest/abi-spec.html#json")
+
 enum AbiSource {
   Verified
 }
@@ -44,6 +46,42 @@ input AccountSubscriptionInput {
 
   """Defaults to all events"""
   events: AccountEvent
+}
+
+type Action implements Node {
+  allow: Boolean!
+  description: String
+  functions: [ActionFunction!]!
+  id: ID!
+  label: String!
+}
+
+type ActionFunction implements Node {
+  abi: AbiFunction
+
+  """Default: apply to all contracts"""
+  contract: Address
+  id: ID!
+
+  """Default: apply to all selectors"""
+  selector: Selector
+}
+
+input ActionFunctionInput {
+  abi: AbiFunction
+
+  """Default: apply to all contracts"""
+  contract: Address
+
+  """Default: apply to all selectors"""
+  selector: Selector
+}
+
+input ActionInput {
+  allow: Boolean!
+  description: String
+  functions: [ActionFunctionInput!]!
+  label: String!
 }
 
 """Ethereum address"""
@@ -143,19 +181,6 @@ input ContractInput {
   contract: Address!
 }
 
-type ContractTarget {
-  contract: Address!
-  defaultAllow: Boolean!
-  functions: [FunctionConfig!]!
-  id: ID!
-}
-
-input ContractTargetInput {
-  contract: Address!
-  defaultAllow: Boolean! = true
-  functions: [SelectorInput!]! = []
-}
-
 input CreateAccountInput {
   label: String!
   policies: [PolicyInput!]!
@@ -163,15 +188,12 @@ input CreateAccountInput {
 
 input CreatePolicyInput {
   account: Address!
-
-  """Signers that are required to approve"""
+  actions: [ActionInput!]
   approvers: [Address!]
   key: PolicyKey
   name: String
-  permissions: PermissionsInput! = {}
-
-  """Defaults to all approvers"""
   threshold: Float
+  transfers: TransfersConfigInput
 }
 
 """
@@ -191,11 +213,6 @@ interface EventBase {
 
 input ExecuteInput {
   proposalHash: Bytes32!
-}
-
-type FunctionConfig {
-  allow: Boolean!
-  selector: Selector!
 }
 
 type GenericOp {
@@ -302,12 +319,6 @@ input OperationInput {
   value: Uint256
 }
 
-input PermissionsInput {
-  """Targets that can be called"""
-  targets: TargetsConfigInput
-  transfers: TransfersConfigInput
-}
-
 input PoliciesInput {
   includeDisabled: Boolean! = false
 }
@@ -325,20 +336,19 @@ type Policy {
 }
 
 input PolicyInput {
-  """Signers that are required to approve"""
+  actions: [ActionInput!]
   approvers: [Address!]
   key: PolicyKey
   name: String
-  permissions: PermissionsInput! = {}
-
-  """Defaults to all approvers"""
   threshold: Float
+  transfers: TransfersConfigInput
 }
 
 """Policy key: an unsigned integer [0, 65535]"""
 scalar PolicyKey
 
 type PolicyState {
+  actions: [Action!]!
   activationBlock: BigInt
   approvers: [Approver!]!
   createdAt: DateTime!
@@ -346,7 +356,6 @@ type PolicyState {
   isAccountInitState: Boolean!
   isRemoved: Boolean!
   proposal: TransactionProposal
-  targets: TargetsConfig!
   threshold: Float!
   transfers: TransfersConfig!
 }
@@ -525,11 +534,6 @@ type SatisfiabilityResult {
 """function selector (4-byte hex string)"""
 scalar Selector
 
-input SelectorInput {
-  allow: Boolean!
-  selector: Selector!
-}
-
 type Simulation implements Node {
   id: ID!
   transfers: [SimulationTransfer!]!
@@ -561,28 +565,6 @@ type SwapOp {
   fromToken: Address!
   minimumToAmount: Uint256!
   toToken: Address!
-}
-
-type Target {
-  defaultAllow: Boolean!
-  functions: [FunctionConfig!]!
-  id: ID!
-}
-
-input TargetInput {
-  defaultAllow: Boolean! = true
-  functions: [SelectorInput!]! = []
-}
-
-type TargetsConfig {
-  contracts: [ContractTarget!]!
-  default: Target!
-  id: ID!
-}
-
-input TargetsConfigInput {
-  contracts: [ContractTargetInput!]! = []
-  default: TargetInput! = {defaultAllow: true, functions: []}
 }
 
 type Token implements Node {
@@ -626,6 +608,7 @@ input TokenUnitInput {
 }
 
 input TokensInput {
+  address: [Address!]
   feeToken: Boolean
   query: String
 }
@@ -849,15 +832,12 @@ input UpdateApproverInput {
 
 input UpdatePolicyInput {
   account: Address!
-
-  """Signers that are required to approve"""
+  actions: [ActionInput!]
   approvers: [Address!]
   key: PolicyKey
   name: String
-  permissions: PermissionsInput = {}
-
-  """Defaults to all approvers"""
   threshold: Float
+  transfers: TransfersConfigInput
 }
 
 type UpdatePolicyOp {
@@ -866,7 +846,6 @@ type UpdatePolicyOp {
   account: Address!
   approvers: [Address!]!
   key: PolicyKey!
-  targets: [Target!]!
   threshold: Float!
 }
 

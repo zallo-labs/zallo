@@ -6,7 +6,7 @@ import { useCallback } from 'react';
 import { match } from 'ts-pattern';
 import { useAuthenticate } from '~/app/auth';
 import { showError } from '~/components/provider/SnackbarProvider';
-import { useAuthSettings } from '~/components/shared/AuthSettings';
+import { useAuthRequiredOnApproval } from '~/components/shared/AuthSettings';
 
 type SignContent = PersonalMessage | TransactionProposalFragment;
 type PersonalMessage = string;
@@ -26,7 +26,7 @@ const isTransactionProposal = (c: SignContent): c is TransactionProposalFragment
 export function useSignWithApprover() {
   const approver = useApproverWallet();
   const authenticate = useAuthenticate();
-  const { approval: authRequired } = useAuthSettings();
+  const authRequired = useAuthRequiredOnApproval();
 
   return useCallback(
     async (c: SignContent) => {
@@ -44,6 +44,6 @@ export function useSignWithApprover() {
 
       return ok(signature);
     },
-    [approver, authRequired],
+    [approver, authRequired, authenticate],
   );
 }

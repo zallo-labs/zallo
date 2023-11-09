@@ -9,6 +9,7 @@ import {
   Hex,
   Policy,
   POLICY_ABI,
+  PolicyKey,
   Satisfiability,
 } from 'lib';
 import { TransactionProposalsService } from '../transaction-proposals/transaction-proposals.service';
@@ -30,8 +31,8 @@ import {
   inputAsPolicy,
   policyStateShape,
   policyStateAsPolicy,
-  asTransfersConfig,
-  asTargetsConfig,
+  PolicyStateShape,
+  policyInputAsStateShape,
 } from './policies.util';
 import { PolicyState, SatisfiabilityResult } from './policies.model';
 import { transactionProposalAsTx } from '../transaction-proposals/transaction-proposals.uitl';
@@ -93,9 +94,10 @@ export class PoliciesService {
 
           return asPolicyKey(maxKey !== null ? maxKey + 1 : 0);
         })());
-      const policy = inputAsPolicy(key, policyInput);
 
-      const proposal = !skipProposal && (await this.getStateProposal(account, policy));
+      const state = policyInputAsStateShape(key, policyInput);
+      const proposal =
+        !skipProposal && (await this.getStateProposal(account, policyStateAsPolicy(key, state)));
 
       // with proposal required - https://github.com/edgedb/edgedb/issues/6305
       const { id } = await e
@@ -108,7 +110,7 @@ export class PoliciesService {
               name: name || `Policy ${key}`,
               stateHistory: e.insert(e.PolicyState, {
                 ...(proposal && { proposal }),
-                ...this.insertStateShape(policy),
+                ...this.insertStateShape(state),
               }),
             }),
           ),
@@ -116,62 +118,50 @@ export class PoliciesService {
         .run(db);
 
       this.db.afterTransaction(() =>
-        this.userAccounts.invalidateApproverUserAccountsCache(...policy.approvers),
+        this.userAccounts.invalidateApproverUserAccountsCache(...policyInput.approvers),
       );
 
       return { id, key };
     });
   }
 
-  private insertStateShape(policy: Policy) {
-    const targets = policy.permissions.targets;
-    const targetContracts = Object.entries(targets.contracts).map(([contract, target]) =>
-      e.insert(e.ContractTarget, {
-        contract,
-        functions: Object.entries(target.functions).map(([selector, allow]) => ({
-          selector,
-          allow,
-        })),
-        defaultAllow: target.defaultAllow,
-      }),
-    );
-
-    const transfers = policy.permissions.transfers;
-    const transferLimits = Object.entries(transfers.limits).map(([token, limit]) =>
-      e.insert(e.TransferLimit, {
-        token,
-        amount: limit.amount,
-        duration: limit.duration,
-      }),
-    );
-
+  private insertStateShape(p: NonNullable<PolicyStateShape>) {
     return {
-      approvers: e.for(e.cast(e.str, e.set(...policy.approvers)), (approver) =>
+      approvers: e.for(e.cast(e.str, e.set(...p.approvers.map((a) => a.address))), (approver) =>
         e.insert(e.Approver, { address: e.cast(e.str, approver) }).unlessConflict((approver) => ({
           on: approver.address,
           else: approver,
         })),
       ),
-      threshold: policy.threshold,
-      targets: e.insert(e.TargetsConfig, {
-        ...(targetContracts.length && { contracts: e.set(...targetContracts) }),
-        default: e.insert(e.Target, {
-          functions: Object.entries(targets.default.functions).map(([selector, allow]) => ({
-            selector,
-            allow,
-          })),
-          defaultAllow: targets.default.defaultAllow,
-        }),
-      }),
+      threshold: p.threshold || p.approvers.length,
+      actions: e.set(
+        ...p.actions.map((a) =>
+          e.insert(e.Action, {
+            label: a.label,
+            functions: e.set(
+              ...a.functions.map((f) =>
+                e.insert(e.ActionFunction, {
+                  contract: f.contract,
+                  selector: f.selector,
+                }),
+              ),
+            ),
+            allow: a.allow,
+            description: a.description,
+          }),
+        ),
+      ),
       transfers: e.insert(e.TransfersConfig, {
-        defaultAllow: transfers.defaultAllow,
-        budget: transfers.budget ?? policy.key,
-        ...(transferLimits.length && { limits: e.set(...transferLimits) }),
+        defaultAllow: p.transfers.defaultAllow,
+        budget: p.transfers.budget,
+        ...(p.transfers.limits.length && {
+          limits: e.set(...p.transfers.limits.map((limit) => e.insert(e.TransferLimit, limit))),
+        }),
       }),
     } satisfies Partial<Parameters<typeof e.insert<typeof e.PolicyState>>[1]>;
   }
 
-  async update({ account, key, name, approvers, threshold, permissions }: UpdatePolicyInput) {
+  async update({ account, key, name, ...policyInput }: UpdatePolicyInput) {
     await this.db.transaction(async (db) => {
       // Metadata
       if (name !== undefined) {
@@ -185,7 +175,7 @@ export class PoliciesService {
       }
 
       // State
-      if (approvers || threshold !== undefined || !_.isEmpty(permissions)) {
+      if (Object.values(policyInput).some((v) => v !== undefined)) {
         // Get existing policy state
         // If approvers, threshold, or permissions are undefined then modify the policy accordingly
         // Propose new state
@@ -204,19 +194,14 @@ export class PoliciesService {
         if (!existing.account) throw new UserInputError("Account doesn't exist");
         if (!existing.policy) throw new UserInputError("Policy doesn't exist");
 
-        const policy = policyStateAsPolicy(key, existing.policy.draft ?? existing.policy.state!);
-        const encodedOriginal = POLICY_ABI.encode(policy);
+        const currentState = existing.policy.draft ?? existing.policy.state!;
+        const currentEncoded = POLICY_ABI.encode(policyStateAsPolicy(key, currentState));
 
-        if (approvers) policy.approvers = new Set(approvers);
-        if (threshold !== undefined) policy.threshold = threshold;
-        if (permissions?.targets) policy.permissions.targets = asTargetsConfig(permissions.targets);
-        if (permissions?.transfers)
-          policy.permissions.transfers = asTransfersConfig(permissions.transfers);
+        const newState = policyInputAsStateShape(key, policyInput, currentState);
+        const newPolicy = policyStateAsPolicy(key, newState);
+        if (currentEncoded === POLICY_ABI.encode(newPolicy)) return; // Only update if policy would actually change
 
-        // Only update if policy would actually change
-        if (encodedOriginal === POLICY_ABI.encode(policy)) return;
-
-        const proposal = await this.getStateProposal(account, policy);
+        const proposal = await this.getStateProposal(account, newPolicy);
 
         await e
           .with(
@@ -228,7 +213,7 @@ export class PoliciesService {
                   stateHistory: {
                     '+=': e.insert(e.PolicyState, {
                       proposal,
-                      ...this.insertStateShape(policy),
+                      ...this.insertStateShape(newState),
                     }),
                   },
                 },
@@ -238,7 +223,9 @@ export class PoliciesService {
           .run(db);
 
         this.db.afterTransaction(() =>
-          this.userAccounts.invalidateApproverUserAccountsCache(...policy.approvers),
+          this.userAccounts.invalidateApproverUserAccountsCache(
+            ...newState.approvers.map((a) => a.address as Address),
+          ),
         );
       }
     });
@@ -287,9 +274,6 @@ export class PoliciesService {
                     ...(proposal && { proposal }),
                     isRemoved: true,
                     threshold: 0,
-                    targets: e.insert(e.TargetsConfig, {
-                      default: e.insert(e.Target, { functions: [], defaultAllow: true }),
-                    }),
                     transfers: e.insert(e.TransfersConfig, { budget: key }),
                   }),
                 },

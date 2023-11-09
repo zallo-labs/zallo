@@ -66,5 +66,5 @@ export const useSessionPropsalListener = () => {
     return () => {
       client.off('session_proposal', handleProposal);
     };
-  }, [client, router.push]);
+  }, [client, router]);
 };

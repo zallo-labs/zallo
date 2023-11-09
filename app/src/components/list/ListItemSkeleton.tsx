@@ -8,7 +8,7 @@ export interface ListItemSkeletonProps {
   trailing?: boolean;
 }
 
-export const ListItemSkeleton = ({ leading, supporting, trailing }: ListItemSkeletonProps) => {
+export function ListItemSkeleton({ leading, supporting, trailing }: ListItemSkeletonProps) {
   return (
     <ListItem
       leading={leading ? () => <CircleSkeleton /> : undefined}
@@ -37,4 +37,4 @@ export const ListItemSkeleton = ({ leading, supporting, trailing }: ListItemSkel
       }
     />
   );
-};
+}

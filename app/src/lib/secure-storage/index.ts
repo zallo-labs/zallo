@@ -46,6 +46,8 @@ export function secureStorageLocked() {
   return !CIPHER.getValue();
 }
 
+export const SECURE_STORE_PASSWORD_ENCRYPTED: boolean = true;
+
 function getCipher() {
   return firstValueFrom(CIPHER.pipe(filter(Boolean)));
 }

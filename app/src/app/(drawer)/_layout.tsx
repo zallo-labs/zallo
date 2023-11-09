@@ -1,5 +1,4 @@
 import { Drawer } from '~/components/drawer/Drawer';
-import { StyleSheet } from 'react-native';
 import { Drawer as PaperDrawer } from 'react-native-paper';
 import {
   ContactsIcon,
@@ -13,7 +12,7 @@ import {
   GithubIcon,
   QrCodeIcon,
   GenericTokenIcon,
-  ApproversIcon,
+  DevicesIcon,
   AccountIcon,
 } from '@theme/icons';
 import { DrawerItem as Item } from '~/components/drawer/DrawerItem';
@@ -22,7 +21,6 @@ import { CONFIG } from '~/util/config';
 import { AccountDrawerHeader } from '~/components/drawer/AccountDrawerHeader';
 import { useTransfer } from '~/hooks/useTransfer';
 import { DrawerSurface } from '~/components/drawer/DrawerSurface';
-import { ICON_SIZE } from '@theme/paper';
 
 const Section = PaperDrawer.Section;
 
@@ -96,7 +94,7 @@ function Content() {
             label="Account"
           />
         )}
-        <Item href={`/(drawer)/approvers`} icon={ApproversIcon} label="My approvers" />
+        <Item href={`/(drawer)/approvers`} icon={DevicesIcon} label="My approvers" />
         <Item href={`/(drawer)/settings/auth`} icon={FingerprintIcon} label="Auth" />
         <Item
           href={`/(drawer)/settings/notifications`}
@@ -112,10 +110,3 @@ function Content() {
     </DrawerSurface>
   );
 }
-
-const styles = StyleSheet.create({
-  icon: {
-    width: ICON_SIZE.small,
-    height: ICON_SIZE.small,
-  },
-});

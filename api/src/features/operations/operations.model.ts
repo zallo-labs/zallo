@@ -5,7 +5,6 @@ import { BytesField } from '~/apollo/scalars/Bytes.scalar';
 import { Uint256Field } from '~/apollo/scalars/BigInt.scalar';
 import { GraphQLJSON } from 'graphql-scalars';
 import { PolicyKeyField } from '~/apollo/scalars/PolicyKey.scalar';
-import { Target } from '../policies/policies.model';
 
 @ObjectType()
 export class Operation {
@@ -56,9 +55,6 @@ export class UpdatePolicyOp extends GenericOp {
 
   @Field(() => [AddressScalar])
   approvers: readonly Address[];
-
-  @Field(() => [Target])
-  targets: Target[];
 }
 
 @ObjectType()

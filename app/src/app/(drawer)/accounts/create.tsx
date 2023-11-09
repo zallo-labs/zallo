@@ -1,6 +1,5 @@
 import { useRouter } from 'expo-router';
 import { gql } from '@api/generated';
-import { useApproverAddress } from '@network/useApprover';
 import { useForm } from 'react-hook-form';
 import { View } from 'react-native';
 import { useMutation } from 'urql';
@@ -13,8 +12,10 @@ import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
 import { ScreenSurface } from '~/components/layout/ScreenSurface';
 import { Address } from 'lib';
 import { Text } from 'react-native-paper';
-import { makeStyles } from '@theme/makeStyles';
 import { AccountNameFormField } from '~/components/fields/AccountNameFormField';
+import { createStyles } from '@theme/styles';
+import { usePolicyPresets } from '~/lib/policy/presets';
+import { asPolicyInput } from '~/lib/policy/draft';
 
 const Create = gql(/* GraphQL */ `
   mutation CreateAccountScreen_Create($input: CreateAccountInput!) {
@@ -34,10 +35,9 @@ export interface CreateAccountScreenProps {
 }
 
 function CreateAccountScreen({ onCreate }: CreateAccountScreenProps) {
-  const styles = useStyles();
   const router = useRouter();
-  const approver = useApproverAddress();
   const create = useMutation(Create)[1];
+  const presets = usePolicyPresets(undefined);
 
   const { control, handleSubmit } = useForm<Inputs>({
     defaultValues: { label: '' },
@@ -61,26 +61,16 @@ function CreateAccountScreen({ onCreate }: CreateAccountScreenProps) {
             style={styles.button}
             control={control}
             onPress={handleSubmit(async ({ label }) => {
-              try {
-                const account = (
-                  await create({
-                    input: {
-                      label,
-                      policies: [{ name: 'High risk', approvers: [approver] }],
-                    },
-                  })
-                ).data?.createAccount;
+              const r = await create({ input: { label, policies: [asPolicyInput(presets.high)] } });
 
-                if (onCreate) {
-                  onCreate(account!.address);
-                } else {
-                  router.push({
-                    pathname: `/(drawer)/[account]/(home)/`,
-                    params: { account: account!.address },
-                  });
-                }
-              } catch (error) {
-                showError('Failed to create account', { event: { error } });
+              const account = r.data?.createAccount.address;
+              if (!account)
+                return showError('Failed to create account', { event: { error: r.error } });
+
+              if (onCreate) {
+                onCreate(account);
+              } else {
+                router.push({ pathname: `/(drawer)/[account]/(home)/`, params: { account } });
               }
             })}
           >
@@ -92,7 +82,7 @@ function CreateAccountScreen({ onCreate }: CreateAccountScreenProps) {
   );
 }
 
-const useStyles = makeStyles(() => ({
+const styles = createStyles({
   root: {
     flex: 1,
   },
@@ -103,6 +93,6 @@ const useStyles = makeStyles(() => ({
   button: {
     alignSelf: 'stretch',
   },
-}));
+});
 
 export default withSuspense(CreateAccountScreen, <ScreenSkeleton />);

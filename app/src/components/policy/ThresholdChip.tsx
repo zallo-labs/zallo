@@ -1,11 +1,12 @@
 import { useImmerAtom } from 'jotai-immer';
-import { DoubleCheckIcon, DownArrowIcon } from '@theme/icons';
+import { DownArrowIcon } from '@theme/icons';
 import { SelectChip } from '~/components/fields/SelectChip';
 import _ from 'lodash';
 import { match } from 'ts-pattern';
 import { useEffect } from 'react';
-import { makeStyles } from '@theme/makeStyles';
 import { POLICY_DRAFT_ATOM } from '~/lib/policy/draft';
+import { createStyles, useStyles } from '@theme/styles';
+import { useMemoApply } from '~/hooks/useMemoized';
 
 const getLabel = (threshold: number) =>
   match(threshold)
@@ -15,7 +16,7 @@ const getLabel = (threshold: number) =>
 
 export function ThresholdChip() {
   const [{ threshold, approvers }, updateDraft] = useImmerAtom(POLICY_DRAFT_ATOM);
-  const styles = useStyles(threshold);
+  const { styles } = useStyles(useMemoApply(getStylesheet, { threshold }));
 
   const validThresholds = _.range(Math.min(approvers.size, 1), approvers.size + 1);
   const entries = validThresholds.map((n) => [getLabel(n), n] as const);
@@ -38,7 +39,6 @@ export function ThresholdChip() {
         })
       }
       chipProps={{
-        icon: ({ color: _, ...props }) => <DoubleCheckIcon {...props} />,
         closeIcon: DownArrowIcon,
         style: styles.chip,
         textStyle: styles.chipLabel,
@@ -47,15 +47,16 @@ export function ThresholdChip() {
   );
 }
 
-const useStyles = makeStyles(({ colors }, threshold: number) => ({
-  chip: {
-    ...(!threshold && {
-      backgroundColor: colors.warningContainer,
-    }),
-  },
-  chipLabel: {
-    ...(!threshold && {
-      color: colors.onWarningContainer,
-    }),
-  },
-}));
+const getStylesheet = ({ threshold }: { threshold: number }) =>
+  createStyles(({ colors }) => ({
+    chip: {
+      ...(!threshold && {
+        backgroundColor: colors.warningContainer,
+      }),
+    },
+    chipLabel: {
+      ...(!threshold && {
+        color: colors.onWarningContainer,
+      }),
+    },
+  }));

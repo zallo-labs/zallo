@@ -1,9 +1,9 @@
-import { makeStyles } from '@theme/makeStyles';
 import { TouchableOpacity } from 'react-native';
 import { Text } from 'react-native-paper';
 import { Chevron } from './Chevron';
 import { FragmentType, gql, useFragment } from '@api/generated';
 import { useRouter } from 'expo-router';
+import { createStyles, useStyles } from '@theme/styles';
 
 const FragmentDoc = gql(/* GraphQL */ `
   fragment AccountSelector_account on Account {
@@ -19,7 +19,7 @@ export interface AccountSelectorParams {
 
 export const AccountSelector = (props: AccountSelectorParams) => {
   const account = useFragment(FragmentDoc, props.account);
-  const styles = useStyles();
+  const { styles } = useStyles(stylesheet);
   const router = useRouter();
 
   return (
@@ -33,7 +33,7 @@ export const AccountSelector = (props: AccountSelectorParams) => {
   );
 };
 
-const useStyles = makeStyles(({ colors }) => ({
+const stylesheet = createStyles(({ colors }) => ({
   container: {
     flexDirection: 'row',
     alignItems: 'center',

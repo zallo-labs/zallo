@@ -1,9 +1,9 @@
 import { FragmentType, gql, useFragment } from '@api/generated';
 import { ListItem, ListItemProps } from '../list/ListItem';
 import { MessageIcon } from './MessageIcon';
-import { makeStyles } from '@theme/makeStyles';
 import { P, match } from 'ts-pattern';
 import { useRouter } from 'expo-router';
+import { createStyles, useStyles } from '@theme/styles';
 
 const MessageProposal = gql(/* GraphQL */ `
   fragment MessageProposalItem_MessageProposal on MessageProposal {
@@ -34,7 +34,7 @@ export interface MessageProposalItemProps {
 }
 
 export function MessageProposalItem(props: MessageProposalItemProps) {
-  const styles = useStyles();
+  const { styles } = useStyles(stylesheet);
   const router = useRouter();
   const p = useFragment(MessageProposal, props.proposal);
   const user = useFragment(User, props.user);
@@ -65,7 +65,7 @@ export function MessageProposalItem(props: MessageProposalItemProps) {
   );
 }
 
-const useStyles = makeStyles(({ colors }) => ({
+const stylesheet = createStyles(({ colors }) => ({
   approvalRequired: {
     color: colors.primary,
   },

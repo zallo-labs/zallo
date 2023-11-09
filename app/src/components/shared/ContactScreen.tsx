@@ -150,8 +150,8 @@ function ContactScreen_({ address }: ContactScreenProps) {
                 ),
               ]}
               chipProps={{ icon: NetworkIcon, disabled: true }}
-              onChange={(name) => {
-                // TODO: global address
+              onChange={() => {
+                // TODO: handle changing chain
               }}
             />
           </View>

@@ -1,9 +1,8 @@
 import QRCode from 'react-native-qrcode-svg';
-import { makeStyles } from '@theme/makeStyles';
 import { IconButton, Surface, Text } from 'react-native-paper';
 import { CloseIcon, PasteIcon, ScanIcon, ShareIcon } from '@theme/icons';
 import { Actions } from '~/components/layout/Actions';
-import { View } from 'react-native';
+import { ScaledSize, View, useWindowDimensions } from 'react-native';
 import { Blur } from '~/components/Blur';
 import { Button } from '~/components/Button';
 import { gql } from '@api/generated';
@@ -15,6 +14,8 @@ import { LinkingTokenModal_SubscriptionSubscription } from '@api/generated/graph
 import { useRouter } from 'expo-router';
 import { getDeepLink } from '~/util/config';
 import { share } from '~/lib/share';
+import { createStyles, useStyles } from '@theme/styles';
+import { EdgeInsets, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export const LINKINGS_FROM_TOKEN = new Subject<LinkingTokenModal_SubscriptionSubscription>();
 
@@ -36,7 +37,7 @@ const Subscription = gql(/* GraphQL */ `
 `);
 
 export default function LinkingModal() {
-  const styles = uesStyles();
+  const { styles } = useStyles(stylesheet);
   const router = useRouter();
 
   const { user } = useQuery(Query).data;
@@ -49,7 +50,7 @@ export default function LinkingModal() {
 
   return (
     <Blur>
-      <View style={styles.container}>
+      <View style={styles.container(useSafeAreaInsets())}>
         <IconButton
           mode="contained-tonal"
           icon={CloseIcon}
@@ -62,7 +63,7 @@ export default function LinkingModal() {
             <QRCode
               value={link}
               color={styles.qr.color}
-              size={styles.qr.fontSize}
+              size={styles.qrSize(useWindowDimensions()).fontSize}
               backgroundColor="transparent"
               ecl="M"
               enableLinearGradient
@@ -70,7 +71,7 @@ export default function LinkingModal() {
             />
           </Surface>
 
-          <View style={{ marginTop: 16 }}>
+          <View style={styles.textContainer}>
             <Text variant="headlineMedium" style={styles.text}>
               Linking a device
             </Text>
@@ -95,13 +96,16 @@ export default function LinkingModal() {
   );
 }
 
-const uesStyles = makeStyles(({ colors, window, insets }) => ({
-  container: {
+const stylesheet = createStyles(({ colors }) => ({
+  container: (insets: EdgeInsets) => ({
     flex: 1,
     marginTop: insets.top,
-  },
+  }),
   close: {
     marginHorizontal: 16,
+  },
+  textContainer: {
+    marginTop: 16,
   },
   text: {
     color: colors.onScrim,
@@ -120,8 +124,14 @@ const uesStyles = makeStyles(({ colors, window, insets }) => ({
     padding: 16,
     borderRadius: 16,
   },
+  qrSize: (window: ScaledSize) => ({
+    fontSize: {
+      compact: Math.min(window.width * 0.8, window.height * 0.8),
+      medium: Math.min(window.width * 0.7, window.height * 0.7),
+      expanded: Math.min(window.width * 0.5, window.height * 0.5),
+    },
+  }),
   qr: {
-    fontSize: Math.min(512, window.width - 64, window.height - 128),
     color: colors.onSurface,
   },
   primary: {

@@ -27,7 +27,7 @@ export function NotificationsRouter() {
       isMounted = false;
       subscription.remove();
     };
-  }, []);
+  }, [router]);
 
   return null;
 }

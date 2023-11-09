@@ -11,7 +11,7 @@ export function AppbarOptions(options: AppbarOptionsProps) {
 
   useLayoutEffect(() => {
     navigation.setOptions({ appbar: options });
-  }, [navigation.setOptions, options]);
+  }, [navigation, options]);
 
   return null;
 }

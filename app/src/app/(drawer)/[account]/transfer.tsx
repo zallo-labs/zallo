@@ -121,9 +121,6 @@ function TransferScreen() {
 }
 
 const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-  },
   spacer: {
     flex: 1,
   },

@@ -1,4 +1,4 @@
-import { makeStyles } from '@theme/makeStyles';
+import { createStyles, useStyles } from '@theme/styles';
 import { ComponentPropsWithoutRef } from 'react';
 import { StyleProp, TextStyle, View, ViewStyle } from 'react-native';
 import Collapsible, { CollapsibleProps } from 'react-native-collapsible';
@@ -28,7 +28,7 @@ export function TextField({
   collapsible,
   ...props
 }: TextFieldProps) {
-  const styles = useStyles();
+  const { styles } = useStyles(stylesheet);
 
   return (
     <View style={containerStyle}>
@@ -57,7 +57,7 @@ export function TextField({
   );
 }
 
-const useStyles = makeStyles(({ colors }) => ({
+const stylesheet = createStyles(({ colors }) => ({
   errorText: {
     color: colors.error,
   },

@@ -1,12 +1,13 @@
 import { FC, ReactNode } from 'react';
 import { IconProps } from '@theme/icons';
-import { makeStyles } from '@theme/makeStyles';
 import { Text, TouchableRipple, TouchableRippleProps } from 'react-native-paper';
 import { AddressOrLabelIcon } from '../Identicon/AddressOrLabelIcon';
 import { TextProps } from '@theme/types';
 import { StyleProp, TextStyle, View, ViewStyle } from 'react-native';
 import { O } from 'ts-toolbelt';
 import { ICON_SIZE } from '@theme/paper';
+import { createStyles, useStyles } from '@theme/styles';
+import { useMemoApply } from '~/hooks/useMemoized';
 
 /*
  * https://m3.material.io/components/lists/specs
@@ -33,7 +34,7 @@ export type ListItemProps = Pick<TouchableRippleProps, 'onPress'> &
     textStyle?: StyleProp<TextStyle>;
   };
 
-export const ListItem = ({
+export function ListItem({
   leading: Leading,
   leadingSize = typeof Leading === 'string' ? 'medium' : 'small',
   overline: Overline,
@@ -47,8 +48,10 @@ export const ListItem = ({
   containerStyle,
   textStyle,
   ...touchableProps
-}: ListItemProps) => {
-  const styles = useStyles({ lines, leadingSize, selected, disabled, avatarLeadingSize });
+}: ListItemProps) {
+  const { styles } = useStyles(
+    useMemoApply(getStylesheet, { lines, leadingSize, selected, disabled, avatarLeadingSize }),
+  );
 
   const OverlineText = ({ style, ...props }: TextProps) => (
     <Text
@@ -143,7 +146,7 @@ export const ListItem = ({
       </>
     </TouchableRipple>
   );
-};
+}
 
 interface StyleProps {
   lines: Lines;
@@ -159,8 +162,8 @@ export enum ListItemHeight {
   TRIPLE_LINE = 88,
 }
 
-const useStyles = makeStyles(
-  ({ colors, corner, stateLayer }, { lines, selected, disabled, leadingSize }: StyleProps) => {
+const getStylesheet = ({ lines, selected, disabled, leadingSize }: StyleProps) =>
+  createStyles(({ colors, corner, stateLayer }) => {
     const justifyContent = lines === 3 ? 'flex-start' : 'center';
 
     const withState = (color: string) => stateLayer(color, disabled && 'disabled');
@@ -220,5 +223,4 @@ const useStyles = makeStyles(
         color: withState(colors.onSurface),
       },
     };
-  },
-);
+  });

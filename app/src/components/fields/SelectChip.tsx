@@ -1,25 +1,25 @@
-import { makeStyles } from '@theme/makeStyles';
+import { createStyles, useStyles } from '@theme/styles';
 import { useState } from 'react';
 import { Chip, ChipProps, Menu, MenuProps } from 'react-native-paper';
 
-export type SelectChipProps<T> = Pick<MenuProps, 'style' | 'contentStyle'> & {
+export interface SelectChipProps<T> {
   value: T;
   onChange: (value: T) => void;
   entries: readonly (readonly [string, T])[];
   menuProps?: Partial<MenuProps>;
   chipProps?: Partial<Omit<ChipProps, 'children' | 'onPress'>>;
   equals?: (a: T, b: T) => boolean;
-};
+}
 
-export const SelectChip = <T,>({
+export function SelectChip<T>({
   value,
   onChange,
   entries,
   menuProps,
   chipProps,
   equals = (a, b) => a === b,
-}: SelectChipProps<T>) => {
-  const styles = useStyles();
+}: SelectChipProps<T>) {
+  const { styles } = useStyles(stylesheet);
 
   const [visible, setVisible] = useState(false);
   const close = () => setVisible(false);
@@ -51,9 +51,9 @@ export const SelectChip = <T,>({
       ))}
     </Menu>
   );
-};
+}
 
-const useStyles = makeStyles(({ colors }) => ({
+const stylesheet = createStyles(({ colors }) => ({
   selected: {
     color: colors.primary,
   },

@@ -1,14 +1,6 @@
-import {
-  PolicyActiveIcon,
-  PolicyActiveOutlineIcon,
-  PolicyAddIcon,
-  PolicyEditIcon,
-  PolicyEditOutlineIcon,
-  UndoIcon,
-} from '@theme/icons';
-import { Menu } from 'react-native-paper';
+import { SwapIcon, UndoIcon } from '@theme/icons';
+import { Chip, Menu } from 'react-native-paper';
 import { AppbarMore } from '~/components/Appbar/AppbarMore';
-import { P, match } from 'ts-pattern';
 import { useAtomValue } from 'jotai';
 import { FragmentType, gql, useFragment } from '@api/generated';
 import { useMutation } from 'urql';
@@ -18,6 +10,7 @@ import { POLICY_DRAFT_ATOM } from '~/lib/policy/draft';
 import { AppbarOptions } from '~/components/Appbar/AppbarOptions';
 import { useRouter } from 'expo-router';
 import { Address, PolicyKey } from 'lib';
+import { createStyles, useStyles } from '@theme/styles';
 
 const Policy = gql(/* GraphQL */ `
   fragment PolicyAppbar_Policy on Policy {
@@ -70,6 +63,7 @@ export interface PolicyAppbarProps {
 }
 
 export function PolicyAppbar({ view, reset, setView, ...props }: PolicyAppbarProps) {
+  const { styles } = useStyles(stylesheet);
   const router = useRouter();
   const policy = useFragment(Policy, props.policy);
   const remove = useMutation(Remove)[1];
@@ -81,7 +75,7 @@ export function PolicyAppbar({ view, reset, setView, ...props }: PolicyAppbarPro
   const { name } = useAtomValue(POLICY_DRAFT_ATOM);
 
   const state = view === 'state' ? policy?.state : policy?.draft;
-
+  const stateChipLabel = view === 'draft' || !policy ? 'Draft' : 'Active';
   const switchState =
     view === 'state' && policy?.draft
       ? () => setView('draft')
@@ -89,21 +83,28 @@ export function PolicyAppbar({ view, reset, setView, ...props }: PolicyAppbarPro
       ? () => setView('state')
       : undefined;
 
-  const StateIcon = match({ state: view, policy })
-    .with({ policy: undefined }, () => PolicyAddIcon)
-    .with({ state: 'state', policy: { draft: P.nullish } }, () => PolicyActiveOutlineIcon)
-    .with({ state: 'state' }, () => PolicyActiveIcon)
-    .with({ state: 'draft', policy: { state: P.nullish } }, () => PolicyEditOutlineIcon)
-    .with({ state: 'draft' }, () => PolicyEditIcon)
-    .exhaustive();
-
   return (
     <AppbarOptions
       mode="large"
       headline={name}
       trailing={[
         (props) => (reset ? <UndoIcon {...props} onPress={reset} /> : null),
-        (props) => <StateIcon {...props} onPress={switchState} />,
+        () =>
+          switchState ? (
+            <Chip
+              mode="flat"
+              onPress={switchState}
+              icon={(props) => <SwapIcon {...props} style={styles.pressableStateChipLabel} />}
+              style={styles.pressableStateChipContainer}
+              textStyle={styles.pressableStateChipLabel}
+            >
+              {stateChipLabel}
+            </Chip>
+          ) : (
+            <Chip mode="outlined" textStyle={styles.unpressableStateChipLabel}>
+              {stateChipLabel}
+            </Chip>
+          ),
         (iconProps) => (
           <AppbarMore iconProps={iconProps}>
             {({ close }) => (
@@ -160,3 +161,15 @@ export function PolicyAppbar({ view, reset, setView, ...props }: PolicyAppbarPro
     />
   );
 }
+
+const stylesheet = createStyles(({ colors }) => ({
+  pressableStateChipContainer: {
+    backgroundColor: colors.tertiary,
+  },
+  pressableStateChipLabel: {
+    color: colors.onTertiary,
+  },
+  unpressableStateChipLabel: {
+    color: colors.tertiary,
+  },
+}));
