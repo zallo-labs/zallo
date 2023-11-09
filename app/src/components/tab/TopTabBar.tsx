@@ -152,7 +152,7 @@ const stylesheet = createStyles(({ colors, fonts }) => ({
     shadowColor: undefined,
     shadowOpacity: undefined,
     shadowRadius: undefined,
-    shadowOffset: undefined,
+    // shadowOffset: undefined, // TODO: enable when resolved https://github.com/jpudysz/react-native-unistyles/issues/66
     zIndex: undefined,
   }),
   active: {
