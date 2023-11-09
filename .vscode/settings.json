@@ -12,9 +12,5 @@
   "jest.testExplorer": {
     "enabled": false
   },
-  "jest.monitorLongRun": 180000,
-  "eslint.options": {
-    "overrideConfigFile": ".config/.eslintrc.js",
-    "ignorePath": ".config/.eslintignore"
-  }
+  "jest.monitorLongRun": 180000
 }
