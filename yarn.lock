@@ -14253,11 +14253,11 @@ __metadata:
     react-native-jazzicon: "patch:react-native-jazzicon@npm:^0.1.2#../.yarn/patches/react-native-jazzicon-npm-0.1.2-c1633b051f.patch"
     react-native-keyboard-aware-scroll-view: ^0.9.5
     react-native-pager-view: 6.2.0
-    react-native-paper: ^5.10.6
+    react-native-paper: "patch:react-native-paper@npm:^5.11.1#../.yarn/patches/react-native-paper-npm-5.11.1-686e668968.patch"
     react-native-popover-view: ^5.1.8
     react-native-qrcode-svg: ^6.2.0
     react-native-quick-base64: ^2.0.7
-    react-native-quick-crypto: "patch:react-native-quick-crypto@npm:0.6.1#../.yarn/patches/react-native-quick-crypto-npm-0.6.1-02196a3db2.patch"
+    react-native-quick-crypto: "patch:react-native-quick-crypto@npm:^0.6.1#../.yarn/patches/react-native-quick-crypto-npm-0.6.1-02196a3db2.patch"
     react-native-reanimated: ~3.3.0
     react-native-safe-area-context: 4.6.3
     react-native-screens: ~3.22.0
@@ -33616,9 +33616,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-native-paper@npm:^5.10.6":
-  version: 5.10.6
-  resolution: "react-native-paper@npm:5.10.6"
+"react-native-paper@npm:^5.11.1":
+  version: 5.11.1
+  resolution: "react-native-paper@npm:5.11.1"
   dependencies:
     "@callstack/react-theme-provider": ^3.0.9
     color: ^3.1.2
@@ -33628,7 +33628,23 @@ __metadata:
     react-native: "*"
     react-native-safe-area-context: "*"
     react-native-vector-icons: "*"
-  checksum: 6793a0ad54ad64894fc6b3d8a2f86c06a4cd553d38d1d22776f04cc9991e33cab83cc01c2ecd600356cd5f0ea7b847660ca1487432a09f772adadc33b0fa4edf
+  checksum: 26331e8d54205cb8b379db4e986c69fecbb82a14913974d9e22515025b44705f96af8919c19e8044eddb4545d3cb33174dbc6b9d465f751241fb14d3af877988
+  languageName: node
+  linkType: hard
+
+"react-native-paper@patch:react-native-paper@npm:^5.11.1#../.yarn/patches/react-native-paper-npm-5.11.1-686e668968.patch::locator=app%40workspace%3Aapp":
+  version: 5.11.1
+  resolution: "react-native-paper@patch:react-native-paper@npm%3A5.11.1#../.yarn/patches/react-native-paper-npm-5.11.1-686e668968.patch::version=5.11.1&hash=fb3806&locator=app%40workspace%3Aapp"
+  dependencies:
+    "@callstack/react-theme-provider": ^3.0.9
+    color: ^3.1.2
+    use-latest-callback: ^0.1.5
+  peerDependencies:
+    react: "*"
+    react-native: "*"
+    react-native-safe-area-context: "*"
+    react-native-vector-icons: "*"
+  checksum: 6f23296714faf8181acf867a7bcaefed76feae9959fa6fa5662f54217bb5650b17637f1e8482c892f02deef0f4fe8b5d34ed24383161bae8ade610a44ee813d5
   languageName: node
   linkType: hard
 
@@ -33680,7 +33696,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-native-quick-crypto@npm:0.6.1":
+"react-native-quick-crypto@npm:^0.6.1":
   version: 0.6.1
   resolution: "react-native-quick-crypto@npm:0.6.1"
   dependencies:
@@ -33698,7 +33714,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-native-quick-crypto@patch:react-native-quick-crypto@npm:0.6.1#../.yarn/patches/react-native-quick-crypto-npm-0.6.1-02196a3db2.patch::locator=app%40workspace%3Aapp":
+"react-native-quick-crypto@patch:react-native-quick-crypto@npm:^0.6.1#../.yarn/patches/react-native-quick-crypto-npm-0.6.1-02196a3db2.patch::locator=app%40workspace%3Aapp":
   version: 0.6.1
   resolution: "react-native-quick-crypto@patch:react-native-quick-crypto@npm%3A0.6.1#../.yarn/patches/react-native-quick-crypto-npm-0.6.1-02196a3db2.patch::version=0.6.1&hash=bd29bd&locator=app%40workspace%3Aapp"
   dependencies:
