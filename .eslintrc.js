@@ -12,6 +12,7 @@ module.exports = {
   // },
   extends: [
     'eslint:recommended',
+    'plugin:eslint-comments/recommended',
     'plugin:@typescript-eslint/recommended',
     // 'plugin:neverthrow/recommended', // https://github.com/mdbetancourt/eslint-plugin-neverthrow/issues/14
     'prettier' /* last */,
