@@ -51,6 +51,8 @@ export interface OperationDetailsProps {
   operation: FragmentType<typeof FragmentDoc>;
 }
 
+// FIXME: terrible abuse of hoooks...
+/* eslint-disable react-hooks/rules-of-hooks */
 export function OperationDetails({ account, ...props }: OperationDetailsProps) {
   const op = useFragment(FragmentDoc, props.operation);
 
@@ -133,3 +135,4 @@ export function OperationDetails({ account, ...props }: OperationDetailsProps) {
       </>
     ));
 }
+/* eslint-enable react-hooks/rules-of-hooks */

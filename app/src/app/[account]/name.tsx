@@ -5,7 +5,6 @@ import { StyleSheet, View } from 'react-native';
 import { useMutation } from 'urql';
 import { NotFound } from '~/components/NotFound';
 import { FormSubmitButton } from '~/components/fields/FormSubmitButton';
-import { FormTextField } from '~/components/fields/FormTextField';
 import { Actions } from '~/components/layout/Actions';
 import { useQuery } from '~/gql';
 import { AppbarOptions } from '~/components/Appbar/AppbarOptions';

@@ -44,7 +44,7 @@ function AuthSettings_({ actions, appbarMenu, passwordHref }: AuthSettingsProps)
   // Enable biometrics (if supported) when this screen is first opened
   useEffect(() => {
     biometrics.setEnabled((enabled) => (enabled === null ? biometrics.available : enabled));
-  }, [biometrics.setEnabled, biometrics.available]);
+  }, [biometrics]);
 
   return (
     <>

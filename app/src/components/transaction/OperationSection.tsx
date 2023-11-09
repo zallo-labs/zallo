@@ -1,5 +1,4 @@
 import { useToggle } from '~/hooks/useToggle';
-import { materialCommunityIcon } from '@theme/icons';
 import Collapsible from 'react-native-collapsible';
 import { Chevron } from '~/components/Chevron';
 import { ListItem } from '~/components/list/ListItem';
@@ -23,8 +22,6 @@ const OperationFragmentDoc = gql(/* GraphQL */ `
     ...OperationDetails_OperationFragment
   }
 `);
-
-const DataIcon = materialCommunityIcon('code-tags');
 
 export interface OperationSectionProps {
   proposal: FragmentType<typeof ProposalFragmentDoc>;
@@ -58,8 +55,7 @@ export function OperationSection({
       <Collapsible collapsed={!expanded}>
         <OperationDetails account={proposal.account.address} operation={operation} />
 
-        {/* TODO: user can swap tokens in-app (ZAL-137) */}
-        {/* <Button mode="outlined" icon={DataIcon} style={styles.dataButton}>
+        {/* <Button mode="outlined" icon={materialCommunityIcon('code-tags')}>
           Data
         </Button> */}
       </Collapsible>

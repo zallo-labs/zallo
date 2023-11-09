@@ -54,7 +54,7 @@ export default function ConnectSessionSheet() {
     return () => {
       client.off('proposal_expire', handleExpiry);
     };
-  }, [client, router.back, id]);
+  }, [client, id, router]);
 
   const connect = async () => {
     const req = await tryOrCatchAsync(

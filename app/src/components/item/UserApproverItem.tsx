@@ -1,7 +1,6 @@
 import { FragmentType, gql, useFragment } from '@api/generated';
 import { useApproverAddress } from '@network/useApprover';
 import { useRouter } from 'expo-router';
-import { RadioButton } from 'react-native-paper';
 import { ListItem, ListItemProps } from '~/components/list/ListItem';
 import { truncateAddr } from '~/util/format';
 

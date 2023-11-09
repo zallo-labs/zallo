@@ -13,7 +13,7 @@
     "with-env": "npx dotenv-cli -e ../.env",
     "eas": "yarn with-env -- eas",
     "expo": "yarn with-env -- expo",
-    "generate:gql": "graphql-codegen --config codegen.ts && sed -i 's/as unknown as IntrospectionQuery;/as const;/g' ./src/gql/api/schema.ts",
+    "generate:gql": "graphql-codegen --config codegen.ts && sed -i 's/as unknown as IntrospectionQuery;/as const;/g' ./src/gql/api/schema.generated.ts",
     "generate:typechain": "typechain --target ethers-v5 --out-dir ./src/util/contracts './src/util/abi/*.json'",
     "clean": "npx rimraf web-build"
   },

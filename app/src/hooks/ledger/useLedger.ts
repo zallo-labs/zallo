@@ -39,7 +39,7 @@ export function useLedger(device: DeviceId | FragmentType<typeof UserApprover>) 
           : [device as string];
 
         return connectLedger(deviceIds);
-      }, [hasPermission, approver, approverBleIds]),
+      }, [hasPermission, approver, approverBleIds, device]),
     ) ?? err('finding' as const);
 
   return hasPermission

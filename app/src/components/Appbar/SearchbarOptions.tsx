@@ -10,7 +10,7 @@ export function SearchbarOptions(options: SearchbarOptionsProps) {
 
   useLayoutEffect(() => {
     navigation.setOptions({ header: SearchbarHeader, searchbar: options });
-  }, [navigation.setOptions, options]);
+  }, [navigation, options]);
 
   return null;
 }

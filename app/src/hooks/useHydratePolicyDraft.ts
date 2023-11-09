@@ -51,14 +51,22 @@ export function useHydratePolicyDraft(params: UseHydratePolicyDraftParams) {
         (policy?.state && policyAsDraft(policy.state)) ||
         presets.low),
     }),
-    [account, policy, params.view],
+    [
+      account?.address,
+      policy?.key,
+      policy?.name,
+      policy?.state,
+      policy?.draft,
+      params.view,
+      presets.low,
+    ],
   );
 
   const setDraft = useSetAtom(POLICY_DRAFT_ATOM);
   useHydrateAtoms([[POLICY_DRAFT_ATOM, init]]);
   useEffect(() => {
     setDraft(init);
-  }, [init]);
+  }, [init, setDraft]);
 
   return { init };
 }

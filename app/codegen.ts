@@ -48,7 +48,7 @@ export default {
         dedupeFragments: true,
       },
     },
-    'src/gql/api/schema.ts': {
+    'src/gql/api/schema.generated.ts': {
       schema,
       plugins: ['urql-introspection'],
       config: {

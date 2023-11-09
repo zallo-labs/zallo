@@ -1,6 +1,5 @@
 import { Updater } from 'use-immer';
 import { ListItem } from '../list/ListItem';
-import { useAddressLabel } from '../address/AddressLabel';
 import { Checkbox } from 'react-native-paper';
 import { StyleSheet, View } from 'react-native';
 import { Address } from 'lib';

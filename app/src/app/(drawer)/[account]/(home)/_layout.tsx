@@ -17,7 +17,7 @@ export default function HomeLayout() {
 
   useEffect(() => {
     if (account) setSelectedAccount(account);
-  }, [account]);
+  }, [account, setSelectedAccount]);
 
   return (
     <ScreenSurface>

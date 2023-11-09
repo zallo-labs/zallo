@@ -75,7 +75,7 @@ export interface BlockieProps extends Omit<SvgProps, 'width' | 'height' | 'color
   nBlocks?: number;
 }
 
-export const Blockie = ({ size = 24, nBlocks = 8, style, ...props }: BlockieProps) => {
+export function Blockie({ size = 24, nBlocks = 8, style, ...props }: BlockieProps) {
   const pxPerBlock = size / nBlocks;
   const seed = seedrand(props.seed || Math.floor(Math.random() * Math.pow(10, 16)).toString(16));
 
@@ -101,7 +101,7 @@ export const Blockie = ({ size = 24, nBlocks = 8, style, ...props }: BlockieProp
       </Svg>
     </View>
   );
-};
+}
 
 const styles = createStyles({
   container: (size: number) => ({

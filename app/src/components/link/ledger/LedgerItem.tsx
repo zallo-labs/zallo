@@ -13,7 +13,7 @@ import { elipseTruncate } from '~/util/format';
 import { useRouter } from 'expo-router';
 import { BleDevice, isUniqueBleDeviceId } from '~/lib/ble/util';
 import { LinkWithTokenSheetParams } from '~/app/link/token';
-import { tryOr, tryOrIgnoreAsync } from 'lib';
+import { tryOrIgnoreAsync } from 'lib';
 
 const User = gql(/* GraphQL */ `
   fragment LedgerItem_user on User {
@@ -115,17 +115,7 @@ export function LedgerItem({ device: d, ...props }: LedgerItemProps) {
 
     const params: LinkWithTokenSheetParams = { token: linkingToken };
     router.push({ pathname: `/link/token`, params });
-  }, [
-    api,
-    d.id,
-    d.name,
-    router.push,
-    router.back,
-    productName,
-    setApproverBleIds,
-    update,
-    user.id,
-  ]);
+  }, [d.name, d.id, productName, getSign, api, update, user.id, router, setApproverBleIds]);
 
   return (
     <ListItem
