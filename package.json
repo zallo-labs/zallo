@@ -18,9 +18,8 @@
     "lib": "yarn workspace lib",
     "site": "yarn workspace site",
     "postinstall": "husky install .config/husky",
-    "lint": "eslint \"**/*.{js,ts,jsx,tsx}\"",
-    "lint:fix": "yarn lint --fix",
     "prettier": "prettier --config .config/.prettierrc --ignore-path .config/.prettierignore --ignore-unknown",
+    "lint": "yarn workspaces foreach run lint",
     "clean": "yarn workspaces foreach run clean"
   },
   "engines": {
