@@ -4,6 +4,10 @@ on:
   push:
     branches-ignore: [main]
 
+env:
+  TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+  TURBO_TEAM: ${{ vars.TURBO_TEAM }}
+
 jobs:
   lib:
     runs-on: ubuntu-latest
@@ -11,15 +15,17 @@ jobs:
     steps:
       - name: 🚧 Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
 
       - name: 🚧 Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 20
           cache: 'yarn'
+          node-version-file: '.nvmrc'
 
       - name: 📦 Install
-        run: yarn install
+        run: yarn
 
       - name: 🏗️ Build
         run: yarn lib build
@@ -33,72 +39,38 @@ jobs:
     steps:
       - name: 🚧 Checkout
         uses: actions/checkout@v4
-
-      - name: 🚧 Checkout zksync-local
-        uses: actions/checkout@v4
         with:
-          repository: hbriese/zksync-local
-          path: zksync-local
-
-      - name: 🚧 Start local zksync node
-        run: (cd zksync-local && ./start.sh)
+          fetch-depth: 2
 
       - name: 🚧 Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 20
           cache: 'yarn'
+          node-version-file: '.nvmrc'
+
+      - name: 🚧 Start zkSync local testnet node
+        uses: dutterbutter/era-test-node-action@latest
 
       - name: 📦 Install
-        run: yarn install
-
-      - name: 🏗️ Build
-        run: yarn contracts build
-
-      - name: 💤 Wait for local zksync node to start
-        run: sleep 90
+        run: yarn
 
       - name: 🧪 Test
         run: yarn contracts test
 
-  # site:
-  #   runs-on: ubuntu-latest
-
-  #   steps:
-  #     - name: 🚧 Checkout
-  #       uses: actions/checkout@v4
-
-  #     - name: 🚧 Setup Node
-  #       uses: actions/setup-node@v4
-  #       with:
-  #         node-version: 20
-  #         cache: 'yarn'
-
-  #     - name: 📦 Install
-  #       run: yarn install
-
-  #     - name: 🏗️ Build
-  #       run: yarn site build
-
-  #     - name: 🧪 Typecheck
-  #       run: yarn site typecheck
-
   api:
     runs-on: ubuntu-latest
-
-    defaults:
-      run:
-        working-directory: ./api
 
     steps:
       - name: 🚧 Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
 
       - name: 🚧 Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 20
           cache: 'yarn'
+          node-version-file: '.nvmrc'
 
       - name: 💾 Setup EdgeDB
         uses: edgedb/setup-edgedb@v1
@@ -106,16 +78,16 @@ jobs:
           instance-name: tests
 
       - name: 💾 Initialize EdgeDB project
-        run: edgedb project init --non-interactive
+        run: (cd api && edgedb project init --non-interactive)
 
       - name: 📦 Install
-        run: yarn install
+        run: yarn
 
       - name: 🏗️ Build
-        run: yarn build
+        run: yarn api build
 
       - name: 🧪 Test
-        run: yarn test
+        run: yarn api test
 
   app-tests:
     runs-on: ubuntu-latest
@@ -123,18 +95,17 @@ jobs:
     steps:
       - name: 🚧 Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
 
       - name: 🚧 Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 20
           cache: 'yarn'
+          node-version-file: '.nvmrc'
 
       - name: 📦 Install
-        run: yarn install
-
-      - name: 🏗️ Pre-Build
-        run: yarn app prebuild
+        run: yarn
 
       - name: 👕 Lint
         run: yarn app lint
@@ -148,15 +119,38 @@ jobs:
     steps:
       - name: 🚧 Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
 
       - name: 🚧 Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 20
           cache: 'yarn'
+          node-version-file: '.nvmrc'
 
       - name: 📦 Install
-        run: yarn install
+        run: yarn
 
       - name: 🏗️ Build
         run: yarn app build:web
+# site:
+#   runs-on: ubuntu-latest
+
+#   steps:
+#     - name: 🚧 Checkout
+#       uses: actions/checkout@v4
+
+#     - name: 🚧 Setup Node
+#       uses: actions/setup-node@v4
+#       with:
+#         cache: 'yarn'
+#         node-version-file: '.nvmrc'
+
+#     - name: 📦 Install
+#       run: yarn
+
+#     - name: 🏗️ Build
+#       run: yarn site build
+
+#     - name: 🧪 Typecheck
+#       run: yarn site typecheck

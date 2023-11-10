@@ -3,10 +3,10 @@
 
 # Required for notifications
 !/app/firebase-google-services.secret.json
+!/app/GoogleService-Info.secret.plist
 
 ## Unnecessary files
 /api
 /site
 # lib is required
 # contracts is required by lib
-# config is required by contracts

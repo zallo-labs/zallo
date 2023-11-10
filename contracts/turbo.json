@@ -1,0 +1,17 @@
+{
+  "extends": ["//"],
+  "pipeline": {
+    "build": {
+      "dependsOn": ["^build"],
+      "inputs": ["contracts", "config.ts", "hardhat.config.ts"],
+      "outputs": ["abi/**", "artifacts-zk/**", "cache/**", "cache-zk/**"]
+    },
+    "typecheck": {
+      "dependsOn": ["build"]
+    },
+    "test": {
+      "dependsOn": ["build", "typecheck"],
+      "inputs": ["test/**/*.ts"]
+    }
+  }
+}

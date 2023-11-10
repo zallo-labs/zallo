@@ -10,7 +10,7 @@ USER node
 WORKDIR /build
 
 COPY --chown=node:node . .
-RUN yarn install
+RUN yarn
 
 RUN yarn api build
 

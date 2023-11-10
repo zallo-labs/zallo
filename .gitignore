@@ -1,6 +1,7 @@
 ## Shared
 .env*
 !.env.vault
+**/.turbo
 **/bin
 **/build
 **/cache
@@ -50,4 +51,4 @@ lib/src/typechain
 
 
 .flaskenv*
-!.env.project
+!.env.project.turbo

@@ -1,0 +1,27 @@
+{
+  "extends": ["//"],
+  "pipeline": {
+    "build": {
+      "dependsOn": ["^build", "generate:contracts", "generate:typechain"],
+      "inputs": ["src"],
+      "outputs": ["dist/**"]
+    },
+    "dev": {
+      "dependsOn": ["build"],
+      "cache": false,
+      "persistent": true
+    },
+    "test": {
+      "dependsOn": ["build"],
+      "inputs": ["src/**/*.ts"]
+    },
+    "generate:contracts": {
+      "inputs": ["../contracts/abi"],
+      "outputs": ["src/contracts/**"]
+    },
+    "generate:typechain": {
+      "inputs": ["abi/*.json"],
+      "outputs": ["src/typechain/**"]
+    }
+  }
+}
