@@ -83,9 +83,6 @@ jobs:
       - name: 📦 Install
         run: yarn
 
-      - name: 🏗️ Prebuild
-        run: yarn app prebuild
-
       # Updates iOS and Android; web app is deployed via Vercel
       - name: 🚀 Publish update
         run: yarn app deploy:update
