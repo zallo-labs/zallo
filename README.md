@@ -28,38 +28,12 @@
 yarn
 ```
 
-## API
+## Commands
 
 ```bash
-# Build
-yarn api build
+# Start all packages in development mode
+yarn dev
 
 # Test
-yarn api test
-
-# Run
-yarn api start
-```
-
-## App
-
-```bash
-# Build
-yarn app build
-
-# Test
-yarn app test
-
-# Run
-yarn app start
-```
-
-## Contracts
-
-```bash
-# Build
-yarn contracts build
-
-# Test
-yarn contracts test
+yarn test
 ```

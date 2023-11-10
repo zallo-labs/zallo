@@ -1,0 +1,29 @@
+{
+  "extends": ["//"],
+  "pipeline": {
+    "prepare": {
+      "dependsOn": ["^build", "generate:gql"]
+    },
+    "generate:gql": {
+      "inputs": ["codegen.ts", "src/features/prices/**/*.ts"],
+      "outputs": ["src/features/prices/__generated__/**"]
+    },
+    "build": {
+      "dependsOn": ["prepare"],
+      "inputs": ["dbschema", "src"],
+      "outputs": ["dist/**"]
+    },
+    "dev": {
+      "dependsOn": ["prepare"],
+      "cache": false,
+      "persistent": true
+    },
+    "serve": {
+      "dependsOn": ["build"]
+    },
+    "test": {
+      "dependsOn": ["prepare"],
+      "inputs": ["dbschema", "src", "jest.config.ts"]
+    }
+  }
+}

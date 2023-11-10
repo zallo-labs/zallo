@@ -4,9 +4,8 @@
   "main": "dist/index",
   "types": "dist/index",
   "scripts": {
-    "start": "yarn build --watch",
-    "build": "yarn generate && tsc --build",
-    "generate": "yarn generate:contracts && yarn generate:typechain",
+    "build": "tsc --build",
+    "dev": "tsc --watch --preserveWatchOutput",
     "generate:contracts": "typechain --target ethers-v5 --out-dir ./src/contracts --input-dir '../contracts/abi' '../contracts/abi/*.json'",
     "generate:typechain": "typechain --target ethers-v5 --out-dir ./src/typechain './abi/*.json'",
     "clean": "npx rimraf dist",

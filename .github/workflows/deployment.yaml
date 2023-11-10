@@ -16,6 +16,8 @@ jobs:
     steps:
       - name: 🚧 Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
 
       - name: 🚧 Setup Fly
         uses: superfly/flyctl-actions/setup-flyctl@master
@@ -41,7 +43,7 @@ jobs:
           fetch-depth: 200 # Sentry looks for the previous release in the git history
 
       - name: 📦 Install
-        run: yarn install
+        run: yarn
 
       - name: 🏗️ Build
         run: yarn api build
@@ -63,12 +65,14 @@ jobs:
     steps:
       - name: 🚧 Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
 
       - name: 🚧 Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 20
           cache: 'yarn'
+          node-version-file: '.nvmrc'
 
       - name: 🚧 Setup Expo
         uses: expo/expo-github-action@v8
@@ -77,14 +81,14 @@ jobs:
           eas-version: latest
 
       - name: 📦 Install
-        run: yarn install
+        run: yarn
 
       - name: 🏗️ Prebuild
         run: yarn app prebuild
 
       # Updates iOS and Android; web app is deployed via Vercel
       - name: 🚀 Publish update
-        run: yarn app eas update --auto --non-interactive --platform all
+        run: yarn app deploy:update
 
   # docs:
   #   environment: main - docs

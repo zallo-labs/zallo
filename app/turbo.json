@@ -1,0 +1,44 @@
+{
+  "extends": ["//"],
+  "pipeline": {
+    "prepare": {
+      "dependsOn": ["^build", "generate:gql"],
+      "inputs": ["tsconfig.json"],
+      "outputs": [".expo/types/**", "expo-env.d.ts"]
+    },
+    "generate:gql": {
+      "inputs": ["../api/schema.graphql", "codgen.ts", "src"],
+      "outputs": [
+        "src/gql/api/documents.generated.ts",
+        "src/gql/api/generated/**",
+        "src/gql/api/schema.generated.ts"
+      ]
+    },
+    "build:web": {
+      "dependsOn": ["prepare"],
+      "inputs": ["assets", "public", "src"],
+      "outputs": ["dist/**"]
+    },
+    "deploy:update": {
+      "dependsOn": ["prepare"],
+      "inputs": ["assets", "public", "src"],
+      "outputs": ["dist/**"]
+    },
+    "dev": {
+      "dependsOn": ["prepare"],
+      "cache": false,
+      "persistent": true
+    },
+    "test": {
+      "dependsOn": ["prepare", "typecheck", "lint"],
+      "inputs": ["assets", "src"]
+    },
+    "typecheck": {
+      "dependsOn": ["prepare"],
+      "inputs": ["assets", "src"]
+    },
+    "lint": {
+      "inputs": ["assets", "src"]
+    }
+  }
+}

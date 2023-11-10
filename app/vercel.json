@@ -1,5 +1,5 @@
 {
-  "buildCommand": "yarn build:web",
+  "buildCommand": "turbo build:web",
   "outputDirectory": "dist",
   "devCommand": "expo",
   "cleanUrls": true,

@@ -9,18 +9,21 @@
     "app",
     "contracts",
     "lib",
-    "site"
+    "site",
+    "services/**"
   ],
   "scripts": {
-    "api": "yarn workspace api",
-    "app": "yarn workspace app",
-    "contracts": "yarn workspace contracts",
-    "lib": "yarn workspace lib",
-    "site": "yarn workspace site",
     "postinstall": "husky install .config/husky",
+    "api": "yarn turbo run -F api",
+    "app": "yarn turbo run -F app",
+    "contracts": "yarn turbo run -F contracts",
+    "lib": "yarn turbo run -F lib",
+    "site": "yarn turbo run -F site",
+    "dev": "yarn turbo run dev",
+    "test": "yarn turbo run test",
     "prettier": "prettier --config .config/.prettierrc --ignore-path .config/.prettierignore --ignore-unknown",
-    "lint": "yarn workspaces foreach run lint",
-    "clean": "yarn workspaces foreach run clean"
+    "lint": "yarn turbo run lint",
+    "clean": "yarn turbo run clean"
   },
   "engines": {
     "node": "20.9.0",
@@ -34,7 +37,8 @@
     "eslint-plugin-neverthrow": "^1.1.4",
     "husky": "^8.0.3",
     "lint-staged": "^14.0.1",
-    "prettier": "^3.0.3"
+    "prettier": "^3.0.3",
+    "turbo": "^1.10.16"
   },
   "resolutions": {
     "graphql": "^16.8.0",
