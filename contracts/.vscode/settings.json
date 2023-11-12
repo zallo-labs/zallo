@@ -1,5 +1,6 @@
 {
   "files.exclude": {
+    ".turbo": true,
     ".vscode": true,
     "abi": true,
     "artifacts-zk": true,
