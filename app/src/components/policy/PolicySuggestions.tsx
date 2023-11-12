@@ -1,7 +1,6 @@
 import { FragmentType, gql, useFragment } from '@api';
 import { createStyles } from '@theme/styles';
 import { useAtomValue, useSetAtom } from 'jotai';
-import { useState } from 'react';
 import { View } from 'react-native';
 import { Chip, Text } from 'react-native-paper';
 import { POLICY_DRAFT_ATOM } from '~/lib/policy/draft';
@@ -24,9 +23,9 @@ export function PolicySuggestions(props: PolicySuggestionsProps) {
 
   const policy = useAtomValue(POLICY_DRAFT_ATOM);
   const setDraft = useSetAtom(POLICY_DRAFT_ATOM);
-  const [hide, setHidden] = useState(policy.key !== undefined);
 
-  if (hide) return null;
+  // Only show when creating policy
+  if (policy.key !== undefined) return null;
 
   return (
     <View style={styles.container}>
@@ -36,10 +35,7 @@ export function PolicySuggestions(props: PolicySuggestionsProps) {
           <Chip
             key={preset.name}
             mode="flat"
-            onPress={() => {
-              setDraft((d) => ({ ...d, ...preset }));
-              setHidden(true);
-            }}
+            onPress={() => setDraft((d) => ({ ...d, ...preset }))}
           >
             {preset.name}
           </Chip>
