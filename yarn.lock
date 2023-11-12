@@ -30060,7 +30060,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"node-gyp@npm:^9.3.0, node-gyp@npm:^9.4.0":
+"node-gyp@npm:^9.3.0":
   version: 9.4.0
   resolution: "node-gyp@npm:9.4.0"
   dependencies:
@@ -41451,7 +41451,6 @@ __metadata:
     eslint-plugin-neverthrow: ^1.1.4
     husky: ^8.0.3
     lint-staged: ^14.0.1
-    node-gyp: ^9.4.0
     prettier: ^3.0.3
     turbo: ^1.10.16
   languageName: unknown

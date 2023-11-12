@@ -47,8 +47,5 @@
     "wonka": "^6.3.4",
     "react-refresh": "~0.14.0",
     "ioredis": "5.3.2"
-  },
-  "dependencies": {
-    "node-gyp": "^9.4.0"
   }
 }
