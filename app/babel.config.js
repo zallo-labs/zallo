@@ -33,8 +33,8 @@ module.exports = function (api) {
         //   ast: true,
         // },
       ],
-      'react-native-reanimated/plugin',
       'lodash',
+      'react-native-reanimated/plugin' /* Must be last */,
     ],
     env: {
       production: {
