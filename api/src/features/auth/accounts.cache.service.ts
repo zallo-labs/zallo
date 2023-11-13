@@ -30,7 +30,7 @@ export class AccountsCacheService implements OnModuleInit {
     if ((await this.redis.scard(ACCOUNTS_ADDRESS_SET)) > 0) return;
 
     const addresses = await this.db.query(e.select(e.Account, () => ({ address: true })).address);
-    await this.redis.sadd(ACCOUNTS_ADDRESS_SET, addresses);
+    if (addresses.length) await this.redis.sadd(ACCOUNTS_ADDRESS_SET, addresses);
   }
 
   async isAccount<T extends Address | Address[]>(address: T) {
