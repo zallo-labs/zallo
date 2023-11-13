@@ -1,45 +1,27 @@
-import { useMutation } from 'urql';
-import { useQuery } from '~/gql';
-import { useGetAppleApprover } from '~/hooks/cloud/useGetAppleApprover';
-import { showError } from '~/components/provider/SnackbarProvider';
-import { gql } from '@api';
-import { authContext } from '@api/client';
+import { FragmentType, gql, useFragment } from '@api';
 import { Fab } from '~/components/Fab';
 import { AppleIcon } from '@theme/icons';
 import { createStyles, useStyles } from '@theme/styles';
+import { useLinkApple } from '~/hooks/cloud/useLinkApple';
 
-const Query = gql(/* GraphQL */ `
-  query LinkAppleButton {
-    user {
-      id
-      linkingToken
-    }
-  }
-`);
-
-const Link = gql(/* GraphQL */ `
-  mutation LinkAppleButton_Link($token: String!) {
-    link(input: { token: $token }) {
-      id
-      approvers {
-        id
-      }
-    }
+const User = gql(/* GraphQL */ `
+  fragment LinkAppleButton_User on User {
+    id
+    ...useLinkApple_User
   }
 `);
 
 export interface LinkAppleButtonProps {
+  user: FragmentType<typeof User>;
   onLink?: () => void | Promise<void>;
 }
 
-export function LinkAppleButton({ onLink }: LinkAppleButtonProps) {
+export function LinkAppleButton({ onLink, ...props }: LinkAppleButtonProps) {
   const { styles } = useStyles(stylesheet);
-  const getApprover = useGetAppleApprover();
-  const link = useMutation(Link)[1];
+  const user = useFragment(User, props.user);
+  const link = useLinkApple({ user });
 
-  const { user } = useQuery(Query).data;
-
-  if (!getApprover) return null;
+  if (!link) return null;
 
   return (
     <Fab
@@ -48,16 +30,7 @@ export function LinkAppleButton({ onLink }: LinkAppleButtonProps) {
       color={styles.icon.color}
       style={styles.container}
       onPress={async () => {
-        const r = await getApprover({});
-        if (r.isErr())
-          return showError('Something went wrong, failed to link Apple account', {
-            event: { error: r.error },
-          });
-
-        const { approver } = r.value;
-        await link({ token: user.linkingToken }, await authContext(approver));
-
-        await onLink?.();
+        if (await link()) await onLink?.();
       }}
     />
   );

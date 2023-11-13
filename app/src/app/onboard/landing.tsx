@@ -18,12 +18,25 @@ import {
 } from '@theme/icons';
 import { CONFIG } from '~/util/config';
 import { createStyles, useStyles } from '@theme/styles';
+import { gql } from '@api';
+import { useQuery } from '~/gql';
+
+const Query = gql(/* GraphQL */ `
+  query landing {
+    user {
+      id
+      ...LinkAppleButton_User
+      ...LinkGoogleButton_User
+    }
+  }
+`);
 
 export default function LandingScreen() {
   const { styles } = useStyles(stylesheet);
   const { push } = useRouter();
-
   const next = () => push(`/onboard/(drawer)/account`);
+
+  const { user } = useQuery(Query).data;
 
   return (
     <ScrollView contentContainerStyle={styles.root}>
@@ -68,13 +81,13 @@ export default function LandingScreen() {
         </Text>
 
         <View style={styles.methodsContainer}>
-          <LinkAppleButton onLink={next} />
-          <LinkGoogleButton onLink={next} />
+          <LinkAppleButton user={user} onLink={next} />
+          <LinkGoogleButton user={user} onLink={next} />
           <LinkLedgerButton onLink={next} />
           <LinkingButton onLink={next} />
         </View>
 
-        <Button mode="contained" onPress={next}>
+        <Button mode="contained" onPress={next} labelStyle={styles.actionButtonLabel}>
           Continue
         </Button>
       </Actions>
@@ -154,5 +167,8 @@ const stylesheet = createStyles({
     alignItems: 'center',
     gap: 16,
     marginBottom: 16,
+  },
+  actionButtonLabel: {
+    alignSelf: 'stretch',
   },
 });

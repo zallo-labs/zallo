@@ -24,6 +24,8 @@ const Query = gql(/* GraphQL */ `
         id
         ...UserApproverItem_UserApprover
       }
+      ...LinkAppleButton_User
+      ...LinkGoogleButton_User
     }
   }
 `);
@@ -54,9 +56,13 @@ function MyApproversScreen() {
             </Text>
 
             <View style={styles.methodsContainer}>
-              <LinkAppleButton />
+              <LinkAppleButton user={user} onLink={() => showSuccess('Linked Apple account')} />
 
-              <LinkGoogleButton signOut onLink={() => showSuccess('Linked Google account')} />
+              <LinkGoogleButton
+                user={user}
+                signOut
+                onLink={() => showSuccess('Linked Google account')}
+              />
 
               <LinkLedgerButton />
 

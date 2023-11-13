@@ -1,9 +1,7 @@
 import { Image, ImageProps, ImageSource } from 'expo-image';
 import { ComponentPropsWithoutRef, ElementType, FC } from 'react';
 import { ColorValue, TouchableOpacity, TouchableOpacityProps } from 'react-native';
-
 import { Ionicons, MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
-
 import { ICON_SIZE } from './paper';
 
 export interface IconProps {
@@ -142,6 +140,7 @@ export const GithubIcon = imageFromSource(require('assets/github.svg'));
 export const LedgerIcon = imageFromSource(require('assets/ledger-icon.svg'));
 export const LedgerLogo = imageFromSource(require('assets/ledger-logo.svg'));
 export const AppleIcon = imageFromSource(require('assets/apple.svg'));
+export const GoogleIcon = imageFromSource(require('assets/google.png'));
 // export const GenericTokenIcon = fromSource(require('assets/ethereum-light.svg'));
 
 export function imageFromSource(source: ImageSource) {
