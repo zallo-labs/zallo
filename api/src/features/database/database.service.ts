@@ -9,7 +9,7 @@ import { MaybePromise } from 'lib';
 import * as Sentry from '@sentry/node';
 
 type Hook = () => MaybePromise<void>;
-type Globals = Partial<Record<keyof typeof e.global, any>>;
+type Globals = Partial<Record<keyof typeof e.global, unknown>>;
 
 interface Context {
   transaction: Transaction;
