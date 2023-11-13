@@ -147,6 +147,7 @@ export const AppleIcon = imageFromSource(require('assets/apple.svg'));
 export function imageFromSource(source: ImageSource) {
   return ({
     onPress,
+    testID: _,
     ...props
   }: ImageProps & { size?: number } & Pick<TouchableOpacityProps, 'onPress'>) => (
     <TouchableOpacity onPress={onPress} disabled={!onPress}>
