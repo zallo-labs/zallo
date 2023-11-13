@@ -132,7 +132,12 @@ export const policyInputAsStateShape = (
   ...(p.actions?.length && {
     actions: p.actions as unknown as NonNullable<PolicyStateShape>['actions'],
   }),
-  ...(p.transfers && { transfers: p.transfers }),
+  ...(p.transfers && {
+    transfers: {
+      ...p.transfers,
+      budget: p.transfers.budget ?? key,
+    },
+  }),
 });
 
 export const inputAsPolicy = (key: PolicyKey, p: PolicyInput) =>

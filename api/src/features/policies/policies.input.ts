@@ -58,7 +58,7 @@ export class TransfersConfigInput {
   defaultAllow: boolean;
 
   @Field(() => Number, { nullable: true, description: 'Defaults to the policy budget' })
-  budget: number;
+  budget?: number;
 }
 
 @InputType()

@@ -9,7 +9,6 @@ import {
   Hex,
   Policy,
   POLICY_ABI,
-  PolicyKey,
   Satisfiability,
 } from 'lib';
 import { TransactionProposalsService } from '../transaction-proposals/transaction-proposals.service';
@@ -28,7 +27,6 @@ import { ShapeFunc } from '../database/database.select';
 import {
   UniquePolicy,
   uniquePolicy,
-  inputAsPolicy,
   policyStateShape,
   policyStateAsPolicy,
   PolicyStateShape,
