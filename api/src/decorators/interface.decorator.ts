@@ -27,8 +27,12 @@ export const NodeType = createObjectWithInterfaceDecorator(Node);
 
 @InterfaceType()
 export class Err {
+  constructor(message: string) {
+    this.message = message;
+  }
+
   @Field(() => String)
   message: string;
 }
 
-export const ErrType = createObjectWithInterfaceDecorator(Err);
+export const ErrorType = createObjectWithInterfaceDecorator(Err);

@@ -1,4 +1,4 @@
-import { Field, ObjectType, registerEnumType } from '@nestjs/graphql';
+import { Field, ObjectType, createUnionType, registerEnumType } from '@nestjs/graphql';
 import { GraphQLBigInt } from 'graphql-scalars';
 import { Account } from '../accounts/accounts.model';
 import { TransactionProposal } from '../transaction-proposals/transaction-proposals.model';
@@ -16,9 +16,11 @@ import {
 } from 'lib';
 import { Approver } from '../approvers/approvers.model';
 import { SelectorField } from '~/apollo/scalars/Bytes.scalar';
-import { Node, NodeType } from '~/decorators/interface.decorator';
+import { Err, ErrorType, Node, NodeType } from '~/decorators/interface.decorator';
 import { AbiFunctionField } from '~/apollo/scalars/AbiFunction.scalar';
 import { AbiFunction } from 'abitype';
+import { makeUnionTypeResolver } from '~/features/database/database.util';
+import e from '~/edgeql-js';
 
 @ObjectType()
 export class Policy {
@@ -162,3 +164,18 @@ export class SatisfiabilityReason implements ISatisfiabilityReason {
   @Field(() => Number, { nullable: true })
   operation?: number;
 }
+
+@ErrorType()
+export class NameTaken extends Err {}
+
+export const CreatePolicyResponse = createUnionType({
+  name: 'CreatePolicyResponse',
+  types: () => [Policy, NameTaken],
+  resolveType: makeUnionTypeResolver([[e.Policy, Policy]]),
+});
+
+export const UpdatePolicyResponse = createUnionType({
+  name: 'UpdatePolicyResponse',
+  types: () => [Policy, NameTaken],
+  resolveType: makeUnionTypeResolver([[e.Policy, Policy]]),
+});

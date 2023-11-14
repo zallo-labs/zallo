@@ -1,6 +1,6 @@
 import { Test } from '@nestjs/testing';
 import { createMock, DeepMocked } from '@golevelup/ts-jest';
-import { PoliciesService } from './policies.service';
+import { CreatePolicyParams, PoliciesService } from './policies.service';
 import { Address, asHex, asPolicyKey, asSelector, randomDeploySalt, ZERO_ADDR } from 'lib';
 import { asUser, getUserCtx, UserContext } from '~/request/ctx';
 import { randomAddress, randomLabel, randomUser } from '~/util/test';
@@ -43,9 +43,9 @@ describe(PoliciesService.name, () => {
   let user1: UserContext;
 
   const create = async ({
-    policyInput,
     activate,
-  }: { policyInput?: PolicyInput; activate?: boolean } = {}) => {
+    ...params
+  }: Partial<CreatePolicyParams> & { activate?: boolean } = {}) => {
     const userCtx = getUserCtx();
     const account = user1Account;
 
@@ -90,11 +90,13 @@ describe(PoliciesService.name, () => {
       };
     });
 
-    const { id, key } = await service.create({
-      account,
-      approvers: [userCtx.approver],
-      ...policyInput,
-    });
+    const { id, key } = (
+      await service.create({
+        account,
+        approvers: [userCtx.approver],
+        ...params,
+      })
+    )._unsafeUnwrap();
 
     if (activate) {
       await e
@@ -154,7 +156,6 @@ describe(PoliciesService.name, () => {
       asUser(user1, async () => {
         const key = asPolicyKey(125);
         const policyInput: PolicyInput = {
-          key,
           approvers: [getUserCtx().approver, randomAddress()],
           threshold: 1,
           actions: [
@@ -181,7 +182,7 @@ describe(PoliciesService.name, () => {
         };
         const expectedPolicy = inputAsPolicy(key, policyInput);
 
-        const { id } = await create({ policyInput });
+        const { id } = await create({ ...policyInput, key });
 
         const p = await e
           .select(e.Policy, (p) => ({

@@ -88,8 +88,7 @@ export class AccountsService {
 
     const implementation = CONFIG.accountImplAddress;
     const salt = randomDeploySalt();
-    const policyKeys = policyInputs.map((p, i) => asPolicyKey(p.key ?? i));
-    const policies = policyInputs.map((p, i) => inputAsPolicy(policyKeys[i], p));
+    const policies = policyInputs.map((p, i) => inputAsPolicy(asPolicyKey(i), p));
 
     const account = await this.provider.getProxyAddress({
       impl: implementation,
@@ -120,7 +119,7 @@ export class AccountsService {
         await this.policies.create({
           ...policy,
           account,
-          key: policyKeys[i],
+          key: asPolicyKey(i),
           skipProposal: true,
         });
       }
