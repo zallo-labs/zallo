@@ -51,14 +51,20 @@ const Query = gql(/* GraphQL */ `
 const Create = gql(/* GraphQL */ `
   mutation PolicyScreen_Create($input: CreatePolicyInput!) {
     createPolicy(input: $input) {
-      id
-      key
-      draft {
+      __typename
+      ... on Policy {
         id
-        proposal {
+        key
+        draft {
           id
-          hash
+          proposal {
+            id
+            hash
+          }
         }
+      }
+      ... on Err {
+        message
       }
     }
   }
@@ -67,14 +73,20 @@ const Create = gql(/* GraphQL */ `
 const Update = gql(/* GraphQL */ `
   mutation PolicyScreen_Update($input: UpdatePolicyInput!) {
     updatePolicy(input: $input) {
-      id
-      key
-      draft {
+      __typename
+      ... on Policy {
         id
-        proposal {
+        key
+        draft {
           id
-          hash
+          proposal {
+            id
+            hash
+          }
         }
+      }
+      ... on Err {
+        message
       }
     }
   }
@@ -134,19 +146,18 @@ function PolicyScreen() {
             <Button
               mode="contained"
               onPress={async () => {
-                const input = { ...asPolicyInput(draft), account: draft.account };
+                const input = { ...asPolicyInput(draft), account: draft.account, key: draft?.key };
                 const r =
                   input.key !== undefined
-                    ? (await update({ input })).data?.updatePolicy
+                    ? (await update({ input: { ...input, key: input.key! } })).data?.updatePolicy
                     : (await create({ input })).data?.createPolicy;
 
-                const proposal = r?.draft?.proposal;
-                if (!proposal) return showError('Failed to propose changes');
+                if (r?.__typename !== 'Policy') return showError(r?.message);
 
                 router.setParams({ ...params, key: `${r.key}`, view: 'draft' });
                 router.push({
                   pathname: `/(drawer)/transaction/[hash]/`,
-                  params: { hash: proposal.hash },
+                  params: { hash: r.draft!.proposal!.hash },
                 });
               }}
             >

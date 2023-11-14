@@ -87,7 +87,6 @@ export function policyAsDraft(
 
 export function asPolicyInput(p: Omit<PolicyDraft, 'account'>): PolicyInput {
   return {
-    key: p.key,
     name: p.name,
     approvers: [...p.approvers],
     threshold: p.threshold,
