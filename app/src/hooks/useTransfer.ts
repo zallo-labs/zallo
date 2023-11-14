@@ -13,6 +13,6 @@ export function useTransfer() {
       disabled: [params.account],
     });
 
-    return router.push({ pathname: `/(drawer)/[account]/transfer`, params });
+    if (params.to) router.push({ pathname: `/(drawer)/[account]/transfer`, params });
   };
 }
