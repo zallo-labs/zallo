@@ -32,7 +32,7 @@ export class AccountsResolver {
   ) {}
 
   @ComputedField<typeof e.Account>(() => String, { label: true })
-  name(@Parent() { label }: Account): String {
+  name(@Parent() { label }: Account): string {
     return label + CONFIG.ensSuffix;
   }
 
