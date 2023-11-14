@@ -31,7 +31,6 @@ export const HomeIcon = materialIcon('home');
 export const ActivityIcon = materialCommunityIcon('chart-timeline-variant');
 export const TransferIcon = materialCommunityIcon('send');
 export const TransferOutlineIcon = materialCommunityIcon('send-outline');
-export const ReceiveIcon = materialCommunityIcon('arrow-bottom-left');
 export const UserIcon = materialIcon('person');
 export const UserOutlineIcon = materialIcon('person-outline');
 export const ContactsIcon = materialIcon('people');
@@ -139,7 +138,8 @@ export const TwitterIcon = imageFromSource(require('assets/twitter.svg'));
 export const GithubIcon = imageFromSource(require('assets/github.svg'));
 export const LedgerIcon = imageFromSource(require('assets/ledger-icon.svg'));
 export const LedgerLogo = imageFromSource(require('assets/ledger-logo.svg'));
-export const AppleIcon = imageFromSource(require('assets/apple.svg'));
+export const AppleWhiteIcon = imageFromSource(require('assets/apple-white.svg'));
+export const AppleBlackIcon = imageFromSource(require('assets/apple-black.svg'));
 export const GoogleIcon = imageFromSource(require('assets/google.png'));
 // export const GenericTokenIcon = fromSource(require('assets/ethereum-light.svg'));
 

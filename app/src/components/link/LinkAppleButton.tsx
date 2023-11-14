@@ -1,6 +1,6 @@
 import { FragmentType, gql, useFragment } from '@api';
 import { Fab } from '~/components/Fab';
-import { AppleIcon } from '@theme/icons';
+import { AppleWhiteIcon } from '@theme/icons';
 import { createStyles, useStyles } from '@theme/styles';
 import { useLinkApple } from '~/hooks/cloud/useLinkApple';
 
@@ -26,7 +26,7 @@ export function LinkAppleButton({ onLink, ...props }: LinkAppleButtonProps) {
   return (
     <Fab
       position="relative"
-      icon={AppleIcon}
+      icon={AppleWhiteIcon}
       color={styles.icon.color}
       style={styles.container}
       onPress={async () => {

@@ -32,7 +32,7 @@ export function useLinkGoogle({ signOut, ...props }: UseLinkGoogleProps) {
   const getApprover = useGetGoogleApprover();
   const link = useMutation(Link)[1];
 
-  if (!getApprover) return null;
+  if (!getApprover) return undefined;
 
   return async () => {
     const r = await getApprover({ signOut });

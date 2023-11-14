@@ -31,7 +31,7 @@ export function useLinkApple(params: useLinkAppleParams) {
   const getApprover = useGetAppleApprover();
   const link = useMutation(Link)[1];
 
-  if (!getApprover) return null;
+  if (!getApprover) return undefined;
 
   return async () => {
     const r = await getApprover({});
