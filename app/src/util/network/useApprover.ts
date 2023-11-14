@@ -8,6 +8,7 @@ export const DANGEROUS_approverAtom = persistedAtom<Approver, string>(
   'Approver',
   () => Approver.createRandom().connect(PROVIDER),
   {
+    persistInitial: true,
     stringifiy: (approver) => approver.privateKey,
     parse: (privateKey) => new Approver(privateKey, PROVIDER),
     storage: secureJsonStorage(),
