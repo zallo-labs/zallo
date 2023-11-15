@@ -11,16 +11,14 @@ export function ScreenSurface({ children, surfaceStyle, ...scrollViewProps }: Sc
   const { styles } = useStyles(stylesheet);
 
   return (
-    <>
-      <MaybeSurface elevation={0} style={[styles.surface, surfaceStyle]}>
-        <ScrollView
-          {...scrollViewProps}
-          contentContainerStyle={[styles.contentContainer, scrollViewProps.contentContainerStyle]}
-        >
-          {children}
-        </ScrollView>
-      </MaybeSurface>
-    </>
+    <MaybeSurface elevation={0} style={[styles.surface, surfaceStyle]}>
+      <ScrollView
+        {...scrollViewProps}
+        contentContainerStyle={[styles.contentContainer, scrollViewProps.contentContainerStyle]}
+      >
+        {children}
+      </ScrollView>
+    </MaybeSurface>
   );
 }
 
