@@ -74,7 +74,7 @@ export function ApprovalSettings(props: ApprovalSettingsProps) {
         onPress={toggleExpanded}
       />
       <Collapsible collapsed={!expanded}>
-        <View style={styles.headerContainer}>
+        <View style={styles.thresholdContainer}>
           <ThresholdChip />
         </View>
 
@@ -98,11 +98,11 @@ export function ApprovalSettings(props: ApprovalSettingsProps) {
 }
 
 const stylesheet = createStyles(({ colors }) => ({
-  headerContainer: {
+  thresholdContainer: {
     flexDirection: 'row',
     marginLeft: 16,
     marginRight: 24,
-    marginVertical: 8,
+    marginBottom: 8,
   },
   noApproversText: {
     textAlign: 'center',

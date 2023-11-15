@@ -1,7 +1,8 @@
 import { FragmentType, gql, useFragment } from '@api';
+import { PolicyIcon } from '@theme/icons';
 import { createStyles } from '@theme/styles';
 import { useAtomValue, useSetAtom } from 'jotai';
-import { View } from 'react-native';
+import { ScrollView, View } from 'react-native';
 import { Chip, Text } from 'react-native-paper';
 import { POLICY_DRAFT_ATOM } from '~/lib/policy/draft';
 import { usePolicyPresets } from '~/lib/policy/presets';
@@ -29,30 +30,41 @@ export function PolicySuggestions(props: PolicySuggestionsProps) {
 
   return (
     <View style={styles.container}>
-      <Text variant="labelLarge">Start from one of our presets</Text>
-      <View style={styles.suggestions}>
+      <Text variant="labelLarge" style={styles.title}>
+        Use preset
+      </Text>
+
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.suggestions}
+      >
         {Object.values(presets).map((preset) => (
           <Chip
             key={preset.name}
-            mode="flat"
+            mode="outlined"
+            icon={PolicyIcon}
             onPress={() => setDraft((d) => ({ ...d, ...preset }))}
           >
             {preset.name}
           </Chip>
         ))}
-      </View>
+      </ScrollView>
     </View>
   );
 }
 
 const styles = createStyles({
   container: {
-    marginHorizontal: 16,
     marginVertical: 8,
     gap: 8,
+  },
+  title: {
+    marginHorizontal: 16,
   },
   suggestions: {
     flexDirection: 'row',
     gap: 8,
+    marginHorizontal: 16,
   },
 });
