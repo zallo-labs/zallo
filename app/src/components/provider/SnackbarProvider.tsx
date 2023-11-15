@@ -116,8 +116,8 @@ export const showSuccess = (message: string, options?: ShowSnackOptions) =>
 export const showWarning = (message: string, options?: ShowSnackOptions) =>
   showSnack(message, { ...options, variant: 'warning' });
 
-export const showError = (message: string, options?: ShowSnackOptions) =>
-  showSnack(message, { ...options, variant: 'error' });
+export const showError = (message: string | undefined, options?: ShowSnackOptions) =>
+  showSnack(message ?? 'Something went wrong', { ...options, variant: 'error' });
 
 export const hideSnackbar = RnToast.hide;
 
