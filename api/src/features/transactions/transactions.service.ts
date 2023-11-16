@@ -13,8 +13,11 @@ import {
   isHex,
   tryOrCatchAsync,
   estimateTransactionTotalGas,
+  asLocalAddress,
+  asApproval,
+  asAddress,
 } from 'lib';
-import { ProviderService } from '~/features/util/provider/provider.service';
+import { NetworksService } from '~/features/util/networks/networks.service';
 import { selectTransactionProposal } from '../transaction-proposals/transaction-proposals.service';
 import { TransactionEvent, TRANSACTIONS_QUEUE } from './transactions.queue';
 import {
@@ -41,7 +44,7 @@ import { ProposalEvent } from '../proposals/proposals.input';
 export class TransactionsService {
   constructor(
     private db: DatabaseService,
-    private provider: ProviderService,
+    private networks: NetworksService,
     @InjectQueue(TRANSACTIONS_QUEUE.name)
     private transactionsQueue: Queue<TransactionEvent>,
     private proposals: ProposalsService,
@@ -87,12 +90,15 @@ export class TransactionsService {
     if (proposal.status !== 'Pending' && proposal.status !== 'Failed')
       throw new UserInputError(`Proposal ${uniqueProposal} must be pending or failed to execute`);
 
+    const network = this.networks.for(proposal.account.address);
+
     const approvals = (
       await mapAsync(proposal.approvals, (a) =>
-        this.provider.asApproval({
-          digest: proposal.hash as Hex,
-          approver: a.approver.address as Address,
-          signature: a.signature as Hex,
+        asApproval({
+          network,
+          digest: asHex(proposal.hash),
+          approver: asAddress(a.approver.address),
+          signature: asHex(a.signature),
         }),
       )
     ).filter(isPresent);
@@ -127,12 +133,15 @@ export class TransactionsService {
     );
     if (!policy) return undefined;
 
-    const gasPrice = (await this.provider.getGasPrice()).toBigInt();
+    const gasPrice = await network.getGasPrice(); // mainnet TODO: get gas based on payment token; maybe from paymaster
 
     const transaction = await tryOrCatchAsync(
       async () =>
         await executeTx({
-          account: this.provider.connectAccount(proposal.account.address as Address),
+          account: {
+            address: asLocalAddress(proposal.account.address),
+            provider: network.provider,
+          },
           tx,
           policy,
           approvals,
@@ -174,7 +183,10 @@ export class TransactionsService {
       ProposalEvent.submitted,
     );
 
-    await this.transactionsQueue.add({ transaction: transactionHash }, { delay: 2000 /* 2s */ });
+    await this.transactionsQueue.add(
+      { chain: network.chain.key, transaction: transactionHash },
+      { delay: 2000 /* 2s */ },
+    );
 
     return transactionHash;
   }

@@ -9,7 +9,7 @@ import {
   estimateTransactionOperationsGas,
   FALLBACK_OPERATIONS_GAS,
 } from 'lib';
-import { ProviderService } from '~/features/util/provider/provider.service';
+import { NetworksService } from '~/features/util/networks/networks.service';
 import { TransactionsService } from '../transactions/transactions.service';
 import {
   OperationInput,
@@ -41,7 +41,7 @@ export const selectTransactionProposal = (
 export class TransactionProposalsService {
   constructor(
     private db: DatabaseService,
-    private provider: ProviderService,
+    private networks: NetworksService,
     private expo: ExpoService,
     private proposals: ProposalsService,
     @Inject(forwardRef(() => TransactionsService))
@@ -108,9 +108,9 @@ export class TransactionProposalsService {
       validFrom,
       gasLimit:
         gasLimit ||
-        (await estimateTransactionOperationsGas(this.provider, account, tx)).unwrapOr(
-          FALLBACK_OPERATIONS_GAS,
-        ),
+        (
+          await estimateTransactionOperationsGas(this.networks.for(account).provider, account, tx)
+        ).unwrapOr(FALLBACK_OPERATIONS_GAS),
       feeToken: this.selectFeeToken(feeToken),
     });
 

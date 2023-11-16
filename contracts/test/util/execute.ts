@@ -9,5 +9,5 @@ export const getApprovals = async (
   mapAsync([...approvers], async (approver) => ({
     type: 'secp256k1',
     approver,
-    signature: await signTx(WALLETS.find((w) => w.address === approver)!, account.address, tx),
+    signature: signTx(WALLETS.find((w) => w.address === approver)!, account.address, tx),
   }));

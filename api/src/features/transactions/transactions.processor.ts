@@ -2,11 +2,13 @@ import { OnQueueFailed, Process, Processor } from '@nestjs/bull';
 import { Injectable, Logger } from '@nestjs/common';
 import { Job } from 'bull';
 import { TransactionEvent, TRANSACTIONS_QUEUE } from './transactions.queue';
-import { ProviderService } from '../util/provider/provider.service';
+import { NetworksService } from '../util/networks/networks.service';
 import { Log, TransactionReceipt } from '@ethersproject/abstract-provider';
 import { Block } from 'zksync-web3/build/src/types';
+import { Chain } from 'lib';
 
 export interface TransactionData {
+  chain: Chain;
   receipt: TransactionReceipt;
   block: Block;
 }
@@ -25,7 +27,7 @@ export class TransactionsProcessor {
   private listeners: TransactionListener[] = [];
   private eventListeners = new Map<string, TransactionEventListener[]>();
 
-  constructor(private provider: ProviderService) {}
+  constructor(private networks: NetworksService) {}
 
   onTransaction(listener: TransactionListener) {
     this.listeners.push(listener);
@@ -37,17 +39,19 @@ export class TransactionsProcessor {
 
   @Process()
   async process(job: Job<TransactionEvent>) {
-    const { transaction: transactionHash } = job.data;
+    const { chain, transaction: transactionHash } = job.data;
 
-    const receipt = await this.provider.waitForTransaction(transactionHash, 1, 10000);
-    const block = await this.provider.getBlock(receipt.blockHash);
+    const network = this.networks.get(chain);
+    const receipt = await network.provider.waitForTransaction(transactionHash, 1, 10000);
+    const block = await network.provider.getBlock(receipt.blockHash);
 
     await Promise.all([
-      ...this.listeners.map((listener) => listener({ receipt, block })),
-      ...receipt.logs.flatMap((log) =>
-        this.eventListeners
-          .get(log.topics[0])
-          ?.map((listener) => listener({ log, receipt, block })),
+      ...this.listeners.map((listener) => listener({ chain, receipt, block })),
+      ...receipt.logs.flatMap(
+        (log) =>
+          this.eventListeners
+            .get(log.topics[0])
+            ?.map((listener) => listener({ chain, log, receipt, block })),
       ),
     ]);
   }

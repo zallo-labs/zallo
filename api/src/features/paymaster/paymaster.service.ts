@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { ProviderService } from '../util/provider/provider.service';
+import { NetworksService } from '../util/networks/networks.service';
 import assert from 'assert';
-import { Address, asAddress } from 'lib';
+import { Address, CHAINS, asAddress } from 'lib';
 import * as zk from 'zksync-web3';
 import { ETH_ADDRESS } from 'zksync-web3/build/src/utils';
 import { BigNumber } from 'ethers';
@@ -14,11 +14,11 @@ interface GetPaymasterParamsOptions {
 
 @Injectable()
 export class PaymasterService {
-  constructor(private provider: ProviderService) {}
+  constructor(private networks: NetworksService) {}
 
   async getPaymaster() {
-    assert(this.provider.chain.testnet); // Mainnet TODO: testnet paymaster can't be used
-    const paymaster = await this.provider.getTestnetPaymasterAddress();
+    const network = this.networks.get(CHAINS['zksync-goerli']); // Mainnet TODO: paymaster address
+    const paymaster = await network.provider.getTestnetPaymasterAddress();
     if (!paymaster) throw new Error('Failed to get testnet paymaster address');
 
     return asAddress(paymaster);
@@ -38,11 +38,12 @@ export class PaymasterService {
   }
 
   async getGasPrice(feeToken: Address) {
-    assert(this.provider.chain.testnet); // Mainnet TODO: get correct gas price
+    const network = this.networks.for(feeToken);
+    assert(network.chain.testnet); // Mainnet TODO: get correct gas price
     // On testnet the conversion is 1:1 token:ETH (wei)
 
     try {
-      return (await this.provider.getGasPrice()).toBigInt();
+      return await network.getGasPrice();
     } catch (e) {
       console.warn(`Failed to fetch gas price for ${feeToken}: ${e}`);
       return null;

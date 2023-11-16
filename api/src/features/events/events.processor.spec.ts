@@ -1,16 +1,17 @@
 import { Test } from '@nestjs/testing';
 import { EVENTS_QUEUE, EventsProcessor, EventJobData } from './events.processor';
 import { DeepMocked, createMock } from '@golevelup/ts-jest';
-import { ProviderService } from '../util/provider/provider.service';
+import { Network, NetworksService } from '../util/networks/networks.service';
 import { BullModule, getQueueToken } from '@nestjs/bull';
 import { Job, Queue } from 'bull';
 import { Log } from 'zksync-web3/build/src/types';
 import { DEFAULT_REDIS_NAMESPACE, getRedisToken } from '@songkeys/nestjs-redis';
+import { DeepPartial } from '~/util/test';
 
 describe(EventsProcessor.name, () => {
   let processor: EventsProcessor;
   let queue: DeepMocked<Queue<EventJobData>>;
-  let provider: DeepMocked<ProviderService>;
+  let networks: DeepMocked<NetworksService>;
   let attemptsMade = 0;
 
   let topic1Listener: jest.Mock;
@@ -37,17 +38,22 @@ describe(EventsProcessor.name, () => {
     topic1Listener = jest.fn();
     processor.on('topic 1', topic1Listener);
 
-    provider = module.get(ProviderService);
-    provider.getLogs.mockReturnValue((async () => logs)());
-    provider.getBlockNumber.mockReturnValue((async () => 1)());
+    networks = module.get(NetworksService);
+    networks.get.mockReturnValue({
+      getBlockNumber: async () => 1n,
+      provider: { getLogs: async () => logs },
+    } satisfies DeepPartial<Network> as unknown as Network);
 
     queue = module.get(getQueueToken(EVENTS_QUEUE.name));
 
     attemptsMade = 0;
   });
 
-  const process = (data: EventJobData) =>
-    processor.process({ data, attemptsMade: attemptsMade++ } as Job<EventJobData>);
+  const process = (data: Omit<EventJobData, 'chain'>) =>
+    processor.process({
+      data: { ...data, chain: 'zksync-local' },
+      attemptsMade: attemptsMade++,
+    } as Job<EventJobData>);
 
   it('send relevant event to listeners', async () => {
     await process({ from: 1 });
@@ -79,12 +85,16 @@ describe(EventsProcessor.name, () => {
   });
 
   it('split into 2 jobs if too many results', async () => {
-    provider.getBlockNumber.mockReturnValue((async () => 10)());
-    provider.getLogs.mockImplementation(async () => {
-      throw new Error(
-        'Query returned more than 10000 results. Try with this block range [0x01, 0x03]',
-      );
-    });
+    networks.get.mockReturnValue({
+      getBlockNumber: async () => 10n,
+      provider: {
+        getLogs: async () => {
+          throw new Error(
+            'Query returned more than 10000 results. Try with this block range [0x01, 0x03]',
+          );
+        },
+      },
+    } satisfies DeepPartial<Network> as unknown as Network);
 
     queue.addBulk.mockImplementation(async (jobs) => {
       expect(jobs).toHaveLength(2);

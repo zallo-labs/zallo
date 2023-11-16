@@ -6,7 +6,7 @@ import e from '~/edgeql-js';
 import { uuid } from 'edgedb/dist/codecs/ifaces';
 import { Address, ERC20_ABI, isAddress } from 'lib';
 import { and, or } from '../database/database.util';
-import { ProviderService } from '../util/provider/provider.service';
+import { NetworksService } from '../util/networks/networks.service';
 import { UserInputError } from '@nestjs/apollo';
 import { OrderByObjExpr } from '~/edgeql-js/select';
 
@@ -14,7 +14,7 @@ import { OrderByObjExpr } from '~/edgeql-js/select';
 export class TokensService {
   constructor(
     private db: DatabaseService,
-    private provider: ProviderService,
+    private networks: NetworksService,
   ) {}
 
   async selectUnique(id: uuid | Address, shape?: ShapeFunc<typeof e.Token>) {
@@ -108,7 +108,7 @@ export class TokensService {
     );
     if (t) return t;
 
-    const [name, symbol, decimals] = await this.provider.client.multicall({
+    const [name, symbol, decimals] = await this.networks.for(address).multicall({
       contracts: [
         {
           abi: ERC20_ABI,

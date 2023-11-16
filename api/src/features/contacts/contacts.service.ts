@@ -7,7 +7,6 @@ import { ContactsInput, UpsertContactInput } from './contacts.input';
 import { uuid } from 'edgedb/dist/codecs/ifaces';
 import { isAddress } from 'ethers/lib/utils';
 import { or } from '../database/database.util';
-import { ProviderService } from '../util/provider/provider.service';
 import { CONFIG } from '~/config';
 
 type UniqueContact = uuid | Address;
@@ -21,12 +20,9 @@ export const uniqueContact = (u: UniqueContact) =>
 export class ContactsService {
   private hardcodedContracts: Record<Address, string>;
 
-  constructor(
-    private db: DatabaseService,
-    private provider: ProviderService,
-  ) {
+  constructor(private db: DatabaseService) {
     this.hardcodedContracts = {
-      [this.provider.walletAddress]: 'Zallo',
+      // [this.networks.walletAddress]: 'Zallo',
       // mainnet TODO: handle chain
       '0x2da10A1e27bF85cEdD8FFb1AbBe97e53391C0295': 'SyncSwap', // SyncSwap router - mainnet
       '0xB3b7fCbb8Db37bC6f572634299A58f51622A847e': 'SyncSwap', // SyncSwap router - testnet

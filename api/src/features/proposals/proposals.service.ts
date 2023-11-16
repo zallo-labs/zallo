@@ -2,11 +2,11 @@ import { UserInputError } from '@nestjs/apollo';
 import { Injectable } from '@nestjs/common';
 import { uuid } from 'edgedb/dist/codecs/ifaces';
 import e from '~/edgeql-js';
-import { Address, Hex, isHex } from 'lib';
+import { Address, Hex, asApproval, isHex } from 'lib';
 import { getUserCtx } from '~/request/ctx';
 import { ShapeFunc } from '../database/database.select';
 import { DatabaseService } from '../database/database.service';
-import { ProviderService } from '~/features/util/provider/provider.service';
+import { NetworksService } from '~/features/util/networks/networks.service';
 import {
   ApproveInput,
   LabelProposalRiskInput,
@@ -38,7 +38,7 @@ export const getProposalAccountTrigger = (account: Address) => `proposal.account
 export class ProposalsService {
   constructor(
     private db: DatabaseService,
-    private provider: ProviderService,
+    private networks: NetworksService,
     private pubsub: PubsubService,
   ) {}
 
@@ -85,7 +85,14 @@ export class ProposalsService {
   }
 
   async approve({ hash, approver = getUserCtx().approver, signature }: ApproveInput) {
-    if (!(await this.provider.verifySignature({ digest: hash, approver, signature })))
+    if (
+      !(await asApproval({
+        digest: hash,
+        approver,
+        signature,
+        network: this.networks.for(approver),
+      }))
+    )
       throw new UserInputError('Invalid signature');
 
     await this.db.transaction(async (db) => {

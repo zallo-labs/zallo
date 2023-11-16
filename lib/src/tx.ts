@@ -1,4 +1,4 @@
-import { Address, asChainId } from './address';
+import { Address, asChain } from './address';
 import { asHex, EMPTY_HEX_BYTES } from './bytes';
 import { Operation, encodeOperationsData } from './operation';
 import _ from 'lodash';
@@ -33,7 +33,7 @@ export const asTransactionData = (account: Address, tx: Tx): TransactionData => 
 
 export const getAccountTypedDataDomain = (account: Address) =>
   ({
-    chainId: asChainId(account),
+    chainId: asChain(account).id,
     verifyingContract: account,
   }) satisfies TypedDataDomain;
 

@@ -7,7 +7,7 @@ import { ApproversModule } from './features/approvers/approvers.module';
 import { AuthModule } from './features/auth/auth.module';
 import { AuthGuard } from './features/auth/auth.guard';
 import { ApolloModule } from './apollo/apollo.module';
-import { ProviderModule } from './features/util/provider/provider.module';
+import { NetworksModule } from './features/util/networks/networks.module';
 import { ContactsModule } from './features/contacts/contacts.module';
 import { DatabaseModule } from './features/database/database.module';
 import { ContractFunctionsModule } from './features/contract-functions/contract-functions.module';
@@ -43,7 +43,7 @@ import { ProposalsModule } from './features/proposals/proposals.module';
     BullModule,
     ApolloModule,
     PubsubModule,
-    ProviderModule,
+    NetworksModule,
     // Features
     AccountsModule,
     ApproversModule,

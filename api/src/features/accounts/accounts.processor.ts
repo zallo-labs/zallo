@@ -1,7 +1,7 @@
 import { OnQueueFailed, Process, Processor } from '@nestjs/bull';
 import { Injectable, Logger } from '@nestjs/common';
 import { Job } from 'bull';
-import { ProviderService } from '../util/provider/provider.service';
+import { NetworksService } from '../util/networks/networks.service';
 import { AccountsService } from './accounts.service';
 import { AccountEvent } from './accounts.input';
 import { ACCOUNTS_QUEUE, AccountActivationEvent } from './accounts.queue';
@@ -15,7 +15,7 @@ import { and } from '../database/database.util';
 export class AccountsProcessor {
   constructor(
     private db: DatabaseService,
-    private provider: ProviderService,
+    private networks: NetworksService,
     private accounts: AccountsService,
   ) {}
 
@@ -28,7 +28,9 @@ export class AccountsProcessor {
   async process(job: Job<AccountActivationEvent>) {
     const { account, transaction } = job.data;
 
-    const receipt = await tryOrIgnoreAsync(() => this.provider.getTransactionReceipt(transaction));
+    const receipt = await tryOrIgnoreAsync(() =>
+      this.networks.for(account).provider.getTransactionReceipt(transaction),
+    );
     if (!receipt) return job.moveToFailed({ message: 'Transaction receipt not found' });
 
     if (receipt.status !== 1) {

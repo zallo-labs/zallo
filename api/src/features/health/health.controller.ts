@@ -3,7 +3,7 @@ import { HealthCheck, HealthCheckService } from '@nestjs/terminus';
 import { Public } from '~/decorators/public.decorator';
 import { RedisHealthIndicator } from '../util/redis/redis.indicator';
 import { DatabaseHealthIndicator } from '../database/database.health';
-import { ProviderHealthIndicator } from '../util/provider/provider.health';
+import { NetworksHealthIndicator } from '../util/networks/networks.health';
 import { InjectRedis } from '@songkeys/nestjs-redis';
 import Redis from 'ioredis';
 import { InjectRedisSubscriber } from '~/decorators/redis.decorator';
@@ -14,7 +14,7 @@ export class HealthController {
     private health: HealthCheckService,
     private dbHealth: DatabaseHealthIndicator,
     private redisHealth: RedisHealthIndicator,
-    private providerHealth: ProviderHealthIndicator,
+    private providerHealth: NetworksHealthIndicator,
     @InjectRedis()
     private readonly redis: Redis,
     @InjectRedisSubscriber()

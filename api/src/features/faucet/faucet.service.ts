@@ -1,6 +1,6 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { Address, filterAsync } from 'lib';
-import { ProviderService } from '~/features/util/provider/provider.service';
+import { NetworksService } from '~/features/util/networks/networks.service';
 import { selectAccount } from '../accounts/accounts.util';
 import { DatabaseService } from '../database/database.service';
 import e from '~/edgeql-js';
@@ -11,7 +11,10 @@ import { ETH_ADDRESS } from 'zksync-web3/build/src/utils';
 export class FaucetService implements OnModuleInit {
   private tokens: { address: Address; amount: bigint }[] = [];
 
-  constructor(private provider: ProviderService, private db: DatabaseService) {}
+  constructor(
+    private networks: NetworksService,
+    private db: DatabaseService,
+  ) {}
 
   async onModuleInit() {
     const tokens = await this.db.query(
@@ -34,11 +37,19 @@ export class FaucetService implements OnModuleInit {
 
   async requestTokens(account: Address): Promise<Address[]> {
     const tokensToSend = await this.getTokensToSend(account);
+    const network = this.networks.for(account);
 
     return (
-      await filterAsync(
-        tokensToSend,
-        async (token) => !!(await this.transfer(account, token.address, token.amount)),
+      await filterAsync(tokensToSend, async (token) =>
+        network.useWallet(async (wallet) => {
+          const tx = await wallet.transfer({
+            to: account,
+            token: token.address,
+            amount: token.amount,
+          });
+
+          return (await tx.wait()).status === 0;
+        }),
       )
     ).map((token) => token.address);
   }
@@ -46,26 +57,16 @@ export class FaucetService implements OnModuleInit {
   private async getTokensToSend(account: Address) {
     if (!(await this.db.query(selectAccount(account)))) return [];
 
+    const network = this.networks.for(account);
+    if (!network.chain.testnet) return [];
+
     return filterAsync(this.tokens, async (token) => {
-      const recipientBalance = await this.provider.getBalance(account, undefined, token.address);
-      if (recipientBalance.gte(token.amount)) return false;
+      const [recipientBalance, faucetBalance] = await Promise.all([
+        network.balance({ account, token: token.address }),
+        network.balance({ account: network.walletAddress, token: token.address }),
+      ]);
 
-      const walletBalance = await this.provider.getBalance(
-        this.provider.walletAddress,
-        undefined,
-        token.address,
-      );
-      if (walletBalance.lt(token.amount)) return false;
-
-      return true;
-    });
-  }
-
-  private async transfer(to: Address, token: Address, amount: bigint) {
-    return this.provider.useWallet(async (wallet) => {
-      const tx = await wallet.transfer({ to, token, amount });
-
-      return tx.wait();
+      return recipientBalance < token.amount && faucetBalance > token.amount;
     });
   }
 }

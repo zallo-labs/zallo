@@ -1,13 +1,25 @@
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { DatabaseService } from '../database/database.service';
 import e from '~/edgeql-js';
-import { Address, DeploySalt, Policy, asHex, asPolicyKey, randomDeploySalt } from 'lib';
+import {
+  Address,
+  DeploySalt,
+  Policy,
+  asHex,
+  asLocalAddress,
+  asPolicyKey,
+  randomDeploySalt,
+  getProxyAddress,
+  Factory__factory,
+  UAddress,
+  deployAccountProxy,
+} from 'lib';
 import { ShapeFunc } from '../database/database.select';
 import { AccountEvent, CreateAccountInput, UpdateAccountInput } from './accounts.input';
 import { getApprover, getUserCtx } from '~/request/ctx';
 import { UserInputError } from '@nestjs/apollo';
 import { CONFIG } from '~/config';
-import { ProviderService } from '../util/provider/provider.service';
+import { NetworksService } from '../util/networks/networks.service';
 import { PubsubService } from '../util/pubsub/pubsub.service';
 import { ContractsService } from '../contracts/contracts.service';
 import { FaucetService } from '../faucet/faucet.service';
@@ -32,7 +44,7 @@ export interface AccountSubscriptionPayload {
 export class AccountsService {
   constructor(
     private db: DatabaseService,
-    private provider: ProviderService,
+    private networks: NetworksService,
     private pubsub: PubsubService,
     private contracts: ContractsService,
     private faucet: FaucetService,
@@ -80,18 +92,24 @@ export class AccountsService {
       .run(this.db.DANGEROUS_superuserClient);
   }
 
-  async createAccount({ label, policies: policyInputs }: CreateAccountInput) {
+  async createAccount({
+    chain: chainKey = 'zksync-goerli',
+    label,
+    policies: policyInputs,
+  }: CreateAccountInput) {
+    const network = this.networks.get(chainKey);
     const approver = getApprover();
 
     if (!policyInputs.find((p) => p.approvers.includes(approver)))
       throw new UserInputError('User must be included in at least one policy');
 
-    const implementation = CONFIG.accountImplAddress;
+    const implementation = CONFIG.accountImplementation[chainKey];
     const salt = randomDeploySalt();
     const policies = policyInputs.map((p, i) => inputAsPolicy(asPolicyKey(i), p));
 
-    const account = await this.provider.getProxyAddress({
-      impl: implementation,
+    const account = await getProxyAddress({
+      factory: Factory__factory.connect(CONFIG.proxyFactory[chainKey], network.provider),
+      impl: asLocalAddress(implementation),
       salt,
       policies,
     });
@@ -152,15 +170,19 @@ export class AccountsService {
 
   private async activateAccount(
     account: Address,
-    implementation: Address,
+    implementation: UAddress,
     salt: DeploySalt,
     policies: Policy[],
   ) {
-    const { transaction, account: deployedAccount } = await this.provider.deployProxy({
-      impl: implementation,
-      salt,
-      policies,
-    });
+    const network = this.networks.for(account);
+    const { transaction, account: deployedAccount } = await network.useWallet(async (wallet) =>
+      deployAccountProxy({
+        factory: Factory__factory.connect(CONFIG.proxyFactory[network.key], wallet),
+        impl: asLocalAddress(implementation),
+        salt,
+        policies,
+      }),
+    );
 
     if (account !== deployedAccount.address)
       throw new Error(

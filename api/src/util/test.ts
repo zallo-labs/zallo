@@ -13,3 +13,9 @@ export const randomLabel = () => randomHex(19);
 export const ZERO_HASH = zeroHexBytes(32);
 
 export const randomUser = (): UserContext => ({ approver: randomAddress(), accounts: [] });
+
+export type DeepPartial<T> = T extends object
+  ? {
+      [P in keyof T]?: DeepPartial<T[P]>;
+    }
+  : T;

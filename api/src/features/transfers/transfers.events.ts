@@ -8,7 +8,7 @@ import { EventData, EventsProcessor } from '../events/events.processor';
 import { DatabaseService } from '../database/database.service';
 import e from '~/edgeql-js';
 import { selectAccount } from '../accounts/accounts.util';
-import { ProviderService } from '../util/provider/provider.service';
+import { NetworksService } from '../util/networks/networks.service';
 import { BOOTLOADER_FORMAL_ADDRESS, ETH_ADDRESS } from 'zksync-web3/build/src/utils';
 import { L2_ETH_TOKEN_ADDRESS } from 'zksync-web3/build/src/utils';
 import { uuid } from 'edgedb/dist/codecs/ifaces';
@@ -38,7 +38,7 @@ export class TransfersEvents {
     private db: DatabaseService,
     private eventsProcessor: EventsProcessor,
     private transactionsProcessor: TransactionsProcessor,
-    private provider: ProviderService,
+    private networks: NetworksService,
     private pubsub: PubsubService,
     private accountsCache: AccountsCacheService,
     private expo: ExpoService,
@@ -77,7 +77,8 @@ export class TransfersEvents {
     if (!accounts.length) return;
 
     const token = normalizeEthAddress(asAddress(log.address));
-    const { timestamp } = await this.provider.getBlock(log.blockNumber);
+    const network = this.networks.for(token);
+    const { timestamp } = await network.provider.getBlock(log.blockNumber);
     const block = BigInt(log.blockNumber);
 
     await Promise.all(
@@ -120,7 +121,7 @@ export class TransfersEvents {
           ),
         );
 
-        this.provider.invalidateBalance({ account, token });
+        network.invalidateBalance({ account, token });
 
         this.pubsub.publish<TransferSubscriptionPayload>(getTransferTrigger(account), {
           transfer: transfer.id,
@@ -164,9 +165,9 @@ export class TransfersEvents {
     const accounts = [isAccount[0] && from, isAccount[1] && to].filter(isTruthy);
     if (!accounts.length) return;
 
-    Logger.debug(`Transfer approval ${from} -> ${to}`);
-    const block = await this.provider.getBlock(log.blockNumber);
     const tokenAddress = normalizeEthAddress(asAddress(log.address));
+    const block = await this.networks.for(tokenAddress).provider.getBlock(log.blockNumber);
+    Logger.debug(`Transfer approval ${tokenAddress}: ${from} -> ${to}`);
 
     await Promise.all(
       accounts.map(async (account) => {

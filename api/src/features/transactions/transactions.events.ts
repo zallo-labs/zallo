@@ -1,5 +1,5 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
-import { ACCOUNT_ABI, asAddress, asHex, Hex, tryOrCatch } from 'lib';
+import { ACCOUNT_ABI, asAddress, asChain, asHex, asUAddress, Hex, tryOrCatch } from 'lib';
 import {
   TransactionData,
   TransactionEventData,
@@ -11,7 +11,7 @@ import { Queue } from 'bull';
 import e from '~/edgeql-js';
 import { DatabaseService } from '../database/database.service';
 import { and } from '../database/database.util';
-import { ProviderService } from '../util/provider/provider.service';
+import { NetworksService } from '../util/networks/networks.service';
 import { EIP712_TX_TYPE } from 'zksync-web3/build/src/utils';
 import { decodeEventLog, getAbiItem, getEventSelector } from 'viem';
 import { ProposalsService } from '../proposals/proposals.service';
@@ -28,7 +28,7 @@ export class TransactionsEvents implements OnModuleInit {
     private queue: Queue<TransactionEvent>,
     private db: DatabaseService,
     @InjectRedis() private redis: Redis,
-    private provider: ProviderService,
+    private networks: NetworksService,
     private transactionsProcessor: TransactionsProcessor,
     private proposals: ProposalsService,
   ) {
@@ -92,10 +92,15 @@ export class TransactionsEvents implements OnModuleInit {
     );
   }
 
-  private async reverted({ receipt, block }: TransactionData) {
+  private async reverted({ chain, receipt, block }: TransactionData) {
     if (receipt.status !== 0) return;
 
-    const revertReason = await this.getRevertReason(receipt);
+    const network = this.networks.get(chain);
+    const tx = await network.provider.getTransaction(receipt.transactionHash);
+    const revertReason = await network.provider.call(
+      { ...tx, type: EIP712_TX_TYPE },
+      receipt.blockNumber,
+    );
 
     const transaction = e.update(e.Transaction, () => ({
       filter_single: { hash: asHex(receipt.transactionHash) },
@@ -128,7 +133,7 @@ export class TransactionsEvents implements OnModuleInit {
   private async addMissingJobs() {
     const jobs = await this.queue.getJobs(RUNNING_JOB_STATUSES);
 
-    const orphanedTransactionHashes = await this.db.query(
+    const orphanedTransactions = await this.db.query(
       e.select(e.Transaction, (t) => ({
         filter: and(
           e.op('not', e.op('exists', t.receipt)),
@@ -137,19 +142,21 @@ export class TransactionsEvents implements OnModuleInit {
             : undefined,
         ),
         hash: true,
-      })).hash,
+        proposal: {
+          account: { address: true },
+        },
+      })),
     );
 
-    if (orphanedTransactionHashes.length) {
+    if (orphanedTransactions.length) {
       await this.queue.addBulk(
-        orphanedTransactionHashes.map((hash) => ({ data: { transaction: hash as Hex } })),
+        orphanedTransactions.map((t) => ({
+          data: {
+            chain: asChain(asUAddress(t.proposal.account.address)).key,
+            transaction: asHex(t.hash),
+          },
+        })),
       );
     }
-  }
-
-  private async getRevertReason(receipt: TransactionData['receipt']) {
-    const resp = await this.provider.getTransaction(receipt.transactionHash);
-
-    return this.provider.call({ ...resp, type: EIP712_TX_TYPE }, receipt.blockNumber);
   }
 }

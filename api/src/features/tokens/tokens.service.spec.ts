@@ -3,15 +3,15 @@ import { TokensService } from './tokens.service';
 import { DatabaseService } from '../database/database.service';
 import { DeepMocked, createMock } from '@golevelup/ts-jest';
 import { UserContext, asUser } from '~/request/ctx';
-import { randomAddress, randomUser } from '~/util/test';
+import { randomAddress, randomUser, DeepPartial } from '~/util/test';
 import e from '~/edgeql-js';
 import { UpsertTokenInput } from './tokens.input';
-import { ProviderService } from '../util/provider/provider.service';
+import { Network, NetworksService } from '../util/networks/networks.service';
 
 describe('TokensService', () => {
   let service: TokensService;
   let db: DatabaseService;
-  let provider: DeepMocked<ProviderService>;
+  let networks: DeepMocked<NetworksService>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -22,15 +22,11 @@ describe('TokensService', () => {
 
     service = module.get(TokensService);
     db = module.get(DatabaseService);
-    provider = module.get(ProviderService);
+    networks = module.get(NetworksService);
 
-    provider.client = jest.mocked({
-      multicall: jest.fn(async () => [
-        { result: undefined },
-        { result: undefined },
-        { result: undefined },
-      ]),
-    }) as any;
+    networks.for.mockReturnValue({
+      multicall: async () => [{ result: undefined }, { result: undefined }, { result: undefined }],
+    } satisfies DeepPartial<Network> as unknown as Network);
   });
 
   let user1: UserContext;

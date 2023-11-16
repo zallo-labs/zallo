@@ -29,7 +29,7 @@ import {
 } from './operations.model';
 import { ACCOUNT_ABI, ERC20_ABI } from 'lib';
 import { match } from 'ts-pattern';
-import { ProviderService } from '../util/provider/provider.service';
+import { NetworksService } from '../util/networks/networks.service';
 import { ETH_ADDRESS } from 'zksync-web3/build/src/utils';
 import { WETH } from '../tokens/tokens.list';
 
@@ -37,7 +37,7 @@ import { WETH } from '../tokens/tokens.list';
 export class OperationsService {
   constructor(
     private db: DatabaseService,
-    private provider: ProviderService,
+    private networks: NetworksService,
     private contracts: ContractsService,
   ) {}
 
@@ -156,7 +156,7 @@ export class OperationsService {
           const path = f.args[0][0];
 
           // Figure out the toToken by querying the pool
-          const tokenCalls = await this.provider.client.multicall({
+          const tokenCalls = await this.networks.for(to).multicall({
             contracts: [
               {
                 address: path.steps[0].pool,

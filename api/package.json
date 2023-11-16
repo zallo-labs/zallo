@@ -69,7 +69,7 @@
     "siwe": "^1.1.6",
     "ts-deepmerge": "^6.2.0",
     "ts-pattern": "^5.0.5",
-    "viem": "^1.6.0",
+    "viem": "^1.19.3",
     "zksync-web3": "^0.14.3"
   },
   "devDependencies": {

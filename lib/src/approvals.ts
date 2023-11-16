@@ -8,6 +8,9 @@ import { Hex, asHex } from './bytes';
 import { ApprovalsStruct } from './contracts/TestVerifier';
 import { newAbiType } from './util/abi';
 import { tryOrIgnore, tryOrIgnoreAsync } from './util';
+import { ERC1271_ABI } from './abi/erc1271';
+import { Network } from './chains';
+import { size } from 'viem';
 
 // Convert to a compact 64 byte (eip-2098) signature
 export const toCompactSignature = (signature: SignatureLike) =>
@@ -61,58 +64,40 @@ export const signDigest = (digest: BytesLike, approver: Approver) =>
 export const signTx = (approver: Approver, account: Address, tx: Tx) =>
   signDigest(hashTx(account, tx), approver);
 
-const ERC1271_INTERFACE = ['function isValidSignature(bytes32, bytes) view returns (bytes4)'];
 const ERC1271_SUCCESS = '0x1626ba7e';
 
-export interface VerifySignatureOptions {
-  provider: ethers.providers.Provider;
-  digest: BytesLike;
-  approver: Address;
-  signature: Hex;
-}
-
-export const verifySignature = async ({
-  provider,
-  digest,
-  approver,
-  signature,
-}: VerifySignatureOptions): Promise<SignatureType | false> => {
-  if (tryOrIgnore(() => asAddress(recoverAddress(digest, signature)) === approver))
-    return 'secp256k1';
-
-  // Note. even EOAs have contract code on zkSync
-  const isValidErc1271 = await tryOrIgnoreAsync(async () => {
-    const contract = new ethers.Contract(approver, ERC1271_INTERFACE, provider);
-
-    return (await contract.isValidSignature(digest, signature)) === ERC1271_SUCCESS;
-  });
-
-  return isValidErc1271 ? 'erc1271' : false;
-};
-
 export interface AsApprovalOptions {
-  digest: BytesLike;
+  network: Network;
+  digest: Hex;
   approver: Address;
   signature: Hex;
-  provider: ethers.providers.Provider;
 }
 
 export const asApproval = async ({
+  network,
   digest,
   approver,
   signature,
-  provider,
 }: AsApprovalOptions): Promise<Approval | null> => {
   const as = (type: SignatureType): Approval => ({ type, approver, signature });
 
-  if (tryOrIgnore(() => asAddress(recoverAddress(digest, signature)) === approver))
+  const sigSize = size(signature);
+  if (
+    (sigSize === 64 || sigSize === 65) &&
+    tryOrIgnore(() => asAddress(recoverAddress(digest, signature)) === approver)
+  )
     return as('secp256k1');
 
   // Note. even EOAs have contract code on zkSync
   const isValidErc1271 = await tryOrIgnoreAsync(async () => {
-    const contract = new ethers.Contract(approver, ERC1271_INTERFACE, provider);
+    const r = await network.readContract({
+      address: approver,
+      abi: ERC1271_ABI,
+      functionName: 'isValidSignature',
+      args: [digest, signature],
+    });
 
-    return (await contract.isValidSignature(digest, signature)) === ERC1271_SUCCESS;
+    return r === ERC1271_SUCCESS;
   });
 
   return isValidErc1271 ? as('erc1271') : null;

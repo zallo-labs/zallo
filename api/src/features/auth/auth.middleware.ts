@@ -5,7 +5,7 @@ import { Address, asAddress } from 'lib';
 import { DateTime } from 'luxon';
 import { SiweMessage } from 'siwe';
 import { CONFIG } from '~/config';
-import { ProviderService } from '~/features/util/provider/provider.service';
+import { NetworksService } from '~/features/util/networks/networks.service';
 import { AccountsCacheService } from './accounts.cache.service';
 import { Result, err, ok } from 'neverthrow';
 
@@ -35,7 +35,7 @@ export class AuthMiddleware implements NestMiddleware {
   private cache: Map<string, { address: Address; expirationTime?: number }> = new Map();
 
   constructor(
-    private provider: ProviderService,
+    private provider: NetworksService,
     private accountsCache: AccountsCacheService,
   ) {}
 

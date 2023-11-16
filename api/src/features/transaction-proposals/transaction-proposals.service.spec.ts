@@ -1,9 +1,9 @@
 import { Test } from '@nestjs/testing';
 import { createMock, DeepMocked } from '@golevelup/ts-jest';
 import { asUser, getApprover, getUserCtx, UserContext } from '~/request/ctx';
-import { randomAddress, randomHash, randomLabel, randomUser } from '~/util/test';
-import { Address, CHAINS, randomDeploySalt, Hex } from 'lib';
-import { ProviderService } from '../util/provider/provider.service';
+import { DeepPartial, randomAddress, randomHash, randomLabel, randomUser } from '~/util/test';
+import { Address, randomDeploySalt, Hex } from 'lib';
+import { Network, NetworksService } from '../util/networks/networks.service';
 import { ExpoService } from '../util/expo/expo.service';
 import { TransactionsService } from '../transactions/transactions.service';
 import { ProposeTransactionInput } from './transaction-proposals.input';
@@ -18,13 +18,14 @@ import { uuid } from 'edgedb/dist/codecs/ifaces';
 import { selectPolicy } from '../policies/policies.util';
 import { TransactionProposalStatus } from './transaction-proposals.model';
 import { v1 as uuidv1 } from 'uuid';
+import { BigNumber } from 'ethers';
 
 const signature = '0x1234' as Hex;
 
 describe(TransactionProposalsService.name, () => {
   let service: TransactionProposalsService;
   let db: DatabaseService;
-  let provider: DeepMocked<ProviderService>;
+  let networks: DeepMocked<NetworksService>;
   let expo: DeepMocked<ExpoService>;
   let transactions: DeepMocked<TransactionsService>;
 
@@ -37,15 +38,15 @@ describe(TransactionProposalsService.name, () => {
 
     service = module.get(TransactionProposalsService);
     db = module.get(DatabaseService);
-    provider = module.get(ProviderService);
+    networks = module.get(NetworksService);
     expo = module.get(ExpoService);
     transactions = module.get(TransactionsService);
 
-    provider.verifySignature.mockImplementation(async () => true);
-    provider.getNetwork.mockImplementation(async () => ({
-      chainId: CHAINS.testnet.id,
-      name: CHAINS.testnet.name,
-    }));
+    networks.for.mockReturnValue({
+      provider: {
+        estimateGas: async () => BigNumber.from(0),
+      },
+    } satisfies DeepPartial<Network> as unknown as Network);
 
     transactions.tryExecute.mockImplementation(async () => undefined);
   });

@@ -1,10 +1,11 @@
 {
   "compilerOptions": {
-    "target": "ES2021",
+    "target": "ES2022",
     "module": "commonjs",
     "moduleResolution": "node",
     "baseUrl": "./",
     "outDir": "./dist",
+    "lib": ["ESNext"],
     "incremental": true,
     "declaration": true,
     "sourceMap": true,

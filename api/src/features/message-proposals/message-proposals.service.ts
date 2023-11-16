@@ -6,10 +6,20 @@ import { TypedDataDefinition, concat, hashMessage, hexToString, keccak256 } from
 import e from '~/edgeql-js';
 import { selectAccount } from '../accounts/accounts.util';
 import { ProposalsService, UniqueProposal } from '../proposals/proposals.service';
-import { Address, Hex, asHex, encodeAccountSignature, isHex, isPresent, mapAsync } from 'lib';
+import {
+  Address,
+  Hex,
+  asApproval,
+  asHex,
+  asUAddress,
+  encodeAccountSignature,
+  isHex,
+  isPresent,
+  mapAsync,
+} from 'lib';
 import { ShapeFunc } from '../database/database.select';
 import { policyStateAsPolicy, policyStateShape } from '../policies/policies.util';
-import { ProviderService } from '../util/provider/provider.service';
+import { NetworksService } from '../util/networks/networks.service';
 import { UserInputError } from '@nestjs/apollo';
 import { ethers } from 'ethers';
 import _ from 'lodash';
@@ -19,7 +29,7 @@ import { Writable, WritableDeep } from 'ts-toolbelt/out/Object/Writable';
 export class MessageProposalsService {
   constructor(
     private db: DatabaseService,
-    private provider: ProviderService,
+    private networks: NetworksService,
     private proposals: ProposalsService,
   ) {}
 
@@ -123,12 +133,14 @@ export class MessageProposalsService {
     if (!policy) return undefined;
 
     // TODO: handle expired approvals
+    const network = await this.networks.for(proposal.account.address);
     const approvals = (
       await mapAsync(proposal.approvals, (a) =>
-        this.provider.asApproval({
+        asApproval({
           digest: proposalHash,
           approver: a.approver.address as Address,
-          signature: a.signature as Hex,
+          signature: asHex(a.signature),
+          network,
         }),
       )
     ).filter(isPresent);

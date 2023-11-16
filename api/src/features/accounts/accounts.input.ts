@@ -1,5 +1,5 @@
 import { Field, InputType, registerEnumType } from '@nestjs/graphql';
-import { Address } from 'lib';
+import { Address, CHAINS, Chain } from 'lib';
 import { AddressField, AddressScalar } from '~/apollo/scalars/Address.scalar';
 import { minLengthMiddleware } from '~/apollo/scalars/util';
 import { PolicyInput } from '../policies/policies.input';
@@ -35,8 +35,18 @@ export class AccountSubscriptionInput {
   events?: AccountEvent[];
 }
 
+const ChainEnum = {
+  zksync: 'zksync',
+  zksync_goerli: 'zksync-goerli',
+  zksync_local: 'zksync-local',
+} satisfies Record<string, Chain>;
+registerEnumType(ChainEnum, { name: 'Chain' });
+
 @InputType()
 export class CreateAccountInput {
+  @Field(() => ChainEnum, { nullable: true, defaultValue: ChainEnum['zksync_goerli'] })
+  chain?: Chain;
+
   @Field(() => String)
   label: string;
 

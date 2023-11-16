@@ -1,5 +1,4 @@
 import { BigNumber, Overrides } from 'ethers';
-import { Account } from './contracts';
 import { encodeAccountSignature } from './signature';
 import * as zk from 'zksync-web3';
 import { Eip712Meta, TransactionRequest, TransactionResponse } from 'zksync-web3/build/src/types';
@@ -12,9 +11,10 @@ import {
 } from './gas';
 import { Policy } from './policy';
 import { Approval } from './approvals';
+import { Address } from './address';
 
 export interface TransactionRequestOptions {
-  account: Account;
+  account: { address: Address; provider: zk.Provider };
   tx: Tx;
   policy: Policy;
   approvals: Approval[];
