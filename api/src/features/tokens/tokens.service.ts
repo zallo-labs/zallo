@@ -4,7 +4,7 @@ import { TokensInput, UpsertTokenInput } from './tokens.input';
 import { Scope, ShapeFunc } from '../database/database.select';
 import e from '~/edgeql-js';
 import { uuid } from 'edgedb/dist/codecs/ifaces';
-import { Address, ERC20_ABI, isAddress } from 'lib';
+import { ERC20_ABI, UAddress, asAddress, isUAddress } from 'lib';
 import { and, or } from '../database/database.util';
 import { NetworksService } from '../util/networks/networks.service';
 import { UserInputError } from '@nestjs/apollo';
@@ -17,11 +17,11 @@ export class TokensService {
     private networks: NetworksService,
   ) {}
 
-  async selectUnique(id: uuid | Address, shape?: ShapeFunc<typeof e.Token>) {
+  async selectUnique(id: uuid | UAddress, shape?: ShapeFunc<typeof e.Token>) {
     return this.db.query(
       e.assert_single(
         e.select(e.Token, (t) => ({
-          filter: isAddress(id) ? e.op(t.address, '=', id) : e.op(t.id, '=', e.uuid(id)),
+          filter: isUAddress(id) ? e.op(t.address, '=', id) : e.op(t.id, '=', e.uuid(id)),
           limit: 1,
           order_by: preferUserToken(t),
           ...shape?.(t),
@@ -83,7 +83,7 @@ export class TokensService {
     );
   }
 
-  async remove(address: Address) {
+  async remove(address: UAddress) {
     return this.db.query(
       e.delete(e.Token, () => ({
         filter_single: { address, user: e.global.current_user },
@@ -91,7 +91,7 @@ export class TokensService {
     );
   }
 
-  async getTokenMetadata(address: Address) {
+  async getTokenMetadata(address: UAddress) {
     const t = await this.db.query(
       e.assert_single(
         e.select(e.Token, (t) => ({
@@ -112,17 +112,17 @@ export class TokensService {
       contracts: [
         {
           abi: ERC20_ABI,
-          address,
+          address: asAddress(address),
           functionName: 'name',
         },
         {
           abi: ERC20_ABI,
-          address,
+          address: asAddress(address),
           functionName: 'symbol',
         },
         {
           abi: ERC20_ABI,
-          address,
+          address: asAddress(address),
           functionName: 'decimals',
         },
       ],
@@ -144,25 +144,4 @@ function preferUserToken(t: Scope<typeof e.Token>): OrderByObjExpr {
     expression: e.op('exists', t.user),
     direction: e.DESC,
   };
-}
-
-function userTokens() {
-  const grouped = e.group(e.Token, (t) => ({
-    by: { address: t.address },
-  }));
-
-  return e.with(
-    [grouped],
-    e.select(
-      e.select(grouped, () => ({
-        elements: (t) => ({
-          order_by: {
-            expression: e.op('exists', t.user),
-            direction: e.DESC,
-          },
-          limit: 1,
-        }),
-      })).elements,
-    ),
-  ) as any as typeof e.Token;
 }

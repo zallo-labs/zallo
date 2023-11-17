@@ -65,7 +65,6 @@ export namespace cfg {
 }
 export type AbiSource = "Verified";
 export interface Account extends std.$Object {
-  "address": string;
   "implementation": string;
   "isActive": boolean;
   "salt": string;
@@ -76,6 +75,8 @@ export interface Account extends std.$Object {
   "policies": Policy[];
   "photoUri"?: string | null;
   "label": string;
+  "address": string;
+  "chain": string;
 }
 export interface Action extends std.$Object {
   "functions": ActionFunction[];
@@ -115,8 +116,8 @@ export interface CloudShare extends std.$Object {
 }
 export interface Contact extends std.$Object {
   "user": User;
-  "address": string;
   "label": string;
+  "address": string;
 }
 export interface Contract extends std.$Object {
   "functions": Function[];
@@ -207,7 +208,6 @@ export interface Simulation extends std.$Object {
 }
 export interface Token extends std.$Object {
   "units"?: {symbol: string, decimals: number}[] | null;
-  "address": string;
   "name": string;
   "symbol": string;
   "decimals": number;
@@ -215,6 +215,8 @@ export interface Token extends std.$Object {
   "iconUri"?: string | null;
   "isFeeToken": boolean;
   "user"?: User | null;
+  "address": string;
+  "chain": string;
 }
 export interface Transaction extends std.$Object {
   "receipt"?: Receipt | null;
@@ -240,9 +242,9 @@ export interface TransferDetails extends std.$Object {
   "amount": bigint;
   "from": string;
   "to": string;
-  "tokenAddress": string;
   "token"?: Token | null;
   "direction": TransferDirection[];
+  "tokenAddress": string;
 }
 export interface Transferlike extends Event, TransferDetails {}
 export interface Transfer extends Transferlike {}

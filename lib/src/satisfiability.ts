@@ -1,4 +1,4 @@
-import { Address } from 'viem';
+import { Address } from './address';
 import { verifyTargetsPermission, verifyTransfersPermission } from './permissions';
 import { Policy } from './policy';
 import { Tx } from './tx';

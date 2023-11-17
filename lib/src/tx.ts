@@ -1,5 +1,6 @@
-import { Address, asChain } from './address';
+import { Address, UAddress, asChain, asLocalAddress } from './address';
 import { asHex, EMPTY_HEX_BYTES } from './bytes';
+import { CHAINS } from './chains';
 import { Operation, encodeOperationsData } from './operation';
 import _ from 'lodash';
 import { hashTypedData, TypedData, TypedDataDomain } from 'viem';
@@ -7,7 +8,8 @@ import { hashTypedData, TypedData, TypedDataDomain } from 'viem';
 export interface Tx {
   operations: [Operation, ...Operation[]];
   nonce: bigint;
-  gasLimit?: bigint;
+  gas?: bigint;
+  // TODO: add maxFeePerGas & maxPriorityFeePerGas
 }
 
 export type TxOptions = Omit<Tx, 'operations'> &
@@ -28,13 +30,13 @@ export const asTransactionData = (account: Address, tx: Tx): TransactionData => 
         data: encodeOperationsData(tx.operations),
       }),
   nonce: tx.nonce,
-  gasLimit: tx.gasLimit,
+  gas: tx.gas,
 });
 
-export const getAccountTypedDataDomain = (account: Address) =>
+export const getAccountTypedDataDomain = (account: UAddress) =>
   ({
-    chainId: asChain(account).id,
-    verifyingContract: account,
+    chainId: CHAINS[asChain(account)].id,
+    verifyingContract: asLocalAddress(account),
   }) satisfies TypedDataDomain;
 
 export const TX_EIP712_TYPES = {
@@ -42,13 +44,9 @@ export const TX_EIP712_TYPES = {
   // Encoding operations (to, value, data)[] instead of packed operations
   // Pros: improve HW wallet signing readability; allowing changing operation encoding without changing the Tx hashing
   // Cons: higher gas - but likely by very little?
-  //
-  // maxFeePerGas
-  // maxPriorityFeePerGas
-  // paymaster: problematic as this would require re-signing for ETH <-> non-ETH feeToken switching (unless the same paymaster is used regardless)
 
   /* Fields NOT included: */
-  // gasLimit: not dangerous and can't be predicted due to approvals requiring gas; a maxGasFee could be implemented instead
+  // gas: not dangerous and can't be predicted due to approvals requiring gas; maxGas could be implemented instead
   // gasPerPubdataByteLimit: maybe it should be?
   // paymasterInput: minimalAllowance can't be predicted and changing fee token would require re-signing
   // factoryDeps: not dangerous
@@ -59,6 +57,10 @@ export const TX_EIP712_TYPES = {
     { name: 'value', type: 'uint256' },
     { name: 'data', type: 'bytes' },
     { name: 'nonce', type: 'uint256' },
+    // TODO: add fields
+    // maxFeePerGas
+    // maxPriorityFeePerGas
+    // paymaster
   ],
 } satisfies TypedData;
 
@@ -73,12 +75,12 @@ export const getTransactionTypedDataMessage = (tx: Tx, account: Address) => {
   } satisfies TransactionData;
 };
 
-export const hashTx = (account: Address, tx: Tx) =>
+export const hashTx = (account: UAddress, tx: Tx) =>
   asHex(
     hashTypedData({
       domain: getAccountTypedDataDomain(account),
       types: TX_EIP712_TYPES,
       primaryType: 'Tx',
-      message: getTransactionTypedDataMessage(tx, account),
+      message: getTransactionTypedDataMessage(tx, asLocalAddress(account)),
     }),
   );

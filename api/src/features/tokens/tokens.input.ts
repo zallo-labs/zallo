@@ -1,17 +1,18 @@
 import { Field, InputType } from '@nestjs/graphql';
-import { Address } from 'lib';
-import { AddressField, AddressScalar } from '~/apollo/scalars/Address.scalar';
+import { Address, UAddress } from 'lib';
+import { AddressField } from '~/apollo/scalars/Address.scalar';
+import { UAddressField, UAddressScalar } from '~/apollo/scalars/UAddress.scalar';
 
 @InputType()
 export class TokenInput {
-  @AddressField()
-  address: Address;
+  @UAddressField()
+  address: UAddress;
 }
 
 @InputType()
 export class TokensInput {
-  @Field(() => [AddressScalar], { nullable: true })
-  address?: Address[];
+  @Field(() => [UAddressScalar], { nullable: true })
+  address?: UAddress[];
 
   @Field(() => String, { nullable: true })
   query?: string;
@@ -22,8 +23,8 @@ export class TokensInput {
 
 @InputType()
 export class UpsertTokenInput {
-  @AddressField()
-  address: Address;
+  @UAddressField()
+  address: UAddress;
 
   @AddressField({ nullable: true })
   ethereumAddress?: Address;
@@ -55,6 +56,6 @@ export class TokenUnitInput {
 
 @InputType()
 export class BalanceInput {
-  @AddressField()
-  account?: Address;
+  @UAddressField()
+  account?: UAddress;
 }

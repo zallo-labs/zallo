@@ -1,10 +1,13 @@
-import { ACCOUNT_ABI, PERMISSIONS_ABI } from './abi';
+import { ACCOUNT } from './contract';
+import { TestVerifier__factory } from './contracts';
 import { isTruthy } from './util';
+
+const PERMISSIONS_ABI = TestVerifier__factory.abi;
 
 const toObj = <T extends string>(arr: readonly T[]): Record<T, T> =>
   arr.reduce((acc, key) => ({ ...acc, [key]: key }), {}) as Record<T, T>;
 
-const errors = [...ACCOUNT_ABI, ...PERMISSIONS_ABI]
+const errors = [...ACCOUNT.abi, ...PERMISSIONS_ABI]
   .map((t) => t.type === 'error' && t.name)
   .filter(isTruthy);
 export const AccountError = toObj<(typeof errors)[number]>(errors);

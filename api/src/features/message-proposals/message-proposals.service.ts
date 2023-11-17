@@ -9,6 +9,7 @@ import { ProposalsService, UniqueProposal } from '../proposals/proposals.service
 import {
   Address,
   Hex,
+  asAddress,
   asApproval,
   asHex,
   asUAddress,
@@ -23,7 +24,7 @@ import { NetworksService } from '../util/networks/networks.service';
 import { UserInputError } from '@nestjs/apollo';
 import { ethers } from 'ethers';
 import _ from 'lodash';
-import { Writable, WritableDeep } from 'ts-toolbelt/out/Object/Writable';
+import { WritableDeep } from 'ts-toolbelt/out/Object/Writable';
 
 @Injectable()
 export class MessageProposalsService {
@@ -133,12 +134,13 @@ export class MessageProposalsService {
     if (!policy) return undefined;
 
     // TODO: handle expired approvals
-    const network = await this.networks.for(proposal.account.address);
+    const account = asUAddress(proposal.account.address);
+    const network = this.networks.for(account);
     const approvals = (
       await mapAsync(proposal.approvals, (a) =>
         asApproval({
           digest: proposalHash,
-          approver: a.approver.address as Address,
+          approver: asAddress(a.approver.address),
           signature: asHex(a.signature),
           network,
         }),
@@ -154,10 +156,7 @@ export class MessageProposalsService {
       })),
     );
 
-    await this.proposals.publishProposal(
-      { hash: proposalHash, account: proposal.account.address as Address },
-      ProposalEvent.approved,
-    );
+    await this.proposals.publishProposal({ hash: proposalHash, account }, ProposalEvent.approved);
 
     return signature;
   }

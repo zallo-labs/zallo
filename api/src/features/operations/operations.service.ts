@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import {
   Address,
+  Chain,
   Hex,
   Operation,
   PolicyKey,
@@ -156,7 +157,8 @@ export class OperationsService {
           const path = f.args[0][0];
 
           // Figure out the toToken by querying the pool
-          const tokenCalls = await this.networks.for(to).multicall({
+          // Mainnet TODO: fix hardcoded network; just remove SyncSwap custom decoding if Uniswap deploys?
+          const tokenCalls = await this.networks.get('zksync-goerli').multicall({
             contracts: [
               {
                 address: path.steps[0].pool,

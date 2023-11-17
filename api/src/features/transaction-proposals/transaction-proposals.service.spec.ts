@@ -1,8 +1,15 @@
 import { Test } from '@nestjs/testing';
 import { createMock, DeepMocked } from '@golevelup/ts-jest';
 import { asUser, getApprover, getUserCtx, UserContext } from '~/request/ctx';
-import { DeepPartial, randomAddress, randomHash, randomLabel, randomUser } from '~/util/test';
-import { Address, randomDeploySalt, Hex } from 'lib';
+import {
+  DeepPartial,
+  randomAddress,
+  randomHash,
+  randomLabel,
+  randomUAddress,
+  randomUser,
+} from '~/util/test';
+import { Address, randomDeploySalt, Hex, UAddress } from 'lib';
 import { Network, NetworksService } from '../util/networks/networks.service';
 import { ExpoService } from '../util/expo/expo.service';
 import { TransactionsService } from '../transactions/transactions.service';
@@ -52,11 +59,11 @@ describe(TransactionProposalsService.name, () => {
   });
 
   let user1: UserContext;
-  let user1Account1: Address;
+  let user1Account1: UAddress;
 
   beforeEach(async () => {
     user1 = randomUser();
-    user1Account1 = randomAddress();
+    user1Account1 = randomUAddress();
   });
 
   const propose = async ({

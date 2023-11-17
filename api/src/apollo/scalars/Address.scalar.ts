@@ -1,19 +1,20 @@
 import { UserInputError } from '@nestjs/apollo';
 import { Kind } from 'graphql';
-import { asAddress, Address, isAddressLike } from 'lib';
+import { Address, tryAsAddress } from 'lib';
 import { createScalar } from './util';
 
 const description = 'Ethereum address';
 
 const parseValue = (value: unknown): Address => {
-  if (!isAddressLike(value)) throw new UserInputError(`Provided value is not a ${description}`);
-  return asAddress(value);
+  const address = typeof value === 'string' && tryAsAddress(value);
+  if (!address) throw new UserInputError(`Provided value is not a ${description}`);
+  return address;
 };
 
-export const [AddressScalar, AddressField] = createScalar<Address, string>({
+export const [AddressScalar, AddressField] = createScalar<Address, Address>({
   name: 'Address',
   description,
-  serialize: (value) => value as Address,
+  serialize: (value) => value,
   parseValue,
   parseLiteral: (ast) => {
     if (ast.kind === Kind.STRING) return parseValue(ast.value);

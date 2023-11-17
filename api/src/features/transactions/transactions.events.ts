@@ -1,5 +1,5 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
-import { ACCOUNT_ABI, asAddress, asChain, asHex, asUAddress, Hex, tryOrCatch } from 'lib';
+import { ACCOUNT_ABI, asChain, asHex, asUAddress, Hex, tryOrCatch } from 'lib';
 import {
   TransactionData,
   TransactionEventData,
@@ -52,7 +52,7 @@ export class TransactionsEvents implements OnModuleInit {
     }
   }
 
-  private async executed({ log, receipt, block }: TransactionEventData) {
+  private async executed({ chain, log, receipt, block }: TransactionEventData) {
     const r = tryOrCatch(
       () =>
         decodeEventLog({
@@ -87,7 +87,7 @@ export class TransactionsEvents implements OnModuleInit {
     Logger.debug(`Proposal executed: ${proposalHash}`);
 
     await this.proposals.publishProposal(
-      { account: asAddress(log.address), hash: proposalHash },
+      { account: asUAddress(log.address, chain), hash: proposalHash },
       ProposalEvent.executed,
     );
   }
@@ -125,7 +125,7 @@ export class TransactionsEvents implements OnModuleInit {
     Logger.debug(`Proposal reverted: ${proposalHash}`);
 
     await this.proposals.publishProposal(
-      { account: asAddress(receipt.from), hash: proposalHash as Hex },
+      { account: asUAddress(receipt.from, chain), hash: asHex(proposalHash) },
       ProposalEvent.executed,
     );
   }
@@ -152,7 +152,7 @@ export class TransactionsEvents implements OnModuleInit {
       await this.queue.addBulk(
         orphanedTransactions.map((t) => ({
           data: {
-            chain: asChain(asUAddress(t.proposal.account.address)).key,
+            chain: asChain(asUAddress(t.proposal.account.address)),
             transaction: asHex(t.hash),
           },
         })),

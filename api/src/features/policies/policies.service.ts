@@ -1,7 +1,7 @@
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import {
   ACCOUNT_INTERFACE,
-  Address,
+  asAddress,
   asHex,
   asPolicyKey,
   getMessageSatisfiability,
@@ -11,6 +11,7 @@ import {
   POLICY_ABI,
   PolicyKey,
   Satisfiability,
+  UAddress,
 } from 'lib';
 import { TransactionProposalsService } from '../transaction-proposals/transaction-proposals.service';
 import {
@@ -246,7 +247,7 @@ export class PoliciesService {
 
         this.db.afterTransaction(() =>
           this.userAccounts.invalidateApproverUserAccountsCache(
-            ...newState.approvers.map((a) => a.address as Address),
+            ...newState.approvers.map((a) => asAddress(a.address)),
           ),
         );
       }
@@ -279,7 +280,7 @@ export class PoliciesService {
             account,
             operations: [
               {
-                to: account,
+                to: asAddress(account),
                 data: asHex(ACCOUNT_INTERFACE.encodeFunctionData('removePolicy', [key])),
               },
             ],
@@ -336,7 +337,7 @@ export class PoliciesService {
       return { result: Satisfiability.unsatisfiable, reasons: [{ reason: 'Proposal not found' }] };
 
     const p = policyStateAsPolicy(key, state);
-    const approvals = new Set(proposal.approvals.map((a) => a.approver.address as Address));
+    const approvals = new Set(proposal.approvals.map((a) => asAddress(a.approver.address)));
 
     return proposal.operations !== null && proposal.nonce !== null && proposal.gasLimit !== null
       ? getTransactionSatisfiability(
@@ -352,13 +353,13 @@ export class PoliciesService {
       : getMessageSatisfiability(p, approvals);
   }
 
-  private async getStateProposal(account: Address, policy: Policy) {
+  private async getStateProposal(account: UAddress, policy: Policy) {
     return (
       await this.proposals.getProposal({
         account,
         operations: [
           {
-            to: account,
+            to: asAddress(account),
             data: asHex(
               ACCOUNT_INTERFACE.encodeFunctionData('addPolicy', [POLICY_ABI.asStruct(policy)]),
             ),

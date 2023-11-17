@@ -1,66 +1,99 @@
-import { ethers } from 'ethers';
+import * as viem from 'viem';
 import * as zk from 'zksync-web3';
-import { tryOr } from './util/try';
+import { tryOrIgnore } from './util/try';
 import { compareBytes } from './bytes';
-import { CHAINS, ChainConfig, Chain } from './chains';
+import { Chain, isChain } from './chains';
 
-export type Address = `0x${string}`;
-export type Addresslike = Address | string;
+/*//////////////////////////////////////////////////////////////
+                              ADDRESSLIKE
+//////////////////////////////////////////////////////////////*/
 
-export const ZERO_ADDR = ethers.constants.AddressZero as Address;
+export type Addresslike = string;
 
-export const asAddress = (addr: Addresslike) => ethers.utils.getAddress(addr) as Address;
+const addresslikeRegex = /^0x[a-fA-F0-9]{40}$/;
 
-export const tryAsAddress = <A extends Addresslike | undefined>(addr: A) => {
-  const r = tryOr(() => (addr ? ethers.utils.getAddress(addr) : undefined), undefined);
+export const isAddressLike = (v: unknown): v is string =>
+  typeof v === 'string' && addresslikeRegex.test(v);
 
-  return r as A extends undefined ? Address | undefined : Address;
+/*//////////////////////////////////////////////////////////////
+                                ADDRESS
+//////////////////////////////////////////////////////////////*/
+
+export type Address = `0x${string}`; // Checksummed
+
+export const ZERO_ADDR = '0x0000000000000000000000000000000000000000' as Address;
+
+export const tryAsAddress = (v: Addresslike | undefined): Address | undefined => {
+  if (!v || v.length < 42) return undefined;
+
+  const address = tryOrIgnore(() => viem.getAddress(v));
+  if (address) return address;
+
+  const uaddressParts = v.split(':');
+  if (uaddressParts.length === 2) return tryAsAddress(uaddressParts[1]); // Can only recurse at most once
+};
+
+export const asAddress = <A extends Addresslike | undefined>(value: A) => {
+  const address = tryAsAddress(value);
+  if (!address && value !== undefined) throw new Error(`Expected Address but got "${value}"`);
+  return address as A extends undefined ? Address | undefined : Address;
 };
 
 export const isAddress = (v: unknown): v is Address =>
-  typeof v === 'string' && tryAsAddress(v) === v;
-
-export const isAddressLike = (v: unknown): v is Addresslike =>
-  typeof v === 'string' && ethers.utils.isAddress(v);
+  typeof v === 'string' && tryAsAddress(v) === v; // A value may not be a valid Address but may be convertable
 
 export const compareAddress = (a: Addresslike, b: Addresslike) =>
   compareBytes(asAddress(a), asAddress(b));
 
-export type UAddress = `${ChainConfig['key']}:${Address}`;
+/*//////////////////////////////////////////////////////////////
+                                UADDRESS
+//////////////////////////////////////////////////////////////*/
 
-let fallbackChain: ChainConfig = CHAINS['zksync-goerli'];
-export const setFallbackChain = (c: ChainConfig) => (fallbackChain = c);
+export type UAddress = `${Chain}:${Address}`;
 
-export const isUniqueAddress = (v: unknown): v is UAddress => {
-  if (typeof v !== 'string') return false;
+let fallbackChain: Chain = 'zksync-goerli';
+export const setFallbackChain = (c: Chain) => (fallbackChain = c);
 
-  const split = v.split(':');
-  return split.length === 2 && !!CHAINS[split[0] as Chain] && isAddress(split[1]);
+export const tryAsUAddress = (v: string | undefined, chain?: Chain): UAddress | undefined => {
+  if (!v || v.length < 42) return undefined;
+
+  const parts = v.split(':');
+  if (parts.length === 2) {
+    const chain = parts[0];
+    const address = tryAsAddress(parts[1]); // Checksumms if necessary
+    if (isChain(chain) && address) return `${chain}:${address}`;
+  }
+
+  const address = tryAsAddress(v);
+  if (address) {
+    if (!chain) console.trace(`Using fallbackChain`);
+    return `${chain ?? fallbackChain}:${address}`;
+  }
 };
 
-export const asChain = (address: UAddress | Address) => {
-  if (address.startsWith('0x')) return fallbackChain; // A stop-gap before requiring unique addresses everywhere
+export const asUAddress = <A extends Address | Addresslike | undefined>(
+  ...[value, chain]: A extends Address ? [value: A, chain: Chain] : [value: A, chain?: Chain]
+) => {
+  const address = tryAsUAddress(value, chain);
+  if (!address && value !== undefined) throw new Error(`Expected UAddress but got "${value}"`);
+  return address as A extends undefined ? UAddress | undefined : UAddress;
+};
 
-  const chain = CHAINS[address.split(':')[0] as Chain];
-  if (!chain) throw new Error(`Invalid UniqueAddress or Address: ${address}`);
+export const isUAddress = (v: unknown): v is UAddress =>
+  typeof v === 'string' && tryAsUAddress(v) === v; // A value may not be a valid UAddress but may be convertable
+
+export const asChain = (address: UAddress): Chain => {
+  const chain = address.split(':')[0];
+  if (!isChain(chain))
+    throw new Error(`Unsupported chain "${chain}" extracted from UAddress "${address}"`);
   return chain;
 };
 
-export const asLocalAddress = (address: UAddress | string) =>
-  asAddress(address.startsWith('0x') ? address : address.split(':')[1]);
-
-export const tryAsUAddress = (v: string | undefined, chain?: ChainConfig): UAddress | undefined => {
-  if (!v) return undefined;
-
-  if (isUniqueAddress(v)) return v;
-  if (isAddress(v)) return `${(chain ?? fallbackChain).key}:${asAddress(v)}` as UAddress;
-  return undefined;
-};
-
-export const asUAddress = (v: string, chain?: ChainConfig): UAddress => {
-  const r = tryAsUAddress(v, chain);
-  if (!r) throw new Error(`Expected a unique address but got: "${v}"`);
-  return r;
+export const asLocalAddress = (address: UAddress): Address => {
+  const a = address.split(':')[1];
+  if (!isAddress(a))
+    throw new Error(`Invalid local address "${a}" extracted from UAddress "${address}"`);
+  return a;
 };
 
 /* Module augmentation; including in a .ts file to compile into lib's typings */

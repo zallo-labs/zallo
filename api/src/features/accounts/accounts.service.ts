@@ -6,19 +6,21 @@ import {
   DeploySalt,
   Policy,
   asHex,
-  asLocalAddress,
   asPolicyKey,
   randomDeploySalt,
   getProxyAddress,
   Factory__factory,
-  UAddress,
   deployAccountProxy,
+  asUAddress,
+  UAddress,
+  asAddress,
+  ACCOUNT,
+  ACCOUNT_PROXY_FACTORY,
 } from 'lib';
 import { ShapeFunc } from '../database/database.select';
 import { AccountEvent, CreateAccountInput, UpdateAccountInput } from './accounts.input';
 import { getApprover, getUserCtx } from '~/request/ctx';
 import { UserInputError } from '@nestjs/apollo';
-import { CONFIG } from '~/config';
 import { NetworksService } from '../util/networks/networks.service';
 import { PubsubService } from '../util/pubsub/pubsub.service';
 import { ContractsService } from '../contracts/contracts.service';
@@ -33,10 +35,10 @@ import { v1 as uuid1 } from 'uuid';
 import { and } from '~/features/database/database.util';
 import { selectAccount } from '~/features/accounts/accounts.util';
 
-export const getAccountTrigger = (address: Address) => `account.${address}`;
-export const getAccountApproverTrigger = (user: Address) => `account.user.${user}`;
+export const getAccountTrigger = (address: UAddress) => `account.${address}`;
+export const getAccountApproverTrigger = (approver: Address) => `account.approver.${approver}`;
 export interface AccountSubscriptionPayload {
-  account: Address;
+  account: UAddress;
   event: AccountEvent;
 }
 
@@ -55,12 +57,12 @@ export class AccountsService {
     private accountsCache: AccountsCacheService,
   ) {}
 
-  unique = (address: Address) =>
+  unique = (address: UAddress) =>
     e.shape(e.Account, () => ({
       filter_single: { address },
     }));
 
-  selectUnique(address: Address | undefined, shape?: ShapeFunc<typeof e.Account>) {
+  selectUnique(address: UAddress | undefined, shape?: ShapeFunc<typeof e.Account>) {
     const accounts = getUserCtx().accounts;
     if (accounts.length === 0) return null;
 
@@ -72,7 +74,7 @@ export class AccountsService {
     );
   }
 
-  select(_filter: {}, shape?: ShapeFunc<typeof e.Account>) {
+  select(_filter: Record<string, never>, shape?: ShapeFunc<typeof e.Account>) {
     return this.db.query(
       e.select(e.Account, (a) => ({
         ...shape?.(a),
@@ -103,16 +105,22 @@ export class AccountsService {
     if (!policyInputs.find((p) => p.approvers.includes(approver)))
       throw new UserInputError('User must be included in at least one policy');
 
-    const implementation = CONFIG.accountImplementation[chainKey];
+    const implementation = ACCOUNT.implementationAddress[chainKey];
     const salt = randomDeploySalt();
     const policies = policyInputs.map((p, i) => inputAsPolicy(asPolicyKey(i), p));
 
-    const account = await getProxyAddress({
-      factory: Factory__factory.connect(CONFIG.proxyFactory[chainKey], network.provider),
-      impl: asLocalAddress(implementation),
-      salt,
-      policies,
-    });
+    const account = asUAddress(
+      await getProxyAddress({
+        factory: Factory__factory.connect(
+          ACCOUNT_PROXY_FACTORY.address[chainKey],
+          network.provider,
+        ),
+        impl: implementation,
+        salt,
+        policies,
+      }),
+      chainKey,
+    );
 
     // The account id must be in the user's list of accounts prior to starting the transaction for the globals to be set correctly
     const id = uuid1();
@@ -144,7 +152,7 @@ export class AccountsService {
     });
 
     await this.activateAccount(account, implementation, salt, policies);
-    this.contracts.addAccountAsVerified(account);
+    this.contracts.addAccountAsVerified(asAddress(account));
     this.faucet.requestTokens(account);
     this.publishAccount({ account, event: AccountEvent.create });
     this.setAsPrimaryAccountIfNotConfigured(id);
@@ -152,7 +160,7 @@ export class AccountsService {
     return { id, address: account };
   }
 
-  async updateAccount({ address, label, photoUri }: UpdateAccountInput) {
+  async updateAccount({ account: address, label, photoUri }: UpdateAccountInput) {
     const r = await e
       .update(e.Account, () => ({
         set: {
@@ -169,22 +177,22 @@ export class AccountsService {
   }
 
   private async activateAccount(
-    account: Address,
-    implementation: UAddress,
+    account: UAddress,
+    implementation: Address,
     salt: DeploySalt,
     policies: Policy[],
   ) {
     const network = this.networks.for(account);
     const { transaction, account: deployedAccount } = await network.useWallet(async (wallet) =>
       deployAccountProxy({
-        factory: Factory__factory.connect(CONFIG.proxyFactory[network.key], wallet),
-        impl: asLocalAddress(implementation),
+        factory: Factory__factory.connect(ACCOUNT_PROXY_FACTORY.address[network.key], wallet),
+        impl: implementation,
         salt,
         policies,
       }),
     );
 
-    if (account !== deployedAccount.address)
+    if (asAddress(account) !== deployedAccount.address)
       throw new Error(
         `Deployed account address didn't match stored address; expected '${account}', actual '${deployedAccount.address}'`,
       );
@@ -196,20 +204,20 @@ export class AccountsService {
     const { account } = payload;
 
     // Publish events to all users with access to the account
-    const approvers = (await this.db.query(
+    const approvers = await this.db.query(
       e.select(e.Account, () => ({
         filter_single: { address: account },
         approvers: {
           address: true,
         },
       })).approvers.address,
-    )) as Address[];
+    );
 
     await Promise.all([
       this.pubsub.publish<AccountSubscriptionPayload>(getAccountTrigger(account), payload),
       ...approvers.map((approver) =>
         this.pubsub.publish<AccountSubscriptionPayload>(
-          getAccountApproverTrigger(approver),
+          getAccountApproverTrigger(asAddress(approver)),
           payload,
         ),
       ),

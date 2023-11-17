@@ -8,6 +8,8 @@ import { EventBase } from '../events/events.model';
 import { uuid } from 'edgedb/dist/codecs/ifaces';
 import e from '~/edgeql-js';
 import { Token } from '../tokens/tokens.model';
+import { UAddressField } from '~/apollo/scalars/UAddress.scalar';
+import { Address, UAddress } from 'lib';
 
 @InterfaceType()
 export class TransferDetails {
@@ -18,13 +20,13 @@ export class TransferDetails {
   account: Account;
 
   @AddressField()
-  from: string; // Address
+  from: Address;
 
   @AddressField()
-  to: string; // Address
+  to: Address;
 
-  @AddressField()
-  tokenAddress: string; // Address
+  @UAddressField()
+  tokenAddress: UAddress;
 
   @Field(() => Token, { nullable: true })
   token: Token;

@@ -1,19 +1,18 @@
 import { Injectable } from '@nestjs/common';
-import { Address } from 'lib';
+import { Address, UAddress, isUAddress } from 'lib';
 import { ShapeFunc } from '../database/database.select';
 import { DatabaseService } from '../database/database.service';
 import e from '~/edgeql-js';
 import { ContactsInput, UpsertContactInput } from './contacts.input';
 import { uuid } from 'edgedb/dist/codecs/ifaces';
-import { isAddress } from 'ethers/lib/utils';
 import { or } from '../database/database.util';
 import { CONFIG } from '~/config';
 
-type UniqueContact = uuid | Address;
+type UniqueContact = uuid | UAddress;
 
 export const uniqueContact = (u: UniqueContact) =>
   e.shape(e.Contact, () => ({
-    filter_single: isAddress(u) ? { user: e.global.current_user, address: u } : { id: u },
+    filter_single: isUAddress(u) ? { user: e.global.current_user, address: u } : { id: u },
   }));
 
 @Injectable()
@@ -81,11 +80,11 @@ export class ContactsService {
     );
   }
 
-  async delete(address: Address) {
+  async delete(address: UAddress) {
     return this.db.query(e.delete(e.Contact, uniqueContact(address)).id);
   }
 
-  async label(address: Address) {
+  async label(address: UAddress) {
     const contact = e.select(e.Contact, () => ({
       filter_single: { user: e.global.current_user, address },
       label: true,

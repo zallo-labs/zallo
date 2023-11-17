@@ -3,11 +3,14 @@ import { UserInputError } from '@nestjs/apollo';
 import {
   hashTx,
   Address,
-  Hex,
   isHex,
   asTx,
   estimateTransactionOperationsGas,
   FALLBACK_OPERATIONS_GAS,
+  asAddress,
+  asHex,
+  asUAddress,
+  UAddress,
 } from 'lib';
 import { NetworksService } from '~/features/util/networks/networks.service';
 import { TransactionsService } from '../transactions/transactions.service';
@@ -80,7 +83,7 @@ export class TransactionProposalsService {
     iconUri,
     validFrom = new Date(),
     gasLimit,
-    feeToken = ETH_ADDRESS as Address,
+    feeToken = ETH_ADDRESS,
   }: Omit<ProposeTransactionInput, 'signature'>) {
     if (!operations.length) throw new UserInputError('No operations provided');
 
@@ -90,6 +93,7 @@ export class TransactionProposalsService {
       nonce: BigInt(Math.floor(validFrom.getTime() / 1000)),
     });
     const hash = hashTx(account, tx);
+    const network = this.networks.for(account);
 
     const insert = e.insert(e.TransactionProposal, {
       hash,
@@ -109,9 +113,14 @@ export class TransactionProposalsService {
       gasLimit:
         gasLimit ||
         (
-          await estimateTransactionOperationsGas(this.networks.for(account).provider, account, tx)
+          await estimateTransactionOperationsGas({ account: asAddress(account), tx, network })
         ).unwrapOr(FALLBACK_OPERATIONS_GAS),
-      feeToken: this.selectFeeToken(feeToken),
+      feeToken: e.assert_single(
+        e.select(e.Token, (t) => ({
+          filter: and(e.op(t.address, '=', feeToken), e.op(t.isFeeToken, '=', true)),
+          limit: 1,
+        })),
+      ),
     });
 
     this.db.afterTransaction(() => {
@@ -138,7 +147,7 @@ export class TransactionProposalsService {
     await this.transactions.tryExecute(input.hash);
   }
 
-  async update({ hash, policy, feeToken: feeTokenAddress }: UpdateTransactionProposalInput) {
+  async update({ hash, policy, feeToken }: UpdateTransactionProposalInput) {
     const updatedProposal = e.assert_single(
       e.update(e.TransactionProposal, (p) => ({
         filter: and(
@@ -157,7 +166,17 @@ export class TransactionProposalsService {
                 ? e.select(e.Policy, () => ({ filter_single: { account: p.account, key: policy } }))
                 : null,
           }),
-          feeToken: feeTokenAddress && this.selectFeeToken(feeTokenAddress),
+          feeToken:
+            feeToken &&
+            e.assert_single(
+              e.select(e.Token, (t) => ({
+                filter: and(
+                  e.op(t.address, '=', e.op(p.account.chain, '++', e.op(':', '++', feeToken))),
+                  e.op(t.isFeeToken, '=', true),
+                ),
+                limit: 1,
+              })),
+            ),
         },
       })),
     );
@@ -175,7 +194,7 @@ export class TransactionProposalsService {
 
     if (p) {
       this.proposals.publishProposal(
-        { hash: p.hash as Hex, account: p.account.address as Address },
+        { hash: asHex(p.hash), account: asUAddress(p.account.address) },
         ProposalEvent.update,
       );
     }
@@ -200,16 +219,5 @@ export class TransactionProposalsService {
 
       return e.delete(selectTransactionProposal(id)).id.run(db);
     });
-  }
-
-  private selectFeeToken(feeTokenAddress: Address) {
-    return e.assert_single(
-      e.select(e.Token, (t) => ({
-        filter: and(e.op(t.address, '=', feeTokenAddress), e.op(t.isFeeToken, '=', true)),
-        limit: 1,
-        id: true,
-        isFeeToken: true,
-      })),
-    );
   }
 }

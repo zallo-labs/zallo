@@ -5,7 +5,7 @@ import { AbiFunction as AbiFunctionSchema } from 'abitype/zod';
 import { UserInputError } from '@nestjs/apollo';
 
 function parseValue(v: unknown): AbiFunction {
-  const r = AbiFunctionSchema.safeParse(GraphQLJSON.parseValue(v));
+  const r = AbiFunctionSchema.safeParse(v);
   if (!r.success)
     throw new UserInputError(`Provided value is not a valid AbiFunction: ${r.error.toString()}`);
   return r.data;

@@ -1,10 +1,9 @@
 import { createMock, DeepMocked } from '@golevelup/ts-jest';
 import { Test } from '@nestjs/testing';
 import { Network, NetworksService } from '../util/networks/networks.service';
-import { CONFIG } from '~/config';
 import { asUser, getUserCtx, UserContext } from '~/request/ctx';
-import { DeepPartial, randomAddress, randomHash, randomLabel, randomUser } from '~/util/test';
-import { Address } from 'lib';
+import { DeepPartial, randomHash, randomLabel, randomUAddress, randomUser } from '~/util/test';
+import { UAddress } from 'lib';
 import { PoliciesService } from '../policies/policies.service';
 import { BullModule, getQueueToken } from '@nestjs/bull';
 import { AccountActivationEvent, ACCOUNTS_QUEUE } from './accounts.queue';
@@ -14,8 +13,6 @@ import { AccountsService } from './accounts.service';
 import e from '~/edgeql-js';
 import { uuid } from 'edgedb/dist/codecs/ifaces';
 import { AccountsCacheService } from '../auth/accounts.cache.service';
-
-(CONFIG as any).accountImplAddress = randomAddress();
 
 describe(AccountsService.name, () => {
   let service: AccountsService;
@@ -50,7 +47,7 @@ describe(AccountsService.name, () => {
   const createAccount = async () => {
     const userCtx = getUserCtx();
 
-    const account = randomAddress();
+    const account = randomUAddress();
     networks.get.mockReturnValue({} satisfies DeepPartial<Network> as unknown as Network);
 
     // TODO: mock
@@ -73,7 +70,7 @@ describe(AccountsService.name, () => {
   };
 
   let user1: UserContext;
-  let user1Account: Address;
+  let user1Account: UAddress;
   let user1AccountId: uuid;
 
   beforeEach(async () => {
@@ -110,7 +107,7 @@ describe(AccountsService.name, () => {
 
     it("returns null if the account doesn't exist", () =>
       asUser(user1, async () => {
-        expect(await service.selectUnique(randomAddress())).toBeNull();
+        expect(await service.selectUnique(randomUAddress())).toBeNull();
       }));
 
     it("returns null if the user isn't a member of the account specified", () =>
@@ -142,7 +139,7 @@ describe(AccountsService.name, () => {
     it('updates metadata', () =>
       asUser(user1, async () => {
         const newLabel = randomLabel();
-        await service.updateAccount({ address: user1Account, label: newLabel });
+        await service.updateAccount({ account: user1Account, label: newLabel });
         expect((await service.selectUnique(user1Account, () => ({ label: true })))?.label).toEqual(
           newLabel,
         );
@@ -152,7 +149,7 @@ describe(AccountsService.name, () => {
       asUser(user1, async () => {
         const newLabel = randomLabel();
         service.publishAccount = jest.fn();
-        await service.updateAccount({ address: user1Account, label: newLabel });
+        await service.updateAccount({ account: user1Account, label: newLabel });
         expect(service.publishAccount).toBeCalledTimes(1);
       }));
 
@@ -160,7 +157,7 @@ describe(AccountsService.name, () => {
       asUser(randomUser(), async () => {
         const newLabel = randomLabel();
         await expect(
-          service.updateAccount({ address: user1Account, label: newLabel }),
+          service.updateAccount({ account: user1Account, label: newLabel }),
         ).rejects.toThrow();
       }));
   });

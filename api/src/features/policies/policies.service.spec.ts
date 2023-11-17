@@ -1,9 +1,9 @@
 import { Test } from '@nestjs/testing';
 import { createMock, DeepMocked } from '@golevelup/ts-jest';
 import { CreatePolicyParams, PoliciesService } from './policies.service';
-import { Address, asHex, asPolicyKey, asSelector, randomDeploySalt, ZERO_ADDR } from 'lib';
+import { asHex, asPolicyKey, asSelector, randomDeploySalt, UAddress, ZERO_ADDR } from 'lib';
 import { asUser, getUserCtx, UserContext } from '~/request/ctx';
-import { randomAddress, randomLabel, randomUser } from '~/util/test';
+import { randomAddress, randomLabel, randomUAddress, randomUser } from '~/util/test';
 import { randomBytes } from 'ethers/lib/utils';
 import { TransactionProposalsService } from '../transaction-proposals/transaction-proposals.service';
 import { AccountsCacheService } from '../auth/accounts.cache.service';
@@ -39,7 +39,7 @@ describe(PoliciesService.name, () => {
     userAccounts = module.get(AccountsCacheService);
   });
 
-  let user1Account: Address;
+  let user1Account: UAddress;
   let user1: UserContext;
 
   const create = async ({
@@ -118,7 +118,7 @@ describe(PoliciesService.name, () => {
   };
 
   beforeEach(() => {
-    user1Account = randomAddress();
+    user1Account = randomUAddress();
     user1 = randomUser();
   });
 

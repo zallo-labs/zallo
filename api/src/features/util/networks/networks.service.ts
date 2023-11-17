@@ -12,7 +12,7 @@ import {
   asChain,
   asUAddress,
   UAddress,
-  asLocalAddress,
+  asAddress,
 } from 'lib';
 import { createPublicClient, fallback, http, webSocket } from 'viem';
 import { ETH_ADDRESS } from 'zksync-web3/build/src/utils';
@@ -20,7 +20,7 @@ import Redis from 'ioredis';
 import { InjectRedis } from '@songkeys/nestjs-redis';
 import { Mutex } from 'redis-semaphore';
 
-export type Network = ReturnType<typeof createClient>;
+export type Network = ReturnType<typeof create>;
 
 @Injectable()
 export class NetworksService implements AsyncIterable<Network> {
@@ -31,11 +31,11 @@ export class NetworksService implements AsyncIterable<Network> {
   get(chain: Chain | ChainConfig) {
     const key = typeof chain === 'string' ? chain : chain.key;
 
-    return (this.clients[key] ??= createClient({ chainKey: key, redis: this.redis }));
+    return (this.clients[key] ??= create({ chainKey: key, redis: this.redis }));
   }
 
-  for(address: string) {
-    return this.get(asChain(asUAddress(address)));
+  for(address: UAddress) {
+    return this.get(asChain(address));
   }
 
   async *[Symbol.asyncIterator]() {
@@ -59,14 +59,14 @@ interface CreateParams {
   redis: Redis;
 }
 
-function createClient({ chainKey, redis }: CreateParams) {
+function create({ chainKey, redis }: CreateParams) {
   const chain = CHAINS[chainKey];
 
   const provider = new zk.Provider(...getEthersConnectionParams(chain, 'ws'));
   const privateKey = CONFIG.walletPrivateKeys[chainKey];
   if (!privateKey) throw new Error(`Private key not found for chain: ${chainKey}`);
   const wallet = new zk.Wallet(privateKey, provider);
-  const walletAddress = asUAddress(wallet.address, chain);
+  const walletAddress = asUAddress(wallet.address, chainKey);
 
   return createPublicClient({
     chain,
@@ -100,14 +100,13 @@ function createClient({ chainKey, redis }: CreateParams) {
 
       const { account, token } = args;
       const balance = await tryOrIgnoreAsync(async () => {
-        if (token === ETH_ADDRESS)
-          return await client.getBalance({ address: asLocalAddress(account) });
+        if (token === ETH_ADDRESS) return await client.getBalance({ address: asAddress(account) });
 
         return await client.readContract({
           abi: ERC20_ABI,
-          address: asLocalAddress(token),
+          address: token,
           functionName: 'balanceOf',
-          args: [asLocalAddress(account)],
+          args: [asAddress(account)],
         });
       });
 
@@ -123,8 +122,8 @@ function createClient({ chainKey, redis }: CreateParams) {
 }
 
 interface BalanceArgs {
-  account: Address | UAddress;
-  token: Address | UAddress;
+  account: UAddress;
+  token: Address;
 }
 
 function getBalanceKey(args: BalanceArgs) {

@@ -1,11 +1,11 @@
 import { Field, InputType } from '@nestjs/graphql';
-import { Address } from 'lib';
-import { AddressField } from '~/apollo/scalars/Address.scalar';
+import { UAddress } from 'lib';
+import { UAddressField } from '~/apollo/scalars/UAddress.scalar';
 
 @InputType()
 export class UpdateUserInput {
-  @AddressField({ nullable: true })
-  primaryAccount?: Address;
+  @UAddressField({ nullable: true })
+  primaryAccount?: UAddress;
 }
 
 @InputType()

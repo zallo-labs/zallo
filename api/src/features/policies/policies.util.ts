@@ -1,4 +1,14 @@
-import { Address, asPolicy, Policy, PolicyKey, Target, TargetsConfig, TransfersConfig } from 'lib';
+import {
+  Address,
+  asAddress,
+  asPolicy,
+  Policy,
+  PolicyKey,
+  Target,
+  TargetsConfig,
+  TransfersConfig,
+  UAddress,
+} from 'lib';
 import { uuid } from 'edgedb/dist/codecs/ifaces';
 import e, { $infer } from '~/edgeql-js';
 import { Shape, ShapeFunc } from '../database/database.select';
@@ -8,7 +18,7 @@ import merge from 'ts-deepmerge';
 import { match, P } from 'ts-pattern';
 import { getUserCtx } from '~/request/ctx';
 
-export type UniquePolicy = { id: uuid } | { account: Address; key: PolicyKey };
+export type UniquePolicy = { id: uuid } | { account: UAddress; key: PolicyKey };
 
 export const uniquePolicy = (unique: UniquePolicy) =>
   e.shape(e.Policy, () => ({
@@ -55,7 +65,7 @@ export const policyStateAsPolicy = <S extends PolicyStateShape>(key: number, sta
   (state
     ? asPolicy({
         key,
-        approvers: new Set(state.approvers.map((a) => a.address as Address)),
+        approvers: new Set(state.approvers.map((a) => asAddress(a.address))),
         threshold: state.threshold,
         permissions: {
           targets: merge(
@@ -102,7 +112,7 @@ export const policyStateAsPolicy = <S extends PolicyStateShape>(key: number, sta
           ),
           transfers: asTransfersConfig({
             ...state.transfers,
-            limits: state.transfers.limits.map((l) => ({ ...l, token: l.token as Address })),
+            limits: state.transfers.limits.map((l) => ({ ...l, token: asAddress(l.token) })),
           }),
         },
       })

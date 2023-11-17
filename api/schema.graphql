@@ -15,7 +15,7 @@ enum AbiSourceConfidence {
 }
 
 type Account implements Node {
-  address: Address!
+  address: UAddress!
   approvers: [Approver!]!
   id: ID!
   implementation: Address!
@@ -37,12 +37,12 @@ enum AccountEvent {
 
 input AccountInput {
   """Defaults to random user account"""
-  address: Address
+  account: UAddress
 }
 
 input AccountSubscriptionInput {
   """Defaults to user accounts"""
-  accounts: [Address!]
+  accounts: [UAddress!]
 
   """Defaults to all events"""
   events: AccountEvent
@@ -113,7 +113,7 @@ input ApproverInput {
 }
 
 input BalanceInput {
-  account: Address
+  account: UAddress
 }
 
 """
@@ -150,13 +150,13 @@ input CloudShareInput {
 }
 
 type Contact {
-  address: Address!
+  address: UAddress!
   id: ID!
   label: String!
 }
 
 input ContactInput {
-  address: Address!
+  address: UAddress!
 }
 
 input ContactsInput {
@@ -194,7 +194,7 @@ input CreateAccountInput {
 }
 
 input CreatePolicyInput {
-  account: Address!
+  account: UAddress!
   actions: [ActionInput!]
   approvers: [Address!]
   name: String
@@ -247,7 +247,7 @@ input LabelAvailableInput {
 }
 
 input LabelInput {
-  address: Address!
+  address: UAddress!
 }
 
 input LabelProposalRiskInput {
@@ -378,7 +378,7 @@ type PolicyState {
 type Price {
   current: Float!
   id: ID!
-  token: Address!
+  token: UAddress!
 }
 
 interface Proposal implements Node {
@@ -422,7 +422,7 @@ interface ProposalResponse implements Node {
 
 input ProposalSubscriptionInput {
   """Defaults to user accounts if no proposals are provided"""
-  accounts: [Address!]
+  accounts: [UAddress!]
 
   """Defaults to all events"""
   events: [ProposalEvent!]
@@ -430,12 +430,12 @@ input ProposalSubscriptionInput {
 }
 
 input ProposalsInput {
-  accounts: [Address!]
+  accounts: [UAddress!]
   pending: Boolean
 }
 
 input ProposeMessageInput {
-  account: Address!
+  account: UAddress!
   iconUri: String
   label: String
 
@@ -449,7 +449,7 @@ input ProposeMessageInput {
 }
 
 input ProposeTransactionInput {
-  account: Address!
+  account: UAddress!
   feeToken: Address
   gasLimit: Uint256
   iconUri: String
@@ -517,7 +517,7 @@ type RemovePolicyOp {
 }
 
 input RequestTokensInput {
-  account: Address!
+  account: UAddress!
 }
 
 enum Risk {
@@ -561,7 +561,7 @@ type SimulationTransfer implements TransferDetails {
   id: ID!
   to: Address!
   token: Token
-  tokenAddress: Address!
+  tokenAddress: UAddress!
   value: Float
 }
 
@@ -583,7 +583,7 @@ type SwapOp {
 }
 
 type Token implements Node {
-  address: Address!
+  address: UAddress!
   balance(input: BalanceInput!): BigInt!
   decimals: Float!
   ethereumAddress: Address
@@ -600,7 +600,7 @@ type Token implements Node {
 }
 
 input TokenInput {
-  address: Address!
+  address: UAddress!
 }
 
 type TokenMetadata {
@@ -623,7 +623,7 @@ input TokenUnitInput {
 }
 
 input TokensInput {
-  address: [Address!]
+  address: [UAddress!]
   feeToken: Boolean
   query: String
 }
@@ -675,7 +675,7 @@ enum TransactionProposalStatus {
 }
 
 input TransactionProposalsInput {
-  accounts: [Address!]
+  accounts: [UAddress!]
   statuses: [TransactionProposalStatus!]
 }
 
@@ -689,7 +689,7 @@ type Transfer implements EventBase & TransferDetails & Transferlike {
   timestamp: DateTime!
   to: Address!
   token: Token
-  tokenAddress: Address!
+  tokenAddress: UAddress!
   value: Float
 }
 
@@ -704,7 +704,7 @@ type TransferApproval implements EventBase & TransferDetails & Transferlike {
   timestamp: DateTime!
   to: Address!
   token: Token
-  tokenAddress: Address!
+  tokenAddress: UAddress!
   value: Float
 }
 
@@ -723,7 +723,7 @@ interface TransferDetails {
   id: ID!
   to: Address!
   token: Token
-  tokenAddress: Address!
+  tokenAddress: UAddress!
   value: Float
 }
 
@@ -767,7 +767,7 @@ type TransferOp {
 }
 
 input TransferSubscriptionInput {
-  accounts: [Address!]
+  accounts: [UAddress!]
   direction: TransferDirection
 
   """Originating from an account transaction"""
@@ -784,7 +784,7 @@ interface Transferlike implements EventBase & TransferDetails {
   timestamp: DateTime!
   to: Address!
   token: Token
-  tokenAddress: Address!
+  tokenAddress: UAddress!
   value: Float
 }
 
@@ -803,7 +803,7 @@ input TransfersConfigInput {
 }
 
 input TransfersInput {
-  accounts: [Address!]
+  accounts: [UAddress!]
   direction: TransferDirection
 
   """Originating from an account transaction"""
@@ -812,6 +812,9 @@ input TransfersInput {
 
 """EIP712 Typed Data"""
 scalar TypedData
+
+"""EIP-3770 address"""
+scalar UAddress @specifiedBy(url: "https://eips.ethereum.org/EIPS/eip-3770")
 
 """
 A field whose value conforms to the standard URL format as specified in RFC3986: https://www.ietf.org/rfc/rfc3986.txt.
@@ -826,12 +829,12 @@ input UniqueCloudShareInput {
 }
 
 input UniquePolicyInput {
-  account: Address!
+  account: UAddress!
   key: PolicyKey!
 }
 
 input UpdateAccountInput {
-  address: Address!
+  account: UAddress!
   label: String!
   photoUri: URL
 }
@@ -846,7 +849,7 @@ input UpdateApproverInput {
 }
 
 input UpdatePolicyInput {
-  account: Address!
+  account: UAddress!
   actions: [ActionInput!]
   approvers: [Address!]
   key: PolicyKey!
@@ -878,17 +881,17 @@ input UpdateTransactionProposalInput {
 }
 
 input UpdateUserInput {
-  primaryAccount: Address
+  primaryAccount: UAddress
 }
 
 input UpsertContactInput {
-  address: Address!
+  address: UAddress!
   label: String!
-  previousAddress: Address
+  previousAddress: UAddress
 }
 
 input UpsertTokenInput {
-  address: Address!
+  address: UAddress!
   decimals: Float
   ethereumAddress: Address
   iconUri: String

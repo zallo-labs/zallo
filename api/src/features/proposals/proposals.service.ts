@@ -2,7 +2,17 @@ import { UserInputError } from '@nestjs/apollo';
 import { Injectable } from '@nestjs/common';
 import { uuid } from 'edgedb/dist/codecs/ifaces';
 import e from '~/edgeql-js';
-import { Address, Hex, asApproval, isHex } from 'lib';
+import {
+  Address,
+  Hex,
+  UAddress,
+  asApproval,
+  asChain,
+  asHex,
+  asUAddress,
+  isChain,
+  isHex,
+} from 'lib';
 import { getUserCtx } from '~/request/ctx';
 import { ShapeFunc } from '../database/database.select';
 import { DatabaseService } from '../database/database.service';
@@ -28,11 +38,11 @@ export const selectProposal = (id: UniqueProposal, shape?: ShapeFunc<typeof e.Pr
 
 export interface ProposalSubscriptionPayload {
   hash: Hex;
-  account: Address;
+  account: UAddress;
   event: ProposalEvent;
 }
 export const getProposalTrigger = (hash: Hex) => `proposal.${hash}`;
-export const getProposalAccountTrigger = (account: Address) => `proposal.account.${account}`;
+export const getProposalAccountTrigger = (account: UAddress) => `proposal.account.${account}`;
 
 @Injectable()
 export class ProposalsService {
@@ -85,14 +95,14 @@ export class ProposalsService {
   }
 
   async approve({ hash, approver = getUserCtx().approver, signature }: ApproveInput) {
-    if (
-      !(await asApproval({
-        digest: hash,
-        approver,
-        signature,
-        network: this.networks.for(approver),
-      }))
-    )
+    const chain = await this.db.query(
+      e.select(e.Proposal, () => ({ filter_single: { hash }, account: { chain: true } })).account
+        .chain,
+    );
+    if (!isChain(chain)) throw new UserInputError('Proposal not found');
+
+    const network = this.networks.get(chain);
+    if (!(await asApproval({ digest: hash, approver, signature, network })))
       throw new UserInputError('Invalid signature');
 
     await this.db.transaction(async (db) => {
@@ -159,7 +169,7 @@ export class ProposalsService {
     );
 
     if (p)
-      this.publishProposal({ hash, account: p.account.address as Address }, ProposalEvent.update);
+      this.publishProposal({ hash, account: asUAddress(p.account.address) }, ProposalEvent.update);
   }
 
   async publishProposal(
@@ -179,7 +189,7 @@ export class ProposalsService {
               ),
             );
 
-            return { hash: p.hash as Hex, account: p.account.address as Address };
+            return { hash: asHex(p.hash), account: asUAddress(p.account.address) };
           })()
         : proposal;
 

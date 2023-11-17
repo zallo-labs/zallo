@@ -1,7 +1,7 @@
 import { BytesLike, ethers } from 'ethers';
 import { recoverAddress } from 'ethers/lib/utils';
 import { SignatureLike } from '@ethersproject/bytes';
-import { Address, asAddress, compareAddress } from './address';
+import { Address, UAddress, asAddress, compareAddress } from './address';
 import { Approver } from './approver';
 import { hashTx, Tx } from './tx';
 import { Hex, asHex } from './bytes';
@@ -61,7 +61,7 @@ export const APPROVALS_ABI = newAbiType<ApprovalsParams, ApprovalsStruct>(
 export const signDigest = (digest: BytesLike, approver: Approver) =>
   asHex(ethers.utils.joinSignature(approver._signingKey().signDigest(digest)));
 
-export const signTx = (approver: Approver, account: Address, tx: Tx) =>
+export const signTx = (approver: Approver, account: UAddress, tx: Tx) =>
   signDigest(hashTx(account, tx), approver);
 
 const ERC1271_SUCCESS = '0x1626ba7e';

@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Address } from 'lib';
+import { Address, UAddress } from 'lib';
 import { Price } from './prices.model';
 import { gql } from './__generated__';
 import { Client, cacheExchange, fetchExchange } from '@urql/core';
@@ -45,7 +45,7 @@ export class PricesService {
     });
   }
 
-  async price(token: Address, ethereumAddress: Address | undefined): Promise<Price | null> {
+  async price(token: UAddress, ethereumAddress: Address | undefined): Promise<Price | null> {
     if (!ethereumAddress) return null;
 
     const data = (await this.uniswap.query(QueryDoc, { token: ethereumAddress.toLowerCase() }))

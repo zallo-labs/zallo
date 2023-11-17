@@ -1,5 +1,14 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { Address, ERC20_ABI, Hex, asAddress, isTruthy, tryOrIgnore } from 'lib';
+import {
+  Address,
+  ERC20_ABI,
+  Hex,
+  UAddress,
+  asAddress,
+  asUAddress,
+  isTruthy,
+  tryOrIgnore,
+} from 'lib';
 import {
   TransactionEventData,
   TransactionsProcessor,
@@ -20,11 +29,11 @@ import { AccountsCacheService } from '../auth/accounts.cache.service';
 import { ExpoService } from '../util/expo/expo.service';
 import { CONFIG } from '~/config';
 
-const altEthAddress = asAddress(L2_ETH_TOKEN_ADDRESS);
+const ETH_ERC20_ADDRESS = asAddress(L2_ETH_TOKEN_ADDRESS);
 const normalizeEthAddress = (address: Address) =>
-  address === altEthAddress ? ETH_ADDRESS : address;
+  address === ETH_ERC20_ADDRESS ? ETH_ADDRESS : address;
 
-export const getTransferTrigger = (account: Address) => `transfer.account.${account}`;
+export const getTransferTrigger = (account: UAddress) => `transfer.account.${account}`;
 export interface TransferSubscriptionPayload {
   transfer: uuid;
   account: Address;
@@ -57,7 +66,7 @@ export class TransfersEvents {
   }
 
   private async transfer(event: EventData | TransactionEventData) {
-    const { log } = event;
+    const { chain, log } = event;
     const isFromTransaction = 'receipt' in event;
 
     const r = tryOrIgnore(() =>
@@ -70,14 +79,16 @@ export class TransfersEvents {
     );
     if (!r) return;
 
-    const { from, to, value: amount } = r.args;
+    const from = asUAddress(r.args.from, chain);
+    const to = asUAddress(r.args.to, chain);
+    const amount = r.args.value;
 
     const isAccount = await this.accountsCache.isAccount([from, to]);
     const accounts = [isAccount[0] && from, isAccount[1] && to].filter(isTruthy);
     if (!accounts.length) return;
 
-    const token = normalizeEthAddress(asAddress(log.address));
-    const network = this.networks.for(token);
+    const token = asUAddress(normalizeEthAddress(asAddress(log.address)), chain);
+    const network = this.networks.get(chain);
     const { timestamp } = await network.provider.getBlock(log.blockNumber);
     const block = BigInt(log.blockNumber);
 
@@ -121,7 +132,7 @@ export class TransfersEvents {
           ),
         );
 
-        network.invalidateBalance({ account, token });
+        network.invalidateBalance({ account, token: asAddress(token) });
 
         this.pubsub.publish<TransferSubscriptionPayload>(getTransferTrigger(account), {
           transfer: transfer.id,
@@ -133,7 +144,7 @@ export class TransfersEvents {
           internal: transfer.internal,
         });
 
-        if (!isFromTransaction && from !== BOOTLOADER_FORMAL_ADDRESS) {
+        if (!isFromTransaction && asAddress(from) !== BOOTLOADER_FORMAL_ADDRESS) {
           Logger.debug(
             `[${account}]: token (${token}) transfer ${
               from === account ? `to ${to}` : `from ${from}`
@@ -147,7 +158,7 @@ export class TransfersEvents {
   }
 
   private async approval(event: EventData | TransactionEventData) {
-    const { log } = event;
+    const { chain, log } = event;
 
     const r = tryOrIgnore(() =>
       decodeEventLog({
@@ -159,14 +170,16 @@ export class TransfersEvents {
     );
     if (!r) return;
 
-    const { owner: from, spender: to, value: amount } = r.args;
+    const from = asUAddress(r.args.owner, chain);
+    const to = asUAddress(r.args.spender, chain);
+    const amount = r.args.value;
 
     const isAccount = await this.accountsCache.isAccount([from, to]);
     const accounts = [isAccount[0] && from, isAccount[1] && to].filter(isTruthy);
     if (!accounts.length) return;
 
-    const tokenAddress = normalizeEthAddress(asAddress(log.address));
-    const block = await this.networks.for(tokenAddress).provider.getBlock(log.blockNumber);
+    const tokenAddress = asUAddress(normalizeEthAddress(asAddress(log.address)), chain);
+    const block = await this.networks.get(chain).provider.getBlock(log.blockNumber);
     Logger.debug(`Transfer approval ${tokenAddress}: ${from} -> ${to}`);
 
     await Promise.all(
@@ -197,9 +210,9 @@ export class TransfersEvents {
 
   private async notifyMembers(
     type: 'transfer' | 'approval',
-    account: Address,
-    from: Address,
-    token: Address,
+    account: UAddress,
+    from: UAddress,
+    token: UAddress,
     amount: bigint,
   ) {
     const { acc, tokenMetadata } = await this.db.query(
@@ -237,12 +250,10 @@ export class TransfersEvents {
     if (!acc) return;
 
     const accountName = acc.label + CONFIG.ensSuffix;
-    const truncatedTokenLabel = `${token.slice(0, 5)}...${token.length - 3}`;
-    const truncatedFromLabel = `${from.slice(0, 5)}...${from.length - 3}`;
 
     await this.expo.sendNotification(
       acc.approvers.map((a) => {
-        const fromLabel = a.fromContactLabel || truncatedFromLabel;
+        const fromLabel = a.fromContactLabel || truncateAddress(from);
         const t = a.token ?? tokenMetadata;
 
         return {
@@ -255,17 +266,22 @@ export class TransfersEvents {
             type === 'transfer'
               ? t
                 ? `${formatUnits(amount, t.decimals)} ${t.symbol} received from ${fromLabel}`
-                : `Tokens (${truncatedTokenLabel}) received from ${fromLabel}`
+                : `Tokens (${truncateAddress(token)}) received from ${fromLabel}`
               : t
               ? `${fromLabel} has allowed you to spend ${formatUnits(
                   amount,
                   t.decimals,
                 )} of their ${t.symbol} `
-              : `${fromLabel} has allowed you to spend their tokens (${truncatedTokenLabel})`,
+              : `${fromLabel} has allowed you to spend their tokens (${truncateAddress(token)})`,
           channelId: 'transfers',
           priority: 'normal',
         };
       }),
     );
   }
+}
+
+function truncateAddress(address: UAddress) {
+  const local = asAddress(address);
+  return `${local.slice(0, 5)}...${local.length - 3}`;
 }

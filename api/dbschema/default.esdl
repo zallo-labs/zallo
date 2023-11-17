@@ -8,9 +8,9 @@ module default {
   global current_accounts := <Account>(global current_accounts_set);
 
   type Account {
-    required address: Address {
-      readonly := true;
+    required address: UAddress {
       constraint exclusive;
+      readonly := true;
     }
     required label: str {
       constraint exclusive;
@@ -20,6 +20,7 @@ module default {
     required salt: Bytes32;
     required isActive: bool;
     photoUri: str;
+    required property chain := as_chain(.address);
     multi link policies := (select .<account[is Policy] filter .isEnabled);
     multi link proposals := .<account[is Proposal];
     multi link transactionProposals := .<account[is TransactionProposal];
@@ -160,7 +161,7 @@ module default {
     required account: Account;
     required from: Address;
     required to: Address;
-    required tokenAddress: Address;
+    required tokenAddress: UAddress;
     required amount: bigint;
     required multi direction: TransferDirection;
     link token := (

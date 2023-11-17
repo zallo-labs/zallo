@@ -15,6 +15,7 @@ import { NetworksService } from '../util/networks/networks.service';
 import { PricesService } from '../prices/prices.service';
 import { getUserCtx } from '~/request/ctx';
 import { PaymasterService } from '../paymaster/paymaster.service';
+import { asAddress } from 'lib';
 
 @Resolver(() => Token)
 export class TokensResolver {
@@ -47,7 +48,7 @@ export class TokensResolver {
   ): Promise<bigint> {
     if (!account) return 0n;
 
-    return this.networks.for(account).balance({ account, token });
+    return this.networks.for(account).balance({ account, token: asAddress(token) });
   }
 
   @ComputedField<typeof e.Token>(

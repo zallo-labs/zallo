@@ -3,8 +3,8 @@ import { TransfersService } from './transfers.service';
 import { createMock } from '@golevelup/ts-jest';
 import { DatabaseService } from '../database/database.service';
 import { UserContext, asUser, getUserCtx } from '~/request/ctx';
-import { Address, ZERO_ADDR, randomDeploySalt } from 'lib';
-import { ZERO_HASH, randomAddress, randomLabel, randomUser } from '~/util/test';
+import { Address, UAddress, ZERO_ADDR, randomDeploySalt } from 'lib';
+import { ZERO_HASH, randomAddress, randomLabel, randomUAddress, randomUser } from '~/util/test';
 import e from '~/edgeql-js';
 import { v1 as uuidv1 } from 'uuid';
 import { InsertShape } from '~/edgeql-js/insert';
@@ -25,7 +25,7 @@ describe(TransfersService.name, () => {
     db = module.get(DatabaseService);
   });
 
-  const createAccount = async (address = randomAddress()) => {
+  const createAccount = async (address = randomUAddress()) => {
     const id = uuidv1();
     getUserCtx().accounts.push({ id, address });
 
@@ -45,7 +45,7 @@ describe(TransfersService.name, () => {
   };
 
   let user1: UserContext;
-  let account1: Address;
+  let account1: UAddress;
 
   beforeEach(async () => {
     user1 = randomUser();

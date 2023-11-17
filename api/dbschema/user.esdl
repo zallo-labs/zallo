@@ -55,7 +55,7 @@ module default {
 
   type Contact {
     required user: User { default := (<User>(global current_user).id); }
-    required address: Address;
+    required address: UAddress;
     required label: Label;
 
     constraint exclusive on ((.user, .address));
@@ -68,7 +68,7 @@ module default {
 
   type Token {
     user: User { default := (<User>(global current_user).id); }
-    required address: Address;
+    required address: UAddress;
     ethereumAddress: Address;
     required name: Label;
     required symbol: Label;
@@ -76,10 +76,11 @@ module default {
     iconUri: str;
     units: array<tuple<symbol: Label, decimals: uint16>>;
     required isFeeToken: bool { default := false; };
+    required property chain := as_chain(.address);
 
     constraint exclusive on ((.user, .address));
-    constraint exclusive on ((.user, .name));
-    constraint exclusive on ((.user, .symbol));
+    constraint exclusive on ((.user, .chain, .name));
+    constraint exclusive on ((.user, .chain, .symbol));
     index on (.address);
     index on ((.address, .isFeeToken));
 

@@ -3,6 +3,10 @@ module default {
     constraint regexp(r'^0x[0-9a-fA-F]{40}$');
   }
 
+  scalar type UAddress extending str {
+    constraint regexp(r'^[0-9a-zA-Z-]+?:0x[0-9a-fA-F]{40}$');
+  }
+
   scalar type Label extending str {
     constraint min_len_value(1);
     constraint max_len_value(50);

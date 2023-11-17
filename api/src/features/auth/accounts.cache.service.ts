@@ -1,5 +1,5 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
-import { Address, isPresent } from 'lib';
+import { Address, UAddress, asUAddress, isPresent } from 'lib';
 import { InjectRedis } from '@songkeys/nestjs-redis';
 import Redis from 'ioredis';
 import { UserAccountContext, getUserCtx } from '~/request/ctx';
@@ -33,7 +33,7 @@ export class AccountsCacheService implements OnModuleInit {
     if (addresses.length) await this.redis.sadd(ACCOUNTS_ADDRESS_SET, addresses);
   }
 
-  async isAccount<T extends Address | Address[]>(address: T) {
+  async isAccount<T extends UAddress | UAddress[]>(address: T) {
     return (
       Array.isArray(address)
         ? (await this.redis.smismember(ACCOUNTS_ADDRESS_SET, ...address)).map((r) => r === 1)
@@ -61,7 +61,7 @@ export class AccountsCacheService implements OnModuleInit {
     );
 
     const accounts = user.accounts.map(
-      (a): UserAccountContext => ({ id: a.id, address: a.address as Address }),
+      (a): UserAccountContext => ({ id: a.id, address: asUAddress(a.address) }),
     );
 
     await this.setCachedAccounts(user.id, approver, accounts);

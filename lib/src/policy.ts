@@ -3,7 +3,7 @@ import { asUint16, MAX_UINT16, MIN_UINT16 } from './bigint';
 import { BigNumber, BigNumberish } from 'ethers';
 import { PolicyStruct as BasePolicyStruct } from './contracts/Account';
 import { AwaitedObj } from './util/types';
-import { Address, asAddress, compareAddress } from './address';
+import { Address, asAddress, compareAddress, UAddress } from './address';
 import {
   ALLOW_ALL_TRANSFERS_CONFIG,
   Permissions,
@@ -24,7 +24,7 @@ export const MIN_POLICY_KEY = MIN_UINT16 as unknown as PolicyKey;
 export const MAX_POLICY_KEY = MAX_UINT16 as unknown as PolicyKey;
 
 export interface PolicyId {
-  readonly account: Address;
+  readonly account: UAddress;
   readonly key: PolicyKey;
 }
 

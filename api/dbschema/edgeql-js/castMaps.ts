@@ -56,6 +56,7 @@ export type scalarAssignableBy<T extends $.ScalarType> =
   T extends _std.$int32 ? _std.$int32 : 
   T extends _default.$current_accounts_set ? _default.$current_accounts_set : 
   T extends _std.$uuid ? _std.$uuid : 
+  T extends _default.$UAddress ? _default.$UAddress : 
   T extends _default.$TransferDirection ? _default.$TransferDirection : 
   T extends _default.$TransactionProposalStatus ? _default.$TransactionProposalStatus : 
   T extends _default.$ProposalRisk ? _default.$ProposalRisk : 
@@ -123,6 +124,7 @@ export type scalarCastableFrom<T extends $.ScalarType> =
   T extends _std.$int32 ? _std.$int32 : 
   T extends _default.$current_accounts_set ? _default.$current_accounts_set : 
   T extends _std.$uuid ? _std.$uuid : 
+  T extends _default.$UAddress ? _default.$UAddress : 
   T extends _default.$TransferDirection ? _default.$TransferDirection : 
   T extends _default.$TransactionProposalStatus ? _default.$TransactionProposalStatus : 
   T extends _default.$ProposalRisk ? _default.$ProposalRisk : 
@@ -412,6 +414,12 @@ type getSharedParentScalar<A, B> =
   :
   A extends _std.$uuid ?
     B extends _std.$uuid ?
+    B
+    :
+    never
+  :
+  A extends _default.$UAddress ?
+    B extends _default.$UAddress ?
     B
     :
     never
@@ -819,6 +827,12 @@ function getSharedParentScalar<A extends $.ScalarType, B extends $.ScalarType>(a
     }
   if (a.__name__ === "std::uuid") {
     if(b.__name__ === "std::uuid") {
+      return b;
+    }
+    throw new Error(`Types are not castable: ${a.__name__}, ${b.__name__}`);
+    }
+  if (a.__name__ === "default::UAddress") {
+    if(b.__name__ === "default::UAddress") {
       return b;
     }
     throw new Error(`Types are not castable: ${a.__name__}, ${b.__name__}`);

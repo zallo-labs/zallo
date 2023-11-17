@@ -1,15 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { NetworksService } from '../util/networks/networks.service';
 import assert from 'assert';
-import { Address, CHAINS, asAddress } from 'lib';
+import { UAddress, CHAINS, asAddress, asHex } from 'lib';
 import * as zk from 'zksync-web3';
-import { ETH_ADDRESS } from 'zksync-web3/build/src/utils';
 import { BigNumber } from 'ethers';
 
 interface GetPaymasterParamsOptions {
-  feeToken: Address;
-  gasPrice: bigint;
-  gasLimit: bigint;
+  feeToken: UAddress;
+  gas: bigint;
+  maxFeePerGas: bigint;
 }
 
 @Injectable()
@@ -24,20 +23,18 @@ export class PaymasterService {
     return asAddress(paymaster);
   }
 
-  async getPaymasterParams({ feeToken, gasPrice, gasLimit }: GetPaymasterParamsOptions) {
-    if (feeToken === ETH_ADDRESS) return undefined;
-
-    const paymaster = await this.getPaymaster();
-
-    return zk.utils.getPaymasterParams(paymaster, {
-      type: 'ApprovalBased',
-      token: feeToken,
-      minimalAllowance: BigNumber.from(gasPrice * gasLimit), // Mainnet TODO: factor in conversion from token -> ETH; 1:1 on testnet
-      innerInput: [],
-    });
+  paymasterInput({ feeToken, gas, maxFeePerGas }: GetPaymasterParamsOptions) {
+    return asHex(
+      zk.utils.getApprovalBasedPaymasterInput({
+        type: 'ApprovalBased',
+        token: feeToken,
+        minimalAllowance: BigNumber.from(gas * maxFeePerGas), // Mainnet TODO: factor in conversion from token -> ETH; 1:1 on testnet
+        innerInput: [],
+      }),
+    );
   }
 
-  async getGasPrice(feeToken: Address) {
+  async getGasPrice(feeToken: UAddress) {
     const network = this.networks.for(feeToken);
     assert(network.chain.testnet); // Mainnet TODO: get correct gas price
     // On testnet the conversion is 1:1 token:ETH (wei)

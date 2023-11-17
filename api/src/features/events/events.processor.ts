@@ -41,6 +41,7 @@ export interface EventJobData {
 }
 
 export interface EventData {
+  chain: Chain;
   log: Log;
 }
 
@@ -134,7 +135,7 @@ export class EventsProcessor implements OnModuleInit {
 
     await Promise.all(
       logs.flatMap(
-        (log) => this.listeners.get(log.topics[0])?.map((listener) => listener({ log })),
+        (log) => this.listeners.get(log.topics[0])?.map((listener) => listener({ chain, log })),
       ),
     );
     Logger.verbose(`Processed ${logs.length} events from ${to - from + 1} blocks [${from}, ${to}]`);

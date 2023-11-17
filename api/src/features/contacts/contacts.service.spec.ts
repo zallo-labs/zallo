@@ -1,12 +1,11 @@
 import { createMock } from '@golevelup/ts-jest';
 import { Test, TestingModule } from '@nestjs/testing';
-import { Address, randomDeploySalt } from 'lib';
-import { asUser, getApprover, getUserCtx, UserContext } from '~/request/ctx';
-import { randomAddress, randomUser } from '~/util/test';
+import { UAddress } from 'lib';
+import { asUser, UserContext } from '~/request/ctx';
+import { randomUAddress, randomUser } from '~/util/test';
 import { DatabaseService } from '../database/database.service';
 import { ContactsService, uniqueContact } from './contacts.service';
 import e from '~/edgeql-js';
-import { v1 as uuid1 } from 'uuid';
 
 describe(ContactsService.name, () => {
   let service: ContactsService;
@@ -24,18 +23,18 @@ describe(ContactsService.name, () => {
   });
 
   let user1: UserContext;
-  let user1Contact: Address;
+  let user1Contact: UAddress;
 
   beforeEach(async () => {
     user1 = randomUser();
-    user1Contact = randomAddress();
+    user1Contact = randomUAddress();
 
     await asUser(user1, () =>
       db.query(e.insert(e.Approver, { address: user1.approver }).unlessConflict()),
     );
   });
 
-  const upsertContact = (address: Address = randomAddress(), label = `${address} contact`) => {
+  const upsertContact = (address: UAddress = randomUAddress(), label = `${address} contact`) => {
     return service.upsert({ label, address });
   };
 
@@ -67,7 +66,7 @@ describe(ContactsService.name, () => {
       asUser(user1, async () => {
         const name = 'a';
         await upsertContact(user1Contact, name);
-        await expect(upsertContact(randomAddress(), name)).rejects.toThrow();
+        await expect(upsertContact(randomUAddress(), name)).rejects.toThrow();
       }));
   });
 
@@ -95,7 +94,7 @@ describe(ContactsService.name, () => {
   describe('select', () => {
     it("returns all user's contacts", () =>
       asUser(user1, async () => {
-        const expectedContacts = new Set([user1Contact, randomAddress()]);
+        const expectedContacts = new Set([user1Contact, randomUAddress()]);
         await Promise.all([...expectedContacts].map((contact) => upsertContact(contact)));
 
         const contacts = (await service.select({}, () => ({ address: true }))).map(

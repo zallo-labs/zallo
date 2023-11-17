@@ -1,5 +1,5 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
-import { Address, filterAsync } from 'lib';
+import { Address, UAddress, asAddress, filterAsync } from 'lib';
 import { NetworksService } from '~/features/util/networks/networks.service';
 import { selectAccount } from '../accounts/accounts.util';
 import { DatabaseService } from '../database/database.service';
@@ -26,16 +26,16 @@ export class FaucetService implements OnModuleInit {
     );
 
     this.tokens = tokens.map((t) => ({
-      address: t.address as Address,
+      address: asAddress(t.address),
       amount: parseUnits(t.address === ETH_ADDRESS ? '0.01' : '1', t.decimals),
     }));
   }
 
-  async requestableTokens(account: Address): Promise<Address[]> {
+  async requestableTokens(account: UAddress): Promise<Address[]> {
     return (await this.getTokensToSend(account)).map((token) => token.address);
   }
 
-  async requestTokens(account: Address): Promise<Address[]> {
+  async requestTokens(account: UAddress): Promise<Address[]> {
     const tokensToSend = await this.getTokensToSend(account);
     const network = this.networks.for(account);
 
@@ -54,7 +54,7 @@ export class FaucetService implements OnModuleInit {
     ).map((token) => token.address);
   }
 
-  private async getTokensToSend(account: Address) {
+  private async getTokensToSend(account: UAddress) {
     if (!(await this.db.query(selectAccount(account)))) return [];
 
     const network = this.networks.for(account);

@@ -8,7 +8,7 @@ import { selectAccount } from '../accounts/accounts.util';
 import { uuid } from 'edgedb/dist/codecs/ifaces';
 import { Shape } from '../database/database.select';
 import { PricesService } from '../prices/prices.service';
-import { Address, tokenToFiat } from 'lib';
+import { asAddress, asUAddress, tokenToFiat } from 'lib';
 
 export const TRANSFER_VALUE_FIELDS_SHAPE = {
   token: {
@@ -57,8 +57,8 @@ export class TransfersService {
     if (!token) return null;
 
     const p = await this.prices.price(
-      token.address as Address,
-      token.ethereumAddress as Address | undefined,
+      asUAddress(token.address),
+      asAddress(token.ethereumAddress ?? undefined),
     );
     if (!p) return null;
 

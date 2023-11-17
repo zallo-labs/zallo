@@ -1,7 +1,7 @@
 import { BullModuleOptions, InjectQueue, Process, Processor } from '@nestjs/bull';
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { Job, Queue } from 'bull';
-import { Hex, ZERO_ADDR, asAddress, asHex } from 'lib';
+import { Hex, ZERO_ADDR, asAddress, asHex, asUAddress } from 'lib';
 import { DatabaseService } from '../database/database.service';
 import e from '~/edgeql-js';
 import { and } from '../database/database.util';
@@ -62,8 +62,9 @@ export class SimulationsProcessor implements OnModuleInit {
     // Job is complete if the proposal no longer exists
     if (!p) return;
 
-    const accountAddress = asAddress(p.account.address);
-    const account = selectAccount(accountAddress);
+    const accountUAddress = asUAddress(p.account.address);
+    const accountAddress = asAddress(accountUAddress);
+    const account = selectAccount(accountUAddress);
     const transfers: TransferDetails[] = [];
 
     for (const op of p.operations) {

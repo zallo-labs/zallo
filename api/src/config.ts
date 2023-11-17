@@ -1,4 +1,4 @@
-import { Chain, UAddress, isPresent, makeRequiredEnv, optionalEnv as optional } from 'lib';
+import { Chain, isPresent, makeRequiredEnv, optionalEnv as optional } from 'lib';
 import os from 'os';
 require('dotenv').config({ path: '../.env' });
 
@@ -27,11 +27,6 @@ export const CONFIG = {
   graphRef: optional`APOLLO_GRAPH_REF`,
   etherscanApiKey: required`ETHERSCAN_API_KEY`,
   walletPrivateKeys: JSON.parse(optional`WALLET_PRIVATE_KEYS` || '{}') as Record<Chain, string>,
-  accountImplementation: JSON.parse(optional`ACCOUNT_IMPLEMENTATION` || '{}') as Record<
-    Chain,
-    UAddress
-  >,
-  proxyFactory: JSON.parse(optional`PROXY_FACTORY` || '{}') as Record<Chain, UAddress>,
   uniswapGqlUrl: required`UNISWAP_GQL_URL`,
   sentryDsn: optional`API_SENTRY_DSN`,
   serverId: optional`FLY_ALLOC_ID` || os.hostname(),

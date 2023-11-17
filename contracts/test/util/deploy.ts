@@ -6,14 +6,13 @@ import {
   asPolicy,
   asTx,
   deployAccountProxy,
-  executeTx,
+  executeTransaction,
   Factory__factory,
   randomDeploySalt,
   TestAccount__factory,
-  Tx,
   TxOptions,
 } from 'lib';
-import { WALLETS, WALLET } from './wallet';
+import { WALLETS, WALLET, network } from './wallet';
 import { BigNumberish, Overrides } from 'ethers';
 import * as zk from 'zksync-web3';
 import { BytesLike, parseEther } from 'ethers/lib/utils';
@@ -115,10 +114,11 @@ export const deployProxy = async ({
     execute: async (txOpts: TxOptions) => {
       const tx = asTx(txOpts);
 
-      return await executeTx({
-        account,
-        policy,
+      return executeTransaction({
+        network,
+        account: account.address,
         tx,
+        policy,
         approvals: await getApprovals(account, approvers, tx),
       });
     },
