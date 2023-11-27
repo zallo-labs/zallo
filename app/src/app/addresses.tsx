@@ -17,10 +17,11 @@ import { StyleSheet, View } from 'react-native';
 import { ADDRESS_SELECTED } from '~/hooks/useSelectAddress';
 import { TokenItem } from '~/components/token/TokenItem';
 import { z } from 'zod';
-import { zAddress, zArray } from '~/lib/zod';
+import { zAddress, zArray, zUAddress } from '~/lib/zod';
 import { useLocalParams } from '~/hooks/useLocalParams';
 import { withSuspense } from '~/components/skeleton/withSuspense';
 import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
+import { Address, UAddress, asAddress, isAddress } from 'lib';
 
 const Query = gql(/* GraphQL */ `
   query AddressesScreen(
@@ -63,15 +64,15 @@ const Query = gql(/* GraphQL */ `
   }
 `);
 
-const paramsSchema = z.object({
+const AddressesScreenParams = z.object({
   include: zArray(z.enum(['accounts', 'approvers', 'contacts', 'tokens'])).optional(),
-  disabled: zArray(zAddress).optional(),
+  disabled: zArray(z.union([zAddress, zUAddress])).optional(),
 });
-export type AddressesModalParams = z.infer<typeof paramsSchema>;
+export type AddressesModalParams = z.infer<typeof AddressesScreenParams>;
 
 function AddressesScreen() {
-  const params = useLocalParams(`/addresses`, paramsSchema);
-  const disabled = params.disabled && new Set(params.disabled);
+  const params = useLocalParams(AddressesScreenParams);
+  const disabled = params.disabled && new Set(...params.disabled.flatMap((a) => [a, asAddress(a)]));
   const scanAddress = useScanAddress();
 
   const [query, setQuery] = useState('');

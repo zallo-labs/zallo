@@ -1,0 +1,23 @@
+{
+  "name": "chains",
+  "private": true,
+  "main": "./dist/index.mjs",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch"
+  },
+  "dependencies": {
+    "viem": "^1.19.3"
+  },
+  "devDependencies": {
+    "tsup": "^8.0.1",
+    "typescript": "^5.2.2"
+  }
+}

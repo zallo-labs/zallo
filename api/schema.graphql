@@ -17,6 +17,7 @@ enum AbiSourceConfidence {
 type Account implements Node {
   address: UAddress!
   approvers: [Approver!]!
+  chain: Chain!
   id: ID!
   implementation: Address!
   isActive: Boolean!
@@ -127,11 +128,8 @@ scalar Bytes
 """32-byte hex string"""
 scalar Bytes32
 
-enum Chain {
-  zksync
-  zksync_goerli
-  zksync_local
-}
+"""zksync | zksync-goerli | zksync-local"""
+scalar Chain
 
 enum CloudProvider {
   Apple
@@ -188,7 +186,7 @@ input ContractInput {
 }
 
 input CreateAccountInput {
-  chain: Chain = zksync_goerli
+  chain: Chain
   label: String!
   policies: [PolicyInput!]!
 }
@@ -624,6 +622,7 @@ input TokenUnitInput {
 
 input TokensInput {
   address: [UAddress!]
+  chain: Chain
   feeToken: Boolean
   query: String
 }

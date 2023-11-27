@@ -8,12 +8,13 @@ import {
 } from '@theme/icons';
 import { PolicyDraft, PolicyDraftAction } from './draft';
 import { FragmentType, gql, useFragment as getFragment } from '@api';
-import { ACCOUNT_ABI, Address, ERC721_ABI, asSelector } from 'lib';
+import { ACCOUNT_ABI, Address, ERC721_ABI, asAddress, asSelector } from 'lib';
 import _ from 'lodash';
 import { FC, useMemo } from 'react';
 import { getAbiItem, getFunctionSelector } from 'viem';
-import { SYNCSWAP_ROUTER } from '~/util/swap/syncswap/contracts';
-import { useApproverAddress } from '@network/useApprover';
+import { useApproverAddress } from '~/lib/network/useApprover';
+import { SYNCSWAP } from 'lib/dist/dapps';
+import { Chain } from 'chains';
 
 type ActionDefinition = Omit<PolicyDraftAction, 'allow'> & { icon?: FC<IconProps> };
 
@@ -41,7 +42,6 @@ export const ACTION_PRESETS = {
       [
         getAbiItem({ abi: ACCOUNT_ABI, name: 'addPolicy' }),
         getAbiItem({ abi: ACCOUNT_ABI, name: 'removePolicy' }),
-        getAbiItem({ abi: ACCOUNT_ABI, name: 'upgradeTo' }),
         getAbiItem({ abi: ACCOUNT_ABI, name: 'upgradeToAndCall' }),
       ].map((f) => ({
         contract: account,
@@ -51,30 +51,32 @@ export const ACTION_PRESETS = {
   syncswapSwap: {
     icon: SwapIcon,
     label: 'Swap (SyncSwap)',
-    functions: [
-      getAbiItem({ abi: SYNCSWAP_ROUTER.abi, name: 'swap' }),
-      getAbiItem({ abi: SYNCSWAP_ROUTER.abi, name: 'swapWithPermit' }),
-    ].map((f) => ({
-      contract: SYNCSWAP_ROUTER.address,
-      selector: asSelector(getFunctionSelector(f)),
-    })),
+    functions: (chain: Chain) =>
+      [
+        getAbiItem({ abi: SYNCSWAP.router.abi, name: 'swap' }),
+        getAbiItem({ abi: SYNCSWAP.router.abi, name: 'swapWithPermit' }),
+      ].map((f) => ({
+        contract: SYNCSWAP.router.address[chain],
+        selector: asSelector(getFunctionSelector(f)),
+      })),
   },
   syncswapLiquidity: {
     icon: materialCommunityIcon('water'),
     label: 'Manage liquidity (SyncSwap)',
-    functions: [
-      getAbiItem({ abi: SYNCSWAP_ROUTER.abi, name: 'addLiquidity' }),
-      getAbiItem({ abi: SYNCSWAP_ROUTER.abi, name: 'addLiquidity2' }),
-      getAbiItem({ abi: SYNCSWAP_ROUTER.abi, name: 'addLiquidityWithPermit' }),
-      getAbiItem({ abi: SYNCSWAP_ROUTER.abi, name: 'addLiquidityWithPermit2' }),
-      getAbiItem({ abi: SYNCSWAP_ROUTER.abi, name: 'burnLiquidity' }),
-      getAbiItem({ abi: SYNCSWAP_ROUTER.abi, name: 'burnLiquiditySingle' }),
-      getAbiItem({ abi: SYNCSWAP_ROUTER.abi, name: 'burnLiquiditySingleWithPermit' }),
-      getAbiItem({ abi: SYNCSWAP_ROUTER.abi, name: 'burnLiquidityWithPermit' }),
-    ].map((f) => ({
-      contract: SYNCSWAP_ROUTER.address,
-      selector: asSelector(getFunctionSelector(f)),
-    })),
+    functions: (chain: Chain) =>
+      [
+        getAbiItem({ abi: SYNCSWAP.router.abi, name: 'addLiquidity' }),
+        getAbiItem({ abi: SYNCSWAP.router.abi, name: 'addLiquidity2' }),
+        getAbiItem({ abi: SYNCSWAP.router.abi, name: 'addLiquidityWithPermit' }),
+        getAbiItem({ abi: SYNCSWAP.router.abi, name: 'addLiquidityWithPermit2' }),
+        getAbiItem({ abi: SYNCSWAP.router.abi, name: 'burnLiquidity' }),
+        getAbiItem({ abi: SYNCSWAP.router.abi, name: 'burnLiquiditySingle' }),
+        getAbiItem({ abi: SYNCSWAP.router.abi, name: 'burnLiquiditySingleWithPermit' }),
+        getAbiItem({ abi: SYNCSWAP.router.abi, name: 'burnLiquidityWithPermit' }),
+      ].map((f) => ({
+        contract: SYNCSWAP.router.address[chain],
+        selector: asSelector(getFunctionSelector(f)),
+      })),
   },
 } satisfies Record<
   string,
@@ -95,9 +97,15 @@ const Account = gql(/* GraphQL */ `
   }
 `);
 
-export function usePolicyPresets(accountFragment: FragmentType<typeof Account> | null | undefined) {
-  const account = getFragment(Account, accountFragment);
+export interface UsePolicyPresetsParams {
+  account: FragmentType<typeof Account> | null | undefined;
+  chain: Chain;
+}
+
+export function usePolicyPresets({ chain, ...params }: UsePolicyPresetsParams) {
+  const account = getFragment(Account, params.account);
   const approver = useApproverAddress();
+  const accountAddress = asAddress(account?.address);
 
   return useMemo(() => {
     const approvers = new Set([approver, ...(account?.approvers.map((a) => a.address) ?? [])]);
@@ -108,12 +116,16 @@ export function usePolicyPresets(accountFragment: FragmentType<typeof Account> |
         approvers,
         threshold: 1,
         actions: [
-          account && {
+          accountAddress && {
             ...ACTION_PRESETS.manageAccount,
-            functions: ACTION_PRESETS.manageAccount.functions(account.address),
+            functions: ACTION_PRESETS.manageAccount.functions(accountAddress),
             allow: false,
           },
-          { ...ACTION_PRESETS.syncswapSwap, allow: true },
+          {
+            ...ACTION_PRESETS.syncswapSwap,
+            functions: ACTION_PRESETS.syncswapSwap.functions(chain),
+            allow: true,
+          },
           { ...ACTION_PRESETS.all, allow: false },
         ].filter(Boolean),
         transfers: { defaultAllow: false, limits: {} }, // TODO: allow transfers up to $x
@@ -123,13 +135,21 @@ export function usePolicyPresets(accountFragment: FragmentType<typeof Account> |
         approvers,
         threshold: Math.max(approvers.size > 3 ? 3 : 2, approvers.size),
         actions: [
-          account && {
+          accountAddress && {
             ...ACTION_PRESETS.manageAccount,
-            functions: ACTION_PRESETS.manageAccount.functions(account.address),
+            functions: ACTION_PRESETS.manageAccount.functions(accountAddress),
             allow: false,
           },
-          { ...ACTION_PRESETS.syncswapSwap, allow: true },
-          { ...ACTION_PRESETS.syncswapLiquidity, allow: true },
+          {
+            ...ACTION_PRESETS.syncswapSwap,
+            functions: ACTION_PRESETS.syncswapSwap.functions(chain),
+            allow: true,
+          },
+          {
+            ...ACTION_PRESETS.syncswapLiquidity,
+            functions: ACTION_PRESETS.syncswapLiquidity.functions(chain),
+            allow: true,
+          },
           { ...ACTION_PRESETS.all, allow: true },
         ].filter(Boolean),
         transfers: { defaultAllow: false, limits: {} }, // TODO: allow transfers up to $y
@@ -139,17 +159,25 @@ export function usePolicyPresets(accountFragment: FragmentType<typeof Account> |
         approvers,
         threshold: _.clamp(approvers.size - 2, 1, 5),
         actions: [
-          account && {
+          accountAddress && {
             ...ACTION_PRESETS.manageAccount,
-            functions: ACTION_PRESETS.manageAccount.functions(account.address),
+            functions: ACTION_PRESETS.manageAccount.functions(accountAddress),
             allow: true,
           },
-          { ...ACTION_PRESETS.syncswapSwap, allow: true },
-          { ...ACTION_PRESETS.syncswapLiquidity, allow: true },
+          {
+            ...ACTION_PRESETS.syncswapSwap,
+            functions: ACTION_PRESETS.syncswapSwap.functions(chain),
+            allow: true,
+          },
+          {
+            ...ACTION_PRESETS.syncswapLiquidity,
+            functions: ACTION_PRESETS.syncswapLiquidity.functions(chain),
+            allow: true,
+          },
           { ...ACTION_PRESETS.all, allow: true },
         ].filter(Boolean),
         transfers: { defaultAllow: true, limits: {} },
       },
     } satisfies Record<string, Omit<PolicyDraft, 'account' | 'key'>>;
-  }, [account, approver]);
+  }, [chain, account?.approvers, accountAddress, approver]);
 }

@@ -4,7 +4,8 @@ import { TokensInput, UpsertTokenInput } from './tokens.input';
 import { Scope, ShapeFunc } from '../database/database.select';
 import e from '~/edgeql-js';
 import { uuid } from 'edgedb/dist/codecs/ifaces';
-import { ERC20_ABI, UAddress, asAddress, isUAddress } from 'lib';
+import { UAddress, asAddress, isUAddress } from 'lib';
+import { ERC20 } from 'lib/dapps';
 import { and, or } from '../database/database.util';
 import { NetworksService } from '../util/networks/networks.service';
 import { UserInputError } from '@nestjs/apollo';
@@ -30,7 +31,10 @@ export class TokensService {
     );
   }
 
-  async select({ address, query, feeToken }: TokensInput = {}, shape?: ShapeFunc<typeof e.Token>) {
+  async select(
+    { address, query, feeToken, chain }: TokensInput = {},
+    shape?: ShapeFunc<typeof e.Token>,
+  ) {
     const tokens = await this.db.query(
       e.select(e.Token, (t) => ({
         ...shape?.(t),
@@ -44,6 +48,7 @@ export class TokensService {
               e.op(t.symbol, 'ilike', query),
             ),
           feeToken !== undefined && e.op(t.isFeeToken, '=', feeToken),
+          chain && e.op(t.chain, '=', chain),
         ),
         order_by: [
           {
@@ -111,17 +116,17 @@ export class TokensService {
     const [name, symbol, decimals] = await this.networks.for(address).multicall({
       contracts: [
         {
-          abi: ERC20_ABI,
+          abi: ERC20,
           address: asAddress(address),
           functionName: 'name',
         },
         {
-          abi: ERC20_ABI,
+          abi: ERC20,
           address: asAddress(address),
           functionName: 'symbol',
         },
         {
-          abi: ERC20_ABI,
+          abi: ERC20,
           address: asAddress(address),
           functionName: 'decimals',
         },

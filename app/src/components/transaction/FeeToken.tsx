@@ -1,9 +1,9 @@
 import { FragmentType, gql, useFragment } from '@api/generated';
-import { asBigInt } from 'lib';
 import { useMutation } from 'urql';
 import { TokenItem } from '~/components/token/TokenItem';
 import { useSelectToken } from '~/app/(drawer)/[account]/tokens';
 import { createStyles, useStyles } from '@theme/styles';
+import { asAddress } from 'lib';
 
 const FragmentDoc = gql(/* GraphQL */ `
   fragment FeeToken_TransactionProposalFragment on TransactionProposal {
@@ -51,10 +51,10 @@ export function FeeToken(props: FeeTokenProps) {
   const update = useMutation(Update)[1];
   const selectToken = useSelectToken();
 
-  const estimatedFee = asBigInt(p.feeToken.gasPrice ?? 0) * asBigInt(p.gasLimit);
+  const estimatedFee = BigInt(p.feeToken.gasPrice ?? 0) * BigInt(p.gasLimit);
   const actualFee =
     p.transaction?.receipt &&
-    asBigInt(p.transaction.receipt.gasUsed) * asBigInt(p.transaction.gasPrice);
+    BigInt(p.transaction.receipt.gasUsed) * BigInt(p.transaction.gasPrice);
 
   return (
     <TokenItem
@@ -69,7 +69,7 @@ export function FeeToken(props: FeeTokenProps) {
       {...(p.updatable && {
         onPress: async () => {
           const token = await selectToken({ account: p.account.address, feeToken: true });
-          if (token) await update({ hash: p.hash, feeToken: token });
+          if (token) await update({ hash: p.hash, feeToken: asAddress(token) });
         },
       })}
     />

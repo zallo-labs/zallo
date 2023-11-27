@@ -7,7 +7,7 @@ export const MessagePolicyTabParams = MessageLayoutParams;
 export type MessagePolicyTabParams = z.infer<typeof MessagePolicyTabParams>;
 
 export default function MessagePolicyTab() {
-  const params = useLocalParams(`/(drawer)/message/[hash]/policy`, MessagePolicyTabParams);
+  const params = useLocalParams(MessagePolicyTabParams);
 
   return <PolicyTab hash={params.hash} />;
 }

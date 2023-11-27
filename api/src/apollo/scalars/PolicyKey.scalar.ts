@@ -7,7 +7,7 @@ const description = `Policy key: an unsigned integer [${MIN_POLICY_KEY}, ${MAX_P
 
 const parse = (value: string | number): PolicyKey => {
   try {
-    const n = BigInt(value);
+    const n = Number(value);
 
     if (n < MIN_POLICY_KEY)
       throw new UserInputError(`Must be greater than or equal to ${MIN_POLICY_KEY}`);

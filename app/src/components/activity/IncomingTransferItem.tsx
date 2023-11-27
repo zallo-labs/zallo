@@ -6,9 +6,14 @@ import { withSuspense } from '~/components/skeleton/withSuspense';
 import { FiatValue } from '~/components/FiatValue';
 import { FragmentType, gql, useFragment } from '@api/generated';
 import { TokenIcon } from '../token/TokenIcon';
+import { asUAddress } from 'lib';
 
 const FragmentDoc = gql(/* GraphQL */ `
   fragment IncomingTransferItem_TransferFragment on Transfer {
+    account {
+      id
+      chain
+    }
     token {
       id
       ...TokenIcon_token
@@ -30,7 +35,9 @@ function IncomingTransferItem_(props: IncomingTransferItemProps) {
     <ListItem
       leading={(props) => <TokenIcon token={transfer.token} {...props} />}
       leadingSize="medium"
-      headline={`Transfer from ${useAddressLabel(transfer.from)}`}
+      headline={`Transfer from ${useAddressLabel(
+        asUAddress(transfer.from, transfer.account.chain),
+      )}`}
       supporting={<Timestamp timestamp={transfer.timestamp} weekday />}
       trailing={({ Text }) =>
         transfer.value !== null && transfer.value !== undefined ? (

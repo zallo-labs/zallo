@@ -96,7 +96,7 @@ export class TransactionsService {
       await mapAsync(proposal.approvals, (a) =>
         asApproval({
           network,
-          digest: asHex(proposal.hash),
+          hash: asHex(proposal.hash),
           approver: asAddress(a.approver.address),
           signature: asHex(a.signature),
         }),

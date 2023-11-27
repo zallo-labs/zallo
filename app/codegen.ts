@@ -4,14 +4,16 @@ const schema = '../api/schema.graphql';
 const documents = 'src/**/*';
 const scalars = {
   Address: 'lib#Address',
-  BigInt: 'lib#BigIntlike',
+  UAddress: 'lib#UAddress',
+  BigInt: 'bigint | string',
   Bytes: 'lib#Hex',
   Bytes32: 'lib#Hex',
+  Chain: 'chains#Chain',
   DateTime: 'string',
   MAC: 'string',
   PolicyKey: 'lib#PolicyKey',
   Selector: 'lib#Selector',
-  Uint256: 'lib#BigIntlike',
+  Uint256: 'bigint | string',
   TypedData: 'viem#TypedDataDefinition',
   AbiFunction: 'abitype#AbiFunction',
 };

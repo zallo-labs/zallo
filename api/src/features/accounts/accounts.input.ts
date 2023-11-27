@@ -1,9 +1,11 @@
 import { Field, InputType, registerEnumType } from '@nestjs/graphql';
-import { Chain, UAddress } from 'lib';
+import { UAddress } from 'lib';
 import { minLengthMiddleware } from '~/apollo/scalars/util';
 import { PolicyInput } from '../policies/policies.input';
 import { GraphQLURL } from 'graphql-scalars';
 import { UAddressField, UAddressScalar } from '~/apollo/scalars/UAddress.scalar';
+import { Chain } from 'chains';
+import { ChainField } from '~/apollo/scalars/Chain.scalar';
 
 @InputType()
 export class AccountInput {
@@ -35,16 +37,9 @@ export class AccountSubscriptionInput {
   events?: AccountEvent[];
 }
 
-const ChainEnum = {
-  zksync: 'zksync',
-  zksync_goerli: 'zksync-goerli',
-  zksync_local: 'zksync-local',
-} satisfies Record<string, Chain>;
-registerEnumType(ChainEnum, { name: 'Chain' });
-
 @InputType()
 export class CreateAccountInput {
-  @Field(() => ChainEnum, { nullable: true, defaultValue: ChainEnum['zksync_goerli'] })
+  @ChainField()
   chain?: Chain;
 
   @Field(() => String)

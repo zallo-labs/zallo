@@ -2,17 +2,8 @@ import { UserInputError } from '@nestjs/apollo';
 import { Injectable } from '@nestjs/common';
 import { uuid } from 'edgedb/dist/codecs/ifaces';
 import e from '~/edgeql-js';
-import {
-  Address,
-  Hex,
-  UAddress,
-  asApproval,
-  asChain,
-  asHex,
-  asUAddress,
-  isChain,
-  isHex,
-} from 'lib';
+import { Hex, UAddress, asApproval, asHex, asUAddress, isHex } from 'lib';
+import { isChain } from 'chains';
 import { getUserCtx } from '~/request/ctx';
 import { ShapeFunc } from '../database/database.select';
 import { DatabaseService } from '../database/database.service';
@@ -102,7 +93,7 @@ export class ProposalsService {
     if (!isChain(chain)) throw new UserInputError('Proposal not found');
 
     const network = this.networks.get(chain);
-    if (!(await asApproval({ digest: hash, approver, signature, network })))
+    if (!(await asApproval({ hash: hash, approver, signature, network })))
       throw new UserInputError('Invalid signature');
 
     await this.db.transaction(async (db) => {

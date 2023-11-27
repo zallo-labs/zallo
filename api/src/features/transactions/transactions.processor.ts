@@ -3,14 +3,17 @@ import { Injectable, Logger } from '@nestjs/common';
 import { Job } from 'bull';
 import { TransactionEvent, TRANSACTIONS_QUEUE } from './transactions.queue';
 import { NetworksService } from '../util/networks/networks.service';
-import { Log, TransactionReceipt } from '@ethersproject/abstract-provider';
-import { Block } from 'zksync-web3/build/src/types';
-import { Chain } from 'lib';
+import { Chain, ChainConfig } from 'chains';
+import { FormattedBlock, FormattedTransactionReceipt, Hex, encodeEventTopics } from 'viem';
+import { AbiEvent } from 'abitype';
+import { Log } from '~/features/events/events.processor';
+
+export const REQUIRED_CONFIRMATIONS = 1;
 
 export interface TransactionData {
   chain: Chain;
-  receipt: TransactionReceipt;
-  block: Block;
+  receipt: FormattedTransactionReceipt<ChainConfig>;
+  block: FormattedBlock<ChainConfig, false>;
 }
 
 export type TransactionListener = (data: TransactionData) => Promise<void>;
@@ -25,7 +28,7 @@ export type TransactionEventListener = (data: TransactionEventData) => Promise<v
 @Processor(TRANSACTIONS_QUEUE.name)
 export class TransactionsProcessor {
   private listeners: TransactionListener[] = [];
-  private eventListeners = new Map<string, TransactionEventListener[]>();
+  private eventListeners = new Map<Hex, TransactionEventListener[]>();
 
   constructor(private networks: NetworksService) {}
 
@@ -33,7 +36,8 @@ export class TransactionsProcessor {
     this.listeners.push(listener);
   }
 
-  onEvent(topic: string, listener: TransactionEventListener) {
+  onEvent(event: AbiEvent, listener: TransactionEventListener) {
+    const topic = encodeEventTopics({ abi: [event] })[0];
     this.eventListeners.set(topic, [...(this.eventListeners.get(topic) ?? []), listener]);
   }
 
@@ -42,17 +46,24 @@ export class TransactionsProcessor {
     const { chain, transaction: transactionHash } = job.data;
 
     const network = this.networks.get(chain);
-    const receipt = await network.provider.waitForTransaction(transactionHash, 1, 10000);
-    const block = await network.provider.getBlock(receipt.blockHash);
+    const receipt = await network.waitForTransactionReceipt({
+      hash: transactionHash,
+      confirmations: REQUIRED_CONFIRMATIONS,
+      timeout: 60_000,
+      pollingInterval: 2_000,
+    });
+    const block = await network.getBlock({ blockNumber: receipt.blockNumber });
 
     await Promise.all([
       ...this.listeners.map((listener) => listener({ chain, receipt, block })),
-      ...receipt.logs.flatMap(
-        (log) =>
-          this.eventListeners
-            .get(log.topics[0])
-            ?.map((listener) => listener({ chain, log, receipt, block })),
-      ),
+      ...receipt.logs
+        .filter((log) => log.topics)
+        .flatMap(
+          (log) =>
+            this.eventListeners
+              .get(log.topics[0]!)
+              ?.map((listener) => listener({ chain, log: log as unknown as Log, receipt, block })),
+        ),
     ]);
   }
 

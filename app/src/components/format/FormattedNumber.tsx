@@ -1,5 +1,5 @@
 import { FormatNumberOptions, useIntl } from 'react-intl';
-import { formatUnits } from 'ethers/lib/utils';
+import { formatUnits } from 'viem';
 
 export interface FormattedNumberOptions extends FormatNumberOptions {
   value: bigint | number | string;
@@ -23,7 +23,10 @@ export function useFormattedNumber({
   const minRegularNumber = 1 / 10 ** maximumFractionDigits;
   const minNumber = 1 / 10 ** minimumNumberFractionDigits;
 
-  let n = typeof valueProp === 'number' ? valueProp : parseFloat(formatUnits(valueProp, decimals));
+  let n =
+    typeof valueProp === 'number'
+      ? valueProp
+      : parseFloat(formatUnits(BigInt(valueProp), decimals));
   if (n === 0 && hideZero) return '';
 
   const isLtMin = n !== 0 && Math.abs(n) < minNumber;

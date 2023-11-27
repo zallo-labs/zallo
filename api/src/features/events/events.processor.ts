@@ -2,22 +2,22 @@ import { BullModuleOptions, InjectQueue, OnQueueFailed, Process, Processor } fro
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { Job, Queue } from 'bull';
 import { NetworksService } from '../util/networks/networks.service';
-import _ from 'lodash';
-import { Log } from '@ethersproject/abstract-provider';
-import { BigNumber } from 'ethers';
 import { DatabaseService } from '../database/database.service';
 import e from '~/edgeql-js';
 import { P, match } from 'ts-pattern';
-import { Chain, tryOrCatchAsync } from 'lib';
+import { Hex, asHex, tryOrCatchAsync } from 'lib';
+import { Chain } from 'chains';
 import { InjectRedis } from '@songkeys/nestjs-redis';
 import Redis from 'ioredis';
 import { Mutex } from 'redis-semaphore';
 import { RUNNING_JOB_STATUSES } from '../util/bull/bull.util';
+import { AbiEvent } from 'abitype';
+import { Log as ViemLog, encodeEventTopics, hexToNumber } from 'viem';
 
 const DEFAULT_CHUNK_SIZE = 200;
 const BLOCK_TIME_MS = 500;
 const BLOCKS_DELAYED_MS = 2500;
-const TOO_MANY_RESULTS_PATTERN =
+const TOO_MANY_RESULTS_RE =
   /Query returned more than 10000 results. Try with this block range \[(?:0x[0-9a-f]+), (0x[0-9a-f]+)\]/;
 
 export const EVENTS_QUEUE = {
@@ -40,6 +40,8 @@ export interface EventJobData {
   queueNext?: false | number;
 }
 
+export type Log = ViemLog<bigint, number, false, undefined, true, AbiEvent[], undefined>;
+
 export interface EventData {
   chain: Chain;
   log: Log;
@@ -50,8 +52,8 @@ export type EventListener = (data: EventData) => Promise<void>;
 @Injectable()
 @Processor(EVENTS_QUEUE.name)
 export class EventsProcessor implements OnModuleInit {
-  private listeners = new Map<string, EventListener[]>();
-  private topics: string[] = [];
+  private listeners = new Map<Hex, EventListener[]>();
+  private events: AbiEvent[] = [];
 
   constructor(
     @InjectQueue(EVENTS_QUEUE.name)
@@ -70,9 +72,10 @@ export class EventsProcessor implements OnModuleInit {
     }
   }
 
-  on(topic: string, listener: EventListener) {
+  on(event: AbiEvent, listener: EventListener) {
+    const topic = encodeEventTopics({ abi: [event] })[0];
     this.listeners.set(topic, [...(this.listeners.get(topic) ?? []), listener]);
-    this.topics.push(topic);
+    this.events.push(event);
   }
 
   @Process()
@@ -81,7 +84,7 @@ export class EventsProcessor implements OnModuleInit {
     const network = this.networks.get(chain);
 
     const latest = await tryOrCatchAsync(
-      async () => Number(network.getBlockNumber()), // Warning: truncate bigint -> number
+      async () => Number(await network.getBlockNumber()), // Warning: truncate bigint -> number
       async (e) => {
         if (job.data.queueNext !== false) {
           // Next job hasn't been queued yet, queue it next attempt
@@ -114,16 +117,17 @@ export class EventsProcessor implements OnModuleInit {
 
     let logs: Log[];
     try {
-      logs = await network.provider.getLogs({
-        fromBlock: from,
-        toBlock: to,
-        topics: [this.topics],
+      logs = await network.getLogs({
+        fromBlock: BigInt(from),
+        toBlock: BigInt(to),
+        events: this.events,
+        strict: true,
       });
     } catch (e) {
-      const match = TOO_MANY_RESULTS_PATTERN.exec((e as Error).message ?? '');
+      const match = TOO_MANY_RESULTS_RE.exec((e as Error).message ?? '');
       if (match) {
         // Split the job into two smaller jobs
-        const newTo = BigNumber.from(match[1]).toNumber();
+        const newTo = hexToNumber(asHex(match[1]));
         return this.queue.addBulk([
           { data: { chain, from, to: newTo, queueNext: false } },
           { data: { chain, from: newTo + 1, to, queueNext: false } },
@@ -134,9 +138,11 @@ export class EventsProcessor implements OnModuleInit {
     }
 
     await Promise.all(
-      logs.flatMap(
-        (log) => this.listeners.get(log.topics[0])?.map((listener) => listener({ chain, log })),
-      ),
+      logs
+        .filter((log) => log.topics.length)
+        .flatMap(
+          (log) => this.listeners.get(log.topics[0]!)?.map((listener) => listener({ chain, log })),
+        ),
     );
     Logger.verbose(`Processed ${logs.length} events from ${to - from + 1} blocks [${from}, ${to}]`);
   }
@@ -170,7 +176,7 @@ export class EventsProcessor implements OnModuleInit {
         .run(this.db.client)) as bigint | null; // Return type is overly broad - https://github.com/edgedb/edgedb-js/issues/594
 
       const from = lastProcessedBlock
-        ? Number(lastProcessedBlock.toString()) + 1 // Warning: bigint -> number
+        ? Number(lastProcessedBlock) + 1 // Warning: bigint -> number
         : Number(await network.getBlockNumber()); // Warning: bigint -> number
       Logger.log(`${network.chain.key}: events starting from block ${from}`);
 

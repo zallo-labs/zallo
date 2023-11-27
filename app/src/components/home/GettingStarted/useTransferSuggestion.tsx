@@ -6,7 +6,7 @@ import { useTransfer } from '~/hooks/useTransfer';
 
 const Query = gql(/* GraphQL */ `
   fragment useTransferSuggestion_Query on Query
-  @argumentDefinitions(account: { type: "Address!" }) {
+  @argumentDefinitions(account: { type: "UAddress!" }) {
     transfers(input: { accounts: [$account], direction: Out }) {
       id
     }

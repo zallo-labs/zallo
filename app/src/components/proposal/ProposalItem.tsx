@@ -11,6 +11,7 @@ import { ETH_ICON_URI, TokenIcon } from '../token/TokenIcon';
 import { ProposalValue } from './ProposalValue';
 import { useRouter } from 'expo-router';
 import { createStyles, useStyles } from '@theme/styles';
+import { asUAddress } from 'lib';
 
 const Proposal = gql(/* GraphQL */ `
   fragment ProposalItem_TransactionProposal on TransactionProposal {
@@ -20,6 +21,10 @@ const Proposal = gql(/* GraphQL */ `
     status
     createdAt
     updatable
+    account {
+      id
+      chain
+    }
     operations {
       to
       ...OperationLabel_OperationFragment
@@ -98,7 +103,11 @@ function ProposalItem_({
         isMulti ? (
           <MultiOperationIcon {...props} size={ICON_SIZE.medium} />
         ) : (
-          <TokenIcon token={p.operations[0].to} fallbackUri={ETH_ICON_URI} {...props} />
+          <TokenIcon
+            token={asUAddress(p.operations[0].to, p.account.chain)}
+            fallbackUri={ETH_ICON_URI}
+            {...props}
+          />
         )
       }
       leadingSize="medium"
@@ -107,7 +116,7 @@ function ProposalItem_({
         (isMulti ? (
           `${p.operations.length} operations`
         ) : (
-          <OperationLabel operation={p.operations[0]} />
+          <OperationLabel operation={p.operations[0]} chain={p.account.chain} />
         ))
       }
       supporting={supporting}

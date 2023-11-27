@@ -1,26 +1,31 @@
 import * as hre from 'hardhat';
 import { Deployer } from '@matterlabs/hardhat-zksync-deploy';
 import {
-  Account__factory,
   asAddress,
   asPolicy,
   asTx,
   deployAccountProxy,
   executeTransaction,
-  Factory__factory,
   randomDeploySalt,
-  TestAccount__factory,
   TxOptions,
 } from 'lib';
-import { WALLETS, WALLET, network } from './wallet';
-import { BigNumberish, Overrides } from 'ethers';
+import { network, wallet, wallets } from './network';
+import { BytesLike, Overrides } from 'ethers';
 import * as zk from 'zksync-web3';
-import { BytesLike, parseEther } from 'ethers/lib/utils';
-import { getApprovals } from './execute';
+import { getApprovals } from './approval';
+import { Address, parseEther } from 'viem';
+import { CONFIG } from '../../config';
+
+const deployer = new Deployer(hre, new zk.Wallet(CONFIG.walletPrivateKey));
 
 type AccountContractName = 'Account' | 'TestAccount';
-
-export const ACCOUNT_START_BALANCE = parseEther('0.02');
+type ContractName =
+  | AccountContractName
+  | 'Factory'
+  | 'ERC1967Proxy'
+  | 'TestUtil'
+  | 'TestVerifier'
+  | 'TestPolicyManager';
 
 interface DeployOptions<ConstructorArgs extends unknown[] = unknown[]> {
   constructorArgs?: ConstructorArgs;
@@ -28,11 +33,10 @@ interface DeployOptions<ConstructorArgs extends unknown[] = unknown[]> {
   additionalFactoryDeps?: BytesLike[];
 }
 
-const deployer = new Deployer(hre, WALLET);
-export const deploy = async (
-  contractName: string,
+export async function deploy(
+  contractName: ContractName,
   { constructorArgs, overrides, additionalFactoryDeps }: DeployOptions = {},
-) => {
+) {
   const artifact = await deployer.loadArtifact(contractName);
 
   const contract = await deployer.deploy(
@@ -43,70 +47,61 @@ export const deploy = async (
   );
   await contract.deployed();
 
-  return contract;
-};
+  return {
+    address: asAddress(contract.address),
+    deployTx: contract.deployTransaction,
+    constructorArgs,
+  };
+}
+
+export type DeployResult = Awaited<ReturnType<typeof deploy>>;
 
 export const deployFactory = async (contractName: string) => {
   const contractArtifact = await deployer.loadArtifact(contractName);
   const contractBytecodeHash = zk.utils.hashBytecode(contractArtifact.bytecode);
 
-  const contract = await deploy('Factory', {
+  return deploy('Factory', {
     constructorArgs: [contractBytecodeHash],
     additionalFactoryDeps: [contractArtifact.bytecode],
   });
-
-  return {
-    factory: Factory__factory.connect(contract.address, WALLET),
-    deployTx: contract.deployTransaction,
-  };
 };
-
-export const deployAccountImpl = async ({
-  contractName = 'Account',
-}: {
-  contractName?: AccountContractName;
-} = {}) => {
-  const contract = await deploy(contractName);
-  const impl = asAddress(contract.address);
-
-  return {
-    impl,
-    account: Account__factory.connect(impl, WALLET),
-    deployTx: contract.deployTransaction,
-  };
-};
-
-export type AccountImplData = Awaited<ReturnType<typeof deployAccountImpl>>;
 
 export interface DeployProxyOptions {
   nApprovers?: number;
-  contractName?: AccountContractName;
-  extraBalance?: BigNumberish;
+  accountContract?: AccountContractName;
+  extraBalance?: bigint;
+  implementation?: Address;
 }
 
 export const deployProxy = async ({
   nApprovers = 2,
-  contractName = 'Account',
-  extraBalance,
+  accountContract = 'Account',
+  extraBalance = 0n,
 }: DeployProxyOptions = {}) => {
-  const approvers = new Set(WALLETS.slice(0, nApprovers).map((signer) => signer.address));
+  const approvers = new Set(wallets.slice(0, nApprovers).map((signer) => signer.address));
   const policy = asPolicy({ key: 1, approvers, threshold: approvers.size });
 
-  const { factory } = await deployFactory('ERC1967Proxy');
-  const { impl } = await deployAccountImpl({ contractName });
-  const { account, transaction } = await deployAccountProxy({
-    factory,
-    impl,
-    policies: [policy],
-    salt: randomDeploySalt(),
-  });
-  await transaction.wait();
+  const { address: factory } = await deployFactory('ERC1967Proxy');
+  const { address: implementation } = await deploy(accountContract);
 
-  const txResp = await WALLET.sendTransaction({
-    to: account.address,
-    value: ACCOUNT_START_BALANCE.add(extraBalance || 0),
+  const { proxy: account, transactionHash: deployTransactionHash } = (
+    await deployAccountProxy({
+      network,
+      wallet,
+      factory,
+      implementation,
+      policies: [policy],
+      salt: randomDeploySalt(),
+    })
+  )._unsafeUnwrap();
+  await network.waitForTransactionReceipt({ hash: deployTransactionHash });
+
+  await network.waitForTransactionReceipt({
+    hash: await wallet.sendTransaction({
+      to: asAddress(account),
+      value: parseEther('0.02') + extraBalance,
+    }),
   });
-  await txResp.wait();
 
   return {
     account,
@@ -114,23 +109,20 @@ export const deployProxy = async ({
     execute: async (txOpts: TxOptions) => {
       const tx = asTx(txOpts);
 
-      return executeTransaction({
+      const r = await executeTransaction({
         network,
-        account: account.address,
+        account: asAddress(account),
         tx,
         policy,
         approvals: await getApprovals(account, approvers, tx),
       });
+
+      if (r.isErr())
+        throw new Error(`Execute failed with error ${r.error.message}`, { cause: r.error });
+
+      return r.value;
     },
   };
 };
 
 export type DeployProxyData = Awaited<ReturnType<typeof deployProxy>>;
-
-export const deployTestProxy = async (options: Omit<DeployProxyOptions, 'contractName'> = {}) => {
-  const { account, ...rest } = await deployProxy({ ...options, contractName: 'TestAccount' });
-
-  return { ...rest, account: TestAccount__factory.connect(account.address, WALLET) };
-};
-
-export type DeployTesterProxyData = Awaited<ReturnType<typeof deployTestProxy>>;

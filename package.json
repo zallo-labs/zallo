@@ -10,6 +10,7 @@
     "contracts",
     "lib",
     "site",
+    "packages/**",
     "services/**"
   ],
   "scripts": {
@@ -19,6 +20,7 @@
     "contracts": "yarn turbo run -F contracts",
     "lib": "yarn turbo run -F lib",
     "site": "yarn turbo run -F site",
+    "chains": "yarn turbo run -F chains",
     "dev": "yarn turbo run dev",
     "test": "yarn turbo run test",
     "prettier": "prettier --config .config/.prettierrc --ignore-path .config/.prettierignore --ignore-unknown",
@@ -30,8 +32,9 @@
     "yarn": "3.x"
   },
   "devDependencies": {
-    "@typescript-eslint/eslint-plugin": "^6.10.0",
-    "@typescript-eslint/parser": "^6.10.0",
+    "@typescript-eslint/eslint-plugin": "^6.12.0",
+    "@typescript-eslint/parser": "^6.12.0",
+    "eslint": "^8.54.0",
     "eslint-config-prettier": "^9.0.0",
     "eslint-plugin-eslint-comments": "^3.2.0",
     "eslint-plugin-neverthrow": "^1.1.4",

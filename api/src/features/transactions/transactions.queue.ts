@@ -1,5 +1,6 @@
 import { BullModuleOptions } from '@nestjs/bull';
-import { Chain, Hex } from 'lib';
+import { Chain } from 'chains';
+import { Hex } from 'lib';
 
 export const TRANSACTIONS_QUEUE = {
   name: 'Transactions',

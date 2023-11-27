@@ -1,14 +1,14 @@
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import {
-  ACCOUNT_INTERFACE,
+  ACCOUNT_ABI,
   asAddress,
-  asHex,
   asPolicyKey,
+  encodePolicy,
+  encodePolicyStruct,
   getMessageSatisfiability,
   getTransactionSatisfiability,
   Hex,
   Policy,
-  POLICY_ABI,
   PolicyKey,
   Satisfiability,
   UAddress,
@@ -20,7 +20,6 @@ import {
   UniquePolicyInput,
   UpdatePolicyInput,
 } from './policies.input';
-import _ from 'lodash';
 import { UserInputError } from '@nestjs/apollo';
 import { AccountsCacheService } from '../auth/accounts.cache.service';
 import { DatabaseService } from '../database/database.service';
@@ -44,6 +43,7 @@ import { transactionProposalAsTx } from '../transaction-proposals/transaction-pr
 import { and, isExclusivityConstraintViolation } from '../database/database.util';
 import { selectAccount } from '../accounts/accounts.util';
 import { err, fromPromise, ok } from 'neverthrow';
+import { encodeFunctionData } from 'viem';
 
 export interface CreatePolicyParams extends CreatePolicyInput {
   key?: PolicyKey;
@@ -218,11 +218,11 @@ export class PoliciesService {
         if (!existing.policy) throw new UserInputError("Policy doesn't exist");
 
         const currentState = existing.policy.draft ?? existing.policy.state!;
-        const currentEncoded = POLICY_ABI.encode(policyStateAsPolicy(key, currentState));
+        const currentEncoded = encodePolicy(policyStateAsPolicy(key, currentState));
 
         const newState = policyInputAsStateShape(key, policyInput, currentState);
         const newPolicy = policyStateAsPolicy(key, newState);
-        if (currentEncoded === POLICY_ABI.encode(newPolicy)) return ok(undefined); // Only update if policy would actually change
+        if (currentEncoded === encodePolicy(newPolicy)) return ok(undefined); // Only update if policy would actually change
 
         const proposal = await this.getStateProposal(account, newPolicy);
 
@@ -281,7 +281,11 @@ export class PoliciesService {
             operations: [
               {
                 to: asAddress(account),
-                data: asHex(ACCOUNT_INTERFACE.encodeFunctionData('removePolicy', [key])),
+                data: encodeFunctionData({
+                  abi: ACCOUNT_ABI,
+                  functionName: 'removePolicy',
+                  args: [key],
+                }),
               },
             ],
           })
@@ -360,9 +364,11 @@ export class PoliciesService {
         operations: [
           {
             to: asAddress(account),
-            data: asHex(
-              ACCOUNT_INTERFACE.encodeFunctionData('addPolicy', [POLICY_ABI.asStruct(policy)]),
-            ),
+            data: encodeFunctionData({
+              abi: ACCOUNT_ABI,
+              functionName: 'addPolicy',
+              args: [encodePolicyStruct(policy)],
+            }),
           },
         ],
       })

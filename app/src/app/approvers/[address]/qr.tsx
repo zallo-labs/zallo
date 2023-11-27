@@ -6,7 +6,7 @@ import { zAddress } from '~/lib/zod';
 const ApproverQrModalParams = z.object({ address: zAddress });
 
 export default function ApproverQrModal() {
-  const params = useLocalParams(`/approvers/[address]/qr`, ApproverQrModalParams);
+  const params = useLocalParams(ApproverQrModalParams);
 
   return <QrModal address={params.address} />;
 }

@@ -1,14 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
-import {
-  Address,
-  ERC20_ABI,
-  Hex,
-  UAddress,
-  asAddress,
-  asUAddress,
-  isTruthy,
-  tryOrIgnore,
-} from 'lib';
+import { Address, Hex, UAddress, asAddress, asUAddress, isTruthy, tryOrIgnore } from 'lib';
+import { ERC20 } from 'lib/dapps';
 import {
   TransactionEventData,
   TransactionsProcessor,
@@ -22,7 +14,7 @@ import { BOOTLOADER_FORMAL_ADDRESS, ETH_ADDRESS } from 'zksync-web3/build/src/ut
 import { L2_ETH_TOKEN_ADDRESS } from 'zksync-web3/build/src/utils';
 import { uuid } from 'edgedb/dist/codecs/ifaces';
 import { PubsubService } from '../util/pubsub/pubsub.service';
-import { decodeEventLog, formatUnits, getAbiItem, getEventSelector } from 'viem';
+import { decodeEventLog, formatUnits, getAbiItem } from 'viem';
 import { and } from '../database/database.util';
 import { TransferDirection } from './transfers.input';
 import { AccountsCacheService } from '../auth/accounts.cache.service';
@@ -56,13 +48,13 @@ export class TransfersEvents {
      * Events processor handles events `to` account
      * Transactions processor handles events `from` account - in order to be associated with the transaction
      */
-    const transferSelector = getEventSelector(getAbiItem({ abi: ERC20_ABI, name: 'Transfer' }));
-    this.eventsProcessor.on(transferSelector, (data) => this.transfer(data));
-    this.transactionsProcessor.onEvent(transferSelector, (data) => this.transfer(data));
+    const transferEvent = getAbiItem({ abi: ERC20, name: 'Transfer' });
+    this.eventsProcessor.on(transferEvent, (data) => this.transfer(data));
+    this.transactionsProcessor.onEvent(transferEvent, (data) => this.transfer(data));
 
-    const approvalSelector = getEventSelector(getAbiItem({ abi: ERC20_ABI, name: 'Approval' }));
-    this.eventsProcessor.on(approvalSelector, (data) => this.approval(data));
-    this.transactionsProcessor.onEvent(approvalSelector, (data) => this.approval(data));
+    const approvalEvent = getAbiItem({ abi: ERC20, name: 'Approval' });
+    this.eventsProcessor.on(approvalEvent, (data) => this.approval(data));
+    this.transactionsProcessor.onEvent(approvalEvent, (data) => this.approval(data));
   }
 
   private async transfer(event: EventData | TransactionEventData) {
@@ -71,7 +63,7 @@ export class TransfersEvents {
 
     const r = tryOrIgnore(() =>
       decodeEventLog({
-        abi: ERC20_ABI,
+        abi: ERC20,
         eventName: 'Transfer',
         data: log.data as Hex,
         topics: log.topics as [Hex, ...Hex[]],
@@ -89,8 +81,8 @@ export class TransfersEvents {
 
     const token = asUAddress(normalizeEthAddress(asAddress(log.address)), chain);
     const network = this.networks.get(chain);
-    const { timestamp } = await network.provider.getBlock(log.blockNumber);
-    const block = BigInt(log.blockNumber);
+    const block =
+      'block' in event ? event.block : await network.getBlock({ blockNumber: log.blockNumber });
 
     await Promise.all(
       accounts.map(async (account) => {
@@ -111,8 +103,8 @@ export class TransfersEvents {
                   })),
                 ),
                 logIndex: log.logIndex,
-                block,
-                timestamp: new Date(timestamp * 1000),
+                block: log.blockNumber,
+                timestamp: new Date(Number(block.timestamp) * 1000),
                 from,
                 to,
                 tokenAddress: token,
@@ -162,7 +154,7 @@ export class TransfersEvents {
 
     const r = tryOrIgnore(() =>
       decodeEventLog({
-        abi: ERC20_ABI,
+        abi: ERC20,
         eventName: 'Approval',
         data: log.data as Hex,
         topics: log.topics as [Hex, ...Hex[]],
@@ -179,7 +171,7 @@ export class TransfersEvents {
     if (!accounts.length) return;
 
     const tokenAddress = asUAddress(normalizeEthAddress(asAddress(log.address)), chain);
-    const block = await this.networks.get(chain).provider.getBlock(log.blockNumber);
+    const block = await this.networks.get(chain).getBlock({ blockNumber: log.blockNumber });
     Logger.debug(`Transfer approval ${tokenAddress}: ${from} -> ${to}`);
 
     await Promise.all(
@@ -190,8 +182,8 @@ export class TransfersEvents {
               account: selectAccount(account),
               transactionHash: log.transactionHash,
               logIndex: log.logIndex,
-              block: BigInt(log.blockNumber),
-              timestamp: new Date(block.timestamp * 1000),
+              block: log.blockNumber,
+              timestamp: new Date(Number(block.timestamp) * 1000),
               from,
               to,
               tokenAddress,

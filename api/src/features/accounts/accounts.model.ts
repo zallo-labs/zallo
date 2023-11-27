@@ -13,6 +13,8 @@ import { MessageProposal } from '../message-proposals/message-proposals.model';
 import { Approver } from '../approvers/approvers.model';
 import { UAddressField } from '~/apollo/scalars/UAddress.scalar';
 import { Address, UAddress } from 'lib';
+import { ChainField } from '~/apollo/scalars/Chain.scalar';
+import { Chain } from 'chains';
 
 @NodeType()
 export class Account extends Node {
@@ -33,6 +35,9 @@ export class Account extends Node {
 
   @Field(() => String, { nullable: true })
   photoUri?: string;
+
+  @ChainField()
+  chain: Chain;
 
   @Field(() => [Policy])
   policies: Policy[];

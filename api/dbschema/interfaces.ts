@@ -67,14 +67,14 @@ export type AbiSource = "Verified";
 export interface Account extends std.$Object {
   "implementation": string;
   "isActive": boolean;
+  "label": string;
+  "photoUri"?: string | null;
   "salt": string;
+  "policies": Policy[];
   "approvers": Approver[];
   "proposals": Proposal[];
   "transactionProposals": TransactionProposal[];
   "transfers": Transfer[];
-  "policies": Policy[];
-  "photoUri"?: string | null;
-  "label": string;
   "address": string;
   "chain": string;
 }
@@ -99,12 +99,12 @@ export interface Approval extends ProposalResponse {
 }
 export interface Approver extends std.$Object {
   "bluetoothDevices"?: string[] | null;
-  "cloud"?: CloudShare | null;
   "address": string;
+  "cloud"?: CloudShare | null;
   "name"?: string | null;
   "pushToken"?: string | null;
-  "accounts": Account[];
   "user": User;
+  "accounts": Account[];
   "contact"?: Contact | null;
   "label"?: string | null;
 }
@@ -144,13 +144,13 @@ export interface Proposal extends std.$Object {
   "hash": string;
   "iconUri"?: string | null;
   "label"?: string | null;
+  "validFrom": Date;
   "approvals": Approval[];
   "rejections": Rejection[];
   "policy"?: Policy | null;
   "potentialApprovers": Approver[];
   "potentialRejectors": Approver[];
   "riskLabel"?: ProposalRisk | null;
-  "validFrom": Date;
 }
 export interface MessageProposal extends Proposal {
   "message": string;
@@ -179,10 +179,10 @@ export interface PolicyState extends std.$Object {
   "approvers": Approver[];
   "proposal"?: TransactionProposal | null;
   "isAccountInitState": boolean;
+  "actions": Action[];
   "transfers": TransfersConfig;
   "threshold": number;
   "policy"?: Policy | null;
-  "actions": Action[];
 }
 export type ProposalRisk = "Low" | "Medium" | "High";
 export interface ProposalRiskLabel extends std.$Object {
@@ -210,10 +210,10 @@ export interface Token extends std.$Object {
   "units"?: {symbol: string, decimals: number}[] | null;
   "name": string;
   "symbol": string;
+  "isFeeToken": boolean;
   "decimals": number;
   "ethereumAddress"?: string | null;
   "iconUri"?: string | null;
-  "isFeeToken": boolean;
   "user"?: User | null;
   "address": string;
   "chain": string;
@@ -230,20 +230,20 @@ export interface TransactionProposal extends Proposal {
   "operations": Operation[];
   "feeToken": Token;
   "gasLimit": bigint;
+  "nonce": bigint;
   "transactions": Transaction[];
   "transaction"?: Transaction | null;
   "status": TransactionProposalStatus;
   "simulation"?: Simulation | null;
-  "nonce": bigint;
 }
 export type TransactionProposalStatus = "Pending" | "Executing" | "Successful" | "Failed";
 export interface TransferDetails extends std.$Object {
   "account": Account;
   "amount": bigint;
+  "direction": TransferDirection[];
   "from": string;
   "to": string;
   "token"?: Token | null;
-  "direction": TransferDirection[];
   "tokenAddress": string;
 }
 export interface Transferlike extends Event, TransferDetails {}
@@ -264,10 +264,10 @@ export interface TransfersConfig extends std.$Object {
   "defaultAllow": boolean;
 }
 export interface User extends std.$Object {
+  "primaryAccount"?: Account | null;
   "approvers": Approver[];
   "accounts": Account[];
   "contacts": Contact[];
-  "primaryAccount"?: Account | null;
 }
 export interface current_accounts extends Account {}
 export interface current_approver extends Approver {}

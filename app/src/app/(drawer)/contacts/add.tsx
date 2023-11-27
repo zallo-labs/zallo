@@ -1,5 +1,5 @@
-import { ContactScreen } from '~/components/shared/ContactScreen';
+import { SharedContactScreen } from '~/app/(drawer)/contacts/[address]';
 
 export default function AddContactScreen() {
-  return <ContactScreen />;
+  return <SharedContactScreen />;
 }

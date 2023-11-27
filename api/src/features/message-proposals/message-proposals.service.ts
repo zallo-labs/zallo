@@ -13,7 +13,7 @@ import {
   asApproval,
   asHex,
   asUAddress,
-  encodeAccountSignature,
+  encodeTransactionSignature,
   isHex,
   isPresent,
   mapAsync,
@@ -139,7 +139,7 @@ export class MessageProposalsService {
     const approvals = (
       await mapAsync(proposal.approvals, (a) =>
         asApproval({
-          digest: proposalHash,
+          hash: proposalHash,
           approver: asAddress(a.approver.address),
           signature: asHex(a.signature),
           network,
@@ -147,7 +147,7 @@ export class MessageProposalsService {
       )
     ).filter(isPresent);
 
-    const signature = encodeAccountSignature(0n, policy, approvals);
+    const signature = encodeTransactionSignature(0n, policy, approvals);
 
     await this.db.query(
       e.update(e.MessageProposal, () => ({

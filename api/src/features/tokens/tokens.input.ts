@@ -1,6 +1,8 @@
 import { Field, InputType } from '@nestjs/graphql';
+import { Chain } from 'chains';
 import { Address, UAddress } from 'lib';
 import { AddressField } from '~/apollo/scalars/Address.scalar';
+import { ChainField } from '~/apollo/scalars/Chain.scalar';
 import { UAddressField, UAddressScalar } from '~/apollo/scalars/UAddress.scalar';
 
 @InputType()
@@ -19,6 +21,9 @@ export class TokensInput {
 
   @Field(() => Boolean, { nullable: true })
   feeToken?: boolean;
+
+  @ChainField({ nullable: true })
+  chain?: Chain;
 }
 
 @InputType()

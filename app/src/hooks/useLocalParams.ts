@@ -1,14 +1,30 @@
-import { HrefObject, useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams } from 'expo-router';
+import _ from 'lodash';
+import { useMemo } from 'react';
 import { ZodType, ZodTypeDef } from 'zod';
 
-type AllRoute<Pathname extends string = `/`> = HrefObject<{ pathname: Pathname }>['pathname'];
-
 export function useLocalParams<
-  Pathname extends AllRoute,
   Output = unknown,
   Def extends ZodTypeDef = ZodTypeDef,
   Input = Output,
->(pathname: Pathname, schema: ZodType<Output, Def, Input>) {
+>(schema: ZodType<Output, Def, Input>) {
   const params = useLocalSearchParams();
-  return schema.parse(params);
+
+  return useMemo(() => {
+    const decodedParams = _.mapValues(params, (v) =>
+      typeof v === 'string' ? decodeURIComponent(v) : v,
+    );
+
+    return schema.parse(decodedParams);
+  }, [params, schema]);
 }
+
+// type Param = ReturnType<typeof useLocalSearchParams>[string];
+// function decodeParam(v: Param) {
+//   // Fix array query parameters 'a,b,c' -> ['a', 'b', 'c']
+//   if (typeof v === 'string' && v.includes(',')) v = v.split(',');
+
+//   if (typeof v !== 'string') return v;
+
+//   v = decodeURIComponent(v);
+// }

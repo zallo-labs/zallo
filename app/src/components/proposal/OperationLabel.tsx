@@ -3,6 +3,8 @@ import { useAddressLabel } from '../address/AddressLabel';
 import { useFormattedTokenAmount } from '../token/TokenAmount';
 import { FragmentType, gql, useFragment } from '@api/generated';
 import { useQuery } from '~/gql';
+import { Chain } from 'chains';
+import { asUAddress } from 'lib';
 
 const FragmentDoc = gql(/* GraphQL */ `
   fragment OperationLabel_OperationFragment on Operation {
@@ -59,44 +61,63 @@ const PolicyQuery = gql(/* GraphQL */ `
 
 export interface OperationLabelProps {
   operation: FragmentType<typeof FragmentDoc>;
+  chain: Chain;
 }
 
 // FIXME: terrible abuse of hoooks...
 /* eslint-disable react-hooks/rules-of-hooks */
-export function OperationLabel(props: OperationLabelProps) {
+export function OperationLabel({ chain, ...props }: OperationLabelProps) {
   const op = useFragment(FragmentDoc, props.operation);
 
   return match(op.function)
     .with(
       { __typename: 'UpdatePolicyOp' },
       (f) =>
-        `Update policy: ${useQuery(PolicyQuery, { input: { account: f.account, key: f.key } }).data
-          .policy?.name}`,
+        `Update policy: ${useQuery(PolicyQuery, {
+          input: { account: asUAddress(f.account, chain), key: f.key },
+        }).data.policy?.name}`,
     )
     .with(
       { __typename: 'RemovePolicyOp' },
       (f) =>
-        `Remove policy: ${useQuery(PolicyQuery, { input: { account: f.account, key: f.key } }).data
-          .policy?.name}`,
+        `Remove policy: ${useQuery(PolicyQuery, {
+          input: { account: asUAddress(f.account, chain), key: f.key },
+        }).data.policy?.name}`,
     )
     .with(
       { __typename: 'TransferOp' },
-      (f) => `Transfer ${useFormattedTokenAmount(f)} to ${useAddressLabel(f.to)}`,
+      (f) =>
+        `Transfer ${useFormattedTokenAmount({
+          ...f,
+          token: asUAddress(f.token, chain),
+        })} to ${useAddressLabel(asUAddress(f.to, chain))}`,
     )
     .with(
       { __typename: 'TransferFromOp' },
-      (f) => `Transfer ${useAddressLabel(f.token)} from ${useAddressLabel(f.from)}`,
+      (f) =>
+        `Transfer ${useAddressLabel(asUAddress(f.token, chain))} from ${useAddressLabel(
+          asUAddress(f.from, chain),
+        )}`,
     )
     .with(
       { __typename: 'TransferApprovalOp' },
-      (f) => `Allow ${useAddressLabel(f.spender)} to spend ${useAddressLabel(f.token)}`,
+      (f) =>
+        `Allow ${useAddressLabel(asUAddress(f.spender, chain))} to spend ${useAddressLabel(
+          asUAddress(f.token, chain),
+        )}`,
     )
     .with(
       { __typename: 'SwapOp' },
-      (f) => `Swap ${useAddressLabel(f.fromToken)} for ${useAddressLabel(f.toToken)}`,
+      (f) =>
+        `Swap ${useAddressLabel(asUAddress(f.fromToken, chain))} for ${useAddressLabel(
+          asUAddress(f.toToken, chain),
+        )}`,
     )
-    .with({ __typename: 'GenericOp' }, (f) => `Call ${f._name} on ${useAddressLabel(op.to)}`)
-    .with(P.nullish, () => `Call ${useAddressLabel(op.to)}`)
+    .with(
+      { __typename: 'GenericOp' },
+      (f) => `Call ${f._name} on ${useAddressLabel(asUAddress(op.to, chain))}`,
+    )
+    .with(P.nullish, () => `Call ${useAddressLabel(asUAddress(op.to, chain))}`)
     .exhaustive();
 }
 

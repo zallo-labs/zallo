@@ -5,6 +5,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export type PersistedAtomOptions<V, U extends AnyJson> = StorageOptions<V, U> & {
   persistInitial?: boolean;
+  migrate?: (v: unknown) => V | undefined;
 };
 
 // Based off https://github.com/pmndrs/jotai/blob/main/src/vanilla/utils/atomWithStorage.ts
@@ -15,7 +16,7 @@ export const persistedAtom = <
 >(
   key: string,
   initializer: V | (() => V),
-  { persistInitial, ...storageOptions }: PersistedAtomOptions<V, U> = {},
+  { persistInitial, migrate, ...storageOptions }: PersistedAtomOptions<V, U> = {},
 ) => {
   const initialValue: V = typeof initializer === 'function' ? initializer() : initializer;
 
@@ -23,7 +24,13 @@ export const persistedAtom = <
   const getPersisted = () => storage.getItem(key, initialValue);
   const setPersisted = (value: V) => storage.setItem(key, value);
 
-  const initialPersistedValue = getPersisted();
+  const initialPersistedValue = (async () => {
+    const initial = await getPersisted();
+    if (!migrate) return initial;
+
+    const migrated = migrate(initial);
+    return migrated !== undefined ? migrated : initial;
+  })();
 
   const baseAtom = atom(initialValue);
   baseAtom.debugLabel = `${key}::base`;

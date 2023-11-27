@@ -7,11 +7,11 @@ import { retryExchange } from '@urql/exchange-retry';
 import { devtoolsExchange } from '@urql/devtools';
 import { CONFIG } from '~/util/config';
 import { authExchange } from '@urql/exchange-auth';
-import { Addresslike, Hex, asAddress, asHex } from 'lib';
+import { Address, Hex } from 'lib';
 import { DateTime } from 'luxon';
 import { SiweMessage } from 'siwe';
 import { atom, useAtomValue } from 'jotai';
-import { DANGEROUS_approverAtom } from '@network/useApprover';
+import { DANGEROUS_approverAtom } from '~/lib/network/useApprover';
 import { createClient as createWsClient } from 'graphql-ws';
 import schema from './schema.generated';
 import { logError } from '~/util/analytics';
@@ -19,6 +19,7 @@ import crypto from 'crypto';
 import { CACHE_CONFIG } from './cache';
 import { E_ALREADY_LOCKED, Mutex, tryAcquire } from 'async-mutex';
 import { secureJsonStorage } from '~/lib/secure-storage/json';
+import { LocalAccount } from 'viem';
 
 const TOKEN_KEY = 'apiToken';
 
@@ -130,8 +131,8 @@ const client = atom(async (get) => {
 export const useUrqlApiClient = () => useAtomValue(client);
 
 interface CreateTokenApprover {
-  address: Addresslike;
-  signMessage: (message: string) => Promise<string>;
+  address: Address;
+  signMessage: (m: { message: string }) => Promise<Hex>;
 }
 
 async function createToken(approver: CreateTokenApprover): Promise<Token> {
@@ -142,7 +143,7 @@ async function createToken(approver: CreateTokenApprover): Promise<Token> {
   const message = new SiweMessage({
     version: '1',
     domain: new URL(CONFIG.apiUrl).host,
-    address: asAddress(approver.address),
+    address: approver.address,
     nonce,
     expirationTime: DateTime.now().plus({ days: 2 }).toString(),
     uri: 'https://app.zallo.com', // Required but unused
@@ -151,7 +152,7 @@ async function createToken(approver: CreateTokenApprover): Promise<Token> {
 
   return {
     message,
-    signature: asHex(await approver.signMessage(message.prepareMessage())),
+    signature: await approver.signMessage({ message: message.prepareMessage() }),
   };
 }
 

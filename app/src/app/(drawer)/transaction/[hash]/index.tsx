@@ -86,7 +86,7 @@ export const TransactionDetailsTabParams = TransactionLayoutParams;
 export type TransactionDetailsTabParams = z.infer<typeof TransactionDetailsTabParams>;
 
 function DetailsTab() {
-  const { hash } = useLocalParams(`/(drawer)/transaction/[hash]/`, TransactionDetailsTabParams);
+  const { hash } = useLocalParams(TransactionDetailsTabParams);
 
   const { data } = useQuery(Query, { hash });
   useSubscription({ query: Subscription, variables: { hash } });

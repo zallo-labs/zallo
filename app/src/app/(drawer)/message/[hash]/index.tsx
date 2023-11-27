@@ -10,6 +10,7 @@ import { MessageIcon } from '~/components/proposal/MessageIcon';
 import { RiskRating } from '~/components/proposal/RiskRating';
 import { withSuspense } from '~/components/skeleton/withSuspense';
 import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
+import { asChain } from 'lib';
 
 const Query = gql(/* GraphQL */ `
   query MessageDetailsTab($proposal: Bytes32!) {
@@ -18,6 +19,10 @@ const Query = gql(/* GraphQL */ `
       label
       message
       typedData
+      account {
+        id
+        address
+      }
       ...MessageIcon_MessageProposal
       ...RiskRating_Proposal
     }
@@ -28,7 +33,7 @@ export const MessageDetailsTabParams = MessageLayoutParams;
 export type MessageDetailsTabParams = z.infer<typeof MessageDetailsTabParams>;
 
 function MessageDetailsTab() {
-  const params = useLocalParams(`/(drawer)/message/[hash]/`, MessageDetailsTabParams);
+  const params = useLocalParams(MessageDetailsTabParams);
   const p = useQuery(Query, { proposal: params.hash }).data?.messageProposal;
 
   if (!p) return null;
@@ -42,7 +47,7 @@ function MessageDetailsTab() {
         </Text>
       </View>
 
-      <DataView>{p.typedData ?? p.message}</DataView>
+      <DataView chain={asChain(p.account.address)}>{p.typedData ?? p.message}</DataView>
 
       <RiskRating proposal={p} />
     </ScrollView>

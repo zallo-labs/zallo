@@ -1,41 +1,48 @@
 import { expect } from 'chai';
 import {
-  AccountError,
+  ACCOUNT_ABI,
   Address,
-  asAddress,
-  asHex,
   asSelector,
+  encodeTargetsConfigStruct,
   Hex,
   Operation,
-  TARGETS_CONFIG_ABI,
   TargetsConfig,
-  TestVerifier,
 } from 'lib';
-import { deployTestVerifier } from '../util/verifier';
-import { TestUtil, TestUtil__factory } from 'lib/src/contracts';
-import { WALLET, deploy } from '../util';
+import { deploy, network } from '../util';
+import { encodeFunctionData } from 'viem';
+import testVerifierAbi from '../../abi/TestVerifier';
+import testUtilAbi from '../../abi/TestUtil';
 
 describe('TargetPermission', () => {
-  let verifier = {} as TestVerifier;
-  let tester = {} as TestUtil;
+  let verifier: Address;
+  let tester: Address;
   let to: Address;
   let data: Hex;
 
-  const verify = (op: Operation, contracts: TargetsConfig) =>
-    verifier.validateTarget(
-      {
-        to: op.to,
-        value: op.value ?? 0n,
-        data: op.data ?? '0x',
-      },
-      TARGETS_CONFIG_ABI.asStruct(contracts),
-    );
+  const verify = (op: Operation, targets: TargetsConfig) =>
+    network.readContract({
+      abi: testVerifierAbi,
+      address: verifier,
+      functionName: 'validateTarget',
+      args: [
+        {
+          to: op.to,
+          value: op.value ?? 0n,
+          data: op.data ?? '0x',
+        },
+        encodeTargetsConfigStruct(targets),
+      ],
+    });
 
   before(async () => {
-    verifier = await deployTestVerifier();
-    tester = TestUtil__factory.connect((await deploy('TestUtil')).address, WALLET);
-    to = asAddress(tester.address);
-    data = asHex(tester.interface.encodeFunctionData('echo', ['0xabc123']));
+    verifier = (await deploy('TestVerifier')).address;
+    tester = (await deploy('TestUtil')).address;
+    to = tester;
+    data = encodeFunctionData({
+      abi: testUtilAbi,
+      functionName: 'echo',
+      args: ['0xabc123'],
+    });
   });
 
   describe('succeed when', () => {
@@ -48,7 +55,7 @@ describe('TargetPermission', () => {
             default: { functions: {}, defaultAllow: false },
           },
         ),
-      ).to.not.be.reverted;
+      ).to.not.be.rejected;
     });
 
     it('contract, no function, and default allow', async () => {
@@ -60,7 +67,7 @@ describe('TargetPermission', () => {
             default: { functions: {}, defaultAllow: false },
           },
         ),
-      ).to.not.be.reverted;
+      ).to.not.be.rejected;
     });
 
     it('no contract, and allowed default function', async () => {
@@ -72,7 +79,7 @@ describe('TargetPermission', () => {
             default: { functions: { [asSelector(data)]: true }, defaultAllow: false },
           },
         ),
-      ).to.not.be.reverted;
+      ).to.not.be.rejected;
     });
 
     it('no contract, and default allow', async () => {
@@ -84,7 +91,7 @@ describe('TargetPermission', () => {
             default: { functions: {}, defaultAllow: true },
           },
         ),
-      ).to.not.be.reverted;
+      ).to.not.be.rejected;
     });
   });
 
@@ -98,7 +105,7 @@ describe('TargetPermission', () => {
             default: { functions: {}, defaultAllow: true },
           },
         ),
-      ).to.be.revertedWithCustomError(verifier, AccountError.TargetDenied);
+      ).to.revertWith({ abi: ACCOUNT_ABI, errorName: 'TargetDenied' });
     });
 
     it('matching contract, no function, and default deny', async () => {
@@ -110,7 +117,7 @@ describe('TargetPermission', () => {
             default: { functions: {}, defaultAllow: true },
           },
         ),
-      ).to.be.revertedWithCustomError(verifier, AccountError.TargetDenied);
+      ).to.revertWith({ abi: ACCOUNT_ABI, errorName: 'TargetDenied' });
     });
 
     it('no contract, disallowed function', async () => {
@@ -122,7 +129,7 @@ describe('TargetPermission', () => {
             default: { functions: { [asSelector(data)]: false }, defaultAllow: true },
           },
         ),
-      ).to.be.revertedWithCustomError(verifier, AccountError.TargetDenied);
+      ).to.revertWith({ abi: ACCOUNT_ABI, errorName: 'TargetDenied' });
     });
 
     it('no contract, no function, and default deny', async () => {
@@ -134,7 +141,7 @@ describe('TargetPermission', () => {
             default: { functions: {}, defaultAllow: false },
           },
         ),
-      ).to.be.revertedWithCustomError(verifier, AccountError.TargetDenied);
+      ).to.revertWith({ abi: ACCOUNT_ABI, errorName: 'TargetDenied' });
     });
   });
 });

@@ -7,7 +7,7 @@
       "@api": ["./src/gql/api/index"],
       "@api/*": ["./src/gql/api/*"],
       "@uniswap/*": ["./src/gql/uniswap/*"],
-      "@network/*": ["./src/util/network/*"],
+      "@network/*": ["src/lib/network/*"],
       "@theme/*": ["./src/util/theme/*"],
       "@token/*": ["./src/util/token/*"],
       "~/*": ["./src/*"]

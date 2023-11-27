@@ -1,33 +1,36 @@
 import { expect } from 'chai';
-import {
-  AccountImplData,
-  gasLimit,
-  deployAccountImpl,
-  deployFactory,
-  deployProxy,
-  deploy,
-} from './util';
+import { deployFactory, deployProxy, deploy, wallet, gas, network } from './util';
+import { ACCOUNT_ABI, asAddress } from 'lib';
 
 describe('Deployment', () => {
   describe('Account', () => {
-    let { account } = {} as AccountImplData;
-
-    before(async () => {
-      ({ account } = await deployAccountImpl());
-    });
-
     it('should deploy', async () => {
-      await account.deployed();
+      const { address, deployTx } = await deploy('Account');
+      await deployTx.wait();
+      expect((await network.getBytecode({ address }))?.length ?? 0).to.be.gt(0);
     });
 
     it('should revert if initialization is attempted', async () => {
-      await expect(account.initialize([], { gasLimit: gasLimit })).to.be.reverted;
+      const { address: account } = await deploy('Account');
+
+      await new Promise((resolve) => setTimeout(resolve, 5000));
+
+      await expect(
+        wallet.writeContract({
+          address: account,
+          abi: ACCOUNT_ABI,
+          functionName: 'initialize',
+          args: [[]],
+          gas,
+        }),
+      ).to.revert;
     });
   });
 
   describe('Proxy factory', () => {
     it('should deploy', async () => {
-      await deployFactory('ERC1967Proxy');
+      const { address } = await deployFactory('ERC1967Proxy');
+      expect((await network.getBytecode({ address }))?.length ?? 0).to.be.gt(0);
     });
   });
 
@@ -43,7 +46,7 @@ describe('Deployment', () => {
   describe('Account proxy', () => {
     it('should deploy', async () => {
       const { account } = await deployProxy();
-      await account.deployed();
+      expect((await network.getBytecode({ address: asAddress(account) }))?.length ?? 0).to.be.gt(0);
     });
   });
 });

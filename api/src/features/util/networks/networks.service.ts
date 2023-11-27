@@ -1,20 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import * as zk from 'zksync-web3';
 import { CONFIG } from '~/config';
-import {
-  Address,
-  ChainConfig,
-  getEthersConnectionParams,
-  ERC20_ABI,
-  tryOrIgnoreAsync,
-  Chain,
-  CHAINS,
-  asChain,
-  asUAddress,
-  UAddress,
-  asAddress,
-} from 'lib';
-import { createPublicClient, fallback, http, webSocket } from 'viem';
+import { Address, tryOrIgnoreAsync, asChain, asUAddress, UAddress, asAddress } from 'lib';
+import { ChainConfig, Chain, CHAINS, NetworkWallet } from 'chains';
+import { ERC20 } from 'lib/dapps';
+import { createPublicClient, createWalletClient, fallback, http, webSocket } from 'viem';
+import { privateKeyToAccount } from 'viem/accounts';
 import { ETH_ADDRESS } from 'zksync-web3/build/src/utils';
 import Redis from 'ioredis';
 import { InjectRedis } from '@songkeys/nestjs-redis';
@@ -24,7 +15,7 @@ export type Network = ReturnType<typeof create>;
 
 @Injectable()
 export class NetworksService implements AsyncIterable<Network> {
-  private clients: Partial<Record<Chain, Network>>;
+  private clients: Partial<Record<Chain, Network>> = {};
 
   constructor(@InjectRedis() private redis: Redis) {}
 
@@ -61,12 +52,23 @@ interface CreateParams {
 
 function create({ chainKey, redis }: CreateParams) {
   const chain = CHAINS[chainKey];
+  const transport = fallback([
+    ...chain.rpcUrls.default.webSocket.map((url) => webSocket(url, { retryCount: 10 })),
+    ...chain.rpcUrls.default.http.map((url) => http(url, { retryCount: 10, batch: true })),
+  ]);
 
-  const provider = new zk.Provider(...getEthersConnectionParams(chain, 'ws'));
-  const privateKey = CONFIG.walletPrivateKeys[chainKey];
-  if (!privateKey) throw new Error(`Private key not found for chain: ${chainKey}`);
-  const wallet = new zk.Wallet(privateKey, provider);
-  const walletAddress = asUAddress(wallet.address, chainKey);
+  const wallet = createWalletClient({
+    account: privateKeyToAccount(CONFIG.walletPrivateKeys[chainKey]),
+    chain,
+    transport,
+  });
+  const walletAddress = asUAddress(wallet.account.address, chainKey);
+
+  // Ethers (deprecated)
+  const provider = new zk.Provider(
+    chain.rpcUrls.default.webSocket[0] ?? chain.rpcUrls.default.http[0],
+    { chainId: chain.id, name: chain.name },
+  );
 
   return createPublicClient({
     chain,
@@ -74,14 +76,14 @@ function create({ chainKey, redis }: CreateParams) {
       ...chain.rpcUrls.default.webSocket.map((url) => webSocket(url, { retryCount: 10 })),
       ...chain.rpcUrls.default.http.map((url) => http(url, { retryCount: 10, batch: true })),
     ]),
-    batch: { multicall: true },
     key: chain.key,
     name: chain.name,
+    batch: { multicall: true },
   }).extend((client) => ({
     provider,
     walletAddress,
-    async useWallet<R>(f: (wallet: zk.Wallet) => R): Promise<R> {
-      const mutex = new Mutex(redis, `provider-wallet:${walletAddress}`, {
+    async useWallet<R>(f: (wallet: NetworkWallet) => R): Promise<R> {
+      const mutex = new Mutex(redis, `network-wallet:${walletAddress}`, {
         lockTimeout: 60_000,
         acquireTimeout: 60_000,
       });
@@ -103,7 +105,7 @@ function create({ chainKey, redis }: CreateParams) {
         if (token === ETH_ADDRESS) return await client.getBalance({ address: asAddress(account) });
 
         return await client.readContract({
-          abi: ERC20_ABI,
+          abi: ERC20,
           address: token,
           functionName: 'balanceOf',
           args: [asAddress(account)],

@@ -1,42 +1,66 @@
 import { expect } from 'chai';
-import {
-  POLICY_ABI,
-  TestPolicyManager,
-  TestPolicyManager__factory,
-  asPolicy,
-  hashPolicy,
-  zeroHexBytes,
-} from 'lib';
-import { deploy, gasLimit, WALLET } from './util';
+import { ACCOUNT_ABI, Address, asPolicy, encodePolicyStruct, hashPolicy } from 'lib';
+import { deploy, gas, network, wallet } from './util';
+import abi from '../abi/TestPolicyManager';
+import { zeroHash } from 'viem';
 
 describe('PolicyManager', () => {
-  let manager = {} as TestPolicyManager;
+  let address: Address;
 
   before(async () => {
-    const contract = await deploy('TestPolicyManager');
-    manager = TestPolicyManager__factory.connect(contract.address, WALLET);
+    address = (await deploy('TestPolicyManager')).address;
   });
 
   const policy = asPolicy({ key: 1, approvers: [] });
   const addPolicy = async () =>
-    await (await manager.testAddPolicy(POLICY_ABI.asStruct(policy), { gasLimit })).wait();
+    await wallet.writeContract({
+      address,
+      abi,
+      functionName: 'testAddPolicy',
+      args: [encodePolicyStruct(policy)],
+      gas,
+    });
 
   describe('addPolicy', () => {
     it('set polcy hash', async () => {
       await addPolicy();
 
-      expect(await manager.getPolicyHash(policy.key)).to.eq(hashPolicy(policy));
+      expect(
+        await network.readContract({
+          address,
+          abi,
+          functionName: 'getPolicyHash',
+          args: [policy.key],
+        }),
+      ).to.eq(hashPolicy(policy));
     });
 
     it('emit event', async () => {
-      await expect(manager.testAddPolicy(POLICY_ABI.asStruct(policy), { gasLimit }))
-        .to.emit(manager, manager.interface.events['PolicyAdded(uint32,bytes32)'].name)
-        .withArgs(policy.key, hashPolicy(policy));
+      await expect(
+        wallet.writeContract({
+          address,
+          abi,
+          functionName: 'testAddPolicy',
+          args: [encodePolicyStruct(policy)],
+          gas,
+        }),
+      ).to.includeEvent({
+        abi: ACCOUNT_ABI,
+        eventName: 'PolicyAdded',
+        args: { key: policy.key, hash: hashPolicy(policy) },
+      });
     });
 
     it('revert if not called by account', async () => {
-      await expect((await manager.addPolicy(POLICY_ABI.asStruct(policy), { gasLimit })).wait()).to
-        .be.rejected; //.revertedWithCustomError(ruleManager, AccountError.OnlyCallableBySelf);
+      await expect(
+        wallet.writeContract({
+          address,
+          abi,
+          functionName: 'addPolicy',
+          args: [encodePolicyStruct(policy)],
+          gas,
+        }),
+      ).to.revert; // OnlyCallableBySelf
     });
   });
 
@@ -44,23 +68,54 @@ describe('PolicyManager', () => {
     it('zero policy hash', async () => {
       await addPolicy();
 
-      await (await manager.testRemovePolicy(policy.key, { gasLimit })).wait();
+      await wallet.writeContract({
+        address,
+        abi,
+        functionName: 'testRemovePolicy',
+        args: [policy.key],
+        gas,
+      });
 
-      expect(await manager.getPolicyHash(policy.key)).to.eq(zeroHexBytes(32));
+      expect(
+        await network.readContract({
+          abi,
+          address,
+          functionName: 'getPolicyHash',
+          args: [policy.key],
+        }),
+      ).to.eq(zeroHash);
     });
 
     it('emit event', async () => {
       await addPolicy();
 
-      await expect(manager.testRemovePolicy(policy.key, { gasLimit }))
-        .to.emit(manager, manager.interface.events['PolicyRemoved(uint32)'].name)
-        .withArgs(policy.key);
+      await expect(
+        wallet.writeContract({
+          address,
+          abi,
+          functionName: 'testRemovePolicy',
+          args: [policy.key],
+          gas,
+        }),
+      ).to.includeEvent({
+        abi: ACCOUNT_ABI,
+        eventName: 'PolicyRemoved',
+        args: { key: policy.key },
+      });
     });
 
     it('revert if not called by account', async () => {
       await addPolicy();
 
-      await expect((await manager.removePolicy(policy.key, { gasLimit })).wait()).to.be.rejected;
+      await expect(
+        wallet.writeContract({
+          address,
+          abi,
+          functionName: 'removePolicy',
+          args: [policy.key],
+          gas,
+        }),
+      ).to.revert;
     });
   });
 });

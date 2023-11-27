@@ -1,7 +1,6 @@
 import { useRouter } from 'expo-router';
 import { usePropose } from '@api/usePropose';
-import { parseUnits } from 'ethers/lib/utils';
-import { FIAT_DECIMALS, fiatToToken } from 'lib';
+import { FIAT_DECIMALS, asAddress, asChain, asUAddress, fiatToToken } from 'lib';
 import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Divider } from 'react-native-paper';
@@ -17,15 +16,16 @@ import { useSelectToken } from '~/app/(drawer)/[account]/tokens';
 import { createTransferOp } from '~/lib/transfer';
 import { AppbarOptions } from '~/components/Appbar/AppbarOptions';
 import { z } from 'zod';
-import { zAddress } from '~/lib/zod';
+import { zAddress, zUAddress } from '~/lib/zod';
 import { useLocalParams } from '~/hooks/useLocalParams';
 import { Actions } from '~/components/layout/Actions';
 import { withSuspense } from '~/components/skeleton/withSuspense';
 import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
 import { ScreenSurface } from '~/components/layout/ScreenSurface';
+import { parseUnits } from 'viem';
 
 const Query = gql(/* GraphQL */ `
-  query TransferScreen($account: Address!, $token: Address!) {
+  query TransferScreen($account: UAddress!, $token: UAddress!) {
     token(input: { address: $token }) {
       id
       address
@@ -41,25 +41,26 @@ const Query = gql(/* GraphQL */ `
   }
 `);
 
-const paramsSchema = z.object({
-  account: zAddress,
+const TransferScreenParams = z.object({
+  account: zUAddress,
   to: zAddress,
 });
-export type TransferScreenParams = z.infer<typeof paramsSchema>;
+export type TransferScreenParams = z.infer<typeof TransferScreenParams>;
 
 function TransferScreen() {
-  const { account, to } = useLocalParams(`/(drawer)/[account]/transfer`, paramsSchema);
+  const { account, to } = useLocalParams(TransferScreenParams);
+  const chain = asChain(account);
   const router = useRouter();
   const propose = usePropose();
-  const toLabel = useAddressLabel(to);
+  const toLabel = useAddressLabel(asUAddress(to, chain));
 
   const { token } = useQuery(Query, {
     account,
-    token: useSelectedToken(),
+    token: useSelectedToken(chain),
   }).data;
 
   const selectToken = useSelectToken();
-  const setToken = useSetSelectedToken();
+  const setToken = useSetSelectedToken(chain);
 
   const [input, setInput] = useState('');
   const [type, setType] = useState(InputType.Fiat);
@@ -69,7 +70,7 @@ function TransferScreen() {
   const inputAmount = input || '0';
   const tokenAmount =
     type === InputType.Token
-      ? parseUnits(inputAmount, token.decimals).toBigInt()
+      ? parseUnits(inputAmount, token.decimals)
       : fiatToToken(parseFloat(inputAmount), token.price?.current ?? 0, token.decimals);
 
   return (
@@ -104,7 +105,9 @@ function TransferScreen() {
             onPress={async () => {
               const proposal = await propose({
                 account,
-                operations: [createTransferOp({ token: token.address, to, amount: tokenAmount })],
+                operations: [
+                  createTransferOp({ token: asAddress(token.address), to, amount: tokenAmount }),
+                ],
               });
               router.push({
                 pathname: `/(drawer)/transaction/[hash]/`,

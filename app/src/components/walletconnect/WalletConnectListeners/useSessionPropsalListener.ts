@@ -4,7 +4,7 @@ import { showError } from '~/components/provider/SnackbarProvider';
 import { WC_METHODS } from '~/util/walletconnect/methods';
 import {
   WC_NAMESPACE_KEY,
-  WC_SUPPORTED_CHAINS,
+  WC_SUPPORTED_CAIP2_CHAINS,
   useWalletConnectWithoutWatching,
 } from '~/util/walletconnect';
 import { isPresent } from 'lib';
@@ -28,7 +28,7 @@ export const useSessionPropsalListener = () => {
         ...(optionalNamespaces[WC_NAMESPACE_KEY]?.chains ?? []),
       ];
 
-      if (!peerChains.some((chain) => WC_SUPPORTED_CHAINS.includes(chain))) {
+      if (!peerChains.some((chain) => WC_SUPPORTED_CAIP2_CHAINS.includes(chain))) {
         showError("DApp doesn't support any zkSync network");
         return client.reject({ id: proposal.id, reason: getSdkError('UNSUPPORTED_CHAINS') });
       }
@@ -39,7 +39,7 @@ export const useSessionPropsalListener = () => {
         .filter(isPresent);
 
       const unsupportedChains = requiredChains.filter(
-        (chain) => !WC_SUPPORTED_CHAINS.includes(chain),
+        (chain) => !WC_SUPPORTED_CAIP2_CHAINS.includes(chain),
       );
       if (unsupportedChains.length) {
         showError('DApp requires unsupported networks');
@@ -58,7 +58,10 @@ export const useSessionPropsalListener = () => {
         return client.reject({ id: proposal.id, reason: getSdkError('UNSUPPORTED_METHODS') });
       }
 
-      router.push({ pathname: `/sessions/connect/[id]`, params: { id: proposal.id } });
+      router.push({
+        pathname: `/sessions/connect/[id]`,
+        params: { id: proposal.id, chains: ['zksync-goerli'] },
+      });
     };
 
     client.on('session_proposal', handleProposal);

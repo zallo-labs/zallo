@@ -3,19 +3,17 @@ import { DatabaseService } from '../database/database.service';
 import e from '~/edgeql-js';
 import {
   Address,
-  DeploySalt,
   Policy,
-  asHex,
   asPolicyKey,
   randomDeploySalt,
   getProxyAddress,
-  Factory__factory,
   deployAccountProxy,
   asUAddress,
   UAddress,
   asAddress,
-  ACCOUNT,
+  ACCOUNT_IMPLEMENTATION,
   ACCOUNT_PROXY_FACTORY,
+  Hex,
 } from 'lib';
 import { ShapeFunc } from '../database/database.select';
 import { AccountEvent, CreateAccountInput, UpdateAccountInput } from './accounts.input';
@@ -105,17 +103,15 @@ export class AccountsService {
     if (!policyInputs.find((p) => p.approvers.includes(approver)))
       throw new UserInputError('User must be included in at least one policy');
 
-    const implementation = ACCOUNT.implementationAddress[chainKey];
+    const implementation = ACCOUNT_IMPLEMENTATION.address[chainKey];
     const salt = randomDeploySalt();
     const policies = policyInputs.map((p, i) => inputAsPolicy(asPolicyKey(i), p));
 
     const account = asUAddress(
       await getProxyAddress({
-        factory: Factory__factory.connect(
-          ACCOUNT_PROXY_FACTORY.address[chainKey],
-          network.provider,
-        ),
-        impl: implementation,
+        network,
+        factory: ACCOUNT_PROXY_FACTORY.address[chainKey],
+        implementation: implementation,
         salt,
         policies,
       }),
@@ -179,25 +175,24 @@ export class AccountsService {
   private async activateAccount(
     account: UAddress,
     implementation: Address,
-    salt: DeploySalt,
+    salt: Hex,
     policies: Policy[],
   ) {
     const network = this.networks.for(account);
-    const { transaction, account: deployedAccount } = await network.useWallet(async (wallet) =>
-      deployAccountProxy({
-        factory: Factory__factory.connect(ACCOUNT_PROXY_FACTORY.address[network.key], wallet),
-        impl: implementation,
-        salt,
-        policies,
-      }),
-    );
+    const { transactionHash } = (
+      await network.useWallet(async (wallet) =>
+        deployAccountProxy({
+          network,
+          wallet,
+          factory: ACCOUNT_PROXY_FACTORY.address[network.key],
+          implementation,
+          salt,
+          policies,
+        }),
+      )
+    )._unsafeUnwrap(); // TODO: handle failed deployments
 
-    if (asAddress(account) !== deployedAccount.address)
-      throw new Error(
-        `Deployed account address didn't match stored address; expected '${account}', actual '${deployedAccount.address}'`,
-      );
-
-    await this.activationQueue.add({ account, transaction: asHex(transaction.hash) });
+    await this.activationQueue.add({ account, transaction: transactionHash });
   }
 
   async publishAccount(payload: AccountSubscriptionPayload) {

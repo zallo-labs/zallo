@@ -2,7 +2,7 @@
   "compilerOptions": {
     "target": "ES2022",
     "module": "commonjs",
-    "moduleResolution": "node",
+    "moduleResolution": "Node10",
     "baseUrl": "./",
     "outDir": "./dist",
     "lib": ["ESNext"],
@@ -28,6 +28,5 @@
       "@gen/*": ["./generated/*"]
     }
   },
-  "references": [{ "path": "../lib" }],
   "include": ["src/**/*", "generated/**/*", "dbschema/**/*"]
 }

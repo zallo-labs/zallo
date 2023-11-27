@@ -1,5 +1,5 @@
 import { FragmentType, gql, useFragment } from '@api';
-import { useApproverAddress } from '@network/useApprover';
+import { useApproverAddress } from '~/lib/network/useApprover';
 import { AppleBlackIcon, AppleWhiteIcon } from '@theme/icons';
 import { Suggestion } from '~/components/home/GettingStarted/suggestions';
 import { ListItem } from '~/components/list/ListItem';

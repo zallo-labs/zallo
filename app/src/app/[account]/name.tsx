@@ -9,15 +9,15 @@ import { Actions } from '~/components/layout/Actions';
 import { useQuery } from '~/gql';
 import { AppbarOptions } from '~/components/Appbar/AppbarOptions';
 import { z } from 'zod';
-import { zAddress } from '~/lib/zod';
+import { zUAddress } from '~/lib/zod';
 import { useLocalParams } from '~/hooks/useLocalParams';
 import { withSuspense } from '~/components/skeleton/withSuspense';
 import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
 import { AccountNameFormField } from '~/components/fields/AccountNameFormField';
 
 const Query = gql(/* GraphQL */ `
-  query AccountNameModal($account: Address!) {
-    account(input: { address: $account }) {
+  query AccountNameModal($account: UAddress!) {
+    account(input: { account: $account }) {
       id
       address
       label
@@ -26,8 +26,8 @@ const Query = gql(/* GraphQL */ `
 `);
 
 const Update = gql(/* GraphQL */ `
-  mutation AccountNameModal_Update($account: Address!, $label: String!) {
-    updateAccount(input: { address: $account, label: $label }) {
+  mutation AccountNameModal_Update($account: UAddress!, $label: String!) {
+    updateAccount(input: { account: $account, label: $label }) {
       id
       label
       name
@@ -39,10 +39,10 @@ interface Inputs {
   label: string;
 }
 
-export const AccountNameModalParams = z.object({ account: zAddress });
+export const AccountNameModalParams = z.object({ account: zUAddress });
 
 function AccountNameModal() {
-  const params = useLocalParams(`/[account]/name`, AccountNameModalParams);
+  const params = useLocalParams(AccountNameModalParams);
   const router = useRouter();
   const update = useMutation(Update)[1];
 

@@ -11,6 +11,7 @@ const ProposalFragmentDoc = gql(/* GraphQL */ `
     account {
       id
       address
+      chain
     }
   }
 `);
@@ -45,7 +46,7 @@ export function OperationSection({
         leading={operation.to}
         headline={({ Text }) => (
           <Text>
-            <OperationLabel operation={operation} />
+            <OperationLabel operation={operation} chain={proposal.account.chain} />
           </Text>
         )}
         trailing={() => <Chevron expanded={expanded} />}

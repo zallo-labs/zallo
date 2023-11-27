@@ -6,6 +6,7 @@ import { DatabaseService } from '../database/database.service';
 import e from '~/edgeql-js';
 import { parseUnits } from 'viem';
 import { ETH_ADDRESS } from 'zksync-web3/build/src/utils';
+import { ERC20 } from 'lib/dapps';
 
 @Injectable()
 export class FaucetService implements OnModuleInit {
@@ -39,19 +40,23 @@ export class FaucetService implements OnModuleInit {
     const tokensToSend = await this.getTokensToSend(account);
     const network = this.networks.for(account);
 
-    return (
-      await filterAsync(tokensToSend, async (token) =>
-        network.useWallet(async (wallet) => {
-          const tx = await wallet.transfer({
-            to: account,
-            token: token.address,
-            amount: token.amount,
-          });
+    for (const token of tokensToSend) {
+      await network.useWallet(async (wallet) =>
+        token.address === ETH_ADDRESS
+          ? wallet.sendTransaction({
+              to: asAddress(account),
+              value: token.amount,
+            })
+          : wallet.writeContract({
+              address: token.address,
+              abi: ERC20,
+              functionName: 'transfer',
+              args: [asAddress(account), token.amount],
+            }),
+      );
+    }
 
-          return (await tx.wait()).status === 0;
-        }),
-      )
-    ).map((token) => token.address);
+    return tokensToSend.map((t) => t.address);
   }
 
   private async getTokensToSend(account: UAddress) {

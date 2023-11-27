@@ -47,12 +47,11 @@
 ../contracts/zk
 
 
+## Lib
+
+
+
 ## Site
 ../site/.docusaurus
 ../site/.cache-loader
 ../site/docs/reference/schema
-
-
-## Lib
-../lib/src/contracts
-../lib/src/typechain

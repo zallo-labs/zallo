@@ -32,7 +32,7 @@ const LinkWithTokenSheetParams = z.object({ token: z.string() });
 export type LinkWithTokenSheetParams = z.infer<typeof LinkWithTokenSheetParams>;
 
 export default function LinkWithTokenSheet() {
-  const { token } = useLocalParams(`/link/token`, LinkWithTokenSheetParams);
+  const { token } = useLocalParams(LinkWithTokenSheetParams);
   const { styles } = useStyles(stylesheet);
   const { back } = useRouter();
   const link = useMutation(Link)[1];

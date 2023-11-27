@@ -1,6 +1,6 @@
 import { FragmentType, gql, useFragment } from '@api/generated';
 import { ClockOutlineIcon } from '@theme/icons';
-import { Address } from 'lib';
+import { UAddress, asChain, asUAddress } from 'lib';
 import { DateTime } from 'luxon';
 import { match } from 'ts-pattern';
 import { useAddressLabel } from '~/components/address/AddressLabel';
@@ -47,7 +47,7 @@ const FragmentDoc = gql(/* GraphQL */ `
 `);
 
 export interface OperationDetailsProps {
-  account: Address;
+  account: UAddress;
   operation: FragmentType<typeof FragmentDoc>;
 }
 
@@ -55,65 +55,85 @@ export interface OperationDetailsProps {
 /* eslint-disable react-hooks/rules-of-hooks */
 export function OperationDetails({ account, ...props }: OperationDetailsProps) {
   const op = useFragment(FragmentDoc, props.operation);
+  const chain = asChain(account);
 
   return match(op.function)
     .with({ __typename: 'TransferOp' }, (f) => (
       <>
-        <ListItem leading={f.to} overline="To" headline={useAddressLabel(f.to)} />
         <ListItem
-          leading={(props) => <TokenIcon {...props} token={f.token} />}
+          leading={f.to}
+          overline="To"
+          headline={useAddressLabel(asUAddress(f.to, chain))}
+        />
+        <ListItem
+          leading={(props) => <TokenIcon {...props} token={asUAddress(f.token, chain)} />}
           leadingSize="medium"
           overline="Amount"
-          headline={useFormattedTokenAmount(f)}
+          headline={useFormattedTokenAmount({ ...f, token: asUAddress(f.token, chain) })}
         />
       </>
     ))
     .with({ __typename: 'TransferFromOp' }, (f) => (
       <>
         <ListItem
-          leading={(props) => <TokenIcon {...props} token={f.token} />}
+          leading={(props) => <TokenIcon {...props} token={asUAddress(f.token, chain)} />}
           leadingSize="medium"
-          headline={useFormattedTokenAmount(f)}
+          headline={useFormattedTokenAmount({ ...f, token: asUAddress(f.token, chain) })}
         />
-        {account !== f.from && (
-          <ListItem leading={f.from} overline="From" headline={useAddressLabel(f.from)} />
+        {account !== asUAddress(f.from, chain) && (
+          <ListItem
+            leading={f.from}
+            overline="From"
+            headline={useAddressLabel(asUAddress(f.from, chain))}
+          />
         )}
-        {account !== f.to && (
-          <ListItem leading={f.to} overline="To" headline={useAddressLabel(f.to)} />
+        {account !== asUAddress(f.to, chain) && (
+          <ListItem
+            leading={f.to}
+            overline="To"
+            headline={useAddressLabel(asUAddress(f.to, chain))}
+          />
         )}
         <ListItem
-          leading={(props) => <TokenIcon {...props} token={f.token} />}
+          leading={(props) => <TokenIcon {...props} token={asUAddress(f.token, chain)} />}
           leadingSize="medium"
           overline="Amount"
-          headline={useFormattedTokenAmount(f)}
+          headline={useFormattedTokenAmount({ ...f, token: asUAddress(f.token, chain) })}
         />
       </>
     ))
     .with({ __typename: 'TransferApprovalOp' }, (f) => (
       <>
-        <ListItem leading={f.spender} overline="Spender" headline={useAddressLabel(f.spender)} />
         <ListItem
-          leading={(props) => <TokenIcon {...props} token={f.token} />}
+          leading={f.spender}
+          overline="Spender"
+          headline={useAddressLabel(asUAddress(f.spender, chain))}
+        />
+        <ListItem
+          leading={(props) => <TokenIcon {...props} token={asUAddress(f.token, chain)} />}
           leadingSize="medium"
           overline="Amount"
-          headline={useFormattedTokenAmount(f)}
+          headline={useFormattedTokenAmount({ ...f, token: asUAddress(f.token, chain) })}
         />
       </>
     ))
     .with({ __typename: 'SwapOp' }, (f) => (
       <>
         <ListItem
-          leading={(props) => <TokenIcon {...props} token={f.fromToken} />}
+          leading={(props) => <TokenIcon {...props} token={asUAddress(f.fromToken, chain)} />}
           leadingSize="medium"
           overline="From"
-          headline={useFormattedTokenAmount({ token: f.fromToken, amount: f.fromAmount })}
+          headline={useFormattedTokenAmount({
+            token: asUAddress(f.fromToken, chain),
+            amount: f.fromAmount,
+          })}
         />
         <ListItem
-          leading={(props) => <TokenIcon {...props} token={f.toToken} />}
+          leading={(props) => <TokenIcon {...props} token={asUAddress(f.toToken, chain)} />}
           leadingSize="medium"
           overline="To (minimum)"
           headline={useFormattedTokenAmount({
-            token: f.toToken,
+            token: asUAddress(f.toToken, chain),
             amount: f.minimumToAmount,
           })}
         />
@@ -130,7 +150,7 @@ export function OperationDetails({ account, ...props }: OperationDetailsProps) {
         <ListItem
           leading={op.to}
           overline={op.data ? 'Contract' : 'To'}
-          headline={useAddressLabel(op.to)}
+          headline={useAddressLabel(asUAddress(op.to, chain))}
         />
       </>
     ));

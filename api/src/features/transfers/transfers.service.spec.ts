@@ -3,12 +3,13 @@ import { TransfersService } from './transfers.service';
 import { createMock } from '@golevelup/ts-jest';
 import { DatabaseService } from '../database/database.service';
 import { UserContext, asUser, getUserCtx } from '~/request/ctx';
-import { Address, UAddress, ZERO_ADDR, randomDeploySalt } from 'lib';
-import { ZERO_HASH, randomAddress, randomLabel, randomUAddress, randomUser } from '~/util/test';
+import { UAddress, ZERO_ADDR, randomDeploySalt } from 'lib';
+import { randomLabel, randomUAddress, randomUser } from '~/util/test';
 import e from '~/edgeql-js';
 import { v1 as uuidv1 } from 'uuid';
 import { InsertShape } from '~/edgeql-js/insert';
 import { $Transfer } from '~/edgeql-js/modules/default';
+import { zeroHash } from 'viem';
 
 describe(TransfersService.name, () => {
   let service: TransfersService;
@@ -56,7 +57,7 @@ describe(TransfersService.name, () => {
     db.query(
       e.insert(e.Transfer, {
         account: e.select(e.Account, () => ({ filter_single: { address: account } })),
-        transactionHash: ZERO_HASH,
+        transactionHash: zeroHash,
         logIndex: 0,
         block: BigInt(Math.floor(Math.random() * 1000)),
         from: ZERO_ADDR,

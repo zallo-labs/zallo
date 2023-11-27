@@ -1,49 +1,27 @@
 import QRCode from 'react-native-qrcode-svg';
-import { Address } from 'lib';
+import { Address, UAddress, isUAddress } from 'lib';
 import { IconButton, Surface, Text } from 'react-native-paper';
-import { CloseIcon, ShareIcon, materialCommunityIcon } from '@theme/icons';
+import { CloseIcon, ShareIcon } from '@theme/icons';
 import { Actions } from '~/components/layout/Actions';
 import { ScaledSize, View, useWindowDimensions } from 'react-native';
-import { useAddressLabel } from '~/components/address/AddressLabel';
-import { buildAddressLink } from '~/util/addressLink';
+import { AddressLabel } from '~/components/address/AddressLabel';
 import { Blur } from '~/components/Blur';
 import { Button } from '~/components/Button';
-import { gql } from '@api/generated';
-import { OperationContext, useMutation } from 'urql';
-import { useQuery } from '~/gql';
 import { share } from '~/lib/share';
 import { useRouter } from 'expo-router';
 import { createStyles, useStyles } from '@theme/styles';
 import { EdgeInsets, useSafeAreaInsets } from 'react-native-safe-area-context';
-
-const Query = gql(/* GraphQL */ `
-  query QrModal($account: Address!) {
-    requestableTokens(input: { account: $account })
-  }
-`);
-
-const RequestTokens = gql(/* GraphQL */ `
-  mutation QrModal_RequestTokens($account: Address!) {
-    requestTokens(input: { account: $account })
-  }
-`);
-
-const FaucetIcon = materialCommunityIcon('water');
-
-const queryContext: Partial<OperationContext> = { suspense: false };
+import { ReactNode } from 'react';
+import { truncateAddr } from '~/util/format';
 
 export interface QrModalProps {
-  address: Address;
-  faucet?: boolean;
+  address: Address | UAddress;
+  actions?: ReactNode;
 }
 
-export function QrModal({ address, faucet }: QrModalProps) {
+export function QrModal({ address, actions }: QrModalProps) {
   const { styles } = useStyles(stylesheet);
   const router = useRouter();
-  const requestTokens = useMutation(RequestTokens)[1];
-
-  const { requestableTokens = [] } =
-    useQuery(Query, { account: address }, { pause: !faucet, context: queryContext }).data ?? {};
 
   return (
     <Blur>
@@ -57,7 +35,7 @@ export function QrModal({ address, faucet }: QrModalProps) {
 
         <View style={styles.headerContainer}>
           <Text variant="displaySmall" style={styles.name}>
-            {useAddressLabel(address)}
+            {isUAddress(address) ? <AddressLabel address={address} /> : truncateAddr(address)}
           </Text>
         </View>
 
@@ -76,21 +54,9 @@ export function QrModal({ address, faucet }: QrModalProps) {
         </View>
 
         <Actions>
-          {requestableTokens.length > 0 && (
-            <Button
-              mode="contained-tonal"
-              icon={FaucetIcon}
-              onPress={() => requestTokens({ account: address })}
-            >
-              Request testnet tokens
-            </Button>
-          )}
+          {actions}
 
-          <Button
-            mode="contained"
-            icon={ShareIcon}
-            onPress={() => share({ url: buildAddressLink(address) })}
-          >
+          <Button mode="contained" icon={ShareIcon} onPress={() => share({ url: address })}>
             Share
           </Button>
         </Actions>

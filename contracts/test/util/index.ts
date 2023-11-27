@@ -1,4 +1,4 @@
 export * from './deploy';
-export * from './execute';
+export * from './approval';
 export * from './defaults';
-export * from './wallet';
+export * from './network';

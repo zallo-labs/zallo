@@ -1,11 +1,18 @@
-import { Hex, isAddress, isHex } from 'lib';
+import { CHAINS, Chain } from 'chains';
+import { Hex, isAddress, isHex, isUAddress } from 'lib';
 import { RefinementCtx, ZodTypeAny, z } from 'zod';
 
-export const zAddress = z
+export const zAddress = z.string().refine(isAddress, (val) => ({ message: `Must be a Address` }));
+
+export const zUAddress = z
   .string()
-  .refine(isAddress, (val) => ({ message: `${val} must be a Address` }));
+  .refine(isUAddress, (val) => ({ message: `Must be a UAddress` }));
 
 export const zHash = z.string().refine((arg): arg is Hex => isHex(arg, 32));
+
+export const zChain = z.enum(
+  Object.values(CHAINS).map((c) => c.key) as unknown as [Chain, ...Chain[]],
+);
 
 export const parseAsObject =
   <R>() =>
@@ -18,8 +25,11 @@ export const parseAsObject =
     }
   };
 
-export const zArray = <T extends ZodTypeAny>(schema: T) =>
+export const zArray = <T extends ZodTypeAny, R extends ZodTypeAny = z.ZodArray<T>>(
+  schema: T,
+  refine?: (arr: z.ZodArray<T>) => R,
+) =>
   z.preprocess(
     (arg) => (Array.isArray(arg) ? arg : typeof arg === 'string' ? arg.split(',') : [arg]),
-    z.array(schema),
+    refine ? refine(z.array(schema)) : z.array(schema),
   );

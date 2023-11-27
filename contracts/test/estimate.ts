@@ -1,6 +1,6 @@
 import { parseEther } from 'viem';
-import { PROVIDER, WALLET, deployProxy } from './util';
-import { asTx, estimateTransactionOperationsGas } from 'lib';
+import { deployProxy, network, wallet } from './util';
+import { asAddress, asTx, estimateTransactionOperationsGas } from 'lib';
 import { expect } from 'chai';
 
 it('gas estimation', async () => {
@@ -8,12 +8,12 @@ it('gas estimation', async () => {
   const { account } = await deployProxy({ extraBalance: value });
 
   const tx = asTx({
-    to: WALLET.address,
+    to: wallet.account.address,
     value,
     nonce: 0n,
   });
 
-  const gas = await estimateTransactionOperationsGas(PROVIDER, account.address, tx);
+  const gas = await estimateTransactionOperationsGas({ network, account: asAddress(account), tx });
   expect(gas.isOk()).to.be.true;
   expect(gas._unsafeUnwrap()).greaterThan(0n);
 });

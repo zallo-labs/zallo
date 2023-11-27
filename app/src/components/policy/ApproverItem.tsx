@@ -1,4 +1,4 @@
-import { Address } from 'lib';
+import { UAddress } from 'lib';
 import { useAddressLabel } from '~/components/address/AddressLabel';
 import { ListItem } from '~/components/list/ListItem';
 import { truncateAddr } from '~/util/format';
@@ -10,7 +10,7 @@ import { ICON_SIZE } from '@theme/paper';
 import { createStyles, useStyles } from '@theme/styles';
 
 export interface ApproverItemProps {
-  address: Address;
+  address: UAddress;
   remove: () => void;
 }
 

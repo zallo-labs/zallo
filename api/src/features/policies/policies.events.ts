@@ -1,11 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { EventsProcessor, EventData } from '../events/events.processor';
-import { ACCOUNT_INTERFACE, Chain, PolicyKey, asHex, asPolicyKey, asUAddress } from 'lib';
+import { ACCOUNT_ABI, PolicyKey, asHex, asPolicyKey, asUAddress } from 'lib';
+import { Chain } from 'chains';
 import { DatabaseService } from '../database/database.service';
 import e from '~/edgeql-js';
 import { and } from '../database/database.util';
 import { selectPolicy } from './policies.util';
-import { Log } from '@ethersproject/abstract-provider';
+import { Log, decodeEventLog, getAbiItem } from 'viem';
 
 @Injectable()
 export class PoliciesEventsProcessor {
@@ -13,32 +14,22 @@ export class PoliciesEventsProcessor {
     private db: DatabaseService,
     private events: EventsProcessor,
   ) {
-    this.events.on(
-      ACCOUNT_INTERFACE.getEventTopic(ACCOUNT_INTERFACE.events['PolicyAdded(uint32,bytes32)']),
-      (data) => this.policyAdded(data),
+    this.events.on(getAbiItem({ abi: ACCOUNT_ABI, name: 'PolicyAdded' }), (data) =>
+      this.policyAdded(data),
     );
-    this.events.on(
-      ACCOUNT_INTERFACE.getEventTopic(ACCOUNT_INTERFACE.events['PolicyRemoved(uint32)']),
-      (data) => this.policyRemoved(data),
+    this.events.on(getAbiItem({ abi: ACCOUNT_ABI, name: 'PolicyRemoved' }), (data) =>
+      this.policyRemoved(data),
     );
   }
 
   private async policyAdded({ chain, log }: EventData) {
-    const r = ACCOUNT_INTERFACE.decodeEventLog(
-      ACCOUNT_INTERFACE.events['PolicyAdded(uint32,bytes32)'],
-      log.data,
-      log.topics,
-    );
+    const r = decodeEventLog({ abi: ACCOUNT_ABI, ...log, eventName: 'PolicyAdded' });
 
     await this.markStateAsActive(chain, log, asPolicyKey(r[0]));
   }
 
   private async policyRemoved({ chain, log }: EventData) {
-    const r = ACCOUNT_INTERFACE.decodeEventLog(
-      ACCOUNT_INTERFACE.events['PolicyRemoved(uint32)'],
-      log.data,
-      log.topics,
-    );
+    const r = decodeEventLog({ abi: ACCOUNT_ABI, ...log, eventName: 'PolicyRemoved' });
 
     await this.markStateAsActive(chain, log, asPolicyKey(r[0]));
   }
@@ -64,7 +55,7 @@ export class PoliciesEventsProcessor {
     await e
       .update(policyState, () => ({
         set: {
-          activationBlock: BigInt(log.blockNumber),
+          activationBlock: log.blockNumber,
         },
       }))
       .run(this.db.client);

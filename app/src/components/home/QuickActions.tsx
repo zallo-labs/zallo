@@ -1,15 +1,15 @@
 import { QrCodeIcon, TransferIcon, SwapIcon } from '@theme/icons';
 import { StyleSheet, View } from 'react-native';
 import { Button } from 'react-native-paper';
-import { Address } from 'lib';
+import { UAddress } from 'lib';
 import { useRouter } from 'expo-router';
 import { useTransfer } from '~/hooks/useTransfer';
 
 export interface QuickActionsProps {
-  account: Address;
+  account: UAddress;
 }
 
-export const QuickActions = ({ account }: QuickActionsProps) => {
+export function QuickActions({ account }: QuickActionsProps) {
   const { push } = useRouter();
   const transfer = useTransfer();
 
@@ -43,7 +43,7 @@ export const QuickActions = ({ account }: QuickActionsProps) => {
       </Button>
     </View>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {

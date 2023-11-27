@@ -17,8 +17,8 @@ import { showError } from '~/components/provider/SnackbarProvider';
 const trimmed = (v: string) => v.trim();
 
 const Query = gql(/* GraphQL */ `
-  query RenamePolicySheet($account: Address!) {
-    account(input: { address: $account }) {
+  query RenamePolicySheet($account: UAddress!) {
+    account(input: { account: $account }) {
       id
       policies {
         id
@@ -30,7 +30,7 @@ const Query = gql(/* GraphQL */ `
 `);
 
 const Rename = gql(/* GraphQL */ `
-  mutation RenamePolicySheet_Rename($account: Address!, $key: PolicyKey!, $name: String!) {
+  mutation RenamePolicySheet_Rename($account: UAddress!, $key: PolicyKey!, $name: String!) {
     updatePolicy(input: { account: $account, key: $key, name: $name }) {
       __typename
       ... on Policy {

@@ -11,7 +11,7 @@ import { Timestamp } from '~/components/format/Timestamp';
 import { ListItem, ListItemProps } from '~/components/list/ListItem';
 import { TokenAmount } from '~/components/token/TokenAmount';
 import { TokenIcon } from '~/components/token/TokenIcon';
-import { asBigInt, tokenToFiat } from 'lib';
+import { tokenToFiat } from 'lib';
 import { ReactNode } from 'react';
 import { gql, useFragment } from '@api/generated';
 import { getOptimizedDocument, useQuery } from '~/gql';
@@ -79,7 +79,7 @@ export const TransactionTabParams = TransactionLayoutParams;
 export type TransactionTabParams = z.infer<typeof TransactionTabParams>;
 
 function TransactionTab() {
-  const params = useLocalParams(`/(drawer)/transaction/[hash]/transaction`, TransactionTabParams);
+  const params = useLocalParams(TransactionTabParams);
   const { styles } = useStyles(stylesheet);
 
   const { data } = useQuery(Query, { proposal: params.hash });
@@ -94,8 +94,8 @@ function TransactionTab() {
 
   if (!p) return null;
 
-  const estimatedFee = asBigInt(p.feeToken.gasPrice ?? 0) * asBigInt(p.gasLimit);
-  const actualFee = receipt && asBigInt(receipt.gasUsed) * asBigInt(tx.gasPrice);
+  const estimatedFee = BigInt(p.feeToken.gasPrice ?? 0) * BigInt(p.gasLimit);
+  const actualFee = receipt && BigInt(receipt.gasUsed) * BigInt(tx.gasPrice);
 
   return (
     <ScrollView contentContainerStyle={styles.container}>

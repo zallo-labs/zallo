@@ -9,7 +9,7 @@ import {
   randomUAddress,
   randomUser,
 } from '~/util/test';
-import { Address, randomDeploySalt, Hex, UAddress } from 'lib';
+import { randomDeploySalt, Hex, UAddress } from 'lib';
 import { Network, NetworksService } from '../util/networks/networks.service';
 import { ExpoService } from '../util/expo/expo.service';
 import { TransactionsService } from '../transactions/transactions.service';
@@ -21,11 +21,8 @@ import {
 } from './transaction-proposals.service';
 import e from '~/edgeql-js';
 import { selectAccount } from '../accounts/accounts.util';
-import { uuid } from 'edgedb/dist/codecs/ifaces';
 import { selectPolicy } from '../policies/policies.util';
-import { TransactionProposalStatus } from './transaction-proposals.model';
 import { v1 as uuidv1 } from 'uuid';
-import { BigNumber } from 'ethers';
 
 const signature = '0x1234' as Hex;
 
@@ -33,7 +30,7 @@ describe(TransactionProposalsService.name, () => {
   let service: TransactionProposalsService;
   let db: DatabaseService;
   let networks: DeepMocked<NetworksService>;
-  let expo: DeepMocked<ExpoService>;
+  // let expo: DeepMocked<ExpoService>;
   let transactions: DeepMocked<TransactionsService>;
 
   beforeEach(async () => {
@@ -46,13 +43,11 @@ describe(TransactionProposalsService.name, () => {
     service = module.get(TransactionProposalsService);
     db = module.get(DatabaseService);
     networks = module.get(NetworksService);
-    expo = module.get(ExpoService);
+    // expo = module.get(ExpoService);
     transactions = module.get(TransactionsService);
 
     networks.for.mockReturnValue({
-      provider: {
-        estimateGas: async () => BigNumber.from(0),
-      },
+      estimateGas: async () => 0n,
     } satisfies DeepPartial<Network> as unknown as Network);
 
     transactions.tryExecute.mockImplementation(async () => undefined);

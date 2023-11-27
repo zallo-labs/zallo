@@ -1,7 +1,7 @@
 import { PolicyScreenParams } from '~/app/(drawer)/[account]/policies/[key]';
 import { useLocalParams } from '~/hooks/useLocalParams';
 import { zAddress } from '~/lib/zod';
-import { TransferLimit } from 'lib';
+import { TransferLimit, asChain, asUAddress } from 'lib';
 import { Duration } from 'luxon';
 import { View } from 'react-native';
 import { BasicTextField } from '~/components/fields/BasicTextField';
@@ -23,7 +23,7 @@ import { useEffect } from 'react';
 import { createStyles, useStyles } from '@theme/styles';
 
 const Query = gql(/* GraphQL */ `
-  query TokenLimitScreen($token: Address!) {
+  query TokenLimitScreen($token: UAddress!) {
     token(input: { address: $token }) {
       id
       name
@@ -48,14 +48,11 @@ export const SPENDING_LIMIT_DURATIONS = [
 export const TokenLimitScreenParams = PolicyScreenParams.extend({ token: zAddress });
 
 export default function TokenLimitScreen() {
-  const { token: address } = useLocalParams(
-    `/(drawer)/[account]/policies/[key]/spending/[token]`,
-    TokenLimitScreenParams,
-  );
+  const { token: address, account } = useLocalParams(TokenLimitScreenParams);
   const { styles } = useStyles(stylesheet);
   const router = useRouter();
 
-  const { token: t } = useQuery(Query, { token: address }).data;
+  const { token: t } = useQuery(Query, { token: asUAddress(address, asChain(account)) }).data;
 
   const [policy, update] = usePolicyDraftState();
 

@@ -7,6 +7,8 @@ import { Job, Queue } from 'bull';
 import { Log } from 'zksync-web3/build/src/types';
 import { DEFAULT_REDIS_NAMESPACE, getRedisToken } from '@songkeys/nestjs-redis';
 import { DeepPartial } from '~/util/test';
+import { ACCOUNT_IMPLEMENTATION } from 'lib';
+import { getAbiItem } from 'viem';
 
 describe(EventsProcessor.name, () => {
   let processor: EventsProcessor;
@@ -36,12 +38,12 @@ describe(EventsProcessor.name, () => {
 
     processor = module.get(EventsProcessor);
     topic1Listener = jest.fn();
-    processor.on('topic 1', topic1Listener);
+    processor.on(getAbiItem({ abi: ACCOUNT_IMPLEMENTATION.abi, name: 'Upgraded' }), topic1Listener);
 
     networks = module.get(NetworksService);
     networks.get.mockReturnValue({
       getBlockNumber: async () => 1n,
-      provider: { getLogs: async () => logs },
+      getLogs: async () => logs,
     } satisfies DeepPartial<Network> as unknown as Network);
 
     queue = module.get(getQueueToken(EVENTS_QUEUE.name));
@@ -87,12 +89,10 @@ describe(EventsProcessor.name, () => {
   it('split into 2 jobs if too many results', async () => {
     networks.get.mockReturnValue({
       getBlockNumber: async () => 10n,
-      provider: {
-        getLogs: async () => {
-          throw new Error(
-            'Query returned more than 10000 results. Try with this block range [0x01, 0x03]',
-          );
-        },
+      getLogs: async () => {
+        throw new Error(
+          'Query returned more than 10000 results. Try with this block range [0x01, 0x03]',
+        );
       },
     } satisfies DeepPartial<Network> as unknown as Network);
 

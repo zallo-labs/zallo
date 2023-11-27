@@ -14,7 +14,7 @@ import { showError } from '~/components/provider/SnackbarProvider';
 import { withSuspense } from '~/components/skeleton/withSuspense';
 import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
 import { ScreenSurface } from '~/components/layout/ScreenSurface';
-import { zAddress } from '~/lib/zod';
+import { zAddress, zUAddress } from '~/lib/zod';
 import { ApprovalSettings } from '~/components/policy/ApprovalSettings';
 import { SpendingSettings } from '~/components/policy/SpendingSettings';
 import { useLayout } from '~/hooks/useLayout';
@@ -25,7 +25,7 @@ import { Actions } from '~/components/layout/Actions';
 import { Button } from '~/components/Button';
 
 const Query = gql(/* GraphQL */ `
-  query PolicyScreen($account: Address!, $key: PolicyKey!, $queryPolicy: Boolean!) {
+  query PolicyScreen($account: UAddress!, $key: PolicyKey!, $queryPolicy: Boolean!) {
     policy(input: { account: $account, key: $key }) @include(if: $queryPolicy) {
       id
       key
@@ -39,7 +39,7 @@ const Query = gql(/* GraphQL */ `
       ...PolicyAppbar_Policy
     }
 
-    account(input: { address: $account }) {
+    account(input: { account: $account }) {
       id
       address
       ...useHydratePolicyDraft_Account
@@ -93,23 +93,22 @@ const Update = gql(/* GraphQL */ `
 `);
 
 export const PolicyScreenParams = z.object({
-  account: zAddress,
+  account: zUAddress,
   key: z.union([z.coerce.number().transform(asPolicyKey), z.literal('add')]),
   view: z.enum(['state', 'draft']).optional(),
 });
 export type PolicyScreenParams = z.infer<typeof PolicyScreenParams>;
 
 function PolicyScreen() {
-  const params = useLocalParams(`/(drawer)/[account]/policies/[key]/`, PolicyScreenParams);
+  const params = useLocalParams(PolicyScreenParams);
   const router = useRouter();
   const create = useMutation(Create)[1];
   const update = useMutation(Update)[1];
 
-  const isAdd = params.key === 'add';
-  const key = isAdd ? undefined : asPolicyKey(params.key);
+  const key = params.key === 'add' ? undefined : asPolicyKey(params.key);
 
   const { policy, account } = useQuery(Query, {
-    account: asAddress(params.account),
+    account: params.account,
     key: key ?? (0 as PolicyKey),
     queryPolicy: key !== undefined,
   }).data;

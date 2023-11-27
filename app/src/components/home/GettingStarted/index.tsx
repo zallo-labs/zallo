@@ -21,7 +21,7 @@ import { FormattedNumber } from '~/components/format/FormattedNumber';
 import { useToggle } from '~/hooks/useToggle';
 
 const Query = gql(/* GraphQL */ `
-  fragment GettingStarted_Query on Query @argumentDefinitions(account: { type: "Address!" }) {
+  fragment GettingStarted_Query on Query @argumentDefinitions(account: { type: "UAddress!" }) {
     ...useDepositSuggestion_Query @arguments(account: $account)
     ...useTransferSuggestion_Query @arguments(account: $account)
   }

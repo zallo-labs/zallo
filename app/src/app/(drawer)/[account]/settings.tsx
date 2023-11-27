@@ -21,10 +21,11 @@ import { Actions } from '~/components/layout/Actions';
 import { Button } from '~/components/Button';
 import { match } from 'ts-pattern';
 import { useMutation } from 'urql';
+import { AccountParams } from '~/app/(drawer)/[account]/(home)/_layout';
 
 const Query = gql(/* GraphQL */ `
-  query AccountSettingsScreen($account: Address!) {
-    account(input: { address: $account }) {
+  query AccountSettingsScreen($account: UAddress!) {
+    account(input: { account: $account }) {
       id
       address
       name
@@ -56,10 +57,10 @@ const UpdateUser = gql(/* GraphQL */ `
   }
 `);
 
-const AccountSettingsScreenParams = z.object({ account: zAddress });
+const AccountSettingsScreenParams = AccountParams;
 
 function AccountSettingsScreen() {
-  const params = useLocalParams(`/(drawer)/[account]/settings`, AccountSettingsScreenParams);
+  const params = useLocalParams(AccountSettingsScreenParams);
   const router = useRouter();
   const updateUser = useMutation(UpdateUser)[1];
 

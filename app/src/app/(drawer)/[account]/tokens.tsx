@@ -1,6 +1,6 @@
 import { useRouter } from 'expo-router';
 import { StyleSheet } from 'react-native';
-import { Address } from 'lib';
+import { UAddress, asChain } from 'lib';
 import { AddIcon, SearchIcon } from '@theme/icons';
 import { ListHeader } from '~/components/list/ListHeader';
 import { TokenItem } from '~/components/token/TokenItem';
@@ -14,7 +14,7 @@ import { useGetEvent } from '~/hooks/useGetEvent';
 import { OperationContext } from 'urql';
 import { AppbarMenu } from '~/components/Appbar/AppbarMenu';
 import { z } from 'zod';
-import { zAddress, zArray } from '~/lib/zod';
+import { zArray, zUAddress } from '~/lib/zod';
 import { useLocalParams } from '~/hooks/useLocalParams';
 import { withSuspense } from '~/components/skeleton/withSuspense';
 import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
@@ -22,8 +22,8 @@ import { SearchbarOptions } from '~/components/Appbar/SearchbarOptions';
 import { ScreenSurface } from '~/components/layout/ScreenSurface';
 
 const Query = gql(/* GraphQL */ `
-  query TokensScreen($account: Address!, $query: String, $feeToken: Boolean) {
-    tokens(input: { query: $query, feeToken: $feeToken }) {
+  query TokensScreen($account: UAddress!, $query: String, $feeToken: Boolean, $chain: Chain) {
+    tokens(input: { query: $query, feeToken: $feeToken, chain: $chain }) {
       id
       address
       balance(input: { account: $account })
@@ -32,7 +32,7 @@ const Query = gql(/* GraphQL */ `
   }
 `);
 
-const TOKEN_SELECTED = new Subject<Address>();
+const TOKEN_SELECTED = new Subject<UAddress>();
 export const useSelectToken = () => {
   const getEvent = useGetEvent();
 
@@ -45,9 +45,9 @@ export const useSelectToken = () => {
 };
 
 export const TokensScreenParams = z.object({
-  account: zAddress,
-  disabled: zArray(zAddress).optional(),
-  enabled: zArray(zAddress).optional(),
+  account: zUAddress,
+  disabled: zArray(zUAddress).optional(),
+  enabled: zArray(zUAddress).optional(),
   feeToken: z.coerce.boolean().optional(),
 });
 export type TokensScreenParams = z.infer<typeof TokensScreenParams>;
@@ -55,7 +55,7 @@ export type TokensScreenParams = z.infer<typeof TokensScreenParams>;
 const queryContext: Partial<OperationContext> = { suspense: false };
 
 function TokensScreen() {
-  const params = useLocalParams(`/(drawer)/[account]/tokens`, TokensScreenParams);
+  const params = useLocalParams(TokensScreenParams);
   const router = useRouter();
   const disabled = new Set(params.disabled);
   const enabled = params.enabled && new Set(params.enabled);
@@ -69,6 +69,7 @@ function TokensScreen() {
         account: params.account,
         query,
         feeToken: params.feeToken,
+        chain: asChain(params.account),
       },
       queryContext,
     ).data.tokens ?? [];

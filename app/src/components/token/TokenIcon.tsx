@@ -2,7 +2,7 @@ import { FragmentType, gql, useFragment as getFragment } from '@api/generated';
 import { materialCommunityIcon } from '@theme/icons';
 import { createStyles, useStyles } from '@theme/styles';
 import { Image, ImageProps } from 'expo-image';
-import { Address, isAddress } from 'lib';
+import { UAddress, isUAddress } from 'lib';
 import { ImageStyle, StyleProp } from 'react-native';
 import { CircleSkeleton } from '~/components/skeleton/CircleSkeleton';
 import { withSuspense } from '~/components/skeleton/withSuspense';
@@ -15,7 +15,7 @@ Image.prefetch(ETH_ICON_URI);
 export const UnknownTokenIcon = materialCommunityIcon('help-circle-outline');
 
 const Query = gql(/* GraphQL */ `
-  query TokenIcon($token: Address!) {
+  query TokenIcon($token: UAddress!) {
     token(input: { address: $token }) {
       ...TokenIcon_token
     }
@@ -30,7 +30,7 @@ const Fragment = gql(/* GraphQL */ `
 `);
 
 export interface TokenIconProps extends Omit<ImageProps, 'source' | 'style'> {
-  token: FragmentType<typeof Fragment> | Address | null | undefined;
+  token: FragmentType<typeof Fragment> | UAddress | null | undefined;
   fallbackUri?: string;
   size?: number;
   style?: StyleProp<ImageStyle>;
@@ -47,12 +47,12 @@ function TokenIcon_({
 
   const query = useQuery(
     Query,
-    { token: isAddress(tokenFragment) ? tokenFragment : '0x' },
-    { pause: !isAddress(tokenFragment) },
+    { token: isUAddress(tokenFragment) ? tokenFragment : 'zksync:0x' },
+    { pause: !isUAddress(tokenFragment) },
   ).data;
 
   const iconUri =
-    getFragment(Fragment, !isAddress(tokenFragment) ? tokenFragment : query?.token)?.iconUri ??
+    getFragment(Fragment, !isUAddress(tokenFragment) ? tokenFragment : query?.token)?.iconUri ??
     fallbackUri;
 
   if (!iconUri)

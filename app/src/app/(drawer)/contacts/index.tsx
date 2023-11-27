@@ -1,7 +1,6 @@
-import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
+import { Stack, useRouter } from 'expo-router';
 import { useState } from 'react';
 import { NavigateNextIcon, ScanIcon, SearchIcon, materialCommunityIcon } from '~/util/theme/icons';
-import { Address } from 'lib';
 import { Searchbar } from '~/components/Appbar/Searchbar';
 import { ListHeader } from '~/components/list/ListHeader';
 import { ListItemHeight } from '~/components/list/ListItem';
@@ -17,6 +16,9 @@ import { withSuspense } from '~/components/skeleton/withSuspense';
 import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
 import { ScreenSurface } from '~/components/layout/ScreenSurface';
 import { createStyles, useStyles } from '@theme/styles';
+import { z } from 'zod';
+import { zArray, zUAddress } from '~/lib/zod';
+import { useLocalParams } from '~/hooks/useLocalParams';
 
 const Query = gql(/* GraphQL */ `
   query ContactsScreen($query: String) {
@@ -30,13 +32,12 @@ const Query = gql(/* GraphQL */ `
 
 const AddContactIcon = materialCommunityIcon('account-plus-outline');
 
-export type ContactsScreenRoute = `/contacts/`;
-export type ContactsScreenParams = {
-  disabled?: Address[];
-};
+const ContractsScreenParams = z.object({
+  disabled: zArray(zUAddress).optional(),
+});
 
 function ContactsScreen() {
-  const params = useLocalSearchParams<ContactsScreenParams>();
+  const params = useLocalParams(ContractsScreenParams);
   const { styles } = useStyles(stylesheet);
   const disabled = params.disabled && new Set(params.disabled);
   const router = useRouter();

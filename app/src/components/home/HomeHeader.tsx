@@ -1,4 +1,4 @@
-import { Address } from 'lib';
+import { UAddress } from 'lib';
 import { NotFound } from '~/components/NotFound';
 import { gql } from '@api/generated';
 import { useQuery } from '~/gql';
@@ -11,8 +11,8 @@ import { GettingStarted } from '~/components/home/GettingStarted';
 import { createStyles } from '@theme/styles';
 
 const Query = gql(/* GraphQL */ `
-  query HomeHeader($account: Address!) {
-    account(input: { address: $account }) {
+  query HomeHeader($account: UAddress!) {
+    account(input: { account: $account }) {
       id
       address
       ...HomeAppbar_account
@@ -30,7 +30,7 @@ const Query = gql(/* GraphQL */ `
 `);
 
 export interface HomeHeaderProps {
-  account: Address;
+  account: UAddress;
 }
 
 function Header(props: HomeHeaderProps) {

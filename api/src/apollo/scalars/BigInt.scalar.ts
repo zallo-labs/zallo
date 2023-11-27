@@ -1,6 +1,5 @@
 import { UserInputError } from '@nestjs/apollo';
 import { Kind } from 'graphql';
-import { MAX_UINT256, MIN_UINT256 } from 'lib';
 import { createScalar } from './util';
 
 const parse = (value: unknown, description: string, min?: bigint, max?: bigint): bigint => {
@@ -29,6 +28,6 @@ const createBigIntScalar = (name: string, description: string, min?: bigint, max
 export const [Uint256Scalar, Uint256Field] = createBigIntScalar(
   'Uint256',
   '256-bit unsigned integer',
-  MIN_UINT256,
-  MAX_UINT256,
+  0n,
+  2n ** 256n - 1n,
 );

@@ -9,8 +9,8 @@ import { useQuery } from '~/gql';
 import { useSelectedAccount } from '~/hooks/useSelectedAccount';
 
 const Query = gql(/* GraphQL */ `
-  query AccountDrawerHeader($account: Address) {
-    account(input: { address: $account }) {
+  query AccountDrawerHeader($account: UAddress) {
+    account(input: { account: $account }) {
       id
       address
       name

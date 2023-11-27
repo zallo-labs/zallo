@@ -1,10 +1,8 @@
 import {
-  Address,
   asAddress,
   asPolicy,
   Policy,
   PolicyKey,
-  Target,
   TargetsConfig,
   TransfersConfig,
   UAddress,
@@ -82,8 +80,7 @@ export const policyStateAsPolicy = <S extends PolicyStateShape>(key: number, sta
                       contracts: {
                         [v.contract]: {
                           functions: { [v.selector]: v.allow },
-                          // defaultAllow is not defined; this allows overwriting in actions, or will be evaluated as false if undefiend
-                        } as Target,
+                        },
                       },
                     }))
                     .with({ contract: P.string, selector: P.nullish }, (v) => ({
@@ -97,8 +94,7 @@ export const policyStateAsPolicy = <S extends PolicyStateShape>(key: number, sta
                     .with({ contract: P.nullish, selector: P.string }, (v) => ({
                       default: {
                         functions: { [v.selector]: v.allow },
-                        // defaultAllow is not defined; this allows overwriting in actions, or will be evaluated as false if undefiend
-                      } as Target,
+                      },
                     }))
                     .with({ contract: P.nullish, selector: P.nullish }, (v) => ({
                       default: {

@@ -1,4 +1,4 @@
-import { formatUnits, parseUnits } from 'ethers/lib/utils';
+import { formatUnits, parseUnits } from 'viem';
 import { useNumberInput } from './useNumberInput';
 
 export interface BigIntInputOptions {
@@ -11,8 +11,6 @@ export const useBigIntInput = ({ value, onChange, decimals }: BigIntInputOptions
   useNumberInput({
     value: value !== undefined ? parseFloat(formatUnits(value, decimals ?? 0)) : undefined,
     onChange: (value) =>
-      onChange(
-        value !== undefined ? parseUnits(value.toString(), decimals ?? 0).toBigInt() : undefined,
-      ),
+      onChange(value !== undefined ? parseUnits(value.toString(), decimals ?? 0) : undefined),
     maxDecimals: decimals,
   });

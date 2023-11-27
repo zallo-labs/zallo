@@ -29,11 +29,11 @@ export class AccountsProcessor {
     const { account, transaction } = job.data;
 
     const receipt = await tryOrIgnoreAsync(() =>
-      this.networks.for(account).provider.getTransactionReceipt(transaction),
+      this.networks.for(account).getTransactionReceipt({ hash: transaction }),
     );
     if (!receipt) return job.moveToFailed({ message: 'Transaction receipt not found' });
 
-    if (receipt.status !== 1) {
+    if (receipt.status === 'reverted') {
       // TODO: handle failed activation
       Logger.error('Account activation transaction failed', { account, transaction });
       return;
@@ -54,7 +54,7 @@ export class AccountsProcessor {
               e.op(ps.isAccountInitState, '=', true),
             ),
             set: {
-              activationBlock: BigInt(receipt.blockNumber),
+              activationBlock: receipt.blockNumber,
             },
           })),
         })

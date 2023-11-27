@@ -1,7 +1,9 @@
 ## Shared
 .env*
 !.env.vault
+**/.tsup
 **/.turbo
+!.env.project.turbo
 **/bin
 **/build
 **/cache
@@ -10,6 +12,7 @@
 **/node_modules
 **/__generated__
 **/*.secret.*
+**/*.dump*
 
 # Yarn
 **/.yarn/*
@@ -46,9 +49,4 @@ site/**/*generated.ts
 
 
 ## Lib
-lib/src/contracts
-lib/src/typechain
 
-
-.flaskenv*
-!.env.project.turbo

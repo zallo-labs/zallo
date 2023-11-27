@@ -1,9 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { NetworksService } from '../util/networks/networks.service';
 import assert from 'assert';
-import { UAddress, CHAINS, asAddress, asHex } from 'lib';
+import { UAddress, asAddress, asHex } from 'lib';
+import { CHAINS } from 'chains';
 import * as zk from 'zksync-web3';
 import { BigNumber } from 'ethers';
+import { hexlify } from 'ethers/lib/utils';
 
 interface GetPaymasterParamsOptions {
   feeToken: UAddress;
@@ -25,12 +27,14 @@ export class PaymasterService {
 
   paymasterInput({ feeToken, gas, maxFeePerGas }: GetPaymasterParamsOptions) {
     return asHex(
-      zk.utils.getApprovalBasedPaymasterInput({
-        type: 'ApprovalBased',
-        token: feeToken,
-        minimalAllowance: BigNumber.from(gas * maxFeePerGas), // Mainnet TODO: factor in conversion from token -> ETH; 1:1 on testnet
-        innerInput: [],
-      }),
+      hexlify(
+        zk.utils.getApprovalBasedPaymasterInput({
+          type: 'ApprovalBased',
+          token: feeToken,
+          minimalAllowance: BigNumber.from(gas * maxFeePerGas), // Mainnet TODO: factor in conversion from token -> ETH; 1:1 on testnet
+          innerInput: [],
+        }),
+      ),
     );
   }
 

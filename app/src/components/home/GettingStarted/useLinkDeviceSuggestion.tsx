@@ -1,5 +1,5 @@
 import { FragmentType, gql, useFragment } from '@api';
-import { useApproverAddress } from '@network/useApprover';
+import { useApproverAddress } from '~/lib/network/useApprover';
 import { DevicesIcon } from '@theme/icons';
 import { useRouter } from 'expo-router';
 import { Suggestion } from '~/components/home/GettingStarted/suggestions';

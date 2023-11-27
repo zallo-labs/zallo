@@ -9,7 +9,7 @@ import { useConfirmRemoval } from '~/hooks/useConfirm';
 import { POLICY_DRAFT_ATOM } from '~/lib/policy/draft';
 import { AppbarOptions } from '~/components/Appbar/AppbarOptions';
 import { useRouter } from 'expo-router';
-import { Address, PolicyKey } from 'lib';
+import { PolicyKey, UAddress } from 'lib';
 import { createStyles, useStyles } from '@theme/styles';
 
 const Policy = gql(/* GraphQL */ `
@@ -39,7 +39,7 @@ const Policy = gql(/* GraphQL */ `
 `);
 
 const Remove = gql(/* GraphQL */ `
-  mutation PolicyAppbar_Remove($account: Address!, $key: PolicyKey!) {
+  mutation PolicyAppbar_Remove($account: UAddress!, $key: PolicyKey!) {
     removePolicy(input: { account: $account, key: $key }) {
       id
       draft {
@@ -54,7 +54,7 @@ const Remove = gql(/* GraphQL */ `
 `);
 
 export interface PolicyAppbarProps {
-  account: Address;
+  account: UAddress;
   policyKey: PolicyKey | 'add';
   policy?: FragmentType<typeof Policy> | null;
   view: PolicyView;

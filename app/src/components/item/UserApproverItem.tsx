@@ -1,5 +1,5 @@
 import { FragmentType, gql, useFragment } from '@api/generated';
-import { useApproverAddress } from '@network/useApprover';
+import { useApproverAddress } from '~/lib/network/useApprover';
 import { useRouter } from 'expo-router';
 import { ListItem, ListItemProps } from '~/components/list/ListItem';
 import { truncateAddr } from '~/util/format';

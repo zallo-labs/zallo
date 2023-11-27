@@ -1,4 +1,5 @@
-import { Address, asHex, ERC20_ABI, Operation } from 'lib';
+import { Address, asHex, Operation } from 'lib';
+import { ERC20 } from 'lib/dapps';
 import { match } from 'ts-pattern';
 import { encodeFunctionData } from 'viem';
 import { ETH_ADDRESS } from 'zksync-web3/build/src/utils';
@@ -16,7 +17,7 @@ export const createTransferOp = ({ token, to, amount }: TransferOpOptions): Oper
       to: token,
       data: asHex(
         encodeFunctionData({
-          abi: ERC20_ABI,
+          abi: ERC20,
           functionName: 'transfer',
           args: [to, amount],
         }),

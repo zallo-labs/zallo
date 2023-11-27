@@ -1,73 +1,69 @@
 import { expect } from 'chai';
 import {
-  APPROVALS_ABI,
-  Account,
+  Address,
   ApprovalsParams,
-  POLICY_ABI,
-  TestVerifier,
+  Hex,
+  Policy,
+  UAddress,
+  ZERO_ADDR,
   asPolicy,
+  asTx,
+  encodeApprovalsStruct,
+  encodePolicyStruct,
   hashTx,
-  zeroHexBytes,
+  TEST_VERIFIER_ABI,
 } from 'lib';
-import { deployProxy, WALLETS, getApprovals, WALLET } from './util';
-import { defaultTx, deployTestVerifier } from './util/verifier';
+import { deployProxy, getApprovals, network, deploy, wallets } from './util';
 
 describe('ApprovalsVerifier', () => {
-  let account = {} as Account;
-  let verifier = {} as TestVerifier;
-  const tx = defaultTx;
-  let txHash: string;
+  let account: UAddress;
+  let verifier: Address;
+  const tx = asTx({ to: ZERO_ADDR, nonce: 0n });
+  let txHash: Hex;
   let approvalsInput = {} as ApprovalsParams;
 
   const policy = asPolicy({
     key: 1,
-    approvers: new Set(WALLETS.slice(0, 2).map((signer) => signer.address)),
+    approvers: new Set(wallets.slice(0, 2).map((signer) => signer.address)),
   });
 
   before(async () => {
     account = (await deployProxy({ nApprovers: 0 })).account;
-    verifier = await deployTestVerifier();
-    txHash = hashTx(account.address, tx);
+    verifier = (await deploy('TestVerifier')).address;
+    txHash = hashTx(account, tx);
     approvalsInput = {
       approvers: policy.approvers,
       approvals: await getApprovals(account, policy.approvers, tx),
     };
   });
 
+  const verify = (approvals: ApprovalsParams, policy: Policy) =>
+    network.readContract({
+      address: verifier,
+      abi: TEST_VERIFIER_ABI,
+      functionName: 'verifyApprovals',
+      args: [encodeApprovalsStruct(approvals), txHash, encodePolicyStruct(policy)],
+    });
+
   it('succeeds with no approvers', async () => {
     expect(
-      await verifier.verifyApprovals(
-        APPROVALS_ABI.asStruct({ approvals: [], approvers: new Set() }),
-        txHash,
-        POLICY_ABI.asStruct(asPolicy({ key: 1, approvers: [] })),
-      ),
+      await verify({ approvals: [], approvers: new Set() }, asPolicy({ key: 1, approvers: [] })),
     ).to.be.true;
   });
 
   it('succeeds when all approvers sign', async () => {
-    expect(
-      await verifier.verifyApprovals(
-        APPROVALS_ABI.asStruct(approvalsInput),
-        txHash,
-        POLICY_ABI.asStruct(policy),
-      ),
-    ).to.be.true;
+    expect(await verify(approvalsInput, policy)).to.be.true;
   });
 
   it("fails when an approver doesn't sign", async () => {
-    expect(
-      await verifier.verifyApprovals(
-        APPROVALS_ABI.asStruct({ ...approvalsInput, approvals: [approvalsInput.approvals[0]!] }),
-        txHash,
-        POLICY_ABI.asStruct(policy),
-      ),
-    ).to.be.false;
+    expect(await verify({ ...approvalsInput, approvals: [approvalsInput.approvals[0]!] }, policy))
+      .to.be.false;
   });
 
   it("revert when an approvers's signature is incorrect", async () => {
     await expect(
-      verifier.verifyApprovals(
-        APPROVALS_ABI.asStruct({
+      verify(
+        {
           ...approvalsInput,
           approvals: [
             approvalsInput.approvals[0]!,
@@ -76,9 +72,8 @@ describe('ApprovalsVerifier', () => {
               signature: approvalsInput.approvals[0]!.signature,
             },
           ],
-        }),
-        txHash,
-        POLICY_ABI.asStruct(policy),
+        },
+        policy,
       ),
     ).to.be.rejected;
   });

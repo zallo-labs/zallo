@@ -4,7 +4,8 @@ import { Suggestion } from '~/components/home/GettingStarted/suggestions';
 import { ListItem } from '~/components/list/ListItem';
 
 const Query = gql(/* GraphQL */ `
-  fragment useDepositSuggestion_Query on Query @argumentDefinitions(account: { type: "Address!" }) {
+  fragment useDepositSuggestion_Query on Query
+  @argumentDefinitions(account: { type: "UAddress!" }) {
     incomingTransfers: transfers(input: { accounts: [$account], direction: In }) {
       id
     }

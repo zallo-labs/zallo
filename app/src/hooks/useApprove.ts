@@ -1,13 +1,13 @@
 import { FragmentType, gql, useFragment } from '@api';
-import { useApproverAddress } from '@network/useApprover';
-import { Address, asAddress, asHex, signDigest } from 'lib';
+import { useApproverAddress } from '~/lib/network/useApprover';
+import { Address, asAddress, asHex } from 'lib';
 import { match } from 'ts-pattern';
 import { useMutation } from 'urql';
 import { showError } from '~/components/provider/SnackbarProvider';
 import { proposalAsTypedData } from '~/lib/proposalAsTypedData';
 import { useGetAppleApprover } from '~/hooks/cloud/useGetAppleApprover';
 import { useGetGoogleApprover } from '~/hooks/cloud/useGetGoogleApprover';
-import { useGetSignWithLedger } from '~/app/ledger/sign';
+import { useGetLedgerApprover } from '~/app/ledger/approve';
 import { useSignWithApprover } from '~/components/transaction/useSignWithApprover';
 
 const User = gql(/* GraphQL */ `
@@ -42,8 +42,7 @@ const Proposal = gql(/* GraphQL */ `
       message
       typedData
     }
-    ...UseSignWithApprover_Propsosal
-    ...ProposalAsEip712Message_TransactionProposal
+    ...proposalAsTypedData_TransactionProposal
   }
 `);
 
@@ -86,7 +85,7 @@ export function useApprove({ approver, ...params }: UseApproveParams) {
   const p = useFragment(Proposal, params.proposal);
   const device = useApproverAddress();
   const signWithDevice = useSignWithApprover();
-  const getSignWithLedger = useGetSignWithLedger();
+  const getLedgerApprover = useGetLedgerApprover();
   const approveTransaction = useMutation(ApproveTransaction)[1];
   const approveMessage = useMutation(ApproveMessage)[1];
   const approve = p.__typename === 'TransactionProposal' ? approveTransaction : approveMessage;
@@ -101,19 +100,28 @@ export function useApprove({ approver, ...params }: UseApproveParams) {
 
   if (approver === device) {
     return async () => {
-      const signature = await signWithDevice(p);
+      const signature = await match(p)
+        .with({ __typename: 'TransactionProposal' }, (p) =>
+          signWithDevice.signTypedData(proposalAsTypedData(p)),
+        )
+        .with({ __typename: 'MessageProposal' }, (p) =>
+          p.typedData
+            ? signWithDevice.signTypedData(p.typedData)
+            : signWithDevice.signMessage({ message: p.message }),
+        )
+        .exhaustive();
       if (signature.isOk()) await approve({ input: { hash: p.hash, signature: signature.value } });
     };
   } else if (userApprover?.bluetoothDevices?.length) {
     return async () => {
-      const signature = await (
-        await getSignWithLedger({ device: approver })
-      ).sign(
-        match(p)
-          .with({ __typename: 'TransactionProposal' }, (p) => proposalAsTypedData(p))
-          .with({ __typename: 'MessageProposal' }, (p) => p.typedData ?? p.message)
-          .exhaustive(),
-      );
+      const { signTypedData, signMessage } = await getLedgerApprover({ device: approver });
+
+      const signature = await match(p)
+        .with({ __typename: 'TransactionProposal' }, (p) => signTypedData(proposalAsTypedData(p)))
+        .with({ __typename: 'MessageProposal' }, (p) =>
+          p.typedData ? signTypedData(p.typedData) : signMessage({ message: p.message }),
+        )
+        .exhaustive();
       if (signature) await approve({ input: { hash: p.hash, approver, signature } });
     };
   } else if (userApprover.cloud) {
@@ -131,14 +139,18 @@ export function useApprove({ approver, ...params }: UseApproveParams) {
           const { approver } = r.value;
 
           const signature = await match(p)
-            .with({ __typename: 'TransactionProposal' }, async (p) => signDigest(p.hash, approver))
-            .with({ __typename: 'MessageProposal' }, async (p) =>
-              asHex(await approver.signMessage(p.message)),
+            .with({ __typename: 'TransactionProposal' }, (p) =>
+              approver.signTypedData(proposalAsTypedData(p)),
+            )
+            .with({ __typename: 'MessageProposal' }, (p) =>
+              p.typedData
+                ? approver.signTypedData(p.typedData)
+                : approver.signMessage({ message: p.message }),
             )
             .exhaustive();
 
           await approve({
-            input: { hash: p.hash, approver: asAddress(approver.address), signature },
+            input: { hash: p.hash, approver: approver.address, signature },
           });
         };
       })
@@ -155,14 +167,18 @@ export function useApprove({ approver, ...params }: UseApproveParams) {
           const { approver } = r.value;
 
           const signature = await match(p)
-            .with({ __typename: 'TransactionProposal' }, async (p) => signDigest(p.hash, approver))
-            .with({ __typename: 'MessageProposal' }, async (p) =>
-              asHex(await approver.signMessage(p.message)),
+            .with({ __typename: 'TransactionProposal' }, (p) =>
+              approver.signTypedData(proposalAsTypedData(p)),
+            )
+            .with({ __typename: 'MessageProposal' }, (p) =>
+              p.typedData
+                ? approver.signTypedData(p.typedData)
+                : approver.signMessage({ message: p.message }),
             )
             .exhaustive();
 
           await approve({
-            input: { hash: p.hash, approver: asAddress(approver.address), signature },
+            input: { hash: p.hash, approver: approver.address, signature },
           });
         };
       })

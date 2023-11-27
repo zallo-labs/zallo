@@ -15,6 +15,9 @@ import { showError, showSuccess } from '~/components/provider/SnackbarProvider';
 import { toNamespaces, useUpdateWalletConnect, useWalletConnect } from '~/util/walletconnect';
 import { SignClientTypes } from '@walletconnect/types';
 import { createStyles, useStyles } from '@theme/styles';
+import { z } from 'zod';
+import { useLocalParams } from '~/hooks/useLocalParams';
+import { zArray, zChain } from '~/lib/zod';
 
 const Query = gql(/* GraphQL */ `
   query ConnectSessionSheet {
@@ -26,11 +29,13 @@ const Query = gql(/* GraphQL */ `
   }
 `);
 
-export type ConnectSessionSheetRoute = `/sessions/connect/[id]`;
-export type ConnectSessionSheetParams = SearchParams<ConnectSessionSheetRoute>;
+const ConnectSessionSheetParams = z.object({
+  id: z.coerce.number(),
+  chains: zArray(zChain),
+});
 
 export default function ConnectSessionSheet() {
-  const id = parseInt(useLocalSearchParams<ConnectSessionSheetParams>().id);
+  const { id, chains } = useLocalParams(ConnectSessionSheetParams);
   const { styles } = useStyles(stylesheet);
   const router = useRouter();
   const client = useWalletConnect();
@@ -93,7 +98,12 @@ export default function ConnectSessionSheet() {
         </Text>
       )}
 
-      <AccountsList accounts={accounts} selected={selected} updateSelected={updateSelected} />
+      <AccountsList
+        accounts={accounts}
+        selected={selected}
+        updateSelected={updateSelected}
+        chains={chains}
+      />
 
       <Actions>
         <Button mode="contained" onPress={connect} disabled={selected.size === 0}>

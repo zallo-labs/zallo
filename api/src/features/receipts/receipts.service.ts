@@ -1,16 +1,19 @@
 import { Injectable } from '@nestjs/common';
 import {
   ErrorFragment,
+  Fragment,
   Interface,
   Result,
   defaultAbiCoder,
   hexDataLength,
   hexDataSlice,
 } from 'ethers/lib/utils';
-import { ACCOUNT_INTERFACE, Hex, isHex, tryOrIgnore } from 'lib';
+import { ACCOUNT_ABI, Hex, isHex, tryOrIgnore } from 'lib';
 import chardet from 'chardet';
 
 const MIN_GUESS_CONFIDENCE = 5;
+
+const ACCOUNT_ERRORS = ACCOUNT_ABI.filter((v) => v.type === 'error');
 
 const BYTE_PATTERN = /([0-9a-f]{2})/gi;
 const hexStringToBytes = (v: Hex) => {
@@ -29,10 +32,7 @@ const FRAGMENTS: Record<string, { fragment: ErrorFragment; stringify?: (r: Resul
       '0x4e487b71' /* Panic(uint256) sighash */,
       { fragment: ErrorFragment.fromString('Panicked(uint256)') },
     ],
-    ...Object.values(ACCOUNT_INTERFACE.errors).map((fragment) => [
-      Interface.getSighash(fragment),
-      { fragment },
-    ]),
+    ...ACCOUNT_ERRORS.map((e) => [Interface.getSighash(Fragment.fromObject(e)), { fragment: e }]),
   ]);
 
 @Injectable()

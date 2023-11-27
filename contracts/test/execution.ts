@@ -1,140 +1,97 @@
 import { expect } from 'chai';
-import { parseEther } from 'ethers/lib/utils';
-import { hashTx, TestUtil, asAddress, TestUtil__factory, asHex, asTx } from 'lib';
-import { deploy, deployProxy, DeployProxyData, WALLET } from './util';
+import { hashTx, asAddress, asTx, Address, ACCOUNT_ABI } from 'lib';
+import { deploy, deployProxy, DeployProxyData, wallets, wallet } from './util';
+import { encodeFunctionData, parseEther } from 'viem';
+import testUtilAbi from '../abi/TestUtil';
 
 describe('Execution', () => {
   let { account, execute } = {} as DeployProxyData;
-  let tester = {} as TestUtil;
+  let tester: Address;
   let nonce = 0n;
 
   before(async () => {
     ({ account, execute } = await deployProxy({
       extraBalance: parseEther('0.0001'),
     }));
-    tester = TestUtil__factory.connect((await deploy('TestUtil')).address, WALLET);
+    tester = (await deploy('TestUtil')).address;
   });
 
   describe('operation', () => {
     it('should send the specified value', async () => {
-      const to = WALLET;
+      const to = wallets[3].address;
       const value = parseEther('0.00001');
 
-      await expect(
-        execute({ to: to.address, value: value.toBigInt(), nonce: nonce++ }),
-      ).to.changeEtherBalance(to, value);
+      await expect(execute({ to, value, nonce: nonce++ })).to.changeBalance(to, value);
     });
 
     it('should call with the specified data', async () => {
       const data = '0xabc123';
       await expect(
         execute({
-          to: asAddress(tester.address),
-          data: asHex(tester.interface.encodeFunctionData('echo', [data])),
+          to: asAddress(tester),
+          data: encodeFunctionData({
+            abi: testUtilAbi,
+            functionName: 'echo',
+            args: [data],
+          }),
           nonce: nonce++,
         }),
-      )
-        .to.emit(tester, tester.interface.events['Echo(bytes)'].name)
-        .withArgs(data);
+      ).to.includeEvent({ abi: testUtilAbi, eventName: 'Echo' });
     });
 
     it('should emit an event with the response', async () => {
-      const data = '0xabc123';
       const txReq = asTx({
-        to: asAddress(tester.address),
-        data: asHex(tester.interface.encodeFunctionData('echo', [data])),
+        to: tester,
+        data: encodeFunctionData({
+          abi: testUtilAbi,
+          functionName: 'echo',
+          args: ['0xabc123'],
+        }),
         nonce: nonce++,
       });
 
-      await expect(execute(txReq))
-        .to.emit(account, account.interface.events['OperationExecuted(bytes32,bytes)'].name)
-        .withArgs(
-          hashTx(account.address, txReq),
-          '0x00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000003abc1230000000000000000000000000000000000000000000000000000000000',
-        );
+      await expect(execute(txReq)).to.includeEvent({
+        abi: ACCOUNT_ABI,
+        eventName: 'OperationExecuted',
+        args: {
+          txHash: hashTx(account, txReq),
+          response:
+            '0x00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000003abc1230000000000000000000000000000000000000000000000000000000000',
+        },
+      });
     });
 
     it('should revert if the transaction has already been executed', async () => {
-      const tx = asTx({ to: WALLET.address, nonce: nonce++ });
-      await (await execute(tx)).wait();
+      const tx = asTx({ to: wallet.account.address, nonce: nonce++ });
+      await execute(tx);
 
       await expect(execute(tx)).to.be.rejected;
     });
 
     it('should revert if the transaction reverts without a message', async () => {
-      // AA transactions simply fail, ideally we would expect to:
-      // - revertedWithCustomError(account, AccountError.ExecutionReverted);
-      // - emit(account, account.interface.events['TxReverted(bytes32,bytes)'].name);
-
-      let reverted = false;
-      try {
-        await (
-          await execute({
-            to: asAddress(tester.address),
-            data: asHex(tester.interface.encodeFunctionData('revertWithoutReason')),
-            nonce: nonce++,
-          })
-        ).wait();
-      } catch (e) {
-        reverted = true;
-      }
-      expect(reverted).to.be.eq(true, 'Expected to revert');
+      await expect(
+        execute({
+          to: tester,
+          data: encodeFunctionData({
+            abi: testUtilAbi,
+            functionName: 'revertWithoutReason',
+          }),
+          nonce: nonce++,
+        }),
+      ).to.revert;
     });
 
     it('should revert with the message if the transaction reverts with a message', async () => {
-      let reverted = false;
-      try {
-        await (
-          await execute({
-            to: asAddress(tester.address),
-            data: asHex(tester.interface.encodeFunctionData('revertWithReason')),
-            nonce: nonce++,
-          })
-        ).wait();
-      } catch (e) {
-        reverted = true;
-      }
-      expect(reverted).to.be.eq(true, 'Expected to revert');
-    });
-  });
-
-  describe('operations', () => {
-    it('should send the specified value', async () => {
-      const to = WALLET;
-      const value = parseEther('0.00001');
-
-      await expect(
-        execute({ to: to.address, value: value.toBigInt(), nonce: nonce++ }),
-      ).to.changeEtherBalance(to, value);
-    });
-
-    it('should call with the specified data', async () => {
-      const data = '0xabc123';
       await expect(
         execute({
-          to: asAddress(tester.address),
-          data: asHex(tester.interface.encodeFunctionData('echo', [data])),
+          to: tester,
+          data: encodeFunctionData({
+            abi: testUtilAbi,
+            functionName: 'revertWithReason',
+          }),
           nonce: nonce++,
         }),
-      )
-        .to.emit(tester, tester.interface.events['Echo(bytes)'].name)
-        .withArgs(data);
-    });
-
-    it('should emit an event with the response', async () => {
-      const data = '0xabc123';
-      const txReq = asTx({
-        to: asAddress(tester.address),
-        data: asHex(tester.interface.encodeFunctionData('echo', [data])),
-        nonce: nonce++,
-      });
-
-      await expect(execute(txReq))
-        .to.emit(account, account.interface.events['OperationExecuted(bytes32,bytes)'].name)
-        .withArgs(
-          hashTx(account.address, txReq),
-          '0x00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000003abc1230000000000000000000000000000000000000000000000000000000000',
-        );
+      ).to.revert;
     });
   });
 });

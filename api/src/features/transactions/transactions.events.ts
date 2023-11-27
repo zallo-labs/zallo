@@ -1,5 +1,5 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
-import { ACCOUNT_ABI, asChain, asHex, asUAddress, Hex, tryOrCatch } from 'lib';
+import { ACCOUNT_IMPLEMENTATION, asChain, asHex, asUAddress, Hex, isTruthy, tryOrCatch } from 'lib';
 import {
   TransactionData,
   TransactionEventData,
@@ -12,8 +12,7 @@ import e from '~/edgeql-js';
 import { DatabaseService } from '../database/database.service';
 import { and } from '../database/database.util';
 import { NetworksService } from '../util/networks/networks.service';
-import { EIP712_TX_TYPE } from 'zksync-web3/build/src/utils';
-import { decodeEventLog, getAbiItem, getEventSelector } from 'viem';
+import { decodeEventLog, getAbiItem } from 'viem';
 import { ProposalsService } from '../proposals/proposals.service';
 import { ProposalEvent } from '../proposals/proposals.input';
 import { InjectRedis } from '@songkeys/nestjs-redis';
@@ -33,11 +32,11 @@ export class TransactionsEvents implements OnModuleInit {
     private proposals: ProposalsService,
   ) {
     this.transactionsProcessor.onEvent(
-      getEventSelector(getAbiItem({ abi: ACCOUNT_ABI, name: 'OperationExecuted' })),
+      getAbiItem({ abi: ACCOUNT_IMPLEMENTATION.abi, name: 'OperationExecuted' }),
       (data) => this.executed(data),
     );
     this.transactionsProcessor.onEvent(
-      getEventSelector(getAbiItem({ abi: ACCOUNT_ABI, name: 'OperationsExecuted' })),
+      getAbiItem({ abi: ACCOUNT_IMPLEMENTATION.abi, name: 'OperationsExecuted' }),
       (data) => this.executed(data),
     );
     this.transactionsProcessor.onTransaction((data) => this.reverted(data));
@@ -56,7 +55,7 @@ export class TransactionsEvents implements OnModuleInit {
     const r = tryOrCatch(
       () =>
         decodeEventLog({
-          abi: ACCOUNT_ABI,
+          abi: ACCOUNT_IMPLEMENTATION.abi,
           topics: log.topics as [Hex, ...Hex[]],
           data: log.data as Hex,
         }),
@@ -75,10 +74,10 @@ export class TransactionsEvents implements OnModuleInit {
           receipt: e.insert(e.Receipt, {
             success: true,
             responses: 'responses' in r.args ? [...r.args.responses] : [r.args.response],
-            gasUsed: receipt.gasUsed.toBigInt(),
-            fee: receipt.gasUsed.toBigInt() * receipt.effectiveGasPrice.toBigInt(),
+            gasUsed: receipt.gasUsed,
+            fee: receipt.gasUsed * receipt.effectiveGasPrice,
             block: BigInt(receipt.blockNumber),
-            timestamp: new Date(block.timestamp * 1000), // block.timestamp is in seconds
+            timestamp: new Date(Number(block.timestamp) * 1000), // block.timestamp is in seconds
           }),
         },
       })),
@@ -93,25 +92,22 @@ export class TransactionsEvents implements OnModuleInit {
   }
 
   private async reverted({ chain, receipt, block }: TransactionData) {
-    if (receipt.status !== 0) return;
+    if (receipt.status !== 'reverted') return;
 
     const network = this.networks.get(chain);
-    const tx = await network.provider.getTransaction(receipt.transactionHash);
-    const revertReason = await network.provider.call(
-      { ...tx, type: EIP712_TX_TYPE },
-      receipt.blockNumber,
-    );
+    const tx = await network.getTransaction({ hash: receipt.transactionHash });
+    const callResponse = await network.call(tx);
 
     const transaction = e.update(e.Transaction, () => ({
-      filter_single: { hash: asHex(receipt.transactionHash) },
+      filter_single: { hash: receipt.transactionHash },
       set: {
         receipt: e.insert(e.Receipt, {
           success: false,
-          responses: [revertReason],
-          gasUsed: receipt.gasUsed.toBigInt(),
-          fee: receipt.gasUsed.toBigInt() * receipt.effectiveGasPrice.toBigInt(),
-          block: BigInt(receipt.blockNumber),
-          timestamp: new Date(block.timestamp * 1000), // block.timestamp is in seconds
+          responses: [callResponse.data].filter(isTruthy),
+          gasUsed: receipt.gasUsed,
+          fee: receipt.gasUsed * receipt.effectiveGasPrice,
+          block: receipt.blockNumber,
+          timestamp: new Date(Number(block.timestamp) * 1000), // block.timestamp is in seconds
         }),
       },
     }));

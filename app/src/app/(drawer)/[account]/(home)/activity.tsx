@@ -14,9 +14,11 @@ import { gql } from '@api/generated';
 import { useQuery } from '~/gql';
 import { useSubscription } from 'urql';
 import { MessageProposalItem } from '~/components/proposal/MessageProposalItem';
+import { AccountParams } from '~/app/(drawer)/[account]/(home)/_layout';
+import { useLocalParams } from '~/hooks/useLocalParams';
 
 const Query = gql(/* GraphQL */ `
-  query ActivityTab($accounts: [Address!]!) {
+  query ActivityTab($accounts: [UAddress!]!) {
     proposals(input: { accounts: $accounts }) {
       __typename
       id
@@ -41,7 +43,7 @@ const Query = gql(/* GraphQL */ `
 `);
 
 const ProposalSubscription = gql(/* GraphQL */ `
-  subscription ActivityTab_ProposalSubscription($accounts: [Address!]!) {
+  subscription ActivityTab_ProposalSubscription($accounts: [UAddress!]!) {
     proposal(input: { accounts: $accounts }) {
       __typename
       id
@@ -52,7 +54,7 @@ const ProposalSubscription = gql(/* GraphQL */ `
 `);
 
 const TransferSubscription = gql(/* GraphQL */ `
-  subscription ActivityTab_TransferSubscription($accounts: [Address!]!) {
+  subscription ActivityTab_TransferSubscription($accounts: [UAddress!]!) {
     transfer(input: { accounts: $accounts, direction: In, internal: false }) {
       __typename
       id
@@ -62,11 +64,10 @@ const TransferSubscription = gql(/* GraphQL */ `
   }
 `);
 
-export type ActivityTabRoute = `/(drawer)/[account]/(home)/activity`;
-export type ActivityTabParams = SearchParams<ActivityTabRoute>;
+const ActivityTabParams = AccountParams;
 
 function ActivityTab() {
-  const account = asAddress(useLocalSearchParams<ActivityTabParams>().account);
+  const { account } = useLocalParams(ActivityTabParams);
 
   // When proposals are invalidated (on proposal sub) and the user is on a different screen this screen remains mounted but suspense doesn't occur
   const {

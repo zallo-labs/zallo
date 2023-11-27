@@ -10,7 +10,13 @@ module.exports = {
     'react/display-name': 'off',
     'react/prop-types': ['error', { skipUndeclared: true }],
     'react-hooks/rules-of-hooks': 'error',
-    'react-hooks/exhaustive-deps': 'error',
+    // 'react-hooks/exhaustive-deps': 'error',
+    'react-hooks/exhaustive-deps': [
+      'error',
+      {
+        additionalHooks: '(useMyCustomHook|suspend)',
+      },
+    ],
     'react-native/split-platform-components': 'error',
     'react-native/no-inline-styles': 'error',
     'react-native/no-single-element-style-arrays': 'error',
