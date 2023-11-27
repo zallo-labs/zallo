@@ -9,7 +9,11 @@
       "type": "node",
       "request": "attach",
       "port": 9229,
-      "sourceMaps": true
+      "sourceMaps": true,
+      "skipFiles": [
+        // Node.js internal core modules
+        "<node_internals>/**"
+      ]
     }
   ]
 }

@@ -10,13 +10,13 @@
     "test": "yarn with-env -- jest",
     "test:watch": "yarn test --watch",
     "test:cov": "yarn test --coverage",
-    "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register ../node_modules/.bin/jest --runInBand",
+    "test:debug": "tsx --inspect-brk ../node_modules/.bin/jest --runInBand",
     "format": "prettier --config ../.prettierrc --write \"src/**/*.ts\"",
     "with-env": "npx -y dotenv-cli -e ../.env",
     "generate:schema": "yarn prebuild && SKIP_ENV_CHECK=true nest start --entryFile generate-schema",
     "generate:edgeql": "npx -y concurrently -n edgeql-js,interfaces -c blue,magenta \"npx @edgedb/generate edgeql-js --target ts --force-overwrite\" \"npx @edgedb/generate interfaces\"",
     "generate:gql": "graphql-codegen --config codegen.ts",
-    "db:seed": "npx -y ts-node ./dbschema/seed.ts",
+    "db:seed": "tsx ./dbschema/seed.ts",
     "db:migrate": "yarn with-env -- edgedb migrate"
   },
   "dependencies": {
@@ -102,6 +102,7 @@
     "ts-node": "^10.9.1",
     "ts-toolbelt": "^9.6.0",
     "tsconfig-paths": "^4.2.0",
+    "tsx": "^4.5.0",
     "typescript": "^5.2.2",
     "uuid": "^9.0.1"
   }

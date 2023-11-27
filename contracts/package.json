@@ -7,8 +7,8 @@
     "typecheck": "tsc --noEmit",
     "test": "hardhat test",
     "test:debug": "yarn test --logs --trace",
-    "deploy:account-implementation": "ts-node scripts/deployAccountImplementation.ts",
-    "deploy:proxy-factory": "ts-node scripts/deployProxyFactory.ts",
+    "deploy:account-implementation": "tsx scripts/deployAccountImplementation.ts",
+    "deploy:proxy-factory": "tsx scripts/deployProxyFactory.ts",
     "clean": "hardhat clean && npx rimraf artifacts cache"
   },
   "devDependencies": {
@@ -43,7 +43,7 @@
     "prettier-plugin-solidity": "^1.2.0",
     "solhint": "^4.0.0",
     "solidity-coverage": "^0.8.5",
-    "ts-node": "^10.9.1",
+    "tsx": "^4.5.0",
     "typescript": "^5.2.2",
     "viem": "^1.19.3",
     "zksync-web3": "^0.14.3"
