@@ -203,11 +203,12 @@ export function connectLedger(deviceIds: DeviceId[]) {
                   .with(DeviceModelId.nanoS, () =>
                     eth.signEIP712HashedMessage(
                       PATH,
-                      asHex(ethers.utils._TypedDataEncoder.hashDomain(m.domain ?? {})).substring(2),
+                      asHex(ethers.TypedDataEncoder.hashDomain(m.domain ?? {})).substring(2),
                       // Note. hashStruct not exported from viem, so ethers remains...
                       asHex(
-                        ethers.utils._TypedDataEncoder
-                          .from(_.omit(m.types as WritableDeep<typeof m.types>, ['EIP712Domain'])) // ethers doesn't allowing including EIP712Domain in types
+                        ethers.TypedDataEncoder.from(
+                          _.omit(m.types as WritableDeep<typeof m.types>, ['EIP712Domain']),
+                        ) // ethers doesn't allowing including EIP712Domain in types
                           .hash(m.message),
                       ).substring(2),
                     ),
@@ -230,11 +231,11 @@ export function connectLedger(deviceIds: DeviceId[]) {
 
 function hexlifySignature(sig: { v: number; r: string; s: string }): Hex {
   return asHex(
-    ethers.utils.joinSignature({
+    ethers.Signature.from({
       v: sig.v,
       r: '0x' + sig.r,
       s: '0x' + sig.s,
-    }),
+    }).serialized,
   );
 }
 

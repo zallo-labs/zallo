@@ -1,8 +1,7 @@
 import { Chain } from 'chains';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { atomFamily } from 'jotai/utils';
-import { asUAddress } from 'lib';
-import { ETH_ADDRESS } from 'zksync-web3/build/src/utils';
+import { asUAddress, ETH_ADDRESS } from 'lib';
 import { persistedAtom } from '~/lib/persistedAtom';
 
 const lastUsedFamily = atomFamily((chain: Chain) =>

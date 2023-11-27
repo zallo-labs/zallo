@@ -10,10 +10,8 @@ import { getFunctionSelector, getFunctionSignature } from 'viem';
 
 @Injectable()
 export class ContractsService {
-  constructor(
-    private db: DatabaseService,
-    private explorer: ExplorerService,
-  ) {}
+  constructor(private db: DatabaseService) // private explorer: ExplorerService,
+  {}
 
   async select(contract: Address, shape?: ShapeFunc<typeof e.Contract>) {
     const stored = await e

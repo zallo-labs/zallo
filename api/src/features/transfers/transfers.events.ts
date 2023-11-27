@@ -1,5 +1,14 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { Address, Hex, UAddress, asAddress, asUAddress, isTruthy, tryOrIgnore } from 'lib';
+import {
+  Address,
+  Hex,
+  UAddress,
+  asAddress,
+  asUAddress,
+  isTruthy,
+  tryOrIgnore,
+  ETH_ADDRESS,
+} from 'lib';
 import { ERC20 } from 'lib/dapps';
 import {
   TransactionEventData,
@@ -10,8 +19,7 @@ import { DatabaseService } from '../database/database.service';
 import e from '~/edgeql-js';
 import { selectAccount } from '../accounts/accounts.util';
 import { NetworksService } from '../util/networks/networks.service';
-import { BOOTLOADER_FORMAL_ADDRESS, ETH_ADDRESS } from 'zksync-web3/build/src/utils';
-import { L2_ETH_TOKEN_ADDRESS } from 'zksync-web3/build/src/utils';
+import { utils as zkUtils } from 'zksync2-js';
 import { uuid } from 'edgedb/dist/codecs/ifaces';
 import { PubsubService } from '../util/pubsub/pubsub.service';
 import { decodeEventLog, formatUnits, getAbiItem } from 'viem';
@@ -21,7 +29,7 @@ import { AccountsCacheService } from '../auth/accounts.cache.service';
 import { ExpoService } from '../util/expo/expo.service';
 import { CONFIG } from '~/config';
 
-const ETH_ERC20_ADDRESS = asAddress(L2_ETH_TOKEN_ADDRESS);
+const ETH_ERC20_ADDRESS = asAddress(zkUtils.L2_ETH_TOKEN_ADDRESS);
 const normalizeEthAddress = (address: Address) =>
   address === ETH_ERC20_ADDRESS ? ETH_ADDRESS : address;
 
@@ -136,7 +144,7 @@ export class TransfersEvents {
           internal: transfer.internal,
         });
 
-        if (!isFromTransaction && asAddress(from) !== BOOTLOADER_FORMAL_ADDRESS) {
+        if (!isFromTransaction && asAddress(from) !== zkUtils.BOOTLOADER_FORMAL_ADDRESS) {
           Logger.debug(
             `[${account}]: token (${token}) transfer ${
               from === account ? `to ${to}` : `from ${from}`

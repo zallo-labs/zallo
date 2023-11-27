@@ -8,7 +8,7 @@ const main = async () => {
   await hardhat.run('compile');
 
   const { address, deployTx } = await deploy('Account');
-  await displayTx(address, deployTx);
+  if (deployTx) await displayTx(address, deployTx);
 
   // TODO: re-enable once zksync system contracts cyclic dependencies issue has been fixed
   await verify({ contract: 'contracts/Account.sol:Account', address });

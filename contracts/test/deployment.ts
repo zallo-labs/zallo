@@ -6,7 +6,7 @@ describe('Deployment', () => {
   describe('Account', () => {
     it('should deploy', async () => {
       const { address, deployTx } = await deploy('Account');
-      await deployTx.wait();
+      await deployTx?.wait();
       expect((await network.getBytecode({ address }))?.length ?? 0).to.be.gt(0);
     });
 

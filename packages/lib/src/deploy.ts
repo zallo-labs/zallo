@@ -1,5 +1,5 @@
 import { Address, asAddress, asUAddress } from './address';
-import { utils as zkUtils } from 'zksync-web3';
+import { utils as zkUtils } from 'zksync2-js';
 import { Policy, encodePolicyStruct } from './policy';
 import { Network, NetworkWallet } from 'chains';
 import { ACCOUNT_IMPLEMENTATION, ACCOUNT_PROXY, ACCOUNT_PROXY_FACTORY } from './contract';
@@ -83,9 +83,18 @@ export const deployAccountProxy = async ({
     functionName: 'deploy',
     args: [encodeProxyConstructorArgs(constructorArgs), salt],
   });
-  if (sim.result !== asAddress(proxy)) return err(sim.result);
+  const expected = asAddress(proxy);
+  if (sim.result !== expected) throw new Error(`Expected=${expected}; simulated=${sim.result}`);
+  if (sim.result !== expected) return err({ expected, simulated: sim.result });
 
   const transactionHash = await wallet.writeContract(sim.request);
+
+  // const transactionHash = await wallet.writeContract({
+  //   abi: ACCOUNT_PROXY_FACTORY.abi,
+  //   address: factory,
+  //   functionName: 'deploy',
+  //   args: [encodeProxyConstructorArgs(constructorArgs), salt],
+  // });
 
   return ok({ proxy, transactionHash });
 };

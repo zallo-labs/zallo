@@ -2,10 +2,10 @@ import { Injectable } from '@nestjs/common';
 import { NetworksService } from '../util/networks/networks.service';
 import assert from 'assert';
 import { UAddress, asAddress, asHex } from 'lib';
-import { CHAINS } from 'chains';
-import * as zk from 'zksync-web3';
-import { BigNumber } from 'ethers';
-import { hexlify } from 'ethers/lib/utils';
+import { hexlify } from 'ethers';
+import { utils as zkUtils } from 'zksync2-js';
+
+const testnetPaymaster = asAddress('0x8f0ea1312da29f17eabeb2f484fd3c112cccdd63');
 
 interface GetPaymasterParamsOptions {
   feeToken: UAddress;
@@ -18,21 +18,17 @@ export class PaymasterService {
   constructor(private networks: NetworksService) {}
 
   async getPaymaster() {
-    const network = this.networks.get(CHAINS['zksync-goerli']); // Mainnet TODO: paymaster address
-    const paymaster = await network.provider.getTestnetPaymasterAddress();
-    if (!paymaster) throw new Error('Failed to get testnet paymaster address');
-
-    return asAddress(paymaster);
+    return testnetPaymaster;
   }
 
   paymasterInput({ feeToken, gas, maxFeePerGas }: GetPaymasterParamsOptions) {
     return asHex(
       hexlify(
-        zk.utils.getApprovalBasedPaymasterInput({
+        zkUtils.getApprovalBasedPaymasterInput({
           type: 'ApprovalBased',
           token: feeToken,
-          minimalAllowance: BigNumber.from(gas * maxFeePerGas), // Mainnet TODO: factor in conversion from token -> ETH; 1:1 on testnet
-          innerInput: [],
+          minimalAllowance: gas * maxFeePerGas, // Mainnet TODO: factor in conversion from token -> ETH; 1:1 on testnet
+          innerInput: '0x',
         }),
       ),
     );
@@ -40,11 +36,14 @@ export class PaymasterService {
 
   async getGasPrice(feeToken: UAddress) {
     const network = this.networks.for(feeToken);
-    assert(network.chain.testnet); // Mainnet TODO: get correct gas price
-    // On testnet the conversion is 1:1 token:ETH (wei)
+    assert(network.chain.testnet);
 
     try {
-      return await network.getGasPrice();
+      const ethGasPrice = await network.getGasPrice();
+
+      // Mainnet TODO: convert from eth -> fee token
+
+      return ethGasPrice;
     } catch (e) {
       console.warn(`Failed to fetch gas price for ${feeToken}: ${e}`);
       return null;

@@ -7,7 +7,6 @@ import e from '~/edgeql-js';
 import { selectAccount } from '../accounts/accounts.util';
 import { ProposalsService, UniqueProposal } from '../proposals/proposals.service';
 import {
-  Address,
   Hex,
   asAddress,
   asApproval,
@@ -167,10 +166,10 @@ export class MessageProposalsService {
         (
           [
             '0x1901',
-            typedData.domain && ethers.utils._TypedDataEncoder.hashDomain(typedData.domain),
-            ethers.utils._TypedDataEncoder
-              .from(_.omit(typedData.types as WritableDeep<typeof typedData.types>, 'EIP712Domain'))
-              .hash(typedData.message),
+            typedData.domain && ethers.TypedDataEncoder.hashDomain(typedData.domain),
+            ethers.TypedDataEncoder.from(
+              _.omit(typedData.types as WritableDeep<typeof typedData.types>, 'EIP712Domain'),
+            ).hash(typedData.message),
           ] as Hex[]
         ).filter(isPresent),
       ),

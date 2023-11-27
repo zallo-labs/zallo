@@ -11,7 +11,7 @@ task('deposit', 'Deposit funds to an address')
   .setAction(async (taskArgs: Args, { ethers }) => {
     const signers = await ethers.getSigners();
     const signer = signers[signers.length - 1]!;
-    const value = ethers.utils.parseEther(taskArgs.amount);
+    const value = ethers.parseEther(taskArgs.amount);
 
     const tx = await signer.sendTransaction({
       to: taskArgs.account,
@@ -19,8 +19,6 @@ task('deposit', 'Deposit funds to an address')
     });
 
     console.log(
-      `${ethers.utils.formatEther(value)} deposited to ${taskArgs.account} in transaction ${
-        tx.hash
-      }`,
+      `${ethers.formatEther(value)} deposited to ${taskArgs.account} in transaction ${tx.hash}`,
     );
   });

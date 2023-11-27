@@ -12,7 +12,7 @@ import { ChainConfig, Network } from 'chains';
 import { ResultAsync } from 'neverthrow';
 import { Hex, SendTransactionErrorType } from 'viem';
 import { AllOrNone } from './util';
-import { utils as zkUtils } from 'zksync-web3';
+import { utils as zkUtils } from 'zksync2-js';
 
 type SerializeTransactionParam = Parameters<
   NonNullable<NonNullable<ChainConfig['serializers']>['transaction']>

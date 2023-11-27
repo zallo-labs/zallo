@@ -1,13 +1,14 @@
 import { ethers } from 'hardhat';
-import { TransactionResponse } from '@ethersproject/abstract-provider';
 import { Address } from 'lib';
 import { CONFIG } from '../../config';
+import { ContractTransactionResponse } from 'ethers';
 
-export const displayTx = async (addr: Address, tx: TransactionResponse) => {
+export const displayTx = async (addr: Address, tx: ContractTransactionResponse) => {
   const receipt = await tx.wait();
+  if (!receipt) return;
 
-  const estCost = tx.gasLimit.mul(tx.gasPrice ?? 0);
-  const actualCost = receipt.gasUsed.mul(receipt.effectiveGasPrice);
+  const estCost = tx.gasLimit * tx.gasPrice;
+  const actualCost = receipt.gasUsed * receipt.gasPrice;
 
   console.log(`
   ====== Deployment ======
@@ -16,10 +17,10 @@ export const displayTx = async (addr: Address, tx: TransactionResponse) => {
   Block (hash): ${receipt.blockHash}
   Gas limit: ${tx.gasLimit}
   Gas used : ${receipt.gasUsed}
-  Cost (gwei) - est.  : ${ethers.utils.formatUnits(estCost, 9)}
-  Cost (eth)  - est.  : ${ethers.utils.formatEther(estCost)}
-  Cost (gwei) - actual: ${ethers.utils.formatUnits(actualCost, 9)}
-  Cost (eth)  - actual: ${ethers.utils.formatEther(actualCost)}
+  Cost (gwei) - est.  : ${ethers.formatUnits(estCost, 9)}
+  Cost (eth)  - est.  : ${ethers.formatEther(estCost)}
+  Cost (gwei) - actual: ${ethers.formatUnits(actualCost, 9)}
+  Cost (eth)  - actual: ${ethers.formatEther(actualCost)}
   ${
     CONFIG.chain.blockExplorers?.default &&
     `${CONFIG.chain.blockExplorers.default.url}/tx/${tx.hash}`

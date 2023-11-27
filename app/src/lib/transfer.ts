@@ -1,8 +1,7 @@
-import { Address, asHex, Operation } from 'lib';
+import { Address, asHex, Operation, ETH_ADDRESS } from 'lib';
 import { ERC20 } from 'lib/dapps';
 import { match } from 'ts-pattern';
 import { encodeFunctionData } from 'viem';
-import { ETH_ADDRESS } from 'zksync-web3/build/src/utils';
 
 export interface TransferOpOptions {
   token: Address;

@@ -1,11 +1,10 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
-import { Address, UAddress, asAddress, filterAsync } from 'lib';
+import { Address, ETH_ADDRESS, UAddress, asAddress, filterAsync } from 'lib';
 import { NetworksService } from '~/features/util/networks/networks.service';
 import { selectAccount } from '../accounts/accounts.util';
 import { DatabaseService } from '../database/database.service';
 import e from '~/edgeql-js';
 import { parseUnits } from 'viem';
-import { ETH_ADDRESS } from 'zksync-web3/build/src/utils';
 import { ERC20 } from 'lib/dapps';
 
 @Injectable()

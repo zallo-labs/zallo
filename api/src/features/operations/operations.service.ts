@@ -8,6 +8,7 @@ import {
   asSelector,
   isPresent,
   tryOrIgnore,
+  ETH_ADDRESS,
 } from 'lib';
 import { ContractsService } from '../contracts/contracts.service';
 import { DatabaseService } from '../database/database.service';
@@ -28,7 +29,6 @@ import { ACCOUNT_IMPLEMENTATION } from 'lib';
 import { ERC20, SYNCSWAP } from 'lib/dapps';
 import { match } from 'ts-pattern';
 import { NetworksService } from '../util/networks/networks.service';
-import { ETH_ADDRESS } from 'zksync-web3/build/src/utils';
 import { WETH } from '../tokens/tokens.list';
 
 @Injectable()

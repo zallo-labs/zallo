@@ -5,6 +5,7 @@
       "dependsOn": ["chains#build"],
       "inputs": ["contracts", "config.ts", "hardhat.config.ts"],
       "outputs": [
+        "abi/**",
         "artifacts-zk/**",
         "cache/**",
         "cache-zk/**",
@@ -12,7 +13,7 @@
       ]
     },
     "typecheck": {
-      "dependsOn": ["build"]
+      "dependsOn": ["build", "lib#build"]
     },
     "test": {
       "dependsOn": ["build", "lib#build", "typecheck"],

@@ -21,7 +21,6 @@
   },
   "dependencies": {
     "@config-plugins/react-native-ble-plx": "^7.0.0",
-    "@ethersproject/shims": "5.7.0",
     "@expo/config": "~8.1.1",
     "@expo/vector-icons": "patch:@expo/vector-icons@npm:13.0.0#../.yarn/patches/@expo-vector-icons-npm-13.0.0-744b56496b.patch",
     "@formatjs/intl": "^2.9.3",
@@ -68,7 +67,7 @@
     "crypto-browserify": "^3.12.0",
     "dotenv": "^16.3.1",
     "eas-cli": "^5.4.0",
-    "ethers": "^5.7.2",
+    "ethers": "^6.9.0",
     "expo": "^49.0.16",
     "expo-apple-authentication": "~6.1.0",
     "expo-application": "~5.3.0",
@@ -151,12 +150,13 @@
     "viem": "^1.19.3",
     "wonka": "^6.3.4",
     "yup": "^1.2.0",
-    "zksync-web3": "^0.14.3",
+    "zksync2-js": "^0.3.0",
     "zod": "^3.22.4",
     "zustand": "^4.4.6"
   },
   "devDependencies": {
     "@babel/core": "^7.22.5",
+    "@babel/plugin-transform-private-methods": "^7.23.3",
     "@graphql-codegen/cli": "^5.0.0",
     "@graphql-codegen/client-preset": "^4.1.0",
     "@graphql-codegen/typed-document-node": "^5.0.1",

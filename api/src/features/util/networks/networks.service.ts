@@ -1,12 +1,18 @@
 import { Injectable } from '@nestjs/common';
-import * as zk from 'zksync-web3';
 import { CONFIG } from '~/config';
-import { Address, tryOrIgnoreAsync, asChain, asUAddress, UAddress, asAddress } from 'lib';
+import {
+  Address,
+  tryOrIgnoreAsync,
+  asChain,
+  asUAddress,
+  UAddress,
+  asAddress,
+  ETH_ADDRESS,
+} from 'lib';
 import { ChainConfig, Chain, CHAINS, NetworkWallet } from 'chains';
 import { ERC20 } from 'lib/dapps';
 import { createPublicClient, createWalletClient, fallback, http, webSocket } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
-import { ETH_ADDRESS } from 'zksync-web3/build/src/utils';
 import Redis from 'ioredis';
 import { InjectRedis } from '@songkeys/nestjs-redis';
 import { Mutex } from 'redis-semaphore';
@@ -64,12 +70,6 @@ function create({ chainKey, redis }: CreateParams) {
   });
   const walletAddress = asUAddress(wallet.account.address, chainKey);
 
-  // Ethers (deprecated)
-  const provider = new zk.Provider(
-    chain.rpcUrls.default.webSocket[0] ?? chain.rpcUrls.default.http[0],
-    { chainId: chain.id, name: chain.name },
-  );
-
   return createPublicClient({
     chain,
     transport: fallback([
@@ -80,7 +80,6 @@ function create({ chainKey, redis }: CreateParams) {
     name: chain.name,
     batch: { multicall: true },
   }).extend((client) => ({
-    provider,
     walletAddress,
     async useWallet<R>(f: (wallet: NetworkWallet) => R): Promise<R> {
       const mutex = new Mutex(redis, `network-wallet:${walletAddress}`, {

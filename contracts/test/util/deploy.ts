@@ -11,12 +11,14 @@ import {
 } from 'lib';
 import { network, wallet, wallets } from './network';
 import { BytesLike, Overrides } from 'ethers';
-import * as zk from 'zksync-web3';
+import * as zk from 'zksync2-js';
 import { getApprovals } from './approval';
 import { Address, parseEther } from 'viem';
 import { CONFIG } from '../../config';
 
-const deployer = new Deployer(hre, new zk.Wallet(CONFIG.walletPrivateKey));
+function getDeployer() {
+  return new Deployer(hre, new zk.Wallet(CONFIG.walletPrivateKey));
+}
 
 type AccountContractName = 'Account' | 'TestAccount';
 type ContractName =
@@ -37,6 +39,7 @@ export async function deploy(
   contractName: ContractName,
   { constructorArgs, overrides, additionalFactoryDeps }: DeployOptions = {},
 ) {
+  const deployer = getDeployer();
   const artifact = await deployer.loadArtifact(contractName);
 
   const contract = await deployer.deploy(
@@ -45,11 +48,11 @@ export async function deploy(
     overrides,
     additionalFactoryDeps,
   );
-  await contract.deployed();
+  await contract.waitForDeployment();
 
   return {
-    address: asAddress(contract.address),
-    deployTx: contract.deployTransaction,
+    address: asAddress(await contract.getAddress()),
+    deployTx: contract.deploymentTransaction(),
     constructorArgs,
   };
 }
@@ -57,6 +60,7 @@ export async function deploy(
 export type DeployResult = Awaited<ReturnType<typeof deploy>>;
 
 export const deployFactory = async (contractName: string) => {
+  const deployer = getDeployer();
   const contractArtifact = await deployer.loadArtifact(contractName);
   const contractBytecodeHash = zk.utils.hashBytecode(contractArtifact.bytecode);
 
@@ -83,6 +87,16 @@ export const deployProxy = async ({
 
   const { address: factory } = await deployFactory('ERC1967Proxy');
   const { address: implementation } = await deploy(accountContract);
+
+  // console.log({
+  //   factory,
+  //   implementation,
+  //   salt: randomDeploySalt(),
+  // });
+
+  // const factory = '0x891b221367c8AAcFdA4825c93989F7Fe10B1B07E';
+  // const implementation = '0xFbF18d0fef1c6445D569Df099275C1B7b02F3749';
+  // const salt = '0x4e24ebe4e3ff9304c1d2e4c56c76c0219b50be075d6e27e37d36fd8241ce2201';
 
   const { proxy: account, transactionHash: deployTransactionHash } = (
     await deployAccountProxy({

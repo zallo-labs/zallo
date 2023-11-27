@@ -8,7 +8,7 @@ const main = async () => {
   await hardhat.run('compile');
 
   const { address, deployTx, constructorArgs } = await deployFactory('Factory');
-  await displayTx(address, deployTx);
+  if (deployTx) await displayTx(address, deployTx);
 
   await verify({
     contract: 'contracts/Factory.sol:Factory',

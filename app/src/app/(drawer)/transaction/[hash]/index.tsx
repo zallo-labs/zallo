@@ -9,7 +9,7 @@ import { gql, useFragment } from '@api/generated';
 import { Divider, Text } from 'react-native-paper';
 import { useQuery } from '~/gql';
 import { useSubscription } from 'urql';
-import { BOOTLOADER_FORMAL_ADDRESS } from 'zksync-web3/build/src/utils';
+import { utils as zksyncUtils } from 'zksync2-js';
 import { ProposalValue } from '~/components/proposal/ProposalValue';
 import { RiskRating } from '~/components/proposal/RiskRating';
 import { FeeToken } from '~/components/transaction/FeeToken';
@@ -80,7 +80,7 @@ const Subscription = gql(/* GraphQL */ `
 `);
 
 const isFeeTransfer = ({ from, to }: { from: Address; to: Address }) =>
-  from !== BOOTLOADER_FORMAL_ADDRESS && to !== BOOTLOADER_FORMAL_ADDRESS;
+  from !== zksyncUtils.BOOTLOADER_FORMAL_ADDRESS && to !== zksyncUtils.BOOTLOADER_FORMAL_ADDRESS;
 
 export const TransactionDetailsTabParams = TransactionLayoutParams;
 export type TransactionDetailsTabParams = z.infer<typeof TransactionDetailsTabParams>;

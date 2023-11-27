@@ -2,7 +2,6 @@ import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { UserInputError } from '@nestjs/apollo';
 import {
   hashTx,
-  Address,
   isHex,
   asTx,
   estimateTransactionOperationsGas,
@@ -10,8 +9,8 @@ import {
   asAddress,
   asHex,
   asUAddress,
-  UAddress,
   asChain,
+  ETH_ADDRESS,
 } from 'lib';
 import { NetworksService } from '~/features/util/networks/networks.service';
 import { TransactionsService } from '../transactions/transactions.service';
@@ -22,7 +21,6 @@ import {
   UpdateTransactionProposalInput,
 } from './transaction-proposals.input';
 import { ExpoService } from '../util/expo/expo.service';
-import { ETH_ADDRESS } from 'zksync-web3/build/src/utils';
 import { DatabaseService } from '../database/database.service';
 import e from '~/edgeql-js';
 import { ShapeFunc } from '../database/database.select';

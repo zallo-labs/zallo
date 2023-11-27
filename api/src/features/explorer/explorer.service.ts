@@ -25,14 +25,14 @@ export class ExplorerService {
   //     : undefined;
   // }
 
-  async verifiedContract(contract: Address) {
-    // https://zksync2-testnet-explorer.zksync.dev/api/contract/0x0faF6df7054946141266420b43783387A78d82A9
-    const resp = await this.query<VerificationResponse>(`/address/${contract}`);
+  // async verifiedContract(contract: Address) {
+  //   // https://zksync2-testnet-explorer.zksync.dev/api/contract/0x0faF6df7054946141266420b43783387A78d82A9
+  //   const resp = await this.query<VerificationResponse>(`/address/${contract}`);
 
-    return resp?.verificationInfo?.artifacts?.abi
-      ? ([Contract.getInterface(resp.verificationInfo.artifacts.abi), AbiSource.Verified] as const)
-      : undefined;
-  }
+  //   return resp?.verificationInfo?.artifacts?.abi
+  //     ? ([Contract.getInterface(resp.verificationInfo.artifacts.abi), AbiSource.Verified] as const)
+  //     : undefined;
+  // }
 
   private async query<T = any>(url: string): Promise<T | undefined> {
     if (!url.startsWith('/')) url = `/${url}`;

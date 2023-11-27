@@ -5,12 +5,12 @@
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
-      "types": "./dist/index.d.mts",
+      "types": "./dist/index.d.ts",
       "import": "./dist/index.mjs",
       "require": "./dist/index.js"
     },
     "./dapps": {
-      "types": "./dist/dapps/index.d.mts",
+      "types": "./dist/dapps/index.d.ts",
       "import": "./dist/dapps/index.mjs",
       "require": "./dist/dapps/index.js"
     }
@@ -23,12 +23,13 @@
   "dependencies": {
     "abitype": "^0.9.8",
     "chains": "workspace:*",
+    "ethers": "6.9.0",
     "lodash": "^4.17.21",
     "neverthrow": "^6.0.0",
     "ts-pattern": "^5.0.5",
     "ts-toolbelt": "^9.6.0",
     "viem": "^1.19.3",
-    "zksync-web3": "^0.14.3"
+    "zksync2-js": "^0.3.0"
   },
   "devDependencies": {
     "@types/jest": "^29.5.5",

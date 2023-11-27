@@ -1,13 +1,13 @@
 import { Injectable, NestMiddleware, UnauthorizedException } from '@nestjs/common';
 import { Request, Response, NextFunction } from 'express';
-import { ethers } from 'ethers';
-import { Address, asAddress } from 'lib';
+import { Address, asAddress, isHex } from 'lib';
 import { DateTime } from 'luxon';
 import { SiweMessage } from 'siwe';
 import { CONFIG } from '~/config';
 import { NetworksService } from '~/features/util/networks/networks.service';
 import { AccountsCacheService } from './accounts.cache.service';
 import { Result, err, ok } from 'neverthrow';
+import { recoverMessageAddress } from 'viem';
 
 interface AuthToken {
   message: SiweMessage;
@@ -103,9 +103,10 @@ export class AuthMiddleware implements NestMiddleware {
       if (message.expirationTime) req.session.cookie.expires = new Date(message.expirationTime);
 
       return ok(asAddress(message.address));
-    } else if (typeof auth === 'string' && AUTH_MESSAGE) {
+    } else if (isHex(auth) && AUTH_MESSAGE) {
       try {
-        return ok(asAddress(ethers.utils.verifyMessage(AUTH_MESSAGE, auth)));
+        const address = await recoverMessageAddress({ message: AUTH_MESSAGE, signature: auth });
+        return ok(asAddress(address));
       } catch {
         return err(`Invalid signature; required auth message: ${AUTH_MESSAGE}`);
       }
