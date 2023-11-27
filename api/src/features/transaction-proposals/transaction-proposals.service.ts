@@ -11,6 +11,7 @@ import {
   asHex,
   asUAddress,
   UAddress,
+  asChain,
 } from 'lib';
 import { NetworksService } from '~/features/util/networks/networks.service';
 import { TransactionsService } from '../transactions/transactions.service';
@@ -117,7 +118,10 @@ export class TransactionProposalsService {
         ).unwrapOr(FALLBACK_OPERATIONS_GAS),
       feeToken: e.assert_single(
         e.select(e.Token, (t) => ({
-          filter: and(e.op(t.address, '=', feeToken), e.op(t.isFeeToken, '=', true)),
+          filter: and(
+            e.op(t.address, '=', e.op(asChain(account), '++', e.op(':', '++', feeToken))),
+            e.op(t.isFeeToken, '=', true),
+          ),
           limit: 1,
         })),
       ),

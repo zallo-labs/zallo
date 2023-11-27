@@ -6,7 +6,7 @@ export const randomHex = (nBytes: number) => asHex('0x' + randomBytes(nBytes).to
 
 export const randomAddress = () => asAddress(randomHex(20));
 
-export const randomUAddress = () => asUAddress(randomAddress(), 'zksync-local');
+export const randomUAddress = () => asUAddress(randomAddress(), 'zksync-goerli');
 
 export const randomHash = () => asHex(randomHex(32));
 

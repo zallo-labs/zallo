@@ -3,7 +3,7 @@ import { Test } from '@nestjs/testing';
 import { Network, NetworksService } from '../util/networks/networks.service';
 import { asUser, getUserCtx, UserContext } from '~/request/ctx';
 import { DeepPartial, randomHash, randomLabel, randomUAddress, randomUser } from '~/util/test';
-import { UAddress } from 'lib';
+import { getProxyAddress, UAddress } from 'lib';
 import { PoliciesService } from '../policies/policies.service';
 import { BullModule, getQueueToken } from '@nestjs/bull';
 import { AccountActivationEvent, ACCOUNTS_QUEUE } from './accounts.queue';
@@ -13,6 +13,13 @@ import { AccountsService } from './accounts.service';
 import e from '~/edgeql-js';
 import { uuid } from 'edgedb/dist/codecs/ifaces';
 import { AccountsCacheService } from '../auth/accounts.cache.service';
+
+jest.mock('lib', () => ({
+  ...jest.requireActual('lib'),
+  getProxyAddress: jest.fn(),
+}));
+
+const getProxyAddressMock = jest.mocked(getProxyAddress);
 
 describe(AccountsService.name, () => {
   let service: AccountsService;
@@ -49,6 +56,8 @@ describe(AccountsService.name, () => {
 
     const account = randomUAddress();
     networks.get.mockReturnValue({} satisfies DeepPartial<Network> as unknown as Network);
+
+    getProxyAddressMock.mockReturnValue((async () => account)());
 
     // TODO: mock
     // networks.getProxyAddress.mockReturnValue((async () => account)());

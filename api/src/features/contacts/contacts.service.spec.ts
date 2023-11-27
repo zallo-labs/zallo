@@ -34,7 +34,10 @@ describe(ContactsService.name, () => {
     );
   });
 
-  const upsertContact = (address: UAddress = randomUAddress(), label = `${address} contact`) => {
+  const upsertContact = (
+    address: UAddress = randomUAddress(),
+    label = `${address.slice(0, 30)} contact`,
+  ) => {
     return service.upsert({ label, address });
   };
 

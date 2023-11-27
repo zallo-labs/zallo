@@ -107,16 +107,13 @@ export class AccountsService {
     const salt = randomDeploySalt();
     const policies = policyInputs.map((p, i) => inputAsPolicy(asPolicyKey(i), p));
 
-    const account = asUAddress(
-      await getProxyAddress({
-        network,
-        factory: ACCOUNT_PROXY_FACTORY.address[chainKey],
-        implementation: implementation,
-        salt,
-        policies,
-      }),
-      chainKey,
-    );
+    const account = await getProxyAddress({
+      network,
+      factory: ACCOUNT_PROXY_FACTORY.address[chainKey],
+      implementation: implementation,
+      salt,
+      policies,
+    });
 
     // The account id must be in the user's list of accounts prior to starting the transaction for the globals to be set correctly
     const id = uuid1();

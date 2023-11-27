@@ -1,14 +1,14 @@
 import { Test } from '@nestjs/testing';
-import { EVENTS_QUEUE, EventsProcessor, EventJobData } from './events.processor';
+import { EVENTS_QUEUE, EventsProcessor, EventJobData, EventData, Log } from './events.processor';
 import { DeepMocked, createMock } from '@golevelup/ts-jest';
 import { Network, NetworksService } from '../util/networks/networks.service';
 import { BullModule, getQueueToken } from '@nestjs/bull';
 import { Job, Queue } from 'bull';
-import { Log } from 'zksync-web3/build/src/types';
 import { DEFAULT_REDIS_NAMESPACE, getRedisToken } from '@songkeys/nestjs-redis';
-import { DeepPartial } from '~/util/test';
-import { ACCOUNT_IMPLEMENTATION } from 'lib';
-import { getAbiItem } from 'viem';
+import { DeepPartial, randomAddress } from '~/util/test';
+import { ACCOUNT_IMPLEMENTATION, Address } from 'lib';
+import { encodeEventTopics, getAbiItem } from 'viem';
+import { WritableDeep, Writable } from 'ts-toolbelt/out/Object/Writable';
 
 describe(EventsProcessor.name, () => {
   let processor: EventsProcessor;
@@ -17,11 +17,31 @@ describe(EventsProcessor.name, () => {
   let attemptsMade = 0;
 
   let topic1Listener: jest.Mock;
-  const logs = [
-    { logIndex: 0, topics: ['topic 1'] },
-    { logIndex: 1, topics: ['topic 1'] },
-    { logIndex: 2, topics: ['topic 2'] },
-  ] as Log[];
+  const logs: Log[] = [
+    {
+      logIndex: 0,
+      topics: encodeEventTopics({
+        abi: ACCOUNT_IMPLEMENTATION.abi,
+        eventName: 'Upgraded',
+        args: { implementation: randomAddress() },
+      }) as [Address, ...Address[]],
+    } satisfies Partial<Log> as Log,
+    {
+      logIndex: 1,
+      topics: encodeEventTopics({
+        abi: ACCOUNT_IMPLEMENTATION.abi,
+        eventName: 'Upgraded',
+        args: { implementation: randomAddress() },
+      }) as [Address, ...Address[]],
+    } satisfies Partial<Log> as Log,
+    {
+      logIndex: 2,
+      topics: encodeEventTopics({
+        abi: ACCOUNT_IMPLEMENTATION.abi,
+        eventName: 'PolicyRemoved',
+      }) as [Address, ...Address[]],
+    } satisfies Partial<Log> as Log,
+  ];
 
   beforeEach(async () => {
     const module = await Test.createTestingModule({
@@ -61,8 +81,14 @@ describe(EventsProcessor.name, () => {
     await process({ from: 1 });
 
     expect(topic1Listener).toHaveBeenCalledTimes(2);
-    expect(topic1Listener).toHaveBeenCalledWith({ log: logs[0] });
-    expect(topic1Listener).toHaveBeenCalledWith({ log: logs[1] });
+    expect(topic1Listener).toHaveBeenCalledWith({
+      log: logs[0],
+      chain: 'zksync-local',
+    } satisfies EventData);
+    expect(topic1Listener).toHaveBeenCalledWith({
+      log: logs[1],
+      chain: 'zksync-local',
+    } satisfies EventData);
   });
 
   it('queue before processing', async () => {

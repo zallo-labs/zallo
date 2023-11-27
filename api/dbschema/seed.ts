@@ -81,28 +81,27 @@ async function upsertTokens() {
     }))
     .run(client);
 
+  const updates = tokens
+    .map((token) => ({
+      token,
+      id: toUpdate.find((ut) => ut.address === token.address)?.id,
+    }))
+    .filter((t) => t.id)
+    .map(
+      ({ token, id }) =>
+        e.update(e.Token, () => ({
+          filter_single: { id: id! },
+          set: token,
+        })).id,
+    );
+
+  // Run updates serially to avoid error `UnsupportedFeatureError: The query caused the compiler stack to overflow. It is likely too deeply nested.`
+  for (const update of updates) {
+    await update.run(client);
+  }
+
   await e
     .select({
-      updated: e.assert_distinct(
-        e.cast(
-          e.uuid,
-          e.set(
-            ...tokens
-              .map((token) => ({
-                token,
-                id: toUpdate.find((ut) => ut.address === token.address)?.id,
-              }))
-              .filter((t) => t.id)
-              .map(
-                ({ token, id }) =>
-                  e.update(e.Token, () => ({
-                    filter_single: { id: id! },
-                    set: token,
-                  })).id,
-              ),
-          ),
-        ),
-      ),
       inserted: e.assert_distinct(
         e.cast(
           e.uuid,

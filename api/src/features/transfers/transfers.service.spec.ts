@@ -3,8 +3,16 @@ import { TransfersService } from './transfers.service';
 import { createMock } from '@golevelup/ts-jest';
 import { DatabaseService } from '../database/database.service';
 import { UserContext, asUser, getUserCtx } from '~/request/ctx';
-import { UAddress, ZERO_ADDR, randomDeploySalt } from 'lib';
-import { randomLabel, randomUAddress, randomUser } from '~/util/test';
+import {
+  ETH_ADDRESS,
+  UAddress,
+  ZERO_ADDR,
+  asAddress,
+  asChain,
+  asUAddress,
+  randomDeploySalt,
+} from 'lib';
+import { randomAddress, randomLabel, randomUAddress, randomUser } from '~/util/test';
 import e from '~/edgeql-js';
 import { v1 as uuidv1 } from 'uuid';
 import { InsertShape } from '~/edgeql-js/insert';
@@ -35,7 +43,7 @@ describe(TransfersService.name, () => {
         id,
         address,
         label: randomLabel(),
-        implementation: address,
+        implementation: randomAddress(),
         salt: randomDeploySalt(),
         isActive: true,
       })
@@ -61,12 +69,12 @@ describe(TransfersService.name, () => {
         logIndex: 0,
         block: BigInt(Math.floor(Math.random() * 1000)),
         from: ZERO_ADDR,
-        to: account,
-        tokenAddress: ZERO_ADDR,
+        to: asAddress(account),
+        tokenAddress: asUAddress(ETH_ADDRESS, asChain(account)),
         amount: 1n,
         direction: [
-          account === (params?.to ?? account) && 'In',
-          account === (params?.from ?? ZERO_ADDR) && 'Out',
+          asAddress(account) === (params?.to ?? asAddress(account)) && 'In',
+          asAddress(account) === (params?.from ?? ZERO_ADDR) && 'Out',
         ].filter(Boolean) as ['Out'],
         ...params,
       }).id,
@@ -126,8 +134,8 @@ describe(TransfersService.name, () => {
 
       it('direction', () =>
         asUser(user1, async () => {
-          const inTransfer = await insert(account1, { from: ZERO_ADDR, to: account1 });
-          const outTransfer = await insert(account1, { from: account1, to: ZERO_ADDR });
+          const inTransfer = await insert(account1, { from: ZERO_ADDR, to: asAddress(account1) });
+          const outTransfer = await insert(account1, { from: asAddress(account1), to: ZERO_ADDR });
 
           expect((await service.select({ direction: 'In' as any })).map((t) => t.id)).toEqual([
             inTransfer,

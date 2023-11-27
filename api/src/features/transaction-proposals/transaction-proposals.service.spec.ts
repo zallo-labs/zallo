@@ -75,7 +75,7 @@ describe(TransactionProposalsService.name, () => {
         id: accountId,
         address: account,
         label: randomLabel(),
-        implementation: account,
+        implementation: randomAddress(),
         salt: randomDeploySalt(),
         isActive: true,
       })
