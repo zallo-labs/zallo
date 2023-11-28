@@ -18120,7 +18120,6 @@ __metadata:
     prettier-plugin-solidity: ^1.2.0
     solhint: ^4.0.0
     solidity-coverage: ^0.8.5
-    tsx: ^4.5.0
     typescript: ^5.2.2
     viem: ^1.19.3
     zksync2-js: ^0.3.0

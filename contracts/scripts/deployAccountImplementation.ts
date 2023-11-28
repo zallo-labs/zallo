@@ -1,16 +1,16 @@
+import hre from 'hardhat';
 import { exit } from 'process';
 import { deploy } from '../test/util';
 import { displayTx } from './util/display';
 import { verify } from './util/verify';
-import hardhat from 'hardhat';
+import { TASK_COMPILE } from 'hardhat/builtin-tasks/task-names';
 
 const main = async () => {
-  await hardhat.run('compile');
+  await hre.run(TASK_COMPILE);
 
   const { address, deployTx } = await deploy('Account');
   if (deployTx) await displayTx(address, deployTx);
 
-  // TODO: re-enable once zksync system contracts cyclic dependencies issue has been fixed
   await verify({ contract: 'contracts/Account.sol:Account', address });
 };
 

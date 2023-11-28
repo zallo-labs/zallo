@@ -1,13 +1,14 @@
+import hre from 'hardhat';
 import { exit } from 'process';
 import { deployFactory } from '../test/util';
 import { displayTx } from './util/display';
-import hardhat from 'hardhat';
 import { verify } from './util/verify';
+import { TASK_COMPILE } from 'hardhat/builtin-tasks/task-names';
 
 const main = async () => {
-  await hardhat.run('compile');
+  await hre.run(TASK_COMPILE);
 
-  const { address, deployTx, constructorArgs } = await deployFactory('Factory');
+  const { address, deployTx, constructorArgs } = await deployFactory('AccountProxy');
   if (deployTx) await displayTx(address, deployTx);
 
   await verify({

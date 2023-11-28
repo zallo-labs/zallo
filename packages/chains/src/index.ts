@@ -1,7 +1,9 @@
 import * as viem from 'viem';
 import * as viemChain from 'viem/chains';
 
-interface ChainDefinition extends viem.Chain {
+type ZkSyncFormatters = (typeof viemChain.zkSync)['formatters'];
+
+interface ChainDefinition extends viem.Chain<ZkSyncFormatters> {
   key: string;
   layer1?: viem.Chain;
   verifyUrl?: string;

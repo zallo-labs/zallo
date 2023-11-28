@@ -1,26 +1,28 @@
-import { ethers } from 'hardhat';
+import { formatUnits, formatEther } from 'viem';
 import { Address } from 'lib';
 import { CONFIG } from '../../config';
 import { ContractTransactionResponse } from 'ethers';
+import { network } from '../../test/util';
 
-export const displayTx = async (addr: Address, tx: ContractTransactionResponse) => {
+export const displayTx = async (address: Address, tx: ContractTransactionResponse) => {
   const receipt = await tx.wait();
   if (!receipt) return;
 
-  const estCost = tx.gasLimit * tx.gasPrice;
+  const estCost = tx.gasLimit * (tx.gasPrice ?? (await network.getGasPrice()));
   const actualCost = receipt.gasUsed * receipt.gasPrice;
 
   console.log(`
   ====== Deployment ======
-  Address: ${addr}
+  Address: ${address}
   Block (number): ${receipt.blockNumber}
   Block (hash): ${receipt.blockHash}
   Gas limit: ${tx.gasLimit}
   Gas used : ${receipt.gasUsed}
-  Cost (gwei) - est.  : ${ethers.formatUnits(estCost, 9)}
-  Cost (eth)  - est.  : ${ethers.formatEther(estCost)}
-  Cost (gwei) - actual: ${ethers.formatUnits(actualCost, 9)}
-  Cost (eth)  - actual: ${ethers.formatEther(actualCost)}
+  Cost (gwei) - est.  : ${formatUnits(estCost, 9)}
+  Cost (eth)  - est.  : ${formatEther(estCost)}
+  Cost (gwei) - actual: ${formatUnits(actualCost, 9)}
+  Cost (eth)  - actual: ${formatEther(actualCost)}
+  Cost (%)    - actual: ${formatUnits((100_00n * actualCost) / estCost, 2)}%
   ${
     CONFIG.chain.blockExplorers?.default &&
     `${CONFIG.chain.blockExplorers.default.url}/tx/${tx.hash}`

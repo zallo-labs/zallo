@@ -59,14 +59,14 @@ export async function deploy(
 
 export type DeployResult = Awaited<ReturnType<typeof deploy>>;
 
-export const deployFactory = async (contractName: string) => {
+export const deployFactory = async (childContractName: 'AccountProxy') => {
   const deployer = getDeployer();
-  const contractArtifact = await deployer.loadArtifact(contractName);
-  const contractBytecodeHash = zk.utils.hashBytecode(contractArtifact.bytecode);
+  const childContractArtifact = await deployer.loadArtifact(childContractName);
+  const childContractBytecodeHash = zk.utils.hashBytecode(childContractArtifact.bytecode);
 
   return deploy('Factory', {
-    constructorArgs: [contractBytecodeHash],
-    additionalFactoryDeps: [contractArtifact.bytecode],
+    constructorArgs: [childContractBytecodeHash],
+    additionalFactoryDeps: [childContractArtifact.bytecode],
   });
 };
 
@@ -85,18 +85,8 @@ export const deployProxy = async ({
   const approvers = new Set(wallets.slice(0, nApprovers).map((signer) => signer.address));
   const policy = asPolicy({ key: 1, approvers, threshold: approvers.size });
 
-  const { address: factory } = await deployFactory('ERC1967Proxy');
+  const { address: factory } = await deployFactory('AccountProxy');
   const { address: implementation } = await deploy(accountContract);
-
-  // console.log({
-  //   factory,
-  //   implementation,
-  //   salt: randomDeploySalt(),
-  // });
-
-  // const factory = '0x891b221367c8AAcFdA4825c93989F7Fe10B1B07E';
-  // const implementation = '0xFbF18d0fef1c6445D569Df099275C1B7b02F3749';
-  // const salt = '0x4e24ebe4e3ff9304c1d2e4c56c76c0219b50be075d6e27e37d36fd8241ce2201';
 
   const { proxy: account, transactionHash: deployTransactionHash } = (
     await deployAccountProxy({

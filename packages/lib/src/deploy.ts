@@ -61,7 +61,7 @@ export async function getProxyAddress({
   return asUAddress(address, network.chain.key);
 }
 
-export interface DeployArgs extends ProxyConstructorArgs {
+export interface DeployAccountProxyArgs extends ProxyConstructorArgs {
   network: Network;
   wallet: NetworkWallet;
   factory: Address;
@@ -74,7 +74,7 @@ export const deployAccountProxy = async ({
   factory,
   salt,
   ...constructorArgs
-}: DeployArgs) => {
+}: DeployAccountProxyArgs) => {
   const proxy = await getProxyAddress({ network, factory, salt, ...constructorArgs });
 
   const sim = await network.simulateContract({
@@ -84,17 +84,9 @@ export const deployAccountProxy = async ({
     args: [encodeProxyConstructorArgs(constructorArgs), salt],
   });
   const expected = asAddress(proxy);
-  if (sim.result !== expected) throw new Error(`Expected=${expected}; simulated=${sim.result}`);
   if (sim.result !== expected) return err({ expected, simulated: sim.result });
 
   const transactionHash = await wallet.writeContract(sim.request);
-
-  // const transactionHash = await wallet.writeContract({
-  //   abi: ACCOUNT_PROXY_FACTORY.abi,
-  //   address: factory,
-  //   functionName: 'deploy',
-  //   args: [encodeProxyConstructorArgs(constructorArgs), salt],
-  // });
 
   return ok({ proxy, transactionHash });
 };

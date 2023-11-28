@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { ACCOUNT_ABI, Address, asPolicy, encodePolicyStruct, hashPolicy } from 'lib';
 import { deploy, gas, network, wallet } from './util';
-import abi from '../abi/TestPolicyManager';
+import { abi } from './contracts/TestPolicyManager';
 import { zeroHash } from 'viem';
 
 describe('PolicyManager', () => {

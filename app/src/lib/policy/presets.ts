@@ -8,12 +8,12 @@ import {
 } from '@theme/icons';
 import { PolicyDraft, PolicyDraftAction } from './draft';
 import { FragmentType, gql, useFragment as getFragment } from '@api';
-import { ACCOUNT_ABI, Address, ERC721_ABI, asAddress, asSelector } from 'lib';
+import { ACCOUNT_ABI, Address, asAddress, asSelector } from 'lib';
 import _ from 'lodash';
 import { FC, useMemo } from 'react';
 import { getAbiItem, getFunctionSelector } from 'viem';
 import { useApproverAddress } from '~/lib/network/useApprover';
-import { SYNCSWAP } from 'lib/dist/dapps';
+import { SYNCSWAP, ERC721_ABI } from 'lib/dapps';
 import { Chain } from 'chains';
 
 type ActionDefinition = Omit<PolicyDraftAction, 'allow'> & { icon?: FC<IconProps> };

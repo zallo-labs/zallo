@@ -1,4 +1,3 @@
-export * from './abi';
 export * from './permissions';
 export * from './util';
 

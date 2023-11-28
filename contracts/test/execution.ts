@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import { hashTx, asAddress, asTx, Address, ACCOUNT_ABI } from 'lib';
 import { deploy, deployProxy, DeployProxyData, wallets, wallet } from './util';
 import { encodeFunctionData, parseEther } from 'viem';
-import testUtilAbi from '../abi/TestUtil';
+import { abi as testUtilAbi } from './contracts/TestUtil';
 
 describe('Execution', () => {
   let { account, execute } = {} as DeployProxyData;

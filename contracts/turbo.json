@@ -9,7 +9,8 @@
         "artifacts-zk/**",
         "cache/**",
         "cache-zk/**",
-        "../packages/lib/src/abi/generated/**"
+        "test/contracts/**",
+        "../packages/lib/src/generated/**"
       ]
     },
     "typecheck": {

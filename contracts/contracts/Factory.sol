@@ -32,10 +32,9 @@ contract Factory {
     );
 
     if (!success) {
-      account = 0x0000000000000000000000000000000000000011;
-      // bytes memory revertData;
-      // (account, revertData) = abi.decode(data, (address, bytes));
-      // revert DeployFailed(account, revertData);
+      bytes memory revertData;
+      (account, revertData) = abi.decode(data, (address, bytes));
+      revert DeployFailed(account, revertData);
     }
 
     (account) = abi.decode(data, (address));

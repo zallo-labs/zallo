@@ -11,7 +11,14 @@ import {
 } from 'lib';
 import { ChainConfig, Chain, CHAINS, NetworkWallet } from 'chains';
 import { ERC20 } from 'lib/dapps';
-import { createPublicClient, createWalletClient, fallback, http, webSocket } from 'viem';
+import {
+  FallbackTransport,
+  createPublicClient,
+  createWalletClient,
+  fallback,
+  http,
+  webSocket,
+} from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
 import Redis from 'ioredis';
 import { InjectRedis } from '@songkeys/nestjs-redis';
@@ -70,7 +77,7 @@ function create({ chainKey, redis }: CreateParams) {
   });
   const walletAddress = asUAddress(wallet.account.address, chainKey);
 
-  return createPublicClient({
+  return createPublicClient<FallbackTransport, ChainConfig>({
     chain,
     transport: fallback([
       ...chain.rpcUrls.default.webSocket.map((url) => webSocket(url, { retryCount: 10 })),

@@ -1,21 +1,26 @@
 import { Address } from './address';
 import { Chain } from 'chains';
-import accountImplementationAbi from './abi/generated/Account';
-import accountProxyAbi from './abi/generated/AccountProxy';
-import accountProxyFactoryAbi from './abi/generated/Factory';
-export { default as TEST_VERIFIER_ABI } from './abi/generated/TestVerifier';
+import * as accountArtifact from './generated/Account';
+import * as accountProxyArtifact from './generated/AccountProxy';
+import * as accountProxyFactoryArtifact from './generated/Factory';
+import * as testVerifierArtifact from './generated/TestVerifier';
+
+export const TEST_VERIFIER_ABI = testVerifierArtifact.abi;
 
 export const ACCOUNT_IMPLEMENTATION = {
-  abi: accountImplementationAbi,
+  ...accountArtifact,
   address: addresses({
     'zksync-goerli': '0xc3380460A7D89981536A9ecA83e289DD0EF0c3D4',
   }),
 } as const;
 
-export const ACCOUNT_PROXY = { abi: accountProxyAbi } as const;
+export const ACCOUNT_PROXY = {
+  abi: accountProxyArtifact.abi,
+  bytecode: accountProxyArtifact.bytecode,
+};
 
 export const ACCOUNT_PROXY_FACTORY = {
-  abi: accountProxyFactoryAbi,
+  abi: accountProxyFactoryArtifact.abi,
   address: addresses({
     'zksync-goerli': '0x2f04b94F5a39891C10E666992f08f1a69774b764',
   }),

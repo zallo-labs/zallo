@@ -1,7 +1,6 @@
 import type { HardhatUserConfig } from 'hardhat/config';
 import { CONFIG } from './config';
 import { CHAINS } from 'chains';
-import type { AbiExporterUserConfig } from 'hardhat-abi-exporter';
 
 import '@nomiclabs/hardhat-ethers';
 import '@nomicfoundation/hardhat-viem';
@@ -16,16 +15,7 @@ import 'hardhat-contract-sizer';
 import '@solidstate/hardhat-4byte-uploader';
 
 // Tasks
-import './tasks/accounts';
-import './tasks/balance';
-import './tasks/deposit';
-
-const exportConfig = {
-  flat: true,
-  clear: true,
-  runOnCompile: true,
-  format: 'typescript',
-} satisfies AbiExporterUserConfig;
+import './tasks/export';
 
 // https://hardhat.org/config/
 export default {
@@ -33,7 +23,7 @@ export default {
     version: '0.8.23',
   },
   zksolc: {
-    version: '1.3.17',
+    version: '1.3.17', // https://github.com/matter-labs/zksolc-bin/tree/main/linux-amd64
     settings: {
       isSystem: true, // Required to deploy AA contracts
       optimizer: {
@@ -61,22 +51,28 @@ export default {
     ),
   },
   // Plugins
-  abiExporter: [
-    {
-      path: '../packages/lib/src/abi/generated',
-      only: [':Account$', ':AccountProxy$', ':Factory$', ':TestVerifier$'],
-      ...exportConfig,
-    },
-    {
-      path: './abi',
-      only: [':*.test.*$'],
-      ...exportConfig,
-    },
-  ],
+  abiExporter: {
+    path: './abi',
+    runOnCompile: false,
+    flat: true,
+    clear: true,
+  },
   gasReporter: {
     // https://github.com/cgewecke/eth-gas-reporter#options
     enabled: true,
     currency: 'USD',
     coinmarketcap: CONFIG.coinmarketcapApiKey,
   },
+  export: [
+    {
+      path: 'test/contracts',
+      contracts: [':*.test.*$'],
+      include: ['abi'],
+    },
+    {
+      path: '../packages/lib/src/generated',
+      contracts: [':AccountProxy$', ':Account$', ':Factory$', ':TestVerifier$'],
+      include: ['abi', 'bytecode', 'factoryDeps'],
+    },
+  ],
 } satisfies HardhatUserConfig;

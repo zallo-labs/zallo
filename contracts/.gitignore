@@ -1,1 +1,3 @@
-abi
+artifacts*
+cache*
+test/contracts

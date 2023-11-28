@@ -10,8 +10,8 @@ import {
 } from 'lib';
 import { deploy, network } from '../util';
 import { encodeFunctionData } from 'viem';
-import testVerifierAbi from '../../abi/TestVerifier';
-import testUtilAbi from '../../abi/TestUtil';
+import TestVerifier from '../contracts/TestVerifier';
+import TestUtil from '../contracts/TestUtil';
 
 describe('TargetPermission', () => {
   let verifier: Address;
@@ -21,7 +21,7 @@ describe('TargetPermission', () => {
 
   const verify = (op: Operation, targets: TargetsConfig) =>
     network.readContract({
-      abi: testVerifierAbi,
+      abi: TestVerifier.abi,
       address: verifier,
       functionName: 'validateTarget',
       args: [
@@ -39,7 +39,7 @@ describe('TargetPermission', () => {
     tester = (await deploy('TestUtil')).address;
     to = tester;
     data = encodeFunctionData({
-      abi: testUtilAbi,
+      abi: TestUtil.abi,
       functionName: 'echo',
       args: ['0xabc123'],
     });
