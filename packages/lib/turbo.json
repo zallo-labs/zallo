@@ -3,7 +3,7 @@
   "pipeline": {
     "build": {
       "dependsOn": ["^build", "contracts#build"],
-      "inputs": ["src"],
+      "inputs": ["src/**"],
       "outputs": ["dist/**"]
     },
     "dev": {
@@ -13,7 +13,7 @@
     },
     "test": {
       "dependsOn": ["build"],
-      "inputs": ["src/**/*.ts"]
+      "inputs": ["src/**"]
     }
   }
 }

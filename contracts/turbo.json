@@ -3,7 +3,7 @@
   "pipeline": {
     "build": {
       "dependsOn": ["chains#build"],
-      "inputs": ["contracts", "config.ts", "hardhat.config.ts"],
+      "inputs": ["contracts/**", "config.ts", "hardhat.config.ts"],
       "outputs": [
         "abi/**",
         "artifacts-zk/**",
@@ -18,7 +18,7 @@
     },
     "test": {
       "dependsOn": ["build", "lib#build", "typecheck"],
-      "inputs": ["test/**/*.ts"]
+      "inputs": ["test/**"]
     },
     "deploy:account-implementation": {
       "dependsOn": ["build"]

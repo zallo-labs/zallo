@@ -62,7 +62,7 @@ export async function deploy(
   const isDeployed = !!(await network.getBytecode({ address: potentialAddress }))?.length;
   if (isDeployed) return { address: potentialAddress, deployTx: null, constructorArgs };
 
-  const contract = await factory.deploy(encodedConstructorArgs, {
+  const contract = await factory.deploy(...(constructorArgs ?? []), {
     customData: { ...overrides, salt, factoryDeps },
   });
   await contract.waitForDeployment();
