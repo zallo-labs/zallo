@@ -1,5 +1,4 @@
 import * as hre from 'hardhat';
-import { Deployer } from '@matterlabs/hardhat-zksync-deploy';
 import {
   asAddress,
   asPolicy,
@@ -10,15 +9,11 @@ import {
   TxOptions,
 } from 'lib';
 import { network, wallet, wallets } from './network';
-import { BytesLike, Overrides } from 'ethers';
+import { BytesLike, hexlify, Interface, Overrides } from 'ethers';
 import * as zk from 'zksync2-js';
 import { getApprovals } from './approval';
-import { Address, parseEther } from 'viem';
+import { Address, parseEther, zeroHash } from 'viem';
 import { CONFIG } from '../../config';
-
-function getDeployer() {
-  return new Deployer(hre, new zk.Wallet(CONFIG.walletPrivateKey));
-}
 
 type AccountContractName = 'Account' | 'TestAccount';
 type ContractName =
@@ -32,22 +27,44 @@ type ContractName =
 interface DeployOptions<ConstructorArgs extends unknown[] = unknown[]> {
   constructorArgs?: ConstructorArgs;
   overrides?: Overrides;
-  additionalFactoryDeps?: BytesLike[];
+  factoryDeps?: BytesLike[];
 }
+
+const zkProvider = new zk.Provider(CONFIG.chain.rpcUrls.default.http[0]);
 
 export async function deploy(
   contractName: ContractName,
-  { constructorArgs, overrides, additionalFactoryDeps }: DeployOptions = {},
+  { constructorArgs, overrides, factoryDeps }: DeployOptions = {},
 ) {
-  const deployer = getDeployer();
-  const artifact = await deployer.loadArtifact(contractName);
+  const sender = new zk.Wallet(CONFIG.walletPrivateKey, zkProvider);
+  const artifact = await hre.artifacts.readArtifact(contractName);
 
-  const contract = await deployer.deploy(
-    artifact,
-    constructorArgs,
-    overrides,
-    additionalFactoryDeps,
+  const factory = new zk.ContractFactory(artifact.abi, artifact.bytecode, sender, 'create2');
+
+  const salt = zeroHash;
+
+  const encodedConstructorArgs = new Interface(artifact.abi).encodeDeploy(constructorArgs ?? []);
+
+  // const constructorAbiParams =
+  //   (artifact.abi as Abi).find((x): x is AbiConstructor => 'type' in x && x.type === 'constructor')
+  //     ?.inputs ?? [];
+  // const encodedConstructorArgs = encodeAbiParameters(constructorAbiParams, constructorArgs ?? []);
+
+  const potentialAddress = asAddress(
+    zk.utils.create2Address(
+      sender.address,
+      hexlify(zk.utils.hashBytecode(artifact.bytecode)),
+      salt,
+      encodedConstructorArgs,
+    ),
   );
+
+  const isDeployed = !!(await network.getBytecode({ address: potentialAddress }))?.length;
+  if (isDeployed) return { address: potentialAddress, deployTx: null, constructorArgs };
+
+  const contract = await factory.deploy(encodedConstructorArgs, {
+    customData: { ...overrides, salt, factoryDeps },
+  });
   await contract.waitForDeployment();
 
   return {
@@ -60,13 +77,12 @@ export async function deploy(
 export type DeployResult = Awaited<ReturnType<typeof deploy>>;
 
 export const deployFactory = async (childContractName: 'AccountProxy') => {
-  const deployer = getDeployer();
-  const childContractArtifact = await deployer.loadArtifact(childContractName);
+  const childContractArtifact = await hre.artifacts.readArtifact(childContractName);
   const childContractBytecodeHash = zk.utils.hashBytecode(childContractArtifact.bytecode);
 
   return deploy('Factory', {
     constructorArgs: [childContractBytecodeHash],
-    additionalFactoryDeps: [childContractArtifact.bytecode],
+    factoryDeps: [childContractArtifact.bytecode],
   });
 };
 

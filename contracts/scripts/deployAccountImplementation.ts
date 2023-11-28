@@ -9,7 +9,7 @@ const main = async () => {
   await hre.run(TASK_COMPILE);
 
   const { address, deployTx } = await deploy('Account');
-  if (deployTx) await displayTx(address, deployTx);
+  await displayTx(address, deployTx);
 
   await verify({ contract: 'contracts/Account.sol:Account', address });
 };

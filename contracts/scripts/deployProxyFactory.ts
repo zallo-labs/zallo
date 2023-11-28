@@ -9,7 +9,7 @@ const main = async () => {
   await hre.run(TASK_COMPILE);
 
   const { address, deployTx, constructorArgs } = await deployFactory('AccountProxy');
-  if (deployTx) await displayTx(address, deployTx);
+  await displayTx(address, deployTx);
 
   await verify({
     contract: 'contracts/Factory.sol:Factory',

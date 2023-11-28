@@ -29,7 +29,7 @@ describe('Deployment', () => {
 
   describe('Proxy factory', () => {
     it('should deploy', async () => {
-      const { address } = await deployFactory('ERC1967Proxy');
+      const { address } = await deployFactory('AccountProxy');
       expect((await network.getBytecode({ address }))?.length ?? 0).to.be.gt(0);
     });
   });

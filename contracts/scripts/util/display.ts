@@ -4,7 +4,16 @@ import { CONFIG } from '../../config';
 import { ContractTransactionResponse } from 'ethers';
 import { network } from '../../test/util';
 
-export const displayTx = async (address: Address, tx: ContractTransactionResponse) => {
+export async function displayTx(address: Address, tx: ContractTransactionResponse | null) {
+  if (!tx) {
+    console.log(`
+  ====== Deployment ======
+  Address: ${address}
+  ========================
+    `);
+    return;
+  }
+
   const receipt = await tx.wait();
   if (!receipt) return;
 
@@ -29,4 +38,4 @@ export const displayTx = async (address: Address, tx: ContractTransactionRespons
   }
   ========================
   `);
-};
+}
