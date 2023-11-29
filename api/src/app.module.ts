@@ -33,6 +33,7 @@ import { TokensModule } from './features/tokens/tokens.module';
 import { PricesModule } from './features/prices/prices.module';
 import { MessageProposalsModule } from './features/message-proposals/message-proposals.module';
 import { ProposalsModule } from './features/proposals/proposals.module';
+import { BalancesModule } from '~/features/util/balances/balances.module';
 
 @Module({
   imports: [
@@ -44,6 +45,7 @@ import { ProposalsModule } from './features/proposals/proposals.module';
     ApolloModule,
     PubsubModule,
     NetworksModule,
+    BalancesModule,
     // Features
     AccountsModule,
     ApproversModule,

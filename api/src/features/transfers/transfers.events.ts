@@ -28,6 +28,7 @@ import { TransferDirection } from './transfers.input';
 import { AccountsCacheService } from '../auth/accounts.cache.service';
 import { ExpoService } from '../util/expo/expo.service';
 import { CONFIG } from '~/config';
+import { BalancesService } from '~/features/util/balances/balances.service';
 
 const ETH_ERC20_ADDRESS = asAddress(zkUtils.L2_ETH_TOKEN_ADDRESS);
 const normalizeEthAddress = (address: Address) =>
@@ -51,6 +52,7 @@ export class TransfersEvents {
     private pubsub: PubsubService,
     private accountsCache: AccountsCacheService,
     private expo: ExpoService,
+    private balances: BalancesService,
   ) {
     /*
      * Events processor handles events `to` account
@@ -132,7 +134,7 @@ export class TransfersEvents {
           ),
         );
 
-        network.invalidateBalance({ account, token: asAddress(token) });
+        this.balances.invalidateBalance({ account, token: asAddress(token) });
 
         this.pubsub.publish<TransferSubscriptionPayload>(getTransferTrigger(account), {
           transfer: transfer.id,

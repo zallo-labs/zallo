@@ -6,6 +6,7 @@ import { DatabaseService } from '../database/database.service';
 import e from '~/edgeql-js';
 import { parseUnits } from 'viem';
 import { ERC20 } from 'lib/dapps';
+import { BalancesService } from '~/features/util/balances/balances.service';
 
 @Injectable()
 export class FaucetService implements OnModuleInit {
@@ -14,6 +15,7 @@ export class FaucetService implements OnModuleInit {
   constructor(
     private networks: NetworksService,
     private db: DatabaseService,
+    private balances: BalancesService,
   ) {}
 
   async onModuleInit() {
@@ -66,8 +68,8 @@ export class FaucetService implements OnModuleInit {
 
     return filterAsync(this.tokens, async (token) => {
       const [recipientBalance, faucetBalance] = await Promise.all([
-        network.balance({ account, token: token.address }),
-        network.balance({ account: network.walletAddress, token: token.address }),
+        this.balances.balance({ account, token: token.address }),
+        this.balances.balance({ account: network.walletAddress, token: token.address }),
       ]);
 
       return recipientBalance < token.amount && faucetBalance > token.amount;

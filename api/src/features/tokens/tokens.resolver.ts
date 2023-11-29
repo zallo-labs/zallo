@@ -11,18 +11,18 @@ import { ComputedField } from '~/decorators/computed.decorator';
 import { GraphQLBigInt } from 'graphql-scalars';
 import e from '~/edgeql-js';
 import * as eql from '~/edgeql-interfaces';
-import { NetworksService } from '../util/networks/networks.service';
 import { PricesService } from '../prices/prices.service';
 import { getUserCtx } from '~/request/ctx';
 import { PaymasterService } from '../paymaster/paymaster.service';
 import { asAddress, asChain } from 'lib';
+import { BalancesService } from '~/features/util/balances/balances.service';
 
 @Resolver(() => Token)
 export class TokensResolver {
   constructor(
     private service: TokensService,
-    private networks: NetworksService,
     private paymaster: PaymasterService,
+    private balances: BalancesService,
     private prices: PricesService,
   ) {}
 
@@ -48,7 +48,7 @@ export class TokensResolver {
   ): Promise<bigint> {
     if (!account || asChain(token) !== asChain(account)) return 0n;
 
-    return this.networks.for(account).balance({ account, token: asAddress(token) });
+    return this.balances.balance({ account, token: asAddress(token) });
   }
 
   @ComputedField<typeof e.Token>(

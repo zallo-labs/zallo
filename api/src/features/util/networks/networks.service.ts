@@ -1,17 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { CONFIG } from '~/config';
-import {
-  Address,
-  tryOrIgnoreAsync,
-  asChain,
-  asUAddress,
-  UAddress,
-  asAddress,
-  ETH_ADDRESS,
-  isEthToken,
-} from 'lib';
+import { asChain, asUAddress, UAddress } from 'lib';
 import { ChainConfig, Chain, CHAINS, NetworkWallet } from 'chains';
-import { ERC20 } from 'lib/dapps';
 import {
   FallbackTransport,
   createPublicClient,
@@ -24,7 +14,6 @@ import { privateKeyToAccount } from 'viem/accounts';
 import Redis from 'ioredis';
 import { InjectRedis } from '@songkeys/nestjs-redis';
 import { Mutex } from 'redis-semaphore';
-import { utils as zkUtils } from 'zksync2-js';
 
 export type Network = ReturnType<typeof create>;
 
@@ -88,7 +77,7 @@ function create({ chainKey, redis }: CreateParams) {
     key: chain.key,
     name: chain.name,
     batch: { multicall: true },
-  }).extend((client) => ({
+  }).extend((_client) => ({
     walletAddress,
     async useWallet<R>(f: (wallet: NetworkWallet) => R): Promise<R> {
       const mutex = new Mutex(redis, `network-wallet:${walletAddress}`, {
@@ -103,39 +92,5 @@ function create({ chainKey, redis }: CreateParams) {
         await mutex.release();
       }
     },
-    async balance(args: BalanceArgs) {
-      const key = getBalanceKey(args);
-      const cached = await redis.get(key);
-      if (cached) return BigInt(cached);
-
-      const { account, token } = args;
-      const balance = await tryOrIgnoreAsync(async () => {
-        if (isEthToken(token)) return await client.getBalance({ address: asAddress(account) });
-
-        return await client.readContract({
-          abi: ERC20,
-          address: token,
-          functionName: 'balanceOf',
-          args: [asAddress(account)],
-        });
-      });
-
-      // Balance must be expired due to rebalancing tokens
-      if (balance !== undefined) redis.set(key, balance.toString(), 'EX', 3600 /* 1 hour */);
-
-      return balance ?? 0n;
-    },
-    invalidateBalance(args: BalanceArgs) {
-      return redis.del(getBalanceKey(args));
-    },
   }));
-}
-
-interface BalanceArgs {
-  account: UAddress;
-  token: Address;
-}
-
-function getBalanceKey(args: BalanceArgs) {
-  return `balance:${args.account}:${args.token}`;
 }
