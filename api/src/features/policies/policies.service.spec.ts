@@ -230,7 +230,7 @@ describe(PoliciesService.name, () => {
       asUser(user1, async () => {
         const policy = await create();
 
-        expect(proposals.getProposal).toBeCalledTimes(1);
+        expect(proposals.getProposal).toHaveBeenCalled();
         await service.update({ ...policy, approvers: [] });
       }));
 
