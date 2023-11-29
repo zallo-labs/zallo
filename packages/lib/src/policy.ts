@@ -57,7 +57,7 @@ export function encodePolicyStruct(p: Policy): PolicyStruct {
 export function decodePolicyStruct(s: PolicyStruct): Policy {
   return {
     key: asPolicyKey(s.key),
-    approvers: new Set(s.approvers.map(asAddress)),
+    approvers: new Set(s.approvers.map((a) => asAddress(a))),
     threshold: s.threshold,
     permissions: {
       targets: decodeTargetsHook(s.hooks.find((h) => h.selector === HookSelector.Target)),

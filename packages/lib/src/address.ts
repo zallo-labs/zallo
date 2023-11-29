@@ -22,24 +22,38 @@ export type Address = `0x${string}`; // Checksummed
 
 export const ZERO_ADDR = '0x0000000000000000000000000000000000000000' satisfies Address;
 
-export const tryAsAddress = (v: Addresslike | undefined): Address | undefined => {
+export interface TryAsAddressParams {
+  strict?: boolean;
+}
+
+export function tryAsAddress(
+  v: Addresslike | undefined,
+  params?: TryAsAddressParams,
+): Address | undefined {
   if (!v || v.length < 42) return undefined;
 
   const address = tryOrIgnore(() => viem.getAddress(v));
   if (address) return address;
 
-  const uaddressParts = v.split(':');
-  if (uaddressParts.length === 2) return tryAsAddress(uaddressParts[1]); // Can only recurse at most once
-};
+  if (!params?.strict) {
+    const uaddressParts = v.split(':');
+    if (uaddressParts.length === 2) return tryAsAddress(uaddressParts[1]); // Can only recurse at most once
+  }
+}
 
-export const asAddress = <A extends Addresslike | undefined>(value: A) => {
-  const address = tryAsAddress(value);
+export interface AsAddressParams extends TryAsAddressParams {}
+
+export const asAddress = <A extends Addresslike | undefined>(
+  value: A,
+  params?: AsAddressParams,
+) => {
+  const address = tryAsAddress(value, params);
   if (!address && value !== undefined) throw new Error(`Expected Address but got "${value}"`);
   return address as A extends undefined ? Address | undefined : Address;
 };
 
 export const isAddress = (v: unknown): v is Address =>
-  typeof v === 'string' && tryAsAddress(v) === v; // A value may not be a valid Address but may be convertable
+  typeof v === 'string' && tryAsAddress(v, { strict: true }) === v; // A value may not be a valid Address but may be convertable
 
 export const compareAddress = (a: Addresslike, b: Addresslike) =>
   asAddress(a).toLowerCase().localeCompare(asAddress(b).toLowerCase());
