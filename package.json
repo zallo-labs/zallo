@@ -49,6 +49,7 @@
     "wonka": "^6.3.4",
     "react-refresh": "~0.14.0",
     "ioredis": "5.3.2",
+    "apg-js": "^4.2.0",
     "zksync2-js@^0.3.0": "patch:zksync2-js@npm%3A0.3.0#./.yarn/patches/zksync2-js-npm-0.3.0-9c34d26743.patch"
   }
 }

@@ -67,7 +67,7 @@
     "redis-semaphore": "^5.5.0",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.8.1",
-    "siwe": "^1.1.6",
+    "siwe": "^2.1.4",
     "ts-deepmerge": "^6.2.0",
     "ts-pattern": "^5.0.5",
     "viem": "^1.19.3",

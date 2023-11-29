@@ -1,4 +1,3 @@
-import 'core-js/full/symbol/async-iterator';
 import { Client, fetchExchange, subscriptionExchange, mapExchange, OperationContext } from 'urql';
 import { offlineExchange } from '@urql/exchange-graphcache';
 import { makeAsyncStorage } from '@urql/storage-rn';
@@ -18,34 +17,43 @@ import { logError } from '~/util/analytics';
 import crypto from 'crypto';
 import { CACHE_CONFIG } from './cache';
 import { E_ALREADY_LOCKED, Mutex, tryAcquire } from 'async-mutex';
-import { secureJsonStorage } from '~/lib/secure-storage/json';
-import { LocalAccount } from 'viem';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { createJSONStorage } from 'jotai/utils';
 
-const TOKEN_KEY = 'apiToken';
+const TOKEN_KEY = 'api-token';
+const storage = createJSONStorage<Token | null>(() => AsyncStorage);
 
 interface Token {
-  message: SiweMessage;
+  message: Partial<SiweMessage>;
   signature: Hex;
+}
+
+interface State {
+  token: Token;
+  headers: ReturnType<typeof getHeaders>;
 }
 
 const client = atom(async (get) => {
   const approver = get(DANGEROUS_approverAtom);
 
-  const storage = secureJsonStorage<Token | null>();
-  const initialToken = storage.getItem(TOKEN_KEY, null);
-  let token: Token | null = null;
-  let headers = getHeaders(token);
+  let initialToken: PromiseLike<Token | null> | null = storage.getItem(TOKEN_KEY, null);
+  let state: State | null = null;
 
   const refreshMutex = new Mutex();
   async function refreshAuth() {
     try {
       await tryAcquire(refreshMutex).runExclusive(async () => {
-        token ??= await initialToken;
-        if (isInvalidToken(token)) {
+        let token = null;
+        if (initialToken) {
+          token = await initialToken;
+          initialToken = null;
+        }
+
+        if (!token || isInvalidToken(token)) {
           token = await createToken(await approver);
           storage.setItem(TOKEN_KEY, token);
         }
-        headers = getHeaders(token);
+        state = { token, headers: getHeaders(token) };
       });
     } catch (e) {
       if (e === E_ALREADY_LOCKED) {
@@ -57,11 +65,7 @@ const client = atom(async (get) => {
     }
   }
 
-  const isInvalidToken = (token: Token | null) =>
-    !token ||
-    (!!token.message.expirationTime &&
-      DateTime.fromISO(token.message.expirationTime) <= DateTime.now());
-  const willAuthError = () => isInvalidToken(token);
+  const willAuthError = () => !state || isInvalidToken(state.token);
 
   const wsClient = createWsClient({
     url: CONFIG.apiGqlWs,
@@ -69,7 +73,7 @@ const client = atom(async (get) => {
     retryAttempts: 10,
     async connectionParams() {
       if (willAuthError()) await refreshAuth();
-      return headers;
+      return state?.headers ?? {};
     },
   });
 
@@ -103,7 +107,7 @@ const client = atom(async (get) => {
         addAuthToOperation(operation) {
           if (operation.context.skipAddAuthToOperation) return operation;
 
-          return utils.appendHeaders(operation, headers);
+          return utils.appendHeaders(operation, state?.headers ?? {});
         },
         didAuthError(error, _operation) {
           return error.response?.status === 401; // Unauthorized
@@ -156,8 +160,20 @@ async function createToken(approver: CreateTokenApprover): Promise<Token> {
   };
 }
 
-function getHeaders(token: Token | null): { Authorization?: string } {
-  return { Authorization: token ? JSON.stringify(token) : undefined };
+function getHeaders(token: Token): { Authorization: string } {
+  return {
+    Authorization: JSON.stringify({
+      message: new SiweMessage(token.message).prepareMessage(),
+      signature: token.signature,
+    }),
+  };
+}
+
+function isInvalidToken(token: Token) {
+  return (
+    !!token.message.expirationTime &&
+    DateTime.fromISO(token.message.expirationTime) <= DateTime.now()
+  );
 }
 
 export async function authContext(
