@@ -22,6 +22,7 @@ export function ContactItem(props: ContactItemProps) {
   return (
     <ListItem
       leading={(props) => <AddressIcon address={c.address} {...props} />}
+      leadingSize="medium"
       headline={c.label}
       supporting={truncateAddr(c.address)}
       trailing={NavigateNextIcon}
