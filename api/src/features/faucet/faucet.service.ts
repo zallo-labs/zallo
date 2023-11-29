@@ -1,5 +1,5 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
-import { Address, ETH_ADDRESS, UAddress, asAddress, filterAsync } from 'lib';
+import { Address, UAddress, asAddress, asChain, asUAddress, filterAsync, isEthToken } from 'lib';
 import { NetworksService } from '~/features/util/networks/networks.service';
 import { selectAccount } from '../accounts/accounts.util';
 import { DatabaseService } from '../database/database.service';
@@ -7,10 +7,12 @@ import e from '~/edgeql-js';
 import { parseUnits } from 'viem';
 import { ERC20 } from 'lib/dapps';
 import { BalancesService } from '~/features/util/balances/balances.service';
+import { and } from '~/features/database/database.util';
+import { CHAINS } from 'chains';
 
 @Injectable()
 export class FaucetService implements OnModuleInit {
-  private tokens: { address: Address; amount: bigint }[] = [];
+  private tokens: { address: UAddress; amount: bigint }[] = [];
 
   constructor(
     private networks: NetworksService,
@@ -21,15 +23,26 @@ export class FaucetService implements OnModuleInit {
   async onModuleInit() {
     const tokens = await this.db.query(
       e.select(e.Token, (t) => ({
-        filter: e.op('not', e.op('exists', t.user)),
+        filter: and(
+          e.op('not', e.op('exists', t.user)),
+          e.op(
+            t.chain,
+            'in',
+            e.set(
+              ...Object.values(CHAINS)
+                .filter((c) => c.testnet)
+                .map((c) => c.key),
+            ),
+          ),
+        ),
         address: true,
         decimals: true,
       })),
     );
 
     this.tokens = tokens.map((t) => ({
-      address: asAddress(t.address),
-      amount: parseUnits(t.address === ETH_ADDRESS ? '0.01' : '1', t.decimals),
+      address: asUAddress(t.address),
+      amount: parseUnits(isEthToken(asAddress(t.address)) ? '0.01' : '1', t.decimals),
     }));
   }
 
@@ -43,7 +56,7 @@ export class FaucetService implements OnModuleInit {
 
     for (const token of tokensToSend) {
       await network.useWallet(async (wallet) =>
-        token.address === ETH_ADDRESS
+        isEthToken(token.address)
           ? wallet.sendTransaction({
               to: asAddress(account),
               value: token.amount,
@@ -66,13 +79,20 @@ export class FaucetService implements OnModuleInit {
     const network = this.networks.for(account);
     if (!network.chain.testnet) return [];
 
-    return filterAsync(this.tokens, async (token) => {
-      const [recipientBalance, faucetBalance] = await Promise.all([
-        this.balances.balance({ account, token: token.address }),
-        this.balances.balance({ account: network.walletAddress, token: token.address }),
-      ]);
+    return (
+      await filterAsync(this.tokens, async (token) => {
+        if (asChain(token.address) !== network.chain.key) return false;
 
-      return recipientBalance < token.amount && faucetBalance > token.amount;
-    });
+        const [recipientBalance, faucetBalance] = await Promise.all([
+          this.balances.balance({ account, token: asAddress(token.address) }),
+          this.balances.balance({
+            account: network.walletAddress,
+            token: asAddress(token.address),
+          }),
+        ]);
+
+        return recipientBalance < token.amount && faucetBalance > token.amount;
+      })
+    ).map((t) => ({ ...t, address: asAddress(t.address) }));
   }
 }
