@@ -9,7 +9,7 @@ import {
 } from 'lib';
 import { uuid } from 'edgedb/dist/codecs/ifaces';
 import e, { $infer } from '~/edgeql-js';
-import { Shape, ShapeFunc } from '../database/database.select';
+import { Shape } from '../database/database.select';
 import { PolicyInput, TransfersConfigInput } from './policies.input';
 import { selectAccount } from '~/features/accounts/accounts.util';
 import merge from 'ts-deepmerge';
@@ -26,11 +26,7 @@ export const uniquePolicy = (unique: UniquePolicy) =>
         : { account: selectAccount(unique.account), key: unique.key },
   }));
 
-export const selectPolicy = (id: UniquePolicy, shape?: ShapeFunc<typeof e.Policy>) =>
-  e.select(e.Policy, (p) => ({
-    ...shape?.(p),
-    ...uniquePolicy(id)(p),
-  }));
+export const selectPolicy = (id: UniquePolicy) => e.select(e.Policy, uniquePolicy(id));
 
 export const policyStateShape = {
   approvers: { address: true },

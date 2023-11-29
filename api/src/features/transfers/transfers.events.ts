@@ -34,7 +34,6 @@ import { BalancesService } from '~/features/util/balances/balances.service';
 export const getTransferTrigger = (account: UAddress) => `transfer.account.${account}`;
 export interface TransferSubscriptionPayload {
   transfer: uuid;
-  account: Address;
   directions: TransferDirection[];
   internal: boolean;
 }
@@ -135,7 +134,6 @@ export class TransfersEvents {
 
         this.pubsub.publish<TransferSubscriptionPayload>(getTransferTrigger(account), {
           transfer: transfer.id,
-          account,
           directions: [
             from === account && TransferDirection.Out,
             to === account && TransferDirection.In,

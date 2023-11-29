@@ -38,7 +38,7 @@ export class AccountsCacheService implements OnModuleInit {
       Array.isArray(address)
         ? (await this.redis.smismember(ACCOUNTS_ADDRESS_SET, ...address)).map((r) => r === 1)
         : (await this.redis.sismember(ACCOUNTS_ADDRESS_SET, address)) === 1
-    ) as T extends Address[] ? boolean[] : boolean;
+    ) as T extends unknown[] ? boolean[] : boolean;
   }
 
   async getApproverAccounts(approver: Address): Promise<UserAccountContext[]> {
