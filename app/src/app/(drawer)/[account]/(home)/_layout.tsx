@@ -7,8 +7,8 @@ import { useSelectedAccount, useSetSelectedAccont } from '~/hooks/useSelectedAcc
 import { zUAddress } from '~/lib/zod';
 import { ScreenSurface } from '~/components/layout/ScreenSurface';
 
-const InternalParams = z.object({ account: zUAddress.optional() }); // Required as the this route is always first in the history, so may be rendered at any time
-export const AccountParams = z.object({ account: zUAddress });
+const InternalParams = z.object({ account: zUAddress().optional() }); // Required as the this route is always first in the history, so may be rendered at any time
+export const AccountParams = z.object({ account: zUAddress() });
 
 export default function HomeLayout() {
   const lastSelected = useSelectedAccount();

@@ -45,7 +45,7 @@ export const SPENDING_LIMIT_DURATIONS = [
   ['Year (52 weeks)', Duration.fromObject({ days: 364 })],
 ] as const;
 
-export const TokenLimitScreenParams = PolicyScreenParams.extend({ token: zAddress });
+export const TokenLimitScreenParams = PolicyScreenParams.extend({ token: zAddress() });
 
 export default function TokenLimitScreen() {
   const { token: address, account } = useLocalParams(TokenLimitScreenParams);

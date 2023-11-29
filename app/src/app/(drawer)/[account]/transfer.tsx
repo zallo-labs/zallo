@@ -42,8 +42,8 @@ const Query = gql(/* GraphQL */ `
 `);
 
 const TransferScreenParams = z.object({
-  account: zUAddress,
-  to: zAddress,
+  account: zUAddress(),
+  to: zAddress(),
 });
 export type TransferScreenParams = z.infer<typeof TransferScreenParams>;
 

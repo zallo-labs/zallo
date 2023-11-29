@@ -11,8 +11,6 @@ import { ListItemHeight } from '~/components/list/ListItem';
 import { useQuery } from '~/gql';
 import { PolicyItem } from '~/components/policy/PolicyItem';
 import { AppbarOptions } from '~/components/Appbar/AppbarOptions';
-import { z } from 'zod';
-import { zAddress } from '~/lib/zod';
 import { useLocalParams } from '~/hooks/useLocalParams';
 import { withSuspense } from '~/components/skeleton/withSuspense';
 import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';

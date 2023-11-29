@@ -61,8 +61,8 @@ const Delete = gql(/* GraphQL */ `
 
 const schema = z.object({
   label: z.string().min(1),
-  address: zAddress,
-  chain: zChain,
+  address: zAddress(),
+  chain: zChain(),
 });
 
 const chainEntries = Object.values(SUPPORTED_CHAINS).map((c) => [c.name, c.key] as const);
@@ -208,7 +208,7 @@ const styles = StyleSheet.create({
 
 export const SharedContactScreen = withSuspense(ContactScreen_, ScreenSkeleton);
 
-const ContactScreenParams = z.object({ address: zUAddress });
+const ContactScreenParams = z.object({ address: zUAddress() });
 
 export default function ContactScreen() {
   const { address } = useLocalParams(ContactScreenParams);

@@ -1,4 +1,4 @@
-import { SearchParams, useLocalSearchParams, useRouter } from 'expo-router';
+import { useRouter } from 'expo-router';
 import { gql } from '@api/generated';
 import { getSdkError } from '@walletconnect/utils';
 import { tryOrCatchAsync } from 'lib';
@@ -31,7 +31,7 @@ const Query = gql(/* GraphQL */ `
 
 const ConnectSessionSheetParams = z.object({
   id: z.coerce.number(),
-  chains: zArray(zChain),
+  chains: zArray(zChain()),
 });
 
 export default function ConnectSessionSheet() {

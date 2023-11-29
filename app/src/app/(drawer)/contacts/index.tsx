@@ -33,7 +33,7 @@ const Query = gql(/* GraphQL */ `
 const AddContactIcon = materialCommunityIcon('account-plus-outline');
 
 const ContractsScreenParams = z.object({
-  disabled: zArray(zUAddress).optional(),
+  disabled: zArray(zUAddress()).optional(),
 });
 
 function ContactsScreen() {

@@ -66,7 +66,7 @@ const Query = gql(/* GraphQL */ `
 
 const AddressesScreenParams = z.object({
   include: zArray(z.enum(['accounts', 'approvers', 'contacts', 'tokens'])).optional(),
-  disabled: zArray(z.union([zAddress, zUAddress])).optional(),
+  disabled: zArray(z.union([zUAddress(), zAddress({ strict: true })])).optional(),
 });
 export type AddressesModalParams = z.infer<typeof AddressesScreenParams>;
 

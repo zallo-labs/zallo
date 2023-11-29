@@ -45,9 +45,9 @@ export const useSelectToken = () => {
 };
 
 export const TokensScreenParams = z.object({
-  account: zUAddress,
-  disabled: zArray(zUAddress).optional(),
-  enabled: zArray(zUAddress).optional(),
+  account: zUAddress(),
+  disabled: zArray(zUAddress()).optional(),
+  enabled: zArray(zUAddress()).optional(),
   feeToken: z.coerce.boolean().optional(),
 });
 export type TokensScreenParams = z.infer<typeof TokensScreenParams>;

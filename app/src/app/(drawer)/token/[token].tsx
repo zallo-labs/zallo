@@ -84,9 +84,9 @@ const RemoveToken = gql(/* GraphQL */ `
 const chainEntries = Object.values(SUPPORTED_CHAINS).map((c) => [c.name, c.key] as const);
 
 const scheme = z.object({
-  address: zAddress,
-  chain: zChain,
-  ethereumAddress: z.union([zAddress.optional(), z.null()]),
+  address: zAddress(),
+  chain: zChain(),
+  ethereumAddress: z.union([zAddress().optional(), z.null()]),
   name: z.string().min(1),
   symbol: z.string().min(1),
   decimals: z.number().min(0),
@@ -323,7 +323,7 @@ const styles = StyleSheet.create({
 
 export const SharedTokenScreen = withSuspense(SharedTokenScreen_, <ScreenSkeleton />);
 
-const TokenScreenParams = z.object({ token: zUAddress });
+const TokenScreenParams = z.object({ token: zUAddress() });
 
 export default function TokenScreen() {
   const { token } = useLocalParams(TokenScreenParams);

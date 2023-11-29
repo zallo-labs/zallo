@@ -1,7 +1,7 @@
 import { gql } from '@api';
 import { useRouter } from 'expo-router';
 import { useAtom } from 'jotai';
-import { PolicyKey, asAddress, asPolicyKey } from 'lib';
+import { PolicyKey, asPolicyKey } from 'lib';
 import _ from 'lodash';
 import { useMutation } from 'urql';
 import { z } from 'zod';
@@ -14,7 +14,7 @@ import { showError } from '~/components/provider/SnackbarProvider';
 import { withSuspense } from '~/components/skeleton/withSuspense';
 import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
 import { ScreenSurface } from '~/components/layout/ScreenSurface';
-import { zAddress, zUAddress } from '~/lib/zod';
+import { zUAddress } from '~/lib/zod';
 import { ApprovalSettings } from '~/components/policy/ApprovalSettings';
 import { SpendingSettings } from '~/components/policy/SpendingSettings';
 import { useLayout } from '~/hooks/useLayout';
@@ -93,7 +93,7 @@ const Update = gql(/* GraphQL */ `
 `);
 
 export const PolicyScreenParams = z.object({
-  account: zUAddress,
+  account: zUAddress(),
   key: z.union([z.coerce.number().transform(asPolicyKey), z.literal('add')]),
   view: z.enum(['state', 'draft']).optional(),
 });

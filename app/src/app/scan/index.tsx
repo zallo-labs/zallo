@@ -28,7 +28,7 @@ export function useScanAddress() {
     getEvent({ pathname: `/scan/`, params: { ...(account && { account }) } }, SCANNED_ADDRESSES);
 }
 
-const ScanScreenParams = z.object({ account: zUAddress.optional() });
+const ScanScreenParams = z.object({ account: zUAddress().optional() });
 
 export default function ScanScreen() {
   const { account } = useLocalParams(ScanScreenParams);

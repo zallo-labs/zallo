@@ -40,7 +40,7 @@ const Remove = gql(/* GraphQL */ `
   }
 `);
 
-export const MessageLayoutParams = z.object({ hash: zHash });
+export const MessageLayoutParams = z.object({ hash: zHash() });
 export type MessageLayoutParams = z.infer<typeof MessageLayoutParams>;
 
 export default function MessageLayout() {

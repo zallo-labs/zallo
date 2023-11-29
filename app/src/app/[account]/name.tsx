@@ -39,7 +39,7 @@ interface Inputs {
   label: string;
 }
 
-export const AccountNameModalParams = z.object({ account: zUAddress });
+export const AccountNameModalParams = z.object({ account: zUAddress() });
 
 function AccountNameModal() {
   const params = useLocalParams(AccountNameModalParams);
