@@ -4,7 +4,6 @@ import {
   Operation,
   PolicyKey,
   Selector,
-  ZERO_ADDR,
   asSelector,
   isPresent,
   tryOrIgnore,
@@ -87,7 +86,7 @@ export class OperationsService {
       return Object.assign(new TransferOp(), {
         _name: 'transfer',
         _args: [to, value],
-        token: ZERO_ADDR,
+        token: ETH_ADDRESS,
         to,
         amount: value,
       } satisfies TransferOp);
