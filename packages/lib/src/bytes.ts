@@ -8,16 +8,24 @@ import { getRandomValues } from 'crypto';
 export type Hex = `0x${string}`;
 const hexRegex = /^0x[0-9A-Fa-f]*$/;
 
-export const isHex = (v: unknown, size?: number): v is Hex =>
-  typeof v === 'string' && hexRegex.test(v) && (size === undefined || v.length === 2 + 2 * size);
+export function isHex(v: unknown, size?: number): v is Hex {
+  return (
+    typeof v === 'string' && hexRegex.test(v) && (size === undefined || v.length === 2 + 2 * size)
+  );
+}
 
-export const asHex = <V extends string | null | undefined>(v: V, size?: number) => {
-  if (!isHex(v, size) && (v !== null || v === undefined)) throw new Error('');
+export function asHex<V extends string | null | undefined>(v: V, size?: number) {
+  if (!isHex(v, size) && !(v === null || v === undefined))
+    throw new Error(`Expected Hex but got "${v}"`);
   return v as unknown as V extends undefined ? Hex | undefined : Hex;
-};
-export const randomHex = (n: number) => bytesToHex(getRandomValues(new Uint8Array(n)));
+}
+export function randomHex(n: number) {
+  return bytesToHex(getRandomValues(new Uint8Array(n)));
+}
 
-export const compareHex = (a: Hex, b: Hex) => a.toLowerCase().localeCompare(b.toLowerCase());
+export function compareHex(a: Hex, b: Hex) {
+  return a.toLowerCase().localeCompare(b.toLowerCase());
+}
 
 /*//////////////////////////////////////////////////////////////
                                 SELECTOR
