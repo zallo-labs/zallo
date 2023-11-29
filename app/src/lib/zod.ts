@@ -1,12 +1,24 @@
 import { CHAINS, Chain } from 'chains';
-import { Hex, isAddress, isHex, isUAddress } from 'lib';
+import { Hex, isHex, tryAsAddress, tryAsUAddress } from 'lib';
 import { RefinementCtx, ZodTypeAny, z } from 'zod';
 
-export const zAddress = z.string().refine(isAddress, (val) => ({ message: `Must be a Address` }));
+export const zAddress = z.string().transform((v, ctx) => {
+  const address = tryAsAddress(v);
+  if (!address) {
+    ctx.addIssue({ code: 'custom', message: 'Not an address' });
+    return z.NEVER;
+  }
+  return address;
+});
 
-export const zUAddress = z
-  .string()
-  .refine(isUAddress, (val) => ({ message: `Must be a UAddress` }));
+export const zUAddress = z.string().transform((v, ctx) => {
+  const address = tryAsUAddress(v);
+  if (!address) {
+    ctx.addIssue({ code: 'custom', message: 'Not a unique address' });
+    return z.NEVER;
+  }
+  return address;
+});
 
 export const zHash = z.string().refine((arg): arg is Hex => isHex(arg, 32));
 
