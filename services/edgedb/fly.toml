@@ -4,7 +4,7 @@ primary_region = "lax"  # Los Angeles
 swap_size_mb = 4096
 
 [build]
-  image = "edgedb/edgedb:4.1"
+  image = "edgedb/edgedb:4.2"
 
 [env]
   EDGEDB_SERVER_PORT = 10700 # default

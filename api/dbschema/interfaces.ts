@@ -65,6 +65,8 @@ export namespace cfg {
 }
 export type AbiSource = "Verified";
 export interface Account extends std.$Object {
+  "address": string;
+  "chain": string;
   "implementation": string;
   "isActive": boolean;
   "label": string;
@@ -75,8 +77,6 @@ export interface Account extends std.$Object {
   "proposals": Proposal[];
   "transactionProposals": TransactionProposal[];
   "transfers": Transfer[];
-  "address": string;
-  "chain": string;
 }
 export interface Action extends std.$Object {
   "functions": ActionFunction[];
@@ -116,8 +116,8 @@ export interface CloudShare extends std.$Object {
 }
 export interface Contact extends std.$Object {
   "user": User;
-  "label": string;
   "address": string;
+  "label": string;
 }
 export interface Contract extends std.$Object {
   "functions": Function[];
@@ -147,10 +147,10 @@ export interface Proposal extends std.$Object {
   "validFrom": Date;
   "approvals": Approval[];
   "rejections": Rejection[];
+  "riskLabel"?: ProposalRisk | null;
   "policy"?: Policy | null;
   "potentialApprovers": Approver[];
   "potentialRejectors": Approver[];
-  "riskLabel"?: ProposalRisk | null;
 }
 export interface MessageProposal extends Proposal {
   "message": string;
@@ -186,8 +186,8 @@ export interface PolicyState extends std.$Object {
 }
 export type ProposalRisk = "Low" | "Medium" | "High";
 export interface ProposalRiskLabel extends std.$Object {
-  "user": User;
   "proposal": Proposal;
+  "user": User;
   "risk": ProposalRisk;
 }
 export interface Receipt extends std.$Object {
@@ -208,15 +208,15 @@ export interface Simulation extends std.$Object {
 }
 export interface Token extends std.$Object {
   "units"?: {symbol: string, decimals: number}[] | null;
-  "name": string;
+  "address": string;
+  "chain": string;
   "symbol": string;
+  "name": string;
   "isFeeToken": boolean;
   "decimals": number;
   "ethereumAddress"?: string | null;
   "iconUri"?: string | null;
   "user"?: User | null;
-  "address": string;
-  "chain": string;
 }
 export interface Transaction extends std.$Object {
   "receipt"?: Receipt | null;
@@ -239,12 +239,12 @@ export interface TransactionProposal extends Proposal {
 export type TransactionProposalStatus = "Pending" | "Executing" | "Successful" | "Failed";
 export interface TransferDetails extends std.$Object {
   "account": Account;
+  "tokenAddress": string;
+  "token"?: Token | null;
   "amount": bigint;
   "direction": TransferDirection[];
   "from": string;
   "to": string;
-  "token"?: Token | null;
-  "tokenAddress": string;
 }
 export interface Transferlike extends Event, TransferDetails {}
 export interface Transfer extends Transferlike {}
@@ -264,10 +264,10 @@ export interface TransfersConfig extends std.$Object {
   "defaultAllow": boolean;
 }
 export interface User extends std.$Object {
-  "primaryAccount"?: Account | null;
   "approvers": Approver[];
   "accounts": Account[];
   "contacts": Contact[];
+  "primaryAccount"?: Account | null;
 }
 export interface current_accounts extends Account {}
 export interface current_approver extends Approver {}
