@@ -8,6 +8,7 @@ import {
   isTruthy,
   tryOrIgnore,
   ETH_ADDRESS,
+  isEthToken,
 } from 'lib';
 import { ERC20 } from 'lib/dapps';
 import {
@@ -29,10 +30,6 @@ import { AccountsCacheService } from '../auth/accounts.cache.service';
 import { ExpoService } from '../util/expo/expo.service';
 import { CONFIG } from '~/config';
 import { BalancesService } from '~/features/util/balances/balances.service';
-
-const ETH_ERC20_ADDRESS = asAddress(zkUtils.L2_ETH_TOKEN_ADDRESS);
-const normalizeEthAddress = (address: Address) =>
-  address === ETH_ERC20_ADDRESS ? ETH_ADDRESS : address;
 
 export const getTransferTrigger = (account: UAddress) => `transfer.account.${account}`;
 export interface TransferSubscriptionPayload {
@@ -115,8 +112,8 @@ export class TransfersEvents {
                 logIndex: log.logIndex,
                 block: log.blockNumber,
                 timestamp: new Date(Number(block.timestamp) * 1000),
-                from,
-                to,
+                from: asAddress(from),
+                to: asAddress(to),
                 tokenAddress: token,
                 amount: from === to ? 0n : to === account ? amount : -amount,
                 direction: [account === to && 'In', account === from && 'Out'].filter(Boolean) as [
@@ -194,8 +191,8 @@ export class TransfersEvents {
               logIndex: log.logIndex,
               block: log.blockNumber,
               timestamp: new Date(Number(block.timestamp) * 1000),
-              from,
-              to,
+              from: asAddress(from),
+              to: asAddress(to),
               tokenAddress,
               amount: from === to ? 0n : to === account ? amount : -amount,
               direction: [account === to && 'In', account === from && 'Out'].filter(Boolean) as [
@@ -286,4 +283,8 @@ export class TransfersEvents {
 function truncateAddress(address: UAddress) {
   const local = asAddress(address);
   return `${local.slice(0, 5)}...${local.length - 3}`;
+}
+
+function normalizeEthAddress(address: Address) {
+  return isEthToken(address) ? ETH_ADDRESS : address;
 }
