@@ -1,6 +1,7 @@
 import * as viem from 'viem';
 import { tryOrIgnore } from './util/try';
 import { Chain, isChain } from 'chains';
+import { utils as zkUtils } from 'zksync2-js';
 
 /*//////////////////////////////////////////////////////////////
                               ADDRESSLIKE
@@ -19,8 +20,7 @@ export const isAddressLike = (v: unknown): v is string =>
 
 export type Address = `0x${string}`; // Checksummed
 
-export const ZERO_ADDR: Address = '0x0000000000000000000000000000000000000000';
-export const ETH_ADDRESS = ZERO_ADDR;
+export const ZERO_ADDR = '0x0000000000000000000000000000000000000000' satisfies Address;
 
 export const tryAsAddress = (v: Addresslike | undefined): Address | undefined => {
   if (!v || v.length < 42) return undefined;
@@ -43,6 +43,12 @@ export const isAddress = (v: unknown): v is Address =>
 
 export const compareAddress = (a: Addresslike, b: Addresslike) =>
   asAddress(a).toLowerCase().localeCompare(asAddress(b).toLowerCase());
+
+export const ETH_ADDRESS = asAddress(zkUtils.ETH_ADDRESS);
+export const ETH_TOKEN_ADDRESS = asAddress(zkUtils.L2_ETH_TOKEN_ADDRESS);
+export function isEthToken(address: Address) {
+  return address === ETH_ADDRESS || address === ETH_TOKEN_ADDRESS;
+}
 
 /*//////////////////////////////////////////////////////////////
                                 UADDRESS

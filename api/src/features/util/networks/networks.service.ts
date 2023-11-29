@@ -8,6 +8,7 @@ import {
   UAddress,
   asAddress,
   ETH_ADDRESS,
+  isEthToken,
 } from 'lib';
 import { ChainConfig, Chain, CHAINS, NetworkWallet } from 'chains';
 import { ERC20 } from 'lib/dapps';
@@ -23,6 +24,7 @@ import { privateKeyToAccount } from 'viem/accounts';
 import Redis from 'ioredis';
 import { InjectRedis } from '@songkeys/nestjs-redis';
 import { Mutex } from 'redis-semaphore';
+import { utils as zkUtils } from 'zksync2-js';
 
 export type Network = ReturnType<typeof create>;
 
@@ -108,7 +110,7 @@ function create({ chainKey, redis }: CreateParams) {
 
       const { account, token } = args;
       const balance = await tryOrIgnoreAsync(async () => {
-        if (token === ETH_ADDRESS) return await client.getBalance({ address: asAddress(account) });
+        if (isEthToken(token)) return await client.getBalance({ address: asAddress(account) });
 
         return await client.readContract({
           abi: ERC20,
