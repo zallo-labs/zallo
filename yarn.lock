@@ -18044,7 +18044,7 @@ __metadata:
     ethers: "npm:^6.9.0"
     fast-deep-equal: "npm:^3.1.3"
     hardhat: "npm:^2.19.1"
-    hardhat-abi-exporter: "patch:hardhat-abi-exporter@npm:^2.10.1#../.yarn/patches/hardhat-abi-exporter-npm-2.10.1-d41e70063d.patch"
+    hardhat-abi-exporter: "npm:^2.10.1"
     hardhat-contract-sizer: "npm:^2.10.0"
     hardhat-gas-reporter: "npm:^1.0.9"
     hardhat-tracer: "npm:^2.7.0"
@@ -24242,18 +24242,6 @@ __metadata:
   peerDependencies:
     hardhat: ^2.0.0
   checksum: 5dba9ebb7bd1002311b504a87cc0f9197ffe5066a61d27073f49bde2adcd080e94ef9e2e696e4fb26c9731df1bed76967e1e0428742af36b37d9c70f9944c98b
-  languageName: node
-  linkType: hard
-
-"hardhat-abi-exporter@patch:hardhat-abi-exporter@npm:^2.10.1#../.yarn/patches/hardhat-abi-exporter-npm-2.10.1-d41e70063d.patch::locator=contracts%40workspace%3Acontracts":
-  version: 2.10.1
-  resolution: "hardhat-abi-exporter@patch:hardhat-abi-exporter@npm%3A2.10.1#../.yarn/patches/hardhat-abi-exporter-npm-2.10.1-d41e70063d.patch::version=2.10.1&hash=e28ec5&locator=contracts%40workspace%3Acontracts"
-  dependencies:
-    "@ethersproject/abi": "npm:^5.5.0"
-    delete-empty: "npm:^3.0.0"
-  peerDependencies:
-    hardhat: ^2.0.0
-  checksum: d739f137ec97da2f6abeae9214298e2b4dbf2e3dc2628db4ab1b387260049fb022025c64ea03a36838d4dc66f670fcf00108756f51f5fd940e37f979ac3fe900
   languageName: node
   linkType: hard
 

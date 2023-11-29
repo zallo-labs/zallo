@@ -31,7 +31,7 @@
     "ethers": "^6.9.0",
     "fast-deep-equal": "^3.1.3",
     "hardhat": "^2.19.1",
-    "hardhat-abi-exporter": "patch:hardhat-abi-exporter@npm:^2.10.1#../.yarn/patches/hardhat-abi-exporter-npm-2.10.1-d41e70063d.patch",
+    "hardhat-abi-exporter": "^2.10.1",
     "hardhat-contract-sizer": "^2.10.0",
     "hardhat-gas-reporter": "^1.0.9",
     "hardhat-tracer": "^2.7.0",
