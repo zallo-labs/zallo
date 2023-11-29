@@ -8,7 +8,6 @@ import { ACCOUNTS_QUEUE, AccountActivationEvent } from './accounts.queue';
 import { tryOrIgnoreAsync } from 'lib';
 import { DatabaseService } from '../database/database.service';
 import e from '~/edgeql-js';
-import { and } from '../database/database.util';
 
 @Injectable()
 @Processor(ACCOUNTS_QUEUE.name)
@@ -39,27 +38,14 @@ export class AccountsProcessor {
       return;
     }
 
-    await this.db.transaction(async (db) => {
-      await e
-        .select({
-          account: e.update(e.Account, () => ({
-            filter_single: { address: account },
-            set: {
-              isActive: true,
-            },
-          })),
-          policyState: e.update(e.PolicyState, (ps) => ({
-            filter: and(
-              e.op(ps.policy.account.address, '=', account),
-              e.op(ps.isAccountInitState, '=', true),
-            ),
-            set: {
-              activationBlock: receipt.blockNumber,
-            },
-          })),
-        })
-        .run(db);
-    });
+    await this.db.query(
+      e.update(e.Account, () => ({
+        filter_single: { address: account },
+        set: {
+          isActive: true,
+        },
+      })),
+    );
 
     await this.accounts.publishAccount({ account, event: AccountEvent.update });
   }
