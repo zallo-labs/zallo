@@ -1,9 +1,16 @@
 import { useRouter } from 'expo-router';
 import { gql } from '@api/generated';
 import { Image } from 'expo-image';
-import { UAddress, asAddress, asChain, asUAddress, isAddressLike, tryAsUAddress } from 'lib';
-import _ from 'lodash';
-import { useEffect, useMemo, useState } from 'react';
+import {
+  UAddress,
+  asAddress,
+  asChain,
+  asUAddress,
+  isAddressLike,
+  tryAsUAddress,
+  tryOrIgnore,
+} from 'lib';
+import { useEffect, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { AddressIcon } from '~/components/Identicon/AddressIcon';
@@ -79,11 +86,11 @@ const chainEntries = Object.values(SUPPORTED_CHAINS).map((c) => [c.name, c.key] 
 const scheme = z.object({
   address: zAddress,
   chain: zChain,
-  ethereumAddress: zAddress,
+  ethereumAddress: z.union([zAddress.optional(), z.null()]),
   name: z.string().min(1),
   symbol: z.string().min(1),
   decimals: z.number().min(0),
-  iconUri: z.string().url().optional(),
+  iconUri: z.union([z.string().trim().url().optional(), z.null()]),
 });
 
 export interface TokenScreenProps {
@@ -112,6 +119,7 @@ function SharedTokenScreen_(props: TokenScreenProps) {
     'ethereumAddress',
     'iconUri',
   ]);
+  const iconUriValid = !!tryOrIgnore(() => iconUri && new URL(iconUri));
 
   const uaddress = chain && tryAsUAddress(address, chain);
   const query = useQuery(
@@ -253,7 +261,7 @@ function SharedTokenScreen_(props: TokenScreenProps) {
 
           <Indented
             leading={
-              iconUri
+              iconUri && iconUriValid
                 ? ({ size }) => (
                     <Image source={[{ uri: iconUri }]} style={{ width: size, height: size }} />
                   )
@@ -272,7 +280,7 @@ function SharedTokenScreen_(props: TokenScreenProps) {
           <Actions>
             <FormSubmitButton
               mode="contained"
-              requireChanges
+              // requireChanges
               control={control}
               onPress={handleSubmit(
                 async ({ address, chain, ethereumAddress, name, symbol, decimals, iconUri }) => {
