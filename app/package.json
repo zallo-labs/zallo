@@ -53,6 +53,7 @@
     "@urql/exchange-auth": "^2.1.6",
     "@urql/exchange-graphcache": "^6.3.3",
     "@urql/exchange-persisted": "^4.1.0",
+    "@urql/exchange-request-policy": "^1.0.2",
     "@urql/exchange-retry": "^1.2.0",
     "@urql/storage-rn": "^1.0.3",
     "@walletconnect/react-native-compat": "^2.10.1",

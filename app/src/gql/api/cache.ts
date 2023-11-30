@@ -11,10 +11,11 @@ import { gql } from './generated';
 import { UAddress } from 'lib';
 import { WritableDeep } from 'ts-toolbelt/out/Object/Writable';
 
-export const CACHE_CONFIG: Pick<
+export const CACHE_SCHEMA_CONFIG: Pick<
   CacheExchangeOpts,
-  'resolvers' | 'updates' | 'optimistic' | 'keys'
+  'schema' | 'resolvers' | 'updates' | 'optimistic' | 'keys'
 > = {
+  schema,
   updates: {
     Mutation: {
       createAccount: (_result, _args, cache) => {

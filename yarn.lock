@@ -14574,6 +14574,7 @@ __metadata:
     "@urql/exchange-auth": "npm:^2.1.6"
     "@urql/exchange-graphcache": "npm:^6.3.3"
     "@urql/exchange-persisted": "npm:^4.1.0"
+    "@urql/exchange-request-policy": "npm:^1.0.2"
     "@urql/exchange-retry": "npm:^1.2.0"
     "@urql/storage-rn": "npm:^1.0.3"
     "@walletconnect/react-native-compat": "npm:^2.10.1"

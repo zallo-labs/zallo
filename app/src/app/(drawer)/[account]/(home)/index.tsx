@@ -30,7 +30,11 @@ const TokensTabParams = AccountParams;
 
 function TokensTab() {
   const { account } = useLocalParams(TokensTabParams);
-  const { data, reexecute } = useQuery(Query, { account, chain: asChain(account) });
+  const { data, reexecute } = useQuery(
+    Query,
+    { account, chain: asChain(account) },
+    { requestPolicy: 'cache-and-network' },
+  );
   usePollQuery(reexecute, 15000);
 
   const tokens = (data.tokens ?? [])

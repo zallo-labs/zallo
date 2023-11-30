@@ -12,13 +12,13 @@ import { SiweMessage } from 'siwe';
 import { atom, useAtomValue } from 'jotai';
 import { DANGEROUS_approverAtom } from '~/lib/network/useApprover';
 import { createClient as createWsClient } from 'graphql-ws';
-import schema from './schema.generated';
 import { logError } from '~/util/analytics';
 import crypto from 'crypto';
-import { CACHE_CONFIG } from './cache';
+import { CACHE_SCHEMA_CONFIG } from './cache';
 import { E_ALREADY_LOCKED, Mutex, tryAcquire } from 'async-mutex';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createJSONStorage } from 'jotai/utils';
+import { requestPolicyExchange } from '@urql/exchange-request-policy';
 
 const TOKEN_KEY = 'api-token';
 const storage = createJSONStorage<Token | null>(() => AsyncStorage);
@@ -81,7 +81,6 @@ const client = atom(async (get) => {
     url: `${CONFIG.apiUrl}/graphql`,
     fetchOptions: { credentials: 'include' },
     suspense: true,
-    requestPolicy: 'cache-and-network',
     exchanges: [
       __DEV__ && devtoolsExchange,
       mapExchange({
@@ -89,15 +88,17 @@ const client = atom(async (get) => {
           logError('[urql] error: ' + error.message, { error, operation });
         },
       }),
+      requestPolicyExchange({
+        /* ttl (default): 5 minutes */
+      }),
       // refocusExchange(),
       offlineExchange({
-        schema,
         storage: makeAsyncStorage({
           dataKey: 'urql-data', // AsyncStorage key
           metadataKey: 'urql-metadata', // AsyncStorage key
           maxAge: 28, // How many days to persist the data in storage
         }),
-        ...CACHE_CONFIG,
+        ...CACHE_SCHEMA_CONFIG,
       }),
       persistedExchange({
         generateHash: async (query, _document) =>
