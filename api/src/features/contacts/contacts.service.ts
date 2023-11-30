@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Address, UAddress, isUAddress } from 'lib';
+import { Address, UAddress, asAddress, isUAddress } from 'lib';
 import { ShapeFunc } from '../database/database.select';
 import { DatabaseService } from '../database/database.service';
 import e from '~/edgeql-js';
@@ -102,11 +102,6 @@ export class ContactsService {
       e.cast(e.str, e.set()),
     );
 
-    const approver = e.select(e.Approver, () => ({
-      filter_single: { address },
-      label: true,
-    })).label;
-
     const token = e.assert_single(
       e.select(e.Token, (t) => ({
         filter: e.op(t.address, '=', address),
@@ -115,8 +110,13 @@ export class ContactsService {
       })).name,
     );
 
+    const approver = e.select(e.Approver, () => ({
+      filter_single: { address: asAddress(address) },
+      label: true,
+    })).label;
+
     const r = await this.db.query(
-      e.select(e.op(e.op(e.op(contact, '??', account), '??', approver), '??', token)),
+      e.select(e.op(e.op(e.op(contact, '??', account), '??', token), '??', approver)),
     );
 
     return r ?? this.hardcodedContracts[address];
