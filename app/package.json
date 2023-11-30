@@ -134,7 +134,7 @@
     "react-native-svg": "13.9.0",
     "react-native-tab-view": "^3.5.2",
     "react-native-toast-message": "^2.1.6",
-    "react-native-unistyles": "^1.1.1",
+    "react-native-unistyles": "^1.2.0",
     "react-native-web": "~0.19.6",
     "rxjs": "^7.8.1",
     "sentry-expo": "~7.0.0",

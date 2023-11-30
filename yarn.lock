@@ -14663,7 +14663,7 @@ __metadata:
     react-native-svg: "npm:13.9.0"
     react-native-tab-view: "npm:^3.5.2"
     react-native-toast-message: "npm:^2.1.6"
-    react-native-unistyles: "npm:^1.1.1"
+    react-native-unistyles: "npm:^1.2.0"
     react-native-web: "npm:~0.19.6"
     react-test-renderer: "npm:18.2.0"
     rxjs: "npm:^7.8.1"
@@ -34372,9 +34372,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-native-unistyles@npm:^1.1.1":
-  version: 1.1.1
-  resolution: "react-native-unistyles@npm:1.1.1"
+"react-native-unistyles@npm:^1.2.0":
+  version: 1.2.0
+  resolution: "react-native-unistyles@npm:1.2.0"
   peerDependencies:
     "@react-native/normalize-colors": "*"
     react: "*"
@@ -34383,7 +34383,7 @@ __metadata:
   peerDependenciesMeta:
     react-native-web:
       optional: true
-  checksum: 3bed37233fe2cba412d14bcbf8869817a13e51c48dfcc050e9d47dbd6eb706be97811c7bbe1e43cb3cd20ead6098ee8a29f563fec7ca66b2ae7086b0cbe9de2c
+  checksum: d04c4135efae2d3172492b2232cb5e1f0973b47a76f47b0dbc870927e55f0ece4b7676a7edf0ae85ad208b8506f36864538804ed852953cc90814f975944762f
   languageName: node
   linkType: hard
 
