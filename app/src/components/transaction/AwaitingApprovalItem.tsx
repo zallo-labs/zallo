@@ -16,6 +16,7 @@ const Approver = gql(/* GraphQL */ `
   fragment AwaitingApprovalItem_Approver on Approver {
     id
     address
+    label
   }
 `);
 
@@ -45,11 +46,11 @@ export function AwaitingApprovalItem(props: AwaitingApprovalItemProps) {
   return (
     <ListItem
       leading={approver.address}
-      headline={({ Text }) => (
-        <Text>
+      headline={
+        approver.label || (
           <AddressLabel address={asUAddress(approver.address, proposal.account.chain)} />
-        </Text>
-      )}
+        )
+      }
       {...(approve && {
         trailing: ({ size, disabled }) => (
           <IconButton
