@@ -27,7 +27,7 @@ WORKDIR /build
 
 # Root
 COPY --from=builder --chown=node:node /build/node_modules/ ./node_modules/
-COPY --from=builder --chown=node:node /build/lib/ ./lib/
+COPY --from=builder --chown=node:node /build/packages ./packages
 COPY --from=builder --chown=node:node /build/.env.vault ./.env.vault
 
 # Api
