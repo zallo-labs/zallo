@@ -17,11 +17,7 @@ const UserApprover = gql(/* GraphQL */ `
   }
 `);
 
-export const APPROVER_BLE_IDS = persistedAtom<Record<Address, DeviceId[]>>(
-  'approverBleIds',
-  {},
-  { skipInitialPersist: true },
-);
+export const APPROVER_BLE_IDS = persistedAtom<Record<Address, DeviceId[]>>('approverBleIds', {});
 
 export function useLedger(device: DeviceId | FragmentType<typeof UserApprover>) {
   const [hasPermission, requestPermissions] = useBluetoothPermissions();

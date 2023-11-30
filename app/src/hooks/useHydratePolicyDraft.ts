@@ -1,7 +1,7 @@
 import { FragmentType, gql, useFragment } from '@api';
 import { useSetAtom } from 'jotai';
 import { useHydrateAtoms } from 'jotai/utils';
-import { ZERO_ADDR } from 'lib';
+import { ZERO_ADDR, asChain } from 'lib';
 import { useEffect, useMemo } from 'react';
 import { POLICY_DRAFT_ATOM, PolicyDraft, policyAsDraft } from '~/lib/policy/draft';
 import { usePolicyPresets } from '~/lib/policy/presets';
@@ -39,11 +39,14 @@ export interface UseHydratePolicyDraftParams {
 export function useHydratePolicyDraft(params: UseHydratePolicyDraftParams) {
   const account = useFragment(Account, params.account);
   const policy = useFragment(Policy, params.policy);
-  const presets = usePolicyPresets(account);
+  const presets = usePolicyPresets({
+    account,
+    chain: account ? asChain(account.address) : 'zksync-goerli', // Should only occur whilst loading
+  });
 
   const init = useMemo(
     (): PolicyDraft => ({
-      account: account?.address ?? ZERO_ADDR,
+      account: account?.address ?? `zksync-goerli:${ZERO_ADDR}`, // Should only occur whilst loading
       key: policy?.key,
       name: policy?.name || '',
       ...((params.view === 'state' && policy?.state && policyAsDraft(policy.state)) ||

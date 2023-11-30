@@ -2,7 +2,7 @@ import { InjectQueue } from '@nestjs/bull';
 import { Injectable } from '@nestjs/common';
 import { Queue } from 'bull';
 import {
-  executeTx,
+  executeTransaction,
   asHex,
   mapAsync,
   isPresent,
@@ -11,10 +11,13 @@ import {
   Hex,
   getTransactionSatisfiability,
   isHex,
-  tryOrCatchAsync,
   estimateTransactionTotalGas,
+  asApproval,
+  asAddress,
+  asUAddress,
+  isEthToken,
 } from 'lib';
-import { ProviderService } from '~/features/util/provider/provider.service';
+import { NetworksService } from '~/features/util/networks/networks.service';
 import { selectTransactionProposal } from '../transaction-proposals/transaction-proposals.service';
 import { TransactionEvent, TRANSACTIONS_QUEUE } from './transactions.queue';
 import {
@@ -41,7 +44,7 @@ import { ProposalEvent } from '../proposals/proposals.input';
 export class TransactionsService {
   constructor(
     private db: DatabaseService,
-    private provider: ProviderService,
+    private networks: NetworksService,
     @InjectQueue(TRANSACTIONS_QUEUE.name)
     private transactionsQueue: Queue<TransactionEvent>,
     private proposals: ProposalsService,
@@ -87,19 +90,23 @@ export class TransactionsService {
     if (proposal.status !== 'Pending' && proposal.status !== 'Failed')
       throw new UserInputError(`Proposal ${uniqueProposal} must be pending or failed to execute`);
 
+    const account = asUAddress(proposal.account.address);
+    const network = this.networks.for(account);
+
     const approvals = (
       await mapAsync(proposal.approvals, (a) =>
-        this.provider.asApproval({
-          digest: proposal.hash as Hex,
-          approver: a.approver.address as Address,
-          signature: a.signature as Hex,
+        asApproval({
+          network,
+          hash: asHex(proposal.hash),
+          approver: asAddress(a.approver.address),
+          signature: asHex(a.signature),
         }),
       )
     ).filter(isPresent);
 
     if (approvals.length !== proposal.approvals.length) {
       const expiredApprovals = proposal.approvals
-        .map((a) => a.approver.address as Address)
+        .map((a) => asAddress(a.approver.address))
         .filter((a) => !approvals.find((approval) => approval.approver === a));
 
       // TODO: Mark approvals as expired rather than removing
@@ -116,7 +123,7 @@ export class TransactionsService {
 
     const tx = {
       ...transactionProposalAsTx(proposal),
-      gasLimit: estimateTransactionTotalGas(proposal.gasLimit, approvals.length),
+      gas: estimateTransactionTotalGas(proposal.gasLimit, approvals.length),
     };
 
     const policy = await this.getExecutionPolicy(
@@ -127,28 +134,20 @@ export class TransactionsService {
     );
     if (!policy) return undefined;
 
-    const gasPrice = (await this.provider.getGasPrice()).toBigInt();
-
-    const transaction = await tryOrCatchAsync(
-      async () =>
-        await executeTx({
-          account: this.provider.connectAccount(proposal.account.address as Address),
-          tx,
-          policy,
-          approvals,
-          gasPrice,
-          customData: {
-            paymasterParams: await this.paymaster.getPaymasterParams({
-              feeToken: proposal.feeToken.address as Address,
-              gasLimit: tx.gasLimit,
-              gasPrice,
-            }),
-          },
-        }),
-      (e) => {
-        throw new Error(`Failed to execute transaction: ${e}`);
-      },
-    );
+    const maxFeePerGas = (await network.estimateFeesPerGas()).maxFeePerGas!;
+    const transactionResult = await executeTransaction({
+      network,
+      account: asAddress(account),
+      tx,
+      policy,
+      approvals,
+      ...(await this.paymaster.params({
+        feeToken: asUAddress(proposal.feeToken.address),
+        gas: tx.gas,
+        maxFeePerGas,
+      }))!,
+    });
+    const transaction = transactionResult._unsafeUnwrap(); // TODO: handle failed transaction submission
 
     // Set executing policy if not already set
     const selectedProposal = proposal.policy?.state
@@ -156,27 +155,29 @@ export class TransactionsService {
       : e.update(e.TransactionProposal, () => ({
           filter_single: { id: proposal.id },
           set: {
-            policy: selectPolicy({ account: proposal.account.address as Address, key: policy.key }),
+            policy: selectPolicy({ account, key: policy.key }),
           },
         }));
 
-    const transactionHash = asHex(transaction.hash);
     await this.db.query(
       e.insert(e.Transaction, {
-        hash: transactionHash,
+        hash: transaction,
         proposal: selectedProposal,
-        gasPrice,
+        gasPrice: maxFeePerGas,
       }),
     );
 
     await this.proposals.publishProposal(
-      { hash: proposal.hash as Hex, account: proposal.account.address as Address },
+      { hash: asHex(proposal.hash), account: asUAddress(proposal.account.address) },
       ProposalEvent.submitted,
     );
 
-    await this.transactionsQueue.add({ transaction: transactionHash }, { delay: 2000 /* 2s */ });
+    await this.transactionsQueue.add(
+      { chain: network.chain.key, transaction },
+      { delay: 2000 /* 2s */ },
+    );
 
-    return transactionHash;
+    return transaction;
   }
 
   async satisfiablePolicies(id: UniqueProposal) {
@@ -203,8 +204,8 @@ export class TransactionsService {
 
     const tx = transactionProposalAsTx(proposal);
 
-    const approvals = new Set(proposal.approvals.map((a) => a.approver.address as Address));
-    const rejections = new Set(proposal.rejections.map((a) => a.approver.address as Address));
+    const approvals = new Set(proposal.approvals.map((a) => asAddress(a.approver.address)));
+    const rejections = new Set(proposal.rejections.map((a) => asAddress(a.approver.address)));
 
     const policies = proposal.account.policies
       .map((policy) => policyStateAsPolicy(policy.key, policy.state))

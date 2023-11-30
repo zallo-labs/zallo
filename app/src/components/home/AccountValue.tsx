@@ -4,8 +4,8 @@ import { tokenToFiat } from 'lib';
 import { Text } from 'react-native-paper';
 import { FiatValue } from '~/components/FiatValue';
 
-const FragmentDoc = gql(/* GraphQL */ `
-  fragment AccountValue_tokensQuery on Query @argumentDefinitions(account: { type: "Address" }) {
+const Query = gql(/* GraphQL */ `
+  fragment AccountValue_Query on Query @argumentDefinitions(account: { type: "UAddress!" }) {
     tokens {
       id
       decimals
@@ -19,14 +19,15 @@ const FragmentDoc = gql(/* GraphQL */ `
 `);
 
 export interface AccountValueProps {
-  tokensQuery: FragmentType<typeof FragmentDoc>;
+  query: FragmentType<typeof Query>;
 }
 
 export function AccountValue(props: AccountValueProps) {
-  const { tokens } = useFragment(FragmentDoc, props.tokensQuery);
+  const { tokens } = useFragment(Query, props.query);
 
   const total = tokens.reduce(
-    (sum, token) => tokenToFiat(token.balance, token.price?.current ?? 0, token.decimals) + sum,
+    (sum, token) =>
+      tokenToFiat(BigInt(token.balance), token.price?.current ?? 0, token.decimals) + sum,
     0,
   );
 

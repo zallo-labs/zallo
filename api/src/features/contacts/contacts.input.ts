@@ -1,11 +1,11 @@
 import { Field, InputType } from '@nestjs/graphql';
-import { Address } from 'lib';
-import { AddressField } from '~/apollo/scalars/Address.scalar';
+import { UAddress } from 'lib';
+import { UAddressField } from '~/apollo/scalars/UAddress.scalar';
 
 @InputType()
 export class ContactInput {
-  @AddressField()
-  address: Address;
+  @UAddressField()
+  address: UAddress;
 }
 
 @InputType()
@@ -16,11 +16,11 @@ export class ContactsInput {
 
 @InputType()
 export class UpsertContactInput {
-  @AddressField({ nullable: true })
-  previousAddress?: Address;
+  @UAddressField({ nullable: true })
+  previousAddress?: UAddress;
 
-  @AddressField()
-  address: Address;
+  @UAddressField()
+  address: UAddress;
 
   @Field(() => String)
   label: string;
@@ -28,6 +28,6 @@ export class UpsertContactInput {
 
 @InputType()
 export class LabelInput {
-  @AddressField()
-  address: Address;
+  @UAddressField()
+  address: UAddress;
 }

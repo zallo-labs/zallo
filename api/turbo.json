@@ -10,7 +10,7 @@
     },
     "build": {
       "dependsOn": ["prepare"],
-      "inputs": ["dbschema", "src"],
+      "inputs": ["dbschema/**", "src/**"],
       "outputs": ["dist/**"]
     },
     "dev": {
@@ -23,7 +23,7 @@
     },
     "test": {
       "dependsOn": ["prepare"],
-      "inputs": ["dbschema", "src", "jest.config.ts"]
+      "inputs": ["dbschema/**", "src/**", "jest.config.ts"]
     }
   }
 }

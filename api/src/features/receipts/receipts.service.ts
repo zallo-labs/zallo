@@ -1,14 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import {
-  ErrorFragment,
-  Interface,
-  Result,
-  defaultAbiCoder,
-  hexDataLength,
-  hexDataSlice,
-} from 'ethers/lib/utils';
-import { ACCOUNT_INTERFACE, Hex, isHex, tryOrIgnore } from 'lib';
+import { ACCOUNT_ABI, Hex, isHex, tryOrIgnore } from 'lib';
 import chardet from 'chardet';
+import { decodeErrorResult, size } from 'viem';
+import { AbiError } from 'abitype';
 
 const MIN_GUESS_CONFIDENCE = 5;
 
@@ -18,51 +12,58 @@ const hexStringToBytes = (v: Hex) => {
   return new Uint8Array(parts.map((v) => parseInt(v, 16)));
 };
 
-const FRAGMENTS: Record<string, { fragment: ErrorFragment; stringify?: (r: Result) => string }> =
-  Object.fromEntries([
-    // Error(string) & Panic(uint256) are forbidden inside ErrorFragment.from(...) for some reason
-    [
-      '0x08c379a0' /* Error(string) sighash */,
-      { fragment: ErrorFragment.fromString('Reverted(string)'), stringify: (r: Result) => r[0] },
+const solidityBuiltinErrors = [
+  {
+    inputs: [
+      {
+        name: 'message',
+        type: 'string',
+      },
     ],
-    [
-      '0x4e487b71' /* Panic(uint256) sighash */,
-      { fragment: ErrorFragment.fromString('Panicked(uint256)') },
+    name: 'Error',
+    type: 'error',
+  },
+  {
+    inputs: [
+      {
+        name: 'reason',
+        type: 'uint256',
+      },
     ],
-    ...Object.values(ACCOUNT_INTERFACE.errors).map((fragment) => [
-      Interface.getSighash(fragment),
-      { fragment },
-    ]),
-  ]);
+    name: 'Panic',
+    type: 'error',
+  },
+] satisfies AbiError[];
+
+const ERRORS_ABI = [
+  ...solidityBuiltinErrors,
+  ...ACCOUNT_ABI.filter((item) => item.type === 'error'),
+];
 
 @Injectable()
 export class ReceiptsService {
   decodeResponse(success: boolean, response: string | undefined): string | undefined {
-    if (!response || !isHex(response) || hexDataLength(response) === 0) return undefined;
+    if (!response || !isHex(response) || size(response) === 0) return undefined;
 
     if (success) {
       return this.decodeValue(response);
     } else {
-      // Reverted
-      const match = FRAGMENTS[hexDataSlice(response, 0, 4)];
-      if (!match) return undefined;
-      const { fragment, stringify } = match;
-
-      const argsResult = tryOrIgnore(() =>
-        defaultAbiCoder.decode(fragment.inputs, hexDataSlice(response, 4)),
+      const r = tryOrIgnore(() =>
+        decodeErrorResult({
+          abi: ERRORS_ABI,
+          data: response,
+        }),
       );
-      if (!argsResult) return undefined;
+      if (!r) return undefined;
 
-      if (stringify) return stringify(argsResult);
+      const args = r.args?.map((arg) => this.decodeValue(arg) ?? arg).join('; ') ?? [];
 
-      const args = argsResult.map((arg) => this.decodeValue(arg) ?? arg).join('; ');
-
-      return `${fragment.name}: ${args.length > 1 ? '[' : ''}${args}${args.length > 1 ? ']' : ''}`;
+      return `${r.errorName}: ${args.length > 1 ? '[' : ''}${args}${args.length > 1 ? ']' : ''}`;
     }
   }
 
   private decodeValue(value: Hex): string | undefined {
-    if (hexDataLength(value) === 0) return undefined;
+    if (size(value) === 0) return undefined;
 
     const bytes = hexStringToBytes(value);
     if (bytes.length === 0) return '';

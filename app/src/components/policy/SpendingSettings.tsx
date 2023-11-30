@@ -2,7 +2,7 @@ import { gql } from '@api';
 import { AddIcon, GenericTokenIcon, TransferIcon } from '@theme/icons';
 import { createStyles } from '@theme/styles';
 import { useRouter } from 'expo-router';
-import { Address } from 'lib';
+import { Address, asAddress, asChain, asUAddress } from 'lib';
 import { useMemo } from 'react';
 import Collapsible from 'react-native-collapsible';
 import { Divider, Switch } from 'react-native-paper';
@@ -40,7 +40,8 @@ function SpendingSettings_(props: SpendingSettingsProps) {
   const [expanded, toggleExpanded] = useToggle(props.initiallyExpanded);
 
   const { transfers } = policy;
-  const tokenAddresses = Object.keys(transfers.limits) as Address[];
+  const chain = asChain(policy.account);
+  const tokenAddresses = Object.keys(transfers.limits).map((address) => asUAddress(address, chain));
   const query = useQuery(Query, { input: { address: tokenAddresses } }).data.tokens;
 
   const tokens = useMemo(
@@ -87,13 +88,13 @@ function SpendingSettings_(props: SpendingSettingsProps) {
           )}
         />
         {tokens.map((t) => (
-          <TokenLimitItem key={t.address} address={t.address} token={t.token} />
+          <TokenLimitItem key={t.address} address={asAddress(t.address)} token={t.token} />
         ))}
         <ListItem
           leading={AddIcon}
           headline="Add token"
           onPress={async () => {
-            const token = await selectAddress({ include: ['tokens'] });
+            const token = asUAddress(await selectAddress({ include: ['tokens'] }), chain);
             if (token)
               router.push({
                 pathname: `/(drawer)/[account]/policies/[key]/spending/[token]`,

@@ -1,4 +1,4 @@
-import { Address, Operation, asHex, asTx } from 'lib';
+import { Operation, asAddress, asHex, asTx } from 'lib';
 import e, { $infer } from '~/edgeql-js';
 
 export const proposalTxShape = e.shape(e.TransactionProposal, () => ({
@@ -18,11 +18,11 @@ export const transactionProposalAsTx = (p: ProposalTxShape) =>
   asTx({
     operations: p.operations.map(
       (op): Operation => ({
-        to: op.to as Address,
+        to: asAddress(op.to),
         value: op.value ?? undefined,
         data: op.data ? asHex(op.data) : undefined,
       }),
     ) as [Operation, ...Operation[]],
     nonce: p.nonce,
-    gasLimit: p.gasLimit,
+    gas: p.gasLimit,
   });

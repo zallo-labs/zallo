@@ -1,5 +1,5 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
-import { ACCOUNT_ABI, asAddress, asHex, Hex, tryOrCatch } from 'lib';
+import { ACCOUNT_IMPLEMENTATION, asChain, asHex, asUAddress, Hex, isTruthy, tryOrCatch } from 'lib';
 import {
   TransactionData,
   TransactionEventData,
@@ -11,9 +11,8 @@ import { Queue } from 'bull';
 import e from '~/edgeql-js';
 import { DatabaseService } from '../database/database.service';
 import { and } from '../database/database.util';
-import { ProviderService } from '../util/provider/provider.service';
-import { EIP712_TX_TYPE } from 'zksync-web3/build/src/utils';
-import { decodeEventLog, getAbiItem, getEventSelector } from 'viem';
+import { NetworksService } from '../util/networks/networks.service';
+import { decodeEventLog, getAbiItem } from 'viem';
 import { ProposalsService } from '../proposals/proposals.service';
 import { ProposalEvent } from '../proposals/proposals.input';
 import { InjectRedis } from '@songkeys/nestjs-redis';
@@ -28,16 +27,16 @@ export class TransactionsEvents implements OnModuleInit {
     private queue: Queue<TransactionEvent>,
     private db: DatabaseService,
     @InjectRedis() private redis: Redis,
-    private provider: ProviderService,
+    private networks: NetworksService,
     private transactionsProcessor: TransactionsProcessor,
     private proposals: ProposalsService,
   ) {
     this.transactionsProcessor.onEvent(
-      getEventSelector(getAbiItem({ abi: ACCOUNT_ABI, name: 'OperationExecuted' })),
+      getAbiItem({ abi: ACCOUNT_IMPLEMENTATION.abi, name: 'OperationExecuted' }),
       (data) => this.executed(data),
     );
     this.transactionsProcessor.onEvent(
-      getEventSelector(getAbiItem({ abi: ACCOUNT_ABI, name: 'OperationsExecuted' })),
+      getAbiItem({ abi: ACCOUNT_IMPLEMENTATION.abi, name: 'OperationsExecuted' }),
       (data) => this.executed(data),
     );
     this.transactionsProcessor.onTransaction((data) => this.reverted(data));
@@ -52,11 +51,11 @@ export class TransactionsEvents implements OnModuleInit {
     }
   }
 
-  private async executed({ log, receipt, block }: TransactionEventData) {
+  private async executed({ chain, log, receipt, block }: TransactionEventData) {
     const r = tryOrCatch(
       () =>
         decodeEventLog({
-          abi: ACCOUNT_ABI,
+          abi: ACCOUNT_IMPLEMENTATION.abi,
           topics: log.topics as [Hex, ...Hex[]],
           data: log.data as Hex,
         }),
@@ -75,10 +74,10 @@ export class TransactionsEvents implements OnModuleInit {
           receipt: e.insert(e.Receipt, {
             success: true,
             responses: 'responses' in r.args ? [...r.args.responses] : [r.args.response],
-            gasUsed: receipt.gasUsed.toBigInt(),
-            fee: receipt.gasUsed.toBigInt() * receipt.effectiveGasPrice.toBigInt(),
+            gasUsed: receipt.gasUsed,
+            fee: receipt.gasUsed * receipt.effectiveGasPrice,
             block: BigInt(receipt.blockNumber),
-            timestamp: new Date(block.timestamp * 1000), // block.timestamp is in seconds
+            timestamp: new Date(Number(block.timestamp) * 1000), // block.timestamp is in seconds
           }),
         },
       })),
@@ -87,26 +86,28 @@ export class TransactionsEvents implements OnModuleInit {
     Logger.debug(`Proposal executed: ${proposalHash}`);
 
     await this.proposals.publishProposal(
-      { account: asAddress(log.address), hash: proposalHash },
+      { account: asUAddress(log.address, chain), hash: proposalHash },
       ProposalEvent.executed,
     );
   }
 
-  private async reverted({ receipt, block }: TransactionData) {
-    if (receipt.status !== 0) return;
+  private async reverted({ chain, receipt, block }: TransactionData) {
+    if (receipt.status !== 'reverted') return;
 
-    const revertReason = await this.getRevertReason(receipt);
+    const network = this.networks.get(chain);
+    const tx = await network.getTransaction({ hash: receipt.transactionHash });
+    const callResponse = await network.call(tx);
 
     const transaction = e.update(e.Transaction, () => ({
-      filter_single: { hash: asHex(receipt.transactionHash) },
+      filter_single: { hash: receipt.transactionHash },
       set: {
         receipt: e.insert(e.Receipt, {
           success: false,
-          responses: [revertReason],
-          gasUsed: receipt.gasUsed.toBigInt(),
-          fee: receipt.gasUsed.toBigInt() * receipt.effectiveGasPrice.toBigInt(),
-          block: BigInt(receipt.blockNumber),
-          timestamp: new Date(block.timestamp * 1000), // block.timestamp is in seconds
+          responses: [callResponse.data].filter(isTruthy),
+          gasUsed: receipt.gasUsed,
+          fee: receipt.gasUsed * receipt.effectiveGasPrice,
+          block: receipt.blockNumber,
+          timestamp: new Date(Number(block.timestamp) * 1000), // block.timestamp is in seconds
         }),
       },
     }));
@@ -120,7 +121,7 @@ export class TransactionsEvents implements OnModuleInit {
     Logger.debug(`Proposal reverted: ${proposalHash}`);
 
     await this.proposals.publishProposal(
-      { account: asAddress(receipt.from), hash: proposalHash as Hex },
+      { account: asUAddress(receipt.from, chain), hash: asHex(proposalHash) },
       ProposalEvent.executed,
     );
   }
@@ -128,7 +129,7 @@ export class TransactionsEvents implements OnModuleInit {
   private async addMissingJobs() {
     const jobs = await this.queue.getJobs(RUNNING_JOB_STATUSES);
 
-    const orphanedTransactionHashes = await this.db.query(
+    const orphanedTransactions = await this.db.query(
       e.select(e.Transaction, (t) => ({
         filter: and(
           e.op('not', e.op('exists', t.receipt)),
@@ -137,19 +138,21 @@ export class TransactionsEvents implements OnModuleInit {
             : undefined,
         ),
         hash: true,
-      })).hash,
+        proposal: {
+          account: { address: true },
+        },
+      })),
     );
 
-    if (orphanedTransactionHashes.length) {
+    if (orphanedTransactions.length) {
       await this.queue.addBulk(
-        orphanedTransactionHashes.map((hash) => ({ data: { transaction: hash as Hex } })),
+        orphanedTransactions.map((t) => ({
+          data: {
+            chain: asChain(asUAddress(t.proposal.account.address)),
+            transaction: asHex(t.hash),
+          },
+        })),
       );
     }
-  }
-
-  private async getRevertReason(receipt: TransactionData['receipt']) {
-    const resp = await this.provider.getTransaction(receipt.transactionHash);
-
-    return this.provider.call({ ...resp, type: EIP712_TX_TYPE }, receipt.blockNumber);
   }
 }

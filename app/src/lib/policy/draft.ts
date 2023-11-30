@@ -2,7 +2,7 @@ import { FragmentType, gql, useFragment as getFragment } from '@api';
 import { PolicyAsDraft_PolicyStateFragment, PolicyInput } from '@api/generated/graphql';
 import { atom } from 'jotai';
 import { useImmerAtom } from 'jotai-immer';
-import { Address, PolicyKey, TransfersConfig } from 'lib';
+import { Address, PolicyKey, TransfersConfig, UAddress } from 'lib';
 
 export type PolicyDraftAction = Omit<
   PolicyAsDraft_PolicyStateFragment['actions'][0],
@@ -10,7 +10,7 @@ export type PolicyDraftAction = Omit<
 > & { functions: Omit<PolicyAsDraft_PolicyStateFragment['actions'][0]['functions'][0], 'id'>[] };
 
 export interface PolicyDraft {
-  account: Address;
+  account: UAddress;
   key?: PolicyKey;
   name: string;
   approvers: Set<Address>;
@@ -87,7 +87,6 @@ export function policyAsDraft(
 
 export function asPolicyInput(p: Omit<PolicyDraft, 'account'>): PolicyInput {
   return {
-    key: p.key,
     name: p.name,
     approvers: [...p.approvers],
     threshold: p.threshold,

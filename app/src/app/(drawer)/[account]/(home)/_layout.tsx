@@ -4,15 +4,15 @@ import { TopTabs } from '~/components/layout/TopTabs';
 import { HomeHeader } from '~/components/home/HomeHeader';
 import { useLocalParams } from '~/hooks/useLocalParams';
 import { useSelectedAccount, useSetSelectedAccont } from '~/hooks/useSelectedAccount';
-import { zAddress } from '~/lib/zod';
+import { zUAddress } from '~/lib/zod';
 import { ScreenSurface } from '~/components/layout/ScreenSurface';
 
-const HomeLayoutParams = z.object({ account: zAddress.optional() });
+const InternalParams = z.object({ account: zUAddress().optional() }); // Required as the this route is always first in the history, so may be rendered at any time
+export const AccountParams = z.object({ account: zUAddress() });
 
 export default function HomeLayout() {
   const lastSelected = useSelectedAccount();
-  const account =
-    useLocalParams(`/(drawer)/[account]/(home)/_layout`, HomeLayoutParams).account ?? lastSelected!;
+  const account = useLocalParams(InternalParams).account ?? lastSelected!;
   const setSelectedAccount = useSetSelectedAccont();
 
   useEffect(() => {

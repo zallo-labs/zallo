@@ -1,14 +1,16 @@
 import { Field, InputType, registerEnumType } from '@nestjs/graphql';
-import { Address } from 'lib';
-import { AddressField, AddressScalar } from '~/apollo/scalars/Address.scalar';
+import { UAddress } from 'lib';
 import { minLengthMiddleware } from '~/apollo/scalars/util';
 import { PolicyInput } from '../policies/policies.input';
 import { GraphQLURL } from 'graphql-scalars';
+import { UAddressField, UAddressScalar } from '~/apollo/scalars/UAddress.scalar';
+import { Chain } from 'chains';
+import { ChainField } from '~/apollo/scalars/Chain.scalar';
 
 @InputType()
 export class AccountInput {
-  @AddressField({ nullable: true, description: 'Defaults to random user account' })
-  address?: Address;
+  @UAddressField({ nullable: true, description: 'Defaults to random user account' })
+  account?: UAddress;
 }
 
 @InputType()
@@ -25,11 +27,11 @@ registerEnumType(AccountEvent, { name: 'AccountEvent' });
 
 @InputType()
 export class AccountSubscriptionInput {
-  @Field(() => [AddressScalar], {
+  @Field(() => [UAddressScalar], {
     nullable: true,
     description: 'Defaults to user accounts',
   })
-  accounts?: Address[];
+  accounts?: UAddress[];
 
   @Field(() => AccountEvent, { nullable: true, description: 'Defaults to all events' })
   events?: AccountEvent[];
@@ -37,6 +39,9 @@ export class AccountSubscriptionInput {
 
 @InputType()
 export class CreateAccountInput {
+  @ChainField()
+  chain?: Chain;
+
   @Field(() => String)
   label: string;
 
@@ -46,18 +51,12 @@ export class CreateAccountInput {
 
 @InputType()
 export class UpdateAccountInput {
-  @AddressField()
-  address: Address;
+  @UAddressField()
+  account: UAddress;
 
   @Field(() => String)
   label: string;
 
   @Field(() => GraphQLURL, { nullable: true })
   photoUri?: URL;
-}
-
-@InputType()
-export class ActivityInput {
-  @AddressField()
-  address: Address;
 }

@@ -1,7 +1,0 @@
-{
-  "files.exclude": {
-    "contracts": true,
-    "typechain": true
-  },
-  "jest.jestCommandLine": "yarn test"
-}

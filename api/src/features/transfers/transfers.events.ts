@@ -1,5 +1,16 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { Address, ERC20_ABI, Hex, asAddress, isTruthy, tryOrIgnore } from 'lib';
+import {
+  Address,
+  Hex,
+  UAddress,
+  asAddress,
+  asUAddress,
+  isTruthy,
+  tryOrIgnore,
+  ETH_ADDRESS,
+  isEthToken,
+} from 'lib';
+import { ERC20 } from 'lib/dapps';
 import {
   TransactionEventData,
   TransactionsProcessor,
@@ -8,26 +19,21 @@ import { EventData, EventsProcessor } from '../events/events.processor';
 import { DatabaseService } from '../database/database.service';
 import e from '~/edgeql-js';
 import { selectAccount } from '../accounts/accounts.util';
-import { ProviderService } from '../util/provider/provider.service';
-import { BOOTLOADER_FORMAL_ADDRESS, ETH_ADDRESS } from 'zksync-web3/build/src/utils';
-import { L2_ETH_TOKEN_ADDRESS } from 'zksync-web3/build/src/utils';
+import { NetworksService } from '../util/networks/networks.service';
+import { utils as zkUtils } from 'zksync2-js';
 import { uuid } from 'edgedb/dist/codecs/ifaces';
 import { PubsubService } from '../util/pubsub/pubsub.service';
-import { decodeEventLog, formatUnits, getAbiItem, getEventSelector } from 'viem';
+import { decodeEventLog, formatUnits, getAbiItem } from 'viem';
 import { and } from '../database/database.util';
 import { TransferDirection } from './transfers.input';
 import { AccountsCacheService } from '../auth/accounts.cache.service';
 import { ExpoService } from '../util/expo/expo.service';
 import { CONFIG } from '~/config';
+import { BalancesService } from '~/features/util/balances/balances.service';
 
-const altEthAddress = asAddress(L2_ETH_TOKEN_ADDRESS);
-const normalizeEthAddress = (address: Address) =>
-  address === altEthAddress ? ETH_ADDRESS : address;
-
-export const getTransferTrigger = (account: Address) => `transfer.account.${account}`;
+export const getTransferTrigger = (account: UAddress) => `transfer.account.${account}`;
 export interface TransferSubscriptionPayload {
   transfer: uuid;
-  account: Address;
   directions: TransferDirection[];
   internal: boolean;
 }
@@ -38,31 +44,32 @@ export class TransfersEvents {
     private db: DatabaseService,
     private eventsProcessor: EventsProcessor,
     private transactionsProcessor: TransactionsProcessor,
-    private provider: ProviderService,
+    private networks: NetworksService,
     private pubsub: PubsubService,
     private accountsCache: AccountsCacheService,
     private expo: ExpoService,
+    private balances: BalancesService,
   ) {
     /*
      * Events processor handles events `to` account
      * Transactions processor handles events `from` account - in order to be associated with the transaction
      */
-    const transferSelector = getEventSelector(getAbiItem({ abi: ERC20_ABI, name: 'Transfer' }));
-    this.eventsProcessor.on(transferSelector, (data) => this.transfer(data));
-    this.transactionsProcessor.onEvent(transferSelector, (data) => this.transfer(data));
+    const transferEvent = getAbiItem({ abi: ERC20, name: 'Transfer' });
+    this.eventsProcessor.on(transferEvent, (data) => this.transfer(data));
+    this.transactionsProcessor.onEvent(transferEvent, (data) => this.transfer(data));
 
-    const approvalSelector = getEventSelector(getAbiItem({ abi: ERC20_ABI, name: 'Approval' }));
-    this.eventsProcessor.on(approvalSelector, (data) => this.approval(data));
-    this.transactionsProcessor.onEvent(approvalSelector, (data) => this.approval(data));
+    const approvalEvent = getAbiItem({ abi: ERC20, name: 'Approval' });
+    this.eventsProcessor.on(approvalEvent, (data) => this.approval(data));
+    this.transactionsProcessor.onEvent(approvalEvent, (data) => this.approval(data));
   }
 
   private async transfer(event: EventData | TransactionEventData) {
-    const { log } = event;
+    const { chain, log } = event;
     const isFromTransaction = 'receipt' in event;
 
     const r = tryOrIgnore(() =>
       decodeEventLog({
-        abi: ERC20_ABI,
+        abi: ERC20,
         eventName: 'Transfer',
         data: log.data as Hex,
         topics: log.topics as [Hex, ...Hex[]],
@@ -70,15 +77,18 @@ export class TransfersEvents {
     );
     if (!r) return;
 
-    const { from, to, value: amount } = r.args;
+    const from = asUAddress(r.args.from, chain);
+    const to = asUAddress(r.args.to, chain);
+    const amount = r.args.value;
 
     const isAccount = await this.accountsCache.isAccount([from, to]);
     const accounts = [isAccount[0] && from, isAccount[1] && to].filter(isTruthy);
     if (!accounts.length) return;
 
-    const token = normalizeEthAddress(asAddress(log.address));
-    const { timestamp } = await this.provider.getBlock(log.blockNumber);
-    const block = BigInt(log.blockNumber);
+    const token = asUAddress(normalizeEthAddress(asAddress(log.address)), chain);
+    const network = this.networks.get(chain);
+    const block =
+      'block' in event ? event.block : await network.getBlock({ blockNumber: log.blockNumber });
 
     await Promise.all(
       accounts.map(async (account) => {
@@ -99,10 +109,10 @@ export class TransfersEvents {
                   })),
                 ),
                 logIndex: log.logIndex,
-                block,
-                timestamp: new Date(timestamp * 1000),
-                from,
-                to,
+                block: log.blockNumber,
+                timestamp: new Date(Number(block.timestamp) * 1000),
+                from: asAddress(from),
+                to: asAddress(to),
                 tokenAddress: token,
                 amount: from === to ? 0n : to === account ? amount : -amount,
                 direction: [account === to && 'In', account === from && 'Out'].filter(Boolean) as [
@@ -120,11 +130,10 @@ export class TransfersEvents {
           ),
         );
 
-        this.provider.invalidateBalance({ account, token });
+        this.balances.invalidateBalance({ account, token: asAddress(token) });
 
         this.pubsub.publish<TransferSubscriptionPayload>(getTransferTrigger(account), {
           transfer: transfer.id,
-          account,
           directions: [
             from === account && TransferDirection.Out,
             to === account && TransferDirection.In,
@@ -132,7 +141,7 @@ export class TransfersEvents {
           internal: transfer.internal,
         });
 
-        if (!isFromTransaction && from !== BOOTLOADER_FORMAL_ADDRESS) {
+        if (!isFromTransaction && asAddress(from) !== zkUtils.BOOTLOADER_FORMAL_ADDRESS) {
           Logger.debug(
             `[${account}]: token (${token}) transfer ${
               from === account ? `to ${to}` : `from ${from}`
@@ -146,11 +155,11 @@ export class TransfersEvents {
   }
 
   private async approval(event: EventData | TransactionEventData) {
-    const { log } = event;
+    const { chain, log } = event;
 
     const r = tryOrIgnore(() =>
       decodeEventLog({
-        abi: ERC20_ABI,
+        abi: ERC20,
         eventName: 'Approval',
         data: log.data as Hex,
         topics: log.topics as [Hex, ...Hex[]],
@@ -158,15 +167,17 @@ export class TransfersEvents {
     );
     if (!r) return;
 
-    const { owner: from, spender: to, value: amount } = r.args;
+    const from = asUAddress(r.args.owner, chain);
+    const to = asUAddress(r.args.spender, chain);
+    const amount = r.args.value;
 
     const isAccount = await this.accountsCache.isAccount([from, to]);
     const accounts = [isAccount[0] && from, isAccount[1] && to].filter(isTruthy);
     if (!accounts.length) return;
 
-    Logger.debug(`Transfer approval ${from} -> ${to}`);
-    const block = await this.provider.getBlock(log.blockNumber);
-    const tokenAddress = normalizeEthAddress(asAddress(log.address));
+    const tokenAddress = asUAddress(normalizeEthAddress(asAddress(log.address)), chain);
+    const block = await this.networks.get(chain).getBlock({ blockNumber: log.blockNumber });
+    Logger.debug(`Transfer approval ${tokenAddress}: ${from} -> ${to}`);
 
     await Promise.all(
       accounts.map(async (account) => {
@@ -176,10 +187,10 @@ export class TransfersEvents {
               account: selectAccount(account),
               transactionHash: log.transactionHash,
               logIndex: log.logIndex,
-              block: BigInt(log.blockNumber),
-              timestamp: new Date(block.timestamp * 1000),
-              from,
-              to,
+              block: log.blockNumber,
+              timestamp: new Date(Number(block.timestamp) * 1000),
+              from: asAddress(from),
+              to: asAddress(to),
               tokenAddress,
               amount: from === to ? 0n : to === account ? amount : -amount,
               direction: [account === to && 'In', account === from && 'Out'].filter(Boolean) as [
@@ -196,9 +207,9 @@ export class TransfersEvents {
 
   private async notifyMembers(
     type: 'transfer' | 'approval',
-    account: Address,
-    from: Address,
-    token: Address,
+    account: UAddress,
+    from: UAddress,
+    token: UAddress,
     amount: bigint,
   ) {
     const { acc, tokenMetadata } = await this.db.query(
@@ -236,12 +247,10 @@ export class TransfersEvents {
     if (!acc) return;
 
     const accountName = acc.label + CONFIG.ensSuffix;
-    const truncatedTokenLabel = `${token.slice(0, 5)}...${token.length - 3}`;
-    const truncatedFromLabel = `${from.slice(0, 5)}...${from.length - 3}`;
 
     await this.expo.sendNotification(
       acc.approvers.map((a) => {
-        const fromLabel = a.fromContactLabel || truncatedFromLabel;
+        const fromLabel = a.fromContactLabel || truncateAddress(from);
         const t = a.token ?? tokenMetadata;
 
         return {
@@ -254,17 +263,26 @@ export class TransfersEvents {
             type === 'transfer'
               ? t
                 ? `${formatUnits(amount, t.decimals)} ${t.symbol} received from ${fromLabel}`
-                : `Tokens (${truncatedTokenLabel}) received from ${fromLabel}`
+                : `Tokens (${truncateAddress(token)}) received from ${fromLabel}`
               : t
               ? `${fromLabel} has allowed you to spend ${formatUnits(
                   amount,
                   t.decimals,
                 )} of their ${t.symbol} `
-              : `${fromLabel} has allowed you to spend their tokens (${truncatedTokenLabel})`,
+              : `${fromLabel} has allowed you to spend their tokens (${truncateAddress(token)})`,
           channelId: 'transfers',
           priority: 'normal',
         };
       }),
     );
   }
+}
+
+function truncateAddress(address: UAddress) {
+  const local = asAddress(address);
+  return `${local.slice(0, 5)}...${local.length - 3}`;
+}
+
+function normalizeEthAddress(address: Address) {
+  return isEthToken(address) ? ETH_ADDRESS : address;
 }

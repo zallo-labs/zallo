@@ -1,8 +1,9 @@
 import { Field, InputType, registerEnumType } from '@nestjs/graphql';
-import { Address, Hex, PolicyKey } from 'lib';
-import { AddressField, AddressScalar } from '~/apollo/scalars/Address.scalar';
+import { Address, Hex, PolicyKey, UAddress } from 'lib';
+import { AddressField } from '~/apollo/scalars/Address.scalar';
 import { Bytes32Field, Bytes32Scalar, BytesField } from '~/apollo/scalars/Bytes.scalar';
 import { PolicyKeyField } from '~/apollo/scalars/PolicyKey.scalar';
+import { UAddressScalar } from '~/apollo/scalars/UAddress.scalar';
 
 @InputType()
 export class ProposalInput {
@@ -12,8 +13,8 @@ export class ProposalInput {
 
 @InputType()
 export class ProposalsInput {
-  @Field(() => [AddressScalar], { nullable: true })
-  accounts?: Address[];
+  @Field(() => [UAddressScalar], { nullable: true })
+  accounts?: UAddress[];
 
   @Field(() => Boolean, { nullable: true })
   pending?: boolean;
@@ -64,11 +65,11 @@ export class ProposalSubscriptionInput {
   @Field(() => [Bytes32Scalar], { nullable: true })
   proposals?: Hex[];
 
-  @Field(() => [AddressScalar], {
+  @Field(() => [UAddressScalar], {
     nullable: true,
     description: 'Defaults to user accounts if no proposals are provided',
   })
-  accounts?: Address[];
+  accounts?: UAddress[];
 
   @Field(() => [ProposalEvent], { nullable: true, description: 'Defaults to all events' })
   events?: ProposalEvent[];

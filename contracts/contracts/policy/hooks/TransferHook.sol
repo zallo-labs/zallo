@@ -86,6 +86,8 @@ library TransferHook {
                                 UTILITY
   //////////////////////////////////////////////////////////////*/
 
+  bytes4 constant ERC20_INCREASE_ALLOWANCE_SELECTOR = 0x39509351; // Not officially part of ERC20, but common due to being part of OZ's ERC20 implementation (< v5)
+
   function _getTransfer(
     Operation memory op
   ) private pure returns (TransferDetails memory transfer) {
@@ -94,7 +96,7 @@ library TransferHook {
       op.data.length == 68 &&
       (bytes4(op.data) == ERC20.transfer.selector ||
         bytes4(op.data) == ERC20.approve.selector ||
-        bytes4(op.data) == ERC20.increaseAllowance.selector)
+        bytes4(op.data) == ERC20_INCREASE_ALLOWANCE_SELECTOR)
     ) {
       if (op.value != 0) revert CombinedTransferNotSupported();
 

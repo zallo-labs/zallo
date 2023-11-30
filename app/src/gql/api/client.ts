@@ -1,4 +1,3 @@
-import 'core-js/full/symbol/async-iterator';
 import { Client, fetchExchange, subscriptionExchange, mapExchange, OperationContext } from 'urql';
 import { offlineExchange } from '@urql/exchange-graphcache';
 import { makeAsyncStorage } from '@urql/storage-rn';
@@ -7,44 +6,54 @@ import { retryExchange } from '@urql/exchange-retry';
 import { devtoolsExchange } from '@urql/devtools';
 import { CONFIG } from '~/util/config';
 import { authExchange } from '@urql/exchange-auth';
-import { Addresslike, Hex, asAddress, asHex } from 'lib';
+import { Address, Hex } from 'lib';
 import { DateTime } from 'luxon';
 import { SiweMessage } from 'siwe';
 import { atom, useAtomValue } from 'jotai';
-import { DANGEROUS_approverAtom } from '@network/useApprover';
+import { DANGEROUS_approverAtom } from '~/lib/network/useApprover';
 import { createClient as createWsClient } from 'graphql-ws';
-import schema from './schema.generated';
 import { logError } from '~/util/analytics';
 import crypto from 'crypto';
-import { CACHE_CONFIG } from './cache';
+import { CACHE_SCHEMA_CONFIG } from './cache';
 import { E_ALREADY_LOCKED, Mutex, tryAcquire } from 'async-mutex';
-import { secureJsonStorage } from '~/lib/secure-storage/json';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { createJSONStorage } from 'jotai/utils';
+import { requestPolicyExchange } from '@urql/exchange-request-policy';
 
-const TOKEN_KEY = 'apiToken';
+const TOKEN_KEY = 'api-token';
+const storage = createJSONStorage<Token | null>(() => AsyncStorage);
 
 interface Token {
-  message: SiweMessage;
+  message: Partial<SiweMessage>;
   signature: Hex;
+}
+
+interface State {
+  token: Token;
+  headers: ReturnType<typeof getHeaders>;
 }
 
 const client = atom(async (get) => {
   const approver = get(DANGEROUS_approverAtom);
 
-  const storage = secureJsonStorage<Token | null>();
-  const initialToken = storage.getItem(TOKEN_KEY, null);
-  let token: Token | null = null;
-  let headers = getHeaders(token);
+  let initialToken: PromiseLike<Token | null> | null = storage.getItem(TOKEN_KEY, null);
+  let state: State | null = null;
 
   const refreshMutex = new Mutex();
   async function refreshAuth() {
     try {
       await tryAcquire(refreshMutex).runExclusive(async () => {
-        token ??= await initialToken;
-        if (isInvalidToken(token)) {
+        let token = null;
+        if (initialToken) {
+          token = await initialToken;
+          initialToken = null;
+        }
+
+        if (!token || isInvalidToken(token)) {
           token = await createToken(await approver);
           storage.setItem(TOKEN_KEY, token);
         }
-        headers = getHeaders(token);
+        state = { token, headers: getHeaders(token) };
       });
     } catch (e) {
       if (e === E_ALREADY_LOCKED) {
@@ -56,11 +65,7 @@ const client = atom(async (get) => {
     }
   }
 
-  const isInvalidToken = (token: Token | null) =>
-    !token ||
-    (!!token.message.expirationTime &&
-      DateTime.fromISO(token.message.expirationTime) <= DateTime.now());
-  const willAuthError = () => isInvalidToken(token);
+  const willAuthError = () => !state || isInvalidToken(state.token);
 
   const wsClient = createWsClient({
     url: CONFIG.apiGqlWs,
@@ -68,7 +73,7 @@ const client = atom(async (get) => {
     retryAttempts: 10,
     async connectionParams() {
       if (willAuthError()) await refreshAuth();
-      return headers;
+      return state?.headers ?? {};
     },
   });
 
@@ -76,7 +81,6 @@ const client = atom(async (get) => {
     url: `${CONFIG.apiUrl}/graphql`,
     fetchOptions: { credentials: 'include' },
     suspense: true,
-    requestPolicy: 'cache-and-network',
     exchanges: [
       __DEV__ && devtoolsExchange,
       mapExchange({
@@ -84,15 +88,17 @@ const client = atom(async (get) => {
           logError('[urql] error: ' + error.message, { error, operation });
         },
       }),
+      requestPolicyExchange({
+        /* ttl (default): 5 minutes */
+      }),
       // refocusExchange(),
       offlineExchange({
-        schema,
         storage: makeAsyncStorage({
           dataKey: 'urql-data', // AsyncStorage key
           metadataKey: 'urql-metadata', // AsyncStorage key
           maxAge: 28, // How many days to persist the data in storage
         }),
-        ...CACHE_CONFIG,
+        ...CACHE_SCHEMA_CONFIG,
       }),
       persistedExchange({
         generateHash: async (query, _document) =>
@@ -102,7 +108,7 @@ const client = atom(async (get) => {
         addAuthToOperation(operation) {
           if (operation.context.skipAddAuthToOperation) return operation;
 
-          return utils.appendHeaders(operation, headers);
+          return utils.appendHeaders(operation, state?.headers ?? {});
         },
         didAuthError(error, _operation) {
           return error.response?.status === 401; // Unauthorized
@@ -130,8 +136,8 @@ const client = atom(async (get) => {
 export const useUrqlApiClient = () => useAtomValue(client);
 
 interface CreateTokenApprover {
-  address: Addresslike;
-  signMessage: (message: string) => Promise<string>;
+  address: Address;
+  signMessage: (m: { message: string }) => Promise<Hex>;
 }
 
 async function createToken(approver: CreateTokenApprover): Promise<Token> {
@@ -142,7 +148,7 @@ async function createToken(approver: CreateTokenApprover): Promise<Token> {
   const message = new SiweMessage({
     version: '1',
     domain: new URL(CONFIG.apiUrl).host,
-    address: asAddress(approver.address),
+    address: approver.address,
     nonce,
     expirationTime: DateTime.now().plus({ days: 2 }).toString(),
     uri: 'https://app.zallo.com', // Required but unused
@@ -151,12 +157,24 @@ async function createToken(approver: CreateTokenApprover): Promise<Token> {
 
   return {
     message,
-    signature: asHex(await approver.signMessage(message.prepareMessage())),
+    signature: await approver.signMessage({ message: message.prepareMessage() }),
   };
 }
 
-function getHeaders(token: Token | null): { Authorization?: string } {
-  return { Authorization: token ? JSON.stringify(token) : undefined };
+function getHeaders(token: Token): { Authorization: string } {
+  return {
+    Authorization: JSON.stringify({
+      message: new SiweMessage(token.message).prepareMessage(),
+      signature: token.signature,
+    }),
+  };
+}
+
+function isInvalidToken(token: Token) {
+  return (
+    !!token.message.expirationTime &&
+    DateTime.fromISO(token.message.expirationTime) <= DateTime.now()
+  );
 }
 
 export async function authContext(

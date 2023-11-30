@@ -3,9 +3,7 @@ import * as Auth from 'expo-local-authentication';
 import { persistedAtom } from '~/lib/persistedAtom';
 import { Platform } from 'react-native';
 
-const BIOMETRICS_ENABLED = persistedAtom<boolean | null>('biometrics', null, {
-  skipInitialPersist: true,
-});
+const BIOMETRICS_ENABLED = persistedAtom<boolean | null>('biometrics', null);
 
 const BIOMETRICS_AVAILABLE = atom(Platform.select({ native: Auth.isEnrolledAsync() }));
 

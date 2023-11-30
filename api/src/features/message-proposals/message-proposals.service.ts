@@ -6,20 +6,30 @@ import { TypedDataDefinition, concat, hashMessage, hexToString, keccak256 } from
 import e from '~/edgeql-js';
 import { selectAccount } from '../accounts/accounts.util';
 import { ProposalsService, UniqueProposal } from '../proposals/proposals.service';
-import { Address, Hex, asHex, encodeAccountSignature, isHex, isPresent, mapAsync } from 'lib';
+import {
+  Hex,
+  asAddress,
+  asApproval,
+  asHex,
+  asUAddress,
+  encodeTransactionSignature,
+  isHex,
+  isPresent,
+  mapAsync,
+} from 'lib';
 import { ShapeFunc } from '../database/database.select';
 import { policyStateAsPolicy, policyStateShape } from '../policies/policies.util';
-import { ProviderService } from '../util/provider/provider.service';
+import { NetworksService } from '../util/networks/networks.service';
 import { UserInputError } from '@nestjs/apollo';
 import { ethers } from 'ethers';
 import _ from 'lodash';
-import { Writable, WritableDeep } from 'ts-toolbelt/out/Object/Writable';
+import { WritableDeep } from 'ts-toolbelt/out/Object/Writable';
 
 @Injectable()
 export class MessageProposalsService {
   constructor(
     private db: DatabaseService,
-    private provider: ProviderService,
+    private networks: NetworksService,
     private proposals: ProposalsService,
   ) {}
 
@@ -123,17 +133,20 @@ export class MessageProposalsService {
     if (!policy) return undefined;
 
     // TODO: handle expired approvals
+    const account = asUAddress(proposal.account.address);
+    const network = this.networks.for(account);
     const approvals = (
       await mapAsync(proposal.approvals, (a) =>
-        this.provider.asApproval({
-          digest: proposalHash,
-          approver: a.approver.address as Address,
-          signature: a.signature as Hex,
+        asApproval({
+          hash: proposalHash,
+          approver: asAddress(a.approver.address),
+          signature: asHex(a.signature),
+          network,
         }),
       )
     ).filter(isPresent);
 
-    const signature = encodeAccountSignature(0n, policy, approvals);
+    const signature = encodeTransactionSignature(0n, policy, approvals);
 
     await this.db.query(
       e.update(e.MessageProposal, () => ({
@@ -142,10 +155,7 @@ export class MessageProposalsService {
       })),
     );
 
-    await this.proposals.publishProposal(
-      { hash: proposalHash, account: proposal.account.address as Address },
-      ProposalEvent.approved,
-    );
+    await this.proposals.publishProposal({ hash: proposalHash, account }, ProposalEvent.approved);
 
     return signature;
   }
@@ -156,10 +166,10 @@ export class MessageProposalsService {
         (
           [
             '0x1901',
-            typedData.domain && ethers.utils._TypedDataEncoder.hashDomain(typedData.domain),
-            ethers.utils._TypedDataEncoder
-              .from(_.omit(typedData.types as WritableDeep<typeof typedData.types>, 'EIP712Domain'))
-              .hash(typedData.message),
+            typedData.domain && ethers.TypedDataEncoder.hashDomain(typedData.domain),
+            ethers.TypedDataEncoder.from(
+              _.omit(typedData.types as WritableDeep<typeof typedData.types>, 'EIP712Domain'),
+            ).hash(typedData.message),
           ] as Hex[]
         ).filter(isPresent),
       ),

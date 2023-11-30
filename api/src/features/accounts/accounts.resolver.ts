@@ -32,17 +32,16 @@ export class AccountsResolver {
   ) {}
 
   @ComputedField<typeof e.Account>(() => String, { label: true })
-  name(@Parent() { label }: Account): String {
+  name(@Parent() { label }: Account): string {
     return label + CONFIG.ensSuffix;
   }
 
   @Query(() => Account, { nullable: true })
   async account(
-    @Input({ defaultValue: {} }) { address }: AccountInput,
+    @Input({ defaultValue: {} }) { account }: AccountInput,
     @Info() info: GraphQLResolveInfo,
   ) {
-    const r = await this.service.selectUnique(address, getShape(info));
-    return r;
+    return this.service.selectUnique(account, getShape(info));
   }
 
   @Query(() => [Account])
@@ -64,7 +63,7 @@ export class AccountsResolver {
   @Mutation(() => Account)
   async updateAccount(@Input() input: UpdateAccountInput, @Info() info: GraphQLResolveInfo) {
     await this.service.updateAccount(input);
-    return this.service.selectUnique(input.address, getShape(info));
+    return this.service.selectUnique(input.account, getShape(info));
   }
 
   @Subscription(() => Account, {

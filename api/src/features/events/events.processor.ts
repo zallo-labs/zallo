@@ -1,23 +1,23 @@
 import { BullModuleOptions, InjectQueue, OnQueueFailed, Process, Processor } from '@nestjs/bull';
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { Job, Queue } from 'bull';
-import { ProviderService } from '../util/provider/provider.service';
-import _ from 'lodash';
-import { Log } from '@ethersproject/abstract-provider';
-import { BigNumber } from 'ethers';
+import { NetworksService } from '../util/networks/networks.service';
 import { DatabaseService } from '../database/database.service';
 import e from '~/edgeql-js';
 import { P, match } from 'ts-pattern';
-import { tryOrCatchAsync } from 'lib';
+import { Hex, asHex, tryOrCatchAsync } from 'lib';
+import { Chain } from 'chains';
 import { InjectRedis } from '@songkeys/nestjs-redis';
 import Redis from 'ioredis';
 import { Mutex } from 'redis-semaphore';
 import { RUNNING_JOB_STATUSES } from '../util/bull/bull.util';
+import { AbiEvent } from 'abitype';
+import { Log as ViemLog, encodeEventTopics, hexToNumber } from 'viem';
 
 const DEFAULT_CHUNK_SIZE = 200;
 const BLOCK_TIME_MS = 500;
 const BLOCKS_DELAYED_MS = 2500;
-const TOO_MANY_RESULTS_PATTERN =
+const TOO_MANY_RESULTS_RE =
   /Query returned more than 10000 results. Try with this block range \[(?:0x[0-9a-f]+), (0x[0-9a-f]+)\]/;
 
 export const EVENTS_QUEUE = {
@@ -34,12 +34,16 @@ export const EVENTS_QUEUE = {
 } satisfies BullModuleOptions;
 
 export interface EventJobData {
+  chain: Chain;
   from: number;
   to?: number;
   queueNext?: false | number;
 }
 
+export type Log = ViemLog<bigint, number, false, undefined, true, AbiEvent[], undefined>;
+
 export interface EventData {
+  chain: Chain;
   log: Log;
 }
 
@@ -48,13 +52,13 @@ export type EventListener = (data: EventData) => Promise<void>;
 @Injectable()
 @Processor(EVENTS_QUEUE.name)
 export class EventsProcessor implements OnModuleInit {
-  private listeners = new Map<string, EventListener[]>();
-  private topics: string[] = [];
+  private listeners = new Map<Hex, EventListener[]>();
+  private events: AbiEvent[] = [];
 
   constructor(
     @InjectQueue(EVENTS_QUEUE.name)
     private queue: Queue<EventJobData>,
-    private provider: ProviderService,
+    private networks: NetworksService,
     private db: DatabaseService,
     @InjectRedis() private redis: Redis,
   ) {}
@@ -68,15 +72,19 @@ export class EventsProcessor implements OnModuleInit {
     }
   }
 
-  on(topic: string, listener: EventListener) {
+  on(event: AbiEvent, listener: EventListener) {
+    const topic = encodeEventTopics({ abi: [event] })[0];
     this.listeners.set(topic, [...(this.listeners.get(topic) ?? []), listener]);
-    this.topics.push(topic);
+    this.events.push(event);
   }
 
   @Process()
   async process(job: Job<EventJobData>) {
+    const { chain } = job.data;
+    const network = this.networks.get(chain);
+
     const latest = await tryOrCatchAsync(
-      () => this.provider.getBlockNumber(),
+      async () => Number(await network.getBlockNumber()), // Warning: truncate bigint -> number
       async (e) => {
         if (job.data.queueNext !== false) {
           // Next job hasn't been queued yet, queue it next attempt
@@ -97,28 +105,32 @@ export class EventsProcessor implements OnModuleInit {
     if (shouldQueue) {
       if (latest < from) {
         // Up to date; retry after a delay
-        return this.queue.add({ from }, { delay: BLOCKS_DELAYED_MS });
+        return this.queue.add({ chain, from }, { delay: BLOCKS_DELAYED_MS });
       } else {
         // Queue up next job
-        this.queue.add({ from: to + 1 }, { delay: latest === from ? BLOCK_TIME_MS : undefined });
+        this.queue.add(
+          { chain, from: to + 1 },
+          { delay: latest === from ? BLOCK_TIME_MS : undefined },
+        );
       }
     }
 
     let logs: Log[];
     try {
-      logs = await this.provider.getLogs({
-        fromBlock: from,
-        toBlock: to,
-        topics: [this.topics],
+      logs = await network.getLogs({
+        fromBlock: BigInt(from),
+        toBlock: BigInt(to),
+        events: this.events,
+        strict: true,
       });
     } catch (e) {
-      const match = TOO_MANY_RESULTS_PATTERN.exec((e as Error).message ?? '');
+      const match = TOO_MANY_RESULTS_RE.exec((e as Error).message ?? '');
       if (match) {
         // Split the job into two smaller jobs
-        const newTo = BigNumber.from(match[1]).toNumber();
+        const newTo = hexToNumber(asHex(match[1]));
         return this.queue.addBulk([
-          { data: { from, to: newTo, queueNext: false } },
-          { data: { from: newTo + 1, to, queueNext: false } },
+          { data: { chain, from, to: newTo, queueNext: false } },
+          { data: { chain, from: newTo + 1, to, queueNext: false } },
         ]);
       }
 
@@ -126,9 +138,11 @@ export class EventsProcessor implements OnModuleInit {
     }
 
     await Promise.all(
-      logs.flatMap(
-        (log) => this.listeners.get(log.topics[0])?.map((listener) => listener({ log })),
-      ),
+      logs
+        .filter((log) => log.topics.length)
+        .flatMap(
+          (log) => this.listeners.get(log.topics[0]!)?.map((listener) => listener({ chain, log })),
+        ),
     );
     Logger.verbose(`Processed ${logs.length} events from ${to - from + 1} blocks [${from}, ${to}]`);
   }
@@ -140,25 +154,33 @@ export class EventsProcessor implements OnModuleInit {
   }
 
   private async addMissingJob() {
-    const nExistingJobs = await this.queue.getJobCountByTypes(RUNNING_JOB_STATUSES);
-    Logger.log(`Events starting with jobs: ${nExistingJobs}`);
-    if (nExistingJobs) return;
+    const runningJobs = await this.queue.getJobs(RUNNING_JOB_STATUSES);
 
-    const lastProcessedBlock = (await e
-      .max(
-        e.op(
-          e.select(e.Receipt, () => ({ block: true })).block,
-          'union',
-          e.select(e.Transfer, () => ({ block: true })).block,
-        ),
-      )
-      .run(this.db.client)) as bigint | null; // Return type is overly broad - https://github.com/edgedb/edgedb-js/issues/594
+    for await (const network of this.networks) {
+      if (runningJobs.find((j) => j.data.chain === network.chain.key)) continue;
 
-    const from = lastProcessedBlock
-      ? parseInt(lastProcessedBlock.toString()) + 1 // Warning: bigint -> number
-      : await this.provider.getBlockNumber();
-    Logger.log(`Events starting from block ${from}`);
+      const lastProcessedBlock = (await e
+        .max(
+          e.op(
+            e.select(e.Receipt, (r) => ({
+              filter: e.op(r.transaction.proposal.account.chain, '=', network.chain.key),
+              block: true,
+            })).block,
+            'union',
+            e.select(e.Transfer, (t) => ({
+              filter: e.op(t.account.chain, '=', network.chain.key),
+              block: true,
+            })).block,
+          ),
+        )
+        .run(this.db.client)) as bigint | null; // Return type is overly broad - https://github.com/edgedb/edgedb-js/issues/594
 
-    this.queue.add({ from });
+      const from = lastProcessedBlock
+        ? Number(lastProcessedBlock) + 1 // Warning: bigint -> number
+        : Number(await network.getBlockNumber()); // Warning: bigint -> number
+      Logger.log(`${network.chain.key}: events starting from block ${from}`);
+
+      this.queue.add({ chain: network.chain.key, from });
+    }
   }
 }

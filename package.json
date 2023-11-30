@@ -1,6 +1,6 @@
 {
   "name": "zallo",
-  "packageManager": "yarn@3.6.0",
+  "packageManager": "yarn@4.0.2",
   "private": true,
   "version": "0.1.0",
   "author": "Hayden Briese <haydenbriese@gmail.com>",
@@ -10,6 +10,7 @@
     "contracts",
     "lib",
     "site",
+    "packages/**",
     "services/**"
   ],
   "scripts": {
@@ -19,6 +20,7 @@
     "contracts": "yarn turbo run -F contracts",
     "lib": "yarn turbo run -F lib",
     "site": "yarn turbo run -F site",
+    "chains": "yarn turbo run -F chains",
     "dev": "yarn turbo run dev",
     "test": "yarn turbo run test",
     "prettier": "prettier --config .config/.prettierrc --ignore-path .config/.prettierignore --ignore-unknown",
@@ -27,11 +29,12 @@
   },
   "engines": {
     "node": "20.9.0",
-    "yarn": "3.x"
+    "yarn": "4.x"
   },
   "devDependencies": {
-    "@typescript-eslint/eslint-plugin": "^6.10.0",
-    "@typescript-eslint/parser": "^6.10.0",
+    "@typescript-eslint/eslint-plugin": "^6.12.0",
+    "@typescript-eslint/parser": "^6.12.0",
+    "eslint": "^8.54.0",
     "eslint-config-prettier": "^9.0.0",
     "eslint-plugin-eslint-comments": "^3.2.0",
     "eslint-plugin-neverthrow": "^1.1.4",
@@ -43,12 +46,10 @@
   "resolutions": {
     "graphql": "^16.8.0",
     "dotenv": "^16.3.1",
-    "@ethersproject/abstract-provider": "5.7.0",
     "wonka": "^6.3.4",
     "react-refresh": "~0.14.0",
-    "ioredis": "5.3.2"
-  },
-  "dependencies": {
-    "node-gyp": "^9.4.0"
+    "ioredis": "5.3.2",
+    "apg-js": "^4.2.0",
+    "zksync2-js@^0.3.0": "patch:zksync2-js@npm%3A0.3.0#./.yarn/patches/zksync2-js-npm-0.3.0-9c34d26743.patch"
   }
 }

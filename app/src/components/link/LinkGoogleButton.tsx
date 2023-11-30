@@ -1,65 +1,36 @@
-import { gql } from '@api';
-import { useMutation } from 'urql';
-import { useQuery } from '~/gql';
-import { authContext } from '@api/client';
-import { ImageRequireSource } from 'react-native';
+import { FragmentType, gql, useFragment } from '@api';
 import { Fab } from '~/components/Fab';
-import { Image } from 'expo-image';
-import { useGetGoogleApprover } from '~/hooks/cloud/useGetGoogleApprover';
-import { showError } from '~/components/provider/SnackbarProvider';
 import { createStyles } from '@theme/styles';
+import { GoogleIcon } from '@theme/icons';
+import { UseLinkGoogleProps, useLinkGoogle } from '~/hooks/cloud/useLinkGoogle';
 
-const Query = gql(/* GraphQL */ `
-  query SignInWithGoogleButton {
-    user {
-      id
-      linkingToken
-    }
+const User = gql(/* GraphQL */ `
+  fragment LinkGoogleButton_User on User {
+    id
+    ...useLinkGoogle_User
   }
 `);
 
-const Link = gql(/* GraphQL */ `
-  mutation SignInWithGoogleButton_Link($token: String!) {
-    link(input: { token: $token }) {
-      id
-      approvers {
-        id
-      }
-    }
-  }
-`);
-
-const GoogleIconSource: ImageRequireSource = require('assets/google.png');
-
-export interface LinkGoogleButtonProps {
+export interface LinkGoogleButtonProps extends Pick<UseLinkGoogleProps, 'signOut'> {
+  user: FragmentType<typeof User>;
   onLink?: () => void | Promise<void>;
-  signOut?: boolean;
 }
 
-export function LinkGoogleButton({ onLink, signOut }: LinkGoogleButtonProps) {
-  const getApprover = useGetGoogleApprover();
-  const link = useMutation(Link)[1];
+export function LinkGoogleButton({ user, onLink, ...params }: LinkGoogleButtonProps) {
+  const link = useLinkGoogle({
+    user: useFragment(User, user),
+    ...params,
+  });
 
-  const { user } = useQuery(Query).data;
-
-  if (!getApprover) return null;
+  if (!link) return null;
 
   return (
     <Fab
       position="relative"
-      icon={(iconProps) => <Image source={GoogleIconSource} style={styles.icon(iconProps.size)} />}
+      icon={(iconProps) => <GoogleIcon style={styles.icon(iconProps.size)} />}
       style={styles.container}
       onPress={async () => {
-        const r = await getApprover({ signOut });
-        if (r.isErr())
-          return showError('Something went wrong, failed to link Google account', {
-            event: { error: r.error },
-          });
-
-        const { approver } = r.value;
-        await link({ token: user.linkingToken }, await authContext(approver));
-
-        await onLink?.();
+        if (await link()) await onLink?.();
       }}
     />
   );

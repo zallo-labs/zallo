@@ -1,14 +1,14 @@
 import { Field, InputType } from '@nestjs/graphql';
-import { Address, Hex } from 'lib';
+import { UAddress, Hex } from 'lib';
 import { TypedDataDefinition } from 'viem';
-import { AddressField } from '~/apollo/scalars/Address.scalar';
+import { UAddressField } from '~/apollo/scalars/UAddress.scalar';
 import { BytesScalar } from '~/apollo/scalars/Bytes.scalar';
 import { TypedDataField } from '~/apollo/scalars/TypedData.scalar';
 
 @InputType()
 export class ProposeMessageInput {
-  @AddressField()
-  account: Address;
+  @UAddressField()
+  account: UAddress;
 
   @Field(() => String, { nullable: true, description: 'Optional if typedData is provided' })
   message?: string;

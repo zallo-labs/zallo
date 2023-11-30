@@ -1,4 +1,3 @@
-import { Approver, asAddress } from 'lib';
 import { useCallback } from 'react';
 import { CloudStorage, CloudStorageScope } from 'react-native-cloud-storage';
 import { split, combine } from 'shamir-secret-sharing';
@@ -7,6 +6,8 @@ import { authContext, useUrqlApiClient } from '@api/client';
 import { useMutation } from 'urql';
 import { Result, ResultAsync, err, ok } from 'neverthrow';
 import { logError } from '~/util/analytics';
+import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts';
+import { bytesToHex } from 'viem';
 
 const CLOUD_SHARE_PATH = 'approver-share';
 const SCOPE = CloudStorageScope.AppData;
@@ -66,17 +67,18 @@ export function useGetCloudApprover() {
         const shares = [cloudShare, apiShare].map(
           (shareHex) => new Uint8Array(Buffer.from(shareHex, 'hex')),
         );
-        const recoveredPrivateKey = Buffer.from(await combine(shares)).toString('utf-8');
+        const recoveredPrivateKey = bytesToHex(await combine(shares));
 
         return Result.fromThrowable(
-          () => new Approver(recoveredPrivateKey),
+          () => privateKeyToAccount(recoveredPrivateKey),
           () => 'invalid-private-key' as const,
         )();
       } else if (!cloudShare && !apiShare) {
         // Create approver and shares
-        const approver = Approver.createRandom();
+        const privateKey = generatePrivateKey();
+        const approver = privateKeyToAccount(privateKey);
 
-        const secret = new Uint8Array(Buffer.from(approver.privateKey, 'utf-8'));
+        const secret = new Uint8Array(Buffer.from(privateKey, 'utf-8'));
         const [cloudShare, apiShare] = (await split(secret, 2, 2)).map((share) =>
           Buffer.from(share).toString('hex'),
         );
@@ -87,7 +89,7 @@ export function useGetCloudApprover() {
             updateApprover(
               {
                 input: {
-                  address: asAddress(approver.address),
+                  address: approver.address,
                   name: create?.name,
                   cloud: {
                     idToken,

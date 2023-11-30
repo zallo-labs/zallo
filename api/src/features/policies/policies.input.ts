@@ -1,16 +1,17 @@
 import { Field, InputType, IntersectionType, PartialType } from '@nestjs/graphql';
-import { Address, Hex, PolicyId, PolicyKey, Selector } from 'lib';
+import { Address, Hex, PolicyId, PolicyKey, Selector, UAddress } from 'lib';
 import { AddressField, AddressScalar } from '~/apollo/scalars/Address.scalar';
 import { PolicyKeyField } from '~/apollo/scalars/PolicyKey.scalar';
 import { GraphQLBigInt } from 'graphql-scalars';
 import { Bytes32Field, SelectorField } from '~/apollo/scalars/Bytes.scalar';
 import { AbiFunctionField } from '~/apollo/scalars/AbiFunction.scalar';
 import { AbiFunction } from 'abitype';
+import { UAddressField } from '~/apollo/scalars/UAddress.scalar';
 
 @InputType()
 export class UniquePolicyInput implements PolicyId {
-  @AddressField()
-  account: Address;
+  @UAddressField()
+  account: UAddress;
 
   @PolicyKeyField()
   key: PolicyKey;
@@ -58,7 +59,7 @@ export class TransfersConfigInput {
   defaultAllow: boolean;
 
   @Field(() => Number, { nullable: true, description: 'Defaults to the policy budget' })
-  budget: number;
+  budget?: number;
 }
 
 @InputType()
@@ -75,9 +76,6 @@ export class TransferLimitInput {
 
 @InputType()
 export class PolicyInput {
-  @PolicyKeyField({ nullable: true })
-  key?: PolicyKey;
-
   @Field(() => String, { nullable: true })
   name?: string;
 
@@ -96,8 +94,8 @@ export class PolicyInput {
 
 @InputType()
 export class CreatePolicyInput extends PolicyInput {
-  @AddressField()
-  account: Address;
+  @UAddressField()
+  account: UAddress;
 }
 
 @InputType()

@@ -2,14 +2,17 @@ import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { UserInputError } from '@nestjs/apollo';
 import {
   hashTx,
-  Address,
-  Hex,
   isHex,
   asTx,
   estimateTransactionOperationsGas,
   FALLBACK_OPERATIONS_GAS,
+  asAddress,
+  asHex,
+  asUAddress,
+  asChain,
+  ETH_ADDRESS,
 } from 'lib';
-import { ProviderService } from '~/features/util/provider/provider.service';
+import { NetworksService } from '~/features/util/networks/networks.service';
 import { TransactionsService } from '../transactions/transactions.service';
 import {
   OperationInput,
@@ -18,7 +21,6 @@ import {
   UpdateTransactionProposalInput,
 } from './transaction-proposals.input';
 import { ExpoService } from '../util/expo/expo.service';
-import { ETH_ADDRESS } from 'zksync-web3/build/src/utils';
 import { DatabaseService } from '../database/database.service';
 import e from '~/edgeql-js';
 import { ShapeFunc } from '../database/database.select';
@@ -41,7 +43,7 @@ export const selectTransactionProposal = (
 export class TransactionProposalsService {
   constructor(
     private db: DatabaseService,
-    private provider: ProviderService,
+    private networks: NetworksService,
     private expo: ExpoService,
     private proposals: ProposalsService,
     @Inject(forwardRef(() => TransactionsService))
@@ -80,7 +82,7 @@ export class TransactionProposalsService {
     iconUri,
     validFrom = new Date(),
     gasLimit,
-    feeToken = ETH_ADDRESS as Address,
+    feeToken = ETH_ADDRESS,
   }: Omit<ProposeTransactionInput, 'signature'>) {
     if (!operations.length) throw new UserInputError('No operations provided');
 
@@ -90,6 +92,7 @@ export class TransactionProposalsService {
       nonce: BigInt(Math.floor(validFrom.getTime() / 1000)),
     });
     const hash = hashTx(account, tx);
+    const network = this.networks.for(account);
 
     const insert = e.insert(e.TransactionProposal, {
       hash,
@@ -108,10 +111,18 @@ export class TransactionProposalsService {
       validFrom,
       gasLimit:
         gasLimit ||
-        (await estimateTransactionOperationsGas(this.provider, account, tx)).unwrapOr(
-          FALLBACK_OPERATIONS_GAS,
-        ),
-      feeToken: this.selectFeeToken(feeToken),
+        (
+          await estimateTransactionOperationsGas({ account: asAddress(account), tx, network })
+        ).unwrapOr(FALLBACK_OPERATIONS_GAS),
+      feeToken: e.assert_single(
+        e.select(e.Token, (t) => ({
+          filter: and(
+            e.op(t.address, '=', e.op(asChain(account), '++', e.op(':', '++', feeToken))),
+            e.op(t.isFeeToken, '=', true),
+          ),
+          limit: 1,
+        })),
+      ),
     });
 
     this.db.afterTransaction(() => {
@@ -138,7 +149,7 @@ export class TransactionProposalsService {
     await this.transactions.tryExecute(input.hash);
   }
 
-  async update({ hash, policy, feeToken: feeTokenAddress }: UpdateTransactionProposalInput) {
+  async update({ hash, policy, feeToken }: UpdateTransactionProposalInput) {
     const updatedProposal = e.assert_single(
       e.update(e.TransactionProposal, (p) => ({
         filter: and(
@@ -157,7 +168,17 @@ export class TransactionProposalsService {
                 ? e.select(e.Policy, () => ({ filter_single: { account: p.account, key: policy } }))
                 : null,
           }),
-          feeToken: feeTokenAddress && this.selectFeeToken(feeTokenAddress),
+          feeToken:
+            feeToken &&
+            e.assert_single(
+              e.select(e.Token, (t) => ({
+                filter: and(
+                  e.op(t.address, '=', e.op(p.account.chain, '++', e.op(':', '++', feeToken))),
+                  e.op(t.isFeeToken, '=', true),
+                ),
+                limit: 1,
+              })),
+            ),
         },
       })),
     );
@@ -175,7 +196,7 @@ export class TransactionProposalsService {
 
     if (p) {
       this.proposals.publishProposal(
-        { hash: p.hash as Hex, account: p.account.address as Address },
+        { hash: asHex(p.hash), account: asUAddress(p.account.address) },
         ProposalEvent.update,
       );
     }
@@ -200,16 +221,5 @@ export class TransactionProposalsService {
 
       return e.delete(selectTransactionProposal(id)).id.run(db);
     });
-  }
-
-  private selectFeeToken(feeTokenAddress: Address) {
-    return e.assert_single(
-      e.select(e.Token, (t) => ({
-        filter: and(e.op(t.address, '=', feeTokenAddress), e.op(t.isFeeToken, '=', true)),
-        limit: 1,
-        id: true,
-        isFeeToken: true,
-      })),
-    );
   }
 }

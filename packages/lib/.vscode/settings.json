@@ -1,0 +1,7 @@
+{
+  "files.exclude": {
+    ".tsup": true,
+    ".turbo": true
+  },
+  "jest.jestCommandLine": "yarn test"
+}

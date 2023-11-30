@@ -10,12 +10,14 @@ import { AppbarOptions } from '~/components/Appbar/AppbarOptions';
 import { withSuspense } from '~/components/skeleton/withSuspense';
 import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
 import { ScreenSurface } from '~/components/layout/ScreenSurface';
-import { Address } from 'lib';
+import { UAddress } from 'lib';
 import { Text } from 'react-native-paper';
 import { AccountNameFormField } from '~/components/fields/AccountNameFormField';
 import { createStyles } from '@theme/styles';
 import { usePolicyPresets } from '~/lib/policy/presets';
 import { asPolicyInput } from '~/lib/policy/draft';
+import { useState } from 'react';
+import { Chain } from 'chains';
 
 const Create = gql(/* GraphQL */ `
   mutation CreateAccountScreen_Create($input: CreateAccountInput!) {
@@ -31,13 +33,15 @@ interface Inputs {
 }
 
 export interface CreateAccountScreenProps {
-  onCreate?: (account: Address) => void;
+  onCreate?: (account: UAddress) => void;
 }
 
 function CreateAccountScreen({ onCreate }: CreateAccountScreenProps) {
   const router = useRouter();
   const create = useMutation(Create)[1];
-  const presets = usePolicyPresets(undefined);
+
+  const [chain, setChain] = useState<Chain>('zksync-goerli'); // TODO: <SelectChain />
+  const presets = usePolicyPresets({ chain, account: undefined });
 
   const { control, handleSubmit } = useForm<Inputs>({
     defaultValues: { label: '' },

@@ -1,13 +1,12 @@
-import { Route, Stack, useLocalSearchParams } from 'expo-router';
+import { Route, Stack } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { Platform, StyleSheet, View } from 'react-native';
 import { Camera } from 'expo-camera';
 import { BarCodeScanner } from 'expo-barcode-scanner';
 import { Button, Text } from 'react-native-paper';
-import { parseAddressLink } from '~/util/addressLink';
 import { isWalletConnectUri, useWalletConnect } from '~/util/walletconnect';
 import { Actions } from '~/components/layout/Actions';
-import { Address, tryAsAddress } from 'lib';
+import { Address, UAddress, tryAsAddress } from 'lib';
 import * as Linking from 'expo-linking';
 import useAsyncEffect from 'use-async-effect';
 import { showError } from '~/components/provider/SnackbarProvider';
@@ -17,22 +16,22 @@ import { ScanOverlay } from '~/components/ScanOverlay';
 import { Subject } from 'rxjs';
 import { useGetEvent } from '~/hooks/useGetEvent';
 import { AppbarOptions } from '~/components/Appbar/AppbarOptions';
+import { z } from 'zod';
+import { zUAddress } from '~/lib/zod';
+import { useLocalParams } from '~/hooks/useLocalParams';
 
 export const SCANNED_ADDRESSES = new Subject<Address>();
 export function useScanAddress() {
   const getEvent = useGetEvent();
 
-  return (account?: Address) =>
+  return (account?: UAddress) =>
     getEvent({ pathname: `/scan/`, params: { ...(account && { account }) } }, SCANNED_ADDRESSES);
 }
 
-export type ScanScreenRoute = `/scan/`;
-export type ScanScreenParams = {
-  account?: string;
-};
+const ScanScreenParams = z.object({ account: zUAddress().optional() });
 
 export default function ScanScreen() {
-  const account = tryAsAddress(useLocalSearchParams<ScanScreenParams>().account);
+  const { account } = useLocalParams(ScanScreenParams);
   const router = useRouter();
   const walletconnect = useWalletConnect();
 
@@ -43,7 +42,7 @@ export default function ScanScreen() {
   const tryHandle = async (data: string) => {
     setScan(false);
 
-    const address = tryAsAddress(data) || parseAddressLink(data)?.target_address;
+    const address = tryAsAddress(data);
     if (address) {
       if (SCANNED_ADDRESSES.observed) {
         SCANNED_ADDRESSES.next(address);

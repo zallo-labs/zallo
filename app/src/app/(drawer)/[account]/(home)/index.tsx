@@ -1,4 +1,3 @@
-import { SearchParams, useLocalSearchParams } from 'expo-router';
 import { Text } from 'react-native-paper';
 import { FlashList } from '@shopify/flash-list';
 import { ListItemHeight } from '~/components/list/ListItem';
@@ -6,13 +5,15 @@ import { TokenItem } from '~/components/token/TokenItem';
 import { withSuspense } from '~/components/skeleton/withSuspense';
 import { TabScreenSkeleton } from '~/components/tab/TabScreenSkeleton';
 import { StyleSheet } from 'react-native';
-import { asAddress, tokenToFiat } from 'lib';
+import { asChain, tokenToFiat } from 'lib';
 import { gql } from '@api/generated';
 import { useQuery, usePollQuery } from '~/gql';
+import { AccountParams } from '~/app/(drawer)/[account]/(home)/_layout';
+import { useLocalParams } from '~/hooks/useLocalParams';
 
 const Query = gql(/* GraphQL */ `
-  query TokensTab($account: Address!) {
-    tokens {
+  query TokensTab($account: UAddress!, $chain: Chain) {
+    tokens(input: { chain: $chain }) {
       id
       decimals
       price {
@@ -25,18 +26,21 @@ const Query = gql(/* GraphQL */ `
   }
 `);
 
-export type TokensTabRoute = `/(drawer)/[account]/(home)/`;
-export type TokensTabParams = SearchParams<TokensTabRoute>;
+const TokensTabParams = AccountParams;
 
 function TokensTab() {
-  const params = useLocalSearchParams<TokensTabParams>();
-  const { data, reexecute } = useQuery(Query, { account: asAddress(params.account) });
+  const { account } = useLocalParams(TokensTabParams);
+  const { data, reexecute } = useQuery(
+    Query,
+    { account, chain: asChain(account) },
+    { requestPolicy: 'cache-and-network' },
+  );
   usePollQuery(reexecute, 15000);
 
   const tokens = (data.tokens ?? [])
     .map((t) => ({
       ...t,
-      value: tokenToFiat(t.balance, t.price?.current ?? 0, t.decimals),
+      value: tokenToFiat(BigInt(t.balance), t.price?.current ?? 0, t.decimals),
     }))
     .sort((a, b) => b.value - a.value);
 

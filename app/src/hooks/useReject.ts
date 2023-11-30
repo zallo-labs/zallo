@@ -1,6 +1,6 @@
 import { FragmentType, gql, useFragment } from '@api';
 import { authContext } from '@api/client';
-import { useApproverAddress } from '@network/useApprover';
+import { useApproverAddress } from '~/lib/network/useApprover';
 import { Address } from 'lib';
 import { match } from 'ts-pattern';
 import { useMutation } from 'urql';

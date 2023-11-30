@@ -8,13 +8,14 @@ import {
 import schema from './schema.generated';
 import { Node, MutationCreatePolicyArgs, MutationRemovePolicyArgs } from '@api/generated/graphql';
 import { gql } from './generated';
-import { Address } from 'lib';
+import { UAddress } from 'lib';
 import { WritableDeep } from 'ts-toolbelt/out/Object/Writable';
 
-export const CACHE_CONFIG: Pick<
+export const CACHE_SCHEMA_CONFIG: Pick<
   CacheExchangeOpts,
-  'resolvers' | 'updates' | 'optimistic' | 'keys'
+  'schema' | 'resolvers' | 'updates' | 'optimistic' | 'keys'
 > = {
+  schema,
   updates: {
     Mutation: {
       createAccount: (_result, _args, cache) => {
@@ -151,14 +152,14 @@ function invalidate<
 }
 
 const AccountIdQuery = gql(/* GraphQL */ `
-  query Cache_Account($account: Address!) {
-    account(input: { address: $account }) {
+  query Cache_Account($account: UAddress!) {
+    account(input: { account: $account }) {
       id
     }
   }
 `);
 
-function getAccountEntity(cache: Cache, account: Address) {
+function getAccountEntity(cache: Cache, account: UAddress) {
   const id = cache.readQuery({
     query: AccountIdQuery,
     variables: { account },

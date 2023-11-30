@@ -7,7 +7,7 @@ export const TransactionPolicyTabParams = TransactionLayoutParams;
 export type TransactionPolicyTabParams = z.infer<typeof TransactionPolicyTabParams>;
 
 export default function TransactionPolicyTab() {
-  const params = useLocalParams(`/(drawer)/transaction/[hash]/policy`, TransactionPolicyTabParams);
+  const params = useLocalParams(TransactionPolicyTabParams);
 
   return <PolicyTab hash={params.hash} />;
 }

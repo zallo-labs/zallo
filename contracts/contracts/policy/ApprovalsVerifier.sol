@@ -15,7 +15,7 @@ struct Approvals {
 /// @dev Signature mutability isn't an issue since signatures aren't used to protect against replay attacks
 struct Secp256k1Signature {
   bytes32 r;
-  bytes32 vs;
+  bytes32 yParityAndS;
 }
 
 library ApprovalsVerifier {
@@ -68,7 +68,7 @@ library ApprovalsVerifier {
     address signer,
     Secp256k1Signature memory signature
   ) private pure returns (bool) {
-    (address recovered, ECDSA.RecoverError err) = ECDSA.tryRecover(hash, signature.r, signature.vs);
+    (address recovered, ECDSA.RecoverError err,) = ECDSA.tryRecover(hash, signature.r, signature.yParityAndS);
 
     return (err == ECDSA.RecoverError.NoError && recovered == signer);
   }

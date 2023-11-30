@@ -1,5 +1,5 @@
 import { FragmentType, gql, useFragment } from '@api/generated';
-import { useApproverAddress } from '@network/useApprover';
+import { useApproverAddress } from '~/lib/network/useApprover';
 import { Actions } from '~/components/layout/Actions';
 import { Button } from 'react-native-paper';
 import { useApprove } from '~/hooks/useApprove';

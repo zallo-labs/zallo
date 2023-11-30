@@ -1,9 +1,9 @@
-import { Address } from 'lib';
+import { Address, UAddress } from 'lib';
 import { Subject } from 'rxjs';
 import { AddressesModalParams } from '~/app/addresses';
 import { useGetEvent } from '~/hooks/useGetEvent';
 
-export const ADDRESS_SELECTED = new Subject<Address>();
+export const ADDRESS_SELECTED = new Subject<Address | UAddress>();
 export const useSelectAddress = () => {
   const getEvent = useGetEvent();
 

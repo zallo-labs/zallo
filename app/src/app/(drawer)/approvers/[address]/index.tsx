@@ -51,10 +51,10 @@ interface Inputs {
   name: string;
 }
 
-const ApproverScreenParams = z.object({ address: zAddress });
+const ApproverScreenParams = z.object({ address: zAddress() });
 
 function ApproverScreen() {
-  const params = useLocalParams(`/(drawer)/approvers/[address]/`, ApproverScreenParams);
+  const params = useLocalParams(ApproverScreenParams);
   const router = useRouter();
   const update = useMutation(Update)[1];
 

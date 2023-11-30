@@ -1,49 +1,29 @@
-import { FragmentType, gql, useFragment as getFragment } from '@api/generated';
-import { useApproverWallet } from '@network/useApprover';
-import { asHex, signDigest } from 'lib';
+import { useApproverWallet } from '~/lib/network/useApprover';
 import { ok, err } from 'neverthrow';
-import { useCallback } from 'react';
-import { match } from 'ts-pattern';
+import { useMemo } from 'react';
 import { useAuthenticate } from '~/app/auth';
 import { showError } from '~/components/provider/SnackbarProvider';
 import { useAuthRequiredOnApproval } from '~/components/shared/AuthSettings';
-
-type SignContent = PersonalMessage | TransactionProposalFragment;
-type PersonalMessage = string;
-type TransactionProposalFragment = FragmentType<typeof Proposal>;
-
-const Proposal = gql(/* GraphQL */ `
-  fragment UseSignWithApprover_Propsosal on Proposal {
-    id
-    hash
-  }
-`);
-
-const isMessageContent = (c: SignContent): c is PersonalMessage => typeof c === 'string';
-const isTransactionProposal = (c: SignContent): c is TransactionProposalFragment =>
-  typeof c === 'object';
 
 export function useSignWithApprover() {
   const approver = useApproverWallet();
   const authenticate = useAuthenticate();
   const authRequired = useAuthRequiredOnApproval();
 
-  return useCallback(
-    async (c: SignContent) => {
+  return useMemo(() => {
+    const check = async () => {
       if (authRequired && !(await authenticate())) {
         showError('Authentication is required for approval');
         return err('authentication-refused' as const);
       }
+      return ok(undefined);
+    };
 
-      const signature = await match(c)
-        .when(isMessageContent, async (message) => asHex(await approver.signMessage(message)))
-        .when(isTransactionProposal, (proposalFragment) =>
-          signDigest(getFragment(Proposal, proposalFragment).hash, approver),
-        )
-        .exhaustive();
-
-      return ok(signature);
-    },
-    [approver, authRequired, authenticate],
-  );
+    return {
+      signTypedData: async (...params: Parameters<typeof approver.signTypedData>) =>
+        (await check()).asyncMap(async () => approver.signTypedData(...params)),
+      signMessage: async (...params: Parameters<typeof approver.signMessage>) =>
+        (await check()).asyncMap(async () => approver.signMessage(...params)),
+    };
+  }, [approver, authRequired, authenticate]);
 }

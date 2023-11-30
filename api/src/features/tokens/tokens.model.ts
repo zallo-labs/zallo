@@ -1,12 +1,13 @@
 import { Field, ID, ObjectType } from '@nestjs/graphql';
-import { Address } from 'lib';
+import { Address, UAddress } from 'lib';
 import { AddressField } from '~/apollo/scalars/Address.scalar';
+import { UAddressField } from '~/apollo/scalars/UAddress.scalar';
 import { Node, NodeType } from '~/decorators/interface.decorator';
 
 @NodeType()
 export class Token extends Node {
-  @AddressField()
-  address: Address;
+  @UAddressField()
+  address: UAddress;
 
   @AddressField({ nullable: true })
   ethereumAddress?: Address;

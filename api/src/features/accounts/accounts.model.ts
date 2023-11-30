@@ -11,11 +11,15 @@ import e from '~/edgeql-js';
 import { makeUnionTypeResolver } from '../database/database.util';
 import { MessageProposal } from '../message-proposals/message-proposals.model';
 import { Approver } from '../approvers/approvers.model';
+import { UAddressField } from '~/apollo/scalars/UAddress.scalar';
+import { Address, UAddress } from 'lib';
+import { ChainField } from '~/apollo/scalars/Chain.scalar';
+import { Chain } from 'chains';
 
 @NodeType()
 export class Account extends Node {
-  @AddressField()
-  address: string; // Address;
+  @UAddressField()
+  address: UAddress;
 
   @Field(() => String)
   label: string;
@@ -24,13 +28,16 @@ export class Account extends Node {
   isActive: boolean;
 
   @AddressField()
-  implementation: string; // Address
+  implementation: Address;
 
   @Bytes32Field()
   salt: string; // Hex
 
   @Field(() => String, { nullable: true })
   photoUri?: string;
+
+  @ChainField()
+  chain: Chain;
 
   @Field(() => [Policy])
   policies: Policy[];

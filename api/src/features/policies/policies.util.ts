@@ -1,14 +1,22 @@
-import { Address, asPolicy, Policy, PolicyKey, Target, TargetsConfig, TransfersConfig } from 'lib';
+import {
+  asAddress,
+  asPolicy,
+  Policy,
+  PolicyKey,
+  TargetsConfig,
+  TransfersConfig,
+  UAddress,
+} from 'lib';
 import { uuid } from 'edgedb/dist/codecs/ifaces';
 import e, { $infer } from '~/edgeql-js';
-import { Shape, ShapeFunc } from '../database/database.select';
+import { Shape } from '../database/database.select';
 import { PolicyInput, TransfersConfigInput } from './policies.input';
 import { selectAccount } from '~/features/accounts/accounts.util';
 import merge from 'ts-deepmerge';
 import { match, P } from 'ts-pattern';
 import { getUserCtx } from '~/request/ctx';
 
-export type UniquePolicy = { id: uuid } | { account: Address; key: PolicyKey };
+export type UniquePolicy = { id: uuid } | { account: UAddress; key: PolicyKey };
 
 export const uniquePolicy = (unique: UniquePolicy) =>
   e.shape(e.Policy, () => ({
@@ -18,11 +26,7 @@ export const uniquePolicy = (unique: UniquePolicy) =>
         : { account: selectAccount(unique.account), key: unique.key },
   }));
 
-export const selectPolicy = (id: UniquePolicy, shape?: ShapeFunc<typeof e.Policy>) =>
-  e.select(e.Policy, (p) => ({
-    ...shape?.(p),
-    ...uniquePolicy(id)(p),
-  }));
+export const selectPolicy = (id: UniquePolicy) => e.select(e.Policy, uniquePolicy(id));
 
 export const policyStateShape = {
   approvers: { address: true },
@@ -55,7 +59,7 @@ export const policyStateAsPolicy = <S extends PolicyStateShape>(key: number, sta
   (state
     ? asPolicy({
         key,
-        approvers: new Set(state.approvers.map((a) => a.address as Address)),
+        approvers: new Set(state.approvers.map((a) => asAddress(a.address))),
         threshold: state.threshold,
         permissions: {
           targets: merge(
@@ -72,8 +76,7 @@ export const policyStateAsPolicy = <S extends PolicyStateShape>(key: number, sta
                       contracts: {
                         [v.contract]: {
                           functions: { [v.selector]: v.allow },
-                          // defaultAllow is not defined; this allows overwriting in actions, or will be evaluated as false if undefiend
-                        } as Target,
+                        },
                       },
                     }))
                     .with({ contract: P.string, selector: P.nullish }, (v) => ({
@@ -87,8 +90,7 @@ export const policyStateAsPolicy = <S extends PolicyStateShape>(key: number, sta
                     .with({ contract: P.nullish, selector: P.string }, (v) => ({
                       default: {
                         functions: { [v.selector]: v.allow },
-                        // defaultAllow is not defined; this allows overwriting in actions, or will be evaluated as false if undefiend
-                      } as Target,
+                      },
                     }))
                     .with({ contract: P.nullish, selector: P.nullish }, (v) => ({
                       default: {
@@ -102,7 +104,7 @@ export const policyStateAsPolicy = <S extends PolicyStateShape>(key: number, sta
           ),
           transfers: asTransfersConfig({
             ...state.transfers,
-            limits: state.transfers.limits.map((l) => ({ ...l, token: l.token as Address })),
+            limits: state.transfers.limits.map((l) => ({ ...l, token: asAddress(l.token) })),
           }),
         },
       })
@@ -132,7 +134,12 @@ export const policyInputAsStateShape = (
   ...(p.actions?.length && {
     actions: p.actions as unknown as NonNullable<PolicyStateShape>['actions'],
   }),
-  ...(p.transfers && { transfers: p.transfers }),
+  ...(p.transfers && {
+    transfers: {
+      ...p.transfers,
+      budget: p.transfers.budget ?? key,
+    },
+  }),
 });
 
 export const inputAsPolicy = (key: PolicyKey, p: PolicyInput) =>

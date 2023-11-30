@@ -1,10 +1,10 @@
 import { Module } from '@nestjs/common';
-import { ProviderModule } from '~/features/util/provider/provider.module';
 import { FaucetResolver } from './faucet.resolver';
 import { FaucetService } from './faucet.service';
+import { BalancesModule } from '~/features/util/balances/balances.module';
 
 @Module({
-  imports: [ProviderModule],
+  imports: [BalancesModule],
   exports: [FaucetService],
   providers: [FaucetResolver, FaucetService],
 })

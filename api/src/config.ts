@@ -1,10 +1,10 @@
-import { getChain, isPresent, makeRequiredEnv, optionalEnv as optional, tryAsAddress } from 'lib';
+import { Hex, isPresent, makeRequiredEnv, optionalEnv as optional } from 'lib';
+import { Chain } from 'chains';
 import os from 'os';
 require('dotenv').config({ path: '../.env' });
 
 const required = makeRequiredEnv(!!process.env.JEST_WORKER_ID);
 
-const chain = getChain(optional`CHAIN`);
 const env = optional`RELEASE_ENV` === 'development' ? 'development' : 'production';
 
 export enum LogLevel {
@@ -26,11 +26,8 @@ export const CONFIG = {
   redisFamily: optional`REDIS_FAMILY` === '6' ? 6 : undefined,
   sessionSecret: required`SESSION_SECRET`,
   graphRef: optional`APOLLO_GRAPH_REF`,
-  chain,
   etherscanApiKey: required`ETHERSCAN_API_KEY`,
-  walletPrivateKey: required`WALLET_PRIVATE_KEY`,
-  accountImplAddress: tryAsAddress(required`ACCOUNT_IMPL_${chain.key.toUpperCase()}`),
-  proxyFactoryAddress: tryAsAddress(required`PROXY_FACTORY_${chain.key.toUpperCase()}`),
+  walletPrivateKeys: JSON.parse(optional`WALLET_PRIVATE_KEYS` || '{}') as Record<Chain, Hex>,
   uniswapGqlUrl: required`UNISWAP_GQL_URL`,
   sentryDsn: optional`API_SENTRY_DSN`,
   serverId: optional`FLY_ALLOC_ID` || os.hostname(),

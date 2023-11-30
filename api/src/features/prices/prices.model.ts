@@ -1,14 +1,14 @@
 import { Field, ID, ObjectType } from '@nestjs/graphql';
-import { Address } from 'lib';
-import { AddressField } from '~/apollo/scalars/Address.scalar';
+import { UAddress } from 'lib';
+import { UAddressField } from '~/apollo/scalars/UAddress.scalar';
 
 @ObjectType()
 export class Price {
   @Field(() => ID)
   id: string;
 
-  @AddressField()
-  token: Address;
+  @UAddressField()
+  token: UAddress;
 
   @Field(() => Number)
   current: number;

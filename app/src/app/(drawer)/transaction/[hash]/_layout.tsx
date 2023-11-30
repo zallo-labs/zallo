@@ -44,7 +44,7 @@ const Remove = gql(/* GraphQL */ `
 export const TransactionLayoutParams = z.object({ hash: z.string().refine(isHash) });
 
 export default function TransactionLayout() {
-  const { hash } = useLocalParams(`/(drawer)/transaction/[hash]/`, TransactionLayoutParams);
+  const { hash } = useLocalParams(TransactionLayoutParams);
   const router = useRouter();
   const remove = useMutation(Remove)[1];
   const confirmRemoval = useConfirmRemoval({

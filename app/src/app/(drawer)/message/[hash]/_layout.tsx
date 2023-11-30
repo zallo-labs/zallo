@@ -40,11 +40,11 @@ const Remove = gql(/* GraphQL */ `
   }
 `);
 
-export const MessageLayoutParams = z.object({ hash: zHash });
+export const MessageLayoutParams = z.object({ hash: zHash() });
 export type MessageLayoutParams = z.infer<typeof MessageLayoutParams>;
 
 export default function MessageLayout() {
-  const params = useLocalParams(`/(drawer)/message/[hash]/`, MessageLayoutParams);
+  const params = useLocalParams(MessageLayoutParams);
   const router = useRouter();
   const remove = useMutation(Remove)[1];
   const confirmRemoval = useConfirmRemoval({

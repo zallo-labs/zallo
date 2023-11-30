@@ -1,8 +1,10 @@
 {
   "files.exclude": {
+    ".turbo": true,
     ".vscode": true,
     "abi": true,
     "artifacts-zk": true,
+    "cache": true,
     "cache-zk": true,
     "node_modules": true
   },

@@ -1,21 +1,20 @@
 import { OnQueueFailed, Process, Processor } from '@nestjs/bull';
 import { Injectable, Logger } from '@nestjs/common';
 import { Job } from 'bull';
-import { ProviderService } from '../util/provider/provider.service';
+import { NetworksService } from '../util/networks/networks.service';
 import { AccountsService } from './accounts.service';
 import { AccountEvent } from './accounts.input';
 import { ACCOUNTS_QUEUE, AccountActivationEvent } from './accounts.queue';
 import { tryOrIgnoreAsync } from 'lib';
 import { DatabaseService } from '../database/database.service';
 import e from '~/edgeql-js';
-import { and } from '../database/database.util';
 
 @Injectable()
 @Processor(ACCOUNTS_QUEUE.name)
 export class AccountsProcessor {
   constructor(
     private db: DatabaseService,
-    private provider: ProviderService,
+    private networks: NetworksService,
     private accounts: AccountsService,
   ) {}
 
@@ -28,36 +27,25 @@ export class AccountsProcessor {
   async process(job: Job<AccountActivationEvent>) {
     const { account, transaction } = job.data;
 
-    const receipt = await tryOrIgnoreAsync(() => this.provider.getTransactionReceipt(transaction));
+    const receipt = await tryOrIgnoreAsync(() =>
+      this.networks.for(account).getTransactionReceipt({ hash: transaction }),
+    );
     if (!receipt) return job.moveToFailed({ message: 'Transaction receipt not found' });
 
-    if (receipt.status !== 1) {
+    if (receipt.status === 'reverted') {
       // TODO: handle failed activation
       Logger.error('Account activation transaction failed', { account, transaction });
       return;
     }
 
-    await this.db.transaction(async (db) => {
-      await e
-        .select({
-          account: e.update(e.Account, () => ({
-            filter_single: { address: account },
-            set: {
-              isActive: true,
-            },
-          })),
-          policyState: e.update(e.PolicyState, (ps) => ({
-            filter: and(
-              e.op(ps.policy.account.address, '=', account),
-              e.op(ps.isAccountInitState, '=', true),
-            ),
-            set: {
-              activationBlock: BigInt(receipt.blockNumber),
-            },
-          })),
-        })
-        .run(db);
-    });
+    await this.db.query(
+      e.update(e.Account, () => ({
+        filter_single: { address: account },
+        set: {
+          isActive: true,
+        },
+      })),
+    );
 
     await this.accounts.publishAccount({ account, event: AccountEvent.update });
   }

@@ -1,100 +1,63 @@
-import { Operation, ZERO_ADDR, asHex, ERC20_ABI } from 'lib';
-import { EstimateSwapParams, GetSwapOperationsParams, TokenAmount } from '../types';
-import { SYNCSWAP_ROUTER, getSyncswapPoolContract } from './contracts';
-import { encodeAbiParameters, encodeFunctionData } from 'viem';
-import { WETH_ADDRESS, normalizeSyncswapPoolToken } from './util';
-import { ETH_ADDRESS } from 'zksync-web3/build/src/utils';
+import { Address, ETH_ADDRESS, Operation, UAddress, asChain } from 'lib';
+import { ERC20, SYNCSWAP } from 'lib/dapps';
+import { DateTime } from 'luxon';
+import { encodeFunctionData } from 'viem';
+import { SwapRoute } from '~/hooks/swap/useSwapRoute';
+import { estimateSwap } from '~/util/swap/syncswap/estimate';
 
 const SLIPPAGE_FACTOR = 10 ** 5;
 const SLIPPAGE_FACTOR_BN = BigInt(SLIPPAGE_FACTOR);
 
-export const estimateSwap = async ({
-  pool,
+export interface GetSwapOperationsParams {
+  account: UAddress;
+  route: SwapRoute;
+  from: Address;
+  fromAmount: bigint;
+  slippage: number; // percent [0-1]
+  deadline: DateTime;
+}
+
+export async function getSwapOperations({
   account,
+  route,
   from,
-}: EstimateSwapParams): Promise<TokenAmount> => {
-  if (pool.type !== 'syncswap-classic' && pool.type !== 'syncswap-stable')
-    throw new Error('Unsupported pool type');
-
-  const contract = getSyncswapPoolContract(pool.contract, pool.type);
-
-  const amount = await contract.read.getAmountOut([
-    normalizeSyncswapPoolToken(from.token),
-    from.amount,
-    account,
-  ]);
-
-  return { token: pool.pair[0] === from.token ? pool.pair[1] : pool.pair[0], amount };
-};
-
-export const getSwapOperations = async ({
-  account,
-  pool,
-  from,
+  fromAmount,
   slippage,
   deadline,
-}: GetSwapOperationsParams): Promise<[Operation, ...Operation[]]> => {
-  // Withdraw mode - executed on last step
-  // 0 - vault internal transfer
-  // 1 - withdraw and unwrap to naitve ETH
-  // 2 - withdraw and wrap to wETH
-  const withdrawMode = from.token === WETH_ADDRESS ? 2 : 1;
+}: GetSwapOperationsParams): Promise<[Operation, ...Operation[]]> {
+  const chain = asChain(account);
 
-  const estimated = await estimateSwap({ pool, account, from });
+  const estimatedToAmount = await estimateSwap({ chain, route, fromAmount });
 
   const minimumToAmount =
-    (estimated.amount * (SLIPPAGE_FACTOR_BN - BigInt(slippage * SLIPPAGE_FACTOR))) /
+    (estimatedToAmount * (SLIPPAGE_FACTOR_BN - BigInt(slippage * SLIPPAGE_FACTOR))) /
     SLIPPAGE_FACTOR_BN;
 
   const transferOp: Operation | undefined =
-    from.token !== ETH_ADDRESS
+    from !== ETH_ADDRESS
       ? {
-          to: from.token,
-          data: asHex(
-            encodeFunctionData({
-              abi: ERC20_ABI,
-              functionName: 'approve',
-              args: [SYNCSWAP_ROUTER.address, from.amount],
-            }),
-          ),
+          to: from,
+          data: encodeFunctionData({
+            abi: ERC20,
+            functionName: 'approve',
+            args: [SYNCSWAP.router.address[chain], fromAmount],
+          }),
         }
       : undefined;
 
   const swapOp: Operation = {
-    to: SYNCSWAP_ROUTER.address,
-    value: !transferOp ? from.amount : undefined,
-    data: asHex(
-      encodeFunctionData({
-        abi: SYNCSWAP_ROUTER.abi,
-        functionName: 'swap',
-        args: [
-          [
-            {
-              tokenIn: from.token, // ETH for ETH
-              amountIn: from.amount,
-              steps: [
-                {
-                  pool: pool.contract,
-                  data: encodeAbiParameters(
-                    [
-                      { name: 'tokenIn', type: 'address' }, // WETH for ETH
-                      { name: 'to', type: 'address' },
-                      { name: 'withdrawMode', type: 'uint8' },
-                    ],
-                    [normalizeSyncswapPoolToken(from.token), account, withdrawMode],
-                  ),
-                  callback: ZERO_ADDR,
-                  callbackData: '0x',
-                },
-              ],
-            },
-          ],
-          minimumToAmount,
-          BigInt(Math.round(deadline.toSeconds())),
-        ],
-      }),
-    ),
+    to: SYNCSWAP.router.address[chain],
+    value: !transferOp ? fromAmount : undefined,
+    data: encodeFunctionData({
+      abi: SYNCSWAP.router.abi,
+      functionName: 'swap',
+      args: [
+        [{ ...route, amountIn: fromAmount }],
+        minimumToAmount,
+        BigInt(Math.round(deadline.toSeconds())),
+      ],
+    }),
   };
 
   return transferOp ? [transferOp, swapOp] : [swapOp];
-};
+}

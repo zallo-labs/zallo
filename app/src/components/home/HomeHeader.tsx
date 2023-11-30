@@ -1,4 +1,4 @@
-import { Address } from 'lib';
+import { UAddress } from 'lib';
 import { NotFound } from '~/components/NotFound';
 import { gql } from '@api/generated';
 import { useQuery } from '~/gql';
@@ -7,39 +7,55 @@ import { AccountValue } from './AccountValue';
 import { HomeAppbar } from './HomeAppbar';
 import { QuickActions } from './QuickActions';
 import { withSuspense } from '~/components/skeleton/withSuspense';
-import { Suspend } from '~/components/Suspend';
+import { GettingStarted } from '~/components/home/GettingStarted';
+import { createStyles } from '@theme/styles';
 
 const Query = gql(/* GraphQL */ `
-  query HomeHeader($account: Address) {
-    account(input: { address: $account }) {
+  query HomeHeader($account: UAddress!) {
+    account(input: { account: $account }) {
       id
       address
       ...HomeAppbar_account
+      ...GettingStarted_Account
     }
 
-    ...AccountValue_tokensQuery @arguments(account: $account)
+    user {
+      id
+      ...GettingStarted_User
+    }
+
+    ...AccountValue_Query @arguments(account: $account)
+    ...GettingStarted_Query @arguments(account: $account)
   }
 `);
 
 export interface HomeHeaderProps {
-  account: Address;
+  account: UAddress;
 }
 
 function Header(props: HomeHeaderProps) {
-  const query = useQuery(Query, { account: props.account });
-  const { account } = query.data;
+  const { data: query, stale } = useQuery(Query, { account: props.account });
+  const { account, user } = query;
 
-  if (!account) return query.stale ? <Suspend /> : <NotFound name="Account" />;
+  if (!account) return stale ? null : <NotFound name="Account" />;
 
   return (
     <View>
       <HomeAppbar account={account} />
 
-      <AccountValue tokensQuery={query.data} />
+      <AccountValue query={query} />
 
       <QuickActions account={account.address} />
+
+      <GettingStarted query={query} user={user} account={account} style={styles.gettingStarted} />
     </View>
   );
 }
+
+const styles = createStyles({
+  gettingStarted: {
+    marginBottom: 8,
+  },
+});
 
 export const HomeHeader = withSuspense(Header);

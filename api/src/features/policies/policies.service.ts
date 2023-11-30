@@ -1,16 +1,17 @@
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import {
-  ACCOUNT_INTERFACE,
-  Address,
-  asHex,
+  ACCOUNT_ABI,
+  asAddress,
   asPolicyKey,
+  encodePolicy,
+  encodePolicyStruct,
   getMessageSatisfiability,
   getTransactionSatisfiability,
   Hex,
   Policy,
-  POLICY_ABI,
   PolicyKey,
   Satisfiability,
+  UAddress,
 } from 'lib';
 import { TransactionProposalsService } from '../transaction-proposals/transaction-proposals.service';
 import {
@@ -19,7 +20,6 @@ import {
   UniquePolicyInput,
   UpdatePolicyInput,
 } from './policies.input';
-import _ from 'lodash';
 import { UserInputError } from '@nestjs/apollo';
 import { AccountsCacheService } from '../auth/accounts.cache.service';
 import { DatabaseService } from '../database/database.service';
@@ -28,18 +28,25 @@ import { ShapeFunc } from '../database/database.select';
 import {
   UniquePolicy,
   uniquePolicy,
-  inputAsPolicy,
   policyStateShape,
   policyStateAsPolicy,
   PolicyStateShape,
   policyInputAsStateShape,
 } from './policies.util';
-import { PolicyState, SatisfiabilityResult } from './policies.model';
+import {
+  NameTaken,
+  PolicyState,
+  SatisfiabilityResult,
+  Policy as PolicyModel,
+} from './policies.model';
 import { transactionProposalAsTx } from '../transaction-proposals/transaction-proposals.uitl';
-import { and } from '../database/database.util';
+import { and, isExclusivityConstraintViolation } from '../database/database.util';
 import { selectAccount } from '../accounts/accounts.util';
+import { err, fromPromise, ok } from 'neverthrow';
+import { encodeFunctionData } from 'viem';
 
-interface CreateParams extends CreatePolicyInput {
+export interface CreatePolicyParams extends CreatePolicyInput {
+  key?: PolicyKey;
   skipProposal?: boolean;
 }
 
@@ -67,7 +74,7 @@ export class PoliciesService {
                 ),
         })),
       )
-      .run(this.db.client);
+      .run(this.db.client) as unknown as PolicyModel | null;
   }
 
   async select({ includeDisabled }: PoliciesInput, shape: ShapeFunc<typeof e.Policy>) {
@@ -79,10 +86,10 @@ export class PoliciesService {
       .run(this.db.client);
   }
 
-  async create({ account, name, key: keyArg, skipProposal, ...policyInput }: CreateParams) {
+  async create({ account, name, key: keyArg, skipProposal, ...policyInput }: CreatePolicyParams) {
     const selectedAccount = selectAccount(account);
 
-    return this.db.transaction(async (db) => {
+    const r = this.db.transaction(async (db) => {
       const key =
         keyArg ??
         (await (async () => {
@@ -123,6 +130,15 @@ export class PoliciesService {
 
       return { id, key };
     });
+
+    try {
+      return ok(await r);
+    } catch (e) {
+      // May occur due to key or name uniqueness; key however is only accepted internally so it must be by name
+      if (isExclusivityConstraintViolation(e))
+        return err(new NameTaken('A policy with this name already exists'));
+      throw e;
+    }
   }
 
   private insertStateShape(p: NonNullable<PolicyStateShape>) {
@@ -162,16 +178,23 @@ export class PoliciesService {
   }
 
   async update({ account, key, name, ...policyInput }: UpdatePolicyInput) {
-    await this.db.transaction(async (db) => {
+    return this.db.transaction(async (db) => {
       // Metadata
       if (name !== undefined) {
-        const p = await e
-          .update(e.Policy, (p) => ({
-            ...uniquePolicy({ account, key })(p),
-            set: { name },
-          }))
-          .run(db);
-        if (!p) throw new UserInputError("Policy doesn't exist");
+        const r = await fromPromise(
+          e
+            .update(e.Policy, (p) => ({
+              ...uniquePolicy({ account, key })(p),
+              set: { name },
+            }))
+            .run(db),
+          () => {
+            return new NameTaken('Policy name already taken');
+          },
+        );
+        if (r.isErr()) return r;
+
+        if (!r.value) throw new UserInputError("Policy doesn't exist");
       }
 
       // State
@@ -195,11 +218,11 @@ export class PoliciesService {
         if (!existing.policy) throw new UserInputError("Policy doesn't exist");
 
         const currentState = existing.policy.draft ?? existing.policy.state!;
-        const currentEncoded = POLICY_ABI.encode(policyStateAsPolicy(key, currentState));
+        const currentEncoded = encodePolicy(policyStateAsPolicy(key, currentState));
 
         const newState = policyInputAsStateShape(key, policyInput, currentState);
         const newPolicy = policyStateAsPolicy(key, newState);
-        if (currentEncoded === POLICY_ABI.encode(newPolicy)) return; // Only update if policy would actually change
+        if (currentEncoded === encodePolicy(newPolicy)) return ok(undefined); // Only update if policy would actually change
 
         const proposal = await this.getStateProposal(account, newPolicy);
 
@@ -224,10 +247,12 @@ export class PoliciesService {
 
         this.db.afterTransaction(() =>
           this.userAccounts.invalidateApproverUserAccountsCache(
-            ...newState.approvers.map((a) => a.address as Address),
+            ...newState.approvers.map((a) => asAddress(a.address)),
           ),
         );
       }
+
+      return ok(undefined);
     });
   }
 
@@ -255,8 +280,12 @@ export class PoliciesService {
             account,
             operations: [
               {
-                to: account,
-                data: asHex(ACCOUNT_INTERFACE.encodeFunctionData('removePolicy', [key])),
+                to: asAddress(account),
+                data: encodeFunctionData({
+                  abi: ACCOUNT_ABI,
+                  functionName: 'removePolicy',
+                  args: [key],
+                }),
               },
             ],
           })
@@ -312,7 +341,7 @@ export class PoliciesService {
       return { result: Satisfiability.unsatisfiable, reasons: [{ reason: 'Proposal not found' }] };
 
     const p = policyStateAsPolicy(key, state);
-    const approvals = new Set(proposal.approvals.map((a) => a.approver.address as Address));
+    const approvals = new Set(proposal.approvals.map((a) => asAddress(a.approver.address)));
 
     return proposal.operations !== null && proposal.nonce !== null && proposal.gasLimit !== null
       ? getTransactionSatisfiability(
@@ -328,16 +357,18 @@ export class PoliciesService {
       : getMessageSatisfiability(p, approvals);
   }
 
-  private async getStateProposal(account: Address, policy: Policy) {
+  private async getStateProposal(account: UAddress, policy: Policy) {
     return (
       await this.proposals.getProposal({
         account,
         operations: [
           {
-            to: account,
-            data: asHex(
-              ACCOUNT_INTERFACE.encodeFunctionData('addPolicy', [POLICY_ABI.asStruct(policy)]),
-            ),
+            to: asAddress(account),
+            data: encodeFunctionData({
+              abi: ACCOUNT_ABI,
+              functionName: 'addPolicy',
+              args: [encodePolicyStruct(policy)],
+            }),
           },
         ],
       })

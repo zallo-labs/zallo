@@ -1,32 +1,27 @@
 import { Injectable } from '@nestjs/common';
-import { Address } from 'lib';
+import { Address, UAddress, asAddress, isUAddress } from 'lib';
 import { ShapeFunc } from '../database/database.select';
 import { DatabaseService } from '../database/database.service';
 import e from '~/edgeql-js';
 import { ContactsInput, UpsertContactInput } from './contacts.input';
 import { uuid } from 'edgedb/dist/codecs/ifaces';
-import { isAddress } from 'ethers/lib/utils';
 import { or } from '../database/database.util';
-import { ProviderService } from '../util/provider/provider.service';
 import { CONFIG } from '~/config';
 
-type UniqueContact = uuid | Address;
+type UniqueContact = uuid | UAddress;
 
 export const uniqueContact = (u: UniqueContact) =>
   e.shape(e.Contact, () => ({
-    filter_single: isAddress(u) ? { user: e.global.current_user, address: u } : { id: u },
+    filter_single: isUAddress(u) ? { user: e.global.current_user, address: u } : { id: u },
   }));
 
 @Injectable()
 export class ContactsService {
   private hardcodedContracts: Record<Address, string>;
 
-  constructor(
-    private db: DatabaseService,
-    private provider: ProviderService,
-  ) {
+  constructor(private db: DatabaseService) {
     this.hardcodedContracts = {
-      [this.provider.walletAddress]: 'Zallo',
+      // [this.networks.walletAddress]: 'Zallo',
       // mainnet TODO: handle chain
       '0x2da10A1e27bF85cEdD8FFb1AbBe97e53391C0295': 'SyncSwap', // SyncSwap router - mainnet
       '0xB3b7fCbb8Db37bC6f572634299A58f51622A847e': 'SyncSwap', // SyncSwap router - testnet
@@ -85,11 +80,11 @@ export class ContactsService {
     );
   }
 
-  async delete(address: Address) {
+  async delete(address: UAddress) {
     return this.db.query(e.delete(e.Contact, uniqueContact(address)).id);
   }
 
-  async label(address: Address) {
+  async label(address: UAddress) {
     const contact = e.select(e.Contact, () => ({
       filter_single: { user: e.global.current_user, address },
       label: true,
@@ -107,11 +102,6 @@ export class ContactsService {
       e.cast(e.str, e.set()),
     );
 
-    const approver = e.select(e.Approver, () => ({
-      filter_single: { address },
-      label: true,
-    })).label;
-
     const token = e.assert_single(
       e.select(e.Token, (t) => ({
         filter: e.op(t.address, '=', address),
@@ -120,8 +110,13 @@ export class ContactsService {
       })).name,
     );
 
+    const approver = e.select(e.Approver, () => ({
+      filter_single: { address: asAddress(address) },
+      label: true,
+    })).label;
+
     const r = await this.db.query(
-      e.select(e.op(e.op(e.op(contact, '??', account), '??', approver), '??', token)),
+      e.select(e.op(e.op(e.op(contact, '??', account), '??', token), '??', approver)),
     );
 
     return r ?? this.hardcodedContracts[address];

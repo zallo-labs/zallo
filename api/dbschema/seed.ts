@@ -1,8 +1,11 @@
-import { ACCOUNT_INTERFACE, Erc20__factory, asSelector } from 'lib';
-import crypto from 'crypto';
+import { ACCOUNT_ABI, asUAddress } from 'lib';
 import e, { createClient } from './edgeql-js';
 import * as eql from './interfaces';
 import { TOKENS } from '../src/features/tokens/tokens.list';
+import { ERC20 } from 'lib/dapps';
+import { getFunctionSelector, getFunctionSignature } from 'viem';
+import { AbiFunction } from 'abitype';
+import { isChain } from 'chains';
 require('dotenv').config({ path: '../.env' });
 
 const client = createClient();
@@ -24,21 +27,16 @@ main()
   });
 
 async function createContractFunctions() {
-  // Interfaces in order of precedence (in case of sighash collisions)
-  const interfaces = [ACCOUNT_INTERFACE, Erc20__factory.createInterface()];
-
-  const md5 = (value: crypto.BinaryLike) => crypto.createHash('md5').update(value).digest('hex');
+  const functions = [...ACCOUNT_ABI, ...ERC20].filter(
+    (f) => f.type === 'function',
+  ) as AbiFunction[];
 
   const functionsSet = e.set(
-    ...interfaces.flatMap((iface) =>
-      Object.values(iface.functions).map((f) => {
-        const abi = f.format('json');
-
-        return e.json({
-          selector: asSelector(iface.getSighash(f)),
-          abi: JSON.parse(abi),
-          abiMd5: md5(abi),
-        });
+    ...functions.map((f) =>
+      e.json({
+        selector: getFunctionSelector(f),
+        abi: f,
+        abiMd5: getFunctionSignature(f), // Not md5 anymore, but this is all going to be removed
       }),
     ),
   );
@@ -60,10 +58,21 @@ async function createContractFunctions() {
 }
 
 async function upsertTokens() {
+  const tokens = TOKENS.flatMap((t) =>
+    Object.keys(t.address).map((chain) => {
+      if (!isChain(chain)) throw new Error(`Unexpected token address map chain ${chain}`);
+
+      return {
+        ...t,
+        address: asUAddress(t.address[chain], chain),
+      };
+    }),
+  );
+
   const toUpdate = await e
     .select(e.Token, (t) => ({
       filter: e.op(
-        e.op(t.address, 'in', e.set(...TOKENS.map((t) => t.address))),
+        e.op(t.address, 'in', e.set(...tokens.map((t) => t.address))),
         'and',
         e.op('not', e.op('exists', t.user)),
       ),
@@ -72,46 +81,46 @@ async function upsertTokens() {
     }))
     .run(client);
 
+  const updates = tokens
+    .map((token) => ({
+      token,
+      id: toUpdate.find((ut) => ut.address === token.address)?.id,
+    }))
+    .filter((t) => t.id)
+    .map(
+      ({ token, id }) =>
+        e.update(e.Token, () => ({
+          filter_single: { id: id! },
+          set: token,
+        })).id,
+    );
+
+  // Run updates serially to avoid error `UnsupportedFeatureError: The query caused the compiler stack to overflow. It is likely too deeply nested.`
+  for (const update of updates) {
+    await update.run(client);
+  }
+
   await e
     .select({
-      updated: e.assert_distinct(
-        e.cast(
-          e.uuid,
-          e.set(
-            ...TOKENS.map((token) => ({
-              token,
-              id: toUpdate.find((ut) => ut.address === token.address)?.id,
-            }))
-              .filter((t) => t.id)
-              .map(
-                ({ token, id }) =>
-                  e.update(e.Token, () => ({
-                    filter_single: { id: id! },
-                    set: token,
-                  })).id,
-              ),
-          ),
-        ),
-      ),
       inserted: e.assert_distinct(
         e.cast(
           e.uuid,
           e.set(
-            ...TOKENS.filter(
-              (t) => !toUpdate.find((ut) => ut.address === t.address),
-            ).map(
-              (token) =>
-                e.insert(e.Token, {
-                  user: e.cast(e.User, e.set()), // Required; default fails
-                  ...token,
-                }).id,
-            ),
+            ...tokens
+              .filter((t) => !toUpdate.find((ut) => ut.address === t.address))
+              .map(
+                (token) =>
+                  e.insert(e.Token, {
+                    user: e.cast(e.User, e.set()), // Required; default fails
+                    ...token,
+                  }).id,
+              ),
           ),
         ),
       ),
       removed: e.delete(e.Token, (t) => ({
         filter: e.op(
-          e.op(t.address, 'not in', e.set(...TOKENS.map((t) => t.address))),
+          e.op(t.address, 'not in', e.set(...tokens.map((t) => t.address))),
           'and',
           e.op('not', e.op('exists', t.user)),
         ),

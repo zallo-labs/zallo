@@ -1,5 +1,6 @@
 import { FragmentType, gql, useFragment } from '@api';
 import { CloseIcon } from '@theme/icons';
+import { asUAddress } from 'lib';
 import { IconButton } from 'react-native-paper';
 import { AddressLabel } from '~/components/address/AddressLabel';
 import { Timestamp } from '~/components/format/Timestamp';
@@ -25,6 +26,10 @@ const Approval = gql(/* GraphQL */ `
 
 const Proposal = gql(/* GraphQL */ `
   fragment ApprovalItem_Proposal on Proposal {
+    account {
+      id
+      chain
+    }
     ...UseReject_Proposal
   }
 `);
@@ -47,7 +52,7 @@ export function ApprovalItem(props: ApprovalItemProps) {
       leading={approver.address}
       headline={({ Text }) => (
         <Text>
-          <AddressLabel address={approver.address} />
+          <AddressLabel address={asUAddress(approver.address, proposal.account.chain)} />
         </Text>
       )}
       supporting={({ Text }) => (

@@ -1,9 +1,14 @@
 import { gql } from '@api/generated';
-import { asBigInt } from 'lib';
+import { asUAddress } from 'lib';
+import { CHAINS } from 'chains';
 import { useEffect, useMemo } from 'react';
 import { showError, showInfo } from '~/components/provider/SnackbarProvider';
 import { logError } from '~/util/analytics';
-import { asWalletConnectResult, useWalletConnectWithoutWatching } from '~/util/walletconnect';
+import {
+  asWalletConnectError,
+  asWalletConnectResult,
+  useWalletConnectWithoutWatching,
+} from '~/util/walletconnect';
 import {
   SigningRequest,
   WC_SIGNING_METHODS,
@@ -39,7 +44,7 @@ const ProposeMessage = gql(/* GraphQL */ `
 `);
 
 const ProposalSubscription = gql(/* GraphQL */ `
-  subscription SessionRequestListener_Proposal($accounts: [Address!]!) {
+  subscription SessionRequestListener_Proposal($accounts: [UAddress!]!) {
     proposal(input: { accounts: $accounts, events: [approved, executed] }) {
       __typename
       id
@@ -86,19 +91,26 @@ export const useSessionRequestListener = () => {
       const method = params.request.method;
       const peer = client.session.get(topic).peer.metadata;
 
+      const chain = Object.values(CHAINS).find((c) => `${c.id}` === params.chainId)?.key;
+      if (!chain)
+        return client.respond({
+          topic,
+          response: asWalletConnectError(id, 'UNSUPPORTED_CHAINS'),
+        });
+
       if (WC_TRANSACTION_METHODS.has(method)) {
         const [tx] = (params.request as WalletConnectSendTransactionRequest).params;
 
         const proposal = await proposeTransaction({
-          account: tx.from,
+          account: asUAddress(tx.from, chain),
           operations: [
             {
               to: tx.to,
-              value: tx.value ? asBigInt(tx.value) : undefined,
+              value: tx.value ? BigInt(tx.value) : undefined,
               data: tx.data,
             },
           ],
-          gasLimit: tx.gasLimit ? asBigInt(tx.gasLimit) : undefined,
+          gasLimit: tx.gasLimit ? BigInt(tx.gasLimit) : undefined,
         });
 
         showInfo(`${peer.name} has proposed a transaction`);
@@ -123,7 +135,7 @@ export const useSessionRequestListener = () => {
         const proposal = (
           await proposeMessage({
             input: {
-              account: request.account,
+              account: asUAddress(request.account, chain),
               label: `${peer.name} message`,
               iconUri: peer.icons[0],
               ...(request.method === 'personal-sign'

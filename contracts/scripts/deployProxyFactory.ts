@@ -1,15 +1,21 @@
+import hre from 'hardhat';
 import { exit } from 'process';
 import { deployFactory } from '../test/util';
 import { displayTx } from './util/display';
-import hardhat from 'hardhat';
+import { verify } from './util/verify';
+import { TASK_COMPILE } from 'hardhat/builtin-tasks/task-names';
 
 const main = async () => {
-  await hardhat.run('compile');
+  await hre.run(TASK_COMPILE);
 
-  const { factory, deployTx } = await deployFactory('ERC1967Proxy');
-  await displayTx(factory.address, deployTx);
+  const { address, deployTx, constructorArgs } = await deployFactory('AccountProxy');
+  await displayTx(address, deployTx);
 
-  // TODO: verify
+  await verify({
+    contract: 'contracts/Factory.sol:Factory',
+    address,
+    constructorArguments: constructorArgs,
+  });
 };
 
 main()

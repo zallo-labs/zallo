@@ -1,9 +1,16 @@
 import { Test } from '@nestjs/testing';
 import { createMock, DeepMocked } from '@golevelup/ts-jest';
 import { asUser, getApprover, getUserCtx, UserContext } from '~/request/ctx';
-import { randomAddress, randomHash, randomLabel, randomUser } from '~/util/test';
-import { Address, CHAINS, randomDeploySalt, Hex } from 'lib';
-import { ProviderService } from '../util/provider/provider.service';
+import {
+  DeepPartial,
+  randomAddress,
+  randomHash,
+  randomLabel,
+  randomUAddress,
+  randomUser,
+} from '~/util/test';
+import { randomDeploySalt, Hex, UAddress } from 'lib';
+import { Network, NetworksService } from '../util/networks/networks.service';
 import { ExpoService } from '../util/expo/expo.service';
 import { TransactionsService } from '../transactions/transactions.service';
 import { ProposeTransactionInput } from './transaction-proposals.input';
@@ -14,9 +21,7 @@ import {
 } from './transaction-proposals.service';
 import e from '~/edgeql-js';
 import { selectAccount } from '../accounts/accounts.util';
-import { uuid } from 'edgedb/dist/codecs/ifaces';
 import { selectPolicy } from '../policies/policies.util';
-import { TransactionProposalStatus } from './transaction-proposals.model';
 import { v1 as uuidv1 } from 'uuid';
 
 const signature = '0x1234' as Hex;
@@ -24,8 +29,8 @@ const signature = '0x1234' as Hex;
 describe(TransactionProposalsService.name, () => {
   let service: TransactionProposalsService;
   let db: DatabaseService;
-  let provider: DeepMocked<ProviderService>;
-  let expo: DeepMocked<ExpoService>;
+  let networks: DeepMocked<NetworksService>;
+  // let expo: DeepMocked<ExpoService>;
   let transactions: DeepMocked<TransactionsService>;
 
   beforeEach(async () => {
@@ -37,25 +42,23 @@ describe(TransactionProposalsService.name, () => {
 
     service = module.get(TransactionProposalsService);
     db = module.get(DatabaseService);
-    provider = module.get(ProviderService);
-    expo = module.get(ExpoService);
+    networks = module.get(NetworksService);
+    // expo = module.get(ExpoService);
     transactions = module.get(TransactionsService);
 
-    provider.verifySignature.mockImplementation(async () => true);
-    provider.getNetwork.mockImplementation(async () => ({
-      chainId: CHAINS.testnet.id,
-      name: CHAINS.testnet.name,
-    }));
+    networks.for.mockReturnValue({
+      estimateGas: async () => 0n,
+    } satisfies DeepPartial<Network> as unknown as Network);
 
     transactions.tryExecute.mockImplementation(async () => undefined);
   });
 
   let user1: UserContext;
-  let user1Account1: Address;
+  let user1Account1: UAddress;
 
   beforeEach(async () => {
     user1 = randomUser();
-    user1Account1 = randomAddress();
+    user1Account1 = randomUAddress();
   });
 
   const propose = async ({
@@ -72,7 +75,7 @@ describe(TransactionProposalsService.name, () => {
         id: accountId,
         address: account,
         label: randomLabel(),
-        implementation: account,
+        implementation: randomAddress(),
         salt: randomDeploySalt(),
         isActive: true,
       })

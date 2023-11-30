@@ -1,7 +1,7 @@
 import { BullModuleOptions, InjectQueue, Process, Processor } from '@nestjs/bull';
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { Job, Queue } from 'bull';
-import { Hex, ZERO_ADDR, asAddress, asHex } from 'lib';
+import { ETH_ADDRESS, Hex, asAddress, asChain, asHex, asUAddress } from 'lib';
 import { DatabaseService } from '../database/database.service';
 import e from '~/edgeql-js';
 import { and } from '../database/database.util';
@@ -62,17 +62,19 @@ export class SimulationsProcessor implements OnModuleInit {
     // Job is complete if the proposal no longer exists
     if (!p) return;
 
-    const accountAddress = asAddress(p.account.address);
-    const account = selectAccount(accountAddress);
-    const transfers: TransferDetails[] = [];
+    const accountUAddress = asUAddress(p.account.address);
+    const accountAddress = asAddress(accountUAddress);
+    const chain = asChain(accountUAddress);
+    const account = selectAccount(accountUAddress);
 
+    const transfers: TransferDetails[] = [];
     for (const op of p.operations) {
       if (op.value) {
         transfers.push({
           account,
           from: accountAddress,
           to: op.to,
-          tokenAddress: ZERO_ADDR,
+          tokenAddress: asUAddress(ETH_ADDRESS, chain),
           amount: op.to === accountAddress ? 0n : -op.value,
           direction: ['Out' as const, ...(op.to === accountAddress ? (['In'] as const) : [])],
         });
@@ -83,12 +85,12 @@ export class SimulationsProcessor implements OnModuleInit {
         value: op.value || undefined,
         data: asHex(op.data || undefined),
       });
-      if (f instanceof TransferOp && f.token !== ZERO_ADDR) {
+      if (f instanceof TransferOp && f.token !== ETH_ADDRESS) {
         transfers.push({
           account,
           from: accountAddress,
           to: f.to,
-          tokenAddress: f.token,
+          tokenAddress: asUAddress(f.token, chain),
           amount: f.to === accountAddress ? 0n : -f.amount,
           direction: ['Out' as const, ...(accountAddress === f.to ? (['In'] as const) : [])],
         });
@@ -97,7 +99,7 @@ export class SimulationsProcessor implements OnModuleInit {
           account,
           from: f.from,
           to: f.to,
-          tokenAddress: f.token,
+          tokenAddress: asUAddress(f.token, chain),
           amount: f.amount,
           direction: ['Out' as const, ...(accountAddress === f.to ? (['In'] as const) : [])],
         });
@@ -106,7 +108,7 @@ export class SimulationsProcessor implements OnModuleInit {
           account,
           from: op.to,
           to: accountAddress,
-          tokenAddress: f.toToken,
+          tokenAddress: asUAddress(f.toToken, chain),
           amount: f.minimumToAmount,
           direction: ['In' as const],
         });
@@ -144,7 +146,7 @@ export class SimulationsProcessor implements OnModuleInit {
 
     if (orphanedProposals.length) {
       await this.queue.addBulk(
-        orphanedProposals.map((hash) => ({ data: { transactionProposalHash: hash as Hex } })),
+        orphanedProposals.map((hash) => ({ data: { transactionProposalHash: asHex(hash) } })),
       );
     }
   }

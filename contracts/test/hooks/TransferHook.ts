@@ -1,51 +1,56 @@
 import { expect } from 'chai';
 import {
-  AccountError,
   asHex,
-  ERC20_ABI,
+  encodeTransfersConfigStruct,
   Operation,
-  TestVerifier,
-  TRANSFERS_CONFIG_ABI,
+  TEST_VERIFIER_ABI,
   TransfersConfig,
+  ETH_ADDRESS,
+  Address,
 } from 'lib';
-import { deployTestVerifier } from '../util/verifier';
-import { WALLET } from '../util';
+import { ERC20 } from 'lib/dapps';
+import { deploy, wallet } from '../util';
 import { encodeFunctionData } from 'viem';
-import { ETH_ADDRESS } from 'zksync-web3/build/src/utils';
 
-const TOKEN = WALLET.address;
+const to = wallet.account.address;
+const TOKEN = wallet.account.address;
 const HOUR = 60 * 60;
 
 describe('TransferHook', () => {
-  let verifier = {} as TestVerifier;
+  let verifier: Address;
 
   const verify = (op: Partial<Operation>, c: TransfersConfig) =>
-    verifier.beforeExecuteTransfer(
-      {
-        to: WALLET.address,
-        value: 0,
-        data: '0x',
-        ...op,
-      },
-      TRANSFERS_CONFIG_ABI.asStruct(c),
-      { gasLimit: 3_000_000 },
-    );
+    wallet.writeContract({
+      abi: TEST_VERIFIER_ABI,
+      address: verifier,
+      functionName: 'beforeExecuteTransfer',
+      args: [
+        {
+          to,
+          value: 0n,
+          data: '0x',
+          ...op,
+        },
+        encodeTransfersConfigStruct(c),
+      ],
+      gas: 2_000_000n,
+    });
 
   beforeEach(async () => {
-    verifier = await deployTestVerifier();
+    verifier = (await deploy('TestVerifier')).address;
   });
 
   describe('succeed when', () => {
     it('transfer, below limit', async () => {
       await expect(
         verify({ value: 1n }, { limits: { [ETH_ADDRESS]: { amount: 2n, duration: HOUR } } }),
-      ).to.not.be.reverted;
+      ).to.not.revert;
     });
 
     it('transfer, equal to limit', async () => {
       await expect(
         verify({ value: 2n }, { limits: { [ETH_ADDRESS]: { amount: 2n, duration: HOUR } } }),
-      ).to.not.be.reverted;
+      ).to.not.revert;
     });
 
     it('erc20 transfer, equal to limit', async () => {
@@ -55,15 +60,15 @@ describe('TransferHook', () => {
             to: TOKEN,
             data: asHex(
               encodeFunctionData({
-                abi: ERC20_ABI,
+                abi: ERC20,
                 functionName: 'transfer',
-                args: [WALLET.address, 2n],
+                args: [to, 2n],
               }),
             ),
           },
           { limits: { [TOKEN]: { amount: 2n, duration: HOUR } } },
         ),
-      ).to.not.be.reverted;
+      ).to.not.revert;
     });
 
     it('erc20 approval, equal to limit', async () => {
@@ -73,15 +78,15 @@ describe('TransferHook', () => {
             to: TOKEN,
             data: asHex(
               encodeFunctionData({
-                abi: ERC20_ABI,
+                abi: ERC20,
                 functionName: 'approve',
-                args: [WALLET.address, 2n],
+                args: [to, 2n],
               }),
             ),
           },
           { limits: { [TOKEN]: { amount: 2n, duration: HOUR } } },
         ),
-      ).to.not.be.reverted;
+      ).to.not.revert;
     });
 
     it('erc20 increaseAllowance, equal to limit', async () => {
@@ -91,85 +96,77 @@ describe('TransferHook', () => {
             to: TOKEN,
             data: asHex(
               encodeFunctionData({
-                abi: ERC20_ABI,
+                abi: ERC20,
                 functionName: 'increaseAllowance',
-                args: [WALLET.address, 2n],
+                args: [to, 2n],
               }),
             ),
           },
           { limits: { [TOKEN]: { amount: 2n, duration: HOUR } } },
         ),
-      ).to.not.be.reverted;
+      ).to.not.revert;
     });
   });
 
   describe('revert when', () => {
     it('transfer, above limit', async () => {
       await expect(
-        (
-          await verify({ value: 3n }, { limits: { [ETH_ADDRESS]: { amount: 2n, duration: HOUR } } })
-        ).wait(),
-      ).to.be.rejected; // revertedWithCustomError(verifier, AccountError.TransferExceedsLimit);
+        verify({ value: 3n }, { limits: { [ETH_ADDRESS]: { amount: 2n, duration: HOUR } } }),
+      ).to.revert; // TransferExceedsLimit
     });
 
     it('erc20 transfer, above limit', async () => {
       await expect(
-        (
-          await verify(
-            {
-              to: TOKEN,
-              data: asHex(
-                encodeFunctionData({
-                  abi: ERC20_ABI,
-                  functionName: 'transfer',
-                  args: [WALLET.address, 3n],
-                }),
-              ),
-            },
-            { limits: { [TOKEN]: { amount: 2n, duration: HOUR } } },
-          )
-        ).wait(),
-      ).to.be.rejected; // revertedWithCustomError(verifier, AccountError.TransferExceedsLimit);
+        verify(
+          {
+            to: TOKEN,
+            data: asHex(
+              encodeFunctionData({
+                abi: ERC20,
+                functionName: 'transfer',
+                args: [to, 3n],
+              }),
+            ),
+          },
+          { limits: { [TOKEN]: { amount: 2n, duration: HOUR } } },
+        ),
+      ).to.revert; // TransferExceedsLimit
     });
 
     it('erc20 approval, above limit', async () => {
       await expect(
-        (
-          await verify(
-            {
-              to: TOKEN,
-              data: asHex(
-                encodeFunctionData({
-                  abi: ERC20_ABI,
-                  functionName: 'approve',
-                  args: [WALLET.address, 3n],
-                }),
-              ),
-            },
-            { limits: { [TOKEN]: { amount: 2n, duration: HOUR } } },
-          )
-        ).wait(),
-      ).to.be.rejected; // // revertedWithCustomError(verifier, AccountError.TransferExceedsLimit);
+        verify(
+          {
+            to: TOKEN,
+            data: asHex(
+              encodeFunctionData({
+                abi: ERC20,
+                functionName: 'approve',
+                args: [to, 3n],
+              }),
+            ),
+          },
+          { limits: { [TOKEN]: { amount: 2n, duration: HOUR } } },
+        ),
+      ).to.revert; // TransferExceedsLimit
     });
 
     it('erc20 increaseAllowance, above limit', async () => {
       await expect(
-        (
-          await verify(
-            {
-              to: TOKEN,
-              data: asHex(
-                encodeFunctionData({
-                  abi: ERC20_ABI,
-                  functionName: 'increaseAllowance',
-                  args: [WALLET.address, 3n],
-                }),
-              ),
-            },
-            { limits: { [TOKEN]: { amount: 2n, duration: HOUR } } },
-          )
-        ).wait(),
-      ).to.be.rejected; // // revertedWithCustomError(verifier, AccountError.TransferExceedsLimit);
+        verify(
+          {
+            to: TOKEN,
+            data: asHex(
+              encodeFunctionData({
+                abi: ERC20,
+                functionName: 'increaseAllowance',
+                args: [to, 3n],
+              }),
+            ),
+          },
+          { limits: { [TOKEN]: { amount: 2n, duration: HOUR } } },
+        ),
+      ).to.revert; // TransferExceedsLimit
     });
   });
 });

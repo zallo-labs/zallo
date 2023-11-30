@@ -1,3 +1,4 @@
+import { ConstraintViolationError } from 'edgedb';
 import { ObjectTypeSet, TypeSet } from '~/edgeql-js/reflection';
 import e from '~/edgeql-js';
 import { isTruthy } from 'lib';
@@ -31,9 +32,31 @@ export const makeUnionTypeResolver = (mappings: [ObjectTypeSet, unknown][] = [])
     mappings.map(([type, r]) => [type.__element__.__name__, r] as const),
   );
 
-  return function resolveUnionType(value: any) {
-    const typename = value.__type__?.name; // Includes module name, e.g. default::Proposal
+  return function resolveUnionType(value: unknown) {
+    if (typeof value !== 'object' || !value) return undefined;
 
-    return typenameMappings[typename] || typename.split('::')[1];
+    // EdgeDB module name, e.g. default::Proposal
+    const typename =
+      '__type__' in value &&
+      typeof value.__type__ === 'object' &&
+      value.__type__ &&
+      'name' in value.__type__ &&
+      value.__type__.name;
+    if (typeof typename === 'string') return typenameMappings[typename] || typename.split('::')[1];
+
+    // // GraphQL returned type
+    if (
+      '__proto__' in value &&
+      typeof value.__proto__ === 'object' &&
+      value.__proto__ &&
+      value.__proto__.constructor !== Object
+    )
+      return value.__proto__.constructor;
+
+    // return undefined; // Error
   };
 };
+
+export function isExclusivityConstraintViolation(e: unknown): e is ConstraintViolationError {
+  return e instanceof ConstraintViolationError && e.message.includes('exclusivity');
+}

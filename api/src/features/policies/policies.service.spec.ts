@@ -1,10 +1,9 @@
 import { Test } from '@nestjs/testing';
 import { createMock, DeepMocked } from '@golevelup/ts-jest';
-import { PoliciesService } from './policies.service';
-import { Address, asHex, asPolicyKey, asSelector, randomDeploySalt, ZERO_ADDR } from 'lib';
+import { CreatePolicyParams, PoliciesService } from './policies.service';
+import { asPolicyKey, asSelector, randomDeploySalt, randomHex, UAddress, ZERO_ADDR } from 'lib';
 import { asUser, getUserCtx, UserContext } from '~/request/ctx';
-import { randomAddress, randomLabel, randomUser } from '~/util/test';
-import { randomBytes } from 'ethers/lib/utils';
+import { randomAddress, randomLabel, randomUAddress, randomUser } from '~/util/test';
 import { TransactionProposalsService } from '../transaction-proposals/transaction-proposals.service';
 import { AccountsCacheService } from '../auth/accounts.cache.service';
 import { DatabaseService } from '../database/database.service';
@@ -18,7 +17,6 @@ import {
 import assert from 'assert';
 import { PolicyInput } from './policies.input';
 import { v1 as uuidv1 } from 'uuid';
-import { TOKENS } from '../tokens/tokens.list';
 
 describe(PoliciesService.name, () => {
   let service: PoliciesService;
@@ -39,13 +37,13 @@ describe(PoliciesService.name, () => {
     userAccounts = module.get(AccountsCacheService);
   });
 
-  let user1Account: Address;
+  let user1Account: UAddress;
   let user1: UserContext;
 
   const create = async ({
-    policyInput,
     activate,
-  }: { policyInput?: PolicyInput; activate?: boolean } = {}) => {
+    ...params
+  }: Partial<CreatePolicyParams> & { activate?: boolean } = {}) => {
     const userCtx = getUserCtx();
     const account = user1Account;
 
@@ -57,7 +55,7 @@ describe(PoliciesService.name, () => {
         id: accountId,
         address: account,
         label: randomLabel(),
-        implementation: account,
+        implementation: randomAddress(),
         salt: randomDeploySalt(),
         isActive: false,
       })
@@ -71,7 +69,7 @@ describe(PoliciesService.name, () => {
     await e.insert(e.Approver, { address: userCtx.approver }).unlessConflict().run(db.client);
 
     proposals.getProposal.mockImplementation(async () => {
-      const hash = asHex(randomBytes(32));
+      const hash = randomHex(32);
 
       return {
         hash,
@@ -82,7 +80,7 @@ describe(PoliciesService.name, () => {
           validFrom: new Date(),
           feeToken: e.assert_single(
             e.select(e.Token, (t) => ({
-              filter: e.op(t.address, '=', TOKENS[0].address),
+              filter: t.isFeeToken,
               limit: 1,
             })),
           ),
@@ -90,11 +88,13 @@ describe(PoliciesService.name, () => {
       };
     });
 
-    const { id, key } = await service.create({
-      account,
-      approvers: [userCtx.approver],
-      ...policyInput,
-    });
+    const { id, key } = (
+      await service.create({
+        account,
+        approvers: [userCtx.approver],
+        ...params,
+      })
+    )._unsafeUnwrap();
 
     if (activate) {
       await e
@@ -116,7 +116,7 @@ describe(PoliciesService.name, () => {
   };
 
   beforeEach(() => {
-    user1Account = randomAddress();
+    user1Account = randomUAddress();
     user1 = randomUser();
   });
 
@@ -154,7 +154,6 @@ describe(PoliciesService.name, () => {
       asUser(user1, async () => {
         const key = asPolicyKey(125);
         const policyInput: PolicyInput = {
-          key,
           approvers: [getUserCtx().approver, randomAddress()],
           threshold: 1,
           actions: [
@@ -181,7 +180,7 @@ describe(PoliciesService.name, () => {
         };
         const expectedPolicy = inputAsPolicy(key, policyInput);
 
-        const { id } = await create({ policyInput });
+        const { id } = await create({ ...policyInput, key });
 
         const p = await e
           .select(e.Policy, (p) => ({
@@ -231,7 +230,7 @@ describe(PoliciesService.name, () => {
       asUser(user1, async () => {
         const policy = await create();
 
-        expect(proposals.getProposal).toBeCalledTimes(1);
+        expect(proposals.getProposal).toHaveBeenCalled();
         await service.update({ ...policy, approvers: [] });
       }));
 

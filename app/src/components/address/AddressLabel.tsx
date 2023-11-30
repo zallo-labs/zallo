@@ -1,15 +1,15 @@
-import { Address } from 'lib';
+import { UAddress } from 'lib';
 import { truncateAddr } from '~/util/format';
 import { gql } from '@api/generated';
 import { useQuery } from '~/gql';
 
 const Query = gql(/* GraphQL */ `
-  query AddressLabel($address: Address!) {
+  query AddressLabel($address: UAddress!) {
     label(input: { address: $address })
   }
 `);
 
-export const useAddressLabel = <A extends Address | undefined>(address: A) => {
+export const useAddressLabel = <A extends UAddress | undefined>(address: A) => {
   const label = useQuery(Query, { address: address! }, { pause: !address }).data?.label;
 
   return (address ? label || truncateAddr(address) : undefined) as A extends undefined
@@ -18,7 +18,7 @@ export const useAddressLabel = <A extends Address | undefined>(address: A) => {
 };
 
 export interface AddressLabelProps {
-  address: Address;
+  address: UAddress;
 }
 
-export const AddressLabel = ({ address }: AddressLabelProps) => <>{useAddressLabel(address)}</>;
+export const AddressLabel = ({ address }: AddressLabelProps) => useAddressLabel(address);

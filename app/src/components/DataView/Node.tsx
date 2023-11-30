@@ -1,4 +1,4 @@
-import { Hex, isAddress, isHex } from 'lib';
+import { Hex, asUAddress, isAddress, isHex } from 'lib';
 import { StyleProp, StyleSheet, TextStyle, View } from 'react-native';
 import { Text } from 'react-native-paper';
 import { tryDecodeHexString } from '~/util/decodeHex';
@@ -6,6 +6,7 @@ import { AddressLabel } from '../address/AddressLabel';
 import { match } from 'ts-pattern';
 import { TypedDataDefinition } from 'viem';
 import { createStyles, useStyles } from '@theme/styles';
+import { Chain } from 'chains';
 
 export type NodeValue = string | Hex | TypedDataNode | TypedDataDefinition;
 
@@ -17,21 +18,26 @@ export interface TypedDataNode {
 
 export interface NodeProps {
   children: NodeValue;
+  chain: Chain;
   style?: StyleProp<TextStyle>;
 }
 
-export const Node = ({ children: value, style }: NodeProps) => {
+export function Node({ children: value, chain, style }: NodeProps) {
   const { styles } = useStyles(stylesheet);
   const marginLeft = (StyleSheet.flatten(style)?.marginLeft as number) ?? 0;
 
   return match(value)
     .when(isAddress, (v) => (
       <Text style={style}>
-        <AddressLabel address={v} />
+        <AddressLabel address={asUAddress(v, chain)} />
       </Text>
     ))
     .when(isHex, (v) => <Text style={style}>{tryDecodeHexString(v) ?? v}</Text>)
-    .when(isTypedData, (data) => <Node style={style}>{asTypedDataNode(data)}</Node>)
+    .when(isTypedData, (data) => (
+      <Node chain={chain} style={style}>
+        {asTypedDataNode(data)}
+      </Node>
+    ))
     .when(isTypedDataNode, ({ name, type, children }) =>
       children instanceof Array ? (
         <View>
@@ -43,7 +49,7 @@ export const Node = ({ children: value, style }: NodeProps) => {
           </Text>
 
           {children.map((child, i) => (
-            <Node key={i} style={[style, { marginLeft: marginLeft + 8 }]}>
+            <Node key={i} chain={chain} style={[style, { marginLeft: marginLeft + 8 }]}>
               {child}
             </Node>
           ))}
@@ -55,12 +61,14 @@ export const Node = ({ children: value, style }: NodeProps) => {
           <Text style={[style, styles.name]}>{name}</Text>
           {/* Omit type */}
 
-          <Node style={[style, styles.value]}>{children}</Node>
+          <Node chain={chain} style={[style, styles.value]}>
+            {children}
+          </Node>
         </View>
       ),
     )
     .otherwise((v) => <Text style={style}>{v}</Text>);
-};
+}
 
 const stylesheet = createStyles(({ colors }) => ({
   valueNodeContainer: {

@@ -1,7 +1,7 @@
 import { gql } from '@api';
 import { useRouter } from 'expo-router';
 import { useAtom } from 'jotai';
-import { PolicyKey, asAddress, asPolicyKey } from 'lib';
+import { PolicyKey, asPolicyKey } from 'lib';
 import _ from 'lodash';
 import { useMutation } from 'urql';
 import { z } from 'zod';
@@ -14,7 +14,7 @@ import { showError } from '~/components/provider/SnackbarProvider';
 import { withSuspense } from '~/components/skeleton/withSuspense';
 import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
 import { ScreenSurface } from '~/components/layout/ScreenSurface';
-import { zAddress } from '~/lib/zod';
+import { zUAddress } from '~/lib/zod';
 import { ApprovalSettings } from '~/components/policy/ApprovalSettings';
 import { SpendingSettings } from '~/components/policy/SpendingSettings';
 import { useLayout } from '~/hooks/useLayout';
@@ -25,7 +25,7 @@ import { Actions } from '~/components/layout/Actions';
 import { Button } from '~/components/Button';
 
 const Query = gql(/* GraphQL */ `
-  query PolicyScreen($account: Address!, $key: PolicyKey!, $queryPolicy: Boolean!) {
+  query PolicyScreen($account: UAddress!, $key: PolicyKey!, $queryPolicy: Boolean!) {
     policy(input: { account: $account, key: $key }) @include(if: $queryPolicy) {
       id
       key
@@ -39,7 +39,7 @@ const Query = gql(/* GraphQL */ `
       ...PolicyAppbar_Policy
     }
 
-    account(input: { address: $account }) {
+    account(input: { account: $account }) {
       id
       address
       ...useHydratePolicyDraft_Account
@@ -51,14 +51,20 @@ const Query = gql(/* GraphQL */ `
 const Create = gql(/* GraphQL */ `
   mutation PolicyScreen_Create($input: CreatePolicyInput!) {
     createPolicy(input: $input) {
-      id
-      key
-      draft {
+      __typename
+      ... on Policy {
         id
-        proposal {
+        key
+        draft {
           id
-          hash
+          proposal {
+            id
+            hash
+          }
         }
+      }
+      ... on Err {
+        message
       }
     }
   }
@@ -67,37 +73,42 @@ const Create = gql(/* GraphQL */ `
 const Update = gql(/* GraphQL */ `
   mutation PolicyScreen_Update($input: UpdatePolicyInput!) {
     updatePolicy(input: $input) {
-      id
-      key
-      draft {
+      __typename
+      ... on Policy {
         id
-        proposal {
+        key
+        draft {
           id
-          hash
+          proposal {
+            id
+            hash
+          }
         }
+      }
+      ... on Err {
+        message
       }
     }
   }
 `);
 
 export const PolicyScreenParams = z.object({
-  account: zAddress,
+  account: zUAddress(),
   key: z.union([z.coerce.number().transform(asPolicyKey), z.literal('add')]),
   view: z.enum(['state', 'draft']).optional(),
 });
 export type PolicyScreenParams = z.infer<typeof PolicyScreenParams>;
 
 function PolicyScreen() {
-  const params = useLocalParams(`/(drawer)/[account]/policies/[key]/`, PolicyScreenParams);
+  const params = useLocalParams(PolicyScreenParams);
   const router = useRouter();
   const create = useMutation(Create)[1];
   const update = useMutation(Update)[1];
 
-  const isAdd = params.key === 'add';
-  const key = isAdd ? undefined : asPolicyKey(params.key);
+  const key = params.key === 'add' ? undefined : asPolicyKey(params.key);
 
   const { policy, account } = useQuery(Query, {
-    account: asAddress(params.account),
+    account: params.account,
     key: key ?? (0 as PolicyKey),
     queryPolicy: key !== undefined,
   }).data;
@@ -134,19 +145,18 @@ function PolicyScreen() {
             <Button
               mode="contained"
               onPress={async () => {
-                const input = { ...asPolicyInput(draft), account: draft.account };
+                const input = { ...asPolicyInput(draft), account: draft.account, key: draft?.key };
                 const r =
                   input.key !== undefined
-                    ? (await update({ input })).data?.updatePolicy
+                    ? (await update({ input: { ...input, key: input.key! } })).data?.updatePolicy
                     : (await create({ input })).data?.createPolicy;
 
-                const proposal = r?.draft?.proposal;
-                if (!proposal) return showError('Failed to propose changes');
+                if (r?.__typename !== 'Policy') return showError(r?.message);
 
                 router.setParams({ ...params, key: `${r.key}`, view: 'draft' });
                 router.push({
                   pathname: `/(drawer)/transaction/[hash]/`,
-                  params: { hash: proposal.hash },
+                  params: { hash: r.draft!.proposal!.hash },
                 });
               }}
             >

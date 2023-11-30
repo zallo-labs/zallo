@@ -1,16 +1,16 @@
 import { FragmentType, gql, useFragment } from '@api/generated';
 import { SwapVerticalIcon } from '@theme/icons';
 import { createStyles, useStyles } from '@theme/styles';
-import { formatUnits, parseUnits } from 'ethers/lib/utils';
-import { asBigInt, fiatToToken, tokenToFiat } from 'lib';
+import { fiatToToken, tokenToFiat } from 'lib';
 import { Dispatch, SetStateAction } from 'react';
 import { View } from 'react-native';
 import { Button, IconButton, Text } from 'react-native-paper';
+import { formatUnits, parseUnits } from 'viem';
 import { FiatValue } from '~/components/FiatValue';
 import { TokenAmount } from '~/components/token/TokenAmount';
 
 const FragmentDoc = gql(/* GraphQL */ `
-  fragment InputsView_token on Token @argumentDefinitions(account: { type: "Address!" }) {
+  fragment InputsView_token on Token @argumentDefinitions(account: { type: "UAddress!" }) {
     id
     decimals
     balance(input: { account: $account })
@@ -46,7 +46,7 @@ export const InputsView = ({ input, setInput, type, setType, ...props }: InputsV
 
   const tokenAmount =
     type === InputType.Token
-      ? parseUnits(inputAmount, token.decimals).toBigInt()
+      ? parseUnits(inputAmount, token.decimals)
       : fiatToToken(parseFloat(inputAmount), token.price?.current ?? 0, token.decimals);
 
   const fiatValue =
@@ -62,7 +62,7 @@ export const InputsView = ({ input, setInput, type, setType, ...props }: InputsV
           labelStyle={styles.button}
           onPress={() => {
             setType(InputType.Token);
-            setInput(formatUnits(token.balance, token.decimals));
+            setInput(formatUnits(BigInt(token.balance), token.decimals));
           }}
         >
           Max
@@ -100,7 +100,7 @@ export const InputsView = ({ input, setInput, type, setType, ...props }: InputsV
         ) : undefined}
       </Text>
 
-      {tokenAmount > asBigInt(token.balance) && (
+      {tokenAmount > BigInt(token.balance) && (
         <Text style={styles.balanceWarning}>Greater than available balance</Text>
       )}
     </View>

@@ -12,12 +12,13 @@ import { AppbarOptions } from '~/components/Appbar/AppbarOptions';
 import { POLICY_DRAFT_ATOM } from '~/lib/policy/draft';
 import { withSuspense } from '~/components/skeleton/withSuspense';
 import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
+import { showError } from '~/components/provider/SnackbarProvider';
 
 const trimmed = (v: string) => v.trim();
 
 const Query = gql(/* GraphQL */ `
-  query RenamePolicySheet($account: Address!) {
-    account(input: { address: $account }) {
+  query RenamePolicySheet($account: UAddress!) {
+    account(input: { account: $account }) {
       id
       policies {
         id
@@ -29,10 +30,16 @@ const Query = gql(/* GraphQL */ `
 `);
 
 const Rename = gql(/* GraphQL */ `
-  mutation RenamePolicySheet_Rename($account: Address!, $key: PolicyKey!, $name: String!) {
+  mutation RenamePolicySheet_Rename($account: UAddress!, $key: PolicyKey!, $name: String!) {
     updatePolicy(input: { account: $account, key: $key, name: $name }) {
-      id
-      name
+      __typename
+      ... on Policy {
+        id
+        name
+      }
+      ... on Err {
+        message
+      }
     }
   }
 `);
@@ -89,8 +96,11 @@ function PolicyNameModal() {
                 draft.name = name;
               });
 
-              if (draft.key !== undefined)
-                await rename({ account: draft.account, key: draft.key, name });
+              if (draft.key !== undefined) {
+                const r = (await rename({ account: draft.account, key: draft.key, name })).data
+                  ?.updatePolicy;
+                if (r?.__typename !== 'Policy') return showError(r?.message);
+              }
             }
 
             router.back();

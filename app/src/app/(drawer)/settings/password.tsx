@@ -17,9 +17,7 @@ import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
 import { changeSecureStorePassword } from '~/lib/secure-storage';
 import { createStyles, useStyles } from '@theme/styles';
 
-const PASSWORD_HASH = persistedAtom<string | null>('passwordHash', null, {
-  skipInitialPersist: true,
-});
+const PASSWORD_HASH = persistedAtom<string | null>('passwordHash', null);
 export const usePasswordHash = () => useAtomValue(PASSWORD_HASH);
 
 const getSchema = (expectedHash: string | null) =>

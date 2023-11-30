@@ -52,7 +52,7 @@ function Layout() {
       <Stack.Screen name={`[account]/receive`} options={transparentModal} />
       <Stack.Screen name={`accounts/index`} options={sheet} />
       <Stack.Screen name={`approvers/[address]/qr`} options={transparentModal} />
-      <Stack.Screen name={`ledger/sign`} options={sheet} />
+      <Stack.Screen name={`ledger/approve`} options={sheet} />
       <Stack.Screen name={`link/token`} options={sheet} />
       <Stack.Screen name={`link/index`} options={transparentModal} />
       <Stack.Screen name={`onboard/(drawer)`} options={{ headerShown: false }} />

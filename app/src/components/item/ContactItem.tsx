@@ -1,5 +1,6 @@
 import { FragmentType, gql, useFragment } from '@api/generated';
 import { NavigateNextIcon } from '@theme/icons';
+import { AddressIcon } from '~/components/Identicon/AddressIcon';
 import { ListItem, ListItemProps } from '~/components/list/ListItem';
 import { truncateAddr } from '~/util/format';
 
@@ -20,7 +21,8 @@ export function ContactItem(props: ContactItemProps) {
 
   return (
     <ListItem
-      leading={c.address}
+      leading={(props) => <AddressIcon address={c.address} {...props} />}
+      leadingSize="medium"
       headline={c.label}
       supporting={truncateAddr(c.address)}
       trailing={NavigateNextIcon}

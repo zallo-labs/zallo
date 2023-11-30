@@ -4,7 +4,8 @@ import type { AsyncStorage as TAsyncStorage } from 'jotai/vanilla/utils/atomWith
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export type PersistedAtomOptions<V, U extends AnyJson> = StorageOptions<V, U> & {
-  skipInitialPersist?: boolean;
+  persistInitial?: boolean;
+  migrate?: (v: unknown) => V | undefined;
 };
 
 // Based off https://github.com/pmndrs/jotai/blob/main/src/vanilla/utils/atomWithStorage.ts
@@ -15,7 +16,7 @@ export const persistedAtom = <
 >(
   key: string,
   initializer: V | (() => V),
-  { skipInitialPersist, ...storageOptions }: PersistedAtomOptions<V, U> = {},
+  { persistInitial, migrate, ...storageOptions }: PersistedAtomOptions<V, U> = {},
 ) => {
   const initialValue: V = typeof initializer === 'function' ? initializer() : initializer;
 
@@ -23,7 +24,13 @@ export const persistedAtom = <
   const getPersisted = () => storage.getItem(key, initialValue);
   const setPersisted = (value: V) => storage.setItem(key, value);
 
-  const initialPersistedValue = getPersisted();
+  const initialPersistedValue = (async () => {
+    const initial = await getPersisted();
+    if (!migrate) return initial;
+
+    const migrated = migrate(initial);
+    return migrated !== undefined ? migrated : initial;
+  })();
 
   const baseAtom = atom(initialValue);
   baseAtom.debugLabel = `${key}::base`;
@@ -33,7 +40,7 @@ export const persistedAtom = <
     if (!initialized) {
       /* Initialization */
       initialPersistedValue.then((v) => {
-        if (v === initialValue && !skipInitialPersist) {
+        if (v === initialValue && persistInitial) {
           storage.setItem(key, initialValue);
         } else if (v !== initialValue) {
           setAtom(v);

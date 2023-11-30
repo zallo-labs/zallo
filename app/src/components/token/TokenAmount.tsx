@@ -1,17 +1,17 @@
 import { FormattedNumberOptions, useFormattedNumber } from '../format/FormattedNumber';
-import { Address, BigIntlike, asBigInt, isAddress } from 'lib';
+import { UAddress, isUAddress } from 'lib';
 import { FragmentType, gql, useFragment as getFragment } from '@api/generated';
 import { useQuery } from '~/gql';
 
 const Query = gql(/* GraphQL */ `
-  query TokenAmount($token: Address!) {
+  query TokenAmount($token: UAddress!) {
     token(input: { address: $token }) {
       ...UseFormattedTokenAmount_token
     }
   }
 `);
 
-const HookFragment = gql(/* GraphQL */ `
+const Token = gql(/* GraphQL */ `
   fragment UseFormattedTokenAmount_token on Token {
     id
     name
@@ -25,8 +25,8 @@ const HookFragment = gql(/* GraphQL */ `
 `);
 
 export interface FormattedTokenAmountOptions extends Partial<FormattedNumberOptions> {
-  token: FragmentType<typeof HookFragment> | Address | null | undefined;
-  amount?: BigIntlike;
+  token: FragmentType<typeof Token> | UAddress | null | undefined;
+  amount?: bigint | number | string;
   trailing?: 'name' | 'symbol' | false;
 }
 
@@ -36,15 +36,15 @@ export const useFormattedTokenAmount = ({
   trailing = 'symbol',
   ...options
 }: FormattedTokenAmountOptions) => {
-  const amount = amountProp ? asBigInt(amountProp) : 0n;
+  const amount = amountProp ? BigInt(amountProp) : 0n;
 
   const query = useQuery(
     Query,
-    { token: isAddress(tokenProp) ? tokenProp : '0x' },
-    { pause: !isAddress(tokenProp) },
+    { token: isUAddress(tokenProp) ? tokenProp : 'zksync:0x' },
+    { pause: !isUAddress(tokenProp) },
   ).data;
 
-  const token = getFragment(HookFragment, !isAddress(tokenProp) ? tokenProp : query?.token) ?? {
+  const token = getFragment(Token, !isUAddress(tokenProp) ? tokenProp : query?.token) ?? {
     id: '',
     name: '???',
     symbol: '???',
@@ -80,7 +80,7 @@ const ComponentFragment = gql(/* GraphQL */ `
 `);
 
 export interface TokenAmountProps extends Omit<FormattedTokenAmountOptions, 'token'> {
-  token: FragmentType<typeof ComponentFragment> | Address;
+  token: FragmentType<typeof ComponentFragment> | UAddress;
 }
 
 export function TokenAmount(props: TokenAmountProps) {
@@ -89,7 +89,7 @@ export function TokenAmount(props: TokenAmountProps) {
       {useFormattedTokenAmount({
         ...props,
         token:
-          (isAddress(props.token) && props.token) || getFragment(ComponentFragment, props.token),
+          (isUAddress(props.token) && props.token) || getFragment(ComponentFragment, props.token),
       })}
     </>
   );

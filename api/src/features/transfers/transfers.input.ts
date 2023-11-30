@@ -1,6 +1,6 @@
 import { Field, InputType, registerEnumType } from '@nestjs/graphql';
-import { Address } from 'lib';
-import { AddressScalar } from '~/apollo/scalars/Address.scalar';
+import { UAddress } from 'lib';
+import { UAddressScalar } from '~/apollo/scalars/UAddress.scalar';
 
 export enum TransferDirection {
   In = 'In',
@@ -10,8 +10,8 @@ registerEnumType(TransferDirection, { name: 'TransferDirection' });
 
 @InputType()
 export class TransfersInput {
-  @Field(() => [AddressScalar], { nullable: true })
-  accounts?: Address[];
+  @Field(() => [UAddressScalar], { nullable: true })
+  accounts?: UAddress[];
 
   @Field(() => TransferDirection, { nullable: true })
   direction?: TransferDirection;
@@ -25,8 +25,8 @@ export class TransfersInput {
 
 @InputType()
 export class TransferSubscriptionInput {
-  @Field(() => [AddressScalar], { nullable: true })
-  accounts?: Address[];
+  @Field(() => [UAddressScalar], { nullable: true })
+  accounts?: UAddress[];
 
   @Field(() => TransferDirection, { nullable: true })
   direction?: TransferDirection;

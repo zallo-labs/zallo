@@ -4,7 +4,7 @@ import { BluetoothIcon } from '@theme/icons';
 import { useCallback } from 'react';
 import { useMutation } from 'urql';
 import { ListItem } from '~/components/list/ListItem';
-import { useGetSignWithLedger } from '~/app/ledger/sign';
+import { useGetLedgerApprover } from '~/app/ledger/approve';
 import { APPROVER_BLE_IDS } from '~/hooks/ledger/useLedger';
 import { showError, showInfo } from '~/components/provider/SnackbarProvider';
 import { useImmerAtom } from 'jotai-immer';
@@ -57,20 +57,20 @@ export function LedgerItem({ device: d, ...props }: LedgerItemProps) {
   const api = useUrqlApiClient();
   const update = useMutation(Update)[1];
   const setApproverBleIds = useImmerAtom(APPROVER_BLE_IDS)[1];
-  const getSign = useGetSignWithLedger();
+  const getSign = useGetLedgerApprover();
 
   const productName = getLedgerDeviceModel(d)?.productName;
 
   const connect = useCallback(async () => {
     const name = d.name || productName || d.id;
 
-    const { address, sign } = await getSign({ device: d.id, name });
+    const { address, signMessage } = await getSign({ device: d.id, name });
 
     const context = await tryOrIgnoreAsync(() =>
       authContext({
         address,
-        signMessage: async (message) => {
-          const signature = await sign(message);
+        signMessage: async ({ message }) => {
+          const signature = await signMessage({ message });
           if (!signature) throw new Error('Cancelled');
           return signature;
         },

@@ -1,5 +1,5 @@
-import TokenScreen from '~/components/shared/TokenScreen';
+import { SharedTokenScreen } from '~/app/(drawer)/token/[token]';
 
 export default function AddTokenScreen() {
-  return <TokenScreen />;
+  return <SharedTokenScreen />;
 }

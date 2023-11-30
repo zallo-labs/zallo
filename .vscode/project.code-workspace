@@ -17,13 +17,13 @@
       "path": "../contracts"
     },
     {
-      "name": "lib",
-      "path": "../lib"
-    },
-    {
       "name": "site",
       "path": "../site"
-    }
+    },
+    {
+      "name": "lib",
+      "path": "../packages/lib"
+    },
   ],
   "settings": {
     "search.exclude": {

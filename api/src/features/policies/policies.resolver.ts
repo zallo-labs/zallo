@@ -8,7 +8,12 @@ import {
   UpdatePolicyInput,
 } from './policies.input';
 import { PoliciesService } from './policies.service';
-import { Policy, SatisfiabilityResult } from './policies.model';
+import {
+  CreatePolicyResponse,
+  Policy,
+  SatisfiabilityResult,
+  UpdatePolicyResponse,
+} from './policies.model';
 import { getShape } from '../database/database.select';
 import { Input } from '~/decorators/input.decorator';
 import e from '~/edgeql-js';
@@ -43,16 +48,27 @@ export class PoliciesResolver {
     return this.service.satisfiability(proposal, key, state || null);
   }
 
-  @Mutation(() => Policy)
-  async createPolicy(@Input() input: CreatePolicyInput, @Info() info: GraphQLResolveInfo) {
-    const { id } = await this.service.create(input);
-    return this.service.selectUnique({ id }, getShape(info));
+  @Mutation(() => CreatePolicyResponse)
+  async createPolicy(
+    @Input() input: CreatePolicyInput,
+    @Info() info: GraphQLResolveInfo,
+  ): Promise<typeof CreatePolicyResponse> {
+    const r = await this.service.create(input);
+    return r.isOk() ? (await this.service.selectUnique(r.value, getShape(info)))! : r.error;
   }
 
-  @Mutation(() => Policy)
-  async updatePolicy(@Input() input: UpdatePolicyInput, @Info() info: GraphQLResolveInfo) {
-    await this.service.update(input);
-    return this.service.selectUnique({ account: input.account, key: input.key }, getShape(info));
+  @Mutation(() => UpdatePolicyResponse)
+  async updatePolicy(
+    @Input() input: UpdatePolicyInput,
+    @Info() info: GraphQLResolveInfo,
+  ): Promise<typeof UpdatePolicyResponse> {
+    const r = await this.service.update(input);
+    return r.isOk()
+      ? (await this.service.selectUnique(
+          { account: input.account, key: input.key },
+          getShape(info),
+        ))!
+      : r.error;
   }
 
   @Mutation(() => Policy)

@@ -1,16 +1,14 @@
 import { Button } from 'react-native-paper';
 import { Actions } from '~/components/layout/Actions';
-import { CHAIN } from '@network/provider';
 import { RetryIcon, ShareIcon } from '@theme/icons';
 import { FragmentType, gql, useFragment } from '@api/generated';
 import { useMutation } from 'urql';
-import { useApproverAddress } from '@network/useApprover';
+import { useApproverAddress } from '~/lib/network/useApprover';
 import { useApprove } from '~/hooks/useApprove';
 import { useReject } from '~/hooks/useReject';
 import { share } from '~/lib/share';
 import { createStyles, useStyles } from '@theme/styles';
-
-const BLOCK_EXPLORER_URL = CHAIN.blockExplorers?.default.url;
+import { CHAINS } from 'chains';
 
 const Proposal = gql(/* GraphQL */ `
   fragment ProposalActions_TransactionProposal on TransactionProposal {
@@ -19,6 +17,10 @@ const Proposal = gql(/* GraphQL */ `
     hash
     status
     updatable
+    account {
+      id
+      chain
+    }
     transaction {
       id
       hash
@@ -57,6 +59,8 @@ export const ProposalActions = (props: ProposalActionsProps) => {
   const reject = useReject({ proposal: p, user, approver });
   const execute = useMutation(Execute)[1];
 
+  const blockExplorer = CHAINS[p.account.chain].blockExplorers?.default;
+
   return (
     <Actions flex={false}>
       {reject && <Button onPress={reject}>Reject</Button>}
@@ -67,11 +71,11 @@ export const ProposalActions = (props: ProposalActionsProps) => {
         </Button>
       )}
 
-      {p.transaction && BLOCK_EXPLORER_URL && (
+      {p.transaction && blockExplorer && (
         <Button
           mode="contained-tonal"
           icon={ShareIcon}
-          onPress={() => share({ url: `${BLOCK_EXPLORER_URL}/tx/${p.transaction!.hash}` })}
+          onPress={() => share({ url: `${blockExplorer.url}/tx/${p.transaction!.hash}` })}
         >
           Share receipt
         </Button>

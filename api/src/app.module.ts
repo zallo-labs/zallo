@@ -7,7 +7,7 @@ import { ApproversModule } from './features/approvers/approvers.module';
 import { AuthModule } from './features/auth/auth.module';
 import { AuthGuard } from './features/auth/auth.guard';
 import { ApolloModule } from './apollo/apollo.module';
-import { ProviderModule } from './features/util/provider/provider.module';
+import { NetworksModule } from './features/util/networks/networks.module';
 import { ContactsModule } from './features/contacts/contacts.module';
 import { DatabaseModule } from './features/database/database.module';
 import { ContractFunctionsModule } from './features/contract-functions/contract-functions.module';
@@ -33,6 +33,7 @@ import { TokensModule } from './features/tokens/tokens.module';
 import { PricesModule } from './features/prices/prices.module';
 import { MessageProposalsModule } from './features/message-proposals/message-proposals.module';
 import { ProposalsModule } from './features/proposals/proposals.module';
+import { BalancesModule } from '~/features/util/balances/balances.module';
 
 @Module({
   imports: [
@@ -43,7 +44,8 @@ import { ProposalsModule } from './features/proposals/proposals.module';
     BullModule,
     ApolloModule,
     PubsubModule,
-    ProviderModule,
+    NetworksModule,
+    BalancesModule,
     // Features
     AccountsModule,
     ApproversModule,

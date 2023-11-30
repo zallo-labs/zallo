@@ -3,10 +3,8 @@
   "compilerOptions": {
     "sourceRoot": "src",
     "outDir": "dist",
-
     "resolveJsonModule": true
   },
-  "include": ["./scripts", "./tasks", "./test", "./typechain", "./local-wallets.json"],
-  "files": ["./hardhat.config.ts", "./config.ts"],
-  "references": [{ "path": "../lib" }]
+  "include": ["./scripts", "./tasks", "./test", "./local-wallets.json"],
+  "files": ["./hardhat.config.ts", "./config.ts"]
 }

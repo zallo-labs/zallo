@@ -1,4 +1,4 @@
-import { Field, FieldMiddleware, FieldOptions } from '@nestjs/graphql';
+import { Field, FieldMiddleware, FieldOptions, GqlTypeReference } from '@nestjs/graphql';
 import { UserInputError } from '@nestjs/apollo';
 import { GraphQLScalarType, GraphQLScalarTypeConfig } from 'graphql';
 import merge from 'ts-deepmerge';
@@ -22,11 +22,10 @@ type Config<TInternal, TExternal extends Jsonable> = Omit<
   serialize: (value: TInternal) => TExternal;
 };
 
-// TODO: util for creating scalar and field
-export const createScalar = <TInternal, TExternal extends Jsonable>(
+export function createScalar<TInternal, TExternal extends Jsonable>(
   config: Config<TInternal, TExternal>,
   defaultOptions?: FieldOptions,
-) => {
+) {
   const scalar = new GraphQLScalarType({
     ...(config.parseValue && {
       parseLiteral: (ast, variables) => config.parseValue!(parseLiteral(ast, variables)),
@@ -34,14 +33,17 @@ export const createScalar = <TInternal, TExternal extends Jsonable>(
     ...config,
   } as GraphQLScalarTypeConfig<TInternal, TExternal>);
 
-  const field =
-    (options?: FieldOptions): PropertyDecorator =>
+  const field = createField(scalar, defaultOptions);
+
+  return [scalar, field] as const;
+}
+
+export function createField<T>(scalar: GqlTypeReference<T>, defaultOptions?: FieldOptions) {
+  return (options?: FieldOptions): PropertyDecorator =>
     (target, propertyKey) => {
       Field(() => scalar, merge(defaultOptions ?? {}, options ?? {}))(target, propertyKey);
     };
-
-  return [scalar, field] as const;
-};
+}
 
 export const minLengthMiddleware =
   (min: number): FieldMiddleware =>

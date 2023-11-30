@@ -1,5 +1,6 @@
 import { FragmentType, gql, useFragment } from '@api';
 import { CheckIcon } from '@theme/icons';
+import { asUAddress } from 'lib';
 import { IconButton } from 'react-native-paper';
 import { AddressLabel } from '~/components/address/AddressLabel';
 import { ListItem } from '~/components/list/ListItem';
@@ -15,11 +16,16 @@ const Approver = gql(/* GraphQL */ `
   fragment AwaitingApprovalItem_Approver on Approver {
     id
     address
+    label
   }
 `);
 
 const Proposal = gql(/* GraphQL */ `
   fragment AwaitingApprovalItem_Proposal on Proposal {
+    account {
+      id
+      chain
+    }
     ...UseApprove_Proposal
   }
 `);
@@ -40,11 +46,11 @@ export function AwaitingApprovalItem(props: AwaitingApprovalItemProps) {
   return (
     <ListItem
       leading={approver.address}
-      headline={({ Text }) => (
-        <Text>
-          <AddressLabel address={approver.address} />
-        </Text>
-      )}
+      headline={
+        approver.label || (
+          <AddressLabel address={asUAddress(approver.address, proposal.account.chain)} />
+        )
+      }
       {...(approve && {
         trailing: ({ size, disabled }) => (
           <IconButton

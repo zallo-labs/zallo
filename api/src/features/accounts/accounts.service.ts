@@ -1,13 +1,25 @@
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { DatabaseService } from '../database/database.service';
 import e from '~/edgeql-js';
-import { Address, DeploySalt, Policy, asHex, asPolicyKey, randomDeploySalt } from 'lib';
+import {
+  Address,
+  Policy,
+  asPolicyKey,
+  randomDeploySalt,
+  getProxyAddress,
+  deployAccountProxy,
+  asUAddress,
+  UAddress,
+  asAddress,
+  ACCOUNT_IMPLEMENTATION,
+  ACCOUNT_PROXY_FACTORY,
+  Hex,
+} from 'lib';
 import { ShapeFunc } from '../database/database.select';
 import { AccountEvent, CreateAccountInput, UpdateAccountInput } from './accounts.input';
 import { getApprover, getUserCtx } from '~/request/ctx';
 import { UserInputError } from '@nestjs/apollo';
-import { CONFIG } from '~/config';
-import { ProviderService } from '../util/provider/provider.service';
+import { NetworksService } from '../util/networks/networks.service';
 import { PubsubService } from '../util/pubsub/pubsub.service';
 import { ContractsService } from '../contracts/contracts.service';
 import { FaucetService } from '../faucet/faucet.service';
@@ -21,10 +33,10 @@ import { v1 as uuid1 } from 'uuid';
 import { and } from '~/features/database/database.util';
 import { selectAccount } from '~/features/accounts/accounts.util';
 
-export const getAccountTrigger = (address: Address) => `account.${address}`;
-export const getAccountApproverTrigger = (user: Address) => `account.user.${user}`;
+export const getAccountTrigger = (address: UAddress) => `account.${address}`;
+export const getAccountApproverTrigger = (approver: Address) => `account.approver.${approver}`;
 export interface AccountSubscriptionPayload {
-  account: Address;
+  account: UAddress;
   event: AccountEvent;
 }
 
@@ -32,7 +44,7 @@ export interface AccountSubscriptionPayload {
 export class AccountsService {
   constructor(
     private db: DatabaseService,
-    private provider: ProviderService,
+    private networks: NetworksService,
     private pubsub: PubsubService,
     private contracts: ContractsService,
     private faucet: FaucetService,
@@ -43,12 +55,12 @@ export class AccountsService {
     private accountsCache: AccountsCacheService,
   ) {}
 
-  unique = (address: Address) =>
+  unique = (address: UAddress) =>
     e.shape(e.Account, () => ({
       filter_single: { address },
     }));
 
-  selectUnique(address: Address | undefined, shape?: ShapeFunc<typeof e.Account>) {
+  selectUnique(address: UAddress | undefined, shape?: ShapeFunc<typeof e.Account>) {
     const accounts = getUserCtx().accounts;
     if (accounts.length === 0) return null;
 
@@ -60,7 +72,7 @@ export class AccountsService {
     );
   }
 
-  select(_filter: {}, shape?: ShapeFunc<typeof e.Account>) {
+  select(_filter: Record<string, never>, shape?: ShapeFunc<typeof e.Account>) {
     return this.db.query(
       e.select(e.Account, (a) => ({
         ...shape?.(a),
@@ -80,19 +92,25 @@ export class AccountsService {
       .run(this.db.DANGEROUS_superuserClient);
   }
 
-  async createAccount({ label, policies: policyInputs }: CreateAccountInput) {
+  async createAccount({
+    chain: chainKey = 'zksync-goerli',
+    label,
+    policies: policyInputs,
+  }: CreateAccountInput) {
+    const network = this.networks.get(chainKey);
     const approver = getApprover();
 
     if (!policyInputs.find((p) => p.approvers.includes(approver)))
       throw new UserInputError('User must be included in at least one policy');
 
-    const implementation = CONFIG.accountImplAddress;
+    const implementation = ACCOUNT_IMPLEMENTATION.address[chainKey];
     const salt = randomDeploySalt();
-    const policyKeys = policyInputs.map((p, i) => asPolicyKey(p.key ?? i));
-    const policies = policyInputs.map((p, i) => inputAsPolicy(policyKeys[i], p));
+    const policies = policyInputs.map((p, i) => inputAsPolicy(asPolicyKey(i), p));
 
-    const account = await this.provider.getProxyAddress({
-      impl: implementation,
+    const account = await getProxyAddress({
+      network,
+      factory: ACCOUNT_PROXY_FACTORY.address[chainKey],
+      implementation: implementation,
       salt,
       policies,
     });
@@ -120,14 +138,14 @@ export class AccountsService {
         await this.policies.create({
           ...policy,
           account,
-          key: policyKeys[i],
+          key: asPolicyKey(i),
           skipProposal: true,
         });
       }
     });
 
     await this.activateAccount(account, implementation, salt, policies);
-    this.contracts.addAccountAsVerified(account);
+    this.contracts.addAccountAsVerified(asAddress(account));
     this.faucet.requestTokens(account);
     this.publishAccount({ account, event: AccountEvent.create });
     this.setAsPrimaryAccountIfNotConfigured(id);
@@ -135,7 +153,7 @@ export class AccountsService {
     return { id, address: account };
   }
 
-  async updateAccount({ address, label, photoUri }: UpdateAccountInput) {
+  async updateAccount({ account: address, label, photoUri }: UpdateAccountInput) {
     const r = await e
       .update(e.Account, () => ({
         set: {
@@ -152,43 +170,46 @@ export class AccountsService {
   }
 
   private async activateAccount(
-    account: Address,
+    account: UAddress,
     implementation: Address,
-    salt: DeploySalt,
+    salt: Hex,
     policies: Policy[],
   ) {
-    const { transaction, account: deployedAccount } = await this.provider.deployProxy({
-      impl: implementation,
-      salt,
-      policies,
-    });
+    const network = this.networks.for(account);
+    const { transactionHash } = (
+      await network.useWallet(async (wallet) =>
+        deployAccountProxy({
+          network,
+          wallet,
+          factory: ACCOUNT_PROXY_FACTORY.address[network.key],
+          implementation,
+          salt,
+          policies,
+        }),
+      )
+    )._unsafeUnwrap(); // TODO: handle failed deployments
 
-    if (account !== deployedAccount.address)
-      throw new Error(
-        `Deployed account address didn't match stored address; expected '${account}', actual '${deployedAccount.address}'`,
-      );
-
-    await this.activationQueue.add({ account, transaction: asHex(transaction.hash) });
+    await this.activationQueue.add({ account, transaction: transactionHash });
   }
 
   async publishAccount(payload: AccountSubscriptionPayload) {
     const { account } = payload;
 
     // Publish events to all users with access to the account
-    const approvers = (await this.db.query(
+    const approvers = await this.db.query(
       e.select(e.Account, () => ({
         filter_single: { address: account },
         approvers: {
           address: true,
         },
       })).approvers.address,
-    )) as Address[];
+    );
 
     await Promise.all([
       this.pubsub.publish<AccountSubscriptionPayload>(getAccountTrigger(account), payload),
       ...approvers.map((approver) =>
         this.pubsub.publish<AccountSubscriptionPayload>(
-          getAccountApproverTrigger(approver),
+          getAccountApproverTrigger(asAddress(approver)),
           payload,
         ),
       ),

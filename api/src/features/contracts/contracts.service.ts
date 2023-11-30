@@ -1,21 +1,17 @@
 import { Injectable } from '@nestjs/common';
-import { Interface } from 'ethers/lib/utils';
-import { ACCOUNT_INTERFACE, Address, asSelector } from 'lib';
+import { ACCOUNT_ABI, Address } from 'lib';
 import { DatabaseService } from '../database/database.service';
 import { ExplorerService } from '../explorer/explorer.service';
 import e from '~/edgeql-js';
 import { ShapeFunc } from '../database/database.select';
 import { AbiSource } from '../contract-functions/contract-functions.model';
-import crypto from 'crypto';
-
-const md5 = (value: crypto.BinaryLike) => crypto.createHash('md5').update(value).digest('hex');
+import { Abi, AbiFunction } from 'abitype';
+import { getFunctionSelector, getFunctionSignature } from 'viem';
 
 @Injectable()
 export class ContractsService {
-  constructor(
-    private db: DatabaseService,
-    private explorer: ExplorerService,
-  ) {}
+  constructor(private db: DatabaseService) // private explorer: ExplorerService,
+  {}
 
   async select(contract: Address, shape?: ShapeFunc<typeof e.Contract>) {
     const stored = await e
@@ -39,28 +35,29 @@ export class ContractsService {
 
   async addAccountAsVerified(account: Address) {
     // In the future this should verify the contract with the zkSync explorer as well
-    return this.insert(account, ACCOUNT_INTERFACE, AbiSource.Verified);
+    return this.insert(account, ACCOUNT_ABI, AbiSource.Verified);
   }
 
-  private async tryFetchAbi(contract: Address) {
-    const resp = await this.explorer.verifiedContract(contract);
-    if (!resp) return null;
+  private async tryFetchAbi(contract: Address): Promise<null | { id: string }> {
+    return null;
+    // const resp = await this.explorer.verifiedContract(contract);
+    // if (!resp) return null;
 
-    const [iface, source] = resp;
-    return this.insert(contract, iface, source);
+    // const [iface, source] = resp;
+    // return this.insert(contract, iface, source);
   }
 
-  private async insert(address: Address, iface: Interface, source: AbiSource) {
+  private async insert(address: Address, abi: Abi, source: AbiSource) {
     const functionsSet = e.set(
-      ...Object.values(iface.functions).map((f) => {
-        const abi = f.format('json');
-
-        return e.json({
-          selector: asSelector(iface.getSighash(f)),
-          abi: JSON.parse(abi),
-          abiMd5: md5(abi),
-        });
-      }),
+      ...abi
+        .filter((e): e is AbiFunction => e.type === 'function')
+        .map((f) => {
+          return e.json({
+            selector: getFunctionSelector(f),
+            abi: f,
+            abiMd5: getFunctionSignature(f), // Not md5 anymore, but this is all going to be removed
+          });
+        }),
     );
 
     return this.db.query(

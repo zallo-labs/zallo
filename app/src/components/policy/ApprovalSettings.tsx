@@ -1,7 +1,7 @@
 import { FlashList } from '@shopify/flash-list';
 import { AddIcon, ContactsIcon } from '@theme/icons';
 import { createStyles, useStyles } from '@theme/styles';
-import { Address } from 'lib';
+import { Address, asAddress, asChain, asUAddress } from 'lib';
 import { View } from 'react-native';
 import Collapsible from 'react-native-collapsible';
 import { Divider, Text } from 'react-native-paper';
@@ -34,7 +34,7 @@ export function ApprovalSettings(props: ApprovalSettingsProps) {
     });
     if (address) {
       update((draft) => {
-        draft.approvers.add(address);
+        draft.approvers.add(asAddress(address));
         draft.threshold++;
       });
     }
@@ -74,13 +74,18 @@ export function ApprovalSettings(props: ApprovalSettingsProps) {
         onPress={toggleExpanded}
       />
       <Collapsible collapsed={!expanded}>
-        <View style={styles.headerContainer}>
+        <View style={styles.thresholdContainer}>
           <ThresholdChip />
         </View>
 
         <FlashList
           data={[...policy.approvers]}
-          renderItem={({ item }) => <ApproverItem address={item} remove={() => remove(item)} />}
+          renderItem={({ item }) => (
+            <ApproverItem
+              address={asUAddress(item, asChain(policy.account))}
+              remove={() => remove(item)}
+            />
+          )}
           ListEmptyComponent={
             <Text variant="titleMedium" style={styles.noApproversText}>
               No approvals are required - literally anyone may execute a transaction using this
@@ -98,11 +103,11 @@ export function ApprovalSettings(props: ApprovalSettingsProps) {
 }
 
 const stylesheet = createStyles(({ colors }) => ({
-  headerContainer: {
+  thresholdContainer: {
     flexDirection: 'row',
     marginLeft: 16,
     marginRight: 24,
-    marginVertical: 8,
+    marginBottom: 8,
   },
   noApproversText: {
     textAlign: 'center',

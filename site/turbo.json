@@ -17,7 +17,7 @@
       "inputs": ["blog", "docs", "src", "static"],
       "outputs": ["dist/**"]
     },
-    "dev": {
+    "dev__disabled__": {
       "dependsOn": ["prepare"],
       "cache": false,
       "persistent": true

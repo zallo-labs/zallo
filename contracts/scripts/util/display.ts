@@ -1,29 +1,41 @@
-import { ethers } from 'hardhat';
-import { TransactionResponse } from '@ethersproject/abstract-provider';
+import { formatUnits, formatEther } from 'viem';
 import { Address } from 'lib';
 import { CONFIG } from '../../config';
+import { ContractTransactionResponse } from 'ethers';
+import { network } from '../../test/util';
 
-export const displayTx = async (addr: Address, tx: TransactionResponse) => {
+export async function displayTx(address: Address, tx: ContractTransactionResponse | null) {
+  if (!tx) {
+    console.log(`
+  ====== Deployment ======
+  Address: ${address}
+  ========================
+    `);
+    return;
+  }
+
   const receipt = await tx.wait();
+  if (!receipt) return;
 
-  const estCost = tx.gasLimit.mul(tx.gasPrice ?? 0);
-  const actualCost = receipt.gasUsed.mul(receipt.effectiveGasPrice);
+  const estCost = tx.gasLimit * (tx.gasPrice ?? (await network.getGasPrice()));
+  const actualCost = receipt.gasUsed * receipt.gasPrice;
 
   console.log(`
   ====== Deployment ======
-  Address: ${addr}
+  Address: ${address}
   Block (number): ${receipt.blockNumber}
   Block (hash): ${receipt.blockHash}
   Gas limit: ${tx.gasLimit}
   Gas used : ${receipt.gasUsed}
-  Cost (gwei) - est.  : ${ethers.utils.formatUnits(estCost, 9)}
-  Cost (eth)  - est.  : ${ethers.utils.formatEther(estCost)}
-  Cost (gwei) - actual: ${ethers.utils.formatUnits(actualCost, 9)}
-  Cost (eth)  - actual: ${ethers.utils.formatEther(actualCost)}
+  Cost (gwei) - est.  : ${formatUnits(estCost, 9)}
+  Cost (eth)  - est.  : ${formatEther(estCost)}
+  Cost (gwei) - actual: ${formatUnits(actualCost, 9)}
+  Cost (eth)  - actual: ${formatEther(actualCost)}
+  Cost (%)    - actual: ${formatUnits((100_00n * actualCost) / estCost, 2)}%
   ${
     CONFIG.chain.blockExplorers?.default &&
     `${CONFIG.chain.blockExplorers.default.url}/tx/${tx.hash}`
   }
   ========================
   `);
-};
+}

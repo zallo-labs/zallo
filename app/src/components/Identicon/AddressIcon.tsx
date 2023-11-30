@@ -1,5 +1,5 @@
 import { ICON_SIZE } from '@theme/paper';
-import { Address } from 'lib';
+import { Address, UAddress, asAddress } from 'lib';
 import { ImageStyle } from 'react-native';
 import { StyleProp, TextStyle } from 'react-native';
 import { withSuspense } from '../skeleton/withSuspense';
@@ -7,7 +7,7 @@ import { CircleSkeleton } from '../skeleton/CircleSkeleton';
 import { Blockie } from './Blockie';
 
 export interface AddressIconProps {
-  address: Address;
+  address: Address | UAddress;
   size?: number;
   style?: ImageStyle;
   labelStyle?: StyleProp<TextStyle>;
@@ -27,7 +27,7 @@ function AddressIcon_({
 
   // return <Jazzicon size={size} {...props} address={address} containerStyle={style} />;
 
-  return <Blockie seed={address} size={size} style={style} />;
+  return <Blockie seed={asAddress(address)} size={size} style={style} />;
 }
 
 export const AddressIcon = withSuspense(AddressIcon_, ({ size = ICON_SIZE.medium }) => (

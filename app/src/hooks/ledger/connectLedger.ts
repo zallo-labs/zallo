@@ -10,10 +10,9 @@ import { P, match } from 'ts-pattern';
 import { Observable, bufferTime, filter } from 'rxjs';
 import { getInfosForServiceUuid, DeviceModelId } from '@ledgerhq/devices';
 import { logWarning } from '~/util/analytics';
-import { toUtf8Bytes } from 'ethers/lib/utils';
 import _ from 'lodash';
 import { retryAsync } from '~/util/retry';
-import { TypedDataDefinition } from 'viem';
+import { TypedDataDefinition, stringToHex } from 'viem';
 import { WritableDeep } from 'ts-toolbelt/out/Object/Writable';
 import { bleListen } from '~/lib/ble/manager';
 import { BleDevice } from '~/lib/ble/util';
@@ -189,7 +188,7 @@ export function connectLedger(deviceIds: DeviceId[]) {
             address,
             transport,
             signMessage(message: string) {
-              const messageHex = asHex(toUtf8Bytes(message)).substring(2);
+              const messageHex = stringToHex(message).substring(2);
 
               return asResult(eth.signPersonalMessage(PATH, messageHex), [
                 StatusCodes.CONDITIONS_OF_USE_NOT_SATISFIED,
@@ -197,17 +196,19 @@ export function connectLedger(deviceIds: DeviceId[]) {
                 .mapErr(() => 'user-rejected' as const)
                 .map(hexlifySignature);
             },
-            signEip712Message(m: TypedDataDefinition) {
+            signEip712Message(m: WritableDeep<TypedDataDefinition>) {
               return asResult(
                 match(transport.deviceModel.id)
                   // The Nano S doesn't support eth.signEIP712Message()
                   .with(DeviceModelId.nanoS, () =>
                     eth.signEIP712HashedMessage(
                       PATH,
-                      asHex(ethers.utils._TypedDataEncoder.hashDomain(m.domain ?? {})).substring(2),
+                      asHex(ethers.TypedDataEncoder.hashDomain(m.domain ?? {})).substring(2),
+                      // Note. hashStruct not exported from viem, so ethers remains...
                       asHex(
-                        ethers.utils._TypedDataEncoder
-                          .from(_.omit(m.types as WritableDeep<typeof m.types>, ['EIP712Domain'])) // ethers doesn't allowing including EIP712Domain in types
+                        ethers.TypedDataEncoder.from(
+                          _.omit(m.types as WritableDeep<typeof m.types>, ['EIP712Domain']),
+                        ) // ethers doesn't allowing including EIP712Domain in types
                           .hash(m.message),
                       ).substring(2),
                     ),
@@ -230,11 +231,11 @@ export function connectLedger(deviceIds: DeviceId[]) {
 
 function hexlifySignature(sig: { v: number; r: string; s: string }): Hex {
   return asHex(
-    ethers.utils.joinSignature({
+    ethers.Signature.from({
       v: sig.v,
       r: '0x' + sig.r,
       s: '0x' + sig.s,
-    }),
+    }).serialized,
   );
 }
 

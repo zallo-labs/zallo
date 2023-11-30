@@ -1,16 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import {
   Address,
-  Hex,
   Operation,
   PolicyKey,
-  SYNCSWAP_CLASSIC_POOL_ABI,
-  SYNCSWAP_ROUTER_ABI,
   Selector,
-  ZERO_ADDR,
   asSelector,
   isPresent,
   tryOrIgnore,
+  ETH_ADDRESS,
 } from 'lib';
 import { ContractsService } from '../contracts/contracts.service';
 import { DatabaseService } from '../database/database.service';
@@ -27,17 +24,17 @@ import {
   RemovePolicyOp,
   SwapOp,
 } from './operations.model';
-import { ACCOUNT_ABI, ERC20_ABI } from 'lib';
+import { ACCOUNT_IMPLEMENTATION } from 'lib';
+import { ERC20, SYNCSWAP } from 'lib/dapps';
 import { match } from 'ts-pattern';
-import { ProviderService } from '../util/provider/provider.service';
-import { ETH_ADDRESS } from 'zksync-web3/build/src/utils';
+import { NetworksService } from '../util/networks/networks.service';
 import { WETH } from '../tokens/tokens.list';
 
 @Injectable()
 export class OperationsService {
   constructor(
     private db: DatabaseService,
-    private provider: ProviderService,
+    private networks: NetworksService,
     private contracts: ContractsService,
   ) {}
 
@@ -89,7 +86,7 @@ export class OperationsService {
       return Object.assign(new TransferOp(), {
         _name: 'transfer',
         _args: [to, value],
-        token: ZERO_ADDR,
+        token: ETH_ADDRESS,
         to,
         amount: value,
       } satisfies TransferOp);
@@ -99,7 +96,10 @@ export class OperationsService {
       () =>
         data &&
         size(data) >= 4 &&
-        decodeFunctionData({ abi: [...ACCOUNT_ABI, ...ERC20_ABI, ...SYNCSWAP_ROUTER_ABI], data }),
+        decodeFunctionData({
+          abi: [...ACCOUNT_IMPLEMENTATION.abi, ...ERC20, ...SYNCSWAP.router.abi],
+          data,
+        }),
     );
     if (!f) return undefined;
 
@@ -156,16 +156,17 @@ export class OperationsService {
           const path = f.args[0][0];
 
           // Figure out the toToken by querying the pool
-          const tokenCalls = await this.provider.client.multicall({
+          // Mainnet TODO: fix hardcoded network; just remove SyncSwap custom decoding if Uniswap deploys?
+          const tokenCalls = await this.networks.get('zksync-goerli').multicall({
             contracts: [
               {
                 address: path.steps[0].pool,
-                abi: SYNCSWAP_CLASSIC_POOL_ABI,
+                abi: SYNCSWAP.poolAbi,
                 functionName: 'token0',
               },
               {
                 address: path.steps[0].pool,
-                abi: SYNCSWAP_CLASSIC_POOL_ABI,
+                abi: SYNCSWAP.poolAbi,
                 functionName: 'token1',
               },
             ],

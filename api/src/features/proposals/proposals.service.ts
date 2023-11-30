@@ -2,11 +2,12 @@ import { UserInputError } from '@nestjs/apollo';
 import { Injectable } from '@nestjs/common';
 import { uuid } from 'edgedb/dist/codecs/ifaces';
 import e from '~/edgeql-js';
-import { Address, Hex, isHex } from 'lib';
+import { Hex, UAddress, asApproval, asHex, asUAddress, isHex } from 'lib';
+import { isChain } from 'chains';
 import { getUserCtx } from '~/request/ctx';
 import { ShapeFunc } from '../database/database.select';
 import { DatabaseService } from '../database/database.service';
-import { ProviderService } from '~/features/util/provider/provider.service';
+import { NetworksService } from '~/features/util/networks/networks.service';
 import {
   ApproveInput,
   LabelProposalRiskInput,
@@ -28,17 +29,17 @@ export const selectProposal = (id: UniqueProposal, shape?: ShapeFunc<typeof e.Pr
 
 export interface ProposalSubscriptionPayload {
   hash: Hex;
-  account: Address;
+  account: UAddress;
   event: ProposalEvent;
 }
 export const getProposalTrigger = (hash: Hex) => `proposal.${hash}`;
-export const getProposalAccountTrigger = (account: Address) => `proposal.account.${account}`;
+export const getProposalAccountTrigger = (account: UAddress) => `proposal.account.${account}`;
 
 @Injectable()
 export class ProposalsService {
   constructor(
     private db: DatabaseService,
-    private provider: ProviderService,
+    private networks: NetworksService,
     private pubsub: PubsubService,
   ) {}
 
@@ -85,7 +86,14 @@ export class ProposalsService {
   }
 
   async approve({ hash, approver = getUserCtx().approver, signature }: ApproveInput) {
-    if (!(await this.provider.verifySignature({ digest: hash, approver, signature })))
+    const chain = await this.db.query(
+      e.select(e.Proposal, () => ({ filter_single: { hash }, account: { chain: true } })).account
+        .chain,
+    );
+    if (!isChain(chain)) throw new UserInputError('Proposal not found');
+
+    const network = this.networks.get(chain);
+    if (!(await asApproval({ hash: hash, approver, signature, network })))
       throw new UserInputError('Invalid signature');
 
     await this.db.transaction(async (db) => {
@@ -152,7 +160,7 @@ export class ProposalsService {
     );
 
     if (p)
-      this.publishProposal({ hash, account: p.account.address as Address }, ProposalEvent.update);
+      this.publishProposal({ hash, account: asUAddress(p.account.address) }, ProposalEvent.update);
   }
 
   async publishProposal(
@@ -172,7 +180,7 @@ export class ProposalsService {
               ),
             );
 
-            return { hash: p.hash as Hex, account: p.account.address as Address };
+            return { hash: asHex(p.hash), account: asUAddress(p.account.address) };
           })()
         : proposal;
 

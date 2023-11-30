@@ -4,7 +4,7 @@ import { ListItem, ListItemProps } from '../list/ListItem';
 import { ListItemSkeleton } from '../list/ListItemSkeleton';
 import { withSuspense } from '../skeleton/withSuspense';
 import { TokenAmount } from './TokenAmount';
-import { BigIntlike, tokenToFiat } from 'lib';
+import { tokenToFiat } from 'lib';
 import { FragmentType, gql, useFragment } from '@api/generated';
 import { TokenIcon } from './TokenIcon';
 import { memo } from 'react';
@@ -27,7 +27,7 @@ const Token = gql(/* GraphQL */ `
 
 export interface TokenItemProps extends Partial<ListItemProps> {
   token: FragmentType<typeof Token>;
-  amount: BigIntlike | undefined;
+  amount: bigint | string | undefined;
   containerStyle?: StyleProp<ViewStyle>;
 }
 
@@ -60,7 +60,7 @@ const TokenItem_ = memo(
           token.price &&
           amount !== undefined && (
             <Text variant="labelLarge">
-              <FiatValue value={tokenToFiat(amount, token.price.current, token.decimals)} />
+              <FiatValue value={tokenToFiat(BigInt(amount), token.price.current, token.decimals)} />
             </Text>
           )
         }

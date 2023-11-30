@@ -2,16 +2,29 @@
   "extends": ["//"],
   "pipeline": {
     "build": {
-      "dependsOn": ["^build"],
-      "inputs": ["contracts", "config.ts", "hardhat.config.ts"],
-      "outputs": ["abi/**", "artifacts-zk/**", "cache/**", "cache-zk/**"]
+      "dependsOn": ["chains#build"],
+      "inputs": ["contracts/**", "config.ts", "hardhat.config.ts"],
+      "outputs": [
+        "abi/**",
+        "artifacts-zk/**",
+        "cache/**",
+        "cache-zk/**",
+        "test/contracts/**",
+        "../packages/lib/src/generated/**"
+      ]
     },
     "typecheck": {
-      "dependsOn": ["build"]
+      "dependsOn": ["build", "lib#build"]
     },
     "test": {
-      "dependsOn": ["build", "typecheck"],
-      "inputs": ["test/**/*.ts"]
+      "dependsOn": ["build", "lib#build", "typecheck"],
+      "inputs": ["test/**"]
+    },
+    "deploy:account-implementation": {
+      "dependsOn": ["build"]
+    },
+    "deploy:proxy-factory": {
+      "dependsOn": ["build"]
     }
   }
 }

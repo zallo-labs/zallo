@@ -7,11 +7,11 @@ import {
 import { atom, useAtom } from 'jotai';
 import { CONFIG } from '~/util/config';
 import { Result, ResultAsync, err, okAsync } from 'neverthrow';
-import { Approver } from 'lib';
 import { useGetCloudApprover } from './useGetCloudApprover';
 import { showError } from '~/components/provider/SnackbarProvider';
 import decodeJwt from 'jwt-decode';
 import { DateTime } from 'luxon';
+import { PrivateKeyAccount } from 'viem/accounts';
 
 const PARAMS = {
   scopes: [
@@ -28,7 +28,7 @@ const PARAMS = {
 export interface GoogleSignInResult {
   idToken: string;
   user: UserDetails['user'];
-  approver: Approver;
+  approver: PrivateKeyAccount;
 }
 
 type GoogleSignInError = keyof typeof ErrorCode | 'INVALID_ACCOUNT' | 'WRONG_ACCOUNT';

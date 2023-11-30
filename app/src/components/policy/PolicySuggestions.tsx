@@ -1,8 +1,8 @@
 import { FragmentType, gql, useFragment } from '@api';
+import { PolicyIcon } from '@theme/icons';
 import { createStyles } from '@theme/styles';
 import { useAtomValue, useSetAtom } from 'jotai';
-import { useState } from 'react';
-import { View } from 'react-native';
+import { ScrollView, View } from 'react-native';
 import { Chip, Text } from 'react-native-paper';
 import { POLICY_DRAFT_ATOM } from '~/lib/policy/draft';
 import { usePolicyPresets } from '~/lib/policy/presets';
@@ -10,6 +10,7 @@ import { usePolicyPresets } from '~/lib/policy/presets';
 const Account = gql(/* GraphQL */ `
   fragment PolicySuggestions_Account on Account {
     id
+    chain
     ...getPolicyPresets_Account
   }
 `);
@@ -20,43 +21,51 @@ export interface PolicySuggestionsProps {
 
 export function PolicySuggestions(props: PolicySuggestionsProps) {
   const account = useFragment(Account, props.account);
-  const presets = usePolicyPresets(account);
+  const presets = usePolicyPresets({ account, chain: account.chain });
 
   const policy = useAtomValue(POLICY_DRAFT_ATOM);
   const setDraft = useSetAtom(POLICY_DRAFT_ATOM);
-  const [hide, setHidden] = useState(policy.key !== undefined);
 
-  if (hide) return null;
+  // Only show when creating policy
+  if (policy.key !== undefined) return null;
 
   return (
     <View style={styles.container}>
-      <Text variant="labelLarge">Start from one of our presets</Text>
-      <View style={styles.suggestions}>
+      <Text variant="labelLarge" style={styles.title}>
+        Use preset
+      </Text>
+
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.suggestions}
+      >
         {Object.values(presets).map((preset) => (
           <Chip
             key={preset.name}
-            mode="flat"
-            onPress={() => {
-              setDraft((d) => ({ ...d, ...preset }));
-              setHidden(true);
-            }}
+            mode="outlined"
+            icon={PolicyIcon}
+            onPress={() => setDraft((d) => ({ ...d, ...preset }))}
           >
             {preset.name}
           </Chip>
         ))}
-      </View>
+      </ScrollView>
     </View>
   );
 }
 
 const styles = createStyles({
   container: {
-    marginHorizontal: 16,
     marginVertical: 8,
     gap: 8,
+  },
+  title: {
+    marginHorizontal: 16,
   },
   suggestions: {
     flexDirection: 'row',
     gap: 8,
+    marginHorizontal: 16,
   },
 });

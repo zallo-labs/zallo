@@ -1,5 +1,5 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
-import { Address, isPresent } from 'lib';
+import { Address, UAddress, asUAddress, isPresent } from 'lib';
 import { InjectRedis } from '@songkeys/nestjs-redis';
 import Redis from 'ioredis';
 import { UserAccountContext, getUserCtx } from '~/request/ctx';
@@ -30,15 +30,15 @@ export class AccountsCacheService implements OnModuleInit {
     if ((await this.redis.scard(ACCOUNTS_ADDRESS_SET)) > 0) return;
 
     const addresses = await this.db.query(e.select(e.Account, () => ({ address: true })).address);
-    await this.redis.sadd(ACCOUNTS_ADDRESS_SET, addresses);
+    if (addresses.length) await this.redis.sadd(ACCOUNTS_ADDRESS_SET, addresses);
   }
 
-  async isAccount<T extends Address | Address[]>(address: T) {
+  async isAccount<T extends UAddress | UAddress[]>(address: T) {
     return (
       Array.isArray(address)
         ? (await this.redis.smismember(ACCOUNTS_ADDRESS_SET, ...address)).map((r) => r === 1)
         : (await this.redis.sismember(ACCOUNTS_ADDRESS_SET, address)) === 1
-    ) as T extends Address[] ? boolean[] : boolean;
+    ) as T extends unknown[] ? boolean[] : boolean;
   }
 
   async getApproverAccounts(approver: Address): Promise<UserAccountContext[]> {
@@ -61,7 +61,7 @@ export class AccountsCacheService implements OnModuleInit {
     );
 
     const accounts = user.accounts.map(
-      (a): UserAccountContext => ({ id: a.id, address: a.address as Address }),
+      (a): UserAccountContext => ({ id: a.id, address: asUAddress(a.address) }),
     );
 
     await this.setCachedAccounts(user.id, approver, accounts);

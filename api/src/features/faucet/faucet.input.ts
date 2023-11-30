@@ -1,9 +1,9 @@
 import { InputType } from '@nestjs/graphql';
-import { Address } from 'lib';
-import { AddressField } from '~/apollo/scalars/Address.scalar';
+import { UAddress } from 'lib';
+import { UAddressField } from '~/apollo/scalars/UAddress.scalar';
 
 @InputType()
 export class RequestTokensInput {
-  @AddressField()
-  account: Address;
+  @UAddressField()
+  account: UAddress;
 }

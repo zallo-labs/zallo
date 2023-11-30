@@ -9,10 +9,6 @@ global.navigator.userAgent ??= 'React Native';
 
 import './shared';
 
-// Provides fallback shims for missing features
-// Crypto needs to be shimmed before this - https://docs.ethers.org/v5/cookbook/react-native/
-import '@ethersproject/shims';
-
 import '@walletconnect/react-native-compat';
 
 // Intl pollyfills - required for iOS

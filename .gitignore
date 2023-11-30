@@ -1,7 +1,9 @@
 ## Shared
 .env*
 !.env.vault
+**/.tsup
 **/.turbo
+!.env.project.turbo
 **/bin
 **/build
 **/cache
@@ -10,6 +12,7 @@
 **/node_modules
 **/__generated__
 **/*.secret.*
+**/*.dump*
 
 # Yarn
 **/.yarn/*
@@ -30,14 +33,6 @@ yarn-error.log*
 **/.DS_Store
 
 
-## Contracts
-contracts/artifacts
-contracts/artifacts-zk
-contracts/cache-zk
-contracts/coverage*
-contracts/zk
-
-
 ## Site
 site/.docusaurus
 site/.cache-loader
@@ -46,9 +41,4 @@ site/**/*generated.ts
 
 
 ## Lib
-lib/src/contracts
-lib/src/typechain
 
-
-.flaskenv*
-!.env.project.turbo

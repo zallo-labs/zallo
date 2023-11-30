@@ -3,15 +3,15 @@ import { TokensService } from './tokens.service';
 import { DatabaseService } from '../database/database.service';
 import { DeepMocked, createMock } from '@golevelup/ts-jest';
 import { UserContext, asUser } from '~/request/ctx';
-import { randomAddress, randomUser } from '~/util/test';
+import { randomUser, DeepPartial, randomUAddress } from '~/util/test';
 import e from '~/edgeql-js';
 import { UpsertTokenInput } from './tokens.input';
-import { ProviderService } from '../util/provider/provider.service';
+import { Network, NetworksService } from '../util/networks/networks.service';
 
 describe('TokensService', () => {
   let service: TokensService;
   let db: DatabaseService;
-  let provider: DeepMocked<ProviderService>;
+  let networks: DeepMocked<NetworksService>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -22,15 +22,11 @@ describe('TokensService', () => {
 
     service = module.get(TokensService);
     db = module.get(DatabaseService);
-    provider = module.get(ProviderService);
+    networks = module.get(NetworksService);
 
-    provider.client = jest.mocked({
-      multicall: jest.fn(async () => [
-        { result: undefined },
-        { result: undefined },
-        { result: undefined },
-      ]),
-    }) as any;
+    networks.for.mockReturnValue({
+      multicall: async () => [{ result: undefined }, { result: undefined }, { result: undefined }],
+    } satisfies DeepPartial<Network> as unknown as Network);
   });
 
   let user1: UserContext;
@@ -41,7 +37,7 @@ describe('TokensService', () => {
 
   const upsert = (input?: Partial<UpsertTokenInput>) => {
     return service.upsert({
-      address: randomAddress(),
+      address: randomUAddress(),
       name: 'Test token',
       symbol: 'TEST',
       decimals: 8,
@@ -60,7 +56,7 @@ describe('TokensService', () => {
 
     it('update existing token', async () =>
       asUser(user1, async () => {
-        const address = randomAddress();
+        const address = randomUAddress();
         const { id } = await upsert({ address, name: 'first' });
         await upsert({ address, name: 'second' });
 
@@ -84,7 +80,7 @@ describe('TokensService', () => {
       const { id } = await db.query(
         e.insert(e.Token, {
           user: e.cast(e.User, e.set()),
-          address: randomAddress(),
+          address: randomUAddress(),
           name: 'Test token',
           symbol: 'TEST',
           decimals: 8,
@@ -100,7 +96,7 @@ describe('TokensService', () => {
     });
 
     it('prefer user token over global token', async () => {
-      const address = randomAddress();
+      const address = randomUAddress();
       await db.query(
         e.insert(e.Token, {
           user: e.cast(e.User, e.set()),
@@ -128,7 +124,7 @@ describe('TokensService', () => {
   describe('remove', () => {
     it('removes token if existent', async () =>
       asUser(user1, async () => {
-        const address = randomAddress();
+        const address = randomUAddress();
         const { id } = await upsert({ address });
         await service.remove(address);
 
@@ -136,7 +132,7 @@ describe('TokensService', () => {
       }));
 
     it('not remove global token', async () => {
-      const address = randomAddress();
+      const address = randomUAddress();
       const { id } = await db.query(
         e.insert(e.Token, {
           user: e.cast(e.User, e.set()),

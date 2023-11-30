@@ -1,12 +1,52 @@
-import { SearchParams, useLocalSearchParams } from 'expo-router';
-import { asAddress } from 'lib';
+import { gql } from '@api';
+import { materialCommunityIcon } from '@theme/icons';
+import { OperationContext, useMutation } from 'urql';
+import { AccountParams } from '~/app/(drawer)/[account]/(home)/_layout';
+import { Button } from '~/components/Button';
 import { QrModal } from '~/components/QrModal';
+import { useQuery } from '~/gql';
+import { useLocalParams } from '~/hooks/useLocalParams';
 
-export type ReceiveModalRoute = `/[account]/receive`;
-export type ReceiveModalParams = SearchParams<ReceiveModalRoute>;
+const Query = gql(/* GraphQL */ `
+  query ReceiveModal($account: UAddress!) {
+    requestableTokens(input: { account: $account })
+  }
+`);
+
+const RequestTokens = gql(/* GraphQL */ `
+  mutation ReceiveModal_RequestTokens($account: UAddress!) {
+    requestTokens(input: { account: $account })
+  }
+`);
+
+const FaucetIcon = materialCommunityIcon('water');
+const queryContext: Partial<OperationContext> = { suspense: false };
+
+const ReceiveModalParams = AccountParams;
 
 export default function ReceiveModal() {
-  const account = asAddress(useLocalSearchParams<ReceiveModalParams>().account);
+  const { account } = useLocalParams(ReceiveModalParams);
+  const requestTokens = useMutation(RequestTokens)[1];
 
-  return <QrModal address={account} faucet />;
+  const { requestableTokens = [] } =
+    useQuery(Query, { account }, { context: queryContext }).data ?? {};
+
+  return (
+    <QrModal
+      address={account}
+      actions={
+        <>
+          {requestableTokens.length > 0 && (
+            <Button
+              mode="contained-tonal"
+              icon={FaucetIcon}
+              onPress={() => requestTokens({ account })}
+            >
+              Request testnet tokens
+            </Button>
+          )}
+        </>
+      }
+    />
+  );
 }

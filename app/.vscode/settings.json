@@ -2,6 +2,7 @@
   "files.exclude": {
     ".expo": true,
     ".expo-shared": true,
+    ".turbo": true,
     ".vscode": true,
     "*.secret.*": true
   },
