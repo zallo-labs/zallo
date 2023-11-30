@@ -15,6 +15,7 @@ import {
   asApproval,
   asAddress,
   asUAddress,
+  isEthToken,
 } from 'lib';
 import { NetworksService } from '~/features/util/networks/networks.service';
 import { selectTransactionProposal } from '../transaction-proposals/transaction-proposals.service';
@@ -140,12 +141,11 @@ export class TransactionsService {
       tx,
       policy,
       approvals,
-      paymaster: await this.paymaster.getPaymaster(),
-      paymasterInput: this.paymaster.paymasterInput({
+      ...(await this.paymaster.params({
         feeToken: asUAddress(proposal.feeToken.address),
         gas: tx.gas,
         maxFeePerGas,
-      }),
+      }))!,
     });
     const transaction = transactionResult._unsafeUnwrap(); // TODO: handle failed transaction submission
 

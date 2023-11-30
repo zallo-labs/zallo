@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { NetworksService } from '../util/networks/networks.service';
 import assert from 'assert';
-import { UAddress, asAddress, asHex } from 'lib';
+import { UAddress, asAddress, asHex, isEthToken } from 'lib';
 import { hexlify } from 'ethers';
 import { utils as zkUtils } from 'zksync2-js';
 
@@ -21,17 +21,23 @@ export class PaymasterService {
     return testnetPaymaster;
   }
 
-  paymasterInput({ feeToken, gas, maxFeePerGas }: GetPaymasterParamsOptions) {
-    return asHex(
-      hexlify(
-        zkUtils.getApprovalBasedPaymasterInput({
-          type: 'ApprovalBased',
-          token: feeToken,
-          minimalAllowance: gas * maxFeePerGas, // Mainnet TODO: factor in conversion from token -> ETH; 1:1 on testnet
-          innerInput: '0x',
-        }),
+  async params({ feeToken, gas, maxFeePerGas }: GetPaymasterParamsOptions) {
+    const token = asAddress(feeToken);
+    if (isEthToken(token)) return undefined;
+
+    return {
+      paymaster: await this.getPaymaster(),
+      paymasterInput: asHex(
+        hexlify(
+          zkUtils.getApprovalBasedPaymasterInput({
+            type: 'ApprovalBased',
+            token: asAddress(feeToken),
+            minimalAllowance: gas * maxFeePerGas, // Mainnet TODO: factor in conversion from token -> ETH; 1:1 on testnet
+            innerInput: '0x',
+          }),
+        ),
       ),
-    );
+    };
   }
 
   async getGasPrice(feeToken: UAddress) {
