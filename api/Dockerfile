@@ -2,7 +2,7 @@
 ##            Build
 ## ------------------------------
 
-FROM node:18-alpine as builder
+FROM node:20-alpine as builder
 
 ENV NODE_ENV build
 
@@ -18,7 +18,7 @@ RUN yarn api build
 ##            Runtime
 ## ------------------------------
 
-FROM node:18-alpine
+FROM node:20-alpine
 
 ENV NODE_ENV production
 
