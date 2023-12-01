@@ -4,10 +4,12 @@ pragma solidity ^0.8.0;
 import {ECDSA} from '@openzeppelin/contracts/utils/cryptography/ECDSA.sol';
 import {IERC1271} from '@openzeppelin/contracts/interfaces/IERC1271.sol';
 import {Policy} from './Policy.sol';
+import {Secp256k1} from '../libraries/Secp256k1.sol';
+import {ERC1271} from '../libraries/ERC1271.sol';
 
 struct Approvals {
   uint256 approversSigned;
-  Secp256k1Signature[] secp256k1;
+  Secp256k1.Signature[] secp256k1;
   bytes[] erc1271;
 }
 
@@ -43,10 +45,10 @@ library ApprovalsVerifier {
         approver = p.approvers[approverIndex];
 
         if (sigIndex < secp256k1Len) {
-          if (!_verifySecp256k1(hash, approver, a.secp256k1[sigIndex]))
+          if (!Secp256k1.verify(a.secp256k1[sigIndex], hash, approver))
             revert InvalidSignature(approver);
         } else {
-          if (!_verifyErc1271(hash, approver, a.erc1271[sigIndex - secp256k1Len]))
+          if (!ERC1271.verify(a.erc1271[sigIndex - secp256k1Len], hash, approver))
             revert InvalidSignature(approver);
         }
 
@@ -61,29 +63,5 @@ library ApprovalsVerifier {
     }
 
     return true;
-  }
-
-  function _verifySecp256k1(
-    bytes32 hash,
-    address signer,
-    Secp256k1Signature memory signature
-  ) private pure returns (bool) {
-    (address recovered, ECDSA.RecoverError err,) = ECDSA.tryRecover(hash, signature.r, signature.yParityAndS);
-
-    return (err == ECDSA.RecoverError.NoError && recovered == signer);
-  }
-
-  bytes32 private constant ERC1271_MAGICVALUE = bytes32(IERC1271.isValidSignature.selector);
-
-  function _verifyErc1271(
-    bytes32 hash,
-    address signer,
-    bytes memory signature
-  ) private view returns (bool) {
-    (bool success, bytes memory result) = signer.staticcall(
-      abi.encodeWithSelector(IERC1271.isValidSignature.selector, hash, signature)
-    );
-
-    return (success && result.length == 32 && abi.decode(result, (bytes32)) == ERC1271_MAGICVALUE);
   }
 }
