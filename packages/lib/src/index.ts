@@ -5,6 +5,7 @@ export * from './address';
 export * from './approvals';
 export * from './bytes';
 export * from './operation';
+export * from './paymaster';
 export * from './contract';
 export * from './convert';
 export * from './deploy';
