@@ -68,12 +68,12 @@ export default {
   export: [
     {
       path: 'test/contracts',
-      contracts: [':*.test.*$'],
+      contracts: ['^contracts\\/.+'],
       include: ['abi'],
     },
     {
       path: '../packages/lib/src/generated',
-      contracts: [':AccountProxy$', ':Account$', ':Factory$', ':TestVerifier$'],
+      contracts: ['^contracts\\/.+'],
       include: ['abi', 'bytecode', 'factoryDeps'],
     },
   ],

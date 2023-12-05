@@ -8,7 +8,7 @@ import {
   randomDeploySalt,
   TxOptions,
 } from 'lib';
-import { network, wallet, wallets } from './network';
+import { network, testNetwork, wallet, wallets } from './network';
 import { BytesLike, hexlify, Interface, Overrides } from 'ethers';
 import * as zk from 'zksync2-js';
 import { getApprovals } from './approval';
@@ -19,10 +19,9 @@ type AccountContractName = 'Account' | 'TestAccount';
 type ContractName =
   | AccountContractName
   | 'Factory'
-  | 'ERC1967Proxy'
-  | 'TestUtil'
-  | 'TestVerifier'
-  | 'TestPolicyManager';
+  | 'AccountProxy'
+  | `Test${string}`
+  | 'Paymaster';
 
 interface DeployOptions<ConstructorArgs extends unknown[] = unknown[]> {
   constructorArgs?: ConstructorArgs;
@@ -116,11 +115,9 @@ export const deployProxy = async ({
   )._unsafeUnwrap();
   await network.waitForTransactionReceipt({ hash: deployTransactionHash });
 
-  await network.waitForTransactionReceipt({
-    hash: await wallet.sendTransaction({
-      to: asAddress(account),
-      value: parseEther('0.02') + extraBalance,
-    }),
+  await testNetwork.setBalance({
+    address: asAddress(account),
+    value: parseEther('1') + extraBalance,
   });
 
   return {

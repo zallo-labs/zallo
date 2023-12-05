@@ -2,6 +2,8 @@ import {
   Abi,
   Address,
   ContractFunctionRevertedError,
+  EstimateGasExecutionError,
+  ExecutionRevertedError,
   InferEventName,
   TransactionExecutionErrorType,
   TransactionReceipt,
@@ -19,13 +21,31 @@ use(viemChaiMatchers);
 function viemChaiMatchers(chai: Chai.ChaiStatic, _utils: Chai.ChaiUtils) {
   const Assertion = chai.Assertion;
 
+  Assertion.addProperty('succeed', function (this) {
+    return asyncAssertion(this, async ({ subject, assert }) => {
+      try {
+        // sendTransaction
+        const receipt = await getReceipt(subject);
+
+        assert(
+          receipt?.status === 'success',
+          'Expected to succeed, but reverted',
+          'Expected to NOT succeed',
+        );
+      } catch (error) {
+        // readContract
+        assert(false, `Expected to succeed, but reverted with ${error}`, `Expected to NOT succeed`);
+      }
+    });
+  });
+
   Assertion.addProperty('revert', function (this) {
     return asyncAssertion(this, async ({ subject, assert }) => {
       try {
         // sendTransaction
         const receipt = await getReceipt(subject);
 
-        assert(receipt.status === 'reverted', 'Expected to revert', 'Expected to NOT revert');
+        assert(receipt?.status === 'reverted', 'Expected to revert', 'Expected to NOT revert');
       } catch (error) {
         // readContract
       }
@@ -64,7 +84,7 @@ function viemChaiMatchers(chai: Chai.ChaiStatic, _utils: Chai.ChaiUtils) {
         } else {
           assert(
             false,
-            `Expected revert error cause to be a ContractFunctionRevertedError`,
+            `Expected revert error cause to be a ContractFunctionRevertedError but got ${cause}`,
             `Expected revert error cause to NOT be a ContractFunctionRevertedError`,
           );
         }
@@ -94,7 +114,7 @@ function viemChaiMatchers(chai: Chai.ChaiStatic, _utils: Chai.ChaiUtils) {
         const receipt = await getReceipt(subject);
 
         const foundWithMismatchingArgs: unknown[] = [];
-        const found = receipt.logs.some((log) => {
+        const found = receipt?.logs.some((log) => {
           try {
             const event = decodeEventLog({
               abi,
@@ -126,7 +146,7 @@ function viemChaiMatchers(chai: Chai.ChaiStatic, _utils: Chai.ChaiUtils) {
         }
 
         assert(
-          found,
+          !!found,
           `Expected transaction to include event "${eventName}"`,
           `Expected transaction to NOT include event "${eventName}"`,
         );
@@ -169,6 +189,7 @@ declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
   export namespace Chai {
     interface Assertion {
+      succeed: AsyncAssertion;
       revert: AsyncAssertion;
       revertWith<TAbi extends Abi = Abi, TErrorName extends string = string>(
         params: RevertWithParams<TAbi, TErrorName>,
@@ -219,7 +240,8 @@ async function getReceipt(v: unknown) {
 
   if (isHex(v)) return network.getTransactionReceipt({ hash: v });
 
-  throw new Error(`Unable to get receipt for unknown value "${v}"`);
+  return undefined;
+  // throw new Error(`Unable to get receipt for unknown value "${v}"`);
 }
 
 function isReceipt(v: unknown): v is TransactionReceipt {
