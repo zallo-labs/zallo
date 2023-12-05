@@ -34,15 +34,6 @@ library TransactionUtil {
     return keccak256(abi.encodePacked('\x19\x01', _domainSeparator(), structHash));
   }
 
-  function _domainSeparator() private view returns (bytes32) {
-    // Can't be set immutably as it will be called by a proxy and depends on address(this)
-    return keccak256(abi.encode(DOMAIN_TYPE_HASH, block.chainid, address(this)));
-  }
-
-  function _proposalNonce(Transaction calldata t) private pure returns (uint32) {
-    return abi.decode(t.signature, (uint32));
-  }
-
   function to(Transaction calldata t) internal pure returns (address) {
     return address(uint160(t.to)); // won't truncate
   }
@@ -73,5 +64,14 @@ library TransactionUtil {
   /// @dev estimateGas always calls with a 65 byte signature
   function isGasEstimation(Transaction calldata t) internal pure returns (bool) {
     return t.signature.length == 65;
+  }
+
+  function _domainSeparator() private view returns (bytes32) {
+    // Can't be set immutably as it will be called by a proxy and depends on address(this)
+    return keccak256(abi.encode(DOMAIN_TYPE_HASH, block.chainid, address(this)));
+  }
+
+  function _proposalNonce(Transaction calldata t) private pure returns (uint32) {
+    return abi.decode(t.signature, (uint32));
   }
 }

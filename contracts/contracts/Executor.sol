@@ -18,19 +18,19 @@ abstract contract Executor {
                              EVENTS / ERRORS
   //////////////////////////////////////////////////////////////*/
 
-  event OperationExecuted(bytes32 txHash, bytes response);
-  event OperationsExecuted(bytes32 txHash, bytes[] responses);
+  event OperationExecuted(bytes32 proposal, bytes response);
+  event OperationsExecuted(bytes32 proposal, bytes[] responses);
 
   error OperationReverted(uint256 operationIndex, bytes reason);
-  error TransactionAlreadyExecuted(bytes32 txHash);
+  error TransactionAlreadyExecuted(bytes32 proposal);
 
   /*//////////////////////////////////////////////////////////////
                                 EXECUTION
   //////////////////////////////////////////////////////////////*/
 
   /// @dev **Only to be called post validation**
-  function _executeTransaction(bytes32 txHash, Transaction calldata t) internal {
-    _setExecuted(txHash);
+  function _executeTransaction(bytes32 proposal, Transaction calldata t) internal {
+    _setExecuted(proposal);
 
     Operation[] memory operations = t.operations();
 
@@ -39,14 +39,14 @@ abstract contract Executor {
     if (operations.length == 1) {
       bytes memory response = _executeOperation(operations[0], 0);
 
-      emit OperationExecuted(txHash, response);
+      emit OperationExecuted(proposal, response);
     } else {
       bytes[] memory responses = new bytes[](operations.length);
       for (uint256 i; i < operations.length; ++i) {
         responses[i] = _executeOperation(operations[i], i);
       }
 
-      emit OperationsExecuted(txHash, responses);
+      emit OperationsExecuted(proposal, responses);
     }
   }
 
@@ -73,20 +73,20 @@ abstract contract Executor {
     }
   }
 
-  function _setExecuted(bytes32 txHash) private {
-    uint256 wordIndex = uint256(txHash) / 256;
-    uint256 bitIndex = uint256(txHash) % 256;
+  function _setExecuted(bytes32 proposal) private {
+    uint256 wordIndex = uint256(proposal) / 256;
+    uint256 bitIndex = uint256(proposal) % 256;
 
     _executedTransactions()[wordIndex] |= (1 << bitIndex);
   }
 
-  function _validateTransactionUnexecuted(bytes32 txHash) internal view {
-    uint256 wordIndex = uint256(txHash) / 256;
-    uint256 bitIndex = uint256(txHash) % 256;
+  function _validateTransactionUnexecuted(bytes32 proposal) internal view {
+    uint256 wordIndex = uint256(proposal) / 256;
+    uint256 bitIndex = uint256(proposal) % 256;
     uint256 mask = (1 << bitIndex);
 
     if (_executedTransactions()[wordIndex] & mask == mask)
-      revert TransactionAlreadyExecuted(txHash);
+      revert TransactionAlreadyExecuted(proposal);
   }
 
   /*//////////////////////////////////////////////////////////////
@@ -115,7 +115,7 @@ abstract contract Executor {
   //   );
   // }
 
-  // function _ensureNonceUnusedAndUse(Transaction memory t, bytes32 txHash) internal {
+  // function _ensureNonceUnusedAndUse(Transaction memory t, bytes32 proposal) internal {
   //   SystemContractsCaller.systemCallWithPropagatedRevert(
   //     uint32(gasleft()),
   //     address(NONCE_HOLDER_SYSTEM_CONTRACT),
@@ -131,7 +131,7 @@ abstract contract Executor {
   //   );
 
   //   bool nonceUsed = response.length > 0 ? response[0] != 0 : false;
-  //   if (nonceUsed) revert TransactionAlreadyExecuted(txHash, t.nonce);
+  //   if (nonceUsed) revert TransactionAlreadyExecuted(proposal, t.nonce);
 
   //   SystemContractsCaller.systemCallWithPropagatedRevert(
   //     uint32(gasleft()),

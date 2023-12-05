@@ -65,7 +65,7 @@ export class TransactionsEvents implements OnModuleInit {
     );
     if (r?.eventName !== 'OperationExecuted' && r?.eventName !== 'OperationsExecuted') return;
 
-    const proposalHash = asHex(r.args.txHash);
+    const proposalHash = asHex(r.args.proposal);
 
     await this.db.query(
       e.update(e.Transaction, () => ({
