@@ -18,6 +18,7 @@ import {ERC165} from './standards/ERC165.sol';
 import {ERC721Receiver} from './standards/ERC721Receiver.sol';
 import {ERC1271Validator} from './standards/ERC1271Validator.sol';
 import {TransactionUtil} from './TransactionUtil.sol';
+import {PaymasterUtil} from './paymaster/PaymasterUtil.sol';
 
 contract Account is
   IAccount,
@@ -126,8 +127,8 @@ contract Account is
   //////////////////////////////////////////////////////////////*/
 
   function payForTransaction(
-    bytes32, // txHash
-    bytes32, // suggestedSignedHash
+    bytes32 /* txHash */,
+    bytes32 /* txDataHash */,
     Transaction calldata transaction
   ) external payable override onlyBootloader {
     bool success = transaction.payToTheBootloader();
@@ -135,11 +136,11 @@ contract Account is
   }
 
   function prepareForPaymaster(
-    bytes32, // txHash
-    bytes32, // suggestedSignedHash
+    bytes32 /* txHash */,
+    bytes32 /* txDataHash */,
     Transaction calldata transaction
   ) external payable override onlyBootloader {
-    transaction.processPaymasterInput();
+    PaymasterUtil.processPaymasterInput(transaction);
   }
 
   /*//////////////////////////////////////////////////////////////
