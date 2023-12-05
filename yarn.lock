@@ -9652,6 +9652,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@pythnetwork/pyth-sdk-solidity@npm:^2.3.0":
+  version: 2.3.0
+  resolution: "@pythnetwork/pyth-sdk-solidity@npm:2.3.0"
+  checksum: 28149e4a19cf0eed07c24640967391cdcbd8c12b5d3416197c50fc9ceb08b170ea5b5e3dcdb9533b2f97fe1ab56453ed9af84924350316beef24e08a484a98a7
+  languageName: node
+  linkType: hard
+
 "@radix-ui/react-compose-refs@npm:1.0.0":
   version: 1.0.0
   resolution: "@radix-ui/react-compose-refs@npm:1.0.0"
@@ -18033,6 +18040,7 @@ __metadata:
     "@nomiclabs/hardhat-ethers": "npm:^2.2.3"
     "@nomiclabs/hardhat-solhint": "npm:3.0.1"
     "@openzeppelin/contracts": "npm:^5.0.0"
+    "@pythnetwork/pyth-sdk-solidity": "npm:^2.3.0"
     "@solidstate/hardhat-4byte-uploader": "npm:^1.1.0"
     "@types/chai": "npm:^4.3.11"
     "@types/chai-as-promised": "npm:^7.1.8"
