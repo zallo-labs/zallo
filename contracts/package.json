@@ -5,9 +5,7 @@
     "build": "hardhat compile",
     "typecheck": "tsc --noEmit",
     "test": "hardhat test",
-    "test:debug": "yarn test --logs --trace",
-    "deploy:account-implementation": "hardhat run scripts/deployAccountImplementation.ts",
-    "deploy:proxy-factory": "hardhat run scripts/deployProxyFactory.ts"
+    "test:debug": "yarn test --logs --trace"
   },
   "devDependencies": {
     "@matterlabs/hardhat-zksync-chai-matchers": "^1.0.0",

@@ -23,17 +23,17 @@ type ContractName =
   | `Test${string}`
   | 'Paymaster';
 
-interface DeployOptions<ConstructorArgs extends unknown[] = unknown[]> {
-  constructorArgs?: ConstructorArgs;
+interface DeployOptions<ConstructorArgs extends unknown[]> {
+  constructorArgs?: Readonly<ConstructorArgs>;
   overrides?: Overrides;
   factoryDeps?: BytesLike[];
 }
 
 const zkProvider = new zk.Provider(CONFIG.chain.rpcUrls.default.http[0]);
 
-export async function deploy(
+export async function deploy<ConstructorArgs extends unknown[]>(
   contractName: ContractName,
-  { constructorArgs, overrides, factoryDeps }: DeployOptions = {},
+  { constructorArgs, overrides, factoryDeps }: DeployOptions<ConstructorArgs> = {},
 ) {
   const sender = new zk.Wallet(CONFIG.walletPrivateKey, zkProvider);
   const artifact = await hre.artifacts.readArtifact(contractName);

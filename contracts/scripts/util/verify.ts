@@ -5,7 +5,7 @@ import { CONFIG } from '../../config';
 export interface VerifyOptions {
   address: Address;
   contract: string;
-  constructorArguments?: Hex | any[];
+  constructorArguments?: Hex | Readonly<unknown[]>;
 }
 
 // https://era.zksync.io/docs/dev/building-on-zksync/contracts/contract-verification.html#verify-smart-contract-programmatically
