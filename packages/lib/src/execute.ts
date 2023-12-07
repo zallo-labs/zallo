@@ -1,5 +1,5 @@
 import { encodeTransactionSignature } from './signature';
-import { Tx, asTransactionData } from './tx';
+import { Tx } from './tx';
 import {
   FALLBACK_OPERATIONS_GAS,
   estimateTransactionOperationsGas,
@@ -13,6 +13,7 @@ import { ResultAsync } from 'neverthrow';
 import { Hex, SendTransactionErrorType } from 'viem';
 import { AllOrNone } from './util';
 import { utils as zkUtils } from 'zksync2-js';
+import { encodeOperations } from './operation';
 
 type SerializeTransactionParam = Parameters<
   NonNullable<NonNullable<ChainConfig['serializers']>['transaction']>
@@ -40,22 +41,15 @@ export async function serializeTransaction({
   approvals,
   ...params
 }: SerializeTransactionParams) {
-  const { to, value, data, nonce: proposalNonce, gas } = asTransactionData(account, tx);
-
-  const { maxFeePerGas, maxPriorityFeePerGas } = await network.estimateFeesPerGas();
-
   return network.chain.serializers!.transaction!({
     type: 'eip712',
     from: account,
-    to,
-    value,
-    data,
+    ...encodeOperations(account, tx.operations),
     nonce: await network.getTransactionCount({ address: account }),
-    maxFeePerGas,
-    maxPriorityFeePerGas,
+    maxPriorityFeePerGas: (await network.estimateFeesPerGas()).maxPriorityFeePerGas,
     gasPerPubdata: BigInt(zkUtils.DEFAULT_GAS_PER_PUBDATA_LIMIT),
     gas:
-      gas ??
+      tx.gas ??
       estimateTransactionTotalGas(
         await estimateTransactionOperationsGas({ network, account, tx }).unwrapOr(
           FALLBACK_OPERATIONS_GAS,
@@ -63,7 +57,7 @@ export async function serializeTransaction({
         approvals.length,
       ),
     chainId: network.chain.id,
-    customSignature: encodeTransactionSignature(proposalNonce, policy, approvals),
+    customSignature: encodeTransactionSignature(tx.nonce, policy, approvals),
     ...params,
   });
 }

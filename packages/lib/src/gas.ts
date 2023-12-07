@@ -1,8 +1,9 @@
-import { Tx, asTransactionData } from './tx';
+import { Tx } from './tx';
 import { Address } from './address';
 import { ResultAsync } from 'neverthrow';
 import { Network } from 'chains';
 import type { EstimateGasErrorType } from 'viem';
+import { encodeOperations } from './operation';
 
 const ESTIMATED_POLICY_VERIFICATION_GAS = 500_000n;
 const ESTIMATED_APPROVAL_GAS = 20_000n;
@@ -26,11 +27,14 @@ export function estimateTransactionOperationsGas({
   account,
   tx,
 }: EstimateOperationGasParams) {
-  const { to, value, data } = asTransactionData(account, tx);
-
   // customSignature is always a 65 byte signature - https://github.com/zkSync-Community-Hub/zkync-developers/discussions/81
   return ResultAsync.fromPromise(
-    (async () => network.estimateGas({ type: 'eip712', account, to, value, data }))(),
+    (async () =>
+      network.estimateGas({
+        type: 'eip712',
+        account,
+        ...encodeOperations(account, tx.operations),
+      }))(),
     (e) => e as EstimateGasErrorType,
   );
 }

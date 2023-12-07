@@ -8,6 +8,7 @@ export * from './operation';
 export * from './paymaster';
 export * from './contract';
 export * from './convert';
+export * from './decimals';
 export * from './deploy';
 export * from './execute';
 export * from './gas';
