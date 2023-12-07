@@ -23,6 +23,7 @@
   "dependencies": {
     "abitype": "^0.9.8",
     "chains": "workspace:*",
+    "decimal.js": "^10.4.3",
     "ethers": "6.9.0",
     "lodash": "^4.17.21",
     "neverthrow": "^6.0.0",

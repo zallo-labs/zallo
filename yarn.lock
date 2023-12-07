@@ -3374,6 +3374,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@babel/runtime@npm:^7.15.4":
+  version: 7.23.5
+  resolution: "@babel/runtime@npm:7.23.5"
+  dependencies:
+    regenerator-runtime: "npm:^0.14.0"
+  checksum: 0f1669f639af30a0a2948ffcefa2c61935f337b0777bd94f8d7bc66bba8e7d4499e725caeb0449540d9c6d67399b733c4e719babb43ce9a0f33095aa01b42b37
+  languageName: node
+  linkType: hard
+
 "@babel/runtime@npm:^7.20.0":
   version: 7.21.0
   resolution: "@babel/runtime@npm:7.21.0"
@@ -9652,6 +9661,38 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@pythnetwork/price-service-client@npm:*":
+  version: 1.8.2
+  resolution: "@pythnetwork/price-service-client@npm:1.8.2"
+  dependencies:
+    "@pythnetwork/price-service-sdk": "npm:*"
+    "@types/ws": "npm:^8.5.3"
+    axios: "npm:^1.5.1"
+    axios-retry: "npm:^3.8.0"
+    isomorphic-ws: "npm:^4.0.1"
+    ts-log: "npm:^2.2.4"
+    ws: "npm:^8.6.0"
+  checksum: 7b20a4a1096ae001748ef61fb03d81386c456d83f78d31c006626c8d8fbf62c9c04ed4fd867c511f96322958bc97b35cc54843e76d826511aa1cfaa45b3dec70
+  languageName: node
+  linkType: hard
+
+"@pythnetwork/price-service-sdk@npm:*":
+  version: 1.4.1
+  resolution: "@pythnetwork/price-service-sdk@npm:1.4.1"
+  checksum: ea962503056b8ad329450bfa627f43dc1ce51da32e9493dae64ede970352d9664d9036f59668c45910c51101d257e71a78fd6053a13cff09bf226e9ed634e6f2
+  languageName: node
+  linkType: hard
+
+"@pythnetwork/pyth-evm-js@npm:^1.29.2":
+  version: 1.29.2
+  resolution: "@pythnetwork/pyth-evm-js@npm:1.29.2"
+  dependencies:
+    "@pythnetwork/price-service-client": "npm:*"
+    buffer: "npm:^6.0.3"
+  checksum: 7fbbc4f0f5c6e1189b57a1d02703d0a11ecc6c23e419c4aa39ee6b3ac13e9457e9f04911b7918cc90923dd2b98e4ab41026741ff9b55f7e28a4aaf6f16986c9a
+  languageName: node
+  linkType: hard
+
 "@pythnetwork/pyth-sdk-solidity@npm:^2.3.0":
   version: 2.3.0
   resolution: "@pythnetwork/pyth-sdk-solidity@npm:2.3.0"
@@ -12605,6 +12646,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/ws@npm:^8.5.3":
+  version: 8.5.10
+  resolution: "@types/ws@npm:8.5.10"
+  dependencies:
+    "@types/node": "npm:*"
+  checksum: 9b414dc5e0b6c6f1ea4b1635b3568c58707357f68076df9e7cd33194747b7d1716d5189c0dbdd68c8d2521b148e88184cf881bac7429eb0e5c989b001539ed31
+  languageName: node
+  linkType: hard
+
 "@types/yargs-parser@npm:*":
   version: 21.0.0
   resolution: "@types/yargs-parser@npm:21.0.0"
@@ -14458,6 +14508,7 @@ __metadata:
     "@nestjs/schematics": "npm:^10.0.2"
     "@nestjs/terminus": "npm:^10.0.1"
     "@nestjs/testing": "npm:^10.1.3"
+    "@pythnetwork/pyth-evm-js": "npm:^1.29.2"
     "@sentry/node": "npm:^7.72.0"
     "@sentry/profiling-node": "npm:^1.2.1"
     "@songkeys/nestjs-redis": "npm:^10.0.0"
@@ -14481,6 +14532,7 @@ __metadata:
     class-transformer: "npm:^0.5.1"
     connect-redis: "npm:^7.1.0"
     cross-fetch: "npm:^4.0.0"
+    decimal.js: "npm:^10.4.3"
     dotenv: "npm:^16.3.1"
     edgedb: "npm:^1.4.1"
     ethers: "npm:^6.9.0"
@@ -15208,6 +15260,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"axios-retry@npm:^3.8.0":
+  version: 3.9.1
+  resolution: "axios-retry@npm:3.9.1"
+  dependencies:
+    "@babel/runtime": "npm:^7.15.4"
+    is-retry-allowed: "npm:^2.2.0"
+  checksum: 9a28dd8aa4640c2af30789059a1a84549178b2a415bf765a35fe6bba9cd3d78b2ee2da07e448e823303c05f3a83bf98709f4aa64a43c0f6c2812e1665126b97e
+  languageName: node
+  linkType: hard
+
 "axios@npm:0.26.1":
   version: 0.26.1
   resolution: "axios@npm:0.26.1"
@@ -15243,6 +15305,17 @@ __metadata:
     form-data: "npm:^4.0.0"
     proxy-from-env: "npm:^1.1.0"
   checksum: b987e4259e5cfc93e95ee306c267a44380bbc045789a91b716e8434a75e22987344605eb4e133482fe285dd3a2e0b7e791ba26999965f04a5ecdde25f56930cb
+  languageName: node
+  linkType: hard
+
+"axios@npm:^1.5.1":
+  version: 1.6.2
+  resolution: "axios@npm:1.6.2"
+  dependencies:
+    follow-redirects: "npm:^1.15.0"
+    form-data: "npm:^4.0.0"
+    proxy-from-env: "npm:^1.1.0"
+  checksum: 612bc93f8f738a518e7c5f9de9cc782bcd36aac6bae279160ef6a10260378e21c1786520eab3336898e3d66e0839ebdf739f327fb6d0431baa4d3235703a7652
   languageName: node
   linkType: hard
 
@@ -19040,7 +19113,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"decimal.js@npm:^10.4.2":
+"decimal.js@npm:^10.4.2, decimal.js@npm:^10.4.3":
   version: 10.4.3
   resolution: "decimal.js@npm:10.4.3"
   checksum: de663a7bc4d368e3877db95fcd5c87b965569b58d16cdc4258c063d231ca7118748738df17cd638f7e9dd0be8e34cec08d7234b20f1f2a756a52fc5a38b188d0
@@ -26271,6 +26344,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"is-retry-allowed@npm:^2.2.0":
+  version: 2.2.0
+  resolution: "is-retry-allowed@npm:2.2.0"
+  checksum: 6d8685530871f0b040346cc72322d90122473e921149affa16de363d6c2a6e46bc76abdfaac3259b93994ec8e7f70fbe67bbb080190e440533ff728e6a64494d
+  languageName: node
+  linkType: hard
+
 "is-root@npm:2.1.0, is-root@npm:^2.1.0":
   version: 2.1.0
   resolution: "is-root@npm:2.1.0"
@@ -26529,6 +26609,15 @@ __metadata:
   peerDependencies:
     ws: "*"
   checksum: e20eb2aee09ba96247465fda40c6d22c1153394c0144fa34fe6609f341af4c8c564f60ea3ba762335a7a9c306809349f9b863c8beedf2beea09b299834ad5398
+  languageName: node
+  linkType: hard
+
+"isomorphic-ws@npm:^4.0.1":
+  version: 4.0.1
+  resolution: "isomorphic-ws@npm:4.0.1"
+  peerDependencies:
+    ws: "*"
+  checksum: d7190eadefdc28bdb93d67b5f0c603385aaf87724fa2974abb382ac1ec9756ed2cfb27065cbe76122879c2d452e2982bc4314317f3d6c737ddda6c047328771a
   languageName: node
   linkType: hard
 
@@ -28181,6 +28270,7 @@ __metadata:
     "@types/jest": "npm:^29.5.5"
     abitype: "npm:^0.9.8"
     chains: "workspace:*"
+    decimal.js: "npm:^10.4.3"
     ethers: "npm:6.9.0"
     jest: "npm:^29.7.0"
     lodash: "npm:^4.17.21"
@@ -39193,6 +39283,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"ts-log@npm:^2.2.4":
+  version: 2.2.5
+  resolution: "ts-log@npm:2.2.5"
+  checksum: b8fb444ae3b05ac8f709a1acee26dba014ed601e1fc36fa2bfcac5555032eb6c6ca9cd16b8da21832f1631785c3ad7de7177d8e7631c197a1aeca64f03a872a4
+  languageName: node
+  linkType: hard
+
 "ts-node@npm:^10.9.1":
   version: 10.9.1
   resolution: "ts-node@npm:10.9.1"
@@ -41786,6 +41883,21 @@ __metadata:
     utf-8-validate:
       optional: true
   checksum: f759ea19e42f6d94727b3d8590693f2d92521a78ec2de5c6064c3356f50d4815d427b7ddb10bf39596cc67d3b18232a1b2dfbc3b6361d4772bdfec69d4c130f4
+  languageName: node
+  linkType: hard
+
+"ws@npm:^8.6.0":
+  version: 8.14.2
+  resolution: "ws@npm:8.14.2"
+  peerDependencies:
+    bufferutil: ^4.0.1
+    utf-8-validate: ">=5.0.2"
+  peerDependenciesMeta:
+    bufferutil:
+      optional: true
+    utf-8-validate:
+      optional: true
+  checksum: 815ff01d9bc20a249b2228825d9739268a03a4408c2e0b14d49b0e2ae89d7f10847e813b587ba26992bdc33e9d03bed131e4cae73ff996baf789d53e99c31186
   languageName: node
   linkType: hard
 

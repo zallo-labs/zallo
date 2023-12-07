@@ -40,4 +40,5 @@ export const CONFIG = {
       ...(JSON.parse(optional`APPLE_OAUTH_CLIENTS` || '[]') as string[]),
     ].filter(isPresent),
   ),
+  pythHermesUrl: required`PYTH_HERMES_URL`,
 } as const;
