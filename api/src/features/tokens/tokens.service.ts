@@ -10,6 +10,7 @@ import { and, or } from '../database/database.util';
 import { NetworksService } from '../util/networks/networks.service';
 import { UserInputError } from '@nestjs/apollo';
 import { OrderByObjExpr } from '~/edgeql-js/select';
+import { TokenMetadata } from '~/features/tokens/tokens.model';
 
 @Injectable()
 export class TokensService {
@@ -134,17 +135,16 @@ export class TokensService {
     });
 
     return {
-      ethereumAddress: null,
+      id: `TokenMetadata:${address}`,
       name: name.result,
       symbol: symbol.result,
       decimals: decimals.result,
-      isFeeToken: false,
       iconUri: null,
-    };
+    } satisfies TokenMetadata;
   }
 }
 
-function preferUserToken(t: Scope<typeof e.Token>): OrderByObjExpr {
+export function preferUserToken(t: Scope<typeof e.Token>): OrderByObjExpr {
   return {
     expression: e.op('exists', t.user),
     direction: e.DESC,

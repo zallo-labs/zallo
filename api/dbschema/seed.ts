@@ -1,8 +1,7 @@
-import { ACCOUNT_ABI, asUAddress } from 'lib';
+import { ACCOUNT_ABI, asUAddress, isPresent } from 'lib';
 import e, { createClient } from './edgeql-js';
 import * as eql from './interfaces';
-import { TOKENS } from '../src/features/tokens/tokens.list';
-import { ERC20 } from 'lib/dapps';
+import { ERC20, TOKENS } from 'lib/dapps';
 import { getFunctionSelector, getFunctionSignature } from 'viem';
 import { AbiFunction } from 'abitype';
 import { isChain } from 'chains';
@@ -59,14 +58,15 @@ async function createContractFunctions() {
 
 async function upsertTokens() {
   const tokens = TOKENS.flatMap((t) =>
-    Object.keys(t.address).map((chain) => {
-      if (!isChain(chain)) throw new Error(`Unexpected token address map chain ${chain}`);
+    Object.keys(t.address)
+      .map((chain) => {
+        if (!isChain(chain)) throw new Error(`Unexpected token address map chain ${chain}`);
+        const address = asUAddress(t.address[chain], chain);
+        if (!address) return undefined;
 
-      return {
-        ...t,
-        address: asUAddress(t.address[chain], chain),
-      };
-    }),
+        return { ...t, address };
+      })
+      .filter(isPresent),
   );
 
   const toUpdate = await e

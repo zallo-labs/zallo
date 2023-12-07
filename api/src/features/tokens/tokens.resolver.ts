@@ -6,22 +6,23 @@ import { TokensService } from './tokens.service';
 import { GraphQLResolveInfo } from 'graphql';
 import { getShape } from '../database/database.select';
 import { uuid } from 'edgedb/dist/codecs/ifaces';
-import { Price } from '../prices/prices.model';
+import { Pricefeed } from '../prices/prices.model';
 import { ComputedField } from '~/decorators/computed.decorator';
 import { GraphQLBigInt } from 'graphql-scalars';
 import e from '~/edgeql-js';
 import * as eql from '~/edgeql-interfaces';
 import { PricesService } from '../prices/prices.service';
 import { getUserCtx } from '~/request/ctx';
-import { PaymasterService } from '../paymaster/paymaster.service';
+import { PaymastersService } from '../paymasters/paymasters.service';
 import { asAddress, asChain } from 'lib';
 import { BalancesService } from '~/features/util/balances/balances.service';
+import { FeesPerGas } from '~/features/paymasters/paymasters.model';
 
 @Resolver(() => Token)
 export class TokensResolver {
   constructor(
     private service: TokensService,
-    private paymaster: PaymasterService,
+    private paymaster: PaymastersService,
     private balances: BalancesService,
     private prices: PricesService,
   ) {}
@@ -51,23 +52,20 @@ export class TokensResolver {
     return this.balances.balance({ account, token: asAddress(token) });
   }
 
-  @ComputedField<typeof e.Token>(
-    () => Price,
-    { address: true, ethereumAddress: true },
-    { nullable: true },
-  )
-  async price(@Parent() { address, ethereumAddress }: Token): Promise<Price | null> {
-    return this.prices.price(address, ethereumAddress);
+  @ComputedField<typeof e.Token>(() => Pricefeed, { pythUsdPriceId: true }, { nullable: true })
+  async price(@Parent() { pythUsdPriceId }: Token): Promise<Pricefeed | null> {
+    if (!pythUsdPriceId) return null;
+    return this.prices.feed(pythUsdPriceId);
   }
 
   @ComputedField<typeof e.Token>(
-    () => GraphQLBigInt,
+    () => FeesPerGas,
     { address: true, isFeeToken: true },
     { nullable: true },
   )
-  async gasPrice(@Parent() { address, isFeeToken }: Token): Promise<bigint | null> {
+  async estimatedFeesPerGas(@Parent() { address, isFeeToken }: Token): Promise<FeesPerGas | null> {
     if (!isFeeToken) return null;
-    return this.paymaster.getGasPrice(address);
+    return this.paymaster.estimateFeesPerGas(address);
   }
 
   @ComputedField<typeof e.Token>(() => Boolean, { user: true })

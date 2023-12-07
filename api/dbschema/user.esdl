@@ -76,6 +76,7 @@ module default {
     iconUri: str;
     units: array<tuple<symbol: Label, decimals: uint16>>;
     required isFeeToken: bool { default := false; };
+    pythUsdPriceId: Bytes32;
     required property chain := as_chain(.address);
 
     constraint exclusive on ((.user, .address));
