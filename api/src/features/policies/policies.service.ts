@@ -39,7 +39,11 @@ import {
   SatisfiabilityResult,
   Policy as PolicyModel,
 } from './policies.model';
-import { transactionProposalAsTx } from '../transaction-proposals/transaction-proposals.uitl';
+import {
+  proposalTxShape,
+  transactionProposalAsTx,
+  ProposalTxShape,
+} from '../transaction-proposals/transaction-proposals.util';
 import { and, isExclusivityConstraintViolation } from '../database/database.util';
 import { selectAccount } from '../accounts/accounts.util';
 import { err, fromPromise, ok } from 'neverthrow';
@@ -323,18 +327,10 @@ export class PoliciesService {
       return { result: Satisfiability.unsatisfiable, reasons: [{ reason: 'Policy inactive' }] };
 
     const proposal = await this.db.query(
-      e.select(e.Proposal, () => ({
+      e.select(e.Proposal, (p) => ({
         filter_single: { hash: proposalHash },
         approvals: { approver: { address: true } },
-        ...e.is(e.TransactionProposal, {
-          operations: {
-            to: true,
-            value: true,
-            data: true,
-          },
-          nonce: true,
-          gasLimit: true,
-        }),
+        ...e.is(e.TransactionProposal, proposalTxShape(p)),
       })),
     );
     if (!proposal)
@@ -343,15 +339,10 @@ export class PoliciesService {
     const p = policyStateAsPolicy(key, state);
     const approvals = new Set(proposal.approvals.map((a) => asAddress(a.approver.address)));
 
-    return proposal.operations !== null && proposal.nonce !== null && proposal.gasLimit !== null
+    return proposal.operations
       ? getTransactionSatisfiability(
           p,
-          transactionProposalAsTx({
-            ...proposal,
-            operations: proposal.operations!,
-            nonce: proposal.nonce!,
-            gasLimit: proposal.gasLimit!,
-          }),
+          transactionProposalAsTx(proposal as ProposalTxShape),
           approvals,
         )
       : getMessageSatisfiability(p, approvals);

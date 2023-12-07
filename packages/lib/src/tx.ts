@@ -1,14 +1,19 @@
-import { Address, UAddress, asAddress, asChain } from './address';
+import { Address, ETH_ADDRESS, UAddress, asAddress, asChain } from './address';
 import { CHAINS } from 'chains';
-import { Operation, encodeOperationsData } from './operation';
+import { Operation, encodeOperations } from './operation';
 import _ from 'lodash';
 import { hashTypedData, TypedData, TypedDataDefinition, TypedDataDomain } from 'viem';
+import { TypedDataToPrimitiveTypes } from 'abitype';
+import { PAYMASTER } from './contract';
+import { hashPaymasterInput } from '.';
 
 export interface Tx {
   operations: [Operation, ...Operation[]];
   nonce: bigint;
   gas?: bigint;
-  // TODO: add maxFeePerGas & maxPriorityFeePerGas
+  paymaster?: Address;
+  feeToken?: Address;
+  paymasterFee?: bigint;
 }
 
 export type TxOptions = Omit<Tx, 'operations'> &
@@ -19,19 +24,6 @@ export const asTx = (o: TxOptions): Tx => ({
   operations: 'operations' in o ? o.operations! : [_.pick(o, ['to', 'value', 'data'])],
 });
 
-export interface TransactionData extends Omit<Tx, 'operations'>, Operation {}
-
-export const asTransactionData = (account: Address, tx: Tx): TransactionData => ({
-  ...(tx.operations.length === 1
-    ? tx.operations[0]
-    : {
-        to: account,
-        data: encodeOperationsData(tx.operations),
-      }),
-  nonce: tx.nonce,
-  gas: tx.gas,
-});
-
 export const getAccountTypedDataDomain = (account: UAddress) =>
   ({
     chainId: CHAINS[asChain(account)].id,
@@ -39,15 +31,19 @@ export const getAccountTypedDataDomain = (account: UAddress) =>
   }) satisfies TypedDataDomain;
 
 export const TX_EIP712_TYPES = {
+  /* TODO: add fields */
+  // maxPriorityFeePerGas
+  // gasPerPubdataByteLimit
+
   /* Consider: */
+  // gas: difficult as verification gas depends on executing policy... Griefing danger?
+  // maxGas: gas must be <=; this would allow a wide range of gas limits without the downside of setting a high gas limit
+
   // Encoding operations (to, value, data)[] instead of packed operations
   // Pros: improve HW wallet signing readability; allowing changing operation encoding without changing the Tx hashing
   // Cons: higher gas - but likely by very little?
 
   /* Fields NOT included: */
-  // gas: not dangerous and can't be predicted due to approvals requiring gas; maxGas could be implemented instead
-  // gasPerPubdataByteLimit: maybe it should be?
-  // paymasterInput: minimalAllowance can't be predicted and changing fee token would require re-signing
   // factoryDeps: not dangerous
   // reserved:        maybe it should be? Currently unused by zkSync
   // reservedDynamic: ^
@@ -56,26 +52,32 @@ export const TX_EIP712_TYPES = {
     { name: 'value', type: 'uint256' },
     { name: 'data', type: 'bytes' },
     { name: 'nonce', type: 'uint256' },
-    // TODO: add fields
-    // maxFeePerGas
-    // maxPriorityFeePerGas
-    // paymaster
+    { name: 'paymaster', type: 'address' },
+    { name: 'paymasterInputHash', type: 'bytes32' },
   ] as const,
 } satisfies TypedData;
 
-export const getTransactionTypedDataMessage = (tx: Tx, account: Address) => {
-  const { to, value = 0n, data = '0x', nonce } = asTransactionData(account, tx);
-
-  return { to, value, data, nonce } satisfies TransactionData;
-};
+export type TxTypedDataMessage = TypedDataToPrimitiveTypes<typeof TX_EIP712_TYPES>['Tx'];
 
 export function asTypedData(account: UAddress, tx: Tx) {
+  const message = {
+    ...encodeOperations(asAddress(account), tx.operations),
+    nonce: tx.nonce,
+    paymaster: tx.paymaster ?? PAYMASTER.address[asChain(account)],
+    paymasterInputHash: hashPaymasterInput({
+      token: tx.feeToken ?? ETH_ADDRESS,
+      paymasterFee: tx.paymasterFee ?? 0n,
+    }),
+  } satisfies TxTypedDataMessage;
+
   return {
     domain: getAccountTypedDataDomain(account),
     types: TX_EIP712_TYPES,
     primaryType: 'Tx' as const,
-    message: getTransactionTypedDataMessage(tx, asAddress(account)),
+    message,
   } satisfies TypedDataDefinition;
 }
 
-export const hashTx = (account: UAddress, tx: Tx) => hashTypedData(asTypedData(account, tx));
+export function hashTx(...params: Parameters<typeof asTypedData>) {
+  return hashTypedData(asTypedData(...params));
+}

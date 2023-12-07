@@ -35,7 +35,7 @@ export class ProposeTransactionInput {
   account: UAddress;
 
   @Field(() => [OperationInput])
-  operations: OperationInput[];
+  operations: [OperationInput, ...OperationInput[]];
 
   @Field(() => String, { nullable: true })
   label?: string;
@@ -47,7 +47,7 @@ export class ProposeTransactionInput {
   validFrom?: Date;
 
   @Uint256Field({ nullable: true })
-  gasLimit?: bigint;
+  gas?: bigint;
 
   @AddressField({ nullable: true })
   feeToken?: Address;

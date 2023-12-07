@@ -119,6 +119,8 @@ module default {
       on source delete delete target;
     }
     required gasLimit: uint256 { default := 0n; }
+    required paymaster: Address;
+    required paymasterFee: uint256 { default := 0n; }
     required feeToken: Token;
     simulation: Simulation { constraint exclusive; }
     multi link transactions := .<proposal[is Transaction];

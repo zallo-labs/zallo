@@ -207,8 +207,15 @@ A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date
 """
 scalar DateTime
 
+"""Decimal"""
+scalar Decimal
+
 interface Err {
   message: String!
+}
+
+input EstimateFeesPerGasInput {
+  feeToken: UAddress!
 }
 
 union Event = Transfer | TransferApproval
@@ -223,6 +230,12 @@ interface EventBase {
 
 input ExecuteInput {
   proposalHash: Bytes32!
+}
+
+type FeesPerGas {
+  decimals: Float!
+  maxFeePerGas: Decimal!
+  maxPriorityFeePerGas: Decimal!
 }
 
 type GenericOp {
@@ -374,9 +387,15 @@ type PolicyState {
 }
 
 type Price {
-  current: Float!
+  current: Decimal!
+  ema: Decimal!
   id: ID!
-  token: UAddress!
+}
+
+type Pricefeed {
+  eth: Price!
+  id: ID!
+  usd: Price!
 }
 
 interface Proposal implements Node {
@@ -449,7 +468,7 @@ input ProposeMessageInput {
 input ProposeTransactionInput {
   account: UAddress!
   feeToken: Address
-  gasLimit: Uint256
+  gas: Uint256
   iconUri: String
   label: String
   operations: [OperationInput!]!
@@ -468,10 +487,10 @@ type Query {
   contacts(input: ContactsInput! = {}): [Contact!]!
   contract(input: ContractInput!): Contract
   contractFunction(input: ContractFunctionInput!): ContractFunction
+  estimateFeesPerGas(input: EstimateFeesPerGasInput!): FeesPerGas
   label(input: LabelInput!): String
   labelAvailable(input: LabelAvailableInput!): Boolean!
   messageProposal(input: ProposalInput!): MessageProposal
-  paymaster: Address!
   policies(input: PoliciesInput! = {}): [Policy!]!
   policy(input: UniquePolicyInput!): Policy
   proposal(input: ProposalInput!): Proposal
@@ -560,7 +579,7 @@ type SimulationTransfer implements TransferDetails {
   to: Address!
   token: Token
   tokenAddress: UAddress!
-  value: Float
+  value: Decimal
 }
 
 type Subscription {
@@ -584,13 +603,13 @@ type Token implements Node {
   address: UAddress!
   balance(input: BalanceInput!): BigInt!
   decimals: Float!
-  ethereumAddress: Address
-  gasPrice: BigInt
+  estimatedFeesPerGas: FeesPerGas
   iconUri: String
   id: ID!
   isFeeToken: Boolean!
   name: String!
-  price: Price
+  price: Pricefeed
+  pythUsdPriceId: Bytes32
   removable: Boolean!
   symbol: String!
   units: [TokenUnit!]
@@ -603,10 +622,10 @@ input TokenInput {
 
 type TokenMetadata {
   decimals: Float
-  ethereumAddress: Address
   iconUri: String
   id: ID!
   name: String
+  pythUsdPriceId: Bytes32
   symbol: String
 }
 
@@ -689,7 +708,7 @@ type Transfer implements EventBase & TransferDetails & Transferlike {
   to: Address!
   token: Token
   tokenAddress: UAddress!
-  value: Float
+  value: Decimal
 }
 
 type TransferApproval implements EventBase & TransferDetails & Transferlike {
@@ -704,7 +723,7 @@ type TransferApproval implements EventBase & TransferDetails & Transferlike {
   to: Address!
   token: Token
   tokenAddress: UAddress!
-  value: Float
+  value: Decimal
 }
 
 type TransferApprovalOp {
@@ -723,7 +742,7 @@ interface TransferDetails {
   to: Address!
   token: Token
   tokenAddress: UAddress!
-  value: Float
+  value: Decimal
 }
 
 enum TransferDirection {
@@ -784,7 +803,7 @@ interface Transferlike implements EventBase & TransferDetails {
   to: Address!
   token: Token
   tokenAddress: UAddress!
-  value: Float
+  value: Decimal
 }
 
 type TransfersConfig {
@@ -892,9 +911,9 @@ input UpsertContactInput {
 input UpsertTokenInput {
   address: UAddress!
   decimals: Float
-  ethereumAddress: Address
   iconUri: String
   name: String
+  pythUsdPriceId: Bytes32
   symbol: String
   units: [TokenUnitInput!]! = []
 }

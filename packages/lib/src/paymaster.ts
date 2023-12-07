@@ -1,13 +1,14 @@
 import {
   CompactSignature,
   TypedDataDefinition,
+  encodeAbiParameters,
   encodeFunctionData,
   getAbiItem,
-  hashTypedData,
+  keccak256,
 } from 'viem';
 import { abi as flowAbi } from './generated/IPaymasterFlow';
 import { abi as paymasterUtilAbi } from './generated/TestPaymasterUtil';
-import { AbiParameterToPrimitiveType, TypedData } from 'abitype';
+import { AbiParameterToPrimitiveType, TypedData, parseAbiParameters } from 'abitype';
 import { Hex } from './bytes';
 import { Address, UAddress, asAddress, asChain } from './address';
 import { CHAINS } from 'chains';
@@ -66,4 +67,18 @@ export function paymasterSignedDataAsTypedData({
     primaryType: 'SignedData' as const,
     message,
   } satisfies TypedDataDefinition;
+}
+
+export interface HashPaymasterInputParams {
+  token: Address;
+  paymasterFee: bigint;
+}
+
+export function hashPaymasterInput(params: HashPaymasterInputParams) {
+  return keccak256(
+    encodeAbiParameters(parseAbiParameters('address token, uint256 paymasterFee'), [
+      params.token,
+      params.paymasterFee,
+    ]),
+  );
 }

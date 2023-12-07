@@ -56,7 +56,6 @@ export default {
   abiExporter: {
     path: './abi',
     runOnCompile: false,
-    flat: true,
     clear: true,
   },
   gasReporter: {

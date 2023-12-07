@@ -4,6 +4,7 @@ import * as accountArtifact from './generated/Account';
 import * as accountProxyArtifact from './generated/AccountProxy';
 import * as accountProxyFactoryArtifact from './generated/Factory';
 import * as testVerifierArtifact from './generated/TestVerifier';
+import * as paymasterArtifact from './generated/Paymaster';
 
 export const TEST_VERIFIER_ABI = testVerifierArtifact.abi;
 
@@ -40,3 +41,10 @@ function addresses(
     'zksync-local': m['zksync-local'] ?? m['zksync-goerli'], // Expects a zksync-local node to be forked from zksync-goerli
   };
 }
+
+export const PAYMASTER = {
+  abi: paymasterArtifact.abi,
+  address: addresses({
+    'zksync-goerli': '0xC65c14251205a3f95a11840eEA22Ec6304bCc463',
+  }),
+};

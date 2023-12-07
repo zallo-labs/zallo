@@ -3,7 +3,7 @@ import { UserInputError } from '@nestjs/apollo';
 import {
   hashTx,
   isHex,
-  asTx,
+  Tx,
   estimateTransactionOperationsGas,
   FALLBACK_OPERATIONS_GAS,
   asAddress,
@@ -15,7 +15,6 @@ import {
 import { NetworksService } from '~/features/util/networks/networks.service';
 import { TransactionsService } from '../transactions/transactions.service';
 import {
-  OperationInput,
   ProposeTransactionInput,
   TransactionProposalsInput,
   UpdateTransactionProposalInput,
@@ -29,6 +28,7 @@ import { selectAccount } from '../accounts/accounts.util';
 import { ProposalsService, UniqueProposal } from '../proposals/proposals.service';
 import { ApproveInput, ProposalEvent } from '../proposals/proposals.input';
 import { SimulationsService } from '../simulations/simulations.service';
+import { PaymastersService } from '~/features/paymasters/paymasters.service';
 
 export const selectTransactionProposal = (
   id: UniqueProposal,
@@ -49,6 +49,7 @@ export class TransactionProposalsService {
     @Inject(forwardRef(() => TransactionsService))
     private transactions: TransactionsService,
     private simulations: SimulationsService,
+    private paymasters: PaymastersService,
   ) {}
 
   async selectUnique(id: UniqueProposal, shape?: ShapeFunc<typeof e.TransactionProposal>) {
@@ -81,18 +82,22 @@ export class TransactionProposalsService {
     label,
     iconUri,
     validFrom = new Date(),
-    gasLimit,
+    gas,
     feeToken = ETH_ADDRESS,
   }: Omit<ProposeTransactionInput, 'signature'>) {
     if (!operations.length) throw new UserInputError('No operations provided');
 
     const selectedAccount = selectAccount(account);
-    const tx = asTx({
-      operations: operations as [OperationInput, ...OperationInput[]],
-      nonce: BigInt(Math.floor(validFrom.getTime() / 1000)),
-    });
-    const hash = hashTx(account, tx);
     const network = this.networks.for(account);
+    const tx = {
+      operations,
+      nonce: BigInt(Math.floor(validFrom.getTime() / 1000)),
+      gas,
+      feeToken,
+      paymaster: this.paymasters.for(network.chain.key),
+      paymasterFee: await this.paymasters.fee(operations),
+    } satisfies Tx;
+    const hash = hashTx(account, tx);
 
     const insert = e.insert(e.TransactionProposal, {
       hash,
@@ -110,10 +115,12 @@ export class TransactionProposalsService {
       ),
       validFrom,
       gasLimit:
-        gasLimit ||
+        gas ||
         (
           await estimateTransactionOperationsGas({ account: asAddress(account), tx, network })
         ).unwrapOr(FALLBACK_OPERATIONS_GAS),
+      paymaster: tx.paymaster,
+      paymasterFee: tx.paymasterFee,
       feeToken: e.assert_single(
         e.select(e.Token, (t) => ({
           filter: and(

@@ -77,25 +77,4 @@ abstract contract PriceOracle {
       return uint256(uint64(price.price)) / 10 ** uint32(priceDecimals - NORMALIZED_DECIMALS);
     }
   }
-
-  // function _tokenAmountAsEth(address token, uint256 amount) internal returns (uint256 ethAmount) {
-  //   if (amount == 0) return 0;
-  //   if (token == ETH) return amount;
-
-  //   uint256 ethUSD = _price(ETH_USD_PRICE_ID);
-  //   if (token == DAI) return _toEth(DAI_USD_PRICE_ID, ethUSD, amount);
-  //   if (token == USDC) return _toEth(USDC_USD_PRICE_ID, ethUSD, amount);
-  //   if (token == WETH) return _toEth(WETH_USD_PRICE_ID, ethUSD, amount);
-  //   if (token == RETH) return _toEth(RETH_USD_PRICE_ID, ethUSD, amount);
-  //   if (token == CBETH) return _toEth(CBETH_USD_PRICE_ID, ethUSD, amount);
-  // }
-
-  // function _toEth(
-  //   bytes32 tokenUSDPriceId,
-  //   uint256 ethUSD,
-  //   uint256 tokenAmount
-  // ) private view returns (uint256 ethAmount) {
-  //   uint256 tokenUSD = _price(tokenUSDPriceId);
-  //   return (ethUSD / tokenUSD) * tokenAmount;
-  // }
 }

@@ -9,10 +9,13 @@ export const proposalTxShape = e.shape(e.TransactionProposal, () => ({
   },
   nonce: true,
   gasLimit: true,
+  paymaster: true,
+  paymasterFee: true,
+  feeToken: { address: true },
 }));
 
 const s = e.select(e.TransactionProposal, proposalTxShape);
-type ProposalTxShape = NonNullable<$infer<typeof s>>[0];
+export type ProposalTxShape = NonNullable<$infer<typeof s>>[0];
 
 export const transactionProposalAsTx = (p: ProposalTxShape) =>
   asTx({
@@ -25,4 +28,7 @@ export const transactionProposalAsTx = (p: ProposalTxShape) =>
     ) as [Operation, ...Operation[]],
     nonce: p.nonce,
     gas: p.gasLimit,
+    paymaster: asAddress(p.paymaster),
+    paymasterFee: p.paymasterFee,
+    feeToken: asAddress(p.feeToken.address),
   });

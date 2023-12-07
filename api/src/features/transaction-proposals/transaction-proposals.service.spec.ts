@@ -104,7 +104,7 @@ describe(TransactionProposalsService.name, () => {
         .run(db.client);
     }
 
-    return service.propose({ account, operations, gasLimit: 1n, ...params });
+    return service.propose({ account, operations, gas: 1n, ...params });
   };
 
   describe('propose', () => {

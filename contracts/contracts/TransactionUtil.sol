@@ -7,6 +7,7 @@ import {Policy} from './policy/Policy.sol';
 import {Approvals} from './policy/ApprovalsVerifier.sol';
 import {Hook} from './policy/hooks/Hooks.sol';
 import {Cast} from './libraries/Cast.sol';
+import {PaymasterUtil} from './paymaster/PaymasterUtil.sol';
 
 struct Operation {
   address to;
@@ -22,13 +23,23 @@ library TransactionUtil {
     keccak256('EIP712Domain(uint256 chainId,address verifyingContract)');
 
   bytes32 private constant TX_TYPE_HASH =
-    keccak256('Tx(address to,uint256 value,bytes data,uint256 nonce)');
+    keccak256(
+      'Tx(address to,uint256 value,bytes data,uint256 nonce,address paymaster,bytes32 paymasterInputHash)'
+    );
 
   bytes4 private constant OPERATIONS_SELECTOR = bytes4(0);
 
   function hash(Transaction calldata t) internal view returns (bytes32) {
     bytes32 structHash = keccak256(
-      abi.encode(TX_TYPE_HASH, t.to, t.value, keccak256(t.data), _proposalNonce(t))
+      abi.encode(
+        TX_TYPE_HASH,
+        t.to,
+        t.value,
+        keccak256(t.data),
+        _proposalNonce(t),
+        t.paymaster,
+        PaymasterUtil.hash(t.paymasterInput)
+      )
     );
 
     return keccak256(abi.encodePacked('\x19\x01', _domainSeparator(), structHash));

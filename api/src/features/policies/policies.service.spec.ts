@@ -78,6 +78,7 @@ describe(PoliciesService.name, () => {
           account: e.select(e.Account, () => ({ filter_single: { address: account } })),
           operations: e.insert(e.Operation, { to: ZERO_ADDR }),
           validFrom: new Date(),
+          paymaster: ZERO_ADDR,
           feeToken: e.assert_single(
             e.select(e.Token, (t) => ({
               filter: t.isFeeToken,

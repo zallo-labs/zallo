@@ -17,7 +17,7 @@ export function isHex(v: unknown, size?: number): v is Hex {
 export function asHex<V extends string | null | undefined>(v: V, size?: number) {
   if (!isHex(v, size) && !(v === null || v === undefined))
     throw new Error(`Expected Hex but got "${v}"`);
-  return v as unknown as V extends undefined ? Hex | undefined : Hex;
+  return (v ?? undefined) as unknown as V extends null | undefined ? Hex | undefined : Hex;
 }
 export function randomHex(n: number) {
   return bytesToHex(getRandomValues(new Uint8Array(n)));

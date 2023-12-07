@@ -15,7 +15,6 @@ import {
   asApproval,
   asAddress,
   asUAddress,
-  isEthToken,
 } from 'lib';
 import { NetworksService } from '~/features/util/networks/networks.service';
 import { selectTransactionProposal } from '../transaction-proposals/transaction-proposals.service';
@@ -28,14 +27,13 @@ import {
 } from '../policies/policies.util';
 import { DatabaseService } from '../database/database.service';
 import e from '~/edgeql-js';
-import _ from 'lodash';
 import { ShapeFunc } from '../database/database.select';
 import { UserInputError } from '@nestjs/apollo';
-import { PaymasterService } from '../paymaster/paymaster.service';
+import { PaymastersService } from '../paymasters/paymasters.service';
 import {
   proposalTxShape,
   transactionProposalAsTx,
-} from '../transaction-proposals/transaction-proposals.uitl';
+} from '../transaction-proposals/transaction-proposals.util';
 import { selectApprover } from '../approvers/approvers.service';
 import { ProposalsService, UniqueProposal } from '../proposals/proposals.service';
 import { ProposalEvent } from '../proposals/proposals.input';
@@ -48,7 +46,7 @@ export class TransactionsService {
     @InjectQueue(TRANSACTIONS_QUEUE.name)
     private transactionsQueue: Queue<TransactionEvent>,
     private proposals: ProposalsService,
-    private paymaster: PaymasterService,
+    private paymaster: PaymastersService,
   ) {}
 
   async selectUnique(txHash: Hex, shape?: ShapeFunc<typeof e.Transaction>) {
@@ -75,6 +73,7 @@ export class TransactionsService {
         hash: true,
         ...proposalTxShape(p),
         feeToken: { address: true },
+        paymasterFee: true,
         approvals: {
           approver: { address: true },
           signature: true,
@@ -141,10 +140,12 @@ export class TransactionsService {
       tx,
       policy,
       approvals,
-      ...(await this.paymaster.params({
-        feeToken: asUAddress(proposal.feeToken.address),
+      ...(await this.paymaster.getCurrentParams({
+        account,
+        zksyncNonce: BigInt(await network.getTransactionCount({ address: asAddress(account) })),
         gas: tx.gas,
-        maxFeePerGas,
+        feeToken: asAddress(proposal.feeToken.address),
+        paymasterFee: proposal.paymasterFee,
       }))!,
     });
     const transaction = transactionResult._unsafeUnwrap(); // TODO: handle failed transaction submission

@@ -46,7 +46,7 @@ export class PoliciesEventsProcessor {
               ps.proposal,
               '?=', // Returns {false} rather than {} if one doesn't exist
               e.select(e.Transaction, () => ({
-                filter_single: { hash: asHex(log.transactionHash) },
+                filter_single: { hash: asHex(log.transactionHash!) },
                 proposal: { id: true },
               })).proposal,
             ),
