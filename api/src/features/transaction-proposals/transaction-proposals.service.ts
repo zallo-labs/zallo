@@ -11,6 +11,7 @@ import {
   asUAddress,
   asChain,
   ETH_ADDRESS,
+  asFp,
 } from 'lib';
 import { NetworksService } from '~/features/util/networks/networks.service';
 import { TransactionsService } from '../transactions/transactions.service';
@@ -29,6 +30,7 @@ import { ProposalsService, UniqueProposal } from '../proposals/proposals.service
 import { ApproveInput, ProposalEvent } from '../proposals/proposals.input';
 import { SimulationsService } from '../simulations/simulations.service';
 import { PaymastersService } from '~/features/paymasters/paymasters.service';
+import { ETH } from 'lib/dapps';
 
 export const selectTransactionProposal = (
   id: UniqueProposal,
@@ -87,21 +89,21 @@ export class TransactionProposalsService {
   }: Omit<ProposeTransactionInput, 'signature'>) {
     if (!operations.length) throw new UserInputError('No operations provided');
 
-    const selectedAccount = selectAccount(account);
     const network = this.networks.for(account);
+    const paymasterFee = this.paymasters.fee(operations);
     const tx = {
       operations,
       nonce: BigInt(Math.floor(validFrom.getTime() / 1000)),
       gas,
       feeToken,
       paymaster: this.paymasters.for(network.chain.key),
-      paymasterFee: await this.paymasters.fee(operations),
+      paymasterFee: asFp(paymasterFee, ETH),
     } satisfies Tx;
     const hash = hashTx(account, tx);
 
     const insert = e.insert(e.TransactionProposal, {
       hash,
-      account: selectedAccount,
+      account: selectAccount(account),
       label,
       iconUri,
       operations: e.set(
@@ -120,7 +122,7 @@ export class TransactionProposalsService {
           await estimateTransactionOperationsGas({ account: asAddress(account), tx, network })
         ).unwrapOr(FALLBACK_OPERATIONS_GAS),
       paymaster: tx.paymaster,
-      paymasterFee: tx.paymasterFee,
+      paymasterFee: e.decimal(paymasterFee.toString()),
       feeToken: e.assert_single(
         e.select(e.Token, (t) => ({
           filter: and(

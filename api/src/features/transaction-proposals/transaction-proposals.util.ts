@@ -1,4 +1,6 @@
-import { Operation, asAddress, asHex, asTx } from 'lib';
+import Decimal from 'decimal.js';
+import { Operation, asAddress, asFp, asHex, asTx } from 'lib';
+import { ETH } from 'lib/dapps';
 import e, { $infer } from '~/edgeql-js';
 
 export const proposalTxShape = e.shape(e.TransactionProposal, () => ({
@@ -29,6 +31,6 @@ export const transactionProposalAsTx = (p: ProposalTxShape) =>
     nonce: p.nonce,
     gas: p.gasLimit,
     paymaster: asAddress(p.paymaster),
-    paymasterFee: p.paymasterFee,
+    paymasterFee: asFp(new Decimal(p.paymasterFee), ETH),
     feeToken: asAddress(p.feeToken.address),
   });

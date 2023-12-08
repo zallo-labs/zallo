@@ -13,10 +13,16 @@ import { Input } from '~/decorators/input.decorator';
 import { uuid } from 'edgedb/dist/codecs/ifaces';
 import { ComputedField } from '~/decorators/computed.decorator';
 import { ApproveInput, ProposalInput } from '../proposals/proposals.input';
+import { DecimalScalar } from '~/apollo/scalars/Decimal.scalar';
+import { PaymastersService } from '~/features/paymasters/paymasters.service';
+import Decimal from 'decimal.js';
 
 @Resolver(() => TransactionProposal)
 export class TransactionProposalsResolver {
-  constructor(private service: TransactionProposalsService) {}
+  constructor(
+    private service: TransactionProposalsService,
+    private paymasters: PaymastersService,
+  ) {}
 
   @Query(() => TransactionProposal, { nullable: true })
   async transactionProposal(@Input() { hash }: ProposalInput, @Info() info: GraphQLResolveInfo) {
@@ -36,6 +42,14 @@ export class TransactionProposalsResolver {
     return (
       status === TransactionProposalStatus.Pending || status === TransactionProposalStatus.Failed
     );
+  }
+
+  @ComputedField<typeof e.TransactionProposal>(() => DecimalScalar, {
+    account: { address: true },
+    gasLimit: true,
+  })
+  async estimateDiscount(@Parent() { account, gasLimit }: TransactionProposal): Promise<Decimal> {
+    return this.paymasters.estimateDiscount(account.address, gasLimit);
   }
 
   @Mutation(() => TransactionProposal)

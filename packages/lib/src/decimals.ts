@@ -8,12 +8,18 @@ const ten = new Decimal(10);
 
 export function asFp(
   amount: Decimal,
-  decimals: number,
+  decimals: Decimalslike,
   rounding: Decimal.Rounding = Decimal.ROUND_UP,
 ) {
-  return BigInt(amount.mul(ten.pow(decimals)).toFixed(0, rounding));
+  return BigInt(amount.mul(ten.pow(getDecimals(decimals))).toFixed(0, rounding));
 }
 
-export function fromFp(amount: bigint, decimals: number) {
-  return new Decimal(amount.toString()).div(ten.pow(decimals));
+export function asDecimal(amount: bigint, decimals: Decimalslike) {
+  return new Decimal(amount.toString()).div(ten.pow(getDecimals(decimals)));
+}
+
+type Decimalslike = number | { decimals: number };
+
+function getDecimals(d: Decimalslike) {
+  return typeof d === 'number' ? d : d.decimals;
 }

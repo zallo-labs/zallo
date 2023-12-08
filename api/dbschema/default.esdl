@@ -20,6 +20,7 @@ module default {
     required salt: Bytes32;
     required isActive: bool;
     photoUri: str;
+    required paymasterEthCredit: Amount { default := 0.0n }
     required property chain := as_chain(.address);
     multi link policies := (select .<account[is Policy] filter .isEnabled);
     multi link proposals := .<account[is Proposal];
@@ -119,9 +120,9 @@ module default {
       on source delete delete target;
     }
     required gasLimit: uint256 { default := 0n; }
-    required paymaster: Address;
-    required paymasterFee: uint256 { default := 0n; }
     required feeToken: Token;
+    required paymaster: Address;
+    required paymasterFee: Amount { default := 0.0n; }
     simulation: Simulation { constraint exclusive; }
     multi link transactions := .<proposal[is Transaction];
     link transaction := (select .transactions order by .submittedAt desc limit 1);
@@ -200,7 +201,8 @@ module default {
   type Transaction {
     required hash: Bytes32 { constraint exclusive; }
     required proposal: TransactionProposal;
-    required gasPrice: uint256;
+    required maxFeePerGas: Amount;
+    required discount: Amount { default := 0.0n; }
     required submittedAt: datetime {
       readonly := true;
       default := datetime_of_statement();
@@ -224,6 +226,11 @@ module default {
     multi link events := .transaction.events;
     multi link transferEvents := .events[is Transfer];
     multi link transferApprovalEvents := .events[is TransferApproval];
+  }
+
+  type Refund {
+    required link transaction: Transaction { constraint exclusive; }
+    required ethAmount: Amount;
   }
 
   type Contract {

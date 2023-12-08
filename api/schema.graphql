@@ -663,6 +663,7 @@ type TransactionProposal implements Node & Proposal {
   account: Account!
   approvals: [Approval!]!
   createdAt: DateTime!
+  estimateDiscount: Decimal!
   feeToken: Token!
   gasLimit: BigInt!
   hash: Bytes32!

@@ -37,6 +37,7 @@ import {
 import { selectApprover } from '../approvers/approvers.service';
 import { ProposalsService, UniqueProposal } from '../proposals/proposals.service';
 import { ProposalEvent } from '../proposals/proposals.input';
+import Decimal from 'decimal.js';
 
 @Injectable()
 export class TransactionsService {
@@ -133,40 +134,50 @@ export class TransactionsService {
     );
     if (!policy) return undefined;
 
-    const maxFeePerGas = (await network.estimateFeesPerGas()).maxFeePerGas!;
-    const transactionResult = await executeTransaction({
-      network,
-      account: asAddress(account),
-      tx,
-      policy,
-      approvals,
-      ...(await this.paymaster.getCurrentParams({
+    const transaction = await this.db.transaction(async (db) => {
+      const discount = await this.paymaster.useDiscount(account, tx.gas);
+
+      const { paymaster, paymasterInput, fees } = await this.paymaster.currentParams({
         account,
         zksyncNonce: BigInt(await network.getTransactionCount({ address: asAddress(account) })),
         gas: tx.gas,
         feeToken: asAddress(proposal.feeToken.address),
-        paymasterFee: proposal.paymasterFee,
-      }))!,
+        paymasterFee: new Decimal(proposal.paymasterFee),
+        discount,
+      });
+
+      const transactionResult = await executeTransaction({
+        network,
+        account: asAddress(account),
+        tx,
+        policy,
+        approvals,
+        paymaster,
+        paymasterInput,
+      });
+      const transaction = transactionResult._unsafeUnwrap(); // TODO: handle failed transaction submission
+
+      // Set executing policy if not already set
+      const selectedProposal = proposal.policy?.state
+        ? selectTransactionProposal(proposal.id)
+        : e.update(e.TransactionProposal, () => ({
+            filter_single: { id: proposal.id },
+            set: {
+              policy: selectPolicy({ account, key: policy.key }),
+            },
+          }));
+
+      await e
+        .insert(e.Transaction, {
+          hash: transaction,
+          proposal: selectedProposal,
+          maxFeePerGas: e.decimal(fees.maxFeePerGas.toString()),
+          discount: e.decimal(discount.toString()),
+        })
+        .run(db);
+
+      return transaction;
     });
-    const transaction = transactionResult._unsafeUnwrap(); // TODO: handle failed transaction submission
-
-    // Set executing policy if not already set
-    const selectedProposal = proposal.policy?.state
-      ? selectTransactionProposal(proposal.id)
-      : e.update(e.TransactionProposal, () => ({
-          filter_single: { id: proposal.id },
-          set: {
-            policy: selectPolicy({ account, key: policy.key }),
-          },
-        }));
-
-    await this.db.query(
-      e.insert(e.Transaction, {
-        hash: transaction,
-        proposal: selectedProposal,
-        gasPrice: maxFeePerGas,
-      }),
-    );
 
     await this.proposals.publishProposal(
       { hash: asHex(proposal.hash), account: asUAddress(proposal.account.address) },

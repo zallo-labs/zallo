@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { TransactionsProcessor } from './transactions.processor';
 import { TRANSACTIONS_QUEUE } from './transactions.queue';
 import { TransactionsService } from './transactions.service';
@@ -9,7 +9,11 @@ import { registerBullQueue } from '../util/bull/bull.util';
 import { ProposalsModule } from '../proposals/proposals.module';
 
 @Module({
-  imports: [...registerBullQueue(TRANSACTIONS_QUEUE), ProposalsModule, PaymastersModule],
+  imports: [
+    ...registerBullQueue(TRANSACTIONS_QUEUE),
+    ProposalsModule,
+    forwardRef(() => PaymastersModule),
+  ],
   exports: [TransactionsService, TransactionsProcessor],
   providers: [TransactionsService, TransactionsResolver, TransactionsProcessor, TransactionsEvents],
 })
