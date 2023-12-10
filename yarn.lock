@@ -18122,6 +18122,7 @@ __metadata:
     chai: "npm:^4.3.10"
     chai-as-promised: "npm:^7.1.1"
     chains: "workspace:*"
+    chalk: "npm:^4.1.2"
     dotenv: "npm:^16.3.1"
     ethers: "npm:^6.9.0"
     fast-deep-equal: "npm:^3.1.3"

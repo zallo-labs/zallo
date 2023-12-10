@@ -26,6 +26,7 @@
     "chai": "^4.3.10",
     "chai-as-promised": "^7.1.1",
     "chains": "workspace:*",
+    "chalk": "^4.1.2",
     "dotenv": "^16.3.1",
     "ethers": "^6.9.0",
     "fast-deep-equal": "^3.1.3",
