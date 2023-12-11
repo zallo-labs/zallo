@@ -41,22 +41,26 @@ export async function serializeTransaction({
   approvals,
   ...params
 }: SerializeTransactionParams) {
+  const gas =
+    tx.gas ??
+    estimateTransactionTotalGas(
+      await estimateTransactionOperationsGas({ network, account, tx }).unwrapOr(
+        FALLBACK_OPERATIONS_GAS,
+      ),
+      approvals.length,
+    );
+
+  const { maxFeePerGas, maxPriorityFeePerGas } = await network.estimateFeesPerGas();
+
   return network.chain.serializers!.transaction!({
     type: 'eip712',
     from: account,
     ...encodeOperations(account, tx.operations),
     nonce: await network.getTransactionCount({ address: account }),
-    maxFeePerGas: (await network.estimateFeesPerGas()).maxFeePerGas,
-    maxPriorityFeePerGas: (await network.estimateFeesPerGas()).maxPriorityFeePerGas,
+    maxFeePerGas,
+    maxPriorityFeePerGas,
     gasPerPubdata: BigInt(zkUtils.DEFAULT_GAS_PER_PUBDATA_LIMIT),
-    gas:
-      tx.gas ??
-      estimateTransactionTotalGas(
-        await estimateTransactionOperationsGas({ network, account, tx }).unwrapOr(
-          FALLBACK_OPERATIONS_GAS,
-        ),
-        approvals.length,
-      ),
+    gas,
     chainId: network.chain.id,
     customSignature: encodeTransactionSignature(tx.nonce, policy, approvals),
     ...params,

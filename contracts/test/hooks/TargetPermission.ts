@@ -35,8 +35,8 @@ describe('TargetPermission', () => {
     });
 
   before(async () => {
-    verifier = (await deploy('TestVerifier')).address;
-    tester = (await deploy('TestUtil')).address;
+    verifier = (await deploy(TestVerifier)).address;
+    tester = (await deploy(TestUtil)).address;
     to = tester;
     data = encodeFunctionData({
       abi: TestUtil.abi,

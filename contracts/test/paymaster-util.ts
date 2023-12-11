@@ -8,7 +8,7 @@ import {
   paymasterSignedInput,
 } from 'lib';
 import { deploy, network, wallet } from './util';
-import { abi } from './contracts/TestPaymasterUtil';
+import TestPaymasterUtil, { abi } from './contracts/TestPaymasterUtil';
 import { expect } from 'chai';
 import { hexToSignature, signatureToCompactSignature } from 'viem';
 
@@ -21,7 +21,7 @@ describe('PaymasterUtil', async () => {
   let params: PayForTransactionParams;
 
   before(async () => {
-    address = (await deploy('TestPaymasterUtil')).address;
+    address = (await deploy(TestPaymasterUtil)).address;
     params = {
       token: wallet.account.address,
       amount: 1n,

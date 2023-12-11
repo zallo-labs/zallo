@@ -9,6 +9,7 @@ import { AbiParametersToPrimitiveTypes } from 'abitype';
 import { CONFIG } from '../config';
 import { DAI, ETH, PYTH, USDC, WETH, RETH, CBETH } from 'lib/dapps';
 import { zeroAddress } from 'viem';
+import Paymaster from '../test/contracts/Paymaster';
 
 const constructorAbi = abi.find((item) => item.type === 'constructor') as Extract<
   (typeof abi)[number],
@@ -23,7 +24,7 @@ async function main() {
   const constructorArgs = getArgs();
   console.log(constructorArgs);
 
-  const { address, deployTx } = await deploy('Paymaster', { constructorArgs });
+  const { address, deployTx } = await deploy(Paymaster, constructorArgs);
   await displayTx(address, deployTx);
 
   await verify({

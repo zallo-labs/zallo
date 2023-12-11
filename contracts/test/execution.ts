@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import { hashTx, asAddress, asTx, Address, ACCOUNT_ABI } from 'lib';
 import { deploy, deployProxy, DeployProxyData, wallets, wallet } from './util';
 import { encodeFunctionData, parseEther, zeroAddress } from 'viem';
-import { abi as testUtilAbi } from './contracts/TestUtil';
+import TestUtil, { abi as testUtilAbi } from './contracts/TestUtil';
 
 describe('Execution', () => {
   let { account, execute } = {} as DeployProxyData;
@@ -13,7 +13,7 @@ describe('Execution', () => {
     ({ account, execute } = await deployProxy({
       extraBalance: parseEther('0.0001'),
     }));
-    tester = (await deploy('TestUtil')).address;
+    tester = (await deploy(TestUtil)).address;
   });
 
   describe('operation', () => {

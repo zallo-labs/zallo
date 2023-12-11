@@ -18,14 +18,9 @@ import {
   zeroAddress,
   zeroHash,
 } from 'viem';
-import { abi } from './contracts/TestPaymaster';
-import { AbiParameterToPrimitiveType, AbiParametersToPrimitiveTypes } from 'abitype';
+import TestPaymaster, { abi } from './contracts/TestPaymaster';
+import { AbiParameterToPrimitiveType } from 'abitype';
 import { expect } from 'chai';
-
-const constructorAbi = abi.find((item) => item.type === 'constructor') as Extract<
-  (typeof abi)[number],
-  { type: 'constructor' }
->;
 
 const disabled = {
   token: zeroAddress,
@@ -44,21 +39,19 @@ describe('Paymaster', () => {
 
   before(async () => {
     address = (
-      await deploy('TestPaymaster', {
-        constructorArgs: [
-          owner,
-          signer,
-          {
-            pyth: zeroAddress,
-            ethUsdPriceId: zeroHash,
-            dai: disabled,
-            usdc: disabled,
-            weth: disabled,
-            reth: disabled,
-            cbeth: disabled,
-          },
-        ] satisfies AbiParametersToPrimitiveTypes<typeof constructorAbi.inputs>,
-      })
+      await deploy(TestPaymaster, [
+        owner,
+        signer,
+        {
+          pyth: zeroAddress,
+          ethUsdPriceId: zeroHash,
+          dai: disabled,
+          usdc: disabled,
+          weth: disabled,
+          reth: disabled,
+          cbeth: disabled,
+        },
+      ])
     ).address;
   });
 

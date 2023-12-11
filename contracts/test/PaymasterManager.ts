@@ -1,5 +1,5 @@
 import { Address } from 'lib';
-import { deploy, deploy2, network, testNetwork, wallet, wallets } from './util';
+import { deploy, network, testNetwork, wallet, wallets } from './util';
 import PaymasterManager, { abi } from './contracts/PaymasterManager';
 import TestToken from './contracts/TestToken';
 import { ETH } from 'lib/dapps';
@@ -12,8 +12,8 @@ describe('PaymasterManager', () => {
   let token: Address;
 
   before(async () => {
-    address = (await deploy2(PaymasterManager, [wallet.account.address])).address;
-    token = (await deploy2(TestToken, [])).address;
+    address = (await deploy(PaymasterManager, [wallet.account.address])).address;
+    token = (await deploy(TestToken, [])).address;
   });
 
   describe('withdraw', () => {
