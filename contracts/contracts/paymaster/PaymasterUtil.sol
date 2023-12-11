@@ -29,7 +29,7 @@ library PaymasterUtil {
                                FUNCTIONS
   //////////////////////////////////////////////////////////////*/
 
-  function hash(bytes calldata paymasterInput) internal pure returns (bytes32 hash) {
+  function hash(bytes calldata paymasterInput) internal pure returns (bytes32 hash_) {
     if (selector(paymasterInput) != IPaymasterFlow.payForTransaction.selector)
       return keccak256(paymasterInput);
 
@@ -62,7 +62,7 @@ library PaymasterUtil {
     }
   }
 
-  function selector(bytes calldata paymasterInput) internal pure returns (bytes4 selector) {
+  function selector(bytes calldata paymasterInput) internal pure returns (bytes4 selector_) {
     if (paymasterInput.length < 4) revert MissingPaymasterSelector();
     return bytes4(paymasterInput[0:4]);
   }

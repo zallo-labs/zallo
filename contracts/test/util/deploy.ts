@@ -12,28 +12,33 @@ import { network, testNetwork, wallet, wallets } from './network';
 import { BytesLike, hexlify, Interface, Overrides } from 'ethers';
 import * as zk from 'zksync2-js';
 import { getApprovals } from './approval';
-import { Address, parseEther, zeroHash } from 'viem';
+import { Abi, Address, parseEther, zeroHash } from 'viem';
 import { CONFIG } from '../../config';
+import { AbiParametersToPrimitiveTypes } from 'abitype';
 
 type AccountContractName = 'Account' | 'TestAccount';
 type ContractName =
   | AccountContractName
   | 'Factory'
   | 'AccountProxy'
+  | 'Paymaster'
   | `Test${string}`
-  | 'Paymaster';
+  | 'PaymasterManager';
 
-interface DeployOptions<ConstructorArgs extends unknown[]> {
-  constructorArgs?: Readonly<ConstructorArgs>;
+interface DeployOptions<TAbi extends Abi> {
+  abi?: TAbi;
+  constructorArgs?: AbiParametersToPrimitiveTypes<
+    Extract<TAbi[number], { type: 'constructor' }>['inputs']
+  >;
   overrides?: Overrides;
   factoryDeps?: BytesLike[];
 }
 
 const zkProvider = new zk.Provider(CONFIG.chain.rpcUrls.default.http[0]);
 
-export async function deploy<ConstructorArgs extends unknown[]>(
+export async function deploy<TAbi extends Abi>(
   contractName: ContractName,
-  { constructorArgs, overrides, factoryDeps }: DeployOptions<ConstructorArgs> = {},
+  { constructorArgs, overrides, factoryDeps }: DeployOptions<TAbi> = {},
 ) {
   const sender = new zk.Wallet(CONFIG.walletPrivateKey, zkProvider);
   const artifact = await hre.artifacts.readArtifact(contractName);
@@ -42,7 +47,9 @@ export async function deploy<ConstructorArgs extends unknown[]>(
 
   const salt = zeroHash;
 
-  const encodedConstructorArgs = new Interface(artifact.abi).encodeDeploy(constructorArgs ?? []);
+  const encodedConstructorArgs = new Interface(artifact.abi).encodeDeploy(
+    (constructorArgs as unknown[]) ?? [],
+  );
 
   // const constructorAbiParams =
   //   (artifact.abi as Abi).find((x): x is AbiConstructor => 'type' in x && x.type === 'constructor')
@@ -61,7 +68,7 @@ export async function deploy<ConstructorArgs extends unknown[]>(
   const isDeployed = !!(await network.getBytecode({ address: potentialAddress }))?.length;
   if (isDeployed) return { address: potentialAddress, deployTx: null, constructorArgs };
 
-  const contract = await factory.deploy(...(constructorArgs ?? []), {
+  const contract = await factory.deploy(...((constructorArgs as unknown[]) ?? []), {
     customData: { ...overrides, salt, factoryDeps },
   });
   await contract.waitForDeployment();

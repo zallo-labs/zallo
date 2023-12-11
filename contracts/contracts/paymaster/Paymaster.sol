@@ -6,15 +6,15 @@ import {BOOTLOADER_FORMAL_ADDRESS} from '@matterlabs/zksync-contracts/l2/system-
 import {IPaymasterFlow} from '@matterlabs/zksync-contracts/l2/system-contracts/interfaces/IPaymasterFlow.sol';
 import {TransactionHelper, Transaction} from '@matterlabs/zksync-contracts/l2/system-contracts/libraries/TransactionHelper.sol';
 import {IERC20} from '@openzeppelin/contracts/token/ERC20/IERC20.sol';
-import {Ownable} from '@openzeppelin/contracts/access/Ownable.sol';
 
+import {PaymasterManager} from './PaymasterManager.sol';
 import {PriceOracle, PriceOracleConfig} from './PriceOracle.sol';
 import {PaymasterUtil} from './PaymasterUtil.sol';
 import {PaymasterParser} from './PaymasterParser.sol';
 import {Cast} from '../libraries/Cast.sol';
 import {Secp256k1} from '../libraries/Secp256k1.sol';
 
-contract Paymaster is IPaymaster, Ownable, PaymasterParser, PriceOracle {
+contract Paymaster is IPaymaster, PaymasterManager, PaymasterParser, PriceOracle {
   /*//////////////////////////////////////////////////////////////
                                  EVENTS
   //////////////////////////////////////////////////////////////*/
@@ -35,18 +35,7 @@ contract Paymaster is IPaymaster, Ownable, PaymasterParser, PriceOracle {
 
   uint256 constant POST_TRANSACTION_GAS_COST = 839;
 
-  address immutable _signer;
-
-  /*//////////////////////////////////////////////////////////////
-                                STORAGE
-  //////////////////////////////////////////////////////////////*/
-
-  function _ethAllowances() private pure returns (mapping(address => uint256) storage s) {
-    assembly {
-      // keccack256('Paymaster.ethAllowances')
-      s.slot := 0x568ab845212234734bb78a357931be0bbaa694f6ff1d487eb926d8b6243926d4
-    }
-  }
+  address public immutable _signer;
 
   /*//////////////////////////////////////////////////////////////
                              INITIALIZATION
@@ -56,7 +45,7 @@ contract Paymaster is IPaymaster, Ownable, PaymasterParser, PriceOracle {
     address owner,
     address signer,
     PriceOracleConfig memory oracleConfig
-  ) Ownable(owner) PriceOracle(oracleConfig) {
+  ) PaymasterManager(owner) PriceOracle(oracleConfig) {
     _signer = signer;
   }
 
@@ -64,10 +53,8 @@ contract Paymaster is IPaymaster, Ownable, PaymasterParser, PriceOracle {
                                 FALLBACK
   //////////////////////////////////////////////////////////////*/
 
-  fallback() external payable {
-    if (msg.value > 0) {
-      _ethAllowances()[msg.sender] += msg.value;
-    }
+  receive() external payable {
+    _ethAllowance()[msg.sender] += msg.value;
   }
 
   /*//////////////////////////////////////////////////////////////
@@ -78,7 +65,7 @@ contract Paymaster is IPaymaster, Ownable, PaymasterParser, PriceOracle {
     bytes32 /* txHash */,
     bytes32 /* txDataHash */,
     Transaction calldata transaction
-  ) external payable onlyBootloader returns (bytes4 magic, bytes memory context) {
+  ) external payable onlyBootloader returns (bytes4 magic, bytes memory /* context */) {
     magic = _unsafeValidateAndPayForPaymasterTransaction(transaction);
   }
 
@@ -138,10 +125,10 @@ contract Paymaster is IPaymaster, Ownable, PaymasterParser, PriceOracle {
     if (amount == 0) return;
 
     if (token == ETH) {
-      uint256 allowance = _ethAllowances()[from];
+      uint256 allowance = _ethAllowance()[from];
       if (allowance < amount) revert PaymentNotRecieved(from, token, amount);
 
-      _ethAllowances()[from] = allowance - amount;
+      _ethAllowance()[from] = allowance - amount;
     } else {
       try IERC20(token).transferFrom(from, address(this), amount) returns (bool success) {
         if (!success) revert PaymentNotRecieved(from, token, amount);
@@ -149,6 +136,21 @@ contract Paymaster is IPaymaster, Ownable, PaymasterParser, PriceOracle {
         revert PaymentNotRecieved(from, token, amount);
       }
     }
+  }
+
+  /*//////////////////////////////////////////////////////////////
+                                STORAGE
+  //////////////////////////////////////////////////////////////*/
+
+  function _ethAllowance() private pure returns (mapping(address => uint256) storage s) {
+    assembly {
+      // keccack256('Paymaster.ethAllowance')
+      s.slot := 0x83f39f26ea023df7a049022a2132e47c1b07e9e164eab419384e126f5ce28735
+    }
+  }
+
+  function ethAllowance(address account) external view returns (uint256 allowance) {
+    return _ethAllowance()[account];
   }
 
   /*//////////////////////////////////////////////////////////////

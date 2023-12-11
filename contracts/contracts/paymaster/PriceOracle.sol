@@ -53,7 +53,7 @@ abstract contract PriceOracle {
     CBETH_USD_PRICE_ID = p.cbeth.usdPriceId;
   }
 
-  function _tokenPerEth(address token) internal returns (uint256 perEth) {
+  function _tokenPerEth(address token) internal view returns (uint256 perEth) {
     if (token == ETH) return 1;
 
     uint256 ethUSD = _price(ETH_USD_PRICE_ID);
