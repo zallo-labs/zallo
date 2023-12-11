@@ -8,7 +8,7 @@ import {SafeERC20} from '@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol
 contract PaymasterManager is Ownable {
   using SafeERC20 for IERC20;
 
-  error FailedToSendEth(uint256 amount);
+  error FailedToSendEth();
 
   address private constant ETH = address(0);
 
@@ -17,7 +17,7 @@ contract PaymasterManager is Ownable {
   function withdraw(address token, uint256 amount) external onlyOwner {
     if (token == ETH) {
       (bool success, ) = payable(msg.sender).call{value: amount}('');
-      if (!success) revert FailedToSendEth(amount);
+      if (!success) revert FailedToSendEth();
     } else {
       // ERC20
       IERC20(token).safeTransfer(msg.sender, amount);

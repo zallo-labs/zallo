@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { hashTx, asAddress, asTx, Address, ACCOUNT_ABI } from 'lib';
 import { deploy, deployProxy, DeployProxyData, wallets, wallet } from './util';
-import { encodeFunctionData, parseEther } from 'viem';
+import { encodeFunctionData, parseEther, zeroAddress } from 'viem';
 import { abi as testUtilAbi } from './contracts/TestUtil';
 
 describe('Execution', () => {
@@ -21,7 +21,7 @@ describe('Execution', () => {
       const to = wallets[3].address;
       const value = parseEther('0.00001');
 
-      await expect(execute({ to, value, nonce: nonce++ })).to.changeBalance(to, value);
+      await expect(execute({ to, value, nonce: nonce++ })).to.changeBalance(to, zeroAddress, value);
     });
 
     it('should call with the specified data', async () => {

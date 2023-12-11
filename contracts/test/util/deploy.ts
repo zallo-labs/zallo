@@ -34,7 +34,59 @@ interface DeployOptions<TAbi extends Abi> {
   factoryDeps?: BytesLike[];
 }
 
+interface DeployOptions2 {
+  overrides?: Overrides;
+  factoryDeps?: BytesLike[];
+}
+
 const zkProvider = new zk.Provider(CONFIG.chain.rpcUrls.default.http[0]);
+
+export async function deploy2<TAbi extends Abi>(
+  artifactDetails: { contractName: string; abi: TAbi },
+  constructorArgs: AbiParametersToPrimitiveTypes<
+    Extract<TAbi[number], { type: 'constructor' }>['inputs']
+  >,
+  { overrides, factoryDeps }: DeployOptions2 = {},
+) {
+  const sender = new zk.Wallet(CONFIG.walletPrivateKey, zkProvider);
+  const artifact = await hre.artifacts.readArtifact(artifactDetails.contractName);
+
+  const factory = new zk.ContractFactory(artifact.abi, artifact.bytecode, sender, 'create2');
+
+  const salt = zeroHash;
+
+  const encodedConstructorArgs = new Interface(artifact.abi).encodeDeploy(
+    (constructorArgs as unknown[]) ?? [],
+  );
+
+  // const constructorAbiParams =
+  //   (artifact.abi as Abi).find((x): x is AbiConstructor => 'type' in x && x.type === 'constructor')
+  //     ?.inputs ?? [];
+  // const encodedConstructorArgs = encodeAbiParameters(constructorAbiParams, constructorArgs ?? []);
+
+  const potentialAddress = asAddress(
+    zk.utils.create2Address(
+      sender.address,
+      hexlify(zk.utils.hashBytecode(artifact.bytecode)),
+      salt,
+      encodedConstructorArgs,
+    ),
+  );
+
+  const isDeployed = !!(await network.getBytecode({ address: potentialAddress }))?.length;
+  if (isDeployed) return { address: potentialAddress, deployTx: null, constructorArgs };
+
+  const contract = await factory.deploy(...((constructorArgs as unknown[]) ?? []), {
+    customData: { ...overrides, salt, factoryDeps },
+  });
+  await contract.waitForDeployment();
+
+  return {
+    address: asAddress(await contract.getAddress()),
+    deployTx: contract.deploymentTransaction(),
+    constructorArgs,
+  };
+}
 
 export async function deploy<TAbi extends Abi>(
   contractName: ContractName,

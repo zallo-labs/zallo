@@ -9,12 +9,14 @@ import {
   TransactionReceipt,
   decodeEventLog,
   isHex,
+  zeroAddress,
 } from 'viem';
 import { network } from './network';
 import { use } from 'chai';
 import { buildAssert } from '@nomicfoundation/hardhat-chai-matchers/utils';
 import { GetErrorArgs, GetEventArgsFromTopics, Hex, InferErrorName, LogTopic } from 'viem';
 import deepEqual from 'fast-deep-equal';
+import TestToken from '../contracts/TestToken';
 
 use(viemChaiMatchers);
 
@@ -92,20 +94,39 @@ function viemChaiMatchers(chai: Chai.ChaiStatic, _utils: Chai.ChaiUtils) {
     });
   });
 
-  Assertion.addMethod('changeBalance', function (this, address: Address, expectedChange: bigint) {
-    return asyncAssertion(this, async ({ subject, assert }) => {
-      const preBalance = await network.getBalance({ address });
-      await getReceipt(subject);
-      const postBalance = await network.getBalance({ address });
+  Assertion.addMethod(
+    'changeBalance',
+    function (this, address: Address, token: Address, expectedChange: bigint) {
+      return asyncAssertion(this, async ({ subject, assert }) => {
+        const isEth = token === zeroAddress;
+        const getBalance = () =>
+          isEth
+            ? network.getBalance({ address })
+            : network.readContract({
+                address: token,
+                abi: TestToken.abi,
+                functionName: 'balanceOf',
+                args: [address],
+              });
 
-      const change = postBalance - preBalance;
-      assert(
-        change === expectedChange,
-        `Expected "${address}" balance to change by ${expectedChange} but it changed by ${change}`,
-        `Expected "${address}" balance to NOT change by ${change}`,
-      );
-    });
-  });
+        const preBalance = await getBalance();
+        const receipt = await getReceipt(subject);
+        const postBalance = await getBalance();
+
+        const gasBalanceChange =
+          isEth && receipt?.from.toLowerCase() === address.toLowerCase()
+            ? receipt.gasUsed * receipt.effectiveGasPrice
+            : 0n;
+
+        const change = postBalance - preBalance + gasBalanceChange;
+        assert(
+          change === expectedChange,
+          `Expected "${address}" balance to change by ${expectedChange} but it changed by ${change}`,
+          `Expected "${address}" balance to NOT change by ${change}`,
+        );
+      });
+    },
+  );
 
   Assertion.addMethod(
     'includeEvent',
@@ -194,7 +215,7 @@ declare global {
       revertWith<TAbi extends Abi = Abi, TErrorName extends string = string>(
         params: RevertWithParams<TAbi, TErrorName>,
       ): AsyncAssertion;
-      changeBalance(token: Address, change: bigint): AsyncAssertion;
+      changeBalance(address: Address, token: Address, change: bigint): AsyncAssertion;
       includeEvent<TAbi extends Abi = Abi, TEventName extends string = string>(
         params: IncludeEventParams<TAbi, TEventName>,
       ): AsyncAssertion;

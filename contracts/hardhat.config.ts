@@ -68,7 +68,7 @@ export default {
     {
       path: 'test/contracts',
       contracts: ['^contracts\\/.+'],
-      include: ['abi'],
+      include: ['abi', 'contractName'],
     },
     {
       path: '../packages/lib/src/generated',
