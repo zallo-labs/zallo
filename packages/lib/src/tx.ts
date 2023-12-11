@@ -2,10 +2,9 @@ import { Address, ETH_ADDRESS, UAddress, asAddress, asChain } from './address';
 import { CHAINS } from 'chains';
 import { Operation, encodeOperations } from './operation';
 import _ from 'lodash';
-import { hashTypedData, TypedData, TypedDataDefinition, TypedDataDomain } from 'viem';
+import { hashTypedData, TypedData, TypedDataDefinition, TypedDataDomain, zeroAddress } from 'viem';
 import { TypedDataToPrimitiveTypes } from 'abitype';
-import { PAYMASTER } from './contract';
-import { hashPaymasterInput } from '.';
+import { paymasterSignedInput } from '.';
 
 export interface Tx {
   operations: [Operation, ...Operation[]];
@@ -53,7 +52,7 @@ export const TX_EIP712_TYPES = {
     { name: 'data', type: 'bytes' },
     { name: 'nonce', type: 'uint256' },
     { name: 'paymaster', type: 'address' },
-    { name: 'paymasterInputHash', type: 'bytes32' },
+    { name: 'paymasterSignedInput', type: 'bytes' },
   ] as const,
 } satisfies TypedData;
 
@@ -63,11 +62,15 @@ export function asTypedData(account: UAddress, tx: Tx) {
   const message = {
     ...encodeOperations(asAddress(account), tx.operations),
     nonce: tx.nonce,
-    paymaster: tx.paymaster ?? PAYMASTER.address[asChain(account)],
-    paymasterInputHash: hashPaymasterInput({
-      token: tx.feeToken ?? ETH_ADDRESS,
-      paymasterFee: tx.paymasterFee ?? 0n,
-    }),
+    paymaster: tx.paymaster ?? zeroAddress,
+    paymasterSignedInput: paymasterSignedInput(
+      tx.paymaster
+        ? {
+            token: tx.feeToken ?? ETH_ADDRESS,
+            paymasterFee: tx.paymasterFee ?? 0n,
+          }
+        : '0x',
+    ),
   } satisfies TxTypedDataMessage;
 
   return {

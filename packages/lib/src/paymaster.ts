@@ -4,7 +4,7 @@ import {
   encodeAbiParameters,
   encodeFunctionData,
   getAbiItem,
-  keccak256,
+  isHex,
 } from 'viem';
 import { abi as flowAbi } from './generated/IPaymasterFlow';
 import { abi as paymasterUtilAbi } from './generated/TestPaymasterUtil';
@@ -69,16 +69,16 @@ export function paymasterSignedDataAsTypedData({
   } satisfies TypedDataDefinition;
 }
 
-export interface HashPaymasterInputParams {
+export interface PaymasterSignedInputParams {
   token: Address;
   paymasterFee: bigint;
 }
 
-export function hashPaymasterInput(params: HashPaymasterInputParams) {
-  return keccak256(
-    encodeAbiParameters(parseAbiParameters('address token, uint256 paymasterFee'), [
-      params.token,
-      params.paymasterFee,
-    ]),
-  );
+export function paymasterSignedInput(params: PaymasterSignedInputParams | Hex): Hex {
+  if (isHex(params)) return params;
+
+  return encodeAbiParameters(parseAbiParameters('address token, uint256 paymasterFee'), [
+    params.token,
+    params.paymasterFee,
+  ]);
 }

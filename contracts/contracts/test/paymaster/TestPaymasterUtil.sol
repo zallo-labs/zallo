@@ -34,8 +34,10 @@ contract TestPaymasterUtil is PaymasterParser {
                              PAYMASTER UTIL
   //////////////////////////////////////////////////////////////*/
 
-  function hash(bytes calldata paymasterInput) external pure returns (bytes32 hash) {
-    return PaymasterUtil.hash(paymasterInput);
+  function signedInput(
+    bytes calldata paymasterInput
+  ) external pure returns (bytes memory signedInput) {
+    return PaymasterUtil.signedInput(paymasterInput);
   }
 
   function processPaymasterInput(Transaction calldata transaction) external {

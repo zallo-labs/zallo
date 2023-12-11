@@ -4,8 +4,8 @@ import {
   PaymasterSignedData,
   PayForTransactionParams,
   paymasterSignedDataAsTypedData,
-  Hex,
   asUAddress,
+  paymasterSignedInput,
 } from 'lib';
 import { deploy, network, wallet } from './util';
 import { abi } from './contracts/TestPaymasterUtil';
@@ -19,7 +19,6 @@ describe('PaymasterUtil', async () => {
   const signedData: PaymasterSignedData = { paymasterFee: 2n, discount: 3n };
   let address: Address;
   let params: PayForTransactionParams;
-  let input: Hex;
 
   before(async () => {
     address = (await deploy('TestPaymasterUtil')).address;
@@ -40,7 +39,6 @@ describe('PaymasterUtil', async () => {
         ),
       ),
     };
-    input = encodePaymasterInput(params);
   });
 
   describe('parseInput', () => {
@@ -50,7 +48,7 @@ describe('PaymasterUtil', async () => {
           address,
           abi,
           functionName: 'parsePaymasterInput',
-          args: [input, signer, account, nonce],
+          args: [encodePaymasterInput(params), signer, account, nonce],
         }),
       ).eventually.to.deep.eq([params.token, params.amount, params.paymasterFee, params.discount]);
     });
@@ -104,27 +102,38 @@ describe('PaymasterUtil', async () => {
     });
   });
 
-  describe('hashInput', () => {
-    it('hash payForTransactionFlow', async () => {
+  describe('signedInput', () => {
+    it('payForTransactionFlow', async () => {
       await expect(
         network.readContract({
           address,
           abi,
-          functionName: 'hash',
-          args: [input],
+          functionName: 'signedInput',
+          args: [encodePaymasterInput(params)],
         }),
-      ).eventually.to.eq('0x8676cc52c366f89d93b5e0e45acc96936b5d6e8739ae9cdb05d57237a125a04b');
+      ).eventually.to.eq(paymasterSignedInput(params));
     });
 
-    it('hash entire paymasterInput for other flows', async () => {
+    it('empty bytes without paymaster input', async () => {
       await expect(
         network.readContract({
           address,
           abi,
-          functionName: 'hash',
+          functionName: 'signedInput',
+          args: ['0x'],
+        }),
+      ).eventually.to.eq('0x');
+    });
+
+    it('entire paymasterInput for other flows', async () => {
+      await expect(
+        network.readContract({
+          address,
+          abi,
+          functionName: 'signedInput',
           args: ['0x12345678'],
         }),
-      ).eventually.to.eq('0x30ca65d5da355227c97ff836c9c6719af9d3835fc6bc72bddc50eeecc1bb2b25');
+      ).eventually.to.eq('0x12345678');
     });
   });
 });

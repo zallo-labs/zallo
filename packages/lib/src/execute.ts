@@ -46,6 +46,7 @@ export async function serializeTransaction({
     from: account,
     ...encodeOperations(account, tx.operations),
     nonce: await network.getTransactionCount({ address: account }),
+    maxFeePerGas: (await network.estimateFeesPerGas()).maxFeePerGas,
     maxPriorityFeePerGas: (await network.estimateFeesPerGas()).maxPriorityFeePerGas,
     gasPerPubdata: BigInt(zkUtils.DEFAULT_GAS_PER_PUBDATA_LIMIT),
     gas:

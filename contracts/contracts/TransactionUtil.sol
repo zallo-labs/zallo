@@ -24,7 +24,7 @@ library TransactionUtil {
 
   bytes32 private constant TX_TYPE_HASH =
     keccak256(
-      'Tx(address to,uint256 value,bytes data,uint256 nonce,address paymaster,bytes32 paymasterInputHash)'
+      'Tx(address to,uint256 value,bytes data,uint256 nonce,address paymaster,bytes paymasterSignedInput)'
     );
 
   bytes4 private constant OPERATIONS_SELECTOR = bytes4(0);
@@ -38,7 +38,7 @@ library TransactionUtil {
         keccak256(t.data),
         _proposalNonce(t),
         t.paymaster,
-        PaymasterUtil.hash(t.paymasterInput)
+        keccak256(PaymasterUtil.signedInput(t.paymasterInput))
       )
     );
 

@@ -54,7 +54,7 @@ describe('Execution', () => {
         abi: ACCOUNT_ABI,
         eventName: 'OperationExecuted',
         args: {
-          txHash: hashTx(account, txReq),
+          proposal: hashTx(account, txReq),
           response:
             '0x00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000003abc1230000000000000000000000000000000000000000000000000000000000',
         },

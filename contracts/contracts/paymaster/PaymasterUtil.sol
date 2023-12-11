@@ -29,14 +29,18 @@ library PaymasterUtil {
                                FUNCTIONS
   //////////////////////////////////////////////////////////////*/
 
-  function hash(bytes calldata paymasterInput) internal pure returns (bytes32 hash_) {
-    if (selector(paymasterInput) != IPaymasterFlow.payForTransaction.selector)
-      return keccak256(paymasterInput);
+  function signedInput(
+    bytes calldata paymasterInput
+  ) internal pure returns (bytes memory signedInput) {
+    if (
+      paymasterInput.length < 4 ||
+      selector(paymasterInput) != IPaymasterFlow.payForTransaction.selector
+    ) return paymasterInput;
 
     address token = address(bytes20(paymasterInput[16:36]));
     uint256 paymasterFee = uint256(bytes32(paymasterInput[68:100]));
 
-    return keccak256(abi.encode(token, paymasterFee));
+    return abi.encode(token, paymasterFee);
   }
 
   function processPaymasterInput(Transaction calldata transaction) internal {
