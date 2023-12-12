@@ -1,5 +1,6 @@
 import { Field, InputType } from '@nestjs/graphql';
 import { Chain } from 'chains';
+import { GraphQLInt } from 'graphql';
 import { Hex, UAddress } from 'lib';
 import { Bytes32Field } from '~/apollo/scalars/Bytes.scalar';
 import { ChainField } from '~/apollo/scalars/Chain.scalar';
@@ -40,7 +41,7 @@ export class UpsertTokenInput {
   @Field(() => String)
   symbol?: string;
 
-  @Field(() => Number)
+  @Field(() => GraphQLInt)
   decimals?: number;
 
   @Field(() => String, { nullable: true })
@@ -55,7 +56,7 @@ export class TokenUnitInput {
   @Field(() => String)
   symbol: string;
 
-  @Field(() => Number)
+  @Field(() => GraphQLInt)
   decimals: number;
 }
 

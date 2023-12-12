@@ -1,6 +1,6 @@
 import { FragmentType, gql, useFragment } from '@api/generated';
-import { tokenToFiat } from 'lib';
 import { FiatValue } from '../FiatValue';
+import Decimal from 'decimal.js';
 
 const TransactionProposal = gql(/* GraphQL */ `
   fragment ProposalValue_TransactionProposal on TransactionProposal {
@@ -9,16 +9,24 @@ const TransactionProposal = gql(/* GraphQL */ `
     feeToken {
       id
       decimals
-      gasPrice
+      estimatedFeesPerGas {
+        id
+        maxFeePerGas
+      }
       price {
         id
-        current
+        usd {
+          id
+          current
+        }
       }
     }
     transaction {
       id
+      maxFeePerGas
       receipt {
         id
+        gasUsed
         transferEvents {
           id
           value
@@ -43,17 +51,14 @@ export interface ProposalValueProps {
 export function ProposalValue(props: ProposalValueProps) {
   const p = useFragment(TransactionProposal, props.proposal);
 
-  const estimatedFeeValue =
-    !p.transaction?.receipt &&
-    -tokenToFiat(
-      BigInt(p.feeToken.gasPrice ?? 0) * BigInt(p.gasLimit),
-      p.feeToken.price?.current ?? 0,
-      p.feeToken.decimals,
-    );
+  const feeValue = new Decimal(p.transaction?.receipt?.gasUsed.toString() ?? p.gasLimit.toString())
+    .mul(p.transaction?.maxFeePerGas ?? p.feeToken.estimatedFeesPerGas?.maxFeePerGas ?? 0)
+    .mul(p.feeToken.price?.usd.current ?? 0)
+    .neg();
 
   const transfers = [...(p.transaction?.receipt?.transferEvents ?? p.simulation?.transfers ?? [])];
 
-  const value = transfers.reduce((sum, t) => sum + (t.value ?? 0), estimatedFeeValue || 0);
+  const value = Decimal.sum(feeValue, ...transfers.map((t) => t.value ?? 0));
 
   return <FiatValue value={value} hideZero={props.hideZero} />;
 }

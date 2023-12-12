@@ -1,12 +1,10 @@
-import { Field, ID, ObjectType } from '@nestjs/graphql';
+import { Field } from '@nestjs/graphql';
 import Decimal from 'decimal.js';
 import { DecimalField } from '~/apollo/scalars/Decimal.scalar';
+import { Node, NodeType } from '~/decorators/interface.decorator';
 
-@ObjectType()
-export class Price {
-  @Field(() => ID)
-  id: string;
-
+@NodeType()
+export class Price extends Node {
   @DecimalField()
   current: Decimal;
 
@@ -14,11 +12,8 @@ export class Price {
   ema: Decimal;
 }
 
-@ObjectType()
-export class Pricefeed {
-  @Field(() => ID)
-  id: string;
-
+@NodeType()
+export class Pricefeed extends Node {
   @Field(() => Price)
   usd: Price;
 

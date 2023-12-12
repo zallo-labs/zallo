@@ -5,13 +5,9 @@ import { CheckIcon, ClockOutlineIcon, CloseIcon, GasOutlineIcon } from '@theme/i
 import { ScrollView } from 'react-native';
 import { ActivityIndicator } from 'react-native-paper';
 import { match } from 'ts-pattern';
-import { FiatValue } from '~/components/FiatValue';
 import { FormattedNumber } from '~/components/format/FormattedNumber';
 import { Timestamp } from '~/components/format/Timestamp';
 import { ListItem, ListItemProps } from '~/components/list/ListItem';
-import { TokenAmount } from '~/components/token/TokenAmount';
-import { TokenIcon } from '~/components/token/TokenIcon';
-import { tokenToFiat } from 'lib';
 import { ReactNode } from 'react';
 import { gql, useFragment } from '@api/generated';
 import { getOptimizedDocument, useQuery } from '~/gql';
@@ -27,11 +23,17 @@ const TransactionProposal = gql(/* GraphQL */ `
     feeToken {
       id
       address
-      gasPrice
+      estimatedFeesPerGas {
+        id
+        maxFeePerGas
+      }
       decimals
       price {
         id
-        current
+        usd {
+          id
+          current
+        }
       }
       ...TokenAmount_token
       ...UseFormattedTokenAmount_token
@@ -39,7 +41,7 @@ const TransactionProposal = gql(/* GraphQL */ `
     gasLimit
     transaction {
       id
-      gasPrice
+      maxFeePerGas
       submittedAt
       receipt {
         id
@@ -94,9 +96,6 @@ function TransactionTab() {
 
   if (!p) return null;
 
-  const estimatedFee = BigInt(p.feeToken.gasPrice ?? 0) * BigInt(p.gasLimit);
-  const actualFee = receipt && BigInt(receipt.gasUsed) * BigInt(tx.gasPrice);
-
   return (
     <ScrollView contentContainerStyle={styles.container}>
       {match(p)
@@ -149,44 +148,6 @@ function TransactionTab() {
           leading={GasOutlineIcon}
           headline="Gas used"
           trailing={<FormattedNumber value={receipt.gasUsed} />}
-        />
-      )}
-
-      {tx?.gasPrice ? (
-        <Item
-          leading={GasOutlineIcon}
-          headline="Gas price"
-          trailing={<TokenAmount token={p.feeToken} amount={tx.gasPrice} />}
-        />
-      ) : (
-        <Item
-          leading={GasOutlineIcon}
-          headline="Gas price (current)"
-          trailing={<TokenAmount token={p.feeToken} amount={p.feeToken.gasPrice ?? 0} />}
-        />
-      )}
-
-      {actualFee ? (
-        <Item
-          leading={(props) => <TokenIcon token={p.feeToken.address} {...props} />}
-          headline="Network fee"
-          supporting={<TokenAmount token={p.feeToken} amount={actualFee} />}
-          trailing={
-            <FiatValue
-              value={tokenToFiat(actualFee, p.feeToken.price?.current ?? 0, p.feeToken.decimals)}
-            />
-          }
-        />
-      ) : (
-        <Item
-          leading={(props) => <TokenIcon token={p.feeToken.address} {...props} />}
-          headline="Network fee (estimated)"
-          supporting={<TokenAmount token={p.feeToken} amount={estimatedFee} />}
-          trailing={
-            <FiatValue
-              value={tokenToFiat(estimatedFee, p.feeToken.price?.current ?? 0, p.feeToken.decimals)}
-            />
-          }
         />
       )}
     </ScrollView>

@@ -44,7 +44,6 @@ const Query = gql(/* GraphQL */ `
       id
       address
       userOwned
-      ethereumAddress
       name
       symbol
       decimals
@@ -53,7 +52,6 @@ const Query = gql(/* GraphQL */ `
 
     metadata: tokenMetadata(input: { address: $token }) {
       id
-      ethereumAddress
       name
       symbol
       decimals
@@ -66,7 +64,6 @@ const UpsertToken = gql(/* GraphQL */ `
   mutation TokenScreenUpsert($input: UpsertTokenInput!) {
     upsertToken(input: $input) {
       id
-      ethereumAddress
       name
       symbol
       decimals
@@ -86,7 +83,7 @@ const chainEntries = Object.values(SUPPORTED_CHAINS).map((c) => [c.name, c.key] 
 const scheme = z.object({
   address: zAddress(),
   chain: zChain(),
-  ethereumAddress: z.union([zAddress().optional(), z.null()]),
+  // TODO: add pythUsdPriceId
   name: z.string().min(1),
   symbol: z.string().min(1),
   decimals: z.number().min(0),
@@ -113,12 +110,7 @@ function SharedTokenScreen_(props: TokenScreenProps) {
       chain: props.token ? asChain(props.token) : selectedChain,
     },
   });
-  const [address, chain, ethereumAddress, iconUri] = watch([
-    'address',
-    'chain',
-    'ethereumAddress',
-    'iconUri',
-  ]);
+  const [address, chain, iconUri] = watch(['address', 'chain', 'iconUri']);
   const iconUriValid = !!tryOrIgnore(() => iconUri && new URL(iconUri));
 
   const uaddress = chain && tryAsUAddress(address, chain);
@@ -137,7 +129,6 @@ function SharedTokenScreen_(props: TokenScreenProps) {
       reset((t) => ({
         address: t.address!,
         chain: t.chain!,
-        ethereumAddress: t.ethereumAddress || m.ethereumAddress!,
         name: t.name || m.name!,
         symbol: t.symbol || m.symbol!,
         decimals: t.decimals || m.decimals!,
@@ -208,23 +199,6 @@ function SharedTokenScreen_(props: TokenScreenProps) {
             />
           </View>
 
-          <Indented
-            leading={
-              isAddressLike(ethereumAddress)
-                ? (props) => <AddressIcon address={asAddress(ethereumAddress)} {...props} />
-                : undefined
-            }
-          >
-            <FormTextField
-              label="Ethereum address"
-              name="ethereumAddress"
-              placeholder="0x..."
-              multiline
-              control={control}
-              containerStyle={styles.field}
-            />
-          </Indented>
-
           <Indented>
             <FormTextField
               label="Name"
@@ -282,20 +256,17 @@ function SharedTokenScreen_(props: TokenScreenProps) {
               mode="contained"
               // requireChanges
               control={control}
-              onPress={handleSubmit(
-                async ({ address, chain, ethereumAddress, name, symbol, decimals, iconUri }) => {
-                  await upsert({
-                    input: {
-                      address: asUAddress(address, chain),
-                      ethereumAddress,
-                      name,
-                      symbol,
-                      decimals: parseFloat(`${decimals}`),
-                      iconUri,
-                    },
-                  });
-                },
-              )}
+              onPress={handleSubmit(async ({ address, chain, name, symbol, decimals, iconUri }) => {
+                await upsert({
+                  input: {
+                    address: asUAddress(address, chain),
+                    name,
+                    symbol,
+                    decimals: parseFloat(`${decimals}`),
+                    iconUri,
+                  },
+                });
+              })}
             >
               Save
             </FormSubmitButton>

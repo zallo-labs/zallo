@@ -4,11 +4,12 @@ import { ListItem, ListItemProps } from '../list/ListItem';
 import { ListItemSkeleton } from '../list/ListItemSkeleton';
 import { withSuspense } from '../skeleton/withSuspense';
 import { TokenAmount } from './TokenAmount';
-import { tokenToFiat } from 'lib';
+import { Decimallike } from 'lib';
 import { FragmentType, gql, useFragment } from '@api/generated';
 import { TokenIcon } from './TokenIcon';
 import { memo } from 'react';
 import deepEqual from 'fast-deep-equal';
+import Decimal from 'decimal.js';
 
 const Token = gql(/* GraphQL */ `
   fragment TokenItem_Token on Token {
@@ -18,7 +19,10 @@ const Token = gql(/* GraphQL */ `
     decimals
     price {
       id
-      current
+      usd {
+        id
+        current
+      }
     }
     ...TokenIcon_token
     ...TokenAmount_token
@@ -27,7 +31,7 @@ const Token = gql(/* GraphQL */ `
 
 export interface TokenItemProps extends Partial<ListItemProps> {
   token: FragmentType<typeof Token>;
-  amount: bigint | string | undefined;
+  amount: Decimallike | undefined;
   containerStyle?: StyleProp<ViewStyle>;
 }
 
@@ -51,7 +55,7 @@ const TokenItem_ = memo(
             {token.price && (
               <Text style={styles.price}>
                 {amount !== undefined && ' @ '}
-                <FiatValue value={token.price.current} maximumFractionDigits={0} />
+                <FiatValue value={token.price.usd.current} maximumFractionDigits={0} />
               </Text>
             )}
           </View>
@@ -60,7 +64,7 @@ const TokenItem_ = memo(
           token.price &&
           amount !== undefined && (
             <Text variant="labelLarge">
-              <FiatValue value={tokenToFiat(BigInt(amount), token.price.current, token.decimals)} />
+              <FiatValue value={new Decimal(amount).mul(token.price.usd.current)} />
             </Text>
           )
         }

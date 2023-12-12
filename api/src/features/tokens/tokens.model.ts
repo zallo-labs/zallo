@@ -1,4 +1,5 @@
 import { Field, ID, ObjectType } from '@nestjs/graphql';
+import { GraphQLInt } from 'graphql';
 import { Hex, UAddress } from 'lib';
 import { Bytes32Field } from '~/apollo/scalars/Bytes.scalar';
 import { UAddressField } from '~/apollo/scalars/UAddress.scalar';
@@ -18,7 +19,7 @@ export class Token extends Node {
   @Field(() => String)
   symbol: string;
 
-  @Field(() => Number)
+  @Field(() => GraphQLInt)
   decimals: number;
 
   @Field(() => String, { nullable: true })
@@ -39,7 +40,7 @@ export class TokenUnit {
   @Field(() => String)
   symbol: string;
 
-  @Field(() => Number)
+  @Field(() => GraphQLInt)
   decimals: number;
 }
 
@@ -57,7 +58,7 @@ export class TokenMetadata {
   @Field(() => String, { nullable: true })
   symbol?: string;
 
-  @Field(() => Number, { nullable: true })
+  @Field(() => GraphQLInt, { nullable: true })
   decimals?: number;
 
   @Field(() => String, { nullable: true })

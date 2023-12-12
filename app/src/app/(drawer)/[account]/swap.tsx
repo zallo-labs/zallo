@@ -6,10 +6,12 @@ import {
   UAddress,
   asAddress,
   asChain,
+  asDecimal,
+  asFp,
   asUAddress,
   fiatToToken,
 } from 'lib';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { InputType, InputsView } from '~/components/InputsView';
 import { Divider, IconButton } from 'react-native-paper';
 import { View } from 'react-native';
@@ -24,7 +26,6 @@ import { withSuspense } from '~/components/skeleton/withSuspense';
 import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
 import { ScreenSurface } from '~/components/layout/ScreenSurface';
 import { createStyles } from '@theme/styles';
-import { parseUnits } from 'viem';
 import { AccountParams } from '~/app/(drawer)/[account]/(home)/_layout';
 import { materialCommunityIcon } from '@theme/icons';
 import { ListItem, ListItemHeight } from '~/components/list/ListItem';
@@ -37,11 +38,11 @@ import { useSwapRoute } from '~/hooks/swap/useSwapRoute';
 import { getSwapOperations } from '~/util/swap/syncswap/swap';
 import { suspend } from 'suspend-react';
 import { estimateSwap } from '~/util/swap/syncswap/estimate';
+import Decimal from 'decimal.js';
 
 const DownArrow = materialCommunityIcon('arrow-down-thin');
 const ICON_BUTTON_SIZE = 24;
 const RATIO_DECIMALS = 18;
-const RATIO_FACTOR = 10n ** BigInt(RATIO_DECIMALS);
 
 const Query = gql(/* GraphQL */ `
   query SwapScreen($account: UAddress!, $tokens: [UAddress!]!) {
@@ -52,7 +53,10 @@ const Query = gql(/* GraphQL */ `
       decimals
       price {
         id
-        current
+        usd {
+          id
+          current
+        }
       }
       ...InputsView_token @arguments(account: $account)
       ...TokenIcon_token
@@ -85,14 +89,25 @@ function SwapScreen() {
 
   const [input, setInput] = useState('');
   const [type, setType] = useState(InputType.Fiat);
-  const fromAmount =
-    type === InputType.Token
-      ? parseUnits(input || '0', from.decimals)
-      : fiatToToken(parseFloat(input || '0'), from.price?.current ?? 0, from.decimals);
+  const fromAmount = useMemo(
+    () =>
+      type === InputType.Token
+        ? new Decimal(input || '0')
+        : new Decimal(input || '0').div(from.price?.usd.current ?? '0'),
+    [from.price?.usd, input, type],
+  );
 
   const route = useSwapRoute({ account, from: asAddress(fromAddress), to: asAddress(toAddress) });
   const toAmountEstimate =
-    route && suspend(() => estimateSwap({ chain, route, fromAmount }), [chain, fromAmount, route]);
+    route &&
+    suspend(
+      async () =>
+        asDecimal(
+          await estimateSwap({ chain, route, fromAmount: asFp(fromAmount, from.decimals) }),
+          to?.decimals ?? 0,
+        ),
+      [chain, from.decimals, fromAmount, route, to?.decimals],
+    );
 
   const selectFrom = async () => {
     const newToken = await selectToken({ account, enabled: swappableTokens });
@@ -148,7 +163,6 @@ function SwapScreen() {
                     <FormattedNumber
                       /* TODO: estimated ratio */
                       value={0}
-                      decimals={RATIO_DECIMALS}
                       maximumFractionDigits={3}
                       minimumNumberFractionDigits={4}
                       postFormat={(v) => `${v}/${from.symbol}`}
@@ -199,7 +213,7 @@ function SwapScreen() {
                       account,
                       route,
                       from: asAddress(fromAddress),
-                      fromAmount,
+                      fromAmount: asFp(fromAmount, from.decimals),
                       slippage: 0.01, // 1%
                       deadline: DateTime.now().plus({ months: 3 }),
                     }),

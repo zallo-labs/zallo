@@ -10,6 +10,7 @@ import { gql } from '@api/generated';
 import { useQuery, usePollQuery } from '~/gql';
 import { AccountParams } from '~/app/(drawer)/[account]/(home)/_layout';
 import { useLocalParams } from '~/hooks/useLocalParams';
+import Decimal from 'decimal.js';
 
 const Query = gql(/* GraphQL */ `
   query TokensTab($account: UAddress!, $chain: Chain) {
@@ -18,7 +19,10 @@ const Query = gql(/* GraphQL */ `
       decimals
       price {
         id
-        current
+        usd {
+          id
+          current
+        }
       }
       balance(input: { account: $account })
       ...TokenItem_Token
@@ -40,9 +44,9 @@ function TokensTab() {
   const tokens = (data.tokens ?? [])
     .map((t) => ({
       ...t,
-      value: tokenToFiat(BigInt(t.balance), t.price?.current ?? 0, t.decimals),
+      value: new Decimal(t.balance).mul(new Decimal(t.price?.usd.current ?? 0)),
     }))
-    .sort((a, b) => b.value - a.value);
+    .sort((a, b) => a.value.comparedTo(b.value));
 
   return (
     <FlashList

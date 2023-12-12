@@ -126,6 +126,7 @@ export class PaymastersService {
         asDecimal(ethPerGasFee, ETH.decimals).div(price.eth.current);
 
       return {
+        id: `FeesPerGas:${feeToken}`,
         maxFeePerGas: tokenPerGas(ethPerGas.maxFeePerGas!),
         maxPriorityFeePerGas: tokenPerGas(ethPerGas.maxPriorityFeePerGas!),
         decimals: metadata.decimals,

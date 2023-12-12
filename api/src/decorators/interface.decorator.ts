@@ -20,7 +20,7 @@ const createObjectWithInterfaceDecorator =
 @InterfaceType()
 export class Node {
   @Field(() => ID)
-  id: uuid;
+  id: uuid | string;
 }
 
 export const NodeType = createObjectWithInterfaceDecorator(Node);

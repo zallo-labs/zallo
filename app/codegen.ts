@@ -10,6 +10,7 @@ const scalars = {
   Bytes32: 'lib#Hex',
   Chain: 'chains#Chain',
   DateTime: 'string',
+  Decimal: 'lib#Decimallike',
   MAC: 'string',
   PolicyKey: 'lib#PolicyKey',
   Selector: 'lib#Selector',

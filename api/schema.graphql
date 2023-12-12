@@ -232,8 +232,9 @@ input ExecuteInput {
   proposalHash: Bytes32!
 }
 
-type FeesPerGas {
+type FeesPerGas implements Node {
   decimals: Float!
+  id: ID!
   maxFeePerGas: Decimal!
   maxPriorityFeePerGas: Decimal!
 }
@@ -386,13 +387,13 @@ type PolicyState {
   transfers: TransfersConfig!
 }
 
-type Price {
+type Price implements Node {
   current: Decimal!
   ema: Decimal!
   id: ID!
 }
 
-type Pricefeed {
+type Pricefeed implements Node {
   eth: Price!
   id: ID!
   usd: Price!
@@ -602,7 +603,7 @@ type SwapOp {
 type Token implements Node {
   address: UAddress!
   balance(input: BalanceInput!): Decimal!
-  decimals: Float!
+  decimals: Int!
   estimatedFeesPerGas: FeesPerGas
   iconUri: String
   id: ID!
@@ -621,7 +622,7 @@ input TokenInput {
 }
 
 type TokenMetadata {
-  decimals: Float
+  decimals: Int
   iconUri: String
   id: ID!
   name: String
@@ -630,12 +631,12 @@ type TokenMetadata {
 }
 
 type TokenUnit {
-  decimals: Float!
+  decimals: Int!
   symbol: String!
 }
 
 input TokenUnitInput {
-  decimals: Float!
+  decimals: Int!
   symbol: String!
 }
 
@@ -646,10 +647,10 @@ input TokensInput {
   query: String
 }
 
-type Transaction {
-  gasPrice: BigInt!
+type Transaction implements Node {
   hash: Bytes32!
   id: ID!
+  maxFeePerGas: Decimal!
   proposal: TransactionProposal!
   receipt: Receipt
   submittedAt: DateTime!
@@ -911,7 +912,7 @@ input UpsertContactInput {
 
 input UpsertTokenInput {
   address: UAddress!
-  decimals: Float
+  decimals: Int
   iconUri: String
   name: String
   pythUsdPriceId: Bytes32
