@@ -1,7 +1,8 @@
 import { Chain, isChain } from 'chains';
 import { addressMap } from './util';
-import { Address, ETH_ADDRESS, UAddress, asUAddress } from '../address';
+import { Address, ETH_ADDRESS, asUAddress } from '../address';
 import { Hex } from '../bytes';
+import { isPresent } from '../util/arrays';
 
 export interface Token {
   name: string;
@@ -135,10 +136,13 @@ export const CBETH = {
 export const TOKENS = [ETH, WETH, USDC, DAI, USDC, WBTC, RETH, CBETH] satisfies Token[];
 
 export function flattenToken(t: Token) {
-  return Object.keys(t.address).map((chain) => {
-    if (!isChain(chain)) throw new Error(`Unexpected token address map chain ${chain}`);
-    const address = asUAddress(t.address[chain], chain)!;
+  return Object.keys(t.address)
+    .map((chain) => {
+      if (!isChain(chain)) throw new Error(`Unexpected token address map chain ${chain}`);
+      const address = asUAddress(t.address[chain], chain);
+      if (!address) return undefined;
 
-    return { ...t, address };
-  });
+      return { ...t, address };
+    })
+    .filter(isPresent);
 }
