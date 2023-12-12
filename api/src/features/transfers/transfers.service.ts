@@ -8,11 +8,11 @@ import { selectAccount } from '../accounts/accounts.util';
 import { uuid } from 'edgedb/dist/codecs/ifaces';
 import { Shape } from '../database/database.select';
 import { PricesService } from '../prices/prices.service';
-import { asHex, fromFp } from 'lib';
+import { asHex, asDecimal } from 'lib';
 import Decimal from 'decimal.js';
 
 export const TRANSFER_VALUE_FIELDS_SHAPE = {
-  token: { pythUsdPriceId: true, decimals: true },
+  token: { pythUsdPriceId: true },
   amount: true,
 } satisfies Shape<typeof e.TransferDetails>;
 const s = e.select(e.TransferDetails, () => TRANSFER_VALUE_FIELDS_SHAPE);
@@ -57,6 +57,6 @@ export class TransfersService {
     const usdPrice = await this.prices.usd(asHex(pythUsdPriceId));
     if (!usdPrice) return null;
 
-    return fromFp(amount, token.decimals).mul(usdPrice.current);
+    return new Decimal(amount).mul(usdPrice.current);
   }
 }

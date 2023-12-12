@@ -122,7 +122,7 @@ export class TransactionProposalsService {
           await estimateTransactionOperationsGas({ account: asAddress(account), tx, network })
         ).unwrapOr(FALLBACK_OPERATIONS_GAS),
       paymaster: tx.paymaster,
-      paymasterFee: e.decimal(paymasterFee.toString()),
+      paymasterFee: paymasterFee.toString(),
       feeToken: e.assert_single(
         e.select(e.Token, (t) => ({
           filter: and(

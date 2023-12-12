@@ -12,7 +12,7 @@ import {
   asHex,
   asUAddress,
   encodePaymasterInput,
-  fromFp,
+  asDecimal,
   paymasterSignedDataAsTypedData,
 } from 'lib';
 import { Chain } from 'chains';
@@ -123,7 +123,7 @@ export class PaymastersService {
       const ethPerGas = await this.networks.for(feeToken).estimateFeesPerGas();
 
       const tokenPerGas = (ethPerGasFee: bigint) =>
-        fromFp(ethPerGasFee, ETH.decimals).div(price.eth.current);
+        asDecimal(ethPerGasFee, ETH.decimals).div(price.eth.current);
 
       return {
         maxFeePerGas: tokenPerGas(ethPerGas.maxFeePerGas!),
@@ -177,7 +177,7 @@ export class PaymastersService {
             ? e.update(selectedAccount, (a) => ({
                 set: {
                   paymasterEthCredit: e.select(
-                    e.min(e.set(e.op(a.paymasterEthCredit, '-', discount), e.decimal('0'))),
+                    e.max(e.set(e.op(a.paymasterEthCredit, '-', discount), e.decimal('0'))),
                   ) satisfies SelectedReal as SelectedDecimal,
                 },
               }))

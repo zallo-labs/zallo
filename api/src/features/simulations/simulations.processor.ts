@@ -1,7 +1,7 @@
 import { BullModuleOptions, InjectQueue, Process, Processor } from '@nestjs/bull';
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { Job, Queue } from 'bull';
-import { ETH_ADDRESS, Hex, asAddress, asChain, asHex, asUAddress } from 'lib';
+import { ETH_ADDRESS, Hex, asAddress, asChain, asDecimal, asHex, asUAddress } from 'lib';
 import { DatabaseService } from '../database/database.service';
 import e from '~/edgeql-js';
 import { and } from '../database/database.util';
@@ -12,6 +12,7 @@ import { InjectRedis } from '@songkeys/nestjs-redis';
 import Redis from 'ioredis';
 import { Mutex } from 'redis-semaphore';
 import { RUNNING_JOB_STATUSES } from '../util/bull/bull.util';
+import { ETH } from 'lib/dapps';
 
 type TransferDetails = Parameters<typeof e.insert<typeof e.TransferDetails>>[1];
 
@@ -75,23 +76,26 @@ export class SimulationsProcessor implements OnModuleInit {
           from: accountAddress,
           to: op.to,
           tokenAddress: asUAddress(ETH_ADDRESS, chain),
-          amount: op.to === accountAddress ? 0n : -op.value,
+          amount: op.to === accountAddress ? '0' : asDecimal(-op.value, ETH).toString(),
           direction: ['Out' as const, ...(op.to === accountAddress ? (['In'] as const) : [])],
         });
       }
 
-      const f = await this.operations.decodeCustom({
-        to: asAddress(op.to),
-        value: op.value || undefined,
-        data: asHex(op.data || undefined),
-      });
+      const f = await this.operations.decodeCustom(
+        {
+          to: asAddress(op.to),
+          value: op.value || undefined,
+          data: asHex(op.data || undefined),
+        },
+        asChain(accountUAddress),
+      );
       if (f instanceof TransferOp && f.token !== ETH_ADDRESS) {
         transfers.push({
           account,
           from: accountAddress,
           to: f.to,
           tokenAddress: asUAddress(f.token, chain),
-          amount: f.to === accountAddress ? 0n : -f.amount,
+          amount: f.to === accountAddress ? e.decimal('0') : f.amount.negated().toString(),
           direction: ['Out' as const, ...(accountAddress === f.to ? (['In'] as const) : [])],
         });
       } else if (f instanceof TransferFromOp) {
@@ -100,7 +104,7 @@ export class SimulationsProcessor implements OnModuleInit {
           from: f.from,
           to: f.to,
           tokenAddress: asUAddress(f.token, chain),
-          amount: f.amount,
+          amount: f.amount.toString(),
           direction: ['Out' as const, ...(accountAddress === f.to ? (['In'] as const) : [])],
         });
       } else if (f instanceof SwapOp) {
@@ -109,7 +113,7 @@ export class SimulationsProcessor implements OnModuleInit {
           from: op.to,
           to: accountAddress,
           tokenAddress: asUAddress(f.toToken, chain),
-          amount: f.minimumToAmount,
+          amount: f.minimumToAmount.toString(),
           direction: ['In' as const],
         });
       }

@@ -4,7 +4,7 @@ import {
   TransactionsProcessor,
 } from '../transactions/transactions.processor';
 import { decodeEventLog, getAbiItem } from 'viem';
-import { PAYMASTER, asAddress, asHex, asUAddress, fromFp, tryOrIgnore } from 'lib';
+import { PAYMASTER, asAddress, asHex, asUAddress, asDecimal, tryOrIgnore } from 'lib';
 import { AccountsCacheService } from '~/features/auth/accounts.cache.service';
 import e from '~/edgeql-js';
 import { ETH } from 'lib/dapps';
@@ -50,7 +50,7 @@ export class PaymasterEvents {
       })),
     );
 
-    const ethAmount = e.decimal(fromFp(r.args.amount, ETH).toString());
+    const ethAmount = e.decimal(asDecimal(r.args.amount, ETH).toString());
 
     await this.db.transaction(async (db) => {
       const refund = await e

@@ -4,16 +4,20 @@ import { TokensInput, UpsertTokenInput } from './tokens.input';
 import { Scope, ShapeFunc } from '../database/database.select';
 import e from '~/edgeql-js';
 import { uuid } from 'edgedb/dist/codecs/ifaces';
-import { UAddress, asAddress, isUAddress } from 'lib';
-import { ERC20 } from 'lib/dapps';
+import { UAddress, asAddress, asDecimal, isUAddress } from 'lib';
+import { ERC20, TOKENS, flattenToken } from 'lib/dapps';
 import { and, or } from '../database/database.util';
 import { NetworksService } from '../util/networks/networks.service';
 import { UserInputError } from '@nestjs/apollo';
 import { OrderByObjExpr } from '~/edgeql-js/select';
 import { TokenMetadata } from '~/features/tokens/tokens.model';
+import Decimal from 'decimal.js';
 
 @Injectable()
 export class TokensService {
+  private decimalsCache = new Map<UAddress, number>(
+    TOKENS.flatMap(flattenToken).map((t) => [t.address, t.decimals]),
+  );
   constructor(
     private db: DatabaseService,
     private networks: NetworksService,
@@ -141,6 +145,24 @@ export class TokensService {
       decimals: decimals.result,
       iconUri: null,
     } satisfies TokenMetadata;
+  }
+
+  async decimals(token: UAddress): Promise<number> {
+    const cached = this.decimalsCache.get(token);
+    if (cached !== undefined) return cached;
+
+    const decimals = await this.networks.for(token).readContract({
+      address: asAddress(token),
+      abi: ERC20,
+      functionName: 'decimals',
+    });
+    this.decimalsCache.set(token, decimals);
+
+    return decimals;
+  }
+
+  async asDecimal(token: UAddress, amount: bigint): Promise<Decimal> {
+    return asDecimal(amount, await this.decimals(token));
   }
 }
 

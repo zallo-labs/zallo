@@ -1,5 +1,14 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
-import { ACCOUNT_IMPLEMENTATION, asChain, asHex, asUAddress, Hex, isTruthy, tryOrCatch } from 'lib';
+import {
+  ACCOUNT_IMPLEMENTATION,
+  asChain,
+  asDecimal,
+  asHex,
+  asUAddress,
+  Hex,
+  isTruthy,
+  tryOrCatch,
+} from 'lib';
 import {
   TransactionData,
   TransactionEventData,
@@ -19,6 +28,7 @@ import { InjectRedis } from '@songkeys/nestjs-redis';
 import Redis from 'ioredis';
 import { Mutex } from 'redis-semaphore';
 import { RUNNING_JOB_STATUSES } from '../util/bull/bull.util';
+import { ETH } from 'lib/dapps';
 
 @Injectable()
 export class TransactionsEvents implements OnModuleInit {
@@ -75,7 +85,7 @@ export class TransactionsEvents implements OnModuleInit {
             success: true,
             responses: 'responses' in r.args ? [...r.args.responses] : [r.args.response],
             gasUsed: receipt.gasUsed,
-            fee: receipt.gasUsed * receipt.effectiveGasPrice,
+            ethFee: asDecimal(receipt.gasUsed * receipt.effectiveGasPrice, ETH).toString(),
             block: BigInt(receipt.blockNumber),
             timestamp: new Date(Number(block.timestamp) * 1000), // block.timestamp is in seconds
           }),
@@ -105,7 +115,7 @@ export class TransactionsEvents implements OnModuleInit {
           success: false,
           responses: [callResponse.data].filter(isTruthy),
           gasUsed: receipt.gasUsed,
-          fee: receipt.gasUsed * receipt.effectiveGasPrice,
+          ethFee: asDecimal(receipt.gasUsed * receipt.effectiveGasPrice, ETH).toString(),
           block: receipt.blockNumber,
           timestamp: new Date(Number(block.timestamp) * 1000), // block.timestamp is in seconds
         }),

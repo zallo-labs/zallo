@@ -7,6 +7,7 @@ import { BalancesModule } from '~/features/util/balances/balances.module';
 
 @Module({
   imports: [PaymastersModule, BalancesModule, PricesModule],
+  exports: [TokensService],
   providers: [TokensService, TokensResolver],
 })
 export class TokensModule {}

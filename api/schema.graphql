@@ -508,8 +508,8 @@ type Query {
 
 type Receipt {
   block: BigInt!
+  ethFee: Decimal!
   events: [Event!]!
-  fee: BigInt!
   gasUsed: BigInt!
   id: ID!
   responses: [Bytes!]!
@@ -573,7 +573,7 @@ type Simulation implements Node {
 
 type SimulationTransfer implements TransferDetails {
   account: Account!
-  amount: BigInt!
+  amount: Decimal!
   from: Address!
   id: ID!
   to: Address!
@@ -593,15 +593,15 @@ type SwapOp {
   _args: [JSON!]!
   _name: String!
   deadline: DateTime!
-  fromAmount: Uint256!
+  fromAmount: Decimal!
   fromToken: Address!
-  minimumToAmount: Uint256!
+  minimumToAmount: Decimal!
   toToken: Address!
 }
 
 type Token implements Node {
   address: UAddress!
-  balance(input: BalanceInput!): BigInt!
+  balance(input: BalanceInput!): Decimal!
   decimals: Float!
   estimatedFeesPerGas: FeesPerGas
   iconUri: String
@@ -700,7 +700,7 @@ input TransactionProposalsInput {
 
 type Transfer implements EventBase & TransferDetails & Transferlike {
   account: Account!
-  amount: BigInt!
+  amount: Decimal!
   block: BigInt!
   from: Address!
   id: ID!
@@ -714,9 +714,9 @@ type Transfer implements EventBase & TransferDetails & Transferlike {
 
 type TransferApproval implements EventBase & TransferDetails & Transferlike {
   account: Account!
-  amount: BigInt!
+  amount: Decimal!
   block: BigInt!
-  delta: BigInt!
+  delta: Decimal!
   from: Address!
   id: ID!
   logIndex: Float!
@@ -730,14 +730,14 @@ type TransferApproval implements EventBase & TransferDetails & Transferlike {
 type TransferApprovalOp {
   _args: [JSON!]!
   _name: String!
-  amount: Uint256!
+  amount: Decimal!
   spender: Address!
   token: Address!
 }
 
 interface TransferDetails {
   account: Account!
-  amount: BigInt!
+  amount: Decimal!
   from: Address!
   id: ID!
   to: Address!
@@ -754,7 +754,7 @@ enum TransferDirection {
 type TransferFromOp {
   _args: [JSON!]!
   _name: String!
-  amount: Uint256!
+  amount: Decimal!
   from: Address!
   to: Address!
   token: Address!
@@ -780,7 +780,7 @@ input TransferLimitInput {
 type TransferOp {
   _args: [JSON!]!
   _name: String!
-  amount: Uint256!
+  amount: Decimal!
   to: Address!
   token: Address!
 }
@@ -795,7 +795,7 @@ input TransferSubscriptionInput {
 
 interface Transferlike implements EventBase & TransferDetails {
   account: Account!
-  amount: BigInt!
+  amount: Decimal!
   block: BigInt!
   from: Address!
   id: ID!

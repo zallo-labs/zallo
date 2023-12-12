@@ -6,6 +6,8 @@ import { uuid } from 'edgedb/dist/codecs/ifaces';
 import { GraphQLBigInt } from 'graphql-scalars';
 import { Event } from '../events/events.model';
 import { Transfer, TransferApproval } from '../transfers/transfers.model';
+import { DecimalField } from '~/apollo/scalars/Decimal.scalar';
+import Decimal from 'decimal.js';
 
 @ObjectType()
 export class Receipt {
@@ -30,8 +32,8 @@ export class Receipt {
   @Field(() => GraphQLBigInt)
   gasUsed: bigint;
 
-  @Field(() => GraphQLBigInt)
-  fee: bigint;
+  @DecimalField()
+  ethFee: Decimal;
 
   @Field(() => GraphQLBigInt)
   block: bigint;

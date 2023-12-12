@@ -171,8 +171,8 @@ export class TransactionsService {
         .insert(e.Transaction, {
           hash: transaction,
           proposal: selectedProposal,
-          maxFeePerGas: e.decimal(fees.maxFeePerGas.toString()),
-          discount: e.decimal(discount.toString()),
+          maxFeePerGas: fees.maxFeePerGas.toString(),
+          discount: discount.toString(),
         })
         .run(db);
 

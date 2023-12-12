@@ -5,6 +5,8 @@ import { BytesField } from '~/apollo/scalars/Bytes.scalar';
 import { Uint256Field } from '~/apollo/scalars/BigInt.scalar';
 import { GraphQLJSON } from 'graphql-scalars';
 import { PolicyKeyField } from '~/apollo/scalars/PolicyKey.scalar';
+import Decimal from 'decimal.js';
+import { DecimalField } from '~/apollo/scalars/Decimal.scalar';
 
 @ObjectType()
 export class Operation {
@@ -74,8 +76,8 @@ export class TransferOp extends GenericOp {
   @AddressField()
   to: Address;
 
-  @Uint256Field()
-  amount: bigint;
+  @DecimalField()
+  amount: Decimal;
 }
 
 @ObjectType()
@@ -89,8 +91,8 @@ export class TransferFromOp extends GenericOp {
   @AddressField()
   to: Address;
 
-  @Uint256Field()
-  amount: bigint;
+  @DecimalField()
+  amount: Decimal;
 }
 
 @ObjectType()
@@ -101,8 +103,8 @@ export class TransferApprovalOp extends GenericOp {
   @AddressField()
   spender: Address;
 
-  @Uint256Field()
-  amount: bigint;
+  @DecimalField()
+  amount: Decimal;
 }
 
 @ObjectType()
@@ -110,14 +112,14 @@ export class SwapOp extends GenericOp {
   @AddressField()
   fromToken: Address;
 
-  @Uint256Field()
-  fromAmount: bigint;
+  @DecimalField()
+  fromAmount: Decimal;
 
   @AddressField()
   toToken: Address;
 
-  @Uint256Field()
-  minimumToAmount: bigint;
+  @DecimalField()
+  minimumToAmount: Decimal;
 
   @Field(() => Date)
   deadline: Date;

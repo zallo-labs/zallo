@@ -165,7 +165,7 @@ module default {
     required from: Address;
     required to: Address;
     required tokenAddress: UAddress;
-    required amount: bigint;
+    required amount: Amount;
     required multi direction: TransferDirection;
     link token := (
       assert_single((
@@ -220,7 +220,7 @@ module default {
     required success: bool;
     required responses: array<Bytes>;
     required gasUsed: bigint { constraint min_value(0n); }
-    required fee: bigint { constraint min_value(0n); }
+    required ethFee: Amount;
     required block: bigint { constraint min_value(0n); }
     required timestamp: datetime { default := datetime_of_statement(); }
     multi link events := .transaction.events;

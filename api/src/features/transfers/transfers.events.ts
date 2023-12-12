@@ -9,6 +9,7 @@ import {
   tryOrIgnore,
   ETH_ADDRESS,
   isEthToken,
+  asDecimal,
 } from 'lib';
 import { ERC20 } from 'lib/dapps';
 import {
@@ -23,13 +24,15 @@ import { NetworksService } from '../util/networks/networks.service';
 import { utils as zkUtils } from 'zksync2-js';
 import { uuid } from 'edgedb/dist/codecs/ifaces';
 import { PubsubService } from '../util/pubsub/pubsub.service';
-import { decodeEventLog, formatUnits, getAbiItem } from 'viem';
+import { decodeEventLog, getAbiItem } from 'viem';
 import { and } from '../database/database.util';
 import { TransferDirection } from './transfers.input';
 import { AccountsCacheService } from '../auth/accounts.cache.service';
 import { ExpoService } from '../util/expo/expo.service';
 import { CONFIG } from '~/config';
 import { BalancesService } from '~/features/util/balances/balances.service';
+import Decimal from 'decimal.js';
+import { TokensService } from '~/features/tokens/tokens.service';
 
 export const getTransferTrigger = (account: UAddress) => `transfer.account.${account}`;
 export interface TransferSubscriptionPayload {
@@ -49,6 +52,7 @@ export class TransfersEvents {
     private accountsCache: AccountsCacheService,
     private expo: ExpoService,
     private balances: BalancesService,
+    private tokens: TokensService,
   ) {
     /*
      * Events processor handles events `to` account
@@ -79,7 +83,6 @@ export class TransfersEvents {
 
     const from = asUAddress(r.args.from, chain);
     const to = asUAddress(r.args.to, chain);
-    const amount = r.args.value;
 
     const isAccount = await this.accountsCache.isAccount([from, to]);
     const accounts = [isAccount[0] && from, isAccount[1] && to].filter(isTruthy);
@@ -89,6 +92,7 @@ export class TransfersEvents {
     const network = this.networks.get(chain);
     const block =
       'block' in event ? event.block : await network.getBlock({ blockNumber: log.blockNumber });
+    const amount = await this.tokens.asDecimal(token, r.args.value);
 
     await Promise.all(
       accounts.map(async (account) => {
@@ -114,7 +118,12 @@ export class TransfersEvents {
                 from: asAddress(from),
                 to: asAddress(to),
                 tokenAddress: token,
-                amount: from === to ? 0n : to === account ? amount : -amount,
+                amount:
+                  from === to
+                    ? '0'
+                    : to === account
+                    ? amount.toString()
+                    : amount.negated().toString(),
                 direction: [account === to && 'In', account === from && 'Out'].filter(Boolean) as [
                   'In',
                 ],
@@ -169,15 +178,16 @@ export class TransfersEvents {
 
     const from = asUAddress(r.args.owner, chain);
     const to = asUAddress(r.args.spender, chain);
-    const amount = r.args.value;
 
     const isAccount = await this.accountsCache.isAccount([from, to]);
     const accounts = [isAccount[0] && from, isAccount[1] && to].filter(isTruthy);
     if (!accounts.length) return;
 
-    const tokenAddress = asUAddress(normalizeEthAddress(asAddress(log.address)), chain);
-    const block = await this.networks.get(chain).getBlock({ blockNumber: log.blockNumber });
-    Logger.debug(`Transfer approval ${tokenAddress}: ${from} -> ${to}`);
+    const token = asUAddress(normalizeEthAddress(asAddress(log.address)), chain);
+    const network = this.networks.get(chain);
+    const block =
+      'block' in event ? event.block : await network.getBlock({ blockNumber: log.blockNumber });
+    const amount = await this.tokens.asDecimal(token, r.args.value);
 
     await Promise.all(
       accounts.map(async (account) => {
@@ -191,8 +201,13 @@ export class TransfersEvents {
               timestamp: new Date(Number(block.timestamp) * 1000),
               from: asAddress(from),
               to: asAddress(to),
-              tokenAddress,
-              amount: from === to ? 0n : to === account ? amount : -amount,
+              tokenAddress: token,
+              amount:
+                from === to
+                  ? '0'
+                  : to === account
+                  ? amount.toString()
+                  : amount.negated().toString(),
               direction: [account === to && 'In', account === from && 'Out'].filter(Boolean) as [
                 'In',
               ],
@@ -200,7 +215,10 @@ export class TransfersEvents {
             .unlessConflict(),
         );
 
-        if (to === account) this.notifyMembers('approval', account, from, tokenAddress, amount);
+        if (to === account) {
+          Logger.debug(`Transfer approval ${token}: ${from} -> ${to}`);
+          this.notifyMembers('approval', account, from, token, amount);
+        }
       }),
     );
   }
@@ -210,7 +228,7 @@ export class TransfersEvents {
     account: UAddress,
     from: UAddress,
     token: UAddress,
-    amount: bigint,
+    amount: Decimal,
   ) {
     const { acc, tokenMetadata } = await this.db.query(
       e.select({
@@ -262,13 +280,10 @@ export class TransfersEvents {
           body:
             type === 'transfer'
               ? t
-                ? `${formatUnits(amount, t.decimals)} ${t.symbol} received from ${fromLabel}`
+                ? `${amount} ${t.symbol} received from ${fromLabel}`
                 : `Tokens (${truncateAddress(token)}) received from ${fromLabel}`
               : t
-              ? `${fromLabel} has allowed you to spend ${formatUnits(
-                  amount,
-                  t.decimals,
-                )} of their ${t.symbol} `
+              ? `${fromLabel} has allowed you to spend ${amount} ${t.symbol} `
               : `${fromLabel} has allowed you to spend their tokens (${truncateAddress(token)})`,
           channelId: 'transfers',
           priority: 'normal',

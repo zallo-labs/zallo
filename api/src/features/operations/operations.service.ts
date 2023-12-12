@@ -8,6 +8,9 @@ import {
   isPresent,
   tryOrIgnore,
   ETH_ADDRESS,
+  asUAddress,
+  isEthToken,
+  asDecimal,
 } from 'lib';
 import { ContractsService } from '../contracts/contracts.service';
 import { DatabaseService } from '../database/database.service';
@@ -25,10 +28,12 @@ import {
   SwapOp,
 } from './operations.model';
 import { ACCOUNT_IMPLEMENTATION } from 'lib';
-import { ERC20, SYNCSWAP } from 'lib/dapps';
+import { ERC20, ETH, SYNCSWAP } from 'lib/dapps';
 import { match } from 'ts-pattern';
 import { NetworksService } from '../util/networks/networks.service';
 import { WETH } from '../tokens/tokens.list';
+import { Chain } from 'chains';
+import { TokensService } from '~/features/tokens/tokens.service';
 
 @Injectable()
 export class OperationsService {
@@ -36,10 +41,11 @@ export class OperationsService {
     private db: DatabaseService,
     private networks: NetworksService,
     private contracts: ContractsService,
+    private tokens: TokensService,
   ) {}
 
-  async decode(op: Operation): Promise<OperationFunction | undefined> {
-    return (await this.decodeCustom(op)) || (await this.decodeGeneric(op));
+  async decode(op: Operation, chain: Chain): Promise<OperationFunction | undefined> {
+    return (await this.decodeCustom(op, chain)) || (await this.decodeGeneric(op));
   }
 
   private async decodeGeneric({ to, data }: Operation): Promise<GenericOp | undefined> {
@@ -80,7 +86,10 @@ export class OperationsService {
     return selectorMatches[0]?.abi as AbiFunction | undefined;
   }
 
-  async decodeCustom({ to, value, data }: Operation): Promise<OperationFunction | undefined> {
+  async decodeCustom(
+    { to, value, data }: Operation,
+    chain: Chain,
+  ): Promise<OperationFunction | undefined> {
     if ((!data || size(data) === 0) && value) {
       // ETH transfer
       return Object.assign(new TransferOp(), {
@@ -88,7 +97,7 @@ export class OperationsService {
         _args: [to, value],
         token: ETH_ADDRESS,
         to,
-        amount: value,
+        amount: asDecimal(value, ETH),
       } satisfies TransferOp);
     }
 
@@ -126,29 +135,29 @@ export class OperationsService {
           } satisfies RemovePolicyOp),
         )
         /* ERC20 */
-        .with({ functionName: 'transfer' }, (f) =>
+        .with({ functionName: 'transfer' }, async (f) =>
           Object.assign(new TransferOp(), {
             ...base,
             token: to,
             to: f.args[0],
-            amount: f.args[1],
+            amount: await this.tokens.asDecimal(asUAddress(to, chain), f.args[1]),
           } satisfies TransferOp),
         )
-        .with({ functionName: 'transferFrom' }, (f) =>
+        .with({ functionName: 'transferFrom' }, async (f) =>
           Object.assign(new TransferFromOp(), {
             ...base,
             token: to,
             from: f.args[0],
             to: f.args[1],
-            amount: f.args[2],
+            amount: await this.tokens.asDecimal(asUAddress(to, chain), f.args[2]),
           } satisfies TransferFromOp),
         )
-        .with({ functionName: 'approve' }, (f) =>
+        .with({ functionName: 'approve' }, async (f) =>
           Object.assign(new TransferApprovalOp(), {
             ...base,
             token: to,
             spender: f.args[0],
-            amount: f.args[1],
+            amount: await this.tokens.asDecimal(asUAddress(to, chain), f.args[1]),
           } satisfies TransferApprovalOp),
         )
         /* SyncSwap */
@@ -175,16 +184,22 @@ export class OperationsService {
           const pair = tokenCalls.map((c) => c.result).filter(isPresent);
           if (pair.length !== 2) return Object.assign(new GenericOp(), base);
 
+          // ETH can be used as tokenIn, but uses the WETH pool
+          const fromToken = path.tokenIn;
+          const toToken =
+            (isEthToken(fromToken) ? WETH.address : fromToken) === pair[0] ? pair[1] : pair[0];
+
+          const [fromAmount, minimumToAmount] = await Promise.all([
+            this.tokens.asDecimal(asUAddress(fromToken, chain), path.amountIn),
+            this.tokens.asDecimal(asUAddress(toToken, chain), f.args[1]),
+          ]);
+
           return Object.assign(new SwapOp(), {
             ...base,
-            fromToken: path.tokenIn,
-            fromAmount: path.amountIn,
-            // ETH can be used as tokenIn, but uses the WETH pool
-            toToken:
-              (path.tokenIn === ETH_ADDRESS ? WETH.address : path.tokenIn) === pair[0]
-                ? pair[1]
-                : pair[0],
-            minimumToAmount: f.args[1],
+            fromToken,
+            fromAmount,
+            toToken,
+            minimumToAmount,
             deadline: new Date(Number(f.args[2]) * 1000),
           } satisfies SwapOp);
         })
