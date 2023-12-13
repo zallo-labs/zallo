@@ -18,6 +18,7 @@ import '@solidstate/hardhat-4byte-uploader';
 
 // Tasks
 import './tasks/export';
+import './tasks/upload-openchain';
 
 // https://hardhat.org/config/
 export default {
