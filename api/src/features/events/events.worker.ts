@@ -4,7 +4,7 @@ import { NetworksService } from '../util/networks/networks.service';
 import { DatabaseService } from '../database/database.service';
 import e from '~/edgeql-js';
 import { P, match } from 'ts-pattern';
-import { Hex, asHex, tryOrCatchAsync } from 'lib';
+import { Hex, asHex } from 'lib';
 import { Chain } from 'chains';
 import { InjectRedis } from '@songkeys/nestjs-redis';
 import Redis from 'ioredis';
@@ -20,7 +20,7 @@ import { AbiEvent } from 'abitype';
 import { Log as ViemLog, encodeEventTopics, hexToNumber } from 'viem';
 
 const DEFAULT_CHUNK_SIZE = 200;
-const BLOCK_TIME_MS = 500;
+const BLOCK_TIME = 500; /* ms */
 const TOO_MANY_RESULTS_RE =
   /Query returned more than .+? results. Try with this block range \[(?:0x[0-9a-f]+), (0x[0-9a-f]+)\]/;
 
@@ -29,7 +29,7 @@ export const EventsQueue = createQueue<EventJobData>('Events', {
     attempts: 50,
     backoff: {
       type: 'fixed',
-      delay: BLOCK_TIME_MS,
+      delay: BLOCK_TIME,
     },
     removeOnComplete: true,
     removeOnFail: false,
@@ -88,16 +88,7 @@ export class EventsWorker extends WorkerHost<TypedWorker<EventsQueue>> implement
     const { chain } = job.data;
     const network = this.networks.get(chain);
 
-    const latest = await tryOrCatchAsync(
-      async () => Number(await network.getBlockNumber()), // Warning: truncate bigint -> number
-      async (e) => {
-        if (job.data.queueNext !== false) {
-          // Next job hasn't been queued yet, queue it next attempt
-          await job.updateData({ ...job.data, queueNext: job.attemptsMade + 1 });
-        }
-        throw e;
-      },
-    );
+    const latest = Number(network.blockNumber()); // Warning: bigint -> number
     const from = job.data.from;
     const to = Math.min(job.data.to ?? from + DEFAULT_CHUNK_SIZE - 1, latest);
 
@@ -110,13 +101,13 @@ export class EventsWorker extends WorkerHost<TypedWorker<EventsQueue>> implement
     if (shouldQueue) {
       if (latest < from) {
         // Up to date; retry after a delay
-        return this.queue.add(EventsQueue.name, { chain, from }, { delay: BLOCK_TIME_MS });
+        return this.queue.add(EventsQueue.name, { chain, from }, { delay: BLOCK_TIME });
       } else {
         // Queue up next job
         this.queue.add(
           EventsQueue.name,
           { chain, from: to + 1 },
-          { delay: latest === from ? BLOCK_TIME_MS : undefined },
+          { delay: latest === from ? BLOCK_TIME : undefined },
         );
       }
     }
@@ -150,7 +141,9 @@ export class EventsWorker extends WorkerHost<TypedWorker<EventsQueue>> implement
           (log) => this.listeners.get(log.topics[0]!)?.map((listener) => listener({ chain, log })),
         ),
     );
-    Logger.verbose(`Processed ${logs.length} events from ${to - from + 1} blocks [${from}, ${to}]`);
+    Logger.verbose(
+      `[${chain}]: Processed ${logs.length} events from ${to - from + 1} blocks [${from}, ${to}]`,
+    );
   }
 
   private async addMissingJob() {
@@ -177,7 +170,7 @@ export class EventsWorker extends WorkerHost<TypedWorker<EventsQueue>> implement
 
       const from = lastProcessedBlock
         ? Number(lastProcessedBlock) + 1 // Warning: bigint -> number
-        : Number(await network.getBlockNumber()); // Warning: bigint -> number
+        : Number(network.blockNumber()); // Warning: bigint -> number
       Logger.log(`${network.chain.key}: events starting from block ${from}`);
 
       this.queue.add(EventsQueue.name, { chain: network.chain.key, from });

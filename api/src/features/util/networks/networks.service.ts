@@ -3,10 +3,11 @@ import { CONFIG } from '~/config';
 import { asChain, asUAddress, UAddress } from 'lib';
 import { ChainConfig, Chain, CHAINS, NetworkWallet } from 'chains';
 import {
-  FallbackTransport,
+  PublicClient,
+  Transport,
+  WatchBlockNumberErrorType,
   createPublicClient,
   createWalletClient,
-  fallback,
   http,
   webSocket,
 } from 'viem';
@@ -33,18 +34,15 @@ export class NetworksService implements AsyncIterable<Network> {
     return this.get(asChain(address));
   }
 
-  async *[Symbol.asyncIterator]() {
+  *all() {
     for (const chain of Object.values(CHAINS)) {
-      try {
-        const existing = this.clients[chain.key];
-        if (existing) return existing;
+      yield this.get(chain);
+    }
+  }
 
-        const network = this.get(chain);
-        await network.getBlockNumber();
-        yield network;
-      } catch (_) {
-        // Ignore unavailable networks e.g. local
-      }
+  async *[Symbol.asyncIterator]() {
+    for (const network of this.all()) {
+      if ((await network.status()) === 'healthy') yield network;
     }
   }
 }
@@ -56,29 +54,39 @@ interface CreateParams {
 
 function create({ chainKey, redis }: CreateParams) {
   const chain = CHAINS[chainKey];
-  const transport = fallback([
-    ...chain.rpcUrls.default.webSocket.map((url) => webSocket(url, { retryCount: 10 })),
-    ...chain.rpcUrls.default.http.map((url) => http(url, { retryCount: 10, batch: true })),
-  ]);
+  const transport = chain.rpcUrls.default.webSocket.length
+    ? webSocket(undefined, { retryCount: 10 })
+    : http();
+  // const transport = fallback([
+  //   ...chain.rpcUrls.default.webSocket.map((url) => webSocket(url, { retryCount: 10 })),
+  //   ...chain.rpcUrls.default.http.map((url) => http(url, { retryCount: 10, batch: true })),
+  // ]);
 
-  const wallet = createWalletClient({
-    account: privateKeyToAccount(CONFIG.walletPrivateKeys[chainKey]),
+  return createPublicClient<Transport, ChainConfig>({
     chain,
     transport,
-  });
-  const walletAddress = asUAddress(wallet.account.address, chainKey);
-
-  return createPublicClient<FallbackTransport, ChainConfig>({
-    chain,
-    transport: fallback([
-      ...chain.rpcUrls.default.webSocket.map((url) => webSocket(url, { retryCount: 10 })),
-      ...chain.rpcUrls.default.http.map((url) => http(url, { retryCount: 10, batch: true })),
-    ]),
     key: chain.key,
     name: chain.name,
     batch: { multicall: true },
-    pollingInterval: 250 /* ms */,
-  }).extend((_client) => ({
+    pollingInterval: 250 /* ms */, // Used when websocket is unavailable
+  }).extend((client) => ({
+    ...walletActions(client, transport, redis),
+    ...blockNumberAndStatusActions(client),
+  }));
+}
+
+type Client = PublicClient<Transport, ChainConfig>;
+
+function walletActions(client: Client, transport: Transport, redis: Redis) {
+  const chain = client.chain;
+  const wallet = createWalletClient({
+    account: privateKeyToAccount(CONFIG.walletPrivateKeys[chain.key]),
+    chain,
+    transport,
+  });
+  const walletAddress = asUAddress(wallet.account.address, chain.key);
+
+  return {
     walletAddress,
     async useWallet<R>(f: (wallet: NetworkWallet) => R): Promise<R> {
       const mutex = new Mutex(redis, `network-wallet:${walletAddress}`, {
@@ -93,5 +101,42 @@ function create({ chainKey, redis }: CreateParams) {
         await mutex.release();
       }
     },
-  }));
+  };
+}
+
+function blockNumberAndStatusActions(client: Client) {
+  let status: 'healthy' | WatchBlockNumberErrorType = 'healthy';
+  let blockNumber = 0n;
+
+  let connect: (() => void) | null = null;
+  const connecting = new Promise<void>((resolve) => {
+    connect = () => {
+      resolve();
+      connect = null;
+    };
+  });
+
+  client.watchBlockNumber({
+    onBlockNumber: (newBlockNumber) => {
+      if (blockNumber < newBlockNumber) {
+        blockNumber = newBlockNumber;
+        status = 'healthy';
+        connect?.();
+      }
+    },
+    onError: (error) => {
+      status = error as WatchBlockNumberErrorType;
+    },
+    emitOnBegin: true,
+  });
+
+  return {
+    blockNumber() {
+      return blockNumber;
+    },
+    async status() {
+      await connecting;
+      return status;
+    },
+  };
 }
