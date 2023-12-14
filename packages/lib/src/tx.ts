@@ -4,7 +4,9 @@ import { Operation, encodeOperations } from './operation';
 import _ from 'lodash';
 import { hashTypedData, TypedData, TypedDataDefinition, TypedDataDomain, zeroAddress } from 'viem';
 import { TypedDataToPrimitiveTypes } from 'abitype';
-import { paymasterSignedInput } from '.';
+import { asFp, paymasterSignedInput } from '.';
+import { ETH } from './dapps';
+import Decimal from 'decimal.js';
 
 export interface Tx {
   operations: [Operation, ...Operation[]];
@@ -12,7 +14,7 @@ export interface Tx {
   gas?: bigint;
   paymaster?: Address;
   feeToken?: Address;
-  paymasterFee?: bigint;
+  paymasterEthFee?: Decimal;
 }
 
 export type TxOptions = Omit<Tx, 'operations'> &
@@ -67,7 +69,7 @@ export function asTypedData(account: UAddress, tx: Tx) {
       tx.paymaster
         ? {
             token: tx.feeToken ?? ETH_ADDRESS,
-            paymasterFee: tx.paymasterFee ?? 0n,
+            paymasterFee: tx.paymasterEthFee ? asFp(tx.paymasterEthFee, ETH) : 0n,
           }
         : '0x',
     ),

@@ -5,24 +5,26 @@ import {
   TransactionProposalsInput,
   UpdateTransactionProposalInput,
 } from './transaction-proposals.input';
-import { TransactionProposal, TransactionProposalStatus } from './transaction-proposals.model';
-import { TransactionProposalsService } from './transaction-proposals.service';
+import {
+  EstimatedTransactionFees,
+  TransactionProposal,
+  TransactionProposalStatus,
+} from './transaction-proposals.model';
+import {
+  EstimateFeesDeps,
+  TransactionProposalsService,
+  estimateFeesDeps,
+} from './transaction-proposals.service';
 import { getShape } from '../database/database.select';
 import e from '~/edgeql-js';
 import { Input } from '~/decorators/input.decorator';
 import { uuid } from 'edgedb/dist/codecs/ifaces';
 import { ComputedField } from '~/decorators/computed.decorator';
 import { ApproveInput, ProposalInput } from '../proposals/proposals.input';
-import { DecimalScalar } from '~/apollo/scalars/Decimal.scalar';
-import { PaymastersService } from '~/features/paymasters/paymasters.service';
-import Decimal from 'decimal.js';
 
 @Resolver(() => TransactionProposal)
 export class TransactionProposalsResolver {
-  constructor(
-    private service: TransactionProposalsService,
-    private paymasters: PaymastersService,
-  ) {}
+  constructor(private service: TransactionProposalsService) {}
 
   @Query(() => TransactionProposal, { nullable: true })
   async transactionProposal(@Input() { hash }: ProposalInput, @Info() info: GraphQLResolveInfo) {
@@ -44,12 +46,9 @@ export class TransactionProposalsResolver {
     );
   }
 
-  @ComputedField<typeof e.TransactionProposal>(() => DecimalScalar, {
-    account: { address: true },
-    gasLimit: true,
-  })
-  async estimateDiscount(@Parent() { account, gasLimit }: TransactionProposal): Promise<Decimal> {
-    return this.paymasters.estimateDiscount(account.address, gasLimit);
+  @ComputedField<typeof e.TransactionProposal>(() => EstimatedTransactionFees, estimateFeesDeps)
+  async estimatedFees(@Parent() deps: EstimateFeesDeps): Promise<EstimatedTransactionFees> {
+    return this.service.estimateFees(deps);
   }
 
   @Mutation(() => TransactionProposal)

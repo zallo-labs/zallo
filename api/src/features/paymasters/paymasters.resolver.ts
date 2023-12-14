@@ -10,6 +10,6 @@ export class PaymastersResolver {
 
   @Query(() => FeesPerGas, { nullable: true })
   estimateFeesPerGas(@Input() { feeToken }: EstimateFeesPerGasInput): Promise<FeesPerGas | null> {
-    return this.service.estimateFeesPerGas(feeToken);
+    return this.service.estimateFeePerGas(feeToken);
   }
 }

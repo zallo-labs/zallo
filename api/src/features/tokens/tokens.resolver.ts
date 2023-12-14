@@ -6,7 +6,7 @@ import { TokensService } from './tokens.service';
 import { GraphQLResolveInfo } from 'graphql';
 import { getShape } from '../database/database.select';
 import { uuid } from 'edgedb/dist/codecs/ifaces';
-import { Pricefeed } from '../prices/prices.model';
+import { Price } from '../prices/prices.model';
 import { ComputedField } from '~/decorators/computed.decorator';
 import e from '~/edgeql-js';
 import * as eql from '~/edgeql-interfaces';
@@ -54,10 +54,10 @@ export class TokensResolver {
     return asDecimal(balance, decimals);
   }
 
-  @ComputedField<typeof e.Token>(() => Pricefeed, { pythUsdPriceId: true }, { nullable: true })
-  async price(@Parent() { pythUsdPriceId }: Token): Promise<Pricefeed | null> {
+  @ComputedField<typeof e.Token>(() => Price, { pythUsdPriceId: true }, { nullable: true })
+  async price(@Parent() { pythUsdPriceId }: Token): Promise<Price | null> {
     if (!pythUsdPriceId) return null;
-    return this.prices.feed(pythUsdPriceId);
+    return this.prices.price(pythUsdPriceId);
   }
 
   @ComputedField<typeof e.Token>(
@@ -67,7 +67,7 @@ export class TokensResolver {
   )
   async estimatedFeesPerGas(@Parent() { address, isFeeToken }: Token): Promise<FeesPerGas | null> {
     if (!isFeeToken) return null;
-    return this.paymaster.estimateFeesPerGas(address);
+    return this.paymaster.estimateFeePerGas(address);
   }
 
   @ComputedField<typeof e.Token>(() => Boolean, { user: true })

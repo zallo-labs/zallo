@@ -15,7 +15,22 @@ export class Transaction extends Node {
   proposal: TransactionProposal;
 
   @DecimalField()
-  maxFeePerGas: Decimal;
+  maxEthFeePerGas: Decimal;
+
+  @DecimalField()
+  ethDiscount: Decimal;
+
+  @DecimalField()
+  ethPerFeeToken: Decimal;
+
+  @DecimalField()
+  usdPerFeeToken: Decimal;
+
+  @DecimalField()
+  maxNetworkEthFee: Decimal;
+
+  @DecimalField()
+  maxEthFees: Decimal;
 
   @Field(() => Date)
   submittedAt: Date;

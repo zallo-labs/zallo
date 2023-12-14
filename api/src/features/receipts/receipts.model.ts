@@ -33,7 +33,13 @@ export class Receipt {
   gasUsed: bigint;
 
   @DecimalField()
-  ethFee: Decimal;
+  ethFeePerGas: Decimal;
+
+  @DecimalField()
+  networkEthFee: Decimal;
+
+  @DecimalField()
+  ethFees: Decimal;
 
   @Field(() => GraphQLBigInt)
   block: bigint;

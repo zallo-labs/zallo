@@ -1,4 +1,4 @@
-import { forwardRef, Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { UserInputError } from '@nestjs/apollo';
 import {
   hashTx,
@@ -11,26 +11,28 @@ import {
   asUAddress,
   asChain,
   ETH_ADDRESS,
-  asFp,
+  Hex,
 } from 'lib';
 import { NetworksService } from '~/features/util/networks/networks.service';
-import { TransactionsService } from '../transactions/transactions.service';
 import {
   ProposeTransactionInput,
   TransactionProposalsInput,
   UpdateTransactionProposalInput,
 } from './transaction-proposals.input';
-import { ExpoService } from '../util/expo/expo.service';
 import { DatabaseService } from '../database/database.service';
-import e from '~/edgeql-js';
-import { ShapeFunc } from '../database/database.select';
+import e, { $infer } from '~/edgeql-js';
+import { Shape, ShapeFunc } from '../database/database.select';
 import { and } from '../database/database.util';
 import { selectAccount } from '../accounts/accounts.util';
 import { ProposalsService, UniqueProposal } from '../proposals/proposals.service';
 import { ApproveInput, ProposalEvent } from '../proposals/proposals.input';
 import { SimulationsService } from '../simulations/simulations.service';
 import { PaymastersService } from '~/features/paymasters/paymasters.service';
-import { ETH } from 'lib/dapps';
+import { EstimatedTransactionFees } from '~/features/transaction-proposals/transaction-proposals.model';
+import Decimal from 'decimal.js';
+import { InjectQueue } from '@nestjs/bullmq';
+import { EXECUTIONS_QUEUE } from '~/features/transaction-proposals/executions.worker';
+import { TypedQueue } from '~/features/util/bull/bull.util';
 
 export const selectTransactionProposal = (
   id: UniqueProposal,
@@ -41,17 +43,27 @@ export const selectTransactionProposal = (
     filter_single: isHex(id) ? { hash: id } : { id },
   }));
 
+export const estimateFeesDeps = {
+  id: true,
+  account: { address: true },
+  gasLimit: true,
+  paymasterEthFee: true,
+} satisfies Shape<typeof e.TransactionProposal>;
+const s_ = e.assert_exists(
+  e.assert_single(e.select(e.TransactionProposal, () => estimateFeesDeps)),
+);
+export type EstimateFeesDeps = $infer<typeof s_>;
+
 @Injectable()
 export class TransactionProposalsService {
   constructor(
     private db: DatabaseService,
     private networks: NetworksService,
-    private expo: ExpoService,
     private proposals: ProposalsService,
-    @Inject(forwardRef(() => TransactionsService))
-    private transactions: TransactionsService,
     private simulations: SimulationsService,
     private paymasters: PaymastersService,
+    @InjectQueue(EXECUTIONS_QUEUE.name)
+    private executionsQueue: TypedQueue<typeof EXECUTIONS_QUEUE>,
   ) {}
 
   async selectUnique(id: UniqueProposal, shape?: ShapeFunc<typeof e.TransactionProposal>) {
@@ -78,6 +90,10 @@ export class TransactionProposalsService {
     );
   }
 
+  async tryExecute(txProposalHash: Hex) {
+    this.executionsQueue.add('executions', { txProposalHash });
+  }
+
   async getProposal({
     account,
     operations,
@@ -90,14 +106,14 @@ export class TransactionProposalsService {
     if (!operations.length) throw new UserInputError('No operations provided');
 
     const network = this.networks.for(account);
-    const paymasterFee = this.paymasters.fee(operations);
+    const paymasterEthFee = this.paymasters.paymasterEthFee(operations);
     const tx = {
       operations,
       nonce: BigInt(Math.floor(validFrom.getTime() / 1000)),
       gas,
       feeToken,
       paymaster: this.paymasters.for(network.chain.key),
-      paymasterFee: asFp(paymasterFee, ETH),
+      paymasterEthFee,
     } satisfies Tx;
     const hash = hashTx(account, tx);
 
@@ -122,7 +138,7 @@ export class TransactionProposalsService {
           await estimateTransactionOperationsGas({ account: asAddress(account), tx, network })
         ).unwrapOr(FALLBACK_OPERATIONS_GAS),
       paymaster: tx.paymaster,
-      paymasterFee: paymasterFee.toString(),
+      paymasterEthFee: paymasterEthFee.toString(),
       feeToken: e.assert_single(
         e.select(e.Token, (t) => ({
           filter: and(
@@ -155,7 +171,7 @@ export class TransactionProposalsService {
 
   async approve(input: ApproveInput) {
     await this.proposals.approve(input);
-    await this.transactions.tryExecute(input.hash);
+    await this.tryExecute(input.hash);
   }
 
   async update({ hash, policy, feeToken }: UpdateTransactionProposalInput) {
@@ -200,15 +216,14 @@ export class TransactionProposalsService {
         },
       })),
     );
+    if (!p) return;
 
-    if (policy !== undefined && p) await this.transactions.tryExecute(p.hash);
+    if (policy !== undefined) await this.tryExecute(asHex(p.hash));
 
-    if (p) {
-      this.proposals.publishProposal(
-        { hash: asHex(p.hash), account: asUAddress(p.account.address) },
-        ProposalEvent.update,
-      );
-    }
+    this.proposals.publishProposal(
+      { hash: asHex(p.hash), account: asUAddress(p.account.address) },
+      ProposalEvent.update,
+    );
 
     return p;
   }
@@ -230,5 +245,21 @@ export class TransactionProposalsService {
 
       return e.delete(selectTransactionProposal(id)).id.run(db);
     });
+  }
+
+  async estimateFees(d: EstimateFeesDeps): Promise<EstimatedTransactionFees> {
+    const account = asUAddress(d.account.address);
+    const maxEthFeePerGas = await this.paymasters.estimateMaxEthFeePerGas(asChain(account));
+    const gasLimit = new Decimal(d.gasLimit.toString());
+
+    return {
+      id: `EstimatedTransactionFees:${d.id}`,
+      maxNetworkEthFee: maxEthFeePerGas.mul(gasLimit),
+      ethDiscount: await this.paymasters.estimateEthDiscount(
+        account,
+        gasLimit,
+        new Decimal(d.paymasterEthFee),
+      ),
+    };
   }
 }

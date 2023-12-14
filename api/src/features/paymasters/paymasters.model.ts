@@ -12,5 +12,5 @@ export class FeesPerGas extends Node {
   maxFeePerGas: Decimal;
 
   @Field(() => Number)
-  decimals: number;
+  feeTokenDecimals: number;
 }

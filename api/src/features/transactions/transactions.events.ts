@@ -85,7 +85,7 @@ export class TransactionsEvents implements OnModuleInit {
             success: true,
             responses: 'responses' in r.args ? [...r.args.responses] : [r.args.response],
             gasUsed: receipt.gasUsed,
-            ethFee: asDecimal(receipt.gasUsed * receipt.effectiveGasPrice, ETH).toString(),
+            ethFeePerGas: asDecimal(receipt.effectiveGasPrice, ETH).toString(),
             block: BigInt(receipt.blockNumber),
             timestamp: new Date(Number(block.timestamp) * 1000), // block.timestamp is in seconds
           }),
@@ -115,7 +115,7 @@ export class TransactionsEvents implements OnModuleInit {
           success: false,
           responses: [callResponse.data].filter(isTruthy),
           gasUsed: receipt.gasUsed,
-          ethFee: asDecimal(receipt.gasUsed * receipt.effectiveGasPrice, ETH).toString(),
+          ethFeePerGas: asDecimal(receipt.effectiveGasPrice, ETH).toString(),
           block: receipt.blockNumber,
           timestamp: new Date(Number(block.timestamp) * 1000), // block.timestamp is in seconds
         }),

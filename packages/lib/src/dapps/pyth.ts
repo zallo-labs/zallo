@@ -1,6 +1,6 @@
 import { addressMap } from './util';
 
-const abi = [
+const ipythAbi = [
   {
     anonymous: false,
     inputs: [
@@ -567,8 +567,81 @@ const abi = [
   },
 ] as const;
 
+const pythErrorsAbi = [
+  {
+    inputs: [],
+    name: 'InsufficientFee',
+    type: 'error',
+  },
+  {
+    inputs: [],
+    name: 'InvalidArgument',
+    type: 'error',
+  },
+  {
+    inputs: [],
+    name: 'InvalidGovernanceDataSource',
+    type: 'error',
+  },
+  {
+    inputs: [],
+    name: 'InvalidGovernanceMessage',
+    type: 'error',
+  },
+  {
+    inputs: [],
+    name: 'InvalidGovernanceTarget',
+    type: 'error',
+  },
+  {
+    inputs: [],
+    name: 'InvalidUpdateData',
+    type: 'error',
+  },
+  {
+    inputs: [],
+    name: 'InvalidUpdateDataSource',
+    type: 'error',
+  },
+  {
+    inputs: [],
+    name: 'InvalidWormholeAddressToSet',
+    type: 'error',
+  },
+  {
+    inputs: [],
+    name: 'InvalidWormholeVaa',
+    type: 'error',
+  },
+  {
+    inputs: [],
+    name: 'NoFreshUpdate',
+    type: 'error',
+  },
+  {
+    inputs: [],
+    name: 'OldGovernanceMessage',
+    type: 'error',
+  },
+  {
+    inputs: [],
+    name: 'PriceFeedNotFound',
+    type: 'error',
+  },
+  {
+    inputs: [],
+    name: 'PriceFeedNotFoundWithinRange',
+    type: 'error',
+  },
+  {
+    inputs: [],
+    name: 'StalePrice',
+    type: 'error',
+  },
+] as const;
+
 export const PYTH = {
-  abi,
+  abi: [...ipythAbi, ...pythErrorsAbi],
   address: addressMap({
     zksync: '0xf087c864AEccFb6A2Bf1Af6A0382B0d0f6c5D834',
     'zksync-goerli': '0x8739d5024B5143278E2b15Bd9e7C26f6CEc658F1',

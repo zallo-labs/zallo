@@ -14,6 +14,7 @@ export * from './execute';
 export * from './gas';
 export * from './id';
 export * from './policy';
+export * from './safe-viem';
 export * from './satisfiability';
 export * from './signature';
 export * from './tx';

@@ -5,6 +5,11 @@ import { Operation } from '../operations/operations.model';
 import { Token } from '../tokens/tokens.model';
 import { Simulation } from '../simulations/simulations.model';
 import { Proposal } from '../proposals/proposals.model';
+import { AddressField } from '~/apollo/scalars/Address.scalar';
+import { Address } from 'lib';
+import { DecimalField } from '~/apollo/scalars/Decimal.scalar';
+import Decimal from 'decimal.js';
+import { Node, NodeType } from '~/decorators/interface.decorator';
 
 @ObjectType({ implements: () => Proposal })
 export class TransactionProposal extends Proposal {
@@ -19,6 +24,12 @@ export class TransactionProposal extends Proposal {
 
   @Field(() => Token)
   feeToken: Token;
+
+  @AddressField()
+  paymaster: Address;
+
+  @DecimalField()
+  paymasterEthFee: Decimal;
 
   @Field(() => Simulation, { nullable: true })
   simulation?: Simulation;
@@ -40,3 +51,12 @@ export enum TransactionProposalStatus {
   Failed = 'Failed',
 }
 registerEnumType(TransactionProposalStatus, { name: 'TransactionProposalStatus' });
+
+@NodeType()
+export class EstimatedTransactionFees extends Node {
+  @DecimalField()
+  maxNetworkEthFee: Decimal;
+
+  @DecimalField()
+  ethDiscount: Decimal;
+}
