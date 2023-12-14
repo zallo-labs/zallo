@@ -1,6 +1,5 @@
-import { BullModuleOptions, InjectQueue, Process, Processor } from '@nestjs/bull';
+import { InjectQueue, Processor, WorkerHost } from '@nestjs/bullmq';
 import { Injectable, OnModuleInit } from '@nestjs/common';
-import { Job, Queue } from 'bull';
 import { ETH_ADDRESS, Hex, asAddress, asChain, asDecimal, asHex, asUAddress } from 'lib';
 import { DatabaseService } from '../database/database.service';
 import e from '~/edgeql-js';
@@ -11,29 +10,34 @@ import { SwapOp, TransferFromOp, TransferOp } from '../operations/operations.mod
 import { InjectRedis } from '@songkeys/nestjs-redis';
 import Redis from 'ioredis';
 import { Mutex } from 'redis-semaphore';
-import { RUNNING_JOB_STATUSES } from '../util/bull/bull.util';
+import {
+  RUNNING_JOB_STATUSES,
+  TypedJob,
+  TypedQueue,
+  TypedWorker,
+  createQueue,
+} from '../util/bull/bull.util';
 import { ETH } from 'lib/dapps';
 
 type TransferDetails = Parameters<typeof e.insert<typeof e.TransferDetails>>[1];
 
-export interface SimulationRequest {
-  transactionProposalHash: Hex;
-}
-
-export const SIMULATIONS_QUEUE = {
-  name: 'Simulations',
-} satisfies BullModuleOptions;
+export const SIMULATIONS_QUEUE = createQueue<{ transactionProposalHash: Hex }>('Simulations');
 
 @Injectable()
 @Processor(SIMULATIONS_QUEUE.name)
-export class SimulationsProcessor implements OnModuleInit {
+export class SimulationsWorker
+  extends WorkerHost<TypedWorker<typeof SIMULATIONS_QUEUE>>
+  implements OnModuleInit
+{
   constructor(
     @InjectQueue(SIMULATIONS_QUEUE.name)
-    private queue: Queue<SimulationRequest>,
+    private queue: TypedQueue<typeof SIMULATIONS_QUEUE>,
     private db: DatabaseService,
     @InjectRedis() private redis: Redis,
     private operations: OperationsService,
-  ) {}
+  ) {
+    super();
+  }
 
   async onModuleInit() {
     const mutex = new Mutex(this.redis, 'simulations-missing-jobs', { lockTimeout: 60_000 });
@@ -44,8 +48,7 @@ export class SimulationsProcessor implements OnModuleInit {
     }
   }
 
-  @Process()
-  async process(job: Job<SimulationRequest>) {
+  async process(job: TypedJob<typeof SIMULATIONS_QUEUE>) {
     const hash = job.data.transactionProposalHash;
 
     const p = await this.db.query(
@@ -150,7 +153,10 @@ export class SimulationsProcessor implements OnModuleInit {
 
     if (orphanedProposals.length) {
       await this.queue.addBulk(
-        orphanedProposals.map((hash) => ({ data: { transactionProposalHash: asHex(hash) } })),
+        orphanedProposals.map((hash) => ({
+          name: SIMULATIONS_QUEUE.name,
+          data: { transactionProposalHash: asHex(hash) },
+        })),
       );
     }
   }

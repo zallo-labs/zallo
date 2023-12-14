@@ -72,7 +72,12 @@ export class TokensService {
   async upsert(token: UpsertTokenInput) {
     const metadata = await this.getTokenMetadata(token.address);
 
-    const c = { ...metadata, ...token };
+    const c = {
+      name: metadata.name,
+      symbol: metadata.symbol,
+      decimals: metadata.decimals,
+      ...token,
+    };
     if (!c.name) throw new UserInputError('Name could not be detected so is required');
     if (!c.symbol) throw new UserInputError('Symbol could not be detected so is required');
     if (c.decimals === undefined)

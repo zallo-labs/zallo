@@ -1,12 +1,10 @@
 import { Module } from '@nestjs/common';
 import { OperationsModule } from '../operations/operations.module';
 import { registerBullQueue } from '../util/bull/bull.util';
-import { SIMULATIONS_QUEUE, SimulationsProcessor } from './simulations.processor';
-import { SimulationsService } from './simulations.service';
+import { SIMULATIONS_QUEUE, SimulationsWorker } from './simulations.worker';
 
 @Module({
   imports: [...registerBullQueue(SIMULATIONS_QUEUE), OperationsModule],
-  exports: [SimulationsService],
-  providers: [SimulationsService, SimulationsProcessor],
+  providers: [SimulationsWorker],
 })
 export class SimulationsModule {}

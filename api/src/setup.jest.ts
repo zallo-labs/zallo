@@ -18,5 +18,5 @@ export default async () => {
 
   process.env[EDGEDB_DATABASE_ENV] = database;
 
-  execSync(`edgedb migration apply && yarn db:seed`, { env: process.env });
+  execSync(`edgedb migrate --dev-mode && yarn db:seed`, { env: process.env });
 };

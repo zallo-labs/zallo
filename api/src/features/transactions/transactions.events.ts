@@ -9,14 +9,9 @@ import {
   isTruthy,
   tryOrCatch,
 } from 'lib';
-import {
-  TransactionData,
-  TransactionEventData,
-  TransactionsProcessor,
-} from './transactions.processor';
-import { InjectQueue } from '@nestjs/bull';
-import { TRANSACTIONS_QUEUE, TransactionEvent } from './transactions.queue';
-import { Queue } from 'bull';
+import { TransactionData, TransactionEventData, TransactionsWorker } from './transactions.worker';
+import { InjectQueue } from '@nestjs/bullmq';
+import { TRANSACTIONS_QUEUE } from './transactions.queue';
 import e from '~/edgeql-js';
 import { DatabaseService } from '../database/database.service';
 import { and } from '../database/database.util';
@@ -27,18 +22,18 @@ import { ProposalEvent } from '../proposals/proposals.input';
 import { InjectRedis } from '@songkeys/nestjs-redis';
 import Redis from 'ioredis';
 import { Mutex } from 'redis-semaphore';
-import { RUNNING_JOB_STATUSES } from '../util/bull/bull.util';
+import { RUNNING_JOB_STATUSES, TypedQueue } from '../util/bull/bull.util';
 import { ETH } from 'lib/dapps';
 
 @Injectable()
 export class TransactionsEvents implements OnModuleInit {
   constructor(
     @InjectQueue(TRANSACTIONS_QUEUE.name)
-    private queue: Queue<TransactionEvent>,
+    private queue: TypedQueue<typeof TRANSACTIONS_QUEUE>,
     private db: DatabaseService,
     @InjectRedis() private redis: Redis,
     private networks: NetworksService,
-    private transactionsProcessor: TransactionsProcessor,
+    private transactionsProcessor: TransactionsWorker,
     private proposals: ProposalsService,
   ) {
     this.transactionsProcessor.onEvent(
@@ -157,6 +152,7 @@ export class TransactionsEvents implements OnModuleInit {
     if (orphanedTransactions.length) {
       await this.queue.addBulk(
         orphanedTransactions.map((t) => ({
+          name: TRANSACTIONS_QUEUE.name,
           data: {
             chain: asChain(asUAddress(t.proposal.account.address)),
             transaction: asHex(t.hash),

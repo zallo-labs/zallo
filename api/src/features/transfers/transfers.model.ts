@@ -34,6 +34,9 @@ export class TransferDetails {
 
   @DecimalField()
   amount: Decimal;
+
+  @Field(() => Boolean)
+  isFeeTransfer: boolean;
 }
 
 @InterfaceType({ implements: [EventBase, TransferDetails] })

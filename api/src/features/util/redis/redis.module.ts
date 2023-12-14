@@ -8,7 +8,7 @@ import { RedisOptions } from 'ioredis';
 export const REDIS_CONFIG = {
   family: CONFIG.redisFamily,
   // tls: { rejectUnauthorized: false },  // Required for self-signed certs (i.e. Render)
-  enableReadyCheck: false, // Required due to https://github.com/OptimalBits/bull/issues/1873
+  // enableReadyCheck: false, // Required due to https://github.com/OptimalBits/bull/issues/1873
   maxRetriesPerRequest: null, // ^^
 } satisfies RedisOptions;
 

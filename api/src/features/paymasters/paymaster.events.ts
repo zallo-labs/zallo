@@ -1,8 +1,5 @@
 import { Injectable, forwardRef, Inject } from '@nestjs/common';
-import {
-  TransactionEventData,
-  TransactionsProcessor,
-} from '../transactions/transactions.processor';
+import { TransactionEventData, TransactionsWorker } from '../transactions/transactions.worker';
 import { decodeEventLog, getAbiItem } from 'viem';
 import { PAYMASTER, asAddress, asHex, asUAddress, asDecimal, tryOrIgnore } from 'lib';
 import { AccountsCacheService } from '~/features/auth/accounts.cache.service';
@@ -16,8 +13,8 @@ import { selectAccount } from '~/features/accounts/accounts.util';
 export class PaymasterEvents {
   constructor(
     private db: DatabaseService,
-    @Inject(forwardRef(() => TransactionsProcessor))
-    private transactions: TransactionsProcessor,
+    @Inject(forwardRef(() => TransactionsWorker))
+    private transactions: TransactionsWorker,
     private accountsCache: AccountsCacheService,
   ) {
     this.transactions.onEvent(getAbiItem({ abi: PAYMASTER.abi, name: 'RefundCredit' }), (event) =>

@@ -20,7 +20,7 @@ module default {
     required salt: Bytes32;
     required isActive: bool;
     photoUri: str;
-    required paymasterEthCredit: Amount { default := 0.0n }
+    required paymasterEthCredit: decimal { constraint min_value(0); default := 0; }
     required property chain := as_chain(.address);
     multi link policies := (select .<account[is Policy] filter .isEnabled);
     multi link proposals := .<account[is Proposal];
@@ -119,10 +119,10 @@ module default {
       constraint exclusive;
       on source delete delete target;
     }
-    required gasLimit: uint256 { default := 0n; }
+    required gasLimit: uint256 { default := 0; }
     required feeToken: Token;
     required paymaster: Address;
-    required paymasterFee: Amount { default := 0.0n; }
+    required paymasterEthFee: decimal { constraint min_value(0); default := 0; }
     simulation: Simulation { constraint exclusive; }
     multi link transactions := .<proposal[is Transaction];
     link transaction := (select .transactions order by .submittedAt desc limit 1);
@@ -152,7 +152,7 @@ module default {
   type Event {
     required transactionHash: Bytes32;
     transaction: Transaction;
-    required block: bigint { constraint min_value(0n); }
+    required block: bigint { constraint min_value(0); }
     required logIndex: uint32;
     required timestamp: datetime { default := datetime_of_statement(); }
     required property internal := exists .transaction;
@@ -165,8 +165,9 @@ module default {
     required from: Address;
     required to: Address;
     required tokenAddress: UAddress;
-    required amount: Amount;
+    required amount: decimal;
     required multi direction: TransferDirection;
+    required isFeeTransfer: bool { default := false; }
     link token := (
       assert_single((
         with address := .tokenAddress
@@ -201,14 +202,16 @@ module default {
   type Transaction {
     required hash: Bytes32 { constraint exclusive; }
     required proposal: TransactionProposal;
-    required maxFeePerGas: Amount;
-    required discount: Amount { default := 0.0n; }
-    required submittedAt: datetime {
-      readonly := true;
-      default := datetime_of_statement();
-    }
+    required maxEthFeePerGas: decimal { constraint min_value(0); }
+    required ethDiscount: decimal { constraint min_value(0); default := 0; }
+    required ethPerFeeToken: decimal { constraint min_value(0); }
+    required usdPerFeeToken: decimal { constraint min_value(0); }
+    required property maxNetworkEthFee := .maxEthFeePerGas * .proposal.gasLimit;
+    required property maxEthFees := .maxNetworkEthFee + .proposal.paymasterEthFee - .ethDiscount;
+    required submittedAt: datetime { default := datetime_of_statement(); }
     receipt: Receipt { constraint exclusive; }
     multi link events := .<transaction[is Event];
+    multi link refunds := .<transaction[is Refund];
 
     access policy members_can_select_insert
       allow select, insert
@@ -219,10 +222,12 @@ module default {
     required link transaction := assert_exists(.<receipt[is Transaction]);
     required success: bool;
     required responses: array<Bytes>;
-    required gasUsed: bigint { constraint min_value(0n); }
-    required ethFee: Amount;
-    required block: bigint { constraint min_value(0n); }
+    required block: bigint { constraint min_value(0); }
     required timestamp: datetime { default := datetime_of_statement(); }
+    required gasUsed: bigint { constraint min_value(0); }
+    required ethFeePerGas: decimal { constraint min_value(0); }
+    required property networkEthFee := .ethFeePerGas * .transaction.proposal.gasLimit;
+    required property ethFees := .networkEthFee + .transaction.proposal.paymasterEthFee - .transaction.ethDiscount;
     multi link events := .transaction.events;
     multi link transferEvents := .events[is Transfer];
     multi link transferApprovalEvents := .events[is TransferApproval];
@@ -230,7 +235,7 @@ module default {
 
   type Refund {
     required link transaction: Transaction { constraint exclusive; }
-    required ethAmount: Amount;
+    required ethAmount: decimal { constraint min_value(0); }
   }
 
   type Contract {

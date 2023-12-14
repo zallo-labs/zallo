@@ -77,6 +77,7 @@ function create({ chainKey, redis }: CreateParams) {
     key: chain.key,
     name: chain.name,
     batch: { multicall: true },
+    pollingInterval: 250 /* ms */,
   }).extend((_client) => ({
     walletAddress,
     async useWallet<R>(f: (wallet: NetworkWallet) => R): Promise<R> {

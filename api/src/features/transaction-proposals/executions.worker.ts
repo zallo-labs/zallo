@@ -1,7 +1,6 @@
 import { InjectQueue, Processor } from '@nestjs/bullmq';
 import { WorkerHost } from '@nestjs/bullmq';
 import { Injectable } from '@nestjs/common';
-import { Job, Queue } from 'bull';
 import {
   Address,
   Hex,
@@ -19,7 +18,7 @@ import {
 import { DatabaseService } from '~/features/database/database.service';
 import { PaymastersService } from '~/features/paymasters/paymasters.service';
 import { ProposalsService } from '~/features/proposals/proposals.service';
-import { TRANSACTIONS_QUEUE, TransactionEvent } from '~/features/transactions/transactions.queue';
+import { TRANSACTIONS_QUEUE } from '~/features/transactions/transactions.queue';
 import { NetworksService } from '~/features/util/networks/networks.service';
 import e from '~/edgeql-js';
 import {
@@ -36,11 +35,9 @@ import Decimal from 'decimal.js';
 import { selectApprover } from '~/features/approvers/approvers.service';
 import { ProposalEvent } from '~/features/proposals/proposals.input';
 import { selectTransactionProposal } from '~/features/transaction-proposals/transaction-proposals.service';
-import { TypedJob, TypedWorker, createQueue } from '~/features/util/bull/bull.util';
+import { TypedJob, TypedQueue, TypedWorker, createQueue } from '~/features/util/bull/bull.util';
 
-export const EXECUTIONS_QUEUE = createQueue<{ txProposalHash: Hex }, Hex | undefined>()<string>(
-  'Executions',
-);
+export const EXECUTIONS_QUEUE = createQueue<{ txProposalHash: Hex }, Hex | undefined>('Executions');
 
 @Injectable()
 @Processor(EXECUTIONS_QUEUE.name)
@@ -49,7 +46,7 @@ export class ExecutionsWorker extends WorkerHost<TypedWorker<typeof EXECUTIONS_Q
     private networks: NetworksService,
     private db: DatabaseService,
     @InjectQueue(TRANSACTIONS_QUEUE.name)
-    private transactionsQueue: Queue<TransactionEvent>,
+    private transactionsQueue: TypedQueue<typeof TRANSACTIONS_QUEUE>,
     private proposals: ProposalsService,
     private paymaster: PaymastersService,
   ) {
@@ -84,9 +81,12 @@ export class ExecutionsWorker extends WorkerHost<TypedWorker<typeof EXECUTIONS_Q
         status: true,
       })),
     );
+
     if (!proposal || (proposal.status !== 'Pending' && proposal.status !== 'Failed')) return;
+
     const account = asUAddress(proposal.account.address);
     const network = this.networks.for(account);
+
     const approvals = (
       await mapAsync(proposal.approvals, (a) =>
         asApproval({
@@ -97,6 +97,7 @@ export class ExecutionsWorker extends WorkerHost<TypedWorker<typeof EXECUTIONS_Q
         }),
       )
     ).filter(isPresent);
+
     if (approvals.length !== proposal.approvals.length) {
       const expiredApprovals = proposal.approvals
         .map((a) => asAddress(a.approver.address))
@@ -111,10 +112,12 @@ export class ExecutionsWorker extends WorkerHost<TypedWorker<typeof EXECUTIONS_Q
         .run(this.db.DANGEROUS_superuserClient);
       return job.retry();
     }
+
     const tx = {
       ...transactionProposalAsTx(proposal),
       gas: estimateTransactionTotalGas(proposal.gasLimit, approvals.length),
     };
+
     const policy = await this.getExecutionPolicy(
       tx,
       new Set(approvals.map((a) => a.approver)),
@@ -122,6 +125,7 @@ export class ExecutionsWorker extends WorkerHost<TypedWorker<typeof EXECUTIONS_Q
       proposal.account.policies,
     );
     if (!policy) return undefined;
+
     const transaction = await this.db.transaction(async (db) => {
       const { paymaster, paymasterInput, ...feeData } = await this.paymaster.currentParams({
         account,
@@ -129,6 +133,7 @@ export class ExecutionsWorker extends WorkerHost<TypedWorker<typeof EXECUTIONS_Q
         feeToken: asAddress(proposal.feeToken.address),
         paymasterEthFee: new Decimal(proposal.paymasterEthFee),
       });
+
       const transactionResult = await executeTransaction({
         network,
         account: asAddress(account),
@@ -138,7 +143,9 @@ export class ExecutionsWorker extends WorkerHost<TypedWorker<typeof EXECUTIONS_Q
         paymaster,
         paymasterInput,
       });
+
       const transaction = transactionResult._unsafeUnwrap(); // TODO: handle failed transaction submission
+
       // Set executing policy if not already set
       const selectedProposal = proposal.policy?.state
         ? selectTransactionProposal(proposal.id)
@@ -148,6 +155,7 @@ export class ExecutionsWorker extends WorkerHost<TypedWorker<typeof EXECUTIONS_Q
               policy: selectPolicy({ account, key: policy.key }),
             },
           }));
+
       await e
         .insert(e.Transaction, {
           hash: transaction,
@@ -158,16 +166,21 @@ export class ExecutionsWorker extends WorkerHost<TypedWorker<typeof EXECUTIONS_Q
           usdPerFeeToken: feeData.tokenPrice.usd.toString(),
         })
         .run(db);
+
       return transaction;
     });
+
     await this.proposals.publishProposal(
       { hash: asHex(proposal.hash), account: asUAddress(proposal.account.address) },
       ProposalEvent.submitted,
     );
+
     await this.transactionsQueue.add(
+      TRANSACTIONS_QUEUE.name,
       { chain: network.chain.key, transaction },
-      { delay: 2000 /* 2s */ },
+      { delay: 500 /* ms */ },
     );
+
     return transaction;
   }
 

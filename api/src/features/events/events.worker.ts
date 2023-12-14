@@ -1,6 +1,5 @@
-import { BullModuleOptions, InjectQueue, OnQueueFailed, Process, Processor } from '@nestjs/bull';
+import { InjectQueue, Processor, WorkerHost } from '@nestjs/bullmq';
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
-import { Job, Queue } from 'bull';
 import { NetworksService } from '../util/networks/networks.service';
 import { DatabaseService } from '../database/database.service';
 import e from '~/edgeql-js';
@@ -10,18 +9,22 @@ import { Chain } from 'chains';
 import { InjectRedis } from '@songkeys/nestjs-redis';
 import Redis from 'ioredis';
 import { Mutex } from 'redis-semaphore';
-import { RUNNING_JOB_STATUSES } from '../util/bull/bull.util';
+import {
+  RUNNING_JOB_STATUSES,
+  TypedJob,
+  TypedQueue,
+  TypedWorker,
+  createQueue,
+} from '../util/bull/bull.util';
 import { AbiEvent } from 'abitype';
 import { Log as ViemLog, encodeEventTopics, hexToNumber } from 'viem';
 
 const DEFAULT_CHUNK_SIZE = 200;
 const BLOCK_TIME_MS = 500;
-const BLOCKS_DELAYED_MS = 2500;
 const TOO_MANY_RESULTS_RE =
-  /Query returned more than 10000 results. Try with this block range \[(?:0x[0-9a-f]+), (0x[0-9a-f]+)\]/;
+  /Query returned more than .+? results. Try with this block range \[(?:0x[0-9a-f]+), (0x[0-9a-f]+)\]/;
 
-export const EVENTS_QUEUE = {
-  name: 'Events',
+export const EventsQueue = createQueue<EventJobData>('Events', {
   defaultJobOptions: {
     attempts: 50,
     backoff: {
@@ -31,9 +34,10 @@ export const EVENTS_QUEUE = {
     removeOnComplete: true,
     removeOnFail: false,
   },
-} satisfies BullModuleOptions;
+});
+export type EventsQueue = typeof EventsQueue;
 
-export interface EventJobData {
+interface EventJobData {
   chain: Chain;
   from: number;
   to?: number;
@@ -50,18 +54,20 @@ export interface EventData {
 export type EventListener = (data: EventData) => Promise<void>;
 
 @Injectable()
-@Processor(EVENTS_QUEUE.name)
-export class EventsProcessor implements OnModuleInit {
+@Processor(EventsQueue.name)
+export class EventsWorker extends WorkerHost<TypedWorker<EventsQueue>> implements OnModuleInit {
   private listeners = new Map<Hex, EventListener[]>();
   private events: AbiEvent[] = [];
 
   constructor(
-    @InjectQueue(EVENTS_QUEUE.name)
-    private queue: Queue<EventJobData>,
-    private networks: NetworksService,
+    @InjectQueue(EventsQueue.name)
+    private queue: TypedQueue<EventsQueue>,
     private db: DatabaseService,
+    private networks: NetworksService,
     @InjectRedis() private redis: Redis,
-  ) {}
+  ) {
+    super();
+  }
 
   async onModuleInit() {
     const mutex = new Mutex(this.redis, 'events-missing-job', { lockTimeout: 60_000 });
@@ -78,8 +84,7 @@ export class EventsProcessor implements OnModuleInit {
     this.events.push(event);
   }
 
-  @Process()
-  async process(job: Job<EventJobData>) {
+  async process(job: TypedJob<EventsQueue>) {
     const { chain } = job.data;
     const network = this.networks.get(chain);
 
@@ -88,7 +93,7 @@ export class EventsProcessor implements OnModuleInit {
       async (e) => {
         if (job.data.queueNext !== false) {
           // Next job hasn't been queued yet, queue it next attempt
-          await job.update({ ...job.data, queueNext: job.attemptsMade + 1 });
+          await job.updateData({ ...job.data, queueNext: job.attemptsMade + 1 });
         }
         throw e;
       },
@@ -97,7 +102,7 @@ export class EventsProcessor implements OnModuleInit {
     const to = Math.min(job.data.to ?? from + DEFAULT_CHUNK_SIZE - 1, latest);
 
     const shouldQueue = match(job.data.queueNext)
-      .with(undefined, () => job.attemptsMade === 0) // First job - default path
+      .with(undefined, () => job.attemptsMade === 1) // First job - default path
       .with(false, () => false) // Split job - don't queue next
       .with(P.number, (n) => job.attemptsMade === n) // Prior attempt had failed before queueing - queue only if not already queued
       .exhaustive();
@@ -105,10 +110,11 @@ export class EventsProcessor implements OnModuleInit {
     if (shouldQueue) {
       if (latest < from) {
         // Up to date; retry after a delay
-        return this.queue.add({ chain, from }, { delay: BLOCKS_DELAYED_MS });
+        return this.queue.add(EventsQueue.name, { chain, from }, { delay: BLOCK_TIME_MS });
       } else {
         // Queue up next job
         this.queue.add(
+          EventsQueue.name,
           { chain, from: to + 1 },
           { delay: latest === from ? BLOCK_TIME_MS : undefined },
         );
@@ -129,8 +135,8 @@ export class EventsProcessor implements OnModuleInit {
         // Split the job into two smaller jobs
         const newTo = hexToNumber(asHex(match[1]));
         return this.queue.addBulk([
-          { data: { chain, from, to: newTo, queueNext: false } },
-          { data: { chain, from: newTo + 1, to, queueNext: false } },
+          { name: EventsQueue.name, data: { chain, from, to: newTo, queueNext: false } },
+          { name: EventsQueue.name, data: { chain, from: newTo + 1, to, queueNext: false } },
         ]);
       }
 
@@ -145,12 +151,6 @@ export class EventsProcessor implements OnModuleInit {
         ),
     );
     Logger.verbose(`Processed ${logs.length} events from ${to - from + 1} blocks [${from}, ${to}]`);
-  }
-
-  @OnQueueFailed()
-  onFailed(job: Job<EventJobData>, error: unknown) {
-    if (!job.opts.attempts || job.attemptsMade === job.opts.attempts)
-      Logger.error('Events queue job failed', { job: job.data, error });
   }
 
   private async addMissingJob() {
@@ -180,7 +180,7 @@ export class EventsProcessor implements OnModuleInit {
         : Number(await network.getBlockNumber()); // Warning: bigint -> number
       Logger.log(`${network.chain.key}: events starting from block ${from}`);
 
-      this.queue.add({ chain: network.chain.key, from });
+      this.queue.add(EventsQueue.name, { chain: network.chain.key, from });
     }
   }
 }

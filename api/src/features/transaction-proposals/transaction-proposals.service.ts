@@ -26,13 +26,13 @@ import { and } from '../database/database.util';
 import { selectAccount } from '../accounts/accounts.util';
 import { ProposalsService, UniqueProposal } from '../proposals/proposals.service';
 import { ApproveInput, ProposalEvent } from '../proposals/proposals.input';
-import { SimulationsService } from '../simulations/simulations.service';
 import { PaymastersService } from '~/features/paymasters/paymasters.service';
 import { EstimatedTransactionFees } from '~/features/transaction-proposals/transaction-proposals.model';
 import Decimal from 'decimal.js';
 import { InjectQueue } from '@nestjs/bullmq';
 import { EXECUTIONS_QUEUE } from '~/features/transaction-proposals/executions.worker';
 import { TypedQueue } from '~/features/util/bull/bull.util';
+import { SIMULATIONS_QUEUE } from '~/features/simulations/simulations.worker';
 
 export const selectTransactionProposal = (
   id: UniqueProposal,
@@ -60,8 +60,9 @@ export class TransactionProposalsService {
     private db: DatabaseService,
     private networks: NetworksService,
     private proposals: ProposalsService,
-    private simulations: SimulationsService,
     private paymasters: PaymastersService,
+    @InjectQueue(SIMULATIONS_QUEUE.name)
+    private simulations: TypedQueue<typeof SIMULATIONS_QUEUE>,
     @InjectQueue(EXECUTIONS_QUEUE.name)
     private executionsQueue: TypedQueue<typeof EXECUTIONS_QUEUE>,
   ) {}
@@ -151,7 +152,7 @@ export class TransactionProposalsService {
     });
 
     this.db.afterTransaction(() => {
-      this.simulations.request({ transactionProposalHash: hash });
+      this.simulations.add(SIMULATIONS_QUEUE.name, { transactionProposalHash: hash });
       this.proposals.publishProposal({ account, hash }, ProposalEvent.create);
     });
 

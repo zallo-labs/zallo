@@ -1,8 +1,5 @@
-import { BullModuleOptions } from '@nestjs/bull';
-import { BullModule } from '@nestjs/bull';
 import { BullModule as BullMqModule, RegisterQueueOptions } from '@nestjs/bullmq';
 import { BullBoardModule, BullBoardQueueOptions } from '@bull-board/nestjs';
-import { BullAdapter } from '@bull-board/api/bullAdapter';
 import { BullMQAdapter } from '@bull-board/api/bullMQAdapter';
 import { CONFIG } from '~/config';
 import { isTruthy } from 'lib';
@@ -19,21 +16,7 @@ export const BULL_BOARD_CREDS =
 
 export const BULL_BOARD_ENABLED = !!BULL_BOARD_CREDS;
 
-export const registerBullQueue = (...queues: (BullModuleOptions & { name: string })[]) =>
-  [
-    BullModule.registerQueue(...queues),
-    BULL_BOARD_ENABLED &&
-      BullBoardModule.forFeature(
-        ...queues.map(
-          (q): BullBoardQueueOptions => ({
-            name: q.name,
-            adapter: BullAdapter,
-          }),
-        ),
-      ),
-  ].filter(isTruthy);
-
-export function registerBullMqQueue(...queues: (RegisterQueueOptions & { name: string })[]) {
+export function registerBullQueue(...queues: (RegisterQueueOptions & { name: string })[]) {
   return [
     BullMqModule.registerQueue(...queues),
     BULL_BOARD_ENABLED &&
@@ -55,33 +38,42 @@ export const RUNNING_JOB_STATUSES = [
   'paused',
 ] satisfies JobStatus[];
 
-export interface QueueDefintion<Data, ReturnType, Name extends string>
+export interface QueueDefintion<Data = unknown, ReturnType = unknown>
   extends Omit<RegisterQueueOptions, 'name'> {
-  name: Name;
+  name: string;
 }
 
-// Currying is required for partial type inference - https://github.com/microsoft/TypeScript/issues/26242
-export const createQueue =
-  <Data, ReturnType = unknown>() =>
-  <const Name extends string>(
-    name: Name,
-    options?: RegisterQueueOptions,
-  ): QueueDefintion<Data, ReturnType, Name> => ({ ...options, name });
+export const createQueue = <Data, ReturnType = unknown>(
+  name: string,
+  options?: Omit<RegisterQueueOptions, 'name'>,
+): QueueDefintion<Data, ReturnType> => ({ ...options, name });
 
-export type TypedQueue<Q extends QueueDefintion<unknown, unknown, string>> =
-  Q extends QueueDefintion<infer Data, infer ReturnType, infer Name>
-    ? Queue<Data, ReturnType, Name>
-    : never;
+export type TypedQueue<Q extends QueueDefintion> = Queue<QueueData<Q>, QueueReturnType<Q>, string>;
 
-export type TypedWorker<Q extends QueueDefintion<unknown, unknown, string>> =
-  Q extends QueueDefintion<infer Data, infer ReturnType, infer Name>
-    ? Worker<Data, ReturnType, Name>
-    : never;
-
-export type TypedJob<Q extends QueueDefintion<unknown, unknown, string>> = Q extends QueueDefintion<
+export type TypedWorker<Q extends QueueDefintion<unknown, unknown>> = Q extends QueueDefintion<
   infer Data,
-  infer ReturnType,
-  infer Name
+  infer ReturnType
 >
-  ? Job<Data, ReturnType, Name>
+  ? Worker<Data, ReturnType, string>
+  : never;
+
+export type TypedJob<Q extends QueueDefintion<unknown, unknown>> = Q extends QueueDefintion<
+  infer Data,
+  infer ReturnType
+>
+  ? Job<Data, ReturnType, string>
+  : never;
+
+export type QueueData<Q extends QueueDefintion<unknown, unknown>> = Q extends QueueDefintion<
+  infer Data,
+  unknown
+>
+  ? Data
+  : never;
+
+export type QueueReturnType<Q extends QueueDefintion<unknown, unknown>> = Q extends QueueDefintion<
+  unknown,
+  infer ReturnType
+>
+  ? ReturnType
   : never;

@@ -1,12 +1,12 @@
-import { OnQueueFailed, Process, Processor } from '@nestjs/bull';
-import { Injectable, Logger } from '@nestjs/common';
-import { Job } from 'bull';
-import { TransactionEvent, TRANSACTIONS_QUEUE } from './transactions.queue';
+import { Processor, WorkerHost } from '@nestjs/bullmq';
+import { Injectable } from '@nestjs/common';
+import { TRANSACTIONS_QUEUE } from './transactions.queue';
 import { NetworksService } from '../util/networks/networks.service';
 import { Chain, ChainConfig } from 'chains';
 import { FormattedBlock, FormattedTransactionReceipt, Hex, encodeEventTopics } from 'viem';
 import { AbiEvent } from 'abitype';
-import { Log } from '~/features/events/events.processor';
+import { Log } from '~/features/events/events.worker';
+import { TypedJob, TypedWorker } from '~/features/util/bull/bull.util';
 
 export const REQUIRED_CONFIRMATIONS = 1;
 
@@ -26,11 +26,13 @@ export type TransactionEventListener = (data: TransactionEventData) => Promise<v
 
 @Injectable()
 @Processor(TRANSACTIONS_QUEUE.name)
-export class TransactionsProcessor {
+export class TransactionsWorker extends WorkerHost<TypedWorker<typeof TRANSACTIONS_QUEUE>> {
   private listeners: TransactionListener[] = [];
   private eventListeners = new Map<Hex, TransactionEventListener[]>();
 
-  constructor(private networks: NetworksService) {}
+  constructor(private networks: NetworksService) {
+    super();
+  }
 
   onTransaction(listener: TransactionListener) {
     this.listeners.push(listener);
@@ -41,8 +43,7 @@ export class TransactionsProcessor {
     this.eventListeners.set(topic, [...(this.eventListeners.get(topic) ?? []), listener]);
   }
 
-  @Process()
-  async process(job: Job<TransactionEvent>) {
+  async process(job: TypedJob<typeof TRANSACTIONS_QUEUE>) {
     const { chain, transaction: transactionHash } = job.data;
 
     const network = this.networks.get(chain);
@@ -65,10 +66,5 @@ export class TransactionsProcessor {
               ?.map((listener) => listener({ chain, log: log as unknown as Log, receipt, block })),
         ),
     ]);
-  }
-
-  @OnQueueFailed()
-  onFailed(job: Job<TransactionEvent>, error: unknown) {
-    Logger.error('Transactions queue job failed', { job, error });
   }
 }

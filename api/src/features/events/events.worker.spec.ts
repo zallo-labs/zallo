@@ -1,18 +1,17 @@
 import { Test } from '@nestjs/testing';
-import { EVENTS_QUEUE, EventsProcessor, EventJobData, EventData, Log } from './events.processor';
+import { EventsQueue, EventsWorker, EventData, Log } from './events.worker';
 import { DeepMocked, createMock } from '@golevelup/ts-jest';
 import { Network, NetworksService } from '../util/networks/networks.service';
-import { BullModule, getQueueToken } from '@nestjs/bull';
-import { Job, Queue } from 'bull';
+import { BullModule, getQueueToken } from '@nestjs/bullmq';
 import { DEFAULT_REDIS_NAMESPACE, getRedisToken } from '@songkeys/nestjs-redis';
 import { DeepPartial, randomAddress } from '~/util/test';
 import { ACCOUNT_IMPLEMENTATION, Address } from 'lib';
 import { encodeEventTopics, getAbiItem } from 'viem';
-import { WritableDeep, Writable } from 'ts-toolbelt/out/Object/Writable';
+import { QueueData, TypedJob, TypedQueue } from '~/features/util/bull/bull.util';
 
-describe(EventsProcessor.name, () => {
-  let processor: EventsProcessor;
-  let queue: DeepMocked<Queue<EventJobData>>;
+describe(EventsWorker.name, () => {
+  let worker: EventsWorker;
+  let queue: DeepMocked<TypedQueue<EventsQueue>>;
   let networks: DeepMocked<NetworksService>;
   let attemptsMade = 0;
 
@@ -45,20 +44,20 @@ describe(EventsProcessor.name, () => {
 
   beforeEach(async () => {
     const module = await Test.createTestingModule({
-      imports: [BullModule.registerQueue(EVENTS_QUEUE)],
+      imports: [BullModule.registerQueue(EventsQueue)],
       providers: [
-        EventsProcessor,
+        EventsWorker,
         { provide: getRedisToken(DEFAULT_REDIS_NAMESPACE), useValue: createMock() },
       ],
     })
-      .overrideProvider(getQueueToken(EVENTS_QUEUE.name))
+      .overrideProvider(getQueueToken(EventsQueue.name))
       .useValue(createMock())
       .useMocker(createMock)
       .compile();
 
-    processor = module.get(EventsProcessor);
+    worker = module.get(EventsWorker);
     topic1Listener = jest.fn();
-    processor.on(getAbiItem({ abi: ACCOUNT_IMPLEMENTATION.abi, name: 'Upgraded' }), topic1Listener);
+    worker.on(getAbiItem({ abi: ACCOUNT_IMPLEMENTATION.abi, name: 'Upgraded' }), topic1Listener);
 
     networks = module.get(NetworksService);
     networks.get.mockReturnValue({
@@ -66,16 +65,16 @@ describe(EventsProcessor.name, () => {
       getLogs: async () => logs,
     } satisfies DeepPartial<Network> as unknown as Network);
 
-    queue = module.get(getQueueToken(EVENTS_QUEUE.name));
+    queue = module.get(getQueueToken(EventsQueue.name));
 
-    attemptsMade = 0;
+    attemptsMade = 1;
   });
 
-  const process = (data: Omit<EventJobData, 'chain'>) =>
-    processor.process({
+  const process = (data: Omit<QueueData<EventsQueue>, 'chain'>) =>
+    worker.process({
       data: { ...data, chain: 'zksync-local' },
       attemptsMade: attemptsMade++,
-    } as Job<EventJobData>);
+    } as TypedJob<EventsQueue>);
 
   it('send relevant event to listeners', async () => {
     await process({ from: 1 });

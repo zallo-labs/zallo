@@ -12,11 +12,8 @@ import {
   asDecimal,
 } from 'lib';
 import { ERC20 } from 'lib/dapps';
-import {
-  TransactionEventData,
-  TransactionsProcessor,
-} from '../transactions/transactions.processor';
-import { EventData, EventsProcessor } from '../events/events.processor';
+import { TransactionEventData, TransactionsWorker } from '../transactions/transactions.worker';
+import { EventData, EventsWorker } from '../events/events.worker';
 import { DatabaseService } from '../database/database.service';
 import e from '~/edgeql-js';
 import { selectAccount } from '../accounts/accounts.util';
@@ -45,8 +42,8 @@ export interface TransferSubscriptionPayload {
 export class TransfersEvents {
   constructor(
     private db: DatabaseService,
-    private eventsProcessor: EventsProcessor,
-    private transactionsProcessor: TransactionsProcessor,
+    private eventsProcessor: EventsWorker,
+    private transactionsProcessor: TransactionsWorker,
     private networks: NetworksService,
     private pubsub: PubsubService,
     private accountsCache: AccountsCacheService,
@@ -81,9 +78,7 @@ export class TransfersEvents {
     );
     if (!r) return;
 
-    const from = asUAddress(r.args.from, chain);
-    const to = asUAddress(r.args.to, chain);
-
+    const [from, to] = [asUAddress(r.args.from, chain), asUAddress(r.args.to, chain)];
     const isAccount = await this.accountsCache.isAccount([from, to]);
     const accounts = [isAccount[0] && from, isAccount[1] && to].filter(isTruthy);
     if (!accounts.length) return;
@@ -93,10 +88,19 @@ export class TransfersEvents {
     const block =
       'block' in event ? event.block : await network.getBlock({ blockNumber: log.blockNumber });
     const amount = await this.tokens.asDecimal(token, r.args.value);
+    const [localFrom, localTo] = [asAddress(from), asAddress(to)];
 
     await Promise.all(
       accounts.map(async (account) => {
         const selectedAccount = selectAccount(account);
+        const transaction = e.assert_single(
+          e.select(e.Transaction, (t) => ({
+            filter: and(
+              e.op(t.hash, '=', log.transactionHash),
+              e.op(t.proposal.account, '=', selectedAccount),
+            ),
+          })),
+        );
 
         const transfer = await this.db.query(
           e.select(
@@ -104,19 +108,12 @@ export class TransfersEvents {
               .insert(e.Transfer, {
                 account: selectedAccount,
                 transactionHash: log.transactionHash,
-                transaction: e.assert_single(
-                  e.select(e.Transaction, (t) => ({
-                    filter: and(
-                      e.op(t.hash, '=', log.transactionHash),
-                      e.op(t.proposal.account, '=', selectedAccount),
-                    ),
-                  })),
-                ),
+                transaction,
                 logIndex: log.logIndex,
                 block: log.blockNumber,
                 timestamp: new Date(Number(block.timestamp) * 1000),
-                from: asAddress(from),
-                to: asAddress(to),
+                from: localFrom,
+                to: localTo,
                 tokenAddress: token,
                 amount:
                   from === to
@@ -127,6 +124,11 @@ export class TransfersEvents {
                 direction: [account === to && 'In', account === from && 'Out'].filter(Boolean) as [
                   'In',
                 ],
+                isFeeTransfer: e.op(
+                  transaction.proposal.paymaster,
+                  'in',
+                  e.set(localFrom, localTo),
+                ),
               })
               .unlessConflict((t) => ({
                 on: e.tuple([t.account, t.block, t.logIndex]),

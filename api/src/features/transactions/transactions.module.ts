@@ -1,5 +1,5 @@
 import { Module, forwardRef } from '@nestjs/common';
-import { TransactionsProcessor } from './transactions.processor';
+import { TransactionsWorker } from './transactions.worker';
 import { TRANSACTIONS_QUEUE } from './transactions.queue';
 import { TransactionsService } from './transactions.service';
 import { TransactionsEvents } from './transactions.events';
@@ -14,7 +14,7 @@ import { ProposalsModule } from '../proposals/proposals.module';
     ProposalsModule,
     forwardRef(() => PaymastersModule),
   ],
-  exports: [TransactionsService, TransactionsProcessor],
-  providers: [TransactionsService, TransactionsResolver, TransactionsProcessor, TransactionsEvents],
+  exports: [TransactionsService, TransactionsWorker],
+  providers: [TransactionsService, TransactionsResolver, TransactionsWorker, TransactionsEvents],
 })
 export class TransactionsModule {}

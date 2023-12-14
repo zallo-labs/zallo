@@ -218,6 +218,12 @@ input EstimateFeesPerGasInput {
   feeToken: UAddress!
 }
 
+type EstimatedTransactionFees implements Node {
+  ethDiscount: Decimal!
+  id: ID!
+  maxNetworkEthFee: Decimal!
+}
+
 union Event = Transfer | TransferApproval
 
 interface EventBase {
@@ -228,12 +234,8 @@ interface EventBase {
   timestamp: DateTime!
 }
 
-input ExecuteInput {
-  proposalHash: Bytes32!
-}
-
 type FeesPerGas implements Node {
-  decimals: Float!
+  feeTokenDecimals: Float!
   id: ID!
   maxFeePerGas: Decimal!
   maxPriorityFeePerGas: Decimal!
@@ -303,7 +305,6 @@ type Mutation {
   createAccount(input: CreateAccountInput!): Account!
   createPolicy(input: CreatePolicyInput!): CreatePolicyResponse!
   deleteContact(input: ContactInput!): ID
-  execute(input: ExecuteInput!): Transaction
   labelProposalRisk(input: LabelProposalRiskInput!): Proposal!
   link(input: LinkInput!): User!
   proposeMessage(input: ProposeMessageInput!): MessageProposal!
@@ -388,15 +389,13 @@ type PolicyState {
 }
 
 type Price implements Node {
-  current: Decimal!
-  ema: Decimal!
-  id: ID!
-}
+  eth: Decimal!
+  ethEma: Decimal!
 
-type Pricefeed implements Node {
-  eth: Price!
+  """Pyth USD price id"""
   id: ID!
-  usd: Price!
+  usd: Decimal!
+  usdEma: Decimal!
 }
 
 interface Proposal implements Node {
@@ -509,10 +508,12 @@ type Query {
 
 type Receipt {
   block: BigInt!
-  ethFee: Decimal!
+  ethFeePerGas: Decimal!
+  ethFees: Decimal!
   events: [Event!]!
   gasUsed: BigInt!
   id: ID!
+  networkEthFee: Decimal!
   responses: [Bytes!]!
   success: Boolean!
   timestamp: DateTime!
@@ -577,6 +578,7 @@ type SimulationTransfer implements TransferDetails {
   amount: Decimal!
   from: Address!
   id: ID!
+  isFeeTransfer: Boolean!
   to: Address!
   token: Token
   tokenAddress: UAddress!
@@ -609,7 +611,7 @@ type Token implements Node {
   id: ID!
   isFeeToken: Boolean!
   name: String!
-  price: Pricefeed
+  price: Price
   pythUsdPriceId: Bytes32
   removable: Boolean!
   symbol: String!
@@ -648,12 +650,17 @@ input TokensInput {
 }
 
 type Transaction implements Node {
+  ethDiscount: Decimal!
+  ethPerFeeToken: Decimal!
   hash: Bytes32!
   id: ID!
-  maxFeePerGas: Decimal!
+  maxEthFeePerGas: Decimal!
+  maxEthFees: Decimal!
+  maxNetworkEthFee: Decimal!
   proposal: TransactionProposal!
   receipt: Receipt
   submittedAt: DateTime!
+  usdPerFeeToken: Decimal!
 }
 
 input TransactionInput {
@@ -664,7 +671,7 @@ type TransactionProposal implements Node & Proposal {
   account: Account!
   approvals: [Approval!]!
   createdAt: DateTime!
-  estimateDiscount: Decimal!
+  estimatedFees: EstimatedTransactionFees!
   feeToken: Token!
   gasLimit: BigInt!
   hash: Bytes32!
@@ -673,6 +680,8 @@ type TransactionProposal implements Node & Proposal {
   label: String
   nonce: BigInt!
   operations: [Operation!]!
+  paymaster: Address!
+  paymasterEthFee: Decimal!
   policy: Policy
   potentialApprovers: [Approver!]!
   potentialRejectors: [Approver!]!
@@ -705,6 +714,7 @@ type Transfer implements EventBase & TransferDetails & Transferlike {
   block: BigInt!
   from: Address!
   id: ID!
+  isFeeTransfer: Boolean!
   logIndex: Float!
   timestamp: DateTime!
   to: Address!
@@ -720,6 +730,7 @@ type TransferApproval implements EventBase & TransferDetails & Transferlike {
   delta: Decimal!
   from: Address!
   id: ID!
+  isFeeTransfer: Boolean!
   logIndex: Float!
   timestamp: DateTime!
   to: Address!
@@ -741,6 +752,7 @@ interface TransferDetails {
   amount: Decimal!
   from: Address!
   id: ID!
+  isFeeTransfer: Boolean!
   to: Address!
   token: Token
   tokenAddress: UAddress!
@@ -800,6 +812,7 @@ interface Transferlike implements EventBase & TransferDetails {
   block: BigInt!
   from: Address!
   id: ID!
+  isFeeTransfer: Boolean!
   logIndex: Float!
   timestamp: DateTime!
   to: Address!

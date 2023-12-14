@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { EventsProcessor, EventData } from '../events/events.processor';
+import { EventsWorker, EventData } from '../events/events.worker';
 import { ACCOUNT_ABI, PolicyKey, asHex, asPolicyKey, asUAddress } from 'lib';
 import { Chain } from 'chains';
 import { DatabaseService } from '../database/database.service';
@@ -12,7 +12,7 @@ import { Log, decodeEventLog, getAbiItem } from 'viem';
 export class PoliciesEventsProcessor {
   constructor(
     private db: DatabaseService,
-    private events: EventsProcessor,
+    private events: EventsWorker,
   ) {
     this.events.on(getAbiItem({ abi: ACCOUNT_ABI, name: 'PolicyAdded' }), (data) =>
       this.policyAdded(data),

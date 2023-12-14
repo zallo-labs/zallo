@@ -8,7 +8,6 @@ import {
   randomDeploySalt,
   getProxyAddress,
   deployAccountProxy,
-  asUAddress,
   UAddress,
   asAddress,
   ACCOUNT_IMPLEMENTATION,
@@ -24,14 +23,14 @@ import { PubsubService } from '../util/pubsub/pubsub.service';
 import { ContractsService } from '../contracts/contracts.service';
 import { FaucetService } from '../faucet/faucet.service';
 import { PoliciesService } from '../policies/policies.service';
-import { InjectQueue } from '@nestjs/bull';
-import { ACCOUNTS_QUEUE, AccountActivationEvent } from './accounts.queue';
+import { InjectQueue } from '@nestjs/bullmq';
+import { ACTIVATIONS_QUEUE } from './activations.queue';
 import { inputAsPolicy } from '../policies/policies.util';
-import { Queue } from 'bull';
 import { AccountsCacheService } from '../auth/accounts.cache.service';
 import { v1 as uuid1 } from 'uuid';
 import { and } from '~/features/database/database.util';
 import { selectAccount } from '~/features/accounts/accounts.util';
+import { TypedQueue } from '~/features/util/bull/bull.util';
 
 export const getAccountTrigger = (address: UAddress) => `account.${address}`;
 export const getAccountApproverTrigger = (approver: Address) => `account.approver.${approver}`;
@@ -50,8 +49,8 @@ export class AccountsService {
     private faucet: FaucetService,
     @Inject(forwardRef(() => PoliciesService))
     private policies: PoliciesService,
-    @InjectQueue(ACCOUNTS_QUEUE.name)
-    private activationQueue: Queue<AccountActivationEvent>,
+    @InjectQueue(ACTIVATIONS_QUEUE.name)
+    private activations: TypedQueue<typeof ACTIVATIONS_QUEUE>,
     private accountsCache: AccountsCacheService,
   ) {}
 
@@ -189,7 +188,7 @@ export class AccountsService {
       )
     )._unsafeUnwrap(); // TODO: handle failed deployments
 
-    await this.activationQueue.add({ account, transaction: transactionHash });
+    await this.activations.add('', { account, transaction: transactionHash });
   }
 
   async publishAccount(payload: AccountSubscriptionPayload) {
