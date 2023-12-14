@@ -1,22 +1,23 @@
-import { Field } from '@nestjs/graphql';
+import { Field, ID } from '@nestjs/graphql';
 import Decimal from 'decimal.js';
+import { Hex } from 'lib';
 import { DecimalField } from '~/apollo/scalars/Decimal.scalar';
-import { Node, NodeType } from '~/decorators/interface.decorator';
+import { NodeType } from '~/decorators/interface.decorator';
 
 @NodeType()
-export class Price extends Node {
-  @DecimalField()
-  current: Decimal;
+export class Price {
+  @Field(() => ID, { description: 'Pyth USD price id' })
+  id: Hex;
 
   @DecimalField()
-  ema: Decimal;
-}
+  eth: Decimal;
 
-@NodeType()
-export class Pricefeed extends Node {
-  @Field(() => Price)
-  usd: Price;
+  @DecimalField()
+  ethEma: Decimal;
 
-  @Field(() => Price)
-  eth: Price;
+  @DecimalField()
+  usd: Decimal;
+
+  @DecimalField()
+  usdEma: Decimal;
 }

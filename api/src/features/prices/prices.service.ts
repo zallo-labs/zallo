@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { Hex, UAddress, asHex, filterAsync, isUAddress } from 'lib';
-import { Price, Pricefeed } from './prices.model';
+import { Hex, UAddress, asHex, filterAsync, decodeRevertError, isUAddress } from 'lib';
+import { Price } from './prices.model';
 import e from '~/edgeql-js';
 import { preferUserToken } from '~/features/tokens/tokens.service';
 import { DatabaseService } from '~/features/database/database.service';
@@ -15,10 +15,15 @@ import Redis from 'ioredis';
 import { InjectRedis } from '@songkeys/nestjs-redis';
 import { Mutex } from 'redis-semaphore';
 
+interface PriceData {
+  current: Decimal;
+  ema: Decimal;
+}
+
 @Injectable()
 export class PricesService {
   private pyth: EvmPriceServiceConnection;
-  private usdPrices = new Map<Hex, Price>();
+  private usdPrices = new Map<Hex, PriceData>();
   private lastOnchainPublishTime = Object.keys(CHAINS).reduce(
     (acc, chain) => ({
       ...acc,
@@ -36,39 +41,38 @@ export class PricesService {
     this.pyth.onWsError = this.handlePythError;
   }
 
-  async feed(tokenOrUsdPriceId: Hex | UAddress): Promise<Pricefeed | null> {
+  async price(tokenOrUsdPriceId: Hex | UAddress): Promise<Price> {
+    const tokenPriceId = isUAddress(tokenOrUsdPriceId)
+      ? await this.getUsdPriceId(tokenOrUsdPriceId)
+      : tokenOrUsdPriceId;
+    if (!tokenPriceId) throw new Error(`Failed to get price id for ${tokenOrUsdPriceId}`);
+
     const [ethUsd, tokenUsd] = await Promise.all([
       this.usd(ETH.pythUsdPriceId),
-      this.usd(tokenOrUsdPriceId),
+      this.usd(tokenPriceId),
     ]);
-    if (!ethUsd || !tokenUsd) return null;
+    if (!ethUsd || !tokenUsd) throw new Error(`Failed to get pricefeed for ${tokenPriceId}`);
 
     return {
-      id: `PriceFeed:${tokenUsd.id}`,
-      usd: tokenUsd,
-      eth: {
-        id: `EthPrice:${tokenUsd.id}`,
-        current: tokenUsd.current.div(ethUsd.current),
-        ema: tokenUsd.ema.div(ethUsd.ema),
-      },
+      id: tokenPriceId,
+      usd: tokenUsd.current,
+      usdEma: tokenUsd.ema,
+      eth: tokenUsd.current.div(ethUsd.current),
+      ethEma: tokenUsd.ema.div(ethUsd.ema),
     };
   }
 
-  async usd(tokenOrUsdPriceId: Hex | UAddress): Promise<Price | null> {
-    const priceId = isUAddress(tokenOrUsdPriceId)
-      ? await this.getUsdPriceId(tokenOrUsdPriceId)
-      : tokenOrUsdPriceId;
-    if (!priceId) return null;
-
+  async usd(priceId: Hex): Promise<PriceData | null> {
     const cached = this.usdPrices.get(priceId);
     if (cached) return cached;
 
     const [feed] = (await this.pyth.getLatestPriceFeeds([priceId])) ?? [];
     if (!feed) return null;
-    return this.getPriceFromFeed(priceId, feed);
+
+    return this.getPriceDataFromFeed(priceId, feed);
   }
 
-  private async getPriceFromFeed(priceId: Hex, feed: PriceFeed): Promise<Price | null> {
+  private async getPriceDataFromFeed(priceId: Hex, feed: PriceFeed): Promise<PriceData | null> {
     const oldestAcceptableTimestamp = Math.ceil(this.oldestAcceptablePublishTime.toSeconds());
 
     const currentData = feed.getPriceNoOlderThan(oldestAcceptableTimestamp);
@@ -78,15 +82,14 @@ export class PricesService {
     const current = new Decimal(currentData.price).mul(new Decimal(10).pow(currentData.expo));
     const ema = new Decimal(emaData.price).mul(new Decimal(10).pow(emaData.expo));
 
-    const r: Price = { id: feed.id, current, ema };
+    const r = { current, ema };
 
     // Cache price and subscribe to updates to ensure cache remains fresh
     const firstTimeSet = !this.usdPrices.has(priceId);
     this.usdPrices.set(priceId, r);
     if (firstTimeSet) {
       this.pyth.subscribePriceFeedUpdates([priceId], (feed) => {
-        this.getPriceFromFeed(priceId, feed);
-        console.log(feed.getVAA());
+        this.getPriceDataFromFeed(priceId, feed);
       });
     }
 
@@ -156,16 +159,30 @@ export class PricesService {
     const cachedPublishTime = this.lastOnchainPublishTime[chain].get(priceId);
     if (cachedPublishTime && cachedPublishTime < this.oldestAcceptablePublishTime) return false;
 
-    const p = await this.networks.get(chain).readContract({
-      abi: PYTH.abi,
-      address: PYTH.address[chain],
-      functionName: 'getPrice',
-      args: [priceId],
-    });
-    const publishTime = DateTime.fromSeconds(Number(p.price));
-    this.lastOnchainPublishTime[chain].set(priceId, publishTime);
+    try {
+      const p = await this.networks.get('zksync-goerli').readContract({
+        abi: PYTH.abi,
+        address: PYTH.address['zksync-goerli'],
+        functionName: 'getPrice',
+        args: ['0xff61491a931112ddf1bd8147cd1b641375f79f5825126d665480874634fd0ace'],
+      });
 
-    return publishTime < this.oldestAcceptablePublishTime;
+      const publishTime = DateTime.fromSeconds(Number(p.price));
+      this.lastOnchainPublishTime[chain].set(priceId, publishTime);
+
+      return publishTime < this.oldestAcceptablePublishTime;
+    } catch (error) {
+      const e = decodeRevertError({ error, abi: PYTH.abi })?.errorName;
+      if (
+        e === 'PriceFeedNotFound' || // Price feed not found or it is not pushed on-chain yet.
+        e === 'PriceFeedNotFoundWithinRange' ||
+        e === 'NoFreshUpdate'
+      ) {
+        this.lastOnchainPublishTime[chain].set(priceId, DateTime.fromSeconds(0));
+        return false;
+      }
+      throw error;
+    }
   }
 
   private handlePythError(error: Error) {
