@@ -15,6 +15,7 @@ import { privateKeyToAccount } from 'viem/accounts';
 import Redis from 'ioredis';
 import { InjectRedis } from '@songkeys/nestjs-redis';
 import { Mutex } from 'redis-semaphore';
+import { firstValueFrom, ReplaySubject } from 'rxjs';
 
 export type Network = ReturnType<typeof create>;
 
@@ -105,27 +106,18 @@ function walletActions(client: Client, transport: Transport, redis: Redis) {
 }
 
 function blockNumberAndStatusActions(client: Client) {
-  let status: 'healthy' | WatchBlockNumberErrorType = 'healthy';
+  const status = new ReplaySubject<'healthy' | WatchBlockNumberErrorType>(1);
   let blockNumber = 0n;
-
-  let connect: (() => void) | null = null;
-  const connecting = new Promise<void>((resolve) => {
-    connect = () => {
-      resolve();
-      connect = null;
-    };
-  });
 
   client.watchBlockNumber({
     onBlockNumber: (newBlockNumber) => {
       if (blockNumber < newBlockNumber) {
         blockNumber = newBlockNumber;
-        status = 'healthy';
-        connect?.();
+        status.next('healthy');
       }
     },
     onError: (error) => {
-      status = error as WatchBlockNumberErrorType;
+      status.next(error as WatchBlockNumberErrorType);
     },
     emitOnBegin: true,
   });
@@ -134,9 +126,8 @@ function blockNumberAndStatusActions(client: Client) {
     blockNumber() {
       return blockNumber;
     },
-    async status() {
-      await connecting;
-      return status;
+    status() {
+      return firstValueFrom(status);
     },
   };
 }
