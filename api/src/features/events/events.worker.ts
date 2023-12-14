@@ -1,5 +1,5 @@
 import { InjectQueue, Processor, WorkerHost } from '@nestjs/bullmq';
-import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
+import { Injectable, Logger, OnApplicationBootstrap, OnModuleInit } from '@nestjs/common';
 import { NetworksService } from '../util/networks/networks.service';
 import { DatabaseService } from '../database/database.service';
 import e from '~/edgeql-js';
@@ -54,8 +54,11 @@ export interface EventData {
 export type EventListener = (data: EventData) => Promise<void>;
 
 @Injectable()
-@Processor(EventsQueue.name)
-export class EventsWorker extends WorkerHost<TypedWorker<EventsQueue>> implements OnModuleInit {
+@Processor(EventsQueue.name, { autorun: false })
+export class EventsWorker
+  extends WorkerHost<TypedWorker<EventsQueue>>
+  implements OnModuleInit, OnApplicationBootstrap
+{
   private listeners = new Map<Hex, EventListener[]>();
   private events: AbiEvent[] = [];
 
@@ -74,8 +77,12 @@ export class EventsWorker extends WorkerHost<TypedWorker<EventsQueue>> implement
     try {
       if (await mutex.tryAcquire()) await this.addMissingJob();
     } finally {
-      await mutex.release();
+      mutex.release();
     }
+  }
+
+  onApplicationBootstrap() {
+    this.worker.run();
   }
 
   on(event: AbiEvent, listener: EventListener) {
@@ -101,7 +108,7 @@ export class EventsWorker extends WorkerHost<TypedWorker<EventsQueue>> implement
     if (shouldQueue) {
       if (latest < from) {
         // Up to date; retry after a delay
-        return this.queue.add(EventsQueue.name, { chain, from }, { delay: BLOCK_TIME });
+        return this.queue.add(EventsQueue.name, { chain, from }, { delay: BLOCK_TIME * 2 });
       } else {
         // Queue up next job
         this.queue.add(
@@ -112,38 +119,36 @@ export class EventsWorker extends WorkerHost<TypedWorker<EventsQueue>> implement
       }
     }
 
-    let logs: Log[];
     try {
-      logs = await network.getLogs({
+      const logs = await network.getLogs({
         fromBlock: BigInt(from),
         toBlock: BigInt(to),
         events: this.events,
         strict: true,
       });
+
+      await Promise.all(
+        logs
+          .filter((log) => log.topics.length)
+          .flatMap(
+            (log) =>
+              this.listeners.get(log.topics[0]!)?.map((listener) => listener({ chain, log })),
+          ),
+      );
+      Logger.verbose(
+        `[${chain}]: Processed ${logs.length} events from ${to - from + 1} blocks [${from}, ${to}]`,
+      );
     } catch (e) {
       const match = TOO_MANY_RESULTS_RE.exec((e as Error).message ?? '');
-      if (match) {
-        // Split the job into two smaller jobs
-        const newTo = hexToNumber(asHex(match[1]));
-        return this.queue.addBulk([
-          { name: EventsQueue.name, data: { chain, from, to: newTo, queueNext: false } },
-          { name: EventsQueue.name, data: { chain, from: newTo + 1, to, queueNext: false } },
-        ]);
-      }
+      if (!match) throw e;
 
-      throw e;
+      // Split the job into two smaller jobs
+      const newTo = hexToNumber(asHex(match[1]));
+      return this.queue.addBulk([
+        { name: EventsQueue.name, data: { chain, from, to: newTo, queueNext: false } },
+        { name: EventsQueue.name, data: { chain, from: newTo + 1, to, queueNext: false } },
+      ]);
     }
-
-    await Promise.all(
-      logs
-        .filter((log) => log.topics.length)
-        .flatMap(
-          (log) => this.listeners.get(log.topics[0]!)?.map((listener) => listener({ chain, log })),
-        ),
-    );
-    Logger.verbose(
-      `[${chain}]: Processed ${logs.length} events from ${to - from + 1} blocks [${from}, ${to}]`,
-    );
   }
 
   private async addMissingJob() {
@@ -171,9 +176,14 @@ export class EventsWorker extends WorkerHost<TypedWorker<EventsQueue>> implement
       const from = lastProcessedBlock
         ? Number(lastProcessedBlock) + 1 // Warning: bigint -> number
         : Number(network.blockNumber()); // Warning: bigint -> number
-      Logger.log(`${network.chain.key}: events starting from block ${from}`);
 
       this.queue.add(EventsQueue.name, { chain: network.chain.key, from });
+
+      Logger.log(
+        `${network.chain.key}: events starting from ${
+          lastProcessedBlock ? `last processed (${from})` : `latest (${from})`
+        }`,
+      );
     }
   }
 }
