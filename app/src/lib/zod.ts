@@ -1,5 +1,5 @@
 import { CHAINS, Chain } from 'chains';
-import { Hex, isHex, tryAsAddress, tryAsUAddress, TryAsAddressParams } from 'lib';
+import { Hex, isHex, tryAsAddress, tryAsUAddress, TryAsAddressParams, bytesize } from 'lib';
 import { ZodTypeAny, z } from 'zod';
 
 export interface ZAddressParams extends TryAsAddressParams {}
@@ -27,7 +27,7 @@ export function zUAddress() {
 }
 
 export function zHash() {
-  return z.string().refine((arg): arg is Hex => isHex(arg, 32));
+  return z.string().refine((arg): arg is Hex => isHex(arg) && bytesize(arg) === 32);
 }
 
 export function zChain() {

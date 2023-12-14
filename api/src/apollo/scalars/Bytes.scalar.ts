@@ -1,13 +1,14 @@
 import { UserInputError } from '@nestjs/apollo';
 import { Kind } from 'graphql';
-import { asHex, Hex, isHex } from 'lib';
+import { asHex, Hex, isHex, bytesize } from 'lib';
 import { createScalar } from './util';
 
 const parse = (value: unknown, len?: number): Hex => {
   try {
-    if (!isHex(value)) throw new UserInputError(`Provided value is not a bytes hex string`);
+    if (!(isHex(value) && (len === undefined || bytesize(value) === len)))
+      throw new UserInputError(`Provided value is not a bytes hex string`);
 
-    return asHex(value, len);
+    return value;
   } catch (e) {
     throw new UserInputError((e as Error).message);
   }
