@@ -1,10 +1,11 @@
-import { BullModule as BullMqModule, RegisterQueueOptions } from '@nestjs/bullmq';
+import { BullModule as BullMqModule, RegisterQueueOptions, WorkerHost } from '@nestjs/bullmq';
 import { BullBoardModule, BullBoardQueueOptions } from '@bull-board/nestjs';
 import { BullMQAdapter } from '@bull-board/api/bullMQAdapter';
 import { CONFIG } from '~/config';
 import { isTruthy } from 'lib';
 import { JobStatus } from 'bull';
-import { Queue, Worker, Job } from 'bullmq';
+import { Queue, Worker as BaseWorker, Job } from 'bullmq';
+import { OnModuleInit, OnModuleDestroy, Logger } from '@nestjs/common';
 
 export const BULL_BOARD_CREDS =
   CONFIG.bullBoardUser && CONFIG.bullBoardPassword
@@ -54,7 +55,7 @@ export type TypedWorker<Q extends QueueDefintion<unknown, unknown>> = Q extends 
   infer Data,
   infer ReturnType
 >
-  ? Worker<Data, ReturnType, string>
+  ? BaseWorker<Data, ReturnType, string>
   : never;
 
 export type TypedJob<Q extends QueueDefintion<unknown, unknown>> = Q extends QueueDefintion<
@@ -77,3 +78,26 @@ export type QueueReturnType<Q extends QueueDefintion<unknown, unknown>> = Q exte
 >
   ? ReturnType
   : never;
+
+export abstract class Worker<Q extends QueueDefintion>
+  extends WorkerHost<TypedWorker<Q>>
+  implements OnModuleInit, OnModuleDestroy
+{
+  protected log = new Logger(this.constructor.name);
+
+  constructor() {
+    super();
+  }
+
+  abstract process(job: TypedJob<Q>, token?: string): Promise<QueueReturnType<Q>>;
+
+  onModuleInit() {
+    this.worker.on('failed', (job, err) => {
+      this.log.warn(`Job (${job?.id ?? '?'}) failed with: ${err.name}`);
+    });
+  }
+
+  async onModuleDestroy() {
+    await this.worker.close();
+  }
+}

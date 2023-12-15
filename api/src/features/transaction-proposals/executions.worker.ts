@@ -1,5 +1,4 @@
 import { InjectQueue, Processor } from '@nestjs/bullmq';
-import { WorkerHost } from '@nestjs/bullmq';
 import { Injectable } from '@nestjs/common';
 import {
   Address,
@@ -9,7 +8,7 @@ import {
   asApproval,
   asHex,
   asUAddress,
-  estimateTransactionTotalGas,
+  estimateTransactionVerificationGas,
   executeTransaction,
   getTransactionSatisfiability,
   isPresent,
@@ -35,13 +34,13 @@ import Decimal from 'decimal.js';
 import { selectApprover } from '~/features/approvers/approvers.service';
 import { ProposalEvent } from '~/features/proposals/proposals.input';
 import { selectTransactionProposal } from '~/features/transaction-proposals/transaction-proposals.service';
-import { TypedJob, TypedQueue, TypedWorker, createQueue } from '~/features/util/bull/bull.util';
+import { TypedJob, TypedQueue, Worker, createQueue } from '~/features/util/bull/bull.util';
 
-export const EXECUTIONS_QUEUE = createQueue<{ txProposalHash: Hex }, Hex | undefined>('Executions');
+export const EXECUTIONS_QUEUE = createQueue<{ txProposalHash: Hex }, Hex | void>('Executions');
 
 @Injectable()
 @Processor(EXECUTIONS_QUEUE.name)
-export class ExecutionsWorker extends WorkerHost<TypedWorker<typeof EXECUTIONS_QUEUE>> {
+export class ExecutionsWorker extends Worker<typeof EXECUTIONS_QUEUE> {
   constructor(
     private networks: NetworksService,
     private db: DatabaseService,
@@ -115,7 +114,7 @@ export class ExecutionsWorker extends WorkerHost<TypedWorker<typeof EXECUTIONS_Q
 
     const tx = {
       ...transactionProposalAsTx(proposal),
-      gas: estimateTransactionTotalGas(proposal.gasLimit, approvals.length),
+      gas: proposal.gasLimit + estimateTransactionVerificationGas(approvals.length),
     };
 
     const policy = await this.getExecutionPolicy(
@@ -144,7 +143,10 @@ export class ExecutionsWorker extends WorkerHost<TypedWorker<typeof EXECUTIONS_Q
         paymasterInput,
       });
 
-      const transaction = transactionResult._unsafeUnwrap(); // TODO: handle failed transaction submission
+      // TODO: handle failed transaction execution
+      if (transactionResult.isErr()) throw transactionResult.error;
+
+      const transaction = transactionResult.value;
 
       // Set executing policy if not already set
       const selectedProposal = proposal.policy?.state

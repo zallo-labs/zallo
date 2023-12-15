@@ -1,4 +1,4 @@
-import { Processor, WorkerHost } from '@nestjs/bullmq';
+import { Processor } from '@nestjs/bullmq';
 import { Injectable } from '@nestjs/common';
 import { TRANSACTIONS_QUEUE } from './transactions.queue';
 import { NetworksService } from '../util/networks/networks.service';
@@ -6,7 +6,7 @@ import { Chain, ChainConfig } from 'chains';
 import { FormattedBlock, FormattedTransactionReceipt, Hex, encodeEventTopics } from 'viem';
 import { AbiEvent } from 'abitype';
 import { Log } from '~/features/events/events.worker';
-import { TypedJob, TypedWorker } from '~/features/util/bull/bull.util';
+import { TypedJob, Worker } from '~/features/util/bull/bull.util';
 
 export const REQUIRED_CONFIRMATIONS = 1;
 
@@ -26,7 +26,7 @@ export type TransactionEventListener = (data: TransactionEventData) => Promise<v
 
 @Injectable()
 @Processor(TRANSACTIONS_QUEUE.name)
-export class TransactionsWorker extends WorkerHost<TypedWorker<typeof TRANSACTIONS_QUEUE>> {
+export class TransactionsWorker extends Worker<typeof TRANSACTIONS_QUEUE> {
   private listeners: TransactionListener[] = [];
   private eventListeners = new Map<Hex, TransactionEventListener[]>();
 

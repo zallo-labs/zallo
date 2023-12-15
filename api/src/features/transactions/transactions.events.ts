@@ -47,13 +47,8 @@ export class TransactionsEvents implements OnModuleInit {
     this.transactionsProcessor.onTransaction((data) => this.reverted(data));
   }
 
-  async onModuleInit() {
-    const mutex = new Mutex(this.redis, 'transactions-missing-jobs', { lockTimeout: 60_000 });
-    try {
-      if (await mutex.tryAcquire()) await this.addMissingJobs();
-    } finally {
-      await mutex.release();
-    }
+  onModuleInit() {
+    this.addMissingJobs();
   }
 
   private async executed({ chain, log, receipt, block }: TransactionEventData) {
@@ -132,33 +127,40 @@ export class TransactionsEvents implements OnModuleInit {
   }
 
   private async addMissingJobs() {
-    const jobs = await this.queue.getJobs(RUNNING_JOB_STATUSES);
+    const mutex = new Mutex(this.redis, 'transactions-missing-jobs', { lockTimeout: 60_000 });
+    try {
+      if (!(await mutex.tryAcquire())) return;
 
-    const orphanedTransactions = await this.db.query(
-      e.select(e.Transaction, (t) => ({
-        filter: and(
-          e.op('not', e.op('exists', t.receipt)),
-          jobs.length
-            ? e.op(t.hash, 'not in', e.set(...jobs.map((job) => job.data.transaction)))
-            : undefined,
-        ),
-        hash: true,
-        proposal: {
-          account: { address: true },
-        },
-      })),
-    );
+      const jobs = await this.queue.getJobs(RUNNING_JOB_STATUSES);
 
-    if (orphanedTransactions.length) {
-      await this.queue.addBulk(
-        orphanedTransactions.map((t) => ({
-          name: TRANSACTIONS_QUEUE.name,
-          data: {
-            chain: asChain(asUAddress(t.proposal.account.address)),
-            transaction: asHex(t.hash),
+      const orphanedTransactions = await this.db.query(
+        e.select(e.Transaction, (t) => ({
+          filter: and(
+            e.op('not', e.op('exists', t.receipt)),
+            jobs.length
+              ? e.op(t.hash, 'not in', e.set(...jobs.map((job) => job.data.transaction)))
+              : undefined,
+          ),
+          hash: true,
+          proposal: {
+            account: { address: true },
           },
         })),
       );
+
+      if (orphanedTransactions.length) {
+        await this.queue.addBulk(
+          orphanedTransactions.map((t) => ({
+            name: TRANSACTIONS_QUEUE.name,
+            data: {
+              chain: asChain(asUAddress(t.proposal.account.address)),
+              transaction: asHex(t.hash),
+            },
+          })),
+        );
+      }
+    } finally {
+      await mutex.release();
     }
   }
 }

@@ -5,16 +5,11 @@ import { Network } from 'chains';
 import type { EstimateGasErrorType } from 'viem';
 import { encodeOperations } from './operation';
 
-const ESTIMATED_POLICY_VERIFICATION_GAS = 500_000n;
-const ESTIMATED_APPROVAL_GAS = 20_000n;
-
-export const estimateTransactionTotalGas = (operationsGasLimit: bigint, approvers: number) =>
-  operationsGasLimit +
-  ESTIMATED_POLICY_VERIFICATION_GAS +
-  ESTIMATED_APPROVAL_GAS * BigInt(approvers);
+/*//////////////////////////////////////////////////////////////
+                            OPERATIONS
+//////////////////////////////////////////////////////////////*/
 
 export const FALLBACK_OPERATIONS_GAS = 3_000_000n;
-5;
 
 export interface EstimateOperationGasParams {
   network: Network;
@@ -37,4 +32,15 @@ export function estimateTransactionOperationsGas({
       }))(),
     (e) => e as EstimateGasErrorType,
   );
+}
+
+/*//////////////////////////////////////////////////////////////
+                          VERIFICATION
+//////////////////////////////////////////////////////////////*/
+
+const ESTIMATED_VERIFICATION_BASE_GAS = 500_000n; // TODO: estimate dynamically
+const ESTIMATED_PER_APPROVER_GAS = 20_000n;
+
+export function estimateTransactionVerificationGas(approvers: number) {
+  return ESTIMATED_VERIFICATION_BASE_GAS + ESTIMATED_PER_APPROVER_GAS * BigInt(approvers);
 }

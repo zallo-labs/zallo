@@ -3,7 +3,7 @@ import { Tx } from './tx';
 import {
   FALLBACK_OPERATIONS_GAS,
   estimateTransactionOperationsGas,
-  estimateTransactionTotalGas,
+  estimateTransactionVerificationGas,
 } from './gas';
 import { Policy } from './policy';
 import { Approval } from './approvals';
@@ -43,12 +43,9 @@ export async function serializeTransaction({
 }: SerializeTransactionParams) {
   const gas =
     tx.gas ??
-    estimateTransactionTotalGas(
-      await estimateTransactionOperationsGas({ network, account, tx }).unwrapOr(
-        FALLBACK_OPERATIONS_GAS,
-      ),
-      approvals.length,
-    );
+    (await estimateTransactionOperationsGas({ network, account, tx }).unwrapOr(
+      FALLBACK_OPERATIONS_GAS,
+    )) + estimateTransactionVerificationGas(approvals.length);
 
   const { maxFeePerGas, maxPriorityFeePerGas } = await network.estimateFeesPerGas();
 

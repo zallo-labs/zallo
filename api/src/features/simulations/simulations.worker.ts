@@ -1,4 +1,4 @@
-import { InjectQueue, Processor, WorkerHost } from '@nestjs/bullmq';
+import { InjectQueue, Processor } from '@nestjs/bullmq';
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { ETH_ADDRESS, Hex, asAddress, asChain, asDecimal, asHex, asUAddress } from 'lib';
 import { DatabaseService } from '../database/database.service';
@@ -14,7 +14,7 @@ import {
   RUNNING_JOB_STATUSES,
   TypedJob,
   TypedQueue,
-  TypedWorker,
+  Worker,
   createQueue,
 } from '../util/bull/bull.util';
 import { ETH } from 'lib/dapps';
@@ -25,10 +25,7 @@ export const SIMULATIONS_QUEUE = createQueue<{ transactionProposalHash: Hex }>('
 
 @Injectable()
 @Processor(SIMULATIONS_QUEUE.name)
-export class SimulationsWorker
-  extends WorkerHost<TypedWorker<typeof SIMULATIONS_QUEUE>>
-  implements OnModuleInit
-{
+export class SimulationsWorker extends Worker<typeof SIMULATIONS_QUEUE> implements OnModuleInit {
   constructor(
     @InjectQueue(SIMULATIONS_QUEUE.name)
     private queue: TypedQueue<typeof SIMULATIONS_QUEUE>,
@@ -39,13 +36,8 @@ export class SimulationsWorker
     super();
   }
 
-  async onModuleInit() {
-    const mutex = new Mutex(this.redis, 'simulations-missing-jobs', { lockTimeout: 60_000 });
-    try {
-      if (await mutex.tryAcquire()) await this.addMissingJobs();
-    } finally {
-      await mutex.release();
-    }
+  onModuleInit() {
+    this.addMissingJobs();
   }
 
   async process(job: TypedJob<typeof SIMULATIONS_QUEUE>) {
@@ -137,27 +129,38 @@ export class SimulationsWorker
   }
 
   private async addMissingJobs() {
-    const jobs = await this.queue.getJobs(RUNNING_JOB_STATUSES);
+    const mutex = new Mutex(this.redis, 'simulations-missing-jobs', { lockTimeout: 60_000 });
+    try {
+      if (!(await mutex.tryAcquire())) return;
 
-    const orphanedProposals = await this.db.query(
-      e.select(e.TransactionProposal, (p) => ({
-        filter: and(
-          e.op('not', e.op('exists', p.simulation)),
-          jobs.length
-            ? e.op(p.hash, 'not in', e.set(...jobs.map((job) => job.data.transactionProposalHash)))
-            : undefined,
-        ),
-        hash: true,
-      })).hash,
-    );
+      const jobs = await this.queue.getJobs(RUNNING_JOB_STATUSES);
 
-    if (orphanedProposals.length) {
-      await this.queue.addBulk(
-        orphanedProposals.map((hash) => ({
-          name: SIMULATIONS_QUEUE.name,
-          data: { transactionProposalHash: asHex(hash) },
-        })),
+      const orphanedProposals = await this.db.query(
+        e.select(e.TransactionProposal, (p) => ({
+          filter: and(
+            e.op('not', e.op('exists', p.simulation)),
+            jobs.length
+              ? e.op(
+                  p.hash,
+                  'not in',
+                  e.set(...jobs.map((job) => job.data.transactionProposalHash)),
+                )
+              : undefined,
+          ),
+          hash: true,
+        })).hash,
       );
+
+      if (orphanedProposals.length) {
+        await this.queue.addBulk(
+          orphanedProposals.map((hash) => ({
+            name: SIMULATIONS_QUEUE.name,
+            data: { transactionProposalHash: asHex(hash) },
+          })),
+        );
+      }
+    } finally {
+      await mutex.release();
     }
   }
 }

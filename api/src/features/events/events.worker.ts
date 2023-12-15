@@ -1,5 +1,5 @@
-import { InjectQueue, Processor, WorkerHost } from '@nestjs/bullmq';
-import { Injectable, Logger, OnApplicationBootstrap, OnModuleInit } from '@nestjs/common';
+import { InjectQueue, Processor } from '@nestjs/bullmq';
+import { Injectable, Logger } from '@nestjs/common';
 import { NetworksService } from '../util/networks/networks.service';
 import { DatabaseService } from '../database/database.service';
 import e from '~/edgeql-js';
@@ -11,10 +11,10 @@ import Redis from 'ioredis';
 import { Mutex } from 'redis-semaphore';
 import {
   RUNNING_JOB_STATUSES,
+  Worker,
   TypedJob,
-  TypedQueue,
-  TypedWorker,
   createQueue,
+  TypedQueue,
 } from '../util/bull/bull.util';
 import { AbiEvent } from 'abitype';
 import { Log as ViemLog, encodeEventTopics, hexToNumber } from 'viem';
@@ -54,11 +54,8 @@ export interface EventData {
 export type EventListener = (data: EventData) => Promise<void>;
 
 @Injectable()
-@Processor(EventsQueue.name, { autorun: false })
-export class EventsWorker
-  extends WorkerHost<TypedWorker<EventsQueue>>
-  implements OnModuleInit, OnApplicationBootstrap
-{
+@Processor(EventsQueue.name)
+export class EventsWorker extends Worker<EventsQueue> {
   private listeners = new Map<Hex, EventListener[]>();
   private events: AbiEvent[] = [];
 
@@ -72,17 +69,9 @@ export class EventsWorker
     super();
   }
 
-  async onModuleInit() {
-    const mutex = new Mutex(this.redis, 'events-missing-job', { lockTimeout: 60_000 });
-    try {
-      if (await mutex.tryAcquire()) await this.addMissingJob();
-    } finally {
-      mutex.release();
-    }
-  }
-
-  onApplicationBootstrap() {
-    this.worker.run();
+  onModuleInit() {
+    super.onModuleInit();
+    this.addMissingJob();
   }
 
   on(event: AbiEvent, listener: EventListener) {
@@ -152,38 +141,45 @@ export class EventsWorker
   }
 
   private async addMissingJob() {
-    const runningJobs = await this.queue.getJobs(RUNNING_JOB_STATUSES);
+    const mutex = new Mutex(this.redis, 'events-missing-job', { lockTimeout: 60_000 });
+    try {
+      if (!(await mutex.tryAcquire())) return;
 
-    for await (const network of this.networks) {
-      if (runningJobs.find((j) => j.data.chain === network.chain.key)) continue;
+      const runningJobs = await this.queue.getJobs(RUNNING_JOB_STATUSES);
 
-      const lastProcessedBlock = (await e
-        .max(
-          e.op(
-            e.select(e.Receipt, (r) => ({
-              filter: e.op(r.transaction.proposal.account.chain, '=', network.chain.key),
-              block: true,
-            })).block,
-            'union',
-            e.select(e.Transfer, (t) => ({
-              filter: e.op(t.account.chain, '=', network.chain.key),
-              block: true,
-            })).block,
-          ),
-        )
-        .run(this.db.client)) as bigint | null; // Return type is overly broad - https://github.com/edgedb/edgedb-js/issues/594
+      for await (const network of this.networks) {
+        if (runningJobs.find((j) => j.data.chain === network.chain.key)) continue;
 
-      const from = lastProcessedBlock
-        ? Number(lastProcessedBlock) + 1 // Warning: bigint -> number
-        : Number(network.blockNumber()); // Warning: bigint -> number
+        const lastProcessedBlock = (await e
+          .max(
+            e.op(
+              e.select(e.Receipt, (r) => ({
+                filter: e.op(r.transaction.proposal.account.chain, '=', network.chain.key),
+                block: true,
+              })).block,
+              'union',
+              e.select(e.Transfer, (t) => ({
+                filter: e.op(t.account.chain, '=', network.chain.key),
+                block: true,
+              })).block,
+            ),
+          )
+          .run(this.db.client)) as bigint | null; // Return type is overly broad - https://github.com/edgedb/edgedb-js/issues/594
 
-      this.queue.add(EventsQueue.name, { chain: network.chain.key, from });
+        const from = lastProcessedBlock
+          ? Number(lastProcessedBlock) + 1 // Warning: bigint -> number
+          : Number(network.blockNumber()); // Warning: bigint -> number
 
-      Logger.log(
-        `${network.chain.key}: events starting from ${
-          lastProcessedBlock ? `last processed (${from})` : `latest (${from})`
-        }`,
-      );
+        this.queue.add(EventsQueue.name, { chain: network.chain.key, from });
+
+        Logger.log(
+          `${network.chain.key}: events starting from ${
+            lastProcessedBlock ? `last processed (${from})` : `latest (${from})`
+          }`,
+        );
+      }
+    } finally {
+      mutex.release();
     }
   }
 }

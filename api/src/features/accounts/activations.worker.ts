@@ -1,4 +1,4 @@
-import { Processor, WorkerHost } from '@nestjs/bullmq';
+import { Processor } from '@nestjs/bullmq';
 import { Injectable, Logger } from '@nestjs/common';
 import { NetworksService } from '../util/networks/networks.service';
 import { AccountsService } from './accounts.service';
@@ -7,11 +7,11 @@ import { ACTIVATIONS_QUEUE } from './activations.queue';
 import { tryOrIgnoreAsync } from 'lib';
 import { DatabaseService } from '../database/database.service';
 import e from '~/edgeql-js';
-import { TypedJob, TypedWorker } from '~/features/util/bull/bull.util';
+import { Worker, TypedJob } from '~/features/util/bull/bull.util';
 
 @Injectable()
 @Processor(ACTIVATIONS_QUEUE.name)
-export class ActivationsWorker extends WorkerHost<TypedWorker<typeof ACTIVATIONS_QUEUE>> {
+export class ActivationsWorker extends Worker<typeof ACTIVATIONS_QUEUE> {
   constructor(
     private db: DatabaseService,
     private networks: NetworksService,
