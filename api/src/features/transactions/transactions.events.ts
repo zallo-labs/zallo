@@ -27,6 +27,8 @@ import { ETH } from 'lib/dapps';
 
 @Injectable()
 export class TransactionsEvents implements OnModuleInit {
+  private log = new Logger(this.constructor.name);
+
   constructor(
     @InjectQueue(TRANSACTIONS_QUEUE.name)
     private queue: TypedQueue<typeof TRANSACTIONS_QUEUE>,
@@ -60,7 +62,7 @@ export class TransactionsEvents implements OnModuleInit {
           data: log.data as Hex,
         }),
       (e) => {
-        Logger.warn(`Failed to decode executed event log: ${e}`);
+        this.log.warn(`Failed to decode executed event log: ${e}`);
       },
     );
     if (r?.eventName !== 'OperationExecuted' && r?.eventName !== 'OperationsExecuted') return;
@@ -83,7 +85,7 @@ export class TransactionsEvents implements OnModuleInit {
       })),
     );
 
-    Logger.debug(`Proposal executed: ${proposalHash}`);
+    this.log.debug(`Porposal executed: ${proposalHash}`);
 
     await this.proposals.publishProposal(
       { account: asUAddress(log.address, chain), hash: proposalHash },
@@ -118,7 +120,7 @@ export class TransactionsEvents implements OnModuleInit {
     if (!proposalHash)
       throw new Error(`Proposal not found for reverted transaction: ${receipt.transactionHash}`);
 
-    Logger.debug(`Proposal reverted: ${proposalHash}`);
+    this.log.debug(`Proposal reverted: ${proposalHash}`);
 
     await this.proposals.publishProposal(
       { account: asUAddress(receipt.from, chain), hash: asHex(proposalHash) },

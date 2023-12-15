@@ -1,5 +1,5 @@
 import { Processor } from '@nestjs/bullmq';
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { NetworksService } from '../util/networks/networks.service';
 import { AccountsService } from './accounts.service';
 import { AccountEvent } from './accounts.input';
@@ -30,7 +30,7 @@ export class ActivationsWorker extends Worker<typeof ACTIVATIONS_QUEUE> {
 
     if (receipt.status === 'reverted') {
       // TODO: handle failed activation
-      Logger.error('Account activation transaction failed', { account, transaction });
+      this.log.error('Account activation transaction failed', { account, transaction });
       return;
     }
 

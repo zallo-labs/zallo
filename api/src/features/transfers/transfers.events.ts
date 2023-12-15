@@ -9,7 +9,6 @@ import {
   tryOrIgnore,
   ETH_ADDRESS,
   isEthToken,
-  asDecimal,
 } from 'lib';
 import { ERC20 } from 'lib/dapps';
 import { TransactionEventData, TransactionsWorker } from '../transactions/transactions.worker';
@@ -40,6 +39,8 @@ export interface TransferSubscriptionPayload {
 
 @Injectable()
 export class TransfersEvents {
+  private log = new Logger(this.constructor.name);
+
   constructor(
     private db: DatabaseService,
     private eventsProcessor: EventsWorker,
@@ -153,7 +154,7 @@ export class TransfersEvents {
         });
 
         if (!isFromTransaction && asAddress(from) !== zkUtils.BOOTLOADER_FORMAL_ADDRESS) {
-          Logger.debug(
+          this.log.debug(
             `[${account}]: token (${token}) transfer ${
               from === account ? `to ${to}` : `from ${from}`
             }`,
@@ -234,7 +235,7 @@ export class TransfersEvents {
         );
 
         if (to === account) {
-          Logger.debug(`Transfer approval ${token}: ${from} -> ${to}`);
+          this.log.debug(`Transfer approval ${token}: ${from} -> ${to}`);
           this.notifyMembers('approval', account, from, token, amount);
         }
       }),

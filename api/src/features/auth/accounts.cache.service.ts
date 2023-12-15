@@ -20,6 +20,7 @@ const userAccountsKey = (user: uuid) => `user:${user}:accounts`;
 @Injectable()
 export class AccountsCacheService implements OnModuleInit {
   private readonly EXPIRY_SECONDS = Duration.fromObject({ day: 1 }).as('seconds');
+  private log = new Logger(this.constructor.name);
 
   constructor(
     @InjectRedis() private redis: Redis,
@@ -87,7 +88,7 @@ export class AccountsCacheService implements OnModuleInit {
     if (user) {
       await this.setCachedAccounts(user, approver, accounts);
     } else {
-      Logger.error(`No user found for approver ${approver}`);
+      this.log.error(`No user found for approver ${approver}`);
     }
   }
 

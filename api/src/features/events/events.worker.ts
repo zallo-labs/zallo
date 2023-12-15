@@ -1,5 +1,5 @@
 import { InjectQueue, Processor } from '@nestjs/bullmq';
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { NetworksService } from '../util/networks/networks.service';
 import { DatabaseService } from '../database/database.service';
 import e from '~/edgeql-js';
@@ -114,8 +114,8 @@ export class EventsWorker extends Worker<EventsQueue> {
               this.listeners.get(log.topics[0]!)?.map((listener) => listener({ chain, log })),
           ),
       );
-      Logger.verbose(
-        `[${chain}]: Processed ${logs.length} events from ${to - from + 1} blocks [${from}, ${to}]`,
+      this.log.verbose(
+        `Processed ${logs.length} events from ${to - from + 1} blocks [${from}, ${to}] on ${chain}`,
       );
     } catch (e) {
       const match = TOO_MANY_RESULTS_RE.exec((e as Error).message ?? '');
@@ -162,7 +162,7 @@ export class EventsWorker extends Worker<EventsQueue> {
 
         this.queue.add(EventsQueue.name, { chain: network.chain.key, from });
 
-        Logger.log(
+        this.log.log(
           `${network.chain.key}: events starting from ${
             lastProcessedBlock ? `last processed (${from})` : `latest (${from})`
           }`,
