@@ -24,17 +24,7 @@ const BLOCK_TIME = 500; /* ms */
 const TOO_MANY_RESULTS_RE =
   /Query returned more than .+? results. Try with this block range \[(?:0x[0-9a-f]+), (0x[0-9a-f]+)\]/;
 
-export const EventsQueue = createQueue<EventJobData>('Events', {
-  defaultJobOptions: {
-    attempts: 50,
-    backoff: {
-      type: 'fixed',
-      delay: BLOCK_TIME,
-    },
-    removeOnComplete: true,
-    removeOnFail: false,
-  },
-});
+export const EventsQueue = createQueue<EventJobData>('Events');
 export type EventsQueue = typeof EventsQueue;
 
 interface EventJobData {

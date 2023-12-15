@@ -14,7 +14,7 @@ import { isTruthy } from 'lib';
       useFactory: (redisService: RedisService) => ({
         connection: redisService.getClient(DEFAULT_REDIS_NAMESPACE),
         defaultJobOptions: {
-          removeOnComplete: true,
+          removeOnComplete: 1000,
           removeOnFail: false,
           attempts: 18, // 2^18 * 200ms = ~14.5h
           backoff: { type: 'exponential', delay: 200 },
