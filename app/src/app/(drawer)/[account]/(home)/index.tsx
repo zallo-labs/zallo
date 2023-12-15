@@ -5,7 +5,7 @@ import { TokenItem } from '~/components/token/TokenItem';
 import { withSuspense } from '~/components/skeleton/withSuspense';
 import { TabScreenSkeleton } from '~/components/tab/TabScreenSkeleton';
 import { StyleSheet } from 'react-native';
-import { asChain, tokenToFiat } from 'lib';
+import { asChain } from 'lib';
 import { gql } from '@api/generated';
 import { useQuery, usePollQuery } from '~/gql';
 import { AccountParams } from '~/app/(drawer)/[account]/(home)/_layout';
@@ -19,10 +19,7 @@ const Query = gql(/* GraphQL */ `
       decimals
       price {
         id
-        usd {
-          id
-          current
-        }
+        usd
       }
       balance(input: { account: $account })
       ...TokenItem_Token
@@ -44,9 +41,9 @@ function TokensTab() {
   const tokens = (data.tokens ?? [])
     .map((t) => ({
       ...t,
-      value: new Decimal(t.balance).mul(new Decimal(t.price?.usd.current ?? 0)),
+      value: new Decimal(t.balance).mul(new Decimal(t.price?.usd ?? 0)),
     }))
-    .sort((a, b) => a.value.comparedTo(b.value));
+    .sort((a, b) => b.value.comparedTo(a.value));
 
   return (
     <FlashList

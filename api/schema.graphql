@@ -305,6 +305,7 @@ type Mutation {
   createAccount(input: CreateAccountInput!): Account!
   createPolicy(input: CreatePolicyInput!): CreatePolicyResponse!
   deleteContact(input: ContactInput!): ID
+  execute(input: ProposalInput!): TransactionProposal
   labelProposalRisk(input: LabelProposalRiskInput!): Proposal!
   link(input: LinkInput!): User!
   proposeMessage(input: ProposeMessageInput!): MessageProposal!

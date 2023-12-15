@@ -53,10 +53,7 @@ const Query = gql(/* GraphQL */ `
       decimals
       price {
         id
-        usd {
-          id
-          current
-        }
+        usd
       }
       ...InputsView_token @arguments(account: $account)
       ...TokenIcon_token
@@ -93,7 +90,7 @@ function SwapScreen() {
     () =>
       type === InputType.Token
         ? new Decimal(input || '0')
-        : new Decimal(input || '0').div(from.price?.usd.current ?? '0'),
+        : new Decimal(input || '0').div(from.price?.usd ?? '0'),
     [from.price?.usd, input, type],
   );
 

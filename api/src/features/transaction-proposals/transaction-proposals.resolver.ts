@@ -79,4 +79,10 @@ export class TransactionProposalsResolver {
   async removeTransaction(@Input() { hash }: ProposalInput): Promise<uuid | null> {
     return this.service.delete(hash);
   }
+
+  @Mutation(() => TransactionProposal, { nullable: true })
+  async execute(@Input() { hash }: ProposalInput, @Info() info: GraphQLResolveInfo) {
+    this.service.tryExecute(hash);
+    return this.service.selectUnique(hash, getShape(info));
+  }
 }

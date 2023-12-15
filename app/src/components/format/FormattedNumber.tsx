@@ -1,7 +1,6 @@
 import Decimal from 'decimal.js';
 import { Decimallike } from 'lib';
 import { FormatNumberOptions, useIntl } from 'react-intl';
-import { formatUnits } from 'viem';
 
 export interface FormattedNumberOptions extends FormatNumberOptions {
   value: Decimallike | bigint;
@@ -18,31 +17,25 @@ export function useFormattedNumber({
   hideZero,
   ...formatOpts
 }: FormattedNumberOptions) {
-  return valueProp.toString();
+  const intl = useIntl();
 
-  // const intl = useIntl();
+  let n = new Decimal(valueProp.toString()).toNumber();
+  if (n === 0 && hideZero) return '';
 
-  // const minRegularNumber = 1 / 10 ** maximumFractionDigits;
-  // const minNumber = 1 / 10 ** minimumNumberFractionDigits;
+  const minRegularNumber = 1 / 10 ** maximumFractionDigits;
+  const minNumber = 1 / 10 ** minimumNumberFractionDigits;
+  const isLtMin = n !== 0 && Math.abs(n) < minNumber;
+  if (isLtMin) n = minNumber * (n < 0 ? -1 : 1);
 
-  // let n =
-  //   typeof valueProp === 'number'
-  //     ? valueProp
-  //     : parseFloat(formatUnits(BigInt(valueProp), decimals));
-  // if (n === 0 && hideZero) return '';
+  let formatted = intl.formatNumber(n, {
+    ...formatOpts,
+    maximumFractionDigits:
+      Math.abs(n) < minRegularNumber ? minimumNumberFractionDigits : maximumFractionDigits,
+  });
 
-  // const isLtMin = n !== 0 && Math.abs(n) < minNumber;
-  // if (isLtMin) n = minNumber * (n < 0 ? -1 : 1);
+  if (postFormat) formatted = postFormat(formatted);
 
-  // let formatted = intl.formatNumber(n, {
-  //   maximumFractionDigits:
-  //     Math.abs(n) < minRegularNumber ? minimumNumberFractionDigits : maximumFractionDigits,
-  //   ...formatOpts,
-  // });
-
-  // if (postFormat) formatted = postFormat(formatted);
-
-  // return isLtMin ? `< ${formatted}` : formatted;
+  return isLtMin ? `< ${formatted}` : formatted;
 }
 
 export interface FormattedNumberProps extends FormattedNumberOptions {}

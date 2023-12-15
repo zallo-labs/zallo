@@ -39,7 +39,7 @@ const User = gql(/* GraphQL */ `
 
 const Execute = gql(/* GraphQL */ `
   mutation ProposalActions_Execute($proposal: Bytes32!) {
-    execute(input: { proposalHash: $proposal }) {
+    execute(input: { hash: $proposal }) {
       id
     }
   }

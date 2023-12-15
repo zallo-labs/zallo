@@ -22,7 +22,7 @@ export const CACHE_SCHEMA_CONFIG: Pick<
         invalidate(cache, 'Query', ['accounts']);
       },
       upsertContact: (_result, _args, cache) => {
-        invalidate(cache, 'Query', ['contacts']);
+        invalidate(cache, 'Query', ['contacts', 'label']);
       },
       deleteContact: (result: string, _args, cache) => {
         invalidate(cache, { __typename: 'Contact', id: result });

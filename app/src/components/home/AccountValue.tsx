@@ -11,10 +11,7 @@ const Query = gql(/* GraphQL */ `
       balance(input: { account: $account })
       price {
         id
-        usd {
-          id
-          current
-        }
+        usd
       }
     }
   }
@@ -27,9 +24,7 @@ export interface AccountValueProps {
 export function AccountValue(props: AccountValueProps) {
   const { tokens } = useFragment(Query, props.query);
 
-  const total = Decimal.sum(
-    ...tokens.map((t) => new Decimal(t.balance).mul(t.price?.usd.current ?? 0)),
-  );
+  const total = Decimal.sum(0, ...tokens.map((t) => new Decimal(t.balance).mul(t.price?.usd ?? 0)));
 
   return (
     <Text variant="displayMedium" style={styles.text}>

@@ -33,10 +33,7 @@ const Query = gql(/* GraphQL */ `
       balance(input: { account: $account })
       price {
         id
-        usd {
-          id
-          current
-        }
+        usd
       }
       ...InputsView_token @arguments(account: $account)
       ...TokenItem_Token
@@ -74,7 +71,7 @@ function TransferScreen() {
   const amount =
     type === InputType.Token
       ? new Decimal(inputAmount)
-      : new Decimal(inputAmount).div(token.price?.usd.current ?? 0);
+      : new Decimal(inputAmount).div(token.price?.usd ?? 0);
 
   return (
     <>

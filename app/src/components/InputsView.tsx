@@ -15,10 +15,7 @@ const FragmentDoc = gql(/* GraphQL */ `
     balance(input: { account: $account })
     price {
       id
-      usd {
-        id
-        current
-      }
+      usd
     }
     ...TokenAmount_token
   }
@@ -47,7 +44,7 @@ export const InputsView = ({ input, setInput, type, setType, ...props }: InputsV
   const inputAmount = new Decimal(input || '0');
   const balance = new Decimal(token.balance);
 
-  const price = new Decimal(token.price?.usd.current ?? '0');
+  const price = new Decimal(token.price?.usd ?? '0');
   const amount = type === InputType.Token ? inputAmount : inputAmount.div(price);
   const value = type === InputType.Fiat ? inputAmount : inputAmount.mul(price);
 

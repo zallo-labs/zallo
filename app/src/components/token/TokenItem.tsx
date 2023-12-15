@@ -19,10 +19,7 @@ const Token = gql(/* GraphQL */ `
     decimals
     price {
       id
-      usd {
-        id
-        current
-      }
+      usd
     }
     ...TokenIcon_token
     ...TokenAmount_token
@@ -55,7 +52,7 @@ const TokenItem_ = memo(
             {token.price && (
               <Text style={styles.price}>
                 {amount !== undefined && ' @ '}
-                <FiatValue value={token.price.usd.current} maximumFractionDigits={0} />
+                <FiatValue value={token.price.usd} maximumFractionDigits={0} />
               </Text>
             )}
           </View>
@@ -64,7 +61,7 @@ const TokenItem_ = memo(
           token.price &&
           amount !== undefined && (
             <Text variant="labelLarge">
-              <FiatValue value={new Decimal(amount).mul(token.price.usd.current)} />
+              <FiatValue value={new Decimal(amount).mul(token.price.usd)} />
             </Text>
           )
         }

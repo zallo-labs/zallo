@@ -4,15 +4,13 @@ import { useLocalParams } from '~/hooks/useLocalParams';
 import { StyleSheet, View } from 'react-native';
 import { ListHeader } from '~/components/list/ListHeader';
 import { TokenItem } from '~/components/token/TokenItem';
-import { Address } from 'lib';
 import { gql, useFragment } from '@api/generated';
 import { Divider, Text } from 'react-native-paper';
 import { useQuery } from '~/gql';
 import { useSubscription } from 'urql';
-import { utils as zksyncUtils } from 'zksync2-js';
 import { ProposalValue } from '~/components/proposal/ProposalValue';
 import { RiskRating } from '~/components/proposal/RiskRating';
-import { FeeToken } from '~/components/transaction/FeeToken';
+import { FeesSection } from '~/components/transaction/FeesSection';
 import { OperationSection } from '~/components/transaction/OperationSection';
 import { withSuspense } from '~/components/skeleton/withSuspense';
 import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
@@ -48,6 +46,7 @@ const TransactionProposal = gql(/* GraphQL */ `
           amount
           from
           to
+          isFeeTransfer
         }
       }
     }
@@ -62,6 +61,7 @@ const TransactionProposal = gql(/* GraphQL */ `
         amount
         from
         to
+        isFeeTransfer
       }
     }
     ...RiskRating_Proposal
@@ -79,9 +79,6 @@ const Subscription = gql(/* GraphQL */ `
   }
 `);
 
-const isFeeTransfer = ({ from, to }: { from: Address; to: Address }) =>
-  from !== zksyncUtils.BOOTLOADER_FORMAL_ADDRESS && to !== zksyncUtils.BOOTLOADER_FORMAL_ADDRESS;
-
 export const TransactionDetailsTabParams = TransactionLayoutParams;
 export type TransactionDetailsTabParams = z.infer<typeof TransactionDetailsTabParams>;
 
@@ -94,10 +91,13 @@ function DetailsTab() {
 
   if (!p) return null;
 
-  const transfers = [...(p.transaction?.receipt?.transferEvents ?? p.simulation?.transfers ?? [])];
+  const transfers = [
+    ...(p.transaction?.receipt?.transferEvents ?? p.simulation?.transfers ?? []),
+  ].filter((t) => !t.isFeeTransfer); // Ignore fee transfers, this is shown by FeeToken
 
   return (
     <View style={styles.container}>
+      <ListHeader>Operations</ListHeader>
       {p.operations.map((operation, i) => (
         <OperationSection
           key={i}
@@ -106,29 +106,33 @@ function DetailsTab() {
           initiallyExpanded={p.operations.length === 1}
         />
       ))}
-
       <Divider horizontalInset style={styles.divider} />
 
-      <ListHeader
-        trailing={({ Text }) => (
-          <Text>
-            <ProposalValue proposal={p} />
-          </Text>
-        )}
-      >
-        Transfers
-      </ListHeader>
-      <FeeToken proposal={p} />
+      {transfers.length > 0 && (
+        <>
+          <ListHeader
+            trailing={({ Text }) => (
+              <Text>
+                <ProposalValue proposal={p} />
+              </Text>
+            )}
+          >
+            Transfers
+          </ListHeader>
 
-      {transfers
-        .filter(isFeeTransfer) // Ignore fee transfers, this is shown by FeeToken
-        .map((t) =>
-          t.token ? (
-            <TokenItem key={t.id} token={t.token} amount={t.amount} />
-          ) : (
-            <Text key={t.id}>{`${t.tokenAddress}: ${t.amount}`}</Text>
-          ),
-        )}
+          {transfers.map((t) =>
+            t.token ? (
+              <TokenItem key={t.id} token={t.token} amount={t.amount} />
+            ) : (
+              <Text key={t.id}>{`${t.tokenAddress}: ${t.amount}`}</Text>
+            ),
+          )}
+          <Divider horizontalInset style={styles.divider} />
+        </>
+      )}
+
+      <FeesSection proposal={p} />
+      <Divider horizontalInset style={styles.divider} />
 
       <RiskRating proposal={p} style={styles.riskLabel} />
     </View>
