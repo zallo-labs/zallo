@@ -129,9 +129,7 @@ export class PricesService {
       );
       if (expiredPriceIds.length === 0) return;
 
-      const updateData = (await this.pyth.getPriceFeedsUpdateData(expiredPriceIds)).map((base64) =>
-        asHex('0x' + Buffer.from(base64, 'base64').toString('hex')),
-      );
+      const updateData = (await this.pyth.getPriceFeedsUpdateData(expiredPriceIds)).map(asHex);
 
       const network = this.networks.get(chain);
       const updateFee = await network.readContract({
@@ -141,14 +139,16 @@ export class PricesService {
         args: [updateData],
       });
 
+      const sim = await network.simulateContract({
+        abi: PYTH.abi,
+        address: PYTH.address[chain],
+        functionName: 'updatePriceFeeds',
+        args: [updateData],
+        value: updateFee,
+      });
+
       await network.useWallet(async (wallet) => {
-        wallet.writeContract({
-          abi: PYTH.abi,
-          address: PYTH.address[chain],
-          functionName: 'updatePriceFeeds',
-          args: [updateData],
-          value: updateFee,
-        });
+        await wallet.writeContract(sim.request);
       });
     } finally {
       await mutex.release();
@@ -159,30 +159,17 @@ export class PricesService {
     const cachedPublishTime = this.lastOnchainPublishTime[chain].get(priceId);
     if (cachedPublishTime && cachedPublishTime < this.oldestAcceptablePublishTime) return false;
 
-    try {
-      const p = await this.networks.get('zksync-goerli').readContract({
-        abi: PYTH.abi,
-        address: PYTH.address['zksync-goerli'],
-        functionName: 'getPrice',
-        args: ['0xff61491a931112ddf1bd8147cd1b641375f79f5825126d665480874634fd0ace'],
-      });
+    const p = await this.networks.get(chain).readContract({
+      abi: PYTH.abi,
+      address: PYTH.address[chain],
+      functionName: 'getPriceUnsafe', // TODO: getPriceUnsafe instead? Prevents needing to handle revert errors
+      args: [priceId],
+    });
 
-      const publishTime = DateTime.fromSeconds(Number(p.price));
-      this.lastOnchainPublishTime[chain].set(priceId, publishTime);
+    const publishTime = DateTime.fromSeconds(Number(p.price));
+    this.lastOnchainPublishTime[chain].set(priceId, publishTime);
 
-      return publishTime < this.oldestAcceptablePublishTime;
-    } catch (error) {
-      const e = decodeRevertError({ error, abi: PYTH.abi })?.errorName;
-      if (
-        e === 'PriceFeedNotFound' || // Price feed not found or it is not pushed on-chain yet.
-        e === 'PriceFeedNotFoundWithinRange' ||
-        e === 'NoFreshUpdate'
-      ) {
-        this.lastOnchainPublishTime[chain].set(priceId, DateTime.fromSeconds(0));
-        return false;
-      }
-      throw error;
-    }
+    return publishTime < this.oldestAcceptablePublishTime;
   }
 
   private handlePythError(error: Error) {
