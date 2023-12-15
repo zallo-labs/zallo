@@ -125,9 +125,9 @@ export class TransfersEvents {
                   'In',
                 ],
                 isFeeTransfer: e.op(
-                  transaction.proposal.paymaster,
-                  'in',
-                  e.set(localFrom, localTo),
+                  e.op(transaction.proposal.paymaster, 'in', e.set(localFrom, localTo)),
+                  '??',
+                  false,
                 ),
               })
               .unlessConflict((t) => ({
@@ -190,19 +190,30 @@ export class TransfersEvents {
     const block =
       'block' in event ? event.block : await network.getBlock({ blockNumber: log.blockNumber });
     const amount = await this.tokens.asDecimal(token, r.args.value);
+    const [localFrom, localTo] = [asAddress(from), asAddress(to)];
 
     await Promise.all(
       accounts.map(async (account) => {
+        const selectedAccount = selectAccount(account);
+        const transaction = e.assert_single(
+          e.select(e.Transaction, (t) => ({
+            filter: and(
+              e.op(t.hash, '=', log.transactionHash),
+              e.op(t.proposal.account, '=', selectedAccount),
+            ),
+          })),
+        );
+
         await this.db.query(
           e
             .insert(e.TransferApproval, {
-              account: selectAccount(account),
+              account: selectedAccount,
               transactionHash: log.transactionHash,
               logIndex: log.logIndex,
               block: log.blockNumber,
               timestamp: new Date(Number(block.timestamp) * 1000),
-              from: asAddress(from),
-              to: asAddress(to),
+              from: localFrom,
+              to: localTo,
               tokenAddress: token,
               amount:
                 from === to
@@ -213,6 +224,11 @@ export class TransfersEvents {
               direction: [account === to && 'In', account === from && 'Out'].filter(Boolean) as [
                 'In',
               ],
+              isFeeTransfer: e.op(
+                e.op(transaction.proposal.paymaster, 'in', e.set(localFrom, localTo)),
+                '??',
+                false,
+              ),
             })
             .unlessConflict(),
         );
