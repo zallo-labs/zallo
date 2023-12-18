@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { UserInputError } from '@nestjs/apollo';
 import {
   hashTx,
@@ -12,6 +12,7 @@ import {
   asChain,
   ETH_ADDRESS,
   Hex,
+  asTypedData,
 } from 'lib';
 import { NetworksService } from '~/features/util/networks/networks.service';
 import {
@@ -33,6 +34,11 @@ import { InjectQueue } from '@nestjs/bullmq';
 import { EXECUTIONS_QUEUE } from '~/features/transaction-proposals/executions.worker';
 import { TypedQueue } from '~/features/util/bull/bull.util';
 import { SIMULATIONS_QUEUE } from '~/features/simulations/simulations.worker';
+import {
+  proposalTxShape,
+  transactionProposalAsTx,
+} from '~/features/transaction-proposals/transaction-proposals.util';
+import { hashTypedData } from 'viem';
 
 export const selectTransactionProposal = (
   id: UniqueProposal,
@@ -209,14 +215,32 @@ export class TransactionProposalsService {
       })),
     );
 
-    const p = await this.db.query(
-      e.select(updatedProposal, () => ({
-        hash: true,
-        account: {
-          address: true,
-        },
-      })),
-    );
+    const p = await this.db.transaction(async (tx) => {
+      const p = await e
+        .select(updatedProposal, () => ({
+          id: true,
+          hash: true,
+          account: { address: true },
+          ...proposalTxShape(tx),
+        }))
+        .run(tx);
+      if (!p) return;
+
+      const hash = hashTypedData(
+        asTypedData(asUAddress(p.account.address), transactionProposalAsTx(p)),
+      );
+      if (hash !== p.hash) {
+        // Approvals are marked as invalid when the signed hash differs from the proposal hash
+        await e
+          .update(e.TransactionProposal, (proposal) => ({
+            filter: e.op(proposal.id, '=', e.uuid(p.id)),
+            set: { hash },
+          }))
+          .run(tx);
+      }
+
+      return { ...p, hash };
+    });
     if (!p) return;
 
     if (policy !== undefined) await this.tryExecute(asHex(p.hash));
