@@ -37,8 +37,14 @@ export const TX_EIP712_TYPES = {
   // gasPerPubdataByteLimit
 
   /* Consider: */
-  // gas: difficult as verification gas depends on executing policy... Griefing danger?
-  // maxGas: gas must be <=; this would allow a wide range of gas limits without the downside of setting a high gas limit
+  // maxGasLimit: gasLimit must be <= maxGasLimit; this would allow a wide range of gas limits without the downside of setting a high gas limit
+  // 1. We can't accurately predict gas as it depends on L1 gas price (which varies up to 15x i.e. 10 gwei -> 150 gwei)
+  //    We do still want to set an upper limit on how much the user is willing to pay for the transaction
+  // 2. Setting the gasLimit too high means the user pays more than necessary
+  // Issue: the operator may perform a single gas griefing attack by submitting a transaction with a high gasLimit
+
+  // FIXME: Gas griefing attack - *anyone* may re-submit a failed but valid transaction that has sufficient gas for verification but insufficient gas for execution
+  // Mitigation: track transaction validation, not execution
 
   // Encoding operations (to, value, data)[] instead of packed operations
   // Pros: improve HW wallet signing readability; allowing changing operation encoding without changing the Tx hashing
