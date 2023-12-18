@@ -18,6 +18,7 @@ import {
   createQueue,
 } from '../util/bull/bull.util';
 import { ETH } from 'lib/dapps';
+import { selectTransactionProposal } from '~/features/transaction-proposals/transaction-proposals.service';
 
 type TransferDetails = Parameters<typeof e.insert<typeof e.TransferDetails>>[1];
 
@@ -114,17 +115,20 @@ export class SimulationsWorker extends Worker<typeof SIMULATIONS_QUEUE> implemen
       }
     }
 
+    const proposal = selectTransactionProposal(hash);
     await this.db.query(
-      e.update(e.TransactionProposal, () => ({
-        filter_single: { hash },
-        set: {
-          simulation: e.insert(e.Simulation, {
-            ...(transfers.length && {
-              transfers: e.set(...transfers.map((t) => e.insert(e.TransferDetails, t))),
+      e.select({
+        prevSimulation: e.delete(proposal.simulation, () => ({})),
+        proposal: e.update(proposal, () => ({
+          set: {
+            simulation: e.insert(e.Simulation, {
+              ...(transfers.length && {
+                transfers: e.set(...transfers.map((t) => e.insert(e.TransferDetails, t))),
+              }),
             }),
-          }),
-        },
-      })),
+          },
+        })),
+      }),
     );
   }
 
