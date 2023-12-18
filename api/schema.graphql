@@ -92,7 +92,14 @@ type Approval implements Node & ProposalResponse {
   approver: Approver!
   createdAt: DateTime!
   id: ID!
+  invalid: Boolean!
+  issues: [ApprovalIssue!]!
   proposal: Proposal!
+}
+
+enum ApprovalIssue {
+  Expired
+  HashMismatch
 }
 
 input ApproveInput {

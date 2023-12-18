@@ -74,10 +74,7 @@ module default {
     required approver: Approver {
       default := (<Approver>(global current_approver).id);
     }
-    required createdAt: datetime {
-      readonly := true;
-      default := datetime_of_statement();
-    } 
+    required createdAt: datetime { default := datetime_of_statement(); } 
 
     constraint exclusive on ((.proposal, .approver));
 
@@ -102,8 +99,15 @@ module default {
     constraint exclusive on ((.proposal, .user));
   }
 
+  scalar type ApprovalIssue extending enum<'HashMismatch', 'Expired'>;
+
   type Approval extending ProposalResponse {
     required signature: Bytes;
+    required signedHash: Bytes32; # { default := .proposal.hash; }
+    required property issues := <array<ApprovalIssue>>array_agg(
+      {ApprovalIssue.HashMismatch} if (.signedHash != .proposal.hash) else <ApprovalIssue>{}
+    );
+    required property invalid := len(.issues) > 0;
   }
 
   type Rejection extending ProposalResponse {}

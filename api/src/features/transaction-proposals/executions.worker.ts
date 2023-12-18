@@ -69,10 +69,11 @@ export class ExecutionsWorker extends Worker<typeof EXECUTIONS_QUEUE> {
         ...proposalTxShape(p),
         feeToken: { address: true },
         paymasterEthFee: true,
-        approvals: {
+        approvals: (a) => ({
+          filter: e.op('not', a.invalid),
           approver: { address: true },
           signature: true,
-        },
+        }),
         policy: {
           key: true,
           state: policyStateShape,
