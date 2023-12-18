@@ -8,10 +8,12 @@ import { selectAccount } from '../accounts/accounts.util';
 import { ProposalsService, UniqueProposal } from '../proposals/proposals.service';
 import {
   Hex,
+  UUID,
   asAddress,
   asApproval,
   asHex,
   asUAddress,
+  asUUID,
   encodeTransactionSignature,
   isHex,
   isPresent,
@@ -81,31 +83,33 @@ export class MessageProposalsService {
           }),
         );
 
-        await this.proposals.publishProposal({ account, hash }, ProposalEvent.create);
+        await this.proposals.publishProposal({ id: asUUID(p.id), account }, ProposalEvent.create);
 
         return p;
       })());
+    const id = asUUID(proposal.id);
 
-    if (signature) await this.approve({ hash, signature });
+    if (signature) await this.approve({ id, signature });
 
-    return proposal;
+    return { id };
   }
 
   async approve(input: ApproveInput) {
     await this.proposals.approve(input);
-    await this.trySign(input.hash);
+    await this.trySign(input.id);
   }
 
-  async remove(proposal: Hex) {
+  async remove(proposal: UUID) {
     return this.db.query(
-      e.delete(e.select(e.MessageProposal, () => ({ filter_single: { hash: proposal } }))).id,
+      e.delete(e.select(e.MessageProposal, () => ({ filter_single: { id: proposal } }))).id,
     );
   }
 
-  private async trySign(proposalHash: Hex) {
+  private async trySign(id: UUID) {
     const proposal = await this.db.query(
       e.select(e.MessageProposal, () => ({
-        filter_single: { hash: proposalHash },
+        filter_single: { id },
+        hash: true,
         signature: true,
         approvals: {
           approver: { address: true },
@@ -138,7 +142,7 @@ export class MessageProposalsService {
     const approvals = (
       await mapAsync(proposal.approvals, (a) =>
         asApproval({
-          hash: proposalHash,
+          hash: asHex(proposal.hash),
           approver: asAddress(a.approver.address),
           signature: asHex(a.signature),
           network,
@@ -150,12 +154,12 @@ export class MessageProposalsService {
 
     await this.db.query(
       e.update(e.MessageProposal, () => ({
-        filter_single: { hash: proposalHash },
+        filter_single: { id },
         set: { signature },
       })),
     );
 
-    await this.proposals.publishProposal({ hash: proposalHash, account }, ProposalEvent.approved);
+    await this.proposals.publishProposal({ id, account }, ProposalEvent.approved);
 
     return signature;
   }

@@ -3,7 +3,7 @@ import { MessageProposal } from './message-proposals.model';
 import { Input } from '~/decorators/input.decorator';
 import { ProposeMessageInput } from './message-proposals.input';
 import { GraphQLResolveInfo } from 'graphql';
-import { ApproveInput, ProposalInput } from '../proposals/proposals.input';
+import { ApproveInput, UniqueProposalInput } from '../proposals/proposals.input';
 import { MessageProposalsService } from './message-proposals.service';
 import { getShape } from '../database/database.select';
 import { ComputedField } from '~/decorators/computed.decorator';
@@ -14,8 +14,8 @@ export class MessageProposalsResolver {
   constructor(private service: MessageProposalsService) {}
 
   @Query(() => MessageProposal, { nullable: true })
-  async messageProposal(@Input() input: ProposalInput, @Info() info: GraphQLResolveInfo) {
-    return this.service.selectUnique(input.hash, getShape(info));
+  async messageProposal(@Input() input: UniqueProposalInput, @Info() info: GraphQLResolveInfo) {
+    return this.service.selectUnique(input.id, getShape(info));
   }
 
   @ComputedField<typeof e.MessageProposal>(() => Boolean, { signature: true })
@@ -32,11 +32,11 @@ export class MessageProposalsResolver {
   @Mutation(() => MessageProposal)
   async approveMessage(@Input() input: ApproveInput, @Info() info: GraphQLResolveInfo) {
     await this.service.approve(input);
-    return this.service.selectUnique(input.hash, getShape(info));
+    return this.service.selectUnique(input.id, getShape(info));
   }
 
   @Mutation(() => ID)
-  async removeMessage(@Input() input: ProposalInput, @Info() info: GraphQLResolveInfo) {
-    return this.service.remove(input.hash);
+  async removeMessage(@Input() input: UniqueProposalInput, @Info() info: GraphQLResolveInfo) {
+    return this.service.remove(input.id);
   }
 }

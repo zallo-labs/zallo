@@ -8,7 +8,6 @@ import { createStyles, useStyles } from '@theme/styles';
 const MessageProposal = gql(/* GraphQL */ `
   fragment MessageProposalItem_MessageProposal on MessageProposal {
     id
-    hash
     label
     signature
     updatable
@@ -58,9 +57,7 @@ export function MessageProposalItem(props: MessageProposalItemProps) {
       leadingSize="medium"
       headline={p.label || 'Message'}
       supporting={supporting}
-      onPress={() =>
-        router.push({ pathname: `/(drawer)/message/[hash]/`, params: { hash: p.hash } })
-      }
+      onPress={() => router.push({ pathname: `/(drawer)/message/[id]/`, params: { id: p.id } })}
     />
   );
 }

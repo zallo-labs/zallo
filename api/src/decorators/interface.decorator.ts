@@ -1,5 +1,6 @@
 import { Field, ID, InterfaceType, ObjectType, ObjectTypeOptions } from '@nestjs/graphql';
-import { uuid } from 'edgedb/dist/codecs/ifaces';
+import { UUID } from 'lib';
+import { UUIDField } from '~/apollo/scalars/Uuid.scalar';
 
 const createObjectWithInterfaceDecorator =
   (iface: Function | (() => Function)) =>
@@ -18,9 +19,17 @@ const createObjectWithInterfaceDecorator =
     })(target);
 
 @InterfaceType()
-export class Node {
+export class CustomNode {
   @Field(() => ID)
-  id: uuid | string;
+  id: string;
+}
+
+export const CustomNodeType = createObjectWithInterfaceDecorator(CustomNode);
+
+@InterfaceType()
+export class Node {
+  @UUIDField()
+  id: UUID;
 }
 
 export const NodeType = createObjectWithInterfaceDecorator(Node);

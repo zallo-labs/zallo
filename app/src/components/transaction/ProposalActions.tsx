@@ -14,7 +14,6 @@ const Proposal = gql(/* GraphQL */ `
   fragment ProposalActions_TransactionProposal on TransactionProposal {
     __typename
     id
-    hash
     status
     updatable
     account {
@@ -38,8 +37,8 @@ const User = gql(/* GraphQL */ `
 `);
 
 const Execute = gql(/* GraphQL */ `
-  mutation ProposalActions_Execute($proposal: Bytes32!) {
-    execute(input: { hash: $proposal }) {
+  mutation ProposalActions_Execute($proposal: UUID!) {
+    execute(input: { id: $proposal }) {
       id
     }
   }
@@ -85,7 +84,7 @@ export const ProposalActions = (props: ProposalActionsProps) => {
         <Button
           mode="contained"
           icon={RetryIcon}
-          onPress={() => execute({ proposal: p.hash })}
+          onPress={() => execute({ proposal: p.id })}
           contentStyle={styles.retryContainer}
           labelStyle={styles.retryLabel}
         >

@@ -16,7 +16,6 @@ import { asUAddress } from 'lib';
 const Proposal = gql(/* GraphQL */ `
   fragment ProposalItem_TransactionProposal on TransactionProposal {
     id
-    hash
     label
     status
     createdAt
@@ -125,9 +124,7 @@ function ProposalItem_({
           <ProposalValue proposal={p} hideZero />
         </Text>
       )}
-      onPress={() =>
-        router.push({ pathname: `/(drawer)/transaction/[hash]/`, params: { hash: p.hash } })
-      }
+      onPress={() => router.push({ pathname: `/(drawer)/transaction/[id]/`, params: { id: p.id } })}
       {...itemProps}
     />
   );

@@ -50,10 +50,7 @@ export class Policy {
 }
 
 @NodeType()
-export class ActionFunction implements Node, eql.ActionFunction {
-  @IdField()
-  id: uuid;
-
+export class ActionFunction extends Node implements eql.ActionFunction {
   @AddressField({ nullable: true, description: 'Default: apply to all contracts' })
   contract: Address | null;
 
@@ -65,10 +62,7 @@ export class ActionFunction implements Node, eql.ActionFunction {
 }
 
 @NodeType()
-export class Action implements Node, eql.Action {
-  @IdField()
-  id: uuid;
-
+export class Action extends Node implements eql.Action {
   @Field(() => String)
   label: string;
 

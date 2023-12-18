@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { MessageLayoutParams } from '~/app/(drawer)/message/[hash]/_layout';
+import { MessageLayoutParams } from '~/app/(drawer)/message/[id]/_layout';
 import { useLocalParams } from '~/hooks/useLocalParams';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { gql } from '@api/generated';
@@ -13,8 +13,8 @@ import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
 import { asChain } from 'lib';
 
 const Query = gql(/* GraphQL */ `
-  query MessageDetailsTab($proposal: Bytes32!) {
-    messageProposal(input: { hash: $proposal }) {
+  query MessageDetailsTab($proposal: UUID!) {
+    messageProposal(input: { id: $proposal }) {
       id
       label
       message
@@ -34,7 +34,7 @@ export type MessageDetailsTabParams = z.infer<typeof MessageDetailsTabParams>;
 
 function MessageDetailsTab() {
   const params = useLocalParams(MessageDetailsTabParams);
-  const p = useQuery(Query, { proposal: params.hash }).data?.messageProposal;
+  const p = useQuery(Query, { proposal: params.id }).data?.messageProposal;
 
   if (!p) return null;
 

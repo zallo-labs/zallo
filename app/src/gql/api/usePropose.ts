@@ -20,10 +20,11 @@ export const usePropose = () => {
     async (input: ProposeTransactionInput) => {
       const r = await propose({ input });
 
-      const hash = r.data?.proposeTransaction.hash;
-      if (!hash) logError('Proposal failed', { input, error: r.error });
+      const id = r.data?.proposeTransaction.id;
+      // TODO: handle failed proposal
+      if (!id) logError('Proposal failed', { input, error: r.error });
 
-      return hash!;
+      return id!;
     },
     [propose],
   );

@@ -1,58 +1,57 @@
-import { Menu } from 'react-native-paper';
-import { AppbarMore } from '~/components/Appbar/AppbarMore';
+import { z } from 'zod';
+import { useLocalParams } from '~/hooks/useLocalParams';
+import { zUuid } from '~/lib/zod';
 import { gql } from '@api/generated';
 import { NotFound } from '~/components/NotFound';
 import { useQuery } from '~/gql';
+import { AppbarMore } from '~/components/Appbar/AppbarMore';
+import { Menu } from 'react-native-paper';
 import { useMutation } from 'urql';
 import { useConfirmRemoval } from '~/hooks/useConfirm';
-import { z } from 'zod';
-import { isHash } from 'viem';
-import { useLocalParams } from '~/hooks/useLocalParams';
-import { ScrollView } from 'react-native';
-import { StyleSheet } from 'react-native';
-import { ProposalActions } from '~/components/transaction/ProposalActions';
-import { AppbarOptions } from '~/components/Appbar/AppbarOptions';
 import { useRouter } from 'expo-router';
 import { TopTabs } from '~/components/layout/TopTabs';
+import { MessageProposalActions } from '~/components/proposal/MessageProposalActions';
+import { AppbarOptions } from '~/components/Appbar/AppbarOptions';
+import { StyleSheet, ScrollView } from 'react-native';
 import { ScreenSurface } from '~/components/layout/ScreenSurface';
 
 const Query = gql(/* GraphQL */ `
-  query TransactionLayout($hash: Bytes32!) {
-    transactionProposal(input: { hash: $hash }) {
+  query MessageLayout($proposal: UUID!) {
+    messageProposal(input: { id: $proposal }) {
       id
-      hash
       account {
         id
         name
       }
-      ...ProposalActions_TransactionProposal
+      ...MessageProposalActions_MessageProposal
     }
 
     user {
       id
-      ...ProposalActions_User
+      ...MessageProposalActions_User
     }
   }
 `);
 
 const Remove = gql(/* GraphQL */ `
-  mutation TransactionLayout_Remove($proposal: Bytes32!) {
-    removeTransaction(input: { hash: $proposal })
+  mutation MessageLayout_Remove($proposal: UUID!) {
+    removeMessage(input: { id: $proposal })
   }
 `);
 
-export const TransactionLayoutParams = z.object({ hash: z.string().refine(isHash) });
+export const MessageLayoutParams = z.object({ id: zUuid() });
+export type MessageLayoutParams = z.infer<typeof MessageLayoutParams>;
 
-export default function TransactionLayout() {
-  const { hash } = useLocalParams(TransactionLayoutParams);
+export default function MessageLayout() {
+  const params = useLocalParams(MessageLayoutParams);
   const router = useRouter();
   const remove = useMutation(Remove)[1];
   const confirmRemoval = useConfirmRemoval({
     message: 'Are you sure you want to remove this proposal?',
   });
 
-  const query = useQuery(Query, { hash });
-  const { transactionProposal: proposal, user } = query.data;
+  const query = useQuery(Query, { proposal: params.id });
+  const proposal = query.data?.messageProposal;
 
   if (!proposal) return query.stale ? null : <NotFound name="Proposal" />;
 
@@ -68,7 +67,7 @@ export default function TransactionLayout() {
                 onPress={async () => {
                   close();
                   if (await confirmRemoval()) {
-                    await remove({ proposal: proposal.hash });
+                    await remove({ proposal: proposal.id });
                     router.back();
                   }
                 }}
@@ -81,16 +80,19 @@ export default function TransactionLayout() {
       <ScreenSurface>
         <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
           <TopTabs>
-            <TopTabs.Screen name="index" options={{ title: 'Details' }} initialParams={{ hash }} />
-            <TopTabs.Screen name="policy" options={{ title: 'Policy' }} initialParams={{ hash }} />
             <TopTabs.Screen
-              name="transaction"
-              options={{ title: 'Transaction' }}
-              initialParams={{ hash }}
+              name="index"
+              options={{ title: 'Details' }}
+              initialParams={{ id: params.id }}
+            />
+            <TopTabs.Screen
+              name="policy"
+              options={{ title: 'Policy' }}
+              initialParams={{ id: params.id }}
             />
           </TopTabs>
 
-          <ProposalActions proposal={proposal} user={user} />
+          <MessageProposalActions proposal={proposal} user={query.data.user} />
         </ScrollView>
       </ScreenSurface>
     </>

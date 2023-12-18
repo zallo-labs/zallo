@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { TransactionLayoutParams } from '~/app/(drawer)/transaction/[hash]/_layout';
+import { TransactionLayoutParams } from '~/app/(drawer)/transaction/[id]/_layout';
 import { useLocalParams } from '~/hooks/useLocalParams';
 import { StyleSheet, View } from 'react-native';
 import { ListHeader } from '~/components/list/ListHeader';
@@ -16,8 +16,8 @@ import { withSuspense } from '~/components/skeleton/withSuspense';
 import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
 
 const Query = gql(/* GraphQL */ `
-  query TransactionDetailsTab($hash: Bytes32!) {
-    transactionProposal(input: { hash: $hash }) {
+  query TransactionDetailsTab($proposal: UUID!) {
+    transactionProposal(input: { id: $proposal }) {
       ...TransactionDetailsTab_TransactionProposal
     }
   }
@@ -72,8 +72,8 @@ const TransactionProposal = gql(/* GraphQL */ `
 `);
 
 const Subscription = gql(/* GraphQL */ `
-  subscription TransactionDetailsTab_Subscription($hash: Bytes32!) {
-    proposal(input: { proposals: [$hash] }) {
+  subscription TransactionDetailsTab_Subscription($proposal: UUID!) {
+    proposal(input: { proposals: [$proposal] }) {
       ...TransactionDetailsTab_TransactionProposal
     }
   }
@@ -83,10 +83,10 @@ export const TransactionDetailsTabParams = TransactionLayoutParams;
 export type TransactionDetailsTabParams = z.infer<typeof TransactionDetailsTabParams>;
 
 function DetailsTab() {
-  const { hash } = useLocalParams(TransactionDetailsTabParams);
+  const { id } = useLocalParams(TransactionDetailsTabParams);
 
-  const { data } = useQuery(Query, { hash });
-  useSubscription({ query: Subscription, variables: { hash } });
+  const { data } = useQuery(Query, { proposal: id });
+  useSubscription({ query: Subscription, variables: { proposal: id } });
   const p = useFragment(TransactionProposal, data?.transactionProposal);
 
   if (!p) return null;

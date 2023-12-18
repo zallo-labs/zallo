@@ -16,7 +16,6 @@ import { TokenAmount } from '~/components/token/TokenAmount';
 const FragmentDoc = gql(/* GraphQL */ `
   fragment FeeToken_TransactionProposalFragment on TransactionProposal {
     id
-    hash
     account {
       id
       address
@@ -54,8 +53,8 @@ const FragmentDoc = gql(/* GraphQL */ `
 `);
 
 const Update = gql(/* GraphQL */ `
-  mutation FeeToken_Update($hash: Bytes32!, $feeToken: Address!) {
-    updateTransaction(input: { hash: $hash, feeToken: $feeToken }) {
+  mutation FeeToken_Update($id: UUID!, $feeToken: Address!) {
+    updateTransaction(input: { id: $id, feeToken: $feeToken }) {
       ...FeeToken_TransactionProposalFragment
     }
   }
@@ -84,6 +83,13 @@ export function FeesSection(props: FeeTokenProps) {
   const isEstimated = !p.transaction?.receipt;
 
   const ethPerFeeToken = new Decimal(p.transaction?.ethPerFeeToken ?? p.feeToken.price?.eth ?? 0);
+
+  console.log({
+    ethPerFeeToken: ethPerFeeToken.toString(),
+    ethFees: ethFees.toString(),
+    amount: ethFees.div(ethPerFeeToken).toString(),
+    ethDiscount: ethDiscount.toString(),
+  });
 
   return (
     <>
@@ -128,7 +134,7 @@ export function FeesSection(props: FeeTokenProps) {
           style={styles.button}
           onPress={async () => {
             const token = await selectToken({ account: p.account.address, feeToken: true });
-            if (token) await update({ hash: p.hash, feeToken: asAddress(token) });
+            if (token) await update({ id: p.id, feeToken: asAddress(token) });
           }}
         >
           Pay fees in another token

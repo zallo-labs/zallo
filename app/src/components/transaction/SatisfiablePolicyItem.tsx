@@ -5,7 +5,7 @@ import { ListItem, ListItemProps } from '~/components/list/ListItem';
 
 const FragmentDoc = gql(/* GraphQL */ `
   fragment SatisfiabePolicyItem_PolicyFragment on Policy
-  @argumentDefinitions(proposal: { type: "Bytes32!" }) {
+  @argumentDefinitions(proposal: { type: "UUID!" }) {
     id
     name
     satisfiability(input: { proposal: $proposal }) {

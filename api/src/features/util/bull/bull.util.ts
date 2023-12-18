@@ -93,7 +93,7 @@ export abstract class Worker<Q extends QueueDefintion>
 
   onModuleInit() {
     this.worker.on('failed', (job, err) => {
-      this.log.warn(`Job (${job?.id ?? '?'}) failed with: ${err.name}`);
+      this.log.warn(`Job (${job?.id ?? '?'}) failed with ${err.name}: ${err.message}`);
     });
   }
 

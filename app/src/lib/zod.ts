@@ -1,5 +1,5 @@
 import { CHAINS, Chain } from 'chains';
-import { Hex, isHex, tryAsAddress, tryAsUAddress, TryAsAddressParams, bytesize } from 'lib';
+import { tryAsAddress, tryAsUAddress, TryAsAddressParams, isUUID } from 'lib';
 import { ZodTypeAny, z } from 'zod';
 
 export interface ZAddressParams extends TryAsAddressParams {}
@@ -26,12 +26,12 @@ export function zUAddress() {
   });
 }
 
-export function zHash() {
-  return z.string().refine((arg): arg is Hex => isHex(arg) && bytesize(arg) === 32);
-}
-
 export function zChain() {
   return z.enum(Object.values(CHAINS).map((c) => c.key) as unknown as [Chain, ...Chain[]]);
+}
+
+export function zUuid() {
+  return z.string().uuid().refine(isUUID);
 }
 
 export function zArray<T extends ZodTypeAny, R extends ZodTypeAny = z.ZodArray<T>>(

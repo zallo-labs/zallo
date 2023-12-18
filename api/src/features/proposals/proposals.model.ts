@@ -8,7 +8,7 @@ import { makeUnionTypeResolver } from '../database/database.util';
 import { Risk } from './proposals.input';
 
 @InterfaceType({ implements: () => Node, resolveType: makeUnionTypeResolver() })
-export class Proposal extends Node {
+export class Proposal {
   @Bytes32Field()
   hash: string; // Hex
 

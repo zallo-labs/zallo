@@ -28,7 +28,7 @@ const Token = gql(/* GraphQL */ `
 
 export interface FormattedTokenAmountOptions extends Partial<FormattedNumberOptions> {
   token: FragmentType<typeof Token> | UAddress | null | undefined;
-  amount?: Decimallike;
+  amount: Decimallike | undefined;
   trailing?: 'name' | 'symbol' | false;
 }
 
@@ -52,25 +52,24 @@ export const useFormattedTokenAmount = ({
       id: '',
       name: '???',
       symbol: '???',
-      // units: [] as { symbol: string; decimals: number }[],
     } as UseFormattedTokenAmount_TokenFragment);
 
-  // Format with the closest unit
-  const amountDecimals = amount.decimalPlaces();
-  const unit =
-    trailing !== 'symbol' || amount.eq(0)
-      ? token
-      : [token, ...(token.units ?? [])].reduce((closest, unit) => {
-          const diff = Math.abs(unit.decimals - amountDecimals);
-          return diff < Math.abs(closest.decimals - amountDecimals) ? unit : closest;
-        }, token);
+  // TODO: Format with the closest unit
+  // const leadingZeroes = amount.toString().split('.')[1]?.match(/^(0+)/)?.[1]?.length ?? 0;
+  // const unit =
+  //   trailing !== 'symbol' || amount.eq(0)
+  //     ? token
+  //     : [token, ...(token.units ?? [])].reduce((closest, unit) => {
+  //         const diff = Math.abs(unit.decimals - leadingZeroes);
+  //         return diff > Math.abs(closest.decimals - leadingZeroes) ? unit : closest;
+  //       }, token);
 
   return useFormattedNumber({
     value: amount,
     maximumFractionDigits: 3,
     minimumNumberFractionDigits: 5,
     postFormat: trailing
-      ? (v) => `${v} ${trailing === 'name' ? token.name : unit.symbol}`
+      ? (v) => `${v} ${trailing === 'name' ? token.name : token.symbol}`
       : undefined,
     ...options,
   });

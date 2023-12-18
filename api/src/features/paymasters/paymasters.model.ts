@@ -1,10 +1,10 @@
 import { Field } from '@nestjs/graphql';
 import Decimal from 'decimal.js';
 import { DecimalField } from '~/apollo/scalars/Decimal.scalar';
-import { Node, NodeType } from '~/decorators/interface.decorator';
+import { CustomNode, CustomNodeType } from '~/decorators/interface.decorator';
 
-@NodeType()
-export class FeesPerGas extends Node {
+@CustomNodeType()
+export class FeesPerGas extends CustomNode {
   @DecimalField()
   maxPriorityFeePerGas: Decimal;
 

@@ -18,3 +18,4 @@ export * from './safe-viem';
 export * from './satisfiability';
 export * from './signature';
 export * from './tx';
+export * from './uuid';

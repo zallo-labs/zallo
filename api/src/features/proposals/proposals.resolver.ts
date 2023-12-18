@@ -4,7 +4,7 @@ import { InputArgs, Input } from '~/decorators/input.decorator';
 import { GqlContext, asUser, getUserCtx } from '~/request/ctx';
 import { getShape } from '../database/database.select';
 import {
-  ProposalInput,
+  UniqueProposalInput,
   ProposalSubscriptionInput,
   ProposalsInput,
   UpdateProposalInput,
@@ -27,8 +27,8 @@ export class ProposalsResolver {
   ) {}
 
   @Query(() => Proposal, { nullable: true })
-  async proposal(@Input() { hash }: ProposalInput, @Info() info: GraphQLResolveInfo) {
-    return this.service.selectUnique(hash, getShape(info));
+  async proposal(@Input() { id }: UniqueProposalInput, @Info() info: GraphQLResolveInfo) {
+    return this.service.selectUnique(id, getShape(info));
   }
 
   @Query(() => [Proposal])
@@ -40,15 +40,15 @@ export class ProposalsResolver {
   }
 
   @Mutation(() => Proposal)
-  async rejectProposal(@Input() { hash }: ProposalInput, @Info() info: GraphQLResolveInfo) {
-    await this.service.reject(hash);
-    return this.service.selectUnique(hash, getShape(info));
+  async rejectProposal(@Input() { id }: UniqueProposalInput, @Info() info: GraphQLResolveInfo) {
+    await this.service.reject(id);
+    return this.service.selectUnique(id, getShape(info));
   }
 
   @Mutation(() => Proposal)
   async updateProposal(@Input() input: UpdateProposalInput, @Info() info: GraphQLResolveInfo) {
     await this.service.update(input);
-    return this.service.selectUnique(input.hash, getShape(info));
+    return this.service.selectUnique(input.id, getShape(info));
   }
 
   @Mutation(() => Proposal)
@@ -57,7 +57,7 @@ export class ProposalsResolver {
     @Info() info: GraphQLResolveInfo,
   ) {
     await this.service.labelProposalRisk(input);
-    return this.service.selectUnique(input.hash, getShape(info));
+    return this.service.selectUnique(input.id, getShape(info));
   }
 
   @Subscription(() => Proposal, {
@@ -68,7 +68,7 @@ export class ProposalsResolver {
     ) => !events || events.includes(event),
     resolve(
       this: ProposalsResolver,
-      { hash }: ProposalSubscriptionPayload,
+      { id: hash }: ProposalSubscriptionPayload,
       _input,
       ctx: GqlContext,
       info: GraphQLResolveInfo,

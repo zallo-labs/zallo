@@ -4,6 +4,7 @@ import {
   Address,
   Hex,
   Tx,
+  UUID,
   asAddress,
   asApproval,
   asHex,
@@ -36,7 +37,7 @@ import { ProposalEvent } from '~/features/proposals/proposals.input';
 import { selectTransactionProposal } from '~/features/transaction-proposals/transaction-proposals.service';
 import { TypedJob, TypedQueue, Worker, createQueue } from '~/features/util/bull/bull.util';
 
-export const EXECUTIONS_QUEUE = createQueue<{ txProposalHash: Hex }, Hex | void>('Executions');
+export const EXECUTIONS_QUEUE = createQueue<{ txProposal: UUID }, Hex | void>('Executions');
 
 @Injectable()
 @Processor(EXECUTIONS_QUEUE.name)
@@ -53,10 +54,10 @@ export class ExecutionsWorker extends Worker<typeof EXECUTIONS_QUEUE> {
   }
 
   async process(job: TypedJob<typeof EXECUTIONS_QUEUE>) {
-    const hash = job.data.txProposalHash;
+    const id = job.data.txProposal;
     const proposal = await this.db.query(
       e.select(e.TransactionProposal, (p) => ({
-        filter_single: { hash },
+        filter_single: { id },
         id: true,
         account: {
           address: true,
@@ -106,7 +107,7 @@ export class ExecutionsWorker extends Worker<typeof EXECUTIONS_QUEUE> {
       await e
         .for(e.set(...expiredApprovals.map((approver) => selectApprover(approver))), (approver) =>
           e.delete(e.Approval, () => ({
-            filter_single: { proposal: selectTransactionProposal(proposal.id), approver },
+            filter_single: { proposal: selectTransactionProposal(id), approver },
           })),
         )
         .run(this.db.DANGEROUS_superuserClient);
@@ -151,7 +152,7 @@ export class ExecutionsWorker extends Worker<typeof EXECUTIONS_QUEUE> {
 
       // Set executing policy if not already set
       const selectedProposal = proposal.policy?.state
-        ? selectTransactionProposal(proposal.id)
+        ? selectTransactionProposal(id)
         : e.update(e.TransactionProposal, () => ({
             filter_single: { id: proposal.id },
             set: {
@@ -174,7 +175,7 @@ export class ExecutionsWorker extends Worker<typeof EXECUTIONS_QUEUE> {
     });
 
     await this.proposals.publishProposal(
-      { hash: asHex(proposal.hash), account: asUAddress(proposal.account.address) },
+      { id, account: asUAddress(proposal.account.address) },
       ProposalEvent.submitted,
     );
 

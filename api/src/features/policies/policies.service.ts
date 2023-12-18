@@ -7,11 +7,11 @@ import {
   encodePolicyStruct,
   getMessageSatisfiability,
   getTransactionSatisfiability,
-  Hex,
   Policy,
   PolicyKey,
   Satisfiability,
   UAddress,
+  UUID,
 } from 'lib';
 import { TransactionProposalsService } from '../transaction-proposals/transaction-proposals.service';
 import {
@@ -279,21 +279,19 @@ export class PoliciesService {
 
       const proposal =
         policy.isActive &&
-        (
-          await this.proposals.getProposal({
-            account,
-            operations: [
-              {
-                to: asAddress(account),
-                data: encodeFunctionData({
-                  abi: ACCOUNT_ABI,
-                  functionName: 'removePolicy',
-                  args: [key],
-                }),
-              },
-            ],
-          })
-        ).insert;
+        (await this.proposals.getInsertProposal({
+          account,
+          operations: [
+            {
+              to: asAddress(account),
+              data: encodeFunctionData({
+                abi: ACCOUNT_ABI,
+                functionName: 'removePolicy',
+                args: [key],
+              }),
+            },
+          ],
+        }));
 
       await e
         .with(
@@ -319,7 +317,7 @@ export class PoliciesService {
   }
 
   async satisfiability(
-    proposalHash: Hex,
+    proposalId: UUID,
     key: number,
     state: PolicyState | null,
   ): Promise<SatisfiabilityResult> {
@@ -328,7 +326,7 @@ export class PoliciesService {
 
     const proposal = await this.db.query(
       e.select(e.Proposal, (p) => ({
-        filter_single: { hash: proposalHash },
+        filter_single: { id: proposalId },
         approvals: { approver: { address: true } },
         ...e.is(e.TransactionProposal, proposalTxShape(p)),
       })),
@@ -349,20 +347,18 @@ export class PoliciesService {
   }
 
   private async getStateProposal(account: UAddress, policy: Policy) {
-    return (
-      await this.proposals.getProposal({
-        account,
-        operations: [
-          {
-            to: asAddress(account),
-            data: encodeFunctionData({
-              abi: ACCOUNT_ABI,
-              functionName: 'addPolicy',
-              args: [encodePolicyStruct(policy)],
-            }),
-          },
-        ],
-      })
-    ).insert;
+    return await this.proposals.getInsertProposal({
+      account,
+      operations: [
+        {
+          to: asAddress(account),
+          data: encodeFunctionData({
+            abi: ACCOUNT_ABI,
+            functionName: 'addPolicy',
+            args: [encodePolicyStruct(policy)],
+          }),
+        },
+      ],
+    });
   }
 }

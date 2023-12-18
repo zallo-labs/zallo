@@ -27,7 +27,7 @@ import { InjectQueue } from '@nestjs/bullmq';
 import { ACTIVATIONS_QUEUE } from './activations.queue';
 import { inputAsPolicy } from '../policies/policies.util';
 import { AccountsCacheService } from '../auth/accounts.cache.service';
-import { v1 as uuid1 } from 'uuid';
+import { v4 as uuid } from 'uuid';
 import { and } from '~/features/database/database.util';
 import { selectAccount } from '~/features/accounts/accounts.util';
 import { TypedQueue } from '~/features/util/bull/bull.util';
@@ -115,7 +115,7 @@ export class AccountsService {
     });
 
     // The account id must be in the user's list of accounts prior to starting the transaction for the globals to be set correctly
-    const id = uuid1();
+    const id = uuid();
     await this.accountsCache.addCachedAccount({
       approver,
       account: { id: id, address: account },

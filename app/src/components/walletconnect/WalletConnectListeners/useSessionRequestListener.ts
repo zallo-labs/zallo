@@ -37,7 +37,6 @@ const ProposeMessage = gql(/* GraphQL */ `
   mutation UseSessionRequestListener_ProposeMessage($input: ProposeMessageInput!) {
     proposeMessage(input: $input) {
       id
-      hash
       signature
     }
   }
@@ -48,7 +47,6 @@ const ProposalSubscription = gql(/* GraphQL */ `
     proposal(input: { accounts: $accounts, events: [approved, executed] }) {
       __typename
       id
-      hash
       ... on TransactionProposal {
         transaction {
           id
@@ -116,17 +114,13 @@ export const useSessionRequestListener = () => {
         showInfo(`${peer.name} has proposed a transaction`);
 
         const sub = proposals.subscribe((p) => {
-          if (
-            p.hash === proposal &&
-            p.__typename === 'TransactionProposal' &&
-            p.transaction?.hash
-          ) {
+          if (p.id === proposal && p.__typename === 'TransactionProposal' && p.transaction?.hash) {
             client.respond({ topic, response: asWalletConnectResult(id, p.transaction.hash) });
             sub.unsubscribe();
           }
         });
 
-        router.push({ pathname: `/(drawer)/transaction/[hash]/`, params: { hash: proposal } });
+        router.push({ pathname: `/(drawer)/transaction/[id]/`, params: { id: proposal } });
 
         // sub is automatically unsubscribed on unmount due to proposals unsubscribe
       } else if (WC_SIGNING_METHODS.has(method)) {
@@ -153,13 +147,13 @@ export const useSessionRequestListener = () => {
         showInfo(`${peer.name} wants you to sign a message`);
 
         const sub = proposals.subscribe((p) => {
-          if (p.hash === proposal.hash && p.__typename === 'MessageProposal' && p.signature) {
+          if (p.id === proposal.id && p.__typename === 'MessageProposal' && p.signature) {
             client.respond({ topic, response: asWalletConnectResult(id, p.signature) });
             sub.unsubscribe();
           }
         });
 
-        router.push({ pathname: `/(drawer)/message/[hash]/`, params: { hash: proposal.hash } });
+        router.push({ pathname: `/(drawer)/message/[id]/`, params: { id: proposal.id } });
 
         // sub is automatically unsubscribed on unmount due to proposals unsubscribe
       } else {

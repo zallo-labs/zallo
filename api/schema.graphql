@@ -18,7 +18,7 @@ type Account implements Node {
   address: UAddress!
   approvers: [Approver!]!
   chain: Chain!
-  id: ID!
+  id: UUID!
   implementation: Address!
   isActive: Boolean!
   label: String!
@@ -53,7 +53,7 @@ type Action implements Node {
   allow: Boolean!
   description: String
   functions: [ActionFunction!]!
-  id: ID!
+  id: UUID!
   label: String!
 }
 
@@ -62,7 +62,7 @@ type ActionFunction implements Node {
 
   """Default: apply to all contracts"""
   contract: Address
-  id: ID!
+  id: UUID!
 
   """Default: apply to all selectors"""
   selector: Selector
@@ -91,7 +91,7 @@ scalar Address
 type Approval implements Node & ProposalResponse {
   approver: Approver!
   createdAt: DateTime!
-  id: ID!
+  id: UUID!
   invalid: Boolean!
   issues: [ApprovalIssue!]!
   proposal: Proposal!
@@ -105,13 +105,13 @@ enum ApprovalIssue {
 input ApproveInput {
   """Defaults to current approver"""
   approver: Address
-  hash: Bytes32!
+  id: UUID!
   signature: Bytes!
 }
 
 type Approver implements Node {
   address: Address!
-  id: ID!
+  id: UUID!
   label: String
 }
 
@@ -144,7 +144,7 @@ enum CloudProvider {
 }
 
 type CloudShare implements Node {
-  id: ID!
+  id: UUID!
   provider: CloudProvider!
   subject: String!
 }
@@ -209,6 +209,10 @@ input CreatePolicyInput {
 
 union CreatePolicyResponse = NameTaken | Policy
 
+interface CustomNode {
+  id: ID!
+}
+
 """
 A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
 """
@@ -225,7 +229,7 @@ input EstimateFeesPerGasInput {
   feeToken: UAddress!
 }
 
-type EstimatedTransactionFees implements Node {
+type EstimatedTransactionFees implements CustomNode {
   ethDiscount: Decimal!
   id: ID!
   maxNetworkEthFee: Decimal!
@@ -241,7 +245,7 @@ interface EventBase {
   timestamp: DateTime!
 }
 
-type FeesPerGas implements Node {
+type FeesPerGas implements CustomNode {
   feeTokenDecimals: Float!
   id: ID!
   maxFeePerGas: Decimal!
@@ -272,7 +276,7 @@ input LabelInput {
 }
 
 input LabelProposalRiskInput {
-  hash: Bytes32!
+  id: UUID!
   risk: Risk!
 }
 
@@ -291,7 +295,7 @@ type MessageProposal implements Node & Proposal {
   createdAt: DateTime!
   hash: Bytes32!
   iconUri: String
-  id: ID!
+  id: UUID!
   label: String
   message: String!
   policy: Policy
@@ -312,16 +316,16 @@ type Mutation {
   createAccount(input: CreateAccountInput!): Account!
   createPolicy(input: CreatePolicyInput!): CreatePolicyResponse!
   deleteContact(input: ContactInput!): ID
-  execute(input: ProposalInput!): TransactionProposal
+  execute(input: UniqueProposalInput!): TransactionProposal
   labelProposalRisk(input: LabelProposalRiskInput!): Proposal!
   link(input: LinkInput!): User!
   proposeMessage(input: ProposeMessageInput!): MessageProposal!
   proposeTransaction(input: ProposeTransactionInput!): TransactionProposal!
-  rejectProposal(input: ProposalInput!): Proposal!
-  removeMessage(input: ProposalInput!): ID!
+  rejectProposal(input: UniqueProposalInput!): Proposal!
+  removeMessage(input: UniqueProposalInput!): ID!
   removePolicy(input: UniquePolicyInput!): Policy!
   removeToken(input: TokenInput!): ID
-  removeTransaction(input: ProposalInput!): ID
+  removeTransaction(input: UniqueProposalInput!): ID
   requestTokens(input: RequestTokensInput!): [Address!]!
   updateAccount(input: UpdateAccountInput!): Account!
   updateApprover(input: UpdateApproverInput!): UserApprover!
@@ -338,7 +342,7 @@ type NameTaken implements Err {
 }
 
 interface Node {
-  id: ID!
+  id: UUID!
 }
 
 type Operation {
@@ -396,7 +400,7 @@ type PolicyState {
   transfers: TransfersConfig!
 }
 
-type Price implements Node {
+type Price implements CustomNode {
   eth: Decimal!
   ethEma: Decimal!
 
@@ -412,7 +416,7 @@ interface Proposal implements Node {
   createdAt: DateTime!
   hash: Bytes32!
   iconUri: String
-  id: ID!
+  id: UUID!
   label: String
   policy: Policy
   potentialApprovers: [Approver!]!
@@ -434,14 +438,10 @@ enum ProposalEvent {
   update
 }
 
-input ProposalInput {
-  hash: Bytes32!
-}
-
 interface ProposalResponse implements Node {
   approver: Approver!
   createdAt: DateTime!
-  id: ID!
+  id: UUID!
   proposal: Proposal!
 }
 
@@ -451,7 +451,7 @@ input ProposalSubscriptionInput {
 
   """Defaults to all events"""
   events: [ProposalEvent!]
-  proposals: [Bytes32!]
+  proposals: [UUID!]
 }
 
 input ProposalsInput {
@@ -498,17 +498,17 @@ type Query {
   estimateFeesPerGas(input: EstimateFeesPerGasInput!): FeesPerGas
   label(input: LabelInput!): String
   labelAvailable(input: LabelAvailableInput!): Boolean!
-  messageProposal(input: ProposalInput!): MessageProposal
+  messageProposal(input: UniqueProposalInput!): MessageProposal
   policies(input: PoliciesInput! = {}): [Policy!]!
   policy(input: UniquePolicyInput!): Policy
-  proposal(input: ProposalInput!): Proposal
+  proposal(input: UniqueProposalInput!): Proposal
   proposals(input: ProposalsInput! = {}): [Proposal!]!
   requestableTokens(input: RequestTokensInput!): [Address!]!
   token(input: TokenInput!): Token
   tokenMetadata(input: TokenInput!): TokenMetadata!
   tokens(input: TokensInput! = {}): [Token!]!
   transaction(input: TransactionInput!): Transaction
-  transactionProposal(input: ProposalInput!): TransactionProposal
+  transactionProposal(input: UniqueProposalInput!): TransactionProposal
   transactionProposals(input: TransactionProposalsInput!): [TransactionProposal!]!
   transfers(input: TransfersInput! = {}): [Transfer!]!
   user: User!
@@ -532,7 +532,7 @@ type Receipt {
 type Rejection implements Node & ProposalResponse {
   approver: Approver!
   createdAt: DateTime!
-  id: ID!
+  id: UUID!
   proposal: Proposal!
 }
 
@@ -560,7 +560,7 @@ enum Satisfiability {
 }
 
 input SatisfiabilityInput {
-  proposal: Bytes32!
+  proposal: UUID!
 }
 
 type SatisfiabilityReason {
@@ -577,7 +577,7 @@ type SatisfiabilityResult {
 scalar Selector
 
 type Simulation implements Node {
-  id: ID!
+  id: UUID!
   transfers: [SimulationTransfer!]!
 }
 
@@ -616,7 +616,7 @@ type Token implements Node {
   decimals: Int!
   estimatedFeesPerGas: FeesPerGas
   iconUri: String
-  id: ID!
+  id: UUID!
   isFeeToken: Boolean!
   name: String!
   price: Price
@@ -661,7 +661,7 @@ type Transaction implements Node {
   ethDiscount: Decimal!
   ethPerFeeToken: Decimal!
   hash: Bytes32!
-  id: ID!
+  id: UUID!
   maxEthFeePerGas: Decimal!
   maxEthFees: Decimal!
   maxNetworkEthFee: Decimal!
@@ -684,7 +684,7 @@ type TransactionProposal implements Node & Proposal {
   gasLimit: BigInt!
   hash: Bytes32!
   iconUri: String
-  id: ID!
+  id: UUID!
   label: String
   nonce: BigInt!
   operations: [Operation!]!
@@ -862,6 +862,9 @@ A field whose value conforms to the standard URL format as specified in RFC3986:
 """
 scalar URL
 
+"""UUID"""
+scalar UUID @specifiedBy(url: "https://en.wikipedia.org/wiki/Universally_unique_identifier")
+
 """256-bit unsigned integer"""
 scalar Uint256
 
@@ -872,6 +875,10 @@ input UniqueCloudShareInput {
 input UniquePolicyInput {
   account: UAddress!
   key: PolicyKey!
+}
+
+input UniqueProposalInput {
+  id: UUID!
 }
 
 input UpdateAccountInput {
@@ -911,13 +918,13 @@ type UpdatePolicyOp {
 union UpdatePolicyResponse = NameTaken | Policy
 
 input UpdateProposalInput {
-  hash: Bytes32!
+  id: UUID!
   policy: PolicyKey
 }
 
 input UpdateTransactionProposalInput {
   feeToken: Address
-  hash: Bytes32!
+  id: UUID!
   policy: PolicyKey
 }
 
@@ -953,7 +960,7 @@ type UserApprover implements Node {
   address: Address!
   bluetoothDevices: [MAC!]
   cloud: CloudShare
-  id: ID!
+  id: UUID!
   label: String
   name: String
   pushToken: String

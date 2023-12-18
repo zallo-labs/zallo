@@ -5,6 +5,7 @@ import {
   asDecimal,
   asHex,
   asUAddress,
+  asUUID,
   Hex,
   isTruthy,
   tryOrCatch,
@@ -67,28 +68,28 @@ export class TransactionsEvents implements OnModuleInit {
     );
     if (r?.eventName !== 'OperationExecuted' && r?.eventName !== 'OperationsExecuted') return;
 
-    const proposalHash = asHex(r.args.proposal);
+    const transaction = e.update(e.Transaction, () => ({
+      filter_single: { hash: asHex(receipt.transactionHash) },
+      set: {
+        receipt: e.insert(e.Receipt, {
+          success: true,
+          responses: 'responses' in r.args ? [...r.args.responses] : [r.args.response],
+          gasUsed: receipt.gasUsed,
+          ethFeePerGas: asDecimal(receipt.effectiveGasPrice, ETH).toString(),
+          block: BigInt(receipt.blockNumber),
+          timestamp: new Date(Number(block.timestamp) * 1000), // block.timestamp is in seconds
+        }),
+      },
+    }));
 
-    await this.db.query(
-      e.update(e.Transaction, () => ({
-        filter_single: { hash: asHex(receipt.transactionHash) },
-        set: {
-          receipt: e.insert(e.Receipt, {
-            success: true,
-            responses: 'responses' in r.args ? [...r.args.responses] : [r.args.response],
-            gasUsed: receipt.gasUsed,
-            ethFeePerGas: asDecimal(receipt.effectiveGasPrice, ETH).toString(),
-            block: BigInt(receipt.blockNumber),
-            timestamp: new Date(Number(block.timestamp) * 1000), // block.timestamp is in seconds
-          }),
-        },
-      })),
-    );
+    const proposalId = await this.db.query(e.select(transaction.proposal.id));
+    if (!proposalId)
+      throw new Error(`Proposal not found for reverted transaction: ${receipt.transactionHash}`);
 
-    this.log.debug(`Porposal executed: ${proposalHash}`);
+    this.log.debug(`Proposal executed: ${proposalId}`);
 
     await this.proposals.publishProposal(
-      { account: asUAddress(log.address, chain), hash: proposalHash },
+      { id: asUUID(proposalId), account: asUAddress(log.address, chain) },
       ProposalEvent.executed,
     );
   }
@@ -101,7 +102,7 @@ export class TransactionsEvents implements OnModuleInit {
     const callResponse = await network.call(tx);
 
     const transaction = e.update(e.Transaction, () => ({
-      filter_single: { hash: receipt.transactionHash },
+      filter_single: { hash: asHex(receipt.transactionHash) },
       set: {
         receipt: e.insert(e.Receipt, {
           success: false,
@@ -114,16 +115,14 @@ export class TransactionsEvents implements OnModuleInit {
       },
     }));
 
-    const proposalHash = await this.db.query(
-      e.select(transaction, () => ({ proposal: { hash: true } })).proposal.hash,
-    );
-    if (!proposalHash)
+    const proposalId = await this.db.query(e.select(transaction.proposal.id));
+    if (!proposalId)
       throw new Error(`Proposal not found for reverted transaction: ${receipt.transactionHash}`);
 
-    this.log.debug(`Proposal reverted: ${proposalHash}`);
+    this.log.debug(`Proposal reverted: ${proposalId}`);
 
     await this.proposals.publishProposal(
-      { account: asUAddress(receipt.from, chain), hash: asHex(proposalHash) },
+      { id: asUUID(proposalId), account: asUAddress(receipt.from, chain) },
       ProposalEvent.executed,
     );
   }

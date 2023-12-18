@@ -9,9 +9,8 @@ import { useMutation } from 'urql';
 
 const FragmentDoc = gql(/* GraphQL */ `
   fragment SelectedPolicy_ProposalFragment on Proposal
-  @argumentDefinitions(proposal: { type: "Bytes32!" }) {
+  @argumentDefinitions(proposal: { type: "UUID!" }) {
     id
-    hash
     ... on TransactionProposal {
       updatable
     }
@@ -36,8 +35,8 @@ const FragmentDoc = gql(/* GraphQL */ `
 `);
 
 const Update = gql(/* GraphQL */ `
-  mutation SelectedPolicy_Update($hash: Bytes32!, $policy: PolicyKey!) {
-    updateProposal(input: { hash: $hash, policy: $policy }) {
+  mutation SelectedPolicy_Update($id: UUID!, $policy: PolicyKey!) {
+    updateProposal(input: { id: $id, policy: $policy }) {
       id
       policy {
         id
@@ -89,7 +88,7 @@ export const SelectedPolicy = (props: SelectedPolicyProps) => {
             policy={p}
             selected={p.id === selected.id}
             onPress={() => {
-              if (p.key !== selected.key) update({ hash: proposal.hash, policy: p.key });
+              if (p.key !== selected.key) update({ id: proposal.id, policy: p.key });
               toggleExpanded();
             }}
           />

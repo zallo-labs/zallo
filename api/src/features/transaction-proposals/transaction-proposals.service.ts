@@ -7,12 +7,12 @@ import {
   estimateTransactionOperationsGas,
   FALLBACK_OPERATIONS_GAS,
   asAddress,
-  asHex,
   asUAddress,
   asChain,
   ETH_ADDRESS,
-  Hex,
   asTypedData,
+  asUUID,
+  UUID,
 } from 'lib';
 import { NetworksService } from '~/features/util/networks/networks.service';
 import {
@@ -39,6 +39,7 @@ import {
   transactionProposalAsTx,
 } from '~/features/transaction-proposals/transaction-proposals.util';
 import { hashTypedData } from 'viem';
+import { v4 as uuid } from 'uuid';
 
 export const selectTransactionProposal = (
   id: UniqueProposal,
@@ -97,11 +98,11 @@ export class TransactionProposalsService {
     );
   }
 
-  async tryExecute(txProposalHash: Hex) {
-    this.executionsQueue.add('executions', { txProposalHash });
+  async tryExecute(txProposal: UUID) {
+    this.executionsQueue.add('executions', { txProposal });
   }
 
-  async getProposal({
+  async getInsertProposal({
     account,
     operations,
     label,
@@ -124,7 +125,9 @@ export class TransactionProposalsService {
     } satisfies Tx;
     const hash = hashTx(account, tx);
 
+    const id = asUUID(uuid());
     const insert = e.insert(e.TransactionProposal, {
+      id,
       hash,
       account: selectAccount(account),
       label,
@@ -159,33 +162,32 @@ export class TransactionProposalsService {
 
     this.db.afterTransaction(() => {
       this.simulations.add(SIMULATIONS_QUEUE.name, { transactionProposalHash: hash });
-      this.proposals.publishProposal({ account, hash }, ProposalEvent.create);
+      this.proposals.publishProposal({ id, account }, ProposalEvent.create);
     });
 
-    return { insert, hash };
+    return insert;
   }
 
   propose({ signature, ...args }: ProposeTransactionInput) {
     return this.db.transaction(async (db) => {
-      const { hash, insert } = await this.getProposal(args);
-      const { id } = await insert.run(db);
+      const id = asUUID((await (await this.getInsertProposal(args)).run(db)).id);
 
-      if (signature) await this.approve({ hash, signature });
+      if (signature) await this.approve({ id, signature });
 
-      return { id, hash };
+      return { id };
     });
   }
 
   async approve(input: ApproveInput) {
     await this.proposals.approve(input);
-    await this.tryExecute(input.hash);
+    await this.tryExecute(input.id);
   }
 
-  async update({ hash, policy, feeToken }: UpdateTransactionProposalInput) {
+  async update({ id, policy, feeToken }: UpdateTransactionProposalInput) {
     const updatedProposal = e.assert_single(
       e.update(e.TransactionProposal, (p) => ({
         filter: and(
-          e.op(p.hash, '=', hash),
+          e.op(p.id, '=', e.uuid(id)),
           // Require proposal to be pending or failed
           e.op(
             p.status,
@@ -218,7 +220,6 @@ export class TransactionProposalsService {
     const p = await this.db.transaction(async (tx) => {
       const p = await e
         .select(updatedProposal, () => ({
-          id: true,
           hash: true,
           account: { address: true },
           ...proposalTxShape(tx),
@@ -233,7 +234,7 @@ export class TransactionProposalsService {
         // Approvals are marked as invalid when the signed hash differs from the proposal hash
         await e
           .update(e.TransactionProposal, (proposal) => ({
-            filter: e.op(proposal.id, '=', e.uuid(p.id)),
+            filter: e.op(proposal.id, '=', e.uuid(id)),
             set: { hash },
           }))
           .run(tx);
@@ -243,10 +244,10 @@ export class TransactionProposalsService {
     });
     if (!p) return;
 
-    if (policy !== undefined) await this.tryExecute(asHex(p.hash));
+    if (policy !== undefined) await this.tryExecute(id);
 
     this.proposals.publishProposal(
-      { hash: asHex(p.hash), account: asUAddress(p.account.address) },
+      { id, account: asUAddress(p.account.address) },
       ProposalEvent.update,
     );
 

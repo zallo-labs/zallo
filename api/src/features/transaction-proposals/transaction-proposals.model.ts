@@ -9,7 +9,7 @@ import { AddressField } from '~/apollo/scalars/Address.scalar';
 import { Address } from 'lib';
 import { DecimalField } from '~/apollo/scalars/Decimal.scalar';
 import Decimal from 'decimal.js';
-import { Node, NodeType } from '~/decorators/interface.decorator';
+import { CustomNode, CustomNodeType, Node, NodeType } from '~/decorators/interface.decorator';
 
 @ObjectType({ implements: () => Proposal })
 export class TransactionProposal extends Proposal {
@@ -52,8 +52,8 @@ export enum TransactionProposalStatus {
 }
 registerEnumType(TransactionProposalStatus, { name: 'TransactionProposalStatus' });
 
-@NodeType()
-export class EstimatedTransactionFees extends Node {
+@CustomNodeType()
+export class EstimatedTransactionFees extends CustomNode {
   @DecimalField()
   maxNetworkEthFee: Decimal;
 

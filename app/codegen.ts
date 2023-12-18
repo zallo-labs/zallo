@@ -15,6 +15,7 @@ const scalars = {
   PolicyKey: 'lib#PolicyKey',
   Selector: 'lib#Selector',
   Uint256: 'bigint | string',
+  UUID: 'lib#UUID',
   TypedData: 'viem#TypedDataDefinition',
   AbiFunction: 'abitype#AbiFunction',
 };

@@ -114,8 +114,8 @@ function TransferScreen() {
                 ],
               });
               router.push({
-                pathname: `/(drawer)/transaction/[hash]/`,
-                params: { hash: proposal },
+                pathname: `/(drawer)/transaction/[id]/`,
+                params: { id: proposal },
               });
             }}
           >

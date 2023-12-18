@@ -12,7 +12,6 @@ import * as Linking from 'expo-linking';
 const Proposal = gql(/* GraphQL */ `
   fragment RiskRating_Proposal on Proposal {
     id
-    hash
     riskLabel
   }
 `);
@@ -31,7 +30,7 @@ export interface RiskLabelProps {
 }
 
 export function RiskRating(props: RiskLabelProps) {
-  const { hash, riskLabel } = useFragment(Proposal, props.proposal);
+  const { id, riskLabel } = useFragment(Proposal, props.proposal);
   const labelProposal = useMutation(Label)[1];
 
   const buttons: (SegmentedButtonsProps['buttons'][0] & { value: Risk })[] = [
@@ -46,7 +45,7 @@ export function RiskRating(props: RiskLabelProps) {
       <SegmentedButtons
         value={riskLabel || ''}
         onValueChange={(v) => {
-          labelProposal({ input: { hash: hash, risk: v as Risk } });
+          labelProposal({ input: { id, risk: v as Risk } });
 
           if (!riskLabel) {
             showInfo('+1 point for rating this proposal 🎉', {

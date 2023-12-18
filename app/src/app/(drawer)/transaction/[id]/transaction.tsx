@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { TransactionLayoutParams } from '~/app/(drawer)/transaction/[hash]/_layout';
+import { TransactionLayoutParams } from '~/app/(drawer)/transaction/[id]/_layout';
 import { useLocalParams } from '~/hooks/useLocalParams';
 import { CheckIcon, ClockOutlineIcon, CloseIcon, GasOutlineIcon } from '@theme/icons';
 import { ScrollView } from 'react-native';
@@ -20,48 +20,19 @@ const TransactionProposal = gql(/* GraphQL */ `
   fragment TransactionTab_TransactionProposalFragment on TransactionProposal {
     id
     status
-    feeToken {
-      id
-      address
-      estimatedFeesPerGas {
-        id
-        maxFeePerGas
-      }
-      decimals
-      price {
-        id
-        usd {
-          id
-          current
-        }
-      }
-      ...TokenAmount_token
-      ...UseFormattedTokenAmount_token
-    }
-    gasLimit
-    transaction {
-      id
-      maxFeePerGas
-      submittedAt
-      receipt {
-        id
-        gasUsed
-        timestamp
-      }
-    }
   }
 `);
 
 const Query = gql(/* GraphQL */ `
-  query TransactionTab($proposal: Bytes32!) {
-    transactionProposal(input: { hash: $proposal }) {
+  query TransactionTab($proposal: UUID!) {
+    transactionProposal(input: { id: $proposal }) {
       ...TransactionTab_TransactionProposalFragment
     }
   }
 `);
 
 const Subscription = gql(/* GraphQL */ `
-  subscription TransactionTab_Subscription($proposal: Bytes32!) {
+  subscription TransactionTab_Subscription($proposal: UUID!) {
     proposal(input: { proposals: [$proposal] }) {
       ...TransactionTab_TransactionProposalFragment
     }
@@ -81,18 +52,15 @@ export const TransactionTabParams = TransactionLayoutParams;
 export type TransactionTabParams = z.infer<typeof TransactionTabParams>;
 
 function TransactionTab() {
-  const params = useLocalParams(TransactionTabParams);
+  const { id } = useLocalParams(TransactionTabParams);
   const { styles } = useStyles(stylesheet);
 
-  const { data } = useQuery(Query, { proposal: params.hash });
+  const { data } = useQuery(Query, { proposal: id });
   useSubscription({
     query: getOptimizedDocument(Subscription),
-    variables: { proposal: params.hash },
+    variables: { proposal: id },
   });
   const p = useFragment(TransactionProposal, data?.transactionProposal);
-
-  const tx = p?.transaction;
-  const receipt = tx?.receipt;
 
   if (!p) return null;
 
@@ -121,7 +89,7 @@ function TransactionTab() {
         ))
         .exhaustive()}
 
-      {tx && (
+      {/* {tx && (
         <Item
           leading={ClockOutlineIcon}
           headline="Submitted"
@@ -149,7 +117,7 @@ function TransactionTab() {
           headline="Gas used"
           trailing={<FormattedNumber value={receipt.gasUsed} />}
         />
-      )}
+      )} */}
     </ScrollView>
   );
 }

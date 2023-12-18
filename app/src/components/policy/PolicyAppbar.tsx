@@ -24,7 +24,6 @@ const Policy = gql(/* GraphQL */ `
       id
       proposal {
         id
-        hash
       }
     }
     draft {
@@ -32,7 +31,6 @@ const Policy = gql(/* GraphQL */ `
       isRemoved
       proposal {
         id
-        hash
       }
     }
   }
@@ -46,7 +44,6 @@ const Remove = gql(/* GraphQL */ `
         id
         proposal {
           id
-          hash
         }
       }
     }
@@ -126,8 +123,8 @@ export function PolicyAppbar({ view, reset, setView, ...props }: PolicyAppbarPro
                     onPress={() => {
                       close();
                       router.push({
-                        pathname: `/(drawer)/transaction/[hash]/`,
-                        params: { hash: state.proposal!.hash },
+                        pathname: `/(drawer)/transaction/[id]/`,
+                        params: { id: state.proposal!.id },
                       });
                     }}
                   />
@@ -145,8 +142,8 @@ export function PolicyAppbar({ view, reset, setView, ...props }: PolicyAppbarPro
 
                         proposal
                           ? router.push({
-                              pathname: `/(drawer)/transaction/[hash]/`,
-                              params: { hash: proposal.hash },
+                              pathname: `/(drawer)/transaction/[id]/`,
+                              params: { id: proposal.id },
                             })
                           : router.back();
                       }
