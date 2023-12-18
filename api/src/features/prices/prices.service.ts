@@ -159,17 +159,27 @@ export class PricesService {
     const cachedPublishTime = this.lastOnchainPublishTime[chain].get(priceId);
     if (cachedPublishTime && cachedPublishTime < this.oldestAcceptablePublishTime) return false;
 
-    const p = await this.networks.get(chain).readContract({
-      abi: PYTH.abi,
-      address: PYTH.address[chain],
-      functionName: 'getPriceUnsafe', // TODO: getPriceUnsafe instead? Prevents needing to handle revert errors
-      args: [priceId],
-    });
+    try {
+      const p = await this.networks.get(chain).readContract({
+        abi: PYTH.abi,
+        address: PYTH.address[chain],
+        functionName: 'getPriceUnsafe',
+        args: [priceId],
+      });
 
-    const publishTime = DateTime.fromSeconds(Number(p.price));
-    this.lastOnchainPublishTime[chain].set(priceId, publishTime);
+      const publishTime = DateTime.fromSeconds(Number(p.price));
+      this.lastOnchainPublishTime[chain].set(priceId, publishTime);
 
-    return publishTime < this.oldestAcceptablePublishTime;
+      return publishTime < this.oldestAcceptablePublishTime;
+    } catch (error) {
+      const e = decodeRevertError({ error, abi: PYTH.abi });
+      if (e?.errorName === 'PriceFeedNotFound') {
+        // PriceFeedNotFound also occurs if it is not pushed on-chain yet
+        this.lastOnchainPublishTime[chain].set(priceId, DateTime.fromSeconds(0));
+        return false;
+      }
+      throw error;
+    }
   }
 
   private handlePythError(error: Error) {
