@@ -3,7 +3,6 @@ import { Injectable } from '@nestjs/common';
 import { NetworksService } from '../util/networks/networks.service';
 import { DatabaseService } from '../database/database.service';
 import e from '~/edgeql-js';
-import { P, match } from 'ts-pattern';
 import { Hex, asHex } from 'lib';
 import { Chain } from 'chains';
 import { InjectRedis } from '@songkeys/nestjs-redis';
@@ -16,6 +15,7 @@ import {
   createQueue,
   TypedQueue,
 } from '../util/bull/bull.util';
+import { DEFAULT_JOB_OPTIONS } from '../util/bull/bull.module';
 import { AbiEvent } from 'abitype';
 import { Log as ViemLog, encodeEventTopics, hexToNumber } from 'viem';
 
@@ -24,14 +24,21 @@ const BLOCK_TIME = 500; /* ms */
 const TOO_MANY_RESULTS_RE =
   /Query returned more than .+? results. Try with this block range \[(?:0x[0-9a-f]+), (0x[0-9a-f]+)\]/;
 
-export const EventsQueue = createQueue<EventJobData>('Events');
+export const EventsQueue = createQueue<EventJobData>('Events', {
+  defaultJobOptions: {
+    ...DEFAULT_JOB_OPTIONS,
+    // LIFO ensures that the oldest blocks are processed first, without the overhead of prioritized jobs
+    // This is due to the next block being added prior to (potential) block splits
+    lifo: true,
+  },
+});
 export type EventsQueue = typeof EventsQueue;
 
 interface EventJobData {
   chain: Chain;
   from: number;
   to?: number;
-  queueNext?: false | number;
+  split?: boolean;
 }
 
 export type Log = ViemLog<bigint, number, false, undefined, true, AbiEvent[], undefined>;
@@ -78,11 +85,8 @@ export class EventsWorker extends Worker<EventsQueue> {
     const from = job.data.from;
     const to = Math.min(job.data.to ?? from + DEFAULT_CHUNK_SIZE - 1, latest);
 
-    const shouldQueue = match(job.data.queueNext)
-      .with(undefined, () => job.attemptsMade === 1) // First job - default path
-      .with(false, () => false) // Split job - don't queue next
-      .with(P.number, (n) => job.attemptsMade === n) // Prior attempt had failed before queueing - queue only if not already queued
-      .exhaustive();
+    // Queue next job on the first attempt unless split job
+    const shouldQueue = job.attemptsMade === 1 && !job.data.split;
 
     if (shouldQueue) {
       if (latest < from) {
@@ -123,9 +127,14 @@ export class EventsWorker extends Worker<EventsQueue> {
 
       // Split the job into two smaller jobs
       const newTo = hexToNumber(asHex(match[1]));
+      this.log.log(
+        `Splitting job [${from}, ${to}] by ${to - newTo}` +
+          (job.data.split ? ' -- already split' : '') +
+          `on ${chain}`,
+      );
       return this.queue.addBulk([
-        { name: EventsQueue.name, data: { chain, from, to: newTo, queueNext: false } },
-        { name: EventsQueue.name, data: { chain, from: newTo + 1, to, queueNext: false } },
+        { name: EventsQueue.name, data: { chain, from, to: newTo, split: true } },
+        { name: EventsQueue.name, data: { chain, from: newTo + 1, to, split: true } },
       ]);
     }
   }

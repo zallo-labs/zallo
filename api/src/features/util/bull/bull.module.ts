@@ -6,6 +6,14 @@ import { ExpressAdapter } from '@bull-board/express';
 import { BasicAuthMiddleware } from './basic-auth.middlware';
 import { BULL_BOARD_ENABLED } from './bull.util';
 import { isTruthy } from 'lib';
+import { DefaultJobOptions } from 'bullmq';
+
+export const DEFAULT_JOB_OPTIONS = {
+  removeOnComplete: 1000,
+  removeOnFail: false,
+  attempts: 18, // 2^18 * 200ms = ~14.5h
+  backoff: { type: 'exponential', delay: 200 },
+} satisfies DefaultJobOptions;
 
 @Module({
   imports: [
@@ -13,12 +21,7 @@ import { isTruthy } from 'lib';
       inject: [RedisService],
       useFactory: (redisService: RedisService) => ({
         connection: redisService.getClient(DEFAULT_REDIS_NAMESPACE),
-        defaultJobOptions: {
-          removeOnComplete: 1000,
-          removeOnFail: false,
-          attempts: 18, // 2^18 * 200ms = ~14.5h
-          backoff: { type: 'exponential', delay: 200 },
-        },
+        defaultJobOptions: DEFAULT_JOB_OPTIONS,
       }),
     }),
     BULL_BOARD_ENABLED &&
