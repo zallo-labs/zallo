@@ -127,7 +127,7 @@ module default {
     required feeToken: Token;
     required paymaster: Address;
     required paymasterEthFee: decimal { constraint min_value(0); default := 0; }
-    simulation: Simulation { constraint exclusive; }
+    simulation: Simulation { constraint exclusive; on target delete deferred restrict; }
     multi link transactions := .<proposal[is Transaction];
     link transaction := (select .transactions order by .submittedAt desc limit 1);
     required property status := (
@@ -144,7 +144,12 @@ module default {
   scalar type TransactionProposalStatus extending enum<'Pending', 'Executing', 'Successful', 'Failed'>;
 
   type Simulation {
-    multi transfers: TransferDetails;
+    required success: bool;
+    required responses: array<Bytes>;
+    multi transfers: TransferDetails {
+      constraint exclusive;
+      on source delete delete target;
+    }
   }
 
   type MessageProposal extending Proposal {

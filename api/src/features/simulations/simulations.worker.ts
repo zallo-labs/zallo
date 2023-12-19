@@ -1,6 +1,18 @@
 import { InjectQueue, Processor } from '@nestjs/bullmq';
 import { Injectable, OnModuleInit } from '@nestjs/common';
-import { ETH_ADDRESS, Hex, asAddress, asChain, asDecimal, asHex, asUAddress } from 'lib';
+import {
+  ETH_ADDRESS,
+  UUID,
+  asAddress,
+  asChain,
+  asDecimal,
+  asHex,
+  asUAddress,
+  asUUID,
+  isHex,
+  isTruthy,
+  txProposalCallParams,
+} from 'lib';
 import { DatabaseService } from '../database/database.service';
 import e from '~/edgeql-js';
 import { and } from '../database/database.util';
@@ -19,10 +31,17 @@ import {
 } from '../util/bull/bull.util';
 import { ETH } from 'lib/dapps';
 import { selectTransactionProposal } from '~/features/transaction-proposals/transaction-proposals.service';
+import { NetworksService } from '~/features/util/networks/networks.service';
+import {
+  proposalTxShape,
+  transactionProposalAsTx,
+} from '~/features/transaction-proposals/transaction-proposals.util';
+import { ResultAsync } from 'neverthrow';
+import { CallErrorType } from 'viem';
 
 type TransferDetails = Parameters<typeof e.insert<typeof e.TransferDetails>>[1];
 
-export const SIMULATIONS_QUEUE = createQueue<{ transactionProposalHash: Hex }>('Simulations');
+export const SIMULATIONS_QUEUE = createQueue<{ txProposal: UUID }>('Simulations');
 
 @Injectable()
 @Processor(SIMULATIONS_QUEUE.name)
@@ -32,6 +51,7 @@ export class SimulationsWorker extends Worker<typeof SIMULATIONS_QUEUE> implemen
     private queue: TypedQueue<typeof SIMULATIONS_QUEUE>,
     private db: DatabaseService,
     @InjectRedis() private redis: Redis,
+    private networks: NetworksService,
     private operations: OperationsService,
   ) {
     super();
@@ -42,38 +62,55 @@ export class SimulationsWorker extends Worker<typeof SIMULATIONS_QUEUE> implemen
   }
 
   async process(job: TypedJob<typeof SIMULATIONS_QUEUE>) {
-    const hash = job.data.transactionProposalHash;
+    const { txProposal } = job.data;
 
     const p = await this.db.query(
-      e.select(e.TransactionProposal, () => ({
-        filter_single: { hash },
+      e.select(e.TransactionProposal, (p) => ({
+        filter_single: { id: txProposal },
         account: { address: true },
-        operations: {
-          to: true,
-          value: true,
-          data: true,
-        },
+        ...proposalTxShape(p),
       })),
     );
 
-    // Job is complete if the proposal no longer exists
-    if (!p) return;
+    if (!p) return; // Job is complete if the proposal no longer exists
 
-    const accountUAddress = asUAddress(p.account.address);
-    const accountAddress = asAddress(accountUAddress);
-    const chain = asChain(accountUAddress);
-    const account = selectAccount(accountUAddress);
+    const account = asUAddress(p.account.address);
+    const localAccount = asAddress(account);
+    const chain = asChain(account);
+    const selectedAccount = selectAccount(account);
+
+    const network = this.networks.get(chain);
+    const response = await ResultAsync.fromPromise(
+      network.call(
+        await txProposalCallParams({
+          network,
+          account: localAccount,
+          tx: transactionProposalAsTx(p),
+        }),
+      ),
+      (error) => {
+        const e = (error as CallErrorType).walk();
+
+        return typeof e === 'object' &&
+          e &&
+          'data' in e &&
+          typeof e.data === 'string' &&
+          isHex(e.data)
+          ? e.data
+          : undefined;
+      },
+    );
 
     const transfers: TransferDetails[] = [];
     for (const op of p.operations) {
       if (op.value) {
         transfers.push({
-          account,
-          from: accountAddress,
+          account: selectedAccount,
+          from: localAccount,
           to: op.to,
           tokenAddress: asUAddress(ETH_ADDRESS, chain),
-          amount: op.to === accountAddress ? '0' : asDecimal(-op.value, ETH).toString(),
-          direction: ['Out' as const, ...(op.to === accountAddress ? (['In'] as const) : [])],
+          amount: op.to === localAccount ? '0' : asDecimal(-op.value, ETH).toString(),
+          direction: ['Out' as const, ...(op.to === localAccount ? (['In'] as const) : [])],
         });
       }
 
@@ -83,31 +120,32 @@ export class SimulationsWorker extends Worker<typeof SIMULATIONS_QUEUE> implemen
           value: op.value || undefined,
           data: asHex(op.data || undefined),
         },
-        asChain(accountUAddress),
+        asChain(account),
       );
       if (f instanceof TransferOp && f.token !== ETH_ADDRESS) {
         transfers.push({
-          account,
-          from: accountAddress,
+          account: selectedAccount,
+          from: localAccount,
           to: f.to,
           tokenAddress: asUAddress(f.token, chain),
-          amount: f.to === accountAddress ? e.decimal('0') : f.amount.negated().toString(),
-          direction: ['Out' as const, ...(accountAddress === f.to ? (['In'] as const) : [])],
+          amount: f.to === localAccount ? e.decimal('0') : f.amount.negated().toString(),
+          direction: ['Out' as const, ...(localAccount === f.to ? (['In'] as const) : [])],
         });
       } else if (f instanceof TransferFromOp) {
         transfers.push({
-          account,
+          account: selectedAccount,
           from: f.from,
           to: f.to,
           tokenAddress: asUAddress(f.token, chain),
           amount: f.amount.toString(),
-          direction: ['Out' as const, ...(accountAddress === f.to ? (['In'] as const) : [])],
+          direction: ['Out' as const, ...(localAccount === f.to ? (['In'] as const) : [])],
         });
+        g;
       } else if (f instanceof SwapOp) {
         transfers.push({
-          account,
+          account: selectedAccount,
           from: op.to,
-          to: accountAddress,
+          to: localAccount,
           tokenAddress: asUAddress(f.toToken, chain),
           amount: f.minimumToAmount.toString(),
           direction: ['In' as const],
@@ -115,13 +153,15 @@ export class SimulationsWorker extends Worker<typeof SIMULATIONS_QUEUE> implemen
       }
     }
 
-    const proposal = selectTransactionProposal(hash);
+    const proposal = selectTransactionProposal(txProposal);
     await this.db.query(
       e.select({
         prevSimulation: e.delete(proposal.simulation, () => ({})),
         proposal: e.update(proposal, () => ({
           set: {
             simulation: e.insert(e.Simulation, {
+              success: response.isOk(),
+              responses: [response.map((r) => r.data).unwrapOr(null)].filter(isTruthy),
               ...(transfers.length && {
                 transfers: e.set(...transfers.map((t) => e.insert(e.TransferDetails, t))),
               }),
@@ -145,21 +185,20 @@ export class SimulationsWorker extends Worker<typeof SIMULATIONS_QUEUE> implemen
             e.op('not', e.op('exists', p.simulation)),
             jobs.length
               ? e.op(
-                  p.hash,
+                  p.id,
                   'not in',
-                  e.set(...jobs.map((job) => job.data.transactionProposalHash)),
+                  e.cast(e.uuid, e.set(...jobs.map((job) => job.data.txProposal))),
                 )
               : undefined,
           ),
-          hash: true,
-        })).hash,
+        })).id,
       );
 
       if (orphanedProposals.length) {
         await this.queue.addBulk(
-          orphanedProposals.map((hash) => ({
+          orphanedProposals.map((id) => ({
             name: SIMULATIONS_QUEUE.name,
-            data: { transactionProposalHash: asHex(hash) },
+            data: { txProposal: asUUID(id) },
           })),
         );
       }

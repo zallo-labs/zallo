@@ -123,12 +123,11 @@ export class TransactionProposalsService {
       paymaster: this.paymasters.for(network.chain.key),
       paymasterEthFee,
     } satisfies Tx;
-    const hash = hashTx(account, tx);
 
     const id = asUUID(uuid());
     const insert = e.insert(e.TransactionProposal, {
       id,
-      hash,
+      hash: hashTx(account, tx),
       account: selectAccount(account),
       label,
       iconUri,
@@ -161,7 +160,7 @@ export class TransactionProposalsService {
     });
 
     this.db.afterTransaction(() => {
-      this.simulations.add(SIMULATIONS_QUEUE.name, { transactionProposalHash: hash });
+      this.simulations.add(SIMULATIONS_QUEUE.name, { txProposal: id });
       this.proposals.publishProposal({ id, account }, ProposalEvent.create);
     });
 
