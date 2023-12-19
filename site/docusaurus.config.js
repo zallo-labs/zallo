@@ -122,7 +122,7 @@ const config = {
     apolloGraphRef: process.env.APOLLO_GRAPH_REF,
     apiUrl: process.env.API_URL,
     privacyPolicyUrl: process.env.PRIVACY_POLICY_URL,
-    googlePlayUrl: process.env.GOOGLE_PLAY_URL,
+    googlePlayUrl: process.env.PLAY_STORE_URL,
     appStoreUrl: process.env.APP_STORE_URL,
   },
 };

@@ -1,4 +1,4 @@
-import { useRouter } from 'expo-router';
+import { Link, useRouter } from 'expo-router';
 import { View, ScrollView } from 'react-native';
 import { Text } from 'react-native-paper';
 import { Button } from '~/components/Button';
@@ -64,8 +64,12 @@ export default function LandingScreen() {
             </Text>
 
             <View style={styles.appStores}>
-              <AppStoreBadge style={styles.appStoreBadge} />
-              <GooglePlayBadge style={styles.playStoreBadge} />
+              <Link href={CONFIG.metadata.appStore}>
+                <AppStoreBadge style={styles.appStoreBadge} />
+              </Link>
+              <Link href={CONFIG.metadata.playStore}>
+                <GooglePlayBadge style={styles.playStoreBadge} />
+              </Link>
             </View>
           </View>
         </View>

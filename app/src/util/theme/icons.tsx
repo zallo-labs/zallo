@@ -1,5 +1,5 @@
 import { Image, ImageProps, ImageSource } from 'expo-image';
-import { ComponentPropsWithoutRef, ElementType, FC } from 'react';
+import { ComponentPropsWithoutRef, ElementType, FC, Ref, forwardRef } from 'react';
 import { ColorValue, TouchableOpacity, TouchableOpacityProps } from 'react-native';
 import { Ionicons, MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
 import { ICON_SIZE } from './paper';
@@ -144,17 +144,22 @@ export const GoogleIcon = imageFromSource(require('assets/google.png'));
 // export const GenericTokenIcon = fromSource(require('assets/ethereum-light.svg'));
 
 export function imageFromSource(source: ImageSource) {
-  return ({
-    onPress,
-    testID: _,
-    ...props
-  }: ImageProps & { size?: number } & Pick<TouchableOpacityProps, 'onPress'>) => (
-    <TouchableOpacity onPress={onPress} disabled={!onPress}>
-      <Image
-        {...props}
-        source={source}
-        style={[{ ...(props.size && { width: props.size, height: props.size }) }, props.style]}
-      />
-    </TouchableOpacity>
+  return forwardRef(
+    (
+      {
+        onPress,
+        testID: _,
+        ...props
+      }: ImageProps & { size?: number } & Pick<TouchableOpacityProps, 'onPress'>,
+      ref: Ref<TouchableOpacity>,
+    ) => (
+      <TouchableOpacity ref={ref} onPress={onPress} disabled={!onPress}>
+        <Image
+          {...props}
+          source={source}
+          style={[{ ...(props.size && { width: props.size, height: props.size }) }, props.style]}
+        />
+      </TouchableOpacity>
+    ),
   );
 }

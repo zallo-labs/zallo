@@ -10,6 +10,8 @@ const ENV = process.env;
 const chain = ENV?.CHAIN?.toUpperCase();
 const withVariant = (v: string) => `${v}${ENV.APP_VARIANT ? `.${ENV.APP_VARIANT}` : ''}`;
 
+type ExternalUrl = `http${string}`;
+
 export const CONFIG = {
   env: ENV.RELEASE_ENV === 'development' ? 'development' : 'production',
   chainName: chain!,
@@ -20,8 +22,10 @@ export const CONFIG = {
   metadata: {
     site: ENV.SITE!,
     iconUri: ENV.ICON_URI!,
-    twitter: ENV.TWITTER! as `http${string}`,
-    github: ENV.GITHUB! as `http${string}`,
+    appStore: ENV.APP_STORE_URL! as ExternalUrl,
+    playStore: ENV.PLAY_STORE_URL! as ExternalUrl,
+    twitter: ENV.TWITTER! as ExternalUrl,
+    github: ENV.GITHUB! as ExternalUrl,
   },
   riskRatingUrl: ENV.RISK_RATING_URL!,
   googleOAuth: {
