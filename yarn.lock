@@ -40822,6 +40822,27 @@ __metadata:
   languageName: node
   linkType: hard
 
+"viem@patch:viem@npm:^1.20.3#.yarn/patches/viem-npm-1.20.3-dc6ceec8be.patch::locator=zallo%40workspace%3A.":
+  version: 1.20.3
+  resolution: "viem@patch:viem@npm%3A1.20.3#.yarn/patches/viem-npm-1.20.3-dc6ceec8be.patch::version=1.20.3&hash=bad812&locator=zallo%40workspace%3A."
+  dependencies:
+    "@adraffy/ens-normalize": "npm:1.10.0"
+    "@noble/curves": "npm:1.2.0"
+    "@noble/hashes": "npm:1.3.2"
+    "@scure/bip32": "npm:1.3.2"
+    "@scure/bip39": "npm:1.2.1"
+    abitype: "npm:0.9.8"
+    isows: "npm:1.0.3"
+    ws: "npm:8.13.0"
+  peerDependencies:
+    typescript: ">=5.0.4"
+  peerDependenciesMeta:
+    typescript:
+      optional: true
+  checksum: e858f24e12be0491b17f0c782f5831a8c33c481eb3bf5ffe0cffaf56504b2764a2aa73320857df118c69314e5fc1ad7c38ddd2c47ff7036b57a9f8f347a6e933
+  languageName: node
+  linkType: hard
+
 "vlq@npm:^1.0.0":
   version: 1.0.1
   resolution: "vlq@npm:1.0.1"
@@ -42230,7 +42251,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"zksync2-js@npm:0.3.0":
+"zksync2-js@npm:^0.3.0":
   version: 0.3.0
   resolution: "zksync2-js@npm:0.3.0"
   peerDependencies:
@@ -42239,9 +42260,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"zksync2-js@patch:zksync2-js@npm%3A0.3.0#./.yarn/patches/zksync2-js-npm-0.3.0-9c34d26743.patch::locator=zallo%40workspace%3A.":
+"zksync2-js@patch:zksync2-js@npm:^0.3.0#.yarn/patches/zksync2-js-npm-0.3.0-9c34d26743.patch::locator=zallo%40workspace%3A.":
   version: 0.3.0
-  resolution: "zksync2-js@patch:zksync2-js@npm%3A0.3.0#./.yarn/patches/zksync2-js-npm-0.3.0-9c34d26743.patch::version=0.3.0&hash=033078&locator=zallo%40workspace%3A."
+  resolution: "zksync2-js@patch:zksync2-js@npm%3A0.3.0#.yarn/patches/zksync2-js-npm-0.3.0-9c34d26743.patch::version=0.3.0&hash=033078&locator=zallo%40workspace%3A."
   peerDependencies:
     ethers: ^6.7.1
   checksum: d5bf6ad18a8f339c7c56f28f0b16a0b9ace763c3f93a49de67bad64d35e30a22c611ddf3e42181ffa7dedaf8f6b697a37fe9a5beba553f42a2214bca213d4f33
