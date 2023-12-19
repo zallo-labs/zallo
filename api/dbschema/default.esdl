@@ -150,6 +150,7 @@ module default {
       constraint exclusive;
       on source delete delete target;
     }
+    required timestamp: datetime { default := datetime_of_statement(); }
   }
 
   type MessageProposal extending Proposal {

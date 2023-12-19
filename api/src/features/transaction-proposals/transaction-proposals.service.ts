@@ -30,9 +30,12 @@ import { ApproveInput, ProposalEvent } from '../proposals/proposals.input';
 import { PaymastersService } from '~/features/paymasters/paymasters.service';
 import { EstimatedTransactionFees } from '~/features/transaction-proposals/transaction-proposals.model';
 import Decimal from 'decimal.js';
-import { InjectQueue } from '@nestjs/bullmq';
-import { EXECUTIONS_QUEUE } from '~/features/transaction-proposals/executions.worker';
-import { TypedQueue } from '~/features/util/bull/bull.util';
+import { InjectFlowProducer, InjectQueue } from '@nestjs/bullmq';
+import {
+  ExecutionsFlow,
+  ExecutionsQueue,
+} from '~/features/transaction-proposals/executions.worker';
+import { QueueData, TypedQueue } from '~/features/util/bull/bull.util';
 import { SIMULATIONS_QUEUE } from '~/features/simulations/simulations.worker';
 import {
   proposalTxShape,
@@ -40,6 +43,7 @@ import {
 } from '~/features/transaction-proposals/transaction-proposals.util';
 import { hashTypedData } from 'viem';
 import { v4 as uuid } from 'uuid';
+import { FlowProducer } from 'bullmq';
 
 export const selectTransactionProposal = (
   id: UniqueProposal,
@@ -70,8 +74,8 @@ export class TransactionProposalsService {
     private paymasters: PaymastersService,
     @InjectQueue(SIMULATIONS_QUEUE.name)
     private simulations: TypedQueue<typeof SIMULATIONS_QUEUE>,
-    @InjectQueue(EXECUTIONS_QUEUE.name)
-    private executionsQueue: TypedQueue<typeof EXECUTIONS_QUEUE>,
+    @InjectFlowProducer(ExecutionsFlow.name)
+    private executionsFlow: FlowProducer,
   ) {}
 
   async selectUnique(id: UniqueProposal, shape?: ShapeFunc<typeof e.TransactionProposal>) {
@@ -99,7 +103,19 @@ export class TransactionProposalsService {
   }
 
   async tryExecute(txProposal: UUID) {
-    this.executionsQueue.add('executions', { txProposal });
+    // simulate -> execute
+    return this.executionsFlow.add({
+      queueName: ExecutionsQueue.name,
+      name: ExecutionsFlow.name,
+      data: { txProposal } satisfies QueueData<typeof ExecutionsQueue>,
+      children: [
+        {
+          queueName: SIMULATIONS_QUEUE.name,
+          name: SIMULATIONS_QUEUE.name,
+          data: { txProposal } satisfies QueueData<typeof SIMULATIONS_QUEUE>,
+        },
+      ],
+    });
   }
 
   async getInsertProposal({

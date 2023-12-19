@@ -8,15 +8,18 @@ import { PricesModule } from '~/features/prices/prices.module';
 import { TransactionsModule } from '~/features/transactions/transactions.module';
 import { registerBullQueue } from '~/features/util/bull/bull.util';
 import {
-  EXECUTIONS_QUEUE,
+  ExecutionsFlow,
+  ExecutionsQueue,
   ExecutionsWorker,
 } from '~/features/transaction-proposals/executions.worker';
 import { TRANSACTIONS_QUEUE } from '~/features/transactions/transactions.queue';
 import { SIMULATIONS_QUEUE } from '~/features/simulations/simulations.worker';
+import { BullModule } from '@nestjs/bullmq';
 
 @Module({
   imports: [
-    ...registerBullQueue(SIMULATIONS_QUEUE, EXECUTIONS_QUEUE, TRANSACTIONS_QUEUE),
+    ...registerBullQueue(SIMULATIONS_QUEUE, ExecutionsQueue, TRANSACTIONS_QUEUE),
+    BullModule.registerFlowProducer(ExecutionsFlow),
     TransactionsModule,
     ExpoModule,
     ProposalsModule,

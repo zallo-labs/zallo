@@ -1,5 +1,5 @@
 import { InjectQueue, Processor } from '@nestjs/bullmq';
-import { Injectable, OnModuleInit } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import {
   ETH_ADDRESS,
   UUID,
@@ -45,7 +45,7 @@ export const SIMULATIONS_QUEUE = createQueue<{ txProposal: UUID }>('Simulations'
 
 @Injectable()
 @Processor(SIMULATIONS_QUEUE.name)
-export class SimulationsWorker extends Worker<typeof SIMULATIONS_QUEUE> implements OnModuleInit {
+export class SimulationsWorker extends Worker<typeof SIMULATIONS_QUEUE> {
   constructor(
     @InjectQueue(SIMULATIONS_QUEUE.name)
     private queue: TypedQueue<typeof SIMULATIONS_QUEUE>,
@@ -58,6 +58,7 @@ export class SimulationsWorker extends Worker<typeof SIMULATIONS_QUEUE> implemen
   }
 
   onModuleInit() {
+    super.onModuleInit();
     this.addMissingJobs();
   }
 
@@ -71,7 +72,6 @@ export class SimulationsWorker extends Worker<typeof SIMULATIONS_QUEUE> implemen
         ...proposalTxShape(p),
       })),
     );
-
     if (!p) return; // Job is complete if the proposal no longer exists
 
     const account = asUAddress(p.account.address);
@@ -140,7 +140,6 @@ export class SimulationsWorker extends Worker<typeof SIMULATIONS_QUEUE> implemen
           amount: f.amount.toString(),
           direction: ['Out' as const, ...(localAccount === f.to ? (['In'] as const) : [])],
         });
-        g;
       } else if (f instanceof SwapOp) {
         transfers.push({
           account: selectedAccount,

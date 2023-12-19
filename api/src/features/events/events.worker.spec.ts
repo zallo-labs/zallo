@@ -61,7 +61,7 @@ describe(EventsWorker.name, () => {
 
     networks = module.get(NetworksService);
     networks.get.mockReturnValue({
-      getBlockNumber: async () => 1n,
+      blockNumber: () => 1n,
       getLogs: async () => logs,
     } satisfies DeepPartial<Network> as unknown as Network);
 
@@ -113,7 +113,7 @@ describe(EventsWorker.name, () => {
 
   it('split into 2 jobs if too many results', async () => {
     networks.get.mockReturnValue({
-      getBlockNumber: async () => 10n,
+      blockNumber: () => 10n,
       getLogs: async () => {
         throw new Error(
           'Query returned more than 10000 results. Try with this block range [0x01, 0x03]',

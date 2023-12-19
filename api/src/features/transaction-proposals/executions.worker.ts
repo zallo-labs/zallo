@@ -36,13 +36,22 @@ import Decimal from 'decimal.js';
 import { selectApprover } from '~/features/approvers/approvers.service';
 import { ProposalEvent } from '~/features/proposals/proposals.input';
 import { selectTransactionProposal } from '~/features/transaction-proposals/transaction-proposals.service';
-import { TypedJob, TypedQueue, Worker, createQueue } from '~/features/util/bull/bull.util';
+import {
+  QueueReturnType,
+  TypedJob,
+  TypedQueue,
+  Worker,
+  createQueue,
+} from '~/features/util/bull/bull.util';
+import { UnrecoverableError } from 'bullmq';
 
-export const EXECUTIONS_QUEUE = createQueue<{ txProposal: UUID }, Hex | void>('Executions');
+export const ExecutionsQueue = createQueue<{ txProposal: UUID }, Hex | string>('Executions');
+export type ExecutionsQueue = typeof ExecutionsQueue;
+export const ExecutionsFlow = { name: 'ExecutionFlow' as const };
 
 @Injectable()
-@Processor(EXECUTIONS_QUEUE.name)
-export class ExecutionsWorker extends Worker<typeof EXECUTIONS_QUEUE> {
+@Processor(ExecutionsQueue.name)
+export class ExecutionsWorker extends Worker<ExecutionsQueue> {
   constructor(
     private networks: NetworksService,
     private db: DatabaseService,
@@ -54,7 +63,7 @@ export class ExecutionsWorker extends Worker<typeof EXECUTIONS_QUEUE> {
     super();
   }
 
-  async process(job: TypedJob<typeof EXECUTIONS_QUEUE>) {
+  async process(job: TypedJob<ExecutionsQueue>): Promise<QueueReturnType<ExecutionsQueue>> {
     const id = job.data.txProposal;
     const proposal = await this.db.query(
       e.select(e.TransactionProposal, (p) => ({
@@ -81,10 +90,19 @@ export class ExecutionsWorker extends Worker<typeof EXECUTIONS_QUEUE> {
           state: policyStateShape,
         },
         status: true,
+        simulation: {
+          success: true,
+          timestamp: true,
+        },
       })),
     );
+    if (!proposal || (proposal.status !== 'Pending' && proposal.status !== 'Failed'))
+      return 'already executed';
 
-    if (!proposal || (proposal.status !== 'Pending' && proposal.status !== 'Failed')) return;
+    // Require simulation to have succeed
+    if (!proposal.simulation)
+      throw new UnrecoverableError('Simulation was not found and is required to execute');
+    if (!proposal.simulation.success) return 'simulation failed';
 
     const account = asUAddress(proposal.account.address);
     const network = this.networks.for(account);
@@ -112,7 +130,8 @@ export class ExecutionsWorker extends Worker<typeof EXECUTIONS_QUEUE> {
           })),
         )
         .run(this.db.DANGEROUS_superuserClient);
-      return job.retry();
+      job.retry();
+      return 'retry';
     }
 
     const tx = {
@@ -126,7 +145,7 @@ export class ExecutionsWorker extends Worker<typeof EXECUTIONS_QUEUE> {
       proposal.policy,
       proposal.account.policies,
     );
-    if (!policy) return undefined;
+    if (!policy) return 'no suitable policy';
 
     const transaction = await this.db.transaction(async (db) => {
       const { paymaster, paymasterInput, ...feeData } = await this.paymaster.currentParams({
@@ -174,10 +193,7 @@ export class ExecutionsWorker extends Worker<typeof EXECUTIONS_QUEUE> {
       return transaction;
     });
 
-    await this.proposals.publishProposal(
-      { id, account: asUAddress(proposal.account.address) },
-      ProposalEvent.submitted,
-    );
+    await this.proposals.publishProposal({ id, account }, ProposalEvent.submitted);
 
     await this.transactionsQueue.add(
       TRANSACTIONS_QUEUE.name,

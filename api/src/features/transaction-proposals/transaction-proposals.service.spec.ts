@@ -21,9 +21,12 @@ import e from '~/edgeql-js';
 import { selectAccount } from '../accounts/accounts.util';
 import { selectPolicy } from '../policies/policies.util';
 import { v1 as uuidv1 } from 'uuid';
-import { BullModule, getQueueToken } from '@nestjs/bullmq';
+import { BullModule, getFlowProducerToken, getQueueToken } from '@nestjs/bullmq';
 import { SIMULATIONS_QUEUE } from '~/features/simulations/simulations.worker';
-import { EXECUTIONS_QUEUE } from '~/features/transaction-proposals/executions.worker';
+import {
+  ExecutionsFlow,
+  ExecutionsQueue,
+} from '~/features/transaction-proposals/executions.worker';
 import { CHAINS } from 'chains';
 import { PaymastersService } from '~/features/paymasters/paymasters.service';
 import Decimal from 'decimal.js';
@@ -38,12 +41,17 @@ describe(TransactionProposalsService.name, () => {
 
   beforeEach(async () => {
     const module = await Test.createTestingModule({
-      imports: [BullModule.registerQueue(SIMULATIONS_QUEUE, EXECUTIONS_QUEUE)],
+      imports: [
+        BullModule.registerQueue(SIMULATIONS_QUEUE, ExecutionsQueue),
+        BullModule.registerFlowProducer(ExecutionsFlow),
+      ],
       providers: [TransactionProposalsService, DatabaseService],
     })
       .overrideProvider(getQueueToken(SIMULATIONS_QUEUE.name))
       .useValue(createMock())
-      .overrideProvider(getQueueToken(EXECUTIONS_QUEUE.name))
+      .overrideProvider(getQueueToken(ExecutionsQueue.name))
+      .useValue(createMock())
+      .overrideProvider(getFlowProducerToken(ExecutionsFlow.name))
       .useValue(createMock())
       .useMocker(createMock)
       .compile();

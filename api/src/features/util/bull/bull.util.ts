@@ -1,4 +1,4 @@
-import { BullModule as BullMqModule, RegisterQueueOptions, WorkerHost } from '@nestjs/bullmq';
+import { BullModule, RegisterQueueOptions, WorkerHost } from '@nestjs/bullmq';
 import { BullBoardModule, BullBoardQueueOptions } from '@bull-board/nestjs';
 import { BullMQAdapter } from '@bull-board/api/bullMQAdapter';
 import { CONFIG } from '~/config';
@@ -19,7 +19,7 @@ export const BULL_BOARD_ENABLED = !!BULL_BOARD_CREDS;
 
 export function registerBullQueue(...queues: (RegisterQueueOptions & { name: string })[]) {
   return [
-    BullMqModule.registerQueue(...queues),
+    BullModule.registerQueue(...queues),
     BULL_BOARD_ENABLED &&
       BullBoardModule.forFeature(
         ...queues.map(
