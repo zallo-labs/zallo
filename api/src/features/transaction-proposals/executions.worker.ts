@@ -9,6 +9,7 @@ import {
   asApproval,
   asHex,
   asUAddress,
+  encodeTransactionSignature,
   estimateTransactionVerificationGas,
   executeTransaction,
   getTransactionSatisfiability,
@@ -139,16 +140,15 @@ export class ExecutionsWorker extends Worker<typeof EXECUTIONS_QUEUE> {
         network,
         account: asAddress(account),
         tx,
-        policy,
-        approvals,
         paymaster,
         paymasterInput,
+        customSignature: encodeTransactionSignature({ tx, policy, approvals }),
       });
 
       // TODO: handle failed transaction execution
       if (transactionResult.isErr()) throw transactionResult.error;
 
-      const transaction = transactionResult.value;
+      const transaction = transactionResult.value.transactionHash;
 
       // Set executing policy if not already set
       const selectedProposal = proposal.policy?.state

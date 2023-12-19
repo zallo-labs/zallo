@@ -14,7 +14,7 @@ import {
   asHex,
   asUAddress,
   asUUID,
-  encodeTransactionSignature,
+  encodeMessageSignature,
   isHex,
   isPresent,
   mapAsync,
@@ -150,7 +150,7 @@ export class MessageProposalsService {
       )
     ).filter(isPresent);
 
-    const signature = encodeTransactionSignature(0n, policy, approvals);
+    const signature = encodeMessageSignature({ policy, approvals });
 
     await this.db.query(
       e.update(e.MessageProposal, () => ({

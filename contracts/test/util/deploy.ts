@@ -4,7 +4,8 @@ import {
   asPolicy,
   asTx,
   deployAccountProxy,
-  executeTransaction,
+  encodeTransactionSignature,
+  executeTransactionUnsafe,
   randomDeploySalt,
   TxOptions,
 } from 'lib';
@@ -132,19 +133,19 @@ export const deployProxy = async ({
     policy,
     execute: async (txOpts: TxOptions) => {
       const tx = asTx(txOpts);
+      const approvals = await getApprovals(account, approvers, tx);
 
-      const r = await executeTransaction({
+      const r = await executeTransactionUnsafe({
         network,
         account: asAddress(account),
         tx,
-        policy,
-        approvals: await getApprovals(account, approvers, tx),
+        customSignature: encodeTransactionSignature({ tx, policy, approvals }),
       });
 
       if (r.isErr())
         throw new Error(`Execute failed with error ${r.error.message}`, { cause: r.error });
 
-      return r.value;
+      return r.value.transactionHash;
     },
   };
 };

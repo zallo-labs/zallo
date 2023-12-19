@@ -24,7 +24,7 @@ export const transactionProposalAsTx = (p: ProposalTxShape) =>
       (op): Operation => ({
         to: asAddress(op.to),
         value: op.value ?? undefined,
-        data: op.data ? asHex(op.data) : undefined,
+        data: asHex(op.data),
       }),
     ) as [Operation, ...Operation[]],
     nonce: p.nonce,
