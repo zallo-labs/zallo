@@ -40,7 +40,7 @@
     "solhint": "^4.0.0",
     "solidity-coverage": "^0.8.5",
     "typescript": "^5.2.2",
-    "viem": "^1.19.3",
+    "viem": "^1.20.3",
     "zksync2-js": "^0.3.0"
   }
 }
