@@ -22,9 +22,9 @@ import { ProposalsService } from '../proposals/proposals.service';
 import { ProposalEvent } from '../proposals/proposals.input';
 import { InjectRedis } from '@songkeys/nestjs-redis';
 import Redis from 'ioredis';
-import { Mutex } from 'redis-semaphore';
 import { RUNNING_JOB_STATUSES, TypedQueue } from '../util/bull/bull.util';
 import { ETH } from 'lib/dapps';
+import { runOnce } from '~/util/mutex';
 
 @Injectable()
 export class TransactionsEvents implements OnModuleInit {
@@ -128,40 +128,41 @@ export class TransactionsEvents implements OnModuleInit {
   }
 
   private async addMissingJobs() {
-    const mutex = new Mutex(this.redis, 'transactions-missing-jobs', { lockTimeout: 60_000 });
-    try {
-      if (!(await mutex.tryAcquire())) return;
+    await runOnce(
+      async () => {
+        const jobs = await this.queue.getJobs(RUNNING_JOB_STATUSES);
 
-      const jobs = await this.queue.getJobs(RUNNING_JOB_STATUSES);
-
-      const orphanedTransactions = await this.db.query(
-        e.select(e.Transaction, (t) => ({
-          filter: and(
-            e.op('not', e.op('exists', t.receipt)),
-            jobs.length
-              ? e.op(t.hash, 'not in', e.set(...jobs.map((job) => job.data.transaction)))
-              : undefined,
-          ),
-          hash: true,
-          proposal: {
-            account: { address: true },
-          },
-        })),
-      );
-
-      if (orphanedTransactions.length) {
-        await this.queue.addBulk(
-          orphanedTransactions.map((t) => ({
-            name: TRANSACTIONS_QUEUE.name,
-            data: {
-              chain: asChain(asUAddress(t.proposal.account.address)),
-              transaction: asHex(t.hash),
+        const orphanedTransactions = await this.db.query(
+          e.select(e.Transaction, (t) => ({
+            filter: and(
+              e.op('not', e.op('exists', t.receipt)),
+              jobs.length
+                ? e.op(t.hash, 'not in', e.set(...jobs.map((job) => job.data.transaction)))
+                : undefined,
+            ),
+            hash: true,
+            proposal: {
+              account: { address: true },
             },
           })),
         );
-      }
-    } finally {
-      await mutex.release();
-    }
+
+        if (orphanedTransactions.length) {
+          await this.queue.addBulk(
+            orphanedTransactions.map((t) => ({
+              name: TRANSACTIONS_QUEUE.name,
+              data: {
+                chain: asChain(asUAddress(t.proposal.account.address)),
+                transaction: asHex(t.hash),
+              },
+            })),
+          );
+        }
+      },
+      {
+        redis: this.redis,
+        key: 'transactions-missing-jobs',
+      },
+    );
   }
 }

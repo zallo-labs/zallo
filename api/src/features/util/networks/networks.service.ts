@@ -14,8 +14,8 @@ import {
 import { privateKeyToAccount } from 'viem/accounts';
 import Redis from 'ioredis';
 import { InjectRedis } from '@songkeys/nestjs-redis';
-import { Mutex } from 'redis-semaphore';
 import { firstValueFrom, ReplaySubject } from 'rxjs';
+import { runExclusively } from '~/util/mutex';
 
 export type Network = ReturnType<typeof create>;
 
@@ -90,17 +90,10 @@ function walletActions(client: Client, transport: Transport, redis: Redis) {
   return {
     walletAddress,
     async useWallet<R>(f: (wallet: NetworkWallet) => R): Promise<R> {
-      const mutex = new Mutex(redis, `network-wallet:${walletAddress}`, {
-        lockTimeout: 60_000,
-        acquireTimeout: 60_000,
+      return runExclusively(() => f(wallet), {
+        redis,
+        key: `network-wallet:${walletAddress}`,
       });
-
-      try {
-        await mutex.acquire();
-        return await f(wallet);
-      } finally {
-        await mutex.release();
-      }
     },
   };
 }

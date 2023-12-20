@@ -7,7 +7,6 @@ import { Hex, asHex } from 'lib';
 import { CHAINS, Chain } from 'chains';
 import { InjectRedis } from '@songkeys/nestjs-redis';
 import Redis from 'ioredis';
-import { Mutex } from 'redis-semaphore';
 import {
   RUNNING_JOB_STATUSES,
   Worker,
@@ -18,6 +17,7 @@ import {
 import { DEFAULT_JOB_OPTIONS } from '../util/bull/bull.module';
 import { AbiEvent } from 'abitype';
 import { Log as ViemLog, encodeEventTopics, hexToNumber } from 'viem';
+import { runOnce } from '~/util/mutex';
 
 const BLOCK_TIME = 500; /* ms */
 const TARGET_LOGS_PER_JOB = 9_000; // Max 10k
@@ -147,45 +147,46 @@ export class EventsWorker extends Worker<EventsQueue> {
   }
 
   private async addMissingJob() {
-    const mutex = new Mutex(this.redis, 'events-missing-job', { lockTimeout: 60_000 });
-    try {
-      if (!(await mutex.tryAcquire())) return;
+    await runOnce(
+      async () => {
+        const runningJobs = await this.queue.getJobs(RUNNING_JOB_STATUSES);
 
-      const runningJobs = await this.queue.getJobs(RUNNING_JOB_STATUSES);
+        for await (const network of this.networks) {
+          if (runningJobs.find((j) => j.data.chain === network.chain.key)) continue;
 
-      for await (const network of this.networks) {
-        if (runningJobs.find((j) => j.data.chain === network.chain.key)) continue;
+          const lastProcessedBlock = (await e
+            .max(
+              e.op(
+                e.select(e.Receipt, (r) => ({
+                  filter: e.op(r.transaction.proposal.account.chain, '=', network.chain.key),
+                  block: true,
+                })).block,
+                'union',
+                e.select(e.Transfer, (t) => ({
+                  filter: e.op(t.account.chain, '=', network.chain.key),
+                  block: true,
+                })).block,
+              ),
+            )
+            .run(this.db.client)) as bigint | null; // Return type is overly broad - https://github.com/edgedb/edgedb-js/issues/594
 
-        const lastProcessedBlock = (await e
-          .max(
-            e.op(
-              e.select(e.Receipt, (r) => ({
-                filter: e.op(r.transaction.proposal.account.chain, '=', network.chain.key),
-                block: true,
-              })).block,
-              'union',
-              e.select(e.Transfer, (t) => ({
-                filter: e.op(t.account.chain, '=', network.chain.key),
-                block: true,
-              })).block,
-            ),
-          )
-          .run(this.db.client)) as bigint | null; // Return type is overly broad - https://github.com/edgedb/edgedb-js/issues/594
+          const from = lastProcessedBlock
+            ? Number(lastProcessedBlock) + 1 // Warning: bigint -> number
+            : Number(network.blockNumber()); // Warning: bigint -> number
 
-        const from = lastProcessedBlock
-          ? Number(lastProcessedBlock) + 1 // Warning: bigint -> number
-          : Number(network.blockNumber()); // Warning: bigint -> number
+          this.queue.add(EventsQueue.name, { chain: network.chain.key, from });
 
-        this.queue.add(EventsQueue.name, { chain: network.chain.key, from });
-
-        this.log.log(
-          `${network.chain.key}: events starting from ${
-            lastProcessedBlock ? `last processed (${from})` : `latest (${from})`
-          }`,
-        );
-      }
-    } finally {
-      mutex.release();
-    }
+          this.log.log(
+            `${network.chain.key}: events starting from ${
+              lastProcessedBlock ? `last processed (${from})` : `latest (${from})`
+            }`,
+          );
+        }
+      },
+      {
+        redis: this.redis,
+        key: 'events-missing-job',
+      },
+    );
   }
 }

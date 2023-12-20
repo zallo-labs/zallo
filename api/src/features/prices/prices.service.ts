@@ -13,7 +13,6 @@ import Decimal from 'decimal.js';
 import { NetworksService } from '~/features/util/networks/networks.service';
 import Redis from 'ioredis';
 import { InjectRedis } from '@songkeys/nestjs-redis';
-import { Mutex } from 'redis-semaphore';
 import { runExclusively } from '~/util/mutex';
 
 interface PriceData {

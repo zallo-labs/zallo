@@ -21,7 +21,6 @@ import { selectAccount } from '../accounts/accounts.util';
 import { SwapOp, TransferFromOp, TransferOp } from '../operations/operations.model';
 import { InjectRedis } from '@songkeys/nestjs-redis';
 import Redis from 'ioredis';
-import { Mutex } from 'redis-semaphore';
 import {
   RUNNING_JOB_STATUSES,
   TypedJob,
@@ -38,6 +37,7 @@ import {
 } from '~/features/transaction-proposals/transaction-proposals.util';
 import { ResultAsync } from 'neverthrow';
 import { CallErrorType } from 'viem';
+import { runOnce } from '~/util/mutex';
 
 type TransferDetails = Parameters<typeof e.insert<typeof e.TransferDetails>>[1];
 
@@ -172,37 +172,38 @@ export class SimulationsWorker extends Worker<typeof SIMULATIONS_QUEUE> {
   }
 
   private async addMissingJobs() {
-    const mutex = new Mutex(this.redis, 'simulations-missing-jobs', { lockTimeout: 60_000 });
-    try {
-      if (!(await mutex.tryAcquire())) return;
+    await runOnce(
+      async () => {
+        const jobs = await this.queue.getJobs(RUNNING_JOB_STATUSES);
 
-      const jobs = await this.queue.getJobs(RUNNING_JOB_STATUSES);
-
-      const orphanedProposals = await this.db.query(
-        e.select(e.TransactionProposal, (p) => ({
-          filter: and(
-            e.op('not', e.op('exists', p.simulation)),
-            jobs.length
-              ? e.op(
-                  p.id,
-                  'not in',
-                  e.cast(e.uuid, e.set(...jobs.map((job) => job.data.txProposal))),
-                )
-              : undefined,
-          ),
-        })).id,
-      );
-
-      if (orphanedProposals.length) {
-        await this.queue.addBulk(
-          orphanedProposals.map((id) => ({
-            name: SIMULATIONS_QUEUE.name,
-            data: { txProposal: asUUID(id) },
-          })),
+        const orphanedProposals = await this.db.query(
+          e.select(e.TransactionProposal, (p) => ({
+            filter: and(
+              e.op('not', e.op('exists', p.simulation)),
+              jobs.length
+                ? e.op(
+                    p.id,
+                    'not in',
+                    e.cast(e.uuid, e.set(...jobs.map((job) => job.data.txProposal))),
+                  )
+                : undefined,
+            ),
+          })).id,
         );
-      }
-    } finally {
-      await mutex.release();
-    }
+
+        if (orphanedProposals.length) {
+          await this.queue.addBulk(
+            orphanedProposals.map((id) => ({
+              name: SIMULATIONS_QUEUE.name,
+              data: { txProposal: asUUID(id) },
+            })),
+          );
+        }
+      },
+      {
+        redis: this.redis,
+        key: 'simulations-missing-jobs',
+      },
+    );
   }
 }
