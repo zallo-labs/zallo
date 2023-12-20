@@ -64,10 +64,7 @@ export class PaymastersService {
     const tokenPrice = await this.prices.price(asUAddress(feeToken, chain));
     const maxTokenFees = maxEthFees.div(tokenPrice.eth);
 
-    await this.prices.updateOnchainPriceFeedsIfNecessary(chain, [
-      ETH.pythUsdPriceId,
-      tokenPrice.id,
-    ]);
+    await this.prices.updatePriceFeedsIfNecessary(chain, [ETH.pythUsdPriceId, tokenPrice.id]);
 
     const signedData: PaymasterSignedData = {
       paymasterFee: asFp(paymasterEthFee, ETH),

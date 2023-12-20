@@ -14,6 +14,7 @@ import { NetworksService } from '~/features/util/networks/networks.service';
 import Redis from 'ioredis';
 import { InjectRedis } from '@songkeys/nestjs-redis';
 import { Mutex } from 'redis-semaphore';
+import { runExclusively } from '~/util/mutex';
 
 interface PriceData {
   current: Decimal;
@@ -111,53 +112,60 @@ export class PricesService {
     return asHex(usdPriceId);
   }
 
-  async updateOnchainPriceFeedsIfNecessary(chain: Chain, priceIds: Hex[]) {
-    const mutex = new Mutex(
-      this.redis,
-      `${this.updateOnchainPriceFeedsIfNecessary.name}:${chain}`,
+  async updatePriceFeedsIfNecessary(chain: Chain, priceIds: Hex[]) {
+    if (
+      priceIds
+        .map((priceId) => this.isPriceFeedGuaranteedFresh(chain, priceId))
+        .every((fresh) => fresh)
+    )
+      return;
+
+    await runExclusively(
+      async () => {
+        const expiredPriceIds = await filterAsync(
+          priceIds,
+          async (priceId) => !(await this.checkPriceFeedFresh(chain, priceId)),
+        );
+        if (expiredPriceIds.length === 0) return;
+
+        const updateData = (await this.pyth.getPriceFeedsUpdateData(expiredPriceIds)).map(asHex);
+
+        const network = this.networks.get(chain);
+        const updateFee = await network.readContract({
+          abi: PYTH.abi,
+          address: PYTH.address[chain],
+          functionName: 'getUpdateFee',
+          args: [updateData],
+        });
+
+        const sim = await network.simulateContract({
+          abi: PYTH.abi,
+          address: PYTH.address[chain],
+          functionName: 'updatePriceFeeds',
+          args: [updateData],
+          value: updateFee,
+        });
+
+        const transactionHash = await network.useWallet(
+          async (wallet) => await wallet.writeContract(sim.request),
+        );
+        await network.waitForTransactionReceipt({ hash: transactionHash });
+      },
       {
-        lockTimeout: 60_000,
-        acquireTimeout: 60_000,
+        redis: this.redis,
+        key: priceIds.map((priceId) => `prices.updatePricefeed:${chain}:${priceId}`),
       },
     );
-
-    await mutex.acquire();
-    try {
-      const expiredPriceIds = await filterAsync(
-        priceIds,
-        async (priceId) => !(await this.isOnchainPriceFeedFresh(chain, priceId)),
-      );
-      if (expiredPriceIds.length === 0) return;
-
-      const updateData = (await this.pyth.getPriceFeedsUpdateData(expiredPriceIds)).map(asHex);
-
-      const network = this.networks.get(chain);
-      const updateFee = await network.readContract({
-        abi: PYTH.abi,
-        address: PYTH.address[chain],
-        functionName: 'getUpdateFee',
-        args: [updateData],
-      });
-
-      const sim = await network.simulateContract({
-        abi: PYTH.abi,
-        address: PYTH.address[chain],
-        functionName: 'updatePriceFeeds',
-        args: [updateData],
-        value: updateFee,
-      });
-
-      await network.useWallet(async (wallet) => {
-        await wallet.writeContract(sim.request);
-      });
-    } finally {
-      await mutex.release();
-    }
   }
 
-  private async isOnchainPriceFeedFresh(chain: Chain, priceId: Hex): Promise<boolean> {
+  private isPriceFeedGuaranteedFresh(chain: Chain, priceId: Hex): boolean {
+    // Publish times can never go backwards, so our cache can never have false positives, but may have fulse negatives
     const cachedPublishTime = this.lastOnchainPublishTime[chain].get(priceId);
-    if (cachedPublishTime && cachedPublishTime < this.oldestAcceptablePublishTime) return false;
+    return !!cachedPublishTime && cachedPublishTime < this.oldestAcceptablePublishTime;
+  }
+
+  private async checkPriceFeedFresh(chain: Chain, priceId: Hex): Promise<boolean> {
+    if (this.isPriceFeedGuaranteedFresh(chain, priceId)) return true;
 
     try {
       const p = await this.networks.get(chain).readContract({
@@ -188,6 +196,6 @@ export class PricesService {
 
   private get oldestAcceptablePublishTime() {
     // Paymaster allows prices no older than *60 minutes*
-    return DateTime.now().minus({ minutes: 55 });
+    return DateTime.now().minus({ minutes: 59 });
   }
 }
