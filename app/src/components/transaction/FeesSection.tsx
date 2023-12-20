@@ -76,20 +76,13 @@ export function FeesSection(props: FeeTokenProps) {
     p.transaction?.receipt?.networkEthFee ??
       p.transaction?.maxNetworkEthFee ??
       p.estimatedFees.maxNetworkEthFee,
-  );
-  const paymasterEthFee = new Decimal(p.paymasterEthFee);
+  ).neg();
+  const paymasterEthFee = new Decimal(p.paymasterEthFee).neg();
   const ethDiscount = new Decimal(p.transaction?.ethDiscount ?? p.estimatedFees.ethDiscount);
-  const ethFees = networkEthFee.add(paymasterEthFee).sub(ethDiscount);
+  const ethFees = Decimal.min(networkEthFee.add(paymasterEthFee).add(ethDiscount), 0);
   const isEstimated = !p.transaction?.receipt;
 
   const ethPerFeeToken = new Decimal(p.transaction?.ethPerFeeToken ?? p.feeToken.price?.eth ?? 0);
-
-  console.log({
-    ethPerFeeToken: ethPerFeeToken.toString(),
-    ethFees: ethFees.toString(),
-    amount: ethFees.div(ethPerFeeToken).toString(),
-    ethDiscount: ethDiscount.toString(),
-  });
 
   return (
     <>
