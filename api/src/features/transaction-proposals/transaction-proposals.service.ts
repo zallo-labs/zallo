@@ -13,6 +13,7 @@ import {
   asTypedData,
   asUUID,
   UUID,
+  estimateTransactionVerificationGas,
 } from 'lib';
 import { NetworksService } from '~/features/util/networks/networks.service';
 import {
@@ -139,6 +140,11 @@ export class TransactionProposalsService {
       paymaster: this.paymasters.for(network.chain.key),
       paymasterEthFee,
     } satisfies Tx;
+
+    gas ??=
+      (
+        await estimateTransactionOperationsGas({ account: asAddress(account), tx, network })
+      ).unwrapOr(FALLBACK_OPERATIONS_GAS) + estimateTransactionVerificationGas(3);
 
     const id = asUUID(uuid());
     const insert = e.insert(e.TransactionProposal, {

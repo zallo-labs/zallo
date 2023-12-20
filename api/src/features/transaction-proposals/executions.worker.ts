@@ -10,7 +10,6 @@ import {
   asHex,
   asUAddress,
   encodeTransactionSignature,
-  estimateTransactionVerificationGas,
   executeTransaction,
   getTransactionSatisfiability,
   isPresent,
@@ -134,11 +133,7 @@ export class ExecutionsWorker extends Worker<ExecutionsQueue> {
       return 'retry';
     }
 
-    const tx = {
-      ...transactionProposalAsTx(proposal),
-      gas: proposal.gasLimit + estimateTransactionVerificationGas(approvals.length),
-    };
-
+    const tx = transactionProposalAsTx(proposal);
     const policy = await this.getExecutionPolicy(
       tx,
       new Set(approvals.map((a) => a.approver)),
@@ -150,7 +145,7 @@ export class ExecutionsWorker extends Worker<ExecutionsQueue> {
     const transaction = await this.db.transaction(async (db) => {
       const { paymaster, paymasterInput, ...feeData } = await this.paymaster.currentParams({
         account,
-        gasLimit: new Decimal(tx.gas.toString()),
+        gasLimit: new Decimal(tx.gas!.toString()),
         feeToken: asAddress(proposal.feeToken.address),
         paymasterEthFee: new Decimal(proposal.paymasterEthFee),
       });
