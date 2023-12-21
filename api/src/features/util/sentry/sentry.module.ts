@@ -1,6 +1,5 @@
 import { DynamicModule, Global, Module, OnApplicationShutdown } from '@nestjs/common';
 import * as Sentry from '@sentry/node';
-import { ProfilingIntegration } from '@sentry/profiling-node';
 import { CONFIG } from '~/config';
 import { SentryInterceptor } from './sentry.interceptor';
 
@@ -53,7 +52,6 @@ export class SentryModule implements OnApplicationShutdown {
         new Sentry.Integrations.OnUnhandledRejection({ mode: 'warn' }),
         new Sentry.Integrations.Http({ tracing: true }),
         new Sentry.Integrations.Apollo({ useNestjs: true }),
-        new ProfilingIntegration(),
       ],
     });
     SentryModule.initialized = true;
