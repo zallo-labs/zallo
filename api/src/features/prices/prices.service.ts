@@ -1,5 +1,5 @@
-import { Injectable } from '@nestjs/common';
-import { Hex, UAddress, asHex, filterAsync, decodeRevertError, isUAddress } from 'lib';
+import { Injectable, Logger } from '@nestjs/common';
+import { Hex, UAddress, asHex, filterAsync, decodeRevertError, isUAddress, asAddress } from 'lib';
 import { Price } from './prices.model';
 import e from '~/edgeql-js';
 import { preferUserToken } from '~/features/tokens/tokens.service';
@@ -22,6 +22,7 @@ interface PriceData {
 
 @Injectable()
 export class PricesService {
+  private log = new Logger(this.constructor.name);
   private pyth: EvmPriceServiceConnection;
   private usdPrices = new Map<Hex, PriceData>();
   private lastOnchainPublishTime = Object.keys(CHAINS).reduce(
@@ -45,7 +46,6 @@ export class PricesService {
     const tokenPriceId = isUAddress(tokenOrUsdPriceId)
       ? await this.getUsdPriceId(tokenOrUsdPriceId)
       : tokenOrUsdPriceId;
-    if (!tokenPriceId) throw new Error(`Failed to get price id for ${tokenOrUsdPriceId}`);
 
     const [ethUsd, tokenUsd] = await Promise.all([
       this.usd(ETH.pythUsdPriceId),
@@ -73,10 +73,10 @@ export class PricesService {
   }
 
   private async getPriceDataFromFeed(priceId: Hex, feed: PriceFeed): Promise<PriceData | null> {
-    const oldestAcceptableTimestamp = Math.ceil(this.oldestAcceptablePublishTime.toSeconds());
+    const expiryTimestamp = Math.ceil(this.expiry.toSeconds());
 
-    const currentData = feed.getPriceNoOlderThan(oldestAcceptableTimestamp);
-    const emaData = feed.getEmaPriceNoOlderThan(oldestAcceptableTimestamp);
+    const currentData = feed.getPriceNoOlderThan(expiryTimestamp);
+    const emaData = feed.getEmaPriceNoOlderThan(expiryTimestamp);
     if (!currentData || !emaData) return null;
 
     const current = new Decimal(currentData.price).mul(new Decimal(10).pow(currentData.expo));
@@ -107,6 +107,7 @@ export class PricesService {
         })).pythUsdPriceId,
       ),
     );
+    if (!usdPriceId) throw new Error(`Failed to get price id for ${token}`);
 
     return asHex(usdPriceId);
   }
@@ -137,7 +138,7 @@ export class PricesService {
           args: [updateData],
         });
 
-        const sim = await network.simulateContract({
+        const { request } = await network.simulateContract({
           abi: PYTH.abi,
           address: PYTH.address[chain],
           functionName: 'updatePriceFeeds',
@@ -145,10 +146,7 @@ export class PricesService {
           value: updateFee,
         });
 
-        const transactionHash = await network.useWallet(
-          async (wallet) => await wallet.writeContract(sim.request),
-        );
-        await network.waitForTransactionReceipt({ hash: transactionHash });
+        await network.useWallet(async (wallet) => await wallet.writeContract(request));
       },
       {
         redis: this.redis,
@@ -158,9 +156,9 @@ export class PricesService {
   }
 
   private isPriceFeedGuaranteedFresh(chain: Chain, priceId: Hex): boolean {
-    // Publish times can never go backwards, so our cache can never have false positives, but may have fulse negatives
-    const cachedPublishTime = this.lastOnchainPublishTime[chain].get(priceId);
-    return !!cachedPublishTime && cachedPublishTime < this.oldestAcceptablePublishTime;
+    // Publish times can never go backwards, so our cache can never have false positives, but may have false negatives
+    const publishTime = this.lastOnchainPublishTime[chain].get(priceId);
+    return !!publishTime && publishTime > this.expiry;
   }
 
   private async checkPriceFeedFresh(chain: Chain, priceId: Hex): Promise<boolean> {
@@ -174,10 +172,10 @@ export class PricesService {
         args: [priceId],
       });
 
-      const publishTime = DateTime.fromSeconds(Number(p.price));
+      const publishTime = DateTime.fromSeconds(Number(p.publishTime));
       this.lastOnchainPublishTime[chain].set(priceId, publishTime);
 
-      return publishTime < this.oldestAcceptablePublishTime;
+      return publishTime > this.expiry;
     } catch (error) {
       const e = decodeRevertError({ error, abi: PYTH.abi });
       if (e?.errorName === 'PriceFeedNotFound') {
@@ -190,10 +188,10 @@ export class PricesService {
   }
 
   private handlePythError(error: Error) {
-    console.error(error);
+    this.log.error(error);
   }
 
-  private get oldestAcceptablePublishTime() {
+  private get expiry() {
     // Paymaster allows prices no older than *60 minutes*
     return DateTime.now().minus({ minutes: 59 });
   }

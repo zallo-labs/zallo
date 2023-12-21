@@ -207,8 +207,6 @@ export class PaymastersService {
   }
 
   paymasterEthFee(operations: Operation[]): Decimal {
-    // TODO: Factor in price update fees
-
     return new Decimal(0);
   }
 }

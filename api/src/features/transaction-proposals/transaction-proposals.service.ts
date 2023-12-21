@@ -130,15 +130,15 @@ export class TransactionProposalsService {
   }: Omit<ProposeTransactionInput, 'signature'>) {
     if (!operations.length) throw new UserInputError('No operations provided');
 
-    const network = this.networks.for(account);
-    const paymasterEthFee = this.paymasters.paymasterEthFee(operations);
+    const chain = asChain(account);
+    const network = this.networks.get(chain);
     const tx = {
       operations,
       nonce: BigInt(Math.floor(validFrom.getTime() / 1000)),
       gas,
       feeToken,
-      paymaster: this.paymasters.for(network.chain.key),
-      paymasterEthFee,
+      paymaster: this.paymasters.for(chain),
+      paymasterEthFee: this.paymasters.paymasterEthFee(operations),
     } satisfies Tx;
 
     gas ??=
@@ -169,7 +169,7 @@ export class TransactionProposalsService {
           await estimateTransactionOperationsGas({ account: asAddress(account), tx, network })
         ).unwrapOr(FALLBACK_OPERATIONS_GAS),
       paymaster: tx.paymaster,
-      paymasterEthFee: paymasterEthFee.toString(),
+      paymasterEthFee: tx.paymasterEthFee.toString(),
       feeToken: e.assert_single(
         e.select(e.Token, (t) => ({
           filter: and(

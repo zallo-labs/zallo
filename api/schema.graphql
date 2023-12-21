@@ -948,10 +948,10 @@ input UpsertTokenInput {
   units: [TokenUnitInput!]! = []
 }
 
-type User {
+type User implements Node {
   approvers: [UserApprover!]!
   contacts: [Contact!]!
-  id: ID!
+  id: UUID!
   linkingToken: String!
   primaryAccount: Account
 }
