@@ -39,18 +39,26 @@ export class SentryModule implements OnApplicationShutdown {
     if (SentryModule.initialized) return;
 
     Sentry.init({
-      // enabled: CONFIG.env !== 'development',
-      enabled: true,
+      enabled: CONFIG.env !== 'development',
       dsn: CONFIG.sentryDsn,
       environment: CONFIG.env,
       serverName: CONFIG.serverId,
       sampleRate: 1.0,
+      enableTracing: true,
       tracesSampleRate: 1.0,
       profilesSampleRate: 1.0,
+      includeLocalVariables: true,
+      attachStacktrace: true,
       integrations: [
         new Sentry.Integrations.OnUncaughtException(),
         new Sentry.Integrations.OnUnhandledRejection({ mode: 'warn' }),
+        new Sentry.Integrations.ContextLines(),
+        new Sentry.Integrations.LocalVariables(),
+        new Sentry.Integrations.Console(),
+        new Sentry.Integrations.RequestData(),
+        new Sentry.Integrations.Undici(),
         new Sentry.Integrations.Http({ tracing: true }),
+        new Sentry.Integrations.GraphQL(),
         new Sentry.Integrations.Apollo({ useNestjs: true }),
       ],
     });
