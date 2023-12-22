@@ -50,6 +50,7 @@ describe(PricesService.name, () => {
     network = createMock<Network>();
     networks.get.mockReturnValue(network);
 
+    getPriceFeedsUpdateData.mockReset();
     getPriceFeedsUpdateData.mockImplementation(async () => []);
   });
 

@@ -55,7 +55,7 @@ describe(AccountsService.name, () => {
     const userCtx = getUserCtx();
 
     const account = randomUAddress();
-    networks.get.mockReturnValue({} satisfies DeepPartial<Network> as unknown as Network);
+    // networks.get.mockReturnValue({} satisfies DeepPartial<Network> as unknown as Network);
 
     getProxyAddressMock.mockReturnValue((async () => account)());
 
