@@ -77,6 +77,7 @@ export interface Account extends std.$Object {
   "proposals": Proposal[];
   "transactionProposals": TransactionProposal[];
   "transfers": Transfer[];
+  "paymasterEthCredit": string;
 }
 export interface Action extends std.$Object {
   "functions": ActionFunction[];
@@ -96,11 +97,15 @@ export interface ProposalResponse extends std.$Object {
 }
 export interface Approval extends ProposalResponse {
   "signature": string;
+  "signedHash": string;
+  "issues": ApprovalIssue[];
+  "invalid": boolean;
 }
+export type ApprovalIssue = "HashMismatch" | "Expired";
 export interface Approver extends std.$Object {
   "bluetoothDevices"?: string[] | null;
-  "address": string;
   "cloud"?: CloudShare | null;
+  "address": string;
   "name"?: string | null;
   "pushToken"?: string | null;
   "user": User;
@@ -125,11 +130,11 @@ export interface Contract extends std.$Object {
 }
 export interface Event extends std.$Object {
   "transaction"?: Transaction | null;
-  "block": bigint;
   "internal": boolean;
   "logIndex": number;
   "timestamp": Date;
   "transactionHash": string;
+  "block": bigint;
 }
 export interface Function extends std.$Object {
   "selector": string;
@@ -177,9 +182,9 @@ export interface PolicyState extends std.$Object {
   "createdAt": Date;
   "isRemoved": boolean;
   "approvers": Approver[];
+  "actions": Action[];
   "proposal"?: TransactionProposal | null;
   "isAccountInitState": boolean;
-  "actions": Action[];
   "transfers": TransfersConfig;
   "threshold": number;
   "policy"?: Policy | null;
@@ -193,18 +198,27 @@ export interface ProposalRiskLabel extends std.$Object {
 export interface Receipt extends std.$Object {
   "responses": string[];
   "success": boolean;
-  "block": bigint;
-  "fee": bigint;
-  "gasUsed": bigint;
   "timestamp": Date;
   "transaction": Transaction;
   "events": Event[];
   "transferApprovalEvents": TransferApproval[];
   "transferEvents": Transfer[];
+  "block": bigint;
+  "ethFeePerGas": string;
+  "networkEthFee": string;
+  "ethFees": string;
+  "gasUsed": bigint;
+}
+export interface Refund extends std.$Object {
+  "transaction": Transaction;
+  "ethAmount": string;
 }
 export interface Rejection extends ProposalResponse {}
 export interface Simulation extends std.$Object {
   "transfers": TransferDetails[];
+  "responses": string[];
+  "success": boolean;
+  "timestamp": Date;
 }
 export interface Token extends std.$Object {
   "units"?: {symbol: string, decimals: number}[] | null;
@@ -216,24 +230,33 @@ export interface Token extends std.$Object {
   "decimals": number;
   "ethereumAddress"?: string | null;
   "iconUri"?: string | null;
+  "pythUsdPriceId"?: string | null;
   "user"?: User | null;
 }
 export interface Transaction extends std.$Object {
   "receipt"?: Receipt | null;
   "submittedAt": Date;
-  "gasPrice": bigint;
   "hash": string;
   "proposal": TransactionProposal;
   "events": Event[];
+  "ethDiscount": string;
+  "refunds": Refund[];
+  "maxEthFeePerGas": string;
+  "maxNetworkEthFee": string;
+  "maxEthFees": string;
+  "ethPerFeeToken": string;
+  "usdPerFeeToken": string;
 }
 export interface TransactionProposal extends Proposal {
   "operations": Operation[];
   "feeToken": Token;
-  "gasLimit": bigint;
   "nonce": bigint;
+  "paymaster": string;
   "transactions": Transaction[];
   "transaction"?: Transaction | null;
   "status": TransactionProposalStatus;
+  "gasLimit": bigint;
+  "paymasterEthFee": string;
   "simulation"?: Simulation | null;
 }
 export type TransactionProposalStatus = "Pending" | "Executing" | "Successful" | "Failed";
@@ -241,16 +264,17 @@ export interface TransferDetails extends std.$Object {
   "account": Account;
   "tokenAddress": string;
   "token"?: Token | null;
-  "amount": bigint;
   "direction": TransferDirection[];
   "from": string;
   "to": string;
+  "amount": string;
+  "isFeeTransfer": boolean;
 }
 export interface Transferlike extends Event, TransferDetails {}
 export interface Transfer extends Transferlike {}
 export interface TransferApproval extends Transferlike {
   "previous"?: TransferApproval | null;
-  "delta": bigint;
+  "delta": string;
 }
 export type TransferDirection = "In" | "Out";
 export interface TransferLimit extends std.$Object {
@@ -266,8 +290,8 @@ export interface TransfersConfig extends std.$Object {
 export interface User extends std.$Object {
   "approvers": Approver[];
   "accounts": Account[];
-  "contacts": Contact[];
   "primaryAccount"?: Account | null;
+  "contacts": Contact[];
 }
 export interface current_accounts extends Account {}
 export interface current_approver extends Approver {}
@@ -534,6 +558,7 @@ export interface types {
     "ActionFunction": ActionFunction;
     "ProposalResponse": ProposalResponse;
     "Approval": Approval;
+    "ApprovalIssue": ApprovalIssue;
     "Approver": Approver;
     "CloudProvider": CloudProvider;
     "CloudShare": CloudShare;
@@ -549,6 +574,7 @@ export interface types {
     "ProposalRisk": ProposalRisk;
     "ProposalRiskLabel": ProposalRiskLabel;
     "Receipt": Receipt;
+    "Refund": Refund;
     "Rejection": Rejection;
     "Simulation": Simulation;
     "Token": Token;

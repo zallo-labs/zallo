@@ -21,7 +21,6 @@ export type scalarAssignableBy<T extends $.ScalarType> =
   T extends _std.$float32 ? _std.$float32 : 
   T extends _enc.$Base64Alphabet ? _enc.$Base64Alphabet : 
   T extends _std.$duration ? _std.$duration : 
-  T extends _std.$decimal ? _std.$decimalλIAssignableBy : 
   T extends _std.$datetime ? _std.$datetime : 
   T extends _std.$bytes ? _std.$bytes : 
   T extends _std.$bool ? _std.$bool : 
@@ -66,6 +65,9 @@ export type scalarAssignableBy<T extends $.ScalarType> =
   T extends _default.$Bytes4 ? _default.$Bytes4 : 
   T extends _default.$Bytes32 ? _default.$Bytes32 : 
   T extends _default.$Bytes ? _default.$Bytes : 
+  T extends _default.$ApprovalIssue ? _default.$ApprovalIssue : 
+  T extends _default.$Amount ? _default.$Amount : 
+  T extends _std.$decimal ? _std.$decimalλIAssignableBy : 
   T extends _default.$Address ? _default.$Address : 
   T extends _std.$str ? _std.$str : 
   T extends _default.$AbiSource ? _default.$AbiSource : 
@@ -89,7 +91,6 @@ export type scalarCastableFrom<T extends $.ScalarType> =
   T extends _std.$float32 ? _std.$float32 : 
   T extends _enc.$Base64Alphabet ? _enc.$Base64Alphabet : 
   T extends _std.$duration ? _std.$duration : 
-  T extends _std.$decimal ? _std.$decimalλICastableTo : 
   T extends _std.$datetime ? _std.$datetime : 
   T extends _std.$bytes ? _std.$bytes : 
   T extends _std.$bool ? _std.$bool : 
@@ -134,6 +135,9 @@ export type scalarCastableFrom<T extends $.ScalarType> =
   T extends _default.$Bytes4 ? _default.$Bytes4 : 
   T extends _default.$Bytes32 ? _default.$Bytes32 : 
   T extends _default.$Bytes ? _default.$Bytes : 
+  T extends _default.$ApprovalIssue ? _default.$ApprovalIssue : 
+  T extends _default.$Amount ? _default.$Amount : 
+  T extends _std.$decimal ? _std.$decimalλICastableTo : 
   T extends _default.$Address ? _default.$Address : 
   T extends _std.$str ? _std.$str : 
   T extends _default.$AbiSource ? _default.$AbiSource : 
@@ -199,15 +203,6 @@ type getSharedParentScalar<A, B> =
   A extends _std.$duration ?
     B extends _std.$duration ?
     B
-    :
-    never
-  :
-  A extends _std.$decimal ?
-    B extends _std.$decimal ?
-    B
-    :
-    B extends _std.$bigint ?
-    A
     :
     never
   :
@@ -386,10 +381,10 @@ type getSharedParentScalar<A, B> =
     never
   :
   A extends _std.$bigint ?
-    B extends _std.$decimal ?
+    B extends _std.$bigint ?
     B
     :
-    B extends _std.$bigint ?
+    B extends _std.$decimal ?
     B
     :
     never
@@ -474,6 +469,27 @@ type getSharedParentScalar<A, B> =
   :
   A extends _default.$Bytes ?
     B extends _default.$Bytes ?
+    B
+    :
+    never
+  :
+  A extends _default.$ApprovalIssue ?
+    B extends _default.$ApprovalIssue ?
+    B
+    :
+    never
+  :
+  A extends _default.$Amount ?
+    B extends _default.$Amount ?
+    B
+    :
+    never
+  :
+  A extends _std.$decimal ?
+    B extends _std.$bigint ?
+    A
+    :
+    B extends _std.$decimal ?
     B
     :
     never
@@ -612,15 +628,6 @@ function getSharedParentScalar<A extends $.ScalarType, B extends $.ScalarType>(a
   if (a.__name__ === "std::duration") {
     if(b.__name__ === "std::duration") {
       return b;
-    }
-    throw new Error(`Types are not castable: ${a.__name__}, ${b.__name__}`);
-    }
-  if (a.__name__ === "std::decimal") {
-    if(b.__name__ === "std::decimal") {
-      return b;
-    }
-    if(b.__name__ === "std::bigint") {
-      return a;
     }
     throw new Error(`Types are not castable: ${a.__name__}, ${b.__name__}`);
     }
@@ -799,10 +806,10 @@ function getSharedParentScalar<A extends $.ScalarType, B extends $.ScalarType>(a
     throw new Error(`Types are not castable: ${a.__name__}, ${b.__name__}`);
     }
   if (a.__name__ === "std::bigint") {
-    if(b.__name__ === "std::decimal") {
+    if(b.__name__ === "std::bigint") {
       return b;
     }
-    if(b.__name__ === "std::bigint") {
+    if(b.__name__ === "std::decimal") {
       return b;
     }
     throw new Error(`Types are not castable: ${a.__name__}, ${b.__name__}`);
@@ -887,6 +894,27 @@ function getSharedParentScalar<A extends $.ScalarType, B extends $.ScalarType>(a
     }
   if (a.__name__ === "default::Bytes") {
     if(b.__name__ === "default::Bytes") {
+      return b;
+    }
+    throw new Error(`Types are not castable: ${a.__name__}, ${b.__name__}`);
+    }
+  if (a.__name__ === "default::ApprovalIssue") {
+    if(b.__name__ === "default::ApprovalIssue") {
+      return b;
+    }
+    throw new Error(`Types are not castable: ${a.__name__}, ${b.__name__}`);
+    }
+  if (a.__name__ === "default::Amount") {
+    if(b.__name__ === "default::Amount") {
+      return b;
+    }
+    throw new Error(`Types are not castable: ${a.__name__}, ${b.__name__}`);
+    }
+  if (a.__name__ === "std::decimal") {
+    if(b.__name__ === "std::bigint") {
+      return a;
+    }
+    if(b.__name__ === "std::decimal") {
       return b;
     }
     throw new Error(`Types are not castable: ${a.__name__}, ${b.__name__}`);
@@ -1001,7 +1029,7 @@ export type scalarLiterals =
   | edgedb.Range<any> | edgedb.MultiRange<any>;
 
 type getTsType<T extends $.BaseType> = T extends $.ScalarType
-  ? T extends _std.$uuid | _fts.$document | _std.$decimal | _std.$json
+  ? T extends _std.$decimal | _std.$uuid | _fts.$document | _std.$json
     ? never
     : T["__tstype__"]
   : T extends $.RangeType
