@@ -1,4 +1,5 @@
 {
+  "name": "dapps",
   "internal": true,
   "main": "../dist/dapps",
   "types": "../dist/dapps"

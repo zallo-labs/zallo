@@ -18657,9 +18657,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"dapps-be372b@workspace:packages/lib/dapps":
+"dapps@workspace:packages/lib/dapps":
   version: 0.0.0-use.local
-  resolution: "dapps-be372b@workspace:packages/lib/dapps"
+  resolution: "dapps@workspace:packages/lib/dapps"
   languageName: unknown
   linkType: soft
 
