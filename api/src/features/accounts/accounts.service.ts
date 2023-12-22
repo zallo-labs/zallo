@@ -174,7 +174,7 @@ export class AccountsService {
     salt: Hex,
     policies: Policy[],
   ) {
-    const network = this.networks.for(account);
+    const network = this.networks.get(account);
     const { transactionHash } = (
       await network.useWallet(async (wallet) =>
         deployAccountProxy({

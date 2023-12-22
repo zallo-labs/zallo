@@ -123,7 +123,7 @@ export class TokensService {
     );
     if (t) return t;
 
-    const [name, symbol, decimals] = await this.networks.for(address).multicall({
+    const [name, symbol, decimals] = await this.networks.get(address).multicall({
       contracts: [
         {
           abi: ERC20,
@@ -156,7 +156,7 @@ export class TokensService {
     const cached = this.decimalsCache.get(token);
     if (cached !== undefined) return cached;
 
-    const decimals = await this.networks.for(token).readContract({
+    const decimals = await this.networks.get(token).readContract({
       address: asAddress(token),
       abi: ERC20,
       functionName: 'decimals',

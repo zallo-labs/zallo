@@ -138,7 +138,7 @@ export class MessageProposalsService {
 
     // TODO: handle expired approvals
     const account = asUAddress(proposal.account.address);
-    const network = this.networks.for(account);
+    const network = this.networks.get(account);
     const approvals = (
       await mapAsync(proposal.approvals, (a) =>
         asApproval({

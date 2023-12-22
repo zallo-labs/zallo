@@ -23,7 +23,7 @@ export class BalancesService {
     if (cached) return BigInt(cached);
 
     const { account, token } = args;
-    const network = this.networks.for(account);
+    const network = this.networks.get(account);
     const balance = await tryOrIgnoreAsync(async () => {
       if (isEthToken(token)) return await network.getBalance({ address: asAddress(account) });
 

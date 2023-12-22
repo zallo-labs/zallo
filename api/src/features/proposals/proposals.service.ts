@@ -94,7 +94,7 @@ export class ProposalsService {
     if (!p) throw new UserInputError('Proposal not found');
 
     const hash = asHex(p.hash);
-    const network = this.networks.for(asUAddress(p.account.address));
+    const network = this.networks.get(asUAddress(p.account.address));
     if (!(await asApproval({ hash: hash, approver, signature, network })))
       throw new UserInputError('Invalid signature');
 

@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { CONFIG } from '~/config';
 import { asChain, asUAddress, UAddress } from 'lib';
-import { ChainConfig, Chain, CHAINS, NetworkWallet } from 'chains';
+import { ChainConfig, Chain, CHAINS, NetworkWallet, isChain } from 'chains';
 import {
   PublicClient,
   Transport,
@@ -25,14 +25,10 @@ export class NetworksService implements AsyncIterable<Network> {
 
   constructor(@InjectRedis() private redis: Redis) {}
 
-  get(chain: Chain | ChainConfig) {
-    const key = typeof chain === 'string' ? chain : chain.key;
+  get(p: Chain | ChainConfig | UAddress) {
+    const chain = typeof p === 'string' ? (isChain(p) ? p : asChain(p)) : p.key;
 
-    return (this.clients[key] ??= create({ chainKey: key, redis: this.redis }));
-  }
-
-  for(address: UAddress) {
-    return this.get(asChain(address));
+    return (this.clients[chain] ??= create({ chainKey: chain, redis: this.redis }));
   }
 
   *all() {

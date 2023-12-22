@@ -104,7 +104,7 @@ export class ExecutionsWorker extends Worker<ExecutionsQueue> {
     if (!proposal.simulation.success) return 'simulation failed';
 
     const account = asUAddress(proposal.account.address);
-    const network = this.networks.for(account);
+    const network = this.networks.get(account);
 
     const approvals = (
       await mapAsync(proposal.approvals, (a) =>

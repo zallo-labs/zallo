@@ -61,7 +61,7 @@ describe(TransactionProposalsService.name, () => {
     networks = module.get(NetworksService);
     paymasters = module.get(PaymastersService);
 
-    networks.for.mockReturnValue({
+    networks.get.mockReturnValue({
       chain: CHAINS['zksync-local'],
       estimateGas: async () => 0n,
     } satisfies DeepPartial<Network> as unknown as Network);

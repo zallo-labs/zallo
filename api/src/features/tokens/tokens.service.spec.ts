@@ -24,7 +24,7 @@ describe('TokensService', () => {
     db = module.get(DatabaseService);
     networks = module.get(NetworksService);
 
-    networks.for.mockReturnValue({
+    networks.get.mockReturnValue({
       multicall: async () => [{ result: undefined }, { result: undefined }, { result: undefined }],
     } satisfies DeepPartial<Network> as unknown as Network);
   });

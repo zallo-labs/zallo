@@ -117,7 +117,7 @@ export class PaymastersService {
     if (!metadata || !metadata.isFeeToken || !metadata.pythUsdPriceId) return null;
 
     try {
-      const ethPerGas = await this.networks.for(feeToken).estimateFeesPerGas();
+      const ethPerGas = await this.networks.get(feeToken).estimateFeesPerGas();
       const tokenPrice =
         tokenPriceParam ?? (await this.prices.price(asHex(metadata.pythUsdPriceId)));
 

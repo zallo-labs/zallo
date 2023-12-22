@@ -24,7 +24,7 @@ export class ActivationsWorker extends Worker<typeof ACTIVATIONS_QUEUE> {
     const { account, transaction } = job.data;
 
     const receipt = await tryOrIgnoreAsync(() =>
-      this.networks.for(account).getTransactionReceipt({ hash: transaction }),
+      this.networks.get(account).getTransactionReceipt({ hash: transaction }),
     );
     if (!receipt) throw new Error('Transaction receipt not found');
 
