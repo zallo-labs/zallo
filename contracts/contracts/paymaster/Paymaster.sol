@@ -33,7 +33,7 @@ contract Paymaster is IPaymaster, PaymasterManager, PaymasterParser, PriceOracle
                                CONSTANTS
   //////////////////////////////////////////////////////////////*/
 
-  uint256 constant POST_TRANSACTION_GAS_COST = 839;
+  uint256 constant POST_TRANSACTION_GAS_COST = 847;
 
   address public immutable _signer;
 

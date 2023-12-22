@@ -35,7 +35,7 @@ export const ACCOUNT_ABI = [
 export const PAYMASTER = {
   abi: paymasterArtifact.abi,
   address: addresses({
-    'zksync-goerli': '0x5Acd34535900AC749Bc500B991Fb78E6A94677E6',
+    'zksync-goerli': '0xB6f0A10B765f674aA149b1B6D6906d6AA3e3d57f',
   }),
 };
 
