@@ -32,7 +32,7 @@ import { Price } from '~/features/prices/prices.model';
 
 interface CurrentParamsOptions {
   account: UAddress;
-  gasLimit: Decimal;
+  gasLimit: bigint;
   feeToken: Address;
   paymasterEthFee: Decimal;
 }
@@ -57,7 +57,7 @@ export class PaymastersService {
     const paymaster = this.for(chain);
 
     const maxEthFeePerGas = await this.estimateMaxEthFeePerGas(chain);
-    const maxNetworkEthFee = gasLimit.mul(maxEthFeePerGas);
+    const maxNetworkEthFee = maxEthFeePerGas.mul(gasLimit.toString());
     const ethDiscount = await this.useEthDiscount(account, maxNetworkEthFee, paymasterEthFee, true);
     const maxEthFees = maxNetworkEthFee.plus(paymasterEthFee).minus(ethDiscount);
 
@@ -144,13 +144,10 @@ export class PaymastersService {
 
   async estimateEthDiscount(
     account: UAddress,
-    gasLimit: Decimal,
+    maxNetworkEthFee: Decimal,
     paymasterEthFee: Decimal,
   ): Promise<Decimal> {
-    const maxEthFeePerGas = await this.estimateMaxEthFeePerGas(asChain(account));
-    const estimatedMaxNetworkFee = maxEthFeePerGas.mul(gasLimit);
-
-    return this.useEthDiscount(account, estimatedMaxNetworkFee, paymasterEthFee, false);
+    return this.useEthDiscount(account, maxNetworkEthFee, paymasterEthFee, false);
   }
 
   private async useEthDiscount(

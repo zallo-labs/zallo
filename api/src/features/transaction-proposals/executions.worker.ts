@@ -145,7 +145,7 @@ export class ExecutionsWorker extends Worker<ExecutionsQueue> {
     const transaction = await this.db.transaction(async (db) => {
       const { paymaster, paymasterInput, ...feeData } = await this.paymaster.currentParams({
         account,
-        gasLimit: new Decimal(tx.gas!.toString()),
+        gasLimit: tx.gas!,
         feeToken: asAddress(proposal.feeToken.address),
         paymasterEthFee: new Decimal(proposal.paymasterEthFee),
       });

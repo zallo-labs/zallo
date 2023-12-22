@@ -298,13 +298,14 @@ export class TransactionProposalsService {
     const account = asUAddress(d.account.address);
     const maxEthFeePerGas = await this.paymasters.estimateMaxEthFeePerGas(asChain(account));
     const gasLimit = new Decimal(d.gasLimit.toString());
+    const maxNetworkEthFee = maxEthFeePerGas.mul(gasLimit);
 
     return {
       id: `EstimatedTransactionFees:${d.id}`,
-      maxNetworkEthFee: maxEthFeePerGas.mul(gasLimit),
+      maxNetworkEthFee,
       ethDiscount: await this.paymasters.estimateEthDiscount(
         account,
-        gasLimit,
+        maxNetworkEthFee,
         new Decimal(d.paymasterEthFee),
       ),
     };
