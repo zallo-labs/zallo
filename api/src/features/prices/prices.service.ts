@@ -138,7 +138,7 @@ export class PricesService {
           args: [updateData],
         });
 
-        const { request } = await network.simulateContract({
+        const sim = await network.simulateContract({
           abi: PYTH.abi,
           address: PYTH.address[chain],
           functionName: 'updatePriceFeeds',
@@ -146,7 +146,7 @@ export class PricesService {
           value: updateFee,
         });
 
-        await network.useWallet(async (wallet) => await wallet.writeContract(request));
+        await network.useWallet(async (wallet) => await wallet.writeContract(sim.request));
       },
       {
         redis: this.redis,
@@ -161,7 +161,7 @@ export class PricesService {
     return !!publishTime && publishTime > this.expiry;
   }
 
-  private async checkPriceFeedFresh(chain: Chain, priceId: Hex): Promise<boolean> {
+  async checkPriceFeedFresh(chain: Chain, priceId: Hex): Promise<boolean> {
     if (this.isPriceFeedGuaranteedFresh(chain, priceId)) return true;
 
     try {
