@@ -1,13 +1,18 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
-import { ACCOUNT_IMPLEMENTATION, asChain, asHex, asUAddress, Hex, isTruthy, tryOrCatch } from 'lib';
 import {
-  TransactionData,
-  TransactionEventData,
-  TransactionsProcessor,
-} from './transactions.processor';
-import { InjectQueue } from '@nestjs/bull';
-import { TRANSACTIONS_QUEUE, TransactionEvent } from './transactions.queue';
-import { Queue } from 'bull';
+  ACCOUNT_IMPLEMENTATION,
+  asChain,
+  asDecimal,
+  asHex,
+  asUAddress,
+  asUUID,
+  Hex,
+  isTruthy,
+  tryOrCatch,
+} from 'lib';
+import { TransactionData, TransactionEventData, TransactionsWorker } from './transactions.worker';
+import { InjectQueue } from '@nestjs/bullmq';
+import { TRANSACTIONS_QUEUE } from './transactions.queue';
 import e from '~/edgeql-js';
 import { DatabaseService } from '../database/database.service';
 import { and } from '../database/database.util';
@@ -17,18 +22,21 @@ import { ProposalsService } from '../proposals/proposals.service';
 import { ProposalEvent } from '../proposals/proposals.input';
 import { InjectRedis } from '@songkeys/nestjs-redis';
 import Redis from 'ioredis';
-import { Mutex } from 'redis-semaphore';
-import { RUNNING_JOB_STATUSES } from '../util/bull/bull.util';
+import { RUNNING_JOB_STATUSES, TypedQueue } from '../util/bull/bull.util';
+import { ETH } from 'lib/dapps';
+import { runOnce } from '~/util/mutex';
 
 @Injectable()
 export class TransactionsEvents implements OnModuleInit {
+  private log = new Logger(this.constructor.name);
+
   constructor(
     @InjectQueue(TRANSACTIONS_QUEUE.name)
-    private queue: Queue<TransactionEvent>,
+    private queue: TypedQueue<typeof TRANSACTIONS_QUEUE>,
     private db: DatabaseService,
     @InjectRedis() private redis: Redis,
     private networks: NetworksService,
-    private transactionsProcessor: TransactionsProcessor,
+    private transactionsProcessor: TransactionsWorker,
     private proposals: ProposalsService,
   ) {
     this.transactionsProcessor.onEvent(
@@ -42,13 +50,8 @@ export class TransactionsEvents implements OnModuleInit {
     this.transactionsProcessor.onTransaction((data) => this.reverted(data));
   }
 
-  async onModuleInit() {
-    const mutex = new Mutex(this.redis, 'transactions-missing-jobs', { lockTimeout: 60_000 });
-    try {
-      if (await mutex.tryAcquire()) await this.addMissingJobs();
-    } finally {
-      await mutex.release();
-    }
+  onModuleInit() {
+    this.addMissingJobs();
   }
 
   private async executed({ chain, log, receipt, block }: TransactionEventData) {
@@ -60,33 +63,33 @@ export class TransactionsEvents implements OnModuleInit {
           data: log.data as Hex,
         }),
       (e) => {
-        Logger.warn(`Failed to decode executed event log: ${e}`);
+        this.log.warn(`Failed to decode executed event log: ${e}`);
       },
     );
     if (r?.eventName !== 'OperationExecuted' && r?.eventName !== 'OperationsExecuted') return;
 
-    const proposalHash = asHex(r.args.txHash);
+    const transaction = e.update(e.Transaction, () => ({
+      filter_single: { hash: asHex(receipt.transactionHash) },
+      set: {
+        receipt: e.insert(e.Receipt, {
+          success: true,
+          responses: 'responses' in r.args ? [...r.args.responses] : [r.args.response],
+          gasUsed: receipt.gasUsed,
+          ethFeePerGas: asDecimal(receipt.effectiveGasPrice, ETH).toString(),
+          block: BigInt(receipt.blockNumber),
+          timestamp: new Date(Number(block.timestamp) * 1000), // block.timestamp is in seconds
+        }),
+      },
+    }));
 
-    await this.db.query(
-      e.update(e.Transaction, () => ({
-        filter_single: { hash: asHex(receipt.transactionHash) },
-        set: {
-          receipt: e.insert(e.Receipt, {
-            success: true,
-            responses: 'responses' in r.args ? [...r.args.responses] : [r.args.response],
-            gasUsed: receipt.gasUsed,
-            fee: receipt.gasUsed * receipt.effectiveGasPrice,
-            block: BigInt(receipt.blockNumber),
-            timestamp: new Date(Number(block.timestamp) * 1000), // block.timestamp is in seconds
-          }),
-        },
-      })),
-    );
+    const proposalId = await this.db.query(e.select(transaction.proposal.id));
+    if (!proposalId)
+      throw new Error(`Proposal not found for reverted transaction: ${receipt.transactionHash}`);
 
-    Logger.debug(`Proposal executed: ${proposalHash}`);
+    this.log.debug(`Proposal executed: ${proposalId}`);
 
     await this.proposals.publishProposal(
-      { account: asUAddress(log.address, chain), hash: proposalHash },
+      { id: asUUID(proposalId), account: asUAddress(log.address, chain) },
       ProposalEvent.executed,
     );
   }
@@ -99,60 +102,67 @@ export class TransactionsEvents implements OnModuleInit {
     const callResponse = await network.call(tx);
 
     const transaction = e.update(e.Transaction, () => ({
-      filter_single: { hash: receipt.transactionHash },
+      filter_single: { hash: asHex(receipt.transactionHash) },
       set: {
         receipt: e.insert(e.Receipt, {
           success: false,
           responses: [callResponse.data].filter(isTruthy),
           gasUsed: receipt.gasUsed,
-          fee: receipt.gasUsed * receipt.effectiveGasPrice,
+          ethFeePerGas: asDecimal(receipt.effectiveGasPrice, ETH).toString(),
           block: receipt.blockNumber,
           timestamp: new Date(Number(block.timestamp) * 1000), // block.timestamp is in seconds
         }),
       },
     }));
 
-    const proposalHash = await this.db.query(
-      e.select(transaction, () => ({ proposal: { hash: true } })).proposal.hash,
-    );
-    if (!proposalHash)
+    const proposalId = await this.db.query(e.select(transaction.proposal.id));
+    if (!proposalId)
       throw new Error(`Proposal not found for reverted transaction: ${receipt.transactionHash}`);
 
-    Logger.debug(`Proposal reverted: ${proposalHash}`);
+    this.log.debug(`Proposal reverted: ${proposalId}`);
 
     await this.proposals.publishProposal(
-      { account: asUAddress(receipt.from, chain), hash: asHex(proposalHash) },
+      { id: asUUID(proposalId), account: asUAddress(receipt.from, chain) },
       ProposalEvent.executed,
     );
   }
 
   private async addMissingJobs() {
-    const jobs = await this.queue.getJobs(RUNNING_JOB_STATUSES);
+    await runOnce(
+      async () => {
+        const jobs = await this.queue.getJobs(RUNNING_JOB_STATUSES);
 
-    const orphanedTransactions = await this.db.query(
-      e.select(e.Transaction, (t) => ({
-        filter: and(
-          e.op('not', e.op('exists', t.receipt)),
-          jobs.length
-            ? e.op(t.hash, 'not in', e.set(...jobs.map((job) => job.data.transaction)))
-            : undefined,
-        ),
-        hash: true,
-        proposal: {
-          account: { address: true },
-        },
-      })),
+        const orphanedTransactions = await this.db.query(
+          e.select(e.Transaction, (t) => ({
+            filter: and(
+              e.op('not', e.op('exists', t.receipt)),
+              jobs.length
+                ? e.op(t.hash, 'not in', e.set(...jobs.map((job) => job.data.transaction)))
+                : undefined,
+            ),
+            hash: true,
+            proposal: {
+              account: { address: true },
+            },
+          })),
+        );
+
+        if (orphanedTransactions.length) {
+          await this.queue.addBulk(
+            orphanedTransactions.map((t) => ({
+              name: TRANSACTIONS_QUEUE.name,
+              data: {
+                chain: asChain(asUAddress(t.proposal.account.address)),
+                transaction: asHex(t.hash),
+              },
+            })),
+          );
+        }
+      },
+      {
+        redis: this.redis,
+        key: 'transactions-missing-jobs',
+      },
     );
-
-    if (orphanedTransactions.length) {
-      await this.queue.addBulk(
-        orphanedTransactions.map((t) => ({
-          data: {
-            chain: asChain(asUAddress(t.proposal.account.address)),
-            transaction: asHex(t.hash),
-          },
-        })),
-      );
-    }
   }
 }

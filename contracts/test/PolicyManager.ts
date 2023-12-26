@@ -1,14 +1,14 @@
 import { expect } from 'chai';
 import { ACCOUNT_ABI, Address, asPolicy, encodePolicyStruct, hashPolicy } from 'lib';
 import { deploy, gas, network, wallet } from './util';
-import { abi } from './contracts/TestPolicyManager';
+import TestPolicyManager, { abi } from './contracts/TestPolicyManager';
 import { zeroHash } from 'viem';
 
 describe('PolicyManager', () => {
   let address: Address;
 
   before(async () => {
-    address = (await deploy('TestPolicyManager')).address;
+    address = (await deploy(TestPolicyManager)).address;
   });
 
   const policy = asPolicy({ key: 1, approvers: [] });

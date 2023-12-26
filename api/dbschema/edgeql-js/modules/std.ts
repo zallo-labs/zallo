@@ -17,17 +17,22 @@ type $anycontiguous = $anyfloat | $datetime | $duration | $decimal | _cal.$local
 export type $str = $.ScalarType<"std::str", string>;
 const str: $.scalarTypeWithConstructor<$str, never> = $.makeType<$.scalarTypeWithConstructor<$str, never>>(_.spec, "00000000-0000-0000-0000-000000000101", _.syntax.literal);
 
+type $anyreal = $anyint | $anyfloat | $anynumeric;
+
+type $anynumeric = $decimal | $bigint;
+
+export type $decimal = $.ScalarType<"std::decimal", string>;
+const decimal: $.scalarTypeWithConstructor<$decimal, never> = $.makeType<$.scalarTypeWithConstructor<$decimal, never>>(_.spec, "00000000-0000-0000-0000-000000000108", _.syntax.literal);
+export type $decimalλICastableTo = $decimal | $bigint;
+export type $decimalλIAssignableBy = $decimal | $bigint;
+
 export type $uuid = $.ScalarType<"std::uuid", string>;
 const uuid: $.scalarTypeWithConstructor<$uuid, never> = $.makeType<$.scalarTypeWithConstructor<$uuid, never>>(_.spec, "00000000-0000-0000-0000-000000000100", _.syntax.literal);
-
-type $anyreal = $anyint | $anyfloat | $anynumeric;
 
 type $anyint = $number | $bigint;
 
 export type $int32 = $.ScalarType<"std::number", number>;
 const int32: $.scalarTypeWithConstructor<$number, string> = $.makeType<$.scalarTypeWithConstructor<$number, string>>(_.spec, "00000000-0000-0000-0000-000000000104", _.syntax.literal);
-
-type $anynumeric = $decimal | $bigint;
 
 export type $bigint = $.ScalarType<"std::bigint", bigint>;
 const bigint: $.scalarTypeWithConstructor<$bigint, never> = $.makeType<$.scalarTypeWithConstructor<$bigint, never>>(_.spec, "00000000-0000-0000-0000-000000000110", _.syntax.literal);
@@ -54,11 +59,6 @@ const bytes: $.scalarTypeWithConstructor<$bytes, never> = $.makeType<$.scalarTyp
 
 export type $datetime = $.ScalarType<"std::datetime", Date>;
 const datetime: $.scalarTypeWithConstructor<$datetime, string> = $.makeType<$.scalarTypeWithConstructor<$datetime, string>>(_.spec, "00000000-0000-0000-0000-00000000010a", _.syntax.literal);
-
-export type $decimal = $.ScalarType<"std::decimal", string>;
-const decimal: $.scalarTypeWithConstructor<$decimal, never> = $.makeType<$.scalarTypeWithConstructor<$decimal, never>>(_.spec, "00000000-0000-0000-0000-000000000108", _.syntax.literal);
-export type $decimalλICastableTo = $decimal | $bigint;
-export type $decimalλIAssignableBy = $decimal | $bigint;
 
 export type $duration = $.ScalarType<"std::duration", _.edgedb.Duration>;
 const duration: $.scalarTypeWithConstructor<$duration, string> = $.makeType<$.scalarTypeWithConstructor<$duration, string>>(_.spec, "00000000-0000-0000-0000-00000000010e", _.syntax.literal);
@@ -4787,12 +4787,13 @@ function sequence_next(...args: any[]) {
 
 
 
-export { str, uuid, int32, bigint, int64, JsonEmpty, bool, bytes, datetime, decimal, duration, float32, float64, int16, json, $sequence, number, $BaseObject, BaseObject, $Object_8ce8c71ee4fa5f73840c22d7eaa58588, Object_8ce8c71ee4fa5f73840c22d7eaa58588, $FreeObject, FreeObject };
+export { str, decimal, uuid, int32, bigint, int64, JsonEmpty, bool, bytes, datetime, duration, float32, float64, int16, json, $sequence, number, $BaseObject, BaseObject, $Object_8ce8c71ee4fa5f73840c22d7eaa58588, Object_8ce8c71ee4fa5f73840c22d7eaa58588, $FreeObject, FreeObject };
 
-export type { $anyscalar, $anypoint, $anydiscrete, $anycontiguous, $anyreal, $anyint, $anynumeric, $anyfloat };
+export type { $anyscalar, $anypoint, $anydiscrete, $anycontiguous, $anyreal, $anynumeric, $anyint, $anyfloat };
 
 type __defaultExports = {
   "str": typeof str;
+  "decimal": typeof decimal;
   "uuid": typeof uuid;
   "int32": typeof int32;
   "bigint": typeof bigint;
@@ -4801,7 +4802,6 @@ type __defaultExports = {
   "bool": typeof bool;
   "bytes": typeof bytes;
   "datetime": typeof datetime;
-  "decimal": typeof decimal;
   "duration": typeof duration;
   "float32": typeof float32;
   "float64": typeof float64;
@@ -4908,6 +4908,7 @@ type __defaultExports = {
 };
 const __defaultExports: __defaultExports = {
   "str": str,
+  "decimal": decimal,
   "uuid": uuid,
   "int32": int32,
   "bigint": bigint,
@@ -4916,7 +4917,6 @@ const __defaultExports: __defaultExports = {
   "bool": bool,
   "bytes": bytes,
   "datetime": datetime,
-  "decimal": decimal,
   "duration": duration,
   "float32": float32,
   "float64": float64,

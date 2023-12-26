@@ -1,4 +1,4 @@
-import { Field, InterfaceType } from '@nestjs/graphql';
+import { Field, InterfaceType, registerEnumType } from '@nestjs/graphql';
 import { Account } from '../accounts/accounts.model';
 import { Policy } from '../policies/policies.model';
 import { Bytes32Field } from '~/apollo/scalars/Bytes.scalar';
@@ -8,7 +8,7 @@ import { makeUnionTypeResolver } from '../database/database.util';
 import { Risk } from './proposals.input';
 
 @InterfaceType({ implements: () => Node, resolveType: makeUnionTypeResolver() })
-export class Proposal extends Node {
+export class Proposal {
   @Bytes32Field()
   hash: string; // Hex
 
@@ -61,9 +61,21 @@ export class ProposalResponse extends Node {
   createdAt: Date;
 }
 
+enum ApprovalIssue {
+  HashMismatch = 'HashMismatch',
+  Expired = 'Expired',
+}
+registerEnumType(ApprovalIssue, { name: 'ApprovalIssue' });
+
 @NodeType({ implements: ProposalResponse })
 export class Approval extends ProposalResponse {
-  // Don't include signature as user's may want to retract it later -
+  // Don't include signature as user's may want to retract it later
+
+  @Field(() => [ApprovalIssue])
+  issues: ApprovalIssue[];
+
+  @Field(() => Boolean)
+  invalid: boolean;
 }
 
 @NodeType({ implements: ProposalResponse })

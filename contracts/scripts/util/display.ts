@@ -33,8 +33,9 @@ export async function displayTx(address: Address, tx: ContractTransactionRespons
   Cost (eth)  - actual: ${formatEther(actualCost)}
   Cost (%)    - actual: ${formatUnits((100_00n * actualCost) / estCost, 2)}%
   ${
-    CONFIG.chain.blockExplorers?.default &&
-    `${CONFIG.chain.blockExplorers.default.url}/tx/${tx.hash}`
+    (CONFIG.chain.blockExplorers?.default &&
+      `${CONFIG.chain.blockExplorers.default.url}/tx/${tx.hash}`) ||
+    ''
   }
   ========================
   `);

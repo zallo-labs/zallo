@@ -59,7 +59,6 @@ const Create = gql(/* GraphQL */ `
           id
           proposal {
             id
-            hash
           }
         }
       }
@@ -81,7 +80,6 @@ const Update = gql(/* GraphQL */ `
           id
           proposal {
             id
-            hash
           }
         }
       }
@@ -155,8 +153,8 @@ function PolicyScreen() {
 
                 router.setParams({ ...params, key: `${r.key}`, view: 'draft' });
                 router.push({
-                  pathname: `/(drawer)/transaction/[hash]/`,
-                  params: { hash: r.draft!.proposal!.hash },
+                  pathname: `/(drawer)/transaction/[id]/`,
+                  params: { id: r.draft!.proposal!.id },
                 });
               }}
             >

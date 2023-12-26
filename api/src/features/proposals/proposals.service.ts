@@ -1,9 +1,7 @@
 import { UserInputError } from '@nestjs/apollo';
 import { Injectable } from '@nestjs/common';
-import { uuid } from 'edgedb/dist/codecs/ifaces';
 import e from '~/edgeql-js';
-import { Hex, UAddress, asApproval, asHex, asUAddress, isHex } from 'lib';
-import { isChain } from 'chains';
+import { Hex, UAddress, asApproval, asHex, asUAddress, isHex, UUID, asUUID } from 'lib';
 import { getUserCtx } from '~/request/ctx';
 import { ShapeFunc } from '../database/database.select';
 import { DatabaseService } from '../database/database.service';
@@ -19,20 +17,20 @@ import { PubsubService } from '~/features/util/pubsub/pubsub.service';
 import { and } from '../database/database.util';
 import { selectAccount } from '../accounts/accounts.util';
 
-export type UniqueProposal = uuid | Hex;
+export type UniqueProposal = UUID | Hex;
 
 export const selectProposal = (id: UniqueProposal, shape?: ShapeFunc<typeof e.Proposal>) =>
   e.select(e.Proposal, (p) => ({
     ...shape?.(p),
-    filter_single: isHex(id) ? { hash: id } : { id },
+    filter_single: isHex(id) ? { hash: id } : { id: e.uuid(id) },
   }));
 
 export interface ProposalSubscriptionPayload {
-  hash: Hex;
+  id: UUID;
   account: UAddress;
   event: ProposalEvent;
 }
-export const getProposalTrigger = (hash: Hex) => `proposal.${hash}`;
+export const getProposalTrigger = (id: UUID) => `proposal.${id}`;
 export const getProposalAccountTrigger = (account: UAddress) => `proposal.account.${account}`;
 
 @Injectable()
@@ -85,14 +83,18 @@ export class ProposalsService {
     );
   }
 
-  async approve({ hash, approver = getUserCtx().approver, signature }: ApproveInput) {
-    const chain = await this.db.query(
-      e.select(e.Proposal, () => ({ filter_single: { hash }, account: { chain: true } })).account
-        .chain,
+  async approve({ id, approver = getUserCtx().approver, signature }: ApproveInput) {
+    const p = await this.db.query(
+      e.select(e.Proposal, () => ({
+        filter_single: { id },
+        hash: true,
+        account: { address: true },
+      })),
     );
-    if (!isChain(chain)) throw new UserInputError('Proposal not found');
+    if (!p) throw new UserInputError('Proposal not found');
 
-    const network = this.networks.get(chain);
+    const hash = asHex(p.hash);
+    const network = this.networks.get(asUAddress(p.account.address));
     if (!(await asApproval({ hash: hash, approver, signature, network })))
       throw new UserInputError('Invalid signature');
 
@@ -115,6 +117,7 @@ export class ProposalsService {
           proposal,
           approver: selectApprover,
           signature,
+          signedHash: hash,
         })
         .run(db);
     });
@@ -139,13 +142,13 @@ export class ProposalsService {
     await this.publishProposal(id, ProposalEvent.rejection);
   }
 
-  async update({ hash, policy }: UpdateProposalInput) {
+  async update({ id, policy }: UpdateProposalInput) {
     if (policy === undefined) return;
 
     const p = await this.db.query(
       e.select(
         e.update(e.Proposal, (p) => ({
-          filter_single: { hash },
+          filter_single: { id },
           set: {
             policy:
               policy !== null
@@ -160,46 +163,44 @@ export class ProposalsService {
     );
 
     if (p)
-      this.publishProposal({ hash, account: asUAddress(p.account.address) }, ProposalEvent.update);
+      this.publishProposal({ id, account: asUAddress(p.account.address) }, ProposalEvent.update);
   }
 
   async publishProposal(
-    proposal: Pick<ProposalSubscriptionPayload, 'hash' | 'account'> | UniqueProposal,
+    proposal: Pick<ProposalSubscriptionPayload, 'id' | 'account'> | UniqueProposal,
     event: ProposalSubscriptionPayload['event'],
   ) {
-    const { hash, account } =
+    const { id, account } =
       typeof proposal === 'string'
         ? await (async () => {
             const p = await this.db.query(
               e.assert_exists(
                 e.select(e.Proposal, () => ({
                   filter_single: isHex(proposal) ? { hash: proposal } : { id: proposal },
-                  hash: true,
+                  id: true,
                   account: { address: true },
                 })),
               ),
             );
 
-            return { hash: asHex(p.hash), account: asUAddress(p.account.address) };
+            return { id: asUUID(p.id), account: asUAddress(p.account.address) };
           })()
         : proposal;
 
-    const payload: ProposalSubscriptionPayload = { hash, account, event };
+    const payload: ProposalSubscriptionPayload = { id, account, event };
 
     await Promise.all([
-      this.pubsub.publish<ProposalSubscriptionPayload>(getProposalTrigger(hash), payload),
+      this.pubsub.publish<ProposalSubscriptionPayload>(getProposalTrigger(id), payload),
       this.pubsub.publish<ProposalSubscriptionPayload>(getProposalAccountTrigger(account), payload),
     ]);
   }
 
-  async labelProposalRisk({ hash, risk }: LabelProposalRiskInput) {
+  async labelProposalRisk({ id, risk }: LabelProposalRiskInput) {
     await this.db.query(
-      e
-        .insert(e.ProposalRiskLabel, { proposal: selectProposal(hash), risk })
-        .unlessConflict((l) => ({
-          on: e.tuple([l.proposal, l.user]),
-          else: e.update(l, () => ({ set: { risk } })),
-        })),
+      e.insert(e.ProposalRiskLabel, { proposal: selectProposal(id), risk }).unlessConflict((l) => ({
+        on: e.tuple([l.proposal, l.user]),
+        else: e.update(l, () => ({ set: { risk } })),
+      })),
     );
   }
 }

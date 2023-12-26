@@ -8,20 +8,22 @@ import { getShape } from '../database/database.select';
 import { uuid } from 'edgedb/dist/codecs/ifaces';
 import { Price } from '../prices/prices.model';
 import { ComputedField } from '~/decorators/computed.decorator';
-import { GraphQLBigInt } from 'graphql-scalars';
 import e from '~/edgeql-js';
 import * as eql from '~/edgeql-interfaces';
 import { PricesService } from '../prices/prices.service';
 import { getUserCtx } from '~/request/ctx';
-import { PaymasterService } from '../paymaster/paymaster.service';
-import { asAddress, asChain } from 'lib';
+import { PaymastersService } from '../paymasters/paymasters.service';
+import { asAddress, asChain, asDecimal } from 'lib';
 import { BalancesService } from '~/features/util/balances/balances.service';
+import { FeesPerGas } from '~/features/paymasters/paymasters.model';
+import { DecimalScalar } from '~/apollo/scalars/Decimal.scalar';
+import Decimal from 'decimal.js';
 
 @Resolver(() => Token)
 export class TokensResolver {
   constructor(
     private service: TokensService,
-    private paymaster: PaymasterService,
+    private paymaster: PaymastersService,
     private balances: BalancesService,
     private prices: PricesService,
   ) {}
@@ -41,33 +43,31 @@ export class TokensResolver {
     return { ...(await this.service.getTokenMetadata(address)), id: `TokenMetadata:${address}` };
   }
 
-  @ComputedField<typeof e.Token>(() => GraphQLBigInt, { address: true })
+  @ComputedField<typeof e.Token>(() => DecimalScalar, { address: true, decimals: true })
   async balance(
-    @Parent() { address: token }: Token,
+    @Parent() { address: token, decimals }: Token,
     @Input() { account = getUserCtx().accounts[0]?.address }: BalanceInput,
-  ): Promise<bigint> {
-    if (!account || asChain(token) !== asChain(account)) return 0n;
+  ): Promise<Decimal> {
+    if (!account || asChain(token) !== asChain(account)) return new Decimal(0);
 
-    return this.balances.balance({ account, token: asAddress(token) });
+    const balance = await this.balances.balance({ account, token: asAddress(token) });
+    return asDecimal(balance, decimals);
+  }
+
+  @ComputedField<typeof e.Token>(() => Price, { pythUsdPriceId: true }, { nullable: true })
+  async price(@Parent() { pythUsdPriceId }: Token): Promise<Price | null> {
+    if (!pythUsdPriceId) return null;
+    return this.prices.price(pythUsdPriceId);
   }
 
   @ComputedField<typeof e.Token>(
-    () => Price,
-    { address: true, ethereumAddress: true },
-    { nullable: true },
-  )
-  async price(@Parent() { address, ethereumAddress }: Token): Promise<Price | null> {
-    return this.prices.price(address, ethereumAddress);
-  }
-
-  @ComputedField<typeof e.Token>(
-    () => GraphQLBigInt,
+    () => FeesPerGas,
     { address: true, isFeeToken: true },
     { nullable: true },
   )
-  async gasPrice(@Parent() { address, isFeeToken }: Token): Promise<bigint | null> {
+  async estimatedFeesPerGas(@Parent() { address, isFeeToken }: Token): Promise<FeesPerGas | null> {
     if (!isFeeToken) return null;
-    return this.paymaster.getGasPrice(address);
+    return this.paymaster.estimateFeePerGas(address);
   }
 
   @ComputedField<typeof e.Token>(() => Boolean, { user: true })

@@ -2,22 +2,44 @@ import {
   Abi,
   Address,
   ContractFunctionRevertedError,
+  EstimateGasExecutionError,
+  ExecutionRevertedError,
   InferEventName,
   TransactionExecutionErrorType,
   TransactionReceipt,
   decodeEventLog,
   isHex,
+  zeroAddress,
 } from 'viem';
 import { network } from './network';
 import { use } from 'chai';
 import { buildAssert } from '@nomicfoundation/hardhat-chai-matchers/utils';
 import { GetErrorArgs, GetEventArgsFromTopics, Hex, InferErrorName, LogTopic } from 'viem';
 import deepEqual from 'fast-deep-equal';
+import TestToken from '../contracts/TestToken';
 
 use(viemChaiMatchers);
 
 function viemChaiMatchers(chai: Chai.ChaiStatic, _utils: Chai.ChaiUtils) {
   const Assertion = chai.Assertion;
+
+  Assertion.addProperty('succeed', function (this) {
+    return asyncAssertion(this, async ({ subject, assert }) => {
+      try {
+        // sendTransaction
+        const receipt = await getReceipt(subject);
+
+        assert(
+          receipt?.status === 'success',
+          'Expected to succeed, but reverted',
+          'Expected to NOT succeed',
+        );
+      } catch (error) {
+        // readContract
+        assert(false, `Expected to succeed, but reverted with ${error}`, `Expected to NOT succeed`);
+      }
+    });
+  });
 
   Assertion.addProperty('revert', function (this) {
     return asyncAssertion(this, async ({ subject, assert }) => {
@@ -25,7 +47,7 @@ function viemChaiMatchers(chai: Chai.ChaiStatic, _utils: Chai.ChaiUtils) {
         // sendTransaction
         const receipt = await getReceipt(subject);
 
-        assert(receipt.status === 'reverted', 'Expected to revert', 'Expected to NOT revert');
+        assert(receipt?.status === 'reverted', 'Expected to revert', 'Expected to NOT revert');
       } catch (error) {
         // readContract
       }
@@ -64,7 +86,7 @@ function viemChaiMatchers(chai: Chai.ChaiStatic, _utils: Chai.ChaiUtils) {
         } else {
           assert(
             false,
-            `Expected revert error cause to be a ContractFunctionRevertedError`,
+            `Expected revert error cause to be a ContractFunctionRevertedError but got ${cause}`,
             `Expected revert error cause to NOT be a ContractFunctionRevertedError`,
           );
         }
@@ -72,20 +94,39 @@ function viemChaiMatchers(chai: Chai.ChaiStatic, _utils: Chai.ChaiUtils) {
     });
   });
 
-  Assertion.addMethod('changeBalance', function (this, address: Address, expectedChange: bigint) {
-    return asyncAssertion(this, async ({ subject, assert }) => {
-      const preBalance = await network.getBalance({ address });
-      await getReceipt(subject);
-      const postBalance = await network.getBalance({ address });
+  Assertion.addMethod(
+    'changeBalance',
+    function (this, address: Address, token: Address, expectedChange: bigint) {
+      return asyncAssertion(this, async ({ subject, assert }) => {
+        const isEth = token === zeroAddress;
+        const getBalance = () =>
+          isEth
+            ? network.getBalance({ address })
+            : network.readContract({
+                address: token,
+                abi: TestToken.abi,
+                functionName: 'balanceOf',
+                args: [address],
+              });
 
-      const change = postBalance - preBalance;
-      assert(
-        change === expectedChange,
-        `Expected "${address}" balance to change by ${expectedChange} but it changed by ${change}`,
-        `Expected "${address}" balance to NOT change by ${change}`,
-      );
-    });
-  });
+        const preBalance = await getBalance();
+        const receipt = await getReceipt(subject);
+        const postBalance = await getBalance();
+
+        const gasBalanceChange =
+          isEth && receipt?.from.toLowerCase() === address.toLowerCase()
+            ? receipt.gasUsed * receipt.effectiveGasPrice
+            : 0n;
+
+        const change = postBalance - preBalance + gasBalanceChange;
+        assert(
+          change === expectedChange,
+          `Expected "${address}" balance to change by ${expectedChange} but it changed by ${change}`,
+          `Expected "${address}" balance to NOT change by ${change}`,
+        );
+      });
+    },
+  );
 
   Assertion.addMethod(
     'includeEvent',
@@ -94,7 +135,7 @@ function viemChaiMatchers(chai: Chai.ChaiStatic, _utils: Chai.ChaiUtils) {
         const receipt = await getReceipt(subject);
 
         const foundWithMismatchingArgs: unknown[] = [];
-        const found = receipt.logs.some((log) => {
+        const found = receipt?.logs.some((log) => {
           try {
             const event = decodeEventLog({
               abi,
@@ -126,7 +167,7 @@ function viemChaiMatchers(chai: Chai.ChaiStatic, _utils: Chai.ChaiUtils) {
         }
 
         assert(
-          found,
+          !!found,
           `Expected transaction to include event "${eventName}"`,
           `Expected transaction to NOT include event "${eventName}"`,
         );
@@ -169,11 +210,12 @@ declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
   export namespace Chai {
     interface Assertion {
+      succeed: AsyncAssertion;
       revert: AsyncAssertion;
       revertWith<TAbi extends Abi = Abi, TErrorName extends string = string>(
         params: RevertWithParams<TAbi, TErrorName>,
       ): AsyncAssertion;
-      changeBalance(token: Address, change: bigint): AsyncAssertion;
+      changeBalance(address: Address, token: Address, change: bigint): AsyncAssertion;
       includeEvent<TAbi extends Abi = Abi, TEventName extends string = string>(
         params: IncludeEventParams<TAbi, TEventName>,
       ): AsyncAssertion;
@@ -219,7 +261,8 @@ async function getReceipt(v: unknown) {
 
   if (isHex(v)) return network.getTransactionReceipt({ hash: v });
 
-  throw new Error(`Unable to get receipt for unknown value "${v}"`);
+  return undefined;
+  // throw new Error(`Unable to get receipt for unknown value "${v}"`);
 }
 
 function isReceipt(v: unknown): v is TransactionReceipt {

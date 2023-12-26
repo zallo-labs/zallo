@@ -24,7 +24,7 @@ export function DrawerItem<R>({ href, label, icon: Icon, disabled, ...props }: D
     // <Link href={href} asChild>
     <Drawer.Item
       label={label}
-      icon={Icon}
+      icon={Icon ? (props) => <Icon {...props} /> : undefined}
       active={currentPath === hrefPath}
       onPress={() => {
         router.push(href);

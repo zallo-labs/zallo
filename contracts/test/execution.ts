@@ -1,8 +1,8 @@
 import { expect } from 'chai';
 import { hashTx, asAddress, asTx, Address, ACCOUNT_ABI } from 'lib';
 import { deploy, deployProxy, DeployProxyData, wallets, wallet } from './util';
-import { encodeFunctionData, parseEther } from 'viem';
-import { abi as testUtilAbi } from './contracts/TestUtil';
+import { encodeFunctionData, parseEther, zeroAddress } from 'viem';
+import TestUtil, { abi as testUtilAbi } from './contracts/TestUtil';
 
 describe('Execution', () => {
   let { account, execute } = {} as DeployProxyData;
@@ -13,7 +13,7 @@ describe('Execution', () => {
     ({ account, execute } = await deployProxy({
       extraBalance: parseEther('0.0001'),
     }));
-    tester = (await deploy('TestUtil')).address;
+    tester = (await deploy(TestUtil)).address;
   });
 
   describe('operation', () => {
@@ -21,7 +21,7 @@ describe('Execution', () => {
       const to = wallets[3].address;
       const value = parseEther('0.00001');
 
-      await expect(execute({ to, value, nonce: nonce++ })).to.changeBalance(to, value);
+      await expect(execute({ to, value, nonce: nonce++ })).to.changeBalance(to, zeroAddress, value);
     });
 
     it('should call with the specified data', async () => {
@@ -54,7 +54,7 @@ describe('Execution', () => {
         abi: ACCOUNT_ABI,
         eventName: 'OperationExecuted',
         args: {
-          txHash: hashTx(account, txReq),
+          proposal: hashTx(account, txReq),
           response:
             '0x00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000003abc1230000000000000000000000000000000000000000000000000000000000',
         },

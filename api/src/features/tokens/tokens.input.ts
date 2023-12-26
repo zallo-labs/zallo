@@ -1,7 +1,8 @@
 import { Field, InputType } from '@nestjs/graphql';
 import { Chain } from 'chains';
-import { Address, UAddress } from 'lib';
-import { AddressField } from '~/apollo/scalars/Address.scalar';
+import { GraphQLInt } from 'graphql';
+import { Hex, UAddress } from 'lib';
+import { Bytes32Field } from '~/apollo/scalars/Bytes.scalar';
 import { ChainField } from '~/apollo/scalars/Chain.scalar';
 import { UAddressField, UAddressScalar } from '~/apollo/scalars/UAddress.scalar';
 
@@ -31,8 +32,8 @@ export class UpsertTokenInput {
   @UAddressField()
   address: UAddress;
 
-  @AddressField({ nullable: true })
-  ethereumAddress?: Address;
+  @Bytes32Field({ nullable: true })
+  pythUsdPriceId?: Hex;
 
   @Field(() => String)
   name?: string;
@@ -40,7 +41,7 @@ export class UpsertTokenInput {
   @Field(() => String)
   symbol?: string;
 
-  @Field(() => Number)
+  @Field(() => GraphQLInt)
   decimals?: number;
 
   @Field(() => String, { nullable: true })
@@ -55,7 +56,7 @@ export class TokenUnitInput {
   @Field(() => String)
   symbol: string;
 
-  @Field(() => Number)
+  @Field(() => GraphQLInt)
   decimals: number;
 }
 

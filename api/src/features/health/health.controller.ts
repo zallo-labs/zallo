@@ -14,7 +14,7 @@ export class HealthController {
     private health: HealthCheckService,
     private dbHealth: DatabaseHealthIndicator,
     private redisHealth: RedisHealthIndicator,
-    private providerHealth: NetworksHealthIndicator,
+    private networksHealth: NetworksHealthIndicator,
     @InjectRedis()
     private readonly redis: Redis,
     @InjectRedisSubscriber()
@@ -29,7 +29,7 @@ export class HealthController {
       () => this.dbHealth.check('Database'),
       () => this.redisHealth.check('Redis::default', this.redis),
       () => this.redisHealth.check('Redis::subscriber', this.redisSub),
-      () => this.providerHealth.check('Provider'),
+      () => this.networksHealth.check('Networks'),
     ]);
   }
 }

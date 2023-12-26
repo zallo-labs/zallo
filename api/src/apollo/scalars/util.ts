@@ -24,7 +24,7 @@ type Config<TInternal, TExternal extends Jsonable> = Omit<
 
 export function createScalar<TInternal, TExternal extends Jsonable>(
   config: Config<TInternal, TExternal>,
-  defaultOptions?: FieldOptions,
+  defaultOptions?: FieldOptions<TInternal>,
 ) {
   const scalar = new GraphQLScalarType({
     ...(config.parseValue && {
@@ -38,10 +38,13 @@ export function createScalar<TInternal, TExternal extends Jsonable>(
   return [scalar, field] as const;
 }
 
-export function createField<T>(scalar: GqlTypeReference<T>, defaultOptions?: FieldOptions) {
-  return (options?: FieldOptions): PropertyDecorator =>
+export function createField<T>(scalar: GqlTypeReference<T>, defaultOptions?: FieldOptions<T>) {
+  return (options?: FieldOptions<T>): PropertyDecorator =>
     (target, propertyKey) => {
-      Field(() => scalar, merge(defaultOptions ?? {}, options ?? {}))(target, propertyKey);
+      Field(() => scalar, merge(defaultOptions ?? {}, options ?? {}) as FieldOptions<T>)(
+        target,
+        propertyKey,
+      );
     };
 }
 

@@ -68,24 +68,22 @@ describe(PoliciesService.name, () => {
 
     await e.insert(e.Approver, { address: userCtx.approver }).unlessConflict().run(db.client);
 
-    proposals.getProposal.mockImplementation(async () => {
+    proposals.getInsertProposal.mockImplementation(async () => {
       const hash = randomHex(32);
 
-      return {
+      return e.insert(e.TransactionProposal, {
         hash,
-        insert: e.insert(e.TransactionProposal, {
-          hash,
-          account: e.select(e.Account, () => ({ filter_single: { address: account } })),
-          operations: e.insert(e.Operation, { to: ZERO_ADDR }),
-          validFrom: new Date(),
-          feeToken: e.assert_single(
-            e.select(e.Token, (t) => ({
-              filter: t.isFeeToken,
-              limit: 1,
-            })),
-          ),
-        }),
-      };
+        account: e.select(e.Account, () => ({ filter_single: { address: account } })),
+        operations: e.insert(e.Operation, { to: ZERO_ADDR }),
+        validFrom: new Date(),
+        paymaster: ZERO_ADDR,
+        feeToken: e.assert_single(
+          e.select(e.Token, (t) => ({
+            filter: t.isFeeToken,
+            limit: 1,
+          })),
+        ),
+      });
     });
 
     const { id, key } = (
@@ -147,7 +145,7 @@ describe(PoliciesService.name, () => {
     it('proposes an upsert', () =>
       asUser(user1, async () => {
         await create();
-        expect(proposals.getProposal).toHaveBeenCalled();
+        expect(proposals.getInsertProposal).toHaveBeenCalled();
       }));
 
     it('inserts correct policy', () =>
@@ -230,7 +228,7 @@ describe(PoliciesService.name, () => {
       asUser(user1, async () => {
         const policy = await create();
 
-        expect(proposals.getProposal).toHaveBeenCalled();
+        expect(proposals.getInsertProposal).toHaveBeenCalled();
         await service.update({ ...policy, approvers: [] });
       }));
 
@@ -278,18 +276,18 @@ describe(PoliciesService.name, () => {
       asUser(user1, async () => {
         const policy = await create({ activate: true });
 
-        proposals.getProposal.mockClear();
+        proposals.getInsertProposal.mockClear();
         await service.remove(policy);
-        expect(proposals.getProposal).toHaveBeenCalled();
+        expect(proposals.getInsertProposal).toHaveBeenCalled();
       }));
 
     it('removes without a proposal if the policy is inactive', () =>
       asUser(user1, async () => {
         const policy = await create();
 
-        proposals.getProposal.mockClear();
+        proposals.getInsertProposal.mockClear();
         await service.remove(policy);
-        expect(proposals.getProposal).not.toHaveBeenCalled();
+        expect(proposals.getInsertProposal).not.toHaveBeenCalled();
       }));
 
     it("throws if the user isn't a member of the account", async () => {

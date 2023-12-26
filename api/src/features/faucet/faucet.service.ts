@@ -52,7 +52,7 @@ export class FaucetService implements OnModuleInit {
 
   async requestTokens(account: UAddress): Promise<Address[]> {
     const tokensToSend = await this.getTokensToSend(account);
-    const network = this.networks.for(account);
+    const network = this.networks.get(account);
 
     for (const token of tokensToSend) {
       await network.useWallet(async (wallet) =>
@@ -76,7 +76,7 @@ export class FaucetService implements OnModuleInit {
   private async getTokensToSend(account: UAddress) {
     if (!(await this.db.query(selectAccount(account)))) return [];
 
-    const network = this.networks.for(account);
+    const network = this.networks.get(account);
     if (!network.chain.testnet) return [];
 
     return (

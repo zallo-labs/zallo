@@ -1,52 +1,53 @@
-import { encodeTransactionSignature } from './signature';
-import { Tx, asTransactionData } from './tx';
+import { Tx } from './tx';
 import {
   FALLBACK_OPERATIONS_GAS,
   estimateTransactionOperationsGas,
-  estimateTransactionTotalGas,
+  estimateTransactionVerificationGas,
 } from './gas';
-import { Policy } from './policy';
-import { Approval } from './approvals';
 import { Address } from './address';
 import { ChainConfig, Network } from 'chains';
 import { ResultAsync } from 'neverthrow';
-import { Hex, SendTransactionErrorType } from 'viem';
+import { CallErrorType, CallParameters, Hex, SendTransactionErrorType } from 'viem';
 import { AllOrNone } from './util';
 import { utils as zkUtils } from 'zksync2-js';
+import { encodeOperations } from './operation';
+import { asHex } from './bytes';
 
-type SerializeTransactionParam = Parameters<
-  NonNullable<NonNullable<ChainConfig['serializers']>['transaction']>
->[0];
-
-export type SerializeTransactionParams = Partial<
+type TransactionParams = CallParameters<ChainConfig>;
+export type TxProposalCallParamsOptions = Partial<
   Pick<
-    SerializeTransactionParam,
-    'maxFeePerGas' | 'maxPriorityFeePerGas' | 'gasPerPubdata' | 'accessList' | 'factoryDeps'
+    TransactionParams,
+    | 'customSignature'
+    | 'maxFeePerGas'
+    | 'maxPriorityFeePerGas'
+    | 'factoryDeps'
+    | 'accessList'
+    | 'blockNumber'
   >
 > &
   AllOrNone<{ paymaster: Address; paymasterInput: Hex }> & {
     network: Network;
     account: Address;
     tx: Tx;
-    policy: Policy;
-    approvals: Approval[];
   };
 
-export async function serializeTransaction({
+export async function txProposalCallParams({
   network,
   account,
   tx,
-  policy,
-  approvals,
   ...params
-}: SerializeTransactionParams) {
-  const { to, value, data, nonce: proposalNonce, gas } = asTransactionData(account, tx);
-
+}: TxProposalCallParamsOptions) {
+  const { to, value, data } = encodeOperations(account, tx.operations);
   const { maxFeePerGas, maxPriorityFeePerGas } = await network.estimateFeesPerGas();
+  const gas =
+    tx.gas ??
+    (await estimateTransactionOperationsGas({ network, account, tx }).unwrapOr(
+      FALLBACK_OPERATIONS_GAS,
+    )) + estimateTransactionVerificationGas(1);
 
-  return network.chain.serializers!.transaction!({
+  return {
     type: 'eip712',
-    from: account,
+    account,
     to,
     value,
     data,
@@ -54,28 +55,43 @@ export async function serializeTransaction({
     maxFeePerGas,
     maxPriorityFeePerGas,
     gasPerPubdata: BigInt(zkUtils.DEFAULT_GAS_PER_PUBDATA_LIMIT),
-    gas:
-      gas ??
-      estimateTransactionTotalGas(
-        await estimateTransactionOperationsGas({ network, account, tx }).unwrapOr(
-          FALLBACK_OPERATIONS_GAS,
-        ),
-        approvals.length,
-      ),
-    chainId: network.chain.id,
-    customSignature: encodeTransactionSignature(proposalNonce, policy, approvals),
+    gas,
     ...params,
-  });
+  } satisfies TransactionParams;
 }
+type TxProposalCallParams = Awaited<ReturnType<typeof txProposalCallParams>>;
 
-export type ExecuteTransactionParams = SerializeTransactionParams;
+export type ExecuteTransactionParams = TxProposalCallParamsOptions &
+  Required<Pick<TxProposalCallParamsOptions, 'customSignature'>>;
 
 export async function executeTransaction(params: ExecuteTransactionParams) {
-  return ResultAsync.fromPromise(
-    (async () =>
-      params.network.sendRawTransaction({
-        serializedTransaction: await serializeTransaction(params),
-      }))(),
-    (e) => e as SendTransactionErrorType,
+  const network = params.network;
+  const p = await txProposalCallParams(params);
+
+  return ResultAsync.fromPromise(network.call(p), (e) => e as CallErrorType).andThen(
+    ({ data: callResponse }) =>
+      new ResultAsync(_executeTransactionUnsafe(network, p)).map(({ transactionHash }) => ({
+        transactionHash,
+        callResponse: asHex(callResponse),
+      })),
   );
+}
+
+export async function executeTransactionUnsafe(params: ExecuteTransactionParams) {
+  return _executeTransactionUnsafe(params.network, await txProposalCallParams(params));
+}
+
+async function _executeTransactionUnsafe(network: Network, p: TxProposalCallParams) {
+  return ResultAsync.fromPromise(
+    network.sendRawTransaction({
+      serializedTransaction: network.chain.serializers!.transaction!({
+        ...p,
+        from: p.account,
+        chainId: network.chain.id,
+      }),
+    }),
+    (e) => e as SendTransactionErrorType,
+  ).map((transactionHash) => ({
+    transactionHash: asHex(transactionHash),
+  }));
 }

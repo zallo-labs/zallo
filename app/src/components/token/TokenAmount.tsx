@@ -1,7 +1,9 @@
 import { FormattedNumberOptions, useFormattedNumber } from '../format/FormattedNumber';
-import { UAddress, isUAddress } from 'lib';
+import { Decimallike, UAddress, isUAddress } from 'lib';
 import { FragmentType, gql, useFragment as getFragment } from '@api/generated';
 import { useQuery } from '~/gql';
+import Decimal from 'decimal.js';
+import { UseFormattedTokenAmount_TokenFragment } from '@api/generated/graphql';
 
 const Query = gql(/* GraphQL */ `
   query TokenAmount($token: UAddress!) {
@@ -26,7 +28,7 @@ const Token = gql(/* GraphQL */ `
 
 export interface FormattedTokenAmountOptions extends Partial<FormattedNumberOptions> {
   token: FragmentType<typeof Token> | UAddress | null | undefined;
-  amount?: bigint | number | string;
+  amount: Decimallike | undefined;
   trailing?: 'name' | 'symbol' | false;
 }
 
@@ -36,7 +38,7 @@ export const useFormattedTokenAmount = ({
   trailing = 'symbol',
   ...options
 }: FormattedTokenAmountOptions) => {
-  const amount = amountProp ? BigInt(amountProp) : 0n;
+  const amount = amountProp ? new Decimal(amountProp) : new Decimal('0');
 
   const query = useQuery(
     Query,
@@ -44,30 +46,30 @@ export const useFormattedTokenAmount = ({
     { pause: !isUAddress(tokenProp) },
   ).data;
 
-  const token = getFragment(Token, !isUAddress(tokenProp) ? tokenProp : query?.token) ?? {
-    id: '',
-    name: '???',
-    symbol: '???',
-    decimals: 0,
-  };
+  const token =
+    getFragment(Token, !isUAddress(tokenProp) ? tokenProp : query?.token) ??
+    ({
+      id: '',
+      name: '???',
+      symbol: '???',
+    } as UseFormattedTokenAmount_TokenFragment);
 
-  // Format with the closest unit
-  const amountDecimals = amount.toString().length;
-  const unit =
-    trailing !== 'symbol' || amount === 0n
-      ? token
-      : [token, ...(token.units ?? [])].reduce((closest, unit) => {
-          const diff = Math.abs(unit.decimals - amountDecimals);
-          return diff < Math.abs(closest.decimals - amountDecimals) ? unit : closest;
-        }, token);
+  // TODO: Format with the closest unit
+  // const leadingZeroes = amount.toString().split('.')[1]?.match(/^(0+)/)?.[1]?.length ?? 0;
+  // const unit =
+  //   trailing !== 'symbol' || amount.eq(0)
+  //     ? token
+  //     : [token, ...(token.units ?? [])].reduce((closest, unit) => {
+  //         const diff = Math.abs(unit.decimals - leadingZeroes);
+  //         return diff > Math.abs(closest.decimals - leadingZeroes) ? unit : closest;
+  //       }, token);
 
   return useFormattedNumber({
     value: amount,
-    decimals: unit.decimals,
     maximumFractionDigits: 3,
     minimumNumberFractionDigits: 5,
     postFormat: trailing
-      ? (v) => `${v} ${trailing === 'name' ? token.name : unit.symbol}`
+      ? (v) => `${v} ${trailing === 'name' ? token.name : token.symbol}`
       : undefined,
     ...options,
   });

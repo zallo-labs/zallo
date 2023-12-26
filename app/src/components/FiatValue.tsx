@@ -1,3 +1,4 @@
+import { Decimallike } from 'lib';
 import { FormattedNumberOptions, useFormattedNumber } from './format/FormattedNumber';
 
 const currency = 'USD';
@@ -5,7 +6,7 @@ const currency = 'USD';
 const withoutSymbol = (value: string, currency: string) => value.replace(currency, '').trim();
 
 export interface FormattedFiatOptions extends Partial<Omit<FormattedNumberOptions, 'value'>> {
-  value: number;
+  value: Decimallike;
   symbol?: boolean;
 }
 

@@ -1,4 +1,3 @@
-import { SearchParams, useLocalSearchParams } from 'expo-router';
 import { FlashList } from '@shopify/flash-list';
 import { StyleSheet } from 'react-native';
 import { Text } from 'react-native-paper';
@@ -8,7 +7,6 @@ import { IncomingTransferItem } from '~/components/activity/IncomingTransferItem
 import { ProposalItem } from '~/components/proposal/ProposalItem';
 import { withSuspense } from '~/components/skeleton/withSuspense';
 import { TabScreenSkeleton } from '~/components/tab/TabScreenSkeleton';
-import { asAddress } from 'lib';
 import { asDateTime } from '~/components/format/Timestamp';
 import { gql } from '@api/generated';
 import { useQuery } from '~/gql';

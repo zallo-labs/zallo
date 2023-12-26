@@ -1,12 +1,13 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { TokensService } from './tokens.service';
 import { TokensResolver } from './tokens.resolver';
-import { PaymasterModule } from '../paymaster/paymaster.module';
+import { PaymastersModule } from '../paymasters/paymasters.module';
 import { PricesModule } from '../prices/prices.module';
 import { BalancesModule } from '~/features/util/balances/balances.module';
 
 @Module({
-  imports: [PaymasterModule, BalancesModule, PricesModule],
+  imports: [forwardRef(() => PaymastersModule), BalancesModule, PricesModule],
+  exports: [TokensService],
   providers: [TokensService, TokensResolver],
 })
 export class TokensModule {}

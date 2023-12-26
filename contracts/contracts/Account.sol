@@ -18,6 +18,7 @@ import {ERC165} from './standards/ERC165.sol';
 import {ERC721Receiver} from './standards/ERC721Receiver.sol';
 import {ERC1271Validator} from './standards/ERC1271Validator.sol';
 import {TransactionUtil} from './TransactionUtil.sol';
+import {PaymasterUtil} from './paymaster/PaymasterUtil.sol';
 
 contract Account is
   IAccount,
@@ -78,15 +79,15 @@ contract Account is
    * @notice Validates transaction and returns magic value if successful
    * @return magic ACCOUNT_VALIDATION_SUCCESS_MAGIC on success, and bytes(0) when approval is insufficient
    * @dev Reverts with errors when non-approval related validation fails
-   * @param txHash Transaction hash - distinct from the suggested signed hash
+   * @param proposal Proposal hash - distinct from the suggested signed hash
    * @param transaction Transaction
    */
   function _validateTransaction(
-    bytes32 txHash,
+    bytes32 proposal,
     Transaction calldata transaction
   ) internal returns (bytes4 magic) {
     _incrementNonceIfEquals(transaction);
-    _validateTransactionUnexecuted(txHash);
+    _validateTransactionUnexecuted(proposal);
 
     if (transaction.isGasEstimation()) return bytes4(0); // Gas estimation requires failure without reverting
 
@@ -95,14 +96,14 @@ contract Account is
     );
     policy.hooks.validate(transaction.operations());
 
-    if (!approvals.verify(txHash, policy)) return bytes4(0);
+    if (!approvals.verify(proposal, policy)) return bytes4(0);
 
     return ACCOUNT_VALIDATION_SUCCESS_MAGIC;
   }
 
   /// @inheritdoc IAccount
   function executeTransaction(
-    bytes32 /* _txHash */,
+    bytes32 /* txHash */,
     bytes32 /* suggestedSignedHash */,
     Transaction calldata transaction
   ) external payable override onlyBootloader {
@@ -113,12 +114,12 @@ contract Account is
   function executeTransactionFromOutside(
     Transaction calldata transaction
   ) external payable override {
-    bytes32 txHash = transaction.hash();
+    bytes32 proposal = transaction.hash();
 
-    if (_validateTransaction(txHash, transaction) != ACCOUNT_VALIDATION_SUCCESS_MAGIC)
+    if (_validateTransaction(proposal, transaction) != ACCOUNT_VALIDATION_SUCCESS_MAGIC)
       revert InsufficientApproval();
 
-    _executeTransaction(txHash, transaction);
+    _executeTransaction(proposal, transaction);
   }
 
   /*//////////////////////////////////////////////////////////////
@@ -126,8 +127,8 @@ contract Account is
   //////////////////////////////////////////////////////////////*/
 
   function payForTransaction(
-    bytes32, // txHash
-    bytes32, // suggestedSignedHash
+    bytes32 /* txHash */,
+    bytes32 /* txDataHash */,
     Transaction calldata transaction
   ) external payable override onlyBootloader {
     bool success = transaction.payToTheBootloader();
@@ -135,11 +136,11 @@ contract Account is
   }
 
   function prepareForPaymaster(
-    bytes32, // txHash
-    bytes32, // suggestedSignedHash
+    bytes32 /* txHash */,
+    bytes32 /* txDataHash */,
     Transaction calldata transaction
   ) external payable override onlyBootloader {
-    transaction.processPaymasterInput();
+    PaymasterUtil.processPaymasterInput(transaction);
   }
 
   /*//////////////////////////////////////////////////////////////

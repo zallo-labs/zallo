@@ -23,7 +23,7 @@ import { TransfersModule } from './features/transfers/transfers.module';
 import { EventsModule } from './features/events/events.module';
 import { RedisModule } from './features/util/redis/redis.module';
 import { ReceiptsModule } from './features/receipts/receipts.module';
-import { PaymasterModule } from './features/paymaster/paymaster.module';
+import { PaymastersModule } from './features/paymasters/paymasters.module';
 import { SentryModule } from './features/util/sentry/sentry.module';
 import { SentryInterceptor } from './features/util/sentry/sentry.interceptor';
 import { OperationsModule } from './features/operations/operations.module';
@@ -59,7 +59,7 @@ import { BalancesModule } from '~/features/util/balances/balances.module';
     HealthModule,
     MessageProposalsModule,
     OperationsModule,
-    PaymasterModule,
+    PaymastersModule,
     PoliciesModule,
     PricesModule,
     ProposalsModule,

@@ -1,0 +1,39 @@
+diff --git a/_cjs/chains/zksync/formatters.js b/_cjs/chains/zksync/formatters.js
+index 40a7c9e4048507b313c07711a50544ccafc5dce7..b492ed18858d879688d0f3b983d0c5345295be8b 100644
+--- a/_cjs/chains/zksync/formatters.js
++++ b/_cjs/chains/zksync/formatters.js
+@@ -116,7 +116,7 @@ exports.formattersZkSync = {
+                             : {}),
+                         ...(args.factoryDeps ? { factoryDeps: args.factoryDeps } : {}),
+                         ...(args.customSignature
+-                            ? { customSignature: args.customSignature }
++                            ? { customSignature: Array.from((0, toBytes_js_1.hexToBytes)(args.customSignature)) }
+                             : {}),
+                     },
+                     type: args.type === 'eip712' ? '0x71' : '0xff',
+diff --git a/_esm/chains/zksync/formatters.js b/_esm/chains/zksync/formatters.js
+index 53e33e3bbc21dd4f11bedaa1d0713896451b2b02..6cbaa32290d6489321edd02bd220469845ec604f 100644
+--- a/_esm/chains/zksync/formatters.js
++++ b/_esm/chains/zksync/formatters.js
+@@ -114,7 +114,7 @@ export const formattersZkSync = {
+                             : {}),
+                         ...(args.factoryDeps ? { factoryDeps: args.factoryDeps } : {}),
+                         ...(args.customSignature
+-                            ? { customSignature: args.customSignature }
++                            ? { customSignature: Array.from(hexToBytes(args.customSignature)) }
+                             : {}),
+                     },
+                     type: args.type === 'eip712' ? '0x71' : '0xff',
+diff --git a/chains/zksync/formatters.ts b/chains/zksync/formatters.ts
+index 8e00a9f39a160183576869b23522e36289a2024b..abc81011aa362c670468afc337986464bfd40a0c 100644
+--- a/chains/zksync/formatters.ts
++++ b/chains/zksync/formatters.ts
+@@ -135,7 +135,7 @@ export const formattersZkSync = {
+               : {}),
+             ...(args.factoryDeps ? { factoryDeps: args.factoryDeps } : {}),
+             ...(args.customSignature
+-              ? { customSignature: args.customSignature }
++              ? { customSignature: Array.from(hexToBytes(args.customSignature)) }
+               : {}),
+           },
+           type: args.type === 'eip712' ? '0x71' : '0xff',

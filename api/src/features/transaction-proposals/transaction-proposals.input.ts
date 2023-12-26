@@ -5,7 +5,7 @@ import { Uint256Field } from '~/apollo/scalars/BigInt.scalar';
 import { BytesField, BytesScalar } from '~/apollo/scalars/Bytes.scalar';
 import { PolicyKeyField } from '~/apollo/scalars/PolicyKey.scalar';
 import { TransactionProposalStatus } from './transaction-proposals.model';
-import { ProposalInput } from '../proposals/proposals.input';
+import { UniqueProposalInput } from '../proposals/proposals.input';
 import { UAddressField, UAddressScalar } from '~/apollo/scalars/UAddress.scalar';
 
 @InputType()
@@ -35,7 +35,7 @@ export class ProposeTransactionInput {
   account: UAddress;
 
   @Field(() => [OperationInput])
-  operations: OperationInput[];
+  operations: [OperationInput, ...OperationInput[]];
 
   @Field(() => String, { nullable: true })
   label?: string;
@@ -47,7 +47,7 @@ export class ProposeTransactionInput {
   validFrom?: Date;
 
   @Uint256Field({ nullable: true })
-  gasLimit?: bigint;
+  gas?: bigint;
 
   @AddressField({ nullable: true })
   feeToken?: Address;
@@ -57,7 +57,7 @@ export class ProposeTransactionInput {
 }
 
 @InputType()
-export class UpdateTransactionProposalInput extends ProposalInput {
+export class UpdateTransactionProposalInput extends UniqueProposalInput {
   @PolicyKeyField({ nullable: true })
   policy?: PolicyKey | null;
 

@@ -1,6 +1,6 @@
 import { FragmentType, gql, useFragment } from '@api';
 import { useApproverAddress } from '~/lib/network/useApprover';
-import { Address, asAddress, asHex } from 'lib';
+import { Address } from 'lib';
 import { match } from 'ts-pattern';
 import { useMutation } from 'urql';
 import { showError } from '~/components/provider/SnackbarProvider';
@@ -30,7 +30,6 @@ const Proposal = gql(/* GraphQL */ `
   fragment UseApprove_Proposal on Proposal {
     __typename
     id
-    hash
     potentialApprovers {
       id
     }
@@ -110,7 +109,7 @@ export function useApprove({ approver, ...params }: UseApproveParams) {
             : signWithDevice.signMessage({ message: p.message }),
         )
         .exhaustive();
-      if (signature.isOk()) await approve({ input: { hash: p.hash, signature: signature.value } });
+      if (signature.isOk()) await approve({ input: { id: p.id, signature: signature.value } });
     };
   } else if (userApprover?.bluetoothDevices?.length) {
     return async () => {
@@ -122,7 +121,7 @@ export function useApprove({ approver, ...params }: UseApproveParams) {
           p.typedData ? signTypedData(p.typedData) : signMessage({ message: p.message }),
         )
         .exhaustive();
-      if (signature) await approve({ input: { hash: p.hash, approver, signature } });
+      if (signature) await approve({ input: { id: p.id, approver, signature } });
     };
   } else if (userApprover.cloud) {
     return match(userApprover.cloud)
@@ -150,7 +149,7 @@ export function useApprove({ approver, ...params }: UseApproveParams) {
             .exhaustive();
 
           await approve({
-            input: { hash: p.hash, approver: approver.address, signature },
+            input: { id: p.id, approver: approver.address, signature },
           });
         };
       })
@@ -178,7 +177,7 @@ export function useApprove({ approver, ...params }: UseApproveParams) {
             .exhaustive();
 
           await approve({
-            input: { hash: p.hash, approver: approver.address, signature },
+            input: { id: p.id, approver: approver.address, signature },
           });
         };
       })

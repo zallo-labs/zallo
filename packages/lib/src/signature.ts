@@ -2,6 +2,7 @@ import { POLICY_STRUCT_ABI, Policy, encodePolicyStruct } from './policy';
 import { APPROVALS_ABI, Approval, encodeApprovalsStruct } from './approvals';
 import { parseAbiParameter } from 'abitype';
 import { encodeAbiParameters } from 'viem';
+import { Tx } from './tx';
 
 const TRANSACTION_SIGNATURE_ABI = [
   parseAbiParameter('uint32 proposalNonce'),
@@ -9,13 +10,28 @@ const TRANSACTION_SIGNATURE_ABI = [
   APPROVALS_ABI,
 ] as const;
 
-export function encodeTransactionSignature(
-  proposalNonce: bigint, // FIXME: should be number
-  policy: Policy,
-  approvals: Approval[],
-) {
+export interface EncodeTransactionSignature {
+  tx: Tx;
+  policy: Policy;
+  approvals: Approval[];
+}
+
+export function encodeTransactionSignature({ tx, policy, approvals }: EncodeTransactionSignature) {
   return encodeAbiParameters(TRANSACTION_SIGNATURE_ABI, [
-    Number(proposalNonce),
+    Number(tx.nonce),
+    encodePolicyStruct(policy),
+    encodeApprovalsStruct({ approvals, approvers: policy.approvers }),
+  ]);
+}
+
+export interface EncodeMessageSignature {
+  policy: Policy;
+  approvals: Approval[];
+}
+
+export function encodeMessageSignature({ policy, approvals }: EncodeMessageSignature) {
+  return encodeAbiParameters(TRANSACTION_SIGNATURE_ABI, [
+    0,
     encodePolicyStruct(policy),
     encodeApprovalsStruct({ approvals, approvers: policy.approvers }),
   ]);

@@ -9,10 +9,9 @@ import { randomBytes } from 'crypto';
 import { uuid } from 'edgedb/dist/codecs/ifaces';
 import { UserInputError } from '@nestjs/apollo';
 import { AccountsCacheService } from '../auth/accounts.cache.service';
-import { Address } from 'lib';
+import { Address, UUID } from 'lib';
 import { PubsubService } from '../util/pubsub/pubsub.service';
 import { getUserCtx } from '~/request/ctx';
-import { Mutex } from 'redis-semaphore';
 import { selectAccount } from '~/features/accounts/accounts.util';
 
 export interface UserSubscriptionPayload {}
@@ -56,26 +55,14 @@ export class UsersService {
     ]);
   }
 
-  async getLinkingToken(user: uuid) {
-    const mutex = new Mutex(this.redis, `getLinkingToken:${user}`, {
-      lockTimeout: 5_000,
-      acquireTimeout: 60_000,
-    });
+  async getLinkingToken(user: UUID) {
+    const key = this.getLinkingTokenKey(user);
+    const newSecret = randomBytes(32).toString('base64');
 
-    try {
-      await mutex.acquire();
-      const key = this.getLinkingTokenKey(user);
+    const secret = (await this.redis.set(key, newSecret, 'NX', 'GET')) ?? newSecret;
+    this.redis.expire(key, 60 * 60 /* 1 hour */, 'GT');
 
-      let secret = await this.redis.get(key);
-      if (!secret) {
-        secret = randomBytes(32).toString('hex');
-        await this.redis.set(key, secret, 'EX', 60 * 60 /* 1 hour */);
-      }
-
-      return `${user}:${secret}`;
-    } finally {
-      await mutex.release();
-    }
+    return `${user}:${secret}`;
   }
 
   async link(token: string) {

@@ -28,7 +28,6 @@ export const CONFIG = {
   graphRef: optional`APOLLO_GRAPH_REF`,
   etherscanApiKey: required`ETHERSCAN_API_KEY`,
   walletPrivateKeys: JSON.parse(optional`WALLET_PRIVATE_KEYS` || '{}') as Record<Chain, Hex>,
-  uniswapGqlUrl: required`UNISWAP_GQL_URL`,
   sentryDsn: optional`API_SENTRY_DSN`,
   serverId: optional`FLY_ALLOC_ID` || os.hostname(),
   bullBoardUser: optional`BULL_BOARD_USER`,
@@ -40,4 +39,5 @@ export const CONFIG = {
       ...(JSON.parse(optional`APPLE_OAUTH_CLIENTS` || '[]') as string[]),
     ].filter(isPresent),
   ),
+  pythHermesUrl: required`PYTH_HERMES_URL`,
 } as const;

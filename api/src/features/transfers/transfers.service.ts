@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { TransferDirection, TransfersInput } from './transfers.input';
+import { TransfersInput } from './transfers.input';
 import { DatabaseService } from '../database/database.service';
 import e, { $infer } from '~/edgeql-js';
 import { and } from '../database/database.util';
@@ -8,14 +8,11 @@ import { selectAccount } from '../accounts/accounts.util';
 import { uuid } from 'edgedb/dist/codecs/ifaces';
 import { Shape } from '../database/database.select';
 import { PricesService } from '../prices/prices.service';
-import { asAddress, asUAddress, tokenToFiat } from 'lib';
+import { asHex, asDecimal } from 'lib';
+import Decimal from 'decimal.js';
 
 export const TRANSFER_VALUE_FIELDS_SHAPE = {
-  token: {
-    address: true,
-    ethereumAddress: true,
-    decimals: true,
-  },
+  token: { pythUsdPriceId: true },
   amount: true,
 } satisfies Shape<typeof e.TransferDetails>;
 const s = e.select(e.TransferDetails, () => TRANSFER_VALUE_FIELDS_SHAPE);
@@ -53,15 +50,13 @@ export class TransfersService {
     );
   }
 
-  async value({ token, amount }: TransferValueSelectFields): Promise<number | null> {
-    if (!token) return null;
+  async value({ token, amount }: TransferValueSelectFields): Promise<Decimal | null> {
+    const pythUsdPriceId = token?.pythUsdPriceId;
+    if (!pythUsdPriceId) return null;
 
-    const p = await this.prices.price(
-      asUAddress(token.address),
-      asAddress(token.ethereumAddress ?? undefined),
-    );
-    if (!p) return null;
+    const usdPrice = await this.prices.usd(asHex(pythUsdPriceId));
+    if (!usdPrice) return null;
 
-    return tokenToFiat(amount, p.current, token.decimals);
+    return new Decimal(amount).mul(usdPrice.current);
   }
 }

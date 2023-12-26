@@ -71,7 +71,7 @@ describe(TransfersService.name, () => {
         from: ZERO_ADDR,
         to: asAddress(account),
         tokenAddress: asUAddress(ETH_ADDRESS, asChain(account)),
-        amount: 1n,
+        amount: e.decimal('1'),
         direction: [
           asAddress(account) === (params?.to ?? asAddress(account)) && 'In',
           asAddress(account) === (params?.from ?? ZERO_ADDR) && 'Out',

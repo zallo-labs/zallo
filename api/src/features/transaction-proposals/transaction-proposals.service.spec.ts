@@ -9,10 +9,8 @@ import {
   randomUAddress,
   randomUser,
 } from '~/util/test';
-import { randomDeploySalt, Hex, UAddress } from 'lib';
+import { randomDeploySalt, Hex, UAddress, ZERO_ADDR } from 'lib';
 import { Network, NetworksService } from '../util/networks/networks.service';
-import { ExpoService } from '../util/expo/expo.service';
-import { TransactionsService } from '../transactions/transactions.service';
 import { ProposeTransactionInput } from './transaction-proposals.input';
 import { DatabaseService } from '../database/database.service';
 import {
@@ -23,6 +21,15 @@ import e from '~/edgeql-js';
 import { selectAccount } from '../accounts/accounts.util';
 import { selectPolicy } from '../policies/policies.util';
 import { v1 as uuidv1 } from 'uuid';
+import { BullModule, getFlowProducerToken, getQueueToken } from '@nestjs/bullmq';
+import { SIMULATIONS_QUEUE } from '~/features/simulations/simulations.worker';
+import {
+  ExecutionsFlow,
+  ExecutionsQueue,
+} from '~/features/transaction-proposals/executions.worker';
+import { CHAINS } from 'chains';
+import { PaymastersService } from '~/features/paymasters/paymasters.service';
+import Decimal from 'decimal.js';
 
 const signature = '0x1234' as Hex;
 
@@ -30,27 +37,37 @@ describe(TransactionProposalsService.name, () => {
   let service: TransactionProposalsService;
   let db: DatabaseService;
   let networks: DeepMocked<NetworksService>;
-  // let expo: DeepMocked<ExpoService>;
-  let transactions: DeepMocked<TransactionsService>;
+  let paymasters: DeepMocked<PaymastersService>;
 
   beforeEach(async () => {
     const module = await Test.createTestingModule({
+      imports: [
+        BullModule.registerQueue(SIMULATIONS_QUEUE, ExecutionsQueue),
+        BullModule.registerFlowProducer(ExecutionsFlow),
+      ],
       providers: [TransactionProposalsService, DatabaseService],
     })
+      .overrideProvider(getQueueToken(SIMULATIONS_QUEUE.name))
+      .useValue(createMock())
+      .overrideProvider(getQueueToken(ExecutionsQueue.name))
+      .useValue(createMock())
+      .overrideProvider(getFlowProducerToken(ExecutionsFlow.name))
+      .useValue(createMock())
       .useMocker(createMock)
       .compile();
 
     service = module.get(TransactionProposalsService);
     db = module.get(DatabaseService);
     networks = module.get(NetworksService);
-    // expo = module.get(ExpoService);
-    transactions = module.get(TransactionsService);
+    paymasters = module.get(PaymastersService);
 
-    networks.for.mockReturnValue({
+    networks.get.mockReturnValue({
+      chain: CHAINS['zksync-local'],
       estimateGas: async () => 0n,
     } satisfies DeepPartial<Network> as unknown as Network);
 
-    transactions.tryExecute.mockImplementation(async () => undefined);
+    paymasters.paymasterEthFee.mockReturnValue(new Decimal(0));
+    paymasters.for.mockReturnValue(ZERO_ADDR);
   });
 
   let user1: UserContext;
@@ -104,7 +121,7 @@ describe(TransactionProposalsService.name, () => {
         .run(db.client);
     }
 
-    return service.propose({ account, operations, gasLimit: 1n, ...params });
+    return service.propose({ account, operations, gas: 1n, ...params });
   };
 
   describe('propose', () => {

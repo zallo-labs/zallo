@@ -1,7 +1,7 @@
 import { FragmentType, gql, useFragment as getFragment } from '@api';
 import { NavigateNextIcon } from '@theme/icons';
 import { useRouter } from 'expo-router';
-import { Address, TransferLimit } from 'lib';
+import { Address, TransferLimit, asDecimal } from 'lib';
 import _ from 'lodash';
 import { Duration } from 'luxon';
 import { AddressIcon } from '~/components/Identicon/AddressIcon';
@@ -16,6 +16,7 @@ import { truncateAddr } from '~/util/format';
 const Token = gql(/* GraphQL */ `
   fragment TokenLimitItem_Token on Token {
     name
+    decimals
     ...TokenIcon_token
     ...UseFormattedTokenAmount_token
   }
@@ -32,7 +33,11 @@ export function TokenLimitItem({ address, ...props }: TokenSpendingProps) {
   const [policy] = usePolicyDraftState();
 
   const limit: TransferLimit | undefined = policy.transfers.limits[address];
-  const formattedAmount = useFormattedTokenAmount({ token, amount: limit?.amount });
+  // TODO: make limit.amount a decimal
+  const formattedAmount = useFormattedTokenAmount({
+    token,
+    amount: token && limit ? asDecimal(limit.amount, token?.decimals) : 0,
+  });
   const duration = Duration.fromObject({ seconds: limit?.duration ?? 0 });
 
   return (

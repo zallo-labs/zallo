@@ -13,6 +13,8 @@ import { GqlContext, asUser, getUserCtx } from '~/request/ctx';
 import { PubsubService } from '../util/pubsub/pubsub.service';
 import { TransferSubscriptionPayload, getTransferTrigger } from './transfers.events';
 import { ComputedField } from '~/decorators/computed.decorator';
+import { DecimalScalar } from '~/apollo/scalars/Decimal.scalar';
+import Decimal from 'decimal.js';
 
 @Resolver(() => TransferDetails)
 export class TransfersResolver {
@@ -62,8 +64,8 @@ export class TransfersResolver {
     });
   }
 
-  @ComputedField(() => Number, TRANSFER_VALUE_FIELDS_SHAPE, { nullable: true })
-  async value(@Parent() parent: TransferValueSelectFields): Promise<number | null> {
+  @ComputedField(() => DecimalScalar, TRANSFER_VALUE_FIELDS_SHAPE, { nullable: true })
+  async value(@Parent() parent: TransferValueSelectFields): Promise<Decimal | null> {
     return this.service.value(parent);
   }
 }

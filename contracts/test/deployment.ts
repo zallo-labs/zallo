@@ -1,19 +1,19 @@
 import { expect } from 'chai';
 import { deployFactory, deployProxy, deploy, wallet, gas, network } from './util';
 import { ACCOUNT_ABI, asAddress } from 'lib';
+import Account from './contracts/Account';
+import AccountProxy from './contracts/AccountProxy';
 
 describe('Deployment', () => {
   describe('Account', () => {
     it('should deploy', async () => {
-      const { address, deployTx } = await deploy('Account');
+      const { address, deployTx } = await deploy(Account, []);
       await deployTx?.wait();
       expect((await network.getBytecode({ address }))?.length ?? 0).to.be.gt(0);
     });
 
     it('should revert if initialization is attempted', async () => {
-      const { address: account } = await deploy('Account');
-
-      await new Promise((resolve) => setTimeout(resolve, 5000));
+      const { address: account } = await deploy(Account, []);
 
       await expect(
         wallet.writeContract({
@@ -29,19 +29,10 @@ describe('Deployment', () => {
 
   describe('Proxy factory', () => {
     it('should deploy', async () => {
-      const { address } = await deployFactory('AccountProxy');
+      const { address } = await deployFactory(AccountProxy);
       expect((await network.getBytecode({ address }))?.length ?? 0).to.be.gt(0);
     });
   });
-
-  // describe('ERC1967Proxy', () => {
-  //   it('deploys', async () => {
-  //     await deploy('ERC1967Proxy', {
-  //       // TODO: impl address needs to be a contract
-  //       constructorArgs: [ZERO_ADDR, []],
-  //     });
-  //   });
-  // });
 
   describe('Account proxy', () => {
     it('should deploy', async () => {

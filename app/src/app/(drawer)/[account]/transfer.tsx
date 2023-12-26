@@ -1,6 +1,6 @@
 import { useRouter } from 'expo-router';
 import { usePropose } from '@api/usePropose';
-import { FIAT_DECIMALS, asAddress, asChain, asUAddress, fiatToToken } from 'lib';
+import { FIAT_DECIMALS, asAddress, asChain, asFp, asUAddress } from 'lib';
 import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Divider } from 'react-native-paper';
@@ -22,7 +22,7 @@ import { Actions } from '~/components/layout/Actions';
 import { withSuspense } from '~/components/skeleton/withSuspense';
 import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
 import { ScreenSurface } from '~/components/layout/ScreenSurface';
-import { parseUnits } from 'viem';
+import Decimal from 'decimal.js';
 
 const Query = gql(/* GraphQL */ `
   query TransferScreen($account: UAddress!, $token: UAddress!) {
@@ -33,7 +33,7 @@ const Query = gql(/* GraphQL */ `
       balance(input: { account: $account })
       price {
         id
-        current
+        usd
       }
       ...InputsView_token @arguments(account: $account)
       ...TokenItem_Token
@@ -68,10 +68,10 @@ function TransferScreen() {
   if (!token) return null; // TODO: handle
 
   const inputAmount = input || '0';
-  const tokenAmount =
+  const amount =
     type === InputType.Token
-      ? parseUnits(inputAmount, token.decimals)
-      : fiatToToken(parseFloat(inputAmount), token.price?.current ?? 0, token.decimals);
+      ? new Decimal(inputAmount)
+      : new Decimal(inputAmount).div(token.price?.usd ?? 0);
 
   return (
     <>
@@ -106,12 +106,16 @@ function TransferScreen() {
               const proposal = await propose({
                 account,
                 operations: [
-                  createTransferOp({ token: asAddress(token.address), to, amount: tokenAmount }),
+                  createTransferOp({
+                    token: asAddress(token.address),
+                    to,
+                    amount: asFp(amount, token.decimals),
+                  }),
                 ],
               });
               router.push({
-                pathname: `/(drawer)/transaction/[hash]/`,
-                params: { hash: proposal },
+                pathname: `/(drawer)/transaction/[id]/`,
+                params: { id: proposal },
               });
             }}
           >

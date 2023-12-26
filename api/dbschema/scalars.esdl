@@ -48,4 +48,8 @@ module default {
     constraint min_value(0);
     constraint max_value(2n ^ 256n - 1n);
   }
+
+  scalar type Amount extending decimal {
+    constraint min_value(0.0n);
+  }
 }

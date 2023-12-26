@@ -18,6 +18,7 @@ import '@solidstate/hardhat-4byte-uploader';
 
 // Tasks
 import './tasks/export';
+import './tasks/upload-openchain';
 
 // https://hardhat.org/config/
 export default {
@@ -56,7 +57,6 @@ export default {
   abiExporter: {
     path: './abi',
     runOnCompile: false,
-    flat: true,
     clear: true,
   },
   gasReporter: {
@@ -68,12 +68,12 @@ export default {
   export: [
     {
       path: 'test/contracts',
-      contracts: [':*.test.*$'],
-      include: ['abi'],
+      contracts: ['^contracts\\/.+'],
+      include: ['abi', 'contractName'],
     },
     {
       path: '../packages/lib/src/generated',
-      contracts: [':AccountProxy$', ':Account$', ':Factory$', ':TestVerifier$'],
+      contracts: ['^contracts\\/.+'],
       include: ['abi', 'bytecode', 'factoryDeps'],
     },
   ],

@@ -2,17 +2,17 @@ import { createMock, DeepMocked } from '@golevelup/ts-jest';
 import { Test } from '@nestjs/testing';
 import { Network, NetworksService } from '../util/networks/networks.service';
 import { asUser, getUserCtx, UserContext } from '~/request/ctx';
-import { DeepPartial, randomHash, randomLabel, randomUAddress, randomUser } from '~/util/test';
+import { DeepPartial, randomLabel, randomUAddress, randomUser } from '~/util/test';
 import { getProxyAddress, UAddress } from 'lib';
 import { PoliciesService } from '../policies/policies.service';
-import { BullModule, getQueueToken } from '@nestjs/bull';
-import { AccountActivationEvent, ACCOUNTS_QUEUE } from './accounts.queue';
-import { Queue } from 'bull';
+import { BullModule, getQueueToken } from '@nestjs/bullmq';
+import { ACTIVATIONS_QUEUE } from './activations.queue';
 import { DatabaseService } from '../database/database.service';
 import { AccountsService } from './accounts.service';
 import e from '~/edgeql-js';
 import { uuid } from 'edgedb/dist/codecs/ifaces';
 import { AccountsCacheService } from '../auth/accounts.cache.service';
+import { TypedQueue } from '~/features/util/bull/bull.util';
 
 jest.mock('lib', () => ({
   ...jest.requireActual('lib'),
@@ -26,15 +26,15 @@ describe(AccountsService.name, () => {
   let db: DatabaseService;
   let networks: DeepMocked<NetworksService>;
   let policies: DeepMocked<PoliciesService>;
-  let accountsQueue: DeepMocked<Queue<AccountActivationEvent>>;
+  let activationsQueue: DeepMocked<TypedQueue<typeof ACTIVATIONS_QUEUE>>;
   let accountsCache: DeepMocked<AccountsCacheService>;
 
   beforeEach(async () => {
     const module = await Test.createTestingModule({
-      imports: [BullModule.registerQueue(ACCOUNTS_QUEUE)],
+      imports: [BullModule.registerQueue(ACTIVATIONS_QUEUE)],
       providers: [AccountsService, DatabaseService],
     })
-      .overrideProvider(getQueueToken(ACCOUNTS_QUEUE.name))
+      .overrideProvider(getQueueToken(ACTIVATIONS_QUEUE.name))
       .useValue(createMock())
       .useMocker(createMock)
       .compile();
@@ -42,7 +42,7 @@ describe(AccountsService.name, () => {
     db = module.get(DatabaseService);
     networks = module.get(NetworksService);
     policies = module.get(PoliciesService);
-    accountsQueue = module.get(getQueueToken(ACCOUNTS_QUEUE.name));
+    activationsQueue = module.get(getQueueToken(ACTIVATIONS_QUEUE.name));
     accountsCache = module.get(AccountsCacheService);
 
     accountsCache.addCachedAccount.mockImplementation(async ({ approver, account }) => {
@@ -55,7 +55,7 @@ describe(AccountsService.name, () => {
     const userCtx = getUserCtx();
 
     const account = randomUAddress();
-    networks.get.mockReturnValue({} satisfies DeepPartial<Network> as unknown as Network);
+    // networks.get.mockReturnValue({} satisfies DeepPartial<Network> as unknown as Network);
 
     getProxyAddressMock.mockReturnValue((async () => account)());
 

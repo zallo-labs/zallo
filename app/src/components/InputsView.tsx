@@ -1,11 +1,10 @@
 import { FragmentType, gql, useFragment } from '@api/generated';
 import { SwapVerticalIcon } from '@theme/icons';
 import { createStyles, useStyles } from '@theme/styles';
-import { fiatToToken, tokenToFiat } from 'lib';
+import Decimal from 'decimal.js';
 import { Dispatch, SetStateAction } from 'react';
 import { View } from 'react-native';
 import { Button, IconButton, Text } from 'react-native-paper';
-import { formatUnits, parseUnits } from 'viem';
 import { FiatValue } from '~/components/FiatValue';
 import { TokenAmount } from '~/components/token/TokenAmount';
 
@@ -16,7 +15,7 @@ const FragmentDoc = gql(/* GraphQL */ `
     balance(input: { account: $account })
     price {
       id
-      current
+      usd
     }
     ...TokenAmount_token
   }
@@ -42,17 +41,12 @@ export const InputsView = ({ input, setInput, type, setType, ...props }: InputsV
   const { styles } = useStyles(stylesheet);
   const token = useFragment(FragmentDoc, props.token);
 
-  const inputAmount = input || '0';
+  const inputAmount = new Decimal(input || '0');
+  const balance = new Decimal(token.balance);
 
-  const tokenAmount =
-    type === InputType.Token
-      ? parseUnits(inputAmount, token.decimals)
-      : fiatToToken(parseFloat(inputAmount), token.price?.current ?? 0, token.decimals);
-
-  const fiatValue =
-    type === InputType.Token
-      ? tokenToFiat(tokenAmount, token.price?.current ?? 0, token.decimals)
-      : parseFloat(inputAmount);
+  const price = new Decimal(token.price?.usd ?? '0');
+  const amount = type === InputType.Token ? inputAmount : inputAmount.div(price);
+  const value = type === InputType.Fiat ? inputAmount : inputAmount.mul(price);
 
   return (
     <View style={styles.container}>
@@ -62,7 +56,7 @@ export const InputsView = ({ input, setInput, type, setType, ...props }: InputsV
           labelStyle={styles.button}
           onPress={() => {
             setType(InputType.Token);
-            setInput(formatUnits(BigInt(token.balance), token.decimals));
+            setInput(balance.toString());
           }}
         >
           Max
@@ -93,14 +87,14 @@ export const InputsView = ({ input, setInput, type, setType, ...props }: InputsV
       >
         {input.length ? (
           type !== InputType.Token ? (
-            <TokenAmount amount={tokenAmount} token={token} />
+            <TokenAmount amount={amount} token={token} />
           ) : (
-            <FiatValue value={fiatValue} />
+            <FiatValue value={value} />
           )
         ) : undefined}
       </Text>
 
-      {tokenAmount > BigInt(token.balance) && (
+      {amount.gt(balance) && (
         <Text style={styles.balanceWarning}>Greater than available balance</Text>
       )}
     </View>

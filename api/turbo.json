@@ -2,7 +2,7 @@
   "extends": ["//"],
   "pipeline": {
     "prepare": {
-      "dependsOn": ["^build", "generate:gql"]
+      "dependsOn": ["^build"]
     },
     "generate:gql": {
       "inputs": ["codegen.ts", "src/features/prices/**/*.ts"],

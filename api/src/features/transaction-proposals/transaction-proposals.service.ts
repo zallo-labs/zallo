@@ -1,34 +1,50 @@
-import { forwardRef, Inject, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { UserInputError } from '@nestjs/apollo';
 import {
   hashTx,
   isHex,
-  asTx,
+  Tx,
   estimateTransactionOperationsGas,
   FALLBACK_OPERATIONS_GAS,
   asAddress,
-  asHex,
   asUAddress,
   asChain,
   ETH_ADDRESS,
+  asTypedData,
+  asUUID,
+  UUID,
+  estimateTransactionVerificationGas,
 } from 'lib';
 import { NetworksService } from '~/features/util/networks/networks.service';
-import { TransactionsService } from '../transactions/transactions.service';
 import {
-  OperationInput,
   ProposeTransactionInput,
   TransactionProposalsInput,
   UpdateTransactionProposalInput,
 } from './transaction-proposals.input';
-import { ExpoService } from '../util/expo/expo.service';
 import { DatabaseService } from '../database/database.service';
-import e from '~/edgeql-js';
-import { ShapeFunc } from '../database/database.select';
+import e, { $infer } from '~/edgeql-js';
+import { Shape, ShapeFunc } from '../database/database.select';
 import { and } from '../database/database.util';
 import { selectAccount } from '../accounts/accounts.util';
 import { ProposalsService, UniqueProposal } from '../proposals/proposals.service';
 import { ApproveInput, ProposalEvent } from '../proposals/proposals.input';
-import { SimulationsService } from '../simulations/simulations.service';
+import { PaymastersService } from '~/features/paymasters/paymasters.service';
+import { EstimatedTransactionFees } from '~/features/transaction-proposals/transaction-proposals.model';
+import Decimal from 'decimal.js';
+import { InjectFlowProducer, InjectQueue } from '@nestjs/bullmq';
+import {
+  ExecutionsFlow,
+  ExecutionsQueue,
+} from '~/features/transaction-proposals/executions.worker';
+import { QueueData, TypedQueue } from '~/features/util/bull/bull.util';
+import { SIMULATIONS_QUEUE } from '~/features/simulations/simulations.worker';
+import {
+  proposalTxShape,
+  transactionProposalAsTx,
+} from '~/features/transaction-proposals/transaction-proposals.util';
+import { hashTypedData } from 'viem';
+import { v4 as uuid } from 'uuid';
+import { FlowProducer } from 'bullmq';
 
 export const selectTransactionProposal = (
   id: UniqueProposal,
@@ -39,16 +55,28 @@ export const selectTransactionProposal = (
     filter_single: isHex(id) ? { hash: id } : { id },
   }));
 
+export const estimateFeesDeps = {
+  id: true,
+  account: { address: true },
+  gasLimit: true,
+  paymasterEthFee: true,
+} satisfies Shape<typeof e.TransactionProposal>;
+const s_ = e.assert_exists(
+  e.assert_single(e.select(e.TransactionProposal, () => estimateFeesDeps)),
+);
+export type EstimateFeesDeps = $infer<typeof s_>;
+
 @Injectable()
 export class TransactionProposalsService {
   constructor(
     private db: DatabaseService,
     private networks: NetworksService,
-    private expo: ExpoService,
     private proposals: ProposalsService,
-    @Inject(forwardRef(() => TransactionsService))
-    private transactions: TransactionsService,
-    private simulations: SimulationsService,
+    private paymasters: PaymastersService,
+    @InjectQueue(SIMULATIONS_QUEUE.name)
+    private simulations: TypedQueue<typeof SIMULATIONS_QUEUE>,
+    @InjectFlowProducer(ExecutionsFlow.name)
+    private executionsFlow: FlowProducer,
   ) {}
 
   async selectUnique(id: UniqueProposal, shape?: ShapeFunc<typeof e.TransactionProposal>) {
@@ -75,28 +103,54 @@ export class TransactionProposalsService {
     );
   }
 
-  async getProposal({
+  async tryExecute(txProposal: UUID) {
+    // simulate -> execute
+    return this.executionsFlow.add({
+      queueName: ExecutionsQueue.name,
+      name: ExecutionsFlow.name,
+      data: { txProposal } satisfies QueueData<typeof ExecutionsQueue>,
+      children: [
+        {
+          queueName: SIMULATIONS_QUEUE.name,
+          name: SIMULATIONS_QUEUE.name,
+          data: { txProposal } satisfies QueueData<typeof SIMULATIONS_QUEUE>,
+        },
+      ],
+    });
+  }
+
+  async getInsertProposal({
     account,
     operations,
     label,
     iconUri,
     validFrom = new Date(),
-    gasLimit,
+    gas,
     feeToken = ETH_ADDRESS,
   }: Omit<ProposeTransactionInput, 'signature'>) {
     if (!operations.length) throw new UserInputError('No operations provided');
 
-    const selectedAccount = selectAccount(account);
-    const tx = asTx({
-      operations: operations as [OperationInput, ...OperationInput[]],
+    const chain = asChain(account);
+    const network = this.networks.get(chain);
+    const tx = {
+      operations,
       nonce: BigInt(Math.floor(validFrom.getTime() / 1000)),
-    });
-    const hash = hashTx(account, tx);
-    const network = this.networks.for(account);
+      gas,
+      feeToken,
+      paymaster: this.paymasters.for(chain),
+      paymasterEthFee: this.paymasters.paymasterEthFee(operations),
+    } satisfies Tx;
 
+    gas ??=
+      (
+        await estimateTransactionOperationsGas({ account: asAddress(account), tx, network })
+      ).unwrapOr(FALLBACK_OPERATIONS_GAS) + estimateTransactionVerificationGas(3);
+
+    const id = asUUID(uuid());
     const insert = e.insert(e.TransactionProposal, {
-      hash,
-      account: selectedAccount,
+      id,
+      hash: hashTx(account, tx),
+      account: selectAccount(account),
       label,
       iconUri,
       operations: e.set(
@@ -110,10 +164,12 @@ export class TransactionProposalsService {
       ),
       validFrom,
       gasLimit:
-        gasLimit ||
+        gas ||
         (
           await estimateTransactionOperationsGas({ account: asAddress(account), tx, network })
         ).unwrapOr(FALLBACK_OPERATIONS_GAS),
+      paymaster: tx.paymaster,
+      paymasterEthFee: tx.paymasterEthFee.toString(),
       feeToken: e.assert_single(
         e.select(e.Token, (t) => ({
           filter: and(
@@ -126,34 +182,33 @@ export class TransactionProposalsService {
     });
 
     this.db.afterTransaction(() => {
-      this.simulations.request({ transactionProposalHash: hash });
-      this.proposals.publishProposal({ account, hash }, ProposalEvent.create);
+      this.simulations.add(SIMULATIONS_QUEUE.name, { txProposal: id });
+      this.proposals.publishProposal({ id, account }, ProposalEvent.create);
     });
 
-    return { insert, hash };
+    return insert;
   }
 
   propose({ signature, ...args }: ProposeTransactionInput) {
     return this.db.transaction(async (db) => {
-      const { hash, insert } = await this.getProposal(args);
-      const { id } = await insert.run(db);
+      const id = asUUID((await (await this.getInsertProposal(args)).run(db)).id);
 
-      if (signature) await this.approve({ hash, signature });
+      if (signature) await this.approve({ id, signature });
 
-      return { id, hash };
+      return { id };
     });
   }
 
   async approve(input: ApproveInput) {
     await this.proposals.approve(input);
-    await this.transactions.tryExecute(input.hash);
+    await this.tryExecute(input.id);
   }
 
-  async update({ hash, policy, feeToken }: UpdateTransactionProposalInput) {
+  async update({ id, policy, feeToken }: UpdateTransactionProposalInput) {
     const updatedProposal = e.assert_single(
       e.update(e.TransactionProposal, (p) => ({
         filter: and(
-          e.op(p.hash, '=', hash),
+          e.op(p.id, '=', e.uuid(id)),
           // Require proposal to be pending or failed
           e.op(
             p.status,
@@ -183,23 +238,39 @@ export class TransactionProposalsService {
       })),
     );
 
-    const p = await this.db.query(
-      e.select(updatedProposal, () => ({
-        hash: true,
-        account: {
-          address: true,
-        },
-      })),
-    );
+    const p = await this.db.transaction(async (tx) => {
+      const p = await e
+        .select(updatedProposal, () => ({
+          hash: true,
+          account: { address: true },
+          ...proposalTxShape(tx),
+        }))
+        .run(tx);
+      if (!p) return;
 
-    if (policy !== undefined && p) await this.transactions.tryExecute(p.hash);
-
-    if (p) {
-      this.proposals.publishProposal(
-        { hash: asHex(p.hash), account: asUAddress(p.account.address) },
-        ProposalEvent.update,
+      const hash = hashTypedData(
+        asTypedData(asUAddress(p.account.address), transactionProposalAsTx(p)),
       );
-    }
+      if (hash !== p.hash) {
+        // Approvals are marked as invalid when the signed hash differs from the proposal hash
+        await e
+          .update(e.TransactionProposal, (proposal) => ({
+            filter: e.op(proposal.id, '=', e.uuid(id)),
+            set: { hash },
+          }))
+          .run(tx);
+      }
+
+      return { ...p, hash };
+    });
+    if (!p) return;
+
+    if (policy !== undefined) await this.tryExecute(id);
+
+    this.proposals.publishProposal(
+      { id, account: asUAddress(p.account.address) },
+      ProposalEvent.update,
+    );
 
     return p;
   }
@@ -221,5 +292,22 @@ export class TransactionProposalsService {
 
       return e.delete(selectTransactionProposal(id)).id.run(db);
     });
+  }
+
+  async estimateFees(d: EstimateFeesDeps): Promise<EstimatedTransactionFees> {
+    const account = asUAddress(d.account.address);
+    const maxEthFeePerGas = await this.paymasters.estimateMaxEthFeePerGas(asChain(account));
+    const gasLimit = new Decimal(d.gasLimit.toString());
+    const maxNetworkEthFee = maxEthFeePerGas.mul(gasLimit);
+
+    return {
+      id: `EstimatedTransactionFees:${d.id}`,
+      maxNetworkEthFee,
+      ethDiscount: await this.paymasters.estimateEthDiscount(
+        account,
+        maxNetworkEthFee,
+        new Decimal(d.paymasterEthFee),
+      ),
+    };
   }
 }

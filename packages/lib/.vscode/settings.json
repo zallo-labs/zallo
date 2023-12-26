@@ -3,5 +3,7 @@
     ".tsup": true,
     ".turbo": true
   },
-  "jest.jestCommandLine": "yarn test"
+  "jest.jestCommandLine": "yarn test",
+  "prettier.configPath": "../../.config/.prettierrc",
+  "prettier.ignorePath": "../../.prettierignore"
 }

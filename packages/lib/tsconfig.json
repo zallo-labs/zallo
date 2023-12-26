@@ -1,6 +1,8 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
+    "module": "ESNext",
+    "moduleResolution": "Node",
     "outDir": "dist",
     "rootDir": "src", // Root of outdir
     "tsBuildInfoFile": "dist/.tsbuildinfo",

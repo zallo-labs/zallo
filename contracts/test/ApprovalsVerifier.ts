@@ -14,6 +14,7 @@ import {
   TEST_VERIFIER_ABI,
 } from 'lib';
 import { deployProxy, getApprovals, network, deploy, wallets } from './util';
+import TestVerifier from './contracts/TestVerifier';
 
 describe('ApprovalsVerifier', () => {
   let account: UAddress;
@@ -29,7 +30,7 @@ describe('ApprovalsVerifier', () => {
 
   before(async () => {
     account = (await deployProxy({ nApprovers: 0 })).account;
-    verifier = (await deploy('TestVerifier')).address;
+    verifier = (await deploy(TestVerifier)).address;
     txHash = hashTx(account, tx);
     approvalsInput = {
       approvers: policy.approvers,

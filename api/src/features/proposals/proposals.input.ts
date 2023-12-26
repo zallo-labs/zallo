@@ -1,14 +1,24 @@
 import { Field, InputType, registerEnumType } from '@nestjs/graphql';
-import { Address, Hex, PolicyKey, UAddress } from 'lib';
+import { Address, Hex, PolicyKey, UAddress, UUID } from 'lib';
 import { AddressField } from '~/apollo/scalars/Address.scalar';
-import { Bytes32Field, Bytes32Scalar, BytesField } from '~/apollo/scalars/Bytes.scalar';
+import { Bytes32Field, BytesField } from '~/apollo/scalars/Bytes.scalar';
 import { PolicyKeyField } from '~/apollo/scalars/PolicyKey.scalar';
 import { UAddressScalar } from '~/apollo/scalars/UAddress.scalar';
+import { UUIDField, UUIDScalar } from '~/apollo/scalars/Uuid.scalar';
+
+@InputType()
+export class UniqueProposalInput {
+  @UUIDField()
+  id: UUID;
+}
 
 @InputType()
 export class ProposalInput {
-  @Bytes32Field()
-  hash: Hex;
+  @UUIDField({ nullable: true })
+  id?: UUID;
+
+  @Bytes32Field({ nullable: true })
+  hash?: Hex;
 }
 
 @InputType()
@@ -21,7 +31,7 @@ export class ProposalsInput {
 }
 
 @InputType()
-export class ApproveInput extends ProposalInput {
+export class ApproveInput extends UniqueProposalInput {
   @AddressField({ nullable: true, description: 'Defaults to current approver' })
   approver?: Address;
 
@@ -30,13 +40,13 @@ export class ApproveInput extends ProposalInput {
 }
 
 @InputType()
-export class UpdateProposalInput extends ProposalInput {
+export class UpdateProposalInput extends UniqueProposalInput {
   @PolicyKeyField({ nullable: true })
   policy?: PolicyKey | null;
 }
 
 @InputType()
-export class LabelProposalRiskInput extends ProposalInput {
+export class LabelProposalRiskInput extends UniqueProposalInput {
   @Field(() => Risk)
   risk: Risk;
 }
@@ -62,8 +72,8 @@ registerEnumType(ProposalEvent, { name: 'ProposalEvent' });
 
 @InputType()
 export class ProposalSubscriptionInput {
-  @Field(() => [Bytes32Scalar], { nullable: true })
-  proposals?: Hex[];
+  @Field(() => [UUIDScalar], { nullable: true })
+  proposals?: UUID[];
 
   @Field(() => [UAddressScalar], {
     nullable: true,

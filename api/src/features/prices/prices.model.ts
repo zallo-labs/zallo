@@ -1,15 +1,23 @@
-import { Field, ID, ObjectType } from '@nestjs/graphql';
-import { UAddress } from 'lib';
-import { UAddressField } from '~/apollo/scalars/UAddress.scalar';
+import { Field, ID } from '@nestjs/graphql';
+import Decimal from 'decimal.js';
+import { Hex } from 'lib';
+import { DecimalField } from '~/apollo/scalars/Decimal.scalar';
+import { CustomNodeType } from '~/decorators/interface.decorator';
 
-@ObjectType()
+@CustomNodeType()
 export class Price {
-  @Field(() => ID)
-  id: string;
+  @Field(() => ID, { description: 'Pyth USD price id' })
+  id: Hex;
 
-  @UAddressField()
-  token: UAddress;
+  @DecimalField()
+  eth: Decimal;
 
-  @Field(() => Number)
-  current: number;
+  @DecimalField()
+  ethEma: Decimal;
+
+  @DecimalField()
+  usd: Decimal;
+
+  @DecimalField()
+  usdEma: Decimal;
 }

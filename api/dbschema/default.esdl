@@ -20,6 +20,7 @@ module default {
     required salt: Bytes32;
     required isActive: bool;
     photoUri: str;
+    required paymasterEthCredit: decimal { constraint min_value(0); default := 0; }
     required property chain := as_chain(.address);
     multi link policies := (select .<account[is Policy] filter .isEnabled);
     multi link proposals := .<account[is Proposal];
@@ -73,10 +74,7 @@ module default {
     required approver: Approver {
       default := (<Approver>(global current_approver).id);
     }
-    required createdAt: datetime {
-      readonly := true;
-      default := datetime_of_statement();
-    } 
+    required createdAt: datetime { default := datetime_of_statement(); } 
 
     constraint exclusive on ((.proposal, .approver));
 
@@ -101,8 +99,15 @@ module default {
     constraint exclusive on ((.proposal, .user));
   }
 
+  scalar type ApprovalIssue extending enum<'HashMismatch', 'Expired'>;
+
   type Approval extending ProposalResponse {
     required signature: Bytes;
+    required signedHash: Bytes32; # { default := .proposal.hash; }
+    required property issues := <array<ApprovalIssue>>array_agg(
+      {ApprovalIssue.HashMismatch} if (.signedHash != .proposal.hash) else <ApprovalIssue>{}
+    );
+    required property invalid := len(.issues) > 0;
   }
 
   type Rejection extending ProposalResponse {}
@@ -118,9 +123,11 @@ module default {
       constraint exclusive;
       on source delete delete target;
     }
-    required gasLimit: uint256 { default := 0n; }
+    required gasLimit: uint256 { default := 0; }
     required feeToken: Token;
-    simulation: Simulation { constraint exclusive; }
+    required paymaster: Address;
+    required paymasterEthFee: decimal { constraint min_value(0); default := 0; }
+    simulation: Simulation { constraint exclusive; on target delete deferred restrict; }
     multi link transactions := .<proposal[is Transaction];
     link transaction := (select .transactions order by .submittedAt desc limit 1);
     required property status := (
@@ -137,7 +144,13 @@ module default {
   scalar type TransactionProposalStatus extending enum<'Pending', 'Executing', 'Successful', 'Failed'>;
 
   type Simulation {
-    multi transfers: TransferDetails;
+    required success: bool;
+    required responses: array<Bytes>;
+    multi transfers: TransferDetails {
+      constraint exclusive;
+      on source delete delete target;
+    }
+    required timestamp: datetime { default := datetime_of_statement(); }
   }
 
   type MessageProposal extending Proposal {
@@ -149,7 +162,7 @@ module default {
   type Event {
     required transactionHash: Bytes32;
     transaction: Transaction;
-    required block: bigint { constraint min_value(0n); }
+    required block: bigint { constraint min_value(0); }
     required logIndex: uint32;
     required timestamp: datetime { default := datetime_of_statement(); }
     required property internal := exists .transaction;
@@ -162,8 +175,9 @@ module default {
     required from: Address;
     required to: Address;
     required tokenAddress: UAddress;
-    required amount: bigint;
+    required amount: decimal;
     required multi direction: TransferDirection;
+    required isFeeTransfer: bool { default := false; }
     link token := (
       assert_single((
         with address := .tokenAddress
@@ -198,13 +212,16 @@ module default {
   type Transaction {
     required hash: Bytes32 { constraint exclusive; }
     required proposal: TransactionProposal;
-    required gasPrice: uint256;
-    required submittedAt: datetime {
-      readonly := true;
-      default := datetime_of_statement();
-    }
+    required maxEthFeePerGas: decimal { constraint min_value(0); }
+    required ethDiscount: decimal { constraint min_value(0); default := 0; }
+    required ethPerFeeToken: decimal { constraint min_value(0); }
+    required usdPerFeeToken: decimal { constraint min_value(0); }
+    required property maxNetworkEthFee := .maxEthFeePerGas * .proposal.gasLimit;
+    required property maxEthFees := .maxNetworkEthFee + .proposal.paymasterEthFee - .ethDiscount;
+    required submittedAt: datetime { default := datetime_of_statement(); }
     receipt: Receipt { constraint exclusive; }
     multi link events := .<transaction[is Event];
+    multi link refunds := .<transaction[is Refund];
 
     access policy members_can_select_insert
       allow select, insert
@@ -215,13 +232,20 @@ module default {
     required link transaction := assert_exists(.<receipt[is Transaction]);
     required success: bool;
     required responses: array<Bytes>;
-    required gasUsed: bigint { constraint min_value(0n); }
-    required fee: bigint { constraint min_value(0n); }
-    required block: bigint { constraint min_value(0n); }
+    required block: bigint { constraint min_value(0); }
     required timestamp: datetime { default := datetime_of_statement(); }
+    required gasUsed: bigint { constraint min_value(0); }
+    required ethFeePerGas: decimal { constraint min_value(0); }
+    required property networkEthFee := .ethFeePerGas * .transaction.proposal.gasLimit;
+    required property ethFees := .networkEthFee + .transaction.proposal.paymasterEthFee - .transaction.ethDiscount;
     multi link events := .transaction.events;
     multi link transferEvents := .events[is Transfer];
     multi link transferApprovalEvents := .events[is TransferApproval];
+  }
+
+  type Refund {
+    required link transaction: Transaction { constraint exclusive; }
+    required ethAmount: decimal { constraint min_value(0); }
   }
 
   type Contract {

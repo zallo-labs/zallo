@@ -15,9 +15,9 @@ export class TransactionsResolver {
     return this.service.selectUnique(hash, getShape(info));
   }
 
-  @Mutation(() => Transaction, { nullable: true })
-  async execute(@Input() { proposalHash }: ExecuteInput, @Info() info: GraphQLResolveInfo) {
-    const txHash = await this.service.tryExecute(proposalHash);
-    return this.service.selectUnique(txHash, getShape(info));
-  }
+  // @Mutation(() => Transaction, { nullable: true })
+  // async execute(@Input() { proposalHash }: ExecuteInput, @Info() info: GraphQLResolveInfo) {
+  //   const txHash = await this.service.tryExecute(proposalHash);
+  //   return this.service.selectUnique(txHash, getShape(info));
+  // }
 }

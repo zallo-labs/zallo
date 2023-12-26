@@ -1,6 +1,7 @@
 import { Field, ID, ObjectType } from '@nestjs/graphql';
-import { Address, UAddress } from 'lib';
-import { AddressField } from '~/apollo/scalars/Address.scalar';
+import { GraphQLInt } from 'graphql';
+import { Hex, UAddress } from 'lib';
+import { Bytes32Field } from '~/apollo/scalars/Bytes.scalar';
 import { UAddressField } from '~/apollo/scalars/UAddress.scalar';
 import { Node, NodeType } from '~/decorators/interface.decorator';
 
@@ -9,8 +10,8 @@ export class Token extends Node {
   @UAddressField()
   address: UAddress;
 
-  @AddressField({ nullable: true })
-  ethereumAddress?: Address;
+  @Bytes32Field({ nullable: true })
+  pythUsdPriceId?: Hex;
 
   @Field(() => String)
   name: string;
@@ -18,7 +19,7 @@ export class Token extends Node {
   @Field(() => String)
   symbol: string;
 
-  @Field(() => Number)
+  @Field(() => GraphQLInt)
   decimals: number;
 
   @Field(() => String, { nullable: true })
@@ -39,7 +40,7 @@ export class TokenUnit {
   @Field(() => String)
   symbol: string;
 
-  @Field(() => Number)
+  @Field(() => GraphQLInt)
   decimals: number;
 }
 
@@ -48,8 +49,8 @@ export class TokenMetadata {
   @Field(() => ID)
   id: string;
 
-  @AddressField({ nullable: true })
-  ethereumAddress?: string | null;
+  @Bytes32Field({ nullable: true })
+  pythUsdPriceId?: Hex;
 
   @Field(() => String, { nullable: true })
   name?: string;
@@ -57,7 +58,7 @@ export class TokenMetadata {
   @Field(() => String, { nullable: true })
   symbol?: string;
 
-  @Field(() => Number, { nullable: true })
+  @Field(() => GraphQLInt, { nullable: true })
   decimals?: number;
 
   @Field(() => String, { nullable: true })

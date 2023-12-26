@@ -4,15 +4,20 @@ import { TokensInput, UpsertTokenInput } from './tokens.input';
 import { Scope, ShapeFunc } from '../database/database.select';
 import e from '~/edgeql-js';
 import { uuid } from 'edgedb/dist/codecs/ifaces';
-import { UAddress, asAddress, isUAddress } from 'lib';
-import { ERC20 } from 'lib/dapps';
+import { UAddress, asAddress, asDecimal, asFp, isUAddress } from 'lib';
+import { ERC20, TOKENS, flattenToken } from 'lib/dapps';
 import { and, or } from '../database/database.util';
 import { NetworksService } from '../util/networks/networks.service';
 import { UserInputError } from '@nestjs/apollo';
 import { OrderByObjExpr } from '~/edgeql-js/select';
+import { TokenMetadata } from '~/features/tokens/tokens.model';
+import Decimal from 'decimal.js';
 
 @Injectable()
 export class TokensService {
+  private decimalsCache = new Map<UAddress, number>(
+    TOKENS.flatMap(flattenToken).map((t) => [t.address, t.decimals]),
+  );
   constructor(
     private db: DatabaseService,
     private networks: NetworksService,
@@ -67,7 +72,12 @@ export class TokensService {
   async upsert(token: UpsertTokenInput) {
     const metadata = await this.getTokenMetadata(token.address);
 
-    const c = { ...metadata, ...token };
+    const c = {
+      name: metadata.name,
+      symbol: metadata.symbol,
+      decimals: metadata.decimals,
+      ...token,
+    };
     if (!c.name) throw new UserInputError('Name could not be detected so is required');
     if (!c.symbol) throw new UserInputError('Symbol could not be detected so is required');
     if (c.decimals === undefined)
@@ -113,7 +123,7 @@ export class TokensService {
     );
     if (t) return t;
 
-    const [name, symbol, decimals] = await this.networks.for(address).multicall({
+    const [name, symbol, decimals] = await this.networks.get(address).multicall({
       contracts: [
         {
           abi: ERC20,
@@ -134,17 +144,38 @@ export class TokensService {
     });
 
     return {
-      ethereumAddress: null,
+      id: `TokenMetadata:${address}`,
       name: name.result,
       symbol: symbol.result,
       decimals: decimals.result,
-      isFeeToken: false,
       iconUri: null,
-    };
+    } satisfies TokenMetadata;
+  }
+
+  async decimals(token: UAddress): Promise<number> {
+    const cached = this.decimalsCache.get(token);
+    if (cached !== undefined) return cached;
+
+    const decimals = await this.networks.get(token).readContract({
+      address: asAddress(token),
+      abi: ERC20,
+      functionName: 'decimals',
+    });
+    this.decimalsCache.set(token, decimals);
+
+    return decimals;
+  }
+
+  async asDecimal(token: UAddress, amount: bigint): Promise<Decimal> {
+    return asDecimal(amount, await this.decimals(token));
+  }
+
+  async asFp(token: UAddress, amount: Decimal): Promise<bigint> {
+    return asFp(amount, await this.decimals(token));
   }
 }
 
-function preferUserToken(t: Scope<typeof e.Token>): OrderByObjExpr {
+export function preferUserToken(t: Scope<typeof e.Token>): OrderByObjExpr {
   return {
     expression: e.op('exists', t.user),
     direction: e.DESC,

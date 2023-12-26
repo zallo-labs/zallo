@@ -13,7 +13,7 @@ import { Request } from 'express';
 import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { match } from 'ts-pattern';
-import { getUserCtx } from '~/request/ctx';
+import { getRequestContext, getUserCtx } from '~/request/ctx';
 
 type Filter<E = any> = [type: new (...args: any[]) => E, shouldReport: (exception: E) => boolean];
 
@@ -24,14 +24,14 @@ export class SentryInterceptor implements NestInterceptor {
     [UnauthorizedException, () => false] satisfies Filter<UnauthorizedException>,
   ];
 
-  intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
+  intercept(context: ExecutionContext, next: CallHandler) {
     // first param would be for events, second is for errors
     return next.handle().pipe(
       tap({
         error: (exception) => {
           if (this.shouldReport(exception)) {
             Sentry.withScope((scope) => {
-              const userCtx = getUserCtx();
+              const userCtx = getRequestContext().user;
               if (userCtx) scope.setUser({ id: userCtx.approver });
               scope.setExtra('exceptionData', JSON.stringify(exception, null, 2));
 

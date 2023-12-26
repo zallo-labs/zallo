@@ -1,6 +1,6 @@
 import { ScrollView } from 'react-native';
 import { ListHeader } from '~/components/list/ListHeader';
-import { Hex } from 'lib';
+import { Hex, UUID } from 'lib';
 import { gql, useFragment } from '@api/generated';
 import { getOptimizedDocument, useQuery } from '~/gql';
 import { useSubscription } from 'urql';
@@ -14,7 +14,7 @@ import { createStyles, useStyles } from '@theme/styles';
 
 const Proposal = gql(/* GraphQL */ `
   fragment PolicyTab_ProposalFragment on Proposal
-  @argumentDefinitions(proposal: { type: "Bytes32!" }) {
+  @argumentDefinitions(proposal: { type: "UUID!" }) {
     id
     account {
       id
@@ -64,8 +64,8 @@ const Proposal = gql(/* GraphQL */ `
 `);
 
 const Query = gql(/* GraphQL */ `
-  query PolicyTab($proposal: Bytes32!) {
-    proposal(input: { hash: $proposal }) {
+  query PolicyTab($proposal: UUID!) {
+    proposal(input: { id: $proposal }) {
       ...PolicyTab_ProposalFragment @arguments(proposal: $proposal)
     }
 
@@ -78,7 +78,7 @@ const Query = gql(/* GraphQL */ `
 `);
 
 const Subscription = gql(/* GraphQL */ `
-  subscription PolicyTab_Subscription($proposal: Bytes32!) {
+  subscription PolicyTab_Subscription($proposal: UUID!) {
     proposal(input: { proposals: [$proposal] }) {
       ...PolicyTab_ProposalFragment @arguments(proposal: $proposal)
     }
@@ -86,16 +86,16 @@ const Subscription = gql(/* GraphQL */ `
 `);
 
 export interface PolicyTabProps {
-  hash: Hex;
+  proposal: UUID;
 }
 
-function PolicyTab_({ hash }: PolicyTabProps) {
+function PolicyTab_({ proposal: id }: PolicyTabProps) {
   const { styles } = useStyles(stylesheet);
 
-  const { data } = useQuery(Query, { proposal: hash });
+  const { data } = useQuery(Query, { proposal: id });
   useSubscription({
     query: getOptimizedDocument(Subscription),
-    variables: { proposal: hash },
+    variables: { proposal: id },
   });
   const p = useFragment(Proposal, data.proposal);
   const user = data.user;

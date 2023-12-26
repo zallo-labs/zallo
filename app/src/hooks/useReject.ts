@@ -27,7 +27,6 @@ const User = gql(/* GraphQL */ `
 const Proposal = gql(/* GraphQL */ `
   fragment UseReject_Proposal on Proposal {
     id
-    hash
     potentialRejectors {
       id
     }
@@ -45,8 +44,8 @@ const Proposal = gql(/* GraphQL */ `
 `);
 
 const Reject = gql(/* GraphQL */ `
-  mutation useReject_Reject($proposal: Bytes32!) {
-    rejectProposal(input: { hash: $proposal }) {
+  mutation useReject_Reject($proposal: UUID!) {
+    rejectProposal(input: { id: $proposal }) {
       id
       approvals {
         id
@@ -80,7 +79,7 @@ export function useReject({ approver, ...params }: UseRejectParams) {
 
   if (approver === device) {
     return async () => {
-      await reject({ proposal: p.hash });
+      await reject({ proposal: p.id });
     };
   } else if (userApprover.cloud) {
     return match(userApprover.cloud)
@@ -94,7 +93,7 @@ export function useReject({ approver, ...params }: UseRejectParams) {
               event: { error: r.error, subject },
             });
 
-          await reject({ proposal: p.hash }, await authContext(r.value.approver));
+          await reject({ proposal: p.id }, await authContext(r.value.approver));
         };
       })
       .with({ provider: 'Google' }, ({ subject }) => {
@@ -107,7 +106,7 @@ export function useReject({ approver, ...params }: UseRejectParams) {
               event: { error: r.error, subject },
             });
 
-          await reject({ proposal: p.hash }, await authContext(r.value.approver));
+          await reject({ proposal: p.id }, await authContext(r.value.approver));
         };
       })
       .exhaustive();

@@ -11,6 +11,7 @@ import {
 import { ERC20 } from 'lib/dapps';
 import { deploy, wallet } from '../util';
 import { encodeFunctionData } from 'viem';
+import TestVerifier from '../contracts/TestVerifier';
 
 const to = wallet.account.address;
 const TOKEN = wallet.account.address;
@@ -37,7 +38,7 @@ describe('TransferHook', () => {
     });
 
   beforeEach(async () => {
-    verifier = (await deploy('TestVerifier')).address;
+    verifier = (await deploy(TestVerifier)).address;
   });
 
   describe('succeed when', () => {

@@ -7,6 +7,7 @@ import { TransactionsModule } from '../transactions/transactions.module';
 import { PricesModule } from '../prices/prices.module';
 import { ExpoModule } from '../util/expo/expo.module';
 import { BalancesModule } from '~/features/util/balances/balances.module';
+import { TokensModule } from '~/features/tokens/tokens.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { BalancesModule } from '~/features/util/balances/balances.module';
     PricesModule,
     ExpoModule,
     BalancesModule,
+    TokensModule,
   ],
   providers: [TransfersService, TransfersResolver, TransfersEvents],
 })
