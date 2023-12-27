@@ -6,6 +6,7 @@
   "scripts": {
     "prepare": "yarn expo customize tsconfig.json",
     "generate:gql": "graphql-codegen --config codegen.ts && sed -i 's/as unknown as IntrospectionQuery;/as const;/g' ./src/gql/api/schema.generated.ts",
+    "generate:ampli": "ampli pull -p ./src/lib/ampli --omit-api-keys",
     "build:web": "yarn expo export -p web",
     "deploy:update": "yarn eas update --auto --non-interactive --platform all",
     "dev": "APP_VARIANT=dev yarn expo start --dev-client",
@@ -20,6 +21,7 @@
     "//": "https://www.npmjs.com/package/expo-yarn-workspaces"
   },
   "dependencies": {
+    "@amplitude/analytics-react-native": "^1.4.7",
     "@config-plugins/react-native-ble-plx": "^7.0.0",
     "@expo/config": "~8.1.1",
     "@expo/vector-icons": "patch:@expo/vector-icons@npm:13.0.0#../.yarn/patches/@expo-vector-icons-npm-13.0.0-744b56496b.patch",

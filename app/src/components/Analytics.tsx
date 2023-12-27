@@ -2,7 +2,27 @@ import { useApproverAddress } from '~/lib/network/useApprover';
 import { useGlobalSearchParams, usePathname } from 'expo-router';
 import { useEffect, useRef } from 'react';
 import * as Sentry from '~/util/sentry/sentry';
-// import analytics from '@react-native-firebase/analytics';
+import { gql } from '@api';
+import { useQuery } from '~/gql';
+import { ampli } from '~/lib/ampli';
+import { CONFIG } from '~/util/config';
+
+ampli.load({
+  client: {
+    apiKey: CONFIG.aplitudeKey,
+    configuration: {
+      trackingSessionEvents: true,
+    },
+  },
+});
+
+const Query = gql(/* GraphQL */ `
+  query Analytics {
+    user {
+      id
+    }
+  }
+`);
 
 export function Analytics() {
   const approver = useApproverAddress();
@@ -11,16 +31,21 @@ export function Analytics() {
 
   const previousPathname = useRef<string>();
 
-  useEffect(() => {
-    // analytics().setUserId(approver);
-    Sentry.setUser({ id: approver });
-  }, [approver]);
+  const userId = useQuery(Query).data?.user.id;
 
   useEffect(() => {
-    // analytics().logScreenView({
-    //   screen_name: pathname,
-    //   screen_class: pathname,
-    // });
+    ampli.identify(userId, { device_id: approver });
+    Sentry.setUser({ id: approver });
+  }, [approver, userId]);
+
+  useEffect(() => {
+    ampli.screenView({
+      pathname,
+      params,
+      ...(previousPathname.current !== pathname && {
+        previousPathname: previousPathname.current,
+      }),
+    });
 
     Sentry.addBreadcrumb({
       level: 'info',
