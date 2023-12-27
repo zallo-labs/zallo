@@ -130,6 +130,20 @@ jobs:
 
       - name: 🏗️ Build
         run: yarn app build:web
+
+  app-ampli:
+    runs-on: ubuntu-latest
+    container:
+      image: amplitudeinc/ampli
+
+      steps:
+        - name: 🚧 Checkout
+          uses: actions/checkout@v4
+          with:
+            fetch-depth: 2
+
+        - name: 🧪 Verify analytics implementation
+          run: cd app && ampli status -t ${{secrets.AMPLI_TOKEN}} --is-merged --is-latest
 # site:
 #   runs-on: ubuntu-latest
 
