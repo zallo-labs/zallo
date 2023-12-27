@@ -7,6 +7,7 @@
     "dev": "nest start --debug --watch --preserveWatchOutput",
     "start:production": "yarn db:migrate && node dist/dbschema/seed.js && yarn serve",
     "serve": "node dist/src/main.js",
+    "generate:ampli": "ampli pull -p ./src/util/ampli --omit-api-keys",
     "test": "yarn with-env -- jest",
     "test:watch": "yarn test --watch",
     "test:cov": "yarn test --coverage",
@@ -20,6 +21,7 @@
     "db:migrate": "yarn with-env -- edgedb migrate"
   },
   "dependencies": {
+    "@amplitude/analytics-node": "^1.3.5",
     "@apollo/server": "^4.9.5",
     "@bull-board/express": "^5.10.2",
     "@bull-board/nestjs": "^5.10.2",

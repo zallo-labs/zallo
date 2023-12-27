@@ -227,6 +227,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@amplitude/analytics-node@npm:^1.3.5":
+  version: 1.3.5
+  resolution: "@amplitude/analytics-node@npm:1.3.5"
+  dependencies:
+    "@amplitude/analytics-core": "npm:^1.2.5"
+    "@amplitude/analytics-types": "npm:^1.3.4"
+    tslib: "npm:^2.4.1"
+  checksum: 3e3ac43571d70eab50da36cc60bf503e9e56a86cf56971f4178571ab99f8508431a1aef4ddc64227e4ec8149322f38613a430d15136711d24b2dff20ae893646
+  languageName: node
+  linkType: hard
+
 "@amplitude/analytics-react-native@npm:^1.4.7":
   version: 1.4.7
   resolution: "@amplitude/analytics-react-native@npm:1.4.7"
@@ -14303,6 +14314,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "api@workspace:api"
   dependencies:
+    "@amplitude/analytics-node": "npm:^1.3.5"
     "@apollo/server": "npm:^4.9.5"
     "@bull-board/express": "npm:^5.10.2"
     "@bull-board/nestjs": "npm:^5.10.2"

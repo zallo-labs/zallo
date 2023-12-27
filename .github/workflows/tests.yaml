@@ -86,6 +86,20 @@ jobs:
       - name: 🧪 Test
         run: yarn api test
 
+  api-ampli:
+    runs-on: ubuntu-latest
+    container:
+      image: amplitudeinc/ampli
+
+      steps:
+        - name: 🚧 Checkout
+          uses: actions/checkout@v4
+          with:
+            fetch-depth: 2
+
+        - name: 🧪 Verify analytics implementation
+          run: cd api && ampli status -t ${{secrets.AMPLI_TOKEN}} --is-merged --is-latest
+
   app-tests:
     runs-on: ubuntu-latest
 
