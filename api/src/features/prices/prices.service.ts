@@ -113,6 +113,7 @@ export class PricesService {
   }
 
   async updatePriceFeedsIfNecessary(chain: Chain, priceIds: Hex[]) {
+    priceIds = [...new Set(priceIds)];
     if (
       priceIds
         .map((priceId) => this.isPriceFeedGuaranteedFresh(chain, priceId))
@@ -150,8 +151,7 @@ export class PricesService {
       },
       {
         redis: this.redis,
-        key: `prices.updatePricefeed:${chain}`,
-        // key: priceIds.map((priceId) => `prices.updatePricefeed:${chain}:${priceId}`),
+        key: priceIds.map((priceId) => `prices.updatePricefeed:${chain}:${priceId}`),
       },
     );
   }
