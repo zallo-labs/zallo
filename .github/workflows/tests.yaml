@@ -91,14 +91,12 @@ jobs:
     container:
       image: amplitudeinc/ampli
 
-      steps:
-        - name: 🚧 Checkout
-          uses: actions/checkout@v4
-          with:
-            fetch-depth: 2
+    steps:
+      - name: 🚧 Checkout
+        uses: actions/checkout@v4
 
-        - name: 🧪 Verify analytics implementation
-          run: cd api && ampli status -t ${{secrets.AMPLI_TOKEN}} --is-merged --is-latest
+      - name: 🧪 Verify analytics implementation
+        run: cd api && ampli status -t ${{secrets.AMPLI_TOKEN}} --is-merged --is-latest
 
   app-tests:
     runs-on: ubuntu-latest
@@ -150,14 +148,12 @@ jobs:
     container:
       image: amplitudeinc/ampli
 
-      steps:
-        - name: 🚧 Checkout
-          uses: actions/checkout@v4
-          with:
-            fetch-depth: 2
+    steps:
+      - name: 🚧 Checkout
+        uses: actions/checkout@v4
 
-        - name: 🧪 Verify analytics implementation
-          run: cd app && ampli status -t ${{secrets.AMPLI_TOKEN}} --is-merged --is-latest
+      - name: 🧪 Verify analytics implementation
+        run: cd app && ampli status -t ${{secrets.AMPLI_TOKEN}} --is-merged --is-latest
 # site:
 #   runs-on: ubuntu-latest
 
