@@ -71,8 +71,32 @@ export type LoadOptions =
   | LoadOptionsWithApiKey
   | LoadOptionsWithClientInstance;
 
-export interface ProposeTransferProperties {
-  token: string;
+export interface ApprovalProperties {
+  /**
+   * | Rule | Value |
+   * |---|---|
+   * | Enum Values | Device, Ledger, Google, Apple |
+   */
+  method: 'Device' | 'Ledger' | 'Google' | 'Apple';
+  /**
+   * | Rule | Value |
+   * |---|---|
+   * | Enum Values | Transaction, Message |
+   */
+  type: 'Transaction' | 'Message';
+}
+
+export interface LedgerLinkedProperties {
+  productName?: string;
+}
+
+export interface ModifyPolicyProperties {
+  new: boolean;
+}
+
+export interface NotificationPressedProperties {
+  appOpened: boolean;
+  pathname: string;
 }
 
 export interface ScreenViewProperties {
@@ -81,10 +105,52 @@ export interface ScreenViewProperties {
   previousPathname?: string;
 }
 
-export class ProposeTransfer implements BaseEvent {
-  event_type = 'Propose Transfer';
+export interface SocialLinkedProperties {
+  /**
+   * | Rule | Value |
+   * |---|---|
+   * | Enum Values | Apple, Google |
+   */
+  cloud: 'Apple' | 'Google';
+}
 
-  constructor(public event_properties: ProposeTransferProperties) {
+export interface SwapProposalProperties {
+  from: string;
+  to: string;
+}
+
+export interface TransferProposalProperties {
+  token: string;
+}
+
+export class Approval implements BaseEvent {
+  event_type = 'Approval';
+
+  constructor(public event_properties: ApprovalProperties) {
+    this.event_properties = event_properties;
+  }
+}
+
+export class LedgerLinked implements BaseEvent {
+  event_type = 'Ledger Linked';
+
+  constructor(public event_properties?: LedgerLinkedProperties) {
+    this.event_properties = event_properties;
+  }
+}
+
+export class ModifyPolicy implements BaseEvent {
+  event_type = 'Modify Policy';
+
+  constructor(public event_properties: ModifyPolicyProperties) {
+    this.event_properties = event_properties;
+  }
+}
+
+export class NotificationPressed implements BaseEvent {
+  event_type = 'Notification Pressed';
+
+  constructor(public event_properties: NotificationPressedProperties) {
     this.event_properties = event_properties;
   }
 }
@@ -93,6 +159,30 @@ export class ScreenView implements BaseEvent {
   event_type = 'Screen View';
 
   constructor(public event_properties: ScreenViewProperties) {
+    this.event_properties = event_properties;
+  }
+}
+
+export class SocialLinked implements BaseEvent {
+  event_type = 'Social Linked';
+
+  constructor(public event_properties: SocialLinkedProperties) {
+    this.event_properties = event_properties;
+  }
+}
+
+export class SwapProposal implements BaseEvent {
+  event_type = 'Swap Proposal';
+
+  constructor(public event_properties: SwapProposalProperties) {
+    this.event_properties = event_properties;
+  }
+}
+
+export class TransferProposal implements BaseEvent {
+  event_type = 'Transfer Proposal';
+
+  constructor(public event_properties: TransferProposalProperties) {
     this.event_properties = event_properties;
   }
 }
@@ -205,20 +295,71 @@ export class Ampli {
   }
 
   /**
-   * Propose Transfer
+   * Approval
    *
-   * [View in Tracking Plan](https://data.amplitude.com/zallo/Zallo/events/main/latest/Propose%20Transfer)
+   * [View in Tracking Plan](https://data.amplitude.com/zallo/Zallo/events/main/latest/Approval)
    *
    * Event has no description in tracking plan.
    *
-   * @param properties The event's properties (e.g. token)
+   * @param properties The event's properties (e.g. method)
    * @param options Amplitude event options.
    */
-  proposeTransfer(
-    properties: ProposeTransferProperties,
+  approval(
+    properties: ApprovalProperties,
     options?: EventOptions,
   ) {
-    return this.track(new ProposeTransfer(properties), options);
+    return this.track(new Approval(properties), options);
+  }
+
+  /**
+   * Ledger Linked
+   *
+   * [View in Tracking Plan](https://data.amplitude.com/zallo/Zallo/events/main/latest/Ledger%20Linked)
+   *
+   * Event has no description in tracking plan.
+   *
+   * @param properties The event's properties (e.g. productName)
+   * @param options Amplitude event options.
+   */
+  ledgerLinked(
+    properties?: LedgerLinkedProperties,
+    options?: EventOptions,
+  ) {
+    return this.track(new LedgerLinked(properties), options);
+  }
+
+  /**
+   * Modify Policy
+   *
+   * [View in Tracking Plan](https://data.amplitude.com/zallo/Zallo/events/main/latest/Modify%20Policy)
+   *
+   * Event has no description in tracking plan.
+   *
+   * @param properties The event's properties (e.g. new)
+   * @param options Amplitude event options.
+   */
+  modifyPolicy(
+    properties: ModifyPolicyProperties,
+    options?: EventOptions,
+  ) {
+    return this.track(new ModifyPolicy(properties), options);
+  }
+
+  /**
+   * Notification Pressed
+   *
+   * [View in Tracking Plan](https://data.amplitude.com/zallo/Zallo/events/main/latest/Notification%20Pressed)
+   *
+   * Event has no description in tracking plan.
+   *
+   * @param properties The event's properties (e.g. appOpened)
+   * @param options Amplitude event options.
+   */
+  notificationPressed(
+    properties: NotificationPressedProperties,
+    options?: EventOptions,
+  ) {
+    return this.track(new NotificationPressed(properties), options);
   }
 
   /**
@@ -236,6 +377,57 @@ export class Ampli {
     options?: EventOptions,
   ) {
     return this.track(new ScreenView(properties), options);
+  }
+
+  /**
+   * Social Linked
+   *
+   * [View in Tracking Plan](https://data.amplitude.com/zallo/Zallo/events/main/latest/Social%20Linked)
+   *
+   * Event has no description in tracking plan.
+   *
+   * @param properties The event's properties (e.g. cloud)
+   * @param options Amplitude event options.
+   */
+  socialLinked(
+    properties: SocialLinkedProperties,
+    options?: EventOptions,
+  ) {
+    return this.track(new SocialLinked(properties), options);
+  }
+
+  /**
+   * Swap Proposal
+   *
+   * [View in Tracking Plan](https://data.amplitude.com/zallo/Zallo/events/main/latest/Swap%20Proposal)
+   *
+   * Event has no description in tracking plan.
+   *
+   * @param properties The event's properties (e.g. from)
+   * @param options Amplitude event options.
+   */
+  swapProposal(
+    properties: SwapProposalProperties,
+    options?: EventOptions,
+  ) {
+    return this.track(new SwapProposal(properties), options);
+  }
+
+  /**
+   * Transfer Proposal
+   *
+   * [View in Tracking Plan](https://data.amplitude.com/zallo/Zallo/events/main/latest/Transfer%20Proposal)
+   *
+   * Event has no description in tracking plan.
+   *
+   * @param properties The event's properties (e.g. token)
+   * @param options Amplitude event options.
+   */
+  transferProposal(
+    properties: TransferProposalProperties,
+    options?: EventOptions,
+  ) {
+    return this.track(new TransferProposal(properties), options);
   }
 }
 

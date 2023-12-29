@@ -9,7 +9,6 @@ import {
   asDecimal,
   asFp,
   asUAddress,
-  fiatToToken,
 } from 'lib';
 import { useMemo, useState } from 'react';
 import { InputType, InputsView } from '~/components/InputsView';
@@ -39,6 +38,7 @@ import { getSwapOperations } from '~/util/swap/syncswap/swap';
 import { suspend } from 'suspend-react';
 import { estimateSwap } from '~/util/swap/syncswap/estimate';
 import Decimal from 'decimal.js';
+import { ampli } from '~/lib/ampli';
 
 const DownArrow = materialCommunityIcon('arrow-down-thin');
 const ICON_BUTTON_SIZE = 24;
@@ -219,6 +219,7 @@ function SwapScreen() {
                     pathname: `/(drawer)/transaction/[id]/`,
                     params: { id: proposal },
                   });
+                  ampli.swapProposal({ from: from.address, to: to!.address });
                 }
               : undefined
           }

@@ -8,6 +8,7 @@ import { tryOrIgnoreAsync } from 'lib';
 import { DatabaseService } from '../database/database.service';
 import e from '~/edgeql-js';
 import { Worker, TypedJob } from '~/features/util/bull/bull.util';
+import { ampli } from '~/util/ampli';
 
 @Injectable()
 @Processor(ACTIVATIONS_QUEUE.name)
@@ -34,15 +35,20 @@ export class ActivationsWorker extends Worker<typeof ACTIVATIONS_QUEUE> {
       return;
     }
 
-    await this.db.query(
-      e.update(e.Account, () => ({
-        filter_single: { address: account },
-        set: {
-          isActive: true,
-        },
-      })),
+    const updateAccount = e.update(e.Account, () => ({
+      filter_single: { address: account },
+      set: {
+        isActive: true,
+      },
+    }));
+
+    const users = await this.db.query(
+      e.select(updateAccount, () => ({
+        approvers: { user: true },
+      })).approvers.user,
     );
 
     await this.accounts.publishAccount({ account, event: AccountEvent.update });
+    users.forEach((user) => ampli.accountActivated(user.id));
   }
 }

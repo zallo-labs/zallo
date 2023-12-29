@@ -150,7 +150,8 @@ export class PricesService {
       },
       {
         redis: this.redis,
-        key: priceIds.map((priceId) => `prices.updatePricefeed:${chain}:${priceId}`),
+        key: `prices.updatePricefeed:${chain}`,
+        // key: priceIds.map((priceId) => `prices.updatePricefeed:${chain}:${priceId}`),
       },
     );
   }

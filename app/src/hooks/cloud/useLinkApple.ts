@@ -3,6 +3,7 @@ import { useGetAppleApprover } from './useGetAppleApprover';
 import { useMutation } from 'urql';
 import { authContext } from '@api/client';
 import { showError } from '~/components/provider/SnackbarProvider';
+import { ampli } from '~/lib/ampli';
 
 const User = gql(/* GraphQL */ `
   fragment useLinkApple_User on User {
@@ -42,6 +43,7 @@ export function useLinkApple(params: useLinkAppleParams) {
 
     const { approver } = r.value;
     await link({ token: user.linkingToken }, await authContext(approver));
+    ampli.socialLinked({ cloud: 'Apple' });
 
     return r.value;
   };

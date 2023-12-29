@@ -17,7 +17,6 @@ import { DatabaseService } from '../database/database.service';
 import e from '~/edgeql-js';
 import { selectAccount } from '../accounts/accounts.util';
 import { NetworksService } from '../util/networks/networks.service';
-import { utils as zkUtils } from 'zksync2-js';
 import { uuid } from 'edgedb/dist/codecs/ifaces';
 import { PubsubService } from '../util/pubsub/pubsub.service';
 import { decodeEventLog, getAbiItem } from 'viem';
@@ -29,6 +28,7 @@ import { CONFIG } from '~/config';
 import { BalancesService } from '~/features/util/balances/balances.service';
 import Decimal from 'decimal.js';
 import { TokensService } from '~/features/tokens/tokens.service';
+import { ampli } from '~/util/ampli';
 
 export const getTransferTrigger = (account: UAddress) => `transfer.account.${account}`;
 export interface TransferSubscriptionPayload {
@@ -120,8 +120,8 @@ export class TransfersEvents {
                   from === to
                     ? '0'
                     : to === account
-                    ? amount.toString()
-                    : amount.negated().toString(),
+                      ? amount.toString()
+                      : amount.negated().toString(),
                 direction: [account === to && 'In', account === from && 'Out'].filter(Boolean) as [
                   'In',
                 ],
@@ -138,6 +138,8 @@ export class TransfersEvents {
             () => ({
               id: true,
               internal: true,
+              isFeeTransfer: true,
+              account: { approvers: { user: true } },
             }),
           ),
         );
@@ -153,7 +155,7 @@ export class TransfersEvents {
           internal: transfer.internal,
         });
 
-        if (!isFromTransaction && asAddress(from) !== zkUtils.BOOTLOADER_FORMAL_ADDRESS) {
+        if (!isFromTransaction && !transfer.isFeeTransfer) {
           this.log.debug(
             `[${account}]: token (${token}) transfer ${
               from === account ? `to ${to}` : `from ${from}`
@@ -162,6 +164,10 @@ export class TransfersEvents {
 
           if (to === account) this.notifyMembers('transfer', account, from, token, amount);
         }
+
+        transfer.account.approvers.map(({ user }) => {
+          ampli.transfer(user.id, { in: to === account, out: from === account });
+        });
       }),
     );
   }
@@ -220,8 +226,8 @@ export class TransfersEvents {
                 from === to
                   ? '0'
                   : to === account
-                  ? amount.toString()
-                  : amount.negated().toString(),
+                    ? amount.toString()
+                    : amount.negated().toString(),
               direction: [account === to && 'In', account === from && 'Out'].filter(Boolean) as [
                 'In',
               ],
@@ -302,8 +308,8 @@ export class TransfersEvents {
                 ? `${amount} ${t.symbol} received from ${fromLabel}`
                 : `Tokens (${truncateAddress(token)}) received from ${fromLabel}`
               : t
-              ? `${fromLabel} has allowed you to spend ${amount} ${t.symbol} `
-              : `${fromLabel} has allowed you to spend their tokens (${truncateAddress(token)})`,
+                ? `${fromLabel} has allowed you to spend ${amount} ${t.symbol} `
+                : `${fromLabel} has allowed you to spend their tokens (${truncateAddress(token)})`,
           channelId: 'transfers',
           priority: 'normal',
         };
