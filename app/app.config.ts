@@ -88,8 +88,6 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     'expo-localization',
     'sentry-expo',
     '@react-native-firebase/app',
-    '@react-native-firebase/perf',
-    '@react-native-firebase/crashlytics',
     '@config-plugins/react-native-ble-plx',
     '@react-native-google-signin/google-signin',
     'expo-apple-authentication',

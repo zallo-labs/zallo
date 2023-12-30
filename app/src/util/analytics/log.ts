@@ -1,5 +1,4 @@
 import * as Sentry from '~/util/sentry/sentry';
-// import crashlytics from '@react-native-firebase/crashlytics';
 import _ from 'lodash';
 
 export type EventLevel = 'debug' | 'info' | 'warning' | 'error';
@@ -25,16 +24,12 @@ export const logEvent = ({ level, message, error: ep, ...contextParam }: LogEven
     Sentry.captureMessage(message, { level, extra: context });
   }
 
-  // Crashlytics
-  // crashlytics().setAttributes(context);
-  // crashlytics().log(`${level}: ${message}`);
-  // if (error) crashlytics().recordError(error);
-
   // Console
   CONSOLE[level](
     `Event: ${message}`,
     JSON.stringify(
       {
+        ep,
         ...(error && { error }),
         ...context,
       },
