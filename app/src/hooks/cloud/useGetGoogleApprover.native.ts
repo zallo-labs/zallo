@@ -1,6 +1,5 @@
 import {
   GoogleSignin,
-  ConfigureParams as GoogleConfigureParams,
   statusCodes as ErrorCode,
   User as UserDetails,
 } from '@react-native-google-signin/google-signin';
@@ -13,7 +12,7 @@ import decodeJwt from 'jwt-decode';
 import { DateTime } from 'luxon';
 import { PrivateKeyAccount } from 'viem/accounts';
 
-const PARAMS = {
+GoogleSignin.configure({
   scopes: [
     'openid',
     'https://www.googleapis.com/auth/userinfo.profile',
@@ -23,7 +22,7 @@ const PARAMS = {
   profileImageSize: 120,
   webClientId: CONFIG.googleOAuth.webClient,
   iosClientId: CONFIG.googleOAuth.iosClient,
-} as GoogleConfigureParams;
+});
 
 export interface GoogleSignInResult {
   idToken: string;
@@ -50,8 +49,6 @@ export function useGetGoogleApprover() {
     subject,
     signOut,
   }: GetGoogleApproverParams): Promise<Result<UserDetails, GoogleSignInError>> => {
-    GoogleSignin.configure({ ...PARAMS });
-
     if (signOut) await GoogleSignin.signOut();
 
     return ResultAsync.fromPromise(
