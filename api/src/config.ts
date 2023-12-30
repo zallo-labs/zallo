@@ -40,4 +40,5 @@ export const CONFIG = {
     ].filter(isPresent),
   ),
   pythHermesUrl: required`PYTH_HERMES_URL`,
+  amplitudeKey: required`AMPLITUDE_KEY`,
 } as const;

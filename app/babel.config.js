@@ -34,6 +34,7 @@ module.exports = function (api) {
       ],
       'lodash',
       'react-native-reanimated/plugin' /* Must be last */,
+      '@babel/plugin-transform-flow-strip-types', // Must proceed other @babel plugins - https://github.com/facebook/react-native/issues/36828
       ['@babel/plugin-transform-private-methods', { loose: true }], // Required by ethers
     ],
     env: {

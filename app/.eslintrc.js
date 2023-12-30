@@ -21,6 +21,7 @@ module.exports = {
     'react-native/no-inline-styles': 'error',
     'react-native/no-single-element-style-arrays': 'error',
   },
+  ignorePatterns: ['src/lib/ampli'],
   settings: {
     react: {
       version: 'detect',

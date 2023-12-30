@@ -7,9 +7,9 @@ import { useMutation } from 'urql';
 import { Result, ResultAsync, err, ok } from 'neverthrow';
 import { logError } from '~/util/analytics';
 import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts';
-import { bytesToHex } from 'viem';
+import { asHex } from 'lib';
 
-const CLOUD_SHARE_PATH = 'approver-share';
+const CLOUD_SHARE_PATH = 'cloud-approver.share';
 const SCOPE = CloudStorageScope.AppData;
 
 const Query = gql(/* GraphQL */ `
@@ -40,34 +40,37 @@ export function useGetCloudApprover() {
     async ({ idToken, accessToken, create }: GetCloudApproverParams) => {
       if (accessToken) CloudStorage.setGoogleDriveAccessToken(accessToken);
 
-      const readResult = await ResultAsync.fromPromise(
-        Promise.all([
-          (async () => {
-            if (await CloudStorage.exists(CLOUD_SHARE_PATH, SCOPE))
-              return CloudStorage.readFile(CLOUD_SHARE_PATH, SCOPE);
-          })(),
-          (async () =>
-            (
-              await api.query(
-                Query,
-                { input: { idToken } },
-                { requestPolicy: 'network-only' /* prevents caching */ },
-              )
-            ).data?.cloudShare)(),
-        ]),
+      const promisedCloudResult = ResultAsync.fromPromise(
+        (async () => {
+          if (await CloudStorage.exists(CLOUD_SHARE_PATH, SCOPE))
+            return CloudStorage.readFile(CLOUD_SHARE_PATH, SCOPE);
+        })(),
         (e) => e as Error,
       );
-      if (readResult.isErr()) {
-        logError('Cloud approver share read failed', { error: readResult.error });
-        return err('read-failed' as const);
-      }
 
-      const [cloudShare, apiShare] = readResult.value;
+      const apiResult = await api.query(
+        Query,
+        { input: { idToken } },
+        { requestPolicy: 'network-only' /* prevents caching */ },
+      );
+      if (!apiResult.data?.cloudShare && apiResult.error) {
+        logError('Cloud approver API share read failed', { error: apiResult.error });
+        return err('api-read-failed' as const);
+      }
+      const apiShare = apiResult.data?.cloudShare;
+
+      const cloudResult = await promisedCloudResult;
+      if (cloudResult.isErr()) {
+        logError('Cloud approver cloud share read failed', { error: cloudResult.error });
+        return err('cloud-read-failed' as const);
+      }
+      const cloudShare = cloudResult.value;
+
       if (cloudShare && apiShare) {
         const shares = [cloudShare, apiShare].map(
           (shareHex) => new Uint8Array(Buffer.from(shareHex, 'hex')),
         );
-        const recoveredPrivateKey = bytesToHex(await combine(shares));
+        const recoveredPrivateKey = asHex(Buffer.from(await combine(shares)).toString('utf8'));
 
         return Result.fromThrowable(
           () => privateKeyToAccount(recoveredPrivateKey),
@@ -78,7 +81,7 @@ export function useGetCloudApprover() {
         const privateKey = generatePrivateKey();
         const approver = privateKeyToAccount(privateKey);
 
-        const secret = new Uint8Array(Buffer.from(privateKey, 'utf-8'));
+        const secret = new Uint8Array(Buffer.from(privateKey, 'utf8'));
         const [cloudShare, apiShare] = (await split(secret, 2, 2)).map((share) =>
           Buffer.from(share).toString('hex'),
         );

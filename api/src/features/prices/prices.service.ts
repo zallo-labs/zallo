@@ -113,6 +113,7 @@ export class PricesService {
   }
 
   async updatePriceFeedsIfNecessary(chain: Chain, priceIds: Hex[]) {
+    priceIds = [...new Set(priceIds)];
     if (
       priceIds
         .map((priceId) => this.isPriceFeedGuaranteedFresh(chain, priceId))

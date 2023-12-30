@@ -12,6 +12,7 @@ const User = gql(/* GraphQL */ `
       id
       address
       cloud {
+        id
         provider
       }
     }

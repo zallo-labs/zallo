@@ -6,6 +6,7 @@
   "scripts": {
     "prepare": "yarn expo customize tsconfig.json",
     "generate:gql": "graphql-codegen --config codegen.ts && sed -i 's/as unknown as IntrospectionQuery;/as const;/g' ./src/gql/api/schema.generated.ts",
+    "generate:ampli": "ampli pull -p ./src/lib/ampli --omit-api-keys",
     "build:web": "yarn expo export -p web",
     "deploy:update": "yarn eas update --auto --non-interactive --platform all",
     "dev": "APP_VARIANT=dev yarn expo start --dev-client",
@@ -20,6 +21,7 @@
     "//": "https://www.npmjs.com/package/expo-yarn-workspaces"
   },
   "dependencies": {
+    "@amplitude/analytics-react-native": "^1.4.7",
     "@config-plugins/react-native-ble-plx": "^7.0.0",
     "@expo/config": "~8.1.1",
     "@expo/vector-icons": "patch:@expo/vector-icons@npm:13.0.0#../.yarn/patches/@expo-vector-icons-npm-13.0.0-744b56496b.patch",
@@ -38,11 +40,8 @@
     "@react-native-clipboard/clipboard": "^1.12.1",
     "@react-native-community/blur": "^4.3.2",
     "@react-native-community/netinfo": "9.3.10",
-    "@react-native-firebase/analytics": "^18.4.0",
-    "@react-native-firebase/app": "^18.4.0",
-    "@react-native-firebase/crashlytics": "^18.4.0",
-    "@react-native-firebase/perf": "^18.4.0",
-    "@react-native-google-signin/google-signin": "^10.0.1",
+    "@react-native-firebase/app": "^18.7.3",
+    "@react-native-google-signin/google-signin": "^11.0.0",
     "@react-navigation/drawer": "^6.6.4",
     "@react-navigation/material-top-tabs": "^6.6.4",
     "@react-navigation/native": "^6.1.8",
@@ -158,6 +157,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.22.5",
+    "@babel/plugin-transform-flow-strip-types": "^7.23.3",
     "@babel/plugin-transform-private-methods": "^7.23.3",
     "@graphql-codegen/cli": "^5.0.0",
     "@graphql-codegen/client-preset": "^4.1.0",
@@ -180,6 +180,7 @@
     "@types/url-parse": "^1.4.9",
     "babel-plugin-lodash": "^3.3.4",
     "babel-plugin-transform-remove-console": "^6.9.4",
+    "eslint": "^8.56.0",
     "eslint-plugin-react": "^7.33.2",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-native": "^4.1.0",

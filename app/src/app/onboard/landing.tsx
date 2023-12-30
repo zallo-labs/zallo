@@ -22,7 +22,7 @@ import { gql } from '@api';
 import { useQuery } from '~/gql';
 
 const Query = gql(/* GraphQL */ `
-  query landing {
+  query Landing {
     user {
       id
       ...LinkAppleButton_User

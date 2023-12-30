@@ -23,6 +23,7 @@ import { withSuspense } from '~/components/skeleton/withSuspense';
 import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
 import { ScreenSurface } from '~/components/layout/ScreenSurface';
 import Decimal from 'decimal.js';
+import { ampli } from '~/lib/ampli';
 
 const Query = gql(/* GraphQL */ `
   query TransferScreen($account: UAddress!, $token: UAddress!) {
@@ -117,6 +118,7 @@ function TransferScreen() {
                 pathname: `/(drawer)/transaction/[id]/`,
                 params: { id: proposal },
               });
+              ampli.transferProposal({ token: token.address });
             }}
           >
             Propose

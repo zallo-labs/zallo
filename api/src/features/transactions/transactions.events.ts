@@ -25,6 +25,9 @@ import Redis from 'ioredis';
 import { RUNNING_JOB_STATUSES, TypedQueue } from '../util/bull/bull.util';
 import { ETH } from 'lib/dapps';
 import { runOnce } from '~/util/mutex';
+import { ampli } from '~/util/ampli';
+import { Revenue } from '@amplitude/analytics-node';
+import Decimal from 'decimal.js';
 
 @Injectable()
 export class TransactionsEvents implements OnModuleInit {
@@ -68,7 +71,7 @@ export class TransactionsEvents implements OnModuleInit {
     );
     if (r?.eventName !== 'OperationExecuted' && r?.eventName !== 'OperationsExecuted') return;
 
-    const transaction = e.update(e.Transaction, () => ({
+    const updatedTransaction = e.update(e.Transaction, () => ({
       filter_single: { hash: asHex(receipt.transactionHash) },
       set: {
         receipt: e.insert(e.Receipt, {
@@ -82,16 +85,33 @@ export class TransactionsEvents implements OnModuleInit {
       },
     }));
 
-    const proposalId = await this.db.query(e.select(transaction.proposal.id));
-    if (!proposalId)
-      throw new Error(`Proposal not found for reverted transaction: ${receipt.transactionHash}`);
+    const transaction = await this.db.query(
+      e.select(updatedTransaction, () => ({
+        proposal: {
+          id: true,
+          account: { approvers: { user: true } },
+          paymasterEthFee: true,
+        },
+        ethPerFeeToken: true,
+        usdPerFeeToken: true,
+      })),
+    );
+    if (!transaction)
+      throw new Error(`Transaction not found for executed transaction: ${receipt.transactionHash}`);
 
-    this.log.debug(`Proposal executed: ${proposalId}`);
+    const proposal = transaction.proposal;
+    this.log.debug(`Proposal executed: ${proposal.id}`);
 
     await this.proposals.publishProposal(
-      { id: asUUID(proposalId), account: asUAddress(log.address, chain) },
+      { id: asUUID(proposal.id), account: asUAddress(receipt.from, chain) },
       ProposalEvent.executed,
     );
+
+    const usdPerEth = new Decimal(transaction.usdPerFeeToken).div(transaction.ethPerFeeToken);
+    const revenue = new Decimal(transaction.proposal.paymasterEthFee).mul(usdPerEth).toNumber();
+    proposal.account.approvers.forEach(({ user }) => {
+      ampli.transactionExecuted(user.id, { success: false }, { revenue });
+    });
   }
 
   private async reverted({ chain, receipt, block }: TransactionData) {
@@ -101,7 +121,7 @@ export class TransactionsEvents implements OnModuleInit {
     const tx = await network.getTransaction({ hash: receipt.transactionHash });
     const callResponse = await network.call(tx);
 
-    const transaction = e.update(e.Transaction, () => ({
+    const updatedTransaction = e.update(e.Transaction, () => ({
       filter_single: { hash: asHex(receipt.transactionHash) },
       set: {
         receipt: e.insert(e.Receipt, {
@@ -115,16 +135,33 @@ export class TransactionsEvents implements OnModuleInit {
       },
     }));
 
-    const proposalId = await this.db.query(e.select(transaction.proposal.id));
-    if (!proposalId)
-      throw new Error(`Proposal not found for reverted transaction: ${receipt.transactionHash}`);
+    const transaction = await this.db.query(
+      e.select(updatedTransaction, () => ({
+        proposal: {
+          id: true,
+          account: { approvers: { user: true } },
+          paymasterEthFee: true,
+        },
+        ethPerFeeToken: true,
+        usdPerFeeToken: true,
+      })),
+    );
+    if (!transaction)
+      throw new Error(`Transaction not found for reverted transaction: ${receipt.transactionHash}`);
 
-    this.log.debug(`Proposal reverted: ${proposalId}`);
+    const proposal = transaction.proposal;
+    this.log.debug(`Proposal reverted: ${proposal.id}`);
 
     await this.proposals.publishProposal(
-      { id: asUUID(proposalId), account: asUAddress(receipt.from, chain) },
+      { id: asUUID(proposal.id), account: asUAddress(receipt.from, chain) },
       ProposalEvent.executed,
     );
+
+    const usdPerEth = new Decimal(transaction.usdPerFeeToken).div(transaction.ethPerFeeToken);
+    const revenue = new Decimal(transaction.proposal.paymasterEthFee).mul(usdPerEth).toNumber();
+    proposal.account.approvers.forEach(({ user }) => {
+      ampli.transactionExecuted(user.id, { success: false }, { revenue });
+    });
   }
 
   private async addMissingJobs() {

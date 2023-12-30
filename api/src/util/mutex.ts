@@ -1,5 +1,5 @@
 import { Redis } from 'ioredis';
-import { toArray } from 'lib';
+import { toSet } from 'lib';
 import { LockOptions, Mutex } from 'redis-semaphore';
 
 const DEFAULT_OPTIONS = { lockTimeout: 60_000, acquireTimeout: 60_000 } satisfies LockOptions;
@@ -13,7 +13,7 @@ export async function runExclusively<R>(
   f: () => R,
   { redis, key: keys, ...options }: RunExclusivelyOptions,
 ): Promise<R> {
-  const locks = toArray(keys).map(
+  const locks = [...toSet(keys)].map(
     (key) =>
       new Mutex(redis, key, {
         ...DEFAULT_OPTIONS,
