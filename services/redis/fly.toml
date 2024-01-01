@@ -2,7 +2,7 @@ app = "zallo-production-redis"
 primary_region = "lax"  # Los Angeles
 
 [build]
-  image = "flyio/redis:6.2.6" # https://github.com/fly-apps/redis
+  dockerfile = "Dockerfile"
 
 [env]
   MAXMEMORY_POLICY = "allkeys-lru"
