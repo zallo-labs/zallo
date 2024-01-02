@@ -15,11 +15,7 @@
     },
     "main": {
       "extends": "base",
-      "channel": "main",
-      "env": {
-        "API_URL": "https://api.zallo.io",
-        "API_GQL_WS": "wss://api.zallo.io/graphql"
-      }
+      "channel": "main"
     },
     "dev-client": {
       "extends": "base",
@@ -33,7 +29,7 @@
   "submit": {
     "base": {
       "android": {
-        "serviceAccountKeyPath": "./play-service-account.secret.json",
+        "serviceAccountKeyPath": "./google-play.secret.json",
         "releaseStatus": "completed"
       },
       "ios": {
