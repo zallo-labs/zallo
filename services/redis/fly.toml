@@ -4,11 +4,8 @@ primary_region = "lax"  # Los Angeles
 [build]
   dockerfile = "Dockerfile"
 
-[env]
-  MAXMEMORY_POLICY = "allkeys-lru"
-
-  # Secrets
-  # REDIS_PASSWORD    # Randomly generated
+# Secrets
+# REDIS_PASSWORD    # Randomly generated
 
 [mounts]
   source = "redis_data"   # fly volume create --app $APP redis_data
