@@ -245,6 +245,11 @@ interface EventBase {
   timestamp: DateTime!
 }
 
+input ExecuteTransactionProposalInput {
+  id: UUID!
+  ignoreSimulation: Boolean
+}
+
 type FeesPerGas implements CustomNode {
   feeTokenDecimals: Float!
   id: ID!
@@ -316,7 +321,7 @@ type Mutation {
   createAccount(input: CreateAccountInput!): Account!
   createPolicy(input: CreatePolicyInput!): CreatePolicyResponse!
   deleteContact(input: ContactInput!): ID
-  execute(input: UniqueProposalInput!): TransactionProposal
+  execute(input: ExecuteTransactionProposalInput!): TransactionProposal
   labelProposalRisk(input: LabelProposalRiskInput!): Proposal!
   link(input: LinkInput!): User!
   proposeMessage(input: ProposeMessageInput!): MessageProposal!
