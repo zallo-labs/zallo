@@ -1,135 +1,96 @@
-import { z } from 'zod';
-import { TransactionLayoutParams } from '~/app/(drawer)/transaction/[id]/_layout';
 import { useLocalParams } from '~/hooks/useLocalParams';
 import { StyleSheet, View } from 'react-native';
-import { ListHeader } from '~/components/list/ListHeader';
-import { TokenItem } from '~/components/token/TokenItem';
 import { gql, useFragment } from '@api/generated';
-import { Divider, Text } from 'react-native-paper';
-import { useQuery } from '~/gql';
+import { Divider } from 'react-native-paper';
+import { DocumentVariables, getOptimizedDocument, useQuery } from '~/gql';
 import { useSubscription } from 'urql';
-import { ProposalValue } from '~/components/proposal/ProposalValue';
 import { RiskRating } from '~/components/proposal/RiskRating';
 import { FeesSection } from '~/components/transaction/FeesSection';
-import { OperationSection } from '~/components/transaction/OperationSection';
 import { withSuspense } from '~/components/skeleton/withSuspense';
 import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
-
-const Query = gql(/* GraphQL */ `
-  query TransactionDetailsTab($proposal: UUID!) {
-    transactionProposal(input: { id: $proposal }) {
-      ...TransactionDetailsTab_TransactionProposal
-    }
-  }
-`);
+import { TransfersSection } from '~/components/transaction/TransfersSection';
+import { OperationsSection } from '~/components/transaction/OperationsSection';
+import { useEffect, useState } from 'react';
+import { UAddress, ZERO_ADDR, asUAddress } from 'lib';
+import { TransactionLayoutParams } from '~/app/(drawer)/transaction/[id]/_layout';
 
 const TransactionProposal = gql(/* GraphQL */ `
-  fragment TransactionDetailsTab_TransactionProposal on TransactionProposal {
+  fragment TransactionScreen_TransactionProposal on TransactionProposal
+  @argumentDefinitions(account: { type: "UAddress!" }, includeAccount: { type: "Boolean!" }) {
     id
     account {
       id
       address
+      name
     }
-    operations {
-      ...OperationSection_OperationFragment
-    }
-    transaction {
-      id
-      receipt {
-        id
-        transferEvents {
-          id
-          tokenAddress
-          token {
-            ...TokenItem_Token
-          }
-          amount
-          from
-          to
-          isFeeTransfer
-        }
-      }
-    }
-    simulation {
-      id
-      transfers {
-        id
-        tokenAddress
-        token {
-          ...TokenItem_Token
-        }
-        amount
-        from
-        to
-        isFeeTransfer
-      }
-    }
+    ...OperationsSection_TransactionProposal
+    ...TransfersSection_TransactionProposal
+      @arguments(account: $account, includeAccount: $includeAccount)
+    ...FeesSection_TransactionProposal
+      @arguments(account: $account, includeAccount: $includeAccount)
     ...RiskRating_Proposal
-    ...OperationSection_TransactionProposalFragment
-    ...ProposalValue_TransactionProposal
-    ...FeeToken_TransactionProposalFragment
+    ...TransactionSheet_TransactionProposal
+  }
+`);
+
+const Query = gql(/* GraphQL */ `
+  query TransactionScreen($id: UUID!, $account: UAddress!, $includeAccount: Boolean!) {
+    transactionProposal(input: { id: $id }) {
+      ...TransactionScreen_TransactionProposal
+        @arguments(account: $account, includeAccount: $includeAccount)
+    }
+
+    user {
+      id
+      ...ProposalActions_User
+    }
   }
 `);
 
 const Subscription = gql(/* GraphQL */ `
-  subscription TransactionDetailsTab_Subscription($proposal: UUID!) {
-    proposal(input: { proposals: [$proposal] }) {
-      ...TransactionDetailsTab_TransactionProposal
+  subscription TransactionScreen_Subscription(
+    $id: UUID!
+    $account: UAddress!
+    $includeAccount: Boolean!
+  ) {
+    proposal(input: { proposals: [$id] }) {
+      ...TransactionScreen_TransactionProposal
+        @arguments(account: $account, includeAccount: $includeAccount)
     }
   }
 `);
 
-export const TransactionDetailsTabParams = TransactionLayoutParams;
-export type TransactionDetailsTabParams = z.infer<typeof TransactionDetailsTabParams>;
+export const TransactionScreenParams = TransactionLayoutParams;
 
-function DetailsTab() {
-  const { id } = useLocalParams(TransactionDetailsTabParams);
+function TransactionScreen() {
+  const { id } = useLocalParams(TransactionScreenParams);
 
-  const { data } = useQuery(Query, { proposal: id });
-  useSubscription({ query: Subscription, variables: { proposal: id } });
+  // Extract account from TransactionProposal result, and use it as a variable to get the full result
+  const [account, setAccount] = useState<UAddress>();
+  const variables = {
+    id,
+    account: account ?? asUAddress(ZERO_ADDR, 'zksync'),
+    includeAccount: !!account,
+  } satisfies DocumentVariables<typeof Query>;
+
+  const { data } = useQuery(Query, variables);
+  useSubscription({ query: getOptimizedDocument(Subscription), variables });
   const p = useFragment(TransactionProposal, data?.transactionProposal);
+
+  useEffect(() => {
+    if (account !== p?.account.address) setAccount(p?.account.address);
+  }, [account, p?.account.address]);
 
   if (!p) return null;
 
-  const transfers = [
-    ...(p.transaction?.receipt?.transferEvents ?? p.simulation?.transfers ?? []),
-  ].filter((t) => !t.isFeeTransfer); // Ignore fee transfers, this is shown by FeeToken
-
   return (
     <View style={styles.container}>
-      <ListHeader>Operations</ListHeader>
-      {p.operations.map((operation, i) => (
-        <OperationSection
-          key={i}
-          proposal={p}
-          operation={operation}
-          initiallyExpanded={p.operations.length === 1}
-        />
-      ))}
+      <OperationsSection proposal={p} />
       <Divider horizontalInset style={styles.divider} />
 
-      {transfers.length > 0 && (
-        <>
-          <ListHeader
-            trailing={({ Text }) => (
-              <Text>
-                <ProposalValue proposal={p} />
-              </Text>
-            )}
-          >
-            Transfers
-          </ListHeader>
-
-          {transfers.map((t) =>
-            t.token ? (
-              <TokenItem key={t.id} token={t.token} amount={t.amount} />
-            ) : (
-              <Text key={t.id}>{`${t.tokenAddress}: ${t.amount}`}</Text>
-            ),
-          )}
-          <Divider horizontalInset style={styles.divider} />
-        </>
-      )}
+      <TransfersSection proposal={p}>
+        <Divider horizontalInset style={styles.divider} />
+      </TransfersSection>
 
       <FeesSection proposal={p} />
       <Divider horizontalInset style={styles.divider} />
@@ -153,4 +114,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default withSuspense(DetailsTab, <ScreenSkeleton />);
+export default withSuspense(TransactionScreen, <ScreenSkeleton />);

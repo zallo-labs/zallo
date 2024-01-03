@@ -57,13 +57,13 @@ export interface GettingStartedProps {
 }
 
 export function GettingStarted({ style, then, ...props }: GettingStartedProps) {
-  const { styles } = useStyles(stylesheet);
+  const { styles, breakpoint } = useStyles(stylesheet);
   const query = useFragment(Query, props.query);
   const user = useFragment(User, props.user);
   const account = useFragment(Account, props.account);
 
   const [dismissed, setDismissed] = useAtom(dismissedAtom);
-  const [expanded, toggleExpanded] = useToggle(true);
+  const [expanded, toggleExpanded] = useToggle(breakpoint === 'expanded');
 
   const suggestions = [
     useLinkGoogleSuggestion({ user }),

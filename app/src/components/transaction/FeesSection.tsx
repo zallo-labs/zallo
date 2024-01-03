@@ -13,9 +13,11 @@ import { View } from 'react-native';
 import { Text } from 'react-native-paper';
 import { TokenAmount } from '~/components/token/TokenAmount';
 
-const FragmentDoc = gql(/* GraphQL */ `
-  fragment FeeToken_TransactionProposalFragment on TransactionProposal {
+const TransactionProposal = gql(/* GraphQL */ `
+  fragment FeesSection_TransactionProposal on TransactionProposal
+  @argumentDefinitions(account: { type: "UAddress!" }, includeAccount: { type: "Boolean!" }) {
     id
+    status
     account {
       id
       address
@@ -27,6 +29,7 @@ const FragmentDoc = gql(/* GraphQL */ `
         id
         eth
       }
+      balance(input: { account: $account }) @include(if: $includeAccount)
       ...TokenItem_Token
       ...TokenAmount_token
     }
@@ -53,20 +56,26 @@ const FragmentDoc = gql(/* GraphQL */ `
 `);
 
 const Update = gql(/* GraphQL */ `
-  mutation FeeToken_Update($id: UUID!, $feeToken: Address!) {
+  mutation FeeToken_Update(
+    $id: UUID!
+    $feeToken: Address!
+    $account: UAddress!
+    $includeAccount: Boolean!
+  ) {
     updateTransaction(input: { id: $id, feeToken: $feeToken }) {
-      ...FeeToken_TransactionProposalFragment
+      ...FeesSection_TransactionProposal
+        @arguments(account: $account, includeAccount: $includeAccount)
     }
   }
 `);
 
 export interface FeeTokenProps {
-  proposal: FragmentType<typeof FragmentDoc>;
+  proposal: FragmentType<typeof TransactionProposal>;
 }
 
 export function FeesSection(props: FeeTokenProps) {
   const { styles } = useStyles(stylesheet);
-  const p = useFragment(FragmentDoc, props.proposal);
+  const p = useFragment(TransactionProposal, props.proposal);
   const update = useMutation(Update)[1];
   const selectToken = useSelectToken();
 
@@ -83,14 +92,29 @@ export function FeesSection(props: FeeTokenProps) {
   const isEstimated = !p.transaction?.receipt;
 
   const ethPerFeeToken = new Decimal(p.transaction?.ethPerFeeToken ?? p.feeToken.price?.eth ?? 0);
+  const amount = ethFees.div(ethPerFeeToken);
+  const insufficient =
+    p.status === 'Pending' && p.feeToken.balance && amount.abs().gt(p.feeToken.balance);
 
   return (
     <>
       <TokenItem
         token={p.feeToken}
-        amount={ethFees.div(ethPerFeeToken)}
+        amount={amount}
         overline={'Fees' + (isEstimated ? ' (max)' : '')}
         onPress={toggleExpanded}
+        trailing={({ Trailing }) => (
+          <View>
+            <Trailing />
+
+            {insufficient && p.feeToken.balance && (
+              <Text style={styles.insufficient}>
+                <TokenAmount token={p.feeToken} amount={p.feeToken.balance} />
+                {' available'}
+              </Text>
+            )}
+          </View>
+        )}
       />
 
       <Collapsible collapsed={!expanded} style={styles.detailsContainer}>
@@ -127,7 +151,13 @@ export function FeesSection(props: FeeTokenProps) {
           style={styles.button}
           onPress={async () => {
             const token = await selectToken({ account: p.account.address, feeToken: true });
-            if (token) await update({ id: p.id, feeToken: asAddress(token) });
+            if (token)
+              await update({
+                id: p.id,
+                feeToken: asAddress(token),
+                account: p.account.address,
+                includeAccount: true,
+              });
           }}
         >
           Pay fees in another token
@@ -138,6 +168,9 @@ export function FeesSection(props: FeeTokenProps) {
 }
 
 const stylesheet = createStyles(({ colors }) => ({
+  insufficient: {
+    color: colors.error,
+  },
   secondary: {
     color: colors.onSurfaceVariant,
   },

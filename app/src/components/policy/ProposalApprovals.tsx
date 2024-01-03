@@ -1,6 +1,6 @@
-import { ScrollView } from 'react-native';
+import { View } from 'react-native';
 import { ListHeader } from '~/components/list/ListHeader';
-import { Hex, UUID } from 'lib';
+import { UUID } from 'lib';
 import { gql, useFragment } from '@api/generated';
 import { getOptimizedDocument, useQuery } from '~/gql';
 import { useSubscription } from 'urql';
@@ -13,7 +13,7 @@ import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
 import { createStyles, useStyles } from '@theme/styles';
 
 const Proposal = gql(/* GraphQL */ `
-  fragment PolicyTab_ProposalFragment on Proposal
+  fragment ProposalApprovals_Proposal on Proposal
   @argumentDefinitions(proposal: { type: "UUID!" }) {
     id
     account {
@@ -64,9 +64,9 @@ const Proposal = gql(/* GraphQL */ `
 `);
 
 const Query = gql(/* GraphQL */ `
-  query PolicyTab($proposal: UUID!) {
+  query ProposalApprovals($proposal: UUID!) {
     proposal(input: { id: $proposal }) {
-      ...PolicyTab_ProposalFragment @arguments(proposal: $proposal)
+      ...ProposalApprovals_Proposal @arguments(proposal: $proposal)
     }
 
     user {
@@ -78,9 +78,9 @@ const Query = gql(/* GraphQL */ `
 `);
 
 const Subscription = gql(/* GraphQL */ `
-  subscription PolicyTab_Subscription($proposal: UUID!) {
+  subscription ProposalApprovals_Subscription($proposal: UUID!) {
     proposal(input: { proposals: [$proposal] }) {
-      ...PolicyTab_ProposalFragment @arguments(proposal: $proposal)
+      ...ProposalApprovals_Proposal @arguments(proposal: $proposal)
     }
   }
 `);
@@ -89,7 +89,7 @@ export interface PolicyTabProps {
   proposal: UUID;
 }
 
-function PolicyTab_({ proposal: id }: PolicyTabProps) {
+function ProposalApprovals_({ proposal: id }: PolicyTabProps) {
   const { styles } = useStyles(stylesheet);
 
   const { data } = useQuery(Query, { proposal: id });
@@ -105,23 +105,21 @@ function PolicyTab_({ proposal: id }: PolicyTabProps) {
   const selected =
     p.account.policies.find(({ id }) => id === p.policy?.id) ?? p.account.policies[0];
 
-  const remaining = selected.state && {
-    approvals: Math.max(selected.state.threshold - p.approvals.length, 0),
-    approvers: selected.state.approvers.filter(
-      (approver) =>
-        !p.approvals.find((a) => a.approver.id === approver.id) &&
-        !p.rejections.find((r) => r.approver.id === approver.id),
-    ),
-  };
+  const awaitingApproval = p.approvals.length < (selected.state?.threshold ?? 0);
+  const awaitingApprovers = selected.state?.approvers.filter(
+    (approver) =>
+      !p.approvals.find((a) => a.approver.id === approver.id) &&
+      !p.rejections.find((r) => r.approver.id === approver.id),
+  );
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
+    <View style={styles.container}>
       <SelectedPolicy proposal={p} />
 
-      {remaining && remaining.approvals > 0 && (
+      {awaitingApproval && (
         <>
           <ListHeader>Awaiting</ListHeader>
-          {remaining.approvers.map((approver) => (
+          {awaitingApprovers?.map((approver) => (
             <AwaitingApprovalItem key={approver.id} user={user} proposal={p} approver={approver} />
           ))}
         </>
@@ -136,7 +134,7 @@ function PolicyTab_({ proposal: id }: PolicyTabProps) {
       {p.approvals.map((approval) => (
         <ApprovalItem key={approval.id} user={user} approval={approval} proposal={p} />
       ))}
-    </ScrollView>
+    </View>
   );
 }
 
@@ -151,4 +149,4 @@ const stylesheet = createStyles(({ colors }) => ({
   },
 }));
 
-export const PolicyTab = withSuspense(PolicyTab_, <ScreenSkeleton />);
+export const ProposalApprovals = withSuspense(ProposalApprovals_, <ScreenSkeleton />);

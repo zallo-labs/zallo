@@ -15,7 +15,7 @@ import { useMemoApply } from '~/hooks/useMemoized';
 
 type Lines = 1 | 2 | 3;
 
-interface ListIconElementProps extends IconProps {
+export interface ListIconElementProps extends IconProps {
   disabled?: boolean;
 }
 
