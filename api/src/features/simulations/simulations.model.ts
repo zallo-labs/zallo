@@ -1,12 +1,23 @@
 import { ObjectType, Field } from '@nestjs/graphql';
 import { TransferDetails } from '../transfers/transfers.model';
 import { Node, NodeType } from '~/decorators/interface.decorator';
+import { BytesScalar } from '~/apollo/scalars/Bytes.scalar';
+import { Hex } from 'lib';
 
 @ObjectType({ implements: TransferDetails })
-export class SimulationTransfer extends TransferDetails {}
+export class SimulatedTransfer extends TransferDetails {}
 
 @NodeType()
 export class Simulation extends Node {
-  @Field(() => [SimulationTransfer])
-  transfers: SimulationTransfer[];
+  @Field(() => Boolean)
+  success: boolean;
+
+  @Field(() => [BytesScalar])
+  responses: Hex[];
+
+  @Field(() => [SimulatedTransfer])
+  transfers: SimulatedTransfer[];
+
+  @Field(() => Date)
+  timestamp: Date;
 }

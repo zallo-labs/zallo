@@ -576,12 +576,7 @@ type SatisfiabilityResult {
 """function selector (4-byte hex string)"""
 scalar Selector
 
-type Simulation implements Node {
-  id: UUID!
-  transfers: [SimulationTransfer!]!
-}
-
-type SimulationTransfer implements TransferDetails {
+type SimulatedTransfer implements TransferDetails {
   account: Account!
   amount: Decimal!
   from: Address!
@@ -591,6 +586,14 @@ type SimulationTransfer implements TransferDetails {
   token: Token
   tokenAddress: UAddress!
   value: Decimal
+}
+
+type Simulation implements Node {
+  id: UUID!
+  responses: [Bytes!]!
+  success: Boolean!
+  timestamp: DateTime!
+  transfers: [SimulatedTransfer!]!
 }
 
 type Subscription {
