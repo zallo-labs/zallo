@@ -1,9 +1,5 @@
 import { forwardRef } from 'react';
-import BottomSheet, {
-  BottomSheetProps,
-  BottomSheetView,
-  useBottomSheetDynamicSnapPoints,
-} from '@gorhom/bottom-sheet';
+import BottomSheet, { BottomSheetProps, BottomSheetView } from '@gorhom/bottom-sheet';
 import { StyleProp, View, ViewStyle } from 'react-native';
 import { EdgeInsets, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -11,38 +7,21 @@ import { SheetBackground } from '~/components/sheet/SheetBackground';
 import { SheetBackdrop } from '~/components/sheet/SheetBackdrop';
 import { createStyles, useStyles } from '@theme/styles';
 
-export const CONTENT_HEIGHT_SNAP_POINT = 'CONTENT_HEIGHT';
-const DEFAULT_SNAP_POINTS = [CONTENT_HEIGHT_SNAP_POINT];
-
-export interface SheetProps extends Omit<BottomSheetProps, 'ref' | 'snapPoints'> {
+export interface SheetProps extends Omit<BottomSheetProps, 'ref'> {
   initialSnapPoints?: (string | number)[];
   handle?: boolean;
   contentContainerStyle?: StyleProp<ViewStyle>;
 }
 
 export const Sheet = forwardRef<BottomSheet, SheetProps>(
-  (
-    {
-      children,
-      initialSnapPoints = DEFAULT_SNAP_POINTS,
-      handle = true,
-      contentContainerStyle,
-      ...props
-    },
-    ref,
-  ) => {
+  ({ children, handle = true, contentContainerStyle, ...props }, ref) => {
     const { styles } = useStyles(stylesheet);
     const router = useRouter();
-
-    const { animatedHandleHeight, animatedSnapPoints, animatedContentHeight, handleContentLayout } =
-      useBottomSheetDynamicSnapPoints(initialSnapPoints);
 
     return (
       <BottomSheet
         ref={ref}
-        handleHeight={animatedHandleHeight}
-        snapPoints={animatedSnapPoints}
-        contentHeight={animatedContentHeight}
+        enableDynamicSizing
         backgroundComponent={SheetBackground}
         backgroundStyle={styles.background}
         backdropComponent={SheetBackdrop}
@@ -54,7 +33,6 @@ export const Sheet = forwardRef<BottomSheet, SheetProps>(
         handleIndicatorStyle={[styles.handleIndicator, props.handleIndicatorStyle]}
       >
         <BottomSheetView
-          onLayout={handleContentLayout}
           style={[styles.contentContainer(useSafeAreaInsets()), contentContainerStyle]}
         >
           {children}
