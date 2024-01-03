@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { Hex, UAddress, asHex, filterAsync, decodeRevertError, isUAddress, asAddress } from 'lib';
+import { Hex, UAddress, asHex, filterAsync, decodeRevertError, isUAddress } from 'lib';
 import { Price } from './prices.model';
 import e from '~/edgeql-js';
 import { preferUserToken } from '~/features/tokens/tokens.service';
@@ -39,7 +39,7 @@ export class PricesService {
     @InjectRedis() private redis: Redis,
   ) {
     this.pyth = new EvmPriceServiceConnection(CONFIG.pythHermesUrl);
-    this.pyth.onWsError = this.handlePythError;
+    this.pyth.onWsError = (e) => this.handlePythWsError(e);
   }
 
   async price(tokenOrUsdPriceId: Hex | UAddress): Promise<Price> {
@@ -188,8 +188,12 @@ export class PricesService {
     }
   }
 
-  private handlePythError(error: Error) {
+  private handlePythWsError(error: Error) {
     this.log.error(error);
+
+    // Reconnect
+    this.pyth.startWebSocket();
+    this.usdPrices.clear(); // Clear cache in order to re-establish subscriptions
   }
 
   private get expiry() {
