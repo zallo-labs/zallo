@@ -1,31 +1,31 @@
 import { FragmentType, gql, useFragment } from '@api';
-import { CancelIcon, DoubleCheckIcon, materialCommunityIcon } from '@theme/icons';
+import { DoubleCheckIcon, materialCommunityIcon } from '@theme/icons';
 import { createStyles, useStyles } from '@theme/styles';
 import { View } from 'react-native';
-import { ActivityIndicator, Text } from 'react-native-paper';
+import { Text } from 'react-native-paper';
 import { match } from 'ts-pattern';
 
 const ApprovalIcon = materialCommunityIcon('security');
 
-const TransactionProposal = gql(/* GraphQL */ `
-  fragment TransactionStatus_TransactionProposal on TransactionProposal {
+const Message = gql(/* GraphQL */ `
+  fragment MessageStatus_MessageProposal on MessageProposal {
     id
-    status
+    signature
   }
 `);
 
-export interface TransactionStatusProps {
-  proposal: FragmentType<typeof TransactionProposal>;
+export interface MessageStatusProps {
+  proposal: FragmentType<typeof Message>;
 }
 
-export function TransactionStatus(props: TransactionStatusProps) {
+export function MessageStatus(props: MessageStatusProps) {
   const { styles } = useStyles(stylesheet);
-  const p = useFragment(TransactionProposal, props.proposal);
+  const p = useFragment(Message, props.proposal);
 
   return (
     <View style={styles.container}>
-      {match(p.status)
-        .with('Pending', () => (
+      {match(!!p.signature)
+        .with(false, () => (
           <>
             <ApprovalIcon style={styles.text} size={styles.icon.width} />
             <Text variant="headlineSmall" style={styles.text}>
@@ -33,27 +33,11 @@ export function TransactionStatus(props: TransactionStatusProps) {
             </Text>
           </>
         ))
-        .with('Executing', () => (
-          <>
-            <ActivityIndicator size="small" color={styles.text.color} />
-            <Text variant="headlineSmall" style={styles.text}>
-              Executing
-            </Text>
-          </>
-        ))
-        .with('Successful', () => (
+        .with(true, () => (
           <>
             <DoubleCheckIcon style={styles.text} size={styles.icon.width} />
             <Text variant="headlineSmall" style={styles.text}>
               Executed
-            </Text>
-          </>
-        ))
-        .with('Failed', () => (
-          <>
-            <CancelIcon style={styles.failed} size={styles.icon.width} />
-            <Text variant="headlineSmall" style={styles.failed}>
-              Failed
             </Text>
           </>
         ))

@@ -6,25 +6,25 @@ import { useApprove } from '~/hooks/useApprove';
 import { useReject } from '~/hooks/useReject';
 
 const MessageProposal = gql(/* GraphQL */ `
-  fragment MessageProposalActions_MessageProposal on MessageProposal {
+  fragment MessageActions_MessageProposal on MessageProposal {
     ...UseApprove_Proposal
     ...UseReject_Proposal
   }
 `);
 
 const User = gql(/* GraphQL */ `
-  fragment MessageProposalActions_User on User {
+  fragment MessageActions_User on User {
     ...UseApprove_User
     ...UseReject_User
   }
 `);
 
-export interface MessageProposalActionsProps {
+export interface MessageActionsProps {
   proposal: FragmentType<typeof MessageProposal>;
   user: FragmentType<typeof User>;
 }
 
-export function MessageProposalActions(props: MessageProposalActionsProps) {
+export function MessageActions(props: MessageActionsProps) {
   const p = useFragment(MessageProposal, props.proposal);
   const user = useFragment(User, props.user);
   const approver = useApproverAddress();

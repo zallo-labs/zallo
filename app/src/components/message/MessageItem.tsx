@@ -6,7 +6,7 @@ import { useRouter } from 'expo-router';
 import { createStyles, useStyles } from '@theme/styles';
 
 const MessageProposal = gql(/* GraphQL */ `
-  fragment MessageProposalItem_MessageProposal on MessageProposal {
+  fragment MessageItem_MessageProposal on MessageProposal {
     id
     label
     signature
@@ -19,7 +19,7 @@ const MessageProposal = gql(/* GraphQL */ `
 `);
 
 const User = gql(/* GraphQL */ `
-  fragment MessageProposalItem_User on User {
+  fragment MessageItem_User on User {
     id
     approvers {
       id
@@ -27,12 +27,12 @@ const User = gql(/* GraphQL */ `
   }
 `);
 
-export interface MessageProposalItemProps {
+export interface MessageItemProps {
   proposal: FragmentType<typeof MessageProposal>;
   user: FragmentType<typeof User>;
 }
 
-export function MessageProposalItem(props: MessageProposalItemProps) {
+export function MessageItem(props: MessageItemProps) {
   const { styles } = useStyles(stylesheet);
   const router = useRouter();
   const p = useFragment(MessageProposal, props.proposal);

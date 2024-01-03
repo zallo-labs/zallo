@@ -14,7 +14,7 @@ import { createStyles, useStyles } from '@theme/styles';
 import { asUAddress } from 'lib';
 
 const Proposal = gql(/* GraphQL */ `
-  fragment ProposalItem_TransactionProposal on TransactionProposal {
+  fragment TransactionItem_TransactionProposal on TransactionProposal {
     id
     label
     status
@@ -43,7 +43,7 @@ const Proposal = gql(/* GraphQL */ `
 `);
 
 const User = gql(/* GraphQL */ `
-  fragment ProposalItem_User on User {
+  fragment TransactionItem_User on User {
     id
     approvers {
       id
@@ -53,16 +53,16 @@ const User = gql(/* GraphQL */ `
 
 const MultiOperationIcon = materialCommunityIcon('multiplication');
 
-export interface ProposalItemProps extends Partial<ListItemProps> {
+export interface TransactionItemProps extends Partial<ListItemProps> {
   proposal: FragmentType<typeof Proposal>;
   user: FragmentType<typeof User>;
 }
 
-function ProposalItem_({
+function TransactionItem_({
   proposal: proposalFragment,
   user: userFragment,
   ...itemProps
-}: ProposalItemProps) {
+}: TransactionItemProps) {
   const { styles } = useStyles(stylesheet);
   const router = useRouter();
   const p = useFragment(Proposal, proposalFragment);
@@ -142,4 +142,7 @@ const stylesheet = createStyles(({ colors }) => ({
   },
 }));
 
-export const ProposalItem = withSuspense(ProposalItem_, <ListItemSkeleton leading supporting />);
+export const TransactionItem = withSuspense(
+  TransactionItem_,
+  <ListItemSkeleton leading supporting />,
+);

@@ -5,7 +5,7 @@ import { ReactNode } from 'react';
 import { View } from 'react-native';
 import { Text } from 'react-native-paper';
 import { ListHeader } from '~/components/list/ListHeader';
-import { ProposalValue } from '~/components/proposal/ProposalValue';
+import { ProposalValue } from '~/components/transaction/ProposalValue';
 import { TokenAmount } from '~/components/token/TokenAmount';
 import { TokenItem } from '~/components/token/TokenItem';
 

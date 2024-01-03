@@ -29,7 +29,6 @@ const TransactionProposal = gql(/* GraphQL */ `
     ...FeesSection_TransactionProposal
       @arguments(account: $account, includeAccount: $includeAccount)
     ...RiskRating_Proposal
-    ...TransactionSheet_TransactionProposal
   }
 `);
 
