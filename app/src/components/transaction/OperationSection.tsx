@@ -4,7 +4,7 @@ import { Chevron } from '~/components/Chevron';
 import { ListItem } from '~/components/list/ListItem';
 import { OperationDetails } from './OperationDetails';
 import { FragmentType, gql, useFragment } from '@api/generated';
-import { OperationLabel } from '~/components/proposal/OperationLabel';
+import { OperationLabel } from '~/components/transaction/OperationLabel';
 
 const ProposalFragmentDoc = gql(/* GraphQL */ `
   fragment OperationSection_TransactionProposalFragment on TransactionProposal {

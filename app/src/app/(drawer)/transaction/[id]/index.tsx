@@ -38,11 +38,6 @@ const Query = gql(/* GraphQL */ `
       ...TransactionScreen_TransactionProposal
         @arguments(account: $account, includeAccount: $includeAccount)
     }
-
-    user {
-      id
-      ...ProposalActions_User
-    }
   }
 `);
 

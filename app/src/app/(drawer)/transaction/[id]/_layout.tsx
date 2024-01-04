@@ -6,7 +6,7 @@ import { z } from 'zod';
 import { useLocalParams } from '~/hooks/useLocalParams';
 import { ScrollView } from 'react-native';
 import { StyleSheet } from 'react-native';
-import { ProposalActions } from '~/components/transaction/ProposalActions';
+import { TransactionActions } from '~/components/transaction/TansactionActions';
 import { AppbarOptions } from '~/components/Appbar/AppbarOptions';
 import { TopTabs } from '~/components/layout/TopTabs';
 import { ScreenSurface } from '~/components/layout/ScreenSurface';
@@ -15,20 +15,20 @@ import { RemoveTransactionItem } from '~/components/transaction/RemoveTransactio
 import { TransactionStatus } from '~/components/transaction/TransactionStatus';
 
 const Query = gql(/* GraphQL */ `
-  query TransactionLayout($id: UUID!) {
-    transactionProposal(input: { id: $id }) {
+  query TransactionLayout($proposal: UUID!) {
+    transactionProposal(input: { id: $proposal }) {
       id
       account {
         id
         name
       }
       ...TransactionStatus_TransactionProposal
-      ...ProposalActions_TransactionProposal
+      ...TransactionActions_TransactionProposal @arguments(proposal: $proposal)
     }
 
     user {
       id
-      ...ProposalActions_User
+      ...TransactionActions_User
     }
   }
 `);
@@ -38,7 +38,7 @@ export const TransactionLayoutParams = z.object({ id: zUuid() });
 export default function TransactionLayout() {
   const { id } = useLocalParams(TransactionLayoutParams);
 
-  const query = useQuery(Query, { id });
+  const query = useQuery(Query, { proposal: id });
   const { transactionProposal: proposal, user } = query.data;
 
   if (!proposal) return query.stale ? null : <NotFound name="Proposal" />;
@@ -71,7 +71,7 @@ export default function TransactionLayout() {
             />
           </TopTabs>
 
-          <ProposalActions proposal={proposal} user={user} />
+          <TransactionActions proposal={proposal} user={user} />
         </ScrollView>
       </ScreenSurface>
     </>

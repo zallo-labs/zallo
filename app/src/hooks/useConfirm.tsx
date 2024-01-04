@@ -8,18 +8,6 @@ export function useConfirm(defaults?: Partial<ConfirmModalParams>) {
     getEvent({ pathname: `/confirm`, params: { ...defaults, ...params } }, CONFIRMATIONS);
 }
 
-export function useConfirmDelete<Defaults extends Partial<ConfirmModalParams>>(
-  defaults?: Defaults,
-) {
-  return useConfirm({
-    title: 'Delete?',
-    message: 'Are you sure you want to delete?',
-    confirmLabel: 'Delete',
-    destructive: 'yes',
-    ...defaults,
-  });
-}
-
 export function useConfirmRemoval<Defaults extends Partial<ConfirmModalParams>>(
   defaults?: Defaults,
 ) {
@@ -27,19 +15,7 @@ export function useConfirmRemoval<Defaults extends Partial<ConfirmModalParams>>(
     title: 'Remove?',
     message: 'Are you sure you want to remove?',
     confirmLabel: 'Remove',
-    destructive: 'yes',
-    ...defaults,
-  });
-}
-
-export function useConfirmDiscard<Defaults extends Partial<ConfirmModalParams>>(
-  defaults?: Defaults,
-) {
-  return useConfirm({
-    title: 'Discard changes?',
-    message: 'You have unsaved changes. Do you want to discard them?',
-    confirmLabel: 'Discard',
-    destructive: 'yes',
+    type: 'destructive',
     ...defaults,
   });
 }
