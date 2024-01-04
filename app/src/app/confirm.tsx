@@ -14,12 +14,12 @@ const ConfirmModalParams = z.object({
   title: z.string().optional(),
   message: z.string().optional(),
   confirmLabel: z.string().optional(),
-  confirmTextColor: z.string().optional(),
+  destructive: z.literal('yes').optional(),
 });
 export type ConfirmModalParams = z.infer<typeof ConfirmModalParams>;
 
 export default function ConfirmModal() {
-  const { title, message, confirmLabel, confirmTextColor } = useLocalParams(ConfirmModalParams);
+  const { title, message, confirmLabel, destructive } = useLocalParams(ConfirmModalParams);
   const { styles } = useStyles(stylesheet);
   const router = useRouter();
 
@@ -39,7 +39,7 @@ export default function ConfirmModal() {
         </Button>
 
         <Button
-          textColor={confirmTextColor || styles.confirm.color}
+          textColor={destructive ? styles.destructive.color : styles.confirm.color}
           onPress={() => {
             CONFIRMATIONS.next(true);
           }}
@@ -57,5 +57,8 @@ const stylesheet = createStyles(({ colors }) => ({
   },
   confirm: {
     color: colors.primary,
+  },
+  destructive: {
+    color: colors.error,
   },
 }));

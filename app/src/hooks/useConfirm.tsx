@@ -1,6 +1,5 @@
 import { useGetEvent } from '~/hooks/useGetEvent';
 import { CONFIRMATIONS, ConfirmModalParams } from '~/app/confirm';
-import { useTheme } from 'react-native-paper';
 
 export function useConfirm(defaults?: Partial<ConfirmModalParams>) {
   const getEvent = useGetEvent();
@@ -16,7 +15,7 @@ export function useConfirmDelete<Defaults extends Partial<ConfirmModalParams>>(
     title: 'Delete?',
     message: 'Are you sure you want to delete?',
     confirmLabel: 'Delete',
-    confirmTextColor: useTheme().colors.error,
+    destructive: 'yes',
     ...defaults,
   });
 }
@@ -28,7 +27,7 @@ export function useConfirmRemoval<Defaults extends Partial<ConfirmModalParams>>(
     title: 'Remove?',
     message: 'Are you sure you want to remove?',
     confirmLabel: 'Remove',
-    confirmTextColor: useTheme().colors.error,
+    destructive: 'yes',
     ...defaults,
   });
 }
@@ -40,7 +39,7 @@ export function useConfirmDiscard<Defaults extends Partial<ConfirmModalParams>>(
     title: 'Discard changes?',
     message: 'You have unsaved changes. Do you want to discard them?',
     confirmLabel: 'Discard',
-    confirmTextColor: useTheme().colors.error,
+    destructive: 'yes',
     ...defaults,
   });
 }
