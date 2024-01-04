@@ -755,9 +755,7 @@ type TransferApproval implements EventBase & TransferDetails & Transferlike {
   value: Decimal
 }
 
-type TransferApprovalOp {
-  _args: [JSON!]!
-  _name: String!
+type TransferApprovalOp implements TransferlikeOp {
   amount: Decimal!
   spender: Address!
   token: Address!
@@ -780,9 +778,7 @@ enum TransferDirection {
   Out
 }
 
-type TransferFromOp {
-  _args: [JSON!]!
-  _name: String!
+type TransferFromOp implements TransferlikeOp {
   amount: Decimal!
   from: Address!
   to: Address!
@@ -806,9 +802,7 @@ input TransferLimitInput {
   token: Address!
 }
 
-type TransferOp {
-  _args: [JSON!]!
-  _name: String!
+type TransferOp implements TransferlikeOp {
   amount: Decimal!
   to: Address!
   token: Address!
@@ -835,6 +829,11 @@ interface Transferlike implements EventBase & TransferDetails {
   token: Token
   tokenAddress: UAddress!
   value: Decimal
+}
+
+interface TransferlikeOp {
+  amount: Decimal!
+  token: Address!
 }
 
 type TransfersConfig {

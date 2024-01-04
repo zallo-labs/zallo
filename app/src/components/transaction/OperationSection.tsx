@@ -5,9 +5,10 @@ import { ListItem } from '~/components/list/ListItem';
 import { OperationDetails } from './OperationDetails';
 import { FragmentType, gql, useFragment } from '@api/generated';
 import { OperationLabel } from '~/components/transaction/OperationLabel';
+import { OperationIcon } from '~/components/transaction/OperationIcon';
 
-const ProposalFragmentDoc = gql(/* GraphQL */ `
-  fragment OperationSection_TransactionProposalFragment on TransactionProposal {
+const Transaction = gql(/* GraphQL */ `
+  fragment OperationSection_TransactionProposal on TransactionProposal {
     account {
       id
       address
@@ -16,17 +17,17 @@ const ProposalFragmentDoc = gql(/* GraphQL */ `
   }
 `);
 
-const OperationFragmentDoc = gql(/* GraphQL */ `
-  fragment OperationSection_OperationFragment on Operation {
-    to
+const Operation = gql(/* GraphQL */ `
+  fragment OperationSection_Operation on Operation {
+    ...OperationIcon_Operation
     ...OperationLabel_OperationFragment
     ...OperationDetails_OperationFragment
   }
 `);
 
 export interface OperationSectionProps {
-  proposal: FragmentType<typeof ProposalFragmentDoc>;
-  operation: FragmentType<typeof OperationFragmentDoc>;
+  proposal: FragmentType<typeof Transaction>;
+  operation: FragmentType<typeof Operation>;
   initiallyExpanded?: boolean;
 }
 
@@ -35,18 +36,21 @@ export function OperationSection({
   operation: operationFragment,
   initiallyExpanded = false,
 }: OperationSectionProps) {
-  const proposal = useFragment(ProposalFragmentDoc, proposalFragment);
-  const operation = useFragment(OperationFragmentDoc, operationFragment);
+  const proposal = useFragment(Transaction, proposalFragment);
+  const op = useFragment(Operation, operationFragment);
 
   const [expanded, toggleExpanded] = useToggle(initiallyExpanded);
 
   return (
     <>
       <ListItem
-        leading={operation.to}
+        leading={(props) => (
+          <OperationIcon {...props} operation={op} chain={proposal.account.chain} />
+        )}
+        leadingSize="medium"
         headline={({ Text }) => (
           <Text>
-            <OperationLabel operation={operation} chain={proposal.account.chain} />
+            <OperationLabel operation={op} chain={proposal.account.chain} />
           </Text>
         )}
         trailing={() => <Chevron expanded={expanded} />}
@@ -54,7 +58,7 @@ export function OperationSection({
       />
 
       <Collapsible collapsed={!expanded}>
-        <OperationDetails account={proposal.account.address} operation={operation} />
+        <OperationDetails account={proposal.account.address} operation={op} />
 
         {/* <Button mode="outlined" icon={materialCommunityIcon('code-tags')}>
           Data

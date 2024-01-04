@@ -17,7 +17,7 @@ const Token = gql(/* GraphQL */ `
   fragment TokenLimitItem_Token on Token {
     name
     decimals
-    ...TokenIcon_token
+    ...TokenIcon_Token
     ...UseFormattedTokenAmount_token
   }
 `);

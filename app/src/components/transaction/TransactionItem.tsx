@@ -12,6 +12,7 @@ import { ProposalValue } from './ProposalValue';
 import { useRouter } from 'expo-router';
 import { createStyles, useStyles } from '@theme/styles';
 import { asUAddress } from 'lib';
+import { OperationIcon } from '~/components/transaction/OperationIcon';
 
 const Proposal = gql(/* GraphQL */ `
   fragment TransactionItem_TransactionProposal on TransactionProposal {
@@ -26,6 +27,7 @@ const Proposal = gql(/* GraphQL */ `
     }
     operations {
       to
+      ...OperationIcon_Operation
       ...OperationLabel_OperationFragment
     }
     transaction {
@@ -102,11 +104,7 @@ function TransactionItem_({
         isMulti ? (
           <MultiOperationIcon {...props} size={ICON_SIZE.medium} />
         ) : (
-          <TokenIcon
-            token={asUAddress(p.operations[0].to, p.account.chain)}
-            fallbackUri={ETH_ICON_URI}
-            {...props}
-          />
+          <OperationIcon operation={p.operations[0]} chain={p.account.chain} {...props} />
         )
       }
       leadingSize="medium"

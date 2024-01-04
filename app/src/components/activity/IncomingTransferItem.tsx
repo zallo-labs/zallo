@@ -16,7 +16,7 @@ const FragmentDoc = gql(/* GraphQL */ `
     }
     token {
       id
-      ...TokenIcon_token
+      ...TokenIcon_Token
     }
     from
     timestamp

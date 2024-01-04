@@ -14,14 +14,14 @@ const TransactionProposal = gql(/* GraphQL */ `
   fragment OperationsSection_TransactionProposal on TransactionProposal {
     id
     operations {
-      ...OperationSection_OperationFragment
+      ...OperationSection_Operation
     }
     simulation {
       id
       success
       responses
     }
-    ...OperationSection_TransactionProposalFragment
+    ...OperationSection_TransactionProposal
   }
 `);
 

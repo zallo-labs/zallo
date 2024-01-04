@@ -21,7 +21,7 @@ const Token = gql(/* GraphQL */ `
       id
       usd
     }
-    ...TokenIcon_token
+    ...TokenIcon_Token
     ...TokenAmount_token
   }
 `);
