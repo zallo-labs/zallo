@@ -14517,7 +14517,7 @@ __metadata:
     react-native-jazzicon: "patch:react-native-jazzicon@npm:^0.1.2#../.yarn/patches/react-native-jazzicon-npm-0.1.2-c1633b051f.patch"
     react-native-keyboard-aware-scroll-view: "npm:^0.9.5"
     react-native-pager-view: "npm:6.2.0"
-    react-native-paper: "patch:react-native-paper@npm:^5.11.1#../.yarn/patches/react-native-paper-npm-5.11.1-686e668968.patch"
+    react-native-paper: "npm:^5.11.6"
     react-native-popover-view: "npm:^5.1.8"
     react-native-qrcode-svg: "npm:^6.2.0"
     react-native-quick-base64: "npm:^2.0.7"
@@ -33743,9 +33743,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-native-paper@npm:^5.11.1":
-  version: 5.11.1
-  resolution: "react-native-paper@npm:5.11.1"
+"react-native-paper@npm:^5.11.6":
+  version: 5.11.6
+  resolution: "react-native-paper@npm:5.11.6"
   dependencies:
     "@callstack/react-theme-provider": "npm:^3.0.9"
     color: "npm:^3.1.2"
@@ -33755,23 +33755,7 @@ __metadata:
     react-native: "*"
     react-native-safe-area-context: "*"
     react-native-vector-icons: "*"
-  checksum: b55bd95f8b56ae8f94553004539720b5be3e0d75e08d6ac54e96db63f85ea2d59a7616d17b3707540297b203d9a948f78d13ee442b583e35f0b34128a2cc1da7
-  languageName: node
-  linkType: hard
-
-"react-native-paper@patch:react-native-paper@npm:^5.11.1#../.yarn/patches/react-native-paper-npm-5.11.1-686e668968.patch::locator=app%40workspace%3Aapp":
-  version: 5.11.1
-  resolution: "react-native-paper@patch:react-native-paper@npm%3A5.11.1#../.yarn/patches/react-native-paper-npm-5.11.1-686e668968.patch::version=5.11.1&hash=fb3806&locator=app%40workspace%3Aapp"
-  dependencies:
-    "@callstack/react-theme-provider": "npm:^3.0.9"
-    color: "npm:^3.1.2"
-    use-latest-callback: "npm:^0.1.5"
-  peerDependencies:
-    react: "*"
-    react-native: "*"
-    react-native-safe-area-context: "*"
-    react-native-vector-icons: "*"
-  checksum: 32f643450f7b2c5710c1d2c0c164ea0c05cb4a4b0c7747524daf3e0a145b1edcb3f9c636b01a27c5302715e9bea599183b2b044fe88dae7f9bbe1e8a65e2bc79
+  checksum: b8e22a9353d68ba96ac91582e4e15ab2a538542ec34ece6f8f5c085717d40146e235e72fe318e440d732089e3c3944ecdf8f5e0e78f782de0504574e0fff8f4c
   languageName: node
   linkType: hard
 
