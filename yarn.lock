@@ -14547,7 +14547,6 @@ __metadata:
     viem: "npm:^1.20.3"
     wonka: "npm:^6.3.4"
     yup: "npm:^1.2.0"
-    zksync2-js: "npm:^0.3.0"
     zod: "npm:^3.22.4"
     zustand: "npm:^4.4.6"
   languageName: unknown
@@ -17846,7 +17845,7 @@ __metadata:
     solidity-coverage: "npm:^0.8.5"
     typescript: "npm:^5.3.3"
     viem: "npm:^1.20.3"
-    zksync2-js: "npm:^0.3.0"
+    zksync-ethers: "npm:^6.0.0"
   languageName: unknown
   linkType: soft
 
@@ -27854,7 +27853,7 @@ __metadata:
     tsup: "npm:8.0.1"
     typescript: "npm:^5.3.3"
     viem: "npm:^1.20.3"
-    zksync2-js: "npm:^0.3.0"
+    zksync-ethers: "npm:^6.0.0"
   languageName: unknown
   linkType: soft
 
@@ -41566,21 +41565,21 @@ __metadata:
   languageName: node
   linkType: hard
 
+"zksync-ethers@npm:^6.0.0":
+  version: 6.0.0
+  resolution: "zksync-ethers@npm:6.0.0"
+  peerDependencies:
+    ethers: ^6.7.1
+  checksum: 1135be59af2fdca1ffaf9947aa6859f7927aad646432ef052c3b1e77f5475b7cd504b226c0247fad80ca17b84b14c90e413b9acb9d393027aa7c39bac39f3cd7
+  languageName: node
+  linkType: hard
+
 "zksync2-js@npm:^0.3.0":
   version: 0.3.0
   resolution: "zksync2-js@npm:0.3.0"
   peerDependencies:
     ethers: ^6.7.1
   checksum: f4a741381efe3f3f9c3ebd6115530d71a96e240114cd0643206fa2e32212d1d28da248c0ac7aed5056de6554030b9c7a1c43079f9d0ca184cef1d081f8c0aa9f
-  languageName: node
-  linkType: hard
-
-"zksync2-js@patch:zksync2-js@npm:^0.3.0#.yarn/patches/zksync2-js-npm-0.3.0-9c34d26743.patch::locator=zallo%40workspace%3A.":
-  version: 0.3.0
-  resolution: "zksync2-js@patch:zksync2-js@npm%3A0.3.0#.yarn/patches/zksync2-js-npm-0.3.0-9c34d26743.patch::version=0.3.0&hash=033078&locator=zallo%40workspace%3A."
-  peerDependencies:
-    ethers: ^6.7.1
-  checksum: d5bf6ad18a8f339c7c56f28f0b16a0b9ace763c3f93a49de67bad64d35e30a22c611ddf3e42181ffa7dedaf8f6b697a37fe9a5beba553f42a2214bca213d4f33
   languageName: node
   linkType: hard
 

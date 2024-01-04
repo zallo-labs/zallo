@@ -41,6 +41,6 @@
     "solidity-coverage": "^0.8.5",
     "typescript": "^5.3.3",
     "viem": "^1.20.3",
-    "zksync2-js": "^0.3.0"
+    "zksync-ethers": "^6.0.0"
   }
 }

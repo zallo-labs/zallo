@@ -1,5 +1,5 @@
 import { Address, asAddress, asUAddress } from './address';
-import { utils as zkUtils } from 'zksync2-js';
+import { utils as zkUtils } from 'zksync-ethers';
 import { Policy, encodePolicyStruct } from './policy';
 import { Network, NetworkWallet } from 'chains';
 import { ACCOUNT_IMPLEMENTATION, ACCOUNT_PROXY, ACCOUNT_PROXY_FACTORY } from './contract';
