@@ -9,7 +9,7 @@ import { ChainConfig, Network } from 'chains';
 import { ResultAsync } from 'neverthrow';
 import { CallErrorType, CallParameters, Hex, SendTransactionErrorType } from 'viem';
 import { AllOrNone } from './util';
-import { utils as zkUtils } from 'zksync2-js';
+import { utils as zkUtils } from 'zksync-ethers';
 import { encodeOperations } from './operation';
 import { asHex } from './bytes';
 

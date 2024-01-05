@@ -111,6 +111,7 @@ export const PasswordIcon = materialCommunityIcon('key');
 export const DevicesIcon = materialIcon('devices');
 export const GenericTokenIcon = materialIcon('monetization-on');
 export const CustomActionIcon = materialCommunityIcon('pentagon-outline');
+export const DataIcon = materialCommunityIcon('code-tags');
 
 export const PolicyIcon = materialCommunityIcon('security');
 export const PolicyActiveIcon = materialCommunityIcon('shield');

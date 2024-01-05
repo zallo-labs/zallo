@@ -1,12 +1,8 @@
 # Inspect included files using:
 # rm -rf ~/tmp/inspect yarn eas build:inspect --stage archive --output ~/tmp/inspect --profile production --platform android
 
-# Required for notifications
-!/app/firebase-google-services.secret.json
-!/app/GoogleService-Info.secret.plist
-
 ## Unnecessary files
 /api
 /site
-# lib is required
 # contracts is required by lib
+# packages/* are required

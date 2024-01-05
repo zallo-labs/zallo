@@ -1,13 +1,13 @@
 import { StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
 import { FiatValue } from '../FiatValue';
-import { ListItem, ListItemProps } from '../list/ListItem';
+import { ListIconElementProps, ListItem, ListItemProps, ListItemTextProps } from '../list/ListItem';
 import { ListItemSkeleton } from '../list/ListItemSkeleton';
 import { withSuspense } from '../skeleton/withSuspense';
 import { TokenAmount } from './TokenAmount';
 import { Decimallike } from 'lib';
 import { FragmentType, gql, useFragment } from '@api/generated';
 import { TokenIcon } from './TokenIcon';
-import { memo } from 'react';
+import { FC, memo } from 'react';
 import deepEqual from 'fast-deep-equal';
 import Decimal from 'decimal.js';
 
@@ -21,20 +21,35 @@ const Token = gql(/* GraphQL */ `
       id
       usd
     }
-    ...TokenIcon_token
+    ...TokenIcon_Token
     ...TokenAmount_token
   }
 `);
 
-export interface TokenItemProps extends Partial<ListItemProps> {
+export interface TokenItemProps extends Omit<Partial<ListItemProps>, 'trailing'> {
   token: FragmentType<typeof Token>;
   amount: Decimallike | undefined;
   containerStyle?: StyleProp<ViewStyle>;
+  trailing?: FC<ListIconElementProps & ListItemTextProps & { Trailing: FC }>;
 }
 
 const TokenItem_ = memo(
-  ({ token: tokenProp, amount, containerStyle, ...itemProps }: TokenItemProps) => {
+  ({
+    token: tokenProp,
+    amount,
+    containerStyle,
+    trailing: TrailingProp,
+    ...itemProps
+  }: TokenItemProps) => {
     const token = useFragment(Token, tokenProp);
+
+    const Trailing: FC<ListItemTextProps> = ({ Text }) =>
+      token.price &&
+      amount !== undefined && (
+        <Text variant="labelLarge">
+          <FiatValue value={new Decimal(amount).mul(token.price.usd)} />
+        </Text>
+      );
 
     return (
       <ListItem
@@ -58,11 +73,10 @@ const TokenItem_ = memo(
           </View>
         )}
         trailing={({ Text }) =>
-          token.price &&
-          amount !== undefined && (
-            <Text variant="labelLarge">
-              <FiatValue value={new Decimal(amount).mul(token.price.usd)} />
-            </Text>
+          TrailingProp ? (
+            <TrailingProp Text={Text} Trailing={() => <Trailing Text={Text} />} />
+          ) : (
+            <Trailing Text={Text} />
           )
         }
         containerStyle={containerStyle}

@@ -64,3 +64,9 @@ export class UpdateTransactionProposalInput extends UniqueProposalInput {
   @AddressField({ nullable: true })
   feeToken?: Address;
 }
+
+@InputType()
+export class ExecuteTransactionProposalInput extends UniqueProposalInput {
+  @Field(() => Boolean, { nullable: true })
+  ignoreSimulation?: boolean;
+}

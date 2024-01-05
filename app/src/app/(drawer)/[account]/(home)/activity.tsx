@@ -4,14 +4,14 @@ import { Text } from 'react-native-paper';
 import { match } from 'ts-pattern';
 import { ListItemHeight } from '~/components/list/ListItem';
 import { IncomingTransferItem } from '~/components/activity/IncomingTransferItem';
-import { ProposalItem } from '~/components/proposal/ProposalItem';
+import { TransactionItem } from '~/components/transaction/TransactionItem';
 import { withSuspense } from '~/components/skeleton/withSuspense';
 import { TabScreenSkeleton } from '~/components/tab/TabScreenSkeleton';
 import { asDateTime } from '~/components/format/Timestamp';
 import { gql } from '@api/generated';
 import { useQuery } from '~/gql';
 import { useSubscription } from 'urql';
-import { MessageProposalItem } from '~/components/proposal/MessageProposalItem';
+import { MessageItem } from '~/components/message/MessageItem';
 import { AccountParams } from '~/app/(drawer)/[account]/(home)/_layout';
 import { useLocalParams } from '~/hooks/useLocalParams';
 
@@ -21,14 +21,14 @@ const Query = gql(/* GraphQL */ `
       __typename
       id
       timestamp: createdAt
-      ...ProposalItem_TransactionProposal
-      ...MessageProposalItem_MessageProposal
+      ...TransactionItem_TransactionProposal
+      ...MessageItem_MessageProposal
     }
 
     user {
       id
-      ...ProposalItem_User
-      ...MessageProposalItem_User
+      ...TransactionItem_User
+      ...MessageItem_User
     }
 
     transfers(input: { accounts: $accounts, direction: In, internal: false }) {
@@ -46,7 +46,7 @@ const ProposalSubscription = gql(/* GraphQL */ `
       __typename
       id
       timestamp: createdAt
-      ...ProposalItem_TransactionProposal
+      ...TransactionItem_TransactionProposal
     }
   }
 `);
@@ -86,11 +86,9 @@ function ActivityTab() {
       renderItem={({ item }) =>
         match(item)
           .with({ __typename: 'TransactionProposal' }, (p) => (
-            <ProposalItem proposal={p} user={user} />
+            <TransactionItem proposal={p} user={user} />
           ))
-          .with({ __typename: 'MessageProposal' }, (p) => (
-            <MessageProposalItem proposal={p} user={user} />
-          ))
+          .with({ __typename: 'MessageProposal' }, (p) => <MessageItem proposal={p} user={user} />)
           .with({ __typename: 'Transfer' }, (transfer) => (
             <IncomingTransferItem transfer={transfer} />
           ))

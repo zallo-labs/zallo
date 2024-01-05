@@ -2,6 +2,6 @@
   "name": "redis",
   "private": true,
   "scripts": {
-    "dev": "docker compose -f ./compose.yml up"
+    "dev": "docker compose up --build"
   }
 }

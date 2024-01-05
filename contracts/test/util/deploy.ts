@@ -11,7 +11,7 @@ import {
 } from 'lib';
 import { network, testNetwork, wallet, wallets } from './network';
 import { BytesLike, hexlify, Interface, Overrides } from 'ethers';
-import * as zk from 'zksync2-js';
+import * as zk from 'zksync-ethers';
 import { getApprovals } from './approval';
 import { Abi, Address, bytesToHex, parseEther, zeroHash } from 'viem';
 import { CONFIG } from '../../config';

@@ -245,6 +245,11 @@ interface EventBase {
   timestamp: DateTime!
 }
 
+input ExecuteTransactionProposalInput {
+  id: UUID!
+  ignoreSimulation: Boolean
+}
+
 type FeesPerGas implements CustomNode {
   feeTokenDecimals: Float!
   id: ID!
@@ -316,7 +321,7 @@ type Mutation {
   createAccount(input: CreateAccountInput!): Account!
   createPolicy(input: CreatePolicyInput!): CreatePolicyResponse!
   deleteContact(input: ContactInput!): ID
-  execute(input: UniqueProposalInput!): TransactionProposal
+  execute(input: ExecuteTransactionProposalInput!): TransactionProposal
   labelProposalRisk(input: LabelProposalRiskInput!): Proposal!
   link(input: LinkInput!): User!
   proposeMessage(input: ProposeMessageInput!): MessageProposal!
@@ -576,12 +581,7 @@ type SatisfiabilityResult {
 """function selector (4-byte hex string)"""
 scalar Selector
 
-type Simulation implements Node {
-  id: UUID!
-  transfers: [SimulationTransfer!]!
-}
-
-type SimulationTransfer implements TransferDetails {
+type SimulatedTransfer implements TransferDetails {
   account: Account!
   amount: Decimal!
   from: Address!
@@ -591,6 +591,14 @@ type SimulationTransfer implements TransferDetails {
   token: Token
   tokenAddress: UAddress!
   value: Decimal
+}
+
+type Simulation implements Node {
+  id: UUID!
+  responses: [Bytes!]!
+  success: Boolean!
+  timestamp: DateTime!
+  transfers: [SimulatedTransfer!]!
 }
 
 type Subscription {
@@ -747,9 +755,7 @@ type TransferApproval implements EventBase & TransferDetails & Transferlike {
   value: Decimal
 }
 
-type TransferApprovalOp {
-  _args: [JSON!]!
-  _name: String!
+type TransferApprovalOp implements TransferlikeOp {
   amount: Decimal!
   spender: Address!
   token: Address!
@@ -772,9 +778,7 @@ enum TransferDirection {
   Out
 }
 
-type TransferFromOp {
-  _args: [JSON!]!
-  _name: String!
+type TransferFromOp implements TransferlikeOp {
   amount: Decimal!
   from: Address!
   to: Address!
@@ -798,9 +802,7 @@ input TransferLimitInput {
   token: Address!
 }
 
-type TransferOp {
-  _args: [JSON!]!
-  _name: String!
+type TransferOp implements TransferlikeOp {
   amount: Decimal!
   to: Address!
   token: Address!
@@ -827,6 +829,11 @@ interface Transferlike implements EventBase & TransferDetails {
   token: Token
   tokenAddress: UAddress!
   value: Decimal
+}
+
+interface TransferlikeOp {
+  amount: Decimal!
+  token: Address!
 }
 
 type TransfersConfig {

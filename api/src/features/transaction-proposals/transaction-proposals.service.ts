@@ -103,12 +103,12 @@ export class TransactionProposalsService {
     );
   }
 
-  async tryExecute(txProposal: UUID) {
+  async tryExecute(txProposal: UUID, ignoreSimulation?: boolean) {
     // simulate -> execute
     return this.executionsFlow.add({
       queueName: ExecutionsQueue.name,
       name: ExecutionsFlow.name,
-      data: { txProposal } satisfies QueueData<typeof ExecutionsQueue>,
+      data: { txProposal, ignoreSimulation } satisfies QueueData<typeof ExecutionsQueue>,
       children: [
         {
           queueName: SIMULATIONS_QUEUE.name,

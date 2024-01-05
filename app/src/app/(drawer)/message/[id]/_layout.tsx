@@ -10,10 +10,11 @@ import { useMutation } from 'urql';
 import { useConfirmRemoval } from '~/hooks/useConfirm';
 import { useRouter } from 'expo-router';
 import { TopTabs } from '~/components/layout/TopTabs';
-import { MessageProposalActions } from '~/components/proposal/MessageProposalActions';
+import { MessageActions } from '~/components/message/MessageActions';
 import { AppbarOptions } from '~/components/Appbar/AppbarOptions';
 import { StyleSheet, ScrollView } from 'react-native';
 import { ScreenSurface } from '~/components/layout/ScreenSurface';
+import { MessageStatus } from '~/components/message/MessageStatus';
 
 const Query = gql(/* GraphQL */ `
   query MessageLayout($proposal: UUID!) {
@@ -23,12 +24,13 @@ const Query = gql(/* GraphQL */ `
         id
         name
       }
-      ...MessageProposalActions_MessageProposal
+      ...MessageStatus_MessageProposal
+      ...MessageActions_MessageProposal
     }
 
     user {
       id
-      ...MessageProposalActions_User
+      ...MessageActions_User
     }
   }
 `);
@@ -43,14 +45,14 @@ export const MessageLayoutParams = z.object({ id: zUuid() });
 export type MessageLayoutParams = z.infer<typeof MessageLayoutParams>;
 
 export default function MessageLayout() {
-  const params = useLocalParams(MessageLayoutParams);
+  const { id } = useLocalParams(MessageLayoutParams);
   const router = useRouter();
   const remove = useMutation(Remove)[1];
   const confirmRemoval = useConfirmRemoval({
     message: 'Are you sure you want to remove this proposal?',
   });
 
-  const query = useQuery(Query, { proposal: params.id });
+  const query = useQuery(Query, { proposal: id });
   const proposal = query.data?.messageProposal;
 
   if (!proposal) return query.stale ? null : <NotFound name="Proposal" />;
@@ -67,7 +69,7 @@ export default function MessageLayout() {
                 onPress={async () => {
                   close();
                   if (await confirmRemoval()) {
-                    await remove({ proposal: proposal.id });
+                    await remove({ proposal: id });
                     router.back();
                   }
                 }}
@@ -79,20 +81,18 @@ export default function MessageLayout() {
 
       <ScreenSurface>
         <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
+          <MessageStatus proposal={proposal} />
+
           <TopTabs>
+            <TopTabs.Screen name="index" options={{ title: 'Message' }} initialParams={{ id }} />
             <TopTabs.Screen
-              name="index"
-              options={{ title: 'Details' }}
-              initialParams={{ id: params.id }}
-            />
-            <TopTabs.Screen
-              name="policy"
-              options={{ title: 'Policy' }}
-              initialParams={{ id: params.id }}
+              name="approval"
+              options={{ title: 'Approval' }}
+              initialParams={{ id }}
             />
           </TopTabs>
 
-          <MessageProposalActions proposal={proposal} user={query.data.user} />
+          <MessageActions proposal={proposal} user={query.data.user} />
         </ScrollView>
       </ScreenSurface>
     </>

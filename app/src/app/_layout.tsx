@@ -20,6 +20,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { NativeStackNavigationOptions } from '@react-navigation/native-stack';
 import { Fonts } from '~/components/Fonts';
 import { ApproverNameUpdater } from '~/components/ApproverNameUpdater';
+import { Portal } from 'react-native-paper';
 
 const modal: NativeStackNavigationOptions = {
   presentation: 'modal',
@@ -86,7 +87,9 @@ export default function RootLayout() {
                     <GqlProvider>
                       <ErrorBoundary>
                         <Suspense fallback={<Splash />}>
-                          <Layout />
+                          <Portal.Host>
+                            <Layout />
+                          </Portal.Host>
                         </Suspense>
                       </ErrorBoundary>
                       <MinimalErrorBoundary>

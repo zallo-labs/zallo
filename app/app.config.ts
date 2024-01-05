@@ -8,7 +8,8 @@ type PluginConfig<Plugin> = Plugin extends ConfigPlugin<infer Config> ? Config :
 const ENV = process.env;
 
 const chain = ENV?.CHAIN?.toUpperCase();
-const withVariant = (v: string) => `${v}${ENV.APP_VARIANT ? `.${ENV.APP_VARIANT}` : ''}`;
+const vary = (value: string, f: (variant: string) => string = (v) => '.' + v) =>
+  value + (ENV.APP_VARIANT ? f(ENV.APP_VARIANT) : '');
 
 type ExternalUrl = `http${string}`;
 
@@ -39,12 +40,12 @@ export const CONFIG = {
 export type Config = typeof CONFIG;
 
 export const PROJECT_ID = 'f8f4def1-b838-4dec-8b50-6c07995c4ff5';
-const packageId = withVariant('io.zallo');
+const packageId = vary('io.zallo');
 
 // https://docs.expo.dev/versions/latest/config/app/
 export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
-  name: withVariant('Zallo'),
+  name: vary('Zallo', (v) => ` (${v})`),
   slug: 'app',
   owner: 'zallo',
   githubUrl: CONFIG.metadata.github,
@@ -127,7 +128,9 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       foregroundImage: './assets/icon-adaptive.png',
       backgroundColor: '#E8DEF8',
     },
-    googleServicesFile: withVariant('./firebase-google-services.secret.json'),
+    googleServicesFile:
+      ENV[vary('GOOGLE_SERVICES_ANDROID_FILE', (v) => '_' + v.toUpperCase())] ||
+      vary('./google-services-android.secret.json'),
     playStoreUrl: ENV.PLAY_STORE_URL,
   },
   androidStatusBar: {
@@ -147,7 +150,9 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     config: {
       usesNonExemptEncryption: false,
     },
-    googleServicesFile: withVariant('./GoogleService-Info.secret.plist'),
+    googleServicesFile:
+      ENV[vary('GOOGLE_SERVICES_IOS_FILE', (v) => '_' + v.toUpperCase())] ||
+      vary('./google-services-ios.secret.plist'),
     // appStoreUrl: ENV.APP_STORE_URL,
   },
   web: {

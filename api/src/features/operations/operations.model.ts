@@ -1,4 +1,4 @@
-import { Field, ObjectType, createUnionType } from '@nestjs/graphql';
+import { Field, InterfaceType, ObjectType, createUnionType } from '@nestjs/graphql';
 import { Address, Hex, PolicyKey } from 'lib';
 import { AddressField, AddressScalar } from '~/apollo/scalars/Address.scalar';
 import { BytesField } from '~/apollo/scalars/Bytes.scalar';
@@ -68,43 +68,34 @@ export class RemovePolicyOp extends GenericOp {
   key: PolicyKey;
 }
 
-@ObjectType()
-export class TransferOp extends GenericOp {
+@InterfaceType()
+export class TransferlikeOp extends GenericOp {
   @AddressField()
   token: Address;
-
-  @AddressField()
-  to: Address;
 
   @DecimalField()
   amount: Decimal;
 }
 
-@ObjectType()
-export class TransferFromOp extends GenericOp {
+@ObjectType({ implements: TransferlikeOp })
+export class TransferOp extends TransferlikeOp {
   @AddressField()
-  token: Address;
+  to: Address;
+}
 
+@ObjectType({ implements: TransferlikeOp })
+export class TransferFromOp extends TransferlikeOp {
   @AddressField()
   from: Address;
 
   @AddressField()
   to: Address;
-
-  @DecimalField()
-  amount: Decimal;
 }
 
-@ObjectType()
-export class TransferApprovalOp extends GenericOp {
-  @AddressField()
-  token: Address;
-
+@ObjectType({ implements: TransferlikeOp })
+export class TransferApprovalOp extends TransferlikeOp {
   @AddressField()
   spender: Address;
-
-  @DecimalField()
-  amount: Decimal;
 }
 
 @ObjectType()

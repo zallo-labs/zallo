@@ -56,7 +56,7 @@ const Query = gql(/* GraphQL */ `
         usd
       }
       ...InputsView_token @arguments(account: $account)
-      ...TokenIcon_token
+      ...TokenIcon_Token
       ...TokenAmount_token
     }
   }

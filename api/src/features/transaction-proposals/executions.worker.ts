@@ -44,7 +44,10 @@ import {
 } from '~/features/util/bull/bull.util';
 import { UnrecoverableError } from 'bullmq';
 
-export const ExecutionsQueue = createQueue<{ txProposal: UUID }, Hex | string>('Executions');
+export const ExecutionsQueue = createQueue<
+  { txProposal: UUID; ignoreSimulation?: boolean },
+  Hex | string
+>('Executions');
 export type ExecutionsQueue = typeof ExecutionsQueue;
 export const ExecutionsFlow = { name: 'ExecutionFlow' as const };
 
@@ -63,7 +66,7 @@ export class ExecutionsWorker extends Worker<ExecutionsQueue> {
   }
 
   async process(job: TypedJob<ExecutionsQueue>): Promise<QueueReturnType<ExecutionsQueue>> {
-    const id = job.data.txProposal;
+    const { txProposal: id, ignoreSimulation } = job.data;
     const proposal = await this.db.query(
       e.select(e.TransactionProposal, (p) => ({
         filter_single: { id },
@@ -98,10 +101,12 @@ export class ExecutionsWorker extends Worker<ExecutionsQueue> {
     if (!proposal || (proposal.status !== 'Pending' && proposal.status !== 'Failed'))
       return 'already executed';
 
-    // Require simulation to have succeed
-    if (!proposal.simulation)
-      throw new UnrecoverableError('Simulation was not found and is required to execute');
-    if (!proposal.simulation.success) return 'simulation failed';
+    // Require simulation to have succeed, unless ignored
+    if (!ignoreSimulation) {
+      if (!proposal.simulation)
+        throw new UnrecoverableError('Simulation was not found and is required to execute');
+      if (!proposal.simulation.success) return 'simulation failed';
+    }
 
     const account = asUAddress(proposal.account.address);
     const network = this.networks.get(account);

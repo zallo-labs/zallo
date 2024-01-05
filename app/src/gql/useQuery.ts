@@ -5,6 +5,7 @@ import {
   UseQueryState,
   DocumentInput,
   UseQueryExecute,
+  TypedDocumentNode,
 } from 'urql';
 import { DocumentNode, Kind } from 'graphql';
 import * as documents from '~/gql/api/documents.generated';
@@ -75,3 +76,10 @@ export function getOptimizedDocument<Data, Variables>(
   CACHED_REPLACEMENTS.set(doc, null);
   return doc;
 }
+
+export type DocumentVariables<T extends TypedDocumentNode<any, any>> = T extends TypedDocumentNode<
+  infer Result,
+  infer Variables
+>
+  ? Variables
+  : never;

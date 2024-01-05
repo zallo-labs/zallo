@@ -1,7 +1,7 @@
 import * as viem from 'viem';
 import { tryOrIgnore } from './util/try';
 import { Chain, isChain } from 'chains';
-import { utils as zkUtils } from 'zksync2-js';
+import { utils as zkUtils } from 'zksync-ethers';
 
 /*//////////////////////////////////////////////////////////////
                               ADDRESSLIKE

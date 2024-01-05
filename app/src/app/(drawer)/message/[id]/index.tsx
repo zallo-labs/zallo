@@ -6,7 +6,7 @@ import { gql } from '@api/generated';
 import { useQuery } from '~/gql';
 import { DataView } from '~/components/DataView/DataView';
 import { Text } from 'react-native-paper';
-import { MessageIcon } from '~/components/proposal/MessageIcon';
+import { MessageIcon } from '~/components/message/MessageIcon';
 import { RiskRating } from '~/components/proposal/RiskRating';
 import { withSuspense } from '~/components/skeleton/withSuspense';
 import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
