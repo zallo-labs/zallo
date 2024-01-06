@@ -94,7 +94,7 @@ export function FeesSection(props: FeeTokenProps) {
   const ethPerFeeToken = new Decimal(p.transaction?.ethPerFeeToken ?? p.feeToken.price?.eth ?? 0);
   const amount = ethFees.div(ethPerFeeToken);
   const insufficient =
-    p.status === 'Pending' && p.feeToken.balance && amount.abs().gt(p.feeToken.balance);
+    p.status === 'Pending' && p.feeToken.balance && amount.plus(p.feeToken.balance).isNeg();
 
   return (
     <>

@@ -86,7 +86,7 @@ export function TransfersSection(props: TransfersSectionProps) {
         const insufficient =
           t.__typename === 'SimulatedTransfer' &&
           t.token.balance &&
-          new Decimal(t.amount).abs().gt(t.token.balance);
+          new Decimal(t.amount).plus(t.token.balance).isNeg();
 
         return (
           <TokenItem
