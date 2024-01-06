@@ -1,8 +1,23 @@
 {
-  "plugins": ["prettier-plugin-solidity"],
+  "plugins": ["@ianvs/prettier-plugin-sort-imports", "prettier-plugin-solidity"],
   "tabWidth": 2,
   "printWidth": 100,
   "singleQuote": true,
   "arrowParens": "always",
-  "trailingComma": "all"
+  "trailingComma": "all",
+  "importOrderParserPlugins": ["typescript", "jsx", "decorators-legacy"],
+  "importOrderTypeScriptVersion": "5.0.0",
+  "importOrder": [
+    "<TYPES>",
+    "<TYPES>^[.]",
+    "^react$",
+    "^react-native$",
+    "<BUILTIN_MODULES>",
+    "<THIRD_PARTY_MODULES>",
+    "",
+    "^chains$",
+    "^lib(/.*)?$",
+    "^~/.*$",
+    "^[.]"
+  ]
 }
