@@ -1,23 +1,21 @@
 // https://facebook.github.io/metro/docs/configuration/
 const { getDefaultConfig } = require('expo/metro-config');
-const path = require('path');
 const findWorkspaceRoot = require('find-yarn-workspace-root');
+const path = require('path');
 
-const config = getDefaultConfig(__dirname, {
-  isCSSEnabled: true,
-});
+const projectRoot = __dirname;
+const config = getDefaultConfig(projectRoot);
 
-config.watcher.healthCheck = { enabled: true };
-
-/* Monorepo */
-// 1. Watch all files within the monorepo
-config.projectRoot = __dirname;
-const workspaceRoot = findWorkspaceRoot(config.projectRoot);
+// Watch all files within the monorepo
+const workspaceRoot = findWorkspaceRoot(projectRoot);
 config.watchFolders = [workspaceRoot]; // Metro will only resolve projectRoot and watchFolders
 
-// 2. Let Metro know where to resolve packages and in what order
+// Force resolving nested modules from nodeModulesPath and extraNodeModules
+config.resolver.disableHierarchicalLookup = true;
+
+// Let Metro know where to resolve packages (in order of preference)
 config.resolver.nodeModulesPaths = [
-  path.resolve(config.projectRoot, 'node_modules'),
+  path.resolve(projectRoot, 'node_modules'),
   path.resolve(workspaceRoot, 'node_modules'),
 ];
 
