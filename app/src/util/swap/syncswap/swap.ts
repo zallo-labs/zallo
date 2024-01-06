@@ -1,6 +1,7 @@
 import { Address, ETH_ADDRESS, Operation, UAddress, asChain } from 'lib';
 import { ERC20, SYNCSWAP } from 'lib/dapps';
 import { DateTime } from 'luxon';
+import { ok } from 'neverthrow';
 import { encodeFunctionData } from 'viem';
 import { SwapRoute } from '~/hooks/swap/useSwapRoute';
 import { estimateSwap } from '~/util/swap/syncswap/estimate';
@@ -24,13 +25,14 @@ export async function getSwapOperations({
   fromAmount,
   slippage,
   deadline,
-}: GetSwapOperationsParams): Promise<[Operation, ...Operation[]]> {
+}: GetSwapOperationsParams) {
   const chain = asChain(account);
 
   const estimatedToAmount = await estimateSwap({ chain, route, fromAmount });
+  if (estimatedToAmount.isErr()) return estimatedToAmount;
 
   const minimumToAmount =
-    (estimatedToAmount * (SLIPPAGE_FACTOR_BN - BigInt(slippage * SLIPPAGE_FACTOR))) /
+    (estimatedToAmount.value * (SLIPPAGE_FACTOR_BN - BigInt(slippage * SLIPPAGE_FACTOR))) /
     SLIPPAGE_FACTOR_BN;
 
   const transferOp: Operation | undefined =
@@ -59,5 +61,6 @@ export async function getSwapOperations({
     }),
   };
 
-  return transferOp ? [transferOp, swapOp] : [swapOp];
+  const operations: [Operation, ...Operation[]] = transferOp ? [transferOp, swapOp] : [swapOp];
+  return ok(operations);
 }

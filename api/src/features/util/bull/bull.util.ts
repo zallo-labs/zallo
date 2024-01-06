@@ -3,8 +3,7 @@ import { BullBoardModule, BullBoardQueueOptions } from '@bull-board/nestjs';
 import { BullMQAdapter } from '@bull-board/api/bullMQAdapter';
 import { CONFIG } from '~/config';
 import { isTruthy } from 'lib';
-import { JobStatus } from 'bull';
-import { Queue, Worker as BaseWorker, Job } from 'bullmq';
+import { Queue, Worker as BaseWorker, Job, JobType } from 'bullmq';
 import { OnModuleInit, OnModuleDestroy, Logger } from '@nestjs/common';
 
 export const BULL_BOARD_CREDS =
@@ -37,7 +36,7 @@ export const RUNNING_JOB_STATUSES = [
   'active',
   'delayed',
   'paused',
-] satisfies JobStatus[];
+] satisfies JobType[];
 
 export interface QueueDefintion<Data = unknown, ReturnType = unknown>
   extends Omit<RegisterQueueOptions, 'name'> {

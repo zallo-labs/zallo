@@ -43,8 +43,12 @@ export function OperationsSection(props: OperationsSectionProps) {
       leading={(props) => <AlertIcon {...props} color={styles.error.color} />}
       leadingSize="medium"
       headline={({ Text }) => <Text style={styles.error}>Expected to fail</Text>}
-      supporting={simulatedErrorSelector ? `Error: ${simulatedErrorSelector}` : undefined}
-      trailing={SearchIcon}
+      supporting={
+        simulatedErrorSelector
+          ? `Error: ${simulatedErrorSelector}`
+          : 'No error message was provided'
+      }
+      trailing={simulatedErrorSelector ? SearchIcon : undefined}
     />
   );
 
