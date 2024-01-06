@@ -6,6 +6,7 @@
 ## Shared
 ../**/*generated*
 ../**/*.mustache.yaml
+../**/.cache
 
 
 
