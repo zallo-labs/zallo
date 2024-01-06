@@ -4,10 +4,6 @@
     "prepare": {
       "dependsOn": ["^build"]
     },
-    "generate:gql": {
-      "inputs": ["codegen.ts", "src/features/prices/**/*.ts"],
-      "outputs": ["src/features/prices/__generated__/**"]
-    },
     "build": {
       "dependsOn": ["prepare"],
       "inputs": ["dbschema/**", "src/**"],

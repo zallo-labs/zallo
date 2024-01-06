@@ -16,7 +16,6 @@
     "with-env": "npx -y dotenv-cli -e ../.env",
     "generate:schema": "yarn prebuild && SKIP_ENV_CHECK=true nest start --entryFile generate-schema",
     "generate:edgeql": "npx -y concurrently -n edgeql-js,interfaces -c blue,magenta \"npx @edgedb/generate edgeql-js --target ts --force-overwrite\" \"npx @edgedb/generate interfaces\"",
-    "generate:gql": "graphql-codegen --config codegen.ts",
     "db:seed": "tsx ./dbschema/seed.ts",
     "db:migrate": "yarn with-env -- edgedb migrate"
   },
