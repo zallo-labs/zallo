@@ -94,7 +94,7 @@ export function TransfersSection(props: TransfersSectionProps) {
             token={t.token}
             amount={t.amount}
             trailing={({ Trailing }) => (
-              <View>
+              <View style={styles.trailingContainer}>
                 <Trailing />
 
                 {insufficient && t.token?.balance && (
@@ -115,6 +115,9 @@ export function TransfersSection(props: TransfersSectionProps) {
 }
 
 const stylesheet = createStyles(({ colors }) => ({
+  trailingContainer: {
+    alignItems: 'flex-end',
+  },
   insufficient: {
     color: colors.error,
   },

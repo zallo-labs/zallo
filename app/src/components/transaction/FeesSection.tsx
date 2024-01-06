@@ -104,7 +104,7 @@ export function FeesSection(props: FeeTokenProps) {
         overline={'Fees' + (isEstimated ? ' (max)' : '')}
         onPress={toggleExpanded}
         trailing={({ Trailing }) => (
-          <View>
+          <View style={styles.totalTrailingContainer}>
             <Trailing />
 
             {insufficient && p.feeToken.balance && (
@@ -168,6 +168,9 @@ export function FeesSection(props: FeeTokenProps) {
 }
 
 const stylesheet = createStyles(({ colors }) => ({
+  totalTrailingContainer: {
+    alignItems: 'flex-end',
+  },
   insufficient: {
     color: colors.error,
   },
