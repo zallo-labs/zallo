@@ -1,7 +1,8 @@
+import { O } from 'ts-toolbelt';
+
+import { ROUNDNESS } from '~/util/theme/paper';
 import { Rect } from './ContentLoader';
 import { Skeleton, SkeletonProps } from './Skeleton';
-import { O } from 'ts-toolbelt';
-import { ROUNDNESS } from '@theme/paper';
 
 export interface LineSkeletonProps extends O.Optional<SkeletonProps, 'width' | 'height'> {}
 

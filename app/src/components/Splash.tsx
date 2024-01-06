@@ -1,5 +1,4 @@
-import { StyleSheet } from 'react-native';
-import { Image, ImageRequireSource, View } from 'react-native';
+import { Image, ImageRequireSource, StyleSheet, View } from 'react-native';
 import constants from 'expo-constants';
 
 const splash: ImageRequireSource = require('../../assets/splash.png');

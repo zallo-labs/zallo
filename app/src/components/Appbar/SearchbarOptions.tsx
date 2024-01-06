@@ -1,5 +1,6 @@
-import { useNavigation } from 'expo-router';
 import { useLayoutEffect } from 'react';
+import { useNavigation } from 'expo-router';
+
 import { SearchbarProps } from './Searchbar';
 import { SearchbarHeader } from './SearchbarHeader';
 

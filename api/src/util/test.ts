@@ -1,6 +1,7 @@
+import { randomBytes } from 'crypto';
+
 import { asAddress, asHex, asUAddress } from 'lib';
 import { UserContext } from '~/request/ctx';
-import { randomBytes } from 'crypto';
 
 export const randomHex = (nBytes: number) => asHex('0x' + randomBytes(nBytes).toString('hex'));
 

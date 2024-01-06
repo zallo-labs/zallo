@@ -1,4 +1,11 @@
+import { Revenue } from '@amplitude/analytics-node';
+import { InjectQueue } from '@nestjs/bullmq';
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
+import { InjectRedis } from '@songkeys/nestjs-redis';
+import Decimal from 'decimal.js';
+import Redis from 'ioredis';
+import { decodeEventLog, getAbiItem } from 'viem';
+
 import {
   ACCOUNT_IMPLEMENTATION,
   asChain,
@@ -10,24 +17,18 @@ import {
   isTruthy,
   tryOrCatch,
 } from 'lib';
-import { TransactionData, TransactionEventData, TransactionsWorker } from './transactions.worker';
-import { InjectQueue } from '@nestjs/bullmq';
-import { TRANSACTIONS_QUEUE } from './transactions.queue';
+import { ETH } from 'lib/dapps';
 import e from '~/edgeql-js';
+import { ampli } from '~/util/ampli';
+import { runOnce } from '~/util/mutex';
 import { DatabaseService } from '../database/database.service';
 import { and } from '../database/database.util';
-import { NetworksService } from '../util/networks/networks.service';
-import { decodeEventLog, getAbiItem } from 'viem';
-import { ProposalsService } from '../proposals/proposals.service';
 import { ProposalEvent } from '../proposals/proposals.input';
-import { InjectRedis } from '@songkeys/nestjs-redis';
-import Redis from 'ioredis';
+import { ProposalsService } from '../proposals/proposals.service';
 import { RUNNING_JOB_STATUSES, TypedQueue } from '../util/bull/bull.util';
-import { ETH } from 'lib/dapps';
-import { runOnce } from '~/util/mutex';
-import { ampli } from '~/util/ampli';
-import { Revenue } from '@amplitude/analytics-node';
-import Decimal from 'decimal.js';
+import { NetworksService } from '../util/networks/networks.service';
+import { TRANSACTIONS_QUEUE } from './transactions.queue';
+import { TransactionData, TransactionEventData, TransactionsWorker } from './transactions.worker';
 
 @Injectable()
 export class TransactionsEvents implements OnModuleInit {

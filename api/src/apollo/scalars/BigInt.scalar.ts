@@ -1,5 +1,6 @@
 import { UserInputError } from '@nestjs/apollo';
 import { Kind } from 'graphql';
+
 import { createScalar } from './util';
 
 const parse = (value: unknown, description: string, min?: bigint, max?: bigint): bigint => {

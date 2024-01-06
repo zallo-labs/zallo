@@ -1,5 +1,6 @@
 import { Chain, getChain } from 'chains';
 import localWallets from './local-wallets.json';
+
 require('dotenv').config({ path: '../.env' });
 
 const chain = getChain(process.env.CHAIN || ('zksync-local' satisfies Chain));

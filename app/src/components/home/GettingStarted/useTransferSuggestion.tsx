@@ -1,8 +1,8 @@
-import { FragmentType, gql, useFragment } from '@api';
-import { Suggestion } from './suggestions';
 import { ListItem } from '~/components/list/ListItem';
-import { TransferIcon } from '@theme/icons';
+import { FragmentType, gql, useFragment } from '~/gql/api';
 import { useTransfer } from '~/hooks/useTransfer';
+import { TransferIcon } from '~/util/theme/icons';
+import { Suggestion } from './suggestions';
 
 const Query = gql(/* GraphQL */ `
   fragment useTransferSuggestion_Query on Query

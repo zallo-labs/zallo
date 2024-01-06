@@ -1,10 +1,11 @@
-import { FragmentType, gql, useFragment } from '@api';
-import { CheckIcon } from '@theme/icons';
-import { asUAddress } from 'lib';
 import { IconButton } from 'react-native-paper';
+
+import { asUAddress } from 'lib';
 import { AddressLabel } from '~/components/address/AddressLabel';
 import { ListItem } from '~/components/list/ListItem';
+import { FragmentType, gql, useFragment } from '~/gql/api';
 import { useApprove } from '~/hooks/useApprove';
+import { CheckIcon } from '~/util/theme/icons';
 
 const User = gql(/* GraphQL */ `
   fragment AwaitingApprovalItem_User on User {

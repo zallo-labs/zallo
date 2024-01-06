@@ -1,11 +1,12 @@
-import { gql } from '@api';
-import { useUrqlApiClient } from '@api/client';
-import { createStyles, useStyles } from '@theme/styles';
 import { useState } from 'react';
-import { FieldValues, FieldPath } from 'react-hook-form';
+import { FieldPath, FieldValues } from 'react-hook-form';
 import { TextInput } from 'react-native-paper';
+
 import { FormTextField, FormTextFieldProps } from '~/components/fields/FormTextField';
+import { gql } from '~/gql/api';
+import { useUrqlApiClient } from '~/gql/api/client';
 import { CONFIG } from '~/util/config';
+import { createStyles, useStyles } from '~/util/theme/styles';
 
 const LabelAvailable = gql(/* GraphQL */ `
   query AccountNameFormField_LabelAvailable($label: String!) {

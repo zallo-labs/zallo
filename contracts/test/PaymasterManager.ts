@@ -1,10 +1,11 @@
-import { Address } from 'lib';
-import { deploy, network, testNetwork, wallet, wallets } from './util';
-import PaymasterManager, { abi } from './contracts/PaymasterManager';
-import TestToken from './contracts/TestToken';
-import { ETH } from 'lib/dapps';
 import { expect } from 'chai';
 import { parseEther } from 'viem';
+
+import { Address } from 'lib';
+import { ETH } from 'lib/dapps';
+import PaymasterManager, { abi } from './contracts/PaymasterManager';
+import TestToken from './contracts/TestToken';
+import { deploy, network, testNetwork, wallet, wallets } from './util';
 
 describe('PaymasterManager', () => {
   const eth = ETH.address[network.chain.key];

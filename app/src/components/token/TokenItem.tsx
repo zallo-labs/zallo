@@ -1,15 +1,16 @@
+import { FC, memo } from 'react';
 import { StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
+import Decimal from 'decimal.js';
+import deepEqual from 'fast-deep-equal';
+
+import { Decimallike } from 'lib';
+import { FragmentType, gql, useFragment } from '~/gql/api/generated';
 import { FiatValue } from '../FiatValue';
 import { ListIconElementProps, ListItem, ListItemProps, ListItemTextProps } from '../list/ListItem';
 import { ListItemSkeleton } from '../list/ListItemSkeleton';
 import { withSuspense } from '../skeleton/withSuspense';
 import { TokenAmount } from './TokenAmount';
-import { Decimallike } from 'lib';
-import { FragmentType, gql, useFragment } from '@api/generated';
 import { TokenIcon } from './TokenIcon';
-import { FC, memo } from 'react';
-import deepEqual from 'fast-deep-equal';
-import Decimal from 'decimal.js';
 
 const Token = gql(/* GraphQL */ `
   fragment TokenItem_Token on Token {

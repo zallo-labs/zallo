@@ -1,18 +1,19 @@
 import { createMock, DeepMocked } from '@golevelup/ts-jest';
+import { BullModule, getQueueToken } from '@nestjs/bullmq';
 import { Test } from '@nestjs/testing';
-import { Network, NetworksService } from '../util/networks/networks.service';
+import { uuid } from 'edgedb/dist/codecs/ifaces';
+
+import { getProxyAddress, UAddress } from 'lib';
+import e from '~/edgeql-js';
+import { TypedQueue } from '~/features/util/bull/bull.util';
 import { asUser, getUserCtx, UserContext } from '~/request/ctx';
 import { DeepPartial, randomLabel, randomUAddress, randomUser } from '~/util/test';
-import { getProxyAddress, UAddress } from 'lib';
-import { PoliciesService } from '../policies/policies.service';
-import { BullModule, getQueueToken } from '@nestjs/bullmq';
-import { ACTIVATIONS_QUEUE } from './activations.queue';
-import { DatabaseService } from '../database/database.service';
-import { AccountsService } from './accounts.service';
-import e from '~/edgeql-js';
-import { uuid } from 'edgedb/dist/codecs/ifaces';
 import { AccountsCacheService } from '../auth/accounts.cache.service';
-import { TypedQueue } from '~/features/util/bull/bull.util';
+import { DatabaseService } from '../database/database.service';
+import { PoliciesService } from '../policies/policies.service';
+import { Network, NetworksService } from '../util/networks/networks.service';
+import { AccountsService } from './accounts.service';
+import { ACTIVATIONS_QUEUE } from './activations.queue';
 
 jest.mock('lib', () => ({
   ...jest.requireActual('lib'),

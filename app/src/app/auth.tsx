@@ -1,10 +1,9 @@
-import { FingerprintIcon } from '@theme/icons';
-import { createStyles, useStyles } from '@theme/styles';
 import { ComponentType, Fragment, PropsWithChildren, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Text } from 'react-native-paper';
 import { Subject } from 'rxjs';
 import useAsyncEffect from 'use-async-effect';
+
 import { usePasswordHash } from '~/app/(drawer)/settings/password';
 import { Button } from '~/components/Button';
 import { DialogModal } from '~/components/Dialog/DialogModal';
@@ -15,6 +14,8 @@ import { useBiometrics } from '~/hooks/useBiometrics';
 import { useGetEvent } from '~/hooks/useGetEvent';
 import { verifyPassword } from '~/lib/crypto/password';
 import { secureStorageLocked } from '~/lib/secure-storage';
+import { FingerprintIcon } from '~/util/theme/icons';
+import { createStyles, useStyles } from '~/util/theme/styles';
 
 export const UNLOCKED = new Subject<true>();
 const emitOnAuth = () => UNLOCKED.next(true);

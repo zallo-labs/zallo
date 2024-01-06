@@ -1,13 +1,14 @@
-import { Image } from 'expo-image';
-import { ListItem } from '~/components/list/ListItem';
-import { SessionTypes, PairingTypes } from '@walletconnect/types';
-import { ICON_SIZE } from '@theme/paper';
 import { StyleSheet } from 'react-native';
-import { useWalletConnect } from '~/util/walletconnect';
-import { useTimestamp } from '~/components/format/Timestamp';
-import { DateTime } from 'luxon';
-import { MoreVerticalIcon } from '@theme/icons';
+import { PairingTypes, SessionTypes } from '@walletconnect/types';
+import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
+import { DateTime } from 'luxon';
+
+import { useTimestamp } from '~/components/format/Timestamp';
+import { ListItem } from '~/components/list/ListItem';
+import { MoreVerticalIcon } from '~/util/theme/icons';
+import { ICON_SIZE } from '~/util/theme/paper';
+import { useWalletConnect } from '~/util/walletconnect';
 
 export interface PairingItemProps {
   pairing: PairingTypes.Struct;

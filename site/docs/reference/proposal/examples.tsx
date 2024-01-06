@@ -1,7 +1,4 @@
 import React from 'react';
-import { withBrowser } from '@site/src/components/withBrowser';
-import gql from 'graphql-tag';
-import Explorer from '@site/src/components/Explorer';
 // import {
 //   ProposeMutationVariables,
 //   ApproveMutationVariables,
@@ -10,9 +7,13 @@ import Explorer from '@site/src/components/Explorer';
 //   ProposalChangesSubscriptionVariables,
 // } from '@site/src/api.generated';
 import { useAccount } from '@site/src/api/useAccount';
-import { useDevice } from '@site/src/hooks/useDevice';
 import { useProposal } from '@site/src/api/useProposal';
+import Explorer from '@site/src/components/Explorer';
 import { Suspend } from '@site/src/components/Suspender';
+import { withBrowser } from '@site/src/components/withBrowser';
+import { useDevice } from '@site/src/hooks/useDevice';
+import gql from 'graphql-tag';
+
 import { signDigest } from 'lib';
 
 export const ProposeExample = withBrowser(() => {

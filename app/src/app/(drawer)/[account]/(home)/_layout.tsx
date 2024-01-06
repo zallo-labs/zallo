@@ -1,11 +1,12 @@
 import { useEffect } from 'react';
 import { z } from 'zod';
-import { TopTabs } from '~/components/layout/TopTabs';
+
 import { HomeHeader } from '~/components/home/HomeHeader';
+import { ScreenSurface } from '~/components/layout/ScreenSurface';
+import { TopTabs } from '~/components/layout/TopTabs';
 import { useLocalParams } from '~/hooks/useLocalParams';
 import { useSelectedAccount, useSetSelectedAccont } from '~/hooks/useSelectedAccount';
 import { zUAddress } from '~/lib/zod';
-import { ScreenSurface } from '~/components/layout/ScreenSurface';
 
 const InternalParams = z.object({ account: zUAddress().optional() }); // Required as the this route is always first in the history, so may be rendered at any time
 export const AccountParams = z.object({ account: zUAddress() });

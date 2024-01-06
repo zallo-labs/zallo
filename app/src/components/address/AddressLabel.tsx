@@ -1,7 +1,7 @@
 import { UAddress } from 'lib';
-import { truncateAddr } from '~/util/format';
-import { gql } from '@api/generated';
 import { useQuery } from '~/gql';
+import { gql } from '~/gql/api/generated';
+import { truncateAddr } from '~/util/format';
 
 const Query = gql(/* GraphQL */ `
   query AddressLabel($address: UAddress!) {

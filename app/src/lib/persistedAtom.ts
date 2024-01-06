@@ -1,7 +1,7 @@
-import { Getter, WritableAtom, atom } from 'jotai';
-import { RESET, createJSONStorage } from 'jotai/utils';
 import type { AsyncStorage as TAsyncStorage } from 'jotai/vanilla/utils/atomWithStorage';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { atom, Getter, WritableAtom } from 'jotai';
+import { createJSONStorage, RESET } from 'jotai/utils';
 
 export type PersistedAtomOptions<V, U extends AnyJson> = StorageOptions<V, U> & {
   persistInitial?: boolean;

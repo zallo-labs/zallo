@@ -1,7 +1,8 @@
+import { DrawerHeaderProps } from '@react-navigation/drawer';
 import { NativeStackHeaderProps } from '@react-navigation/native-stack';
+
 import { Appbar } from './Appbar';
 import { AppbarOptionsProps } from './AppbarOptions';
-import { DrawerHeaderProps } from '@react-navigation/drawer';
 
 type NavHeaderProps = NativeStackHeaderProps | DrawerHeaderProps;
 

@@ -1,12 +1,13 @@
 import { Processor } from '@nestjs/bullmq';
 import { Injectable } from '@nestjs/common';
-import { TRANSACTIONS_QUEUE } from './transactions.queue';
-import { NetworksService } from '../util/networks/networks.service';
-import { Chain, ChainConfig } from 'chains';
-import { FormattedBlock, FormattedTransactionReceipt, Hex, encodeEventTopics } from 'viem';
 import { AbiEvent } from 'abitype';
+import { encodeEventTopics, FormattedBlock, FormattedTransactionReceipt, Hex } from 'viem';
+
+import { Chain, ChainConfig } from 'chains';
 import { Log } from '~/features/events/events.worker';
 import { TypedJob, Worker } from '~/features/util/bull/bull.util';
+import { NetworksService } from '../util/networks/networks.service';
+import { TRANSACTIONS_QUEUE } from './transactions.queue';
 
 export const REQUIRED_CONFIRMATIONS = 1;
 

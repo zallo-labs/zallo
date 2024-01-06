@@ -1,13 +1,14 @@
-import { Test } from '@nestjs/testing';
-import { EventsQueue, EventsWorker, EventData, Log } from './events.worker';
-import { DeepMocked, createMock } from '@golevelup/ts-jest';
-import { Network, NetworksService } from '../util/networks/networks.service';
+import { createMock, DeepMocked } from '@golevelup/ts-jest';
 import { BullModule, getQueueToken } from '@nestjs/bullmq';
+import { Test } from '@nestjs/testing';
 import { DEFAULT_REDIS_NAMESPACE, getRedisToken } from '@songkeys/nestjs-redis';
-import { DeepPartial, randomAddress } from '~/util/test';
-import { ACCOUNT_IMPLEMENTATION, Address } from 'lib';
 import { encodeEventTopics, getAbiItem } from 'viem';
+
+import { ACCOUNT_IMPLEMENTATION, Address } from 'lib';
 import { QueueData, TypedJob, TypedQueue } from '~/features/util/bull/bull.util';
+import { DeepPartial, randomAddress } from '~/util/test';
+import { Network, NetworksService } from '../util/networks/networks.service';
+import { EventData, EventsQueue, EventsWorker, Log } from './events.worker';
 
 describe(EventsWorker.name, () => {
   let worker: EventsWorker;

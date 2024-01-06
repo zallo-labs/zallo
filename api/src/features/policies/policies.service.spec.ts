@@ -1,22 +1,23 @@
-import { Test } from '@nestjs/testing';
+import assert from 'assert';
 import { createMock, DeepMocked } from '@golevelup/ts-jest';
-import { CreatePolicyParams, PoliciesService } from './policies.service';
+import { Test } from '@nestjs/testing';
+import { v1 as uuidv1 } from 'uuid';
+
 import { asPolicyKey, asSelector, randomDeploySalt, randomHex, UAddress, ZERO_ADDR } from 'lib';
+import e from '~/edgeql-js';
 import { asUser, getUserCtx, UserContext } from '~/request/ctx';
 import { randomAddress, randomLabel, randomUAddress, randomUser } from '~/util/test';
-import { TransactionProposalsService } from '../transaction-proposals/transaction-proposals.service';
 import { AccountsCacheService } from '../auth/accounts.cache.service';
 import { DatabaseService } from '../database/database.service';
-import e from '~/edgeql-js';
+import { TransactionProposalsService } from '../transaction-proposals/transaction-proposals.service';
+import { PolicyInput } from './policies.input';
+import { CreatePolicyParams, PoliciesService } from './policies.service';
 import {
   inputAsPolicy,
   policyStateAsPolicy,
   policyStateShape,
   uniquePolicy,
 } from './policies.util';
-import assert from 'assert';
-import { PolicyInput } from './policies.input';
-import { v1 as uuidv1 } from 'uuid';
 
 describe(PoliciesService.name, () => {
   let service: PoliciesService;

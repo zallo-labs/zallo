@@ -1,6 +1,7 @@
-import { ICON_SIZE } from '@theme/paper';
 import { FC, ReactNode } from 'react';
 import { StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
+
+import { ICON_SIZE } from '~/util/theme/paper';
 
 export interface IndentedProps {
   children: ReactNode;

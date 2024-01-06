@@ -1,8 +1,9 @@
-import { FragmentType, gql, useFragment } from '@api';
 import { useMutation } from 'urql';
-import { authContext } from '@api/client';
-import { useGetGoogleApprover } from '~/hooks/cloud/useGetGoogleApprover';
+
 import { showError } from '~/components/provider/SnackbarProvider';
+import { FragmentType, gql, useFragment } from '~/gql/api';
+import { authContext } from '~/gql/api/client';
+import { useGetGoogleApprover } from '~/hooks/cloud/useGetGoogleApprover';
 import { ampli } from '~/lib/ampli';
 
 const User = gql(/* GraphQL */ `

@@ -1,8 +1,9 @@
 import { Query, Resolver } from '@nestjs/graphql';
-import { PaymastersService } from './paymasters.service';
-import { FeesPerGas } from './paymasters.model';
+
 import { Input } from '~/decorators/input.decorator';
 import { EstimateFeesPerGasInput } from './paymasters.input';
+import { FeesPerGas } from './paymasters.model';
+import { PaymastersService } from './paymasters.service';
 
 @Resolver()
 export class PaymastersResolver {

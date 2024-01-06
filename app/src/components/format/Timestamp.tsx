@@ -1,5 +1,5 @@
-import { DateTime } from 'luxon';
 import { useMemo } from 'react';
+import { DateTime } from 'luxon';
 
 export const asDateTime = (timestamp: DateTime | string) =>
   typeof timestamp === 'string' ? DateTime.fromISO(timestamp) : timestamp;

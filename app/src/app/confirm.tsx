@@ -1,12 +1,13 @@
 import { useRouter } from 'expo-router';
 import { Dialog, Text } from 'react-native-paper';
-import { Button } from '~/components/Button';
-import { DialogModal } from '~/components/Dialog/DialogModal';
 import { Subject } from 'rxjs';
-import { DialogActions } from '~/components/Dialog/DialogActions';
-import { createStyles, useStyles } from '@theme/styles';
 import { z } from 'zod';
+
+import { Button } from '~/components/Button';
+import { DialogActions } from '~/components/Dialog/DialogActions';
+import { DialogModal } from '~/components/Dialog/DialogModal';
 import { useLocalParams } from '~/hooks/useLocalParams';
+import { createStyles, useStyles } from '~/util/theme/styles';
 
 export const CONFIRMATIONS = new Subject<true>();
 

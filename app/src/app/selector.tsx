@@ -1,11 +1,12 @@
-import { Selector, asSelector } from 'lib';
-import { useForm } from 'react-hook-form';
-import { FormTextField } from '~/components/fields/FormTextField';
 import { StyleSheet, View } from 'react-native';
-import { Actions } from '~/components/layout/Actions';
-import { FormSubmitButton } from '~/components/fields/FormSubmitButton';
-import { AppbarOptions } from '~/components/Appbar/AppbarOptions';
+import { useForm } from 'react-hook-form';
 import { Subject } from 'rxjs';
+
+import { asSelector, Selector } from 'lib';
+import { AppbarOptions } from '~/components/Appbar/AppbarOptions';
+import { FormSubmitButton } from '~/components/fields/FormSubmitButton';
+import { FormTextField } from '~/components/fields/FormTextField';
+import { Actions } from '~/components/layout/Actions';
 import { useGetEvent } from '~/hooks/useGetEvent';
 
 const SELECTOR_ADDED = new Subject<Selector>();

@@ -1,9 +1,10 @@
-import { ScanIcon } from '@theme/icons';
 import { StyleSheet, View } from 'react-native';
-import { AccountSelector } from '~/components/AccountSelector';
-import { FragmentType, gql, useFragment } from '@api/generated';
-import { AppbarOptions } from '~/components/Appbar/AppbarOptions';
 import { useRouter } from 'expo-router';
+
+import { AccountSelector } from '~/components/AccountSelector';
+import { AppbarOptions } from '~/components/Appbar/AppbarOptions';
+import { FragmentType, gql, useFragment } from '~/gql/api/generated';
+import { ScanIcon } from '~/util/theme/icons';
 
 const FragmentDoc = gql(/* GraphQL */ `
   fragment HomeAppbar_account on Account {

@@ -1,6 +1,7 @@
-import { createStyles, useStyles } from '@theme/styles';
-import { ContentLoader, IContentLoaderProps } from './ContentLoader';
 import { NumberProp } from 'react-native-svg';
+
+import { createStyles, useStyles } from '~/util/theme/styles';
+import { ContentLoader, IContentLoaderProps } from './ContentLoader';
 
 export type SkeletonProps = IContentLoaderProps & {
   width: NumberProp;

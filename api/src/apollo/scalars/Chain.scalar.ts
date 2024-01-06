@@ -1,6 +1,7 @@
-import { CHAINS, Chain, isChain } from 'chains';
 import { UserInputError } from '@nestjs/apollo';
 import { Kind } from 'graphql';
+
+import { Chain, CHAINS, isChain } from 'chains';
 import { createScalar } from './util';
 
 const description = Object.values(CHAINS)

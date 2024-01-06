@@ -1,15 +1,16 @@
 import { Field, ObjectType, registerEnumType } from '@nestjs/graphql';
-import { GraphQLBigInt } from 'graphql-scalars';
-import { Transaction } from '../transactions/transactions.model';
-import { Operation } from '../operations/operations.model';
-import { Token } from '../tokens/tokens.model';
-import { Simulation } from '../simulations/simulations.model';
-import { Proposal } from '../proposals/proposals.model';
-import { AddressField } from '~/apollo/scalars/Address.scalar';
-import { Address } from 'lib';
-import { DecimalField } from '~/apollo/scalars/Decimal.scalar';
 import Decimal from 'decimal.js';
+import { GraphQLBigInt } from 'graphql-scalars';
+
+import { Address } from 'lib';
+import { AddressField } from '~/apollo/scalars/Address.scalar';
+import { DecimalField } from '~/apollo/scalars/Decimal.scalar';
 import { CustomNode, CustomNodeType, Node, NodeType } from '~/decorators/interface.decorator';
+import { Operation } from '../operations/operations.model';
+import { Proposal } from '../proposals/proposals.model';
+import { Simulation } from '../simulations/simulations.model';
+import { Token } from '../tokens/tokens.model';
+import { Transaction } from '../transactions/transactions.model';
 
 @ObjectType({ implements: () => Proposal })
 export class TransactionProposal extends Proposal {

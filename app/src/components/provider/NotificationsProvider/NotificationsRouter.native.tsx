@@ -1,6 +1,7 @@
-import { useRouter } from 'expo-router';
-import * as Notifications from 'expo-notifications';
 import { useEffect } from 'react';
+import * as Notifications from 'expo-notifications';
+import { useRouter } from 'expo-router';
+
 import { ampli } from '~/lib/ampli';
 
 export function NotificationsRouter() {

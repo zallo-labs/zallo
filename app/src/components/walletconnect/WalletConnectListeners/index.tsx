@@ -1,11 +1,12 @@
 import { useEffect } from 'react';
-import { useSessionPropsalListener } from './useSessionPropsalListener';
-import { useUpdateWalletConnect, useWalletConnectWithoutWatching } from '~/util/walletconnect';
-import { useSessionRequestListener } from './useSessionRequestListener';
-import { withSuspense } from '~/components/skeleton/withSuspense';
-import { SignClientTypes } from '@walletconnect/types';
 import { SignClient } from '@walletconnect/sign-client/dist/types/client';
+import { SignClientTypes } from '@walletconnect/types';
+
+import { withSuspense } from '~/components/skeleton/withSuspense';
 import { logTrace } from '~/util/analytics';
+import { useUpdateWalletConnect, useWalletConnectWithoutWatching } from '~/util/walletconnect';
+import { useSessionPropsalListener } from './useSessionPropsalListener';
+import { useSessionRequestListener } from './useSessionRequestListener';
 
 function WalletConnectListeners_() {
   const client = useWalletConnectWithoutWatching();

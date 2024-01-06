@@ -1,10 +1,10 @@
 import { InjectQueue, Processor } from '@nestjs/bullmq';
 import { Injectable } from '@nestjs/common';
+import { UnrecoverableError } from 'bullmq';
+import Decimal from 'decimal.js';
+
 import {
   Address,
-  Hex,
-  Tx,
-  UUID,
   asAddress,
   asApproval,
   asHex,
@@ -12,37 +12,38 @@ import {
   encodeTransactionSignature,
   executeTransaction,
   getTransactionSatisfiability,
+  Hex,
   isPresent,
   mapAsync,
+  Tx,
+  UUID,
 } from 'lib';
+import e from '~/edgeql-js';
+import { selectApprover } from '~/features/approvers/approvers.service';
 import { DatabaseService } from '~/features/database/database.service';
 import { PaymastersService } from '~/features/paymasters/paymasters.service';
-import { ProposalsService } from '~/features/proposals/proposals.service';
-import { TRANSACTIONS_QUEUE } from '~/features/transactions/transactions.queue';
-import { NetworksService } from '~/features/util/networks/networks.service';
-import e from '~/edgeql-js';
 import {
-  PolicyStateShape,
   policyStateAsPolicy,
+  PolicyStateShape,
   policyStateShape,
   selectPolicy,
 } from '~/features/policies/policies.util';
-import {
-  proposalTxShape,
-  transactionProposalAsTx,
-} from '../transaction-proposals/transaction-proposals.util';
-import Decimal from 'decimal.js';
-import { selectApprover } from '~/features/approvers/approvers.service';
 import { ProposalEvent } from '~/features/proposals/proposals.input';
+import { ProposalsService } from '~/features/proposals/proposals.service';
 import { selectTransactionProposal } from '~/features/transaction-proposals/transaction-proposals.service';
+import { TRANSACTIONS_QUEUE } from '~/features/transactions/transactions.queue';
 import {
+  createQueue,
   QueueReturnType,
   TypedJob,
   TypedQueue,
   Worker,
-  createQueue,
 } from '~/features/util/bull/bull.util';
-import { UnrecoverableError } from 'bullmq';
+import { NetworksService } from '~/features/util/networks/networks.service';
+import {
+  proposalTxShape,
+  transactionProposalAsTx,
+} from '../transaction-proposals/transaction-proposals.util';
 
 export const ExecutionsQueue = createQueue<
   { txProposal: UUID; ignoreSimulation?: boolean },

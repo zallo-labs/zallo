@@ -1,25 +1,26 @@
+import { ScrollView, View } from 'react-native';
 import { Link, useRouter } from 'expo-router';
-import { View, ScrollView } from 'react-native';
 import { Text } from 'react-native-paper';
+
+import { AppbarOptions } from '~/components/Appbar/AppbarOptions';
 import { Button } from '~/components/Button';
 import { Actions } from '~/components/layout/Actions';
+import { LinkLedgerButton } from '~/components/link/ledger/LinkLedgerButton';
 import { LinkAppleButton } from '~/components/link/LinkAppleButton';
 import { LinkGoogleButton } from '~/components/link/LinkGoogleButton';
 import { LinkingButton } from '~/components/link/LinkingButton';
-import { LinkLedgerButton } from '~/components/link/ledger/LinkLedgerButton';
-import { AppbarOptions } from '~/components/Appbar/AppbarOptions';
+import { useQuery } from '~/gql';
+import { gql } from '~/gql/api';
+import { CONFIG } from '~/util/config';
 import {
   AppScreenshots,
   AppStoreBadge,
   GithubIcon,
   GooglePlayBadge,
-  ZalloLogo,
   TwitterIcon,
-} from '@theme/icons';
-import { CONFIG } from '~/util/config';
-import { createStyles, useStyles } from '@theme/styles';
-import { gql } from '@api';
-import { useQuery } from '~/gql';
+  ZalloLogo,
+} from '~/util/theme/icons';
+import { createStyles, useStyles } from '~/util/theme/styles';
 
 const Query = gql(/* GraphQL */ `
   query Landing {

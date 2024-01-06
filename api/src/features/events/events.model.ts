@@ -1,11 +1,12 @@
-import { Field, InterfaceType, createUnionType } from '@nestjs/graphql';
-import { IdField } from '~/apollo/scalars/Id.scalar';
+import { createUnionType, Field, InterfaceType } from '@nestjs/graphql';
 import { uuid } from 'edgedb/dist/codecs/ifaces';
 import { GraphQLBigInt } from 'graphql-scalars';
+import { match } from 'ts-pattern';
+
+import { IdField } from '~/apollo/scalars/Id.scalar';
+import * as eDefault from '~/edgeql-js/modules/default';
 import { Account } from '../accounts/accounts.model';
 import { Transfer, TransferApproval } from '../transfers/transfers.model';
-import { match } from 'ts-pattern';
-import * as eDefault from '~/edgeql-js/modules/default';
 
 @InterfaceType()
 export class EventBase {

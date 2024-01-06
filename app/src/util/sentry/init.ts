@@ -1,4 +1,5 @@
 import * as Sentry from 'sentry-expo';
+
 import { CONFIG } from '~/util/config';
 
 Sentry.init({

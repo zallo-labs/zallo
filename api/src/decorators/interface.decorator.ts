@@ -1,4 +1,5 @@
 import { Field, ID, InterfaceType, ObjectType, ObjectTypeOptions } from '@nestjs/graphql';
+
 import { UUID } from 'lib';
 import { UUIDField } from '~/apollo/scalars/Uuid.scalar';
 

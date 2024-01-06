@@ -1,9 +1,9 @@
 import { FC, ReactNode } from 'react';
-import { View, ViewStyle } from 'react-native';
+import { StyleProp, View, ViewStyle } from 'react-native';
 import { Text } from 'react-native-paper';
-import { TextProps } from '@theme/types';
-import { StyleProp } from 'react-native';
-import { createStyles, useStyles } from '@theme/styles';
+
+import { createStyles, useStyles } from '~/util/theme/styles';
+import { TextProps } from '~/util/theme/types';
 
 export interface TrailingItemProps {
   Text: FC<TextProps>;

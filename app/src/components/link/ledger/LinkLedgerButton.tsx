@@ -1,10 +1,11 @@
 import { useEffect } from 'react';
 import { StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Fab } from '~/components/Fab';
+
 import { LINKINGS_FROM_DEVICE } from '~/app/link/token';
-import { LedgerIcon } from '@theme/icons';
+import { Fab } from '~/components/Fab';
 import { __WEB__ } from '~/util/config';
+import { LedgerIcon } from '~/util/theme/icons';
 
 export interface LinkLedgerButtonProps {
   onLink?: () => void;

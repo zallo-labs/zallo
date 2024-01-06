@@ -1,8 +1,9 @@
-import { FragmentType, gql, useFragment } from '@api';
-import { PolicyIcon } from '@theme/icons';
 import { useRouter } from 'expo-router';
+
 import { Suggestion } from '~/components/home/GettingStarted/suggestions';
 import { ListItem } from '~/components/list/ListItem';
+import { FragmentType, gql, useFragment } from '~/gql/api';
+import { PolicyIcon } from '~/util/theme/icons';
 
 const Account = gql(/* GraphQL */ `
   fragment useCreatePolicySuggestion_Account on Account {

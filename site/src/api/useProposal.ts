@@ -1,6 +1,7 @@
-import { gql, useMutation } from '@apollo/client';
-import { ZERO_ADDR } from 'lib';
 import { useEffect, useState } from 'react';
+import { gql, useMutation } from '@apollo/client';
+
+import { ZERO_ADDR } from 'lib';
 import {
   FirstPendingProposalQuery,
   FirstPendingProposalQueryVariables,

@@ -1,20 +1,21 @@
-import { authContext, useUrqlApiClient } from '@api/client';
-import { FragmentType, gql, useFragment } from '@api/generated';
-import { BluetoothIcon } from '@theme/icons';
 import { useCallback } from 'react';
-import { useMutation } from 'urql';
-import { ListItem } from '~/components/list/ListItem';
-import { useGetLedgerApprover } from '~/app/ledger/approve';
-import { APPROVER_BLE_IDS } from '~/hooks/ledger/useLedger';
-import { showError, showInfo } from '~/components/provider/SnackbarProvider';
-import { useImmerAtom } from 'jotai-immer';
-import { getLedgerDeviceModel } from '~/hooks/ledger/connectLedger';
-import { elipseTruncate } from '~/util/format';
 import { useRouter } from 'expo-router';
-import { BleDevice, isUniqueBleDeviceId } from '~/lib/ble/util';
-import { LinkWithTokenSheetParams } from '~/app/link/token';
+import { useImmerAtom } from 'jotai-immer';
+import { useMutation } from 'urql';
+
 import { tryOrIgnoreAsync } from 'lib';
+import { useGetLedgerApprover } from '~/app/ledger/approve';
+import { LinkWithTokenSheetParams } from '~/app/link/token';
+import { ListItem } from '~/components/list/ListItem';
+import { showError, showInfo } from '~/components/provider/SnackbarProvider';
+import { authContext, useUrqlApiClient } from '~/gql/api/client';
+import { FragmentType, gql, useFragment } from '~/gql/api/generated';
+import { getLedgerDeviceModel } from '~/hooks/ledger/connectLedger';
+import { APPROVER_BLE_IDS } from '~/hooks/ledger/useLedger';
 import { ampli } from '~/lib/ampli';
+import { BleDevice, isUniqueBleDeviceId } from '~/lib/ble/util';
+import { elipseTruncate } from '~/util/format';
+import { BluetoothIcon } from '~/util/theme/icons';
 
 const User = gql(/* GraphQL */ `
   fragment LedgerItem_user on User {

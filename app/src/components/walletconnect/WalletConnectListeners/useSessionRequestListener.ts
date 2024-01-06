@@ -1,8 +1,16 @@
-import { gql } from '@api/generated';
-import { asUAddress } from 'lib';
-import { CHAINS } from 'chains';
 import { useEffect, useMemo } from 'react';
+import { SignClientTypes } from '@walletconnect/types';
+import { useRouter } from 'expo-router';
+import { Subject } from 'rxjs';
+import { useMutation, useSubscription } from 'urql';
+
+import { CHAINS } from 'chains';
+import { asUAddress } from 'lib';
 import { showError, showInfo } from '~/components/provider/SnackbarProvider';
+import { getOptimizedDocument, useQuery } from '~/gql';
+import { gql } from '~/gql/api/generated';
+import { SessionRequestListener_ProposalSubscription } from '~/gql/api/generated/graphql';
+import { usePropose } from '~/gql/api/usePropose';
 import { logError } from '~/util/analytics';
 import {
   asWalletConnectError,
@@ -10,19 +18,12 @@ import {
   useWalletConnectWithoutWatching,
 } from '~/util/walletconnect';
 import {
+  normalizeSigningRequest,
   SigningRequest,
+  WalletConnectSendTransactionRequest,
   WC_SIGNING_METHODS,
   WC_TRANSACTION_METHODS,
-  WalletConnectSendTransactionRequest,
-  normalizeSigningRequest,
 } from '~/util/walletconnect/methods';
-import { usePropose } from '@api/usePropose';
-import { getOptimizedDocument, useQuery } from '~/gql';
-import { Subject } from 'rxjs';
-import { SignClientTypes } from '@walletconnect/types';
-import { useMutation, useSubscription } from 'urql';
-import { SessionRequestListener_ProposalSubscription } from '@api/generated/graphql';
-import { useRouter } from 'expo-router';
 
 const Query = gql(/* GraphQL */ `
   query UseSessionRequestListener {

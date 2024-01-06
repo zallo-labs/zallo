@@ -1,6 +1,7 @@
 import { match } from 'ts-pattern';
+import { hexToString, TypedDataDefinition } from 'viem';
+
 import { Addresslike, asAddress, isHex } from 'lib';
-import { TypedDataDefinition, hexToString } from 'viem';
 
 export type SigningRequest = PersonalSignRequest | SignTypedDataRequest;
 

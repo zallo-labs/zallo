@@ -1,12 +1,13 @@
 import { Injectable } from '@nestjs/common';
-import { Address, UAddress, asAddress, isUAddress } from 'lib';
+import { uuid } from 'edgedb/dist/codecs/ifaces';
+
+import { Address, asAddress, isUAddress, UAddress } from 'lib';
+import { CONFIG } from '~/config';
+import e from '~/edgeql-js';
 import { ShapeFunc } from '../database/database.select';
 import { DatabaseService } from '../database/database.service';
-import e from '~/edgeql-js';
-import { ContactsInput, UpsertContactInput } from './contacts.input';
-import { uuid } from 'edgedb/dist/codecs/ifaces';
 import { or } from '../database/database.util';
-import { CONFIG } from '~/config';
+import { ContactsInput, UpsertContactInput } from './contacts.input';
 
 type UniqueContact = uuid | UAddress;
 

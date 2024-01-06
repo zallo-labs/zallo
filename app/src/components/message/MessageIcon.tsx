@@ -1,8 +1,9 @@
-import { FragmentType, gql, useFragment } from '@api/generated';
-import { IconProps, materialCommunityIcon } from '@theme/icons';
-import { ICON_SIZE } from '@theme/paper';
-import { Image } from 'expo-image';
 import { StyleSheet } from 'react-native';
+import { Image } from 'expo-image';
+
+import { FragmentType, gql, useFragment } from '~/gql/api/generated';
+import { IconProps, materialCommunityIcon } from '~/util/theme/icons';
+import { ICON_SIZE } from '~/util/theme/paper';
 
 const SignatureIcon = materialCommunityIcon('signature');
 

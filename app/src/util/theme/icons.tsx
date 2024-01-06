@@ -1,7 +1,8 @@
-import { Image, ImageProps, ImageSource } from 'expo-image';
-import { ComponentPropsWithoutRef, ElementType, FC, Ref, forwardRef } from 'react';
+import { ComponentPropsWithoutRef, ElementType, FC, forwardRef, Ref } from 'react';
 import { ColorValue, TouchableOpacity, TouchableOpacityProps } from 'react-native';
 import { Ionicons, MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
+import { Image, ImageProps, ImageSource } from 'expo-image';
+
 import { ICON_SIZE } from './paper';
 
 export interface IconProps {

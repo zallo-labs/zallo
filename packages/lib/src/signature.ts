@@ -1,7 +1,8 @@
-import { POLICY_STRUCT_ABI, Policy, encodePolicyStruct } from './policy';
-import { APPROVALS_ABI, Approval, encodeApprovalsStruct } from './approvals';
 import { parseAbiParameter } from 'abitype';
 import { encodeAbiParameters } from 'viem';
+
+import { Approval, APPROVALS_ABI, encodeApprovalsStruct } from './approvals';
+import { encodePolicyStruct, Policy, POLICY_STRUCT_ABI } from './policy';
 import { Tx } from './tx';
 
 const TRANSACTION_SIGNATURE_ABI = [

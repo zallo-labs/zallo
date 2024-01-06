@@ -1,6 +1,7 @@
-import { useToggle } from '~/hooks/useToggle';
 import { ReactNode } from 'react';
 import { TouchableOpacity, TouchableOpacityProps } from 'react-native';
+
+import { useToggle } from '~/hooks/useToggle';
 
 export interface ExpandOnLongPress extends Pick<TouchableOpacityProps, 'onPress' | 'style'> {
   collapsed: ReactNode;

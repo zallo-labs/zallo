@@ -1,24 +1,25 @@
-import { LedgerLogo, materialIcon } from '@theme/icons';
-import { ICON_SIZE } from '@theme/paper';
-import { Address, Hex, isAddress } from 'lib';
 import { useRef, useState } from 'react';
 import { View } from 'react-native';
+import { Result } from 'neverthrow';
 import { ActivityIndicator, Text } from 'react-native-paper';
+import { firstValueFrom, Subject } from 'rxjs';
 import { match } from 'ts-pattern';
 import useAsyncEffect from 'use-async-effect';
-import { SuccessIcon } from '~/components/SuccessIcon';
-import { Sheet } from '~/components/sheet/Sheet';
-import { useLedger } from '~/hooks/ledger/useLedger';
-import { Result } from 'neverthrow';
-import { Button } from '~/components/Button';
-import { gql } from '@api/generated';
-import { useQuery } from '~/gql';
 import { TypedDataDefinition } from 'viem';
 import { z } from 'zod';
-import { useLocalParams } from '~/hooks/useLocalParams';
-import { Subject, firstValueFrom } from 'rxjs';
+
+import { Address, Hex, isAddress } from 'lib';
+import { Button } from '~/components/Button';
+import { Sheet } from '~/components/sheet/Sheet';
+import { SuccessIcon } from '~/components/SuccessIcon';
+import { useQuery } from '~/gql';
+import { gql } from '~/gql/api/generated';
+import { useLedger } from '~/hooks/ledger/useLedger';
 import { useGetEvent } from '~/hooks/useGetEvent';
-import { createStyles, useStyles } from '@theme/styles';
+import { useLocalParams } from '~/hooks/useLocalParams';
+import { LedgerLogo, materialIcon } from '~/util/theme/icons';
+import { ICON_SIZE } from '~/util/theme/paper';
+import { createStyles, useStyles } from '~/util/theme/styles';
 
 const RejectedIcon = materialIcon('error-outline');
 

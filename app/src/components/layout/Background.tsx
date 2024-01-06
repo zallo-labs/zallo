@@ -1,8 +1,9 @@
-import { Platform, View } from 'react-native';
 import { ReactNode, useEffect } from 'react';
-import { StatusBar } from 'expo-status-bar';
+import { Platform, View } from 'react-native';
 import * as AndroidNav from 'expo-navigation-bar';
-import { createStyles, useStyles } from '@theme/styles';
+import { StatusBar } from 'expo-status-bar';
+
+import { createStyles, useStyles } from '~/util/theme/styles';
 
 export interface BackgroundProps {
   children: ReactNode;

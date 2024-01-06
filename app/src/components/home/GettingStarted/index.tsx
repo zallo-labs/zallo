@@ -1,24 +1,24 @@
-import { FragmentType, gql, useFragment } from '@api';
-import { StyleProp, ViewStyle } from 'react-native';
-import { useLinkGoogleSuggestion } from './useLinkGoogleSuggestion';
-import { useLinkDeviceSuggestion } from './useLinkDeviceSuggestion';
-import { useLinkAppleSuggestion } from './useLinkAppleSuggestion';
-import { CheckIcon } from '@theme/icons';
-import { useTransferSuggestion } from './useTransferSuggestion';
-import { useDepositSuggestion } from './useDepositSuggestion';
-import { useAtom } from 'jotai';
-import { persistedAtom } from '~/lib/persistedAtom';
 import { ReactNode } from 'react';
-import { useCreatePolicySuggestion } from '~/components/home/GettingStarted/useCreatePolicySuggestion';
-import { createStyles, useStyles } from '@theme/styles';
-import { View } from 'react-native';
+import { StyleProp, View, ViewStyle } from 'react-native';
+import { useAtom } from 'jotai';
 import Collapsible from 'react-native-collapsible';
 import { ProgressBar, Surface, Text, TouchableRipple } from 'react-native-paper';
 import Animated, { FadeIn, SlideOutRight } from 'react-native-reanimated';
+
 import { Button } from '~/components/Button';
 import { Chevron } from '~/components/Chevron';
 import { FormattedNumber } from '~/components/format/FormattedNumber';
+import { useCreatePolicySuggestion } from '~/components/home/GettingStarted/useCreatePolicySuggestion';
+import { FragmentType, gql, useFragment } from '~/gql/api';
 import { useToggle } from '~/hooks/useToggle';
+import { persistedAtom } from '~/lib/persistedAtom';
+import { CheckIcon } from '~/util/theme/icons';
+import { createStyles, useStyles } from '~/util/theme/styles';
+import { useDepositSuggestion } from './useDepositSuggestion';
+import { useLinkAppleSuggestion } from './useLinkAppleSuggestion';
+import { useLinkDeviceSuggestion } from './useLinkDeviceSuggestion';
+import { useLinkGoogleSuggestion } from './useLinkGoogleSuggestion';
+import { useTransferSuggestion } from './useTransferSuggestion';
 
 const Query = gql(/* GraphQL */ `
   fragment GettingStarted_Query on Query @argumentDefinitions(account: { type: "UAddress!" }) {

@@ -1,13 +1,14 @@
-import { Address, ETH_ADDRESS, asAddress } from '../address';
+import { AbiParameterToPrimitiveType } from 'abitype';
+import { decodeAbiParameters, decodeFunctionData, encodeAbiParameters, getAbiItem } from 'viem';
+
+import { Address, asAddress, ETH_ADDRESS } from '../address';
+import { TEST_VERIFIER_ABI } from '../contract';
+import { ERC20 } from '../dapps';
+import { Operation } from '../operation';
+import { OperationSatisfiability } from '../satisfiability';
 import { tryOrIgnore } from '../util';
 import { HookStruct } from './permissions';
 import { HookSelector } from './selector';
-import { Operation } from '../operation';
-import { decodeAbiParameters, decodeFunctionData, encodeAbiParameters, getAbiItem } from 'viem';
-import { ERC20 } from '../dapps';
-import { OperationSatisfiability } from '../satisfiability';
-import { AbiParameterToPrimitiveType } from 'abitype';
-import { TEST_VERIFIER_ABI } from '../contract';
 
 export interface TransferLimit {
   amount: bigint;

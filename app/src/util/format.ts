@@ -1,4 +1,4 @@
-import { Address, UAddress, asAddress } from 'lib';
+import { Address, asAddress, UAddress } from 'lib';
 
 export const elipseTruncate = (val: string, beginLen: number, endLen: number = beginLen) =>
   val.length > beginLen + endLen

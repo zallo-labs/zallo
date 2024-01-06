@@ -1,8 +1,9 @@
-import { Address, ETH_ADDRESS, UAddress, ZERO_ADDR, asAddress, asChain } from 'lib';
 import { useAtomValue } from 'jotai';
+import { encodeAbiParameters, GetFunctionArgs } from 'viem';
+
+import { Address, asAddress, asChain, ETH_ADDRESS, UAddress, ZERO_ADDR } from 'lib';
+import { SYNCSWAP, WETH } from 'lib/dapps';
 import { SYNCSWAP_POOL_FAMILY, SyncswapPool } from '~/util/swap/syncswap/pools';
-import { GetFunctionArgs, encodeAbiParameters } from 'viem';
-import { WETH, SYNCSWAP } from 'lib/dapps';
 
 export type SwapRoute = Omit<
   GetFunctionArgs<typeof SYNCSWAP.router.abi, 'swap'>['args'][0][0],

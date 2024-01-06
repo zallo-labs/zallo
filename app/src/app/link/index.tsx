@@ -1,21 +1,22 @@
-import QRCode from 'react-native-qrcode-svg';
+import { useEffect } from 'react';
+import { ScaledSize, useWindowDimensions, View } from 'react-native';
+import { useRouter } from 'expo-router';
 import { IconButton, Surface, Text } from 'react-native-paper';
-import { CloseIcon, PasteIcon, ScanIcon, ShareIcon } from '@theme/icons';
-import { Actions } from '~/components/layout/Actions';
-import { ScaledSize, View, useWindowDimensions } from 'react-native';
+import QRCode from 'react-native-qrcode-svg';
+import { EdgeInsets, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Subject } from 'rxjs';
+import { useSubscription } from 'urql';
+
 import { Blur } from '~/components/Blur';
 import { Button } from '~/components/Button';
-import { gql } from '@api/generated';
+import { Actions } from '~/components/layout/Actions';
 import { useQuery } from '~/gql';
-import { useSubscription } from 'urql';
-import { useEffect } from 'react';
-import { Subject } from 'rxjs';
-import { LinkingTokenModal_SubscriptionSubscription } from '@api/generated/graphql';
-import { useRouter } from 'expo-router';
-import { getDeepLink } from '~/util/config';
+import { gql } from '~/gql/api/generated';
+import { LinkingTokenModal_SubscriptionSubscription } from '~/gql/api/generated/graphql';
 import { share } from '~/lib/share';
-import { createStyles, useStyles } from '@theme/styles';
-import { EdgeInsets, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { getDeepLink } from '~/util/config';
+import { CloseIcon, PasteIcon, ScanIcon, ShareIcon } from '~/util/theme/icons';
+import { createStyles, useStyles } from '~/util/theme/styles';
 
 export const LINKINGS_FROM_TOKEN = new Subject<LinkingTokenModal_SubscriptionSubscription>();
 

@@ -1,6 +1,7 @@
-import { createStyles } from '@theme/styles';
 import { View } from 'react-native';
 import Svg, { Rect, SvgProps } from 'react-native-svg';
+
+import { createStyles } from '~/util/theme/styles';
 
 const seedrand = (seed: string) => {
   const randseed = new Array<number>(4) as Randseed;

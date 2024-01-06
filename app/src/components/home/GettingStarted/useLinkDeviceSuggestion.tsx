@@ -1,9 +1,10 @@
-import { FragmentType, gql, useFragment } from '@api';
-import { useApproverAddress } from '~/lib/network/useApprover';
-import { DevicesIcon } from '@theme/icons';
 import { useRouter } from 'expo-router';
+
 import { Suggestion } from '~/components/home/GettingStarted/suggestions';
 import { ListItem } from '~/components/list/ListItem';
+import { FragmentType, gql, useFragment } from '~/gql/api';
+import { useApproverAddress } from '~/lib/network/useApprover';
+import { DevicesIcon } from '~/util/theme/icons';
 
 const User = gql(/* GraphQL */ `
   fragment useLinkDeviceSuggestion_User on User {

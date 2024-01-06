@@ -1,6 +1,7 @@
-import { CHAINS, Chain } from 'chains';
-import { tryAsAddress, tryAsUAddress, TryAsAddressParams, isUUID } from 'lib';
-import { ZodTypeAny, z } from 'zod';
+import { z, ZodTypeAny } from 'zod';
+
+import { Chain, CHAINS } from 'chains';
+import { isUUID, tryAsAddress, TryAsAddressParams, tryAsUAddress } from 'lib';
 
 export interface ZAddressParams extends TryAsAddressParams {}
 

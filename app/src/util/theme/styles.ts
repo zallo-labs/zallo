@@ -1,4 +1,5 @@
 import { createUnistyles } from 'react-native-unistyles';
+
 import { PAPER_THEME as theme } from './paper';
 
 const breakpoints = {

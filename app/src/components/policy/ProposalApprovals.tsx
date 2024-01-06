@@ -1,16 +1,17 @@
 import { View } from 'react-native';
-import { ListHeader } from '~/components/list/ListHeader';
-import { UUID } from 'lib';
-import { gql, useFragment } from '@api/generated';
-import { getOptimizedDocument, useQuery } from '~/gql';
 import { useSubscription } from 'urql';
+
+import { UUID } from 'lib';
+import { ListHeader } from '~/components/list/ListHeader';
+import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
+import { withSuspense } from '~/components/skeleton/withSuspense';
 import { ApprovalItem } from '~/components/transaction/ApprovalItem';
-import { SelectedPolicy } from '~/components/transaction/SelectedPolicy';
 import { AwaitingApprovalItem } from '~/components/transaction/AwaitingApprovalItem';
 import { RejectionItem } from '~/components/transaction/RejectionItem';
-import { withSuspense } from '~/components/skeleton/withSuspense';
-import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
-import { createStyles, useStyles } from '@theme/styles';
+import { SelectedPolicy } from '~/components/transaction/SelectedPolicy';
+import { getOptimizedDocument, useQuery } from '~/gql';
+import { gql, useFragment } from '~/gql/api/generated';
+import { createStyles, useStyles } from '~/util/theme/styles';
 
 const Proposal = gql(/* GraphQL */ `
   fragment ProposalApprovals_Proposal on Proposal

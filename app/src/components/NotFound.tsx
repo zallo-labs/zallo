@@ -1,12 +1,13 @@
-import { BackIcon } from '@theme/icons';
-import { Button } from './Button';
-import { Actions } from './layout/Actions';
 import { View } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { ICON_SIZE } from '@theme/paper';
-import { Text } from 'react-native-paper';
 import { useRouter } from 'expo-router';
-import { createStyles, useStyles } from '@theme/styles';
+import { Text } from 'react-native-paper';
+
+import { BackIcon } from '~/util/theme/icons';
+import { ICON_SIZE } from '~/util/theme/paper';
+import { createStyles, useStyles } from '~/util/theme/styles';
+import { Button } from './Button';
+import { Actions } from './layout/Actions';
 
 export interface NotFoundProps {
   name: string;

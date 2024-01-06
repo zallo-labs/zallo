@@ -1,5 +1,10 @@
+import { AbiParametersToPrimitiveTypes } from 'abitype';
 import { A } from 'ts-toolbelt';
+import { decodeAbiParameters, encodeAbiParameters, getAbiItem, keccak256 } from 'viem';
+
 import { Address, asAddress, compareAddress, UAddress } from './address';
+import { Hex } from './bytes';
+import { ACCOUNT_IMPLEMENTATION } from './contract';
 import {
   ALLOW_ALL_TRANSFERS_CONFIG,
   decodeTransfersHook,
@@ -11,11 +16,7 @@ import {
   decodeTargetsHook,
   encodeTargetsHook,
 } from './permissions/TargetPermission';
-import { Hex } from './bytes';
 import { Arraylike, isPresent, toSet } from './util';
-import { decodeAbiParameters, encodeAbiParameters, getAbiItem, keccak256 } from 'viem';
-import { ACCOUNT_IMPLEMENTATION } from './contract';
-import { AbiParametersToPrimitiveTypes } from 'abitype';
 
 export type PolicyKey = A.Type<number, 'PolicyKey'>;
 export const MIN_POLICY_KEY = 0;

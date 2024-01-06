@@ -1,9 +1,10 @@
-import { FragmentType, gql, useFragment } from '@api/generated';
+import { useRouter } from 'expo-router';
+import { match, P } from 'ts-pattern';
+
+import { FragmentType, gql, useFragment } from '~/gql/api/generated';
+import { createStyles, useStyles } from '~/util/theme/styles';
 import { ListItem, ListItemProps } from '../list/ListItem';
 import { MessageIcon } from './MessageIcon';
-import { P, match } from 'ts-pattern';
-import { useRouter } from 'expo-router';
-import { createStyles, useStyles } from '@theme/styles';
 
 const MessageProposal = gql(/* GraphQL */ `
   fragment MessageItem_MessageProposal on MessageProposal {

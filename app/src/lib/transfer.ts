@@ -1,7 +1,8 @@
-import { Address, asHex, Operation, ETH_ADDRESS } from 'lib';
-import { ERC20 } from 'lib/dapps';
 import { match } from 'ts-pattern';
 import { encodeFunctionData } from 'viem';
+
+import { Address, asHex, ETH_ADDRESS, Operation } from 'lib';
+import { ERC20 } from 'lib/dapps';
 
 export interface TransferOpOptions {
   token: Address;

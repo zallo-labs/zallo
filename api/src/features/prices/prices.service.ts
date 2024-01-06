@@ -1,19 +1,20 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { Hex, UAddress, asHex, filterAsync, decodeRevertError, isUAddress } from 'lib';
-import { Price } from './prices.model';
-import e from '~/edgeql-js';
-import { preferUserToken } from '~/features/tokens/tokens.service';
-import { DatabaseService } from '~/features/database/database.service';
 import { EvmPriceServiceConnection, PriceFeed } from '@pythnetwork/pyth-evm-js';
-import { CONFIG } from '~/config';
-import { DateTime } from 'luxon';
-import { ETH, PYTH } from 'lib/dapps';
-import { CHAINS, Chain } from 'chains';
-import Decimal from 'decimal.js';
-import { NetworksService } from '~/features/util/networks/networks.service';
-import Redis from 'ioredis';
 import { InjectRedis } from '@songkeys/nestjs-redis';
+import Decimal from 'decimal.js';
+import Redis from 'ioredis';
+import { DateTime } from 'luxon';
+
+import { Chain, CHAINS } from 'chains';
+import { asHex, decodeRevertError, filterAsync, Hex, isUAddress, UAddress } from 'lib';
+import { ETH, PYTH } from 'lib/dapps';
+import { CONFIG } from '~/config';
+import e from '~/edgeql-js';
+import { DatabaseService } from '~/features/database/database.service';
+import { preferUserToken } from '~/features/tokens/tokens.service';
+import { NetworksService } from '~/features/util/networks/networks.service';
 import { runExclusively } from '~/util/mutex';
+import { Price } from './prices.model';
 
 interface PriceData {
   current: Decimal;

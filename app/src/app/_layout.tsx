@@ -1,27 +1,29 @@
 import '~/util/sentry/init';
+
+import { Suspense } from 'react';
+import { NativeStackNavigationOptions } from '@react-navigation/native-stack';
 import { locale } from 'expo-localization';
 import { Stack } from 'expo-router';
-import { Suspense } from 'react';
 import { IntlProvider } from 'react-intl';
+import { Portal } from 'react-native-paper';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+
 import { Analytics } from '~/components/Analytics';
+import { AppbarHeader } from '~/components/Appbar/AppbarHeader';
+import { ApproverNameUpdater } from '~/components/ApproverNameUpdater';
 import { ErrorBoundary } from '~/components/ErrorBoundary/ErrorBoundary';
 import { MinimalErrorBoundary } from '~/components/ErrorBoundary/MinimalErrorBoundary';
+import { Fonts } from '~/components/Fonts';
 import { Background } from '~/components/layout/Background';
-import { Splash } from '~/components/Splash';
-import { WalletConnectListeners } from '~/components/walletconnect/WalletConnectListeners';
-import { GqlProvider } from '~/gql/GqlProvider';
 import { AuthGate } from '~/components/provider/AuthGate';
 import { NotificationsProvider } from '~/components/provider/NotificationsProvider';
 import { SnackbarProvider } from '~/components/provider/SnackbarProvider';
-import { UpdateProvider } from '~/components/provider/UpdateProvider';
-import { ThemeProvider } from '~/util/theme/ThemeProvider';
-import { AppbarHeader } from '~/components/Appbar/AppbarHeader';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { NativeStackNavigationOptions } from '@react-navigation/native-stack';
-import { Fonts } from '~/components/Fonts';
-import { ApproverNameUpdater } from '~/components/ApproverNameUpdater';
-import { Portal } from 'react-native-paper';
 import { TQueryProvider } from '~/components/provider/TQueryProvider';
+import { UpdateProvider } from '~/components/provider/UpdateProvider';
+import { Splash } from '~/components/Splash';
+import { WalletConnectListeners } from '~/components/walletconnect/WalletConnectListeners';
+import { GqlProvider } from '~/gql/GqlProvider';
+import { ThemeProvider } from '~/util/theme/ThemeProvider';
 
 const modal: NativeStackNavigationOptions = {
   presentation: 'modal',

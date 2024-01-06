@@ -1,18 +1,18 @@
-import { AppbarMore } from '~/components/Appbar/AppbarMore';
-import { gql } from '@api/generated';
-import { NotFound } from '~/components/NotFound';
-import { useQuery } from '~/gql';
+import { ScrollView, StyleSheet } from 'react-native';
 import { z } from 'zod';
-import { useLocalParams } from '~/hooks/useLocalParams';
-import { ScrollView } from 'react-native';
-import { StyleSheet } from 'react-native';
-import { TransactionActions } from '~/components/transaction/TansactionActions';
+
+import { AppbarMore } from '~/components/Appbar/AppbarMore';
 import { AppbarOptions } from '~/components/Appbar/AppbarOptions';
-import { TopTabs } from '~/components/layout/TopTabs';
 import { ScreenSurface } from '~/components/layout/ScreenSurface';
-import { zUuid } from '~/lib/zod';
+import { TopTabs } from '~/components/layout/TopTabs';
+import { NotFound } from '~/components/NotFound';
 import { RemoveTransactionItem } from '~/components/transaction/RemoveTransactionItem';
+import { TransactionActions } from '~/components/transaction/TansactionActions';
 import { TransactionStatus } from '~/components/transaction/TransactionStatus';
+import { useQuery } from '~/gql';
+import { gql } from '~/gql/api/generated';
+import { useLocalParams } from '~/hooks/useLocalParams';
+import { zUuid } from '~/lib/zod';
 
 const Query = gql(/* GraphQL */ `
   query TransactionLayout($proposal: UUID!) {

@@ -1,8 +1,8 @@
-import { FragmentType, gql, useFragment } from '@api';
 import { Fab } from '~/components/Fab';
-import { AppleWhiteIcon } from '@theme/icons';
-import { createStyles, useStyles } from '@theme/styles';
+import { FragmentType, gql, useFragment } from '~/gql/api';
 import { useLinkApple } from '~/hooks/cloud/useLinkApple';
+import { AppleWhiteIcon } from '~/util/theme/icons';
+import { createStyles, useStyles } from '~/util/theme/styles';
 
 const User = gql(/* GraphQL */ `
   fragment LinkAppleButton_User on User {

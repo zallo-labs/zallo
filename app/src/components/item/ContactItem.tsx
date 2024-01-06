@@ -1,8 +1,8 @@
-import { FragmentType, gql, useFragment } from '@api/generated';
-import { NavigateNextIcon } from '@theme/icons';
 import { AddressIcon } from '~/components/Identicon/AddressIcon';
 import { ListItem, ListItemProps } from '~/components/list/ListItem';
+import { FragmentType, gql, useFragment } from '~/gql/api/generated';
 import { truncateAddr } from '~/util/format';
+import { NavigateNextIcon } from '~/util/theme/icons';
 
 const Contact = gql(/* GraphQL */ `
   fragment ContactItem_Contact on Contact {

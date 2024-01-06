@@ -1,7 +1,8 @@
-import { materialCommunityIcon } from '@theme/icons';
 import { ComponentPropsWithoutRef, FC } from 'react';
-import { P, match } from 'ts-pattern';
+import { match, P } from 'ts-pattern';
+
 import { useDrawerActions, useMaybeDrawerContext } from '~/components/drawer/DrawerContextProvider';
+import { materialCommunityIcon } from '~/util/theme/icons';
 
 const MenuIcon = materialCommunityIcon('menu');
 

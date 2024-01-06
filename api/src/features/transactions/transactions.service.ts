@@ -1,14 +1,15 @@
 import { Injectable } from '@nestjs/common';
-import { isPresent, Hex, getTransactionSatisfiability, isHex, asAddress } from 'lib';
-import { policyStateAsPolicy, policyStateShape } from '../policies/policies.util';
-import { DatabaseService } from '../database/database.service';
+
+import { asAddress, getTransactionSatisfiability, Hex, isHex, isPresent } from 'lib';
 import e from '~/edgeql-js';
 import { ShapeFunc } from '../database/database.select';
+import { DatabaseService } from '../database/database.service';
+import { policyStateAsPolicy, policyStateShape } from '../policies/policies.util';
+import { UniqueProposal } from '../proposals/proposals.service';
 import {
   proposalTxShape,
   transactionProposalAsTx,
 } from '../transaction-proposals/transaction-proposals.util';
-import { UniqueProposal } from '../proposals/proposals.service';
 
 @Injectable()
 export class TransactionsService {

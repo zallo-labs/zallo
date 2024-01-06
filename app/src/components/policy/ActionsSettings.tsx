@@ -1,7 +1,6 @@
-import { CustomActionIcon, materialIcon } from '@theme/icons';
-import { createStyles } from '@theme/styles';
-import { Divider, Switch } from 'react-native-paper';
 import Collapsible from 'react-native-collapsible';
+import { Divider, Switch } from 'react-native-paper';
+
 import { Chevron } from '~/components/Chevron';
 import { ListItem } from '~/components/list/ListItem';
 import { ListItemHorizontalTrailing } from '~/components/list/ListItemHorizontalTrailing';
@@ -9,6 +8,8 @@ import { ListItemTrailingText } from '~/components/list/ListItemTrailingText';
 import { useToggle } from '~/hooks/useToggle';
 import { PolicyDraftAction, usePolicyDraftState } from '~/lib/policy/draft';
 import { ACTION_PRESETS } from '~/lib/policy/presets';
+import { CustomActionIcon, materialIcon } from '~/util/theme/icons';
+import { createStyles } from '~/util/theme/styles';
 
 export const INTERNAL_ACTION_LABEL_PREFIX = '__app__: ';
 

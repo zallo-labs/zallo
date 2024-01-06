@@ -1,16 +1,18 @@
-import { CONFIG } from '../../config';
-import localWallets from '../../local-wallets.json';
-import { asHex } from 'lib';
-import { ChainConfig, Network, NetworkWallet } from 'chains';
 import {
-  HttpTransport,
-  TestClient,
   createPublicClient,
   createTestClient,
   createWalletClient,
   http,
+  HttpTransport,
+  TestClient,
 } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
+
+import { ChainConfig, Network, NetworkWallet } from 'chains';
+import { asHex } from 'lib';
+import { CONFIG } from '../../config';
+import localWallets from '../../local-wallets.json';
+
 import './matchers'; // Needs to be imported somewhere for all tests, but excluded from hardhat.config.ts imports
 
 const config = {

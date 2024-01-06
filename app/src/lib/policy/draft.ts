@@ -1,8 +1,9 @@
-import { FragmentType, gql, useFragment as getFragment } from '@api';
-import { PolicyAsDraft_PolicyStateFragment, PolicyInput } from '@api/generated/graphql';
 import { atom } from 'jotai';
 import { useImmerAtom } from 'jotai-immer';
+
 import { Address, PolicyKey, TransfersConfig, UAddress } from 'lib';
+import { FragmentType, useFragment as getFragment, gql } from '~/gql/api';
+import { PolicyAsDraft_PolicyStateFragment, PolicyInput } from '~/gql/api/generated/graphql';
 
 export type PolicyDraftAction = Omit<
   PolicyAsDraft_PolicyStateFragment['actions'][0],

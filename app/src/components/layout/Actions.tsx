@@ -1,7 +1,8 @@
 import { ReactNode } from 'react';
 import { StyleProp, View, ViewStyle } from 'react-native';
 import { EdgeInsets, useSafeAreaInsets } from 'react-native-safe-area-context';
-import { createStyles } from '@theme/styles';
+
+import { createStyles } from '~/util/theme/styles';
 
 export interface ActionsProps {
   children?: ReactNode;

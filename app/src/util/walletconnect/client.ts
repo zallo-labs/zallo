@@ -1,8 +1,10 @@
 import 'fast-text-encoding';
+
+import { useCallback } from 'react';
 import { SignClient } from '@walletconnect/sign-client';
 import { atom, useAtom, useAtomValue } from 'jotai';
+
 import { CONFIG } from '../config';
-import { useCallback } from 'react';
 
 const URI_PATTERN = /^wc:[0-9a-f]{64}@2\?/;
 export const isWalletConnectUri = (uri: string) => URI_PATTERN.test(uri);

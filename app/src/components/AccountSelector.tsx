@@ -1,9 +1,10 @@
 import { TouchableOpacity } from 'react-native';
-import { Text } from 'react-native-paper';
-import { Chevron } from './Chevron';
-import { FragmentType, gql, useFragment } from '@api/generated';
 import { useRouter } from 'expo-router';
-import { createStyles, useStyles } from '@theme/styles';
+import { Text } from 'react-native-paper';
+
+import { FragmentType, gql, useFragment } from '~/gql/api/generated';
+import { createStyles, useStyles } from '~/util/theme/styles';
+import { Chevron } from './Chevron';
 
 const FragmentDoc = gql(/* GraphQL */ `
   fragment AccountSelector_account on Account {

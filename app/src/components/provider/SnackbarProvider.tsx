@@ -1,10 +1,11 @@
-import { createStyles, useStyles } from '@theme/styles';
 import { useEffect } from 'react';
 import { StyleProp, TextStyle } from 'react-native';
 import { Snackbar, SnackbarProps, Text } from 'react-native-paper';
 import RnToast, { ToastConfig, ToastConfigParams, ToastOptions } from 'react-native-toast-message';
+
 import { useMemoApply } from '~/hooks/useMemoized';
-import { LogEventParams, logEvent } from '~/util/analytics';
+import { logEvent, LogEventParams } from '~/util/analytics';
+import { createStyles, useStyles } from '~/util/theme/styles';
 
 type SnackVariant = 'info' | 'success' | 'warning' | 'error';
 

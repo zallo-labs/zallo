@@ -24,8 +24,7 @@
       "~/edgeql-js": ["./dbschema/edgeql-js"],
       "~/edgeql-js/*": ["./dbschema/edgeql-js/*"],
       "~/edgeql-interfaces": ["./dbschema/interfaces"],
-      "~/*": ["./src/*"],
-      "@gen/*": ["./generated/*"]
+      "~/*": ["./src/*"]
     }
   },
   "include": ["src/**/*", "generated/**/*", "dbschema/**/*"]

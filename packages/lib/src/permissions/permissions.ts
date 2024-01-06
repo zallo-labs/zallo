@@ -1,6 +1,6 @@
+import { PolicyStruct } from '../policy';
 import { TargetsConfig } from './TargetPermission';
 import { TransfersConfig } from './TransferPermission';
-import { PolicyStruct } from '../policy';
 
 export interface Permissions {
   targets: TargetsConfig;

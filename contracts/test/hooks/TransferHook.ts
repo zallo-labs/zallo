@@ -1,17 +1,18 @@
 import { expect } from 'chai';
+import { encodeFunctionData } from 'viem';
+
 import {
+  Address,
   asHex,
   encodeTransfersConfigStruct,
+  ETH_ADDRESS,
   Operation,
   TEST_VERIFIER_ABI,
   TransfersConfig,
-  ETH_ADDRESS,
-  Address,
 } from 'lib';
 import { ERC20 } from 'lib/dapps';
-import { deploy, wallet } from '../util';
-import { encodeFunctionData } from 'viem';
 import TestVerifier from '../contracts/TestVerifier';
+import { deploy, wallet } from '../util';
 
 const to = wallet.account.address;
 const TOKEN = wallet.account.address;

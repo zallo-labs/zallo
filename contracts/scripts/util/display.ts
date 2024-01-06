@@ -1,7 +1,8 @@
-import { formatUnits, formatEther } from 'viem';
+import { ContractTransactionResponse } from 'ethers';
+import { formatEther, formatUnits } from 'viem';
+
 import { Address } from 'lib';
 import { CONFIG } from '../../config';
-import { ContractTransactionResponse } from 'ethers';
 import { network } from '../../test/util';
 
 export async function displayTx(address: Address, tx: ContractTransactionResponse | null) {

@@ -1,18 +1,19 @@
+import { getBluetoothServiceUuids as getLedgerServiceUuids } from '@ledgerhq/devices';
+import { setBleManagerInstance as setLedgerBleManagerInstance } from '@ledgerhq/react-native-hw-transport-ble';
+import { err, ok } from 'neverthrow';
 import {
-  BleManager as InternalBleManager,
-  BleManagerOptions,
   Device as BleDevice,
+  BleManagerOptions,
   State as BleState,
+  ConnectionOptions,
   DeviceId,
   BleError as InternalBleError,
+  BleManager as InternalBleManager,
   ScanOptions,
-  ConnectionOptions,
 } from 'react-native-ble-plx';
 import { Observable, Unsubscribable } from 'rxjs';
-import { setBleManagerInstance as setLedgerBleManagerInstance } from '@ledgerhq/react-native-hw-transport-ble';
-import { getBluetoothServiceUuids as getLedgerServiceUuids } from '@ledgerhq/devices';
-import { P, match } from 'ts-pattern';
-import { err, ok } from 'neverthrow';
+import { match, P } from 'ts-pattern';
+
 import { BleDevicesResult, BleError, BleListenResult } from './util';
 
 type ScanListener = (error: InternalBleError | null, scannedDevice: BleDevice | null) => void;

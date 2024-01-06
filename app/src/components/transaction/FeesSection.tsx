@@ -1,17 +1,18 @@
-import { FragmentType, gql, useFragment } from '@api/generated';
-import { useMutation } from 'urql';
-import { TokenItem } from '~/components/token/TokenItem';
-import { useSelectToken } from '~/app/(drawer)/[account]/tokens';
-import { createStyles, useStyles } from '@theme/styles';
-import { asAddress } from 'lib';
-import Decimal from 'decimal.js';
-import { Button } from '~/components/Button';
-import { GenericTokenIcon } from '@theme/icons';
-import { useToggle } from '~/hooks/useToggle';
-import Collapsible from 'react-native-collapsible';
 import { View } from 'react-native';
+import Decimal from 'decimal.js';
+import Collapsible from 'react-native-collapsible';
 import { Text } from 'react-native-paper';
+import { useMutation } from 'urql';
+
+import { asAddress } from 'lib';
+import { useSelectToken } from '~/app/(drawer)/[account]/tokens';
+import { Button } from '~/components/Button';
 import { TokenAmount } from '~/components/token/TokenAmount';
+import { TokenItem } from '~/components/token/TokenItem';
+import { FragmentType, gql, useFragment } from '~/gql/api/generated';
+import { useToggle } from '~/hooks/useToggle';
+import { GenericTokenIcon } from '~/util/theme/icons';
+import { createStyles, useStyles } from '~/util/theme/styles';
 
 const TransactionProposal = gql(/* GraphQL */ `
   fragment FeesSection_TransactionProposal on TransactionProposal

@@ -1,7 +1,8 @@
 import { useEffect } from 'react';
-import { SplashScreen } from 'expo-router';
 import { loadAsync } from 'expo-font';
+import { SplashScreen } from 'expo-router';
 import { Font } from 'react-native-paper/lib/typescript/types';
+
 import { logError } from '~/util/analytics';
 
 const FONTS = {

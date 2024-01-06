@@ -1,3 +1,5 @@
+import assert from 'assert';
+import { Cardinality, TypeKind } from 'edgedb/dist/reflection';
 import {
   FragmentDefinitionNode,
   GraphQLEnumType,
@@ -10,22 +12,21 @@ import {
   GraphQLScalarType,
   GraphQLUnionType,
   InlineFragmentNode,
-  Kind,
-  SelectionNode,
   isInterfaceType,
   isObjectType,
   isOutputType,
   isUnionType,
+  Kind,
+  SelectionNode,
 } from 'graphql';
-import { P, match } from 'ts-pattern';
-import { SelectModifiers, objectTypeToSelectShape } from '~/edgeql-js/select';
-import { $scopify, ObjectTypeExpression, ObjectTypeSet, SomeType } from '~/edgeql-js/typesystem';
-import { $linkPropify } from '~/edgeql-js/syntax';
-import { Cardinality, TypeKind } from 'edgedb/dist/reflection';
-import merge from 'ts-deepmerge';
-import assert from 'assert';
-import e from '~/edgeql-js';
 import _ from 'lodash';
+import merge from 'ts-deepmerge';
+import { match, P } from 'ts-pattern';
+
+import e from '~/edgeql-js';
+import { objectTypeToSelectShape, SelectModifiers } from '~/edgeql-js/select';
+import { $linkPropify } from '~/edgeql-js/syntax';
+import { $scopify, ObjectTypeExpression, ObjectTypeSet, SomeType } from '~/edgeql-js/typesystem';
 
 export type Scope<Expr extends ObjectTypeExpression> = $scopify<Expr['__element__']> &
   $linkPropify<{

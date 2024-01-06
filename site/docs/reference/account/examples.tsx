@@ -1,15 +1,15 @@
 import React from 'react';
-import gql from 'graphql-tag';
-import Explorer from '@site/src/components/Explorer';
 import {
-  CreateAccountMutationVariables,
   AccountQueryVariables,
   AccountsQueryVariables,
+  CreateAccountMutationVariables,
 } from '@site/src/api.generated';
-import { useDevice } from '@site/src/hooks/useDevice';
 import { useAccount } from '@site/src/api/useAccount';
+import Explorer from '@site/src/components/Explorer';
 import { Suspend } from '@site/src/components/Suspender';
 import { withBrowser } from '@site/src/components/withBrowser';
+import { useDevice } from '@site/src/hooks/useDevice';
+import gql from 'graphql-tag';
 
 export const CreateAccountExample = withBrowser(() => (
   <Explorer

@@ -1,14 +1,15 @@
-import { UAddress } from 'lib';
-import { NotFound } from '~/components/NotFound';
-import { gql } from '@api/generated';
-import { useQuery } from '~/gql';
 import { View } from 'react-native';
+
+import { UAddress } from 'lib';
+import { GettingStarted } from '~/components/home/GettingStarted';
+import { NotFound } from '~/components/NotFound';
+import { withSuspense } from '~/components/skeleton/withSuspense';
+import { useQuery } from '~/gql';
+import { gql } from '~/gql/api/generated';
+import { createStyles } from '~/util/theme/styles';
 import { AccountValue } from './AccountValue';
 import { HomeAppbar } from './HomeAppbar';
 import { QuickActions } from './QuickActions';
-import { withSuspense } from '~/components/skeleton/withSuspense';
-import { GettingStarted } from '~/components/home/GettingStarted';
-import { createStyles } from '@theme/styles';
 
 const Query = gql(/* GraphQL */ `
   query HomeHeader($account: UAddress!) {

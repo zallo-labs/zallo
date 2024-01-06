@@ -1,6 +1,7 @@
 import type { HardhatUserConfig } from 'hardhat/config';
-import { CONFIG } from './config';
+
 import { CHAINS } from 'chains';
+import { CONFIG } from './config';
 
 import '@nomiclabs/hardhat-ethers';
 import '@nomicfoundation/hardhat-viem';
@@ -15,7 +16,6 @@ import 'hardhat-contract-sizer';
 // import 'solidity-coverage';
 // import './test/util/matchers';
 import '@solidstate/hardhat-4byte-uploader';
-
 // Tasks
 import './tasks/export';
 import './tasks/upload-openchain';

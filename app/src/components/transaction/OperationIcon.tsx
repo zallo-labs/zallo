@@ -1,15 +1,16 @@
-import { FragmentType, gql, useFragment } from '@api';
+import { match, P } from 'ts-pattern';
+
+import { Chain } from 'chains';
+import { asUAddress } from 'lib';
+import { TokenIcon } from '~/components/token/TokenIcon';
+import { FragmentType, gql, useFragment } from '~/gql/api';
 import {
   DataIcon,
   IconProps,
   PolicyEditOutlineIcon,
   PolicyRemoveOutlineIcon,
   SwapIcon,
-} from '@theme/icons';
-import { Chain } from 'chains';
-import { asUAddress } from 'lib';
-import { P, match } from 'ts-pattern';
-import { TokenIcon } from '~/components/token/TokenIcon';
+} from '~/util/theme/icons';
 
 const Operation = gql(/* GraphQL */ `
   fragment OperationIcon_Operation on Operation {

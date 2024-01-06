@@ -1,8 +1,9 @@
-import { Hex, asAddress } from 'lib';
-import { persistedAtom } from '~/lib/persistedAtom';
 import { atom, useAtomValue } from 'jotai';
-import { secureJsonStorage } from '~/lib/secure-storage/json';
 import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts';
+
+import { asAddress, Hex } from 'lib';
+import { persistedAtom } from '~/lib/persistedAtom';
+import { secureJsonStorage } from '~/lib/secure-storage/json';
 
 const DANGEROUS_privateKey = persistedAtom<Hex>('Approver', generatePrivateKey, {
   persistInitial: true,

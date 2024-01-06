@@ -1,8 +1,9 @@
 import { uuid } from 'edgedb/dist/codecs/ifaces';
 import { Request, Response } from 'express';
 import { Context as BaseWsContext } from 'graphql-ws';
-import { Address, UAddress } from 'lib';
 import { RequestContext } from 'nestjs-request-context';
+
+import { Address, UAddress } from 'lib';
 
 export interface IncomingHttpContext {
   req: Request;

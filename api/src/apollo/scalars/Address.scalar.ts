@@ -1,5 +1,6 @@
 import { UserInputError } from '@nestjs/apollo';
 import { Kind } from 'graphql';
+
 import { Address, tryAsAddress } from 'lib';
 import { createScalar } from './util';
 

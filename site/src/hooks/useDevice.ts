@@ -1,7 +1,9 @@
-import { atom, DefaultValue, selectorFamily, useRecoilValue } from 'recoil';
-import { useCustomFields } from './useCustomFields';
 import ExecutionEnvironment from '@docusaurus/ExecutionEnvironment';
+import { atom, DefaultValue, selectorFamily, useRecoilValue } from 'recoil';
+
 import { Approver as ApproverType } from 'lib';
+import { useCustomFields } from './useCustomFields';
+
 const { Approver } = ExecutionEnvironment.canUseDOM ? require('lib') : ({} as any);
 
 const DEVICE = atom<ApproverType>({

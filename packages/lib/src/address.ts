@@ -1,7 +1,8 @@
 import * as viem from 'viem';
-import { tryOrIgnore } from './util/try';
-import { Chain, isChain } from 'chains';
 import { utils as zkUtils } from 'zksync-ethers';
+
+import { Chain, isChain } from 'chains';
+import { tryOrIgnore } from './util/try';
 
 /*//////////////////////////////////////////////////////////////
                               ADDRESSLIKE

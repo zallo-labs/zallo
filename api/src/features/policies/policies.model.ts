@@ -1,26 +1,27 @@
-import { Field, ObjectType, createUnionType, registerEnumType } from '@nestjs/graphql';
-import { GraphQLBigInt } from 'graphql-scalars';
-import { Account } from '../accounts/accounts.model';
-import { TransactionProposal } from '../transaction-proposals/transaction-proposals.model';
-import { IdField } from '~/apollo/scalars/Id.scalar';
-import * as eql from '~/edgeql-interfaces';
+import { createUnionType, Field, ObjectType, registerEnumType } from '@nestjs/graphql';
+import { AbiFunction } from 'abitype';
 import { uuid } from 'edgedb/dist/codecs/ifaces';
-import { PolicyKeyField } from '~/apollo/scalars/PolicyKey.scalar';
-import { AddressField } from '~/apollo/scalars/Address.scalar';
+import { GraphQLBigInt } from 'graphql-scalars';
+
 import {
   Address,
+  SatisfiabilityReason as ISatisfiabilityReason,
+  SatisfiabilityResult as ISatisfiabilityResult,
   Satisfiability,
   Selector,
-  SatisfiabilityResult as ISatisfiabilityResult,
-  SatisfiabilityReason as ISatisfiabilityReason,
 } from 'lib';
-import { Approver } from '../approvers/approvers.model';
-import { SelectorField } from '~/apollo/scalars/Bytes.scalar';
-import { Err, ErrorType, Node, NodeType } from '~/decorators/interface.decorator';
 import { AbiFunctionField } from '~/apollo/scalars/AbiFunction.scalar';
-import { AbiFunction } from 'abitype';
-import { makeUnionTypeResolver } from '~/features/database/database.util';
+import { AddressField } from '~/apollo/scalars/Address.scalar';
+import { SelectorField } from '~/apollo/scalars/Bytes.scalar';
+import { IdField } from '~/apollo/scalars/Id.scalar';
+import { PolicyKeyField } from '~/apollo/scalars/PolicyKey.scalar';
+import { Err, ErrorType, Node, NodeType } from '~/decorators/interface.decorator';
+import * as eql from '~/edgeql-interfaces';
 import e from '~/edgeql-js';
+import { makeUnionTypeResolver } from '~/features/database/database.util';
+import { Account } from '../accounts/accounts.model';
+import { Approver } from '../approvers/approvers.model';
+import { TransactionProposal } from '../transaction-proposals/transaction-proposals.model';
 
 @ObjectType()
 export class Policy {

@@ -1,14 +1,15 @@
 import { Processor } from '@nestjs/bullmq';
 import { Injectable } from '@nestjs/common';
-import { NetworksService } from '../util/networks/networks.service';
-import { AccountsService } from './accounts.service';
-import { AccountEvent } from './accounts.input';
-import { ACTIVATIONS_QUEUE } from './activations.queue';
+
 import { tryOrIgnoreAsync } from 'lib';
-import { DatabaseService } from '../database/database.service';
 import e from '~/edgeql-js';
-import { Worker, TypedJob } from '~/features/util/bull/bull.util';
+import { TypedJob, Worker } from '~/features/util/bull/bull.util';
 import { ampli } from '~/util/ampli';
+import { DatabaseService } from '../database/database.service';
+import { NetworksService } from '../util/networks/networks.service';
+import { AccountEvent } from './accounts.input';
+import { AccountsService } from './accounts.service';
+import { ACTIVATIONS_QUEUE } from './activations.queue';
 
 @Injectable()
 @Processor(ACTIVATIONS_QUEUE.name)

@@ -1,13 +1,14 @@
+import { useRef } from 'react';
+import { I18nManager } from 'react-native';
+import { RectButton, Swipeable } from 'react-native-gesture-handler';
+
 import { UAddress } from 'lib';
 import { useAddressLabel } from '~/components/address/AddressLabel';
 import { ListItem } from '~/components/list/ListItem';
 import { truncateAddr } from '~/util/format';
-import { I18nManager } from 'react-native';
-import { RectButton, Swipeable } from 'react-native-gesture-handler';
-import { DeleteIcon } from '@theme/icons';
-import { useRef } from 'react';
-import { ICON_SIZE } from '@theme/paper';
-import { createStyles, useStyles } from '@theme/styles';
+import { DeleteIcon } from '~/util/theme/icons';
+import { ICON_SIZE } from '~/util/theme/paper';
+import { createStyles, useStyles } from '~/util/theme/styles';
 
 export interface ApproverItemProps {
   address: UAddress;

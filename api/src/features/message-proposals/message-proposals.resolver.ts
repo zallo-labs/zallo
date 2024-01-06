@@ -1,13 +1,14 @@
 import { ID, Info, Mutation, Parent, Query, Resolver } from '@nestjs/graphql';
-import { MessageProposal } from './message-proposals.model';
-import { Input } from '~/decorators/input.decorator';
-import { ProposeMessageInput } from './message-proposals.input';
 import { GraphQLResolveInfo } from 'graphql';
-import { ApproveInput, UniqueProposalInput } from '../proposals/proposals.input';
-import { MessageProposalsService } from './message-proposals.service';
-import { getShape } from '../database/database.select';
+
 import { ComputedField } from '~/decorators/computed.decorator';
+import { Input } from '~/decorators/input.decorator';
 import e from '~/edgeql-js';
+import { getShape } from '../database/database.select';
+import { ApproveInput, UniqueProposalInput } from '../proposals/proposals.input';
+import { ProposeMessageInput } from './message-proposals.input';
+import { MessageProposal } from './message-proposals.model';
+import { MessageProposalsService } from './message-proposals.service';
 
 @Resolver(() => MessageProposal)
 export class MessageProposalsResolver {

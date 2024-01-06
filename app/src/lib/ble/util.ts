@@ -1,7 +1,7 @@
-import type { Device as BleDevice } from 'react-native-ble-plx';
 import type { DeviceModel as LedgerModel } from '@ledgerhq/devices';
-import { Observable } from 'rxjs';
+import type { Device as BleDevice } from 'react-native-ble-plx';
 import { Result } from 'neverthrow';
+import { Observable } from 'rxjs';
 
 export type { BleDevice, LedgerModel };
 

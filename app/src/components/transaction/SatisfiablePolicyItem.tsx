@@ -1,7 +1,8 @@
-import { FragmentType, gql, useFragment } from '@api/generated';
-import { PolicyIcon } from '@theme/icons';
 import { match } from 'ts-pattern';
+
 import { ListItem, ListItemProps } from '~/components/list/ListItem';
+import { FragmentType, gql, useFragment } from '~/gql/api/generated';
+import { PolicyIcon } from '~/util/theme/icons';
 
 const FragmentDoc = gql(/* GraphQL */ `
   fragment SatisfiabePolicyItem_PolicyFragment on Policy

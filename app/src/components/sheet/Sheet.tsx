@@ -1,11 +1,12 @@
 import { forwardRef } from 'react';
-import BottomSheet, { BottomSheetProps, BottomSheetView } from '@gorhom/bottom-sheet';
 import { StyleProp, View, ViewStyle } from 'react-native';
-import { EdgeInsets, useSafeAreaInsets } from 'react-native-safe-area-context';
+import BottomSheet, { BottomSheetProps, BottomSheetView } from '@gorhom/bottom-sheet';
 import { useRouter } from 'expo-router';
-import { SheetBackground } from '~/components/sheet/SheetBackground';
+import { EdgeInsets, useSafeAreaInsets } from 'react-native-safe-area-context';
+
 import { SheetBackdrop } from '~/components/sheet/SheetBackdrop';
-import { createStyles, useStyles } from '@theme/styles';
+import { SheetBackground } from '~/components/sheet/SheetBackground';
+import { createStyles, useStyles } from '~/util/theme/styles';
 
 export interface SheetProps extends Omit<BottomSheetProps, 'ref'> {
   initialSnapPoints?: (string | number)[];

@@ -1,6 +1,7 @@
 import Decimal from 'decimal.js';
-import { Decimallike } from 'lib';
 import { FormatNumberOptions, useIntl } from 'react-intl';
+
+import { Decimallike } from 'lib';
 
 export interface FormattedNumberOptions extends FormatNumberOptions {
   value: Decimallike | bigint;

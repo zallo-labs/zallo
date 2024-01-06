@@ -1,9 +1,10 @@
 import { Field, ObjectType } from '@nestjs/graphql';
+import { uuid } from 'edgedb/dist/codecs/ifaces';
+
 import { AddressField } from '~/apollo/scalars/Address.scalar';
-import { ContractFunction } from '../contract-functions/contract-functions.model';
 import { IdField } from '~/apollo/scalars/Id.scalar';
 import * as eql from '~/edgeql-interfaces';
-import { uuid } from 'edgedb/dist/codecs/ifaces';
+import { ContractFunction } from '../contract-functions/contract-functions.model';
 
 @ObjectType()
 export class Contract implements eql.Contract {

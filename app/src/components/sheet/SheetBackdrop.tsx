@@ -1,5 +1,6 @@
 import { BottomSheetBackdrop, BottomSheetBackdropProps } from '@gorhom/bottom-sheet';
-import { createStyles, useStyles } from '@theme/styles';
+
+import { createStyles, useStyles } from '~/util/theme/styles';
 
 export function SheetBackdrop(props: BottomSheetBackdropProps) {
   const { styles } = useStyles(stylesheet);

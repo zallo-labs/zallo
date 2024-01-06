@@ -1,4 +1,6 @@
 import { expect } from 'chai';
+import { encodeFunctionData } from 'viem';
+
 import {
   ACCOUNT_ABI,
   Address,
@@ -8,10 +10,9 @@ import {
   Operation,
   TargetsConfig,
 } from 'lib';
-import { deploy, network } from '../util';
-import { encodeFunctionData } from 'viem';
-import TestVerifier from '../contracts/TestVerifier';
 import TestUtil from '../contracts/TestUtil';
+import TestVerifier from '../contracts/TestVerifier';
+import { deploy, network } from '../util';
 
 describe('TargetPermission', () => {
   let verifier: Address;

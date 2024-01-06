@@ -1,10 +1,11 @@
 import 'hardhat/types/config';
-import { task } from 'hardhat/config';
-import { TASK_COMPILE } from 'hardhat/builtin-tasks/task-names';
+
 import fs from 'fs/promises';
 import path from 'path';
-import { Artifact, HardhatRuntimeEnvironment } from 'hardhat/types';
 import { ZkSyncArtifact } from '@matterlabs/hardhat-zksync-solc/dist/src/types';
+import { TASK_COMPILE } from 'hardhat/builtin-tasks/task-names';
+import { task } from 'hardhat/config';
+import { Artifact, HardhatRuntimeEnvironment } from 'hardhat/types';
 
 declare module 'hardhat/types/config' {
   interface HardhatUserConfig {

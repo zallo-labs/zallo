@@ -1,4 +1,5 @@
 import { Global, Module } from '@nestjs/common';
+
 import { DatabaseHealthIndicator } from './database.health';
 import { DatabaseService } from './database.service';
 

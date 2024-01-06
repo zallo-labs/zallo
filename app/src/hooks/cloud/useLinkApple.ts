@@ -1,9 +1,10 @@
-import { FragmentType, gql, useFragment } from '@api';
-import { useGetAppleApprover } from './useGetAppleApprover';
 import { useMutation } from 'urql';
-import { authContext } from '@api/client';
+
 import { showError } from '~/components/provider/SnackbarProvider';
+import { FragmentType, gql, useFragment } from '~/gql/api';
+import { authContext } from '~/gql/api/client';
 import { ampli } from '~/lib/ampli';
+import { useGetAppleApprover } from './useGetAppleApprover';
 
 const User = gql(/* GraphQL */ `
   fragment useLinkApple_User on User {

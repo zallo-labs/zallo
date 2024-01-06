@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { HealthCheckError, HealthIndicator } from '@nestjs/terminus';
+
 import { DatabaseService } from './database.service';
 
 @Injectable()

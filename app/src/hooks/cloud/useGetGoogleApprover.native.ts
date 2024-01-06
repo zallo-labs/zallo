@@ -1,16 +1,17 @@
 import {
-  GoogleSignin,
   statusCodes as ErrorCode,
+  GoogleSignin,
   User as UserDetails,
 } from '@react-native-google-signin/google-signin';
 import { atom, useAtom } from 'jotai';
-import { CONFIG } from '~/util/config';
-import { Result, ResultAsync, err, okAsync } from 'neverthrow';
-import { useGetCloudApprover } from './useGetCloudApprover';
-import { showError } from '~/components/provider/SnackbarProvider';
 import decodeJwt from 'jwt-decode';
 import { DateTime } from 'luxon';
+import { err, okAsync, Result, ResultAsync } from 'neverthrow';
 import { PrivateKeyAccount } from 'viem/accounts';
+
+import { showError } from '~/components/provider/SnackbarProvider';
+import { CONFIG } from '~/util/config';
+import { useGetCloudApprover } from './useGetCloudApprover';
 
 GoogleSignin.configure({
   scopes: [

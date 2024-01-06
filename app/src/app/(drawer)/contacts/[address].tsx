@@ -1,33 +1,32 @@
-import { z } from 'zod';
-import { zAddress, zChain, zUAddress } from '~/lib/zod';
-import { useLocalParams } from '~/hooks/useLocalParams';
+import { StyleSheet, View } from 'react-native';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'expo-router';
-import { Address, asAddress, asChain, asUAddress, tryAsUAddress } from 'lib';
-import { ChainIcon, RemoveIcon } from '@theme/icons';
 import { useForm } from 'react-hook-form';
-import { StyleSheet } from 'react-native';
-import { View } from 'react-native';
 import { Menu } from 'react-native-paper';
+import { useMutation } from 'urql';
+import { z } from 'zod';
+
+import { Chain } from 'chains';
+import { Address, asAddress, asChain, asUAddress, tryAsUAddress } from 'lib';
 import { AppbarMore } from '~/components/Appbar/AppbarMore';
+import { AppbarOptions } from '~/components/Appbar/AppbarOptions';
+import { FormSelectChip } from '~/components/fields/FormSelectChip';
 import { FormSubmitButton } from '~/components/fields/FormSubmitButton';
 import { FormTextField } from '~/components/fields/FormTextField';
-import { Actions } from '~/components/layout/Actions';
-import { UserOutlineIcon } from '~/util/theme/icons';
-import { ICON_SIZE } from '@theme/paper';
 import { FormResetIcon } from '~/components/fields/ResetFormIcon';
-import { gql, useFragment } from '@api/generated';
-import { useQuery } from '~/gql';
-import { useMutation } from 'urql';
-import { useConfirmRemoval } from '~/hooks/useConfirm';
-import { AppbarOptions } from '~/components/Appbar/AppbarOptions';
-import { withSuspense } from '~/components/skeleton/withSuspense';
-import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
+import { Actions } from '~/components/layout/Actions';
 import { ScreenSurface } from '~/components/layout/ScreenSurface';
-import { Chain } from 'chains';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
+import { withSuspense } from '~/components/skeleton/withSuspense';
+import { useQuery } from '~/gql';
+import { gql, useFragment } from '~/gql/api/generated';
+import { useConfirmRemoval } from '~/hooks/useConfirm';
+import { useLocalParams } from '~/hooks/useLocalParams';
 import { useSelectedChain } from '~/hooks/useSelectedAccount';
-import { FormSelectChip } from '~/components/fields/FormSelectChip';
-import { SUPPORTED_CHAINS } from '@network/chains';
+import { SUPPORTED_CHAINS } from '~/lib/network/chains';
+import { zAddress, zChain, zUAddress } from '~/lib/zod';
+import { ChainIcon, RemoveIcon, UserOutlineIcon } from '~/util/theme/icons';
+import { ICON_SIZE } from '~/util/theme/paper';
 
 const Contact = gql(/* GraphQL */ `
   fragment ContactScreen_Contact on Contact {

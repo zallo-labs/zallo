@@ -1,6 +1,6 @@
+import { ICON_SIZE } from '~/util/theme/paper';
 import { Circle } from './ContentLoader';
 import { Skeleton } from './Skeleton';
-import { ICON_SIZE } from '@theme/paper';
 
 export interface CircleSkeletonProps {
   size?: number;

@@ -1,7 +1,7 @@
-import { ExpoConfig, ConfigContext } from '@expo/config';
-import { ConfigPlugin } from 'expo/config-plugins';
+import { ConfigContext, ExpoConfig } from '@expo/config';
 import { PluginConfigType as BuildPropertiesConfig } from 'expo-build-properties/build/pluginConfig';
 import expoRouterPlugin from 'expo-router/plugin';
+import { ConfigPlugin } from 'expo/config-plugins';
 
 type PluginConfig<Plugin> = Plugin extends ConfigPlugin<infer Config> ? Config : never;
 

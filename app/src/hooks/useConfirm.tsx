@@ -1,5 +1,5 @@
-import { useGetEvent } from '~/hooks/useGetEvent';
 import { CONFIRMATIONS, ConfirmModalParams } from '~/app/confirm';
+import { useGetEvent } from '~/hooks/useGetEvent';
 
 export function useConfirm(defaults?: Partial<ConfirmModalParams>) {
   const getEvent = useGetEvent();

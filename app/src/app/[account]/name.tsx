@@ -1,19 +1,20 @@
-import { useRouter } from 'expo-router';
-import { gql } from '@api/generated';
-import { useForm } from 'react-hook-form';
 import { StyleSheet, View } from 'react-native';
+import { useRouter } from 'expo-router';
+import { useForm } from 'react-hook-form';
 import { useMutation } from 'urql';
-import { NotFound } from '~/components/NotFound';
+import { z } from 'zod';
+
+import { AppbarOptions } from '~/components/Appbar/AppbarOptions';
+import { AccountNameFormField } from '~/components/fields/AccountNameFormField';
 import { FormSubmitButton } from '~/components/fields/FormSubmitButton';
 import { Actions } from '~/components/layout/Actions';
-import { useQuery } from '~/gql';
-import { AppbarOptions } from '~/components/Appbar/AppbarOptions';
-import { z } from 'zod';
-import { zUAddress } from '~/lib/zod';
-import { useLocalParams } from '~/hooks/useLocalParams';
-import { withSuspense } from '~/components/skeleton/withSuspense';
+import { NotFound } from '~/components/NotFound';
 import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
-import { AccountNameFormField } from '~/components/fields/AccountNameFormField';
+import { withSuspense } from '~/components/skeleton/withSuspense';
+import { useQuery } from '~/gql';
+import { gql } from '~/gql/api/generated';
+import { useLocalParams } from '~/hooks/useLocalParams';
+import { zUAddress } from '~/lib/zod';
 
 const Query = gql(/* GraphQL */ `
   query AccountNameModal($account: UAddress!) {

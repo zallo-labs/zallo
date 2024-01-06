@@ -1,23 +1,24 @@
 import { Context, Info, Mutation, Query, Resolver, Subscription } from '@nestjs/graphql';
 import { GraphQLResolveInfo } from 'graphql';
-import { InputArgs, Input } from '~/decorators/input.decorator';
-import { GqlContext, asUser, getUserCtx } from '~/request/ctx';
+
+import { Input, InputArgs } from '~/decorators/input.decorator';
+import { asUser, getUserCtx, GqlContext } from '~/request/ctx';
 import { getShape } from '../database/database.select';
+import { PubsubService } from '../util/pubsub/pubsub.service';
 import {
-  UniqueProposalInput,
-  ProposalSubscriptionInput,
-  ProposalsInput,
-  UpdateProposalInput,
   LabelProposalRiskInput,
+  ProposalsInput,
+  ProposalSubscriptionInput,
+  UniqueProposalInput,
+  UpdateProposalInput,
 } from './proposals.input';
 import { Proposal } from './proposals.model';
 import {
+  getProposalAccountTrigger,
+  getProposalTrigger,
   ProposalsService,
   ProposalSubscriptionPayload,
-  getProposalTrigger,
-  getProposalAccountTrigger,
 } from './proposals.service';
-import { PubsubService } from '../util/pubsub/pubsub.service';
 
 @Resolver(() => Proposal)
 export class ProposalsResolver {

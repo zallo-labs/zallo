@@ -1,7 +1,8 @@
 import { Module } from '@nestjs/common';
+
+import { ExplorerModule } from '../explorer/explorer.module';
 import { ContractsResolver } from './contracts.resolver';
 import { ContractsService } from './contracts.service';
-import { ExplorerModule } from '../explorer/explorer.module';
 
 @Module({
   imports: [ExplorerModule],

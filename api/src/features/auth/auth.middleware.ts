@@ -1,14 +1,15 @@
 import { Injectable, NestMiddleware, UnauthorizedException } from '@nestjs/common';
-import { Request, Response, NextFunction } from 'express';
-import { Address, Hex, asAddress, isHex } from 'lib';
+import { NextFunction, Request, Response } from 'express';
+import { DateTime, DurationLike } from 'luxon';
+import { err, ok, Result } from 'neverthrow';
 import { SiweMessage } from 'siwe';
-import { CONFIG } from '~/config';
-import { AccountsCacheService } from './accounts.cache.service';
-import { Result, err, ok } from 'neverthrow';
+import { match, P } from 'ts-pattern';
 import { recoverMessageAddress } from 'viem';
 import { z } from 'zod';
-import { P, match } from 'ts-pattern';
-import { DateTime, DurationLike } from 'luxon';
+
+import { Address, asAddress, Hex, isHex } from 'lib';
+import { CONFIG } from '~/config';
+import { AccountsCacheService } from './accounts.cache.service';
 
 const GRAPH_REF_AUTH_MESSAGE = CONFIG.graphRef && `AUTH ${CONFIG.graphRef}`;
 const DEFAULT_CACHE_EXPIRY: DurationLike = { minutes: 30 };

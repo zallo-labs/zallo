@@ -1,9 +1,10 @@
-import { MD3LightTheme as overrided, configureFonts } from 'react-native-paper';
 import color from 'color';
-import { match } from 'ts-pattern';
-import { Palette } from './palette';
+import { configureFonts, MD3LightTheme as overrided } from 'react-native-paper';
 import { MD3Type } from 'react-native-paper/lib/typescript/types';
+import { match } from 'ts-pattern';
+
 import { FONT_BY_WEIGHT } from '~/components/Fonts';
+import { Palette } from './palette';
 
 const c = (c: string, f: (color: color<string>) => color<string>) => f(color(c)).hexa();
 

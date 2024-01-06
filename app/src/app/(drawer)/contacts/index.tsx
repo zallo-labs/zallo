@@ -1,24 +1,25 @@
-import { Stack, useRouter } from 'expo-router';
 import { useState } from 'react';
-import { NavigateNextIcon, ScanIcon, SearchIcon, materialCommunityIcon } from '~/util/theme/icons';
+import { FlashList } from '@shopify/flash-list';
+import { Stack, useRouter } from 'expo-router';
+import { Text } from 'react-native-paper';
+import { z } from 'zod';
+
+import { useScanAddress } from '~/app/scan';
+import { AppbarMenu } from '~/components/Appbar/AppbarMenu';
 import { Searchbar } from '~/components/Appbar/Searchbar';
+import { Fab } from '~/components/Fab';
+import { ContactItem } from '~/components/item/ContactItem';
+import { ScreenSurface } from '~/components/layout/ScreenSurface';
 import { ListHeader } from '~/components/list/ListHeader';
 import { ListItemHeight } from '~/components/list/ListItem';
-import { gql } from '@api/generated';
-import { FlashList } from '@shopify/flash-list';
-import { Text } from 'react-native-paper';
-import { Fab } from '~/components/Fab';
-import { useQuery } from '~/gql';
-import { useScanAddress } from '~/app/scan';
-import { ContactItem } from '~/components/item/ContactItem';
-import { AppbarMenu } from '~/components/Appbar/AppbarMenu';
-import { withSuspense } from '~/components/skeleton/withSuspense';
 import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
-import { ScreenSurface } from '~/components/layout/ScreenSurface';
-import { createStyles, useStyles } from '@theme/styles';
-import { z } from 'zod';
-import { zArray, zUAddress } from '~/lib/zod';
+import { withSuspense } from '~/components/skeleton/withSuspense';
+import { useQuery } from '~/gql';
+import { gql } from '~/gql/api/generated';
 import { useLocalParams } from '~/hooks/useLocalParams';
+import { zArray, zUAddress } from '~/lib/zod';
+import { materialCommunityIcon, NavigateNextIcon, ScanIcon, SearchIcon } from '~/util/theme/icons';
+import { createStyles, useStyles } from '~/util/theme/styles';
 
 const Query = gql(/* GraphQL */ `
   query ContactsScreen($query: String) {

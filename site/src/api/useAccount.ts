@@ -1,14 +1,15 @@
+import { useEffect, useState } from 'react';
+import { useMutation } from '@apollo/client';
 import gql from 'graphql-tag';
-import { useSuspenseQuery } from './useSuspenseQuery';
+
 import {
   CreateTestAccountMutation,
   CreateTestAccountMutationVariables,
   FirstAccountQuery,
   FirstAccountQueryVariables,
 } from '../api.generated';
-import { useMutation } from '@apollo/client';
 import { useDevice } from '../hooks/useDevice';
-import { useEffect, useState } from 'react';
+import { useSuspenseQuery } from './useSuspenseQuery';
 
 const useFirstAccount = (): string | undefined =>
   useSuspenseQuery<FirstAccountQuery, FirstAccountQueryVariables>(

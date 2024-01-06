@@ -1,9 +1,10 @@
-import { QrCodeIcon, TransferIcon, SwapIcon } from '@theme/icons';
 import { StyleSheet, View } from 'react-native';
-import { Button } from 'react-native-paper';
-import { UAddress } from 'lib';
 import { useRouter } from 'expo-router';
+import { Button } from 'react-native-paper';
+
+import { UAddress } from 'lib';
 import { useTransfer } from '~/hooks/useTransfer';
+import { QrCodeIcon, SwapIcon, TransferIcon } from '~/util/theme/icons';
 
 export interface QuickActionsProps {
   account: UAddress;

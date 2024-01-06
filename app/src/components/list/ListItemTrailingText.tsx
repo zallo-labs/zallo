@@ -1,5 +1,6 @@
-import { createStyles, useStyles } from '@theme/styles';
 import { Text, TextProps } from 'react-native-paper';
+
+import { createStyles, useStyles } from '~/util/theme/styles';
 
 export interface ListItemTrailingTextProps extends Omit<TextProps<'labelSmall'>, 'variant'> {}
 

@@ -1,5 +1,6 @@
-import { CloseIcon, IconProps } from '@theme/icons';
 import { useNavigation } from '@react-navigation/native';
+
+import { CloseIcon, IconProps } from '~/util/theme/icons';
 
 export interface AppbarCloseProps extends IconProps {}
 

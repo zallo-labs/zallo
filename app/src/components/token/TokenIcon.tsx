@@ -1,12 +1,13 @@
-import { FragmentType, gql, useFragment as getFragment } from '@api/generated';
-import { materialCommunityIcon } from '@theme/icons';
-import { createStyles, useStyles } from '@theme/styles';
-import { Image, ImageProps } from 'expo-image';
-import { UAddress, isUAddress } from 'lib';
 import { ImageStyle, StyleProp } from 'react-native';
+import { Image, ImageProps } from 'expo-image';
+
+import { isUAddress, UAddress } from 'lib';
 import { CircleSkeleton } from '~/components/skeleton/CircleSkeleton';
 import { withSuspense } from '~/components/skeleton/withSuspense';
 import { useQuery } from '~/gql';
+import { FragmentType, useFragment as getFragment, gql } from '~/gql/api/generated';
+import { materialCommunityIcon } from '~/util/theme/icons';
+import { createStyles, useStyles } from '~/util/theme/styles';
 
 export const ETH_ICON_URI =
   'https://cloudfront-us-east-1.images.arcpublishing.com/coindesk/ZJZZK5B2ZNF25LYQHMUTBTOMLU.png';

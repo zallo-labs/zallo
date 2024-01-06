@@ -1,23 +1,24 @@
 import { ID, Info, Mutation, Parent, Query, Resolver } from '@nestjs/graphql';
-import { Token, TokenMetadata } from './tokens.model';
-import { Input } from '~/decorators/input.decorator';
-import { BalanceInput, TokenInput, TokensInput, UpsertTokenInput } from './tokens.input';
-import { TokensService } from './tokens.service';
-import { GraphQLResolveInfo } from 'graphql';
-import { getShape } from '../database/database.select';
-import { uuid } from 'edgedb/dist/codecs/ifaces';
-import { Price } from '../prices/prices.model';
-import { ComputedField } from '~/decorators/computed.decorator';
-import e from '~/edgeql-js';
-import * as eql from '~/edgeql-interfaces';
-import { PricesService } from '../prices/prices.service';
-import { getUserCtx } from '~/request/ctx';
-import { PaymastersService } from '../paymasters/paymasters.service';
-import { asAddress, asChain, asDecimal } from 'lib';
-import { BalancesService } from '~/features/util/balances/balances.service';
-import { FeesPerGas } from '~/features/paymasters/paymasters.model';
-import { DecimalScalar } from '~/apollo/scalars/Decimal.scalar';
 import Decimal from 'decimal.js';
+import { uuid } from 'edgedb/dist/codecs/ifaces';
+import { GraphQLResolveInfo } from 'graphql';
+
+import { asAddress, asChain, asDecimal } from 'lib';
+import { DecimalScalar } from '~/apollo/scalars/Decimal.scalar';
+import { ComputedField } from '~/decorators/computed.decorator';
+import { Input } from '~/decorators/input.decorator';
+import * as eql from '~/edgeql-interfaces';
+import e from '~/edgeql-js';
+import { FeesPerGas } from '~/features/paymasters/paymasters.model';
+import { BalancesService } from '~/features/util/balances/balances.service';
+import { getUserCtx } from '~/request/ctx';
+import { getShape } from '../database/database.select';
+import { PaymastersService } from '../paymasters/paymasters.service';
+import { Price } from '../prices/prices.model';
+import { PricesService } from '../prices/prices.service';
+import { BalanceInput, TokenInput, TokensInput, UpsertTokenInput } from './tokens.input';
+import { Token, TokenMetadata } from './tokens.model';
+import { TokensService } from './tokens.service';
 
 @Resolver(() => Token)
 export class TokensResolver {

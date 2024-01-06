@@ -1,23 +1,24 @@
 import { InjectQueue, Processor } from '@nestjs/bullmq';
 import { Injectable } from '@nestjs/common';
-import { NetworksService } from '../util/networks/networks.service';
-import { DatabaseService } from '../database/database.service';
-import e from '~/edgeql-js';
-import { Hex, asHex } from 'lib';
-import { CHAINS, Chain } from 'chains';
 import { InjectRedis } from '@songkeys/nestjs-redis';
-import Redis from 'ioredis';
-import {
-  RUNNING_JOB_STATUSES,
-  Worker,
-  TypedJob,
-  createQueue,
-  TypedQueue,
-} from '../util/bull/bull.util';
-import { DEFAULT_JOB_OPTIONS } from '../util/bull/bull.module';
 import { AbiEvent } from 'abitype';
-import { Log as ViemLog, encodeEventTopics, hexToNumber } from 'viem';
+import Redis from 'ioredis';
+import { encodeEventTopics, hexToNumber, Log as ViemLog } from 'viem';
+
+import { Chain, CHAINS } from 'chains';
+import { asHex, Hex } from 'lib';
+import e from '~/edgeql-js';
 import { runOnce } from '~/util/mutex';
+import { DatabaseService } from '../database/database.service';
+import { DEFAULT_JOB_OPTIONS } from '../util/bull/bull.module';
+import {
+  createQueue,
+  RUNNING_JOB_STATUSES,
+  TypedJob,
+  TypedQueue,
+  Worker,
+} from '../util/bull/bull.util';
+import { NetworksService } from '../util/networks/networks.service';
 
 const BLOCK_TIME = 500; /* ms */
 const TARGET_LOGS_PER_JOB = 9_000; // Max 10k

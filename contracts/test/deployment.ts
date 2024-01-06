@@ -1,8 +1,9 @@
 import { expect } from 'chai';
-import { deployFactory, deployProxy, deploy, wallet, gas, network } from './util';
+
 import { ACCOUNT_ABI, asAddress } from 'lib';
 import Account from './contracts/Account';
 import AccountProxy from './contracts/AccountProxy';
+import { deploy, deployFactory, deployProxy, gas, network, wallet } from './util';
 
 describe('Deployment', () => {
   describe('Account', () => {

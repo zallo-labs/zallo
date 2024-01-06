@@ -1,6 +1,7 @@
-import { Hex, asAddress, tryOrIgnore } from 'lib';
-import { ERC20 } from 'lib/dapps';
 import { decodeFunctionData } from 'viem';
+
+import { asAddress, Hex, tryOrIgnore } from 'lib';
+import { ERC20 } from 'lib/dapps';
 
 export const tryDecodeTransfer = (data: Hex | undefined) =>
   tryOrIgnore(() => {

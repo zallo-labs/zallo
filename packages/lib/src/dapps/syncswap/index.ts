@@ -1,10 +1,10 @@
 import { addressMap } from '../util';
-import routerAbi from './router.abi';
-import vaultAbi from './vault.abi';
-import IPoolAbi from './IPool.abi';
 import classPoolFactoryAbi from './classicPoolFactory.abi';
-import stablePoolFactoryAbi from './stablePoolFactory.abi';
+import IPoolAbi from './IPool.abi';
 import poolMasterAbi from './poolMaster.abi';
+import routerAbi from './router.abi';
+import stablePoolFactoryAbi from './stablePoolFactory.abi';
+import vaultAbi from './vault.abi';
 
 // https://syncswap.gitbook.io/api-documentation/resources/smart-contract
 export const SYNCSWAP = {

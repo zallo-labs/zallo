@@ -1,11 +1,12 @@
 import { Field, InputType, registerEnumType } from '@nestjs/graphql';
+import { GraphQLURL } from 'graphql-scalars';
+
+import { Chain } from 'chains';
 import { UAddress } from 'lib';
+import { ChainField } from '~/apollo/scalars/Chain.scalar';
+import { UAddressField, UAddressScalar } from '~/apollo/scalars/UAddress.scalar';
 import { minLengthMiddleware } from '~/apollo/scalars/util';
 import { PolicyInput } from '../policies/policies.input';
-import { GraphQLURL } from 'graphql-scalars';
-import { UAddressField, UAddressScalar } from '~/apollo/scalars/UAddress.scalar';
-import { Chain } from 'chains';
-import { ChainField } from '~/apollo/scalars/Chain.scalar';
 
 @InputType()
 export class AccountInput {

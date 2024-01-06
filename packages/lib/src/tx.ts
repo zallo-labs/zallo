@@ -1,12 +1,13 @@
-import { Address, ETH_ADDRESS, UAddress, asAddress, asChain } from './address';
-import { CHAINS } from 'chains';
-import { Operation, encodeOperations } from './operation';
+import { TypedDataToPrimitiveTypes } from 'abitype';
+import Decimal from 'decimal.js';
 import _ from 'lodash';
 import { hashTypedData, TypedData, TypedDataDefinition, TypedDataDomain, zeroAddress } from 'viem';
-import { TypedDataToPrimitiveTypes } from 'abitype';
+
+import { CHAINS } from 'chains';
 import { asFp, paymasterSignedInput } from '.';
+import { Address, asAddress, asChain, ETH_ADDRESS, UAddress } from './address';
 import { ETH } from './dapps';
-import Decimal from 'decimal.js';
+import { encodeOperations, Operation } from './operation';
 
 export interface Tx {
   operations: [Operation, ...Operation[]];

@@ -1,11 +1,12 @@
-import { SearchParams, useLocalSearchParams, useRouter } from 'expo-router';
-import { getSdkError } from '@walletconnect/utils';
 import { StyleSheet } from 'react-native';
+import { getSdkError } from '@walletconnect/utils';
+import * as Linking from 'expo-linking';
+import { SearchParams, useLocalSearchParams, useRouter } from 'expo-router';
+
 import { ListItem } from '~/components/list/ListItem';
 import { Sheet } from '~/components/sheet/Sheet';
+import { CloseIcon, ExternalLinkIcon } from '~/util/theme/icons';
 import { useUpdateWalletConnect, useWalletConnect } from '~/util/walletconnect';
-import * as Linking from 'expo-linking';
-import { CloseIcon, ExternalLinkIcon } from '@theme/icons';
 
 export type SessionDetailsSheetRoute = `/sessions/[topic]`;
 export type SessionDetailsSheetParams = SearchParams<SessionDetailsSheetRoute>;

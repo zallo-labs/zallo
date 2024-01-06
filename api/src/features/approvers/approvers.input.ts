@@ -1,5 +1,6 @@
 import { Field, InputType } from '@nestjs/graphql';
-import { GraphQLMAC, GraphQLJWT } from 'graphql-scalars';
+import { GraphQLJWT, GraphQLMAC } from 'graphql-scalars';
+
 import { Address } from 'lib';
 import { AddressField } from '~/apollo/scalars/Address.scalar';
 

@@ -1,9 +1,10 @@
 import { Mutation, Query, Resolver } from '@nestjs/graphql';
-import { RequestTokensInput } from './faucet.input';
+
 import { Address } from 'lib';
-import { FaucetService } from './faucet.service';
 import { AddressScalar } from '~/apollo/scalars/Address.scalar';
 import { Input } from '~/decorators/input.decorator';
+import { RequestTokensInput } from './faucet.input';
+import { FaucetService } from './faucet.service';
 
 @Resolver()
 export class FaucetResolver {

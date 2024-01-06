@@ -1,25 +1,26 @@
-import { useRouter } from 'expo-router';
-import { gql } from '@api/generated';
-import { FlashList } from '@shopify/flash-list';
-import { EditIcon, NavigateNextIcon } from '@theme/icons';
 import { StyleSheet } from 'react-native';
+import { FlashList } from '@shopify/flash-list';
+import { useRouter } from 'expo-router';
 import { Menu } from 'react-native-paper';
-import { AppbarMore } from '~/components/Appbar/AppbarMore';
-import { NotFound } from '~/components/NotFound';
-import { ListHeader } from '~/components/list/ListHeader';
-import { ListItemHeight } from '~/components/list/ListItem';
-import { useQuery } from '~/gql';
-import { PolicyItem } from '~/components/policy/PolicyItem';
-import { AppbarOptions } from '~/components/Appbar/AppbarOptions';
-import { useLocalParams } from '~/hooks/useLocalParams';
-import { withSuspense } from '~/components/skeleton/withSuspense';
-import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
-import { ScreenSurface } from '~/components/layout/ScreenSurface';
-import { Actions } from '~/components/layout/Actions';
-import { Button } from '~/components/Button';
 import { match } from 'ts-pattern';
 import { useMutation } from 'urql';
+
 import { AccountParams } from '~/app/(drawer)/[account]/(home)/_layout';
+import { AppbarMore } from '~/components/Appbar/AppbarMore';
+import { AppbarOptions } from '~/components/Appbar/AppbarOptions';
+import { Button } from '~/components/Button';
+import { Actions } from '~/components/layout/Actions';
+import { ScreenSurface } from '~/components/layout/ScreenSurface';
+import { ListHeader } from '~/components/list/ListHeader';
+import { ListItemHeight } from '~/components/list/ListItem';
+import { NotFound } from '~/components/NotFound';
+import { PolicyItem } from '~/components/policy/PolicyItem';
+import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
+import { withSuspense } from '~/components/skeleton/withSuspense';
+import { useQuery } from '~/gql';
+import { gql } from '~/gql/api/generated';
+import { useLocalParams } from '~/hooks/useLocalParams';
+import { EditIcon, NavigateNextIcon } from '~/util/theme/icons';
 
 const Query = gql(/* GraphQL */ `
   query AccountSettingsScreen($account: UAddress!) {

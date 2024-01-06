@@ -1,11 +1,12 @@
 import { ID, Info, Mutation, Query, Resolver } from '@nestjs/graphql';
+import { uuid } from 'edgedb/dist/codecs/ifaces';
 import { GraphQLResolveInfo } from 'graphql';
+
+import { Input } from '~/decorators/input.decorator';
+import { getShape } from '../database/database.select';
 import { ContactInput, ContactsInput, LabelInput, UpsertContactInput } from './contacts.input';
 import { Contact } from './contacts.model';
 import { ContactsService } from './contacts.service';
-import { getShape } from '../database/database.select';
-import { Input } from '~/decorators/input.decorator';
-import { uuid } from 'edgedb/dist/codecs/ifaces';
 
 @Resolver(() => Contact)
 export class ContactsResolver {

@@ -1,5 +1,5 @@
-global.process = require('process');
-
 import './shared';
+
+global.process = require('process');
 
 export default {};

@@ -5,9 +5,10 @@ import {
   ResolveFieldOptions,
   ReturnTypeFunc,
 } from '@nestjs/graphql';
+
 import { ObjectTypeSet } from '~/edgeql-js/reflection';
 import { Shape } from '~/features/database/database.select';
-import { GqlContext, asUser } from '~/request/ctx';
+import { asUser, GqlContext } from '~/request/ctx';
 
 const asUserMiddleware: FieldMiddleware<unknown, GqlContext> = async ({ context }, next) =>
   asUser(context, next);

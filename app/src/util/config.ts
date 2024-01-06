@@ -1,8 +1,8 @@
-import constants from 'expo-constants';
 import type { Config } from '../../app.config';
+import { Platform } from 'react-native';
+import constants from 'expo-constants';
 import { Href } from 'expo-router';
 import { resolveHref } from 'expo-router/src/link/href';
-import { Platform } from 'react-native';
 
 export const CONFIG = constants.expoConfig!.extra as Config;
 

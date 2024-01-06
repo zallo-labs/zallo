@@ -1,8 +1,9 @@
-import { Field, FieldMiddleware, FieldOptions, GqlTypeReference } from '@nestjs/graphql';
 import { UserInputError } from '@nestjs/apollo';
+import { Field, FieldMiddleware, FieldOptions, GqlTypeReference } from '@nestjs/graphql';
 import { GraphQLScalarType, GraphQLScalarTypeConfig } from 'graphql';
 import merge from 'ts-deepmerge';
 import { O } from 'ts-toolbelt';
+
 import { parseLiteral } from './parseLiteral';
 
 type Jsonable =

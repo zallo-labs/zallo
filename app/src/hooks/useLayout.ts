@@ -1,6 +1,6 @@
 import { useWindowDimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { P, match } from 'ts-pattern';
+import { match, P } from 'ts-pattern';
 
 export type LayoutDetails = ReturnType<typeof useLayout>;
 export type LayoutClass = ReturnType<typeof getLayoutClass>;

@@ -1,5 +1,6 @@
 import Decimal from 'decimal.js';
-import { Operation, asAddress, asHex, asTx } from 'lib';
+
+import { asAddress, asHex, asTx, Operation } from 'lib';
 import e, { $infer } from '~/edgeql-js';
 
 export const proposalTxShape = e.shape(e.TransactionProposal, () => ({

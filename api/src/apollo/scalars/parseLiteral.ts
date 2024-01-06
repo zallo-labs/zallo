@@ -1,6 +1,6 @@
 // Copied from https://github.com/Urigo/graphql-scalars/blob/master/src/scalars/json/utils.ts
-import { Kind, ValueNode, ObjectValueNode } from 'graphql';
 import { UserInputError } from '@nestjs/apollo';
+import { Kind, ObjectValueNode, ValueNode } from 'graphql';
 
 export function identity<T>(value: T): T {
   return value;

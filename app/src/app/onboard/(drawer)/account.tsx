@@ -1,11 +1,12 @@
-import { gql } from '@api';
-import { useRouter } from 'expo-router';
-import { UAddress } from 'lib';
 import { useCallback, useEffect } from 'react';
+import { useRouter } from 'expo-router';
+
+import { UAddress } from 'lib';
 import CreateAccountScreen from '~/app/(drawer)/accounts/create';
 import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
 import { withSuspense } from '~/components/skeleton/withSuspense';
 import { useQuery } from '~/gql';
+import { gql } from '~/gql/api';
 import { useSetSelectedAccont } from '~/hooks/useSelectedAccount';
 
 const Query = gql(/* GraphQL */ `

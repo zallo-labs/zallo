@@ -1,10 +1,11 @@
-import { Updater } from 'use-immer';
-import { ListItem } from '../list/ListItem';
-import { Checkbox } from 'react-native-paper';
 import { StyleSheet, View } from 'react-native';
-import { UAddress, asChain } from 'lib';
-import { FragmentType, gql, useFragment } from '@api/generated';
+import { Checkbox } from 'react-native-paper';
+import { Updater } from 'use-immer';
+
 import { Chain } from 'chains';
+import { asChain, UAddress } from 'lib';
+import { FragmentType, gql, useFragment } from '~/gql/api/generated';
+import { ListItem } from '../list/ListItem';
 
 const Account = gql(/* GraphQL */ `
   fragment AccountsList_Account on Account {

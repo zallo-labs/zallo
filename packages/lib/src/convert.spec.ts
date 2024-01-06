@@ -1,5 +1,6 @@
 import { parseUnits } from 'viem';
-import { tokenToToken, fiatToToken, tokenToFiat } from './convert';
+
+import { fiatToToken, tokenToFiat, tokenToToken } from './convert';
 
 const USDC_DECIMALS = 6;
 const ETH_DECIMALS = 18;

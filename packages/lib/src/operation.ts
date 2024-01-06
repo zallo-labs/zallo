@@ -1,8 +1,9 @@
-import { Address } from './address';
-import { Hex } from './bytes';
 import { AbiParameterToPrimitiveType } from 'abitype';
 import { encodeAbiParameters, getAbiItem } from 'viem';
+
 import { TEST_VERIFIER_ABI } from '.';
+import { Address } from './address';
+import { Hex } from './bytes';
 
 export interface Operation {
   to: Address;

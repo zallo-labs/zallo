@@ -1,6 +1,7 @@
 import { Redirect } from 'expo-router';
+
 import { useQuery } from '~/gql';
-import { gql } from '@api';
+import { gql } from '~/gql/api';
 import { useSelectedAccount } from '~/hooks/useSelectedAccount';
 
 const Query = gql(/* GraphQL */ `

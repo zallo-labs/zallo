@@ -1,5 +1,11 @@
 import { Info, Mutation, Parent, Query, Resolver } from '@nestjs/graphql';
 import { GraphQLResolveInfo } from 'graphql';
+
+import { ComputedField } from '~/decorators/computed.decorator';
+import { Input } from '~/decorators/input.decorator';
+import e from '~/edgeql-js';
+import { getShape } from '../database/database.select';
+import { policyStateShape } from '../policies/policies.util';
 import {
   CreatePolicyInput,
   PoliciesInput,
@@ -7,18 +13,13 @@ import {
   UniquePolicyInput,
   UpdatePolicyInput,
 } from './policies.input';
-import { PoliciesService } from './policies.service';
 import {
   CreatePolicyResponse,
   Policy,
   SatisfiabilityResult,
   UpdatePolicyResponse,
 } from './policies.model';
-import { getShape } from '../database/database.select';
-import { Input } from '~/decorators/input.decorator';
-import e from '~/edgeql-js';
-import { ComputedField } from '~/decorators/computed.decorator';
-import { policyStateShape } from '../policies/policies.util';
+import { PoliciesService } from './policies.service';
 
 @Resolver(() => Policy)
 export class PoliciesResolver {

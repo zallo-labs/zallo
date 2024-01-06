@@ -1,11 +1,12 @@
 import { createMock } from '@golevelup/ts-jest';
 import { Test, TestingModule } from '@nestjs/testing';
+
 import { UAddress } from 'lib';
+import e from '~/edgeql-js';
 import { asUser, UserContext } from '~/request/ctx';
 import { randomUAddress, randomUser } from '~/util/test';
 import { DatabaseService } from '../database/database.service';
 import { ContactsService, uniqueContact } from './contacts.service';
-import e from '~/edgeql-js';
 
 describe(ContactsService.name, () => {
   let service: ContactsService;

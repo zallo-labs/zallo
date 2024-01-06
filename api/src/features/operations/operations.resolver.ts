@@ -1,11 +1,12 @@
 import { Parent, Resolver } from '@nestjs/graphql';
+
+import { getChain } from 'chains';
+import { asAddress, asHex } from 'lib';
 import { ComputedField } from '~/decorators/computed.decorator';
 import e, { $infer } from '~/edgeql-js';
+import { Shape } from '~/features/database/database.select';
 import { Operation, OperationFunction } from './operations.model';
 import { OperationsService } from './operations.service';
-import { Shape } from '~/features/database/database.select';
-import { asAddress, asHex } from 'lib';
-import { getChain } from 'chains';
 
 const functionDeps = {
   to: true,

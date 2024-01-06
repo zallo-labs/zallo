@@ -1,9 +1,10 @@
+import { StyleSheet, View } from 'react-native';
 import { ParamListBase, Route, TabNavigationState } from '@react-navigation/core';
 import { MaterialTopTabBarProps } from '@react-navigation/material-top-tabs';
-import { createStyles, useStyles } from '@theme/styles';
-import { StyleSheet, View } from 'react-native';
 import { Text } from 'react-native-paper';
 import { TabBar, TabBarIndicator } from 'react-native-tab-view';
+
+import { createStyles, useStyles } from '~/util/theme/styles';
 
 export type TopTabBarVariant = 'primary' | 'secondary';
 

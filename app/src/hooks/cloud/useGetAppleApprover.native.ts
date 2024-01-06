@@ -1,9 +1,10 @@
-import { useGetCloudApprover } from './useGetCloudApprover';
 import * as Auth from 'expo-apple-authentication';
-import { atom, useAtomValue } from 'jotai';
-import { Result, ResultAsync, err, okAsync } from 'neverthrow';
 import { CodedError } from 'expo-modules-core';
+import { atom, useAtomValue } from 'jotai';
+import { err, okAsync, Result, ResultAsync } from 'neverthrow';
+
 import { showError } from '~/components/provider/SnackbarProvider';
+import { useGetCloudApprover } from './useGetCloudApprover';
 
 const isAvailableAtom = atom(Auth.isAvailableAsync);
 

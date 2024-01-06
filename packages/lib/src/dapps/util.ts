@@ -1,5 +1,5 @@
-import { Address } from '../address';
 import { Chain } from 'chains';
+import { Address } from '../address';
 
 export function addressMap<M extends Partial<Record<Chain, Address>>>(m: M) {
   return {

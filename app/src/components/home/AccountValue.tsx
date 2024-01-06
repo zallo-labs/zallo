@@ -1,8 +1,9 @@
-import { FragmentType, gql, useFragment } from '@api/generated';
-import { createStyles } from '@theme/styles';
 import Decimal from 'decimal.js';
 import { Text } from 'react-native-paper';
+
 import { FiatValue } from '~/components/FiatValue';
+import { FragmentType, gql, useFragment } from '~/gql/api/generated';
+import { createStyles } from '~/util/theme/styles';
 
 const Query = gql(/* GraphQL */ `
   fragment AccountValue_Query on Query @argumentDefinitions(account: { type: "UAddress!" }) {

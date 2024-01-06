@@ -1,5 +1,6 @@
-import { createStyles, useStyles } from '@theme/styles';
 import { TextInput, TextInputProps } from 'react-native';
+
+import { createStyles, useStyles } from '~/util/theme/styles';
 
 export interface BasicTextFieldProps extends TextInputProps {}
 

@@ -1,14 +1,15 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
-import { Address, UAddress, asAddress, asChain, asUAddress, filterAsync, isEthToken } from 'lib';
+import { parseUnits } from 'viem';
+
+import { CHAINS } from 'chains';
+import { Address, asAddress, asChain, asUAddress, filterAsync, isEthToken, UAddress } from 'lib';
+import { ERC20 } from 'lib/dapps';
+import e from '~/edgeql-js';
+import { and } from '~/features/database/database.util';
+import { BalancesService } from '~/features/util/balances/balances.service';
 import { NetworksService } from '~/features/util/networks/networks.service';
 import { selectAccount } from '../accounts/accounts.util';
 import { DatabaseService } from '../database/database.service';
-import e from '~/edgeql-js';
-import { parseUnits } from 'viem';
-import { ERC20 } from 'lib/dapps';
-import { BalancesService } from '~/features/util/balances/balances.service';
-import { and } from '~/features/database/database.util';
-import { CHAINS } from 'chains';
 
 @Injectable()
 export class FaucetService implements OnModuleInit {

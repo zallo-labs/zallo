@@ -1,7 +1,8 @@
-import { parseEther } from 'viem';
-import { deployProxy, network, wallet } from './util';
-import { asAddress, asTx, estimateTransactionOperationsGas } from 'lib';
 import { expect } from 'chai';
+import { parseEther } from 'viem';
+
+import { asAddress, asTx, estimateTransactionOperationsGas } from 'lib';
+import { deployProxy, network, wallet } from './util';
 
 it('gas estimation', async () => {
   const value = parseEther('0.001');

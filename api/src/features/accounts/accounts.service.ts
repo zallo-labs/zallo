@@ -1,36 +1,37 @@
+import { UserInputError } from '@nestjs/apollo';
+import { InjectQueue } from '@nestjs/bullmq';
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
-import { DatabaseService } from '../database/database.service';
-import e from '~/edgeql-js';
+import { v4 as uuid } from 'uuid';
+
 import {
-  Address,
-  Policy,
-  asPolicyKey,
-  randomDeploySalt,
-  getProxyAddress,
-  deployAccountProxy,
-  UAddress,
-  asAddress,
   ACCOUNT_IMPLEMENTATION,
   ACCOUNT_PROXY_FACTORY,
+  Address,
+  asAddress,
+  asPolicyKey,
+  deployAccountProxy,
+  getProxyAddress,
   Hex,
+  Policy,
+  randomDeploySalt,
+  UAddress,
 } from 'lib';
-import { ShapeFunc } from '../database/database.select';
-import { AccountEvent, CreateAccountInput, UpdateAccountInput } from './accounts.input';
+import e from '~/edgeql-js';
+import { selectAccount } from '~/features/accounts/accounts.util';
+import { and } from '~/features/database/database.util';
+import { TypedQueue } from '~/features/util/bull/bull.util';
 import { getApprover, getUserCtx } from '~/request/ctx';
-import { UserInputError } from '@nestjs/apollo';
-import { NetworksService } from '../util/networks/networks.service';
-import { PubsubService } from '../util/pubsub/pubsub.service';
+import { AccountsCacheService } from '../auth/accounts.cache.service';
 import { ContractsService } from '../contracts/contracts.service';
+import { ShapeFunc } from '../database/database.select';
+import { DatabaseService } from '../database/database.service';
 import { FaucetService } from '../faucet/faucet.service';
 import { PoliciesService } from '../policies/policies.service';
-import { InjectQueue } from '@nestjs/bullmq';
-import { ACTIVATIONS_QUEUE } from './activations.queue';
 import { inputAsPolicy } from '../policies/policies.util';
-import { AccountsCacheService } from '../auth/accounts.cache.service';
-import { v4 as uuid } from 'uuid';
-import { and } from '~/features/database/database.util';
-import { selectAccount } from '~/features/accounts/accounts.util';
-import { TypedQueue } from '~/features/util/bull/bull.util';
+import { NetworksService } from '../util/networks/networks.service';
+import { PubsubService } from '../util/pubsub/pubsub.service';
+import { AccountEvent, CreateAccountInput, UpdateAccountInput } from './accounts.input';
+import { ACTIVATIONS_QUEUE } from './activations.queue';
 
 export const getAccountTrigger = (address: UAddress) => `account.${address}`;
 export const getAccountApproverTrigger = (approver: Address) => `account.approver.${approver}`;

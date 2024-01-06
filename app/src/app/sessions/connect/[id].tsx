@@ -1,23 +1,24 @@
-import { useRouter } from 'expo-router';
-import { gql } from '@api/generated';
-import { getSdkError } from '@walletconnect/utils';
-import { tryOrCatchAsync } from 'lib';
 import { useEffect } from 'react';
+import { SignClientTypes } from '@walletconnect/types';
+import { getSdkError } from '@walletconnect/utils';
+import { useRouter } from 'expo-router';
 import { Text } from 'react-native-paper';
 import { useImmer } from 'use-immer';
+import { z } from 'zod';
+
+import { tryOrCatchAsync } from 'lib';
 import { Button } from '~/components/Button';
 import { Actions } from '~/components/layout/Actions';
+import { showError, showSuccess } from '~/components/provider/SnackbarProvider';
 import { Sheet } from '~/components/sheet/Sheet';
 import { AccountsList } from '~/components/walletconnect/AccountsList';
 import { PeerHeader } from '~/components/walletconnect/PeerHeader';
 import { useQuery } from '~/gql';
-import { showError, showSuccess } from '~/components/provider/SnackbarProvider';
-import { toNamespaces, useUpdateWalletConnect, useWalletConnect } from '~/util/walletconnect';
-import { SignClientTypes } from '@walletconnect/types';
-import { createStyles, useStyles } from '@theme/styles';
-import { z } from 'zod';
+import { gql } from '~/gql/api/generated';
 import { useLocalParams } from '~/hooks/useLocalParams';
 import { zArray, zChain } from '~/lib/zod';
+import { createStyles, useStyles } from '~/util/theme/styles';
+import { toNamespaces, useUpdateWalletConnect, useWalletConnect } from '~/util/walletconnect';
 
 const Query = gql(/* GraphQL */ `
   query ConnectSessionSheet {

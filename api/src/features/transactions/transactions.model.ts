@@ -1,10 +1,11 @@
 import { Field } from '@nestjs/graphql';
-import { TransactionProposal } from '../transaction-proposals/transaction-proposals.model';
-import { Bytes32Field } from '~/apollo/scalars/Bytes.scalar';
-import { Receipt } from '../receipts/receipts.model';
-import { DecimalField } from '~/apollo/scalars/Decimal.scalar';
 import Decimal from 'decimal.js';
+
+import { Bytes32Field } from '~/apollo/scalars/Bytes.scalar';
+import { DecimalField } from '~/apollo/scalars/Decimal.scalar';
 import { Node, NodeType } from '~/decorators/interface.decorator';
+import { Receipt } from '../receipts/receipts.model';
+import { TransactionProposal } from '../transaction-proposals/transaction-proposals.model';
 
 @NodeType()
 export class Transaction extends Node {

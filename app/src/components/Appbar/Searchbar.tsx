@@ -1,11 +1,12 @@
-import { IconProps, SearchIcon } from '@theme/icons';
-import { toArray } from 'lib';
 import { FC } from 'react';
 import { StyleProp, View, ViewStyle } from 'react-native';
 import { Surface } from 'react-native-paper';
-import { BasicTextField, BasicTextFieldProps } from '../fields/BasicTextField';
-import { createStyles, useStyles } from '@theme/styles';
 import { EdgeInsets, useSafeAreaInsets } from 'react-native-safe-area-context';
+
+import { toArray } from 'lib';
+import { IconProps, SearchIcon } from '~/util/theme/icons';
+import { createStyles, useStyles } from '~/util/theme/styles';
+import { BasicTextField, BasicTextFieldProps } from '../fields/BasicTextField';
 
 export interface SearchbarProps extends BasicTextFieldProps {
   leading?: FC<IconProps & { style?: StyleProp<ViewStyle> }>;

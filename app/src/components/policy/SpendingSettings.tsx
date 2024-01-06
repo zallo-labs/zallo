@@ -1,11 +1,9 @@
-import { gql } from '@api';
-import { AddIcon, GenericTokenIcon, TransferIcon } from '@theme/icons';
-import { createStyles } from '@theme/styles';
-import { useRouter } from 'expo-router';
-import { Address, asAddress, asChain, asUAddress } from 'lib';
 import { useMemo } from 'react';
+import { useRouter } from 'expo-router';
 import Collapsible from 'react-native-collapsible';
 import { Divider, Switch } from 'react-native-paper';
+
+import { Address, asAddress, asChain, asUAddress } from 'lib';
 import { Chevron } from '~/components/Chevron';
 import { ListItem } from '~/components/list/ListItem';
 import { ListItemHorizontalTrailing } from '~/components/list/ListItemHorizontalTrailing';
@@ -14,9 +12,12 @@ import { ListItemTrailingText } from '~/components/list/ListItemTrailingText';
 import { TokenLimitItem } from '~/components/policy/TokenLimitItem';
 import { withSuspense } from '~/components/skeleton/withSuspense';
 import { useQuery } from '~/gql';
+import { gql } from '~/gql/api';
 import { useSelectAddress } from '~/hooks/useSelectAddress';
 import { useToggle } from '~/hooks/useToggle';
 import { usePolicyDraftState } from '~/lib/policy/draft';
+import { AddIcon, GenericTokenIcon, TransferIcon } from '~/util/theme/icons';
+import { createStyles } from '~/util/theme/styles';
 
 const Query = gql(/* GraphQL */ `
   query SpendingSettings($input: TokensInput!) {

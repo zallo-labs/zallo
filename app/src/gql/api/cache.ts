@@ -5,11 +5,16 @@ import {
   OptimisticMutationResolver,
   UpdateResolver,
 } from '@urql/exchange-graphcache';
-import schema from './schema.generated';
-import { Node, MutationCreatePolicyArgs, MutationRemovePolicyArgs } from '@api/generated/graphql';
-import { gql } from './generated';
-import { UAddress } from 'lib';
 import { WritableDeep } from 'ts-toolbelt/out/Object/Writable';
+
+import { UAddress } from 'lib';
+import {
+  MutationCreatePolicyArgs,
+  MutationRemovePolicyArgs,
+  Node,
+} from '~/gql/api/generated/graphql';
+import { gql } from './generated';
+import schema from './schema.generated';
 
 export const CACHE_SCHEMA_CONFIG: Pick<
   CacheExchangeOpts,

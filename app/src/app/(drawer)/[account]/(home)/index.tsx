@@ -1,16 +1,17 @@
-import { Text } from 'react-native-paper';
+import { StyleSheet } from 'react-native';
 import { FlashList } from '@shopify/flash-list';
+import Decimal from 'decimal.js';
+import { Text } from 'react-native-paper';
+
+import { asChain } from 'lib';
+import { AccountParams } from '~/app/(drawer)/[account]/(home)/_layout';
 import { ListItemHeight } from '~/components/list/ListItem';
-import { TokenItem } from '~/components/token/TokenItem';
 import { withSuspense } from '~/components/skeleton/withSuspense';
 import { TabScreenSkeleton } from '~/components/tab/TabScreenSkeleton';
-import { StyleSheet } from 'react-native';
-import { asChain } from 'lib';
-import { gql } from '@api/generated';
-import { useQuery, usePollQuery } from '~/gql';
-import { AccountParams } from '~/app/(drawer)/[account]/(home)/_layout';
+import { TokenItem } from '~/components/token/TokenItem';
+import { usePollQuery, useQuery } from '~/gql';
+import { gql } from '~/gql/api/generated';
 import { useLocalParams } from '~/hooks/useLocalParams';
-import Decimal from 'decimal.js';
 
 const Query = gql(/* GraphQL */ `
   query TokensTab($account: UAddress!, $chain: Chain) {

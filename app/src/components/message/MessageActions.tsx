@@ -1,9 +1,10 @@
-import { FragmentType, gql, useFragment } from '@api/generated';
-import { useApproverAddress } from '~/lib/network/useApprover';
-import { Actions } from '~/components/layout/Actions';
 import { Button } from 'react-native-paper';
+
+import { Actions } from '~/components/layout/Actions';
+import { FragmentType, gql, useFragment } from '~/gql/api/generated';
 import { useApprove } from '~/hooks/useApprove';
 import { useReject } from '~/hooks/useReject';
+import { useApproverAddress } from '~/lib/network/useApprover';
 
 const MessageProposal = gql(/* GraphQL */ `
   fragment MessageActions_MessageProposal on MessageProposal {

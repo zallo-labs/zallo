@@ -1,10 +1,11 @@
 import { ReactNode, useCallback, useEffect, useState } from 'react';
-import { DateTime, Duration } from 'luxon';
 import { AppState } from 'react-native';
-import { lockSecureStorage, unlockSecureStorage } from '~/lib/secure-storage';
+import { DateTime, Duration } from 'luxon';
+
 import AuthenticateScreen from '~/app/auth';
 import { Blur } from '~/components/Blur';
 import { useAuthRequiredOnOpen } from '~/components/shared/AuthSettings';
+import { lockSecureStorage, unlockSecureStorage } from '~/lib/secure-storage';
 
 const TIMEOUT_AFTER = Duration.fromObject({ minutes: 5 }).toMillis();
 

@@ -1,13 +1,14 @@
-import { FragmentType, gql, useFragment } from '@api';
-import { createStyles, useStyles } from '@theme/styles';
-import Decimal from 'decimal.js';
 import { ReactNode } from 'react';
 import { View } from 'react-native';
+import Decimal from 'decimal.js';
 import { Text } from 'react-native-paper';
+
 import { ListHeader } from '~/components/list/ListHeader';
-import { ProposalValue } from '~/components/transaction/ProposalValue';
 import { TokenAmount } from '~/components/token/TokenAmount';
 import { TokenItem } from '~/components/token/TokenItem';
+import { ProposalValue } from '~/components/transaction/ProposalValue';
+import { FragmentType, gql, useFragment } from '~/gql/api';
+import { createStyles, useStyles } from '~/util/theme/styles';
 
 const TransactionProposal = gql(/* GraphQL */ `
   fragment TransfersSection_TransactionProposal on TransactionProposal

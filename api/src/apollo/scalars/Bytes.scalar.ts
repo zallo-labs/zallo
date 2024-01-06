@@ -1,6 +1,7 @@
 import { UserInputError } from '@nestjs/apollo';
 import { Kind } from 'graphql';
-import { asHex, Hex, isHex, bytesize } from 'lib';
+
+import { asHex, bytesize, Hex, isHex } from 'lib';
 import { createScalar } from './util';
 
 const parse = (value: unknown, len?: number): Hex => {

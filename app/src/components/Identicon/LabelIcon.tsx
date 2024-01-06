@@ -1,15 +1,16 @@
-import { createStyles, useStyles } from '@theme/styles';
 import { memo } from 'react';
 import {
   StyleProp,
   TextStyle,
+  useWindowDimensions,
   View,
   ViewProps,
   ViewStyle,
-  useWindowDimensions,
 } from 'react-native';
 import { Text } from 'react-native-paper';
+
 import { useMemoApply } from '~/hooks/useMemoized';
+import { createStyles, useStyles } from '~/util/theme/styles';
 
 export interface LabelIconProps extends Omit<ViewProps, 'style'> {
   label: string;

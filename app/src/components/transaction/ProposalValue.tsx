@@ -1,6 +1,7 @@
-import { FragmentType, gql, useFragment } from '@api/generated';
-import { FiatValue } from '../FiatValue';
 import Decimal from 'decimal.js';
+
+import { FragmentType, gql, useFragment } from '~/gql/api/generated';
+import { FiatValue } from '../FiatValue';
 
 const TransactionProposal = gql(/* GraphQL */ `
   fragment ProposalValue_TransactionProposal on TransactionProposal {

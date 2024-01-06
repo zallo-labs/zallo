@@ -1,9 +1,10 @@
-import { FragmentType, gql, useFragment } from '@api';
+import { useEffect, useMemo } from 'react';
 import { useSetAtom } from 'jotai';
 import { useHydrateAtoms } from 'jotai/utils';
-import { ZERO_ADDR, asChain } from 'lib';
-import { useEffect, useMemo } from 'react';
-import { POLICY_DRAFT_ATOM, PolicyDraft, policyAsDraft } from '~/lib/policy/draft';
+
+import { asChain, ZERO_ADDR } from 'lib';
+import { FragmentType, gql, useFragment } from '~/gql/api';
+import { POLICY_DRAFT_ATOM, policyAsDraft, PolicyDraft } from '~/lib/policy/draft';
 import { usePolicyPresets } from '~/lib/policy/presets';
 
 const Account = gql(/* GraphQL */ `

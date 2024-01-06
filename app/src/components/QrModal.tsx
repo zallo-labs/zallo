@@ -1,18 +1,19 @@
-import QRCode from 'react-native-qrcode-svg';
-import { Address, UAddress, isUAddress } from 'lib';
+import { ReactNode } from 'react';
+import { ScaledSize, useWindowDimensions, View } from 'react-native';
+import { useRouter } from 'expo-router';
 import { IconButton, Surface, Text } from 'react-native-paper';
-import { CloseIcon, ShareIcon } from '@theme/icons';
-import { Actions } from '~/components/layout/Actions';
-import { ScaledSize, View, useWindowDimensions } from 'react-native';
+import QRCode from 'react-native-qrcode-svg';
+import { EdgeInsets, useSafeAreaInsets } from 'react-native-safe-area-context';
+
+import { Address, isUAddress, UAddress } from 'lib';
 import { AddressLabel } from '~/components/address/AddressLabel';
 import { Blur } from '~/components/Blur';
 import { Button } from '~/components/Button';
+import { Actions } from '~/components/layout/Actions';
 import { share } from '~/lib/share';
-import { useRouter } from 'expo-router';
-import { createStyles, useStyles } from '@theme/styles';
-import { EdgeInsets, useSafeAreaInsets } from 'react-native-safe-area-context';
-import { ReactNode } from 'react';
 import { truncateAddr } from '~/util/format';
+import { CloseIcon, ShareIcon } from '~/util/theme/icons';
+import { createStyles, useStyles } from '~/util/theme/styles';
 
 export interface QrModalProps {
   address: Address | UAddress;

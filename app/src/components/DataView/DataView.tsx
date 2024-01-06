@@ -1,7 +1,8 @@
 import { StyleProp, View, ViewStyle } from 'react-native';
-import { Node, NodeValue } from './Node';
-import { createStyles, useStyles } from '@theme/styles';
+
 import { Chain } from 'chains';
+import { createStyles, useStyles } from '~/util/theme/styles';
+import { Node, NodeValue } from './Node';
 
 export interface DataViewProps {
   children: NodeValue;

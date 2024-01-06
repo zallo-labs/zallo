@@ -1,16 +1,16 @@
 /** @jsx jsx */
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { jsx } from '@emotion/react';
 import { ApolloExplorer } from '@apollo/explorer/react';
-import { useColorMode } from '@docusaurus/theme-common';
 import { BaseEmbeddableExplorerOptions as EmbeddedExplorerProps } from '@apollo/explorer/src/EmbeddedExplorer';
-import { Interpolation, Theme } from '@emotion/react';
-import { useCustomFields } from '@site/src/hooks/useCustomFields';
-import gql from 'graphql-tag';
-import { print } from 'graphql';
-import { useAuthorization, useDevice } from '../hooks/useDevice';
-import BrowserOnly from '@docusaurus/BrowserOnly';
 import { JSONObject } from '@apollo/explorer/src/helpers/types';
+import BrowserOnly from '@docusaurus/BrowserOnly';
+import { useColorMode } from '@docusaurus/theme-common';
+import { Interpolation, jsx, Theme } from '@emotion/react';
+import { useCustomFields } from '@site/src/hooks/useCustomFields';
+import { print } from 'graphql';
+import gql from 'graphql-tag';
+
+import { useAuthorization, useDevice } from '../hooks/useDevice';
 
 export interface ExplorerProps {
   document: ReturnType<typeof gql>;

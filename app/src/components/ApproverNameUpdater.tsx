@@ -1,7 +1,8 @@
-import { gql } from '@api';
 import { useEffect } from 'react';
 import { useMutation } from 'urql';
+
 import { useQuery } from '~/gql';
+import { gql } from '~/gql/api';
 import { getDeviceModel } from '~/lib/device';
 
 const Query = gql(/* GraphQL */ `

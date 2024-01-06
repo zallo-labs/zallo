@@ -1,12 +1,13 @@
-import { Hex, asUAddress, isAddress, isHex } from 'lib';
 import { StyleProp, StyleSheet, TextStyle, View } from 'react-native';
 import { Text } from 'react-native-paper';
-import { tryDecodeHexString } from '~/util/decodeHex';
-import { AddressLabel } from '../address/AddressLabel';
 import { match } from 'ts-pattern';
 import { TypedDataDefinition } from 'viem';
-import { createStyles, useStyles } from '@theme/styles';
+
 import { Chain } from 'chains';
+import { asUAddress, Hex, isAddress, isHex } from 'lib';
+import { tryDecodeHexString } from '~/util/decodeHex';
+import { createStyles, useStyles } from '~/util/theme/styles';
+import { AddressLabel } from '../address/AddressLabel';
 
 export type NodeValue = string | Hex | TypedDataNode | TypedDataDefinition;
 

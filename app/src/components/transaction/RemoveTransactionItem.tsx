@@ -1,8 +1,9 @@
-import { gql } from '@api';
 import { useRouter } from 'expo-router';
-import { UUID } from 'lib';
 import { Menu } from 'react-native-paper';
 import { useMutation } from 'urql';
+
+import { UUID } from 'lib';
+import { gql } from '~/gql/api';
 import { useConfirmRemoval } from '~/hooks/useConfirm';
 
 const Remove = gql(/* GraphQL */ `

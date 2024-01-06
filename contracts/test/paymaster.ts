@@ -1,13 +1,5 @@
-import {
-  Address,
-  ETH_ADDRESS,
-  PayForTransactionParams,
-  PaymasterSignedData,
-  asUAddress,
-  encodePaymasterInput,
-  paymasterSignedDataAsTypedData,
-} from 'lib';
-import { deploy, network, testNetwork, wallet } from './util';
+import { AbiParameterToPrimitiveType } from 'abitype';
+import { expect } from 'chai';
 import {
   getAbiItem,
   hexToBigInt,
@@ -18,9 +10,18 @@ import {
   zeroAddress,
   zeroHash,
 } from 'viem';
+
+import {
+  Address,
+  asUAddress,
+  encodePaymasterInput,
+  ETH_ADDRESS,
+  PayForTransactionParams,
+  PaymasterSignedData,
+  paymasterSignedDataAsTypedData,
+} from 'lib';
 import TestPaymaster, { abi } from './contracts/TestPaymaster';
-import { AbiParameterToPrimitiveType } from 'abitype';
-import { expect } from 'chai';
+import { deploy, network, testNetwork, wallet } from './util';
 
 const disabled = {
   token: zeroAddress,

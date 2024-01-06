@@ -1,5 +1,12 @@
 import { ID, Info, Mutation, Parent, Query, Resolver } from '@nestjs/graphql';
+import { uuid } from 'edgedb/dist/codecs/ifaces';
 import { GraphQLResolveInfo } from 'graphql';
+
+import { ComputedField } from '~/decorators/computed.decorator';
+import { Input } from '~/decorators/input.decorator';
+import e from '~/edgeql-js';
+import { getShape } from '../database/database.select';
+import { ApproveInput, UniqueProposalInput } from '../proposals/proposals.input';
 import {
   ExecuteTransactionProposalInput,
   ProposeTransactionInput,
@@ -13,15 +20,9 @@ import {
 } from './transaction-proposals.model';
 import {
   EstimateFeesDeps,
-  TransactionProposalsService,
   estimateFeesDeps,
+  TransactionProposalsService,
 } from './transaction-proposals.service';
-import { getShape } from '../database/database.select';
-import e from '~/edgeql-js';
-import { Input } from '~/decorators/input.decorator';
-import { uuid } from 'edgedb/dist/codecs/ifaces';
-import { ComputedField } from '~/decorators/computed.decorator';
-import { ApproveInput, UniqueProposalInput } from '../proposals/proposals.input';
 
 @Resolver(() => TransactionProposal)
 export class TransactionProposalsResolver {

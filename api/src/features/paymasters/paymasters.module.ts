@@ -1,10 +1,11 @@
-import { Module, forwardRef } from '@nestjs/common';
-import { PaymastersService } from './paymasters.service';
-import { PaymastersResolver } from './paymasters.resolver';
-import { PricesModule } from '~/features/prices/prices.module';
+import { forwardRef, Module } from '@nestjs/common';
+
 import { PaymasterEvents } from '~/features/paymasters/paymaster.events';
-import { TransactionsModule } from '~/features/transactions/transactions.module';
+import { PricesModule } from '~/features/prices/prices.module';
 import { TokensModule } from '~/features/tokens/tokens.module';
+import { TransactionsModule } from '~/features/transactions/transactions.module';
+import { PaymastersResolver } from './paymasters.resolver';
+import { PaymastersService } from './paymasters.service';
 
 @Module({
   imports: [PricesModule, forwardRef(() => TransactionsModule), forwardRef(() => TokensModule)],

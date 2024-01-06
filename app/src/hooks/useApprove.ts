@@ -1,15 +1,16 @@
-import { FragmentType, gql, useFragment } from '@api';
-import { useApproverAddress } from '~/lib/network/useApprover';
-import { Address } from 'lib';
 import { match } from 'ts-pattern';
 import { useMutation } from 'urql';
+
+import { Address } from 'lib';
+import { useGetLedgerApprover } from '~/app/ledger/approve';
 import { showError } from '~/components/provider/SnackbarProvider';
-import { proposalAsTypedData } from '~/lib/proposalAsTypedData';
+import { useSignWithApprover } from '~/components/transaction/useSignWithApprover';
+import { FragmentType, gql, useFragment } from '~/gql/api';
 import { useGetAppleApprover } from '~/hooks/cloud/useGetAppleApprover';
 import { useGetGoogleApprover } from '~/hooks/cloud/useGetGoogleApprover';
-import { useGetLedgerApprover } from '~/app/ledger/approve';
-import { useSignWithApprover } from '~/components/transaction/useSignWithApprover';
 import { ampli } from '~/lib/ampli';
+import { useApproverAddress } from '~/lib/network/useApprover';
+import { proposalAsTypedData } from '~/lib/proposalAsTypedData';
 
 const User = gql(/* GraphQL */ `
   fragment UseApprove_User on User {

@@ -1,9 +1,10 @@
-import { Image } from 'expo-image';
 import { ReactNode } from 'react';
 import { View } from 'react-native';
-import { Text } from 'react-native-paper';
 import { SignClientTypes } from '@walletconnect/types';
-import { createStyles, useStyles } from '@theme/styles';
+import { Image } from 'expo-image';
+import { Text } from 'react-native-paper';
+
+import { createStyles, useStyles } from '~/util/theme/styles';
 
 export interface PeerHeaderProps {
   peer: SignClientTypes.Metadata;

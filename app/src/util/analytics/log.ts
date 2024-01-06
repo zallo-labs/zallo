@@ -1,5 +1,6 @@
-import * as Sentry from '~/util/sentry/sentry';
 import _ from 'lodash';
+
+import * as Sentry from '~/util/sentry/sentry';
 
 export type EventLevel = 'debug' | 'info' | 'warning' | 'error';
 

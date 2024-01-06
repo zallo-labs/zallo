@@ -1,9 +1,10 @@
 import { Module } from '@nestjs/common';
-import { CONFIG } from '~/config';
 import { RedisModule as BaseModule, DEFAULT_REDIS_NAMESPACE } from '@songkeys/nestjs-redis';
+import { RedisOptions } from 'ioredis';
+
+import { CONFIG } from '~/config';
 import { REDIS_SUBSCRIBER } from '~/decorators/redis.decorator';
 import { RedisHealthIndicator } from './redis.indicator';
-import { RedisOptions } from 'ioredis';
 
 export const REDIS_CONFIG = {
   family: CONFIG.redisFamily,

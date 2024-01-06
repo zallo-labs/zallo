@@ -1,11 +1,12 @@
-import { Address, asAddress, asUAddress } from './address';
-import { utils as zkUtils } from 'zksync-ethers';
-import { Policy, encodePolicyStruct } from './policy';
-import { Network, NetworkWallet } from 'chains';
-import { ACCOUNT_IMPLEMENTATION, ACCOUNT_PROXY, ACCOUNT_PROXY_FACTORY } from './contract';
-import { Hex, encodeAbiParameters, encodeFunctionData } from 'viem';
 import { err, ok } from 'neverthrow';
+import { encodeAbiParameters, encodeFunctionData, Hex } from 'viem';
+import { utils as zkUtils } from 'zksync-ethers';
+
+import { Network, NetworkWallet } from 'chains';
+import { Address, asAddress, asUAddress } from './address';
 import { randomHex } from './bytes';
+import { ACCOUNT_IMPLEMENTATION, ACCOUNT_PROXY, ACCOUNT_PROXY_FACTORY } from './contract';
+import { encodePolicyStruct, Policy } from './policy';
 
 export const randomDeploySalt = () => randomHex(32);
 

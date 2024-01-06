@@ -1,10 +1,10 @@
-import { Address } from './address';
 import { Chain } from 'chains';
+import { Address } from './address';
 import * as accountArtifact from './generated/Account';
 import * as accountProxyArtifact from './generated/AccountProxy';
 import * as accountProxyFactoryArtifact from './generated/Factory';
-import * as testVerifierArtifact from './generated/TestVerifier';
 import * as paymasterArtifact from './generated/Paymaster';
+import * as testVerifierArtifact from './generated/TestVerifier';
 
 export const TEST_VERIFIER_ABI = testVerifierArtifact.abi;
 

@@ -1,5 +1,6 @@
-import { ApolloClient, ApolloProvider, InMemoryCache } from '@apollo/client';
 import React, { ReactNode, useMemo } from 'react';
+import { ApolloClient, ApolloProvider, InMemoryCache } from '@apollo/client';
+
 import { useCustomFields } from '../hooks/useCustomFields';
 import { useAuthorization } from '../hooks/useDevice';
 

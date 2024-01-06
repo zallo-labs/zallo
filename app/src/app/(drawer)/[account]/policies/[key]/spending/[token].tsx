@@ -1,26 +1,27 @@
-import { PolicyScreenParams } from '~/app/(drawer)/[account]/policies/[key]';
-import { useLocalParams } from '~/hooks/useLocalParams';
-import { zAddress } from '~/lib/zod';
-import { TransferLimit, asChain, asUAddress } from 'lib';
-import { Duration } from 'luxon';
+import { useEffect } from 'react';
 import { View } from 'react-native';
+import { useRouter } from 'expo-router';
+import { Duration } from 'luxon';
+import { Text } from 'react-native-paper';
+
+import { asChain, asUAddress, TransferLimit } from 'lib';
+import { PolicyScreenParams } from '~/app/(drawer)/[account]/policies/[key]';
+import { AppbarOptions } from '~/components/Appbar/AppbarOptions';
+import { Button } from '~/components/Button';
 import { BasicTextField } from '~/components/fields/BasicTextField';
 import { SelectChip } from '~/components/fields/SelectChip';
-import { ListHeader } from '~/components/list/ListHeader';
 import { useBigIntInput } from '~/components/fields/useBigIntInput';
-import { ClockOutlineIcon } from '@theme/icons';
-import { gql } from '@api/generated';
-import { usePolicyDraftState } from '~/lib/policy/draft';
-import { useQuery } from '~/gql';
-import { AppbarOptions } from '~/components/Appbar/AppbarOptions';
-import { truncateAddr } from '~/util/format';
-import { ScreenSurface } from '~/components/layout/ScreenSurface';
-import { Text } from 'react-native-paper';
 import { Actions } from '~/components/layout/Actions';
-import { Button } from '~/components/Button';
-import { useRouter } from 'expo-router';
-import { useEffect } from 'react';
-import { createStyles, useStyles } from '@theme/styles';
+import { ScreenSurface } from '~/components/layout/ScreenSurface';
+import { ListHeader } from '~/components/list/ListHeader';
+import { useQuery } from '~/gql';
+import { gql } from '~/gql/api/generated';
+import { useLocalParams } from '~/hooks/useLocalParams';
+import { usePolicyDraftState } from '~/lib/policy/draft';
+import { zAddress } from '~/lib/zod';
+import { truncateAddr } from '~/util/format';
+import { ClockOutlineIcon } from '~/util/theme/icons';
+import { createStyles, useStyles } from '~/util/theme/styles';
 
 const Query = gql(/* GraphQL */ `
   query TokenLimitScreen($token: UAddress!) {

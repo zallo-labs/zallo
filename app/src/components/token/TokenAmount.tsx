@@ -1,9 +1,10 @@
-import { FormattedNumberOptions, useFormattedNumber } from '../format/FormattedNumber';
-import { Decimallike, UAddress, isUAddress } from 'lib';
-import { FragmentType, gql, useFragment as getFragment } from '@api/generated';
-import { useQuery } from '~/gql';
 import Decimal from 'decimal.js';
-import { UseFormattedTokenAmount_TokenFragment } from '@api/generated/graphql';
+
+import { Decimallike, isUAddress, UAddress } from 'lib';
+import { useQuery } from '~/gql';
+import { FragmentType, useFragment as getFragment, gql } from '~/gql/api/generated';
+import { UseFormattedTokenAmount_TokenFragment } from '~/gql/api/generated/graphql';
+import { FormattedNumberOptions, useFormattedNumber } from '../format/FormattedNumber';
 
 const Query = gql(/* GraphQL */ `
   query TokenAmount($token: UAddress!) {

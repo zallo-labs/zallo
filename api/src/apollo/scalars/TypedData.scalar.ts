@@ -1,6 +1,7 @@
 import { UserInputError } from '@nestjs/apollo';
-import { createScalar } from './util';
 import { TypedDataDefinition, validateTypedData } from 'viem';
+
+import { createScalar } from './util';
 
 const description = 'EIP712 Typed Data';
 

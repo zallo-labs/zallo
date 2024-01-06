@@ -1,13 +1,14 @@
+import { DocumentNode, Kind } from 'graphql';
 import {
+  AnyVariables,
+  DocumentInput,
+  TypedDocumentNode,
   useQuery as useBaseQuery,
   UseQueryArgs,
-  AnyVariables,
-  UseQueryState,
-  DocumentInput,
   UseQueryExecute,
-  TypedDocumentNode,
+  UseQueryState,
 } from 'urql';
-import { DocumentNode, Kind } from 'graphql';
+
 import * as documents from '~/gql/api/documents.generated';
 import { logWarning } from '~/util/analytics';
 

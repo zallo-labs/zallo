@@ -1,6 +1,7 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { ContractsService } from './contracts.service';
 import { createMock } from '@golevelup/ts-jest';
+import { Test, TestingModule } from '@nestjs/testing';
+
+import { ContractsService } from './contracts.service';
 
 describe(ContractsService.name, () => {
   let service: ContractsService;

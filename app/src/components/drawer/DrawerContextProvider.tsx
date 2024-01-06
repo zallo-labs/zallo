@@ -1,6 +1,6 @@
+import { createContext, ReactNode, useContext } from 'react';
 import { DrawerActions } from '@react-navigation/native';
 import { useNavigation } from 'expo-router';
-import { ReactNode, createContext, useContext } from 'react';
 
 const CONTEXT = createContext<DrawerContext | undefined>(undefined);
 

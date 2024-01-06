@@ -1,16 +1,17 @@
-import { z } from 'zod';
-import { MessageLayoutParams } from '~/app/(drawer)/message/[id]/_layout';
-import { useLocalParams } from '~/hooks/useLocalParams';
 import { ScrollView, StyleSheet, View } from 'react-native';
-import { gql } from '@api/generated';
-import { useQuery } from '~/gql';
-import { DataView } from '~/components/DataView/DataView';
 import { Text } from 'react-native-paper';
+import { z } from 'zod';
+
+import { asChain } from 'lib';
+import { MessageLayoutParams } from '~/app/(drawer)/message/[id]/_layout';
+import { DataView } from '~/components/DataView/DataView';
 import { MessageIcon } from '~/components/message/MessageIcon';
 import { RiskRating } from '~/components/proposal/RiskRating';
-import { withSuspense } from '~/components/skeleton/withSuspense';
 import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
-import { asChain } from 'lib';
+import { withSuspense } from '~/components/skeleton/withSuspense';
+import { useQuery } from '~/gql';
+import { gql } from '~/gql/api/generated';
+import { useLocalParams } from '~/hooks/useLocalParams';
 
 const Query = gql(/* GraphQL */ `
   query MessageDetailsTab($proposal: UUID!) {

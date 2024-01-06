@@ -1,6 +1,7 @@
 import 'ts-node/register';
-import { createClient } from 'edgedb';
+
 import { execSync } from 'child_process';
+import { createClient } from 'edgedb';
 
 const EDGEDB_DATABASE_ENV = 'EDGEDB_DATABASE';
 

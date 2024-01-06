@@ -1,17 +1,18 @@
-import { useRouter } from 'expo-router';
 import { useRef } from 'react';
-import BottomSheet, { BottomSheetScrollView } from '@gorhom/bottom-sheet';
-import { Sheet } from '~/components/sheet/Sheet';
-import { ListHeader } from '~/components/list/ListHeader';
-import { AddIcon, CheckCircleIcon, materialCommunityIcon } from '@theme/icons';
-import { ListItem } from '~/components/list/ListItem';
 import { View } from 'react-native';
-import { gql } from '@api/generated';
-import { ICON_SIZE } from '@theme/paper';
-import { AccountItem } from '../../components/item/AccountItem';
+import BottomSheet, { BottomSheetScrollView } from '@gorhom/bottom-sheet';
+import { useRouter } from 'expo-router';
+
+import { ListHeader } from '~/components/list/ListHeader';
+import { ListItem } from '~/components/list/ListItem';
+import { Sheet } from '~/components/sheet/Sheet';
 import { useQuery } from '~/gql';
+import { gql } from '~/gql/api/generated';
 import { useSelectedAccount } from '~/hooks/useSelectedAccount';
-import { createStyles, useStyles } from '@theme/styles';
+import { AddIcon, CheckCircleIcon, materialCommunityIcon } from '~/util/theme/icons';
+import { ICON_SIZE } from '~/util/theme/paper';
+import { createStyles, useStyles } from '~/util/theme/styles';
+import { AccountItem } from '../../components/item/AccountItem';
 
 const SwitchIcon = materialCommunityIcon('swap-horizontal');
 

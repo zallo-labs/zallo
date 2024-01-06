@@ -1,16 +1,17 @@
+import { ReactNode } from 'react';
 import { ScrollView, View } from 'react-native';
-import { Appbar } from '../Appbar/Appbar';
-import { Text } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useForm } from 'react-hook-form';
-import { Actions } from '../layout/Actions';
-import { FormSubmitButton } from '../fields/FormSubmitButton';
+import { Text } from 'react-native-paper';
+
 import * as Sentry from '~/util/sentry/sentry';
+import { CloseIcon } from '~/util/theme/icons';
+import { createStyles, useStyles } from '~/util/theme/styles';
+import { Appbar } from '../Appbar/Appbar';
+import { FormSubmitButton } from '../fields/FormSubmitButton';
 import { FormTextField } from '../fields/FormTextField';
-import { CloseIcon } from '@theme/icons';
+import { Actions } from '../layout/Actions';
 import { MinimalErrorBoundary } from './MinimalErrorBoundary';
-import { ReactNode } from 'react';
-import { createStyles, useStyles } from '@theme/styles';
 
 interface Inputs {
   email?: string;

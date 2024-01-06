@@ -1,9 +1,10 @@
-import { FragmentType, gql, useFragment } from '@api';
-import { CancelIcon, DoubleCheckIcon, materialCommunityIcon } from '@theme/icons';
-import { createStyles, useStyles } from '@theme/styles';
 import { View } from 'react-native';
 import { ActivityIndicator, Text } from 'react-native-paper';
 import { match } from 'ts-pattern';
+
+import { FragmentType, gql, useFragment } from '~/gql/api';
+import { CancelIcon, DoubleCheckIcon, materialCommunityIcon } from '~/util/theme/icons';
+import { createStyles, useStyles } from '~/util/theme/styles';
 
 const ApprovalIcon = materialCommunityIcon('security');
 

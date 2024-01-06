@@ -1,20 +1,21 @@
-import { z } from 'zod';
-import { useLocalParams } from '~/hooks/useLocalParams';
-import { zUuid } from '~/lib/zod';
-import { gql } from '@api/generated';
-import { NotFound } from '~/components/NotFound';
-import { useQuery } from '~/gql';
-import { AppbarMore } from '~/components/Appbar/AppbarMore';
+import { ScrollView, StyleSheet } from 'react-native';
+import { useRouter } from 'expo-router';
 import { Menu } from 'react-native-paper';
 import { useMutation } from 'urql';
-import { useConfirmRemoval } from '~/hooks/useConfirm';
-import { useRouter } from 'expo-router';
+import { z } from 'zod';
+
+import { AppbarMore } from '~/components/Appbar/AppbarMore';
+import { AppbarOptions } from '~/components/Appbar/AppbarOptions';
+import { ScreenSurface } from '~/components/layout/ScreenSurface';
 import { TopTabs } from '~/components/layout/TopTabs';
 import { MessageActions } from '~/components/message/MessageActions';
-import { AppbarOptions } from '~/components/Appbar/AppbarOptions';
-import { StyleSheet, ScrollView } from 'react-native';
-import { ScreenSurface } from '~/components/layout/ScreenSurface';
 import { MessageStatus } from '~/components/message/MessageStatus';
+import { NotFound } from '~/components/NotFound';
+import { useQuery } from '~/gql';
+import { gql } from '~/gql/api/generated';
+import { useConfirmRemoval } from '~/hooks/useConfirm';
+import { useLocalParams } from '~/hooks/useLocalParams';
+import { zUuid } from '~/lib/zod';
 
 const Query = gql(/* GraphQL */ `
   query MessageLayout($proposal: UUID!) {

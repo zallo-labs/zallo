@@ -1,4 +1,9 @@
+import { AbiParametersToPrimitiveTypes } from 'abitype';
+import { BytesLike, hexlify, Interface, Overrides } from 'ethers';
 import * as hre from 'hardhat';
+import { Abi, Address, bytesToHex, parseEther, zeroHash } from 'viem';
+import * as zk from 'zksync-ethers';
+
 import {
   asAddress,
   asPolicy,
@@ -9,16 +14,12 @@ import {
   randomDeploySalt,
   TxOptions,
 } from 'lib';
-import { network, testNetwork, wallet, wallets } from './network';
-import { BytesLike, hexlify, Interface, Overrides } from 'ethers';
-import * as zk from 'zksync-ethers';
-import { getApprovals } from './approval';
-import { Abi, Address, bytesToHex, parseEther, zeroHash } from 'viem';
 import { CONFIG } from '../../config';
-import { AbiParametersToPrimitiveTypes } from 'abitype';
-import Factory from '../contracts/Factory';
 import Account from '../contracts/Account';
 import AccountProxy from '../contracts/AccountProxy';
+import Factory from '../contracts/Factory';
+import { getApprovals } from './approval';
+import { network, testNetwork, wallet, wallets } from './network';
 
 const zkProvider = new zk.Provider(CONFIG.chain.rpcUrls.default.http[0]);
 

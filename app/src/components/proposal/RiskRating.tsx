@@ -1,13 +1,13 @@
-import { FragmentType, gql, useFragment } from '@api';
-import { Risk } from '@api/generated/graphql';
-import { StyleProp, View, ViewStyle } from 'react-native';
+import { StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
+import * as Linking from 'expo-linking';
 import { SegmentedButtons, SegmentedButtonsProps } from 'react-native-paper';
 import { useMutation } from 'urql';
-import { ListHeader } from '../list/ListHeader';
-import { StyleSheet } from 'react-native';
+
 import { showInfo } from '~/components/provider/SnackbarProvider';
+import { FragmentType, gql, useFragment } from '~/gql/api';
+import { Risk } from '~/gql/api/generated/graphql';
 import { CONFIG } from '~/util/config';
-import * as Linking from 'expo-linking';
+import { ListHeader } from '../list/ListHeader';
 
 const Proposal = gql(/* GraphQL */ `
   fragment RiskRating_Proposal on Proposal {

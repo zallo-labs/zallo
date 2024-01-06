@@ -1,28 +1,29 @@
-import { gql } from '@api';
 import { useRouter } from 'expo-router';
 import { useAtom } from 'jotai';
-import { PolicyKey, asPolicyKey } from 'lib';
 import _ from 'lodash';
 import { useMutation } from 'urql';
 import { z } from 'zod';
-import { PolicyAppbar } from '~/components/policy/PolicyAppbar';
-import { useQuery } from '~/gql';
-import { useHydratePolicyDraft } from '~/hooks/useHydratePolicyDraft';
-import { useLocalParams } from '~/hooks/useLocalParams';
-import { POLICY_DRAFT_ATOM, asPolicyInput } from '~/lib/policy/draft';
-import { showError } from '~/components/provider/SnackbarProvider';
-import { withSuspense } from '~/components/skeleton/withSuspense';
-import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
-import { ScreenSurface } from '~/components/layout/ScreenSurface';
-import { zUAddress } from '~/lib/zod';
-import { ApprovalSettings } from '~/components/policy/ApprovalSettings';
-import { SpendingSettings } from '~/components/policy/SpendingSettings';
-import { useLayout } from '~/hooks/useLayout';
-import { ActionsSettings } from '~/components/policy/ActionsSettings';
-import { PolicySuggestions } from '~/components/policy/PolicySuggestions';
-import { createStyles } from '@theme/styles';
-import { Actions } from '~/components/layout/Actions';
+
+import { asPolicyKey, PolicyKey } from 'lib';
 import { Button } from '~/components/Button';
+import { Actions } from '~/components/layout/Actions';
+import { ScreenSurface } from '~/components/layout/ScreenSurface';
+import { ActionsSettings } from '~/components/policy/ActionsSettings';
+import { ApprovalSettings } from '~/components/policy/ApprovalSettings';
+import { PolicyAppbar } from '~/components/policy/PolicyAppbar';
+import { PolicySuggestions } from '~/components/policy/PolicySuggestions';
+import { SpendingSettings } from '~/components/policy/SpendingSettings';
+import { showError } from '~/components/provider/SnackbarProvider';
+import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
+import { withSuspense } from '~/components/skeleton/withSuspense';
+import { useQuery } from '~/gql';
+import { gql } from '~/gql/api';
+import { useHydratePolicyDraft } from '~/hooks/useHydratePolicyDraft';
+import { useLayout } from '~/hooks/useLayout';
+import { useLocalParams } from '~/hooks/useLocalParams';
+import { asPolicyInput, POLICY_DRAFT_ATOM } from '~/lib/policy/draft';
+import { zUAddress } from '~/lib/zod';
+import { createStyles } from '~/util/theme/styles';
 
 const Query = gql(/* GraphQL */ `
   query PolicyScreen($account: UAddress!, $key: PolicyKey!, $queryPolicy: Boolean!) {

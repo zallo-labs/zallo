@@ -1,12 +1,14 @@
+import type { Client } from 'edgedb';
+import { AsyncLocalStorage } from 'async_hooks';
 import { Injectable, OnModuleInit } from '@nestjs/common';
-import e, { createClient, $infer } from '~/edgeql-js';
+import * as Sentry from '@sentry/node';
+import { EdgeDBError } from 'edgedb';
+import { Transaction } from 'edgedb/dist/transaction';
+
+import { MaybePromise } from 'lib';
+import e, { $infer, createClient } from '~/edgeql-js';
 import { Expression } from '~/edgeql-js/typesystem';
 import { getRequestContext } from '~/request/ctx';
-import { AsyncLocalStorage } from 'async_hooks';
-import { EdgeDBError, type Client } from 'edgedb';
-import { Transaction } from 'edgedb/dist/transaction';
-import { MaybePromise } from 'lib';
-import * as Sentry from '@sentry/node';
 
 type Hook = () => MaybePromise<void>;
 type Globals = Partial<Record<keyof typeof e.global, unknown>>;

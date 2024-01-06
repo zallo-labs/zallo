@@ -1,16 +1,16 @@
-import { Extensions, Field, InterfaceType, IntersectionType } from '@nestjs/graphql';
-import { ObjectType } from '@nestjs/graphql';
-import { AddressField } from '~/apollo/scalars/Address.scalar';
-import { Account } from '../accounts/accounts.model';
-import { IdField } from '~/apollo/scalars/Id.scalar';
-import { EventBase } from '../events/events.model';
-import { uuid } from 'edgedb/dist/codecs/ifaces';
-import e from '~/edgeql-js';
-import { Token } from '../tokens/tokens.model';
-import { UAddressField } from '~/apollo/scalars/UAddress.scalar';
-import { Address, UAddress } from 'lib';
-import { DecimalField } from '~/apollo/scalars/Decimal.scalar';
+import { Extensions, Field, InterfaceType, IntersectionType, ObjectType } from '@nestjs/graphql';
 import Decimal from 'decimal.js';
+import { uuid } from 'edgedb/dist/codecs/ifaces';
+
+import { Address, UAddress } from 'lib';
+import { AddressField } from '~/apollo/scalars/Address.scalar';
+import { DecimalField } from '~/apollo/scalars/Decimal.scalar';
+import { IdField } from '~/apollo/scalars/Id.scalar';
+import { UAddressField } from '~/apollo/scalars/UAddress.scalar';
+import e from '~/edgeql-js';
+import { Account } from '../accounts/accounts.model';
+import { EventBase } from '../events/events.model';
+import { Token } from '../tokens/tokens.model';
 
 @InterfaceType()
 export class TransferDetails {

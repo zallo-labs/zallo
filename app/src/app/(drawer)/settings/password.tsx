@@ -1,21 +1,22 @@
 import { useMemo } from 'react';
 import { View } from 'react-native';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useAtom, useAtomValue } from 'jotai';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
+
 import { AppbarOptions } from '~/components/Appbar/AppbarOptions';
-import { ScreenSurface } from '~/components/layout/ScreenSurface';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { Actions } from '~/components/layout/Actions';
 import { FormSubmitButton } from '~/components/fields/FormSubmitButton';
+import { FormTextField } from '~/components/fields/FormTextField';
+import { Actions } from '~/components/layout/Actions';
+import { ScreenSurface } from '~/components/layout/ScreenSurface';
 import { showInfo } from '~/components/provider/SnackbarProvider';
+import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
+import { withSuspense } from '~/components/skeleton/withSuspense';
 import { hashPassword, verifyPassword } from '~/lib/crypto/password';
 import { persistedAtom } from '~/lib/persistedAtom';
-import { useAtom, useAtomValue } from 'jotai';
-import { FormTextField } from '~/components/fields/FormTextField';
-import { withSuspense } from '~/components/skeleton/withSuspense';
-import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
 import { changeSecureStorePassword } from '~/lib/secure-storage';
-import { createStyles, useStyles } from '@theme/styles';
+import { createStyles, useStyles } from '~/util/theme/styles';
 
 const PASSWORD_HASH = persistedAtom<string | null>('passwordHash', null);
 export const usePasswordHash = () => useAtomValue(PASSWORD_HASH);

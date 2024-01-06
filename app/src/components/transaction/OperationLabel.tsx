@@ -1,10 +1,11 @@
 import { match, P } from 'ts-pattern';
-import { useAddressLabel } from '../address/AddressLabel';
-import { useFormattedTokenAmount } from '../token/TokenAmount';
-import { FragmentType, gql, useFragment } from '@api/generated';
-import { useQuery } from '~/gql';
+
 import { Chain } from 'chains';
 import { asUAddress } from 'lib';
+import { useQuery } from '~/gql';
+import { FragmentType, gql, useFragment } from '~/gql/api/generated';
+import { useAddressLabel } from '../address/AddressLabel';
+import { useFormattedTokenAmount } from '../token/TokenAmount';
 
 const FragmentDoc = gql(/* GraphQL */ `
   fragment OperationLabel_OperationFragment on Operation {

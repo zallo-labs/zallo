@@ -1,10 +1,11 @@
-import { getNetwork } from '@network/network';
+import { useSuspenseQuery } from '@tanstack/react-query';
+import { ResultAsync } from 'neverthrow';
+import { SimulateContractErrorType } from 'viem';
+
 import { Chain } from 'chains';
 import { SYNCSWAP } from 'lib/dapps';
 import { SwapRoute } from '~/hooks/swap/useSwapRoute';
-import { ResultAsync } from 'neverthrow';
-import { SimulateContractErrorType } from 'viem';
-import { useSuspenseQuery } from '@tanstack/react-query';
+import { getNetwork } from '~/lib/network/network';
 
 const FOREVER_DEADLINE = 32531887598n;
 

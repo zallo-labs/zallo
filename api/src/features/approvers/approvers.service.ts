@@ -1,16 +1,17 @@
-import { Injectable } from '@nestjs/common';
-import { Address, isAddress, toArray, tryOrIgnoreAsync } from 'lib';
-import { DatabaseService } from '../database/database.service';
-import { ShapeFunc } from '../database/database.select';
-import e from '~/edgeql-js';
-import { getUserCtx } from '~/request/ctx';
-import { uuid } from 'edgedb/dist/codecs/ifaces';
-import { UniqueCloudShareInput, UpdateApproverInput } from './approvers.input';
-import { and } from '../database/database.util';
-import { CloudProvider } from '~/edgeql-js/modules/default';
-import { createRemoteJWKSet, jwtVerify } from 'jose';
 import { UserInputError } from '@nestjs/apollo';
+import { Injectable } from '@nestjs/common';
+import { uuid } from 'edgedb/dist/codecs/ifaces';
+import { createRemoteJWKSet, jwtVerify } from 'jose';
+
+import { Address, isAddress, toArray, tryOrIgnoreAsync } from 'lib';
 import { CONFIG } from '~/config';
+import e from '~/edgeql-js';
+import { CloudProvider } from '~/edgeql-js/modules/default';
+import { getUserCtx } from '~/request/ctx';
+import { ShapeFunc } from '../database/database.select';
+import { DatabaseService } from '../database/database.service';
+import { and } from '../database/database.util';
+import { UniqueCloudShareInput, UpdateApproverInput } from './approvers.input';
 
 export const uniqueApprover = (id: uuid | Address = getUserCtx().approver) => ({
   filter_single: isAddress(id) ? { address: id } : { id },

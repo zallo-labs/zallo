@@ -1,8 +1,8 @@
-import { FragmentType, gql, useFragment } from '@api';
 import { Fab } from '~/components/Fab';
-import { createStyles } from '@theme/styles';
-import { GoogleIcon } from '@theme/icons';
-import { UseLinkGoogleProps, useLinkGoogle } from '~/hooks/cloud/useLinkGoogle';
+import { FragmentType, gql, useFragment } from '~/gql/api';
+import { useLinkGoogle, UseLinkGoogleProps } from '~/hooks/cloud/useLinkGoogle';
+import { GoogleIcon } from '~/util/theme/icons';
+import { createStyles } from '~/util/theme/styles';
 
 const User = gql(/* GraphQL */ `
   fragment LinkGoogleButton_User on User {

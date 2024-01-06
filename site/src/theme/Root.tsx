@@ -1,6 +1,7 @@
-import BrowserOnly from '@docusaurus/BrowserOnly';
 import React, { ReactNode, Suspense } from 'react';
+import BrowserOnly from '@docusaurus/BrowserOnly';
 import { RecoilRoot } from 'recoil';
+
 import { ApiProvider } from '../components/ApiProvider';
 
 export interface RootProps {

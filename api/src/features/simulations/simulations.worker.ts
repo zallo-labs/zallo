@@ -1,43 +1,44 @@
 import { InjectQueue, Processor } from '@nestjs/bullmq';
 import { Injectable } from '@nestjs/common';
+import { InjectRedis } from '@songkeys/nestjs-redis';
+import Redis from 'ioredis';
+import { ResultAsync } from 'neverthrow';
+import { CallErrorType } from 'viem';
+
 import {
-  ETH_ADDRESS,
-  UUID,
   asAddress,
   asChain,
   asDecimal,
   asHex,
   asUAddress,
   asUUID,
+  ETH_ADDRESS,
   isHex,
   isTruthy,
   txProposalCallParams,
+  UUID,
 } from 'lib';
-import { DatabaseService } from '../database/database.service';
-import e from '~/edgeql-js';
-import { and } from '../database/database.util';
-import { OperationsService } from '../operations/operations.service';
-import { selectAccount } from '../accounts/accounts.util';
-import { SwapOp, TransferFromOp, TransferOp } from '../operations/operations.model';
-import { InjectRedis } from '@songkeys/nestjs-redis';
-import Redis from 'ioredis';
-import {
-  RUNNING_JOB_STATUSES,
-  TypedJob,
-  TypedQueue,
-  Worker,
-  createQueue,
-} from '../util/bull/bull.util';
 import { ETH } from 'lib/dapps';
+import e from '~/edgeql-js';
 import { selectTransactionProposal } from '~/features/transaction-proposals/transaction-proposals.service';
-import { NetworksService } from '~/features/util/networks/networks.service';
 import {
   proposalTxShape,
   transactionProposalAsTx,
 } from '~/features/transaction-proposals/transaction-proposals.util';
-import { ResultAsync } from 'neverthrow';
-import { CallErrorType } from 'viem';
+import { NetworksService } from '~/features/util/networks/networks.service';
 import { runOnce } from '~/util/mutex';
+import { selectAccount } from '../accounts/accounts.util';
+import { DatabaseService } from '../database/database.service';
+import { and } from '../database/database.util';
+import { SwapOp, TransferFromOp, TransferOp } from '../operations/operations.model';
+import { OperationsService } from '../operations/operations.service';
+import {
+  createQueue,
+  RUNNING_JOB_STATUSES,
+  TypedJob,
+  TypedQueue,
+  Worker,
+} from '../util/bull/bull.util';
 
 type TransferDetails = Parameters<typeof e.insert<typeof e.TransferDetails>>[1];
 

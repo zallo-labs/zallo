@@ -1,12 +1,13 @@
-import { FragmentType, gql, useFragment } from '@api';
-import { authContext } from '@api/client';
-import { useApproverAddress } from '~/lib/network/useApprover';
-import { Address } from 'lib';
 import { match } from 'ts-pattern';
 import { useMutation } from 'urql';
+
+import { Address } from 'lib';
 import { showError } from '~/components/provider/SnackbarProvider';
+import { FragmentType, gql, useFragment } from '~/gql/api';
+import { authContext } from '~/gql/api/client';
 import { useGetAppleApprover } from '~/hooks/cloud/useGetAppleApprover';
 import { useGetGoogleApprover } from '~/hooks/cloud/useGetGoogleApprover';
+import { useApproverAddress } from '~/lib/network/useApprover';
 
 const User = gql(/* GraphQL */ `
   fragment UseReject_User on User {

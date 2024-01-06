@@ -1,11 +1,12 @@
-import { useToggle } from '~/hooks/useToggle';
 import Collapsible from 'react-native-collapsible';
+
 import { Chevron } from '~/components/Chevron';
 import { ListItem } from '~/components/list/ListItem';
-import { OperationDetails } from './OperationDetails';
-import { FragmentType, gql, useFragment } from '@api/generated';
-import { OperationLabel } from '~/components/transaction/OperationLabel';
 import { OperationIcon } from '~/components/transaction/OperationIcon';
+import { OperationLabel } from '~/components/transaction/OperationLabel';
+import { FragmentType, gql, useFragment } from '~/gql/api/generated';
+import { useToggle } from '~/hooks/useToggle';
+import { OperationDetails } from './OperationDetails';
 
 const Transaction = gql(/* GraphQL */ `
   fragment OperationSection_TransactionProposal on TransactionProposal {

@@ -1,9 +1,10 @@
-import { useApproverWallet } from '~/lib/network/useApprover';
-import { ok, err } from 'neverthrow';
 import { useMemo } from 'react';
+import { err, ok } from 'neverthrow';
+
 import { useAuthenticate } from '~/app/auth';
 import { showError } from '~/components/provider/SnackbarProvider';
 import { useAuthRequiredOnApproval } from '~/components/shared/AuthSettings';
+import { useApproverWallet } from '~/lib/network/useApprover';
 
 export function useSignWithApprover() {
   const approver = useApproverWallet();

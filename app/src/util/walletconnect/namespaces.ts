@@ -1,7 +1,7 @@
+import { Chain, ChainConfig, CHAINS } from 'chains';
+import { Arraylike, asAddress, asChain, toSet, UAddress } from 'lib';
 import { SUPPORTED_CHAINS } from '~/lib/network/chains';
-import { UAddress, Arraylike, toSet, asAddress, asChain } from 'lib';
 import { WC_METHODS } from './methods';
-import { CHAINS, Chain, ChainConfig } from 'chains';
 
 export const WC_NAMESPACE_KEY = 'eip155';
 

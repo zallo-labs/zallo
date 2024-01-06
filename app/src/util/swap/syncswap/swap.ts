@@ -1,10 +1,15 @@
-import { Address, ETH_ADDRESS, Operation, UAddress, asChain } from 'lib';
-import { ERC20, SYNCSWAP } from 'lib/dapps';
+import '../syncswap;';
+
+import type { CONFIG } from '../../config';
 import { DateTime } from 'luxon';
 import { ok } from 'neverthrow';
 import { encodeFunctionData } from 'viem';
+
+import { Address, asChain, ETH_ADDRESS, Operation, UAddress } from 'lib';
+import { ERC20, SYNCSWAP } from 'lib/dapps';
+import { gql } from '~/gql/api';
 import { SwapRoute } from '~/hooks/swap/useSwapRoute';
-import { estimateSwap } from '~/util/swap/syncswap/estimate';
+import { estimateSwap } from './estimate';
 
 const SLIPPAGE_FACTOR = 10 ** 5;
 const SLIPPAGE_FACTOR_BN = BigInt(SLIPPAGE_FACTOR);

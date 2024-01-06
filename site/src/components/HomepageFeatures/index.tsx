@@ -1,9 +1,10 @@
 import React, { FC, ReactNode } from 'react';
-import clsx from 'clsx';
-import styles from './styles.module.scss';
 import AuthRulesSvg from '@site/static/img/authorization-rules.svg';
 import GithubSvg from '@site/static/img/github.svg';
 import GraphQlSvg from '@site/static/img/graphql.svg';
+import clsx from 'clsx';
+
+import styles from './styles.module.scss';
 
 interface FeatureItem {
   title: string;

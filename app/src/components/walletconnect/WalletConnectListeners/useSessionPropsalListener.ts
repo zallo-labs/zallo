@@ -1,15 +1,16 @@
-import { getSdkError } from '@walletconnect/utils';
 import { useEffect } from 'react';
+import { SignClientTypes } from '@walletconnect/types';
+import { getSdkError } from '@walletconnect/utils';
+import { useRouter } from 'expo-router';
+
+import { isPresent } from 'lib';
 import { showError } from '~/components/provider/SnackbarProvider';
-import { WC_METHODS } from '~/util/walletconnect/methods';
 import {
+  useWalletConnectWithoutWatching,
   WC_NAMESPACE_KEY,
   WC_SUPPORTED_CAIP2_CHAINS,
-  useWalletConnectWithoutWatching,
 } from '~/util/walletconnect';
-import { isPresent } from 'lib';
-import { SignClientTypes } from '@walletconnect/types';
-import { useRouter } from 'expo-router';
+import { WC_METHODS } from '~/util/walletconnect/methods';
 
 type SessionProposalArgs = SignClientTypes.EventArguments['session_proposal'];
 

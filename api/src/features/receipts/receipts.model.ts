@@ -1,13 +1,13 @@
-import { Field } from '@nestjs/graphql';
-import { ObjectType } from '@nestjs/graphql';
-import { BytesScalar } from '~/apollo/scalars/Bytes.scalar';
-import { IdField } from '~/apollo/scalars/Id.scalar';
+import { Field, ObjectType } from '@nestjs/graphql';
+import Decimal from 'decimal.js';
 import { uuid } from 'edgedb/dist/codecs/ifaces';
 import { GraphQLBigInt } from 'graphql-scalars';
+
+import { BytesScalar } from '~/apollo/scalars/Bytes.scalar';
+import { DecimalField } from '~/apollo/scalars/Decimal.scalar';
+import { IdField } from '~/apollo/scalars/Id.scalar';
 import { Event } from '../events/events.model';
 import { Transfer, TransferApproval } from '../transfers/transfers.model';
-import { DecimalField } from '~/apollo/scalars/Decimal.scalar';
-import Decimal from 'decimal.js';
 
 @ObjectType()
 export class Receipt {

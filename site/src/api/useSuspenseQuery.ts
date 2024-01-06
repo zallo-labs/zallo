@@ -1,11 +1,10 @@
 import { useMemo } from 'react';
-
 import {
-  OperationVariables,
   DocumentNode,
-  TypedDocumentNode,
+  OperationVariables,
   QueryHookOptions,
   QueryResult,
+  TypedDocumentNode,
   useQuery,
 } from '@apollo/client';
 

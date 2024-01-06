@@ -1,5 +1,6 @@
-import { ZERO_ADDR, isAddressLike } from 'lib';
 import { FieldPath, FieldValues, UseControllerProps } from 'react-hook-form';
+
+import { isAddressLike, ZERO_ADDR } from 'lib';
 
 export type Rules<
   TFieldValues extends FieldValues = FieldValues,

@@ -1,9 +1,10 @@
-import { Tx } from './tx';
-import { Address } from './address';
-import { ResultAsync } from 'neverthrow';
-import { Network } from 'chains';
 import type { EstimateGasErrorType } from 'viem';
+import { ResultAsync } from 'neverthrow';
+
+import { Network } from 'chains';
+import { Address } from './address';
 import { encodeOperations } from './operation';
+import { Tx } from './tx';
 
 /*//////////////////////////////////////////////////////////////
                             OPERATIONS

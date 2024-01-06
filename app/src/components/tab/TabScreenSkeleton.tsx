@@ -1,6 +1,7 @@
 import { ReactNode } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { ActivityIndicator } from 'react-native-paper';
+
 import { ListItemSkeleton, ListItemSkeletonProps } from '../list/ListItemSkeleton';
 
 export interface TabScreenSkeletonProps {

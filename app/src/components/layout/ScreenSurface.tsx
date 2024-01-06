@@ -1,7 +1,8 @@
-import { createStyles, useStyles } from '@theme/styles';
 import { ScrollView, ScrollViewProps, StyleProp, ViewStyle } from 'react-native';
 import { Surface, SurfaceProps } from 'react-native-paper';
+
 import { useMaybeDrawerContext } from '~/components/drawer/DrawerContextProvider';
+import { createStyles, useStyles } from '~/util/theme/styles';
 
 export interface ScreenSurfaceProps extends ScrollViewProps {
   surfaceStyle?: StyleProp<ViewStyle>;

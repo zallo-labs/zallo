@@ -1,20 +1,21 @@
+import { FC, useMemo } from 'react';
+import _ from 'lodash';
+import { getAbiItem, getFunctionSelector } from 'viem';
+
+import { Chain } from 'chains';
+import { ACCOUNT_ABI, Address, asAddress, asSelector } from 'lib';
+import { ERC721_ABI, SYNCSWAP } from 'lib/dapps';
+import { FragmentType, useFragment as getFragment, gql } from '~/gql/api';
+import { useApproverAddress } from '~/lib/network/useApprover';
 import {
   AccountIcon,
   IconProps,
-  SwapIcon,
   imageFromSource,
   materialCommunityIcon,
   materialIcon,
-} from '@theme/icons';
+  SwapIcon,
+} from '~/util/theme/icons';
 import { PolicyDraft, PolicyDraftAction } from './draft';
-import { FragmentType, gql, useFragment as getFragment } from '@api';
-import { ACCOUNT_ABI, Address, asAddress, asSelector } from 'lib';
-import _ from 'lodash';
-import { FC, useMemo } from 'react';
-import { getAbiItem, getFunctionSelector } from 'viem';
-import { useApproverAddress } from '~/lib/network/useApprover';
-import { SYNCSWAP, ERC721_ABI } from 'lib/dapps';
-import { Chain } from 'chains';
 
 type ActionDefinition = Omit<PolicyDraftAction, 'allow'> & { icon?: FC<IconProps> };
 

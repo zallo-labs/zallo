@@ -1,6 +1,7 @@
-import { Chain } from 'chains';
 import { useAtomValue, useSetAtom } from 'jotai';
-import { UAddress, asChain, isAddress } from 'lib';
+
+import { Chain } from 'chains';
+import { asChain, isAddress, UAddress } from 'lib';
 import { persistedAtom } from '~/lib/persistedAtom';
 
 const addressAtom = persistedAtom<UAddress | null>('selectedAccount', null, {

@@ -1,6 +1,7 @@
 import { Field, InputType } from '@nestjs/graphql';
-import { Chain } from 'chains';
 import { GraphQLInt } from 'graphql';
+
+import { Chain } from 'chains';
 import { Hex, UAddress } from 'lib';
 import { Bytes32Field } from '~/apollo/scalars/Bytes.scalar';
 import { ChainField } from '~/apollo/scalars/Chain.scalar';

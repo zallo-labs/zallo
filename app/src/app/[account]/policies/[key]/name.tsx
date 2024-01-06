@@ -1,18 +1,19 @@
+import { StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useImmerAtom } from 'jotai-immer';
-import { StyleSheet, View } from 'react-native';
 import { useForm } from 'react-hook-form';
+import { useMutation } from 'urql';
+
+import { AppbarOptions } from '~/components/Appbar/AppbarOptions';
+import { FormSubmitButton } from '~/components/fields/FormSubmitButton';
 import { FormTextField } from '~/components/fields/FormTextField';
 import { Actions } from '~/components/layout/Actions';
-import { FormSubmitButton } from '~/components/fields/FormSubmitButton';
-import { gql } from '@api/generated';
-import { useQuery } from '~/gql';
-import { useMutation } from 'urql';
-import { AppbarOptions } from '~/components/Appbar/AppbarOptions';
-import { POLICY_DRAFT_ATOM } from '~/lib/policy/draft';
-import { withSuspense } from '~/components/skeleton/withSuspense';
-import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
 import { showError } from '~/components/provider/SnackbarProvider';
+import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
+import { withSuspense } from '~/components/skeleton/withSuspense';
+import { useQuery } from '~/gql';
+import { gql } from '~/gql/api/generated';
+import { POLICY_DRAFT_ATOM } from '~/lib/policy/draft';
 
 const trimmed = (v: string) => v.trim();
 

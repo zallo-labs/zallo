@@ -1,15 +1,16 @@
 import { Button } from 'react-native-paper';
-import { Actions } from '~/components/layout/Actions';
-import { ShareIcon } from '@theme/icons';
-import { FragmentType, gql, useFragment } from '@api/generated';
 import { useMutation } from 'urql';
-import { useApproverAddress } from '~/lib/network/useApprover';
-import { useApprove } from '~/hooks/useApprove';
-import { useReject } from '~/hooks/useReject';
-import { share } from '~/lib/share';
-import { createStyles, useStyles } from '@theme/styles';
+
 import { CHAINS } from 'chains';
+import { Actions } from '~/components/layout/Actions';
+import { FragmentType, gql, useFragment } from '~/gql/api/generated';
+import { useApprove } from '~/hooks/useApprove';
 import { useConfirm } from '~/hooks/useConfirm';
+import { useReject } from '~/hooks/useReject';
+import { useApproverAddress } from '~/lib/network/useApprover';
+import { share } from '~/lib/share';
+import { ShareIcon } from '~/util/theme/icons';
+import { createStyles, useStyles } from '~/util/theme/styles';
 
 const Transaction = gql(/* GraphQL */ `
   fragment TransactionActions_TransactionProposal on TransactionProposal

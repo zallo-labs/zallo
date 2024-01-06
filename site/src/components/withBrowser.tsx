@@ -1,6 +1,5 @@
+import React, { FC, Suspense } from 'react';
 import BrowserOnly from '@docusaurus/BrowserOnly';
-import React from 'react';
-import { FC, Suspense } from 'react';
 
 // eslint-disable-next-line @typescript-eslint/ban-types
 export const withBrowser = <Props extends {}>(Component: FC<Props>) => {

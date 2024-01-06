@@ -1,9 +1,9 @@
-import { ICON_SIZE } from '@theme/paper';
-import { Address, UAddress, asAddress } from 'lib';
-import { ImageStyle } from 'react-native';
-import { StyleProp, TextStyle } from 'react-native';
-import { withSuspense } from '../skeleton/withSuspense';
+import { ImageStyle, StyleProp, TextStyle } from 'react-native';
+
+import { Address, asAddress, UAddress } from 'lib';
+import { ICON_SIZE } from '~/util/theme/paper';
 import { CircleSkeleton } from '../skeleton/CircleSkeleton';
+import { withSuspense } from '../skeleton/withSuspense';
 import { Blockie } from './Blockie';
 
 export interface AddressIconProps {

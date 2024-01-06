@@ -1,8 +1,9 @@
-import { Surface, SurfaceProps } from 'react-native-paper';
 import { ScrollView, ScrollViewProps } from 'react-native';
-import { DrawerType, useDrawerContext } from './DrawerContextProvider';
-import { createStyles, useStyles } from '@theme/styles';
+import { Surface, SurfaceProps } from 'react-native-paper';
 import { EdgeInsets, useSafeAreaInsets } from 'react-native-safe-area-context';
+
+import { createStyles, useStyles } from '~/util/theme/styles';
+import { DrawerType, useDrawerContext } from './DrawerContextProvider';
 
 const surfaceTypeProps: Record<DrawerType, Partial<SurfaceProps>> = {
   standard: { mode: 'flat', elevation: 0 },

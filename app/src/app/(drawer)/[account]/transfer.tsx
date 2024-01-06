@@ -1,29 +1,30 @@
-import { useRouter } from 'expo-router';
-import { usePropose } from '@api/usePropose';
-import { FIAT_DECIMALS, asAddress, asChain, asFp, asUAddress } from 'lib';
 import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
-import { Divider } from 'react-native-paper';
-import { useAddressLabel } from '~/components/address/AddressLabel';
-import { NumericInput } from '~/components/fields/NumericInput';
-import { TokenItem } from '~/components/token/TokenItem';
-import { useSelectedToken, useSetSelectedToken } from '~/hooks/useSelectedToken';
-import { InputsView, InputType } from '../../../components/InputsView';
-import { Button } from '~/components/Button';
-import { gql } from '@api/generated';
-import { useQuery } from '~/gql';
-import { useSelectToken } from '~/app/(drawer)/[account]/tokens';
-import { createTransferOp } from '~/lib/transfer';
-import { AppbarOptions } from '~/components/Appbar/AppbarOptions';
-import { z } from 'zod';
-import { zAddress, zUAddress } from '~/lib/zod';
-import { useLocalParams } from '~/hooks/useLocalParams';
-import { Actions } from '~/components/layout/Actions';
-import { withSuspense } from '~/components/skeleton/withSuspense';
-import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
-import { ScreenSurface } from '~/components/layout/ScreenSurface';
 import Decimal from 'decimal.js';
+import { useRouter } from 'expo-router';
+import { Divider } from 'react-native-paper';
+import { z } from 'zod';
+
+import { asAddress, asChain, asFp, asUAddress, FIAT_DECIMALS } from 'lib';
+import { useSelectToken } from '~/app/(drawer)/[account]/tokens';
+import { useAddressLabel } from '~/components/address/AddressLabel';
+import { AppbarOptions } from '~/components/Appbar/AppbarOptions';
+import { Button } from '~/components/Button';
+import { NumericInput } from '~/components/fields/NumericInput';
+import { Actions } from '~/components/layout/Actions';
+import { ScreenSurface } from '~/components/layout/ScreenSurface';
+import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
+import { withSuspense } from '~/components/skeleton/withSuspense';
+import { TokenItem } from '~/components/token/TokenItem';
+import { useQuery } from '~/gql';
+import { gql } from '~/gql/api/generated';
+import { usePropose } from '~/gql/api/usePropose';
+import { useLocalParams } from '~/hooks/useLocalParams';
+import { useSelectedToken, useSetSelectedToken } from '~/hooks/useSelectedToken';
 import { ampli } from '~/lib/ampli';
+import { createTransferOp } from '~/lib/transfer';
+import { zAddress, zUAddress } from '~/lib/zod';
+import { InputsView, InputType } from '../../../components/InputsView';
 
 const Query = gql(/* GraphQL */ `
   query TransferScreen($account: UAddress!, $token: UAddress!) {

@@ -1,6 +1,7 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { MessageProposalsService } from './message-proposals.service';
 import { createMock } from '@golevelup/ts-jest';
+import { Test, TestingModule } from '@nestjs/testing';
+
+import { MessageProposalsService } from './message-proposals.service';
 
 describe('MessageProposalsService', () => {
   let service: MessageProposalsService;

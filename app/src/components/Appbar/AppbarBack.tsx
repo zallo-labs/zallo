@@ -1,7 +1,8 @@
-import { BackIcon, IconProps } from '@theme/icons';
-import { useRouter } from 'expo-router';
 import { ComponentPropsWithoutRef } from 'react';
+import { useRouter } from 'expo-router';
 import { Appbar } from 'react-native-paper';
+
+import { BackIcon, IconProps } from '~/util/theme/icons';
 
 type AppbarBackContainedProps = ComponentPropsWithoutRef<typeof Appbar.BackAction>;
 

@@ -1,9 +1,10 @@
 import { ConstraintViolationError } from 'edgedb';
-import { ObjectTypeSet, TypeSet } from '~/edgeql-js/reflection';
-import e from '~/edgeql-js';
+
 import { isTruthy } from 'lib';
+import e from '~/edgeql-js';
 import { orScalarLiteral } from '~/edgeql-js/castMaps';
 import { $bool } from '~/edgeql-js/modules/std';
+import { ObjectTypeSet, TypeSet } from '~/edgeql-js/reflection';
 
 export const and = (<Op extends orScalarLiteral<TypeSet<$bool>>>() => {
   const chain = (ops: Op[]) => {

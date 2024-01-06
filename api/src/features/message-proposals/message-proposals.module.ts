@@ -1,7 +1,8 @@
 import { Module } from '@nestjs/common';
-import { MessageProposalsService } from './message-proposals.service';
-import { MessageProposalsResolver } from './message-proposals.resolver';
+
 import { ProposalsModule } from '../proposals/proposals.module';
+import { MessageProposalsResolver } from './message-proposals.resolver';
+import { MessageProposalsService } from './message-proposals.service';
 
 @Module({
   imports: [ProposalsModule],

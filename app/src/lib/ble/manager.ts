@@ -1,6 +1,7 @@
-import { Observable } from 'rxjs';
-import { BleDevicesResult, BleListenResult } from './util';
 import { err } from 'neverthrow';
+import { Observable } from 'rxjs';
+
+import { BleDevicesResult, BleListenResult } from './util';
 
 export function bleListen(): BleListenResult {
   return new Observable((subject) => {

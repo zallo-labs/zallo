@@ -1,5 +1,6 @@
 import { DynamicModule, Global, Module, OnApplicationShutdown } from '@nestjs/common';
 import * as Sentry from '@sentry/node';
+
 import { CONFIG } from '~/config';
 import { SentryInterceptor } from './sentry.interceptor';
 

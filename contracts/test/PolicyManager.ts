@@ -1,8 +1,9 @@
 import { expect } from 'chai';
-import { ACCOUNT_ABI, Address, asPolicy, encodePolicyStruct, hashPolicy } from 'lib';
-import { deploy, gas, network, wallet } from './util';
-import TestPolicyManager, { abi } from './contracts/TestPolicyManager';
 import { zeroHash } from 'viem';
+
+import { ACCOUNT_ABI, Address, asPolicy, encodePolicyStruct, hashPolicy } from 'lib';
+import TestPolicyManager, { abi } from './contracts/TestPolicyManager';
+import { deploy, gas, network, wallet } from './util';
 
 describe('PolicyManager', () => {
   let address: Address;

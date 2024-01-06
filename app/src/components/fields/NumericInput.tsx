@@ -1,8 +1,9 @@
-import { MaterialIcons } from '@expo/vector-icons';
-import { createStyles, useStyles } from '@theme/styles';
 import { Dispatch, memo, SetStateAction, useCallback } from 'react';
 import { View } from 'react-native';
+import { MaterialIcons } from '@expo/vector-icons';
 import { Button, ButtonProps } from 'react-native-paper';
+
+import { createStyles, useStyles } from '~/util/theme/styles';
 
 const DECIMAL_SEPARATOR = Intl.NumberFormat().formatToParts(0.1)[1]?.value || '.';
 

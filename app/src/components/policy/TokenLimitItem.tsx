@@ -1,17 +1,18 @@
-import { FragmentType, gql, useFragment as getFragment } from '@api';
-import { NavigateNextIcon } from '@theme/icons';
 import { useRouter } from 'expo-router';
-import { Address, TransferLimit, asDecimal } from 'lib';
 import _ from 'lodash';
 import { Duration } from 'luxon';
+
+import { Address, asDecimal, TransferLimit } from 'lib';
 import { AddressIcon } from '~/components/Identicon/AddressIcon';
 import { ListItem } from '~/components/list/ListItem';
 import { ListItemHorizontalTrailing } from '~/components/list/ListItemHorizontalTrailing';
 import { ListItemTrailingText } from '~/components/list/ListItemTrailingText';
 import { useFormattedTokenAmount } from '~/components/token/TokenAmount';
 import { TokenIcon } from '~/components/token/TokenIcon';
+import { FragmentType, useFragment as getFragment, gql } from '~/gql/api';
 import { usePolicyDraftState } from '~/lib/policy/draft';
 import { truncateAddr } from '~/util/format';
+import { NavigateNextIcon } from '~/util/theme/icons';
 
 const Token = gql(/* GraphQL */ `
   fragment TokenLimitItem_Token on Token {

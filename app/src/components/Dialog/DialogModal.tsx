@@ -1,7 +1,8 @@
-import { Dialog, DialogProps } from 'react-native-paper';
-import { useRouter } from 'expo-router';
-import { createStyles } from '@theme/styles';
 import { ScaledSize, useWindowDimensions } from 'react-native';
+import { useRouter } from 'expo-router';
+import { Dialog, DialogProps } from 'react-native-paper';
+
+import { createStyles } from '~/util/theme/styles';
 
 export interface DialogModalProps extends Omit<DialogProps, 'visible' | 'onDismiss'> {}
 

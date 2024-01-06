@@ -1,8 +1,8 @@
 import { Chain, isChain } from 'chains';
-import { addressMap } from './util';
-import { Address, ETH_ADDRESS, asUAddress } from '../address';
+import { Address, asUAddress, ETH_ADDRESS } from '../address';
 import { Hex } from '../bytes';
 import { isPresent } from '../util/arrays';
+import { addressMap } from './util';
 
 export interface Token {
   name: string;

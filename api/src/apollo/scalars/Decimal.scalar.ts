@@ -1,7 +1,8 @@
 import { UserInputError } from '@nestjs/apollo';
-import { Kind } from 'graphql';
-import { createScalar } from './util';
 import Decimal from 'decimal.js';
+import { Kind } from 'graphql';
+
+import { createScalar } from './util';
 
 const description = 'Decimal';
 

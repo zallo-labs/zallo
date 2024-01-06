@@ -1,4 +1,5 @@
 import chardet from 'chardet';
+
 import { Hex, isHex } from 'lib';
 
 const MIN_CONFIDENCE = 5;

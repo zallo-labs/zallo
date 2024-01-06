@@ -1,12 +1,13 @@
-import { Module } from '@nestjs/common';
-import { BullModule as BaseModule } from '@nestjs/bullmq';
-import { DEFAULT_REDIS_NAMESPACE, RedisService } from '@songkeys/nestjs-redis';
-import { BullBoardModule } from '@bull-board/nestjs';
 import { ExpressAdapter } from '@bull-board/express';
+import { BullBoardModule } from '@bull-board/nestjs';
+import { BullModule as BaseModule } from '@nestjs/bullmq';
+import { Module } from '@nestjs/common';
+import { DEFAULT_REDIS_NAMESPACE, RedisService } from '@songkeys/nestjs-redis';
+import { DefaultJobOptions } from 'bullmq';
+
+import { isTruthy } from 'lib';
 import { BasicAuthMiddleware } from './basic-auth.middlware';
 import { BULL_BOARD_ENABLED } from './bull.util';
-import { isTruthy } from 'lib';
-import { DefaultJobOptions } from 'bullmq';
 
 export const DEFAULT_JOB_OPTIONS = {
   removeOnComplete: 1000,

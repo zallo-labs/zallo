@@ -1,4 +1,5 @@
 import { InputType } from '@nestjs/graphql';
+
 import { Hex } from 'lib';
 import { Bytes32Field } from '~/apollo/scalars/Bytes.scalar';
 

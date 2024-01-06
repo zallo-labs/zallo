@@ -1,6 +1,7 @@
-import { materialIcon } from '@theme/icons';
-import { createStyles, useStyles } from '@theme/styles';
 import { ComponentPropsWithoutRef } from 'react';
+
+import { materialIcon } from '~/util/theme/icons';
+import { createStyles, useStyles } from '~/util/theme/styles';
 
 const BaseIcon = materialIcon('check-circle-outline');
 

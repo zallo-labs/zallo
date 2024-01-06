@@ -1,31 +1,32 @@
+import { UserInputError } from '@nestjs/apollo';
 import { Injectable } from '@nestjs/common';
-import { DatabaseService } from '../database/database.service';
-import { ProposeMessageInput } from './message-proposals.input';
-import { ApproveInput, ProposalEvent } from '../proposals/proposals.input';
-import { TypedDataDefinition, concat, hashMessage, hexToString, keccak256 } from 'viem';
-import e from '~/edgeql-js';
-import { selectAccount } from '../accounts/accounts.util';
-import { ProposalsService, UniqueProposal } from '../proposals/proposals.service';
+import { ethers } from 'ethers';
+import _ from 'lodash';
+import { WritableDeep } from 'ts-toolbelt/out/Object/Writable';
+import { concat, hashMessage, hexToString, keccak256, TypedDataDefinition } from 'viem';
+
 import {
-  Hex,
-  UUID,
   asAddress,
   asApproval,
   asHex,
   asUAddress,
   asUUID,
   encodeMessageSignature,
+  Hex,
   isHex,
   isPresent,
   mapAsync,
+  UUID,
 } from 'lib';
+import e from '~/edgeql-js';
+import { selectAccount } from '../accounts/accounts.util';
 import { ShapeFunc } from '../database/database.select';
+import { DatabaseService } from '../database/database.service';
 import { policyStateAsPolicy, policyStateShape } from '../policies/policies.util';
+import { ApproveInput, ProposalEvent } from '../proposals/proposals.input';
+import { ProposalsService, UniqueProposal } from '../proposals/proposals.service';
 import { NetworksService } from '../util/networks/networks.service';
-import { UserInputError } from '@nestjs/apollo';
-import { ethers } from 'ethers';
-import _ from 'lodash';
-import { WritableDeep } from 'ts-toolbelt/out/Object/Writable';
+import { ProposeMessageInput } from './message-proposals.input';
 
 @Injectable()
 export class MessageProposalsService {

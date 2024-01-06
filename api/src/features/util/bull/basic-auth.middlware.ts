@@ -1,5 +1,6 @@
 import { HttpStatus, NestMiddleware } from '@nestjs/common';
 import { NextFunction, Request, Response } from 'express';
+
 import { BULL_BOARD_CREDS } from './bull.util';
 
 export class BasicAuthMiddleware implements NestMiddleware {

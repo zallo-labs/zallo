@@ -1,13 +1,14 @@
 import { useCallback } from 'react';
+import { err, ok, Result, ResultAsync } from 'neverthrow';
 import { CloudStorage, CloudStorageScope } from 'react-native-cloud-storage';
-import { split, combine } from 'shamir-secret-sharing';
-import { gql } from '@api';
-import { authContext, useUrqlApiClient } from '@api/client';
+import { combine, split } from 'shamir-secret-sharing';
 import { useMutation } from 'urql';
-import { Result, ResultAsync, err, ok } from 'neverthrow';
-import { logError } from '~/util/analytics';
 import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts';
+
 import { asHex } from 'lib';
+import { gql } from '~/gql/api';
+import { authContext, useUrqlApiClient } from '~/gql/api/client';
+import { logError } from '~/util/analytics';
 
 const CLOUD_SHARE_PATH = 'cloud-approver.share';
 const SCOPE = CloudStorageScope.AppData;

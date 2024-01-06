@@ -1,10 +1,11 @@
 import { Info, Mutation, Query, Resolver } from '@nestjs/graphql';
+import { GraphQLResolveInfo } from 'graphql';
+
+import { Input } from '~/decorators/input.decorator';
+import { getShape } from '../database/database.select';
+import { ApproverInput, UniqueCloudShareInput, UpdateApproverInput } from './approvers.input';
 import { UserApprover } from './approvers.model';
 import { ApproversService } from './approvers.service';
-import { Input } from '~/decorators/input.decorator';
-import { ApproverInput, UniqueCloudShareInput, UpdateApproverInput } from './approvers.input';
-import { GraphQLResolveInfo } from 'graphql';
-import { getShape } from '../database/database.select';
 
 @Resolver(() => UserApprover)
 export class ApproversResolver {

@@ -1,9 +1,10 @@
 import { Field, InputType } from '@nestjs/graphql';
-import { UAddress, Hex } from 'lib';
 import { TypedDataDefinition } from 'viem';
-import { UAddressField } from '~/apollo/scalars/UAddress.scalar';
+
+import { Hex, UAddress } from 'lib';
 import { BytesScalar } from '~/apollo/scalars/Bytes.scalar';
 import { TypedDataField } from '~/apollo/scalars/TypedData.scalar';
+import { UAddressField } from '~/apollo/scalars/UAddress.scalar';
 
 @InputType()
 export class ProposeMessageInput {

@@ -1,8 +1,9 @@
 import { useCallback } from 'react';
-import { logError } from '~/util/analytics';
-import { gql } from '@api/generated';
-import { ProposeTransactionInput } from '@api/generated/graphql';
 import { useMutation } from 'urql';
+
+import { gql } from '~/gql/api/generated';
+import { ProposeTransactionInput } from '~/gql/api/generated/graphql';
+import { logError } from '~/util/analytics';
 
 const Propose = gql(/* GraphQL */ `
   mutation UsePropose($input: ProposeTransactionInput!) {

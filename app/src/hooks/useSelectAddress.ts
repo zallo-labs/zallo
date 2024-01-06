@@ -1,5 +1,6 @@
-import { Address, UAddress } from 'lib';
 import { Subject } from 'rxjs';
+
+import { Address, UAddress } from 'lib';
 import { AddressesModalParams } from '~/app/addresses';
 import { useGetEvent } from '~/hooks/useGetEvent';
 

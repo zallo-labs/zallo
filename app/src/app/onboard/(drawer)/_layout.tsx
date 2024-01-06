@@ -1,10 +1,11 @@
-import { Drawer } from '~/components/drawer/Drawer';
-import { DrawerSurface } from '~/components/drawer/DrawerSurface';
-import { Drawer as RnpDrawer } from 'react-native-paper';
-import { DrawerItem } from '~/components/drawer/DrawerItem';
 import { StyleSheet } from 'react-native';
-import { FingerprintIcon, ZalloLogo, NotificationsIcon, AccountIcon } from '@theme/icons';
 import { DrawerContentComponentProps } from '@react-navigation/drawer';
+import { Drawer as RnpDrawer } from 'react-native-paper';
+
+import { Drawer } from '~/components/drawer/Drawer';
+import { DrawerItem } from '~/components/drawer/DrawerItem';
+import { DrawerSurface } from '~/components/drawer/DrawerSurface';
+import { AccountIcon, FingerprintIcon, NotificationsIcon, ZalloLogo } from '~/util/theme/icons';
 
 export const unstable_settings = {
   initialRouteName: `user`,

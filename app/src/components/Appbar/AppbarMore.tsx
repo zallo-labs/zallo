@@ -1,6 +1,7 @@
-import { IconProps, MoreVerticalIcon } from '@theme/icons';
 import { FC, useCallback, useState } from 'react';
 import { Menu } from 'react-native-paper';
+
+import { IconProps, MoreVerticalIcon } from '~/util/theme/icons';
 
 interface ChildProps {
   close: () => void;

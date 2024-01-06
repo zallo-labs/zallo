@@ -1,8 +1,4 @@
-import { Address, asAddress, compareAddress } from './address';
-import { Hex } from './bytes';
-import { tryOrIgnoreAsync } from './util';
-import { ERC1271_ABI } from './abi/erc1271';
-import { Network } from 'chains';
+import { AbiParameterToPrimitiveType } from 'abitype';
 import {
   getAbiItem,
   hexToSignature,
@@ -10,8 +6,13 @@ import {
   signatureToCompactSignature,
   size,
 } from 'viem';
-import { AbiParameterToPrimitiveType } from 'abitype';
+
+import { Network } from 'chains';
+import { ERC1271_ABI } from './abi/erc1271';
+import { Address, asAddress, compareAddress } from './address';
+import { Hex } from './bytes';
 import { TEST_VERIFIER_ABI } from './contract';
+import { tryOrIgnoreAsync } from './util';
 
 export type SignatureType = 'secp256k1' | 'erc1271';
 

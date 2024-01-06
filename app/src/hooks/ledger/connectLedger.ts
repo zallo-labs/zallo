@@ -1,21 +1,22 @@
-import { ethers } from 'ethers';
+import { DeviceModelId, getInfosForServiceUuid } from '@ledgerhq/devices';
+import { DisconnectedDevice, LockedDeviceError, StatusCodes } from '@ledgerhq/errors';
 import AppEth from '@ledgerhq/hw-app-eth';
-import { Address, Hex, asAddress, asHex } from 'lib';
-import TransportBLE from '~/lib/ble/ledger';
 import { EIP712Message } from '@ledgerhq/types-live';
-import { Ok, Result, ResultAsync, err } from 'neverthrow';
-import { DeviceId } from 'react-native-ble-plx';
-import { LockedDeviceError, StatusCodes, DisconnectedDevice } from '@ledgerhq/errors';
-import { P, match } from 'ts-pattern';
-import { Observable, bufferTime, filter } from 'rxjs';
-import { getInfosForServiceUuid, DeviceModelId } from '@ledgerhq/devices';
-import { logWarning } from '~/util/analytics';
+import { ethers } from 'ethers';
 import _ from 'lodash';
-import { retryAsync } from '~/util/retry';
-import { TypedDataDefinition, stringToHex } from 'viem';
+import { err, Ok, Result, ResultAsync } from 'neverthrow';
+import { DeviceId } from 'react-native-ble-plx';
+import { bufferTime, filter, Observable } from 'rxjs';
+import { match, P } from 'ts-pattern';
 import { WritableDeep } from 'ts-toolbelt/out/Object/Writable';
+import { stringToHex, TypedDataDefinition } from 'viem';
+
+import { Address, asAddress, asHex, Hex } from 'lib';
+import TransportBLE from '~/lib/ble/ledger';
 import { bleListen } from '~/lib/ble/manager';
 import { BleDevice } from '~/lib/ble/util';
+import { logWarning } from '~/util/analytics';
+import { retryAsync } from '~/util/retry';
 
 // Based off https://github.com/ethers-io/ethers.js/blob/v5.7/packages/hardware-wallets/src.ts/ledger.ts
 // Unfortunately the ethers version only supports HID devices and has been removed in ethers 6

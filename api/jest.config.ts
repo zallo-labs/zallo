@@ -1,4 +1,5 @@
 import { JestConfigWithTsJest, pathsToModuleNameMapper } from 'ts-jest';
+
 const { compilerOptions } = require('./tsconfig.json');
 
 const config: JestConfigWithTsJest = {

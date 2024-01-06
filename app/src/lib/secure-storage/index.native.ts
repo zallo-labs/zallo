@@ -1,6 +1,7 @@
-import * as Store from 'expo-secure-store';
-import { logError } from '~/util/analytics';
 import type { SecureStore, SecureStoreOptions } from './index';
+import * as Store from 'expo-secure-store';
+
+import { logError } from '~/util/analytics';
 
 export const getSecureStore = (options?: SecureStoreOptions): SecureStore => ({
   getItem: async (key) => {

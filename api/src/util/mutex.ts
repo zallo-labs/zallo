@@ -1,6 +1,7 @@
 import { Redis } from 'ioredis';
-import { toSet } from 'lib';
 import { LockOptions, Mutex } from 'redis-semaphore';
+
+import { toSet } from 'lib';
 
 const DEFAULT_OPTIONS = { lockTimeout: 60_000, acquireTimeout: 60_000 } satisfies LockOptions;
 

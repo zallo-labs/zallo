@@ -1,18 +1,19 @@
-import { BackIcon, ContactsIcon, PasteIcon } from '~/util/theme/icons';
-import { IconButton } from 'react-native-paper';
 import { StyleSheet, View } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
-import { showWarning } from '~/components/provider/SnackbarProvider';
-import { useSelectAddress } from '~/hooks/useSelectAddress';
+import { useRouter } from 'expo-router';
+import { IconButton } from 'react-native-paper';
 import {
   EdgeInsets,
   Rect,
   useSafeAreaFrame,
   useSafeAreaInsets,
 } from 'react-native-safe-area-context';
-import { useRouter } from 'expo-router';
-import { createStyles, useStyles } from '@theme/styles';
+
+import { showWarning } from '~/components/provider/SnackbarProvider';
 import { useMemoApply } from '~/hooks/useMemoized';
+import { useSelectAddress } from '~/hooks/useSelectAddress';
+import { BackIcon, ContactsIcon, PasteIcon } from '~/util/theme/icons';
+import { createStyles, useStyles } from '~/util/theme/styles';
 
 export interface OverlayProps {
   onData: (data: string) => Promise<boolean>;

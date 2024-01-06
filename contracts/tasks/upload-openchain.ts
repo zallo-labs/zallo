@@ -1,7 +1,7 @@
-import { TASK_COMPILE } from 'hardhat/builtin-tasks/task-names';
-import { HardhatRuntimeEnvironment } from 'hardhat/types';
-import { task } from 'hardhat/config';
 import { Abi, AbiError, AbiEvent, AbiFunction } from 'abitype';
+import { TASK_COMPILE } from 'hardhat/builtin-tasks/task-names';
+import { task } from 'hardhat/config';
+import { HardhatRuntimeEnvironment } from 'hardhat/types';
 import { getEventSignature, getFunctionSignature } from 'viem';
 
 const IMPORT_ENDPOINT = 'https://api.openchain.xyz/signature-database/v1/import';

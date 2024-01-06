@@ -1,9 +1,9 @@
-import { FragmentType, gql, useFragment } from '@api';
-import { useApproverAddress } from '~/lib/network/useApprover';
-import { AppleBlackIcon, AppleWhiteIcon } from '@theme/icons';
 import { Suggestion } from '~/components/home/GettingStarted/suggestions';
 import { ListItem } from '~/components/list/ListItem';
+import { FragmentType, gql, useFragment } from '~/gql/api';
 import { useLinkApple } from '~/hooks/cloud/useLinkApple';
+import { useApproverAddress } from '~/lib/network/useApprover';
+import { AppleBlackIcon, AppleWhiteIcon } from '~/util/theme/icons';
 
 const User = gql(/* GraphQL */ `
   fragment useLinkAppleSuggestion_User on User {

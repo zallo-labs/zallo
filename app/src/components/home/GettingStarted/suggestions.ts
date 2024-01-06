@@ -1,4 +1,5 @@
 import { FC } from 'react';
+
 import { ListItemProps } from '~/components/list/ListItem';
 
 export interface Suggestion {

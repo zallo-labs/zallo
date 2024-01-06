@@ -1,7 +1,8 @@
-import { atom, useAtomValue, useSetAtom } from 'jotai';
-import * as Auth from 'expo-local-authentication';
-import { persistedAtom } from '~/lib/persistedAtom';
 import { Platform } from 'react-native';
+import * as Auth from 'expo-local-authentication';
+import { atom, useAtomValue, useSetAtom } from 'jotai';
+
+import { persistedAtom } from '~/lib/persistedAtom';
 
 const BIOMETRICS_ENABLED = persistedAtom<boolean | null>('biometrics', null);
 

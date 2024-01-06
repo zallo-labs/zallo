@@ -1,6 +1,6 @@
-import Decimal from 'decimal.js';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { KeyboardType } from 'react-native';
+import Decimal from 'decimal.js';
 
 const toStr = (value?: Decimal) => value?.toString() ?? '';
 

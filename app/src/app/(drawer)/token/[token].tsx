@@ -1,42 +1,43 @@
-import { useRouter } from 'expo-router';
-import { gql } from '@api/generated';
+import { useEffect, useMemo } from 'react';
+import { ScrollView, StyleSheet, View } from 'react-native';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { Image } from 'expo-image';
+import { useRouter } from 'expo-router';
+import { useForm } from 'react-hook-form';
+import { Menu } from 'react-native-paper';
+import { useMutation } from 'urql';
+import { z } from 'zod';
+
 import {
-  UAddress,
   asAddress,
   asChain,
   asUAddress,
   isAddressLike,
   tryAsUAddress,
   tryOrIgnore,
+  UAddress,
 } from 'lib';
-import { useEffect, useMemo } from 'react';
-import { useForm } from 'react-hook-form';
-import { ScrollView, StyleSheet, View } from 'react-native';
-import { AddressIcon } from '~/components/Identicon/AddressIcon';
+import { AppbarMore } from '~/components/Appbar/AppbarMore';
+import { AppbarOptions } from '~/components/Appbar/AppbarOptions';
+import { FormSelectChip } from '~/components/fields/FormSelectChip';
 import { FormSubmitButton } from '~/components/fields/FormSubmitButton';
 import { FormTextField } from '~/components/fields/FormTextField';
 import { Indented } from '~/components/fields/Indented';
+import { AddressIcon } from '~/components/Identicon/AddressIcon';
 import { Actions } from '~/components/layout/Actions';
-import { UnknownTokenIcon } from '~/components/token/TokenIcon';
-import { ADDRESS_FIELD_RULES } from '~/util/form.rules';
-import { AppbarMore } from '~/components/Appbar/AppbarMore';
-import { Menu } from 'react-native-paper';
-import { useQuery } from '~/gql';
-import { useMutation } from 'urql';
-import { useConfirmRemoval } from '~/hooks/useConfirm';
-import { AppbarOptions } from '~/components/Appbar/AppbarOptions';
-import { withSuspense } from '~/components/skeleton/withSuspense';
-import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
 import { ScreenSurface } from '~/components/layout/ScreenSurface';
-import { z } from 'zod';
-import { zAddress, zChain, zUAddress } from '~/lib/zod';
+import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
+import { withSuspense } from '~/components/skeleton/withSuspense';
+import { UnknownTokenIcon } from '~/components/token/TokenIcon';
+import { useQuery } from '~/gql';
+import { gql } from '~/gql/api/generated';
+import { useConfirmRemoval } from '~/hooks/useConfirm';
 import { useLocalParams } from '~/hooks/useLocalParams';
 import { useSelectedChain } from '~/hooks/useSelectedAccount';
-import { SUPPORTED_CHAINS } from '@network/chains';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { FormSelectChip } from '~/components/fields/FormSelectChip';
-import { ChainIcon } from '@theme/icons';
+import { SUPPORTED_CHAINS } from '~/lib/network/chains';
+import { zAddress, zChain, zUAddress } from '~/lib/zod';
+import { ADDRESS_FIELD_RULES } from '~/util/form.rules';
+import { ChainIcon } from '~/util/theme/icons';
 
 const Query = gql(/* GraphQL */ `
   query TokenScreen($token: UAddress!) {

@@ -1,6 +1,7 @@
-import { useWithLoading } from '~/hooks/useWithLoading';
 import { Keyboard } from 'react-native';
 import { Button as PaperButton, ButtonProps as PaperButtonProps } from 'react-native-paper';
+
+import { useWithLoading } from '~/hooks/useWithLoading';
 
 export interface ButtonProps extends PaperButtonProps {}
 

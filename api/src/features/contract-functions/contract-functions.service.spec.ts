@@ -1,5 +1,6 @@
 import { createMock } from '@golevelup/ts-jest';
 import { Test, TestingModule } from '@nestjs/testing';
+
 import { ContractFunctionsService } from './contract-functions.service';
 
 describe(ContractFunctionsService.name, () => {

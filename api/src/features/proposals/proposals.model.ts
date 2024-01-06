@@ -1,10 +1,11 @@
 import { Field, InterfaceType, registerEnumType } from '@nestjs/graphql';
-import { Account } from '../accounts/accounts.model';
-import { Policy } from '../policies/policies.model';
+
 import { Bytes32Field } from '~/apollo/scalars/Bytes.scalar';
-import { Approver } from '../approvers/approvers.model';
 import { Node, NodeType } from '~/decorators/interface.decorator';
+import { Account } from '../accounts/accounts.model';
+import { Approver } from '../approvers/approvers.model';
 import { makeUnionTypeResolver } from '../database/database.util';
+import { Policy } from '../policies/policies.model';
 import { Risk } from './proposals.input';
 
 @InterfaceType({ implements: () => Node, resolveType: makeUnionTypeResolver() })

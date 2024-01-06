@@ -1,16 +1,17 @@
-import {
-  Address,
-  encodePaymasterInput,
-  PaymasterSignedData,
-  PayForTransactionParams,
-  paymasterSignedDataAsTypedData,
-  asUAddress,
-  paymasterSignedInput,
-} from 'lib';
-import { deploy, network, wallet } from './util';
-import TestPaymasterUtil, { abi } from './contracts/TestPaymasterUtil';
 import { expect } from 'chai';
 import { hexToSignature, signatureToCompactSignature } from 'viem';
+
+import {
+  Address,
+  asUAddress,
+  encodePaymasterInput,
+  PayForTransactionParams,
+  PaymasterSignedData,
+  paymasterSignedDataAsTypedData,
+  paymasterSignedInput,
+} from 'lib';
+import TestPaymasterUtil, { abi } from './contracts/TestPaymasterUtil';
+import { deploy, network, wallet } from './util';
 
 describe('PaymasterUtil', async () => {
   const signer = wallet.account.address;

@@ -1,7 +1,8 @@
-import { Chain } from 'chains';
-import { useAtomValue } from 'jotai';
-import { asUAddress } from 'lib';
 import { useMemo } from 'react';
+import { useAtomValue } from 'jotai';
+
+import { Chain } from 'chains';
+import { asUAddress } from 'lib';
 import { SYNCSWAP_POOL_FAMILY } from '~/util/swap/syncswap/pools';
 
 export function useSwappableTokens(chain: Chain) {

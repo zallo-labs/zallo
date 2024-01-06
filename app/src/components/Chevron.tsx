@@ -1,7 +1,8 @@
-import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { createStyles, useStyles } from '@theme/styles';
 import { ComponentPropsWithoutRef, useEffect } from 'react';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
+
+import { createStyles, useStyles } from '~/util/theme/styles';
 
 const getRotation = (expanded?: boolean) => (expanded ? -180 : 0);
 

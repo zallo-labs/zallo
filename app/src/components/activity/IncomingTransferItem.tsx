@@ -1,12 +1,12 @@
+import { asUAddress } from 'lib';
 import { useAddressLabel } from '~/components/address/AddressLabel';
+import { FiatValue } from '~/components/FiatValue';
 import { Timestamp } from '~/components/format/Timestamp';
 import { ListItem } from '~/components/list/ListItem';
 import { ListItemSkeleton } from '~/components/list/ListItemSkeleton';
 import { withSuspense } from '~/components/skeleton/withSuspense';
-import { FiatValue } from '~/components/FiatValue';
-import { FragmentType, gql, useFragment } from '@api/generated';
+import { FragmentType, gql, useFragment } from '~/gql/api/generated';
 import { TokenIcon } from '../token/TokenIcon';
-import { asUAddress } from 'lib';
 
 const FragmentDoc = gql(/* GraphQL */ `
   fragment IncomingTransferItem_TransferFragment on Transfer {

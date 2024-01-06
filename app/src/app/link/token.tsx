@@ -1,17 +1,18 @@
-import { useRouter } from 'expo-router';
-import { Sheet } from '~/components/sheet/Sheet';
-import { materialCommunityIcon } from '@theme/icons';
 import { View } from 'react-native';
+import { useRouter } from 'expo-router';
 import { Text } from 'react-native-paper';
-import { Button } from '~/components/Button';
-import { gql } from '@api/generated';
-import { showSuccess } from '~/components/provider/SnackbarProvider';
-import { useMutation } from 'urql';
 import { Subject } from 'rxjs';
-import { ConfirmLinkSheet_LinkMutation } from '@api/generated/graphql';
+import { useMutation } from 'urql';
 import { z } from 'zod';
+
+import { Button } from '~/components/Button';
+import { showSuccess } from '~/components/provider/SnackbarProvider';
+import { Sheet } from '~/components/sheet/Sheet';
+import { gql } from '~/gql/api/generated';
+import { ConfirmLinkSheet_LinkMutation } from '~/gql/api/generated/graphql';
 import { useLocalParams } from '~/hooks/useLocalParams';
-import { createStyles, useStyles } from '@theme/styles';
+import { materialCommunityIcon } from '~/util/theme/icons';
+import { createStyles, useStyles } from '~/util/theme/styles';
 
 export const LINKINGS_FROM_DEVICE = new Subject<ConfirmLinkSheet_LinkMutation>();
 

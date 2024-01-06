@@ -1,17 +1,18 @@
-import { Injectable } from '@nestjs/common';
-import { DatabaseService } from '../database/database.service';
-import { TokensInput, UpsertTokenInput } from './tokens.input';
-import { Scope, ShapeFunc } from '../database/database.select';
-import e from '~/edgeql-js';
-import { uuid } from 'edgedb/dist/codecs/ifaces';
-import { UAddress, asAddress, asDecimal, asFp, isUAddress } from 'lib';
-import { ERC20, TOKENS, flattenToken } from 'lib/dapps';
-import { and, or } from '../database/database.util';
-import { NetworksService } from '../util/networks/networks.service';
 import { UserInputError } from '@nestjs/apollo';
+import { Injectable } from '@nestjs/common';
+import Decimal from 'decimal.js';
+import { uuid } from 'edgedb/dist/codecs/ifaces';
+
+import { asAddress, asDecimal, asFp, isUAddress, UAddress } from 'lib';
+import { ERC20, flattenToken, TOKENS } from 'lib/dapps';
+import e from '~/edgeql-js';
 import { OrderByObjExpr } from '~/edgeql-js/select';
 import { TokenMetadata } from '~/features/tokens/tokens.model';
-import Decimal from 'decimal.js';
+import { Scope, ShapeFunc } from '../database/database.select';
+import { DatabaseService } from '../database/database.service';
+import { and, or } from '../database/database.util';
+import { NetworksService } from '../util/networks/networks.service';
+import { TokensInput, UpsertTokenInput } from './tokens.input';
 
 @Injectable()
 export class TokensService {

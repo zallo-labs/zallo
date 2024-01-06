@@ -2,9 +2,10 @@ import {
   FieldPath,
   FieldPathValue,
   FieldValues,
-  UseControllerProps,
   useController,
+  UseControllerProps,
 } from 'react-hook-form';
+
 import { SelectChip, SelectChipProps } from '~/components/fields/SelectChip';
 
 export interface FormSelectChipProps<

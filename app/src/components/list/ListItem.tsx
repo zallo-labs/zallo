@@ -1,13 +1,14 @@
 import { FC, ReactNode } from 'react';
-import { IconProps } from '@theme/icons';
-import { Text, TouchableRipple, TouchableRippleProps } from 'react-native-paper';
-import { AddressOrLabelIcon } from '../Identicon/AddressOrLabelIcon';
-import { TextProps } from '@theme/types';
 import { StyleProp, TextStyle, View, ViewStyle } from 'react-native';
+import { Text, TouchableRipple, TouchableRippleProps } from 'react-native-paper';
 import { O } from 'ts-toolbelt';
-import { ICON_SIZE } from '@theme/paper';
-import { createStyles, useStyles } from '@theme/styles';
+
 import { useMemoApply } from '~/hooks/useMemoized';
+import { IconProps } from '~/util/theme/icons';
+import { ICON_SIZE } from '~/util/theme/paper';
+import { createStyles, useStyles } from '~/util/theme/styles';
+import { TextProps } from '~/util/theme/types';
+import { AddressOrLabelIcon } from '../Identicon/AddressOrLabelIcon';
 
 /*
  * https://m3.material.io/components/lists/specs

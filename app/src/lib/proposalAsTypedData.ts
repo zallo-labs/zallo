@@ -1,6 +1,7 @@
-import { FragmentType, gql, useFragment as getFragment } from '@api/generated';
 import Decimal from 'decimal.js';
-import { Operation, asAddress, asTypedData } from 'lib';
+
+import { asAddress, asTypedData, Operation } from 'lib';
+import { FragmentType, useFragment as getFragment, gql } from '~/gql/api/generated';
 
 const TransactionProposal = gql(/* GraphQL */ `
   fragment proposalAsTypedData_TransactionProposal on TransactionProposal {

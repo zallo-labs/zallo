@@ -1,18 +1,19 @@
+import { useRouter } from 'expo-router';
+import { match } from 'ts-pattern';
+
+import { asUAddress } from 'lib';
 import { Timestamp } from '~/components/format/Timestamp';
 import { ListItem, ListItemProps } from '~/components/list/ListItem';
-import { withSuspense } from '~/components/skeleton/withSuspense';
 import { ListItemSkeleton } from '~/components/list/ListItemSkeleton';
-import { match } from 'ts-pattern';
-import { materialCommunityIcon } from '@theme/icons';
-import { ICON_SIZE } from '@theme/paper';
-import { FragmentType, gql, useFragment } from '@api/generated';
-import { OperationLabel } from './OperationLabel';
-import { ETH_ICON_URI, TokenIcon } from '../token/TokenIcon';
-import { ProposalValue } from './ProposalValue';
-import { useRouter } from 'expo-router';
-import { createStyles, useStyles } from '@theme/styles';
-import { asUAddress } from 'lib';
+import { withSuspense } from '~/components/skeleton/withSuspense';
 import { OperationIcon } from '~/components/transaction/OperationIcon';
+import { FragmentType, gql, useFragment } from '~/gql/api/generated';
+import { materialCommunityIcon } from '~/util/theme/icons';
+import { ICON_SIZE } from '~/util/theme/paper';
+import { createStyles, useStyles } from '~/util/theme/styles';
+import { ETH_ICON_URI, TokenIcon } from '../token/TokenIcon';
+import { OperationLabel } from './OperationLabel';
+import { ProposalValue } from './ProposalValue';
 
 const Proposal = gql(/* GraphQL */ `
   fragment TransactionItem_TransactionProposal on TransactionProposal {

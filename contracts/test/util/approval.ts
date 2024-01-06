@@ -1,4 +1,4 @@
-import { mapAsync, Approval, Tx, Address, UAddress, asTypedData } from 'lib';
+import { Address, Approval, asTypedData, mapAsync, Tx, UAddress } from 'lib';
 import { wallets } from './network';
 
 export const getApprovals = async (

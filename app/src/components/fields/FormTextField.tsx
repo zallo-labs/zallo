@@ -1,6 +1,7 @@
-import { TextField, TextFieldProps } from './TextField';
-import { UseControllerProps, useController, FieldValues, FieldPath } from 'react-hook-form';
 import _ from 'lodash';
+import { FieldPath, FieldValues, useController, UseControllerProps } from 'react-hook-form';
+
+import { TextField, TextFieldProps } from './TextField';
 
 export interface FormTextFieldProps<
   TFieldValues extends FieldValues,

@@ -1,8 +1,9 @@
-import { createStyles, useStyles } from '@theme/styles';
 import { ComponentPropsWithoutRef } from 'react';
 import { StyleProp, TextStyle, View, ViewStyle } from 'react-native';
 import Collapsible, { CollapsibleProps } from 'react-native-collapsible';
 import { HelperText, TextInput } from 'react-native-paper';
+
+import { createStyles, useStyles } from '~/util/theme/styles';
 
 type TextInputProps = ComponentPropsWithoutRef<typeof TextInput>;
 

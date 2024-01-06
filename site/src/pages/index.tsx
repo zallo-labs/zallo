@@ -1,14 +1,15 @@
 import React from 'react';
-import clsx from 'clsx';
-import Link from '@docusaurus/Link';
-import Layout from '@theme/Layout';
-import styles from './index.module.scss';
 import Head from '@docusaurus/Head';
-import Screenshots from '@site/static/img/screenshots.png';
+import Link from '@docusaurus/Link';
 import AppstoreBadgeSvg from '@site/static/img/app-store-badge.svg';
 import GooglePlayBadgePng from '@site/static/img/google-play-badge.png';
+import Screenshots from '@site/static/img/screenshots.png';
 import ZkSyncSvg from '@site/static/img/zksync.svg';
+import clsx from 'clsx';
+
+import Layout from '~/util/theme/Layout';
 import { useCustomFields } from '../hooks/useCustomFields';
+import styles from './index.module.scss';
 
 const Homepage = () => {
   const customFields = useCustomFields();

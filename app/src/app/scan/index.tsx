@@ -1,24 +1,24 @@
-import { Route, Stack } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { Platform, StyleSheet, View } from 'react-native';
-import { Camera } from 'expo-camera';
 import { BarCodeScanner } from 'expo-barcode-scanner';
-import { Button, Text } from 'react-native-paper';
-import { isWalletConnectUri, useWalletConnect } from '~/util/walletconnect';
-import { Actions } from '~/components/layout/Actions';
-import { Address, UAddress, tryAsAddress } from 'lib';
+import { Camera } from 'expo-camera';
 import * as Linking from 'expo-linking';
-import useAsyncEffect from 'use-async-effect';
-import { showError } from '~/components/provider/SnackbarProvider';
-import { getPathFromDeepLink } from '~/util/config';
-import { useFocusEffect, useRouter } from 'expo-router';
-import { ScanOverlay } from '~/components/ScanOverlay';
+import { Route, Stack, useFocusEffect, useRouter } from 'expo-router';
+import { Button, Text } from 'react-native-paper';
 import { Subject } from 'rxjs';
-import { useGetEvent } from '~/hooks/useGetEvent';
-import { AppbarOptions } from '~/components/Appbar/AppbarOptions';
+import useAsyncEffect from 'use-async-effect';
 import { z } from 'zod';
-import { zUAddress } from '~/lib/zod';
+
+import { Address, tryAsAddress, UAddress } from 'lib';
+import { AppbarOptions } from '~/components/Appbar/AppbarOptions';
+import { Actions } from '~/components/layout/Actions';
+import { showError } from '~/components/provider/SnackbarProvider';
+import { ScanOverlay } from '~/components/ScanOverlay';
+import { useGetEvent } from '~/hooks/useGetEvent';
 import { useLocalParams } from '~/hooks/useLocalParams';
+import { zUAddress } from '~/lib/zod';
+import { getPathFromDeepLink } from '~/util/config';
+import { isWalletConnectUri, useWalletConnect } from '~/util/walletconnect';
 
 export const SCANNED_ADDRESSES = new Subject<Address>();
 export function useScanAddress() {

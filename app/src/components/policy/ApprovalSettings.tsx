@@ -1,10 +1,9 @@
-import { FlashList } from '@shopify/flash-list';
-import { AddIcon, ContactsIcon } from '@theme/icons';
-import { createStyles, useStyles } from '@theme/styles';
-import { Address, asAddress, asChain, asUAddress } from 'lib';
 import { View } from 'react-native';
+import { FlashList } from '@shopify/flash-list';
 import Collapsible from 'react-native-collapsible';
 import { Divider, Text } from 'react-native-paper';
+
+import { Address, asAddress, asChain, asUAddress } from 'lib';
 import { Chevron } from '~/components/Chevron';
 import { ListItem, ListItemHeight } from '~/components/list/ListItem';
 import { ListItemHorizontalTrailing } from '~/components/list/ListItemHorizontalTrailing';
@@ -15,6 +14,8 @@ import { showInfo } from '~/components/provider/SnackbarProvider';
 import { useSelectAddress } from '~/hooks/useSelectAddress';
 import { useToggle } from '~/hooks/useToggle';
 import { usePolicyDraftState } from '~/lib/policy/draft';
+import { AddIcon, ContactsIcon } from '~/util/theme/icons';
+import { createStyles, useStyles } from '~/util/theme/styles';
 
 export interface ApprovalSettingsProps {
   initiallyExpanded: boolean;

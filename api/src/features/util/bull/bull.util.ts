@@ -1,10 +1,11 @@
-import { BullModule, RegisterQueueOptions, WorkerHost } from '@nestjs/bullmq';
-import { BullBoardModule, BullBoardQueueOptions } from '@bull-board/nestjs';
 import { BullMQAdapter } from '@bull-board/api/bullMQAdapter';
-import { CONFIG } from '~/config';
+import { BullBoardModule, BullBoardQueueOptions } from '@bull-board/nestjs';
+import { BullModule, RegisterQueueOptions, WorkerHost } from '@nestjs/bullmq';
+import { Logger, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
+import { Worker as BaseWorker, Job, JobType, Queue } from 'bullmq';
+
 import { isTruthy } from 'lib';
-import { Queue, Worker as BaseWorker, Job, JobType } from 'bullmq';
-import { OnModuleInit, OnModuleDestroy, Logger } from '@nestjs/common';
+import { CONFIG } from '~/config';
 
 export const BULL_BOARD_CREDS =
   CONFIG.bullBoardUser && CONFIG.bullBoardPassword

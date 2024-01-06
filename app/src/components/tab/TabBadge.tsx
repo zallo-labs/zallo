@@ -1,7 +1,8 @@
-import { isPresent } from 'lib';
 import { memo } from 'react';
 import { StyleProp, StyleSheet, TranslateXTransform, ViewStyle } from 'react-native';
 import { Badge } from 'react-native-paper';
+
+import { isPresent } from 'lib';
 
 type SmallBadgeProps = { visible: boolean };
 type LargeBageProps = { value: number; max?: number };

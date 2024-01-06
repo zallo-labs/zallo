@@ -1,3 +1,7 @@
+import { uuid } from 'edgedb/dist/codecs/ifaces';
+import merge from 'ts-deepmerge';
+import { match, P } from 'ts-pattern';
+
 import {
   asAddress,
   asPolicy,
@@ -7,14 +11,11 @@ import {
   TransfersConfig,
   UAddress,
 } from 'lib';
-import { uuid } from 'edgedb/dist/codecs/ifaces';
 import e, { $infer } from '~/edgeql-js';
+import { selectAccount } from '~/features/accounts/accounts.util';
+import { getUserCtx } from '~/request/ctx';
 import { Shape } from '../database/database.select';
 import { PolicyInput, TransfersConfigInput } from './policies.input';
-import { selectAccount } from '~/features/accounts/accounts.util';
-import merge from 'ts-deepmerge';
-import { match, P } from 'ts-pattern';
-import { getUserCtx } from '~/request/ctx';
 
 export type UniquePolicy = { id: uuid } | { account: UAddress; key: PolicyKey };
 

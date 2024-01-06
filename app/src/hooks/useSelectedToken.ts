@@ -1,6 +1,7 @@
-import { Chain } from 'chains';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { atomFamily } from 'jotai/utils';
+
+import { Chain } from 'chains';
 import { asUAddress, ETH_ADDRESS } from 'lib';
 import { persistedAtom } from '~/lib/persistedAtom';
 

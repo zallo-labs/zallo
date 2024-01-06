@@ -1,20 +1,21 @@
 import { ScrollView, StyleSheet, View } from 'react-native';
-import { Actions } from '~/components/layout/Actions';
 import { Text } from 'react-native-paper';
-import { ListHeader } from '~/components/list/ListHeader';
-import { UserApproverItem } from '~/components/item/UserApproverItem';
-import { gql } from '@api/generated';
-import { useQuery } from '~/gql';
-import { LinkGoogleButton } from '~/components/link/LinkGoogleButton';
-import { LinkLedgerButton } from '~/components/link/ledger/LinkLedgerButton';
-import { LinkingButton } from '~/components/link/LinkingButton';
-import { LinkAppleButton } from '~/components/link/LinkAppleButton';
-import { showSuccess } from '~/components/provider/SnackbarProvider';
-import { AppbarOptions } from '~/components/Appbar/AppbarOptions';
+
 import { AppbarMenu } from '~/components/Appbar/AppbarMenu';
-import { withSuspense } from '~/components/skeleton/withSuspense';
-import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
+import { AppbarOptions } from '~/components/Appbar/AppbarOptions';
+import { UserApproverItem } from '~/components/item/UserApproverItem';
+import { Actions } from '~/components/layout/Actions';
 import { ScreenSurface } from '~/components/layout/ScreenSurface';
+import { LinkLedgerButton } from '~/components/link/ledger/LinkLedgerButton';
+import { LinkAppleButton } from '~/components/link/LinkAppleButton';
+import { LinkGoogleButton } from '~/components/link/LinkGoogleButton';
+import { LinkingButton } from '~/components/link/LinkingButton';
+import { ListHeader } from '~/components/list/ListHeader';
+import { showSuccess } from '~/components/provider/SnackbarProvider';
+import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
+import { withSuspense } from '~/components/skeleton/withSuspense';
+import { useQuery } from '~/gql';
+import { gql } from '~/gql/api/generated';
 
 const Query = gql(/* GraphQL */ `
   query MyApproversScreen {

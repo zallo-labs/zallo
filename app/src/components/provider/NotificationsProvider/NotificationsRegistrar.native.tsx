@@ -1,16 +1,17 @@
-import { PROJECT_ID } from 'app.config';
-import * as Notifications from 'expo-notifications';
 import type { DevicePushToken } from 'expo-notifications';
 import { useEffect } from 'react';
 import { Platform } from 'react-native';
+import { PROJECT_ID } from 'app.config';
+import * as Notifications from 'expo-notifications';
+import { useMutation } from 'urql';
+
 import {
   NotificationChannel,
   NotificationChannelConfig,
   useNotificationSettings,
 } from '~/components/shared/NotificationSettings';
-import { gql } from '@api/generated';
 import { useQuery } from '~/gql';
-import { useMutation } from 'urql';
+import { gql } from '~/gql/api/generated';
 import { retryAsync } from '~/util/retry';
 
 const Query = gql(/* GraphQL */ `

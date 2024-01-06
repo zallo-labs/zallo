@@ -1,8 +1,9 @@
 import { Field, registerEnumType } from '@nestjs/graphql';
 import { GraphQLMAC } from 'graphql-scalars';
+
 import { Address } from 'lib';
 import { AddressField } from '~/apollo/scalars/Address.scalar';
-import { NodeType, Node } from '~/decorators/interface.decorator';
+import { Node, NodeType } from '~/decorators/interface.decorator';
 import * as eql from '~/edgeql-interfaces';
 
 @NodeType()

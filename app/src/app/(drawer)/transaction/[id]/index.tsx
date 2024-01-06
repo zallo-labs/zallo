@@ -1,18 +1,19 @@
-import { useLocalParams } from '~/hooks/useLocalParams';
-import { StyleSheet, View } from 'react-native';
-import { gql, useFragment } from '@api/generated';
-import { Divider } from 'react-native-paper';
-import { DocumentVariables, getOptimizedDocument, useQuery } from '~/gql';
-import { useSubscription } from 'urql';
-import { RiskRating } from '~/components/proposal/RiskRating';
-import { FeesSection } from '~/components/transaction/FeesSection';
-import { withSuspense } from '~/components/skeleton/withSuspense';
-import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
-import { TransfersSection } from '~/components/transaction/TransfersSection';
-import { OperationsSection } from '~/components/transaction/OperationsSection';
 import { useEffect, useState } from 'react';
-import { UAddress, ZERO_ADDR, asUAddress } from 'lib';
+import { StyleSheet, View } from 'react-native';
+import { Divider } from 'react-native-paper';
+import { useSubscription } from 'urql';
+
+import { asUAddress, UAddress, ZERO_ADDR } from 'lib';
 import { TransactionLayoutParams } from '~/app/(drawer)/transaction/[id]/_layout';
+import { RiskRating } from '~/components/proposal/RiskRating';
+import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
+import { withSuspense } from '~/components/skeleton/withSuspense';
+import { FeesSection } from '~/components/transaction/FeesSection';
+import { OperationsSection } from '~/components/transaction/OperationsSection';
+import { TransfersSection } from '~/components/transaction/TransfersSection';
+import { DocumentVariables, getOptimizedDocument, useQuery } from '~/gql';
+import { gql, useFragment } from '~/gql/api/generated';
+import { useLocalParams } from '~/hooks/useLocalParams';
 
 const TransactionProposal = gql(/* GraphQL */ `
   fragment TransactionScreen_TransactionProposal on TransactionProposal

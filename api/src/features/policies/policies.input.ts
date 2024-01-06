@@ -1,11 +1,12 @@
 import { Field, InputType, IntersectionType, PartialType } from '@nestjs/graphql';
-import { Address, PolicyId, PolicyKey, Selector, UAddress, UUID } from 'lib';
-import { AddressField, AddressScalar } from '~/apollo/scalars/Address.scalar';
-import { PolicyKeyField } from '~/apollo/scalars/PolicyKey.scalar';
-import { GraphQLBigInt } from 'graphql-scalars';
-import { SelectorField } from '~/apollo/scalars/Bytes.scalar';
-import { AbiFunctionField } from '~/apollo/scalars/AbiFunction.scalar';
 import { AbiFunction } from 'abitype';
+import { GraphQLBigInt } from 'graphql-scalars';
+
+import { Address, PolicyId, PolicyKey, Selector, UAddress, UUID } from 'lib';
+import { AbiFunctionField } from '~/apollo/scalars/AbiFunction.scalar';
+import { AddressField, AddressScalar } from '~/apollo/scalars/Address.scalar';
+import { SelectorField } from '~/apollo/scalars/Bytes.scalar';
+import { PolicyKeyField } from '~/apollo/scalars/PolicyKey.scalar';
 import { UAddressField } from '~/apollo/scalars/UAddress.scalar';
 import { UUIDField } from '~/apollo/scalars/Uuid.scalar';
 

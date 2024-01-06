@@ -1,5 +1,6 @@
 import crypto from 'crypto';
-import { SALT_SIZE, derrivePasswordBasedKey } from './password';
+
+import { derrivePasswordBasedKey, SALT_SIZE } from './password';
 
 const ALGO = 'aes-256-gcm';
 const DATA_ENCODING = 'utf8';

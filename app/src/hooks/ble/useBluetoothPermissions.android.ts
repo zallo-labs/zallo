@@ -1,7 +1,8 @@
+import type useBluetoothPermission_DEFAULT from './useBluetoothPermissions';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { PermissionsAndroid, Platform } from 'react-native';
 import useAsyncEffect from 'use-async-effect';
-import type useBluetoothPermission_DEFAULT from './useBluetoothPermissions';
+
 import { BluetoothPermissionsOptions } from './useBluetoothPermissions';
 
 const API_LEVEL =

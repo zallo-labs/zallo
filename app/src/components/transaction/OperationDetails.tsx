@@ -1,13 +1,14 @@
-import { FragmentType, gql, useFragment } from '@api/generated';
-import { ClockOutlineIcon } from '@theme/icons';
-import { UAddress, asChain, asUAddress } from 'lib';
 import { DateTime } from 'luxon';
 import { match } from 'ts-pattern';
+
+import { asChain, asUAddress, UAddress } from 'lib';
 import { useAddressLabel } from '~/components/address/AddressLabel';
 import { useTimestamp } from '~/components/format/Timestamp';
 import { ListItem } from '~/components/list/ListItem';
 import { useFormattedTokenAmount } from '~/components/token/TokenAmount';
 import { TokenIcon } from '~/components/token/TokenIcon';
+import { FragmentType, gql, useFragment } from '~/gql/api/generated';
+import { ClockOutlineIcon } from '~/util/theme/icons';
 
 const FragmentDoc = gql(/* GraphQL */ `
   fragment OperationDetails_OperationFragment on Operation {

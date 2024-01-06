@@ -1,6 +1,7 @@
 import { UserInputError } from '@nestjs/apollo';
 import { Kind } from 'graphql';
-import { asUAddress, UAddress, tryAsUAddress } from 'lib';
+
+import { asUAddress, tryAsUAddress, UAddress } from 'lib';
 import { createScalar } from './util';
 
 const description = 'EIP-3770 address';

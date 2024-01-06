@@ -1,21 +1,22 @@
-import { StyleSheet } from 'react-native';
-import { persistedAtom } from '~/lib/persistedAtom';
-import { useImmerAtom } from 'jotai-immer';
-import * as Notifications from 'expo-notifications';
 import type { NotificationChannelInput } from 'expo-notifications';
-import { Switch } from 'react-native-paper';
-import { Actions } from '~/components/layout/Actions';
-import { Button } from '~/components/Button';
-import { ListItem } from '~/components/list/ListItem';
-import { useAtomValue } from 'jotai';
-import { ListHeader } from '~/components/list/ListHeader';
-import { withSuspense } from '~/components/skeleton/withSuspense';
-import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
-import { AppbarOptions } from '~/components/Appbar/AppbarOptions';
-import { ScreenSurface } from '~/components/layout/ScreenSurface';
-import { ActivityIcon, IconProps, TransferIcon, UpdateIcon } from '@theme/icons';
 import { FC } from 'react';
+import { StyleSheet } from 'react-native';
+import * as Notifications from 'expo-notifications';
+import { useAtomValue } from 'jotai';
+import { useImmerAtom } from 'jotai-immer';
+import { Switch } from 'react-native-paper';
+
 import { AppbarMenu } from '~/components/Appbar/AppbarMenu';
+import { AppbarOptions } from '~/components/Appbar/AppbarOptions';
+import { Button } from '~/components/Button';
+import { Actions } from '~/components/layout/Actions';
+import { ScreenSurface } from '~/components/layout/ScreenSurface';
+import { ListHeader } from '~/components/list/ListHeader';
+import { ListItem } from '~/components/list/ListItem';
+import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
+import { withSuspense } from '~/components/skeleton/withSuspense';
+import { persistedAtom } from '~/lib/persistedAtom';
+import { ActivityIcon, IconProps, TransferIcon, UpdateIcon } from '~/util/theme/icons';
 
 export type NotificationChannel = 'product' | 'activity' | 'transfers';
 export const NotificationChannelConfig: Record<

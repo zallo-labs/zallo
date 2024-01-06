@@ -1,12 +1,13 @@
 import { Injectable } from '@nestjs/common';
-import { EventsWorker, EventData } from '../events/events.worker';
-import { ACCOUNT_ABI, PolicyKey, asHex, asPolicyKey, asUAddress } from 'lib';
+import { decodeEventLog, getAbiItem, Log } from 'viem';
+
 import { Chain } from 'chains';
-import { DatabaseService } from '../database/database.service';
+import { ACCOUNT_ABI, asHex, asPolicyKey, asUAddress, PolicyKey } from 'lib';
 import e from '~/edgeql-js';
+import { DatabaseService } from '../database/database.service';
 import { and } from '../database/database.util';
+import { EventData, EventsWorker } from '../events/events.worker';
 import { selectPolicy } from './policies.util';
-import { Log, decodeEventLog, getAbiItem } from 'viem';
 
 @Injectable()
 export class PoliciesEventsProcessor {

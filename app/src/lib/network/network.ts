@@ -1,6 +1,7 @@
-import { CHAINS, Chain, Network, isChain } from 'chains';
-import { UAddress, asChain } from 'lib';
 import { createPublicClient, http } from 'viem';
+
+import { Chain, CHAINS, isChain, Network } from 'chains';
+import { asChain, UAddress } from 'lib';
 
 const networks: Partial<Record<Chain, Network>> = {};
 

@@ -1,5 +1,6 @@
 import { Field, ID, ObjectType } from '@nestjs/graphql';
 import { GraphQLInt } from 'graphql';
+
 import { Hex, UAddress } from 'lib';
 import { Bytes32Field } from '~/apollo/scalars/Bytes.scalar';
 import { UAddressField } from '~/apollo/scalars/UAddress.scalar';

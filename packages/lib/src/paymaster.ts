@@ -1,17 +1,18 @@
+import { AbiParameterToPrimitiveType, parseAbiParameters, TypedData } from 'abitype';
 import {
   CompactSignature,
-  TypedDataDefinition,
   encodeAbiParameters,
   encodeFunctionData,
   getAbiItem,
   isHex,
+  TypedDataDefinition,
 } from 'viem';
+
+import { CHAINS } from 'chains';
+import { Address, asAddress, asChain, UAddress } from './address';
+import { Hex } from './bytes';
 import { abi as flowAbi } from './generated/IPaymasterFlow';
 import { abi as paymasterUtilAbi } from './generated/TestPaymasterUtil';
-import { AbiParameterToPrimitiveType, TypedData, parseAbiParameters } from 'abitype';
-import { Hex } from './bytes';
-import { Address, UAddress, asAddress, asChain } from './address';
-import { CHAINS } from 'chains';
 
 export interface PayForTransactionParams extends PaymasterSignedData {
   token: Address;

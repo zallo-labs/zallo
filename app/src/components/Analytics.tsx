@@ -1,11 +1,12 @@
-import { useApproverAddress } from '~/lib/network/useApprover';
-import { useGlobalSearchParams, usePathname } from 'expo-router';
 import { useEffect, useRef } from 'react';
-import * as Sentry from '~/util/sentry/sentry';
-import { gql } from '@api';
+import { useGlobalSearchParams, usePathname } from 'expo-router';
+
 import { useQuery } from '~/gql';
+import { gql } from '~/gql/api';
 import { ampli } from '~/lib/ampli';
+import { useApproverAddress } from '~/lib/network/useApprover';
 import { CONFIG } from '~/util/config';
+import * as Sentry from '~/util/sentry/sentry';
 
 ampli.load({
   client: {

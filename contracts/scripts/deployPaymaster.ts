@@ -1,15 +1,16 @@
-import hre from 'hardhat';
 import { exit } from 'process';
+import { AbiParametersToPrimitiveTypes } from 'abitype';
+import hre from 'hardhat';
+import { TASK_COMPILE } from 'hardhat/builtin-tasks/task-names';
+import { zeroAddress } from 'viem';
+
+import { CBETH, DAI, ETH, PYTH, RETH, USDC, WETH } from 'lib/dapps';
+import { CONFIG } from '../config';
+import Paymaster from '../test/contracts/Paymaster';
+import { abi } from '../test/contracts/TestPaymaster';
 import { deploy, wallet } from '../test/util';
 import { displayTx } from './util/display';
 import { verify } from './util/verify';
-import { TASK_COMPILE } from 'hardhat/builtin-tasks/task-names';
-import { abi } from '../test/contracts/TestPaymaster';
-import { AbiParametersToPrimitiveTypes } from 'abitype';
-import { CONFIG } from '../config';
-import { DAI, ETH, PYTH, USDC, WETH, RETH, CBETH } from 'lib/dapps';
-import { zeroAddress } from 'viem';
-import Paymaster from '../test/contracts/Paymaster';
 
 const constructorAbi = abi.find((item) => item.type === 'constructor') as Extract<
   (typeof abi)[number],

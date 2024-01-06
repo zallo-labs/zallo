@@ -1,20 +1,21 @@
 import { Injectable } from '@nestjs/common';
-import { CONFIG } from '~/config';
-import { asChain, asUAddress, UAddress } from 'lib';
-import { ChainConfig, Chain, CHAINS, NetworkWallet, isChain } from 'chains';
+import { InjectRedis } from '@songkeys/nestjs-redis';
+import Redis from 'ioredis';
+import { firstValueFrom, ReplaySubject } from 'rxjs';
 import {
-  PublicClient,
-  Transport,
-  WatchBlockNumberErrorType,
   createPublicClient,
   createWalletClient,
   http,
+  PublicClient,
+  Transport,
+  WatchBlockNumberErrorType,
   webSocket,
 } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
-import Redis from 'ioredis';
-import { InjectRedis } from '@songkeys/nestjs-redis';
-import { firstValueFrom, ReplaySubject } from 'rxjs';
+
+import { Chain, ChainConfig, CHAINS, isChain, NetworkWallet } from 'chains';
+import { asChain, asUAddress, UAddress } from 'lib';
+import { CONFIG } from '~/config';
 import { runExclusively } from '~/util/mutex';
 
 export type Network = ReturnType<typeof create>;

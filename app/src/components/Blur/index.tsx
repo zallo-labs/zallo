@@ -1,8 +1,9 @@
-import { useTheme } from 'react-native-paper';
-import { StyleSheet, View } from 'react-native';
 import type { BlurViewProps } from '@react-native-community/blur';
-import { createStyles } from '@theme/styles';
+import { StyleSheet, View } from 'react-native';
+import { useTheme } from 'react-native-paper';
+
 import { useMemoApply } from '~/hooks/useMemoized';
+import { createStyles } from '~/util/theme/styles';
 
 const BACKGROUND_COLOR = {
   light: 'rgba(255,255,255,0.5)',

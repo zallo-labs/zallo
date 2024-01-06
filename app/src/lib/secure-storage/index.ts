@@ -1,7 +1,8 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import type { getSecureStore as _getSecureStore } from './index.native';
 import type { SecureStoreOptions } from 'expo-secure-store';
+import type { getSecureStore as _getSecureStore } from './index.native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { BehaviorSubject, filter, firstValueFrom } from 'rxjs';
+
 import { createCipher } from '../crypto/cipher';
 
 export type { SecureStoreOptions };

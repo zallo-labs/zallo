@@ -1,6 +1,7 @@
-import { createStyles, useStyles } from '@theme/styles';
 import { useState } from 'react';
 import { Chip, ChipProps, Menu, MenuProps } from 'react-native-paper';
+
+import { createStyles, useStyles } from '~/util/theme/styles';
 
 export interface SelectChipProps<T> {
   value: T;

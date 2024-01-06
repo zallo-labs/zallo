@@ -1,6 +1,6 @@
-import { FragmentType, gql, useFragment } from '@api';
-import { Chain } from 'chains';
 import Decimal from 'decimal.js';
+
+import { Chain } from 'chains';
 import { asDecimal, asFp } from 'lib';
 import { FormattedNumber } from '~/components/format/FormattedNumber';
 import { ListItem } from '~/components/list/ListItem';
@@ -8,6 +8,7 @@ import { ListItemSkeleton } from '~/components/list/ListItemSkeleton';
 import { withSuspense } from '~/components/skeleton/withSuspense';
 import { TokenAmount } from '~/components/token/TokenAmount';
 import { TokenIcon } from '~/components/token/TokenIcon';
+import { FragmentType, gql, useFragment } from '~/gql/api';
 import { SwapRoute } from '~/hooks/swap/useSwapRoute';
 import { useEstimateSwap } from '~/util/swap/syncswap/estimate';
 

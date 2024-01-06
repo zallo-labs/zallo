@@ -1,11 +1,12 @@
 import { Injectable } from '@nestjs/common';
-import { ACCOUNT_ABI, Address } from 'lib';
-import { DatabaseService } from '../database/database.service';
-import e from '~/edgeql-js';
-import { ShapeFunc } from '../database/database.select';
-import { AbiSource } from '../contract-functions/contract-functions.model';
 import { Abi, AbiFunction } from 'abitype';
 import { getFunctionSelector, getFunctionSignature } from 'viem';
+
+import { ACCOUNT_ABI, Address } from 'lib';
+import e from '~/edgeql-js';
+import { AbiSource } from '../contract-functions/contract-functions.model';
+import { ShapeFunc } from '../database/database.select';
+import { DatabaseService } from '../database/database.service';
 
 @Injectable()
 export class ContractsService {

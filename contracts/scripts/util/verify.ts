@@ -1,7 +1,8 @@
+import chalk from 'chalk';
 import hre from 'hardhat';
+
 import { Address, Hex } from 'lib';
 import { CONFIG } from '../../config';
-import chalk from 'chalk';
 
 export interface VerifyOptions {
   address: Address;

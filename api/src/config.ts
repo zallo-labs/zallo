@@ -1,6 +1,8 @@
-import { Hex, isPresent, makeRequiredEnv, optionalEnv as optional } from 'lib';
-import { Chain } from 'chains';
 import os from 'os';
+
+import { Chain } from 'chains';
+import { Hex, isPresent, makeRequiredEnv, optionalEnv as optional } from 'lib';
+
 require('dotenv').config({ path: '../.env' });
 
 const required = makeRequiredEnv(!!process.env.JEST_WORKER_ID);

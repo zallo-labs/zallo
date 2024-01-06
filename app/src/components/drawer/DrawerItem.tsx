@@ -1,9 +1,10 @@
-import { IconProps } from '@theme/icons';
-import { useStyles } from '@theme/styles';
-import { Href, Link, useRouter, useSegments } from 'expo-router';
 import { ComponentPropsWithoutRef, FC } from 'react';
+import { Href, Link, useRouter, useSegments } from 'expo-router';
 import { Drawer } from 'react-native-paper';
+
 import { useDrawerActions } from '~/components/drawer/DrawerContextProvider';
+import { IconProps } from '~/util/theme/icons';
+import { useStyles } from '~/util/theme/styles';
 
 export interface DrawerItemProps<R>
   extends Pick<ComponentPropsWithoutRef<typeof Drawer.Item>, 'onPress'> {

@@ -1,12 +1,13 @@
-import { FragmentType, gql, useFragment } from '@api/generated';
-import { SwapVerticalIcon } from '@theme/icons';
-import { createStyles, useStyles } from '@theme/styles';
-import Decimal from 'decimal.js';
 import { Dispatch, SetStateAction } from 'react';
 import { View } from 'react-native';
+import Decimal from 'decimal.js';
 import { Button, IconButton, Text } from 'react-native-paper';
+
 import { FiatValue } from '~/components/FiatValue';
 import { TokenAmount } from '~/components/token/TokenAmount';
+import { FragmentType, gql, useFragment } from '~/gql/api/generated';
+import { SwapVerticalIcon } from '~/util/theme/icons';
+import { createStyles, useStyles } from '~/util/theme/styles';
 
 const FragmentDoc = gql(/* GraphQL */ `
   fragment InputsView_token on Token @argumentDefinitions(account: { type: "UAddress!" }) {

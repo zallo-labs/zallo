@@ -1,12 +1,13 @@
-import { Field, InterfaceType, ObjectType, createUnionType } from '@nestjs/graphql';
+import { createUnionType, Field, InterfaceType, ObjectType } from '@nestjs/graphql';
+import Decimal from 'decimal.js';
+import { GraphQLJSON } from 'graphql-scalars';
+
 import { Address, Hex, PolicyKey } from 'lib';
 import { AddressField, AddressScalar } from '~/apollo/scalars/Address.scalar';
-import { BytesField } from '~/apollo/scalars/Bytes.scalar';
 import { Uint256Field } from '~/apollo/scalars/BigInt.scalar';
-import { GraphQLJSON } from 'graphql-scalars';
-import { PolicyKeyField } from '~/apollo/scalars/PolicyKey.scalar';
-import Decimal from 'decimal.js';
+import { BytesField } from '~/apollo/scalars/Bytes.scalar';
 import { DecimalField } from '~/apollo/scalars/Decimal.scalar';
+import { PolicyKeyField } from '~/apollo/scalars/PolicyKey.scalar';
 
 @ObjectType()
 export class Operation {

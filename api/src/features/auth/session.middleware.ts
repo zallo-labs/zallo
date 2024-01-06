@@ -1,12 +1,12 @@
 import { Injectable, NestMiddleware } from '@nestjs/common';
-import { NextFunction, Request, Response } from 'express';
-import { RequestHandler } from 'express';
-import session from 'express-session';
-import RedisStore from 'connect-redis';
-import { CONFIG } from '~/config';
-import { Duration } from 'luxon';
-import Redis from 'ioredis';
 import { InjectRedis } from '@songkeys/nestjs-redis';
+import RedisStore from 'connect-redis';
+import { NextFunction, Request, RequestHandler, Response } from 'express';
+import session from 'express-session';
+import Redis from 'ioredis';
+import { Duration } from 'luxon';
+
+import { CONFIG } from '~/config';
 
 @Injectable()
 export class SessionMiddleware implements NestMiddleware {

@@ -1,26 +1,27 @@
-import { Drawer } from '~/components/drawer/Drawer';
 import { Drawer as PaperDrawer } from 'react-native-paper';
-import {
-  ContactsIcon,
-  FingerprintIcon,
-  NotificationsIcon,
-  TransferIcon,
-  SwapIcon,
-  HomeIcon,
-  WalletConnectIcon,
-  TwitterIcon,
-  GithubIcon,
-  QrCodeIcon,
-  GenericTokenIcon,
-  DevicesIcon,
-  AccountIcon,
-} from '@theme/icons';
-import { DrawerItem as Item } from '~/components/drawer/DrawerItem';
-import { useSelectedAccount } from '~/hooks/useSelectedAccount';
-import { CONFIG } from '~/util/config';
+
 import { AccountDrawerHeader } from '~/components/drawer/AccountDrawerHeader';
-import { useTransfer } from '~/hooks/useTransfer';
+import { Drawer } from '~/components/drawer/Drawer';
+import { DrawerItem as Item } from '~/components/drawer/DrawerItem';
 import { DrawerSurface } from '~/components/drawer/DrawerSurface';
+import { useSelectedAccount } from '~/hooks/useSelectedAccount';
+import { useTransfer } from '~/hooks/useTransfer';
+import { CONFIG } from '~/util/config';
+import {
+  AccountIcon,
+  ContactsIcon,
+  DevicesIcon,
+  FingerprintIcon,
+  GenericTokenIcon,
+  GithubIcon,
+  HomeIcon,
+  NotificationsIcon,
+  QrCodeIcon,
+  SwapIcon,
+  TransferIcon,
+  TwitterIcon,
+  WalletConnectIcon,
+} from '~/util/theme/icons';
 
 const Section = PaperDrawer.Section;
 

@@ -1,8 +1,9 @@
 import { Parent, Resolver } from '@nestjs/graphql';
-import { Receipt } from './receipts.model';
-import { ReceiptsService } from './receipts.service';
+
 import { ComputedField } from '~/decorators/computed.decorator';
 import e from '~/edgeql-js';
+import { Receipt } from './receipts.model';
+import { ReceiptsService } from './receipts.service';
 
 @Resolver(() => Receipt)
 export class ReceiptsResolver {

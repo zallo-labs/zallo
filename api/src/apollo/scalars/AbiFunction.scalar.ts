@@ -1,8 +1,9 @@
-import { GraphQLJSON } from 'graphql-scalars';
-import { createScalar } from '~/apollo/scalars/util';
+import { UserInputError } from '@nestjs/apollo';
 import { AbiFunction } from 'abitype';
 import { AbiFunction as AbiFunctionSchema } from 'abitype/zod';
-import { UserInputError } from '@nestjs/apollo';
+import { GraphQLJSON } from 'graphql-scalars';
+
+import { createScalar } from '~/apollo/scalars/util';
 
 function parseValue(v: unknown): AbiFunction {
   const r = AbiFunctionSchema.safeParse(v);

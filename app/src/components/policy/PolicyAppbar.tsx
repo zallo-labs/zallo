@@ -1,16 +1,17 @@
-import { SwapIcon, UndoIcon } from '@theme/icons';
-import { Chip, Menu } from 'react-native-paper';
-import { AppbarMore } from '~/components/Appbar/AppbarMore';
-import { useAtomValue } from 'jotai';
-import { FragmentType, gql, useFragment } from '@api/generated';
-import { useMutation } from 'urql';
-import { PolicyView } from '~/hooks/useHydratePolicyDraft';
-import { useConfirmRemoval } from '~/hooks/useConfirm';
-import { POLICY_DRAFT_ATOM } from '~/lib/policy/draft';
-import { AppbarOptions } from '~/components/Appbar/AppbarOptions';
 import { useRouter } from 'expo-router';
+import { useAtomValue } from 'jotai';
+import { Chip, Menu } from 'react-native-paper';
+import { useMutation } from 'urql';
+
 import { PolicyKey, UAddress } from 'lib';
-import { createStyles, useStyles } from '@theme/styles';
+import { AppbarMore } from '~/components/Appbar/AppbarMore';
+import { AppbarOptions } from '~/components/Appbar/AppbarOptions';
+import { FragmentType, gql, useFragment } from '~/gql/api/generated';
+import { useConfirmRemoval } from '~/hooks/useConfirm';
+import { PolicyView } from '~/hooks/useHydratePolicyDraft';
+import { POLICY_DRAFT_ATOM } from '~/lib/policy/draft';
+import { SwapIcon, UndoIcon } from '~/util/theme/icons';
+import { createStyles, useStyles } from '~/util/theme/styles';
 
 const Policy = gql(/* GraphQL */ `
   fragment PolicyAppbar_Policy on Policy {

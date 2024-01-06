@@ -1,20 +1,21 @@
 import { expect } from 'chai';
+
 import {
   Address,
   ApprovalsParams,
-  Hex,
-  Policy,
-  UAddress,
-  ZERO_ADDR,
   asPolicy,
   asTx,
   encodeApprovalsStruct,
   encodePolicyStruct,
   hashTx,
+  Hex,
+  Policy,
   TEST_VERIFIER_ABI,
+  UAddress,
+  ZERO_ADDR,
 } from 'lib';
-import { deployProxy, getApprovals, network, deploy, wallets } from './util';
 import TestVerifier from './contracts/TestVerifier';
+import { deploy, deployProxy, getApprovals, network, wallets } from './util';
 
 describe('ApprovalsVerifier', () => {
   let account: UAddress;

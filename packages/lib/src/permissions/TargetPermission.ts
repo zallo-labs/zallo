@@ -1,14 +1,15 @@
-import { Address, asAddress, compareAddress } from '../address';
-import { Selector, asSelector, compareHex } from '../bytes';
-import { HookSelector } from './selector';
-import { HookStruct } from './permissions';
+import assert from 'assert';
+import { AbiParameterToPrimitiveType } from 'abitype';
 import _ from 'lodash';
+import { decodeAbiParameters, encodeAbiParameters, getAbiItem } from 'viem';
+
+import { Address, asAddress, compareAddress } from '../address';
+import { asSelector, compareHex, Selector } from '../bytes';
+import { TEST_VERIFIER_ABI } from '../contract';
 import { Operation } from '../operation';
 import { OperationSatisfiability } from '../satisfiability';
-import assert from 'assert';
-import { getAbiItem, encodeAbiParameters, decodeAbiParameters } from 'viem';
-import { AbiParameterToPrimitiveType } from 'abitype';
-import { TEST_VERIFIER_ABI } from '../contract';
+import { HookStruct } from './permissions';
+import { HookSelector } from './selector';
 
 export interface TargetsConfig {
   contracts: Record<Address, Target>;

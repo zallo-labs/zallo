@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRedis } from '@songkeys/nestjs-redis';
 import Redis from 'ioredis';
-import { Address, UAddress, asAddress, isEthToken, tryOrIgnoreAsync } from 'lib';
+
+import { Address, asAddress, isEthToken, tryOrIgnoreAsync, UAddress } from 'lib';
 import { ERC20 } from 'lib/dapps';
 import { NetworksService } from '~/features/util/networks/networks.service';
 

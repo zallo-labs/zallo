@@ -1,9 +1,10 @@
-import { SearchParams, useLocalSearchParams, useRouter } from 'expo-router';
-import { asAddress, tryAsAddress } from 'lib';
-import { Sheet } from '~/components/sheet/Sheet';
-import { ContactsIcon, NavigateNextIcon, TransferIcon } from '@theme/icons';
-import { ListItem } from '~/components/list/ListItem';
 import { StyleSheet } from 'react-native';
+import { SearchParams, useLocalSearchParams, useRouter } from 'expo-router';
+
+import { asAddress, tryAsAddress } from 'lib';
+import { ListItem } from '~/components/list/ListItem';
+import { Sheet } from '~/components/sheet/Sheet';
+import { ContactsIcon, NavigateNextIcon, TransferIcon } from '~/util/theme/icons';
 
 export type ScannedAddressSheetRoute = `/scan/[address]`;
 export type ScanAddressSheetParams = SearchParams<ScannedAddressSheetRoute> & {

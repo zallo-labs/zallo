@@ -1,50 +1,51 @@
-import { Injectable } from '@nestjs/common';
 import { UserInputError } from '@nestjs/apollo';
+import { InjectFlowProducer, InjectQueue } from '@nestjs/bullmq';
+import { Injectable } from '@nestjs/common';
+import { FlowProducer } from 'bullmq';
+import Decimal from 'decimal.js';
+import { v4 as uuid } from 'uuid';
+import { hashTypedData } from 'viem';
+
 import {
+  asAddress,
+  asChain,
+  asTypedData,
+  asUAddress,
+  asUUID,
+  estimateTransactionOperationsGas,
+  estimateTransactionVerificationGas,
+  ETH_ADDRESS,
+  FALLBACK_OPERATIONS_GAS,
   hashTx,
   isHex,
   Tx,
-  estimateTransactionOperationsGas,
-  FALLBACK_OPERATIONS_GAS,
-  asAddress,
-  asUAddress,
-  asChain,
-  ETH_ADDRESS,
-  asTypedData,
-  asUUID,
   UUID,
-  estimateTransactionVerificationGas,
 } from 'lib';
+import e, { $infer } from '~/edgeql-js';
+import { PaymastersService } from '~/features/paymasters/paymasters.service';
+import { SIMULATIONS_QUEUE } from '~/features/simulations/simulations.worker';
+import {
+  ExecutionsFlow,
+  ExecutionsQueue,
+} from '~/features/transaction-proposals/executions.worker';
+import { EstimatedTransactionFees } from '~/features/transaction-proposals/transaction-proposals.model';
+import {
+  proposalTxShape,
+  transactionProposalAsTx,
+} from '~/features/transaction-proposals/transaction-proposals.util';
+import { QueueData, TypedQueue } from '~/features/util/bull/bull.util';
 import { NetworksService } from '~/features/util/networks/networks.service';
+import { selectAccount } from '../accounts/accounts.util';
+import { Shape, ShapeFunc } from '../database/database.select';
+import { DatabaseService } from '../database/database.service';
+import { and } from '../database/database.util';
+import { ApproveInput, ProposalEvent } from '../proposals/proposals.input';
+import { ProposalsService, UniqueProposal } from '../proposals/proposals.service';
 import {
   ProposeTransactionInput,
   TransactionProposalsInput,
   UpdateTransactionProposalInput,
 } from './transaction-proposals.input';
-import { DatabaseService } from '../database/database.service';
-import e, { $infer } from '~/edgeql-js';
-import { Shape, ShapeFunc } from '../database/database.select';
-import { and } from '../database/database.util';
-import { selectAccount } from '../accounts/accounts.util';
-import { ProposalsService, UniqueProposal } from '../proposals/proposals.service';
-import { ApproveInput, ProposalEvent } from '../proposals/proposals.input';
-import { PaymastersService } from '~/features/paymasters/paymasters.service';
-import { EstimatedTransactionFees } from '~/features/transaction-proposals/transaction-proposals.model';
-import Decimal from 'decimal.js';
-import { InjectFlowProducer, InjectQueue } from '@nestjs/bullmq';
-import {
-  ExecutionsFlow,
-  ExecutionsQueue,
-} from '~/features/transaction-proposals/executions.worker';
-import { QueueData, TypedQueue } from '~/features/util/bull/bull.util';
-import { SIMULATIONS_QUEUE } from '~/features/simulations/simulations.worker';
-import {
-  proposalTxShape,
-  transactionProposalAsTx,
-} from '~/features/transaction-proposals/transaction-proposals.util';
-import { hashTypedData } from 'viem';
-import { v4 as uuid } from 'uuid';
-import { FlowProducer } from 'bullmq';
 
 export const selectTransactionProposal = (
   id: UniqueProposal,

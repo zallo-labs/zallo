@@ -1,12 +1,13 @@
-import { gql } from '@api';
-import { createStyles, useStyles } from '@theme/styles';
-import { Image } from 'expo-image';
 import { View } from 'react-native';
+import { Image } from 'expo-image';
 import { Text } from 'react-native-paper';
+
 import { AddressIcon } from '~/components/Identicon/AddressIcon';
 import { withSuspense } from '~/components/skeleton/withSuspense';
 import { useQuery } from '~/gql';
+import { gql } from '~/gql/api';
 import { useSelectedAccount } from '~/hooks/useSelectedAccount';
+import { createStyles, useStyles } from '~/util/theme/styles';
 
 const Query = gql(/* GraphQL */ `
   query AccountDrawerHeader($account: UAddress) {

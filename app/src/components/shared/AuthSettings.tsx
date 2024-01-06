@@ -1,23 +1,24 @@
+import { ReactNode, useEffect } from 'react';
 import { ScrollView, StyleSheet } from 'react-native';
+import { Href, useRouter } from 'expo-router';
+import { useAtomValue } from 'jotai';
 import { useImmerAtom } from 'jotai-immer';
 import { Switch } from 'react-native-paper';
-import { Actions } from '~/components/layout/Actions';
-import { ListItem } from '~/components/list/ListItem';
-import { FingerprintIcon, LockOpenIcon, PasswordIcon, TransferIcon } from '@theme/icons';
-import { ListHeader } from '~/components/list/ListHeader';
-import { ReactNode, useEffect } from 'react';
-import { withSuspense } from '~/components/skeleton/withSuspense';
-import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
-import { ScreenSurface } from '~/components/layout/ScreenSurface';
-import { AppbarOptions } from '~/components/Appbar/AppbarOptions';
-import { AppbarMenu } from '~/components/Appbar/AppbarMenu';
-import { Button } from '~/components/Button';
-import { Href, useRouter } from 'expo-router';
-import { useBiometrics } from '~/hooks/useBiometrics';
+
 import { usePasswordHash } from '~/app/(drawer)/settings/password';
+import { AppbarMenu } from '~/components/Appbar/AppbarMenu';
+import { AppbarOptions } from '~/components/Appbar/AppbarOptions';
+import { Button } from '~/components/Button';
+import { Actions } from '~/components/layout/Actions';
+import { ScreenSurface } from '~/components/layout/ScreenSurface';
+import { ListHeader } from '~/components/list/ListHeader';
+import { ListItem } from '~/components/list/ListItem';
+import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
+import { withSuspense } from '~/components/skeleton/withSuspense';
+import { useBiometrics } from '~/hooks/useBiometrics';
 import { persistedAtom } from '~/lib/persistedAtom';
-import { useAtomValue } from 'jotai';
 import { SECURE_STORE_PASSWORD_ENCRYPTED as ALWAYS_REQUIRED_ON_OPEN } from '~/lib/secure-storage';
+import { FingerprintIcon, LockOpenIcon, PasswordIcon, TransferIcon } from '~/util/theme/icons';
 
 // Security note: this has weak security guarantees as an attacker with local access may change these settings, or even the whole JS bundle...
 const AUTH_SETTINGS = persistedAtom('AuthenticationSettings', {

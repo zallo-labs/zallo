@@ -1,11 +1,12 @@
-import { FragmentType, gql, useFragment } from '@api';
-import { PolicyIcon } from '@theme/icons';
-import { createStyles } from '@theme/styles';
-import { useAtomValue, useSetAtom } from 'jotai';
 import { ScrollView, View } from 'react-native';
+import { useAtomValue, useSetAtom } from 'jotai';
 import { Chip, Text } from 'react-native-paper';
+
+import { FragmentType, gql, useFragment } from '~/gql/api';
 import { POLICY_DRAFT_ATOM } from '~/lib/policy/draft';
 import { usePolicyPresets } from '~/lib/policy/presets';
+import { PolicyIcon } from '~/util/theme/icons';
+import { createStyles } from '~/util/theme/styles';
 
 const Account = gql(/* GraphQL */ `
   fragment PolicySuggestions_Account on Account {

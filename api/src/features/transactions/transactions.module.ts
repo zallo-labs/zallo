@@ -1,12 +1,13 @@
-import { Module, forwardRef } from '@nestjs/common';
-import { TransactionsWorker } from './transactions.worker';
-import { TRANSACTIONS_QUEUE } from './transactions.queue';
-import { TransactionsService } from './transactions.service';
-import { TransactionsEvents } from './transactions.events';
-import { TransactionsResolver } from './transactions.resolver';
+import { forwardRef, Module } from '@nestjs/common';
+
 import { PaymastersModule } from '../paymasters/paymasters.module';
-import { registerBullQueue } from '../util/bull/bull.util';
 import { ProposalsModule } from '../proposals/proposals.module';
+import { registerBullQueue } from '../util/bull/bull.util';
+import { TransactionsEvents } from './transactions.events';
+import { TRANSACTIONS_QUEUE } from './transactions.queue';
+import { TransactionsResolver } from './transactions.resolver';
+import { TransactionsService } from './transactions.service';
+import { TransactionsWorker } from './transactions.worker';
 
 @Module({
   imports: [

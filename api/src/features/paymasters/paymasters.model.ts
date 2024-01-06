@@ -1,5 +1,6 @@
 import { Field } from '@nestjs/graphql';
 import Decimal from 'decimal.js';
+
 import { DecimalField } from '~/apollo/scalars/Decimal.scalar';
 import { CustomNode, CustomNodeType } from '~/decorators/interface.decorator';
 

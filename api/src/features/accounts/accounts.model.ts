@@ -1,20 +1,20 @@
-import { Field } from '@nestjs/graphql';
+import { createUnionType, Field } from '@nestjs/graphql';
+
+import { Chain } from 'chains';
+import { Address, UAddress } from 'lib';
 import { AddressField } from '~/apollo/scalars/Address.scalar';
 import { Bytes32Field } from '~/apollo/scalars/Bytes.scalar';
-import { Transfer } from '../transfers/transfers.model';
+import { ChainField } from '~/apollo/scalars/Chain.scalar';
+import { UAddressField } from '~/apollo/scalars/UAddress.scalar';
+import { Node, NodeType } from '~/decorators/interface.decorator';
+import e from '~/edgeql-js';
+import { Approver } from '../approvers/approvers.model';
+import { makeUnionTypeResolver } from '../database/database.util';
+import { MessageProposal } from '../message-proposals/message-proposals.model';
 import { Policy } from '../policies/policies.model';
 import { Proposal } from '../proposals/proposals.model';
 import { TransactionProposal } from '../transaction-proposals/transaction-proposals.model';
-import { Node, NodeType } from '~/decorators/interface.decorator';
-import { createUnionType } from '@nestjs/graphql';
-import e from '~/edgeql-js';
-import { makeUnionTypeResolver } from '../database/database.util';
-import { MessageProposal } from '../message-proposals/message-proposals.model';
-import { Approver } from '../approvers/approvers.model';
-import { UAddressField } from '~/apollo/scalars/UAddress.scalar';
-import { Address, UAddress } from 'lib';
-import { ChainField } from '~/apollo/scalars/Chain.scalar';
-import { Chain } from 'chains';
+import { Transfer } from '../transfers/transfers.model';
 
 @NodeType()
 export class Account extends Node {

@@ -1,13 +1,14 @@
-import { Address } from 'lib';
+import { useMemo } from 'react';
+import { useAtomValue } from 'jotai';
 import { err } from 'neverthrow';
 import { DeviceId } from 'react-native-ble-plx';
-import { useMemo } from 'react';
-import { persistedAtom } from '~/lib/persistedAtom';
-import { useAtomValue } from 'jotai';
-import { FragmentType, gql, useFragment as getFragment } from '@api/generated';
-import { connectLedger } from './connectLedger';
+
+import { Address } from 'lib';
+import { FragmentType, useFragment as getFragment, gql } from '~/gql/api/generated';
 import useBluetoothPermissions from '~/hooks/ble/useBluetoothPermissions';
 import { useObservable } from '~/hooks/useObservable';
+import { persistedAtom } from '~/lib/persistedAtom';
+import { connectLedger } from './connectLedger';
 
 const UserApprover = gql(/* GraphQL */ `
   fragment UseLedger_UserApprover on UserApprover {

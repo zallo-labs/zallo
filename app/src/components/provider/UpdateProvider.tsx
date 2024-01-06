@@ -1,10 +1,10 @@
-import * as Updates from 'expo-updates';
 import { useEffect } from 'react';
-import { logError } from '~/util/analytics';
 import { AppState } from 'react-native';
-import { showInfo } from './SnackbarProvider';
-import { showWarning } from './SnackbarProvider';
+import * as Updates from 'expo-updates';
+
+import { logError } from '~/util/analytics';
 import { __WEB__ } from '~/util/config';
+import { showInfo, showWarning } from './SnackbarProvider';
 
 const onError = (error: unknown) => {
   showWarning('Failed to download update. You may experience issues.');

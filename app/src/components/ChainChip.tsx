@@ -1,7 +1,7 @@
-import { SUPPORTED_CHAINS } from '@network/chains';
-import { ChainIcon } from '@theme/icons';
 import { Chain } from 'chains';
 import { SelectChip, SelectChipProps } from '~/components/fields/SelectChip';
+import { SUPPORTED_CHAINS } from '~/lib/network/chains';
+import { ChainIcon } from '~/util/theme/icons';
 
 const entries = Object.values(SUPPORTED_CHAINS).map((c) => [c.name, c.key] as const);
 

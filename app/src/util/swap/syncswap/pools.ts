@@ -1,9 +1,10 @@
-import { Address, ETH_ADDRESS } from 'lib';
-import { Chain } from 'chains';
-import { SYNCSWAP, WETH } from 'lib/dapps';
-import { atomFamily } from 'jotai/utils';
-import { getNetwork } from '@network/network';
 import { atom } from 'jotai';
+import { atomFamily } from 'jotai/utils';
+
+import { Chain } from 'chains';
+import { Address, ETH_ADDRESS } from 'lib';
+import { SYNCSWAP, WETH } from 'lib/dapps';
+import { getNetwork } from '~/lib/network/network';
 
 export interface SyncswapPool {
   address: Address;

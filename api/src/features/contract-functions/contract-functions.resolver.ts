@@ -1,13 +1,14 @@
 import { Info, Parent, Query, Resolver } from '@nestjs/graphql';
 import { GraphQLResolveInfo } from 'graphql';
-import { ContractFunctionInput } from './contract-functions.input';
-import { ContractFunctionsService } from './contract-functions.service';
-import { ContractFunction, AbiSourceConfidence } from './contract-functions.model';
 import { match } from 'ts-pattern';
+
 import { ComputedField } from '~/decorators/computed.decorator';
+import { Input } from '~/decorators/input.decorator';
 import e from '~/edgeql-js';
 import { getShape } from '../database/database.select';
-import { Input } from '~/decorators/input.decorator';
+import { ContractFunctionInput } from './contract-functions.input';
+import { AbiSourceConfidence, ContractFunction } from './contract-functions.model';
+import { ContractFunctionsService } from './contract-functions.service';
 
 @Resolver(() => ContractFunction)
 export class ContractFunctionsResolver {

@@ -1,14 +1,15 @@
+import { FlatList, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
-import { ScanIcon } from '@theme/icons';
-import { StyleSheet, FlatList } from 'react-native';
-import { useWalletConnect } from '~/util/walletconnect';
-import { PairingItem } from '~/components/walletconnect/PairingItem';
 import { Divider, Text } from 'react-native-paper';
+
 import { AppbarOptions } from '~/components/Appbar/AppbarOptions';
-import { withSuspense } from '~/components/skeleton/withSuspense';
-import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
-import { ScreenSurface } from '~/components/layout/ScreenSurface';
 import { Fab } from '~/components/Fab';
+import { ScreenSurface } from '~/components/layout/ScreenSurface';
+import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
+import { withSuspense } from '~/components/skeleton/withSuspense';
+import { PairingItem } from '~/components/walletconnect/PairingItem';
+import { ScanIcon } from '~/util/theme/icons';
+import { useWalletConnect } from '~/util/walletconnect';
 
 function SessionsScreen() {
   const router = useRouter();

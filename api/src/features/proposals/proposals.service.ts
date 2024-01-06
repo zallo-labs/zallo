@@ -1,11 +1,15 @@
 import { UserInputError } from '@nestjs/apollo';
 import { Injectable } from '@nestjs/common';
+
+import { asApproval, asHex, asUAddress, asUUID, Hex, isHex, UAddress, UUID } from 'lib';
 import e from '~/edgeql-js';
-import { Hex, UAddress, asApproval, asHex, asUAddress, isHex, UUID, asUUID } from 'lib';
+import { NetworksService } from '~/features/util/networks/networks.service';
+import { PubsubService } from '~/features/util/pubsub/pubsub.service';
 import { getUserCtx } from '~/request/ctx';
+import { selectAccount } from '../accounts/accounts.util';
 import { ShapeFunc } from '../database/database.select';
 import { DatabaseService } from '../database/database.service';
-import { NetworksService } from '~/features/util/networks/networks.service';
+import { and } from '../database/database.util';
 import {
   ApproveInput,
   LabelProposalRiskInput,
@@ -13,9 +17,6 @@ import {
   ProposalsInput,
   UpdateProposalInput,
 } from './proposals.input';
-import { PubsubService } from '~/features/util/pubsub/pubsub.service';
-import { and } from '../database/database.util';
-import { selectAccount } from '../accounts/accounts.util';
 
 export type UniqueProposal = UUID | Hex;
 

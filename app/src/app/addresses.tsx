@@ -1,27 +1,27 @@
 import { useState } from 'react';
-import { Platform } from 'react-native';
-import { NavigateNextIcon, ScanIcon, SearchIcon } from '~/util/theme/icons';
+import { Platform, StyleSheet, View } from 'react-native';
+import { FlashList } from '@shopify/flash-list';
+import { match, P } from 'ts-pattern';
+import { z } from 'zod';
+
+import { asAddress } from 'lib';
+import { useScanAddress } from '~/app/scan';
 import { AppbarBack } from '~/components/Appbar/AppbarBack';
 import { Searchbar } from '~/components/Appbar/Searchbar';
-import { ListItemHeight } from '~/components/list/ListItem';
-import { gql } from '@api/generated';
-import { FlashList } from '@shopify/flash-list';
-import { P, match } from 'ts-pattern';
 import { AccountItem } from '~/components/item/AccountItem';
-import { UserApproverItem } from '~/components/item/UserApproverItem';
 import { ContactItem } from '~/components/item/ContactItem';
+import { UserApproverItem } from '~/components/item/UserApproverItem';
 import { ListHeader } from '~/components/list/ListHeader';
-import { useQuery } from '~/gql';
-import { useScanAddress } from '~/app/scan';
-import { StyleSheet, View } from 'react-native';
-import { ADDRESS_SELECTED } from '~/hooks/useSelectAddress';
-import { TokenItem } from '~/components/token/TokenItem';
-import { z } from 'zod';
-import { zAddress, zArray, zUAddress } from '~/lib/zod';
-import { useLocalParams } from '~/hooks/useLocalParams';
-import { withSuspense } from '~/components/skeleton/withSuspense';
+import { ListItemHeight } from '~/components/list/ListItem';
 import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
-import { asAddress } from 'lib';
+import { withSuspense } from '~/components/skeleton/withSuspense';
+import { TokenItem } from '~/components/token/TokenItem';
+import { useQuery } from '~/gql';
+import { gql } from '~/gql/api/generated';
+import { useLocalParams } from '~/hooks/useLocalParams';
+import { ADDRESS_SELECTED } from '~/hooks/useSelectAddress';
+import { zAddress, zArray, zUAddress } from '~/lib/zod';
+import { NavigateNextIcon, ScanIcon, SearchIcon } from '~/util/theme/icons';
 
 const Query = gql(/* GraphQL */ `
   query AddressesScreen(

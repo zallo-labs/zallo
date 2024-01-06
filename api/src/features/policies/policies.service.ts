@@ -1,4 +1,8 @@
+import { UserInputError } from '@nestjs/apollo';
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
+import { err, fromPromise, ok } from 'neverthrow';
+import { encodeFunctionData } from 'viem';
+
 import {
   ACCOUNT_ABI,
   asAddress,
@@ -13,41 +17,38 @@ import {
   UAddress,
   UUID,
 } from 'lib';
+import e from '~/edgeql-js';
+import { selectAccount } from '../accounts/accounts.util';
+import { AccountsCacheService } from '../auth/accounts.cache.service';
+import { ShapeFunc } from '../database/database.select';
+import { DatabaseService } from '../database/database.service';
+import { and, isExclusivityConstraintViolation } from '../database/database.util';
 import { TransactionProposalsService } from '../transaction-proposals/transaction-proposals.service';
+import {
+  proposalTxShape,
+  ProposalTxShape,
+  transactionProposalAsTx,
+} from '../transaction-proposals/transaction-proposals.util';
 import {
   CreatePolicyInput,
   PoliciesInput,
   UniquePolicyInput,
   UpdatePolicyInput,
 } from './policies.input';
-import { UserInputError } from '@nestjs/apollo';
-import { AccountsCacheService } from '../auth/accounts.cache.service';
-import { DatabaseService } from '../database/database.service';
-import e from '~/edgeql-js';
-import { ShapeFunc } from '../database/database.select';
-import {
-  UniquePolicy,
-  uniquePolicy,
-  policyStateShape,
-  policyStateAsPolicy,
-  PolicyStateShape,
-  policyInputAsStateShape,
-} from './policies.util';
 import {
   NameTaken,
+  Policy as PolicyModel,
   PolicyState,
   SatisfiabilityResult,
-  Policy as PolicyModel,
 } from './policies.model';
 import {
-  proposalTxShape,
-  transactionProposalAsTx,
-  ProposalTxShape,
-} from '../transaction-proposals/transaction-proposals.util';
-import { and, isExclusivityConstraintViolation } from '../database/database.util';
-import { selectAccount } from '../accounts/accounts.util';
-import { err, fromPromise, ok } from 'neverthrow';
-import { encodeFunctionData } from 'viem';
+  policyInputAsStateShape,
+  policyStateAsPolicy,
+  policyStateShape,
+  PolicyStateShape,
+  UniquePolicy,
+  uniquePolicy,
+} from './policies.util';
 
 export interface CreatePolicyParams extends CreatePolicyInput {
   key?: PolicyKey;

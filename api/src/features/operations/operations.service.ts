@@ -1,39 +1,40 @@
 import { Injectable } from '@nestjs/common';
+import { AbiFunction } from 'abitype';
+import { match } from 'ts-pattern';
+import { decodeFunctionData, size } from 'viem';
+
+import { Chain } from 'chains';
 import {
+  ACCOUNT_IMPLEMENTATION,
   Address,
+  asDecimal,
+  asSelector,
+  asUAddress,
+  ETH_ADDRESS,
+  isEthToken,
+  isPresent,
   Operation,
   PolicyKey,
   Selector,
-  asSelector,
-  isPresent,
   tryOrIgnore,
-  ETH_ADDRESS,
-  asUAddress,
-  isEthToken,
-  asDecimal,
 } from 'lib';
+import { ERC20, ETH, SYNCSWAP } from 'lib/dapps';
+import e from '~/edgeql-js';
+import { TokensService } from '~/features/tokens/tokens.service';
 import { ContractsService } from '../contracts/contracts.service';
 import { DatabaseService } from '../database/database.service';
-import e from '~/edgeql-js';
-import { AbiFunction } from 'abitype';
-import { decodeFunctionData, size } from 'viem';
+import { WETH } from '../tokens/tokens.list';
+import { NetworksService } from '../util/networks/networks.service';
 import {
   GenericOp,
   OperationFunction,
-  TransferOp,
-  TransferApprovalOp,
-  TransferFromOp,
-  UpdatePolicyOp,
   RemovePolicyOp,
   SwapOp,
+  TransferApprovalOp,
+  TransferFromOp,
+  TransferOp,
+  UpdatePolicyOp,
 } from './operations.model';
-import { ACCOUNT_IMPLEMENTATION } from 'lib';
-import { ERC20, ETH, SYNCSWAP } from 'lib/dapps';
-import { match } from 'ts-pattern';
-import { NetworksService } from '../util/networks/networks.service';
-import { WETH } from '../tokens/tokens.list';
-import { Chain } from 'chains';
-import { TokensService } from '~/features/tokens/tokens.service';
 
 @Injectable()
 export class OperationsService {

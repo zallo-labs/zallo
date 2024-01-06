@@ -1,6 +1,7 @@
-import { useNavigation } from 'expo-router';
-import { AppbarProps } from './Appbar';
 import { useLayoutEffect } from 'react';
+import { useNavigation } from 'expo-router';
+
+import { AppbarProps } from './Appbar';
 
 /* Derrived from expo-router/src/views/Screen.tsx */
 

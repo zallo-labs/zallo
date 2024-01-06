@@ -1,6 +1,7 @@
 import { UserInputError } from '@nestjs/apollo';
 import { Kind } from 'graphql';
-import { UUID, isUUID } from 'lib';
+
+import { isUUID, UUID } from 'lib';
 import { createScalar } from './util';
 
 const description = 'UUID';
