@@ -23,7 +23,7 @@
     "@types/chai-as-promised": "^7.1.8",
     "@types/mocha": "^10.0.5",
     "abitype": "^0.9.8",
-    "chai": "^4.3.10",
+    "chai": "^4.4.0",
     "chai-as-promised": "^7.1.1",
     "chains": "workspace:*",
     "chalk": "^4.1.2",
@@ -39,6 +39,7 @@
     "prettier-plugin-solidity": "^1.2.0",
     "solhint": "^4.0.0",
     "solidity-coverage": "^0.8.5",
+    "ts-node": "^10.9.2",
     "typescript": "^5.3.3",
     "viem": "^1.20.3",
     "zksync-ethers": "^6.0.0"
