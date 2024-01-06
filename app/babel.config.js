@@ -1,17 +1,21 @@
 const { babelOptimizerPlugin: gqlBabelOptimizer } = require('@graphql-codegen/client-preset');
 const path = require('path');
 
+const projectRoot = __dirname;
+
 module.exports = function (api) {
   api.cache(true);
   return {
     presets: ['babel-preset-expo'],
     plugins: [
+      '@babel/plugin-transform-flow-strip-types', // Must proceed other @babel plugins - https://github.com/facebook/react-native/issues/36828
+      ['@babel/plugin-transform-private-methods', { loose: true }], // Required by ethers
       'expo-router/babel',
       [
         'module-resolver',
         {
           alias: {
-            crypto: path.resolve(__dirname, 'src/util/patches/crypto.ts'),
+            crypto: path.resolve(projectRoot, 'src/util/patches/crypto.ts'),
             stream: 'stream-browserify',
             buffer: '@craftzdog/react-native-buffer',
             // TODO: remove @ledger aliases in RN 0.72 by enabling metro package exports
@@ -22,20 +26,13 @@ module.exports = function (api) {
             '@ledgerhq/domain-service': '@ledgerhq/domain-service/lib-es',
             '@ledgerhq/evm-tools': '@ledgerhq/evm-tools/lib-es',
             '@ledgerhq/live-network': '@ledgerhq/live-network/lib-es',
+            viem: 'viem/_cjs',
           },
         },
       ],
-      [
-        'formatjs',
-        // {
-        //   idInterpolationPattern: '[sha512:contenthash:base64:6]',
-        //   ast: true,
-        // },
-      ],
+      'formatjs',
       'lodash',
       'react-native-reanimated/plugin' /* Must be last */,
-      '@babel/plugin-transform-flow-strip-types', // Must proceed other @babel plugins - https://github.com/facebook/react-native/issues/36828
-      ['@babel/plugin-transform-private-methods', { loose: true }], // Required by ethers
     ],
     env: {
       production: {
