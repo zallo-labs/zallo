@@ -41,13 +41,17 @@ function SwapToTokenItem_({ fromAmount, chain, route, selectTo, ...props }: Swap
   const from = useFragment(FromToken, props.from);
   const to = useFragment(ToToken, props.to);
 
-  const toAmountEstimate = useEstimateSwap({
+  const amount = useEstimateSwap({
     chain,
     route,
     fromAmount: asFp(fromAmount, from.decimals),
-  });
+  }).map((amount) => asDecimal(amount, to.decimals));
 
-  if (toAmountEstimate === undefined) return null;
+  const perFrom = useEstimateSwap({
+    chain,
+    route,
+    fromAmount: asFp(new Decimal('1'), from.decimals),
+  }).map((amount) => asDecimal(amount, to.decimals));
 
   return (
     <ListItem
@@ -56,17 +60,23 @@ function SwapToTokenItem_({ fromAmount, chain, route, selectTo, ...props }: Swap
       overline="To (estimated)"
       headline={({ Text }) => (
         <Text>
-          <TokenAmount token={to} amount={asDecimal(toAmountEstimate!, to.decimals)} />
+          {amount.isOk() ? (
+            <TokenAmount token={to} amount={amount.value} />
+          ) : (
+            'Something went wrong'
+          )}
         </Text>
       )}
       trailing={({ Text }) => (
         <Text>
-          <FormattedNumber
-            value={0}
-            maximumFractionDigits={3}
-            minimumNumberFractionDigits={4}
-            postFormat={(v) => `${v}/${from.symbol}`}
-          />
+          {perFrom.isOk() && (
+            <FormattedNumber
+              value={perFrom.value}
+              maximumFractionDigits={3}
+              minimumNumberFractionDigits={4}
+              postFormat={(v) => `${v}/${from.symbol}`}
+            />
+          )}
         </Text>
       )}
       onPress={selectTo}

@@ -27,6 +27,7 @@ import { getSwapOperations } from '~/util/swap/syncswap/swap';
 import Decimal from 'decimal.js';
 import { ampli } from '~/lib/ampli';
 import { SwapToTokenItem } from '~/components/swap/SwapToTokenItem';
+import { showError } from '~/components/provider/SnackbarProvider';
 
 const DownArrow = materialCommunityIcon('arrow-down-thin');
 const ICON_BUTTON_SIZE = 24;
@@ -61,12 +62,10 @@ function SwapScreen() {
   const selectToken = useSelectToken();
   const swappableTokens = useSwappableTokens(chain);
 
-  console.log('preQuery');
   const { tokens } = useQuery(Query, {
     account,
     tokens: swappableTokens,
   }).data;
-  console.log('postQuery');
 
   const [fromAddress, setFromAddress] = useState<UAddress>(
     tokens[0]?.address ?? asUAddress(ETH_ADDRESS, chain),
@@ -170,17 +169,20 @@ function SwapScreen() {
           onPress={
             route
               ? async () => {
+                  const operations = await getSwapOperations({
+                    account,
+                    route,
+                    from: asAddress(fromAddress),
+                    fromAmount: asFp(fromAmount, from.decimals),
+                    slippage: 0.01, // 1%
+                    deadline: DateTime.now().plus({ months: 3 }),
+                  });
+                  if (operations.isErr()) return showError('Something went wrong');
+
                   const proposal = await propose({
                     account,
                     label: `Swap ${from.symbol} for ${to!.symbol}`,
-                    operations: await getSwapOperations({
-                      account,
-                      route,
-                      from: asAddress(fromAddress),
-                      fromAmount: asFp(fromAmount, from.decimals),
-                      slippage: 0.01, // 1%
-                      deadline: DateTime.now().plus({ months: 3 }),
-                    }),
+                    operations: operations.value,
                   });
                   router.push({
                     pathname: `/(drawer)/transaction/[id]/`,
