@@ -64,8 +64,8 @@ function SpendingSettings_(props: SpendingSettingsProps) {
               {tokens.length
                 ? tokens.length + (transfers.defaultAllow ? '+' : '')
                 : transfers.defaultAllow
-                ? 'Allowed'
-                : 'Not allowed'}
+                  ? 'Allowed'
+                  : 'Not allowed'}
             </ListItemTrailingText>
             <Chevron {...props} expanded={expanded} />
           </ListItemHorizontalTrailing>

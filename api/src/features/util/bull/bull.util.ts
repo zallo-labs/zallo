@@ -31,12 +31,7 @@ export function registerBullQueue(...queues: (RegisterQueueOptions & { name: str
   ].filter(isTruthy);
 }
 
-export const RUNNING_JOB_STATUSES = [
-  'waiting',
-  'active',
-  'delayed',
-  'paused',
-] satisfies JobType[];
+export const RUNNING_JOB_STATUSES = ['waiting', 'active', 'delayed', 'paused'] satisfies JobType[];
 
 export interface QueueDefintion<Data = unknown, ReturnType = unknown>
   extends Omit<RegisterQueueOptions, 'name'> {

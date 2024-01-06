@@ -10,6 +10,6 @@ export function addressMap<M extends Partial<Record<Chain, Address>>>(m: M) {
     (M extends Record<'zksync-local', unknown>
       ? Record<'zksync-local', M['zksync-local']>
       : M extends Record<'zksync-goerli', unknown>
-      ? Record<'zksync-local', M['zksync-goerli']>
-      : Partial<Record<Chain, Address>>);
+        ? Record<'zksync-local', M['zksync-goerli']>
+        : Partial<Record<Chain, Address>>);
 }

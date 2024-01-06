@@ -7,7 +7,10 @@ import { ContractFunctionInput } from './contract-functions.input';
 
 @Injectable()
 export class ContractFunctionsService {
-  constructor(private db: DatabaseService, private contracts: ContractsService) {}
+  constructor(
+    private db: DatabaseService,
+    private contracts: ContractsService,
+  ) {}
 
   async select({ contract, selector }: ContractFunctionInput, shape: ShapeFunc<typeof e.Function>) {
     // @ts-expect-error shape function mismatch

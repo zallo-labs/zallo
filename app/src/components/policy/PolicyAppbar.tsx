@@ -77,8 +77,8 @@ export function PolicyAppbar({ view, reset, setView, ...props }: PolicyAppbarPro
     view === 'state' && policy?.draft
       ? () => setView('draft')
       : view === 'draft' && policy?.state
-      ? () => setView('state')
-      : undefined;
+        ? () => setView('state')
+        : undefined;
 
   return (
     <AppbarOptions

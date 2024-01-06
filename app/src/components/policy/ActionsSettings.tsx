@@ -40,8 +40,8 @@ export function ActionsSettings(props: ActionsSettingsProps) {
               {allowedExplicitActions
                 ? allowedExplicitActions + (defaultAllow ? '+' : '')
                 : defaultAllow
-                ? 'Allowed'
-                : 'Not allowed'}
+                  ? 'Allowed'
+                  : 'Not allowed'}
             </ListItemTrailingText>
             <Chevron expanded={expanded} {...props} />
           </ListItemHorizontalTrailing>
