@@ -35,13 +35,13 @@ export class UpsertTokenInput {
   @Bytes32Field({ nullable: true })
   pythUsdPriceId?: Hex;
 
-  @Field(() => String)
+  @Field(() => String, { nullable: true })
   name?: string;
 
-  @Field(() => String)
+  @Field(() => String, { nullable: true })
   symbol?: string;
 
-  @Field(() => GraphQLInt)
+  @Field(() => GraphQLInt, { nullable: true })
   decimals?: number;
 
   @Field(() => String, { nullable: true })
@@ -62,6 +62,6 @@ export class TokenUnitInput {
 
 @InputType()
 export class BalanceInput {
-  @UAddressField()
+  @UAddressField({ nullable: true })
   account?: UAddress;
 }

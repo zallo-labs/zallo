@@ -39,7 +39,7 @@ export class AccountSubscriptionInput {
 
 @InputType()
 export class CreateAccountInput {
-  @ChainField()
+  @ChainField({ nullable: true })
   chain?: Chain;
 
   @Field(() => String)
