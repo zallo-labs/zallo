@@ -17,7 +17,7 @@
     "build:web": {
       "dependsOn": ["prepare"],
       "inputs": ["assets/**", "public/**", "src/**"],
-      "outputs": ["dist/**"]
+      "outputs": ["dist/**", ".cache/metro/**"]
     },
     "deploy:update": {
       "dependsOn": ["prepare"],

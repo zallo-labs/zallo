@@ -1,5 +1,6 @@
 // https://facebook.github.io/metro/docs/configuration/
 const { getDefaultConfig } = require('expo/metro-config');
+const { FileStore } = require('metro-cache');
 const findWorkspaceRoot = require('find-yarn-workspace-root');
 const path = require('path');
 
@@ -33,5 +34,8 @@ config.resolver.extraNodeModules = {
   ...config.resolver.extraNodeModules,
   ...require('node-libs-react-native'),
 };
+
+// Use turborepo to restore the cache when possible
+config.cacheStores = [new FileStore({ root: path.join(projectRoot, '.cache', 'metro') })];
 
 module.exports = config;
