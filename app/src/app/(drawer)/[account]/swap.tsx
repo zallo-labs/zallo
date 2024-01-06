@@ -1,15 +1,6 @@
 import { useRouter } from 'expo-router';
 import { usePropose } from '@api/usePropose';
-import {
-  ETH_ADDRESS,
-  FIAT_DECIMALS,
-  UAddress,
-  asAddress,
-  asChain,
-  asDecimal,
-  asFp,
-  asUAddress,
-} from 'lib';
+import { ETH_ADDRESS, FIAT_DECIMALS, UAddress, asAddress, asChain, asFp, asUAddress } from 'lib';
 import { useMemo, useState } from 'react';
 import { InputType, InputsView } from '~/components/InputsView';
 import { Divider, IconButton } from 'react-native-paper';
@@ -22,7 +13,6 @@ import { useQuery } from '~/gql';
 import { AppbarOptions } from '~/components/Appbar/AppbarOptions';
 import { useLocalParams } from '~/hooks/useLocalParams';
 import { withSuspense } from '~/components/skeleton/withSuspense';
-import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
 import { ScreenSurface } from '~/components/layout/ScreenSurface';
 import { createStyles } from '@theme/styles';
 import { AccountParams } from '~/app/(drawer)/[account]/(home)/_layout';
@@ -32,17 +22,14 @@ import { TokenIcon } from '~/components/token/TokenIcon';
 import { useSwappableTokens } from '~/hooks/swap/useSwappableTokens';
 import { TokenAmount } from '~/components/token/TokenAmount';
 import { useSelectToken } from '~/app/(drawer)/[account]/tokens';
-import { FormattedNumber } from '~/components/format/FormattedNumber';
 import { useSwapRoute } from '~/hooks/swap/useSwapRoute';
 import { getSwapOperations } from '~/util/swap/syncswap/swap';
-import { suspend } from 'suspend-react';
-import { estimateSwap } from '~/util/swap/syncswap/estimate';
 import Decimal from 'decimal.js';
 import { ampli } from '~/lib/ampli';
+import { SwapToTokenItem } from '~/components/swap/SwapToTokenItem';
 
 const DownArrow = materialCommunityIcon('arrow-down-thin');
 const ICON_BUTTON_SIZE = 24;
-const RATIO_DECIMALS = 18;
 
 const Query = gql(/* GraphQL */ `
   query SwapScreen($account: UAddress!, $tokens: [UAddress!]!) {
@@ -58,6 +45,8 @@ const Query = gql(/* GraphQL */ `
       ...InputsView_token @arguments(account: $account)
       ...TokenIcon_Token
       ...TokenAmount_token
+      ...SwapToTokenItem_FromToken
+      ...SwapToTokenItem_ToToken
     }
   }
 `);
@@ -72,10 +61,12 @@ function SwapScreen() {
   const selectToken = useSelectToken();
   const swappableTokens = useSwappableTokens(chain);
 
+  console.log('preQuery');
   const { tokens } = useQuery(Query, {
     account,
     tokens: swappableTokens,
   }).data;
+  console.log('postQuery');
 
   const [fromAddress, setFromAddress] = useState<UAddress>(
     tokens[0]?.address ?? asUAddress(ETH_ADDRESS, chain),
@@ -95,16 +86,6 @@ function SwapScreen() {
   );
 
   const route = useSwapRoute({ account, from: asAddress(fromAddress), to: asAddress(toAddress) });
-  const toAmountEstimate =
-    route &&
-    suspend(
-      async () =>
-        asDecimal(
-          await estimateSwap({ chain, route, fromAmount: asFp(fromAmount, from.decimals) }),
-          to?.decimals ?? 0,
-        ),
-      [chain, from.decimals, fromAmount, route, to?.decimals],
-    );
 
   const selectFrom = async () => {
     const newToken = await selectToken({ account, enabled: swappableTokens });
@@ -144,29 +125,15 @@ function SwapScreen() {
             onPress={selectFrom}
           />
 
-          {to ? (
+          {to && route ? (
             <>
-              <ListItem
-                leading={(props) => <TokenIcon {...props} token={to} />}
-                leadingSize="medium"
-                overline="To (estimated)"
-                headline={({ Text }) => (
-                  <Text>
-                    <TokenAmount token={to} amount={toAmountEstimate} />
-                  </Text>
-                )}
-                trailing={({ Text }) => (
-                  <Text>
-                    <FormattedNumber
-                      /* TODO: estimated ratio */
-                      value={0}
-                      maximumFractionDigits={3}
-                      minimumNumberFractionDigits={4}
-                      postFormat={(v) => `${v}/${from.symbol}`}
-                    />
-                  </Text>
-                )}
-                onPress={selectTo}
+              <SwapToTokenItem
+                from={from}
+                fromAmount={fromAmount}
+                to={to}
+                chain={chain}
+                route={route}
+                selectTo={selectTo}
               />
 
               <IconButton
@@ -252,4 +219,4 @@ const styles = createStyles({
   },
 });
 
-export default withSuspense(SwapScreen, ScreenSkeleton);
+export default withSuspense(SwapScreen, null);
