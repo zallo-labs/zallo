@@ -21,6 +21,7 @@ import { NativeStackNavigationOptions } from '@react-navigation/native-stack';
 import { Fonts } from '~/components/Fonts';
 import { ApproverNameUpdater } from '~/components/ApproverNameUpdater';
 import { Portal } from 'react-native-paper';
+import { TQueryProvider } from '~/components/provider/TQueryProvider';
 
 const modal: NativeStackNavigationOptions = {
   presentation: 'modal',
@@ -85,21 +86,23 @@ export default function RootLayout() {
                 <Suspense fallback={<Splash />}>
                   <AuthGate>
                     <GqlProvider>
-                      <ErrorBoundary>
-                        <Suspense fallback={<Splash />}>
-                          <Portal.Host>
-                            <Layout />
-                          </Portal.Host>
-                        </Suspense>
-                      </ErrorBoundary>
-                      <MinimalErrorBoundary>
-                        <Suspense fallback={null}>
-                          <Analytics />
-                          <WalletConnectListeners />
-                          <NotificationsProvider />
-                          <ApproverNameUpdater />
-                        </Suspense>
-                      </MinimalErrorBoundary>
+                      <TQueryProvider>
+                        <ErrorBoundary>
+                          <Suspense fallback={<Splash />}>
+                            <Portal.Host>
+                              <Layout />
+                            </Portal.Host>
+                          </Suspense>
+                        </ErrorBoundary>
+                        <MinimalErrorBoundary>
+                          <Suspense fallback={null}>
+                            <Analytics />
+                            <WalletConnectListeners />
+                            <NotificationsProvider />
+                            <ApproverNameUpdater />
+                          </Suspense>
+                        </MinimalErrorBoundary>
+                      </TQueryProvider>
                     </GqlProvider>
                   </AuthGate>
                 </Suspense>

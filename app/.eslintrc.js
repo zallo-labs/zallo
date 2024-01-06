@@ -4,7 +4,11 @@ module.exports = {
     browser: true,
   },
   plugins: ['react', 'react-hooks', 'react-native'],
-  extends: ['plugin:react/recommended', 'plugin:react/jsx-runtime'],
+  extends: [
+    'plugin:react/recommended',
+    'plugin:react/jsx-runtime',
+    'plugin:@tanstack/eslint-plugin-query/recommended',
+  ],
   rules: {
     '@typescript-eslint/no-explicit-any': 'warn',
     'react/display-name': 'off',
@@ -14,7 +18,7 @@ module.exports = {
     'react-hooks/exhaustive-deps': [
       'error',
       {
-        additionalHooks: '(useMyCustomHook|suspend)',
+        additionalHooks: '(useMyCustomHook|useMyOtherCustomHook)',
       },
     ],
     'react-native/split-platform-components': 'error',

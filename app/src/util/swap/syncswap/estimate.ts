@@ -2,9 +2,9 @@ import { getNetwork } from '@network/network';
 import { Chain } from 'chains';
 import { SYNCSWAP } from 'lib/dapps';
 import { SwapRoute } from '~/hooks/swap/useSwapRoute';
-import { suspend } from 'suspend-react';
 import { ResultAsync } from 'neverthrow';
 import { SimulateContractErrorType } from 'viem';
+import { useSuspenseQuery } from '@tanstack/react-query';
 
 const FOREVER_DEADLINE = 32531887598n;
 
@@ -30,5 +30,8 @@ export async function estimateSwap({ chain, route, fromAmount }: EstimateSwapPar
 }
 
 export function useEstimateSwap(props: EstimateSwapParams) {
-  return suspend(() => estimateSwap(props), ['estimate-swap', props.fromAmount.toString()]);
+  return useSuspenseQuery({
+    queryFn: ({ queryKey: [_key, params] }) => estimateSwap(params),
+    queryKey: ['estimate-swap', props] as const,
+  }).data;
 }
