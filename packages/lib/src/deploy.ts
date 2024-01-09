@@ -1,11 +1,19 @@
-import { Address, asAddress, asUAddress } from './address';
+import { Address, UAddress, asAddress, asUAddress } from './address';
 import { utils as zkUtils } from 'zksync-ethers';
 import { Policy, encodePolicyStruct } from './policy';
 import { Network, NetworkWallet } from 'chains';
 import { ACCOUNT_IMPLEMENTATION, ACCOUNT_PROXY, ACCOUNT_PROXY_FACTORY } from './contract';
-import { Hex, encodeAbiParameters, encodeFunctionData } from 'viem';
+import {
+  Hex,
+  TypedDataDefinition,
+  encodeAbiParameters,
+  encodeFunctionData,
+  getAbiItem,
+} from 'viem';
 import { err, ok } from 'neverthrow';
 import { randomHex } from './bytes';
+import { getContractTypedDataDomain } from './util/typed-data';
+import { AbiParameterToPrimitiveType, TypedData } from 'abitype';
 
 export const randomDeploySalt = () => randomHex(32);
 
@@ -66,6 +74,7 @@ export interface DeployAccountProxyArgs extends ProxyConstructorArgs {
   wallet: NetworkWallet;
   factory: Address;
   salt: Hex;
+  refund?: RefundDeploymentArgs;
 }
 
 export const deployAccountProxy = async ({
@@ -73,6 +82,7 @@ export const deployAccountProxy = async ({
   wallet,
   factory,
   salt,
+  refund,
   ...constructorArgs
 }: DeployAccountProxyArgs) => {
   const proxy = await getProxyAddress({ network, factory, salt, ...constructorArgs });
@@ -80,8 +90,15 @@ export const deployAccountProxy = async ({
   const sim = await network.simulateContract({
     abi: ACCOUNT_PROXY_FACTORY.abi,
     address: factory,
-    functionName: 'deploy',
-    args: [encodeProxyConstructorArgs(constructorArgs), salt],
+    ...(refund
+      ? {
+          functionName: 'deployWithRefund',
+          args: [encodeProxyConstructorArgs(constructorArgs), salt, refund],
+        }
+      : {
+          functionName: 'deploy',
+          args: [encodeProxyConstructorArgs(constructorArgs), salt],
+        }),
   });
   const expected = asAddress(proxy);
   if (sim.result !== expected) return err({ expected, simulated: sim.result });
@@ -90,3 +107,27 @@ export const deployAccountProxy = async ({
 
   return ok({ proxy, transactionHash });
 };
+
+const deployWithRefundItem = getAbiItem({
+  abi: ACCOUNT_PROXY_FACTORY.abi,
+  name: 'deployWithRefund',
+});
+type DeployWithRefund = (typeof deployWithRefundItem)['inputs'][2];
+export type RefundDeploymentArgs = AbiParameterToPrimitiveType<DeployWithRefund>;
+export type RefundDeploymentMessage = RefundDeploymentArgs['message'];
+
+const DEPLOYMENT_REFUND_TYPES = {
+  DeploymentRefund: [
+    { name: 'token', type: 'address' },
+    { name: 'maxAmount', type: 'uint256' },
+  ],
+} satisfies TypedData;
+
+export function deploymentRefundTypedData(account: UAddress, message: RefundDeploymentMessage) {
+  return {
+    domain: getContractTypedDataDomain(account),
+    types: DEPLOYMENT_REFUND_TYPES,
+    primaryType: 'DeploymentRefund' as const,
+    message,
+  } satisfies TypedDataDefinition;
+}
