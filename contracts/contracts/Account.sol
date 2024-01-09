@@ -19,6 +19,7 @@ import {ERC721Receiver} from './standards/ERC721Receiver.sol';
 import {SignatureValidator} from './base/SignatureValidator.sol';
 import {TransactionUtil} from './TransactionUtil.sol';
 import {PaymasterUtil} from './paymaster/PaymasterUtil.sol';
+import {DeploymentRefunder} from './base/DeploymentRefunder.sol';
 
 contract Account is
   IAccount,
@@ -29,6 +30,7 @@ contract Account is
   ERC165,
   ERC721Receiver,
   SignatureValidator,
+  DeploymentRefunder
 {
   using TransactionHelper for Transaction;
   using TransactionUtil for Transaction;
@@ -48,7 +50,7 @@ contract Account is
                              INITIALIZATION
   //////////////////////////////////////////////////////////////*/
 
-  constructor() {
+  constructor() DeploymentRefunder(_isValidSignature) {
     // Disable initializing the implementation contract; avoiding any potential nonsense (e.g. selfdestruct)
     _disableInitializers();
   }
@@ -56,6 +58,7 @@ contract Account is
   function initialize(Policy[] calldata policies) external initializer {
     // _initializeArbitraryNonceOrdering();
     _addPolicies(policies);
+    _initializeDeployRefunder();
   }
 
   /*//////////////////////////////////////////////////////////////
