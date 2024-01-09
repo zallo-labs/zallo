@@ -1,10 +1,12 @@
 import {
   Abi,
+  AbiParameterToPrimitiveType,
   Address,
+  ContractErrorArgs,
+  ContractEventArgs,
+  ContractEventName,
   ContractFunctionRevertedError,
-  EstimateGasExecutionError,
-  ExecutionRevertedError,
-  InferEventName,
+  GetEventArgs,
   TransactionExecutionErrorType,
   TransactionReceipt,
   decodeEventLog,
@@ -14,9 +16,10 @@ import {
 import { network } from './network';
 import { use } from 'chai';
 import { buildAssert } from '@nomicfoundation/hardhat-chai-matchers/utils';
-import { GetErrorArgs, GetEventArgsFromTopics, Hex, InferErrorName, LogTopic } from 'viem';
+import { Hex, LogTopic, ContractErrorName } from 'viem';
 import deepEqual from 'fast-deep-equal';
 import TestToken from '../contracts/TestToken';
+import { ExtractAbiError, ExtractAbiEvent, AbiParametersToPrimitiveTypes } from 'abitype';
 
 use(viemChaiMatchers);
 
@@ -212,11 +215,11 @@ declare global {
     interface Assertion {
       succeed: AsyncAssertion;
       revert: AsyncAssertion;
-      revertWith<TAbi extends Abi = Abi, TErrorName extends string = string>(
+      revertWith<TAbi extends Abi, TErrorName extends ContractErrorName<TAbi>>(
         params: RevertWithParams<TAbi, TErrorName>,
       ): AsyncAssertion;
       changeBalance(address: Address, token: Address, change: bigint): AsyncAssertion;
-      includeEvent<TAbi extends Abi = Abi, TEventName extends string = string>(
+      includeEvent<TAbi extends Abi, TEventName extends ContractEventName<TAbi>>(
         params: IncludeEventParams<TAbi, TEventName>,
       ): AsyncAssertion;
     }
@@ -269,14 +272,20 @@ function isReceipt(v: unknown): v is TransactionReceipt {
   return typeof v === 'object' && v !== null && 'transactionHash' in v;
 }
 
-interface RevertWithParams<TAbi extends Abi = Abi, TErrorName extends string = string> {
+interface RevertWithParams<
+  TAbi extends Abi = Abi,
+  TErrorName extends ContractErrorName<TAbi> = ContractErrorName<TAbi>,
+> {
   abi: TAbi;
-  errorName: InferErrorName<TAbi, TErrorName>;
-  args?: GetErrorArgs<TAbi, TErrorName>['args'];
+  errorName: ExtractAbiError<TAbi, TErrorName>['name'];
+  args?: ContractErrorArgs<TAbi, TErrorName>;
 }
 
-interface IncludeEventParams<TAbi extends Abi = Abi, TEventName extends string = string> {
+interface IncludeEventParams<
+  TAbi extends Abi = Abi,
+  TEventName extends ContractEventName<TAbi> = ContractEventName<TAbi>,
+> {
   abi: TAbi;
-  eventName: InferEventName<TAbi, TEventName>;
-  args?: GetEventArgsFromTopics<TAbi, TEventName, LogTopic[], Hex>['args'];
+  eventName: ExtractAbiEvent<TAbi, TEventName>['name'];
+  args?: GetEventArgs<TAbi, TEventName, { EnableUnion: false; IndexedOnly: false; Required: true }>;
 }

@@ -38,7 +38,7 @@
     "@pythnetwork/pyth-evm-js": "^1.29.2",
     "@sentry/node": "^7.90.0",
     "@songkeys/nestjs-redis": "^10.0.0",
-    "abitype": "^0.9.8",
+    "abitype": "^0.10.3",
     "axios": "^1.6.5",
     "bullmq": "^4.17.0",
     "chains": "workspace:*",
@@ -71,7 +71,7 @@
     "siwe": "^2.1.4",
     "ts-deepmerge": "^6.2.0",
     "ts-pattern": "^5.0.6",
-    "viem": "^1.20.3",
+    "viem": "^2.0.3",
     "zod": "^3.22.4"
   },
   "devDependencies": {

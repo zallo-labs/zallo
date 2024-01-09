@@ -25,23 +25,29 @@ async function getSyncswapPools(chain: Chain): Promise<SyncswapPool[]> {
     await network.multicall({
       contracts: Array(Number(poolsLen))
         .fill(0)
-        .map((_, i) => ({
-          address: SYNCSWAP.poolMaster.address[network.chain.key],
-          abi: SYNCSWAP.poolMaster.abi,
-          functionName: 'pools',
-          args: [BigInt(i)],
-        })),
+        .map(
+          (_, i) =>
+            ({
+              address: SYNCSWAP.poolMaster.address[network.chain.key],
+              abi: SYNCSWAP.poolMaster.abi,
+              functionName: 'pools',
+              args: [BigInt(i)],
+            }) as const,
+        ),
     })
   )
     .map((p) => p.result)
     .filter(Boolean);
 
   const poolPairs = await network.multicall({
-    contracts: pools.map((address) => ({
-      address,
-      abi: SYNCSWAP.classicPool.abi,
-      functionName: 'getAssets',
-    })),
+    contracts: pools.map(
+      (address) =>
+        ({
+          address,
+          abi: SYNCSWAP.classicPool.abi,
+          functionName: 'getAssets',
+        }) as const,
+    ),
   });
 
   const wETH = WETH.address[chain];

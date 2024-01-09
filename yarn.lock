@@ -13168,7 +13168,37 @@ __metadata:
   languageName: node
   linkType: hard
 
-"abitype@npm:0.9.8, abitype@npm:^0.9.8":
+"abitype@npm:0.10.0":
+  version: 0.10.0
+  resolution: "abitype@npm:0.10.0"
+  peerDependencies:
+    typescript: ">=5.0.4"
+    zod: ^3 >=3.22.0
+  peerDependenciesMeta:
+    typescript:
+      optional: true
+    zod:
+      optional: true
+  checksum: e9faa33067f787e1cd41d9d2b3e058d4bc94bf97cf4e72a63a2cda4c3b248b8feb231524c9b78b3dd6da945bad9135eceb01217bba8d891da2a487d48016e1ed
+  languageName: node
+  linkType: hard
+
+"abitype@npm:^0.10.3":
+  version: 0.10.3
+  resolution: "abitype@npm:0.10.3"
+  peerDependencies:
+    typescript: ">=5.0.4"
+    zod: ^3 >=3.22.0
+  peerDependenciesMeta:
+    typescript:
+      optional: true
+    zod:
+      optional: true
+  checksum: 6eefcd8a63e2ecfaa9089125734d4542e8094160b43b38469eba3dfece167947ef8754c895be1a6b312088012fdc1740f7e338918e7ec7775a62807daec33ef5
+  languageName: node
+  linkType: hard
+
+"abitype@npm:^0.9.8":
   version: 0.9.8
   resolution: "abitype@npm:0.9.8"
   peerDependencies:
@@ -13749,7 +13779,7 @@ __metadata:
     "@types/luxon": "npm:^3.3.7"
     "@types/supertest": "npm:^2.0.16"
     "@types/uuid": "npm:^9.0.7"
-    abitype: "npm:^0.9.8"
+    abitype: "npm:^0.10.3"
     axios: "npm:^1.6.5"
     bullmq: "npm:^4.17.0"
     chains: "workspace:*"
@@ -13794,7 +13824,7 @@ __metadata:
     tsx: "npm:^4.7.0"
     typescript: "npm:^5.3.3"
     uuid: "npm:^9.0.1"
-    viem: "npm:^1.20.3"
+    viem: "npm:^2.0.3"
     zod: "npm:^3.22.4"
   languageName: unknown
   linkType: soft
@@ -13954,7 +13984,7 @@ __metadata:
     urql: "npm:^4.0.5"
     use-async-effect: "npm:^2.2.7"
     use-immer: "npm:^0.9.0"
-    viem: "npm:^1.20.3"
+    viem: "npm:^2.0.3"
     zod: "npm:^3.22.4"
   languageName: unknown
   linkType: soft
@@ -15868,7 +15898,7 @@ __metadata:
   dependencies:
     tsup: "npm:^8.0.1"
     typescript: "npm:^5.3.3"
-    viem: "npm:^1.20.3"
+    viem: "npm:^2.0.3"
   languageName: unknown
   linkType: soft
 
@@ -16913,7 +16943,7 @@ __metadata:
     solidity-coverage: "npm:^0.8.5"
     ts-node: "npm:^10.9.2"
     typescript: "npm:^5.3.3"
-    viem: "npm:^1.20.3"
+    viem: "npm:^2.0.3"
     zksync-ethers: "npm:^6.0.0"
   languageName: unknown
   linkType: soft
@@ -25783,7 +25813,7 @@ __metadata:
   dependencies:
     "@types/jest": "npm:^29.5.5"
     "@types/lodash": "npm:^4.14.202"
-    abitype: "npm:^0.9.8"
+    abitype: "npm:^0.10.3"
     chains: "workspace:*"
     decimal.js: "npm:^10.4.3"
     ethers: "npm:6.9.0"
@@ -25795,7 +25825,7 @@ __metadata:
     ts-toolbelt: "npm:^9.6.0"
     tsup: "npm:8.0.1"
     typescript: "npm:^5.3.3"
-    viem: "npm:^1.20.3"
+    viem: "npm:^2.0.3"
     zksync-ethers: "npm:^6.0.0"
   languageName: unknown
   linkType: soft
@@ -36328,16 +36358,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"viem@npm:^1.20.3":
-  version: 1.20.3
-  resolution: "viem@npm:1.20.3"
+"viem@npm:^2.0.3":
+  version: 2.0.3
+  resolution: "viem@npm:2.0.3"
   dependencies:
     "@adraffy/ens-normalize": "npm:1.10.0"
     "@noble/curves": "npm:1.2.0"
     "@noble/hashes": "npm:1.3.2"
     "@scure/bip32": "npm:1.3.2"
     "@scure/bip39": "npm:1.2.1"
-    abitype: "npm:0.9.8"
+    abitype: "npm:0.10.0"
     isows: "npm:1.0.3"
     ws: "npm:8.13.0"
   peerDependencies:
@@ -36345,28 +36375,7 @@ __metadata:
   peerDependenciesMeta:
     typescript:
       optional: true
-  checksum: cf1fa5ad33f5af8c2c88478ba598c8bf8c5d35f0854536af3ccfd991b44d55e3dfa4d7616a08bb9f3dccba4789a612b33eeae4941110b72179fa99d2738550a9
-  languageName: node
-  linkType: hard
-
-"viem@patch:viem@npm:^1.20.3#.yarn/patches/viem-npm-1.20.3-dc6ceec8be.patch::locator=zallo%40workspace%3A.":
-  version: 1.20.3
-  resolution: "viem@patch:viem@npm%3A1.20.3#.yarn/patches/viem-npm-1.20.3-dc6ceec8be.patch::version=1.20.3&hash=bad812&locator=zallo%40workspace%3A."
-  dependencies:
-    "@adraffy/ens-normalize": "npm:1.10.0"
-    "@noble/curves": "npm:1.2.0"
-    "@noble/hashes": "npm:1.3.2"
-    "@scure/bip32": "npm:1.3.2"
-    "@scure/bip39": "npm:1.2.1"
-    abitype: "npm:0.9.8"
-    isows: "npm:1.0.3"
-    ws: "npm:8.13.0"
-  peerDependencies:
-    typescript: ">=5.0.4"
-  peerDependenciesMeta:
-    typescript:
-      optional: true
-  checksum: e858f24e12be0491b17f0c782f5831a8c33c481eb3bf5ffe0cffaf56504b2764a2aa73320857df118c69314e5fc1ad7c38ddd2c47ff7036b57a9f8f347a6e933
+  checksum: 644aed2545695870c734fe8c786fea49335f858c98ea41d213149a6287e10b5fb5a4d3ffd978ba7f60c261c56536bcb86aca628d34d02ffc05c5c7c20853e78d
   languageName: node
   linkType: hard
 
