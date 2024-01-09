@@ -18,10 +18,11 @@ module default {
     }
     required implementation: Address;
     required salt: Bytes32;
-    required isActive: bool;
+    upgradedAtBlock: bigint { constraint min_value(0); }
     photoUri: str;
     required paymasterEthCredit: decimal { constraint min_value(0); default := 0; }
     required property chain := as_chain(.address);
+    required property isActive := exists .upgradedAtBlock; 
     multi link policies := (select .<account[is Policy] filter .isEnabled);
     multi link proposals := .<account[is Proposal];
     multi link transactionProposals := .<account[is TransactionProposal];

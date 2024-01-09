@@ -66,7 +66,6 @@ describe(PaymastersService.name, () => {
       e.insert(e.Account, {
         address,
         implementation: asAddress(address),
-        isActive: false,
         label: randomLabel(),
         salt: randomDeploySalt(),
         paymasterEthCredit: credit?.toString(),

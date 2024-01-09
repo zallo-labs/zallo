@@ -26,7 +26,6 @@ import { RUNNING_JOB_STATUSES, TypedQueue } from '../util/bull/bull.util';
 import { ETH } from 'lib/dapps';
 import { runOnce } from '~/util/mutex';
 import { ampli } from '~/util/ampli';
-import { Revenue } from '@amplitude/analytics-node';
 import Decimal from 'decimal.js';
 
 @Injectable()

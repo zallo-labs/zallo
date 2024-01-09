@@ -94,7 +94,7 @@ describe(TransactionProposalsService.name, () => {
         label: randomLabel(),
         implementation: randomAddress(),
         salt: randomDeploySalt(),
-        isActive: true,
+        upgradedAtBlock: 1n,
       })
       .unlessConflict()
       .id.run(db.client);

@@ -29,6 +29,7 @@ type Account implements Node {
   salt: Bytes32!
   transactionProposals: [TransactionProposal!]!
   transfers: [Transfer!]!
+  upgradedAtBlock: BigInt
 }
 
 enum AccountEvent {

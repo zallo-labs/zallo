@@ -195,11 +195,10 @@ export class ExecutionsWorker extends Worker<ExecutionsQueue> {
 
     await this.proposals.publishProposal({ id, account }, ProposalEvent.submitted);
 
-    await this.transactionsQueue.add(
-      TRANSACTIONS_QUEUE.name,
-      { chain: network.chain.key, transaction },
-      { delay: 500 /* ms */ },
-    );
+    await this.transactionsQueue.add('Transaction proposal', {
+      chain: network.chain.key,
+      transaction,
+    });
 
     return transaction;
   }

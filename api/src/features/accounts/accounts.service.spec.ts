@@ -6,7 +6,7 @@ import { DeepPartial, randomLabel, randomUAddress, randomUser } from '~/util/tes
 import { getProxyAddress, UAddress } from 'lib';
 import { PoliciesService } from '../policies/policies.service';
 import { BullModule, getQueueToken } from '@nestjs/bullmq';
-import { ACTIVATIONS_QUEUE } from './activations.queue';
+import { ACTIVATIONS_QUEUE } from './activations.worker';
 import { DatabaseService } from '../database/database.service';
 import { AccountsService } from './accounts.service';
 import e from '~/edgeql-js';

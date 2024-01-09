@@ -24,7 +24,7 @@ import { ContractsService } from '../contracts/contracts.service';
 import { FaucetService } from '../faucet/faucet.service';
 import { PoliciesService } from '../policies/policies.service';
 import { InjectQueue } from '@nestjs/bullmq';
-import { ACTIVATIONS_QUEUE } from './activations.queue';
+import { ACTIVATIONS_QUEUE } from './activations.worker';
 import { inputAsPolicy } from '../policies/policies.util';
 import { AccountsCacheService } from '../auth/accounts.cache.service';
 import { v4 as uuid } from 'uuid';
@@ -127,7 +127,6 @@ export class AccountsService {
           id,
           address: account,
           label,
-          isActive: false,
           implementation,
           salt,
         })
@@ -143,7 +142,7 @@ export class AccountsService {
       }
     });
 
-    await this.activateAccount(account, implementation, salt, policies);
+    await this.tryActivateAccount(account);
     this.contracts.addAccountAsVerified(asAddress(account));
     this.faucet.requestTokens(account);
     this.publishAccount({ account, event: AccountEvent.create });
@@ -168,27 +167,8 @@ export class AccountsService {
     this.publishAccount({ account: address, event: AccountEvent.update });
   }
 
-  private async activateAccount(
-    account: UAddress,
-    implementation: Address,
-    salt: Hex,
-    policies: Policy[],
-  ) {
-    const network = this.networks.get(account);
-    const { transactionHash } = (
-      await network.useWallet(async (wallet) =>
-        deployAccountProxy({
-          network,
-          wallet,
-          factory: ACCOUNT_PROXY_FACTORY.address[network.key],
-          implementation,
-          salt,
-          policies,
-        }),
-      )
-    )._unsafeUnwrap(); // TODO: handle failed deployments
-
-    await this.activations.add('', { account, transaction: transactionHash });
+  async tryActivateAccount(account: UAddress) {
+    await this.activations.add(ACTIVATIONS_QUEUE.name, { account });
   }
 
   async publishAccount(payload: AccountSubscriptionPayload) {
