@@ -1,12 +1,12 @@
-import { Address, ETH_ADDRESS, UAddress, asAddress, asChain } from './address';
-import { CHAINS } from 'chains';
+import { Address, ETH_ADDRESS, UAddress, asAddress } from './address';
 import { Operation, encodeOperations } from './operation';
 import _ from 'lodash';
-import { hashTypedData, TypedData, TypedDataDefinition, TypedDataDomain, zeroAddress } from 'viem';
+import { hashTypedData, TypedData, TypedDataDefinition, zeroAddress } from 'viem';
 import { TypedDataToPrimitiveTypes } from 'abitype';
 import { asFp, paymasterSignedInput } from '.';
 import { ETH } from './dapps';
 import Decimal from 'decimal.js';
+import { getContractTypedDataDomain } from './util/typed-data';
 
 export interface Tx {
   operations: [Operation, ...Operation[]];
@@ -24,12 +24,6 @@ export const asTx = (o: TxOptions): Tx => ({
   ..._.omit(o, 'operations'),
   operations: 'operations' in o ? o.operations! : [_.pick(o, ['to', 'value', 'data'])],
 });
-
-export const getAccountTypedDataDomain = (account: UAddress) =>
-  ({
-    chainId: CHAINS[asChain(account)].id,
-    verifyingContract: asAddress(account),
-  }) satisfies TypedDataDomain;
 
 export const TX_EIP712_TYPES = {
   /* TODO: add fields */
@@ -82,7 +76,7 @@ export function asTypedData(account: UAddress, tx: Tx) {
   } satisfies TxTypedDataMessage;
 
   return {
-    domain: getAccountTypedDataDomain(account),
+    domain: getContractTypedDataDomain(account),
     types: TX_EIP712_TYPES,
     primaryType: 'Tx' as const,
     message,

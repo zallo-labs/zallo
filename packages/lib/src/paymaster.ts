@@ -10,8 +10,8 @@ import { abi as flowAbi } from './generated/IPaymasterFlow';
 import { abi as paymasterUtilAbi } from './generated/TestPaymasterUtil';
 import { AbiParameterToPrimitiveType, TypedData, parseAbiParameters } from 'abitype';
 import { Hex } from './bytes';
-import { Address, UAddress, asAddress, asChain } from './address';
-import { CHAINS } from 'chains';
+import { Address, UAddress } from './address';
+import { getContractTypedDataDomain } from './util/typed-data';
 
 export interface PayForTransactionParams extends PaymasterSignedData {
   token: Address;
@@ -59,10 +59,7 @@ export function paymasterSignedDataAsTypedData({
   ...message
 }: HashPaymasterSignedDataParams) {
   return {
-    domain: {
-      chainId: CHAINS[asChain(paymaster)].id,
-      verifyingContract: asAddress(paymaster),
-    },
+    domain: getContractTypedDataDomain(paymaster),
     types: SIGNED_DATA_TYPES,
     primaryType: 'SignedData' as const,
     message,

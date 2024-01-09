@@ -16,7 +16,7 @@ import {Hook, Hooks} from './policy/hooks/Hooks.sol';
 import {Executor} from './Executor.sol';
 import {ERC165} from './standards/ERC165.sol';
 import {ERC721Receiver} from './standards/ERC721Receiver.sol';
-import {ERC1271Validator} from './standards/ERC1271Validator.sol';
+import {SignatureValidator} from './base/SignatureValidator.sol';
 import {TransactionUtil} from './TransactionUtil.sol';
 import {PaymasterUtil} from './paymaster/PaymasterUtil.sol';
 
@@ -28,12 +28,16 @@ contract Account is
   Executor,
   ERC165,
   ERC721Receiver,
-  ERC1271Validator
+  SignatureValidator,
 {
   using TransactionHelper for Transaction;
   using TransactionUtil for Transaction;
   using Hooks for Hook[];
   using ApprovalsVerifier for Approvals;
+
+  /*//////////////////////////////////////////////////////////////
+                                 ERRORS
+  //////////////////////////////////////////////////////////////*/
 
   error InsufficientApproval();
   error InsufficientBalance();
@@ -50,8 +54,8 @@ contract Account is
   }
 
   function initialize(Policy[] calldata policies) external initializer {
-    _addPolicies(policies);
     // _initializeArbitraryNonceOrdering();
+    _addPolicies(policies);
   }
 
   /*//////////////////////////////////////////////////////////////
@@ -90,10 +94,7 @@ contract Account is
     _validateTransactionUnexecuted(proposal);
 
     if (transaction.isGasEstimation()) return bytes4(0); // Gas estimation requires failure without reverting
-
-    (Policy memory policy, Approvals memory approvals) = _decodeAndVerifySignature(
-      transaction.signature
-    );
+    (Policy memory policy, Approvals memory approvals) = _decodeSignature(transaction.signature);
     policy.hooks.validate(transaction.operations());
 
     if (!approvals.verify(proposal, policy)) return bytes4(0);
