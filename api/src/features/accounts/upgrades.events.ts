@@ -1,15 +1,17 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { asUAddress, tryOrIgnore, ACCOUNT_PROXY } from 'lib';
+import { asUAddress, ACCOUNT_PROXY } from 'lib';
 import { TransactionEventData, TransactionsWorker } from '../transactions/transactions.worker';
 import { EventData, EventsWorker } from '../events/events.worker';
 import { DatabaseService } from '../database/database.service';
 import { selectAccount } from '../accounts/accounts.util';
-import { decodeEventLog, getAbiItem } from 'viem';
+import { getAbiItem } from 'viem';
 import { AccountsCacheService } from '../auth/accounts.cache.service';
 import { ampli } from '~/util/ampli';
 import { AccountsService } from '~/features/accounts/accounts.service';
 import { AccountEvent } from '~/features/accounts/accounts.input';
 import e from '~/edgeql-js';
+
+const upgradedEvent = getAbiItem({ abi: ACCOUNT_PROXY.abi, name: 'Upgraded' });
 
 @Injectable()
 export class UpgradeEvents {
@@ -22,22 +24,14 @@ export class UpgradeEvents {
     private accounts: AccountsService,
     private accountsCache: AccountsCacheService,
   ) {
-    const upgradedEvent = getAbiItem({ abi: ACCOUNT_PROXY.abi, name: 'Upgraded' });
     this.eventsWorker.on(upgradedEvent, (data) => this.upgraded(data));
     this.transactionsWorker.onEvent(upgradedEvent, (data) => this.upgraded(data));
   }
 
-  private async upgraded(event: EventData | TransactionEventData) {
-    const implementation = tryOrIgnore(
-      () =>
-        decodeEventLog({
-          abi: ACCOUNT_PROXY.abi,
-          eventName: 'Upgraded',
-          data: event.log.data,
-          topics: event.log.topics,
-        }).args.implementation,
-    );
-    if (!implementation) return;
+  private async upgraded(
+    event: EventData<typeof upgradedEvent> | TransactionEventData<typeof upgradedEvent>,
+  ) {
+    const { implementation } = event.log.args;
 
     const address = asUAddress(event.log.address, event.chain);
     if (!(await this.accountsCache.isAccount(address))) return;

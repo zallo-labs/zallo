@@ -43,19 +43,27 @@ interface EventJobData {
   split?: boolean;
 }
 
-export type Log = ViemLog<bigint, number, false, undefined, true, AbiEvent[], undefined>;
+export type Log<TAbiEvent extends AbiEvent | undefined = undefined> = ViemLog<
+  bigint,
+  number,
+  false,
+  TAbiEvent,
+  true
+>;
 
-export interface EventData {
+export interface EventData<TAbiEvent extends AbiEvent> {
   chain: Chain;
-  log: Log;
+  log: Log<TAbiEvent>;
 }
 
-export type EventListener = (data: EventData) => Promise<void>;
+export type EventListener<TAbiEvent extends AbiEvent> = (
+  data: EventData<TAbiEvent>,
+) => Promise<void>;
 
 @Injectable()
 @Processor(EventsQueue.name)
 export class EventsWorker extends Worker<EventsQueue> {
-  private listeners = new Map<Hex, EventListener[]>();
+  private listeners = new Map<Hex, EventListener<AbiEvent>[]>();
   private events: AbiEvent[] = [];
   private logsPerBlockEma = Object.fromEntries(
     Object.keys(CHAINS).map((chain) => [chain as Chain, DEFAULT_LOGS_PER_BLOCK]),
@@ -76,9 +84,12 @@ export class EventsWorker extends Worker<EventsQueue> {
     this.addMissingJob();
   }
 
-  on(event: AbiEvent, listener: EventListener) {
-    const topic = encodeEventTopics({ abi: [event] })[0];
-    this.listeners.set(topic, [...(this.listeners.get(topic) ?? []), listener]);
+  on<TAbiEvent extends AbiEvent>(event: TAbiEvent, listener: EventListener<TAbiEvent>) {
+    const topic = encodeEventTopics({ abi: [event as AbiEvent] })[0];
+    this.listeners.set(topic, [
+      ...(this.listeners.get(topic) ?? []),
+      listener as unknown as EventListener<AbiEvent>,
+    ]);
     this.events.push(event);
   }
 

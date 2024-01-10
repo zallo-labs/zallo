@@ -8,6 +8,7 @@ import { DeepPartial, randomAddress } from '~/util/test';
 import { ACCOUNT_IMPLEMENTATION, Address } from 'lib';
 import { encodeEventTopics, getAbiItem } from 'viem';
 import { QueueData, TypedJob, TypedQueue } from '~/features/util/bull/bull.util';
+import { AbiEvent } from 'abitype';
 
 describe(EventsWorker.name, () => {
   let worker: EventsWorker;
@@ -16,7 +17,7 @@ describe(EventsWorker.name, () => {
   let attemptsMade = 0;
 
   let topic1Listener: jest.Mock;
-  const logs: Log[] = [
+  const logs: Log<AbiEvent>[] = [
     {
       logIndex: 0,
       topics: encodeEventTopics({
@@ -24,7 +25,7 @@ describe(EventsWorker.name, () => {
         eventName: 'Upgraded',
         args: { implementation: randomAddress() },
       }) as [Address, ...Address[]],
-    } satisfies Partial<Log> as Log,
+    } satisfies Partial<Log<AbiEvent>> as Log<AbiEvent>,
     {
       logIndex: 1,
       topics: encodeEventTopics({
@@ -32,14 +33,14 @@ describe(EventsWorker.name, () => {
         eventName: 'Upgraded',
         args: { implementation: randomAddress() },
       }) as [Address, ...Address[]],
-    } satisfies Partial<Log> as Log,
+    } satisfies Partial<Log<AbiEvent>> as Log<AbiEvent>,
     {
       logIndex: 2,
       topics: encodeEventTopics({
         abi: ACCOUNT_IMPLEMENTATION.abi,
         eventName: 'PolicyRemoved',
       }) as [Address, ...Address[]],
-    } satisfies Partial<Log> as Log,
+    } satisfies Partial<Log<AbiEvent>> as Log<AbiEvent>,
   ];
 
   beforeEach(async () => {
@@ -83,11 +84,11 @@ describe(EventsWorker.name, () => {
     expect(topic1Listener).toHaveBeenCalledWith({
       log: logs[0],
       chain: 'zksync-local',
-    } satisfies EventData);
+    } satisfies EventData<AbiEvent>);
     expect(topic1Listener).toHaveBeenCalledWith({
       log: logs[1],
       chain: 'zksync-local',
-    } satisfies EventData);
+    } satisfies EventData<AbiEvent>);
   });
 
   it('queue before processing', async () => {

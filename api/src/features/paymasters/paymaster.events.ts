@@ -1,13 +1,15 @@
 import { Injectable, forwardRef, Inject } from '@nestjs/common';
 import { TransactionEventData, TransactionsWorker } from '../transactions/transactions.worker';
-import { decodeEventLog, getAbiItem } from 'viem';
-import { PAYMASTER, asAddress, asHex, asUAddress, asDecimal, tryOrIgnore } from 'lib';
+import { getAbiItem } from 'viem';
+import { PAYMASTER, asAddress, asHex, asUAddress, asDecimal } from 'lib';
 import { AccountsCacheService } from '~/features/auth/accounts.cache.service';
 import e from '~/edgeql-js';
 import { ETH } from 'lib/dapps';
 import { DatabaseService } from '~/features/database/database.service';
 import { and } from '~/features/database/database.util';
 import { selectAccount } from '~/features/accounts/accounts.util';
+
+const refundCreditEvent = getAbiItem({ abi: PAYMASTER.abi, name: 'RefundCredit' });
 
 @Injectable()
 export class PaymasterEvents {
@@ -17,23 +19,17 @@ export class PaymasterEvents {
     private transactions: TransactionsWorker,
     private accountsCache: AccountsCacheService,
   ) {
-    this.transactions.onEvent(getAbiItem({ abi: PAYMASTER.abi, name: 'RefundCredit' }), (event) =>
-      this.refundCredit(event),
-    );
+    this.transactions.onEvent(refundCreditEvent, (e) => this.refundCredit(e));
   }
 
-  private async refundCredit({ chain, log, receipt }: TransactionEventData) {
-    const r = tryOrIgnore(() =>
-      decodeEventLog({
-        abi: PAYMASTER.abi,
-        eventName: 'RefundCredit',
-        data: log.data,
-        topics: log.topics,
-      }),
-    );
-    if (!r) return;
+  private async refundCredit({
+    chain,
+    log,
+    receipt,
+  }: TransactionEventData<typeof refundCreditEvent>) {
+    const { args } = log;
 
-    const account = asUAddress(r.args.account, chain);
+    const account = asUAddress(args.account, chain);
     if (!(await this.accountsCache.isAccount(account))) return;
 
     const selectedAccount = selectAccount(account);
@@ -47,7 +43,7 @@ export class PaymasterEvents {
       })),
     );
 
-    const ethAmount = e.decimal(asDecimal(r.args.amount, ETH).toString());
+    const ethAmount = e.decimal(asDecimal(args.amount, ETH).toString());
 
     await this.db.transaction(async (db) => {
       const refund = await e
