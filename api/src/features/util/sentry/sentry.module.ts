@@ -2,6 +2,7 @@ import { DynamicModule, Global, Module, OnApplicationShutdown } from '@nestjs/co
 import * as Sentry from '@sentry/node';
 import { CONFIG } from '~/config';
 import { SentryInterceptor } from './sentry.interceptor';
+import { ProfilingIntegration } from '@sentry/profiling-node';
 
 const SHUTDOWN_TIMEOUT = 3_000;
 
@@ -37,6 +38,7 @@ export class SentryModule implements OnApplicationShutdown {
 
   private static init() {
     if (SentryModule.initialized) return;
+    SentryModule.initialized = true;
 
     Sentry.init({
       enabled: CONFIG.env !== 'development',
@@ -44,7 +46,6 @@ export class SentryModule implements OnApplicationShutdown {
       environment: CONFIG.env,
       serverName: CONFIG.serverId,
       sampleRate: 1.0,
-      enableTracing: true,
       tracesSampleRate: 1.0,
       profilesSampleRate: 1.0,
       includeLocalVariables: true,
@@ -60,8 +61,9 @@ export class SentryModule implements OnApplicationShutdown {
         new Sentry.Integrations.Http({ tracing: true }),
         new Sentry.Integrations.GraphQL(),
         new Sentry.Integrations.Apollo({ useNestjs: true }),
+        // @ts-expect-error Sentry types are wrong
+        new ProfilingIntegration(),
       ],
     });
-    SentryModule.initialized = true;
   }
 }
