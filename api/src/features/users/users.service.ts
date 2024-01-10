@@ -60,7 +60,7 @@ export class UsersService {
     const newSecret = randomBytes(32).toString('base64');
 
     const secret = (await this.redis.set(key, newSecret, 'NX', 'GET')) ?? newSecret;
-    this.redis.expire(key, 60 * 60 /* 1 hour */, 'GT');
+    this.redis.expire(key, 60 * 60 /* 1 hour */);
 
     return `${user}:${secret}`;
   }
