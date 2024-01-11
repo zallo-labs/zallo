@@ -1,6 +1,6 @@
 import { Processor } from '@nestjs/bullmq';
 import { Injectable } from '@nestjs/common';
-import { TRANSACTIONS_QUEUE } from './transactions.queue';
+import { TransactionsQueue } from './transactions.queue';
 import { NetworksService } from '../util/networks/networks.service';
 import { Chain, ChainConfig } from 'chains';
 import {
@@ -12,8 +12,9 @@ import {
 } from 'viem';
 import { AbiEvent } from 'abitype';
 import { Log } from '~/features/events/events.worker';
-import { TypedJob, Worker } from '~/features/util/bull/bull.util';
-import { isPresent } from 'lib';
+import { QueueReturnType, TypedJob, Worker } from '~/features/util/bull/bull.util';
+import { asHex, isPresent } from 'lib';
+import { ActivationsQueue } from '../activations/activations.queue';
 
 export const REQUIRED_CONFIRMATIONS = 1;
 
@@ -34,8 +35,8 @@ export type TransactionEventListener<TAbiEvent extends AbiEvent> = (
 ) => Promise<void>;
 
 @Injectable()
-@Processor(TRANSACTIONS_QUEUE.name)
-export class TransactionsWorker extends Worker<typeof TRANSACTIONS_QUEUE> {
+@Processor(TransactionsQueue.name)
+export class TransactionsWorker extends Worker<TransactionsQueue> {
   private listeners: TransactionListener[] = [];
   private events: AbiEvent[] = [];
   private eventListeners = new Map<Hex, TransactionEventListener<AbiEvent>[]>();
@@ -60,12 +61,19 @@ export class TransactionsWorker extends Worker<typeof TRANSACTIONS_QUEUE> {
     this.events.push(event);
   }
 
-  async process(job: TypedJob<typeof TRANSACTIONS_QUEUE>) {
-    const { chain, transaction: transactionHash } = job.data;
+  async process(job: TypedJob<TransactionsQueue>) {
+    const { chain } = job.data;
+    const transaction =
+      job.data.transaction === 'child'
+        ? asHex(
+            Object.values(await job.getChildrenValues())[0] as QueueReturnType<ActivationsQueue>,
+          )
+        : job.data.transaction;
+    if (!transaction) return;
 
     const network = this.networks.get(chain);
     const receipt = await network.waitForTransactionReceipt({
-      hash: transactionHash,
+      hash: transaction,
       confirmations: REQUIRED_CONFIRMATIONS,
       timeout: 60_000,
       pollingInterval: 1_000,

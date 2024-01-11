@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { NetworksService } from '../util/networks/networks.service';
 import {
   Address,
-  Operation,
   PAYMASTER,
   PaymasterSignedData,
   UAddress,
@@ -29,13 +28,27 @@ import { $anyreal, $decimal } from '~/edgeql-js/modules/std';
 import { $expr_Select } from '~/edgeql-js/select';
 import { Cardinality } from '~/edgeql-js/reflection';
 import { Price } from '~/features/prices/prices.model';
+import { ActivationsService } from '../activations/activations.service';
 
-interface CurrentParamsOptions {
+interface UsePaymasterParams {
   account: UAddress;
   gasLimit: bigint;
   feeToken: Address;
   paymasterEthFee: Decimal;
 }
+
+interface PaymasterEthFeeParams {
+  account: UAddress;
+}
+
+type SelectedReal = $expr_Select<{
+  __element__: $anyreal;
+  __cardinality__: Cardinality.One;
+}>;
+type SelectedDecimal = $expr_Select<{
+  __element__: $decimal;
+  __cardinality__: Cardinality.One;
+}>;
 
 @Injectable()
 export class PaymastersService {
@@ -44,6 +57,7 @@ export class PaymastersService {
     private db: DatabaseService,
     private prices: PricesService,
     private tokens: TokensService,
+    private activations: ActivationsService,
   ) {}
 
   for(chain: Chain) {
@@ -52,7 +66,7 @@ export class PaymastersService {
     return paymaster;
   }
 
-  async currentParams({ account, gasLimit, feeToken, paymasterEthFee }: CurrentParamsOptions) {
+  async usePaymaster({ account, gasLimit, feeToken, paymasterEthFee }: UsePaymasterParams) {
     const chain = asChain(account);
     const paymaster = this.for(chain);
 
@@ -153,7 +167,7 @@ export class PaymastersService {
   private async useEthDiscount(
     account: UAddress,
     maxNetworkEthFee: Decimal,
-    paymasterEthFee: Decimal,
+    maxPaymasterEthFee: Decimal,
     use: boolean,
   ): Promise<Decimal> {
     return this.db.transaction(async (db) => {
@@ -162,36 +176,28 @@ export class PaymastersService {
         e.select(selectedAccount, () => ({ paymasterEthCredit: true })).paymasterEthCredit,
       );
 
-      type SelectedReal = $expr_Select<{
-        __element__: $anyreal;
-        __cardinality__: Cardinality.One;
-      }>;
-      type SelectedDecimal = $expr_Select<{
-        __element__: $decimal;
-        __cardinality__: Cardinality.One;
-      }>;
-
-      // TODO: rename TransactionProposal.paymasterEthFee -> maxPaymasterEthFee
-      // TODO: paymasterEthFee = min(maxPaymasterEthFee, current paymasterEthFee);
-      // This deals with the situation where the tokens used in the proposal from which the paymasterEthFee was calculated
-      // 1. lose value against ETH: user pays less than maxPaymasterEthFee - the same feeToken amount
-      // 2. gain value against ETH: user pays maxPaymasterEthFee - a lesser feeToken amount
-      // It is in the user's best interest to propose a transaction sooner rather than later; a better result than the inverse for the user
-      const maxEthDiscount = maxNetworkEthFee.plus(paymasterEthFee);
+      // Provide a discount if currentPaymasterEthFee < maxPaymasterEthFee; ensuring the user benefits in case of feeToken:eth price change etc.
+      const currentPaymasterEthFee = await this.paymasterEthFee({ account });
+      const paymasterEthFeeDiscount = Decimal.min(
+        maxPaymasterEthFee.minus(currentPaymasterEthFee),
+        0,
+      );
+      const paymasterEthFee = maxPaymasterEthFee.plus(paymasterEthFeeDiscount);
+      const maxEthCreditToUse = maxNetworkEthFee.plus(paymasterEthFee);
 
       // e.min(e.decimal) doesn't type correctly - https://github.com/edgedb/edgedb-js/issues/594
-      const discount = e.select(
-        e.min(e.set(accountCredit, e.decimal(maxEthDiscount.toString()))),
+      const selectCreditUsed = e.select(
+        e.min(e.set(accountCredit, e.decimal(maxEthCreditToUse.toString()))),
       ) satisfies SelectedReal as SelectedDecimal;
 
       const r = await e
         .select({
-          discount,
+          creditUsed: selectCreditUsed,
           account: use
             ? e.update(selectedAccount, (a) => ({
                 set: {
                   paymasterEthCredit: e.select(
-                    e.max(e.set(e.op(a.paymasterEthCredit, '-', discount), e.decimal('0'))),
+                    e.max(e.set(e.op(a.paymasterEthCredit, '-', selectCreditUsed), e.decimal('0'))),
                   ) satisfies SelectedReal as SelectedDecimal,
                 },
               }))
@@ -199,11 +205,16 @@ export class PaymastersService {
         })
         .run(db);
 
-      return new Decimal(r.discount);
+      const discount = paymasterEthFeeDiscount.plus(r.creditUsed);
+      return discount;
     });
   }
 
-  paymasterEthFee(operations: Operation[]): Decimal {
-    return new Decimal(0);
+  async paymasterEthFee({ account }: PaymasterEthFeeParams): Promise<Decimal> {
+    const feePerGas = await this.estimateMaxEthFeePerGas(asChain(account));
+    const activationGas = (await this.activations.estimateGas(account))?.toString() ?? 0;
+    const activationFee = feePerGas.mul(activationGas);
+
+    return activationFee;
   }
 }

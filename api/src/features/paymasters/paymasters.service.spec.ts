@@ -75,11 +75,11 @@ describe(PaymastersService.name, () => {
     return address;
   };
 
-  describe('currentParams', () => {
+  describe('usePaymaster', () => {
     it('uses account credit as discount', async () => {
       const credit = new Decimal(3);
       const account = await insertAccount(credit);
-      const { ethDiscount } = await service.currentParams({
+      const { ethDiscount } = await service.usePaymaster({
         account,
         gasLimit: 10000000000000000000000000000000n,
         feeToken: ETH_ADDRESS,
@@ -93,7 +93,7 @@ describe(PaymastersService.name, () => {
 
     it('updates price feeds', async () => {
       const account = await insertAccount();
-      await service.currentParams({
+      await service.usePaymaster({
         account,
         gasLimit: 10000000000000000000000000000000n,
         feeToken: ETH_ADDRESS,

@@ -3,7 +3,7 @@ import { asUAddress, ACCOUNT_PROXY } from 'lib';
 import { TransactionEventData, TransactionsWorker } from '../transactions/transactions.worker';
 import { EventData, EventsWorker } from '../events/events.worker';
 import { DatabaseService } from '../database/database.service';
-import { selectAccount } from '../accounts/accounts.util';
+import { selectAccount } from './accounts.util';
 import { getAbiItem } from 'viem';
 import { AccountsCacheService } from '../auth/accounts.cache.service';
 import { ampli } from '~/util/ampli';

@@ -2,9 +2,10 @@ import { Chain } from 'chains';
 import { Hex } from 'lib';
 import { createQueue } from '~/features/util/bull/bull.util';
 
-export const TRANSACTIONS_QUEUE = createQueue<TransactionEvent>('Transactions');
+export const TransactionsQueue = createQueue<TransactionEvent>('Transactions');
+export type TransactionsQueue = typeof TransactionsQueue;
 
 interface TransactionEvent {
   chain: Chain;
-  transaction: Hex;
+  transaction: Hex | 'child';
 }

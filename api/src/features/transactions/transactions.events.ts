@@ -10,7 +10,7 @@ import {
 } from 'lib';
 import { TransactionData, TransactionEventData, TransactionsWorker } from './transactions.worker';
 import { InjectQueue } from '@nestjs/bullmq';
-import { TRANSACTIONS_QUEUE } from './transactions.queue';
+import { TransactionsQueue } from './transactions.queue';
 import e from '~/edgeql-js';
 import { DatabaseService } from '../database/database.service';
 import { and } from '../database/database.util';
@@ -37,8 +37,8 @@ export class TransactionsEvents implements OnModuleInit {
   private log = new Logger(this.constructor.name);
 
   constructor(
-    @InjectQueue(TRANSACTIONS_QUEUE.name)
-    private queue: TypedQueue<typeof TRANSACTIONS_QUEUE>,
+    @InjectQueue(TransactionsQueue.name)
+    private queue: TypedQueue<TransactionsQueue>,
     private db: DatabaseService,
     @InjectRedis() private redis: Redis,
     private networks: NetworksService,
@@ -178,7 +178,7 @@ export class TransactionsEvents implements OnModuleInit {
         if (orphanedTransactions.length) {
           await this.queue.addBulk(
             orphanedTransactions.map((t) => ({
-              name: TRANSACTIONS_QUEUE.name,
+              name: TransactionsQueue.name,
               data: {
                 chain: asChain(asUAddress(t.proposal.account.address)),
                 transaction: asHex(t.hash),

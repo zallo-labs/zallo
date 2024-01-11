@@ -3,16 +3,13 @@ import { DatabaseService } from '../database/database.service';
 import e from '~/edgeql-js';
 import {
   Address,
-  Policy,
   asPolicyKey,
   randomDeploySalt,
   getProxyAddress,
-  deployAccountProxy,
   UAddress,
   asAddress,
   ACCOUNT_IMPLEMENTATION,
   ACCOUNT_PROXY_FACTORY,
-  Hex,
 } from 'lib';
 import { ShapeFunc } from '../database/database.select';
 import { AccountEvent, CreateAccountInput, UpdateAccountInput } from './accounts.input';
@@ -23,14 +20,11 @@ import { PubsubService } from '../util/pubsub/pubsub.service';
 import { ContractsService } from '../contracts/contracts.service';
 import { FaucetService } from '../faucet/faucet.service';
 import { PoliciesService } from '../policies/policies.service';
-import { InjectQueue } from '@nestjs/bullmq';
-import { ACTIVATIONS_QUEUE } from './activations.worker';
 import { inputAsPolicy } from '../policies/policies.util';
 import { AccountsCacheService } from '../auth/accounts.cache.service';
 import { v4 as uuid } from 'uuid';
 import { and } from '~/features/database/database.util';
 import { selectAccount } from '~/features/accounts/accounts.util';
-import { TypedQueue } from '~/features/util/bull/bull.util';
 
 export const getAccountTrigger = (address: UAddress) => `account.${address}`;
 export const getAccountApproverTrigger = (approver: Address) => `account.approver.${approver}`;
@@ -49,8 +43,6 @@ export class AccountsService {
     private faucet: FaucetService,
     @Inject(forwardRef(() => PoliciesService))
     private policies: PoliciesService,
-    @InjectQueue(ACTIVATIONS_QUEUE.name)
-    private activations: TypedQueue<typeof ACTIVATIONS_QUEUE>,
     private accountsCache: AccountsCacheService,
   ) {}
 
@@ -142,7 +134,6 @@ export class AccountsService {
       }
     });
 
-    await this.tryActivateAccount(account);
     this.contracts.addAccountAsVerified(asAddress(account));
     this.faucet.requestTokens(account);
     this.publishAccount({ account, event: AccountEvent.create });
@@ -165,10 +156,6 @@ export class AccountsService {
     if (!r) throw new UserInputError(`Must be a member of the account to update it`);
 
     this.publishAccount({ account: address, event: AccountEvent.update });
-  }
-
-  async tryActivateAccount(account: UAddress) {
-    await this.activations.add(ACTIVATIONS_QUEUE.name, { account });
   }
 
   async publishAccount(payload: AccountSubscriptionPayload) {

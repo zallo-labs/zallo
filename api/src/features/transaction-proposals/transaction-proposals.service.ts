@@ -32,12 +32,10 @@ import { PaymastersService } from '~/features/paymasters/paymasters.service';
 import { EstimatedTransactionFees } from '~/features/transaction-proposals/transaction-proposals.model';
 import Decimal from 'decimal.js';
 import { InjectFlowProducer, InjectQueue } from '@nestjs/bullmq';
-import {
-  ExecutionsFlow,
-  ExecutionsQueue,
-} from '~/features/transaction-proposals/executions.worker';
+import { ExecutionsQueue } from '~/features/transaction-proposals/executions.worker';
+import { FLOW_PRODUCER } from '../util/bull/bull.util';
 import { QueueData, TypedQueue } from '~/features/util/bull/bull.util';
-import { SIMULATIONS_QUEUE } from '~/features/simulations/simulations.worker';
+import { SimulationsQueue } from '~/features/simulations/simulations.worker';
 import {
   proposalTxShape,
   transactionProposalAsTx,
@@ -45,6 +43,7 @@ import {
 import { hashTypedData } from 'viem';
 import { v4 as uuid } from 'uuid';
 import { FlowProducer } from 'bullmq';
+import { ActivationsService } from '../activations/activations.service';
 
 export const selectTransactionProposal = (
   id: UniqueProposal,
@@ -73,10 +72,11 @@ export class TransactionProposalsService {
     private networks: NetworksService,
     private proposals: ProposalsService,
     private paymasters: PaymastersService,
-    @InjectQueue(SIMULATIONS_QUEUE.name)
-    private simulations: TypedQueue<typeof SIMULATIONS_QUEUE>,
-    @InjectFlowProducer(ExecutionsFlow.name)
-    private executionsFlow: FlowProducer,
+    @InjectQueue(SimulationsQueue.name)
+    private simulations: TypedQueue<SimulationsQueue>,
+    @InjectFlowProducer(FLOW_PRODUCER)
+    private flows: FlowProducer,
+    private activations: ActivationsService,
   ) {}
 
   async selectUnique(id: UniqueProposal, shape?: ShapeFunc<typeof e.TransactionProposal>) {
@@ -104,16 +104,22 @@ export class TransactionProposalsService {
   }
 
   async tryExecute(txProposal: UUID, ignoreSimulation?: boolean) {
+    const account = asUAddress(
+      (await this.db.query(selectTransactionProposal(txProposal).account.address)) ?? undefined,
+    );
+    if (!account) throw new Error(`Transaction proposal not found: ${txProposal}`);
+
     // simulate -> execute
-    return this.executionsFlow.add({
+    return this.flows.add({
       queueName: ExecutionsQueue.name,
-      name: ExecutionsFlow.name,
-      data: { txProposal, ignoreSimulation } satisfies QueueData<typeof ExecutionsQueue>,
+      name: 'Execute transaction',
+      data: { txProposal, ignoreSimulation } satisfies QueueData<ExecutionsQueue>,
       children: [
         {
-          queueName: SIMULATIONS_QUEUE.name,
-          name: SIMULATIONS_QUEUE.name,
-          data: { txProposal } satisfies QueueData<typeof SIMULATIONS_QUEUE>,
+          queueName: SimulationsQueue.name,
+          name: 'Simulate transaction',
+          data: { txProposal } satisfies QueueData<SimulationsQueue>,
+          children: [this.activations.activationFlow(account)],
         },
       ],
     });
@@ -138,7 +144,7 @@ export class TransactionProposalsService {
       gas,
       feeToken,
       paymaster: this.paymasters.for(chain),
-      paymasterEthFee: this.paymasters.paymasterEthFee(operations),
+      paymasterEthFee: await this.paymasters.paymasterEthFee({ account }),
     } satisfies Tx;
 
     gas ??=
@@ -182,7 +188,7 @@ export class TransactionProposalsService {
     });
 
     this.db.afterTransaction(() => {
-      this.simulations.add(SIMULATIONS_QUEUE.name, { txProposal: id });
+      this.simulations.add(SimulationsQueue.name, { txProposal: id });
       this.proposals.publishProposal({ id, account }, ProposalEvent.create);
     });
 

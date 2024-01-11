@@ -18,7 +18,7 @@ import {
 import { DatabaseService } from '~/features/database/database.service';
 import { PaymastersService } from '~/features/paymasters/paymasters.service';
 import { ProposalsService } from '~/features/proposals/proposals.service';
-import { TRANSACTIONS_QUEUE } from '~/features/transactions/transactions.queue';
+import { TransactionsQueue } from '~/features/transactions/transactions.queue';
 import { NetworksService } from '~/features/util/networks/networks.service';
 import e from '~/edgeql-js';
 import {
@@ -49,7 +49,6 @@ export const ExecutionsQueue = createQueue<
   Hex | string
 >('Executions');
 export type ExecutionsQueue = typeof ExecutionsQueue;
-export const ExecutionsFlow = { name: 'ExecutionFlow' as const };
 
 @Injectable()
 @Processor(ExecutionsQueue.name)
@@ -57,8 +56,8 @@ export class ExecutionsWorker extends Worker<ExecutionsQueue> {
   constructor(
     private networks: NetworksService,
     private db: DatabaseService,
-    @InjectQueue(TRANSACTIONS_QUEUE.name)
-    private transactionsQueue: TypedQueue<typeof TRANSACTIONS_QUEUE>,
+    @InjectQueue(TransactionsQueue.name)
+    private transactionsQueue: TypedQueue<TransactionsQueue>,
     private proposals: ProposalsService,
     private paymaster: PaymastersService,
   ) {
@@ -148,7 +147,7 @@ export class ExecutionsWorker extends Worker<ExecutionsQueue> {
     if (!policy) return 'no suitable policy';
 
     const transaction = await this.db.transaction(async (db) => {
-      const { paymaster, paymasterInput, ...feeData } = await this.paymaster.currentParams({
+      const { paymaster, paymasterInput, ...feeData } = await this.paymaster.usePaymaster({
         account,
         gasLimit: tx.gas!,
         feeToken: asAddress(proposal.feeToken.address),

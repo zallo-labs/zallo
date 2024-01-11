@@ -23,8 +23,8 @@ import {
 import { UserInputError } from '@nestjs/apollo';
 import { AccountsCacheService } from '../auth/accounts.cache.service';
 import { DatabaseService } from '../database/database.service';
-import e from '~/edgeql-js';
-import { ShapeFunc } from '../database/database.select';
+import e, { $infer } from '~/edgeql-js';
+import { Shape, ShapeFunc } from '../database/database.select';
 import {
   UniquePolicy,
   uniquePolicy,
@@ -33,12 +33,7 @@ import {
   PolicyStateShape,
   policyInputAsStateShape,
 } from './policies.util';
-import {
-  NameTaken,
-  PolicyState,
-  SatisfiabilityResult,
-  Policy as PolicyModel,
-} from './policies.model';
+import { NameTaken, SatisfiabilityResult, Policy as PolicyModel } from './policies.model';
 import {
   proposalTxShape,
   transactionProposalAsTx,
@@ -48,6 +43,17 @@ import { and, isExclusivityConstraintViolation } from '../database/database.util
 import { selectAccount } from '../accounts/accounts.util';
 import { err, fromPromise, ok } from 'neverthrow';
 import { encodeFunctionData } from 'viem';
+
+export const policySatisfiabilityDeps = {
+  key: true,
+  state: {
+    isActive: true,
+    isAccountInitState: true,
+    ...policyStateShape,
+  },
+} satisfies Shape<typeof e.Policy>;
+const s_ = e.assert_exists(e.assert_single(e.select(e.Policy, () => policySatisfiabilityDeps)));
+export type PolicySatisfiabilityDeps = $infer<typeof s_>;
 
 export interface CreatePolicyParams extends CreatePolicyInput {
   key?: PolicyKey;
@@ -318,10 +324,9 @@ export class PoliciesService {
 
   async satisfiability(
     proposalId: UUID,
-    key: number,
-    state: PolicyState | null,
+    { key, state }: PolicySatisfiabilityDeps,
   ): Promise<SatisfiabilityResult> {
-    if (!state)
+    if (!state?.isActive)
       return { result: Satisfiability.unsatisfiable, reasons: [{ reason: 'Policy inactive' }] };
 
     const proposal = await this.db.query(

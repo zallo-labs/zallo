@@ -18,11 +18,12 @@ module default {
     }
     required implementation: Address;
     required salt: Bytes32;
+    required paymasterEthCredit: decimal { constraint min_value(0); default := 0; }
     upgradedAtBlock: bigint { constraint min_value(0); }
     photoUri: str;
-    required paymasterEthCredit: decimal { constraint min_value(0); default := 0; }
+    activationMessage: MessageProposal;
     required property chain := as_chain(.address);
-    required property isActive := exists .upgradedAtBlock; 
+    required property isActive := exists .upgradedAtBlock;
     multi link policies := (select .<account[is Policy] filter .isEnabled);
     multi link proposals := .<account[is Proposal];
     multi link transactionProposals := .<account[is TransactionProposal];
@@ -52,13 +53,13 @@ module default {
     multi link approvals := .<proposal[is Approval];
     multi link rejections := .<proposal[is Rejection];
     multi link potentialApprovers := (
-      with potentialResponses := distinct ((select .policy) ?? .account.policies).state.approvers.id,
-           ids := potentialResponses except .approvals.approver.id
+      with approvers := distinct (.policy ?? .account.policies).stateOrDraft.approvers.id,
+          ids := approvers except .approvals.approver.id
       select Approver filter .id in ids
     );
     multi link potentialRejectors := (
-      with potentialResponses := distinct ((select .policy) ?? .account.policies).state.approvers.id,
-           ids := potentialResponses except .rejections.approver.id
+      with approvers := distinct (.policy ?? .account.policies).stateOrDraft.approvers.id,
+           ids := approvers except .rejections.approver.id
       select Approver filter .id in ids
     );
     property riskLabel := assert_single((select .<proposal[is ProposalRiskLabel] filter .user = global current_user)).risk;

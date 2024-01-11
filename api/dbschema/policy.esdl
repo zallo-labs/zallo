@@ -14,15 +14,16 @@ module default {
         select .stateHistory
         order by .activationBlock desc
         limit 1
-      ) filter exists .activationBlock
+      ) filter .hasBeenActive
     );
     link draft := (
       select (
         select .stateHistory
         order by .createdAt desc
         limit 1
-      ) filter not exists .activationBlock
+      ) filter not .hasBeenActive
     );
+    link stateOrDraft := assert_exists(.state ?? .draft);
     required property isActive := (.state.isRemoved ?= false);
     required property isEnabled := (.isActive or .draft.isRemoved ?= false);
 
@@ -51,6 +52,8 @@ module default {
     required transfers: TransfersConfig;
     required isRemoved: bool { default := false; }
     activationBlock: bigint { constraint min_value(0n); }
+    required property hasBeenActive := exists .activationBlock or .isAccountInitState;
+    required property isActive := .hasBeenActive and not .isRemoved;
     required createdAt: datetime {
       readonly := true;
       default := datetime_of_statement();
