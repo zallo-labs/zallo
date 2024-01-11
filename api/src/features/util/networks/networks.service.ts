@@ -16,6 +16,7 @@ import Redis from 'ioredis';
 import { InjectRedis } from '@songkeys/nestjs-redis';
 import { firstValueFrom, ReplaySubject } from 'rxjs';
 import { runExclusively } from '~/util/mutex';
+import { DateTime } from 'luxon';
 
 export type Network = ReturnType<typeof create>;
 
@@ -94,16 +95,27 @@ function walletActions(client: Client, transport: Transport, redis: Redis) {
   };
 }
 
+const BLOCK_TIME_ALPHA = 0.2;
+const DEFAULT_BLOCK_TIME = 1000; /* ms */
+
 function blockNumberAndStatusActions(client: Client) {
   const status = new ReplaySubject<'healthy' | WatchBlockNumberErrorType>(1);
   let blockNumber = 0n;
+  let blockTime = DEFAULT_BLOCK_TIME;
+  let updated = DateTime.now();
 
   client.watchBlockNumber({
     onBlockNumber: (newBlockNumber) => {
-      if (blockNumber < newBlockNumber) {
-        blockNumber = newBlockNumber;
-        status.next('healthy');
-      }
+      if (newBlockNumber < blockNumber) return;
+
+      status.next('healthy');
+      blockNumber = newBlockNumber;
+
+      // blockTime
+      const t = DateTime.now();
+      const diff = t.diff(updated).toMillis();
+      blockTime = Math.ceil((1 - BLOCK_TIME_ALPHA) * blockTime + BLOCK_TIME_ALPHA * diff);
+      updated = t;
     },
     onError: (error) => {
       status.next(error as WatchBlockNumberErrorType);
@@ -112,11 +124,14 @@ function blockNumberAndStatusActions(client: Client) {
   });
 
   return {
+    status() {
+      return firstValueFrom(status);
+    },
     blockNumber() {
       return blockNumber;
     },
-    status() {
-      return firstValueFrom(status);
+    blockTime() {
+      return blockTime;
     },
   };
 }

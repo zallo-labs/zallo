@@ -19,10 +19,9 @@ import { AbiEvent } from 'abitype';
 import { Log as ViemLog, encodeEventTopics, hexToNumber } from 'viem';
 import { runOnce } from '~/util/mutex';
 
-const BLOCK_TIME = 500; /* ms */
 const TARGET_LOGS_PER_JOB = 9_000; // Max 10k
 const DEFAULT_LOGS_PER_BLOCK = 200;
-const LOGS_PER_BLOCK_EMA_ALPHA = 0.4;
+const LPB_ALPHA = 0.2;
 const TOO_MANY_RESULTS_RE =
   /Query returned more than .+? results. Try with this block range \[(?:0x[0-9a-f]+), (0x[0-9a-f]+)\]/;
 
@@ -65,7 +64,7 @@ export type EventListener<TAbiEvent extends AbiEvent> = (
 export class EventsWorker extends Worker<EventsQueue> {
   private listeners = new Map<Hex, EventListener<AbiEvent>[]>();
   private events: AbiEvent[] = [];
-  private logsPerBlockEma = Object.fromEntries(
+  private logsPerBlock = Object.fromEntries(
     Object.keys(CHAINS).map((chain) => [chain as Chain, DEFAULT_LOGS_PER_BLOCK]),
   ) as Record<Chain, number>;
 
@@ -99,7 +98,7 @@ export class EventsWorker extends Worker<EventsQueue> {
 
     const latest = Number(network.blockNumber()); // Warning: bigint -> number
     const from = job.data.from;
-    const targetBlocks = Math.max(1, Math.floor(TARGET_LOGS_PER_JOB / this.logsPerBlockEma[chain]));
+    const targetBlocks = Math.max(1, Math.floor(TARGET_LOGS_PER_JOB / this.logsPerBlock[chain]));
     const to = Math.min(job.data.to ?? from + targetBlocks - 1, latest);
 
     // Queue next job on the first attempt unless split job
@@ -108,13 +107,14 @@ export class EventsWorker extends Worker<EventsQueue> {
     if (shouldQueue) {
       if (latest < from) {
         // Up to date; retry after a delay
-        return this.queue.add(EventsQueue.name, { chain, from }, { delay: BLOCK_TIME });
+        this.queue.add('Ahead', { chain, from }, { delay: network.blockTime() });
+        return;
       } else {
         // Queue up next job
         this.queue.add(
-          EventsQueue.name,
+          latest === from ? 'Tracking' : 'Behind',
           { chain, from: to + 1 },
-          { delay: latest === from ? BLOCK_TIME : undefined },
+          { delay: latest === from ? network.blockTime() : undefined },
         );
       }
     }
@@ -129,9 +129,8 @@ export class EventsWorker extends Worker<EventsQueue> {
 
       // Update logs per block exponential moving average
       const blocksProcessed = to - from + 1;
-      this.logsPerBlockEma[chain] =
-        (1 - LOGS_PER_BLOCK_EMA_ALPHA) * this.logsPerBlockEma[chain] +
-        LOGS_PER_BLOCK_EMA_ALPHA * (logs.length / blocksProcessed);
+      this.logsPerBlock[chain] =
+        (1 - LPB_ALPHA) * this.logsPerBlock[chain] + LPB_ALPHA * (logs.length / blocksProcessed);
 
       await Promise.all(
         logs
@@ -142,7 +141,7 @@ export class EventsWorker extends Worker<EventsQueue> {
           ),
       );
       this.log.verbose(
-        `Processed ${logs.length} events from ${blocksProcessed} blocks [${from}, ${to}] on ${chain}`,
+        `${chain}: ${logs.length} events from ${blocksProcessed} blocks [${from}, ${to}]`,
       );
     } catch (e) {
       const match = TOO_MANY_RESULTS_RE.exec((e as Error).message ?? '');
@@ -150,9 +149,9 @@ export class EventsWorker extends Worker<EventsQueue> {
 
       // Split the job into two smaller jobs
       const newTo = hexToNumber(asHex(match[1]));
-      return this.queue.addBulk([
-        { name: EventsQueue.name, data: { chain, from, to: newTo, split: true } },
-        { name: EventsQueue.name, data: { chain, from: newTo + 1, to, split: true } },
+      this.queue.addBulk([
+        { name: 'Split (lower)', data: { chain, from, to: newTo, split: true } },
+        { name: 'Split (upper)', data: { chain, from: newTo + 1, to, split: true } },
       ]);
     }
   }
