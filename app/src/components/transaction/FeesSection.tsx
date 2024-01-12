@@ -35,16 +35,26 @@ const TransactionProposal = gql(/* GraphQL */ `
     }
     updatable
     gasLimit
-    paymasterEthFee
+    maxPaymasterEthFees {
+      activation
+    }
     estimatedFees {
       id
       maxNetworkEthFee
-      ethDiscount
+      ethCreditUsed
+      paymasterEthFees {
+        total
+        activation
+      }
     }
     transaction {
       id
       maxNetworkEthFee
-      ethDiscount
+      ethCreditUsed
+      paymasterEthFees {
+        total
+        activation
+      }
       ethPerFeeToken
       usdPerFeeToken
       receipt {
@@ -86,10 +96,13 @@ export function FeesSection(props: FeeTokenProps) {
       p.transaction?.maxNetworkEthFee ??
       p.estimatedFees.maxNetworkEthFee,
   ).neg();
-  const paymasterEthFee = new Decimal(p.paymasterEthFee).neg();
-  const ethDiscount = new Decimal(p.transaction?.ethDiscount ?? p.estimatedFees.ethDiscount);
-  const ethFees = Decimal.min(networkEthFee.add(paymasterEthFee).add(ethDiscount), 0);
-  const isEstimated = !p.transaction?.receipt;
+  const paymasterEthFees = p.transaction?.paymasterEthFees ?? p.estimatedFees.paymasterEthFees;
+  const ethCreditUsed = new Decimal(p.transaction?.ethCreditUsed ?? p.estimatedFees.ethCreditUsed);
+  const ethFees = Decimal.min(networkEthFee.add(paymasterEthFees.total).add(ethCreditUsed), 0); // TODO: sub(ethCredit)?
+  const paymasterFeesEstimatedLabel = !p.transaction ? ' (estimate)' : '';
+  const networkFeeEstimatedLabel = !p.transaction?.receipt ? ' (max)' : '';
+  const activationFee = new Decimal(paymasterEthFees.activation);
+  const maxActivationFee = new Decimal(p.maxPaymasterEthFees.activation);
 
   const ethPerFeeToken = new Decimal(p.transaction?.ethPerFeeToken ?? p.feeToken.price?.eth ?? 0);
   const amount = ethFees.div(ethPerFeeToken);
@@ -101,7 +114,7 @@ export function FeesSection(props: FeeTokenProps) {
       <TokenItem
         token={p.feeToken}
         amount={amount}
-        overline={'Fees' + (isEstimated ? ' (max)' : '')}
+        overline={'Fees' + networkFeeEstimatedLabel}
         onPress={toggleExpanded}
         trailing={({ Trailing }) => (
           <View style={styles.totalTrailingContainer}>
@@ -119,26 +132,35 @@ export function FeesSection(props: FeeTokenProps) {
 
       <Collapsible collapsed={!expanded} style={styles.detailsContainer}>
         <View style={styles.row}>
-          <Text variant="labelLarge">{'Network fee' + (isEstimated ? ' (max)' : '')}</Text>
+          <Text variant="labelLarge">{'Network fee' + networkFeeEstimatedLabel}</Text>
           <Text variant="bodySmall">
             <TokenAmount token={p.feeToken} amount={networkEthFee.div(ethPerFeeToken)} />
           </Text>
         </View>
 
-        {!paymasterEthFee.eq(0) && (
+        {!activationFee.eq(0) && (
           <View style={styles.row}>
-            <Text variant="labelLarge">Paymaster fee</Text>
+            <Text variant="labelLarge">Activation fee{paymasterFeesEstimatedLabel}</Text>
             <Text variant="bodySmall">
-              <TokenAmount token={p.feeToken} amount={paymasterEthFee.div(ethPerFeeToken)} />
+              <TokenAmount token={p.feeToken} amount={activationFee.div(ethPerFeeToken)} />
             </Text>
           </View>
         )}
 
-        {!ethDiscount.eq(0) && (
+        {!maxActivationFee.eq(0) && (
           <View style={styles.row}>
-            <Text variant="labelLarge">Discount</Text>
+            <Text variant="labelLarge">Activation fee (max)</Text>
             <Text variant="bodySmall">
-              <TokenAmount token={p.feeToken} amount={ethDiscount.div(ethPerFeeToken)} />
+              <TokenAmount token={p.feeToken} amount={maxActivationFee.div(ethPerFeeToken)} />
+            </Text>
+          </View>
+        )}
+
+        {!ethCreditUsed.eq(0) && (
+          <View style={styles.row}>
+            <Text variant="labelLarge">Credit{paymasterFeesEstimatedLabel}</Text>
+            <Text variant="bodySmall">
+              <TokenAmount token={p.feeToken} amount={ethCreditUsed.div(ethPerFeeToken)} />
             </Text>
           </View>
         )}

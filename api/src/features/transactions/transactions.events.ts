@@ -81,7 +81,6 @@ export class TransactionsEvents implements OnModuleInit {
         proposal: {
           id: true,
           account: { approvers: { user: true } },
-          paymasterEthFee: true,
         },
         ethPerFeeToken: true,
         usdPerFeeToken: true,
@@ -98,8 +97,8 @@ export class TransactionsEvents implements OnModuleInit {
       ProposalEvent.executed,
     );
 
-    const usdPerEth = new Decimal(transaction.usdPerFeeToken).div(transaction.ethPerFeeToken);
-    const revenue = new Decimal(transaction.proposal.paymasterEthFee).mul(usdPerEth).toNumber();
+    // const usdPerEth = new Decimal(transaction.usdPerFeeToken).div(transaction.ethPerFeeToken);
+    const revenue = 0; // new Decimal(0).mul(usdPerEth).toNumber();
     proposal.account.approvers.forEach(({ user }) => {
       ampli.transactionExecuted(user.id, { success: false }, { revenue });
     });
@@ -131,7 +130,6 @@ export class TransactionsEvents implements OnModuleInit {
         proposal: {
           id: true,
           account: { approvers: { user: true } },
-          paymasterEthFee: true,
         },
         ethPerFeeToken: true,
         usdPerFeeToken: true,
@@ -148,8 +146,8 @@ export class TransactionsEvents implements OnModuleInit {
       ProposalEvent.executed,
     );
 
-    const usdPerEth = new Decimal(transaction.usdPerFeeToken).div(transaction.ethPerFeeToken);
-    const revenue = new Decimal(transaction.proposal.paymasterEthFee).mul(usdPerEth).toNumber();
+    // const usdPerEth = new Decimal(transaction.usdPerFeeToken).div(transaction.ethPerFeeToken);
+    const revenue = 0; // new Decimal(0).mul(usdPerEth).toNumber();
     proposal.account.approvers.forEach(({ user }) => {
       ampli.transactionExecuted(user.id, { success: false }, { revenue });
     });

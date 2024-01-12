@@ -80,7 +80,10 @@ export class ExecutionsWorker extends Worker<ExecutionsQueue> {
         hash: true,
         ...proposalTxShape(p),
         feeToken: { address: true },
-        paymasterEthFee: true,
+        maxPaymasterEthFees: {
+          total: true,
+          activation: true,
+        },
         approvals: (a) => ({
           filter: e.op('not', a.invalid),
           approver: { address: true },
@@ -151,7 +154,9 @@ export class ExecutionsWorker extends Worker<ExecutionsQueue> {
         account,
         gasLimit: tx.gas!,
         feeToken: asAddress(proposal.feeToken.address),
-        paymasterEthFee: new Decimal(proposal.paymasterEthFee),
+        maxPaymasterEthFees: {
+          activation: new Decimal(proposal.maxPaymasterEthFees.activation),
+        },
       });
 
       const transactionResult = await executeTransaction({
@@ -183,7 +188,10 @@ export class ExecutionsWorker extends Worker<ExecutionsQueue> {
           hash: transaction,
           proposal: selectedProposal,
           maxEthFeePerGas: feeData.maxEthFeePerGas.toString(),
-          ethDiscount: feeData.ethDiscount.toString(),
+          paymasterEthFees: e.insert(e.PaymasterFees, {
+            activation: feeData.paymasterEthFees.activation.toString(),
+          }),
+          ethCreditUsed: feeData.ethCreditUsed.toString(),
           ethPerFeeToken: feeData.tokenPrice.eth.toString(),
           usdPerFeeToken: feeData.tokenPrice.usd.toString(),
         })

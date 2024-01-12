@@ -44,6 +44,7 @@ import { hashTypedData } from 'viem';
 import { v4 as uuid } from 'uuid';
 import { FlowProducer } from 'bullmq';
 import { ActivationsService } from '../activations/activations.service';
+import { totalPaymasterEthFees } from '../paymasters/paymasters.util';
 
 export const selectTransactionProposal = (
   id: UniqueProposal,
@@ -58,7 +59,9 @@ export const estimateFeesDeps = {
   id: true,
   account: { address: true },
   gasLimit: true,
-  paymasterEthFee: true,
+  maxPaymasterEthFees: {
+    activation: true,
+  },
 } satisfies Shape<typeof e.TransactionProposal>;
 const s_ = e.assert_exists(
   e.assert_single(e.select(e.TransactionProposal, () => estimateFeesDeps)),
@@ -138,13 +141,14 @@ export class TransactionProposalsService {
 
     const chain = asChain(account);
     const network = this.networks.get(chain);
+    const maxPaymasterEthFees = await this.paymasters.paymasterEthFees({ account });
     const tx = {
       operations,
       nonce: BigInt(Math.floor(validFrom.getTime() / 1000)),
       gas,
       feeToken,
       paymaster: this.paymasters.for(chain),
-      paymasterEthFee: await this.paymasters.paymasterEthFee({ account }),
+      paymasterEthFee: totalPaymasterEthFees(maxPaymasterEthFees),
     } satisfies Tx;
 
     gas ??=
@@ -175,7 +179,9 @@ export class TransactionProposalsService {
           await estimateTransactionOperationsGas({ account: asAddress(account), tx, network })
         ).unwrapOr(FALLBACK_OPERATIONS_GAS),
       paymaster: tx.paymaster,
-      paymasterEthFee: tx.paymasterEthFee.toString(),
+      maxPaymasterEthFees: e.insert(e.PaymasterFees, {
+        activation: maxPaymasterEthFees.activation.toString(),
+      }),
       feeToken: e.assert_single(
         e.select(e.Token, (t) => ({
           filter: and(
@@ -309,11 +315,9 @@ export class TransactionProposalsService {
     return {
       id: `EstimatedTransactionFees:${d.id}`,
       maxNetworkEthFee,
-      ethDiscount: await this.paymasters.estimateEthDiscount(
-        account,
-        maxNetworkEthFee,
-        new Decimal(d.paymasterEthFee),
-      ),
+      ...(await this.paymasters.estimateEthDiscount(account, maxNetworkEthFee, {
+        activation: new Decimal(d.maxPaymasterEthFees.activation),
+      })),
     };
   }
 }

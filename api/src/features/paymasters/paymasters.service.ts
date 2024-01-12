@@ -29,12 +29,14 @@ import { $expr_Select } from '~/edgeql-js/select';
 import { Cardinality } from '~/edgeql-js/reflection';
 import { Price } from '~/features/prices/prices.model';
 import { ActivationsService } from '../activations/activations.service';
+import { totalPaymasterEthFees } from './paymasters.util';
+import { PaymasterFeeParts } from './paymasters.model';
 
 interface UsePaymasterParams {
   account: UAddress;
   gasLimit: bigint;
   feeToken: Address;
-  paymasterEthFee: Decimal;
+  maxPaymasterEthFees: PaymasterFeeParts;
 }
 
 interface PaymasterEthFeeParams {
@@ -66,22 +68,23 @@ export class PaymastersService {
     return paymaster;
   }
 
-  async usePaymaster({ account, gasLimit, feeToken, paymasterEthFee }: UsePaymasterParams) {
+  async usePaymaster({ account, gasLimit, feeToken, maxPaymasterEthFees }: UsePaymasterParams) {
     const chain = asChain(account);
     const paymaster = this.for(chain);
 
     const maxEthFeePerGas = await this.estimateMaxEthFeePerGas(chain);
     const maxNetworkEthFee = maxEthFeePerGas.mul(gasLimit.toString());
-    const ethDiscount = await this.useEthDiscount(account, maxNetworkEthFee, paymasterEthFee, true);
-    const maxEthFees = maxNetworkEthFee.plus(paymasterEthFee).minus(ethDiscount);
+    const { ethDiscount, paymasterEthFees, ethCreditUsed } = await this.useEthDiscount(
+      account,
+      maxNetworkEthFee,
+      maxPaymasterEthFees,
+      true,
+    );
 
-    const tokenPrice = await this.prices.price(asUAddress(feeToken, chain));
-    const maxTokenFees = maxEthFees.div(tokenPrice.eth);
-
-    await this.prices.updatePriceFeedsIfNecessary(chain, [ETH.pythUsdPriceId, tokenPrice.id]);
-
+    const maxPaymasterEthFee = totalPaymasterEthFees(maxPaymasterEthFees);
     const signedData: PaymasterSignedData = {
-      paymasterFee: asFp(paymasterEthFee, ETH),
+      // User signs the maxPaymasterEthFee so can't be changed; (maxPaymasteEthFee - paymasterEthFee) is included in the discount
+      paymasterFee: asFp(maxPaymasterEthFee, ETH),
       discount: asFp(ethDiscount, ETH),
     };
     const network = this.networks.get(chain);
@@ -97,6 +100,13 @@ export class PaymastersService {
       ),
     );
 
+    const paymasterEthFee = totalPaymasterEthFees(paymasterEthFees);
+    const maxEthFees = maxNetworkEthFee.plus(paymasterEthFee).minus(ethDiscount);
+
+    const tokenPrice = await this.prices.price(asUAddress(feeToken, chain));
+    const maxTokenFees = maxEthFees.div(tokenPrice.eth);
+    await this.prices.updatePriceFeedsIfNecessary(chain, [ETH.pythUsdPriceId, tokenPrice.id]);
+
     return {
       paymaster,
       paymasterInput: encodePaymasterInput({
@@ -106,8 +116,10 @@ export class PaymastersService {
         ...signedData,
       }),
       maxEthFeePerGas,
-      ethDiscount,
       tokenPrice,
+      // ethDiscount,
+      paymasterEthFees,
+      ethCreditUsed,
     };
   }
 
@@ -159,17 +171,27 @@ export class PaymastersService {
   async estimateEthDiscount(
     account: UAddress,
     maxNetworkEthFee: Decimal,
-    paymasterEthFee: Decimal,
-  ): Promise<Decimal> {
-    return this.useEthDiscount(account, maxNetworkEthFee, paymasterEthFee, false);
+    maxPaymasterEthFees: PaymasterFeeParts,
+  ) {
+    const { ethCreditUsed, paymasterEthFees } = await this.useEthDiscount(
+      account,
+      maxNetworkEthFee,
+      maxPaymasterEthFees,
+      false,
+    );
+
+    return {
+      ethCreditUsed,
+      paymasterEthFees: { ...paymasterEthFees, total: totalPaymasterEthFees(paymasterEthFees) },
+    };
   }
 
   private async useEthDiscount(
     account: UAddress,
     maxNetworkEthFee: Decimal,
-    maxPaymasterEthFee: Decimal,
+    maxPaymasterEthFees: PaymasterFeeParts,
     use: boolean,
-  ): Promise<Decimal> {
+  ) {
     return this.db.transaction(async (db) => {
       const selectedAccount = selectAccount(account);
       const accountCredit = e.assert_exists(
@@ -177,14 +199,12 @@ export class PaymastersService {
       );
 
       // Provide a discount if currentPaymasterEthFee < maxPaymasterEthFee; ensuring the user benefits in case of feeToken:eth price change etc.
-      const currentPaymasterEthFee = await this.paymasterEthFee({ account });
-      const paymasterEthFeeDiscount = Decimal.min(
-        maxPaymasterEthFee.minus(currentPaymasterEthFee),
-        0,
-      );
-      const paymasterEthFee = maxPaymasterEthFee.plus(paymasterEthFeeDiscount);
-      const maxEthCreditToUse = maxNetworkEthFee.plus(paymasterEthFee);
+      const paymasterEthFees = await this.finalPaymasterEthFees(maxPaymasterEthFees, { account });
+      const paymasterEthFee = totalPaymasterEthFees(paymasterEthFees);
+      const paymasterEthFeeDiscount =
+        totalPaymasterEthFees(maxPaymasterEthFees).minus(paymasterEthFee);
 
+      const maxEthCreditToUse = maxNetworkEthFee.plus(paymasterEthFee);
       // e.min(e.decimal) doesn't type correctly - https://github.com/edgedb/edgedb-js/issues/594
       const selectCreditUsed = e.select(
         e.min(e.set(accountCredit, e.decimal(maxEthCreditToUse.toString()))),
@@ -205,16 +225,28 @@ export class PaymastersService {
         })
         .run(db);
 
-      const discount = paymasterEthFeeDiscount.plus(r.creditUsed);
-      return discount;
+      const ethCreditUsed = new Decimal(r.creditUsed);
+      const ethDiscount = paymasterEthFeeDiscount.plus(r.creditUsed);
+      return { ethDiscount, paymasterEthFees, ethCreditUsed };
     });
   }
 
-  async paymasterEthFee({ account }: PaymasterEthFeeParams): Promise<Decimal> {
+  async paymasterEthFees({ account }: PaymasterEthFeeParams): Promise<PaymasterFeeParts> {
     const feePerGas = await this.estimateMaxEthFeePerGas(asChain(account));
     const activationGas = (await this.activations.estimateGas(account))?.toString() ?? 0;
-    const activationFee = feePerGas.mul(activationGas);
+    const activation = feePerGas.mul(activationGas);
 
-    return activationFee;
+    return { activation };
+  }
+
+  private async finalPaymasterEthFees(
+    max: PaymasterFeeParts,
+    params: PaymasterEthFeeParams,
+  ): Promise<PaymasterFeeParts> {
+    const current = await this.paymasterEthFees(params);
+
+    return {
+      activation: Decimal.min(max.activation, current.activation),
+    };
   }
 }

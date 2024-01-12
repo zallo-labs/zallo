@@ -9,7 +9,8 @@ import { AddressField } from '~/apollo/scalars/Address.scalar';
 import { Address } from 'lib';
 import { DecimalField } from '~/apollo/scalars/Decimal.scalar';
 import Decimal from 'decimal.js';
-import { CustomNode, CustomNodeType, Node, NodeType } from '~/decorators/interface.decorator';
+import { CustomNode, CustomNodeType } from '~/decorators/interface.decorator';
+import { PaymasterFees } from '../paymasters/paymasters.model';
 
 @ObjectType({ implements: () => Proposal })
 export class TransactionProposal extends Proposal {
@@ -28,8 +29,8 @@ export class TransactionProposal extends Proposal {
   @AddressField()
   paymaster: Address;
 
-  @DecimalField()
-  paymasterEthFee: Decimal;
+  @Field(() => PaymasterFees)
+  maxPaymasterEthFees: PaymasterFees;
 
   @Field(() => Simulation, { nullable: true })
   simulation?: Simulation;
@@ -57,6 +58,12 @@ export class EstimatedTransactionFees extends CustomNode {
   @DecimalField()
   maxNetworkEthFee: Decimal;
 
+  // @DecimalField()
+  // ethDiscount: Decimal;
+
   @DecimalField()
-  ethDiscount: Decimal;
+  ethCreditUsed: Decimal;
+
+  @Field(() => PaymasterFees)
+  paymasterEthFees: PaymasterFees;
 }

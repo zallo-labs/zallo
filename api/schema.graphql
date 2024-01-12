@@ -231,9 +231,10 @@ input EstimateFeesPerGasInput {
 }
 
 type EstimatedTransactionFees implements CustomNode {
-  ethDiscount: Decimal!
+  ethCreditUsed: Decimal!
   id: ID!
   maxNetworkEthFee: Decimal!
+  paymasterEthFees: PaymasterFees!
 }
 
 union Event = Transfer | TransferApproval
@@ -366,6 +367,11 @@ input OperationInput {
   value: Uint256
 }
 
+type PaymasterFees {
+  activation: Decimal!
+  total: Decimal!
+}
+
 input PoliciesInput {
   includeDisabled: Boolean! = false
 }
@@ -380,6 +386,7 @@ type Policy {
   satisfiability(input: SatisfiabilityInput!): SatisfiabilityResult!
   state: PolicyState
   stateHistory: [PolicyState!]!
+  stateOrDraft: PolicyState!
 }
 
 input PolicyInput {
@@ -398,8 +405,10 @@ type PolicyState {
   activationBlock: BigInt
   approvers: [Approver!]!
   createdAt: DateTime!
+  hasBeenActive: Boolean!
   id: ID!
   isAccountInitState: Boolean!
+  isActive: Boolean!
   isRemoved: Boolean!
   proposal: TransactionProposal
   threshold: Float!
@@ -667,13 +676,14 @@ input TokensInput {
 }
 
 type Transaction implements Node {
-  ethDiscount: Decimal!
+  ethCreditUsed: Decimal!
   ethPerFeeToken: Decimal!
   hash: Bytes32!
   id: UUID!
   maxEthFeePerGas: Decimal!
   maxEthFees: Decimal!
   maxNetworkEthFee: Decimal!
+  paymasterEthFees: PaymasterFees!
   proposal: TransactionProposal!
   receipt: Receipt
   submittedAt: DateTime!
@@ -695,10 +705,10 @@ type TransactionProposal implements Node & Proposal {
   iconUri: String
   id: UUID!
   label: String
+  maxPaymasterEthFees: PaymasterFees!
   nonce: BigInt!
   operations: [Operation!]!
   paymaster: Address!
-  paymasterEthFee: Decimal!
   policy: Policy
   potentialApprovers: [Approver!]!
   potentialRejectors: [Approver!]!

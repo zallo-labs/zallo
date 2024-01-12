@@ -76,16 +76,18 @@ describe(PaymastersService.name, () => {
   };
 
   describe('usePaymaster', () => {
-    it('uses account credit as discount', async () => {
+    it('uses available account credit', async () => {
       const credit = new Decimal(3);
       const account = await insertAccount(credit);
-      const { ethDiscount } = await service.usePaymaster({
+      const { ethCreditUsed } = await service.usePaymaster({
         account,
         gasLimit: 10000000000000000000000000000000n,
         feeToken: ETH_ADDRESS,
-        paymasterEthFee: new Decimal(1),
+        maxPaymasterEthFees: {
+          activation: new Decimal(1),
+        },
       });
-      expect(ethDiscount).toEqual(credit);
+      expect(ethCreditUsed).toEqual(credit);
 
       const postCredit = await db.query(selectAccount(account).paymasterEthCredit);
       expect(postCredit).toEqual('0');
@@ -97,7 +99,9 @@ describe(PaymastersService.name, () => {
         account,
         gasLimit: 10000000000000000000000000000000n,
         feeToken: ETH_ADDRESS,
-        paymasterEthFee: new Decimal(1),
+        maxPaymasterEthFees: {
+          activation: new Decimal(1),
+        },
       });
 
       expect(prices.updatePriceFeedsIfNecessary).toHaveBeenCalled();
@@ -132,11 +136,9 @@ describe(PaymastersService.name, () => {
     it('be at most account credit', async () => {
       const credit = new Decimal(5);
       const account = await insertAccount(credit);
-      const discount = await service.estimateEthDiscount(
-        account,
-        new Decimal(100),
-        new Decimal(100),
-      );
+      const discount = await service.estimateEthDiscount(account, new Decimal(100), {
+        activation: new Decimal(100),
+      });
 
       expect(discount).toEqual(credit);
     });
@@ -144,7 +146,9 @@ describe(PaymastersService.name, () => {
     it('not debit the account', async () => {
       const credit = new Decimal(5);
       const account = await insertAccount(credit);
-      await service.estimateEthDiscount(account, new Decimal(100), new Decimal(100));
+      await service.estimateEthDiscount(account, new Decimal(100), {
+        activation: new Decimal(100),
+      });
 
       const postCredit = await db.query(selectAccount(account).paymasterEthCredit);
       expect(postCredit).toEqual(credit.toString());
@@ -154,11 +158,9 @@ describe(PaymastersService.name, () => {
       const account = await insertAccount(new Decimal(100));
       const maxNetworkEthFee = new Decimal(1);
       const paymasterEthFee = new Decimal(2);
-      const discount = await service.estimateEthDiscount(
-        account,
-        maxNetworkEthFee,
-        paymasterEthFee,
-      );
+      const discount = await service.estimateEthDiscount(account, maxNetworkEthFee, {
+        activation: new Decimal(100),
+      });
 
       expect(discount).toEqual(maxNetworkEthFee.plus(paymasterEthFee));
     });

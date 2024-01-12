@@ -22,33 +22,6 @@ import { AbiFunction } from 'abitype';
 import { makeUnionTypeResolver } from '~/features/database/database.util';
 import e from '~/edgeql-js';
 
-@ObjectType()
-export class Policy {
-  @IdField()
-  id: uuid;
-
-  @Field(() => Account)
-  account: Account;
-
-  @PolicyKeyField()
-  key: number; // PolicyKey;
-
-  @Field(() => String)
-  name: string;
-
-  @Field(() => PolicyState, { nullable: true })
-  state?: PolicyState | null;
-
-  @Field(() => PolicyState, { nullable: true })
-  draft?: PolicyState | null;
-
-  @Field(() => [PolicyState])
-  stateHistory: PolicyState[];
-
-  @Field(() => Boolean)
-  isActive: boolean;
-}
-
 @NodeType()
 export class ActionFunction extends Node implements eql.ActionFunction {
   @AddressField({ nullable: true, description: 'Default: apply to all contracts' })
@@ -135,8 +108,44 @@ export class PolicyState {
   @Field(() => GraphQLBigInt, { nullable: true })
   activationBlock?: bigint | null;
 
+  @Field(() => Boolean)
+  hasBeenActive: boolean;
+
+  @Field(() => Boolean)
+  isActive: boolean;
+
   @Field(() => Date)
   createdAt: Date;
+}
+
+@ObjectType()
+export class Policy {
+  @IdField()
+  id: uuid;
+
+  @Field(() => Account)
+  account: Account;
+
+  @PolicyKeyField()
+  key: number; // PolicyKey;
+
+  @Field(() => String)
+  name: string;
+
+  @Field(() => PolicyState, { nullable: true })
+  state?: PolicyState | null;
+
+  @Field(() => PolicyState, { nullable: true })
+  draft?: PolicyState | null;
+
+  @Field(() => PolicyState)
+  stateOrDraft: PolicyState;
+
+  @Field(() => [PolicyState])
+  stateHistory: PolicyState[];
+
+  @Field(() => Boolean)
+  isActive: boolean;
 }
 
 registerEnumType(Satisfiability, { name: 'Satisfiability' });
