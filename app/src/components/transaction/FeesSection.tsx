@@ -12,6 +12,7 @@ import Collapsible from 'react-native-collapsible';
 import { View } from 'react-native';
 import { Text } from 'react-native-paper';
 import { TokenAmount } from '~/components/token/TokenAmount';
+import { getOptimizedDocument } from '~/gql';
 
 const TransactionProposal = gql(/* GraphQL */ `
   fragment FeesSection_TransactionProposal on TransactionProposal
@@ -78,6 +79,7 @@ const Update = gql(/* GraphQL */ `
     }
   }
 `);
+const OptimizedUpdate = getOptimizedDocument(Update);
 
 export interface FeeTokenProps {
   proposal: FragmentType<typeof TransactionProposal>;
@@ -86,7 +88,7 @@ export interface FeeTokenProps {
 export function FeesSection(props: FeeTokenProps) {
   const { styles } = useStyles(stylesheet);
   const p = useFragment(TransactionProposal, props.proposal);
-  const update = useMutation(Update)[1];
+  const update = useMutation(OptimizedUpdate)[1];
   const selectToken = useSelectToken();
 
   const [expanded, toggleExpanded] = useToggle(false);
