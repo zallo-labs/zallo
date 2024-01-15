@@ -107,13 +107,16 @@ export class TransactionProposalsService {
   }
 
   async tryExecute(txProposal: UUID, ignoreSimulation?: boolean) {
+    const updatedProposal = e.update(selectTransactionProposal(txProposal), () => ({
+      set: { submitted: true },
+    }));
     const account = asUAddress(
-      (await this.db.query(selectTransactionProposal(txProposal).account.address)) ?? undefined,
+      (await this.db.query(e.select(updatedProposal.account.address))) ?? undefined,
     );
     if (!account) throw new Error(`Transaction proposal not found: ${txProposal}`);
 
     // simulate -> execute
-    return this.flows.add({
+    this.flows.add({
       queueName: ExecutionsQueue.name,
       name: 'Execute transaction',
       data: { txProposal, ignoreSimulation } satisfies QueueData<ExecutionsQueue>,
@@ -126,6 +129,8 @@ export class TransactionProposalsService {
         },
       ],
     });
+
+    this.proposals.publishProposal({ id: txProposal, account }, ProposalEvent.submitted);
   }
 
   async getInsertProposal({

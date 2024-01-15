@@ -93,15 +93,15 @@ export class ExecutionsWorker extends Worker<ExecutionsQueue> {
           key: true,
           state: policyStateShape,
         },
-        status: true,
+        transaction: true,
         simulation: {
           success: true,
           timestamp: true,
         },
       })),
     );
-    if (!proposal || (proposal.status !== 'Pending' && proposal.status !== 'Failed'))
-      return 'already executed';
+    if (!proposal) return 'proposal not found';
+    if (proposal.transaction) return 'already executed';
 
     // Require simulation to have succeed, unless ignored
     if (!ignoreSimulation) {
@@ -158,6 +158,8 @@ export class ExecutionsWorker extends Worker<ExecutionsQueue> {
           activation: new Decimal(proposal.maxPaymasterEthFees.activation),
         },
       });
+
+      console.log(feeData);
 
       const transactionResult = await executeTransaction({
         network,

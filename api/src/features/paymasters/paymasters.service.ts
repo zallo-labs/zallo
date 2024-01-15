@@ -117,7 +117,6 @@ export class PaymastersService {
       }),
       maxEthFeePerGas,
       tokenPrice,
-      // ethDiscount,
       paymasterEthFees,
       ethCreditUsed,
     };
@@ -215,11 +214,7 @@ export class PaymastersService {
           creditUsed: selectCreditUsed,
           account: use
             ? e.update(selectedAccount, (a) => ({
-                set: {
-                  paymasterEthCredit: e.select(
-                    e.max(e.set(e.op(a.paymasterEthCredit, '-', selectCreditUsed), e.decimal('0'))),
-                  ) satisfies SelectedReal as SelectedDecimal,
-                },
+                set: { paymasterEthCredit: e.op(a.paymasterEthCredit, '-', selectCreditUsed) },
               }))
             : e.select(''),
         })
