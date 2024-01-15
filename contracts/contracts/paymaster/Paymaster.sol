@@ -83,7 +83,7 @@ contract Paymaster is IPaymaster, PaymasterManager, PaymasterParser, PriceOracle
     uint256 bootloaderFee = transaction.gasLimit * transaction.maxFeePerGas;
     uint256 totalFeePreDiscount = bootloaderFee + paymasterFee;
     uint256 totalFee = (discount >= totalFeePreDiscount) ? 0 : totalFeePreDiscount - discount;
-    uint256 requiredAmount = totalFee * _tokenPerEth(token);
+    uint256 requiredAmount = _convert(totalFee, ETH, token);
 
     // Recieve payment
     // Fail rather than revert when allowance is insufficient; this allows gas estimation to work when user lacks tokens
