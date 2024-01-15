@@ -147,7 +147,12 @@ export class PricesService {
           value: updateFee,
         });
 
-        await network.useWallet(async (wallet) => await wallet.writeContract(sim.request));
+        const transactionHash = await network.useWallet(
+          async (wallet) => await wallet.writeContract(sim.request),
+        );
+        await network.waitForTransactionReceipt({ hash: transactionHash });
+
+        this.log.debug(`${chain}: updated pricefeeds ${expiredPriceIds.join(', ')}`);
       },
       {
         redis: this.redis,
