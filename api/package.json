@@ -5,7 +5,6 @@
   "scripts": {
     "build": "nest build",
     "dev": "nest start --debug --watch --preserveWatchOutput",
-    "start:production": "yarn db:migrate && node dist/dbschema/seed.js && yarn serve",
     "serve": "node dist/src/main.js",
     "generate:ampli": "ampli pull -p ./src/util/ampli --omit-api-keys",
     "test": "yarn with-env -- jest",

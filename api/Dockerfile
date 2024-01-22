@@ -43,4 +43,4 @@ COPY --from=builder --chown=node:node /build/api/package.json ./api/package.json
 COPY --from=edgedb/edgedb-cli:4.0.2 --chown=node:node /usr/bin/edgedb /usr/bin/edgedb
 
 WORKDIR /build/api
-CMD ["yarn", "start:production"]
+CMD ["yarn", "serve"]
