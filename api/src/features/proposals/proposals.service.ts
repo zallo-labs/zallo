@@ -19,9 +19,8 @@ import { selectAccount } from '../accounts/accounts.util';
 
 export type UniqueProposal = UUID | Hex;
 
-export const selectProposal = (id: UniqueProposal, shape?: ShapeFunc<typeof e.Proposal>) =>
-  e.select(e.Proposal, (p) => ({
-    ...shape?.(p),
+export const selectProposal = (id: UniqueProposal) =>
+  e.select(e.Proposal, () => ({
     filter_single: isHex(id) ? { hash: id } : { id: e.uuid(id) },
   }));
 
@@ -41,9 +40,10 @@ export class ProposalsService {
     private pubsub: PubsubService,
   ) {}
 
-  async selectUnique(id: UniqueProposal, shape: ShapeFunc<typeof e.Proposal>) {
+  async selectUnique(id: UUID, shape: ShapeFunc<typeof e.Proposal>) {
     return this.db.query(
-      selectProposal(id, (p) => ({
+      e.select(e.Proposal, (p) => ({
+        filter_single: { id },
         ...shape?.(p),
         __type__: { name: true },
       })),
@@ -84,9 +84,9 @@ export class ProposalsService {
   }
 
   async approve({ id, approver = getUserCtx().approver, signature }: ApproveInput) {
+    const selectedProposal = selectProposal(id);
     const p = await this.db.query(
-      e.select(e.Proposal, () => ({
-        filter_single: { id },
+      e.select(selectedProposal, () => ({
         hash: true,
         account: { address: true },
       })),
@@ -95,18 +95,17 @@ export class ProposalsService {
 
     const hash = asHex(p.hash);
     const network = this.networks.get(asUAddress(p.account.address));
-    if (!(await asApproval({ hash: hash, approver, signature, network })))
+    if (!(await asApproval({ hash, approver, signature, network })))
       throw new UserInputError('Invalid signature');
 
     await this.db.transaction(async (db) => {
-      const proposal = selectProposal(hash);
       const selectApprover = e.select(e.Approver, () => ({ filter_single: { address: approver } }));
 
       // Remove prior response (if any)
       await e
         .delete(e.ProposalResponse, () => ({
           filter_single: {
-            proposal,
+            proposal: selectedProposal,
             approver: selectApprover,
           },
         }))
@@ -114,7 +113,7 @@ export class ProposalsService {
 
       await e
         .insert(e.Approval, {
-          proposal,
+          proposal: selectedProposal,
           approver: selectApprover,
           signature,
           signedHash: hash,
@@ -125,7 +124,7 @@ export class ProposalsService {
     await this.publishProposal(hash, ProposalEvent.approval);
   }
 
-  async reject(id: UniqueProposal) {
+  async reject(id: UUID) {
     await this.db.transaction(async (db) => {
       const proposal = selectProposal(id);
 

@@ -6,7 +6,7 @@ import { z } from 'zod';
 import { useLocalParams } from '~/hooks/useLocalParams';
 import { ScrollView } from 'react-native';
 import { StyleSheet } from 'react-native';
-import { TransactionActions } from '~/components/transaction/TansactionActions';
+import { TransactionActions } from '~/components/transaction/TransactionActions';
 import { AppbarOptions } from '~/components/Appbar/AppbarOptions';
 import { TopTabs } from '~/components/layout/TopTabs';
 import { ScreenSurface } from '~/components/layout/ScreenSurface';

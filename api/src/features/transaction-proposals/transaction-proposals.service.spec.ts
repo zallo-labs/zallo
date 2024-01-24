@@ -22,11 +22,9 @@ import { selectAccount } from '../accounts/accounts.util';
 import { selectPolicy } from '../policies/policies.util';
 import { v1 as uuidv1 } from 'uuid';
 import { BullModule, getFlowProducerToken, getQueueToken } from '@nestjs/bullmq';
-import { SIMULATIONS_QUEUE } from '~/features/simulations/simulations.worker';
-import {
-  ExecutionsFlow,
-  ExecutionsQueue,
-} from '~/features/transaction-proposals/executions.worker';
+import { SimulationsQueue } from '~/features/simulations/simulations.worker';
+import { ExecutionsQueue } from '~/features/transaction-proposals/executions.worker';
+import { FLOW_PRODUCER, registerFlowsProducer } from '../util/bull/bull.util';
 import { CHAINS } from 'chains';
 import { PaymastersService } from '~/features/paymasters/paymasters.service';
 import Decimal from 'decimal.js';
@@ -42,16 +40,16 @@ describe(TransactionProposalsService.name, () => {
   beforeEach(async () => {
     const module = await Test.createTestingModule({
       imports: [
-        BullModule.registerQueue(SIMULATIONS_QUEUE, ExecutionsQueue),
-        BullModule.registerFlowProducer(ExecutionsFlow),
+        BullModule.registerQueue(SimulationsQueue, ExecutionsQueue),
+        registerFlowsProducer(),
       ],
       providers: [TransactionProposalsService, DatabaseService],
     })
-      .overrideProvider(getQueueToken(SIMULATIONS_QUEUE.name))
+      .overrideProvider(getQueueToken(SimulationsQueue.name))
       .useValue(createMock())
       .overrideProvider(getQueueToken(ExecutionsQueue.name))
       .useValue(createMock())
-      .overrideProvider(getFlowProducerToken(ExecutionsFlow.name))
+      .overrideProvider(getFlowProducerToken(FLOW_PRODUCER))
       .useValue(createMock())
       .useMocker(createMock)
       .compile();
@@ -66,7 +64,10 @@ describe(TransactionProposalsService.name, () => {
       estimateGas: async () => 0n,
     } satisfies DeepPartial<Network> as unknown as Network);
 
-    paymasters.paymasterEthFee.mockReturnValue(new Decimal(0));
+    paymasters.paymasterEthFees.mockImplementation(async () => ({
+      total: new Decimal(0),
+      activation: new Decimal(0),
+    }));
     paymasters.for.mockReturnValue(ZERO_ADDR);
   });
 
@@ -94,7 +95,7 @@ describe(TransactionProposalsService.name, () => {
         label: randomLabel(),
         implementation: randomAddress(),
         salt: randomDeploySalt(),
-        isActive: true,
+        upgradedAtBlock: 1n,
       })
       .unlessConflict()
       .id.run(db.client);

@@ -3,16 +3,13 @@ import { DatabaseService } from '../database/database.service';
 import e from '~/edgeql-js';
 import {
   Address,
-  Policy,
   asPolicyKey,
   randomDeploySalt,
   getProxyAddress,
-  deployAccountProxy,
   UAddress,
   asAddress,
   ACCOUNT_IMPLEMENTATION,
   ACCOUNT_PROXY_FACTORY,
-  Hex,
 } from 'lib';
 import { ShapeFunc } from '../database/database.select';
 import { AccountEvent, CreateAccountInput, UpdateAccountInput } from './accounts.input';
@@ -23,14 +20,11 @@ import { PubsubService } from '../util/pubsub/pubsub.service';
 import { ContractsService } from '../contracts/contracts.service';
 import { FaucetService } from '../faucet/faucet.service';
 import { PoliciesService } from '../policies/policies.service';
-import { InjectQueue } from '@nestjs/bullmq';
-import { ACTIVATIONS_QUEUE } from './activations.queue';
 import { inputAsPolicy } from '../policies/policies.util';
 import { AccountsCacheService } from '../auth/accounts.cache.service';
 import { v4 as uuid } from 'uuid';
 import { and } from '~/features/database/database.util';
 import { selectAccount } from '~/features/accounts/accounts.util';
-import { TypedQueue } from '~/features/util/bull/bull.util';
 
 export const getAccountTrigger = (address: UAddress) => `account.${address}`;
 export const getAccountApproverTrigger = (approver: Address) => `account.approver.${approver}`;
@@ -49,8 +43,6 @@ export class AccountsService {
     private faucet: FaucetService,
     @Inject(forwardRef(() => PoliciesService))
     private policies: PoliciesService,
-    @InjectQueue(ACTIVATIONS_QUEUE.name)
-    private activations: TypedQueue<typeof ACTIVATIONS_QUEUE>,
     private accountsCache: AccountsCacheService,
   ) {}
 
@@ -127,7 +119,6 @@ export class AccountsService {
           id,
           address: account,
           label,
-          isActive: false,
           implementation,
           salt,
         })
@@ -143,7 +134,6 @@ export class AccountsService {
       }
     });
 
-    await this.activateAccount(account, implementation, salt, policies);
     this.contracts.addAccountAsVerified(asAddress(account));
     this.faucet.requestTokens(account);
     this.publishAccount({ account, event: AccountEvent.create });
@@ -166,29 +156,6 @@ export class AccountsService {
     if (!r) throw new UserInputError(`Must be a member of the account to update it`);
 
     this.publishAccount({ account: address, event: AccountEvent.update });
-  }
-
-  private async activateAccount(
-    account: UAddress,
-    implementation: Address,
-    salt: Hex,
-    policies: Policy[],
-  ) {
-    const network = this.networks.get(account);
-    const { transactionHash } = (
-      await network.useWallet(async (wallet) =>
-        deployAccountProxy({
-          network,
-          wallet,
-          factory: ACCOUNT_PROXY_FACTORY.address[network.key],
-          implementation,
-          salt,
-          policies,
-        }),
-      )
-    )._unsafeUnwrap(); // TODO: handle failed deployments
-
-    await this.activations.add('', { account, transaction: transactionHash });
   }
 
   async publishAccount(payload: AccountSubscriptionPayload) {

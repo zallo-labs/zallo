@@ -1,11 +1,13 @@
 import { Address, ETH_ADDRESS, UAddress, ZERO_ADDR, asAddress, asChain } from 'lib';
 import { useAtomValue } from 'jotai';
 import { SYNCSWAP_POOL_FAMILY, SyncswapPool } from '~/util/swap/syncswap/pools';
-import { GetFunctionArgs, encodeAbiParameters } from 'viem';
+import { encodeAbiParameters, getAbiItem } from 'viem';
 import { WETH, SYNCSWAP } from 'lib/dapps';
+import { AbiParameterToPrimitiveType } from 'abitype';
 
+const item = getAbiItem({ abi: SYNCSWAP.router.abi, name: 'swap' });
 export type SwapRoute = Omit<
-  GetFunctionArgs<typeof SYNCSWAP.router.abi, 'swap'>['args'][0][0],
+  AbiParameterToPrimitiveType<(typeof item)['inputs'][0]>[0],
   'amountIn'
 >;
 type Steps = SwapRoute['steps'];

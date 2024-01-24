@@ -41,14 +41,15 @@ import { runOnce } from '~/util/mutex';
 
 type TransferDetails = Parameters<typeof e.insert<typeof e.TransferDetails>>[1];
 
-export const SIMULATIONS_QUEUE = createQueue<{ txProposal: UUID }>('Simulations');
+export const SimulationsQueue = createQueue<{ txProposal: UUID }>('Simulations');
+export type SimulationsQueue = typeof SimulationsQueue;
 
 @Injectable()
-@Processor(SIMULATIONS_QUEUE.name)
-export class SimulationsWorker extends Worker<typeof SIMULATIONS_QUEUE> {
+@Processor(SimulationsQueue.name)
+export class SimulationsWorker extends Worker<SimulationsQueue> {
   constructor(
-    @InjectQueue(SIMULATIONS_QUEUE.name)
-    private queue: TypedQueue<typeof SIMULATIONS_QUEUE>,
+    @InjectQueue(SimulationsQueue.name)
+    private queue: TypedQueue<SimulationsQueue>,
     private db: DatabaseService,
     @InjectRedis() private redis: Redis,
     private networks: NetworksService,
@@ -62,7 +63,7 @@ export class SimulationsWorker extends Worker<typeof SIMULATIONS_QUEUE> {
     this.addMissingJobs();
   }
 
-  async process(job: TypedJob<typeof SIMULATIONS_QUEUE>) {
+  async process(job: TypedJob<SimulationsQueue>) {
     const { txProposal } = job.data;
 
     const p = await this.db.query(
@@ -194,7 +195,7 @@ export class SimulationsWorker extends Worker<typeof SIMULATIONS_QUEUE> {
         if (orphanedProposals.length) {
           await this.queue.addBulk(
             orphanedProposals.map((id) => ({
-              name: SIMULATIONS_QUEUE.name,
+              name: SimulationsQueue.name,
               data: { txProposal: asUUID(id) },
             })),
           );

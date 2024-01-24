@@ -26,7 +26,7 @@ export default {
     version: '0.8.23',
   },
   zksolc: {
-    version: '1.3.17', // https://github.com/matter-labs/zksolc-bin/tree/main/linux-amd64
+    version: '1.3.22', // https://github.com/matter-labs/zksolc-bin/tree/main/linux-amd64
     settings: {
       isSystem: true, // Required to deploy AA contracts
       optimizer: {
@@ -68,7 +68,7 @@ export default {
   export: [
     {
       path: 'test/contracts',
-      contracts: ['^contracts\\/.+'],
+      contracts: ['^contracts\\/.+', '^@pythnetwork/.*/MockPyth.*'],
       include: ['abi', 'contractName'],
     },
     {

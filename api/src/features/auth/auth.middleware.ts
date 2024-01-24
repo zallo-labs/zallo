@@ -96,11 +96,14 @@ export class AuthMiddleware implements NestMiddleware {
         }
       })
       .otherwise(async ({ message, signature }) => {
-        const r = await message.verify({
-          signature,
-          domain: req.headers.host,
-          nonce: req.session?.nonce ?? 'nonceless',
-        });
+        const r = await message.verify(
+          {
+            signature,
+            domain: req.headers.host,
+            nonce: req.session?.nonce ?? 'nonceless',
+          },
+          { suppressExceptions: true },
+        );
 
         if (r.error) return err(r.error.type);
 

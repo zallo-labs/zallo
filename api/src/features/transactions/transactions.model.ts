@@ -1,5 +1,6 @@
 import { Field } from '@nestjs/graphql';
 import { TransactionProposal } from '../transaction-proposals/transaction-proposals.model';
+import { PaymasterFees } from '../paymasters/paymasters.model';
 import { Bytes32Field } from '~/apollo/scalars/Bytes.scalar';
 import { Receipt } from '../receipts/receipts.model';
 import { DecimalField } from '~/apollo/scalars/Decimal.scalar';
@@ -17,8 +18,14 @@ export class Transaction extends Node {
   @DecimalField()
   maxEthFeePerGas: Decimal;
 
+  @Field(() => PaymasterFees)
+  paymasterEthFees: PaymasterFees;
+
+  // @DecimalField()
+  // ethDiscount: Decimal;
+
   @DecimalField()
-  ethDiscount: Decimal;
+  ethCreditUsed: Decimal;
 
   @DecimalField()
   ethPerFeeToken: Decimal;

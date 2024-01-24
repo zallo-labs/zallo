@@ -6,18 +6,16 @@ import {
   asHex,
   asUAddress,
   asUUID,
-  Hex,
   isTruthy,
-  tryOrCatch,
 } from 'lib';
 import { TransactionData, TransactionEventData, TransactionsWorker } from './transactions.worker';
 import { InjectQueue } from '@nestjs/bullmq';
-import { TRANSACTIONS_QUEUE } from './transactions.queue';
+import { TransactionsQueue } from './transactions.queue';
 import e from '~/edgeql-js';
 import { DatabaseService } from '../database/database.service';
 import { and } from '../database/database.util';
 import { NetworksService } from '../util/networks/networks.service';
-import { decodeEventLog, getAbiItem } from 'viem';
+import { getAbiItem } from 'viem';
 import { ProposalsService } from '../proposals/proposals.service';
 import { ProposalEvent } from '../proposals/proposals.input';
 import { InjectRedis } from '@songkeys/nestjs-redis';
@@ -26,30 +24,29 @@ import { RUNNING_JOB_STATUSES, TypedQueue } from '../util/bull/bull.util';
 import { ETH } from 'lib/dapps';
 import { runOnce } from '~/util/mutex';
 import { ampli } from '~/util/ampli';
-import { Revenue } from '@amplitude/analytics-node';
 import Decimal from 'decimal.js';
+
+const opExecutedEvent = getAbiItem({ abi: ACCOUNT_IMPLEMENTATION.abi, name: 'OperationExecuted' });
+const opsExecutedEvent = getAbiItem({
+  abi: ACCOUNT_IMPLEMENTATION.abi,
+  name: 'OperationsExecuted',
+});
 
 @Injectable()
 export class TransactionsEvents implements OnModuleInit {
   private log = new Logger(this.constructor.name);
 
   constructor(
-    @InjectQueue(TRANSACTIONS_QUEUE.name)
-    private queue: TypedQueue<typeof TRANSACTIONS_QUEUE>,
+    @InjectQueue(TransactionsQueue.name)
+    private queue: TypedQueue<TransactionsQueue>,
     private db: DatabaseService,
     @InjectRedis() private redis: Redis,
     private networks: NetworksService,
     private transactionsProcessor: TransactionsWorker,
     private proposals: ProposalsService,
   ) {
-    this.transactionsProcessor.onEvent(
-      getAbiItem({ abi: ACCOUNT_IMPLEMENTATION.abi, name: 'OperationExecuted' }),
-      (data) => this.executed(data),
-    );
-    this.transactionsProcessor.onEvent(
-      getAbiItem({ abi: ACCOUNT_IMPLEMENTATION.abi, name: 'OperationsExecuted' }),
-      (data) => this.executed(data),
-    );
+    this.transactionsProcessor.onEvent(opExecutedEvent, (data) => this.executed(data));
+    this.transactionsProcessor.onEvent(opsExecutedEvent, (data) => this.executed(data));
     this.transactionsProcessor.onTransaction((data) => this.reverted(data));
   }
 
@@ -57,26 +54,20 @@ export class TransactionsEvents implements OnModuleInit {
     this.addMissingJobs();
   }
 
-  private async executed({ chain, log, receipt, block }: TransactionEventData) {
-    const r = tryOrCatch(
-      () =>
-        decodeEventLog({
-          abi: ACCOUNT_IMPLEMENTATION.abi,
-          topics: log.topics as [Hex, ...Hex[]],
-          data: log.data as Hex,
-        }),
-      (e) => {
-        this.log.warn(`Failed to decode executed event log: ${e}`);
-      },
-    );
-    if (r?.eventName !== 'OperationExecuted' && r?.eventName !== 'OperationsExecuted') return;
+  private async executed({
+    chain,
+    log,
+    receipt,
+    block,
+  }: TransactionEventData<typeof opExecutedEvent> | TransactionEventData<typeof opsExecutedEvent>) {
+    const { args } = log;
 
     const updatedTransaction = e.update(e.Transaction, () => ({
       filter_single: { hash: asHex(receipt.transactionHash) },
       set: {
         receipt: e.insert(e.Receipt, {
           success: true,
-          responses: 'responses' in r.args ? [...r.args.responses] : [r.args.response],
+          responses: 'responses' in args ? [...args.responses] : [args.response],
           gasUsed: receipt.gasUsed,
           ethFeePerGas: asDecimal(receipt.effectiveGasPrice, ETH).toString(),
           block: BigInt(receipt.blockNumber),
@@ -90,7 +81,6 @@ export class TransactionsEvents implements OnModuleInit {
         proposal: {
           id: true,
           account: { approvers: { user: true } },
-          paymasterEthFee: true,
         },
         ethPerFeeToken: true,
         usdPerFeeToken: true,
@@ -107,8 +97,8 @@ export class TransactionsEvents implements OnModuleInit {
       ProposalEvent.executed,
     );
 
-    const usdPerEth = new Decimal(transaction.usdPerFeeToken).div(transaction.ethPerFeeToken);
-    const revenue = new Decimal(transaction.proposal.paymasterEthFee).mul(usdPerEth).toNumber();
+    // const usdPerEth = new Decimal(transaction.usdPerFeeToken).div(transaction.ethPerFeeToken);
+    const revenue = 0; // new Decimal(0).mul(usdPerEth).toNumber();
     proposal.account.approvers.forEach(({ user }) => {
       ampli.transactionExecuted(user.id, { success: false }, { revenue });
     });
@@ -140,7 +130,6 @@ export class TransactionsEvents implements OnModuleInit {
         proposal: {
           id: true,
           account: { approvers: { user: true } },
-          paymasterEthFee: true,
         },
         ethPerFeeToken: true,
         usdPerFeeToken: true,
@@ -157,8 +146,8 @@ export class TransactionsEvents implements OnModuleInit {
       ProposalEvent.executed,
     );
 
-    const usdPerEth = new Decimal(transaction.usdPerFeeToken).div(transaction.ethPerFeeToken);
-    const revenue = new Decimal(transaction.proposal.paymasterEthFee).mul(usdPerEth).toNumber();
+    // const usdPerEth = new Decimal(transaction.usdPerFeeToken).div(transaction.ethPerFeeToken);
+    const revenue = 0; // new Decimal(0).mul(usdPerEth).toNumber();
     proposal.account.approvers.forEach(({ user }) => {
       ampli.transactionExecuted(user.id, { success: false }, { revenue });
     });
@@ -187,7 +176,7 @@ export class TransactionsEvents implements OnModuleInit {
         if (orphanedTransactions.length) {
           await this.queue.addBulk(
             orphanedTransactions.map((t) => ({
-              name: TRANSACTIONS_QUEUE.name,
+              name: TransactionsQueue.name,
               data: {
                 chain: asChain(asUAddress(t.proposal.account.address)),
                 transaction: asHex(t.hash),

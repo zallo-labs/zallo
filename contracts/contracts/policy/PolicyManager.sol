@@ -53,7 +53,7 @@ abstract contract PolicyManager is SelfOwned {
     emit PolicyRemoved(key);
   }
 
-  function _decodeAndVerifySignature(
+  function _decodeSignature(
     bytes memory signature
   ) internal view returns (Policy memory policy, Approvals memory approvals) {
     // proposalNonce is ignored
@@ -88,7 +88,7 @@ abstract contract PolicyManager is SelfOwned {
   }
 
   /// @dev This should **only ever be used for testing**
-  /// @dev Use _decodeAndVerifySignature()
+  /// @dev Use _decodeSignature()
   function _getPolicyHash(PolicyKey key) internal view returns (bytes32) {
     return _policyHashes()[key];
   }

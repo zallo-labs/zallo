@@ -1,8 +1,8 @@
 import { useCallback } from 'react';
-import { logError } from '~/util/analytics';
 import { gql } from '@api/generated';
 import { ProposeTransactionInput } from '@api/generated/graphql';
 import { useMutation } from 'urql';
+import { showError } from '~/components/provider/SnackbarProvider';
 
 const Propose = gql(/* GraphQL */ `
   mutation UsePropose($input: ProposeTransactionInput!) {
@@ -13,7 +13,7 @@ const Propose = gql(/* GraphQL */ `
   }
 `);
 
-export const usePropose = () => {
+export function usePropose() {
   const propose = useMutation(Propose)[1];
 
   return useCallback(
@@ -21,11 +21,10 @@ export const usePropose = () => {
       const r = await propose({ input });
 
       const id = r.data?.proposeTransaction.id;
-      // TODO: handle failed proposal
-      if (!id) logError('Proposal failed', { input, error: r.error });
+      if (!id) showError('Something went wrong proposing transaction', { event: { input, ...r } });
 
-      return id!;
+      return id;
     },
     [propose],
   );
-};
+}

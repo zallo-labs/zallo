@@ -7,7 +7,11 @@ import {
   UniquePolicyInput,
   UpdatePolicyInput,
 } from './policies.input';
-import { PoliciesService } from './policies.service';
+import {
+  PoliciesService,
+  PolicySatisfiabilityDeps,
+  policySatisfiabilityDeps,
+} from './policies.service';
 import {
   CreatePolicyResponse,
   Policy,
@@ -18,7 +22,6 @@ import { getShape } from '../database/database.select';
 import { Input } from '~/decorators/input.decorator';
 import e from '~/edgeql-js';
 import { ComputedField } from '~/decorators/computed.decorator';
-import { policyStateShape } from '../policies/policies.util';
 
 @Resolver(() => Policy)
 export class PoliciesResolver {
@@ -37,15 +40,12 @@ export class PoliciesResolver {
     return this.service.select(input, getShape(info));
   }
 
-  @ComputedField<typeof e.Policy>(() => SatisfiabilityResult, {
-    key: true,
-    state: policyStateShape,
-  })
+  @ComputedField<typeof e.Policy>(() => SatisfiabilityResult, policySatisfiabilityDeps)
   async satisfiability(
     @Input() { proposal }: SatisfiabilityInput,
-    @Parent() { key, state }: Policy,
+    @Parent() policyDeps: PolicySatisfiabilityDeps,
   ): Promise<SatisfiabilityResult> {
-    return this.service.satisfiability(proposal, key, state || null);
+    return this.service.satisfiability(proposal, policyDeps);
   }
 
   @Mutation(() => CreatePolicyResponse)

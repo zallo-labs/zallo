@@ -88,9 +88,7 @@ const client = atom(async (get) => {
           logError('[urql] error: ' + error.message, { error, operation });
         },
       }),
-      requestPolicyExchange({
-        /* ttl (default): 5 minutes */
-      }),
+      requestPolicyExchange({ ttl: 30_000 /* ms */ }),
       // refocusExchange(),
       offlineExchange({
         storage: makeAsyncStorage({
@@ -151,7 +149,7 @@ async function createToken(approver: CreateTokenApprover): Promise<Token> {
     address: approver.address,
     nonce,
     expirationTime: DateTime.now().plus({ days: 2 }).toString(),
-    uri: 'https://app.zallo.com', // Required but unused
+    uri: CONFIG.webAppUrl, // Required but unused by api
     chainId: 0,
   });
 

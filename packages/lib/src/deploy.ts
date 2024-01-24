@@ -3,7 +3,7 @@ import { utils as zkUtils } from 'zksync-ethers';
 import { Policy, encodePolicyStruct } from './policy';
 import { Network, NetworkWallet } from 'chains';
 import { ACCOUNT_IMPLEMENTATION, ACCOUNT_PROXY, ACCOUNT_PROXY_FACTORY } from './contract';
-import { Hex, encodeAbiParameters, encodeFunctionData } from 'viem';
+import { Hex, encodeAbiParameters, encodeFunctionData, ContractFunctionParameters } from 'viem';
 import { err, ok } from 'neverthrow';
 import { randomHex } from './bytes';
 
@@ -61,32 +61,53 @@ export async function getProxyAddress({
   return asUAddress(address, network.chain.key);
 }
 
-export interface DeployAccountProxyArgs extends ProxyConstructorArgs {
-  network: Network;
-  wallet: NetworkWallet;
+export interface DeployAccountProxyRequestParams extends ProxyConstructorArgs {
   factory: Address;
   salt: Hex;
 }
 
-export const deployAccountProxy = async ({
-  network,
-  wallet,
+export function deployAccountProxyRequest({
   factory,
   salt,
   ...constructorArgs
-}: DeployAccountProxyArgs) => {
-  const proxy = await getProxyAddress({ network, factory, salt, ...constructorArgs });
-
-  const sim = await network.simulateContract({
+}: DeployAccountProxyRequestParams) {
+  return {
     abi: ACCOUNT_PROXY_FACTORY.abi,
     address: factory,
-    functionName: 'deploy',
-    args: [encodeProxyConstructorArgs(constructorArgs), salt],
-  });
+    functionName: 'deploy' as const,
+    args: [encodeProxyConstructorArgs(constructorArgs), salt] as const,
+  } satisfies ContractFunctionParameters;
+}
+
+export interface SimulateDeployAccountProxyArgs extends DeployAccountProxyRequestParams {
+  network: Network;
+}
+
+export async function simulateDeployAccountProxy({
+  network,
+  factory,
+  salt,
+  ...constructorArgs
+}: SimulateDeployAccountProxyArgs) {
+  const proxy = await getProxyAddress({ network, factory, salt, ...constructorArgs });
+
+  const params = deployAccountProxyRequest({ factory, salt, ...constructorArgs });
+  const sim = await network.simulateContract(params);
   const expected = asAddress(proxy);
   if (sim.result !== expected) return err({ expected, simulated: sim.result });
 
-  const transactionHash = await wallet.writeContract(sim.request);
+  return ok({ proxy, params, ...sim });
+}
 
-  return ok({ proxy, transactionHash });
+export interface DeployAccountProxyArgs extends SimulateDeployAccountProxyArgs {
+  wallet: NetworkWallet;
+}
+
+export const deployAccountProxy = async ({ wallet, ...args }: DeployAccountProxyArgs) => {
+  const sim = await simulateDeployAccountProxy(args);
+
+  return sim.asyncMap(async ({ proxy, request }) => {
+    const transactionHash = await wallet.writeContract(request);
+    return { proxy, transactionHash };
+  });
 };

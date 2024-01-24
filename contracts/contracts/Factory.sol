@@ -20,7 +20,7 @@ contract Factory {
   function deploy(
     bytes calldata constructorArgsData,
     bytes32 salt
-  ) external payable returns (address account) {
+  ) public payable returns (address account) {
     (bool success, bytes memory data) = SystemContractsCaller.systemCallWithReturndata(
       uint32(gasleft()), // truncation ok
       address(DEPLOYER_SYSTEM_CONTRACT),

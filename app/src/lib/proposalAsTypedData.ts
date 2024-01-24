@@ -21,7 +21,9 @@ const TransactionProposal = gql(/* GraphQL */ `
       address
     }
     paymaster
-    paymasterEthFee
+    maxPaymasterEthFees {
+      total
+    }
   }
 `);
 
@@ -40,6 +42,6 @@ export function proposalAsTypedData(proposalFragment: FragmentType<typeof Transa
     gas: BigInt(p.gasLimit),
     feeToken: asAddress(p.feeToken.address),
     paymaster: asAddress(p.paymaster),
-    paymasterEthFee: new Decimal(p.paymasterEthFee),
+    paymasterEthFee: new Decimal(p.maxPaymasterEthFees.total),
   });
 }

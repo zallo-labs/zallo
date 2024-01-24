@@ -7,6 +7,7 @@ import {Policy} from './policy/Policy.sol';
 import {Approvals} from './policy/ApprovalsVerifier.sol';
 import {Hook} from './policy/hooks/Hooks.sol';
 import {Cast} from './libraries/Cast.sol';
+import {TypedData} from './libraries/TypedData.sol';
 import {PaymasterUtil} from './paymaster/PaymasterUtil.sol';
 
 struct Operation {
@@ -18,9 +19,6 @@ struct Operation {
 /// @dev https://github.com/ethereum/EIPs/blob/master/EIPS/eip-712.md
 library TransactionUtil {
   using Cast for uint256;
-
-  bytes32 private constant DOMAIN_TYPE_HASH =
-    keccak256('EIP712Domain(uint256 chainId,address verifyingContract)');
 
   bytes32 private constant TX_TYPE_HASH =
     keccak256(
@@ -42,7 +40,7 @@ library TransactionUtil {
       )
     );
 
-    return keccak256(abi.encodePacked('\x19\x01', _domainSeparator(), structHash));
+    return TypedData.hashTypedData(structHash);
   }
 
   function to(Transaction calldata t) internal pure returns (address) {
@@ -75,11 +73,6 @@ library TransactionUtil {
   /// @dev estimateGas always calls with a 65 byte signature
   function isGasEstimation(Transaction calldata t) internal pure returns (bool) {
     return t.signature.length == 65;
-  }
-
-  function _domainSeparator() private view returns (bytes32) {
-    // Can't be set immutably as it will be called by a proxy and depends on address(this)
-    return keccak256(abi.encode(DOMAIN_TYPE_HASH, block.chainid, address(this)));
   }
 
   function _proposalNonce(Transaction calldata t) private pure returns (uint32) {

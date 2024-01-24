@@ -12,9 +12,10 @@ import { makeUnionTypeResolver } from '../database/database.util';
 import { MessageProposal } from '../message-proposals/message-proposals.model';
 import { Approver } from '../approvers/approvers.model';
 import { UAddressField } from '~/apollo/scalars/UAddress.scalar';
-import { Address, UAddress } from 'lib';
+import { Address, Hex, UAddress } from 'lib';
 import { ChainField } from '~/apollo/scalars/Chain.scalar';
 import { Chain } from 'chains';
+import { GraphQLBigInt } from 'graphql-scalars';
 
 @NodeType()
 export class Account extends Node {
@@ -24,20 +25,23 @@ export class Account extends Node {
   @Field(() => String)
   label: string;
 
-  @Field(() => Boolean)
-  isActive: boolean;
-
   @AddressField()
   implementation: Address;
 
   @Bytes32Field()
-  salt: string; // Hex
+  salt: Hex;
+
+  @Field(() => GraphQLBigInt, { nullable: true })
+  upgradedAtBlock?: bigint;
 
   @Field(() => String, { nullable: true })
   photoUri?: string;
 
   @ChainField()
   chain: Chain;
+
+  @Field(() => Boolean)
+  isActive: boolean;
 
   @Field(() => [Policy])
   policies: Policy[];

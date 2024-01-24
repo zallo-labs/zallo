@@ -1,7 +1,7 @@
-import { Field } from '@nestjs/graphql';
+import { Field, ObjectType } from '@nestjs/graphql';
 import Decimal from 'decimal.js';
 import { DecimalField } from '~/apollo/scalars/Decimal.scalar';
-import { CustomNode, CustomNodeType } from '~/decorators/interface.decorator';
+import { CustomNode, CustomNodeType, Node, NodeType } from '~/decorators/interface.decorator';
 
 @CustomNodeType()
 export class FeesPerGas extends CustomNode {
@@ -13,4 +13,17 @@ export class FeesPerGas extends CustomNode {
 
   @Field(() => Number)
   feeTokenDecimals: number;
+}
+
+export interface PaymasterFeeParts {
+  activation: Decimal;
+}
+
+@ObjectType()
+export class PaymasterFees implements PaymasterFeeParts {
+  @DecimalField()
+  total: Decimal;
+
+  @DecimalField()
+  activation: Decimal;
 }

@@ -68,7 +68,6 @@ export interface Account extends std.$Object {
   "address": string;
   "chain": string;
   "implementation": string;
-  "isActive": boolean;
   "label": string;
   "photoUri"?: string | null;
   "salt": string;
@@ -78,6 +77,9 @@ export interface Account extends std.$Object {
   "transactionProposals": TransactionProposal[];
   "transfers": Transfer[];
   "paymasterEthCredit": string;
+  "upgradedAtBlock"?: bigint | null;
+  "isActive": boolean;
+  "activationEthFee"?: string | null;
 }
 export interface Action extends std.$Object {
   "functions": ActionFunction[];
@@ -167,15 +169,20 @@ export interface Operation extends std.$Object {
   "to": string;
   "value"?: bigint | null;
 }
+export interface PaymasterFees extends std.$Object {
+  "activation": string;
+  "total": string;
+}
 export interface Policy extends std.$Object {
   "account": Account;
   "name": string;
   "key": number;
   "stateHistory": PolicyState[];
-  "draft"?: PolicyState | null;
-  "state"?: PolicyState | null;
   "isActive": boolean;
   "isEnabled": boolean;
+  "stateOrDraft": PolicyState;
+  "draft"?: PolicyState | null;
+  "state"?: PolicyState | null;
 }
 export interface PolicyState extends std.$Object {
   "activationBlock"?: bigint | null;
@@ -188,6 +195,8 @@ export interface PolicyState extends std.$Object {
   "transfers": TransfersConfig;
   "threshold": number;
   "policy"?: Policy | null;
+  "hasBeenActive": boolean;
+  "isActive": boolean;
 }
 export type ProposalRisk = "Low" | "Medium" | "High";
 export interface ProposalRiskLabel extends std.$Object {
@@ -206,8 +215,8 @@ export interface Receipt extends std.$Object {
   "block": bigint;
   "ethFeePerGas": string;
   "networkEthFee": string;
-  "ethFees": string;
   "gasUsed": bigint;
+  "ethFees": string;
 }
 export interface Refund extends std.$Object {
   "transaction": Transaction;
@@ -239,13 +248,15 @@ export interface Transaction extends std.$Object {
   "hash": string;
   "proposal": TransactionProposal;
   "events": Event[];
-  "ethDiscount": string;
   "refunds": Refund[];
   "maxEthFeePerGas": string;
   "maxNetworkEthFee": string;
-  "maxEthFees": string;
   "ethPerFeeToken": string;
   "usdPerFeeToken": string;
+  "paymasterEthFees": PaymasterFees;
+  "maxEthFees": string;
+  "ethCreditUsed": string;
+  "ethDiscount": string;
 }
 export interface TransactionProposal extends Proposal {
   "operations": Operation[];
@@ -254,10 +265,11 @@ export interface TransactionProposal extends Proposal {
   "paymaster": string;
   "transactions": Transaction[];
   "transaction"?: Transaction | null;
-  "status": TransactionProposalStatus;
   "gasLimit": bigint;
-  "paymasterEthFee": string;
   "simulation"?: Simulation | null;
+  "maxPaymasterEthFees": PaymasterFees;
+  "submitted": boolean;
+  "status": TransactionProposalStatus;
 }
 export type TransactionProposalStatus = "Pending" | "Executing" | "Successful" | "Failed";
 export interface TransferDetails extends std.$Object {
@@ -569,6 +581,7 @@ export interface types {
     "Proposal": Proposal;
     "MessageProposal": MessageProposal;
     "Operation": Operation;
+    "PaymasterFees": PaymasterFees;
     "Policy": Policy;
     "PolicyState": PolicyState;
     "ProposalRisk": ProposalRisk;

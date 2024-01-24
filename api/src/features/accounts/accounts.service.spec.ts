@@ -6,7 +6,7 @@ import { DeepPartial, randomLabel, randomUAddress, randomUser } from '~/util/tes
 import { getProxyAddress, UAddress } from 'lib';
 import { PoliciesService } from '../policies/policies.service';
 import { BullModule, getQueueToken } from '@nestjs/bullmq';
-import { ACTIVATIONS_QUEUE } from './activations.queue';
+import { ActivationsQueue } from '../activations/activations.queue';
 import { DatabaseService } from '../database/database.service';
 import { AccountsService } from './accounts.service';
 import e from '~/edgeql-js';
@@ -26,15 +26,15 @@ describe(AccountsService.name, () => {
   let db: DatabaseService;
   let networks: DeepMocked<NetworksService>;
   let policies: DeepMocked<PoliciesService>;
-  let activationsQueue: DeepMocked<TypedQueue<typeof ACTIVATIONS_QUEUE>>;
+  let activationsQueue: DeepMocked<TypedQueue<typeof ActivationsQueue>>;
   let accountsCache: DeepMocked<AccountsCacheService>;
 
   beforeEach(async () => {
     const module = await Test.createTestingModule({
-      imports: [BullModule.registerQueue(ACTIVATIONS_QUEUE)],
+      imports: [BullModule.registerQueue(ActivationsQueue)],
       providers: [AccountsService, DatabaseService],
     })
-      .overrideProvider(getQueueToken(ACTIVATIONS_QUEUE.name))
+      .overrideProvider(getQueueToken(ActivationsQueue.name))
       .useValue(createMock())
       .useMocker(createMock)
       .compile();
@@ -42,7 +42,7 @@ describe(AccountsService.name, () => {
     db = module.get(DatabaseService);
     networks = module.get(NetworksService);
     policies = module.get(PoliciesService);
-    activationsQueue = module.get(getQueueToken(ACTIVATIONS_QUEUE.name));
+    activationsQueue = module.get(getQueueToken(ActivationsQueue.name));
     accountsCache = module.get(AccountsCacheService);
 
     accountsCache.addCachedAccount.mockImplementation(async ({ approver, account }) => {

@@ -1,15 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import {
-  Address,
-  Hex,
-  UAddress,
-  asAddress,
-  asUAddress,
-  isTruthy,
-  tryOrIgnore,
-  ETH_ADDRESS,
-  isEthToken,
-} from 'lib';
+import { Address, UAddress, asAddress, asUAddress, isTruthy, ETH_ADDRESS, isEthToken } from 'lib';
 import { ERC20 } from 'lib/dapps';
 import { TransactionEventData, TransactionsWorker } from '../transactions/transactions.worker';
 import { EventData, EventsWorker } from '../events/events.worker';
@@ -19,7 +9,7 @@ import { selectAccount } from '../accounts/accounts.util';
 import { NetworksService } from '../util/networks/networks.service';
 import { uuid } from 'edgedb/dist/codecs/ifaces';
 import { PubsubService } from '../util/pubsub/pubsub.service';
-import { decodeEventLog, getAbiItem } from 'viem';
+import { getAbiItem } from 'viem';
 import { and } from '../database/database.util';
 import { TransferDirection } from './transfers.input';
 import { AccountsCacheService } from '../auth/accounts.cache.service';
@@ -36,6 +26,9 @@ export interface TransferSubscriptionPayload {
   directions: TransferDirection[];
   internal: boolean;
 }
+
+const transferEvent = getAbiItem({ abi: ERC20, name: 'Transfer' });
+const approvalEvent = getAbiItem({ abi: ERC20, name: 'Approval' });
 
 @Injectable()
 export class TransfersEvents {
@@ -56,30 +49,21 @@ export class TransfersEvents {
      * Events processor handles events `to` account
      * Transactions processor handles events `from` account - in order to be associated with the transaction
      */
-    const transferEvent = getAbiItem({ abi: ERC20, name: 'Transfer' });
     this.eventsProcessor.on(transferEvent, (data) => this.transfer(data));
     this.transactionsProcessor.onEvent(transferEvent, (data) => this.transfer(data));
 
-    const approvalEvent = getAbiItem({ abi: ERC20, name: 'Approval' });
     this.eventsProcessor.on(approvalEvent, (data) => this.approval(data));
     this.transactionsProcessor.onEvent(approvalEvent, (data) => this.approval(data));
   }
 
-  private async transfer(event: EventData | TransactionEventData) {
+  private async transfer(
+    event: EventData<typeof transferEvent> | TransactionEventData<typeof transferEvent>,
+  ) {
     const { chain, log } = event;
+    const { args } = log;
     const isFromTransaction = 'receipt' in event;
 
-    const r = tryOrIgnore(() =>
-      decodeEventLog({
-        abi: ERC20,
-        eventName: 'Transfer',
-        data: log.data as Hex,
-        topics: log.topics as [Hex, ...Hex[]],
-      }),
-    );
-    if (!r) return;
-
-    const [from, to] = [asUAddress(r.args.from, chain), asUAddress(r.args.to, chain)];
+    const [from, to] = [asUAddress(args.from, chain), asUAddress(args.to, chain)];
     const isAccount = await this.accountsCache.isAccount([from, to]);
     const accounts = [isAccount[0] && from, isAccount[1] && to].filter(isTruthy);
     if (!accounts.length) return;
@@ -88,7 +72,7 @@ export class TransfersEvents {
     const network = this.networks.get(chain);
     const block =
       'block' in event ? event.block : await network.getBlock({ blockNumber: log.blockNumber });
-    const amount = await this.tokens.asDecimal(token, r.args.value);
+    const amount = await this.tokens.asDecimal(token, args.value);
     const [localFrom, localTo] = [asAddress(from), asAddress(to)];
 
     await Promise.all(
@@ -172,21 +156,14 @@ export class TransfersEvents {
     );
   }
 
-  private async approval(event: EventData | TransactionEventData) {
+  private async approval(
+    event: EventData<typeof approvalEvent> | TransactionEventData<typeof approvalEvent>,
+  ) {
     const { chain, log } = event;
+    const { args } = log;
 
-    const r = tryOrIgnore(() =>
-      decodeEventLog({
-        abi: ERC20,
-        eventName: 'Approval',
-        data: log.data as Hex,
-        topics: log.topics as [Hex, ...Hex[]],
-      }),
-    );
-    if (!r) return;
-
-    const from = asUAddress(r.args.owner, chain);
-    const to = asUAddress(r.args.spender, chain);
+    const from = asUAddress(args.owner, chain);
+    const to = asUAddress(args.spender, chain);
 
     const isAccount = await this.accountsCache.isAccount([from, to]);
     const accounts = [isAccount[0] && from, isAccount[1] && to].filter(isTruthy);
@@ -196,7 +173,7 @@ export class TransfersEvents {
     const network = this.networks.get(chain);
     const block =
       'block' in event ? event.block : await network.getBlock({ blockNumber: log.blockNumber });
-    const amount = await this.tokens.asDecimal(token, r.args.value);
+    const amount = await this.tokens.asDecimal(token, args.value);
     const [localFrom, localTo] = [asAddress(from), asAddress(to)];
 
     await Promise.all(

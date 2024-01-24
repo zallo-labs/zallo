@@ -48,7 +48,6 @@
     "dotenv": "^16.3.1",
     "wonka": "^6.3.4",
     "react-refresh": "~0.14.0",
-    "viem": "patch:viem@npm:^1.20.3#.yarn/patches/viem-npm-1.20.3-dc6ceec8be.patch",
     "ioredis": "5.3.2",
     "apg-js": "^4.2.0"
   }

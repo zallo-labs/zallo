@@ -18,7 +18,7 @@ import {
 import { DatabaseService } from '~/features/database/database.service';
 import { PaymastersService } from '~/features/paymasters/paymasters.service';
 import { ProposalsService } from '~/features/proposals/proposals.service';
-import { TRANSACTIONS_QUEUE } from '~/features/transactions/transactions.queue';
+import { TransactionsQueue } from '~/features/transactions/transactions.queue';
 import { NetworksService } from '~/features/util/networks/networks.service';
 import e from '~/edgeql-js';
 import {
@@ -49,7 +49,6 @@ export const ExecutionsQueue = createQueue<
   Hex | string
 >('Executions');
 export type ExecutionsQueue = typeof ExecutionsQueue;
-export const ExecutionsFlow = { name: 'ExecutionFlow' as const };
 
 @Injectable()
 @Processor(ExecutionsQueue.name)
@@ -57,8 +56,8 @@ export class ExecutionsWorker extends Worker<ExecutionsQueue> {
   constructor(
     private networks: NetworksService,
     private db: DatabaseService,
-    @InjectQueue(TRANSACTIONS_QUEUE.name)
-    private transactionsQueue: TypedQueue<typeof TRANSACTIONS_QUEUE>,
+    @InjectQueue(TransactionsQueue.name)
+    private transactionsQueue: TypedQueue<TransactionsQueue>,
     private proposals: ProposalsService,
     private paymaster: PaymastersService,
   ) {
@@ -81,7 +80,10 @@ export class ExecutionsWorker extends Worker<ExecutionsQueue> {
         hash: true,
         ...proposalTxShape(p),
         feeToken: { address: true },
-        paymasterEthFee: true,
+        maxPaymasterEthFees: {
+          total: true,
+          activation: true,
+        },
         approvals: (a) => ({
           filter: e.op('not', a.invalid),
           approver: { address: true },
@@ -91,15 +93,15 @@ export class ExecutionsWorker extends Worker<ExecutionsQueue> {
           key: true,
           state: policyStateShape,
         },
-        status: true,
+        transaction: true,
         simulation: {
           success: true,
           timestamp: true,
         },
       })),
     );
-    if (!proposal || (proposal.status !== 'Pending' && proposal.status !== 'Failed'))
-      return 'already executed';
+    if (!proposal) return 'proposal not found';
+    if (proposal.transaction) return 'already executed';
 
     // Require simulation to have succeed, unless ignored
     if (!ignoreSimulation) {
@@ -148,11 +150,13 @@ export class ExecutionsWorker extends Worker<ExecutionsQueue> {
     if (!policy) return 'no suitable policy';
 
     const transaction = await this.db.transaction(async (db) => {
-      const { paymaster, paymasterInput, ...feeData } = await this.paymaster.currentParams({
+      const { paymaster, paymasterInput, ...feeData } = await this.paymaster.usePaymaster({
         account,
         gasLimit: tx.gas!,
         feeToken: asAddress(proposal.feeToken.address),
-        paymasterEthFee: new Decimal(proposal.paymasterEthFee),
+        maxPaymasterEthFees: {
+          activation: new Decimal(proposal.maxPaymasterEthFees.activation),
+        },
       });
 
       const transactionResult = await executeTransaction({
@@ -184,7 +188,10 @@ export class ExecutionsWorker extends Worker<ExecutionsQueue> {
           hash: transaction,
           proposal: selectedProposal,
           maxEthFeePerGas: feeData.maxEthFeePerGas.toString(),
-          ethDiscount: feeData.ethDiscount.toString(),
+          paymasterEthFees: e.insert(e.PaymasterFees, {
+            activation: feeData.paymasterEthFees.activation.toString(),
+          }),
+          ethCreditUsed: feeData.ethCreditUsed.toString(),
           ethPerFeeToken: feeData.tokenPrice.eth.toString(),
           usdPerFeeToken: feeData.tokenPrice.usd.toString(),
         })
@@ -195,11 +202,10 @@ export class ExecutionsWorker extends Worker<ExecutionsQueue> {
 
     await this.proposals.publishProposal({ id, account }, ProposalEvent.submitted);
 
-    await this.transactionsQueue.add(
-      TRANSACTIONS_QUEUE.name,
-      { chain: network.chain.key, transaction },
-      { delay: 500 /* ms */ },
-    );
+    await this.transactionsQueue.add('Transaction proposal', {
+      chain: network.chain.key,
+      transaction,
+    });
 
     return transaction;
   }

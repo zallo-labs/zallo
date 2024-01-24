@@ -6,19 +6,25 @@ pragma solidity ^0.8.0;
 /// Modified to be more gas efficient for our simple use case
 abstract contract Initializable {
   /*//////////////////////////////////////////////////////////////
+                                 ERRORS
+  //////////////////////////////////////////////////////////////*/
+
+  error InitializedFailed(uint64 current, uint64 requested);
+
+  /*//////////////////////////////////////////////////////////////
                              INITIALIZATION
   //////////////////////////////////////////////////////////////*/
 
   modifier initializer() {
     Initialized storage initialized = _initialized();
-    require(initialized.version == 0);
+    if (initialized.version != 0) revert InitializedFailed(initialized.version, 1);
     initialized.version = 1;
     _;
   }
 
-  modifier reinitializer(uint8 version) {
+  modifier reinitializer(uint64 version) {
     Initialized storage initialized = _initialized();
-    require(initialized.version < version);
+    if (initialized.version >= version) revert InitializedFailed(initialized.version, version);
     initialized.version = version;
     _;
   }
@@ -26,7 +32,7 @@ abstract contract Initializable {
   /// @notice Prevent the contract from further initialization
   /// @dev To be used inside the constructor of an implementation contract
   function _disableInitializers() internal {
-    _initialized().version = type(uint8).max;
+    _initialized().version = type(uint64).max;
   }
 
   /*//////////////////////////////////////////////////////////////
@@ -34,7 +40,7 @@ abstract contract Initializable {
   //////////////////////////////////////////////////////////////*/
 
   struct Initialized {
-    uint8 version;
+    uint64 version;
   }
 
   function _initialized() private pure returns (Initialized storage initialized) {

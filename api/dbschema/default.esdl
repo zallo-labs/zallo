@@ -18,10 +18,12 @@ module default {
     }
     required implementation: Address;
     required salt: Bytes32;
-    required isActive: bool;
-    photoUri: str;
     required paymasterEthCredit: decimal { constraint min_value(0); default := 0; }
+    activationEthFee: decimal { constraint min_value(0); }
+    upgradedAtBlock: bigint { constraint min_value(0); }
+    photoUri: str;
     required property chain := as_chain(.address);
+    required property isActive := exists .upgradedAtBlock;
     multi link policies := (select .<account[is Policy] filter .isEnabled);
     multi link proposals := .<account[is Proposal];
     multi link transactionProposals := .<account[is TransactionProposal];
@@ -51,13 +53,13 @@ module default {
     multi link approvals := .<proposal[is Approval];
     multi link rejections := .<proposal[is Rejection];
     multi link potentialApprovers := (
-      with potentialResponses := distinct ((select .policy) ?? .account.policies).state.approvers.id,
-           ids := potentialResponses except .approvals.approver.id
+      with approvers := distinct (.policy ?? .account.policies).stateOrDraft.approvers.id,
+          ids := approvers except .approvals.approver.id
       select Approver filter .id in ids
     );
     multi link potentialRejectors := (
-      with potentialResponses := distinct ((select .policy) ?? .account.policies).state.approvers.id,
-           ids := potentialResponses except .rejections.approver.id
+      with approvers := distinct (.policy ?? .account.policies).stateOrDraft.approvers.id,
+           ids := approvers except .rejections.approver.id
       select Approver filter .id in ids
     );
     property riskLabel := assert_single((select .<proposal[is ProposalRiskLabel] filter .user = global current_user)).risk;
@@ -118,6 +120,11 @@ module default {
     data: Bytes;
   }
 
+  type PaymasterFees {
+    required property total := .activation;
+    required activation: decimal { constraint min_value(0); default := 0; }
+  }
+
   type TransactionProposal extending Proposal {
     required multi operations: Operation {
       constraint exclusive;
@@ -126,13 +133,14 @@ module default {
     required gasLimit: uint256 { default := 0; }
     required feeToken: Token;
     required paymaster: Address;
-    required paymasterEthFee: decimal { constraint min_value(0); default := 0; }
+    required maxPaymasterEthFees: PaymasterFees { constraint exclusive; default := (insert PaymasterFees {}); }
     simulation: Simulation { constraint exclusive; on target delete deferred restrict; }
     multi link transactions := .<proposal[is Transaction];
     link transaction := (select .transactions order by .submittedAt desc limit 1);
+    required submitted: bool { default := false; }
     required property status := (
       select assert_exists((
-        TransactionProposalStatus.Pending if (not exists .transaction) else
+        TransactionProposalStatus.Pending if (not exists .transaction and not .submitted) else
         TransactionProposalStatus.Executing if (not exists .transaction.receipt) else
         TransactionProposalStatus.Successful if (.transaction.receipt.success) else
         TransactionProposalStatus.Failed
@@ -213,11 +221,14 @@ module default {
     required hash: Bytes32 { constraint exclusive; }
     required proposal: TransactionProposal;
     required maxEthFeePerGas: decimal { constraint min_value(0); }
-    required ethDiscount: decimal { constraint min_value(0); default := 0; }
+    required paymasterEthFees: PaymasterFees { constraint exclusive; default := (insert PaymasterFees {}); }
+    required ethCreditUsed: decimal { constraint min_value(0); default := 0; }
+    # required ethDiscount: decimal { constraint min_value(0); default := 0; }
+    required property ethDiscount := .ethCreditUsed + (.proposal.maxPaymasterEthFees.total - .paymasterEthFees.total);
     required ethPerFeeToken: decimal { constraint min_value(0); }
     required usdPerFeeToken: decimal { constraint min_value(0); }
     required property maxNetworkEthFee := .maxEthFeePerGas * .proposal.gasLimit;
-    required property maxEthFees := .maxNetworkEthFee + .proposal.paymasterEthFee - .ethDiscount;
+    required property maxEthFees := .maxNetworkEthFee + .paymasterEthFees.total - .ethDiscount;
     required submittedAt: datetime { default := datetime_of_statement(); }
     receipt: Receipt { constraint exclusive; }
     multi link events := .<transaction[is Event];
@@ -237,7 +248,7 @@ module default {
     required gasUsed: bigint { constraint min_value(0); }
     required ethFeePerGas: decimal { constraint min_value(0); }
     required property networkEthFee := .ethFeePerGas * .transaction.proposal.gasLimit;
-    required property ethFees := .networkEthFee + .transaction.proposal.paymasterEthFee - .transaction.ethDiscount;
+    required property ethFees := .networkEthFee + .transaction.paymasterEthFees.total - .transaction.ethDiscount;
     multi link events := .transaction.events;
     multi link transferEvents := .events[is Transfer];
     multi link transferApprovalEvents := .events[is TransferApproval];

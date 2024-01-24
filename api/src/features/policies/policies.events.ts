@@ -1,12 +1,15 @@
 import { Injectable } from '@nestjs/common';
-import { EventsWorker, EventData } from '../events/events.worker';
+import { EventsWorker, EventData, Log } from '../events/events.worker';
 import { ACCOUNT_ABI, PolicyKey, asHex, asPolicyKey, asUAddress } from 'lib';
 import { Chain } from 'chains';
 import { DatabaseService } from '../database/database.service';
 import e from '~/edgeql-js';
 import { and } from '../database/database.util';
 import { selectPolicy } from './policies.util';
-import { Log, decodeEventLog, getAbiItem } from 'viem';
+import { getAbiItem } from 'viem';
+
+const policyAddedEvent = getAbiItem({ abi: ACCOUNT_ABI, name: 'PolicyAdded' });
+const policyRemovedEvent = getAbiItem({ abi: ACCOUNT_ABI, name: 'PolicyRemoved' });
 
 @Injectable()
 export class PoliciesEventsProcessor {
@@ -14,24 +17,16 @@ export class PoliciesEventsProcessor {
     private db: DatabaseService,
     private events: EventsWorker,
   ) {
-    this.events.on(getAbiItem({ abi: ACCOUNT_ABI, name: 'PolicyAdded' }), (data) =>
-      this.policyAdded(data),
-    );
-    this.events.on(getAbiItem({ abi: ACCOUNT_ABI, name: 'PolicyRemoved' }), (data) =>
-      this.policyRemoved(data),
-    );
+    this.events.on(policyAddedEvent, (data) => this.policyAdded(data));
+    this.events.on(policyRemovedEvent, (data) => this.policyRemoved(data));
   }
 
-  private async policyAdded({ chain, log }: EventData) {
-    const r = decodeEventLog({ abi: ACCOUNT_ABI, ...log, eventName: 'PolicyAdded' });
-
-    await this.markStateAsActive(chain, log, asPolicyKey(r.args.key));
+  private async policyAdded({ chain, log }: EventData<typeof policyAddedEvent>) {
+    await this.markStateAsActive(chain, log, asPolicyKey(log.args.key));
   }
 
-  private async policyRemoved({ chain, log }: EventData) {
-    const r = decodeEventLog({ abi: ACCOUNT_ABI, ...log, eventName: 'PolicyRemoved' });
-
-    await this.markStateAsActive(chain, log, asPolicyKey(r.args.key));
+  private async policyRemoved({ chain, log }: EventData<typeof policyRemovedEvent>) {
+    await this.markStateAsActive(chain, log, asPolicyKey(log.args.key));
   }
 
   private async markStateAsActive(chain: Chain, log: Log, key: PolicyKey) {

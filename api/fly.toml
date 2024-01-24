@@ -6,6 +6,9 @@ swap_size_mb = 512
 [build]
   dockerfile = "Dockerfile"
 
+[deploy]
+  release_command = "cd api && yarn db:migrate && yarn db:seed"
+
 [env]
   API_PORT = 3000
 

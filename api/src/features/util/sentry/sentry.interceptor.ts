@@ -5,19 +5,17 @@ import {
   NestInterceptor,
   UnauthorizedException,
 } from '@nestjs/common';
-import { HttpArgumentsHost, RpcArgumentsHost, WsArgumentsHost } from '@nestjs/common/interfaces';
-import type { GqlContextType, GraphQLArgumentsHost } from '@nestjs/graphql';
+import type { GqlContextType } from '@nestjs/graphql';
 import { GqlArgumentsHost } from '@nestjs/graphql';
 import * as Sentry from '@sentry/node';
 import { Request } from 'express';
-import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { match } from 'ts-pattern';
-import { getRequestContext, getUserCtx } from '~/request/ctx';
+import { getRequestContext } from '~/request/ctx';
+// import { SpanStatus } from '@sentry/tracing';
 
 type Filter<E = any> = [type: new (...args: any[]) => E, shouldReport: (exception: E) => boolean];
 
-// Based off https://github.com/mentos1386/nest-raven
 @Injectable()
 export class SentryInterceptor implements NestInterceptor {
   private readonly filters: Filter[] = [
@@ -25,59 +23,68 @@ export class SentryInterceptor implements NestInterceptor {
   ];
 
   intercept(context: ExecutionContext, next: CallHandler) {
-    // first param would be for events, second is for errors
+    const transaction = Sentry.startTransaction({
+      op: 'request',
+      name: `${context.getClass().name}.${context.getHandler().name}`,
+    });
+    Sentry.getCurrentHub().getScope().setSpan(transaction);
+
     return next.handle().pipe(
       tap({
+        complete: () => {
+          transaction.setStatus('ok');
+        },
         error: (exception) => {
+          transaction.setStatus('unknown_error');
           if (this.shouldReport(exception)) {
             Sentry.withScope((scope) => {
               const userCtx = getRequestContext().user;
               if (userCtx) scope.setUser({ id: userCtx.approver });
               scope.setExtra('exceptionData', JSON.stringify(exception, null, 2));
 
-              match(context.getType<GqlContextType>())
-                .with('graphql', () =>
-                  this.addGraphQLExceptionMetadatas(scope, GqlArgumentsHost.create(context)),
-                )
-                .with('http', () => this.addHttpExceptionMetadatas(scope, context.switchToHttp()))
-                .with('ws', () => this.addWsExceptionMetadatas(scope, context.switchToWs()))
-                .with('rpc', () => this.addRpcExceptionMetadatas(scope, context.switchToRpc()))
-                .exhaustive();
+              this.addContextExceptionMetadata(scope, context);
 
               return Sentry.captureException(exception);
             });
           }
         },
+        finalize: () => {
+          transaction.finish();
+        },
       }),
     );
   }
 
-  private addGraphQLExceptionMetadatas(scope: Sentry.Scope, gqlHost: GraphQLArgumentsHost): void {
-    const context = gqlHost.getContext();
-    this.addRequestToScope(scope, context?.req || context);
+  private addContextExceptionMetadata(scope: Sentry.Scope, context: ExecutionContext) {
+    match(context.getType<GqlContextType>())
+      .with('graphql', () => {
+        const gqlHost = GqlArgumentsHost.create(context);
+        const ctx = gqlHost.getContext();
+        this.addRequestToScope(scope, ctx?.req || ctx);
 
-    // GraphQL Specifics
-    const info = gqlHost.getInfo();
-    scope.setExtra('fieldName', info.fieldName);
-    const args = gqlHost.getArgs();
-    scope.setExtra('args', JSON.stringify(args, null, 2));
-  }
-
-  private addHttpExceptionMetadatas(scope: Sentry.Scope, http: HttpArgumentsHost): void {
-    this.addRequestToScope(scope, http.getRequest());
+        const info = gqlHost.getInfo();
+        scope.setExtra('fieldName', info.fieldName);
+        const args = gqlHost.getArgs();
+        scope.setExtra('args', JSON.stringify(args, null, 2));
+      })
+      .with('http', () => {
+        const http = context.switchToHttp();
+        this.addRequestToScope(scope, http.getRequest());
+      })
+      .with('ws', () => {
+        const ws = context.switchToWs();
+        scope.setExtra('ws_client', ws.getClient());
+        scope.setExtra('ws_data', ws.getData());
+      })
+      .with('rpc', () => {
+        const rpc = context.switchToRpc();
+        scope.setExtra('rpc_data', rpc.getData());
+      })
+      .exhaustive();
   }
 
   private addRequestToScope(scope: Sentry.Scope, req: Request) {
     scope.setExtra('request', Sentry.addRequestDataToEvent({}, req));
-  }
-
-  private addRpcExceptionMetadatas(scope: Sentry.Scope, rpc: RpcArgumentsHost): void {
-    scope.setExtra('rpc_data', rpc.getData());
-  }
-
-  private addWsExceptionMetadatas(scope: Sentry.Scope, ws: WsArgumentsHost): void {
-    scope.setExtra('ws_client', ws.getClient());
-    scope.setExtra('ws_data', ws.getData());
   }
 
   private shouldReport(exception: unknown): boolean {

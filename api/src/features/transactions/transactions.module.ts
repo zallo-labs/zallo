@@ -1,6 +1,6 @@
 import { Module, forwardRef } from '@nestjs/common';
 import { TransactionsWorker } from './transactions.worker';
-import { TRANSACTIONS_QUEUE } from './transactions.queue';
+import { TransactionsQueue } from './transactions.queue';
 import { TransactionsService } from './transactions.service';
 import { TransactionsEvents } from './transactions.events';
 import { TransactionsResolver } from './transactions.resolver';
@@ -10,7 +10,7 @@ import { ProposalsModule } from '../proposals/proposals.module';
 
 @Module({
   imports: [
-    ...registerBullQueue(TRANSACTIONS_QUEUE),
+    ...registerBullQueue(TransactionsQueue),
     ProposalsModule,
     forwardRef(() => PaymastersModule),
   ],

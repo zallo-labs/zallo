@@ -57,7 +57,6 @@ describe(PoliciesService.name, () => {
         label: randomLabel(),
         implementation: randomAddress(),
         salt: randomDeploySalt(),
-        isActive: false,
       })
       .run(db.client);
 

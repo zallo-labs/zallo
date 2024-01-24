@@ -32,12 +32,10 @@ import { PaymastersService } from '~/features/paymasters/paymasters.service';
 import { EstimatedTransactionFees } from '~/features/transaction-proposals/transaction-proposals.model';
 import Decimal from 'decimal.js';
 import { InjectFlowProducer, InjectQueue } from '@nestjs/bullmq';
-import {
-  ExecutionsFlow,
-  ExecutionsQueue,
-} from '~/features/transaction-proposals/executions.worker';
+import { ExecutionsQueue } from '~/features/transaction-proposals/executions.worker';
+import { FLOW_PRODUCER } from '../util/bull/bull.util';
 import { QueueData, TypedQueue } from '~/features/util/bull/bull.util';
-import { SIMULATIONS_QUEUE } from '~/features/simulations/simulations.worker';
+import { SimulationsQueue } from '~/features/simulations/simulations.worker';
 import {
   proposalTxShape,
   transactionProposalAsTx,
@@ -45,6 +43,8 @@ import {
 import { hashTypedData } from 'viem';
 import { v4 as uuid } from 'uuid';
 import { FlowProducer } from 'bullmq';
+import { ActivationsService } from '../activations/activations.service';
+import { totalPaymasterEthFees } from '../paymasters/paymasters.util';
 
 export const selectTransactionProposal = (
   id: UniqueProposal,
@@ -59,7 +59,9 @@ export const estimateFeesDeps = {
   id: true,
   account: { address: true },
   gasLimit: true,
-  paymasterEthFee: true,
+  maxPaymasterEthFees: {
+    activation: true,
+  },
 } satisfies Shape<typeof e.TransactionProposal>;
 const s_ = e.assert_exists(
   e.assert_single(e.select(e.TransactionProposal, () => estimateFeesDeps)),
@@ -73,10 +75,11 @@ export class TransactionProposalsService {
     private networks: NetworksService,
     private proposals: ProposalsService,
     private paymasters: PaymastersService,
-    @InjectQueue(SIMULATIONS_QUEUE.name)
-    private simulations: TypedQueue<typeof SIMULATIONS_QUEUE>,
-    @InjectFlowProducer(ExecutionsFlow.name)
-    private executionsFlow: FlowProducer,
+    @InjectQueue(SimulationsQueue.name)
+    private simulations: TypedQueue<SimulationsQueue>,
+    @InjectFlowProducer(FLOW_PRODUCER)
+    private flows: FlowProducer,
+    private activations: ActivationsService,
   ) {}
 
   async selectUnique(id: UniqueProposal, shape?: ShapeFunc<typeof e.TransactionProposal>) {
@@ -104,19 +107,30 @@ export class TransactionProposalsService {
   }
 
   async tryExecute(txProposal: UUID, ignoreSimulation?: boolean) {
+    const updatedProposal = e.update(selectTransactionProposal(txProposal), () => ({
+      set: { submitted: true },
+    }));
+    const account = asUAddress(
+      (await this.db.query(e.select(updatedProposal.account.address))) ?? undefined,
+    );
+    if (!account) throw new Error(`Transaction proposal not found: ${txProposal}`);
+
     // simulate -> execute
-    return this.executionsFlow.add({
+    this.flows.add({
       queueName: ExecutionsQueue.name,
-      name: ExecutionsFlow.name,
-      data: { txProposal, ignoreSimulation } satisfies QueueData<typeof ExecutionsQueue>,
+      name: 'Execute transaction',
+      data: { txProposal, ignoreSimulation } satisfies QueueData<ExecutionsQueue>,
       children: [
         {
-          queueName: SIMULATIONS_QUEUE.name,
-          name: SIMULATIONS_QUEUE.name,
-          data: { txProposal } satisfies QueueData<typeof SIMULATIONS_QUEUE>,
+          queueName: SimulationsQueue.name,
+          name: 'Simulate transaction',
+          data: { txProposal } satisfies QueueData<SimulationsQueue>,
+          children: [this.activations.activationFlow(account)],
         },
       ],
     });
+
+    this.proposals.publishProposal({ id: txProposal, account }, ProposalEvent.submitted);
   }
 
   async getInsertProposal({
@@ -132,13 +146,14 @@ export class TransactionProposalsService {
 
     const chain = asChain(account);
     const network = this.networks.get(chain);
+    const maxPaymasterEthFees = await this.paymasters.paymasterEthFees({ account, use: false });
     const tx = {
       operations,
       nonce: BigInt(Math.floor(validFrom.getTime() / 1000)),
       gas,
       feeToken,
       paymaster: this.paymasters.for(chain),
-      paymasterEthFee: this.paymasters.paymasterEthFee(operations),
+      paymasterEthFee: totalPaymasterEthFees(maxPaymasterEthFees),
     } satisfies Tx;
 
     gas ??=
@@ -169,7 +184,9 @@ export class TransactionProposalsService {
           await estimateTransactionOperationsGas({ account: asAddress(account), tx, network })
         ).unwrapOr(FALLBACK_OPERATIONS_GAS),
       paymaster: tx.paymaster,
-      paymasterEthFee: tx.paymasterEthFee.toString(),
+      maxPaymasterEthFees: e.insert(e.PaymasterFees, {
+        activation: maxPaymasterEthFees.activation.toString(),
+      }),
       feeToken: e.assert_single(
         e.select(e.Token, (t) => ({
           filter: and(
@@ -182,7 +199,7 @@ export class TransactionProposalsService {
     });
 
     this.db.afterTransaction(() => {
-      this.simulations.add(SIMULATIONS_QUEUE.name, { txProposal: id });
+      this.simulations.add(SimulationsQueue.name, { txProposal: id });
       this.proposals.publishProposal({ id, account }, ProposalEvent.create);
     });
 
@@ -303,11 +320,9 @@ export class TransactionProposalsService {
     return {
       id: `EstimatedTransactionFees:${d.id}`,
       maxNetworkEthFee,
-      ethDiscount: await this.paymasters.estimateEthDiscount(
-        account,
-        maxNetworkEthFee,
-        new Decimal(d.paymasterEthFee),
-      ),
+      ...(await this.paymasters.estimateEthDiscount(account, maxNetworkEthFee, {
+        activation: new Decimal(d.maxPaymasterEthFees.activation),
+      })),
     };
   }
 }

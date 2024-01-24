@@ -11,7 +11,7 @@ export const proposalTxShape = e.shape(e.TransactionProposal, () => ({
   nonce: true,
   gasLimit: true,
   paymaster: true,
-  paymasterEthFee: true,
+  maxPaymasterEthFees: { total: true },
   feeToken: { address: true },
 }));
 
@@ -30,6 +30,6 @@ export const transactionProposalAsTx = (p: ProposalTxShape) =>
     nonce: p.nonce,
     gas: p.gasLimit,
     paymaster: asAddress(p.paymaster),
-    paymasterEthFee: new Decimal(p.paymasterEthFee),
+    paymasterEthFee: new Decimal(p.maxPaymasterEthFees.total),
     feeToken: asAddress(p.feeToken.address),
   });
