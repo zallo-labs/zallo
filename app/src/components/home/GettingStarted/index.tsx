@@ -18,7 +18,6 @@ import Animated, { FadeIn, SlideOutRight } from 'react-native-reanimated';
 import { Button } from '~/components/Button';
 import { Chevron } from '~/components/Chevron';
 import { FormattedNumber } from '~/components/format/FormattedNumber';
-import { useToggle } from '~/hooks/useToggle';
 
 const Query = gql(/* GraphQL */ `
   fragment GettingStarted_Query on Query @argumentDefinitions(account: { type: "UAddress!" }) {
@@ -44,7 +43,8 @@ const Account = gql(/* GraphQL */ `
   }
 `);
 
-const dismissedAtom = persistedAtom<boolean>('gettingStartedDismissed', false);
+const expandedAtom = persistedAtom<boolean>('getting-started.expanded', false);
+const dismissedAtom = persistedAtom<boolean>('getting-started.dismissed', false);
 
 const AnimatedSurface = Animated.createAnimatedComponent(Surface);
 
@@ -57,13 +57,13 @@ export interface GettingStartedProps {
 }
 
 export function GettingStarted({ style, then, ...props }: GettingStartedProps) {
-  const { styles, breakpoint } = useStyles(stylesheet);
+  const { styles } = useStyles(stylesheet);
   const query = useFragment(Query, props.query);
   const user = useFragment(User, props.user);
   const account = useFragment(Account, props.account);
 
+  const [expanded, setExpanded] = useAtom(expandedAtom);
   const [dismissed, setDismissed] = useAtom(dismissedAtom);
-  const [expanded, toggleExpanded] = useToggle(breakpoint === 'expanded');
 
   const suggestions = [
     useLinkGoogleSuggestion({ user }),
@@ -81,7 +81,7 @@ export function GettingStarted({ style, then, ...props }: GettingStartedProps) {
 
   return (
     <AnimatedSurface style={[styles.surface, style]} entering={FadeIn} exiting={SlideOutRight}>
-      <TouchableRipple style={styles.overview(expanded)} onPress={toggleExpanded}>
+      <TouchableRipple style={styles.overview(expanded)} onPress={() => setExpanded((v) => !v)}>
         <>
           <View style={styles.headerContainer}>
             <Text variant="titleSmall" style={[styles.text, styles.title]}>
