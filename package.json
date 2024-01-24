@@ -9,7 +9,6 @@
     "app",
     "contracts",
     "lib",
-    "site",
     "packages/**",
     "services/**"
   ],
