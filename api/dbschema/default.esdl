@@ -19,7 +19,7 @@ module default {
     required implementation: Address;
     required salt: Bytes32;
     required paymasterEthCredit: decimal { constraint min_value(0); default := 0; }
-    activationEthFee: decimal { constraint min_value(0); default := 0; }
+    activationEthFee: decimal { constraint min_value(0); }
     upgradedAtBlock: bigint { constraint min_value(0); }
     photoUri: str;
     required property chain := as_chain(.address);
