@@ -58,10 +58,6 @@ const TransactionProposal = gql(/* GraphQL */ `
       }
       ethPerFeeToken
       usdPerFeeToken
-      receipt {
-        id
-        networkEthFee
-      }
     }
   }
 `);
@@ -94,17 +90,15 @@ export function FeesSection(props: FeeTokenProps) {
   const [expanded, toggleExpanded] = useToggle(false);
 
   const networkEthFee = new Decimal(
-    p.transaction?.receipt?.networkEthFee ??
-      p.transaction?.maxNetworkEthFee ??
-      p.estimatedFees.maxNetworkEthFee,
+    p.transaction?.maxNetworkEthFee ?? p.estimatedFees.maxNetworkEthFee,
   ).neg();
   const paymasterEthFees = p.transaction?.paymasterEthFees ?? p.estimatedFees.paymasterEthFees;
   const ethCreditUsed = new Decimal(p.transaction?.ethCreditUsed ?? p.estimatedFees.ethCreditUsed);
-  const ethFees = Decimal.min(networkEthFee.add(paymasterEthFees.total).add(ethCreditUsed), 0); // TODO: sub(ethCredit)?
+  const ethFees = Decimal.min(networkEthFee.sub(paymasterEthFees.total).add(ethCreditUsed), 0);
   const paymasterFeesEstimatedLabel = !p.transaction ? ' (estimate)' : '';
-  const networkFeeEstimatedLabel = !p.transaction?.receipt ? ' (max)' : '';
-  const activationFee = new Decimal(paymasterEthFees.activation);
-  const maxActivationFee = new Decimal(p.maxPaymasterEthFees.activation);
+  const networkFeeEstimatedLabel = !p.transaction ? ' (max)' : '';
+  const activationFee = new Decimal(paymasterEthFees.activation).neg();
+  const maxActivationFee = new Decimal(p.maxPaymasterEthFees.activation).neg();
 
   const ethPerFeeToken = new Decimal(p.transaction?.ethPerFeeToken ?? p.feeToken.price?.eth ?? 0);
   const amount = ethFees.div(ethPerFeeToken);
