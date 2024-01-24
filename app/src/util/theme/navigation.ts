@@ -1,12 +1,12 @@
 import { DefaultTheme as NavTheme } from '@react-navigation/native';
-import { PAPER_THEME } from './paper';
+import { LIGHT_THEME } from './paper';
 
 export const NAVIGATION_THEME = {
   ...NavTheme,
-  ...PAPER_THEME,
+  ...LIGHT_THEME,
   colors: {
     ...NavTheme.colors,
-    ...PAPER_THEME.colors,
+    ...LIGHT_THEME.colors,
     background: 'transparent',
   },
 };

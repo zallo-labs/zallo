@@ -11,7 +11,7 @@ const chain = ENV?.CHAIN?.toUpperCase();
 const vary = (value: string, f: (variant: string) => string = (v) => '.' + v) =>
   value + (ENV.APP_VARIANT ? f(ENV.APP_VARIANT) : '');
 
-type ExternalUrl = `http${string}`;
+type ExternalUrl = `http:${string}`;
 
 export const CONFIG = {
   env: ENV.RELEASE_ENV === 'development' ? 'development' : 'production',

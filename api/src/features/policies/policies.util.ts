@@ -12,7 +12,7 @@ import e, { $infer } from '~/edgeql-js';
 import { Shape } from '../database/database.select';
 import { PolicyInput, TransfersConfigInput } from './policies.input';
 import { selectAccount } from '~/features/accounts/accounts.util';
-import merge from 'ts-deepmerge';
+import { merge } from 'ts-deepmerge';
 import { match, P } from 'ts-pattern';
 import { getUserCtx } from '~/request/ctx';
 
