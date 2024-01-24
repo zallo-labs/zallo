@@ -80,7 +80,6 @@ export const PAPER_THEME = {
 
   // Android doesn't support different font variants based on weight like web; so we change the family name
   fonts: configureFonts({
-    isV3: true,
     config: Object.fromEntries(
       Object.entries(overrided.fonts).map(([variant, properties]): [string, Partial<MD3Type>] => {
         const fontFamily = FONT_BY_WEIGHT[properties.fontWeight ?? '400'];

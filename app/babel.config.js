@@ -10,7 +10,6 @@ module.exports = function (api) {
     plugins: [
       '@babel/plugin-transform-flow-strip-types', // Must proceed other @babel plugins - https://github.com/facebook/react-native/issues/36828
       ['@babel/plugin-transform-private-methods', { loose: true }], // Required by ethers
-      'expo-router/babel',
       [
         'module-resolver',
         {
@@ -32,7 +31,8 @@ module.exports = function (api) {
       ],
       'formatjs',
       'lodash',
-      'react-native-reanimated/plugin' /* Must be last */,
+      // reanimated
+      'react-native-reanimated/plugin',
     ],
     env: {
       production: {

@@ -1,50 +1,78 @@
 import * as Updates from 'expo-updates';
 import { useEffect } from 'react';
-import { logError } from '~/util/analytics';
 import { AppState } from 'react-native';
 import { showInfo } from './SnackbarProvider';
 import { showWarning } from './SnackbarProvider';
 import { __WEB__ } from '~/util/config';
+import { DateTime } from 'luxon';
+import * as Sentry from '~/util/sentry/sentry';
 
-const onError = (error: unknown) => {
-  showWarning('Failed to download update. You may experience issues.');
-  logError('Error encountered during update', { error });
-};
+function periodElapsed(lastCheck: Date | undefined) {
+  return !lastCheck || DateTime.now() > DateTime.fromJSDate(lastCheck).plus({ minutes: 5 });
+}
 
 export function UpdateProvider() {
+  const {
+    isUpdateAvailable,
+    isUpdatePending,
+    isDownloading,
+    lastCheckForUpdateTimeSinceRestart,
+    checkError,
+    downloadError,
+  } = Updates.useUpdates();
+
+  // Check for updates:
+  // - on launch (default)
+  // - on foreground every 5 minutes
   useEffect(() => {
     if (__DEV__ || __WEB__) return;
-
-    const onStartUpdateListener = Updates.addListener((e) => {
-      if (e.type === Updates.UpdateEventType.UPDATE_AVAILABLE) {
-        // Update without prompting user
-        Updates.reloadAsync();
-      } else if (e.type === Updates.UpdateEventType.ERROR) {
-        onError(new Error(e.message));
-      }
-    });
-
-    // On app foreground
-    const appStateListener = AppState.addEventListener('change', async (newState) => {
-      if (newState === 'active') {
-        try {
-          const update = await Updates.checkForUpdateAsync();
-          if (update.isAvailable) {
-            showInfo('Updating...', { autoHide: false });
-            await Updates.fetchUpdateAsync();
-            await Updates.reloadAsync();
-          }
-        } catch (error) {
-          onError(error);
-        }
-      }
+    const listener = AppState.addEventListener('change', async (newState) => {
+      if (newState === 'active' && periodElapsed(lastCheckForUpdateTimeSinceRestart))
+        Updates.checkForUpdateAsync();
     });
 
     return () => {
-      onStartUpdateListener.remove();
-      appStateListener.remove();
+      listener.remove();
     };
-  }, []);
+  }, [lastCheckForUpdateTimeSinceRestart]);
+
+  // Fetch updates when available
+  useEffect(() => {
+    if (isUpdateAvailable && !isDownloading) {
+      Updates.fetchUpdateAsync();
+      showInfo('Updating...', { autoHide: false });
+    }
+  }, [isDownloading, isUpdateAvailable]);
+
+  // Reload when update is pending
+  useEffect(() => {
+    if (isUpdatePending) Updates.reloadAsync();
+  }, [isUpdatePending]);
+
+  // Breadcrumb checkError
+  useEffect(() => {
+    if (checkError) {
+      Sentry.addBreadcrumb({
+        category: 'updates',
+        message: 'error checking for updates',
+        level: 'warning',
+        data: { error: checkError },
+      });
+    }
+  }, [checkError]);
+
+  // Breadcrumb downloadError
+  useEffect(() => {
+    if (downloadError) {
+      Sentry.addBreadcrumb({
+        category: 'updates',
+        message: 'error downloading update',
+        level: 'warning',
+        data: { error: downloadError },
+      });
+      showWarning('Failed to download update. You may experience issues.');
+    }
+  }, [downloadError]);
 
   return null;
 }

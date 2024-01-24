@@ -5,8 +5,8 @@ import { Font } from 'react-native-paper/lib/typescript/types';
 import { logError } from '~/util/analytics';
 
 const FONTS = {
-  Roboto: require('assets/fonts/Roboto-400-Regular.ttf'),
-  'Roboto-Medium': require('assets/fonts/Roboto-500-Medium.ttf'),
+  Roboto: require('assets/fonts/Roboto.ttf'),
+  'Roboto-Medium': require('assets/fonts/Roboto-Medium.ttf'),
 } as const;
 
 export const FONT_BY_WEIGHT: Partial<
@@ -20,6 +20,7 @@ SplashScreen.preventAutoHideAsync();
 
 export function Fonts() {
   useEffect(() => {
+    // Dynamic loading is required for web
     loadAsync(FONTS)
       .catch((error) => logError('Failed to load fonts', { error }))
       .finally(SplashScreen.hideAsync);

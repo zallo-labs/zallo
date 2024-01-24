@@ -70,7 +70,7 @@ export function OperationsSection(props: OperationsSectionProps) {
           <Link
             asChild
             href={`https://openchain.xyz/signatures?query=${simulatedErrorSelector}`}
-            hrefAttrs={{ target: '_blank' }}
+            target="_blank"
           >
             {expectedFailureItem}
           </Link>

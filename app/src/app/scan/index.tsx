@@ -1,8 +1,7 @@
 import { Route, Stack } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { Platform, StyleSheet, View } from 'react-native';
-import { Camera } from 'expo-camera';
-import { BarCodeScanner } from 'expo-barcode-scanner';
+import { CameraView, useCameraPermissions } from 'expo-camera/next';
 import { Button, Text } from 'react-native-paper';
 import { isWalletConnectUri, useWalletConnect } from '~/util/walletconnect';
 import { Actions } from '~/components/layout/Actions';
@@ -71,7 +70,7 @@ export default function ScanScreen() {
   };
 
   const [permissionsRequested, setPermissionsRequested] = useState(false);
-  const [permission, requestPermission] = Camera.useCameraPermissions();
+  const [permission, requestPermission] = useCameraPermissions();
 
   useAsyncEffect(
     async (isMounted) => {
@@ -84,16 +83,14 @@ export default function ScanScreen() {
   );
 
   return permission?.granted || !permissionsRequested ? (
-    <Camera
-      onBarCodeScanned={scan ? ({ data }) => tryHandle(data) : undefined}
-      barCodeScannerSettings={{ barCodeTypes: [BarCodeScanner.Constants.BarCodeType.qr] }}
-      style={StyleSheet.absoluteFill}
-      ratio="16:9"
-      useCamera2Api={false} // Causes crash on screen unmount - https://github.com/expo/expo/issues/18996
+    <CameraView
+      barcodeScannerSettings={{ barCodeTypes: ['qr'] }}
+      onBarcodeScanned={scan ? ({ data }) => tryHandle(data) : undefined}
+      style={StyleSheet.absoluteFillObject}
     >
       <Stack.Screen options={{ headerShown: false }} />
       <ScanOverlay onData={tryHandle} />
-    </Camera>
+    </CameraView>
   ) : (
     <View style={styles.grantContainer}>
       <Stack.Screen options={{ headerShown: true }} />
