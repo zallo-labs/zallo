@@ -12,6 +12,7 @@ import Decimal from 'decimal.js';
 import { selectAccount } from '~/features/accounts/accounts.util';
 import { USDC } from 'lib/dapps';
 import { FeesPerGas } from '~/features/paymasters/paymasters.model';
+import { ActivationsService } from '../activations/activations.service';
 
 jest.mock('lib', () => ({
   ...jest.requireActual('lib'),
@@ -25,6 +26,7 @@ describe(PaymastersService.name, () => {
   let network: DeepMocked<Network>;
   let prices: DeepMocked<PricesService>;
   let tokens: DeepMocked<TokensService>;
+  let activations: DeepMocked<ActivationsService>;
 
   beforeEach(async () => {
     const module = await Test.createTestingModule({
@@ -38,6 +40,7 @@ describe(PaymastersService.name, () => {
     networks = module.get(NetworksService);
     prices = module.get(PricesService);
     tokens = module.get(TokensService);
+    activations = module.get(ActivationsService);
 
     network = createMock<Network>();
     networks.get.mockImplementation(() => network);
@@ -58,6 +61,8 @@ describe(PaymastersService.name, () => {
       usd: new Decimal(1),
       usdEma: new Decimal(1),
     }));
+
+    activations.fee.mockImplementation(async () => new Decimal(0));
   });
 
   const insertAccount = async (credit?: Decimal) => {
@@ -133,16 +138,6 @@ describe(PaymastersService.name, () => {
   });
 
   describe('estimateEthDiscount', () => {
-    it('be at most account credit', async () => {
-      const credit = new Decimal(5);
-      const account = await insertAccount(credit);
-      const discount = await service.estimateEthDiscount(account, new Decimal(100), {
-        activation: new Decimal(100),
-      });
-
-      expect(discount).toEqual(credit);
-    });
-
     it('not debit the account', async () => {
       const credit = new Decimal(5);
       const account = await insertAccount(credit);
@@ -154,15 +149,30 @@ describe(PaymastersService.name, () => {
       expect(postCredit).toEqual(credit.toString());
     });
 
-    it('be at most maxNetworkEthFee + paymasterEthFee', async () => {
-      const account = await insertAccount(new Decimal(100));
-      const maxNetworkEthFee = new Decimal(1);
-      const paymasterEthFee = new Decimal(2);
-      const discount = await service.estimateEthDiscount(account, maxNetworkEthFee, {
-        activation: new Decimal(100),
+    describe('ethCreditUsed', () => {
+      it('be at most account credit', async () => {
+        const credit = new Decimal(5);
+        const account = await insertAccount(credit);
+        const { ethCreditUsed } = await service.estimateEthDiscount(account, new Decimal(100), {
+          activation: new Decimal(100),
+        });
+
+        expect(ethCreditUsed).toEqual(credit);
       });
 
-      expect(discount).toEqual(maxNetworkEthFee.plus(paymasterEthFee));
+      it('be at most maxNetworkEthFee + total paymasterEthFee', async () => {
+        const account = await insertAccount(new Decimal(100));
+        const maxNetworkEthFee = new Decimal(1);
+        const activationEthFee = new Decimal(2);
+        const paymasterEthFee = activationEthFee;
+        activations.fee.mockImplementation(async () => activationEthFee);
+
+        const { ethCreditUsed } = await service.estimateEthDiscount(account, maxNetworkEthFee, {
+          activation: new Decimal(100),
+        });
+
+        expect(ethCreditUsed).toEqual(maxNetworkEthFee.plus(paymasterEthFee));
+      });
     });
 
     // TODO:

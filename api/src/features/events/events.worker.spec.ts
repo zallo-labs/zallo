@@ -63,6 +63,7 @@ describe(EventsWorker.name, () => {
     networks = module.get(NetworksService);
     networks.get.mockReturnValue({
       blockNumber: () => 1n,
+      blockTime: () => 1,
       getLogs: async () => logs,
     } satisfies DeepPartial<Network> as unknown as Network);
 
