@@ -5,14 +5,6 @@ import {DEPLOYER_SYSTEM_CONTRACT} from '@matterlabs/zksync-contracts/l2/system-c
 import {IContractDeployer} from '@matterlabs/zksync-contracts/l2/system-contracts/interfaces/IContractDeployer.sol';
 import {SystemContractsCaller} from '@matterlabs/zksync-contracts/l2/system-contracts/libraries/SystemContractsCaller.sol';
 
-import {IDeploymentRefunder, DeploymentRefundMessage} from './base/IDeploymentRefunder.sol';
-
-struct RefundDeploymentArgs {
-  DeploymentRefundMessage message;
-  bytes signature;
-  uint256 amount;
-}
-
 contract Factory {
   IContractDeployer.AccountAbstractionVersion private constant AA_VERSION =
     IContractDeployer.AccountAbstractionVersion.Version1;
@@ -46,14 +38,5 @@ contract Factory {
     }
 
     (account) = abi.decode(data, (address));
-  }
-
-  function deployWithRefund(
-    bytes calldata constructorArgsData,
-    bytes32 salt,
-    RefundDeploymentArgs calldata refund
-  ) external payable returns (address account) {
-    account = deploy(constructorArgsData, salt);
-    IDeploymentRefunder(account).refundDeployment(refund.message, refund.signature, refund.amount);
   }
 }
