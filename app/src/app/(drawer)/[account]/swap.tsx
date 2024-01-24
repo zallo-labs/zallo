@@ -184,6 +184,8 @@ function SwapScreen() {
                     label: `Swap ${from.symbol} for ${to!.symbol}`,
                     operations: operations.value,
                   });
+                  if (!proposal) return;
+
                   router.push({
                     pathname: `/(drawer)/transaction/[id]/`,
                     params: { id: proposal },

@@ -110,6 +110,7 @@ export const useSessionRequestListener = () => {
           ],
           gas: tx.gasLimit ? BigInt(tx.gasLimit) : undefined,
         });
+        if (!proposal) return;
 
         showInfo(`${peer.name} has proposed a transaction`);
 
