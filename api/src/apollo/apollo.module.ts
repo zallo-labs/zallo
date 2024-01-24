@@ -10,6 +10,7 @@ import { AuthMiddleware } from '~/features/auth/auth.middleware';
 import { Request, Response } from 'express';
 import { RequestContextMiddleware } from 'nestjs-request-context';
 import { GraphQLError } from 'graphql';
+import _ from 'lodash';
 
 export const GQL_ENDPOINT = '/graphql';
 
@@ -53,17 +54,16 @@ const useMiddleware = async (req: Request, ...middleware: NestMiddleware[]) => {
               onSubscribe: async (ctx) => {
                 const req = (ctx as IncomingWsContext).extra.request;
 
+                // Lowercase all header keys - as done by express for http requests; this is done by request to avoid ambiguity in headers
+                const connectionParams = Object.fromEntries(
+                  Object.entries(ctx.connectionParams ?? {}).map(([k, v]) => [k.toLowerCase(), v]),
+                ) as Partial<typeof req.headers>;
+
                 // Copy connection parameters into headers
                 req.headers = {
-                  // Lowercase all header keys - as done by express for http requests; this is done by request to avoid ambiguity in headers
-                  ...(Object.fromEntries(
-                    Object.entries(ctx.connectionParams ?? {}).map(([k, v]) => [
-                      k.toLowerCase(),
-                      v,
-                    ]),
-                  ) as Partial<typeof req.headers>),
-                  // Load req.headers after connectionParams to avoid potentially malicious overwrites (e.g. host)
-                  ...req.headers,
+                  ...connectionParams,
+                  ...req.headers, // Load req.headers after connectionParams to avoid potentially malicious overwrites (e.g. host)
+                  ..._.pick(connectionParams, 'authorization'), // Prefer connection params authorization
                 };
 
                 try {
