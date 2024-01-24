@@ -41,6 +41,7 @@ interface UsePaymasterParams {
 
 interface PaymasterEthFeeParams {
   account: UAddress;
+  use: boolean;
 }
 
 type SelectedReal = $expr_Select<{
@@ -123,7 +124,8 @@ export class PaymastersService {
   }
 
   async estimateMaxEthFeePerGas(chain: Chain): Promise<Decimal> {
-    return asDecimal((await this.networks.get(chain).estimateFeesPerGas()).maxFeePerGas!, ETH);
+    const estimates = await this.networks.get(chain).estimateFeesPerGas();
+    return asDecimal(estimates.maxFeePerGas!, ETH).mul('1.001'); // 0.1% to account for changes between submissing and executing the transaction
   }
 
   async estimateFeePerGas(feeToken: UAddress, tokenPriceParam?: Price): Promise<FeesPerGas | null> {
@@ -226,19 +228,19 @@ export class PaymastersService {
     });
   }
 
-  async paymasterEthFees({ account }: PaymasterEthFeeParams): Promise<PaymasterFeeParts> {
+  async paymasterEthFees({ account, use }: PaymasterEthFeeParams): Promise<PaymasterFeeParts> {
     const feePerGas = await this.estimateMaxEthFeePerGas(asChain(account));
-    const activationGas = (await this.activations.estimateGas(account))?.toString() ?? 0;
-    const activation = feePerGas.mul(activationGas);
 
-    return { activation };
+    const activation = await this.activations.fee({ address: account, feePerGas, use });
+
+    return { activation: activation ?? new Decimal(0) };
   }
 
   private async finalPaymasterEthFees(
     max: PaymasterFeeParts,
-    params: PaymasterEthFeeParams,
+    params: Omit<PaymasterEthFeeParams, 'use'>,
   ): Promise<PaymasterFeeParts> {
-    const current = await this.paymasterEthFees(params);
+    const current = await this.paymasterEthFees({ ...params, use: true });
 
     return {
       activation: Decimal.min(max.activation, current.activation),

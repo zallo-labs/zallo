@@ -1,7 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { asUAddress, ACCOUNT_PROXY } from 'lib';
+import { asUAddress, ACCOUNT_PROXY, asDecimal } from 'lib';
 import { TransactionEventData, TransactionsWorker } from '../transactions/transactions.worker';
-import { EventData, EventsWorker } from '../events/events.worker';
 import { DatabaseService } from '../database/database.service';
 import { selectAccount } from './accounts.util';
 import { getAbiItem } from 'viem';
@@ -10,6 +9,7 @@ import { ampli } from '~/util/ampli';
 import { AccountsService } from '~/features/accounts/accounts.service';
 import { AccountEvent } from '~/features/accounts/accounts.input';
 import e from '~/edgeql-js';
+import { ETH } from 'lib/dapps';
 
 const upgradedEvent = getAbiItem({ abi: ACCOUNT_PROXY.abi, name: 'Upgraded' });
 
@@ -19,18 +19,14 @@ export class UpgradeEvents {
 
   constructor(
     private db: DatabaseService,
-    private eventsWorker: EventsWorker,
     private transactionsWorker: TransactionsWorker,
     private accounts: AccountsService,
     private accountsCache: AccountsCacheService,
   ) {
-    this.eventsWorker.on(upgradedEvent, (data) => this.upgraded(data));
     this.transactionsWorker.onEvent(upgradedEvent, (data) => this.upgraded(data));
   }
 
-  private async upgraded(
-    event: EventData<typeof upgradedEvent> | TransactionEventData<typeof upgradedEvent>,
-  ) {
+  private async upgraded(event: TransactionEventData<typeof upgradedEvent>) {
     const { implementation } = event.log.args;
 
     const address = asUAddress(event.log.address, event.chain);
@@ -42,21 +38,28 @@ export class UpgradeEvents {
       '??',
       true,
     );
-    const updateAccount = e.update(selectedAccount, () => ({
+    const updateAccount = e.update(selectedAccount, (a) => ({
       set: {
         implementation,
         upgradedAtBlock: event.log.blockNumber,
+        activationEthFee: e.op(
+          e.decimal(
+            asDecimal(event.receipt.gasUsed * event.receipt.effectiveGasPrice, ETH).toString(),
+          ),
+          'if',
+          e.op('not', a.isActive),
+          'else',
+          e.cast(e.decimal, e.set()),
+        ),
       },
     }));
     const updatedAccount = e.op(updateAccount, 'if', shouldUpdate, 'else', selectedAccount);
 
-    const { activated, updated, account } = await this.db.query(
+    const { activated, updated, users } = await this.db.query(
       e.select({
         activated: e.op('not', selectedAccount.isActive),
         updated: shouldUpdate,
-        account: e.select(updatedAccount, () => ({
-          approvers: { user: true },
-        })),
+        users: updatedAccount.approvers.user,
       }),
     );
     if (!updated) return;
@@ -64,7 +67,7 @@ export class UpgradeEvents {
     this.log.debug(`Account ${address} upgraded to ${implementation}`);
     await this.accounts.publishAccount({ account: address, event: AccountEvent.update });
     if (activated) {
-      account?.approvers.forEach(({ user }) => ampli.accountActivated(user.id));
+      users.forEach((user) => ampli.accountActivated(user.id));
     }
   }
 }

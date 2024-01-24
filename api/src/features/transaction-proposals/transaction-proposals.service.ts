@@ -146,7 +146,7 @@ export class TransactionProposalsService {
 
     const chain = asChain(account);
     const network = this.networks.get(chain);
-    const maxPaymasterEthFees = await this.paymasters.paymasterEthFees({ account });
+    const maxPaymasterEthFees = await this.paymasters.paymasterEthFees({ account, use: false });
     const tx = {
       operations,
       nonce: BigInt(Math.floor(validFrom.getTime() / 1000)),

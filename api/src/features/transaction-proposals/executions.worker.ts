@@ -159,8 +159,6 @@ export class ExecutionsWorker extends Worker<ExecutionsQueue> {
         },
       });
 
-      console.log(feeData);
-
       const transactionResult = await executeTransaction({
         network,
         account: asAddress(account),

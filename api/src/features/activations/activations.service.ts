@@ -18,6 +18,13 @@ import { DatabaseService } from '../database/database.service';
 import { policyStateAsPolicy, policyStateShape } from '../policies/policies.util';
 import { FlowJob } from 'bullmq';
 import { TransactionsQueue } from '../transactions/transactions.queue';
+import Decimal from 'decimal.js';
+
+interface FeeParams {
+  address: UAddress;
+  feePerGas: Decimal;
+  use: boolean;
+}
 
 @Injectable()
 export class ActivationsService {
@@ -52,7 +59,34 @@ export class ActivationsService {
     return (await simulateDeployAccountProxy({ network, ...params }))._unsafeUnwrap();
   }
 
-  async estimateGas(address: UAddress) {
+  async fee({ address, feePerGas, use }: FeeParams): Promise<Decimal | null> {
+    const a = await this.db.query(
+      e.select(e.Account, () => ({
+        filter_single: { address },
+        isActive: true,
+        activationEthFee: true,
+      })),
+    );
+    if (!a) return null;
+
+    if (a.activationEthFee) {
+      if (use) {
+        await this.db.query(
+          e.update(e.Account, () => ({
+            filter_single: { address },
+            set: { activationEthFee: null },
+          })),
+        );
+      }
+
+      return new Decimal(a.activationEthFee);
+    }
+
+    const gas = await this.estimateGas(address);
+    return gas ? feePerGas.mul(gas.toString()) : null;
+  }
+
+  private async estimateGas(address: UAddress): Promise<bigint | null> {
     const params = await this.params(address);
     if (!params) return null;
 
@@ -75,9 +109,6 @@ export class ActivationsService {
           key: true,
           state: policyStateShape,
         })),
-        activationMessage: {
-          typedData: true,
-        },
       })),
     );
     if (!account) throw new Error(`Account ${address} not found`);
