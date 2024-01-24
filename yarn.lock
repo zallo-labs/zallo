@@ -11856,6 +11856,21 @@ __metadata:
   languageName: node
   linkType: hard
 
+"abitype@npm:~0.9.10":
+  version: 0.9.10
+  resolution: "abitype@npm:0.9.10"
+  peerDependencies:
+    typescript: ">=5.0.4"
+    zod: ^3 >=3.22.0
+  peerDependenciesMeta:
+    typescript:
+      optional: true
+    zod:
+      optional: true
+  checksum: e7f2d9da47624b90959fccfe9d308cfeef6009ff80f3a34c38cf0d45491233f5e3815372b9910255cd2c8a25857dd9c96624143c29c7727e53dc9dc5f0810cbe
+  languageName: node
+  linkType: hard
+
 "abort-controller@npm:^3.0.0":
   version: 3.0.0
   resolution: "abort-controller@npm:3.0.0"
@@ -15163,7 +15178,7 @@ __metadata:
     "@types/chai": "npm:^4.3.11"
     "@types/chai-as-promised": "npm:^7.1.8"
     "@types/mocha": "npm:^10.0.6"
-    abitype: "npm:^1.0.0"
+    abitype: "npm:~0.9.10"
     chai: "npm:^4.4.1"
     chai-as-promised: "npm:^7.1.1"
     chains: "workspace:*"
