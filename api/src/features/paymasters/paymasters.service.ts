@@ -81,8 +81,9 @@ export class PaymastersService {
       maxPaymasterEthFees,
       true,
     );
-
     const maxPaymasterEthFee = totalPaymasterEthFees(maxPaymasterEthFees);
+    const maxEthFees = maxNetworkEthFee.plus(maxPaymasterEthFee).minus(ethDiscount);
+
     const signedData: PaymasterSignedData = {
       // User signs the maxPaymasterEthFee so can't be changed; (maxPaymasteEthFee - paymasterEthFee) is included in the discount
       paymasterFee: asFp(maxPaymasterEthFee, ETH),
@@ -100,9 +101,6 @@ export class PaymastersService {
         }),
       ),
     );
-
-    const paymasterEthFee = totalPaymasterEthFees(paymasterEthFees);
-    const maxEthFees = maxNetworkEthFee.plus(paymasterEthFee).minus(ethDiscount);
 
     const tokenPrice = await this.prices.price(asUAddress(feeToken, chain));
     const maxTokenFees = maxEthFees.div(tokenPrice.eth);
@@ -200,7 +198,10 @@ export class PaymastersService {
       );
 
       // Provide a discount if currentPaymasterEthFee < maxPaymasterEthFee; ensuring the user benefits in case of feeToken:eth price change etc.
-      const paymasterEthFees = await this.finalPaymasterEthFees(maxPaymasterEthFees, { account });
+      const paymasterEthFees = await this.finalPaymasterEthFees(maxPaymasterEthFees, {
+        account,
+        use,
+      });
       const paymasterEthFee = totalPaymasterEthFees(paymasterEthFees);
       const paymasterEthFeeDiscount =
         totalPaymasterEthFees(maxPaymasterEthFees).minus(paymasterEthFee);
@@ -238,9 +239,9 @@ export class PaymastersService {
 
   private async finalPaymasterEthFees(
     max: PaymasterFeeParts,
-    params: Omit<PaymasterEthFeeParams, 'use'>,
+    params: PaymasterEthFeeParams,
   ): Promise<PaymasterFeeParts> {
-    const current = await this.paymasterEthFees({ ...params, use: true });
+    const current = await this.paymasterEthFees(params);
 
     return {
       activation: Decimal.min(max.activation, current.activation),
