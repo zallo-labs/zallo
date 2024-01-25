@@ -54,7 +54,10 @@ module default {
   }
 
   type Contact {
-    required user: User { default := (<User>(global current_user).id); }
+    required user: User { 
+      default := (<User>(global current_user).id);
+      on target delete delete source;
+    }
     required address: UAddress;
     required label: Label;
 

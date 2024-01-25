@@ -66,45 +66,36 @@ export class UsersService {
   }
 
   async link(token: string) {
-    const [oldUser, secret] = token.split(':');
+    const [oldId, secret] = token.split(':');
 
-    const expectedSecret = await this.redis.get(this.getLinkingTokenKey(oldUser));
+    const expectedSecret = await this.redis.get(this.getLinkingTokenKey(oldId));
     if (secret !== expectedSecret)
       throw new UserInputError(`Invalid linking token; token may have expired (1h)`);
 
-    const newUser = await this.db.query(
-      e.assert_exists(e.select(e.global.current_user, () => ({ id: true }))).id,
-    );
-    if (oldUser === newUser) return;
+    const newId = await this.db.query(e.assert_exists(e.select(e.global.current_user.id)));
+    if (oldId === newId) return;
 
     const approvers = await this.db.DANGEROUS_superuserClient.transaction(async (db) => {
-      const selectNewUser = e.select(e.User, () => ({ filter_single: { id: newUser } }));
+      const oldUser = e.select(e.User, () => ({ filter_single: { id: oldId } }));
+      const newUser = e.select(e.User, () => ({ filter_single: { id: newId } }));
 
-      // Pair with the user - merging their approvers into the current user
-      const approvers = await e
+      // Merge old user into new user (avoiding exclusivity constraint violations)
+      const { approvers } = await e
         .select({
-          approvers: e.select(
-            e.update(e.Approver, (a) => ({
-              filter: e.op(a.user.id, '=', e.cast(e.uuid, oldUser)),
-              set: { user: selectNewUser },
-            })),
-            () => ({ address: true }),
-          ).address,
-          oldUserRiskLabels: e.update(e.ProposalRiskLabel, (l) => ({
-            filter: e.op(
-              l.user,
-              '=',
-              e.select(e.User, () => ({ filter_single: { id: oldUser } })),
-            ),
-            set: {
-              user: selectNewUser,
-            },
+          approvers: e.update(oldUser.approvers, () => ({ set: { user: newUser } })).address,
+          contacts: e.update(oldUser.contacts, (c) => ({
+            filter: e.op(c.label, 'not in', newUser.contacts.label),
+            set: { user: newUser },
+          })),
+          riskLabels: e.update(oldUser['<user[is ProposalRiskLabel]'], (l) => ({
+            filter: e.op(l.proposal, 'not in', newUser['<user[is ProposalRiskLabel]'].proposal),
+            set: { user: newUser },
           })),
         })
-        .approvers.run(db);
+        .run(db);
 
       // Delete old user
-      await e.delete(e.User, () => ({ filter_single: { id: oldUser } })).run(db);
+      await e.delete(oldUser).run(db);
 
       return approvers;
     });
@@ -112,7 +103,7 @@ export class UsersService {
     // Remove approver -> user cache
     await this.accountsCache.removeApproverUserCache(...(approvers as Address[]));
     await Promise.all([
-      this.pubsub.publish<UserSubscriptionPayload>(getUserTrigger(newUser), {}),
+      this.pubsub.publish<UserSubscriptionPayload>(getUserTrigger(newId), {}),
       ...approvers.map((approver) =>
         this.pubsub.publish<UserSubscriptionPayload>(
           getUserApproverTrigger(approver as Address),
@@ -122,10 +113,10 @@ export class UsersService {
     ]);
 
     // Remove user -> accounts cache for both old & new user
-    await this.accountsCache.removeUserAccountsCache(oldUser, newUser);
+    await this.accountsCache.removeUserAccountsCache(oldId, newId);
 
     // Remove token
-    await this.redis.del(this.getLinkingTokenKey(oldUser));
+    await this.redis.del(this.getLinkingTokenKey(oldId));
   }
 
   private getLinkingTokenKey(user: uuid) {

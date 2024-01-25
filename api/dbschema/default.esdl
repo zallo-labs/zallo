@@ -95,7 +95,10 @@ module default {
     required proposal: Proposal {
       on target delete delete source;
     }
-    required user: User { default := (<User>(global current_user).id); }
+    required user: User { 
+      default := (<User>(global current_user).id);
+      on target delete delete source;
+    }
     required risk: ProposalRisk;
 
     constraint exclusive on ((.proposal, .user));
