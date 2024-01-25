@@ -6,12 +6,13 @@ import e from '~/edgeql-js';
 import { ShapeFunc } from '../database/database.select';
 import { AbiSource } from '../contract-functions/contract-functions.model';
 import { Abi, AbiFunction } from 'abitype';
-import { getFunctionSelector, getFunctionSignature } from 'viem';
+import { toFunctionSelector, toFunctionSignature } from 'viem';
 
 @Injectable()
 export class ContractsService {
-  constructor(private db: DatabaseService) // private explorer: ExplorerService,
-  {}
+  constructor(private db: DatabaseService) {
+    // private explorer: ExplorerService,
+  }
 
   async select(contract: Address, shape?: ShapeFunc<typeof e.Contract>) {
     const stored = await e
@@ -53,9 +54,9 @@ export class ContractsService {
         .filter((e): e is AbiFunction => e.type === 'function')
         .map((f) => {
           return e.json({
-            selector: getFunctionSelector(f),
+            selector: toFunctionSelector(f),
             abi: f,
-            abiMd5: getFunctionSignature(f), // Not md5 anymore, but this is all going to be removed
+            abiMd5: toFunctionSignature(f), // Not md5 anymore, but this is all going to be removed
           });
         }),
     );

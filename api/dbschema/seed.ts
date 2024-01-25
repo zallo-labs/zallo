@@ -2,7 +2,7 @@ import { ACCOUNT_ABI } from 'lib';
 import e, { createClient } from './edgeql-js';
 import * as eql from './interfaces';
 import { ERC20, TOKENS, flattenToken } from 'lib/dapps';
-import { getFunctionSelector, getFunctionSignature } from 'viem';
+import { toFunctionSelector, toFunctionSignature } from 'viem';
 import { AbiFunction } from 'abitype';
 require('dotenv').config({ path: '../.env' });
 
@@ -32,9 +32,9 @@ async function createContractFunctions() {
   const functionsSet = e.set(
     ...functions.map((f) =>
       e.json({
-        selector: getFunctionSelector(f),
+        selector: toFunctionSelector(f),
         abi: f,
-        abiMd5: getFunctionSignature(f), // Not md5 anymore, but this is all going to be removed
+        abiMd5: toFunctionSignature(f), // Not md5 anymore, but this is all going to be removed
       }),
     ),
   );
