@@ -1,19 +1,23 @@
-import { SearchParams, useLocalSearchParams, useRouter } from 'expo-router';
-import { asAddress, tryAsAddress } from 'lib';
+import { useRouter } from 'expo-router';
 import { Sheet } from '~/components/sheet/Sheet';
 import { ContactsIcon, NavigateNextIcon, TransferIcon } from '@theme/icons';
 import { ListItem } from '~/components/list/ListItem';
 import { StyleSheet } from 'react-native';
+import { z } from 'zod';
+import { zAddress, zUAddress } from '~/lib/zod';
+import { useLocalParams } from '~/hooks/useLocalParams';
+import { asUAddress } from 'lib';
+import { useSelectedChain } from '~/hooks/useSelectedAccount';
 
-export type ScannedAddressSheetRoute = `/scan/[address]`;
-export type ScanAddressSheetParams = SearchParams<ScannedAddressSheetRoute> & {
-  account?: string;
-};
+const ScannedAddressSheetParams = z.object({
+  address: zAddress(),
+  account: zUAddress().optional(),
+});
 
 export default function ScannedAddressSheet() {
-  const params = useLocalSearchParams<ScanAddressSheetParams>();
-  const [account, address] = [tryAsAddress(params?.account), asAddress(params.address)];
+  const { address, account } = useLocalParams(ScannedAddressSheetParams);
   const router = useRouter();
+  const chain = useSelectedChain();
 
   return (
     <Sheet handle={false} contentContainerStyle={styles.contentContainer}>
@@ -36,7 +40,10 @@ export default function ScannedAddressSheet() {
         headline="Add as contact"
         trailing={NavigateNextIcon}
         onPress={() =>
-          router.replace({ pathname: `/(drawer)/contacts/[address]`, params: { address } })
+          router.replace({
+            pathname: `/(drawer)/contacts/[address]`,
+            params: { address: asUAddress(address, chain) },
+          })
         }
       />
     </Sheet>
