@@ -3,7 +3,11 @@ import color from 'color';
 import { match } from 'ts-pattern';
 import { LightPalette } from './palette';
 import { MD3Type } from 'react-native-paper/lib/typescript/types';
-import { FONT_BY_WEIGHT } from '~/components/Fonts';
+
+const FONT_BY_WEIGHT = {
+  '400': 'Roboto',
+  '500': 'Roboto-Medium',
+} as const;
 
 const c = (c: string, f: (color: color<string>) => color<string>) => f(color(c)).hexa();
 
@@ -82,7 +86,7 @@ export const LIGHT_THEME = {
   fonts: configureFonts({
     config: Object.fromEntries(
       Object.entries(overrided.fonts).map(([variant, properties]): [string, Partial<MD3Type>] => {
-        const fontFamily = FONT_BY_WEIGHT[properties.fontWeight ?? '400'];
+        const fontFamily = FONT_BY_WEIGHT[(properties.fontWeight as '400') ?? '400'];
         if (__DEV__ && !fontFamily)
           throw new Error(`No font family configured for weight: ${properties.fontWeight}`);
 
