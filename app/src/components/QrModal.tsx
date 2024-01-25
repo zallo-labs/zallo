@@ -1,7 +1,7 @@
 import QRCode from 'react-native-qrcode-svg';
-import { Address, UAddress, isUAddress } from 'lib';
+import { Address, UAddress, asAddress, asChain, isUAddress } from 'lib';
 import { IconButton, Surface, Text } from 'react-native-paper';
-import { CloseIcon, ShareIcon } from '@theme/icons';
+import { CloseIcon, DownArrowIcon, ShareIcon } from '@theme/icons';
 import { Actions } from '~/components/layout/Actions';
 import { ScaledSize, View, useWindowDimensions } from 'react-native';
 import { AddressLabel } from '~/components/address/AddressLabel';
@@ -11,8 +11,9 @@ import { share } from '~/lib/share';
 import { useRouter } from 'expo-router';
 import { createStyles, useStyles } from '@theme/styles';
 import { EdgeInsets, useSafeAreaInsets } from 'react-native-safe-area-context';
-import { ReactNode } from 'react';
-import { truncateAddr } from '~/util/format';
+import { ReactNode, useState } from 'react';
+import { SelectChip } from './fields/SelectChip';
+import { CHAINS } from 'chains';
 
 export interface QrModalProps {
   address: Address | UAddress;
@@ -23,26 +24,51 @@ export function QrModal({ address, actions }: QrModalProps) {
   const { styles } = useStyles(stylesheet);
   const router = useRouter();
 
+  const [mode, setMode] = useState<'address' | 'uaddress'>('address');
+  const displayed = mode === 'address' ? asAddress(address) : address;
+
   return (
     <Blur>
       <View style={styles.container(useSafeAreaInsets())}>
-        <IconButton
-          mode="contained-tonal"
-          icon={CloseIcon}
-          style={styles.close}
-          onPress={router.back}
-        />
-
         <View style={styles.headerContainer}>
+          <IconButton
+            mode="contained-tonal"
+            icon={CloseIcon}
+            onPress={router.back}
+            size={styles.iconButton.width}
+          />
+
           <Text variant="displaySmall" style={styles.name}>
-            {isUAddress(address) ? <AddressLabel address={address} /> : truncateAddr(address)}
+            {isUAddress(address) && <AddressLabel address={address} />}
           </Text>
+
+          <View style={styles.iconButton} />
         </View>
 
-        <View style={styles.qrContainer}>
+        <View style={styles.contentContainer}>
+          {isUAddress(address) && (
+            <View style={styles.modeContainer}>
+              <View style={styles.modeSelectorContainer}>
+                <SelectChip
+                  entries={[
+                    [`${CHAINS[asChain(address)].name} address`, 'address' as const],
+                    ['Unique address', 'uaddress' as const],
+                  ]}
+                  value={mode}
+                  chipProps={{ elevated: true, closeIcon: DownArrowIcon }}
+                  onChange={(v) => setMode(v)}
+                />
+              </View>
+
+              <Text variant="bodyLarge" style={styles.address}>
+                {mode === 'address' ? asAddress(address) : address}
+              </Text>
+            </View>
+          )}
+
           <Surface style={styles.qrSurface}>
             <QRCode
-              value={address}
+              value={displayed}
               color={styles.qr.color}
               size={styles.qrSize(useWindowDimensions()).fontSize}
               backgroundColor="transparent"
@@ -53,7 +79,7 @@ export function QrModal({ address, actions }: QrModalProps) {
           </Surface>
         </View>
 
-        <Actions>
+        <Actions flex={false}>
           {actions}
 
           <Button mode="contained" icon={ShareIcon} onPress={() => share({ url: address })}>
@@ -65,24 +91,38 @@ export function QrModal({ address, actions }: QrModalProps) {
   );
 }
 
-const stylesheet = createStyles(({ colors }) => ({
+const stylesheet = createStyles(({ colors, iconSize }) => ({
   container: (insets: EdgeInsets) => ({
     flex: 1,
     marginTop: insets.top,
   }),
-  close: {
-    marginHorizontal: 16,
+  iconButton: {
+    width: iconSize.small,
   },
   name: {
+    flex: 1,
     textAlign: 'center',
     color: colors.onScrim,
   },
   headerContainer: {
-    flex: 1,
-    justifyContent: 'flex-end',
-    marginBottom: 32,
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: 8,
+    marginHorizontal: 8,
   },
-  qrContainer: {
+  modeContainer: {
+    gap: 16,
+  },
+  modeSelectorContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+  },
+  address: {
+    color: colors.inverseOnSurface,
+    textAlign: 'center',
+  },
+  contentContainer: {
+    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     gap: 32,
