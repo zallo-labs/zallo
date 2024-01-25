@@ -83,10 +83,9 @@ export const tryAsUAddress = (v: string | undefined, chain?: Chain): UAddress | 
     if (isChain(chain) && address) return `${chain}:${address}`;
   }
 
-  const address = tryAsAddress(v);
-  if (address) {
-    if (!chain) throw new Error(`Chain expected when converting Address -> UAddress`);
-    return `${chain}:${address}`;
+  if (chain) {
+    const address = tryAsAddress(v);
+    if (address) return `${chain}:${address}`;
   }
 };
 
