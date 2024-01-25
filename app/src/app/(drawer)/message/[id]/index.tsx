@@ -11,6 +11,7 @@ import { RiskRating } from '~/components/proposal/RiskRating';
 import { withSuspense } from '~/components/skeleton/withSuspense';
 import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
 import { asChain } from 'lib';
+import { MessageActions } from '~/components/message/MessageActions';
 
 const Query = gql(/* GraphQL */ `
   query MessageDetailsTab($proposal: UUID!) {
@@ -25,6 +26,12 @@ const Query = gql(/* GraphQL */ `
       }
       ...MessageIcon_MessageProposal
       ...RiskRating_Proposal
+      ...MessageActions_MessageProposal
+    }
+
+    user {
+      id
+      ...MessageActions_User
     }
   }
 `);
@@ -34,12 +41,12 @@ export type MessageDetailsTabParams = z.infer<typeof MessageDetailsTabParams>;
 
 function MessageDetailsTab() {
   const params = useLocalParams(MessageDetailsTabParams);
-  const p = useQuery(Query, { proposal: params.id }).data?.messageProposal;
+  const { messageProposal: p, user } = useQuery(Query, { proposal: params.id }).data;
 
   if (!p) return null;
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
+    <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
       <View style={styles.header}>
         <MessageIcon proposal={p} />
         <Text>
@@ -50,6 +57,8 @@ function MessageDetailsTab() {
       <DataView chain={asChain(p.account.address)}>{p.typedData ?? p.message}</DataView>
 
       <RiskRating proposal={p} />
+
+      <MessageActions proposal={p} user={user} />
     </ScrollView>
   );
 }

@@ -4,9 +4,6 @@ import { NotFound } from '~/components/NotFound';
 import { useQuery } from '~/gql';
 import { z } from 'zod';
 import { useLocalParams } from '~/hooks/useLocalParams';
-import { ScrollView } from 'react-native';
-import { StyleSheet } from 'react-native';
-import { TransactionActions } from '~/components/transaction/TransactionActions';
 import { AppbarOptions } from '~/components/Appbar/AppbarOptions';
 import { TopTabs } from '~/components/layout/TopTabs';
 import { ScreenSurface } from '~/components/layout/ScreenSurface';
@@ -23,12 +20,6 @@ const Query = gql(/* GraphQL */ `
         name
       }
       ...TransactionStatus_TransactionProposal
-      ...TransactionActions_TransactionProposal @arguments(proposal: $proposal)
-    }
-
-    user {
-      id
-      ...TransactionActions_User
     }
   }
 `);
@@ -39,7 +30,7 @@ export default function TransactionLayout() {
   const { id } = useLocalParams(TransactionLayoutParams);
 
   const query = useQuery(Query, { proposal: id });
-  const { transactionProposal: proposal, user } = query.data;
+  const { transactionProposal: proposal } = query.data;
 
   if (!proposal) return query.stale ? null : <NotFound name="Proposal" />;
 
@@ -54,32 +45,18 @@ export default function TransactionLayout() {
         )}
       />
 
-      <ScreenSurface>
-        <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
-          <TransactionStatus proposal={proposal} />
+      <ScreenSurface scrollEnabled={false}>
+        <TransactionStatus proposal={proposal} />
 
-          <TopTabs>
-            <TopTabs.Screen
-              name="index"
-              options={{ title: 'Transaction' }}
-              initialParams={{ id }}
-            />
-            <TopTabs.Screen
-              name="approvals"
-              options={{ title: 'Approvals' }}
-              initialParams={{ id }}
-            />
-          </TopTabs>
-
-          <TransactionActions proposal={proposal} user={user} />
-        </ScrollView>
+        <TopTabs>
+          <TopTabs.Screen name="index" options={{ title: 'Transaction' }} initialParams={{ id }} />
+          <TopTabs.Screen
+            name="approvals"
+            options={{ title: 'Approvals' }}
+            initialParams={{ id }}
+          />
+        </TopTabs>
       </ScreenSurface>
     </>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flexGrow: 1,
-  },
-});

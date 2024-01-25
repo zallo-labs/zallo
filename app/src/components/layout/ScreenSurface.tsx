@@ -32,7 +32,7 @@ const stylesheet = createStyles(({ colors, corner }) => ({
     backgroundColor: colors.background,
   },
   contentContainer: {
-    flexGrow: 1,
+    flex: 1,
   },
 }));
 

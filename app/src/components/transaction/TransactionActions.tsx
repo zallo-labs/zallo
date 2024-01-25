@@ -88,7 +88,7 @@ export const TransactionActions = (props: ProposalActionsProps) => {
     );
 
   return (
-    <Actions flex={false}>
+    <Actions>
       {reject && <Button onPress={reject}>Reject</Button>}
 
       {approve && (

@@ -10,9 +10,7 @@ import { useMutation } from 'urql';
 import { useConfirmRemoval } from '~/hooks/useConfirm';
 import { useRouter } from 'expo-router';
 import { TopTabs } from '~/components/layout/TopTabs';
-import { MessageActions } from '~/components/message/MessageActions';
 import { AppbarOptions } from '~/components/Appbar/AppbarOptions';
-import { StyleSheet, ScrollView } from 'react-native';
 import { ScreenSurface } from '~/components/layout/ScreenSurface';
 import { MessageStatus } from '~/components/message/MessageStatus';
 
@@ -25,12 +23,6 @@ const Query = gql(/* GraphQL */ `
         name
       }
       ...MessageStatus_MessageProposal
-      ...MessageActions_MessageProposal
-    }
-
-    user {
-      id
-      ...MessageActions_User
     }
   }
 `);
@@ -79,28 +71,14 @@ export default function MessageLayout() {
         )}
       />
 
-      <ScreenSurface>
-        <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
-          <MessageStatus proposal={proposal} />
+      <ScreenSurface scrollEnabled={false}>
+        <MessageStatus proposal={proposal} />
 
-          <TopTabs>
-            <TopTabs.Screen name="index" options={{ title: 'Message' }} initialParams={{ id }} />
-            <TopTabs.Screen
-              name="approval"
-              options={{ title: 'Approval' }}
-              initialParams={{ id }}
-            />
-          </TopTabs>
-
-          <MessageActions proposal={proposal} user={query.data.user} />
-        </ScrollView>
+        <TopTabs>
+          <TopTabs.Screen name="index" options={{ title: 'Message' }} initialParams={{ id }} />
+          <TopTabs.Screen name="approval" options={{ title: 'Approval' }} initialParams={{ id }} />
+        </TopTabs>
       </ScreenSurface>
     </>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flexGrow: 1,
-  },
-});
