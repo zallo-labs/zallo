@@ -38,7 +38,7 @@
       "inputs": ["assets/**", "src/**"]
     },
     "lint": {
-      "inputs": ["assets/**", "src/**"]
+      "inputs": ["../eslintrc.js", "eslintrc.js", "assets/**", "src/**"]
     }
   }
 }

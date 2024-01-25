@@ -1,5 +1,5 @@
 import { Redirect } from 'expo-router';
-import { Sitemap as InternalSitemap } from 'expo-router/src/views/Sitemap';
+import { Sitemap as InternalSitemap } from 'expo-router/build/views/Sitemap';
 
 /**
  * Sitemap is enabled unless explicitly disabled

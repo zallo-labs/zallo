@@ -1,4 +1,4 @@
-export const Palette = {
+export const LightPalette = {
   /* Default tokens */
   primary100: 'rgba(255, 255, 255, 1)',
   primary99: 'rgba(255, 251, 254, 1)',

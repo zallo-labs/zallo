@@ -26,7 +26,7 @@ export function LinkingButton({ onLink }: LinkingButtonProps) {
     <Fab
       position="relative"
       icon={(props) => <QrCodeIcon {...props} color={styles.icon.color} />}
-      onPress={() => router.push(`/link`)}
+      onPress={() => router.push(`/link/`)}
       style={styles.container}
     />
   );

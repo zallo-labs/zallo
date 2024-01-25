@@ -1,14 +1,18 @@
 import { MD3LightTheme as overrided, configureFonts } from 'react-native-paper';
 import color from 'color';
 import { match } from 'ts-pattern';
-import { Palette } from './palette';
+import { LightPalette } from './palette';
 import { MD3Type } from 'react-native-paper/lib/typescript/types';
-import { FONT_BY_WEIGHT } from '~/components/Fonts';
+
+const FONT_BY_WEIGHT = {
+  '400': 'Roboto',
+  '500': 'Roboto-Medium',
+} as const;
 
 const c = (c: string, f: (color: color<string>) => color<string>) => f(color(c)).hexa();
 
 // https://github.com/callstack/react-native-paper/blob/main/src/styles/themes/v3/DarkTheme.tsx
-export const PAPER_THEME = {
+export const LIGHT_THEME = {
   ...overrided,
 
   colors: {
@@ -17,17 +21,17 @@ export const PAPER_THEME = {
     surfaceDisabled: c(overrided.colors.onSurface, (c) => c.alpha(0.12)),
     onSurfaceOpaque: c(overrided.colors.onSurface, (c) => c.alpha(0.6)),
 
-    scrim: c(Palette.neutral20, (c) => c.alpha(0.4)),
+    scrim: c(LightPalette.neutral30, (c) => c.alpha(0.4)),
     onScrim: '#F4EFF4',
 
-    success: Palette.success40, // Dark - Palette.success80
-    onSuccess: Palette.success100, // Dark - Platte.success20
-    successContainer: Palette.success90, // Dark - Palette.success30
-    onSuccessContainer: Palette.success10, // Dark - Palette.success90
-    warning: Palette.warning40, // Dark - Palette.warning80
-    onWarning: Palette.warning100, // Dark - Platte.warning20
-    warningContainer: Palette.warning90, // Dark - Palette.warning30
-    onWarningContainer: Palette.warning10, // Dark - Palette.warning90
+    success: LightPalette.success40, // Dark - Palette.success80
+    onSuccess: LightPalette.success100, // Dark - Platte.success20
+    successContainer: LightPalette.success90, // Dark - Palette.success30
+    onSuccessContainer: LightPalette.success10, // Dark - Palette.success90
+    warning: LightPalette.warning40, // Dark - Palette.warning80
+    onWarning: LightPalette.warning100, // Dark - Platte.warning20
+    warningContainer: LightPalette.warning90, // Dark - Palette.warning30
+    onWarningContainer: LightPalette.warning10, // Dark - Palette.warning90
   },
 
   // https://m3.material.io/foundations/interaction-states
@@ -80,10 +84,9 @@ export const PAPER_THEME = {
 
   // Android doesn't support different font variants based on weight like web; so we change the family name
   fonts: configureFonts({
-    isV3: true,
     config: Object.fromEntries(
       Object.entries(overrided.fonts).map(([variant, properties]): [string, Partial<MD3Type>] => {
-        const fontFamily = FONT_BY_WEIGHT[properties.fontWeight ?? '400'];
+        const fontFamily = FONT_BY_WEIGHT[(properties.fontWeight as '400') ?? '400'];
         if (__DEV__ && !fontFamily)
           throw new Error(`No font family configured for weight: ${properties.fontWeight}`);
 
@@ -93,11 +96,11 @@ export const PAPER_THEME = {
   }),
 };
 
-export const ICON_SIZE = PAPER_THEME.iconSize;
-export const CORNER = PAPER_THEME.corner;
-export const ROUNDNESS = PAPER_THEME.roundness;
+export const ICON_SIZE = LIGHT_THEME.iconSize;
+export const CORNER = LIGHT_THEME.corner;
+export const ROUNDNESS = LIGHT_THEME.roundness;
 
-export type Theme = typeof PAPER_THEME;
+export type Theme = typeof LIGHT_THEME;
 type AppTheme = Theme;
 
 declare global {

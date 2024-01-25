@@ -1,4 +1,4 @@
-import { SearchParams, useLocalSearchParams, useRouter } from 'expo-router';
+import { useRouter } from 'expo-router';
 import { getSdkError } from '@walletconnect/utils';
 import { StyleSheet } from 'react-native';
 import { ListItem } from '~/components/list/ListItem';
@@ -6,12 +6,13 @@ import { Sheet } from '~/components/sheet/Sheet';
 import { useUpdateWalletConnect, useWalletConnect } from '~/util/walletconnect';
 import * as Linking from 'expo-linking';
 import { CloseIcon, ExternalLinkIcon } from '@theme/icons';
+import { z } from 'zod';
+import { useLocalParams } from '~/hooks/useLocalParams';
 
-export type SessionDetailsSheetRoute = `/sessions/[topic]`;
-export type SessionDetailsSheetParams = SearchParams<SessionDetailsSheetRoute>;
+const SessionDetailsSheetParams = z.object({ topic: z.string() });
 
 export default function SessionDetailsSheet() {
-  const { topic } = useLocalSearchParams<SessionDetailsSheetParams>();
+  const { topic } = useLocalParams(SessionDetailsSheetParams);
   const router = useRouter();
   const client = useWalletConnect();
   const update = useUpdateWalletConnect();

@@ -1,4 +1,4 @@
-import { View } from 'react-native';
+import { ScrollView, View } from 'react-native';
 import { ListHeader } from '~/components/list/ListHeader';
 import { UUID } from 'lib';
 import { gql, useFragment } from '@api/generated';
@@ -113,7 +113,7 @@ function ProposalApprovals_({ proposal: id }: PolicyTabProps) {
   );
 
   return (
-    <View style={styles.container}>
+    <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
       <SelectedPolicy proposal={p} />
 
       {awaitingApproval && (
@@ -134,7 +134,7 @@ function ProposalApprovals_({ proposal: id }: PolicyTabProps) {
       {p.approvals.map((approval) => (
         <ApprovalItem key={approval.id} user={user} approval={approval} proposal={p} />
       ))}
-    </View>
+    </ScrollView>
   );
 }
 

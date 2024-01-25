@@ -11,7 +11,7 @@ import { FragmentType, gql, useFragment as getFragment } from '@api';
 import { ACCOUNT_ABI, Address, asAddress, asSelector } from 'lib';
 import _ from 'lodash';
 import { FC, useMemo } from 'react';
-import { getAbiItem, getFunctionSelector } from 'viem';
+import { getAbiItem, toFunctionSelector } from 'viem';
 import { useApproverAddress } from '~/lib/network/useApprover';
 import { SYNCSWAP, ERC721_ABI } from 'lib/dapps';
 import { Chain } from 'chains';
@@ -33,7 +33,7 @@ export const ACTION_PRESETS = {
       getAbiItem({ abi: ERC721_ABI, name: 'transferFrom' }),
       getAbiItem({ abi: ERC721_ABI, name: 'approve' }),
       getAbiItem({ abi: ERC721_ABI, name: 'setApprovalForAll' }),
-    ].map((f) => ({ selector: asSelector(getFunctionSelector(f)) })),
+    ].map((f) => ({ selector: asSelector(toFunctionSelector(f)) })),
   },
   manageAccount: {
     icon: AccountIcon,
@@ -45,7 +45,7 @@ export const ACTION_PRESETS = {
         getAbiItem({ abi: ACCOUNT_ABI, name: 'upgradeToAndCall' }),
       ].map((f) => ({
         contract: account,
-        selector: asSelector(getFunctionSelector(f)),
+        selector: asSelector(toFunctionSelector(f)),
       })),
   },
   syncswapSwap: {
@@ -57,7 +57,7 @@ export const ACTION_PRESETS = {
         getAbiItem({ abi: SYNCSWAP.router.abi, name: 'swapWithPermit' }),
       ].map((f) => ({
         contract: SYNCSWAP.router.address[chain],
-        selector: asSelector(getFunctionSelector(f)),
+        selector: asSelector(toFunctionSelector(f)),
       })),
   },
   syncswapLiquidity: {
@@ -75,7 +75,7 @@ export const ACTION_PRESETS = {
         getAbiItem({ abi: SYNCSWAP.router.abi, name: 'burnLiquidityWithPermit' }),
       ].map((f) => ({
         contract: SYNCSWAP.router.address[chain],
-        selector: asSelector(getFunctionSelector(f)),
+        selector: asSelector(toFunctionSelector(f)),
       })),
   },
 } satisfies Record<

@@ -8,7 +8,7 @@ import { CONFIG } from '~/util/config';
 import { Result, ResultAsync, err, okAsync } from 'neverthrow';
 import { useGetCloudApprover } from './useGetCloudApprover';
 import { showError } from '~/components/provider/SnackbarProvider';
-import decodeJwt from 'jwt-decode';
+import { jwtDecode } from 'jwt-decode';
 import { DateTime } from 'luxon';
 import { PrivateKeyAccount } from 'viem/accounts';
 
@@ -60,7 +60,7 @@ export function useGetGoogleApprover() {
 
         if (!details.idToken) throw new Error('idToken missing');
 
-        const decoded = decodeJwt(details.idToken);
+        const decoded = jwtDecode(details.idToken);
         if (
           typeof decoded === 'object' &&
           decoded !== null &&

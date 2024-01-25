@@ -2,7 +2,7 @@ import { TASK_COMPILE } from 'hardhat/builtin-tasks/task-names';
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
 import { task } from 'hardhat/config';
 import { Abi, AbiError, AbiEvent, AbiFunction } from 'abitype';
-import { getEventSignature, getFunctionSignature } from 'viem';
+import { toEventSignature, toFunctionSignature } from 'viem';
 
 const IMPORT_ENDPOINT = 'https://api.openchain.xyz/signature-database/v1/import';
 
@@ -28,18 +28,16 @@ async function main(hre: HardhatRuntimeEnvironment, verbose?: boolean) {
 
   const functions = completeAbi
     .filter((e): e is AbiFunction => e.type === 'function')
-    .map(getFunctionSignature);
+    .map(toFunctionSignature);
 
   const errors = completeAbi
     .filter((e): e is AbiError => e.type === 'error')
     .map((e) => {
       const f: AbiFunction = { ...e, type: 'function', outputs: [], stateMutability: 'pure' };
-      return getFunctionSignature(f);
+      return toFunctionSignature(f);
     });
 
-  const events = completeAbi
-    .filter((e): e is AbiEvent => e.type === 'event')
-    .map(getEventSignature);
+  const events = completeAbi.filter((e): e is AbiEvent => e.type === 'event').map(toEventSignature);
 
   const resp = await fetch(IMPORT_ENDPOINT, {
     method: 'POST',

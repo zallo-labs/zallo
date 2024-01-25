@@ -32,7 +32,7 @@ export function MessageActions(props: MessageActionsProps) {
   const reject = useReject({ proposal: p, user, approver });
 
   return (
-    <Actions flex={false}>
+    <Actions>
       {reject && <Button onPress={reject}>Reject</Button>}
 
       {approve && (

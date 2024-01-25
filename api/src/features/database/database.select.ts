@@ -22,7 +22,7 @@ import { SelectModifiers, objectTypeToSelectShape } from '~/edgeql-js/select';
 import { $scopify, ObjectTypeExpression, ObjectTypeSet, SomeType } from '~/edgeql-js/typesystem';
 import { $linkPropify } from '~/edgeql-js/syntax';
 import { Cardinality, TypeKind } from 'edgedb/dist/reflection';
-import merge from 'ts-deepmerge';
+import { merge } from 'ts-deepmerge';
 import assert from 'assert';
 import e from '~/edgeql-js';
 import _ from 'lodash';

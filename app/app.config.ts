@@ -2,20 +2,22 @@ import { ExpoConfig, ConfigContext } from '@expo/config';
 import { ConfigPlugin } from 'expo/config-plugins';
 import { PluginConfigType as BuildPropertiesConfig } from 'expo-build-properties/build/pluginConfig';
 import expoRouterPlugin from 'expo-router/plugin';
+import path from 'path';
+
+// Absolute path resolution is required for EAS builds (during gradlew autolinking), but not available for dev client
+require('dotenv').config({ path: path.resolve(process.env.EAS_BUILD ? __dirname : '', '../.env') });
 
 type PluginConfig<Plugin> = Plugin extends ConfigPlugin<infer Config> ? Config : never;
 
 const ENV = process.env;
 
-const chain = ENV?.CHAIN?.toUpperCase();
 const vary = (value: string, f: (variant: string) => string = (v) => '.' + v) =>
   value + (ENV.APP_VARIANT ? f(ENV.APP_VARIANT) : '');
 
-type ExternalUrl = `http${string}`;
+type ExternalUrl = `http:${string}`;
 
 export const CONFIG = {
   env: ENV.RELEASE_ENV === 'development' ? 'development' : 'production',
-  chainName: chain!,
   sentryDsn: ENV.APP_SENTRY_DSN!,
   apiUrl: ENV.API_URL!,
   apiGqlWs: ENV.API_GQL_WS!,
@@ -62,7 +64,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       'expo-build-properties',
       {
         android: {
-          minSdkVersion: 24, // 21 is Expo default, 24 is required by @ledgerhq/react-native-hid
+          minSdkVersion: 24, // 23 is Expo default, 24 is required by @ledgerhq/react-native-hid
           packagingOptions: {
             // https://github.com/margelo/react-native-quick-crypto/issues/90#issuecomment-1321129104
             pickFirst: [
@@ -78,18 +80,22 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
         },
       } as BuildPropertiesConfig,
     ],
-    [
-      'expo-router',
-      {
-        origin: CONFIG.webAppUrl,
-        // asyncRoutes: 'development',
-      } as PluginConfig<typeof expoRouterPlugin>,
-    ],
+    ['expo-router', { origin: CONFIG.webAppUrl } as PluginConfig<typeof expoRouterPlugin>],
+    ['expo-font', { fonts: ['./assets/fonts/Roboto-Medium.ttf', 'assets/fonts/Roboto.ttf'] }],
     'expo-notifications', // https://docs.expo.dev/versions/latest/sdk/notifications/#configurable-properties
     'expo-localization',
-    'sentry-expo',
+    [
+      '@sentry/react-native/expo',
+      {
+        organization: ENV.SENTRY_ORG,
+        project: ENV.APP_SENTRY_PROJECT,
+        authToken: ENV.SENTRY_AUTH_TOKEN, // Plugin reads SENTRY_AUTH_TOKEN env
+        deployEnv: ENV.env,
+      },
+    ],
+    'expo-camera',
     '@react-native-firebase/app',
-    '@config-plugins/react-native-ble-plx',
+    'react-native-ble-plx',
     '@react-native-google-signin/google-signin',
     'expo-apple-authentication',
     [
@@ -97,21 +103,6 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       { iCloudContainerEnvironment: CONFIG.env === 'development' ? 'Development' : 'Production' },
     ],
   ],
-  hooks: {
-    postPublish: [
-      {
-        file: 'sentry-expo/upload-sourcemaps',
-        config: {
-          // https://docs.expo.dev/guides/using-sentry/#31-configure-a--postpublish--hook
-          organization: ENV.SENTRY_ORG,
-          project: ENV.APP_SENTRY_PROJECT,
-          // authToken: ENV.SENTRY_AUTH_TOKEN,  // Hook reads SENTRY_AUTH_TOKEN env
-          deployEnv: ENV.env,
-          setCommits: true,
-        },
-      },
-    ],
-  },
   orientation: 'portrait',
   icon: './assets/icon@2x.png',
   splash: {
@@ -160,9 +151,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     favicon: './assets/favicon.png',
   },
   experiments: {
-    // @ts-expect-error not sure why
     typedRoutes: true,
-    tsconfigPaths: true, // Expo 50 TODO: remove; this is now the default
   },
   updates: {
     url: `https://u.expo.dev/${PROJECT_ID}`,

@@ -10,7 +10,7 @@ export const requiredEnv = (...params: Parameters<typeof getKey>) => {
   const value = process.env[key];
 
   const skip = process.env[SKIP_ENV_CHECK_KEY]?.toLocaleLowerCase();
-  if (!value && skip !== 'true' && skip !== '1')
+  if (value === undefined && skip !== 'true' && skip !== '1')
     throw new Error(`Missing environmental variable: ${key}`);
 
   return value!;

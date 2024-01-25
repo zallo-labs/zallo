@@ -1,5 +1,5 @@
 # Inspect included files using:
-# rm -rf ~/tmp/inspect yarn eas build:inspect --stage archive --output ~/tmp/inspect --profile production --platform android
+# rm -rf ~/tmp/inspect && yarn eas build:inspect --stage archive --output ~/tmp/inspect --profile production --platform android
 
 ## Unnecessary files
 /api

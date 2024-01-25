@@ -245,9 +245,9 @@ const $CloudShare = $.makeType<$CloudShare>(_.spec, "6060e7a5-9eb1-11ee-a81d-3de
 const CloudShare: $.$expr_PathNode<$.TypeSet<$CloudShare, $.Cardinality.Many>, null> = _.syntax.$PathNode($.$toSet($CloudShare, $.Cardinality.Many), null);
 
 export type $ContactλShape = $.typeutil.flatten<_std.$Object_8ce8c71ee4fa5f73840c22d7eaa58588λShape & {
-  "user": $.LinkDesc<$User, $.Cardinality.One, {}, false, false,  false, true>;
   "address": $.PropertyDesc<$UAddress, $.Cardinality.One, false, false, false, false>;
   "label": $.PropertyDesc<$Label, $.Cardinality.One, false, false, false, false>;
+  "user": $.LinkDesc<$User, $.Cardinality.One, {}, false, false,  false, true>;
   "<contact[is Approver]": $.LinkDesc<$Approver, $.Cardinality.Many, {}, false, false,  false, false>;
   "<contact[is current_approver]": $.LinkDesc<$current_approver, $.Cardinality.Many, {}, false, false,  false, false>;
   "<contacts[is User]": $.LinkDesc<$User, $.Cardinality.Many, {}, false, false,  false, false>;
@@ -442,8 +442,8 @@ const PolicyState: $.$expr_PathNode<$.TypeSet<$PolicyState, $.Cardinality.Many>,
 
 export type $ProposalRiskLabelλShape = $.typeutil.flatten<_std.$Object_8ce8c71ee4fa5f73840c22d7eaa58588λShape & {
   "proposal": $.LinkDesc<$Proposal, $.Cardinality.One, {}, false, false,  false, false>;
-  "user": $.LinkDesc<$User, $.Cardinality.One, {}, false, false,  false, true>;
   "risk": $.PropertyDesc<$ProposalRisk, $.Cardinality.One, false, false, false, false>;
+  "user": $.LinkDesc<$User, $.Cardinality.One, {}, false, false,  false, true>;
 }>;
 type $ProposalRiskLabel = $.ObjectType<"default::ProposalRiskLabel", $ProposalRiskLabelλShape, null, [
   ..._std.$Object_8ce8c71ee4fa5f73840c22d7eaa58588['__exclusives__'],
@@ -709,8 +709,8 @@ export type $UserλShape = $.typeutil.flatten<_std.$Object_8ce8c71ee4fa5f73840c2
   "<user[is Approver]": $.LinkDesc<$Approver, $.Cardinality.Many, {}, false, false,  false, false>;
   "<user[is current_approver]": $.LinkDesc<$current_approver, $.Cardinality.Many, {}, false, false,  false, false>;
   "<user[is Token]": $.LinkDesc<$Token, $.Cardinality.Many, {}, false, false,  false, false>;
-  "<user[is ProposalRiskLabel]": $.LinkDesc<$ProposalRiskLabel, $.Cardinality.Many, {}, false, false,  false, false>;
   "<user[is Contact]": $.LinkDesc<$Contact, $.Cardinality.Many, {}, false, false,  false, false>;
+  "<user[is ProposalRiskLabel]": $.LinkDesc<$ProposalRiskLabel, $.Cardinality.Many, {}, false, false,  false, false>;
   "<user": $.LinkDesc<$.ObjectType, $.Cardinality.Many, {}, false, false,  false, false>;
 }>;
 type $User = $.ObjectType<"default::User", $UserλShape, null, [

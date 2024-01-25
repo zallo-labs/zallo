@@ -134,20 +134,20 @@ export function FeesSection(props: FeeTokenProps) {
           </Text>
         </View>
 
-        {!activationFee.eq(0) && (
-          <View style={styles.row}>
-            <Text variant="labelLarge">Activation fee{paymasterFeesEstimatedLabel}</Text>
-            <Text variant="bodySmall">
-              <TokenAmount token={p.feeToken} amount={activationFee.div(ethPerFeeToken)} />
-            </Text>
-          </View>
-        )}
-
         {!maxActivationFee.eq(0) && (
           <View style={styles.row}>
             <Text variant="labelLarge">Activation fee (max)</Text>
             <Text variant="bodySmall">
               <TokenAmount token={p.feeToken} amount={maxActivationFee.div(ethPerFeeToken)} />
+            </Text>
+          </View>
+        )}
+
+        {!activationFee.eq(0) && (
+          <View style={styles.row}>
+            <Text variant="labelLarge">Activation fee{paymasterFeesEstimatedLabel}</Text>
+            <Text variant="bodySmall">
+              <TokenAmount token={p.feeToken} amount={activationFee.div(ethPerFeeToken)} />
             </Text>
           </View>
         )}

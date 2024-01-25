@@ -1,5 +1,5 @@
 import { useLocalParams } from '~/hooks/useLocalParams';
-import { StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import { gql, useFragment } from '@api/generated';
 import { Divider } from 'react-native-paper';
 import { DocumentVariables, getOptimizedDocument, useQuery } from '~/gql';
@@ -13,10 +13,15 @@ import { OperationsSection } from '~/components/transaction/OperationsSection';
 import { useEffect, useState } from 'react';
 import { UAddress, ZERO_ADDR, asUAddress } from 'lib';
 import { TransactionLayoutParams } from '~/app/(drawer)/transaction/[id]/_layout';
+import { TransactionActions } from '~/components/transaction/TransactionActions';
 
 const TransactionProposal = gql(/* GraphQL */ `
   fragment TransactionScreen_TransactionProposal on TransactionProposal
-  @argumentDefinitions(account: { type: "UAddress!" }, includeAccount: { type: "Boolean!" }) {
+  @argumentDefinitions(
+    proposal: { type: "UUID!" }
+    account: { type: "UAddress!" }
+    includeAccount: { type: "Boolean!" }
+  ) {
     id
     account {
       id
@@ -29,27 +34,33 @@ const TransactionProposal = gql(/* GraphQL */ `
     ...FeesSection_TransactionProposal
       @arguments(account: $account, includeAccount: $includeAccount)
     ...RiskRating_Proposal
+    ...TransactionActions_TransactionProposal @arguments(proposal: $proposal)
   }
 `);
 
 const Query = gql(/* GraphQL */ `
-  query TransactionScreen($id: UUID!, $account: UAddress!, $includeAccount: Boolean!) {
-    transactionProposal(input: { id: $id }) {
+  query TransactionScreen($proposal: UUID!, $account: UAddress!, $includeAccount: Boolean!) {
+    transactionProposal(input: { id: $proposal }) {
       ...TransactionScreen_TransactionProposal
-        @arguments(account: $account, includeAccount: $includeAccount)
+        @arguments(proposal: $proposal, account: $account, includeAccount: $includeAccount)
+    }
+
+    user {
+      id
+      ...TransactionActions_User
     }
   }
 `);
 
 const Subscription = gql(/* GraphQL */ `
   subscription TransactionScreen_Subscription(
-    $id: UUID!
+    $proposal: UUID!
     $account: UAddress!
     $includeAccount: Boolean!
   ) {
-    proposal(input: { proposals: [$id] }) {
+    proposal(input: { proposals: [$proposal] }) {
       ...TransactionScreen_TransactionProposal
-        @arguments(account: $account, includeAccount: $includeAccount)
+        @arguments(proposal: $proposal, account: $account, includeAccount: $includeAccount)
     }
   }
 `);
@@ -62,7 +73,7 @@ function TransactionScreen() {
   // Extract account from TransactionProposal result, and use it as a variable to get the full result
   const [account, setAccount] = useState<UAddress>();
   const variables = {
-    id,
+    proposal: id,
     account: account ?? asUAddress(ZERO_ADDR, 'zksync'),
     includeAccount: !!account,
   } satisfies DocumentVariables<typeof Query>;
@@ -78,7 +89,7 @@ function TransactionScreen() {
   if (!p) return null;
 
   return (
-    <View style={styles.container}>
+    <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
       <OperationsSection proposal={p} />
       <Divider horizontalInset style={styles.divider} />
 
@@ -90,7 +101,9 @@ function TransactionScreen() {
       <Divider horizontalInset style={styles.divider} />
 
       <RiskRating proposal={p} style={styles.riskLabel} />
-    </View>
+
+      <TransactionActions proposal={p} user={data.user} />
+    </ScrollView>
   );
 }
 

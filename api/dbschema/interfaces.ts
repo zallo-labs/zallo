@@ -122,9 +122,9 @@ export interface CloudShare extends std.$Object {
   "share": string;
 }
 export interface Contact extends std.$Object {
-  "user": User;
   "address": string;
   "label": string;
+  "user": User;
 }
 export interface Contract extends std.$Object {
   "functions": Function[];
@@ -201,8 +201,8 @@ export interface PolicyState extends std.$Object {
 export type ProposalRisk = "Low" | "Medium" | "High";
 export interface ProposalRiskLabel extends std.$Object {
   "proposal": Proposal;
-  "user": User;
   "risk": ProposalRisk;
+  "user": User;
 }
 export interface Receipt extends std.$Object {
   "responses": string[];
