@@ -1,4 +1,14 @@
 ## ------------------------------
+##            Args
+## ------------------------------
+
+ARG TURBO_TEAM
+ENV TURBO_TEAM=$TURBO_TEAM
+ 
+ARG TURBO_TOKEN
+ENV TURBO_TOKEN=$TURBO_TOKEN
+
+## ------------------------------
 ##            Build
 ## ------------------------------
 
@@ -18,7 +28,7 @@ RUN yarn api build
 ##            Runtime
 ## ------------------------------
 
-FROM node:20-alpine
+FROM node:20-alpine as runtime
 
 ENV NODE_ENV production
 
