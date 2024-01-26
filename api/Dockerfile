@@ -1,18 +1,13 @@
 ## ------------------------------
-##            Args
-## ------------------------------
-
-ARG TURBO_TEAM
-ENV TURBO_TEAM=$TURBO_TEAM
- 
-ARG TURBO_TOKEN
-ENV TURBO_TOKEN=$TURBO_TOKEN
-
-## ------------------------------
 ##            Build
 ## ------------------------------
 
 FROM node:20-alpine as builder
+
+ARG TURBO_TEAM
+ENV TURBO_TEAM=$TURBO_TEAM
+ARG TURBO_TOKEN
+ENV TURBO_TOKEN=$TURBO_TOKEN
 
 ENV NODE_ENV build
 
