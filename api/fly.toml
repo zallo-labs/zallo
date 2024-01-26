@@ -8,7 +8,7 @@ swap_size_mb = 512
 
 [deploy]
   # Runs instead of image CMD
-  release_command = "npx turbo db:prepare"
+  release_command = "yarn db:prepare"
 
 [env]
   API_PORT = 3000
