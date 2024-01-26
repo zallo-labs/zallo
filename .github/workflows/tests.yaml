@@ -80,13 +80,10 @@ jobs:
       - name: 📦 Install
         run: yarn
 
-      - name: 🏗️ Build
-        run: yarn api build
-
       - name: 🧪 Test
         run: yarn api test
 
-  api-docker-build:
+  api-build:
     runs-on: ubuntu-latest
 
     steps:
