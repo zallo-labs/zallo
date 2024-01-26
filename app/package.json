@@ -8,7 +8,7 @@
     "generate:gql": "graphql-codegen --config codegen.ts && sed -i 's/as unknown as IntrospectionQuery;/as const;/g' ./src/gql/api/schema.generated.ts",
     "generate:ampli": "ampli pull -p ./src/lib/ampli --omit-api-keys",
     "build:web": "yarn expo export -p web",
-    "deploy:update": "yarn eas update --auto --non-interactive --platform all && npx sentry-expo-upload-sourcemaps dist",
+    "deploy:update": "yarn eas update --auto --non-interactive --platform all && yarn with-env -- npx sentry-expo-upload-sourcemaps dist",
     "dev": "APP_VARIANT=dev yarn expo start --dev-client",
     "test": "jest",
     "typecheck": "tsc --noEmit",

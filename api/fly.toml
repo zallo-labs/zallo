@@ -7,7 +7,8 @@ swap_size_mb = 512
   dockerfile = "Dockerfile"
 
 [deploy]
-  release_command = "yarn api db:prepare"
+  # Runs instead of image CMD
+  release_command = "npx turbo db:prepare"
 
 [env]
   API_PORT = 3000
