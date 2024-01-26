@@ -17,7 +17,7 @@
     "generate:edgeql": "npx -y concurrently -n edgeql-js,interfaces -c blue,magenta \"npx @edgedb/generate edgeql-js --target ts --force-overwrite\" \"npx @edgedb/generate interfaces\"",
     "generate:gql": "graphql-codegen --config codegen.ts",
     "db:prepare": "yarn db:migrate && yarn db:seed",
-    "db:seed": "tsx ./dbschema/seed.ts",
+    "db:seed": "yarn tsx ./dbschema/seed.ts",
     "db:migrate": "yarn with-env -- edgedb migrate"
   },
   "dependencies": {
