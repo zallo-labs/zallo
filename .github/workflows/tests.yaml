@@ -80,11 +80,23 @@ jobs:
       - name: 📦 Install
         run: yarn
 
-      - name: 🏗️ Build
-        run: yarn api build
-
       - name: 🧪 Test
         run: yarn api test
+
+  api-build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 🚧 Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: 🏗️ Build
+        run: >
+          docker build -f ./api/Dockerfile .
+          --build-arg TURBO_TOKEN=$TURBO_TOKEN
+          --build-arg TURBO_TEAM=$TURBO_TEAM
 
   api-ampli:
     runs-on: ubuntu-latest

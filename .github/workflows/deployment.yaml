@@ -27,7 +27,12 @@ jobs:
         uses: superfly/flyctl-actions/setup-flyctl@master
 
       - name: 🚀 Deploy
-        run: flyctl deploy . --config api/fly.toml --remote-only --wait-timeout 120
+        run: >
+          flyctl deploy . --config api/fly.toml
+          --remote-only
+          --wait-timeout 180
+          --build-arg TURBO_TOKEN=$TURBO_TOKEN
+          --build-arg TURBO_TEAM=$TURBO_TEAM
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
 
