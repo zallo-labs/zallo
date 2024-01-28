@@ -37,7 +37,7 @@ Drawer.Screen = DrawerLayout.Screen;
 
 const stylesheet = createStyles(({ colors }) => {
   const backgroundColor = {
-    expanded: colors.elevation.level1, // standard type
+    expanded: colors.surfaceContainer.low, // standard type
   };
 
   return {

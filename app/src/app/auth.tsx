@@ -129,7 +129,7 @@ const stylesheet = createStyles(({ colors }) => ({
   },
   password: {
     marginHorizontal: 16,
-    backgroundColor: colors.elevation.level3,
+    backgroundColor: colors.surfaceContainer.high,
   },
   buttonLabel: {
     flexShrink: 0,

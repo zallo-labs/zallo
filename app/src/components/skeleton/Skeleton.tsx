@@ -31,6 +31,6 @@ export function Skeleton({ children, width, height, ...props }: SkeletonProps) {
 const stylesheet = createStyles(({ colors }) => ({
   loader: {
     color: colors.surface,
-    backgroundColor: colors.surfaceVariant,
+    backgroundColor: colors.surfaceContainer.highest,
   },
 }));

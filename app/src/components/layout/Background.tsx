@@ -30,6 +30,6 @@ const stylesheet = createStyles(({ colors }) => ({
   background: {
     display: 'flex',
     flex: 1,
-    backgroundColor: colors.background,
+    backgroundColor: colors.surface,
   },
 }));

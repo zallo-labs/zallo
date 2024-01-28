@@ -16,8 +16,15 @@ const breakpoints = {
   compact: 0,
   medium: 600,
   expanded: 840,
+  large: 1200,
 } as const;
 type Breakpoints = typeof breakpoints;
+
+export const BREAKPOINTS = {
+  ...breakpoints,
+  landscape: 0,
+  portrait: 0,
+};
 
 declare module 'react-native-unistyles' {
   export interface UnistylesBreakpoints extends Breakpoints {}
