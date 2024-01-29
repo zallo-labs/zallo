@@ -1,4 +1,3 @@
-import { useRouter } from 'expo-router';
 import { Dialog, Text } from 'react-native-paper';
 import { Button } from '~/components/Button';
 import { DialogModal } from '~/components/Dialog/DialogModal';
@@ -8,7 +7,7 @@ import { createStyles, useStyles } from '@theme/styles';
 import { z } from 'zod';
 import { useLocalParams } from '~/hooks/useLocalParams';
 
-export const CONFIRMATIONS = new Subject<true>();
+export const CONFIRMATIONS = new Subject<boolean>();
 
 const ConfirmModalParams = z.object({
   title: z.string().optional(),
@@ -21,7 +20,6 @@ export type ConfirmModalParams = z.infer<typeof ConfirmModalParams>;
 export default function ConfirmModal() {
   const { title, message, confirmLabel, type } = useLocalParams(ConfirmModalParams);
   const { styles } = useStyles(stylesheet);
-  const router = useRouter();
 
   return (
     <DialogModal>
@@ -34,16 +32,11 @@ export default function ConfirmModal() {
       )}
 
       <DialogActions>
-        <Button textColor={styles.cancel.color} onPress={router.back}>
+        <Button textColor={styles.cancel.color} onPress={() => CONFIRMATIONS.next(false)}>
           Cancel
         </Button>
 
-        <Button
-          textColor={styles[type].color}
-          onPress={() => {
-            CONFIRMATIONS.next(true);
-          }}
-        >
+        <Button textColor={styles[type].color} onPress={() => CONFIRMATIONS.next(true)}>
           {confirmLabel || 'Ok'}
         </Button>
       </DialogActions>
