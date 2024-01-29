@@ -22,9 +22,7 @@ import { TransfersSection } from '~/components/transaction/TransfersSection';
 import { SideSheetLayout } from '~/components/SideSheet/SideSheetLayout';
 import { SideSheet } from '~/components/SideSheet/SideSheet';
 import { useSideSheetVisibility } from '~/components/SideSheet/useSideSheetVisibility';
-import { Button } from '~/components/Button';
 import { ProposalApprovals } from '~/components/policy/ProposalApprovals';
-import { Actions } from '~/components/layout/Actions';
 
 const TransactionProposal = gql(/* GraphQL */ `
   fragment TransactionScreen_TransactionProposal on TransactionProposal

@@ -57,7 +57,7 @@ export function MessageItem(props: MessageItemProps) {
       leadingSize="medium"
       headline={p.label || 'Message'}
       supporting={supporting}
-      onPress={() => router.push({ pathname: `/(drawer)/message/[id]/`, params: { id: p.id } })}
+      onPress={() => router.push({ pathname: `/(drawer)/message/[id]`, params: { id: p.id } })}
     />
   );
 }

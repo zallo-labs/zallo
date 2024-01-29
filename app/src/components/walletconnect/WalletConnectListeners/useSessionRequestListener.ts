@@ -154,7 +154,7 @@ export const useSessionRequestListener = () => {
           }
         });
 
-        router.push({ pathname: `/(drawer)/message/[id]/`, params: { id: proposal.id } });
+        router.push({ pathname: `/(drawer)/message/[id]`, params: { id: proposal.id } });
 
         // sub is automatically unsubscribed on unmount due to proposals unsubscribe
       } else {
