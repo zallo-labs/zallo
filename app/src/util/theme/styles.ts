@@ -22,6 +22,7 @@ type Breakpoints = typeof breakpoints;
 
 export const BREAKPOINTS = {
   ...breakpoints,
+  // Required for BREAKPOINTS[useStyles().breakpoint] as UniStylesBreakpoints always include landscape & portrait
   landscape: 0,
   portrait: 0,
 };
