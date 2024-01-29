@@ -23,7 +23,7 @@ export const AccountSelector = (props: AccountSelectorParams) => {
   const router = useRouter();
 
   return (
-    <TouchableOpacity style={styles.container} onPress={() => router.push(`/accounts/`)}>
+    <TouchableOpacity style={styles.container} onPress={() => router.push(`/(sheet)/accounts`)}>
       <Text variant="titleLarge" numberOfLines={1} style={styles.text}>
         {account.name}
       </Text>

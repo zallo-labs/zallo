@@ -8,7 +8,7 @@ import { ListItem } from '~/components/list/ListItem';
 import { View } from 'react-native';
 import { gql } from '@api/generated';
 import { ICON_SIZE } from '@theme/paper';
-import { AccountItem } from '../../components/item/AccountItem';
+import { AccountItem } from '~/components/item/AccountItem';
 import { useQuery } from '~/gql';
 import { useSelectedAccount } from '~/hooks/useSelectedAccount';
 import { createStyles, useStyles } from '@theme/styles';

@@ -33,13 +33,6 @@ const transparentModal: NativeStackNavigationOptions = {
   animationDuration: 100,
 };
 
-const sheet: NativeStackNavigationOptions = {
-  presentation: 'transparentModal',
-  headerShown: false,
-  animation: 'fade',
-  animationDuration: 0,
-};
-
 export const unstable_settings = {
   initialRouteName: `index`,
 };
@@ -49,17 +42,11 @@ function Layout() {
     <Stack screenOptions={{ header: AppbarHeader }}>
       <Stack.Screen name={`(drawer)`} options={{ headerShown: false }} />
       <Stack.Screen name={`[account]/receive`} options={transparentModal} />
-      <Stack.Screen name={`accounts/index`} options={sheet} />
       <Stack.Screen name={`approvers/[address]/qr`} options={transparentModal} />
-      <Stack.Screen name={`ledger/approve`} options={sheet} />
-      <Stack.Screen name={`link/token`} options={sheet} />
       <Stack.Screen name={`link/index`} options={transparentModal} />
       <Stack.Screen name={`onboard/(drawer)`} options={{ headerShown: false }} />
       <Stack.Screen name={`onboard/landing`} />
-      <Stack.Screen name={`scan/[address]`} options={sheet} />
       <Stack.Screen name={`scan/index`} options={{ headerShown: false }} />
-      <Stack.Screen name={`sessions/connect/[id]`} options={sheet} />
-      <Stack.Screen name={`sessions/[topic]`} options={sheet} />
       <Stack.Screen name={`_sitemap`} />
       <Stack.Screen name={`+not-found`} />
       <Stack.Screen name={`auth`} options={transparentModal} />

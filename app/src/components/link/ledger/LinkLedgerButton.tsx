@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Fab } from '~/components/Fab';
-import { LINKINGS_FROM_DEVICE } from '~/app/link/token';
+import { LINKINGS_FROM_DEVICE } from '~/app/(sheet)/link/token';
 import { LedgerIcon } from '@theme/icons';
 import { __WEB__ } from '~/util/config';
 

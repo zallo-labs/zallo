@@ -37,7 +37,7 @@ export const PairingItem = ({ pairing }: PairingItemProps) => {
       lines={3}
       trailing={MoreVerticalIcon}
       onPress={() =>
-        router.push({ pathname: `/sessions/[topic]`, params: { topic: pairing.topic } })
+        router.push({ pathname: `/(sheet)/sessions/[topic]`, params: { topic: pairing.topic } })
       }
     />
   );
