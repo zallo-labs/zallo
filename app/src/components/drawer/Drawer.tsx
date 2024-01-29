@@ -2,7 +2,7 @@ import { ComponentPropsWithoutRef } from 'react';
 import { Drawer as DrawerLayout } from 'expo-router/drawer';
 import { DrawerContextProvider, DrawerType } from './DrawerContextProvider';
 import { AppbarHeader } from '~/components/Appbar/AppbarHeader';
-import { createStyles, useStyles } from '@theme/styles';
+import { BREAKPOINTS, createStyles, useStyles } from '@theme/styles';
 
 type DrawerLayoutProps = ComponentPropsWithoutRef<typeof DrawerLayout>;
 
@@ -10,7 +10,7 @@ export interface DrawerProps extends DrawerLayoutProps {}
 
 export function Drawer({ children, ...props }: DrawerProps) {
   const { styles, breakpoint } = useStyles(stylesheet);
-  const type: DrawerType = breakpoint === 'expanded' ? 'standard' : 'modal';
+  const type: DrawerType = BREAKPOINTS[breakpoint] >= BREAKPOINTS.expanded ? 'standard' : 'modal';
 
   return (
     <DrawerContextProvider type={type}>
@@ -43,7 +43,13 @@ const stylesheet = createStyles(({ colors }) => {
   return {
     drawer: {
       backgroundColor,
-      width: 360,
+      width: {
+        // Modal type
+        compact: 360,
+        // Standard type
+        expanded: 240, // Use a reduced (non-standard MD3) width for smaller screens that use the standard type
+        large: 360,
+      },
       //  Unset borders
       borderLeftWidth: undefined,
       borderRightWidth: undefined,
