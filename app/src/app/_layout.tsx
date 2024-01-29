@@ -25,10 +25,6 @@ import { TQueryProvider } from '~/components/provider/TQueryProvider';
 import { StyleSheet } from 'react-native';
 import { Fonts } from '~/components/Fonts';
 
-const modal: NativeStackNavigationOptions = {
-  presentation: 'modal',
-};
-
 const transparentModal: NativeStackNavigationOptions = {
   presentation: 'transparentModal',
   headerShown: false,
@@ -65,7 +61,6 @@ function Layout() {
       <Stack.Screen name={`sessions/[topic]`} options={sheet} />
       <Stack.Screen name={`_sitemap`} />
       <Stack.Screen name={`+not-found`} />
-      <Stack.Screen name={`addresses`} options={{ ...modal, headerShown: false }} />
       <Stack.Screen name={`auth`} options={transparentModal} />
       <Stack.Screen name={`confirm`} options={transparentModal} />
       <Stack.Screen name={`index`} />

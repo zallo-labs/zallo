@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { Platform } from 'react-native';
 import { NavigateNextIcon, ScanIcon, SearchIcon } from '~/util/theme/icons';
 import { AppbarBack } from '~/components/Appbar/AppbarBack';
-import { Searchbar } from '~/components/Appbar/Searchbar';
 import { ListItemHeight } from '~/components/list/ListItem';
 import { gql } from '@api/generated';
 import { FlashList } from '@shopify/flash-list';
@@ -13,7 +12,7 @@ import { ContactItem } from '~/components/item/ContactItem';
 import { ListHeader } from '~/components/list/ListHeader';
 import { useQuery } from '~/gql';
 import { useScanAddress } from '~/app/scan';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet } from 'react-native';
 import { ADDRESS_SELECTED } from '~/hooks/useSelectAddress';
 import { TokenItem } from '~/components/token/TokenItem';
 import { z } from 'zod';
@@ -22,6 +21,8 @@ import { useLocalParams } from '~/hooks/useLocalParams';
 import { withSuspense } from '~/components/skeleton/withSuspense';
 import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
 import { asAddress } from 'lib';
+import { MaybeSurface } from '~/components/layout/MaybeSurface';
+import { SearchbarOptions } from '~/components/Appbar/SearchbarOptions';
 
 const Query = gql(/* GraphQL */ `
   query AddressesScreen(
@@ -86,8 +87,8 @@ function AddressesScreen() {
   }).data;
 
   return (
-    <View style={styles.root}>
-      <Searchbar
+    <>
+      <SearchbarOptions
         leading={AppbarBack}
         placeholder="Search"
         trailing={[
@@ -107,63 +108,65 @@ function AddressesScreen() {
         onChangeText={setQuery}
       />
 
-      <FlashList
-        data={[
-          accounts?.length && 'Accounts',
-          ...(accounts ?? []),
-          user?.approvers?.length && 'User',
-          ...(user?.approvers ?? []),
-          contacts?.length && 'Contacts',
-          ...(contacts ?? []),
-          tokens?.length && 'Tokens',
-          ...(tokens ?? []),
-        ]}
-        renderItem={({ item }) =>
-          match(item)
-            .with(P.string, (section) => <ListHeader>{section}</ListHeader>)
-            .with({ __typename: 'Account' }, (item) => (
-              <AccountItem
-                account={item}
-                trailing={NavigateNextIcon}
-                disabled={disabled?.has(item.address)}
-                onPress={() => ADDRESS_SELECTED.next(item.address)}
-              />
-            ))
-            .with({ __typename: 'UserApprover' }, (item) => (
-              <UserApproverItem
-                approver={item}
-                trailing={NavigateNextIcon}
-                disabled={disabled?.has(item.address)}
-                onPress={() => ADDRESS_SELECTED.next(item.address)}
-              />
-            ))
-            .with({ __typename: 'Contact' }, (item) => (
-              <ContactItem
-                contact={item}
-                trailing={NavigateNextIcon}
-                disabled={disabled?.has(item.address)}
-                onPress={() => ADDRESS_SELECTED.next(item.address)}
-              />
-            ))
-            .with({ __typename: 'Token' }, (item) => (
-              <TokenItem
-                token={item}
-                amount={undefined}
-                trailing={NavigateNextIcon}
-                disabled={disabled?.has(item.address)}
-                onPress={() => ADDRESS_SELECTED.next(item.address)}
-              />
-            ))
-            .with(0, () => null)
-            .with(undefined, () => null)
-            .exhaustive()
-        }
-        extraData={[disabled]}
-        getItemType={(item) => (typeof item === 'object' ? item.__typename : 'header')}
-        showsVerticalScrollIndicator={false}
-        estimatedItemSize={ListItemHeight.DOUBLE_LINE}
-      />
-    </View>
+      <MaybeSurface>
+        <FlashList
+          data={[
+            accounts?.length && 'Accounts',
+            ...(accounts ?? []),
+            user?.approvers?.length && 'User',
+            ...(user?.approvers ?? []),
+            contacts?.length && 'Contacts',
+            ...(contacts ?? []),
+            tokens?.length && 'Tokens',
+            ...(tokens ?? []),
+          ]}
+          renderItem={({ item }) =>
+            match(item)
+              .with(P.string, (section) => <ListHeader>{section}</ListHeader>)
+              .with({ __typename: 'Account' }, (item) => (
+                <AccountItem
+                  account={item}
+                  trailing={NavigateNextIcon}
+                  disabled={disabled?.has(item.address)}
+                  onPress={() => ADDRESS_SELECTED.next(item.address)}
+                />
+              ))
+              .with({ __typename: 'UserApprover' }, (item) => (
+                <UserApproverItem
+                  approver={item}
+                  trailing={NavigateNextIcon}
+                  disabled={disabled?.has(item.address)}
+                  onPress={() => ADDRESS_SELECTED.next(item.address)}
+                />
+              ))
+              .with({ __typename: 'Contact' }, (item) => (
+                <ContactItem
+                  contact={item}
+                  trailing={NavigateNextIcon}
+                  disabled={disabled?.has(item.address)}
+                  onPress={() => ADDRESS_SELECTED.next(item.address)}
+                />
+              ))
+              .with({ __typename: 'Token' }, (item) => (
+                <TokenItem
+                  token={item}
+                  amount={undefined}
+                  trailing={NavigateNextIcon}
+                  disabled={disabled?.has(item.address)}
+                  onPress={() => ADDRESS_SELECTED.next(item.address)}
+                />
+              ))
+              .with(0, () => null)
+              .with(undefined, () => null)
+              .exhaustive()
+          }
+          extraData={[disabled]}
+          getItemType={(item) => (typeof item === 'object' ? item.__typename : 'header')}
+          showsVerticalScrollIndicator={false}
+          estimatedItemSize={ListItemHeight.DOUBLE_LINE}
+        />
+      </MaybeSurface>
+    </>
   );
 }
 
