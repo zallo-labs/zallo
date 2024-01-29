@@ -59,7 +59,7 @@ const getStylesheet = ({ size, fontScale }: StyleParams) =>
         lineHeight: size / fontScale,
         color: colors.tertiary,
         textAlign: 'center',
-        textAlignVertical: 'center',
+        verticalAlign: 'middle',
       },
     };
   });
