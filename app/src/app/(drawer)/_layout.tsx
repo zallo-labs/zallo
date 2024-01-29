@@ -73,7 +73,7 @@ function Content() {
           />
 
           <Item
-            href={{ pathname: `/[account]/receive`, params: { account } }}
+            href={{ pathname: `/(modal)/[account]/receive`, params: { account } }}
             icon={QrCodeIcon}
             label="Receive"
           />

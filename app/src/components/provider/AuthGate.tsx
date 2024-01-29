@@ -2,7 +2,7 @@ import { ReactNode, useCallback, useEffect, useState } from 'react';
 import { DateTime, Duration } from 'luxon';
 import { AppState } from 'react-native';
 import { lockSecureStorage, unlockSecureStorage } from '~/lib/secure-storage';
-import AuthenticateScreen from '~/app/auth';
+import AuthenticateScreen from '~/app/(modal)/auth';
 import { Blur } from '~/components/Blur';
 import { useAuthRequiredOnOpen } from '~/components/shared/AuthSettings';
 

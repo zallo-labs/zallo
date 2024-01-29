@@ -102,7 +102,7 @@ function ApproverScreen() {
             icon={QrCodeIcon}
             onPress={() =>
               router.push({
-                pathname: `/approvers/[address]/qr`,
+                pathname: `/(modal)/approvers/[address]/qr`,
                 params: { address: approver.address },
               })
             }

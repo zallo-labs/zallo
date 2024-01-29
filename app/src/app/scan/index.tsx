@@ -47,7 +47,7 @@ export default function ScanScreen() {
         SCANNED_ADDRESSES.next(address);
       } else {
         router.push({
-          pathname: `/scan/[address]`,
+          pathname: `/(sheet)/scan/[address]`,
           params: { address, ...(account && { account }) },
         });
       }

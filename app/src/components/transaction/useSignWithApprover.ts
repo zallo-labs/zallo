@@ -1,7 +1,7 @@
 import { useApproverWallet } from '~/lib/network/useApprover';
 import { ok, err } from 'neverthrow';
 import { useMemo } from 'react';
-import { useAuthenticate } from '~/app/auth';
+import { useAuthenticate } from '~/app/(modal)/auth';
 import { showError } from '~/components/provider/SnackbarProvider';
 import { useAuthRequiredOnApproval } from '~/components/shared/AuthSettings';
 

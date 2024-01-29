@@ -28,7 +28,7 @@ export function QuickActions({ account }: QuickActionsProps) {
         icon={QrCodeIcon}
         mode="contained-tonal"
         style={styles.button}
-        onPress={() => push({ pathname: `/[account]/receive`, params: { account } })}
+        onPress={() => push({ pathname: `/(modal)/[account]/receive`, params: { account } })}
       >
         Receive
       </Button>
