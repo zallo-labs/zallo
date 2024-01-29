@@ -35,11 +35,6 @@ const stylesheet = createStyleSheet(({ corner }) => ({
     minWidth: 256,
     maxWidth: 400,
   },
-  standardSurface: {
-    flex: 1,
-    minWidth: 256,
-    maxWidth: 400,
-  },
   modal: {
     flex: 1,
     flexDirection: 'row',

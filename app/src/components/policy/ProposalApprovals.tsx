@@ -1,4 +1,3 @@
-import { ScrollView, View } from 'react-native';
 import { ListHeader } from '~/components/list/ListHeader';
 import { UUID } from 'lib';
 import { gql, useFragment } from '@api/generated';
@@ -10,7 +9,6 @@ import { AwaitingApprovalItem } from '~/components/transaction/AwaitingApprovalI
 import { RejectionItem } from '~/components/transaction/RejectionItem';
 import { withSuspense } from '~/components/skeleton/withSuspense';
 import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
-import { createStyles, useStyles } from '@theme/styles';
 
 const Proposal = gql(/* GraphQL */ `
   fragment ProposalApprovals_Proposal on Proposal
@@ -90,8 +88,6 @@ export interface PolicyTabProps {
 }
 
 function ProposalApprovals_({ proposal: id }: PolicyTabProps) {
-  const { styles } = useStyles(stylesheet);
-
   const { data } = useQuery(Query, { proposal: id });
   useSubscription({
     query: getOptimizedDocument(Subscription),
@@ -113,7 +109,7 @@ function ProposalApprovals_({ proposal: id }: PolicyTabProps) {
   );
 
   return (
-    <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
+    <>
       <SelectedPolicy proposal={p} />
 
       {awaitingApproval && (
@@ -134,19 +130,8 @@ function ProposalApprovals_({ proposal: id }: PolicyTabProps) {
       {p.approvals.map((approval) => (
         <ApprovalItem key={approval.id} user={user} approval={approval} proposal={p} />
       ))}
-    </ScrollView>
+    </>
   );
 }
-
-const stylesheet = createStyles(({ colors }) => ({
-  container: {
-    flexGrow: 1,
-    paddingTop: 8,
-  },
-  unsatisfiable: {
-    color: colors.error,
-    margin: 16,
-  },
-}));
 
 export const ProposalApprovals = withSuspense(ProposalApprovals_, <ScreenSkeleton />);

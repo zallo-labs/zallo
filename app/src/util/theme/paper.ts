@@ -158,7 +158,7 @@ export const LIGHT_THEME = {
       ),
     ),
   }),
-};
+} as const;
 
 export const ICON_SIZE = LIGHT_THEME.iconSize;
 export const CORNER = LIGHT_THEME.corner;

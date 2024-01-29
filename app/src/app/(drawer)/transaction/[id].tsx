@@ -1,19 +1,30 @@
-import { useLocalParams } from '~/hooks/useLocalParams';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { AppbarMore } from '~/components/Appbar/AppbarMore';
 import { gql, useFragment } from '@api/generated';
-import { Divider } from 'react-native-paper';
+import { NotFound } from '~/components/NotFound';
 import { DocumentVariables, getOptimizedDocument, useQuery } from '~/gql';
+import { z } from 'zod';
+import { useLocalParams } from '~/hooks/useLocalParams';
+import { AppbarOptions } from '~/components/Appbar/AppbarOptions';
+import { ScreenSurface } from '~/components/layout/ScreenSurface';
+import { zUuid } from '~/lib/zod';
+import { RemoveTransactionItem } from '~/components/transaction/RemoveTransactionItem';
+import { TransactionStatus } from '~/components/transaction/TransactionStatus';
+import { UAddress, asUAddress, ZERO_ADDR } from 'lib';
+import { useEffect, useState } from 'react';
 import { useSubscription } from 'urql';
+import { createStyles, useStyles } from '@theme/styles';
+import { Divider } from 'react-native-paper';
 import { RiskRating } from '~/components/proposal/RiskRating';
 import { FeesSection } from '~/components/transaction/FeesSection';
-import { withSuspense } from '~/components/skeleton/withSuspense';
-import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
-import { TransfersSection } from '~/components/transaction/TransfersSection';
 import { OperationsSection } from '~/components/transaction/OperationsSection';
-import { useEffect, useState } from 'react';
-import { UAddress, ZERO_ADDR, asUAddress } from 'lib';
-import { TransactionLayoutParams } from '~/app/(drawer)/transaction/[id]/_layout';
 import { TransactionActions } from '~/components/transaction/TransactionActions';
+import { TransfersSection } from '~/components/transaction/TransfersSection';
+import { SideSheetLayout } from '~/components/SideSheet/SideSheetLayout';
+import { SideSheet } from '~/components/SideSheet/SideSheet';
+import { useSideSheetVisibility } from '~/components/SideSheet/useSideSheetVisibility';
+import { Button } from '~/components/Button';
+import { ProposalApprovals } from '~/components/policy/ProposalApprovals';
+import { Actions } from '~/components/layout/Actions';
 
 const TransactionProposal = gql(/* GraphQL */ `
   fragment TransactionScreen_TransactionProposal on TransactionProposal
@@ -28,6 +39,7 @@ const TransactionProposal = gql(/* GraphQL */ `
       address
       name
     }
+    ...TransactionStatus_TransactionProposal
     ...OperationsSection_TransactionProposal
     ...TransfersSection_TransactionProposal
       @arguments(account: $account, includeAccount: $includeAccount)
@@ -65,10 +77,12 @@ const Subscription = gql(/* GraphQL */ `
   }
 `);
 
-export const TransactionScreenParams = TransactionLayoutParams;
+const TransactionScreenParams = z.object({ id: zUuid() });
 
-function TransactionScreen() {
+export default function TransactionScreen() {
+  const { styles } = useStyles(stylesheet);
   const { id } = useLocalParams(TransactionScreenParams);
+  const sideSheet = useSideSheetVisibility();
 
   // Extract account from TransactionProposal result, and use it as a variable to get the full result
   const [account, setAccount] = useState<UAddress>();
@@ -78,39 +92,56 @@ function TransactionScreen() {
     includeAccount: !!account,
   } satisfies DocumentVariables<typeof Query>;
 
-  const { data } = useQuery(Query, variables);
+  const query = useQuery(Query, variables);
   useSubscription({ query: getOptimizedDocument(Subscription), variables });
-  const p = useFragment(TransactionProposal, data?.transactionProposal);
+  const p = useFragment(TransactionProposal, query.data?.transactionProposal);
 
   useEffect(() => {
     if (account !== p?.account.address) setAccount(p?.account.address);
   }, [account, p?.account.address]);
 
-  if (!p) return null;
+  if (!p) return query.stale ? null : <NotFound name="Proposal" />;
 
   return (
-    <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
-      <OperationsSection proposal={p} />
-      <Divider horizontalInset style={styles.divider} />
+    <SideSheetLayout>
+      <AppbarOptions
+        headline={p.account.name}
+        trailing={(props) => (
+          <AppbarMore iconProps={props}>
+            {({ close }) => <RemoveTransactionItem proposal={id} close={close} />}
+          </AppbarMore>
+        )}
+      />
 
-      <TransfersSection proposal={p}>
+      <ScreenSurface>
+        <TransactionStatus proposal={p} />
+
+        <OperationsSection proposal={p} />
         <Divider horizontalInset style={styles.divider} />
-      </TransfersSection>
 
-      <FeesSection proposal={p} />
-      <Divider horizontalInset style={styles.divider} />
+        <TransfersSection proposal={p}>
+          <Divider horizontalInset style={styles.divider} />
+        </TransfersSection>
 
-      <RiskRating proposal={p} style={styles.riskLabel} />
+        <FeesSection proposal={p} />
+        <Divider horizontalInset style={styles.divider} />
 
-      <TransactionActions proposal={p} user={data.user} />
-    </ScrollView>
+        <RiskRating proposal={p} style={styles.riskLabel} />
+
+        <TransactionActions proposal={p} user={query.data.user} approvalsSheet={sideSheet} />
+      </ScreenSurface>
+
+      <SideSheet headline="Approvals" {...sideSheet}>
+        <ProposalApprovals proposal={id} />
+      </SideSheet>
+    </SideSheetLayout>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flexGrow: 1,
-    paddingTop: 8,
+const stylesheet = createStyles({
+  approvalsButton: {
+    marginHorizontal: 16,
+    marginVertical: 8,
   },
   divider: {
     marginVertical: 8,
@@ -120,5 +151,3 @@ const styles = StyleSheet.create({
     marginHorizontal: 16,
   },
 });
-
-export default withSuspense(TransactionScreen, <ScreenSkeleton />);

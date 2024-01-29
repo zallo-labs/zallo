@@ -77,8 +77,8 @@ export function PolicyAppbar({ view, reset, setView, ...props }: PolicyAppbarPro
     view === 'state' && policy?.draft
       ? () => setView('draft')
       : view === 'draft' && policy?.state
-      ? () => setView('state')
-      : undefined;
+        ? () => setView('state')
+        : undefined;
 
   return (
     <AppbarOptions
@@ -123,7 +123,7 @@ export function PolicyAppbar({ view, reset, setView, ...props }: PolicyAppbarPro
                     onPress={() => {
                       close();
                       router.push({
-                        pathname: `/(drawer)/transaction/[id]/`,
+                        pathname: `/(drawer)/transaction/[id]`,
                         params: { id: state.proposal!.id },
                       });
                     }}
@@ -142,7 +142,7 @@ export function PolicyAppbar({ view, reset, setView, ...props }: PolicyAppbarPro
 
                         proposal
                           ? router.push({
-                              pathname: `/(drawer)/transaction/[id]/`,
+                              pathname: `/(drawer)/transaction/[id]`,
                               params: { id: proposal.id },
                             })
                           : router.back();

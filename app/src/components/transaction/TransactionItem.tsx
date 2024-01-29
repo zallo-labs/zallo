@@ -122,7 +122,7 @@ function TransactionItem_({
           <ProposalValue proposal={p} hideZero />
         </Text>
       )}
-      onPress={() => router.push({ pathname: `/(drawer)/transaction/[id]/`, params: { id: p.id } })}
+      onPress={() => router.push({ pathname: `/(drawer)/transaction/[id]`, params: { id: p.id } })}
       {...itemProps}
     />
   );

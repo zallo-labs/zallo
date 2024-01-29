@@ -8,7 +8,7 @@ export function useSideSheetVisibility() {
   return useMemo(
     () => ({
       visible,
-      toggle: () => setVisible((v) => !v),
+      open: () => setVisible(true),
       close: () => setVisible(false),
     }),
     [visible],

@@ -153,7 +153,7 @@ function PolicyScreen() {
 
                 router.setParams({ ...params, key: `${r.key}`, view: 'draft' });
                 router.push({
-                  pathname: `/(drawer)/transaction/[id]/`,
+                  pathname: `/(drawer)/transaction/[id]`,
                   params: { id: r.draft!.proposal!.id },
                 });
               }}
