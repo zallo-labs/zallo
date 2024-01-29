@@ -5,7 +5,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useForm } from 'react-hook-form';
 import { Actions } from '../layout/Actions';
 import { FormSubmitButton } from '../fields/FormSubmitButton';
-import * as Sentry from '~/util/sentry/sentry';
+import * as Sentry from '@sentry/react-native';
 import { FormTextField } from '../fields/FormTextField';
 import { CloseIcon } from '@theme/icons';
 import { MinimalErrorBoundary } from './MinimalErrorBoundary';

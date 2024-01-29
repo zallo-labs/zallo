@@ -5,7 +5,7 @@ import { showInfo } from './SnackbarProvider';
 import { showWarning } from './SnackbarProvider';
 import { __WEB__ } from '~/util/config';
 import { DateTime } from 'luxon';
-import * as Sentry from '~/util/sentry/sentry';
+import * as Sentry from '@sentry/react-native';
 
 function periodElapsed(lastCheck: Date | undefined) {
   return !lastCheck || DateTime.now() > DateTime.fromJSDate(lastCheck).plus({ minutes: 5 });

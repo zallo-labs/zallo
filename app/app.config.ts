@@ -89,8 +89,8 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       {
         organization: ENV.SENTRY_ORG,
         project: ENV.APP_SENTRY_PROJECT,
-        authToken: ENV.SENTRY_AUTH_TOKEN, // Plugin reads SENTRY_AUTH_TOKEN env
         deployEnv: ENV.env,
+        // authToken read via ENV.SENTRY_AUTH_TOKEN
       },
     ],
     'expo-camera',

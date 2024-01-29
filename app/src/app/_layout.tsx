@@ -1,4 +1,4 @@
-import '~/util/sentry/init';
+import * as Sentry from '@sentry/react-native';
 import { getLocales } from 'expo-localization';
 import { Stack } from 'expo-router';
 import { Suspense } from 'react';
@@ -24,6 +24,7 @@ import { Portal } from 'react-native-paper';
 import { TQueryProvider } from '~/components/provider/TQueryProvider';
 import { StyleSheet } from 'react-native';
 import { Fonts } from '~/components/Fonts';
+import { SentryProvider } from '~/components/provider/SentryProvider';
 
 const transparentModal: NativeStackNavigationOptions = {
   presentation: 'transparentModal',
@@ -68,11 +69,12 @@ function Layout() {
   );
 }
 
-export default function RootLayout() {
+function RootLayout() {
   return (
     <MinimalErrorBoundary>
+      <SentryProvider />
       <Fonts />
-      <IntlProvider locale={getLocales()[0].languageTag} defaultLocale="en-US">
+      <IntlProvider locale={getLocales()?.[0]?.languageTag ?? 'en-US'} defaultLocale="en-US">
         <SafeAreaProvider>
           <GestureHandlerRootView style={styles.flex}>
             <ThemeProvider>
@@ -112,6 +114,8 @@ export default function RootLayout() {
     </MinimalErrorBoundary>
   );
 }
+
+export default Sentry.wrap(RootLayout);
 
 const styles = StyleSheet.create({
   flex: {

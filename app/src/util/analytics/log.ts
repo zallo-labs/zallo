@@ -1,4 +1,4 @@
-import * as Sentry from '~/util/sentry/sentry';
+import * as Sentry from '@sentry/react-native';
 import _ from 'lodash';
 
 export type EventLevel = 'debug' | 'info' | 'warning' | 'error';
