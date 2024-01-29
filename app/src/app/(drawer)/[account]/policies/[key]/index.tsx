@@ -23,6 +23,9 @@ import { PolicySuggestions } from '~/components/policy/PolicySuggestions';
 import { createStyles } from '@theme/styles';
 import { Actions } from '~/components/layout/Actions';
 import { Button } from '~/components/Button';
+import { SideSheetLayout } from '~/components/SideSheet/SideSheetLayout';
+import { PolicySideSheet } from '~/components/policy/PolicySideSheet';
+import { useSideSheetVisibility } from '~/components/SideSheet/useSideSheetVisibility';
 
 const Query = gql(/* GraphQL */ `
   query PolicyScreen($account: UAddress!, $key: PolicyKey!, $queryPolicy: Boolean!) {
@@ -37,6 +40,7 @@ const Query = gql(/* GraphQL */ `
       }
       ...useHydratePolicyDraft_Policy
       ...PolicyAppbar_Policy
+      ...PolicySideSheet_Policy
     }
 
     account(input: { account: $account }) {
@@ -44,6 +48,7 @@ const Query = gql(/* GraphQL */ `
       address
       ...useHydratePolicyDraft_Account
       ...PolicySuggestions_Account
+      ...PolicySideSheet_Account
     }
   }
 `);
@@ -102,6 +107,7 @@ function PolicyScreen() {
   const router = useRouter();
   const create = useMutation(Create)[1];
   const update = useMutation(Update)[1];
+  const sheet = useSideSheetVisibility();
 
   const key = params.key === 'add' ? undefined : asPolicyKey(params.key);
 
@@ -122,7 +128,7 @@ function PolicyScreen() {
   if (!account) return null;
 
   return (
-    <>
+    <SideSheetLayout>
       <PolicyAppbar
         account={account.address}
         policyKey={params.key}
@@ -130,6 +136,7 @@ function PolicyScreen() {
         view={view}
         setView={(view) => router.setParams({ ...params, key: `${params.key}`, view })}
         reset={isModified ? () => setDraft(init) : undefined}
+        openSettings={sheet.open}
       />
 
       <ScreenSurface contentContainerStyle={styles.container}>
@@ -163,7 +170,9 @@ function PolicyScreen() {
           </Actions>
         )}
       </ScreenSurface>
-    </>
+
+      <PolicySideSheet account={account} policy={policy} {...sheet} />
+    </SideSheetLayout>
   );
 }
 
