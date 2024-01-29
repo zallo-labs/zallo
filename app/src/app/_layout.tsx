@@ -69,7 +69,6 @@ function Layout() {
       <Stack.Screen name={`auth`} options={transparentModal} />
       <Stack.Screen name={`confirm`} options={transparentModal} />
       <Stack.Screen name={`index`} />
-      <Stack.Screen name={`selector`} options={modal} />
     </Stack>
   );
 }
