@@ -6,10 +6,6 @@ import { StyleSheet } from 'react-native';
 import { FingerprintIcon, ZalloLogo, NotificationsIcon, AccountIcon } from '@theme/icons';
 import { DrawerContentComponentProps } from '@react-navigation/drawer';
 
-export const unstable_settings = {
-  initialRouteName: `user`,
-};
-
 export default function OnboardingDrawerLayout() {
   return <Drawer drawerContent={Content} />;
 }
@@ -37,15 +33,15 @@ function Content({ state }: DrawerContentComponentProps) {
       <ZalloLogo style={styles.logo} contentFit="contain" />
 
       <RnpDrawer.Section title="Onboarding" showDivider={false}>
-        <DrawerItem href={`/onboard/(drawer)/account`} icon={AccountIcon} label="Account" />
+        <DrawerItem href={`/onboard/account`} icon={AccountIcon} label="Account" />
         <DrawerItem
-          href={`/onboard/(drawer)/auth`}
+          href={`/onboard/auth`}
           icon={FingerprintIcon}
           label="Authentication"
           disabled={position < ORDER.auth}
         />
         <DrawerItem
-          href={`/onboard/(drawer)/notifications`}
+          href={`/onboard/notifications`}
           icon={NotificationsIcon}
           label="Notifications"
           disabled={position < ORDER.notifications}

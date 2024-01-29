@@ -26,7 +26,7 @@ function AccountOnboardingScreen() {
   const next = useCallback(
     (account: UAddress) => {
       setSelected(account);
-      router.push(`/onboard/(drawer)/auth`);
+      router.push(`/onboard/auth`);
     },
     [router, setSelected],
   );

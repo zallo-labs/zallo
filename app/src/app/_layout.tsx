@@ -33,12 +33,12 @@ function Layout() {
   return (
     <Stack screenOptions={{ header: AppbarHeader }}>
       <Stack.Screen name={`(drawer)`} options={{ headerShown: false }} />
-      <Stack.Screen name={`onboard/(drawer)`} options={{ headerShown: false }} />
-      <Stack.Screen name={`onboard/landing`} />
-      <Stack.Screen name={`scan/index`} options={{ headerShown: false }} />
+      <Stack.Screen name={`onboard`} options={{ headerShown: false }} />
       <Stack.Screen name={`_sitemap`} />
       <Stack.Screen name={`+not-found`} />
+      <Stack.Screen name={`hello`} />
       <Stack.Screen name={`index`} />
+      <Stack.Screen name={`scan`} options={{ headerShown: false }} />
     </Stack>
   );
 }

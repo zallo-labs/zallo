@@ -34,7 +34,7 @@ const Query = gql(/* GraphQL */ `
 export default function LandingScreen() {
   const { styles } = useStyles(stylesheet);
   const { push } = useRouter();
-  const next = () => push(`/onboard/(drawer)/account`);
+  const next = () => push(`/onboard/account`);
 
   const { user } = useQuery(Query).data;
 
