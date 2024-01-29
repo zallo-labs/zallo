@@ -52,7 +52,6 @@ function Layout() {
     <Stack screenOptions={{ header: AppbarHeader }}>
       <Stack.Screen name={`(drawer)`} options={{ headerShown: false }} />
       <Stack.Screen name={`[account]/policies/[key]/name`} options={modal} />
-      <Stack.Screen name={`[account]/name`} options={modal} />
       <Stack.Screen name={`[account]/receive`} options={transparentModal} />
       <Stack.Screen name={`accounts/index`} options={sheet} />
       <Stack.Screen name={`approvers/[address]/qr`} options={transparentModal} />

@@ -1,32 +1,24 @@
 import { useRouter } from 'expo-router';
-import { gql } from '@api/generated';
+import { FragmentType, gql, useFragment } from '@api/generated';
 import { useForm } from 'react-hook-form';
 import { StyleSheet, View } from 'react-native';
 import { useMutation } from 'urql';
-import { NotFound } from '~/components/NotFound';
 import { FormSubmitButton } from '~/components/fields/FormSubmitButton';
 import { Actions } from '~/components/layout/Actions';
-import { useQuery } from '~/gql';
 import { AppbarOptions } from '~/components/Appbar/AppbarOptions';
-import { z } from 'zod';
-import { zUAddress } from '~/lib/zod';
-import { useLocalParams } from '~/hooks/useLocalParams';
-import { withSuspense } from '~/components/skeleton/withSuspense';
-import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
 import { AccountNameFormField } from '~/components/fields/AccountNameFormField';
+import { SideSheet, SideSheetProps } from '../SideSheet/SideSheet';
 
-const Query = gql(/* GraphQL */ `
-  query AccountNameModal($account: UAddress!) {
-    account(input: { account: $account }) {
-      id
-      address
-      label
-    }
+const Account = gql(/* GraphQL */ `
+  fragment AccountSettingsSideSheet_Account on Account {
+    id
+    address
+    label
   }
 `);
 
 const Update = gql(/* GraphQL */ `
-  mutation AccountNameModal_Update($account: UAddress!, $label: String!) {
+  mutation AccountSettingsSideSheet_Update($account: UAddress!, $label: String!) {
     updateAccount(input: { account: $account, label: $label }) {
       id
       label
@@ -39,24 +31,21 @@ interface Inputs {
   label: string;
 }
 
-export const AccountNameModalParams = z.object({ account: zUAddress() });
+export interface AccountSettingsSideSheetProps extends Pick<SideSheetProps, 'visible' | 'close'> {
+  account: FragmentType<typeof Account>;
+}
 
-function AccountNameModal() {
-  const params = useLocalParams(AccountNameModalParams);
+export function AccountSettingsSideSheet(props: AccountSettingsSideSheetProps) {
+  const account = useFragment(Account, props.account);
   const router = useRouter();
   const update = useMutation(Update)[1];
 
-  const { account } = useQuery(Query, { account: params.account }).data;
   const { control, handleSubmit } = useForm<Inputs>({ defaultValues: { label: account?.label } });
 
-  if (!account) return <NotFound name="Account" />;
-
   return (
-    <View style={styles.root}>
-      <AppbarOptions mode="large" leading="close" headline="Rename Account" />
-
+    <SideSheet headline="Details" style={styles.sheet} {...props}>
       <View style={styles.fields}>
-        <AccountNameFormField name="label" control={control} required autoFocus />
+        <AccountNameFormField name="label" control={control} required />
       </View>
 
       <Actions>
@@ -72,17 +61,15 @@ function AccountNameModal() {
           Update
         </FormSubmitButton>
       </Actions>
-    </View>
+    </SideSheet>
   );
 }
 
 const styles = StyleSheet.create({
-  root: {
+  sheet: {
     flex: 1,
   },
   fields: {
     margin: 16,
   },
 });
-
-export default withSuspense(AccountNameModal, <ScreenSkeleton />);

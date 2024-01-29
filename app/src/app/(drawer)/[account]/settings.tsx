@@ -3,8 +3,6 @@ import { gql } from '@api/generated';
 import { FlashList } from '@shopify/flash-list';
 import { EditIcon, NavigateNextIcon } from '@theme/icons';
 import { StyleSheet } from 'react-native';
-import { Menu } from 'react-native-paper';
-import { AppbarMore } from '~/components/Appbar/AppbarMore';
 import { NotFound } from '~/components/NotFound';
 import { ListHeader } from '~/components/list/ListHeader';
 import { ListItemHeight } from '~/components/list/ListItem';
@@ -20,6 +18,9 @@ import { Button } from '~/components/Button';
 import { match } from 'ts-pattern';
 import { useMutation } from 'urql';
 import { AccountParams } from '~/app/(drawer)/[account]/(home)/_layout';
+import { SideSheetLayout } from '~/components/SideSheet/SideSheetLayout';
+import { useSideSheetVisibility } from '~/components/SideSheet/useSideSheetVisibility';
+import { AccountSettingsSideSheet } from '~/components/account/AccountSettingsSideSheet';
 
 const Query = gql(/* GraphQL */ `
   query AccountSettingsScreen($account: UAddress!) {
@@ -33,6 +34,7 @@ const Query = gql(/* GraphQL */ `
         key
         ...PolicyItem_Policy
       }
+      ...AccountSettingsSideSheet_Account
     }
 
     user {
@@ -61,6 +63,7 @@ function AccountSettingsScreen() {
   const params = useLocalParams(AccountSettingsScreenParams);
   const router = useRouter();
   const updateUser = useMutation(UpdateUser)[1];
+  const sheet = useSideSheetVisibility();
 
   const query = useQuery(Query, { account: params.account });
   const { account, user } = query.data;
@@ -69,28 +72,14 @@ function AccountSettingsScreen() {
   if (!account) return query.stale ? null : <NotFound name="Account" />;
 
   return (
-    <>
+    <SideSheetLayout>
       <AppbarOptions
         mode="large"
         leading="menu"
         headline={account.name}
-        trailing={(props) => (
-          <AppbarMore iconProps={props}>
-            {({ close }) => (
-              <Menu.Item
-                leadingIcon={EditIcon}
-                title="Rename"
-                onPress={() => {
-                  close();
-                  router.push({
-                    pathname: `/[account]/name`,
-                    params: { account: account.address },
-                  });
-                }}
-              />
-            )}
-          </AppbarMore>
-        )}
+        {...(!sheet.visible && {
+          trailing: (props) => <EditIcon {...props} onPress={sheet.open} />,
+        })}
       />
 
       <ScreenSurface>
@@ -127,6 +116,7 @@ function AccountSettingsScreen() {
               Set as primary account
             </Button>
           )}
+
           <Button
             mode="contained"
             onPress={() =>
@@ -140,7 +130,9 @@ function AccountSettingsScreen() {
           </Button>
         </Actions>
       </ScreenSurface>
-    </>
+
+      <AccountSettingsSideSheet account={account} {...sheet} />
+    </SideSheetLayout>
   );
 }
 
