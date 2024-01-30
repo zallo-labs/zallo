@@ -109,7 +109,10 @@ const client = atom(async (get) => {
           return utils.appendHeaders(operation, state?.headers ?? {});
         },
         didAuthError(error, _operation) {
-          return error.response?.status === 401; // Unauthorized
+          return (
+            error.response?.status === 401 ||
+            !!error.graphQLErrors.find((e) => e.extensions.code === 'UNAUTHENTICATED')
+          );
         },
         refreshAuth,
         willAuthError,
