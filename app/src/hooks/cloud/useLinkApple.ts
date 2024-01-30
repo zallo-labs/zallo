@@ -36,10 +36,13 @@ export function useLinkApple(params: useLinkAppleParams) {
 
   return async () => {
     const r = await getApprover({});
-    if (r.isErr())
-      return showError('Something went wrong, failed to link Apple account', {
-        event: { error: r.error },
-      });
+    if (r.isErr()) {
+      if (r.error !== 'ERR_REQUEST_CANCELED')
+        showError('Something went wrong, failed to sign in with Apple', {
+          event: { error: r.error },
+        });
+      return;
+    }
 
     const { approver } = r.value;
     await link({ token: user.linkingToken }, await authContext(approver));
