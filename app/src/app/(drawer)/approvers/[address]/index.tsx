@@ -90,8 +90,9 @@ function ApproverScreen() {
               validate: (v) =>
                 !takenNames.includes(v) || 'An approver with ths name already exists',
             }}
-            onBlur={handleSubmit(async ({ name }) => {
-              await update({ approver: approver.address, name });
+            onBlur={handleSubmit(async (input) => {
+              await update({ approver: approver.address, name: input.name });
+              reset(input);
             })}
           />
         </View>

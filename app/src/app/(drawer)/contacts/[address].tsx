@@ -94,11 +94,13 @@ function ContactScreen_(props: ContactScreenProps) {
     },
   });
 
-  const submit = handleSubmit(async ({ label, address, chain }) => {
+  const submit = handleSubmit(async (input) => {
+    const { label, address, chain } = input;
     await upsert({
       input: { label, address: asUAddress(address, chain), previousAddress: current?.address },
     });
     router.back();
+    reset(input);
   });
 
   return (

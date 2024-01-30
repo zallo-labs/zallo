@@ -43,7 +43,7 @@ function CreateAccountScreen({ onCreate }: CreateAccountScreenProps) {
   const [chain, setChain] = useState<Chain>('zksync-goerli'); // TODO: <SelectChain />
   const presets = usePolicyPresets({ chain, account: undefined });
 
-  const { control, handleSubmit } = useForm<Inputs>({
+  const { control, handleSubmit, reset } = useForm<Inputs>({
     defaultValues: { label: '' },
     mode: 'onChange',
   });
@@ -76,6 +76,8 @@ function CreateAccountScreen({ onCreate }: CreateAccountScreenProps) {
               } else {
                 router.push({ pathname: `/(drawer)/[account]/(home)/`, params: { account } });
               }
+
+              reset();
             })}
           >
             Continue

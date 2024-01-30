@@ -24,7 +24,7 @@ export interface ErrorBoundaryProps {
 export const ErrorBoundary = ({ children }: ErrorBoundaryProps) => {
   const { styles } = useStyles(stylesheet);
 
-  const { control, handleSubmit, resetField } = useForm<Inputs>();
+  const { control, handleSubmit, reset } = useForm<Inputs>();
 
   return (
     <MinimalErrorBoundary
@@ -82,9 +82,7 @@ export const ErrorBoundary = ({ children }: ErrorBoundaryProps) => {
                     });
                   }
                   resetError();
-
-                  // This component will remain mounted, so we need to reset the desired fields
-                  resetField('comments');
+                  reset({ email, comments: '' });
                 })}
               >
                 Submit

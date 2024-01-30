@@ -254,9 +254,9 @@ function SharedTokenScreen_(props: TokenScreenProps) {
           <Actions>
             <FormSubmitButton
               mode="contained"
-              // requireChanges
               control={control}
-              onPress={handleSubmit(async ({ address, chain, name, symbol, decimals, iconUri }) => {
+              onPress={handleSubmit(async (input) => {
+                const { address, chain, name, symbol, decimals, iconUri } = input;
                 await upsert({
                   input: {
                     address: asUAddress(address, chain),
@@ -266,6 +266,7 @@ function SharedTokenScreen_(props: TokenScreenProps) {
                     iconUri,
                   },
                 });
+                reset(input);
               })}
             >
               Save

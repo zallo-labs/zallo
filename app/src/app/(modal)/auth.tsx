@@ -50,7 +50,7 @@ function AuthenticateScreen({
   const available = biometrics.enabled || !!passwordHash;
 
   const [show, setShow] = useState(!biometrics.enabled);
-  const { control, handleSubmit } = useForm<Inputs>({ defaultValues: { password: '' } });
+  const { control, handleSubmit, reset } = useForm<Inputs>({ defaultValues: { password: '' } });
 
   // Unlock immediately if no auth methods are available
   useEffect(() => {
@@ -66,7 +66,10 @@ function AuthenticateScreen({
     [biometrics.auth, onAuth],
   );
 
-  const onPasswordAuth = handleSubmit(({ password }) => onAuth(password));
+  const onPasswordAuth = handleSubmit(({ password }) => {
+    onAuth(password);
+    reset();
+  });
 
   if (!available || !show) return null;
 

@@ -1,11 +1,9 @@
-import { useRouter } from 'expo-router';
 import { FragmentType, gql, useFragment } from '@api/generated';
 import { useForm } from 'react-hook-form';
 import { StyleSheet, View } from 'react-native';
 import { useMutation } from 'urql';
 import { FormSubmitButton } from '~/components/fields/FormSubmitButton';
 import { Actions } from '~/components/layout/Actions';
-import { AppbarOptions } from '~/components/Appbar/AppbarOptions';
 import { AccountNameFormField } from '~/components/fields/AccountNameFormField';
 import { SideSheet, SideSheetProps } from '../SideSheet/SideSheet';
 
@@ -37,10 +35,11 @@ export interface AccountSettingsSideSheetProps extends Pick<SideSheetProps, 'vis
 
 export function AccountSettingsSideSheet(props: AccountSettingsSideSheetProps) {
   const account = useFragment(Account, props.account);
-  const router = useRouter();
   const update = useMutation(Update)[1];
 
-  const { control, handleSubmit } = useForm<Inputs>({ defaultValues: { label: account?.label } });
+  const { control, handleSubmit, reset } = useForm<Inputs>({
+    defaultValues: { label: account?.label },
+  });
 
   return (
     <SideSheet headline="Details" style={styles.sheet} {...props}>
@@ -53,9 +52,9 @@ export function AccountSettingsSideSheet(props: AccountSettingsSideSheetProps) {
           mode="contained"
           requireChanges
           control={control}
-          onPress={handleSubmit(async ({ label }) => {
-            await update({ account: account.address, label });
-            router.back();
+          onPress={handleSubmit(async (input) => {
+            await update({ account: account.address, label: input.label });
+            reset(input);
           })}
         >
           Update

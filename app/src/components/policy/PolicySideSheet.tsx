@@ -89,7 +89,7 @@ export function PolicySideSheet(props: PolicySideSheetProps) {
   });
 
   const [draft, updateDraft] = useImmerAtom(POLICY_DRAFT_ATOM);
-  const { control, handleSubmit } = useForm<Inputs>({
+  const { control, handleSubmit, reset } = useForm<Inputs>({
     defaultValues: { name: draft.name },
   });
 
@@ -127,12 +127,11 @@ export function PolicySideSheet(props: PolicySideSheetProps) {
                 const proposal = (await remove({ account: account.address, key: policy.key })).data
                   ?.removePolicy.draft?.proposal;
 
-                proposal
-                  ? router.push({
-                      pathname: `/(drawer)/transaction/[id]`,
-                      params: { id: proposal.id },
-                    })
-                  : router.back();
+                if (proposal)
+                  router.push({
+                    pathname: `/(drawer)/transaction/[id]`,
+                    params: { id: proposal.id },
+                  });
               }
             }}
           >
@@ -144,22 +143,23 @@ export function PolicySideSheet(props: PolicySideSheetProps) {
           mode="contained"
           control={control}
           requireChanges
-          onPress={handleSubmit(async ({ name }) => {
-            name = trimmed(name);
+          onPress={handleSubmit(async (input) => {
+            input.name = trimmed(input.name);
+            const { name } = input;
 
             if (name !== draft.name) {
-              updateDraft((draft) => {
-                draft.name = name;
-              });
-
               if (draft.key !== undefined) {
                 const r = (await rename({ account: draft.account, key: draft.key, name })).data
                   ?.updatePolicy;
                 if (r?.__typename !== 'Policy') return showError(r?.message);
               }
+
+              updateDraft((draft) => {
+                draft.name = name;
+              });
             }
 
-            router.back();
+            reset(input);
           })}
         >
           Rename
