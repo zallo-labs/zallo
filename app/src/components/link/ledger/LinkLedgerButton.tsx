@@ -25,7 +25,7 @@ export function LinkLedgerButton({ onLink }: LinkLedgerButtonProps) {
   return (
     <Fab
       position="relative"
-      icon={LedgerIcon}
+      icon={(props) => <LedgerIcon {...props} />}
       style={styles.container}
       onPress={() => router.push(`/ledger/link`)}
     />
