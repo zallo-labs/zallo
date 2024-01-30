@@ -22,10 +22,24 @@ import { SelectModifiers, objectTypeToSelectShape } from '~/edgeql-js/select';
 import { $scopify, ObjectTypeExpression, ObjectTypeSet, SomeType } from '~/edgeql-js/typesystem';
 import { $linkPropify } from '~/edgeql-js/syntax';
 import { Cardinality, TypeKind } from 'edgedb/dist/reflection';
-import { merge } from 'ts-deepmerge';
+import { deepmergeCustom } from 'deepmerge-ts';
 import assert from 'assert';
 import e from '~/edgeql-js';
 import _ from 'lodash';
+import typesUtil from 'node:util/types';
+import { CONFIG } from '~/config';
+
+// Avoid deep merging edgedb type reflection metadata (from e.is) as they can be very deep!
+const merge = deepmergeCustom({
+  mergeRecords: (values, utils, meta) => {
+    if (meta?.key === '__polyType__') return values[0];
+
+    if (CONFIG.env === 'development' && typesUtil.isProxy(values[0]))
+      throw new Error('Unexpected proxy found when merging select shapes');
+
+    return utils.defaultMergeFunctions.mergeRecords(values, utils, meta);
+  },
+});
 
 export type Scope<Expr extends ObjectTypeExpression> = $scopify<Expr['__element__']> &
   $linkPropify<{
