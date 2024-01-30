@@ -1,6 +1,6 @@
 import { FragmentType, gql, useFragment as getFragment } from '@api';
 import { NavigateNextIcon } from '@theme/icons';
-import { useRouter } from 'expo-router';
+import { Link } from 'expo-router';
 import { Address, TransferLimit, asDecimal } from 'lib';
 import _ from 'lodash';
 import { Duration } from 'luxon';
@@ -29,7 +29,6 @@ export interface TokenSpendingProps {
 
 export function TokenLimitItem({ address, ...props }: TokenSpendingProps) {
   const token = getFragment(Token, props.token);
-  const router = useRouter();
   const [policy] = usePolicyDraftState();
 
   const limit: TransferLimit | undefined = policy.transfers.limits[address];
@@ -41,30 +40,34 @@ export function TokenLimitItem({ address, ...props }: TokenSpendingProps) {
   const duration = Duration.fromObject({ seconds: limit?.duration ?? 0 });
 
   return (
-    <ListItem
-      leading={(props) =>
-        token ? (
-          <TokenIcon token={token} {...props} />
-        ) : (
-          <AddressIcon address={address} {...props} />
-        )
-      }
-      headline={token?.name ?? truncateAddr(address)}
-      trailing={(props) => (
-        <ListItemHorizontalTrailing>
-          <ListItemTrailingText>
-            {!limit?.amount ? 'Not allowed' : `${formattedAmount} per ${prettyDuration(duration)}`}
-          </ListItemTrailingText>
-          <NavigateNextIcon {...props} />
-        </ListItemHorizontalTrailing>
-      )}
-      onPress={() =>
-        router.push({
-          pathname: `/(drawer)/[account]/policies/[key]/spending/[token]`,
-          params: { account: policy.account, key: policy.key ?? 'add', token: address },
-        })
-      }
-    />
+    <Link
+      href={{
+        pathname: `/(drawer)/[account]/policies/[key]/spending/[token]`,
+        params: { account: policy.account, key: policy.key ?? 'add', token: address },
+      }}
+      asChild
+    >
+      <ListItem
+        leading={(props) =>
+          token ? (
+            <TokenIcon token={token} {...props} />
+          ) : (
+            <AddressIcon address={address} {...props} />
+          )
+        }
+        headline={token?.name ?? truncateAddr(address)}
+        trailing={(props) => (
+          <ListItemHorizontalTrailing>
+            <ListItemTrailingText>
+              {!limit?.amount
+                ? 'Not allowed'
+                : `${formattedAmount} per ${prettyDuration(duration)}`}
+            </ListItemTrailingText>
+            <NavigateNextIcon {...props} />
+          </ListItemHorizontalTrailing>
+        )}
+      />
+    </Link>
   );
 }
 

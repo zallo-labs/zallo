@@ -1,6 +1,6 @@
 import { FragmentType, gql, useFragment } from '@api';
 import { PolicyIcon } from '@theme/icons';
-import { useRouter } from 'expo-router';
+import { Link } from 'expo-router';
 import { Suggestion } from '~/components/home/GettingStarted/suggestions';
 import { ListItem } from '~/components/list/ListItem';
 
@@ -23,21 +23,18 @@ export interface UseCreatePolicySuggestionParams {
 
 export function useCreatePolicySuggestion(props: UseCreatePolicySuggestionParams): Suggestion {
   const account = useFragment(Account, props.account);
-  const router = useRouter();
 
   return {
     Item: (props) => (
-      <ListItem
-        leading={PolicyIcon}
-        headline="Create a policy"
-        onPress={() =>
-          router.push({
-            pathname: `/(drawer)/[account]/policies/[key]/`,
-            params: { account: account.address, key: 'add' },
-          })
-        }
-        {...props}
-      />
+      <Link
+        href={{
+          pathname: `/(drawer)/[account]/policies/[key]/`,
+          params: { account: account.address, key: 'add' },
+        }}
+        asChild
+      >
+        <ListItem leading={PolicyIcon} headline="Create a policy" {...props} />
+      </Link>
     ),
     complete: account.policies.filter((p) => p.state).length > 1,
   };

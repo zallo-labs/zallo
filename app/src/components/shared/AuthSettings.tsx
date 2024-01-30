@@ -12,7 +12,7 @@ import { ScrollableScreenSurface } from '~/components/layout/ScrollableScreenSur
 import { AppbarOptions } from '~/components/Appbar/AppbarOptions';
 import { AppbarMenu } from '~/components/Appbar/AppbarMenu';
 import { Button } from '~/components/Button';
-import { Href, useRouter } from 'expo-router';
+import { Href, Link } from 'expo-router';
 import { useBiometrics } from '~/hooks/useBiometrics';
 import { usePasswordHash } from '~/app/(drawer)/settings/password';
 import { persistedAtom } from '~/lib/persistedAtom';
@@ -35,7 +35,6 @@ export interface AuthSettingsProps {
 }
 
 function AuthSettings_({ actions, appbarMenu, passwordHref }: AuthSettingsProps) {
-  const router = useRouter();
   const biometrics = useBiometrics();
   const passwordConfigured = !!usePasswordHash();
 
@@ -62,9 +61,9 @@ function AuthSettings_({ actions, appbarMenu, passwordHref }: AuthSettingsProps)
             leading={PasswordIcon}
             headline="Password"
             trailing={() => (
-              <Button mode="contained" onPress={() => router.push(passwordHref)}>
-                {passwordConfigured ? 'Configure' : 'Create'}
-              </Button>
+              <Link href={passwordHref} asChild>
+                <Button mode="contained">{passwordConfigured ? 'Configure' : 'Create'}</Button>
+              </Link>
             )}
           />
 

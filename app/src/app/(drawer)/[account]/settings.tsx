@@ -1,4 +1,4 @@
-import { useRouter } from 'expo-router';
+import { Link, useRouter } from 'expo-router';
 import { gql } from '@api/generated';
 import { FlashList } from '@shopify/flash-list';
 import { EditIcon, NavigateNextIcon } from '@theme/icons';
@@ -117,17 +117,15 @@ function AccountSettingsScreen() {
             </Button>
           )}
 
-          <Button
-            mode="contained"
-            onPress={() =>
-              router.push({
-                pathname: `/(drawer)/[account]/policies/[key]/`,
-                params: { account: account.address, key: 'add' },
-              })
-            }
+          <Link
+            href={{
+              pathname: `/(drawer)/[account]/policies/[key]/`,
+              params: { account: account.address, key: 'add' },
+            }}
+            asChild
           >
-            Add policy
-          </Button>
+            <Button mode="contained">Add policy</Button>
+          </Link>
         </Actions>
       </ScrollableScreenSurface>
 

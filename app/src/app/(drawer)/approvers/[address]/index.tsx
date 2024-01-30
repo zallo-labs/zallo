@@ -1,4 +1,4 @@
-import { useRouter } from 'expo-router';
+import { Link } from 'expo-router';
 import { View } from 'react-native';
 import { Actions } from '~/components/layout/Actions';
 import { StyleSheet } from 'react-native';
@@ -55,7 +55,6 @@ const ApproverScreenParams = z.object({ address: zAddress() });
 
 function ApproverScreen() {
   const params = useLocalParams(ApproverScreenParams);
-  const router = useRouter();
   const update = useMutation(Update)[1];
 
   const query = useQuery(Query, { approver: params.address });
@@ -98,18 +97,17 @@ function ApproverScreen() {
         </View>
 
         <Actions>
-          <Button
-            mode="contained"
-            icon={QrCodeIcon}
-            onPress={() =>
-              router.push({
-                pathname: `/(modal)/approvers/[address]/qr`,
-                params: { address: approver.address },
-              })
-            }
+          <Link
+            href={{
+              pathname: `/(modal)/approvers/[address]/qr`,
+              params: { address: approver.address },
+            }}
+            asChild
           >
-            View
-          </Button>
+            <Button mode="contained" icon={QrCodeIcon}>
+              View
+            </Button>
+          </Link>
         </Actions>
       </ScrollableScreenSurface>
     </>

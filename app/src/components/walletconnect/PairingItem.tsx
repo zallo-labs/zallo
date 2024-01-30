@@ -7,7 +7,7 @@ import { useWalletConnect } from '~/util/walletconnect';
 import { useTimestamp } from '~/components/format/Timestamp';
 import { DateTime } from 'luxon';
 import { MoreVerticalIcon } from '@theme/icons';
-import { useRouter } from 'expo-router';
+import { Link } from 'expo-router';
 
 export interface PairingItemProps {
   pairing: PairingTypes.Struct;
@@ -15,7 +15,6 @@ export interface PairingItemProps {
 
 export const PairingItem = ({ pairing }: PairingItemProps) => {
   const client = useWalletConnect();
-  const router = useRouter();
   const session: SessionTypes.Struct | undefined = client.session.getAll({
     pairingTopic: pairing.topic,
   })?.[0];
@@ -26,20 +25,22 @@ export const PairingItem = ({ pairing }: PairingItemProps) => {
   const expires = status !== 'Expired' ? `Expires ${expiry}` : '';
 
   return (
-    <ListItem
-      leading={
-        peer.icons.length > 0
-          ? (props) => <Image source={peer.icons} style={styles.icon} {...props} />
-          : peer.name || '?'
-      }
-      headline={peer.name || 'Unnamed DApp'}
-      supporting={`${status}\n${expires}`}
-      lines={3}
-      trailing={MoreVerticalIcon}
-      onPress={() =>
-        router.push({ pathname: `/(sheet)/sessions/[topic]`, params: { topic: pairing.topic } })
-      }
-    />
+    <Link
+      href={{ pathname: `/(sheet)/sessions/[topic]`, params: { topic: pairing.topic } }}
+      asChild
+    >
+      <ListItem
+        leading={
+          peer.icons.length > 0
+            ? (props) => <Image source={peer.icons} style={styles.icon} {...props} />
+            : peer.name || '?'
+        }
+        headline={peer.name || 'Unnamed DApp'}
+        supporting={`${status}\n${expires}`}
+        lines={3}
+        trailing={MoreVerticalIcon}
+      />
+    </Link>
   );
 };
 

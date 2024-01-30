@@ -7,11 +7,9 @@ import { materialCommunityIcon } from '@theme/icons';
 import { ICON_SIZE } from '@theme/paper';
 import { FragmentType, gql, useFragment } from '@api/generated';
 import { OperationLabel } from './OperationLabel';
-import { ETH_ICON_URI, TokenIcon } from '../token/TokenIcon';
 import { ProposalValue } from './ProposalValue';
-import { useRouter } from 'expo-router';
+import { Link } from 'expo-router';
 import { createStyles, useStyles } from '@theme/styles';
-import { asUAddress } from 'lib';
 import { OperationIcon } from '~/components/transaction/OperationIcon';
 
 const Proposal = gql(/* GraphQL */ `
@@ -66,7 +64,6 @@ function TransactionItem_({
   ...itemProps
 }: TransactionItemProps) {
   const { styles } = useStyles(stylesheet);
-  const router = useRouter();
   const p = useFragment(Proposal, proposalFragment);
   const user = useFragment(User, userFragment);
 
@@ -99,32 +96,33 @@ function TransactionItem_({
     .exhaustive();
 
   return (
-    <ListItem
-      leading={(props) =>
-        isMulti ? (
-          <MultiOperationIcon {...props} size={ICON_SIZE.medium} />
-        ) : (
-          <OperationIcon operation={p.operations[0]} chain={p.account.chain} {...props} />
-        )
-      }
-      leadingSize="medium"
-      headline={
-        p.label ??
-        (isMulti ? (
-          `${p.operations.length} operations`
-        ) : (
-          <OperationLabel operation={p.operations[0]} chain={p.account.chain} />
-        ))
-      }
-      supporting={supporting}
-      trailing={({ Text }) => (
-        <Text variant="labelLarge">
-          <ProposalValue proposal={p} hideZero />
-        </Text>
-      )}
-      onPress={() => router.push({ pathname: `/(drawer)/transaction/[id]`, params: { id: p.id } })}
-      {...itemProps}
-    />
+    <Link href={{ pathname: `/(drawer)/transaction/[id]`, params: { id: p.id } }} asChild>
+      <ListItem
+        leading={(props) =>
+          isMulti ? (
+            <MultiOperationIcon {...props} size={ICON_SIZE.medium} />
+          ) : (
+            <OperationIcon operation={p.operations[0]} chain={p.account.chain} {...props} />
+          )
+        }
+        leadingSize="medium"
+        headline={
+          p.label ??
+          (isMulti ? (
+            `${p.operations.length} operations`
+          ) : (
+            <OperationLabel operation={p.operations[0]} chain={p.account.chain} />
+          ))
+        }
+        supporting={supporting}
+        trailing={({ Text }) => (
+          <Text variant="labelLarge">
+            <ProposalValue proposal={p} hideZero />
+          </Text>
+        )}
+        {...itemProps}
+      />
+    </Link>
   );
 }
 
