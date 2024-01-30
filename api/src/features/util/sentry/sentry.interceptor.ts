@@ -14,7 +14,10 @@ import { match } from 'ts-pattern';
 import { getRequestContext } from '~/request/ctx';
 // import { SpanStatus } from '@sentry/tracing';
 
-type Filter<E = any> = [type: new (...args: any[]) => E, shouldReport: (exception: E) => boolean];
+type Filter<E = unknown> = [
+  type: new (...args: any[]) => E,
+  shouldReport: (exception: E) => boolean,
+];
 
 @Injectable()
 export class SentryInterceptor implements NestInterceptor {
@@ -23,35 +26,36 @@ export class SentryInterceptor implements NestInterceptor {
   ];
 
   intercept(context: ExecutionContext, next: CallHandler) {
-    const transaction = Sentry.startTransaction({
-      op: 'request',
-      name: `${context.getClass().name}.${context.getHandler().name}`,
-    });
-    Sentry.getCurrentHub().getScope().setSpan(transaction);
+    return Sentry.startSpanManual(
+      {
+        op: 'request',
+        name: `${context.getClass().name}.${context.getHandler().name}`,
+      },
+      (span) =>
+        next.handle().pipe(
+          tap({
+            complete: () => {
+              span?.setStatus('ok');
+            },
+            error: (exception) => {
+              span?.setStatus('unknown_error');
+              if (this.shouldReport(exception)) {
+                Sentry.withScope((scope) => {
+                  const userCtx = getRequestContext().user;
+                  if (userCtx) scope.setUser({ id: userCtx.approver });
+                  scope.setExtra('exceptionData', JSON.stringify(exception, null, 2));
 
-    return next.handle().pipe(
-      tap({
-        complete: () => {
-          transaction.setStatus('ok');
-        },
-        error: (exception) => {
-          transaction.setStatus('unknown_error');
-          if (this.shouldReport(exception)) {
-            Sentry.withScope((scope) => {
-              const userCtx = getRequestContext().user;
-              if (userCtx) scope.setUser({ id: userCtx.approver });
-              scope.setExtra('exceptionData', JSON.stringify(exception, null, 2));
+                  this.addContextExceptionMetadata(scope, context);
 
-              this.addContextExceptionMetadata(scope, context);
-
-              return Sentry.captureException(exception);
-            });
-          }
-        },
-        finalize: () => {
-          transaction.finish();
-        },
-      }),
+                  return Sentry.captureException(exception);
+                });
+              }
+            },
+            finalize: () => {
+              span?.end();
+            },
+          }),
+        ),
     );
   }
 
