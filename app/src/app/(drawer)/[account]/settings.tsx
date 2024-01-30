@@ -1,10 +1,8 @@
-import { useRouter } from 'expo-router';
+import { Link, useRouter } from 'expo-router';
 import { gql } from '@api/generated';
 import { FlashList } from '@shopify/flash-list';
 import { EditIcon, NavigateNextIcon } from '@theme/icons';
 import { StyleSheet } from 'react-native';
-import { Menu } from 'react-native-paper';
-import { AppbarMore } from '~/components/Appbar/AppbarMore';
 import { NotFound } from '~/components/NotFound';
 import { ListHeader } from '~/components/list/ListHeader';
 import { ListItemHeight } from '~/components/list/ListItem';
@@ -14,12 +12,15 @@ import { AppbarOptions } from '~/components/Appbar/AppbarOptions';
 import { useLocalParams } from '~/hooks/useLocalParams';
 import { withSuspense } from '~/components/skeleton/withSuspense';
 import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
-import { ScreenSurface } from '~/components/layout/ScreenSurface';
+import { ScrollableScreenSurface } from '~/components/layout/ScrollableScreenSurface';
 import { Actions } from '~/components/layout/Actions';
 import { Button } from '~/components/Button';
 import { match } from 'ts-pattern';
 import { useMutation } from 'urql';
 import { AccountParams } from '~/app/(drawer)/[account]/(home)/_layout';
+import { SideSheetLayout } from '~/components/SideSheet/SideSheetLayout';
+import { useSideSheetVisibility } from '~/components/SideSheet/useSideSheetVisibility';
+import { AccountSettingsSideSheet } from '~/components/account/AccountSettingsSideSheet';
 
 const Query = gql(/* GraphQL */ `
   query AccountSettingsScreen($account: UAddress!) {
@@ -33,6 +34,7 @@ const Query = gql(/* GraphQL */ `
         key
         ...PolicyItem_Policy
       }
+      ...AccountSettingsSideSheet_Account
     }
 
     user {
@@ -61,6 +63,7 @@ function AccountSettingsScreen() {
   const params = useLocalParams(AccountSettingsScreenParams);
   const router = useRouter();
   const updateUser = useMutation(UpdateUser)[1];
+  const sheet = useSideSheetVisibility();
 
   const query = useQuery(Query, { account: params.account });
   const { account, user } = query.data;
@@ -69,31 +72,17 @@ function AccountSettingsScreen() {
   if (!account) return query.stale ? null : <NotFound name="Account" />;
 
   return (
-    <>
+    <SideSheetLayout>
       <AppbarOptions
         mode="large"
         leading="menu"
         headline={account.name}
-        trailing={(props) => (
-          <AppbarMore iconProps={props}>
-            {({ close }) => (
-              <Menu.Item
-                leadingIcon={EditIcon}
-                title="Rename"
-                onPress={() => {
-                  close();
-                  router.push({
-                    pathname: `/[account]/name`,
-                    params: { account: account.address },
-                  });
-                }}
-              />
-            )}
-          </AppbarMore>
-        )}
+        {...(!sheet.visible && {
+          trailing: (props) => <EditIcon {...props} onPress={sheet.open} />,
+        })}
       />
 
-      <ScreenSurface>
+      <ScrollableScreenSurface>
         <FlashList
           data={['Policies', ...account.policies]}
           renderItem={({ item }) =>
@@ -127,20 +116,21 @@ function AccountSettingsScreen() {
               Set as primary account
             </Button>
           )}
-          <Button
-            mode="contained"
-            onPress={() =>
-              router.push({
-                pathname: `/(drawer)/[account]/policies/[key]/`,
-                params: { account: account.address, key: 'add' },
-              })
-            }
+
+          <Link
+            href={{
+              pathname: `/(drawer)/[account]/policies/[key]/`,
+              params: { account: account.address, key: 'add' },
+            }}
+            asChild
           >
-            Add policy
-          </Button>
+            <Button mode="contained">Add policy</Button>
+          </Link>
         </Actions>
-      </ScreenSurface>
-    </>
+      </ScrollableScreenSurface>
+
+      <AccountSettingsSideSheet account={account} {...sheet} />
+    </SideSheetLayout>
   );
 }
 

@@ -27,6 +27,6 @@ export default function RootScreen() {
       }}
     />
   ) : (
-    <Redirect href={`/onboard/landing`} />
+    <Redirect href={`/hello`} />
   );
 }

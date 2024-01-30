@@ -37,10 +37,13 @@ export function useLinkGoogle({ signOut, ...props }: UseLinkGoogleProps) {
 
   return async () => {
     const r = await getApprover({ signOut });
-    if (r.isErr())
-      return showError('Something went wrong, failed to link Google account', {
-        event: { error: r.error },
-      });
+    if (r.isErr()) {
+      if (r.error !== 'SIGN_IN_CANCELLED')
+        showError('Something went wrong, failed to sign into Google', {
+          event: { error: r.error },
+        });
+      return;
+    }
 
     const { approver } = r.value;
     await link({ token: user.linkingToken }, await authContext(approver));

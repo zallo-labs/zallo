@@ -4,7 +4,7 @@ import { BluetoothIcon } from '@theme/icons';
 import { useCallback } from 'react';
 import { useMutation } from 'urql';
 import { ListItem } from '~/components/list/ListItem';
-import { useGetLedgerApprover } from '~/app/ledger/approve';
+import { useGetLedgerApprover } from '~/app/(sheet)/ledger/approve';
 import { APPROVER_BLE_IDS } from '~/hooks/ledger/useLedger';
 import { showError, showInfo } from '~/components/provider/SnackbarProvider';
 import { useImmerAtom } from 'jotai-immer';
@@ -12,7 +12,7 @@ import { getLedgerDeviceModel } from '~/hooks/ledger/connectLedger';
 import { elipseTruncate } from '~/util/format';
 import { useRouter } from 'expo-router';
 import { BleDevice, isUniqueBleDeviceId } from '~/lib/ble/util';
-import { LinkWithTokenSheetParams } from '~/app/link/token';
+import { LinkWithTokenSheetParams } from '~/app/(sheet)/link/token';
 import { tryOrIgnoreAsync } from 'lib';
 import { ampli } from '~/lib/ampli';
 

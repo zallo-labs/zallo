@@ -89,7 +89,7 @@ const TokenItem_ = memo(
 
 const styles = StyleSheet.create({
   price: {
-    textAlignVertical: 'center',
+    verticalAlign: 'middle',
   },
   supportingContainer: {
     flexDirection: 'row',

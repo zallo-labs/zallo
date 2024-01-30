@@ -21,7 +21,7 @@ import { useLocalParams } from '~/hooks/useLocalParams';
 import { Actions } from '~/components/layout/Actions';
 import { withSuspense } from '~/components/skeleton/withSuspense';
 import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
-import { ScreenSurface } from '~/components/layout/ScreenSurface';
+import { ScrollableScreenSurface } from '~/components/layout/ScrollableScreenSurface';
 import Decimal from 'decimal.js';
 import { ampli } from '~/lib/ampli';
 
@@ -78,7 +78,7 @@ function TransferScreen() {
     <>
       <AppbarOptions leading="menu" headline={`Transfer to ${toLabel}`} />
 
-      <ScreenSurface>
+      <ScrollableScreenSurface>
         <InputsView token={token} input={input} setInput={setInput} type={type} setType={setType} />
 
         <View style={styles.spacer} />
@@ -117,7 +117,7 @@ function TransferScreen() {
               if (!proposal) return;
 
               router.push({
-                pathname: `/(drawer)/transaction/[id]/`,
+                pathname: `/(drawer)/transaction/[id]`,
                 params: { id: proposal },
               });
               ampli.transferProposal({ token: token.address });
@@ -126,7 +126,7 @@ function TransferScreen() {
             Propose
           </Button>
         </Actions>
-      </ScreenSurface>
+      </ScrollableScreenSurface>
     </>
   );
 }

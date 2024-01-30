@@ -3,7 +3,7 @@ import { View } from 'react-native';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { AppbarOptions } from '~/components/Appbar/AppbarOptions';
-import { ScreenSurface } from '~/components/layout/ScreenSurface';
+import { ScrollableScreenSurface } from '~/components/layout/ScrollableScreenSurface';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Actions } from '~/components/layout/Actions';
 import { FormSubmitButton } from '~/components/fields/FormSubmitButton';
@@ -67,7 +67,7 @@ function PasswordScreen() {
     <>
       <AppbarOptions mode="large" headline="Password" />
 
-      <ScreenSurface>
+      <ScrollableScreenSurface>
         <View style={styles.fields}>
           {passwordHash && (
             <FormTextField
@@ -130,7 +130,7 @@ function PasswordScreen() {
             </FormSubmitButton>
           )}
         </Actions>
-      </ScreenSurface>
+      </ScrollableScreenSurface>
     </>
   );
 }

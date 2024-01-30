@@ -104,15 +104,17 @@ export function useGetGoogleApprover() {
 
   return async ({ subject, signOut }: GetGoogleApproverParams) =>
     new ResultAsync(signIn({ subject, signOut })).andThen((details) =>
-      ResultAsync.fromPromise(GoogleSignin.getTokens(), (e) => (e as Error).message).andThen(
-        ({ idToken, accessToken }) =>
-          new ResultAsync(
-            getCloudApprover({ idToken, accessToken, create: { name: 'Google account' } }),
-          ).map((approver) => ({
-            idToken,
-            user: details.user,
-            approver,
-          })),
+      ResultAsync.fromPromise(
+        GoogleSignin.getTokens(),
+        () => 'failed-to-get-tokens' as const,
+      ).andThen(({ idToken, accessToken }) =>
+        new ResultAsync(
+          getCloudApprover({ idToken, accessToken, create: { name: 'Google account' } }),
+        ).map((approver) => ({
+          idToken,
+          user: details.user,
+          approver,
+        })),
       ),
     );
 }

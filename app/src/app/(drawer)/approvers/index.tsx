@@ -14,7 +14,7 @@ import { AppbarOptions } from '~/components/Appbar/AppbarOptions';
 import { AppbarMenu } from '~/components/Appbar/AppbarMenu';
 import { withSuspense } from '~/components/skeleton/withSuspense';
 import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
-import { ScreenSurface } from '~/components/layout/ScreenSurface';
+import { ScrollableScreenSurface } from '~/components/layout/ScrollableScreenSurface';
 
 const Query = gql(/* GraphQL */ `
   query MyApproversScreen {
@@ -37,7 +37,7 @@ function MyApproversScreen() {
     <>
       <AppbarOptions mode="large" leading={AppbarMenu} headline="My Approvers" />
 
-      <ScreenSurface>
+      <ScrollableScreenSurface>
         <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
           <Text variant="bodyMedium" style={styles.description}>
             This device can access accounts from any of your approvers, but may not approve on their
@@ -70,7 +70,7 @@ function MyApproversScreen() {
             </View>
           </Actions>
         </ScrollView>
-      </ScreenSurface>
+      </ScrollableScreenSurface>
     </>
   );
 }

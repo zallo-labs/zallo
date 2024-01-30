@@ -59,7 +59,7 @@ export const useSessionPropsalListener = () => {
       }
 
       router.push({
-        pathname: `/sessions/connect/[id]`,
+        pathname: `/(sheet)/sessions/connect/[id]`,
         params: { id: proposal.id, chains: ['zksync-goerli'] },
       });
     };

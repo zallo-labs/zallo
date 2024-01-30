@@ -1,4 +1,4 @@
-import { FC, ReactNode } from 'react';
+import { FC, ReactNode, forwardRef } from 'react';
 import { IconProps } from '@theme/icons';
 import { Text, TouchableRipple, TouchableRippleProps } from 'react-native-paper';
 import { AddressOrLabelIcon } from '../Identicon/AddressOrLabelIcon';
@@ -34,119 +34,125 @@ export type ListItemProps = Pick<TouchableRippleProps, 'onPress'> &
     textStyle?: StyleProp<TextStyle>;
   };
 
-export function ListItem({
-  leading: Leading,
-  leadingSize = typeof Leading === 'string' ? 'medium' : 'small',
-  overline: Overline,
-  headline: Headline,
-  supporting: Supporting,
-  trailing: Trailing,
-  lines = (1 + Number(!!Overline) + Number(!!Supporting)) as Lines,
-  selected,
-  disabled,
-  avatarLeadingSize,
-  containerStyle,
-  textStyle,
-  ...touchableProps
-}: ListItemProps) {
-  const { styles } = useStyles(
-    useMemoApply(getStylesheet, { lines, leadingSize, selected, disabled, avatarLeadingSize }),
-  );
+export const ListItem = forwardRef<View, ListItemProps>(
+  (
+    {
+      leading: Leading,
+      leadingSize = typeof Leading === 'string' ? 'medium' : 'small',
+      overline: Overline,
+      headline: Headline,
+      supporting: Supporting,
+      trailing: Trailing,
+      lines = (1 + Number(!!Overline) + Number(!!Supporting)) as Lines,
+      selected,
+      disabled,
+      avatarLeadingSize,
+      containerStyle,
+      textStyle,
+      ...touchableProps
+    },
+    ref,
+  ) => {
+    const { styles } = useStyles(
+      useMemoApply(getStylesheet, { lines, leadingSize, selected, disabled, avatarLeadingSize }),
+    );
 
-  const OverlineText = ({ style, ...props }: TextProps) => (
-    <Text
-      variant="labelSmall"
-      numberOfLines={1}
-      {...props}
-      style={[styles.overline, textStyle, style]}
-    />
-  );
-  const HeadlineText = ({ style, ...props }: TextProps) => (
-    <Text
-      variant="bodyLarge"
-      numberOfLines={1}
-      {...props}
-      style={[styles.headline, textStyle, style]}
-    />
-  );
-  const SupportingText = ({ style, ...props }: TextProps) => (
-    <Text
-      variant="bodyMedium"
-      {...props}
-      style={[styles.supporting, textStyle, style]}
-      numberOfLines={Math.max(lines - 1, 1)}
-    />
-  );
-  const TrailingText = ({ style, ...props }: TextProps) => (
-    <Text variant="labelSmall" {...props} style={[styles.trailingText, textStyle, style]} />
-  );
+    const OverlineText = ({ style, ...props }: TextProps) => (
+      <Text
+        variant="labelSmall"
+        numberOfLines={1}
+        {...props}
+        style={[styles.overline, textStyle, style]}
+      />
+    );
+    const HeadlineText = ({ style, ...props }: TextProps) => (
+      <Text
+        variant="bodyLarge"
+        numberOfLines={1}
+        {...props}
+        style={[styles.headline, textStyle, style]}
+      />
+    );
+    const SupportingText = ({ style, ...props }: TextProps) => (
+      <Text
+        variant="bodyMedium"
+        {...props}
+        style={[styles.supporting, textStyle, style]}
+        numberOfLines={Math.max(lines - 1, 1)}
+      />
+    );
+    const TrailingText = ({ style, ...props }: TextProps) => (
+      <Text variant="labelSmall" {...props} style={[styles.trailingText, textStyle, style]} />
+    );
 
-  return (
-    <TouchableRipple
-      {...touchableProps}
-      style={[styles.container, containerStyle]}
-      disabled={disabled}
-    >
-      <>
-        {Leading && (
-          <View style={styles.leadingContainer}>
-            {typeof Leading === 'string' ? (
-              <AddressOrLabelIcon
-                label={Leading}
-                size={styles.leadingIcon.fontSize}
-                style={styles.leadingAvatarContainer}
-                labelStyle={styles.leadingAvatarLabel}
-              />
-            ) : (
-              <Leading
-                size={styles.leadingIcon.fontSize}
-                color={styles.leadingIcon.backgroundColor}
-                disabled={disabled}
-              />
-            )}
-          </View>
-        )}
-
-        <View style={styles.mainContainer}>
-          {Overline &&
-            (typeof Overline === 'function' ? (
-              <Overline Text={OverlineText} />
-            ) : (
-              <OverlineText>{Overline}</OverlineText>
-            ))}
-
-          {typeof Headline === 'function' ? (
-            <Headline Text={HeadlineText} />
-          ) : (
-            <HeadlineText>{Headline}</HeadlineText>
+    return (
+      <TouchableRipple
+        ref={ref}
+        {...touchableProps}
+        style={[styles.container, containerStyle]}
+        disabled={disabled}
+      >
+        <>
+          {Leading && (
+            <View style={styles.leadingContainer}>
+              {typeof Leading === 'string' ? (
+                <AddressOrLabelIcon
+                  label={Leading}
+                  size={styles.leadingIcon.fontSize}
+                  style={styles.leadingAvatarContainer}
+                  labelStyle={styles.leadingAvatarLabel}
+                />
+              ) : (
+                <Leading
+                  size={styles.leadingIcon.fontSize}
+                  color={styles.leadingIcon.backgroundColor}
+                  disabled={disabled}
+                />
+              )}
+            </View>
           )}
 
-          {Supporting &&
-            (typeof Supporting === 'function' ? (
-              <Supporting Text={SupportingText} />
-            ) : (
-              <SupportingText>{Supporting}</SupportingText>
-            ))}
-        </View>
+          <View style={styles.mainContainer}>
+            {Overline &&
+              (typeof Overline === 'function' ? (
+                <Overline Text={OverlineText} />
+              ) : (
+                <OverlineText>{Overline}</OverlineText>
+              ))}
 
-        {Trailing && (
-          <View style={styles.trailingContainer}>
-            {typeof Trailing === 'function' ? (
-              <Trailing
-                size={styles.trailingIcon.fontSize}
-                color={styles.trailingIcon.color}
-                disabled={disabled}
-                Text={TrailingText}
-              />
+            {typeof Headline === 'function' ? (
+              <Headline Text={HeadlineText} />
             ) : (
-              <TrailingText>{Trailing}</TrailingText>
+              <HeadlineText>{Headline}</HeadlineText>
             )}
+
+            {Supporting &&
+              (typeof Supporting === 'function' ? (
+                <Supporting Text={SupportingText} />
+              ) : (
+                <SupportingText>{Supporting}</SupportingText>
+              ))}
           </View>
-        )}
-      </>
-    </TouchableRipple>
-  );
-}
+
+          {Trailing && (
+            <View style={styles.trailingContainer}>
+              {typeof Trailing === 'function' ? (
+                <Trailing
+                  size={styles.trailingIcon.fontSize}
+                  color={styles.trailingIcon.color}
+                  disabled={disabled}
+                  Text={TrailingText}
+                />
+              ) : (
+                <TrailingText>{Trailing}</TrailingText>
+              )}
+            </View>
+          )}
+        </>
+      </TouchableRipple>
+    );
+  },
+);
 
 interface StyleProps {
   lines: Lines;

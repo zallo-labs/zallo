@@ -22,7 +22,7 @@ import { useConfirmRemoval } from '~/hooks/useConfirm';
 import { AppbarOptions } from '~/components/Appbar/AppbarOptions';
 import { withSuspense } from '~/components/skeleton/withSuspense';
 import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
-import { ScreenSurface } from '~/components/layout/ScreenSurface';
+import { ScrollableScreenSurface } from '~/components/layout/ScrollableScreenSurface';
 import { Chain } from 'chains';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useSelectedChain } from '~/hooks/useSelectedAccount';
@@ -94,11 +94,13 @@ function ContactScreen_(props: ContactScreenProps) {
     },
   });
 
-  const submit = handleSubmit(async ({ label, address, chain }) => {
+  const submit = handleSubmit(async (input) => {
+    const { label, address, chain } = input;
     await upsert({
       input: { label, address: asUAddress(address, chain), previousAddress: current?.address },
     });
     router.back();
+    reset(input);
   });
 
   return (
@@ -130,7 +132,7 @@ function ContactScreen_(props: ContactScreenProps) {
         })}
       />
 
-      <ScreenSurface>
+      <ScrollableScreenSurface>
         <View style={styles.fields}>
           <View style={styles.fieldContainer}>
             <UserOutlineIcon style={styles.fieldIcon} size={styles.fieldIcon.width} />
@@ -177,7 +179,7 @@ function ContactScreen_(props: ContactScreenProps) {
             {current ? 'Update' : 'Add'}
           </FormSubmitButton>
         </Actions>
-      </ScreenSurface>
+      </ScrollableScreenSurface>
     </>
   );
 }

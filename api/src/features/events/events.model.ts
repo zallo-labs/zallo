@@ -4,8 +4,8 @@ import { uuid } from 'edgedb/dist/codecs/ifaces';
 import { GraphQLBigInt } from 'graphql-scalars';
 import { Account } from '../accounts/accounts.model';
 import { Transfer, TransferApproval } from '../transfers/transfers.model';
-import { match } from 'ts-pattern';
-import * as eDefault from '~/edgeql-js/modules/default';
+import { makeUnionTypeResolver } from '../database/database.util';
+import e from '~/edgeql-js';
 
 @InterfaceType()
 export class EventBase {
@@ -30,14 +30,8 @@ export type Event = typeof Event;
 export const Event = createUnionType({
   name: 'Event',
   types: () => [Transfer, TransferApproval] as const,
-  resolveType: (v) =>
-    match(v.__type__?.name)
-      .with('default::Transfer' satisfies (typeof eDefault.$Transfer)['__name__'], () => Transfer)
-      .with(
-        'default::TransferApproval' satisfies (typeof eDefault.$TransferApproval)['__name__'],
-        () => TransferApproval,
-      )
-      .otherwise(() => {
-        throw new Error('Unhandled event type: ' + JSON.stringify(v));
-      }),
+  resolveType: makeUnionTypeResolver([
+    [e.Transfer, Transfer],
+    [e.TransferApproval, TransferApproval],
+  ]),
 });

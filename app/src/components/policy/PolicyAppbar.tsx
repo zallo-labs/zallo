@@ -1,11 +1,9 @@
-import { SwapIcon, UndoIcon } from '@theme/icons';
+import { SettingsOutlineIcon, SwapIcon, UndoIcon } from '@theme/icons';
 import { Chip, Menu } from 'react-native-paper';
 import { AppbarMore } from '~/components/Appbar/AppbarMore';
 import { useAtomValue } from 'jotai';
 import { FragmentType, gql, useFragment } from '@api/generated';
-import { useMutation } from 'urql';
 import { PolicyView } from '~/hooks/useHydratePolicyDraft';
-import { useConfirmRemoval } from '~/hooks/useConfirm';
 import { POLICY_DRAFT_ATOM } from '~/lib/policy/draft';
 import { AppbarOptions } from '~/components/Appbar/AppbarOptions';
 import { useRouter } from 'expo-router';
@@ -28,23 +26,8 @@ const Policy = gql(/* GraphQL */ `
     }
     draft {
       id
-      isRemoved
       proposal {
         id
-      }
-    }
-  }
-`);
-
-const Remove = gql(/* GraphQL */ `
-  mutation PolicyAppbar_Remove($account: UAddress!, $key: PolicyKey!) {
-    removePolicy(input: { account: $account, key: $key }) {
-      id
-      draft {
-        id
-        proposal {
-          id
-        }
       }
     }
   }
@@ -57,17 +40,13 @@ export interface PolicyAppbarProps {
   view: PolicyView;
   setView: (view: PolicyView) => void;
   reset?: () => void;
+  openSettings: () => void;
 }
 
-export function PolicyAppbar({ view, reset, setView, ...props }: PolicyAppbarProps) {
+export function PolicyAppbar({ view, setView, reset, openSettings, ...props }: PolicyAppbarProps) {
   const { styles } = useStyles(stylesheet);
   const router = useRouter();
   const policy = useFragment(Policy, props.policy);
-  const remove = useMutation(Remove)[1];
-  const confirmRemove = useConfirmRemoval({
-    title: 'Remove policy',
-    message: 'Are you sure you want to remove this policy?',
-  });
 
   const { name } = useAtomValue(POLICY_DRAFT_ATOM);
 
@@ -77,8 +56,8 @@ export function PolicyAppbar({ view, reset, setView, ...props }: PolicyAppbarPro
     view === 'state' && policy?.draft
       ? () => setView('draft')
       : view === 'draft' && policy?.state
-      ? () => setView('state')
-      : undefined;
+        ? () => setView('state')
+        : undefined;
 
   return (
     <AppbarOptions
@@ -102,58 +81,24 @@ export function PolicyAppbar({ view, reset, setView, ...props }: PolicyAppbarPro
               {stateChipLabel}
             </Chip>
           ),
-        (iconProps) => (
-          <AppbarMore iconProps={iconProps}>
-            {({ close }) => (
-              <>
+        (props) => <SettingsOutlineIcon {...props} onPress={openSettings} />,
+        (iconProps) =>
+          state?.proposal ? (
+            <AppbarMore iconProps={iconProps}>
+              {({ close }) => (
                 <Menu.Item
-                  title="Rename policy"
+                  title="View proposal"
                   onPress={() => {
                     close();
                     router.push({
-                      pathname: `/[account]/policies/[key]/name`,
-                      params: { account: props.account, key: props.policyKey },
+                      pathname: `/(drawer)/transaction/[id]`,
+                      params: { id: state.proposal!.id },
                     });
                   }}
                 />
-
-                {state?.proposal && (
-                  <Menu.Item
-                    title="View proposal"
-                    onPress={() => {
-                      close();
-                      router.push({
-                        pathname: `/(drawer)/transaction/[id]/`,
-                        params: { id: state.proposal!.id },
-                      });
-                    }}
-                  />
-                )}
-
-                {policy && !policy.draft?.isRemoved && (
-                  <Menu.Item
-                    title="Remove policy"
-                    onPress={async () => {
-                      close();
-                      if (await confirmRemove()) {
-                        const proposal = (
-                          await remove({ account: policy.account.address, key: policy.key })
-                        ).data?.removePolicy.draft?.proposal;
-
-                        proposal
-                          ? router.push({
-                              pathname: `/(drawer)/transaction/[id]/`,
-                              params: { id: proposal.id },
-                            })
-                          : router.back();
-                      }
-                    }}
-                  />
-                )}
-              </>
-            )}
-          </AppbarMore>
-        ),
+              )}
+            </AppbarMore>
+          ) : null,
       ]}
     />
   );

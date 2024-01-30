@@ -13,7 +13,7 @@ import { useQuery } from '~/gql';
 import { AppbarOptions } from '~/components/Appbar/AppbarOptions';
 import { useLocalParams } from '~/hooks/useLocalParams';
 import { withSuspense } from '~/components/skeleton/withSuspense';
-import { ScreenSurface } from '~/components/layout/ScreenSurface';
+import { ScrollableScreenSurface } from '~/components/layout/ScrollableScreenSurface';
 import { createStyles } from '@theme/styles';
 import { AccountParams } from '~/app/(drawer)/[account]/(home)/_layout';
 import { materialCommunityIcon } from '@theme/icons';
@@ -106,7 +106,7 @@ function SwapScreen() {
     <>
       <AppbarOptions leading="menu" headline="Swap" />
 
-      <ScreenSurface>
+      <ScrollableScreenSurface>
         <InputsView token={from} input={input} setInput={setInput} type={type} setType={setType} />
 
         <View style={styles.spacer} />
@@ -187,7 +187,7 @@ function SwapScreen() {
                   if (!proposal) return;
 
                   router.push({
-                    pathname: `/(drawer)/transaction/[id]/`,
+                    pathname: `/(drawer)/transaction/[id]`,
                     params: { id: proposal },
                   });
                   ampli.swapProposal({ from: from.address, to: to!.address });
@@ -197,7 +197,7 @@ function SwapScreen() {
         >
           Propose
         </Button>
-      </ScreenSurface>
+      </ScrollableScreenSurface>
     </>
   );
 }

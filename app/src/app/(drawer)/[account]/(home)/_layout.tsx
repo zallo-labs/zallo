@@ -5,7 +5,7 @@ import { HomeHeader } from '~/components/home/HomeHeader';
 import { useLocalParams } from '~/hooks/useLocalParams';
 import { useSelectedAccount, useSetSelectedAccont } from '~/hooks/useSelectedAccount';
 import { zUAddress } from '~/lib/zod';
-import { ScreenSurface } from '~/components/layout/ScreenSurface';
+import { ScrollableScreenSurface } from '~/components/layout/ScrollableScreenSurface';
 
 const InternalParams = z.object({ account: zUAddress().optional() }); // Required as the this route is always first in the history, so may be rendered at any time
 export const AccountParams = z.object({ account: zUAddress() });
@@ -20,7 +20,7 @@ export default function HomeLayout() {
   }, [account, setSelectedAccount]);
 
   return (
-    <ScreenSurface>
+    <ScrollableScreenSurface>
       <HomeHeader account={account} />
 
       <TopTabs>
@@ -31,6 +31,6 @@ export default function HomeLayout() {
           initialParams={{ account }}
         />
       </TopTabs>
-    </ScreenSurface>
+    </ScrollableScreenSurface>
   );
 }

@@ -23,7 +23,7 @@ export function DataView({ children, chain, style }: DataViewProps) {
 
 const stylesheet = createStyles(({ colors }) => ({
   container: {
-    backgroundColor: colors.surfaceVariant,
+    backgroundColor: colors.surfaceContainer.highest,
     borderRadius: 16,
     padding: 16,
   },

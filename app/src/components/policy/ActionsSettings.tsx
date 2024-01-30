@@ -10,8 +10,6 @@ import { useToggle } from '~/hooks/useToggle';
 import { PolicyDraftAction, usePolicyDraftState } from '~/lib/policy/draft';
 import { ACTION_PRESETS } from '~/lib/policy/presets';
 
-export const INTERNAL_ACTION_LABEL_PREFIX = '__app__: ';
-
 function isDefaultAllowAction(a: PolicyDraftAction) {
   return a.functions.some((f) => !f.contract && !f.selector);
 }
@@ -28,7 +26,7 @@ export function ActionsSettings(props: ActionsSettingsProps) {
 
   const defaultAllow = actions.find(isDefaultAllowAction)?.allow;
   const allowedExplicitActions = actions.filter((a) => a.allow && !isDefaultAllowAction(a)).length;
-  actions.length - Number(!!defaultAllow);
+
   return (
     <>
       <ListItem
@@ -40,8 +38,8 @@ export function ActionsSettings(props: ActionsSettingsProps) {
               {allowedExplicitActions
                 ? allowedExplicitActions + (defaultAllow ? '+' : '')
                 : defaultAllow
-                ? 'Allowed'
-                : 'Not allowed'}
+                  ? 'Allowed'
+                  : 'Not allowed'}
             </ListItemTrailingText>
             <Chevron expanded={expanded} {...props} />
           </ListItemHorizontalTrailing>

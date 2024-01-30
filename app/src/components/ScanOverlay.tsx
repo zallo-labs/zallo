@@ -84,7 +84,7 @@ const getStylesheet = ({ area, insets }: StyleProps) =>
     return {
       container: {
         flex: 1,
-        marginTop: insets.top,
+        marginTop: insets.top + 8,
       },
       actions: {
         flexDirection: 'row',

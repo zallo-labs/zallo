@@ -14,7 +14,7 @@ import { ContactItem } from '~/components/item/ContactItem';
 import { AppbarMenu } from '~/components/Appbar/AppbarMenu';
 import { withSuspense } from '~/components/skeleton/withSuspense';
 import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
-import { ScreenSurface } from '~/components/layout/ScreenSurface';
+import { ScrollableScreenSurface } from '~/components/layout/ScrollableScreenSurface';
 import { createStyles, useStyles } from '@theme/styles';
 import { z } from 'zod';
 import { zArray, zUAddress } from '~/lib/zod';
@@ -71,7 +71,7 @@ function ContactsScreen() {
         onChangeText={setQuery}
       />
 
-      <ScreenSurface>
+      <ScrollableScreenSurface>
         <FlashList
           data={contacts}
           ListHeaderComponent={<ListHeader>Contacts</ListHeader>}
@@ -100,7 +100,7 @@ function ContactsScreen() {
         />
 
         <Fab icon={AddContactIcon} label="Add" onPress={async () => router.push(`/contacts/add`)} />
-      </ScreenSurface>
+      </ScrollableScreenSurface>
     </>
   );
 }

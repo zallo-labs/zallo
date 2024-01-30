@@ -1,4 +1,4 @@
-import '~/util/sentry/init';
+import * as Sentry from '@sentry/react-native';
 import { getLocales } from 'expo-localization';
 import { Stack } from 'expo-router';
 import { Suspense } from 'react';
@@ -18,30 +18,12 @@ import { UpdateProvider } from '~/components/provider/UpdateProvider';
 import { ThemeProvider } from '~/util/theme/ThemeProvider';
 import { AppbarHeader } from '~/components/Appbar/AppbarHeader';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { NativeStackNavigationOptions } from '@react-navigation/native-stack';
 import { ApproverNameUpdater } from '~/components/ApproverNameUpdater';
 import { Portal } from 'react-native-paper';
 import { TQueryProvider } from '~/components/provider/TQueryProvider';
 import { StyleSheet } from 'react-native';
 import { Fonts } from '~/components/Fonts';
-
-const modal: NativeStackNavigationOptions = {
-  presentation: 'modal',
-};
-
-const transparentModal: NativeStackNavigationOptions = {
-  presentation: 'transparentModal',
-  headerShown: false,
-  animation: 'fade',
-  animationDuration: 100,
-};
-
-const sheet: NativeStackNavigationOptions = {
-  presentation: 'transparentModal',
-  headerShown: false,
-  animation: 'fade',
-  animationDuration: 0,
-};
+import { SentryProvider } from '~/components/provider/SentryProvider';
 
 export const unstable_settings = {
   initialRouteName: `index`,
@@ -51,36 +33,22 @@ function Layout() {
   return (
     <Stack screenOptions={{ header: AppbarHeader }}>
       <Stack.Screen name={`(drawer)`} options={{ headerShown: false }} />
-      <Stack.Screen name={`[account]/policies/[key]/name`} options={modal} />
-      <Stack.Screen name={`[account]/name`} options={modal} />
-      <Stack.Screen name={`[account]/receive`} options={transparentModal} />
-      <Stack.Screen name={`accounts/index`} options={sheet} />
-      <Stack.Screen name={`approvers/[address]/qr`} options={transparentModal} />
-      <Stack.Screen name={`ledger/approve`} options={sheet} />
-      <Stack.Screen name={`link/token`} options={sheet} />
-      <Stack.Screen name={`link/index`} options={transparentModal} />
-      <Stack.Screen name={`onboard/(drawer)`} options={{ headerShown: false }} />
-      <Stack.Screen name={`onboard/landing`} />
-      <Stack.Screen name={`scan/[address]`} options={sheet} />
-      <Stack.Screen name={`scan/index`} options={{ headerShown: false }} />
-      <Stack.Screen name={`sessions/connect/[id]`} options={sheet} />
-      <Stack.Screen name={`sessions/[topic]`} options={sheet} />
+      <Stack.Screen name={`onboard`} options={{ headerShown: false }} />
       <Stack.Screen name={`_sitemap`} />
       <Stack.Screen name={`+not-found`} />
-      <Stack.Screen name={`addresses`} options={{ ...modal, headerShown: false }} />
-      <Stack.Screen name={`auth`} options={transparentModal} />
-      <Stack.Screen name={`confirm`} options={transparentModal} />
+      <Stack.Screen name={`hello`} />
       <Stack.Screen name={`index`} />
-      <Stack.Screen name={`selector`} options={modal} />
+      <Stack.Screen name={`scan`} options={{ headerShown: false }} />
     </Stack>
   );
 }
 
-export default function RootLayout() {
+function RootLayout() {
   return (
     <MinimalErrorBoundary>
+      <SentryProvider />
       <Fonts />
-      <IntlProvider locale={getLocales()[0].languageTag} defaultLocale="en-US">
+      <IntlProvider locale={getLocales()?.[0]?.languageTag ?? 'en-US'} defaultLocale="en-US">
         <SafeAreaProvider>
           <GestureHandlerRootView style={styles.flex}>
             <ThemeProvider>
@@ -120,6 +88,8 @@ export default function RootLayout() {
     </MinimalErrorBoundary>
   );
 }
+
+export default Sentry.wrap(RootLayout);
 
 const styles = StyleSheet.create({
   flex: {

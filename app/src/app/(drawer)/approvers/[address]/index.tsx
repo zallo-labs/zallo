@@ -1,4 +1,4 @@
-import { useRouter } from 'expo-router';
+import { Link } from 'expo-router';
 import { View } from 'react-native';
 import { Actions } from '~/components/layout/Actions';
 import { StyleSheet } from 'react-native';
@@ -13,7 +13,7 @@ import { NotFound } from '~/components/NotFound';
 import { AppbarOptions } from '~/components/Appbar/AppbarOptions';
 import { withSuspense } from '~/components/skeleton/withSuspense';
 import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
-import { ScreenSurface } from '~/components/layout/ScreenSurface';
+import { ScrollableScreenSurface } from '~/components/layout/ScrollableScreenSurface';
 import { z } from 'zod';
 import { zAddress } from '~/lib/zod';
 import { useLocalParams } from '~/hooks/useLocalParams';
@@ -55,7 +55,6 @@ const ApproverScreenParams = z.object({ address: zAddress() });
 
 function ApproverScreen() {
   const params = useLocalParams(ApproverScreenParams);
-  const router = useRouter();
   const update = useMutation(Update)[1];
 
   const query = useQuery(Query, { approver: params.address });
@@ -77,7 +76,7 @@ function ApproverScreen() {
     <>
       <AppbarOptions mode="large" headline="Approver" />
 
-      <ScreenSurface>
+      <ScrollableScreenSurface>
         <View style={styles.fields}>
           <FormTextField
             name="name"
@@ -90,27 +89,27 @@ function ApproverScreen() {
               validate: (v) =>
                 !takenNames.includes(v) || 'An approver with ths name already exists',
             }}
-            onBlur={handleSubmit(async ({ name }) => {
-              await update({ approver: approver.address, name });
+            onBlur={handleSubmit(async (input) => {
+              await update({ approver: approver.address, name: input.name });
+              reset(input);
             })}
           />
         </View>
 
         <Actions>
-          <Button
-            mode="contained"
-            icon={QrCodeIcon}
-            onPress={() =>
-              router.push({
-                pathname: `/approvers/[address]/qr`,
-                params: { address: approver.address },
-              })
-            }
+          <Link
+            href={{
+              pathname: `/(modal)/approvers/[address]/qr`,
+              params: { address: approver.address },
+            }}
+            asChild
           >
-            View
-          </Button>
+            <Button mode="contained" icon={QrCodeIcon}>
+              View
+            </Button>
+          </Link>
         </Actions>
-      </ScreenSurface>
+      </ScrollableScreenSurface>
     </>
   );
 }

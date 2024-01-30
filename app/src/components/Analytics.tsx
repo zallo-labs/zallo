@@ -1,7 +1,7 @@
 import { useApproverAddress } from '~/lib/network/useApprover';
 import { useGlobalSearchParams, usePathname } from 'expo-router';
 import { useEffect, useRef } from 'react';
-import * as Sentry from '~/util/sentry/sentry';
+import * as Sentry from '@sentry/react-native';
 import { gql } from '@api';
 import { useQuery } from '~/gql';
 import { ampli } from '~/lib/ampli';

@@ -61,6 +61,10 @@ const Execute = gql(/* GraphQL */ `
 export interface ProposalActionsProps {
   proposal: FragmentType<typeof Transaction>;
   user: FragmentType<typeof User>;
+  approvalsSheet: {
+    visible: boolean;
+    open: () => void;
+  };
 }
 
 export const TransactionActions = (props: ProposalActionsProps) => {
@@ -89,7 +93,23 @@ export const TransactionActions = (props: ProposalActionsProps) => {
 
   return (
     <Actions>
+      {p.transaction && blockExplorer && (
+        <Button
+          mode="text"
+          icon={ShareIcon}
+          onPress={() => share({ url: `${blockExplorer.url}/tx/${p.transaction!.hash}` })}
+        >
+          Share receipt
+        </Button>
+      )}
+
       {reject && <Button onPress={reject}>Reject</Button>}
+
+      {!props.approvalsSheet.open && (
+        <Button mode="contained-tonal" icon="menu-open" onPress={props.approvalsSheet.open}>
+          View approvals
+        </Button>
+      )}
 
       {approve && (
         <Button mode="contained" onPress={approve}>
@@ -107,16 +127,6 @@ export const TransactionActions = (props: ProposalActionsProps) => {
           }
         >
           Execute
-        </Button>
-      )}
-
-      {p.transaction && blockExplorer && (
-        <Button
-          mode="contained-tonal"
-          icon={ShareIcon}
-          onPress={() => share({ url: `${blockExplorer.url}/tx/${p.transaction!.hash}` })}
-        >
-          Share receipt
         </Button>
       )}
     </Actions>

@@ -1,11 +1,11 @@
 // https://facebook.github.io/metro/docs/configuration/
-const { getDefaultConfig } = require('expo/metro-config');
+const { getSentryExpoConfig } = require('@sentry/react-native/metro'); // Replaces 'const { getDefaultConfig } = require('expo/metro-config');'
 const { FileStore } = require('metro-cache');
 const findWorkspaceRoot = require('find-yarn-workspace-root');
 const path = require('path');
 
 const projectRoot = __dirname;
-const config = getDefaultConfig(projectRoot);
+const config = getSentryExpoConfig(projectRoot);
 
 // Watch all files within the monorepo
 const workspaceRoot = findWorkspaceRoot(projectRoot);

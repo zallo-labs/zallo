@@ -13,7 +13,7 @@ import { POLICY_DRAFT_ATOM, asPolicyInput } from '~/lib/policy/draft';
 import { showError } from '~/components/provider/SnackbarProvider';
 import { withSuspense } from '~/components/skeleton/withSuspense';
 import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
-import { ScreenSurface } from '~/components/layout/ScreenSurface';
+import { ScrollableScreenSurface } from '~/components/layout/ScrollableScreenSurface';
 import { zUAddress } from '~/lib/zod';
 import { ApprovalSettings } from '~/components/policy/ApprovalSettings';
 import { SpendingSettings } from '~/components/policy/SpendingSettings';
@@ -23,6 +23,9 @@ import { PolicySuggestions } from '~/components/policy/PolicySuggestions';
 import { createStyles } from '@theme/styles';
 import { Actions } from '~/components/layout/Actions';
 import { Button } from '~/components/Button';
+import { SideSheetLayout } from '~/components/SideSheet/SideSheetLayout';
+import { PolicySideSheet } from '~/components/policy/PolicySideSheet';
+import { useSideSheetVisibility } from '~/components/SideSheet/useSideSheetVisibility';
 
 const Query = gql(/* GraphQL */ `
   query PolicyScreen($account: UAddress!, $key: PolicyKey!, $queryPolicy: Boolean!) {
@@ -37,6 +40,7 @@ const Query = gql(/* GraphQL */ `
       }
       ...useHydratePolicyDraft_Policy
       ...PolicyAppbar_Policy
+      ...PolicySideSheet_Policy
     }
 
     account(input: { account: $account }) {
@@ -44,6 +48,7 @@ const Query = gql(/* GraphQL */ `
       address
       ...useHydratePolicyDraft_Account
       ...PolicySuggestions_Account
+      ...PolicySideSheet_Account
     }
   }
 `);
@@ -102,6 +107,7 @@ function PolicyScreen() {
   const router = useRouter();
   const create = useMutation(Create)[1];
   const update = useMutation(Update)[1];
+  const sheet = useSideSheetVisibility();
 
   const key = params.key === 'add' ? undefined : asPolicyKey(params.key);
 
@@ -122,7 +128,7 @@ function PolicyScreen() {
   if (!account) return null;
 
   return (
-    <>
+    <SideSheetLayout>
       <PolicyAppbar
         account={account.address}
         policyKey={params.key}
@@ -130,9 +136,10 @@ function PolicyScreen() {
         view={view}
         setView={(view) => router.setParams({ ...params, key: `${params.key}`, view })}
         reset={isModified ? () => setDraft(init) : undefined}
+        openSettings={sheet.open}
       />
 
-      <ScreenSurface contentContainerStyle={styles.container}>
+      <ScrollableScreenSurface contentContainerStyle={styles.container}>
         <PolicySuggestions account={account} />
         <ApprovalSettings initiallyExpanded={initiallyExpanded} />
         <SpendingSettings initiallyExpanded={initiallyExpanded} />
@@ -153,7 +160,7 @@ function PolicyScreen() {
 
                 router.setParams({ ...params, key: `${r.key}`, view: 'draft' });
                 router.push({
-                  pathname: `/(drawer)/transaction/[id]/`,
+                  pathname: `/(drawer)/transaction/[id]`,
                   params: { id: r.draft!.proposal!.id },
                 });
               }}
@@ -162,8 +169,10 @@ function PolicyScreen() {
             </Button>
           </Actions>
         )}
-      </ScreenSurface>
-    </>
+      </ScrollableScreenSurface>
+
+      <PolicySideSheet account={account} policy={policy} {...sheet} />
+    </SideSheetLayout>
   );
 }
 

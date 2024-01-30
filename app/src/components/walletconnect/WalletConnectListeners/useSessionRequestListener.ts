@@ -121,7 +121,7 @@ export const useSessionRequestListener = () => {
           }
         });
 
-        router.push({ pathname: `/(drawer)/transaction/[id]/`, params: { id: proposal } });
+        router.push({ pathname: `/(drawer)/transaction/[id]`, params: { id: proposal } });
 
         // sub is automatically unsubscribed on unmount due to proposals unsubscribe
       } else if (WC_SIGNING_METHODS.has(method)) {
@@ -154,7 +154,7 @@ export const useSessionRequestListener = () => {
           }
         });
 
-        router.push({ pathname: `/(drawer)/message/[id]/`, params: { id: proposal.id } });
+        router.push({ pathname: `/(drawer)/message/[id]`, params: { id: proposal.id } });
 
         // sub is automatically unsubscribed on unmount due to proposals unsubscribe
       } else {

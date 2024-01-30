@@ -7,7 +7,7 @@ import { showError } from '~/components/provider/SnackbarProvider';
 import { proposalAsTypedData } from '~/lib/proposalAsTypedData';
 import { useGetAppleApprover } from '~/hooks/cloud/useGetAppleApprover';
 import { useGetGoogleApprover } from '~/hooks/cloud/useGetGoogleApprover';
-import { useGetLedgerApprover } from '~/app/ledger/approve';
+import { useGetLedgerApprover } from '~/app/(sheet)/ledger/approve';
 import { useSignWithApprover } from '~/components/transaction/useSignWithApprover';
 import { ampli } from '~/lib/ampli';
 

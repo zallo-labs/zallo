@@ -28,7 +28,7 @@ import { useConfirmRemoval } from '~/hooks/useConfirm';
 import { AppbarOptions } from '~/components/Appbar/AppbarOptions';
 import { withSuspense } from '~/components/skeleton/withSuspense';
 import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
-import { ScreenSurface } from '~/components/layout/ScreenSurface';
+import { ScrollableScreenSurface } from '~/components/layout/ScrollableScreenSurface';
 import { z } from 'zod';
 import { zAddress, zChain, zUAddress } from '~/lib/zod';
 import { useLocalParams } from '~/hooks/useLocalParams';
@@ -167,7 +167,7 @@ function SharedTokenScreen_(props: TokenScreenProps) {
         }
       />
 
-      <ScreenSurface>
+      <ScrollableScreenSurface>
         <ScrollView contentContainerStyle={styles.container}>
           <Indented
             leading={
@@ -254,9 +254,9 @@ function SharedTokenScreen_(props: TokenScreenProps) {
           <Actions>
             <FormSubmitButton
               mode="contained"
-              // requireChanges
               control={control}
-              onPress={handleSubmit(async ({ address, chain, name, symbol, decimals, iconUri }) => {
+              onPress={handleSubmit(async (input) => {
+                const { address, chain, name, symbol, decimals, iconUri } = input;
                 await upsert({
                   input: {
                     address: asUAddress(address, chain),
@@ -266,13 +266,14 @@ function SharedTokenScreen_(props: TokenScreenProps) {
                     iconUri,
                   },
                 });
+                reset(input);
               })}
             >
               Save
             </FormSubmitButton>
           </Actions>
         </ScrollView>
-      </ScreenSurface>
+      </ScrollableScreenSurface>
     </>
   );
 }

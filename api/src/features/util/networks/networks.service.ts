@@ -55,6 +55,7 @@ function create({ chainKey, redis }: CreateParams) {
   const transport = chain.rpcUrls.default.webSocket.length
     ? webSocket(undefined, { retryCount: 10 })
     : http();
+  // TODO: use fallback transport when eth_subscribe works with websockets - https://github.com/wevm/viem/issues/776
   // const transport = fallback([
   //   ...chain.rpcUrls.default.webSocket.map((url) => webSocket(url, { retryCount: 10 })),
   //   ...chain.rpcUrls.default.http.map((url) => http(url, { retryCount: 10, batch: true })),
@@ -66,7 +67,7 @@ function create({ chainKey, redis }: CreateParams) {
     key: chain.key,
     name: chain.name,
     batch: { multicall: true },
-    pollingInterval: 250 /* ms */, // Used when websocket is unavailable
+    pollingInterval: 500 /* ms */, // Used when websocket is unavailable
   }).extend((client) => ({
     ...walletActions(client, transport, redis),
     ...blockNumberAndStatusActions(client),
@@ -121,6 +122,7 @@ function blockNumberAndStatusActions(client: Client) {
       status.next(error as WatchBlockNumberErrorType);
     },
     emitOnBegin: true,
+    poll: true, // TODO: remove when fixed websocket watchX auto reconnect is supported - https://github.com/wevm/viem/issues/877
   });
 
   return {

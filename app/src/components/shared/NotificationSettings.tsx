@@ -12,7 +12,7 @@ import { ListHeader } from '~/components/list/ListHeader';
 import { withSuspense } from '~/components/skeleton/withSuspense';
 import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
 import { AppbarOptions } from '~/components/Appbar/AppbarOptions';
-import { ScreenSurface } from '~/components/layout/ScreenSurface';
+import { ScrollableScreenSurface } from '~/components/layout/ScrollableScreenSurface';
 import { ActivityIcon, IconProps, TransferIcon, UpdateIcon } from '@theme/icons';
 import { FC } from 'react';
 import { AppbarMenu } from '~/components/Appbar/AppbarMenu';
@@ -90,7 +90,7 @@ function NotificationSettings({ next, appbarMenu }: NotificationSettingsProps) {
         headline="Notifications"
       />
 
-      <ScreenSurface style={styles.surface}>
+      <ScrollableScreenSurface style={styles.surface}>
         <ListHeader>Receive</ListHeader>
 
         {Object.entries(NotificationChannelConfig).map(([channel, config]) => (
@@ -127,7 +127,7 @@ function NotificationSettings({ next, appbarMenu }: NotificationSettingsProps) {
             </Button>
           )}
         </Actions>
-      </ScreenSurface>
+      </ScrollableScreenSurface>
     </>
   );
 }

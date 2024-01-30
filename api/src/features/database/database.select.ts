@@ -22,10 +22,24 @@ import { SelectModifiers, objectTypeToSelectShape } from '~/edgeql-js/select';
 import { $scopify, ObjectTypeExpression, ObjectTypeSet, SomeType } from '~/edgeql-js/typesystem';
 import { $linkPropify } from '~/edgeql-js/syntax';
 import { Cardinality, TypeKind } from 'edgedb/dist/reflection';
-import { merge } from 'ts-deepmerge';
+import { deepmergeCustom } from 'deepmerge-ts';
 import assert from 'assert';
 import e from '~/edgeql-js';
 import _ from 'lodash';
+import typesUtil from 'node:util/types';
+import { CONFIG } from '~/config';
+
+// Avoid deep merging edgedb type reflection metadata (from e.is) as they can be very deep!
+const merge = deepmergeCustom({
+  mergeRecords: (values, utils, meta) => {
+    if (meta?.key === '__polyType__') return values[0];
+
+    if (CONFIG.env === 'development' && typesUtil.isProxy(values[0]))
+      throw new Error('Unexpected proxy found when merging select shapes');
+
+    return utils.defaultMergeFunctions.mergeRecords(values, utils, meta);
+  },
+});
 
 export type Scope<Expr extends ObjectTypeExpression> = $scopify<Expr['__element__']> &
   $linkPropify<{
@@ -59,11 +73,11 @@ interface FieldDetails {
   edgeql: SomeType;
 }
 
-const fieldToShape = (field: FieldDetails, graphqlInfo: GraphQLResolveInfo) => {
+function fieldToShape(field: FieldDetails, graphqlInfo: GraphQLResolveInfo) {
   if (!field.selections || field.edgeql.__kind__ !== TypeKind.object) return true;
 
   // Type may define fields to select
-  let shape = {};
+  let shape: object = {};
   const typeExtensions = getGraphqlTypeExtensions(field.graphql);
   if (typeExtensions.select && typeof typeExtensions.select === 'object')
     shape = merge(shape, typeExtensions.select);
@@ -114,15 +128,40 @@ const fieldToShape = (field: FieldDetails, graphqlInfo: GraphQLResolveInfo) => {
         .exhaustive(),
     shape,
   );
-};
+}
 
-const getFragmentShape = (
+function getFragmentShape(
   field: FieldDetails,
   graphqlInfo: GraphQLResolveInfo,
   fragment: FragmentDefinitionNode | InlineFragmentNode,
-  shape: any,
-) => {
-  const fieldGql = getGraphqlBaseType(field.graphql);
+  shape: object,
+) {
+  const baseGqlType = getGraphqlBaseType(field.graphql);
+  const simpleGqlTypes = getGraphqlSimpleTypes(baseGqlType);
+
+  // Include EQL type name for union types
+  if (isUnionType(baseGqlType)) shape = merge(shape, { __type__: { name: true } });
+
+  return simpleGqlTypes.reduce((shape, fieldBaseGqlType) => {
+    const fragmentShape = getBaseTypeFragmentShape(
+      field,
+      graphqlInfo,
+      fragment,
+      shape,
+      fieldBaseGqlType,
+    );
+
+    return merge(shape, fragmentShape);
+  }, shape);
+}
+
+function getBaseTypeFragmentShape(
+  field: FieldDetails,
+  graphqlInfo: GraphQLResolveInfo,
+  fragment: FragmentDefinitionNode | InlineFragmentNode,
+  shape: object,
+  fieldGql: GqlBaseType,
+) {
   const fragmentGql = fragment.typeCondition
     ? graphqlInfo.schema.getType(fragment.typeCondition.name.value)
     : undefined;
@@ -192,19 +231,22 @@ const getFragmentShape = (
       ...fieldEqlFields,
     ]),
   });
-};
+}
 
-const getGraphqlBaseType = (
-  type: GraphQLOutputType,
-):
-  | GraphQLObjectType
-  | GraphQLInterfaceType
-  | GraphQLScalarType
-  | GraphQLEnumType
-  | GraphQLUnionType =>
+type GqlBaseType = GqlSimpleType | GraphQLUnionType;
+
+const getGraphqlBaseType = (type: GraphQLOutputType): GqlBaseType =>
   match(type)
     .with({ ofType: P.not(P.nullish) }, (type) => getGraphqlBaseType(type.ofType))
     .otherwise((type) => type);
+
+type GqlSimpleType = GraphQLObjectType | GraphQLInterfaceType | GraphQLScalarType | GraphQLEnumType;
+
+const getGraphqlSimpleTypes = (type: GraphQLOutputType): GqlSimpleType[] =>
+  match(type)
+    .when(isUnionType, (type) => type.getTypes().flatMap(getGraphqlSimpleTypes))
+    .with({ ofType: P.not(P.nullish) }, (type) => getGraphqlSimpleTypes(type.ofType))
+    .otherwise((type) => [type]);
 
 const getGraphqlTypeFields = (type: GraphQLOutputType): GraphQLFieldMap<unknown, unknown> =>
   match(type)

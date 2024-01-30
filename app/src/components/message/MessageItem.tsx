@@ -2,7 +2,7 @@ import { FragmentType, gql, useFragment } from '@api/generated';
 import { ListItem, ListItemProps } from '../list/ListItem';
 import { MessageIcon } from './MessageIcon';
 import { P, match } from 'ts-pattern';
-import { useRouter } from 'expo-router';
+import { Link } from 'expo-router';
 import { createStyles, useStyles } from '@theme/styles';
 
 const MessageProposal = gql(/* GraphQL */ `
@@ -34,7 +34,6 @@ export interface MessageItemProps {
 
 export function MessageItem(props: MessageItemProps) {
   const { styles } = useStyles(stylesheet);
-  const router = useRouter();
   const p = useFragment(MessageProposal, props.proposal);
   const user = useFragment(User, props.user);
 
@@ -52,13 +51,14 @@ export function MessageItem(props: MessageItemProps) {
     .exhaustive();
 
   return (
-    <ListItem
-      leading={(props) => <MessageIcon proposal={p} {...props} />}
-      leadingSize="medium"
-      headline={p.label || 'Message'}
-      supporting={supporting}
-      onPress={() => router.push({ pathname: `/(drawer)/message/[id]/`, params: { id: p.id } })}
-    />
+    <Link href={{ pathname: `/(drawer)/message/[id]`, params: { id: p.id } }} asChild>
+      <ListItem
+        leading={(props) => <MessageIcon proposal={p} {...props} />}
+        leadingSize="medium"
+        headline={p.label || 'Message'}
+        supporting={supporting}
+      />
+    </Link>
   );
 }
 

@@ -9,7 +9,7 @@ import { showError } from '~/components/provider/SnackbarProvider';
 import { AppbarOptions } from '~/components/Appbar/AppbarOptions';
 import { withSuspense } from '~/components/skeleton/withSuspense';
 import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
-import { ScreenSurface } from '~/components/layout/ScreenSurface';
+import { ScrollableScreenSurface } from '~/components/layout/ScrollableScreenSurface';
 import { UAddress } from 'lib';
 import { Text } from 'react-native-paper';
 import { AccountNameFormField } from '~/components/fields/AccountNameFormField';
@@ -43,7 +43,7 @@ function CreateAccountScreen({ onCreate }: CreateAccountScreenProps) {
   const [chain, setChain] = useState<Chain>('zksync-goerli'); // TODO: <SelectChain />
   const presets = usePolicyPresets({ chain, account: undefined });
 
-  const { control, handleSubmit } = useForm<Inputs>({
+  const { control, handleSubmit, reset } = useForm<Inputs>({
     defaultValues: { label: '' },
     mode: 'onChange',
   });
@@ -52,7 +52,7 @@ function CreateAccountScreen({ onCreate }: CreateAccountScreenProps) {
     <>
       <AppbarOptions mode="large" headline="Let's setup your account" />
 
-      <ScreenSurface>
+      <ScrollableScreenSurface>
         <View style={styles.fields}>
           <AccountNameFormField name="label" control={control} required autoFocus />
 
@@ -76,12 +76,14 @@ function CreateAccountScreen({ onCreate }: CreateAccountScreenProps) {
               } else {
                 router.push({ pathname: `/(drawer)/[account]/(home)/`, params: { account } });
               }
+
+              reset();
             })}
           >
             Continue
           </FormSubmitButton>
         </Actions>
-      </ScreenSurface>
+      </ScrollableScreenSurface>
     </>
   );
 }
