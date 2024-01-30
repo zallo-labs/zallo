@@ -13,7 +13,7 @@ import { POLICY_DRAFT_ATOM, asPolicyInput } from '~/lib/policy/draft';
 import { showError } from '~/components/provider/SnackbarProvider';
 import { withSuspense } from '~/components/skeleton/withSuspense';
 import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
-import { ScreenSurface } from '~/components/layout/ScreenSurface';
+import { ScrollableScreenSurface } from '~/components/layout/ScrollableScreenSurface';
 import { zUAddress } from '~/lib/zod';
 import { ApprovalSettings } from '~/components/policy/ApprovalSettings';
 import { SpendingSettings } from '~/components/policy/SpendingSettings';
@@ -139,7 +139,7 @@ function PolicyScreen() {
         openSettings={sheet.open}
       />
 
-      <ScreenSurface contentContainerStyle={styles.container}>
+      <ScrollableScreenSurface contentContainerStyle={styles.container}>
         <PolicySuggestions account={account} />
         <ApprovalSettings initiallyExpanded={initiallyExpanded} />
         <SpendingSettings initiallyExpanded={initiallyExpanded} />
@@ -169,7 +169,7 @@ function PolicyScreen() {
             </Button>
           </Actions>
         )}
-      </ScreenSurface>
+      </ScrollableScreenSurface>
 
       <PolicySideSheet account={account} policy={policy} {...sheet} />
     </SideSheetLayout>

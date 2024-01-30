@@ -5,7 +5,7 @@ import { DocumentVariables, getOptimizedDocument, useQuery } from '~/gql';
 import { z } from 'zod';
 import { useLocalParams } from '~/hooks/useLocalParams';
 import { AppbarOptions } from '~/components/Appbar/AppbarOptions';
-import { ScreenSurface } from '~/components/layout/ScreenSurface';
+import { ScrollableScreenSurface } from '~/components/layout/ScrollableScreenSurface';
 import { zUuid } from '~/lib/zod';
 import { RemoveTransactionItem } from '~/components/transaction/RemoveTransactionItem';
 import { TransactionStatus } from '~/components/transaction/TransactionStatus';
@@ -111,7 +111,7 @@ export default function TransactionScreen() {
         )}
       />
 
-      <ScreenSurface>
+      <ScrollableScreenSurface>
         <TransactionStatus proposal={p} />
 
         <OperationsSection proposal={p} />
@@ -127,7 +127,7 @@ export default function TransactionScreen() {
         <RiskRating proposal={p} style={styles.riskLabel} />
 
         <TransactionActions proposal={p} user={query.data.user} approvalsSheet={sideSheet} />
-      </ScreenSurface>
+      </ScrollableScreenSurface>
 
       <SideSheet headline="Approvals" {...sideSheet}>
         <ProposalApprovals proposal={id} />

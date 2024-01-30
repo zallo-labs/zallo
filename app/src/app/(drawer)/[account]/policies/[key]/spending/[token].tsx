@@ -14,7 +14,7 @@ import { usePolicyDraftState } from '~/lib/policy/draft';
 import { useQuery } from '~/gql';
 import { AppbarOptions } from '~/components/Appbar/AppbarOptions';
 import { truncateAddr } from '~/util/format';
-import { ScreenSurface } from '~/components/layout/ScreenSurface';
+import { ScrollableScreenSurface } from '~/components/layout/ScrollableScreenSurface';
 import { Text } from 'react-native-paper';
 import { Actions } from '~/components/layout/Actions';
 import { Button } from '~/components/Button';
@@ -89,7 +89,7 @@ export default function TokenLimitScreen() {
         headline={`${t?.name ?? truncateAddr(address)} Spending`}
       />
 
-      <ScreenSurface style={styles.surface}>
+      <ScrollableScreenSurface style={styles.surface}>
         <ListHeader>Spending limit</ListHeader>
 
         <View style={styles.container}>
@@ -133,7 +133,7 @@ export default function TokenLimitScreen() {
             Remove
           </Button>
         </Actions>
-      </ScreenSurface>
+      </ScrollableScreenSurface>
     </>
   );
 }

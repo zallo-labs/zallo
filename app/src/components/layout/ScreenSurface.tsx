@@ -1,28 +1,24 @@
 import { createStyles, useStyles } from '@theme/styles';
-import { ScrollView, ScrollViewProps, StyleProp, ViewStyle } from 'react-native';
-import { MaybeSurface } from './MaybeSurface';
+import { Surface, SurfaceProps } from 'react-native-paper';
+import { useMaybeDrawerContext } from '~/components/drawer/DrawerContextProvider';
 
-export interface ScreenSurfaceProps extends ScrollViewProps {
-  surfaceStyle?: StyleProp<ViewStyle>;
-}
-
-export function ScreenSurface({ children, ...scrollViewProps }: ScreenSurfaceProps) {
+export function ScreenSurface(props: SurfaceProps) {
   const { styles } = useStyles(stylesheet);
 
-  return (
-    <MaybeSurface>
-      <ScrollView
-        {...scrollViewProps}
-        contentContainerStyle={[styles.contentContainer, scrollViewProps.contentContainerStyle]}
-      >
-        {children}
-      </ScrollView>
-    </MaybeSurface>
+  return useMaybeDrawerContext()?.type === 'standard' ? (
+    <Surface elevation={0} {...props} style={[styles.surface, props.style]} />
+  ) : (
+    <>{props.children}</>
   );
 }
 
-const stylesheet = createStyles({
-  contentContainer: {
+const stylesheet = createStyles(({ colors, corner }) => ({
+  surface: {
     flex: 1,
+    marginTop: 8,
+    marginBottom: 16,
+    marginRight: 16,
+    borderRadius: corner.l,
+    backgroundColor: colors.surface,
   },
-});
+}));

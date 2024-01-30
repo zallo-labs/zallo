@@ -21,7 +21,7 @@ import { useLocalParams } from '~/hooks/useLocalParams';
 import { withSuspense } from '~/components/skeleton/withSuspense';
 import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
 import { asAddress } from 'lib';
-import { MaybeSurface } from '~/components/layout/MaybeSurface';
+import { ScreenSurface } from '~/components/layout/ScreenSurface';
 import { SearchbarOptions } from '~/components/Appbar/SearchbarOptions';
 
 const Query = gql(/* GraphQL */ `
@@ -108,7 +108,7 @@ function AddressesScreen() {
         onChangeText={setQuery}
       />
 
-      <MaybeSurface>
+      <ScreenSurface>
         <FlashList
           data={[
             accounts?.length && 'Accounts',
@@ -165,7 +165,7 @@ function AddressesScreen() {
           showsVerticalScrollIndicator={false}
           estimatedItemSize={ListItemHeight.DOUBLE_LINE}
         />
-      </MaybeSurface>
+      </ScreenSurface>
     </>
   );
 }

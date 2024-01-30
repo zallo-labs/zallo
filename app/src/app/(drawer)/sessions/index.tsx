@@ -7,7 +7,7 @@ import { Divider, Text } from 'react-native-paper';
 import { AppbarOptions } from '~/components/Appbar/AppbarOptions';
 import { withSuspense } from '~/components/skeleton/withSuspense';
 import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
-import { ScreenSurface } from '~/components/layout/ScreenSurface';
+import { ScrollableScreenSurface } from '~/components/layout/ScrollableScreenSurface';
 import { Fab } from '~/components/Fab';
 
 function SessionsScreen() {
@@ -20,7 +20,7 @@ function SessionsScreen() {
     <>
       <AppbarOptions mode="large" leading="menu" headline="Sessions" />
 
-      <ScreenSurface>
+      <ScrollableScreenSurface>
         <FlatList
           data={pairings}
           renderItem={({ item, index }) => (
@@ -39,7 +39,7 @@ function SessionsScreen() {
         />
 
         <Fab icon={ScanIcon} label="Scan" onPress={() => router.push(`/scan/`)} />
-      </ScreenSurface>
+      </ScrollableScreenSurface>
     </>
   );
 }

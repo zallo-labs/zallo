@@ -1,5 +1,5 @@
 import { createStyleSheet, useStyles } from 'react-native-unistyles';
-import { MaybeSurface } from '../layout/MaybeSurface';
+import { ScreenSurface } from '../layout/ScreenSurface';
 import { ReactNode } from 'react';
 import { StyleProp, ViewStyle } from 'react-native';
 import { Surface } from 'react-native-paper';
@@ -19,7 +19,7 @@ export function SideSheetSurface({ children, close, contentStyle }: SideSheetSur
   const type = useSideSheetType();
 
   return type === 'standard' ? (
-    <MaybeSurface style={[styles.contentContainer, contentStyle]}>{children}</MaybeSurface>
+    <ScreenSurface style={[styles.contentContainer, contentStyle]}>{children}</ScreenSurface>
   ) : (
     <CustomModal close={close} entering={SlideInRight} exiting={SlideOutRight} style={styles.modal}>
       <Surface style={[styles.modalContentContainer, styles.contentContainer, contentStyle]}>

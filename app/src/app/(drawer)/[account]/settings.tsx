@@ -12,7 +12,7 @@ import { AppbarOptions } from '~/components/Appbar/AppbarOptions';
 import { useLocalParams } from '~/hooks/useLocalParams';
 import { withSuspense } from '~/components/skeleton/withSuspense';
 import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
-import { ScreenSurface } from '~/components/layout/ScreenSurface';
+import { ScrollableScreenSurface } from '~/components/layout/ScrollableScreenSurface';
 import { Actions } from '~/components/layout/Actions';
 import { Button } from '~/components/Button';
 import { match } from 'ts-pattern';
@@ -82,7 +82,7 @@ function AccountSettingsScreen() {
         })}
       />
 
-      <ScreenSurface>
+      <ScrollableScreenSurface>
         <FlashList
           data={['Policies', ...account.policies]}
           renderItem={({ item }) =>
@@ -129,7 +129,7 @@ function AccountSettingsScreen() {
             Add policy
           </Button>
         </Actions>
-      </ScreenSurface>
+      </ScrollableScreenSurface>
 
       <AccountSettingsSideSheet account={account} {...sheet} />
     </SideSheetLayout>

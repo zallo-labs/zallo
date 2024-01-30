@@ -9,7 +9,7 @@ import { showError } from '~/components/provider/SnackbarProvider';
 import { AppbarOptions } from '~/components/Appbar/AppbarOptions';
 import { withSuspense } from '~/components/skeleton/withSuspense';
 import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
-import { ScreenSurface } from '~/components/layout/ScreenSurface';
+import { ScrollableScreenSurface } from '~/components/layout/ScrollableScreenSurface';
 import { UAddress } from 'lib';
 import { Text } from 'react-native-paper';
 import { AccountNameFormField } from '~/components/fields/AccountNameFormField';
@@ -52,7 +52,7 @@ function CreateAccountScreen({ onCreate }: CreateAccountScreenProps) {
     <>
       <AppbarOptions mode="large" headline="Let's setup your account" />
 
-      <ScreenSurface>
+      <ScrollableScreenSurface>
         <View style={styles.fields}>
           <AccountNameFormField name="label" control={control} required autoFocus />
 
@@ -83,7 +83,7 @@ function CreateAccountScreen({ onCreate }: CreateAccountScreenProps) {
             Continue
           </FormSubmitButton>
         </Actions>
-      </ScreenSurface>
+      </ScrollableScreenSurface>
     </>
   );
 }

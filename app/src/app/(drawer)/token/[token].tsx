@@ -28,7 +28,7 @@ import { useConfirmRemoval } from '~/hooks/useConfirm';
 import { AppbarOptions } from '~/components/Appbar/AppbarOptions';
 import { withSuspense } from '~/components/skeleton/withSuspense';
 import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
-import { ScreenSurface } from '~/components/layout/ScreenSurface';
+import { ScrollableScreenSurface } from '~/components/layout/ScrollableScreenSurface';
 import { z } from 'zod';
 import { zAddress, zChain, zUAddress } from '~/lib/zod';
 import { useLocalParams } from '~/hooks/useLocalParams';
@@ -167,7 +167,7 @@ function SharedTokenScreen_(props: TokenScreenProps) {
         }
       />
 
-      <ScreenSurface>
+      <ScrollableScreenSurface>
         <ScrollView contentContainerStyle={styles.container}>
           <Indented
             leading={
@@ -273,7 +273,7 @@ function SharedTokenScreen_(props: TokenScreenProps) {
             </FormSubmitButton>
           </Actions>
         </ScrollView>
-      </ScreenSurface>
+      </ScrollableScreenSurface>
     </>
   );
 }

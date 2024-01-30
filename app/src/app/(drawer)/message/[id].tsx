@@ -10,7 +10,7 @@ import { useMutation } from 'urql';
 import { useConfirmRemoval } from '~/hooks/useConfirm';
 import { useRouter } from 'expo-router';
 import { AppbarOptions } from '~/components/Appbar/AppbarOptions';
-import { ScreenSurface } from '~/components/layout/ScreenSurface';
+import { ScrollableScreenSurface } from '~/components/layout/ScrollableScreenSurface';
 import { MessageStatus } from '~/components/message/MessageStatus';
 import { StyleSheet, View } from 'react-native';
 import { MessageIcon } from '~/components/message/MessageIcon';
@@ -92,7 +92,7 @@ export default function MessageScreen() {
         )}
       />
 
-      <ScreenSurface>
+      <ScrollableScreenSurface>
         <MessageStatus proposal={p} />
 
         <View style={styles.header}>
@@ -107,7 +107,7 @@ export default function MessageScreen() {
         <RiskRating proposal={p} />
 
         <MessageActions proposal={p} user={query.data.user} />
-      </ScreenSurface>
+      </ScrollableScreenSurface>
 
       <SideSheet headline="Approvals" {...sideSheet}>
         <ProposalApprovals proposal={id} />

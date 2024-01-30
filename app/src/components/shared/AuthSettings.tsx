@@ -8,7 +8,7 @@ import { ListHeader } from '~/components/list/ListHeader';
 import { ReactNode, useEffect } from 'react';
 import { withSuspense } from '~/components/skeleton/withSuspense';
 import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
-import { ScreenSurface } from '~/components/layout/ScreenSurface';
+import { ScrollableScreenSurface } from '~/components/layout/ScrollableScreenSurface';
 import { AppbarOptions } from '~/components/Appbar/AppbarOptions';
 import { AppbarMenu } from '~/components/Appbar/AppbarMenu';
 import { Button } from '~/components/Button';
@@ -54,7 +54,7 @@ function AuthSettings_({ actions, appbarMenu, passwordHref }: AuthSettingsProps)
         headline="Authentication"
       />
 
-      <ScreenSurface style={styles.surface}>
+      <ScrollableScreenSurface style={styles.surface}>
         <ScrollView contentContainerStyle={styles.container}>
           <ListHeader>Methods</ListHeader>
 
@@ -109,7 +109,7 @@ function AuthSettings_({ actions, appbarMenu, passwordHref }: AuthSettingsProps)
 
           <Actions>{actions}</Actions>
         </ScrollView>
-      </ScreenSurface>
+      </ScrollableScreenSurface>
     </>
   );
 }

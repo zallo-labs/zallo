@@ -13,7 +13,7 @@ import { NotFound } from '~/components/NotFound';
 import { AppbarOptions } from '~/components/Appbar/AppbarOptions';
 import { withSuspense } from '~/components/skeleton/withSuspense';
 import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
-import { ScreenSurface } from '~/components/layout/ScreenSurface';
+import { ScrollableScreenSurface } from '~/components/layout/ScrollableScreenSurface';
 import { z } from 'zod';
 import { zAddress } from '~/lib/zod';
 import { useLocalParams } from '~/hooks/useLocalParams';
@@ -77,7 +77,7 @@ function ApproverScreen() {
     <>
       <AppbarOptions mode="large" headline="Approver" />
 
-      <ScreenSurface>
+      <ScrollableScreenSurface>
         <View style={styles.fields}>
           <FormTextField
             name="name"
@@ -111,7 +111,7 @@ function ApproverScreen() {
             View
           </Button>
         </Actions>
-      </ScreenSurface>
+      </ScrollableScreenSurface>
     </>
   );
 }
