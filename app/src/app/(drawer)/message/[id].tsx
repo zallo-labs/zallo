@@ -106,7 +106,7 @@ export default function MessageScreen() {
 
         <RiskRating proposal={p} />
 
-        <MessageActions proposal={p} user={query.data.user} />
+        <MessageActions proposal={p} user={query.data.user} approvalsSheet={sideSheet} />
       </ScrollableScreenSurface>
 
       <SideSheet headline="Approvals" {...sideSheet}>
