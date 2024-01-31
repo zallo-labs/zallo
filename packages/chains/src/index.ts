@@ -1,14 +1,6 @@
 import * as viem from 'viem';
 import * as viemChain from 'viem/chains';
 
-type ZkSyncFormatters = (typeof viemChain.zkSync)['formatters'];
-
-interface ChainDefinition extends viem.Chain<ZkSyncFormatters> {
-  key: string;
-  layer1?: viem.Chain;
-  verifyUrl?: string;
-}
-
 export type Chain = keyof typeof CHAINS; // shortName https://eips.ethereum.org/EIPS/eip-3770
 export type ChainConfig = (typeof CHAINS)[Chain];
 export type Network = viem.PublicClient<viem.Transport, ChainConfig>;
@@ -18,7 +10,7 @@ export const CHAINS = {
   zksync: {
     ...viemChain.zkSync,
     key: 'zksync',
-    name: 'zkSync',
+    name: 'zkSync Era',
     layer1: viemChain.mainnet,
     verifyUrl: 'https://zksync2-mainnet-explorer.zksync.io/contract_verification',
     testnet: false,
@@ -29,6 +21,13 @@ export const CHAINS = {
     name: 'zkSync Goerli testnet',
     layer1: viemChain.goerli,
     verifyUrl: 'https://zksync2-testnet-explorer.zksync.dev/contract_verification',
+  } as const,
+  'zksync-sepolia': {
+    ...viemChain.zkSyncSepoliaTestnet,
+    key: 'zksync-sepolia',
+    name: 'zkSync Sepolia testnet',
+    layer1: viemChain.sepolia,
+    verifyUrl: 'https://explorer.sepolia.era.zksync.dev/contract_verification',
   } as const,
   'zksync-local': {
     ...viemChain.zkSyncTestnet,
@@ -47,25 +46,10 @@ export const CHAINS = {
         webSocket: [] as string[],
       },
     },
-    /* END era-test-node */
-    /* Docker node */
-    // id: 270,
-    // layer1: viemChain.localhost,
-    // rpcUrls: {
-    //   default: {
-    //     http: ['http://localhost:3050'],
-    //     webSocket: ['ws://localhost:3051'],
-    //   },
-    //   public: {
-    //     http: ['http://localhost:3050'],
-    //     webSocket: ['ws://localhost:3051'],
-    //   },
-    // },
-    /* END Docker node */
     verifyUrl: undefined,
     blockExplorers: undefined,
   } as const,
-} satisfies Record<string, ChainDefinition>;
+};
 
 export function getChain(
   key: Chain | string = 'zksync-local' satisfies Chain,

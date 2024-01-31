@@ -22,6 +22,10 @@ const User = gql(/* GraphQL */ `
 export interface MessageActionsProps {
   proposal: FragmentType<typeof MessageProposal>;
   user: FragmentType<typeof User>;
+  approvalsSheet: {
+    visible: boolean;
+    open: () => void;
+  };
 }
 
 export function MessageActions(props: MessageActionsProps) {
@@ -34,6 +38,12 @@ export function MessageActions(props: MessageActionsProps) {
   return (
     <Actions>
       {reject && <Button onPress={reject}>Reject</Button>}
+
+      {!props.approvalsSheet.open && (
+        <Button mode="contained-tonal" icon="menu-open" onPress={props.approvalsSheet.open}>
+          View approvals
+        </Button>
+      )}
 
       {approve && (
         <Button mode="contained" onPress={approve}>

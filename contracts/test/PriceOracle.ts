@@ -21,9 +21,9 @@ describe('PriceOracle', () => {
         {
           pyth,
           ethUsdPriceId: ETH.pythUsdPriceId,
-          dai: { token: DAI.address[chain], usdPriceId: DAI.pythUsdPriceId },
-          usdc: { token: USDC.address[chain], usdPriceId: USDC.pythUsdPriceId },
-          weth: { token: WETH.address[chain], usdPriceId: WETH.pythUsdPriceId },
+          dai: { token: DAI.address[chain] ?? disabled, usdPriceId: DAI.pythUsdPriceId },
+          usdc: { token: USDC.address[chain] ?? disabled, usdPriceId: USDC.pythUsdPriceId },
+          weth: { token: WETH.address[chain] ?? disabled, usdPriceId: WETH.pythUsdPriceId },
           reth: { token: RETH.address[chain] ?? disabled, usdPriceId: RETH.pythUsdPriceId },
           cbeth: { token: CBETH.address[chain] ?? disabled, usdPriceId: CBETH.pythUsdPriceId },
         },

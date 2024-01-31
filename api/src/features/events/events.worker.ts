@@ -18,6 +18,7 @@ import { DEFAULT_JOB_OPTIONS } from '../util/bull/bull.module';
 import { AbiEvent } from 'abitype';
 import { Log as ViemLog, encodeEventTopics, hexToNumber } from 'viem';
 import { runOnce } from '~/util/mutex';
+import { UnrecoverableError } from 'bullmq';
 
 const TARGET_LOGS_PER_JOB = 9_000; // Max 10k
 const DEFAULT_LOGS_PER_BLOCK = 200;
@@ -31,6 +32,7 @@ export const EventsQueue = createQueue<EventJobData>('Events', {
     // LIFO ensures that the oldest blocks are processed first, without the overhead of prioritized jobs
     // This is due to the next block being added prior to (potential) block splits
     lifo: true,
+    removeOnFail: 1000, // Prevent
   },
 });
 export type EventsQueue = typeof EventsQueue;
@@ -93,11 +95,11 @@ export class EventsWorker extends Worker<EventsQueue> {
   }
 
   async process(job: TypedJob<EventsQueue>) {
-    const { chain } = job.data;
+    const { chain, from } = job.data;
     const network = this.networks.get(chain);
+    if (typeof from !== 'number' && !isNaN(from)) throw new UnrecoverableError('Invalid `from`');
 
     const latest = Number(network.blockNumber()); // Warning: bigint -> number
-    const from = job.data.from;
     const targetBlocks = Math.max(1, Math.floor(TARGET_LOGS_PER_JOB / this.logsPerBlock[chain]));
     const to = Math.min(job.data.to ?? from + targetBlocks - 1, latest);
 
@@ -135,9 +137,8 @@ export class EventsWorker extends Worker<EventsQueue> {
       await Promise.all(
         logs
           .filter((log) => log.topics.length)
-          .flatMap(
-            (log) =>
-              this.listeners.get(log.topics[0]!)?.map((listener) => listener({ chain, log })),
+          .flatMap((log) =>
+            this.listeners.get(log.topics[0]!)?.map((listener) => listener({ chain, log })),
           ),
       );
       this.log.verbose(
@@ -149,6 +150,9 @@ export class EventsWorker extends Worker<EventsQueue> {
 
       // Split the job into two smaller jobs
       const newTo = hexToNumber(asHex(match[1]));
+      if (typeof newTo !== 'number' && !isNaN(newTo))
+        throw new UnrecoverableError('Invalid `newTo`');
+
       this.queue.addBulk([
         { name: 'Split (lower)', data: { chain, from, to: newTo, split: true } },
         { name: 'Split (upper)', data: { chain, from: newTo + 1, to, split: true } },

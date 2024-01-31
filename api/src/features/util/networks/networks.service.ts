@@ -52,9 +52,10 @@ interface CreateParams {
 
 function create({ chainKey, redis }: CreateParams) {
   const chain = CHAINS[chainKey];
-  const transport = chain.rpcUrls.default.webSocket.length
-    ? webSocket(undefined, { retryCount: 10 })
-    : http();
+  const transport = http();
+  // const transport = chain.rpcUrls.default.webSocket.length
+  //   ? webSocket(undefined, { retryCount: 10 })
+  //   : http();
   // TODO: use fallback transport when eth_subscribe works with websockets - https://github.com/wevm/viem/issues/776
   // const transport = fallback([
   //   ...chain.rpcUrls.default.webSocket.map((url) => webSocket(url, { retryCount: 10 })),

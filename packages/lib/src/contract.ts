@@ -11,7 +11,8 @@ export const TEST_VERIFIER_ABI = testVerifierArtifact.abi;
 export const ACCOUNT_IMPLEMENTATION = {
   ...accountArtifact,
   address: addresses({
-    'zksync-goerli': '0xDaf66323F8b502f086b6336Bd3B461381f200754',
+    'zksync-sepolia': '0x0BeDda5e7c06A4bd781b1F40c56a0755Cb358598',
+    'zksync-goerli': '0x0BeDda5e7c06A4bd781b1F40c56a0755Cb358598',
   }),
 } as const;
 
@@ -23,7 +24,8 @@ export const ACCOUNT_PROXY = {
 export const ACCOUNT_PROXY_FACTORY = {
   abi: accountProxyFactoryArtifact.abi,
   address: addresses({
-    'zksync-goerli': '0xA87c3780338459dfcf27ada8db48a2F1D66F99A3',
+    'zksync-sepolia': '0xf98eb6B78E717170529AB1411713666E0c701eB1',
+    'zksync-goerli': '0xf98eb6B78E717170529AB1411713666E0c701eB1',
   }),
 };
 
@@ -35,16 +37,20 @@ export const ACCOUNT_ABI = [
 export const PAYMASTER = {
   abi: paymasterArtifact.abi,
   address: addresses({
-    'zksync-goerli': '0x07E6Fcfd986a3A6fE1BC8802C34d106d9c474581',
+    // Addresses differ due to token addresses differing on networks
+    'zksync-sepolia': '0xcE92aeCa1f4126bdcEAe9cb949ebD895Bd59d51D',
+    'zksync-goerli': '0x2CFB10415ce77A026CD6CC40a83349b32d52825A',
   }),
 };
 
 function addresses(
-  m: Partial<Record<Chain, Address>> & Pick<Record<Chain, Address>, 'zksync-goerli'>,
+  m: Partial<Record<Chain, Address>> &
+    Pick<Record<Chain, Address>, 'zksync-sepolia' | 'zksync-goerli'>,
 ): Record<Chain, Address> {
   return {
     zksync: m.zksync ?? '0x',
+    'zksync-sepolia': m['zksync-sepolia'],
     'zksync-goerli': m['zksync-goerli'],
-    'zksync-local': m['zksync-local'] ?? m['zksync-goerli'], // Expects a zksync-local node to be forked from zksync-goerli
+    'zksync-local': m['zksync-local'] ?? m['zksync-sepolia'], // Expects zksync-local to be a fork
   };
 }

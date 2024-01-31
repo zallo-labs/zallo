@@ -129,7 +129,7 @@ describe(PaymastersService.name, () => {
       }));
 
       expect(await service.estimateFeePerGas(feeToken)).toEqual({
-        id: 'FeesPerGas:zksync-local:0x0faF6df7054946141266420b43783387A78d82A9',
+        id: 'FeesPerGas:zksync-local:0x2E89367b610Bd316c8C8b1dF0Aa89971C2584Ca3',
         maxFeePerGas: new Decimal('0.00003125'),
         maxPriorityFeePerGas: new Decimal('0.00003125'),
         feeTokenDecimals: 6,

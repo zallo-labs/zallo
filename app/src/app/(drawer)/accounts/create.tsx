@@ -13,11 +13,13 @@ import { ScrollableScreenSurface } from '~/components/layout/ScrollableScreenSur
 import { UAddress } from 'lib';
 import { Text } from 'react-native-paper';
 import { AccountNameFormField } from '~/components/fields/AccountNameFormField';
-import { createStyles } from '@theme/styles';
+import { createStyles, useStyles } from '@theme/styles';
 import { usePolicyPresets } from '~/lib/policy/presets';
 import { asPolicyInput } from '~/lib/policy/draft';
-import { useState } from 'react';
-import { Chain } from 'chains';
+import { CHAINS, Chain } from 'chains';
+import { FormSelectChip } from '~/components/fields/FormSelectChip';
+import { SUPPORTED_CHAINS } from '@network/chains';
+import { ChainIcon } from '@theme/icons';
 
 const Create = gql(/* GraphQL */ `
   mutation CreateAccountScreen_Create($input: CreateAccountInput!) {
@@ -30,33 +32,60 @@ const Create = gql(/* GraphQL */ `
 
 interface Inputs {
   label: string;
+  chain: Chain;
 }
+
+const chainEntries = Object.values(SUPPORTED_CHAINS).map((c) => [c.name, c.key] as const);
 
 export interface CreateAccountScreenProps {
   onCreate?: (account: UAddress) => void;
 }
 
 function CreateAccountScreen({ onCreate }: CreateAccountScreenProps) {
+  const { styles } = useStyles(stylesheet);
   const router = useRouter();
   const create = useMutation(Create)[1];
 
-  const [chain, setChain] = useState<Chain>('zksync-goerli'); // TODO: <SelectChain />
-  const presets = usePolicyPresets({ chain, account: undefined });
-
-  const { control, handleSubmit, reset } = useForm<Inputs>({
-    defaultValues: { label: '' },
+  const { control, handleSubmit, reset, watch } = useForm<Inputs>({
+    defaultValues: { label: '', chain: 'zksync-goerli' },
     mode: 'onChange',
   });
+
+  const chain = watch('chain');
+  const presets = usePolicyPresets({ chain, account: undefined });
 
   return (
     <>
       <AppbarOptions mode="large" headline="Let's setup your account" />
 
       <ScrollableScreenSurface>
-        <View style={styles.fields}>
-          <AccountNameFormField name="label" control={control} required autoFocus />
+        <View style={styles.nameContainer}>
+          <Text variant="bodyMedium" style={styles.nameChangeText}>
+            You can change your account name later
+          </Text>
 
-          <Text>You can change your account name later</Text>
+          <AccountNameFormField
+            name="label"
+            label="Account name"
+            control={control}
+            required
+            autoFocus
+          />
+        </View>
+
+        <View style={styles.chainContainer}>
+          <FormSelectChip
+            name="chain"
+            control={control}
+            entries={chainEntries}
+            chipProps={{ icon: ChainIcon }}
+          />
+
+          {CHAINS[chain].testnet && (
+            <Text variant="titleSmall" style={styles.warning}>
+              This network is only useful for testing purposes
+            </Text>
+          )}
         </View>
 
         <Actions>
@@ -64,8 +93,10 @@ function CreateAccountScreen({ onCreate }: CreateAccountScreenProps) {
             mode="contained"
             style={styles.button}
             control={control}
-            onPress={handleSubmit(async ({ label }) => {
-              const r = await create({ input: { label, policies: [asPolicyInput(presets.high)] } });
+            onPress={handleSubmit(async ({ label, chain }) => {
+              const r = await create({
+                input: { label, chain, policies: [asPolicyInput(presets.high)] },
+              });
 
               const account = r.data?.createAccount.address;
               if (!account)
@@ -88,17 +119,29 @@ function CreateAccountScreen({ onCreate }: CreateAccountScreenProps) {
   );
 }
 
-const styles = createStyles({
+const stylesheet = createStyles(({ colors }) => ({
   root: {
     flex: 1,
   },
-  fields: {
+  nameContainer: {
     margin: 16,
     gap: 16,
+  },
+  nameChangeText: {
+    textAlign: 'center',
+  },
+  chainContainer: {
+    alignItems: 'center',
+    gap: 8,
+    marginTop: 16,
+    marginHorizontal: 16,
+  },
+  warning: {
+    color: colors.warning,
   },
   button: {
     alignSelf: 'stretch',
   },
-});
+}));
 
 export default withSuspense(CreateAccountScreen, <ScreenSkeleton />);

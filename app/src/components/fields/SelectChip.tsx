@@ -1,3 +1,4 @@
+import { DownArrowIcon } from '@theme/icons';
 import { createStyles, useStyles } from '@theme/styles';
 import { useState } from 'react';
 import { Chip, ChipProps, Menu, MenuProps } from 'react-native-paper';
@@ -32,7 +33,14 @@ export function SelectChip<T>({
       visible={visible}
       onDismiss={close}
       anchor={
-        <Chip {...(chipProps?.closeIcon && { onClose: () => {} })} {...chipProps} onPress={toggle}>
+        <Chip
+          closeIcon={DownArrowIcon}
+          onClose={() => {}}
+          {...chipProps}
+          onPress={toggle}
+          style={[styles.chip, chipProps?.style]}
+          textStyle={[styles.chipText, chipProps?.textStyle]}
+        >
           {label}
         </Chip>
       }
@@ -54,6 +62,12 @@ export function SelectChip<T>({
 }
 
 const stylesheet = createStyles(({ colors }) => ({
+  chip: {
+    backgroundColor: colors.secondaryContainer,
+  },
+  chipText: {
+    color: colors.onSecondaryContainer,
+  },
   selected: {
     color: colors.primary,
   },

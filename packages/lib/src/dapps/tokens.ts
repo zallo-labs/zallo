@@ -22,6 +22,7 @@ export const ETH = {
   decimals: 18,
   address: addressMap({
     zksync: ETH_ADDRESS,
+    'zksync-sepolia': ETH_ADDRESS,
     'zksync-goerli': ETH_ADDRESS,
   }),
   ethereumAddress: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
@@ -41,6 +42,7 @@ export const WETH = {
   decimals: 18,
   address: addressMap({
     zksync: '0xf00DAD97284D0c6F06dc4Db3c32454D4292c6813',
+    'zksync-sepolia': '0x0525ee59d397fC5B73cD930292c48FF98762719a',
     'zksync-goerli': '0x20b28B1e4665FFf290650586ad76E977EAb90c5D',
   }),
   ethereumAddress: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
@@ -56,6 +58,7 @@ export const USDC = {
   decimals: 6,
   address: addressMap({
     zksync: '0x3355df6D4c9C3035724Fd0e3914dE96A5a83aaf4',
+    'zksync-sepolia': '0x2E89367b610Bd316c8C8b1dF0Aa89971C2584Ca3',
     'zksync-goerli': '0x0faF6df7054946141266420b43783387A78d82A9',
   }),
   ethereumAddress: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
@@ -86,6 +89,7 @@ export const USDT = {
   decimals: 6,
   address: addressMap({
     zksync: '0x493257fD37EDB34451f62EDf8D2a0C418852bA4C',
+    'zksync-sepolia': '0xA5E213CE7217d3d2ec8514b59a20Fe03447040AE',
     'zksync-goerli': '0xfcEd12dEbc831D3a84931c63687C395837D42c2B',
   }),
   ethereumAddress: '0xdAC17F958D2ee523a2206206994597C13D831ec7',
@@ -100,6 +104,7 @@ export const WBTC = {
   decimals: 8,
   address: addressMap({
     zksync: '0xBBeB516fb02a01611cBBE0453Fe3c580D7281011',
+    'zksync-sepolia': '0xBD1AAA3058613dDA84Ca2BC590f39d85aD7AdB48',
     'zksync-goerli': '0x0BfcE1D53451B4a8175DD94e6e029F7d8a701e9c',
   }),
   ethereumAddress: '0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599',

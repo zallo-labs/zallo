@@ -26,12 +26,3 @@ export const [ChainScalar, ChainField] = createScalar<Chain, Chain>({
     codegenScalarType: 'chains#Chain',
   },
 });
-
-// const ChainEnum = {
-//   zksync: 'zksync',
-//   zksync_goerli: 'zksync-goerli',
-//   zksync_local: 'zksync-local',
-// } satisfies Record<string, Chain>;
-// registerEnumType(ChainEnum, { name: 'Chain' });
-
-// export const ChainField = createField(ChainEnum);

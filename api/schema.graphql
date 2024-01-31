@@ -136,7 +136,7 @@ scalar Bytes
 """32-byte hex string"""
 scalar Bytes32
 
-"""zksync | zksync-goerli | zksync-local"""
+"""zksync | zksync-goerli | zksync-sepolia | zksync-local"""
 scalar Chain
 
 enum CloudProvider {
