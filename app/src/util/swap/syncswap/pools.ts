@@ -14,9 +14,11 @@ export const SYNCSWAP_POOL_FAMILY = atomFamily((chain: Chain) => atom(getSyncswa
 
 async function getSyncswapPools(chain: Chain): Promise<SyncswapPool[]> {
   const network = getNetwork(chain);
+  const poolMaster = SYNCSWAP.poolMaster.address[network.chain.key];
+  if (!poolMaster) return [];
 
   const poolsLen = await network.readContract({
-    address: SYNCSWAP.poolMaster.address[network.chain.key],
+    address: poolMaster,
     abi: SYNCSWAP.poolMaster.abi,
     functionName: 'poolsLength',
   });
@@ -28,7 +30,7 @@ async function getSyncswapPools(chain: Chain): Promise<SyncswapPool[]> {
         .map(
           (_, i) =>
             ({
-              address: SYNCSWAP.poolMaster.address[network.chain.key],
+              address: poolMaster,
               abi: SYNCSWAP.poolMaster.abi,
               functionName: 'pools',
               args: [BigInt(i)],

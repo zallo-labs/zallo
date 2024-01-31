@@ -1,7 +1,7 @@
 import { Address, ETH_ADDRESS, Operation, UAddress, asChain } from 'lib';
 import { ERC20, SYNCSWAP } from 'lib/dapps';
 import { DateTime } from 'luxon';
-import { ok } from 'neverthrow';
+import { err, ok } from 'neverthrow';
 import { encodeFunctionData } from 'viem';
 import { SwapRoute } from '~/hooks/swap/useSwapRoute';
 import { estimateSwap } from '~/util/swap/syncswap/estimate';
@@ -28,6 +28,9 @@ export async function getSwapOperations({
 }: GetSwapOperationsParams) {
   const chain = asChain(account);
 
+  const router = SYNCSWAP.router.address[chain];
+  if (!router) return err('unsupported-network' as const);
+
   const estimatedToAmount = await estimateSwap({ chain, route, fromAmount });
   if (estimatedToAmount.isErr()) return estimatedToAmount;
 
@@ -42,13 +45,13 @@ export async function getSwapOperations({
           data: encodeFunctionData({
             abi: ERC20,
             functionName: 'approve',
-            args: [SYNCSWAP.router.address[chain], fromAmount],
+            args: [router, fromAmount],
           }),
         }
       : undefined;
 
   const swapOp: Operation = {
-    to: SYNCSWAP.router.address[chain],
+    to: router,
     value: !transferOp ? fromAmount : undefined,
     data: encodeFunctionData({
       abi: SYNCSWAP.router.abi,
