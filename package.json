@@ -24,7 +24,8 @@
     "test": "yarn turbo run test",
     "prettier": "prettier --config .config/.prettierrc --ignore-path .config/.prettierignore --ignore-unknown",
     "lint": "yarn turbo run lint",
-    "clean": "yarn turbo run clean"
+    "clean": "yarn turbo run clean",
+    "update-env": "npx dotenv-vault@latest push production"
   },
   "engines": {
     "node": "20.9.0",
