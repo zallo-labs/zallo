@@ -126,6 +126,7 @@ const stylesheet = createStyles(({ colors, iconSize }) => ({
     justifyContent: 'center',
     alignItems: 'center',
     gap: 32,
+    marginHorizontal: 32,
   },
   qrSurface: {
     padding: 16,
