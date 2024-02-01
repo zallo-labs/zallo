@@ -11,7 +11,7 @@ import { useSubscription } from 'urql';
 import { useEffect } from 'react';
 import { Subject } from 'rxjs';
 import { LinkingTokenModal_SubscriptionSubscription } from '@api/generated/graphql';
-import { useRouter } from 'expo-router';
+import { Link, useRouter } from 'expo-router';
 import { getDeepLink } from '~/util/config';
 import { share } from '~/lib/share';
 import { createStyles, useStyles } from '@theme/styles';
@@ -87,9 +87,15 @@ export default function LinkingModal() {
         </View>
 
         <Actions flex={false}>
-          <Button mode="contained" icon={ShareIcon} onPress={() => share({ url: link })}>
-            Linking token
+          <Button mode="contained-tonal" icon={ShareIcon} onPress={() => share({ url: link })}>
+            Share token
           </Button>
+
+          <Link href="/scan" asChild>
+            <Button mode="contained" icon={ScanIcon}>
+              Scan instead
+            </Button>
+          </Link>
         </Actions>
       </View>
     </Blur>
