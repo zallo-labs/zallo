@@ -3,13 +3,12 @@ import { useCallback, useState } from 'react';
 import { Platform, StyleSheet, View } from 'react-native';
 import { CameraView, useCameraPermissions } from 'expo-camera/next';
 import { Button, Text } from 'react-native-paper';
-import { isWalletConnectUri, useWalletConnect } from '~/lib/wc';
 import { Actions } from '~/components/layout/Actions';
 import { Address, UAddress, tryAsAddress } from 'lib';
 import * as Linking from 'expo-linking';
 import useAsyncEffect from 'use-async-effect';
-import { showError, showInfo } from '~/components/provider/SnackbarProvider';
-import { getPathFromDeepLink } from '~/util/config';
+import { showError } from '~/components/provider/SnackbarProvider';
+import { parseAppLink } from '~/util/config';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { ScanOverlay } from '~/components/ScanOverlay';
 import { Subject } from 'rxjs';
@@ -18,6 +17,7 @@ import { AppbarOptions } from '~/components/Appbar/AppbarOptions';
 import { z } from 'zod';
 import { zUAddress } from '~/lib/zod';
 import { useLocalParams } from '~/hooks/useLocalParams';
+import { isWalletConnectUri } from '~/lib/wc/uri';
 
 export const SCANNED_ADDRESSES = new Subject<Address>();
 export function useScanAddress() {
@@ -32,7 +32,6 @@ const ScanScreenParams = z.object({ account: zUAddress().optional() });
 export default function ScanScreen() {
   const { account } = useLocalParams(ScanScreenParams);
   const router = useRouter();
-  const walletconnect = useWalletConnect();
 
   const [scan, setScan] = useState(true);
 
@@ -54,15 +53,13 @@ export default function ScanScreen() {
       return true;
     } else if (isWalletConnectUri(data)) {
       try {
-        showInfo('Connecting with dapp...');
-        await walletconnect.pair({ uri: data });
-        router.back();
+        router.replace({ pathname: '/wc', params: { uri: data } });
         return true;
       } catch {
         showError('Failed to connect. Please refresh the DApp and try again');
       }
-    } else if (getPathFromDeepLink(data)) {
-      router.push(getPathFromDeepLink(data) as Route<string>);
+    } else if (parseAppLink(data)) {
+      router.push(parseAppLink(data) as Route<string>);
       return true;
     }
 

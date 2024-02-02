@@ -91,7 +91,6 @@ export const useSessionRequestListener = () => {
       const peer = client.getActiveSessions()[topic].peer.metadata;
 
       const chain = Object.values(CHAINS).find((c) => asCaip2(c) === params.chainId)?.key;
-      console.log(params.chainId);
       if (!chain)
         return client.respondSessionRequest({
           topic,

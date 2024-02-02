@@ -12,7 +12,7 @@ import { useEffect } from 'react';
 import { Subject } from 'rxjs';
 import { LinkingTokenModal_SubscriptionSubscription } from '@api/generated/graphql';
 import { Link, useRouter } from 'expo-router';
-import { getDeepLink } from '~/util/config';
+import { appLink } from '~/util/config';
 import { share } from '~/lib/share';
 import { createStyles, useStyles } from '@theme/styles';
 import { EdgeInsets, useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -41,7 +41,7 @@ export default function LinkingModal() {
   const router = useRouter();
 
   const { user } = useQuery(Query).data;
-  const link = getDeepLink({ pathname: `/link/token`, params: { token: user.linkingToken } });
+  const link = appLink({ pathname: `/link/token`, params: { token: user.linkingToken } });
 
   const [subscription] = useSubscription({ query: Subscription });
   useEffect(() => {

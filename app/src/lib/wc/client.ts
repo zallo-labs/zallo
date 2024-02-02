@@ -2,10 +2,7 @@ import { Core } from '@walletconnect/core';
 import { Web3Wallet } from '@walletconnect/web3wallet';
 import { atom, useAtomValue, useSetAtom } from 'jotai';
 import { useCallback } from 'react';
-import { CONFIG } from '~/util/config';
-
-const URI_PATTERN = /^wc:[0-9a-f]{64}@2\?/;
-export const isWalletConnectUri = (uri: string) => URI_PATTERN.test(uri);
+import { CONFIG, appLink } from '~/util/config';
 
 const core = new Core({ projectId: CONFIG.walletConnectProjectId });
 
@@ -18,9 +15,18 @@ const CLIENT = atom(
         description: 'Smart wallet',
         url: CONFIG.webAppUrl,
         icons: [CONFIG.metadata.iconUri],
+        redirect: {
+          native: appLink('/wc', 'native'),
+          universal: appLink('/wc', 'universal'),
+        },
       },
     }),
 );
+
+console.log({
+  native: appLink('/wc', 'native'),
+  universal: appLink('/wc', 'universal'),
+});
 
 const WATCHER = atom({});
 

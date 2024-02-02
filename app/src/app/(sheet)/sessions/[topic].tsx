@@ -66,14 +66,10 @@ export default function SessionDetailsSheet() {
 
       if (session && !_.isEqual(initial, [...draft])) {
         if (draft.size > 0) {
-          client
-            .updateSession({
-              topic: session.topic,
-              namespaces: updateNamespaces(session.namespaces, [...draft] as UAddress[]),
-            })
-            .then(() => {
-              console.log(updateNamespaces(session.namespaces, [...selected] as UAddress[]));
-            });
+          client.updateSession({
+            topic: session.topic,
+            namespaces: updateNamespaces(session.namespaces, [...draft] as UAddress[]),
+          });
         } else {
           disconnect?.();
         }

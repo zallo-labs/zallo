@@ -1,8 +1,8 @@
 import { getSdkError } from '@walletconnect/utils';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { showError } from '~/components/provider/SnackbarProvider';
 import { useWalletConnectWithoutWatching, sessionChains } from '~/lib/wc';
-import { useRouter } from 'expo-router';
+import { useRouter, usePathname, Route } from 'expo-router';
 import { Web3WalletTypes } from '@walletconnect/web3wallet';
 
 type SessionProposalArgs = Web3WalletTypes.EventArguments['session_proposal'];
@@ -10,6 +10,12 @@ type SessionProposalArgs = Web3WalletTypes.EventArguments['session_proposal'];
 export const useSessionConnectionListener = () => {
   const router = useRouter();
   const client = useWalletConnectWithoutWatching();
+
+  const pathnameHook = usePathname();
+  const pathname = useRef(pathnameHook);
+  useEffect(() => {
+    pathname.current = pathnameHook;
+  }, [pathnameHook]);
 
   useEffect(() => {
     const handler = async ({ id, params: proposal }: SessionProposalArgs) => {
@@ -21,7 +27,8 @@ export const useSessionConnectionListener = () => {
         return client.rejectSession({ id, reason: getSdkError('UNSUPPORTED_CHAINS') });
       }
 
-      router.push({ pathname: `/(sheet)/sessions/connect/[id]`, params: { id } });
+      const href = { pathname: `/(sheet)/sessions/connect/[id]`, params: { id } } as const;
+      pathname.current === ('/wc' satisfies Route<''>) ? router.replace(href) : router.push(href);
     };
 
     client.on('session_proposal', handler);

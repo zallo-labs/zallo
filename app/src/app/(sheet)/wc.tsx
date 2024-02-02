@@ -1,0 +1,55 @@
+import { WalletConnectColorIcon } from '@theme/icons';
+import { createStyles, useStyles } from '@theme/styles';
+import { useEffect } from 'react';
+import { View } from 'react-native';
+import { ActivityIndicator, Text } from 'react-native-paper';
+import { z } from 'zod';
+import { Sheet } from '~/components/sheet/Sheet';
+import { useLocalParams } from '~/hooks/useLocalParams';
+import { useWalletConnectWithoutWatching } from '~/lib/wc';
+import { zWalletConnectUri } from '~/lib/wc/uri';
+
+export const WalletConnectUriScreenParams = z.object({ uri: zWalletConnectUri() });
+
+export default function WalletConnectUriScreen() {
+  const { uri } = useLocalParams(WalletConnectUriScreenParams);
+  const { styles } = useStyles(stylesheet);
+  const client = useWalletConnectWithoutWatching();
+
+  useEffect(() => {
+    client.pair({ uri });
+  }, [client, uri]);
+
+  return (
+    <Sheet handle={false} contentContainerStyle={styles.container}>
+      <WalletConnectColorIcon size={styles.icon.width} />
+
+      <View style={styles.connectingContainer}>
+        <ActivityIndicator style={styles.activity} />
+
+        <Text variant="headlineMedium">Connecting with dapp</Text>
+
+        <View style={styles.activity} />
+      </View>
+    </Sheet>
+  );
+}
+
+const stylesheet = createStyles(({ fonts }) => ({
+  container: {
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 16,
+  },
+  icon: {
+    width: 80,
+  },
+  connectingContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 16,
+  },
+  activity: {
+    width: fonts.headlineMedium.fontSize,
+  },
+}));
