@@ -8,7 +8,7 @@ import { AddressLabel } from '~/components/address/AddressLabel';
 import { Blur } from '~/components/Blur';
 import { Button } from '~/components/Button';
 import { share } from '~/lib/share';
-import { useRouter } from 'expo-router';
+import { Link } from 'expo-router';
 import { createStyles, useStyles } from '@theme/styles';
 import { EdgeInsets, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ReactNode, useState } from 'react';
@@ -22,7 +22,6 @@ export interface QrModalProps {
 
 export function QrModal({ address, actions }: QrModalProps) {
   const { styles } = useStyles(stylesheet);
-  const router = useRouter();
 
   const [mode, setMode] = useState<'address' | 'uaddress'>('address');
   const displayed = mode === 'address' ? asAddress(address) : address;
@@ -31,12 +30,9 @@ export function QrModal({ address, actions }: QrModalProps) {
     <Blur>
       <View style={styles.container(useSafeAreaInsets())}>
         <View style={styles.headerContainer}>
-          <IconButton
-            mode="contained-tonal"
-            icon={CloseIcon}
-            onPress={router.back}
-            size={styles.iconButton.width}
-          />
+          <Link href=".." asChild>
+            <IconButton mode="contained-tonal" icon={CloseIcon} size={styles.iconButton.width} />
+          </Link>
 
           <Text variant="displaySmall" style={styles.name}>
             {isUAddress(address) && <AddressLabel address={address} />}

@@ -11,7 +11,7 @@ import { useSubscription } from 'urql';
 import { useEffect } from 'react';
 import { Subject } from 'rxjs';
 import { LinkingTokenModal_SubscriptionSubscription } from '@api/generated/graphql';
-import { Link, useRouter } from 'expo-router';
+import { Link } from 'expo-router';
 import { appLink } from '~/util/config';
 import { share } from '~/lib/share';
 import { createStyles, useStyles } from '@theme/styles';
@@ -38,7 +38,6 @@ const Subscription = gql(/* GraphQL */ `
 
 export default function LinkingModal() {
   const { styles } = useStyles(stylesheet);
-  const router = useRouter();
 
   const { user } = useQuery(Query).data;
   const link = appLink({ pathname: `/link/token`, params: { token: user.linkingToken } });
@@ -51,12 +50,9 @@ export default function LinkingModal() {
   return (
     <Blur>
       <View style={styles.container(useSafeAreaInsets())}>
-        <IconButton
-          mode="contained-tonal"
-          icon={CloseIcon}
-          style={styles.close}
-          onPress={router.back}
-        />
+        <Link href=".." asChild>
+          <IconButton mode="contained-tonal" icon={CloseIcon} style={styles.close} />
+        </Link>
 
         <View style={styles.qrContainer}>
           <Surface style={styles.qrSurface}>

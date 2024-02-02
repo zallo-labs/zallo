@@ -5,7 +5,7 @@ import { View } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { ICON_SIZE } from '@theme/paper';
 import { Text } from 'react-native-paper';
-import { useRouter } from 'expo-router';
+import { Link } from 'expo-router';
 import { createStyles, useStyles } from '@theme/styles';
 
 export interface NotFoundProps {
@@ -14,7 +14,6 @@ export interface NotFoundProps {
 
 export function NotFound({ name }: NotFoundProps) {
   const { styles } = useStyles(stylesheet);
-  const router = useRouter();
 
   return (
     <View style={styles.root}>
@@ -27,9 +26,11 @@ export function NotFound({ name }: NotFoundProps) {
       </View>
 
       <Actions>
-        <Button mode="contained" icon={BackIcon} onPress={router.back}>
-          Back
-        </Button>
+        <Link href=".." asChild>
+          <Button mode="contained" icon={BackIcon}>
+            Back
+          </Button>
+        </Link>
       </Actions>
     </View>
   );

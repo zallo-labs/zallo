@@ -71,7 +71,7 @@ export default function ConnectSessionSheet() {
   }, [client, dapp, id, router]);
 
   if (!proposal) {
-    showError("DApp session proposal wasn't found, please try again");
+    showError(`${dapp} session proposal wasn't found, please try again`);
     router.back();
     return null;
   }
