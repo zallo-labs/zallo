@@ -3,12 +3,12 @@ import { useCallback, useState } from 'react';
 import { Platform, StyleSheet, View } from 'react-native';
 import { CameraView, useCameraPermissions } from 'expo-camera/next';
 import { Button, Text } from 'react-native-paper';
-import { isWalletConnectUri, useWalletConnect } from '~/util/walletconnect';
+import { isWalletConnectUri, useWalletConnect } from '~/lib/wc';
 import { Actions } from '~/components/layout/Actions';
 import { Address, UAddress, tryAsAddress } from 'lib';
 import * as Linking from 'expo-linking';
 import useAsyncEffect from 'use-async-effect';
-import { showError } from '~/components/provider/SnackbarProvider';
+import { showError, showInfo } from '~/components/provider/SnackbarProvider';
 import { getPathFromDeepLink } from '~/util/config';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { ScanOverlay } from '~/components/ScanOverlay';
@@ -54,7 +54,8 @@ export default function ScanScreen() {
       return true;
     } else if (isWalletConnectUri(data)) {
       try {
-        await walletconnect.core.pairing.pair({ uri: data });
+        showInfo('Connecting with dapp...');
+        await walletconnect.pair({ uri: data });
         router.back();
         return true;
       } catch {

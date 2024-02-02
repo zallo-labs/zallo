@@ -5,17 +5,18 @@ import { useEffect, useMemo } from 'react';
 import { showError, showInfo } from '~/components/provider/SnackbarProvider';
 import { logError } from '~/util/analytics';
 import {
+  asCaip2,
   asWalletConnectError,
   asWalletConnectResult,
   useWalletConnectWithoutWatching,
-} from '~/util/walletconnect';
+} from '~/lib/wc';
 import {
   SigningRequest,
   WC_SIGNING_METHODS,
   WC_TRANSACTION_METHODS,
   WalletConnectSendTransactionRequest,
   normalizeSigningRequest,
-} from '~/util/walletconnect/methods';
+} from '~/lib/wc/methods';
 import { usePropose } from '@api/usePropose';
 import { getOptimizedDocument, useQuery } from '~/gql';
 import { Subject } from 'rxjs';
@@ -87,11 +88,12 @@ export const useSessionRequestListener = () => {
   useEffect(() => {
     const handleRequest = async ({ id, topic, params }: SessionRequestArgs) => {
       const method = params.request.method;
-      const peer = client.session.get(topic).peer.metadata;
+      const peer = client.getActiveSessions()[topic].peer.metadata;
 
-      const chain = Object.values(CHAINS).find((c) => `${c.id}` === params.chainId)?.key;
+      const chain = Object.values(CHAINS).find((c) => asCaip2(c) === params.chainId)?.key;
+      console.log(params.chainId);
       if (!chain)
-        return client.respond({
+        return client.respondSessionRequest({
           topic,
           response: asWalletConnectError(id, 'UNSUPPORTED_CHAINS'),
         });
@@ -116,7 +118,10 @@ export const useSessionRequestListener = () => {
 
         const sub = proposals.subscribe((p) => {
           if (p.id === proposal && p.__typename === 'TransactionProposal' && p.transaction?.hash) {
-            client.respond({ topic, response: asWalletConnectResult(id, p.transaction.hash) });
+            client.respondSessionRequest({
+              topic,
+              response: asWalletConnectResult(id, p.transaction.hash),
+            });
             sub.unsubscribe();
           }
         });
@@ -143,13 +148,19 @@ export const useSessionRequestListener = () => {
 
         // Respond immediately if message has previously been signed
         if (proposal.signature)
-          return client.respond({ topic, response: asWalletConnectResult(id, proposal.signature) });
+          return client.respondSessionRequest({
+            topic,
+            response: asWalletConnectResult(id, proposal.signature),
+          });
 
         showInfo(`${peer.name} wants you to sign a message`);
 
         const sub = proposals.subscribe((p) => {
           if (p.id === proposal.id && p.__typename === 'MessageProposal' && p.signature) {
-            client.respond({ topic, response: asWalletConnectResult(id, p.signature) });
+            client.respondSessionRequest({
+              topic,
+              response: asWalletConnectResult(id, p.signature),
+            });
             sub.unsubscribe();
           }
         });

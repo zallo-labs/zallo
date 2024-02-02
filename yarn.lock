@@ -6549,6 +6549,25 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@json-rpc-tools/types@npm:^1.7.6":
+  version: 1.7.6
+  resolution: "@json-rpc-tools/types@npm:1.7.6"
+  dependencies:
+    keyvaluestorage-interface: "npm:^1.0.0"
+  checksum: 10/514864fd266c7220dcb53e2701c889804406fdb285e3c674ad8debfe645dab5d6d9d104349c6f8f2610b747f0524fa8cc19293116ea7f8738c986c8f0d388ccd
+  languageName: node
+  linkType: hard
+
+"@json-rpc-tools/utils@npm:^1.7.6":
+  version: 1.7.6
+  resolution: "@json-rpc-tools/utils@npm:1.7.6"
+  dependencies:
+    "@json-rpc-tools/types": "npm:^1.7.6"
+    "@pedrouid/environment": "npm:^1.0.1"
+  checksum: 10/d09177fede82c1b5426fac7a61b8ebeb860ad16937a3a1b85289f2d97c19f9ed8d60ef518cd4867db9ee72c8c97177a8e2b2a1577f15043d3609511e63f2967f
+  languageName: node
+  linkType: hard
+
 "@ledgerhq/cryptoassets@npm:^9.11.0":
   version: 9.11.0
   resolution: "@ledgerhq/cryptoassets@npm:9.11.0"
@@ -7895,6 +7914,13 @@ __metadata:
     tslib: "npm:^2.4.0"
     webcrypto-core: "npm:^1.7.4"
   checksum: 10/125596cdc92c1b5aad1486c503e108648f7654912da8b73484857bb81b8c9ca1e03833b4fdc8d797a7b40f1107d129a6c7d541fd67ab9d8dd4d146d528ea0126
+  languageName: node
+  linkType: hard
+
+"@pedrouid/environment@npm:^1.0.1":
+  version: 1.0.1
+  resolution: "@pedrouid/environment@npm:1.0.1"
+  checksum: 10/8338123bde65699604f92e6e2f244316b707d98e10abb443f930360bbafd411e8f9d58572e159433c90cbeb7d12b922d002e8ea5510a99de8cedc406a710f818
   languageName: node
   linkType: hard
 
@@ -9567,7 +9593,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@stablelib/sha256@npm:1.0.1":
+"@stablelib/sha256@npm:1.0.1, @stablelib/sha256@npm:^1.0.1":
   version: 1.0.1
   resolution: "@stablelib/sha256@npm:1.0.1"
   dependencies:
@@ -10755,7 +10781,28 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@walletconnect/core@npm:2.11.0":
+"@walletconnect/auth-client@npm:2.1.2":
+  version: 2.1.2
+  resolution: "@walletconnect/auth-client@npm:2.1.2"
+  dependencies:
+    "@ethersproject/hash": "npm:^5.7.0"
+    "@ethersproject/transactions": "npm:^5.7.0"
+    "@stablelib/random": "npm:^1.0.2"
+    "@stablelib/sha256": "npm:^1.0.1"
+    "@walletconnect/core": "npm:^2.10.1"
+    "@walletconnect/events": "npm:^1.0.1"
+    "@walletconnect/heartbeat": "npm:^1.2.1"
+    "@walletconnect/jsonrpc-utils": "npm:^1.0.8"
+    "@walletconnect/logger": "npm:^2.0.1"
+    "@walletconnect/time": "npm:^1.0.2"
+    "@walletconnect/utils": "npm:^2.10.1"
+    events: "npm:^3.3.0"
+    isomorphic-unfetch: "npm:^3.1.0"
+  checksum: 10/1883d3ad6b417f239284b48244bf2e1dae9ec1437e5a74331c7925ed5df2922ebafd90036229be85d3d7819dfb2f86f578e049723b7d7d1f15c05164b35157fe
+  languageName: node
+  linkType: hard
+
+"@walletconnect/core@npm:2.11.0, @walletconnect/core@npm:^2.10.1":
   version: 2.11.0
   resolution: "@walletconnect/core@npm:2.11.0"
   dependencies:
@@ -10799,7 +10846,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@walletconnect/heartbeat@npm:1.2.1":
+"@walletconnect/heartbeat@npm:1.2.1, @walletconnect/heartbeat@npm:^1.2.1":
   version: 1.2.1
   resolution: "@walletconnect/heartbeat@npm:1.2.1"
   dependencies:
@@ -10891,7 +10938,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@walletconnect/logger@npm:^2.0.1":
+"@walletconnect/logger@npm:2.0.1, @walletconnect/logger@npm:^2.0.1":
   version: 2.0.1
   resolution: "@walletconnect/logger@npm:2.0.1"
   dependencies:
@@ -10962,7 +11009,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@walletconnect/sign-client@npm:^2.11.0":
+"@walletconnect/sign-client@npm:2.11.0, @walletconnect/sign-client@npm:^2.11.0":
   version: 2.11.0
   resolution: "@walletconnect/sign-client@npm:2.11.0"
   dependencies:
@@ -11002,7 +11049,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@walletconnect/utils@npm:2.11.0, @walletconnect/utils@npm:^2.11.0":
+"@walletconnect/utils@npm:2.11.0, @walletconnect/utils@npm:^2.10.1, @walletconnect/utils@npm:^2.11.0":
   version: 2.11.0
   resolution: "@walletconnect/utils@npm:2.11.0"
   dependencies:
@@ -11021,6 +11068,22 @@ __metadata:
     query-string: "npm:7.1.3"
     uint8arrays: "npm:^3.1.0"
   checksum: 10/d58f001ba989f8c798b7d51004bf9441175c1e6b199523adc3688cb509fc883160cd537873f2f233d1ff1bf523dbf80f42c4159ba820d5db22222ed8cdbd551d
+  languageName: node
+  linkType: hard
+
+"@walletconnect/web3wallet@npm:^1.10.0":
+  version: 1.10.0
+  resolution: "@walletconnect/web3wallet@npm:1.10.0"
+  dependencies:
+    "@walletconnect/auth-client": "npm:2.1.2"
+    "@walletconnect/core": "npm:2.11.0"
+    "@walletconnect/jsonrpc-provider": "npm:1.0.13"
+    "@walletconnect/jsonrpc-utils": "npm:1.0.8"
+    "@walletconnect/logger": "npm:2.0.1"
+    "@walletconnect/sign-client": "npm:2.11.0"
+    "@walletconnect/types": "npm:2.11.0"
+    "@walletconnect/utils": "npm:2.11.0"
+  checksum: 10/36dc378a1c137d211d947121ac9db2431a939e515ea2e15c0e1d3287f916492a32620840bbcd0f053989d2fa641df03a813444b9f9568006b08caf923afc0423
   languageName: node
   linkType: hard
 
@@ -11947,6 +12010,7 @@ __metadata:
     "@graphql-codegen/urql-introspection": "npm:^3.0.0"
     "@graphql-typed-document-node/core": "npm:^3.2.0"
     "@hookform/resolvers": "npm:^3.3.4"
+    "@json-rpc-tools/utils": "npm:^1.7.6"
     "@ledgerhq/hw-app-eth": "npm:^6.34.0"
     "@ledgerhq/hw-transport-web-ble": "npm:6.27.17"
     "@ledgerhq/react-native-hw-transport-ble": "patch:@ledgerhq/react-native-hw-transport-ble@npm:6.29.3#../.yarn/patches/@ledgerhq-react-native-hw-transport-ble-npm-6.29.3-2fa5aa09cc.patch"
@@ -11979,9 +12043,11 @@ __metadata:
     "@urql/exchange-request-policy": "npm:^1.0.2"
     "@urql/exchange-retry": "npm:^1.2.1"
     "@urql/storage-rn": "npm:^1.0.3"
+    "@walletconnect/jsonrpc-types": "npm:^1.0.3"
     "@walletconnect/react-native-compat": "npm:^2.11.0"
     "@walletconnect/sign-client": "npm:^2.11.0"
     "@walletconnect/utils": "npm:^2.11.0"
+    "@walletconnect/web3wallet": "npm:^1.10.0"
     async-mutex: "npm:^0.4.1"
     babel-plugin-formatjs: "npm:^10.5.12"
     babel-plugin-lodash: "npm:^3.3.4"
@@ -12025,6 +12091,7 @@ __metadata:
     expo-status-bar: "npm:~1.11.1"
     expo-updates: "npm:~0.24.9"
     fast-deep-equal: "npm:^3.1.3"
+    fast-text-encoding: "npm:^1.0.6"
     find-yarn-workspace-root: "npm:^2.0.0"
     graphql-ws: "npm:^5.14.3"
     immer: "npm:^9.0.21"
@@ -20743,7 +20810,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"isomorphic-unfetch@npm:3.1.0":
+"isomorphic-unfetch@npm:3.1.0, isomorphic-unfetch@npm:^3.1.0":
   version: 3.1.0
   resolution: "isomorphic-unfetch@npm:3.1.0"
   dependencies:

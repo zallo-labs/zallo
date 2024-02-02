@@ -3,41 +3,30 @@ import { ListItem } from '~/components/list/ListItem';
 import { SessionTypes, PairingTypes } from '@walletconnect/types';
 import { ICON_SIZE } from '@theme/paper';
 import { StyleSheet } from 'react-native';
-import { useWalletConnect } from '~/util/walletconnect';
-import { useTimestamp } from '~/components/format/Timestamp';
-import { DateTime } from 'luxon';
 import { MoreVerticalIcon } from '@theme/icons';
 import { Link } from 'expo-router';
+import { P, match } from 'ts-pattern';
 
 export interface PairingItemProps {
-  pairing: PairingTypes.Struct;
+  pairing: PairingTypes.Struct & { session?: SessionTypes.Struct };
 }
 
-export const PairingItem = ({ pairing }: PairingItemProps) => {
-  const client = useWalletConnect();
-  const session: SessionTypes.Struct | undefined = client.session.getAll({
-    pairingTopic: pairing.topic,
-  })?.[0];
-  const peer = pairing.peerMetadata ?? session?.peer.metadata;
-
-  const expiry = useTimestamp({ timestamp: DateTime.fromSeconds(pairing.expiry) });
-  const status = session ? 'Connected' : pairing.active ? 'Paired' : `Expired ${expiry}`;
-  const expires = status !== 'Expired' ? `Expires ${expiry}` : '';
+export const PairingItem = ({ pairing: p }: PairingItemProps) => {
+  const peer = p.peerMetadata ?? p.session?.peer.metadata;
 
   return (
-    <Link
-      href={{ pathname: `/(sheet)/sessions/[topic]`, params: { topic: pairing.topic } }}
-      asChild
-    >
+    <Link href={{ pathname: `/(sheet)/sessions/[topic]`, params: { topic: p.topic } }} asChild>
       <ListItem
         leading={
-          peer.icons.length > 0
+          peer && peer.icons.length > 0
             ? (props) => <Image source={peer.icons} style={styles.icon} {...props} />
-            : peer.name || '?'
+            : peer?.name || '?'
         }
-        headline={peer.name || 'Unnamed DApp'}
-        supporting={`${status}\n${expires}`}
-        lines={3}
+        headline={peer?.name || 'Unnamed DApp'}
+        supporting={match(p)
+          .with({ session: P.not(P.nullish) }, () => 'Active')
+          .with({ active: true }, () => 'Paired')
+          .otherwise(() => 'Expired')}
         trailing={MoreVerticalIcon}
       />
     </Link>
