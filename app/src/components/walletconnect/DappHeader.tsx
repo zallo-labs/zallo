@@ -4,34 +4,38 @@ import { Text } from 'react-native-paper';
 import { SignClientTypes } from '@walletconnect/types';
 import { createStyles, useStyles } from '@theme/styles';
 import { Link } from 'expo-router';
+import { DappRequestId, DappVerification } from './DappVerification';
 
-export interface PeerHeaderProps {
-  peer: SignClientTypes.Metadata | undefined;
+export interface DappHeaderProps {
+  dapp: SignClientTypes.Metadata | undefined;
   action?: string;
+  request?: DappRequestId;
 }
 
-export const PeerHeader = ({ peer, action }: PeerHeaderProps) => {
+export function DappHeader({ dapp, action, request }: DappHeaderProps) {
   const { styles } = useStyles(stylesheet);
 
   return (
     <View style={styles.container}>
-      <Image source={peer?.icons} style={styles.icon} />
+      <Image source={dapp?.icons} style={styles.icon} />
 
       <Text variant="headlineMedium" style={styles.actionText}>
-        <Text variant="headlineMedium">{peer?.name || 'Unknown DApp'} </Text>
+        <Text variant="headlineMedium">{dapp?.name || 'Unknown dapp'} </Text>
         {action}
       </Text>
 
-      {peer && (
-        <Link href={peer.url as `${string}:${string}`} asChild>
+      {dapp && (
+        <Link href={dapp.url as `${string}:${string}`} asChild>
           <Text variant="titleMedium" style={styles.url}>
-            {new URL(peer.url).hostname}
+            {new URL(dapp.url).hostname}
           </Text>
         </Link>
       )}
+
+      {request && <DappVerification request={request} style={styles.verification} />}
     </View>
   );
-};
+}
 
 const stylesheet = createStyles(({ colors, corner }) => ({
   container: {
@@ -50,5 +54,8 @@ const stylesheet = createStyles(({ colors, corner }) => ({
   },
   url: {
     color: colors.tertiary,
+  },
+  verification: {
+    marginTop: 16,
   },
 }));

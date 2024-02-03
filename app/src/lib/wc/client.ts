@@ -23,11 +23,6 @@ const CLIENT = atom(
     }),
 );
 
-console.log({
-  native: appLink('/wc', 'native'),
-  universal: appLink('/wc', 'universal'),
-});
-
 const WATCHER = atom({});
 
 export const useWalletConnectWithoutWatching = () => useAtomValue(CLIENT);

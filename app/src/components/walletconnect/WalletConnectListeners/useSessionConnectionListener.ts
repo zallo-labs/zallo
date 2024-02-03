@@ -4,12 +4,14 @@ import { showError } from '~/components/provider/SnackbarProvider';
 import { useWalletConnectWithoutWatching, sessionChains } from '~/lib/wc';
 import { useRouter, usePathname, Route } from 'expo-router';
 import { Web3WalletTypes } from '@walletconnect/web3wallet';
+import { useVerifyDapp } from '../DappVerification';
 
 type SessionProposalArgs = Web3WalletTypes.EventArguments['session_proposal'];
 
 export const useSessionConnectionListener = () => {
   const router = useRouter();
   const client = useWalletConnectWithoutWatching();
+  const verify = useVerifyDapp();
 
   const pathnameHook = usePathname();
   const pathname = useRef(pathnameHook);
@@ -18,8 +20,9 @@ export const useSessionConnectionListener = () => {
   }, [pathnameHook]);
 
   useEffect(() => {
-    const handler = async ({ id, params: proposal }: SessionProposalArgs) => {
+    const handler = async ({ id, params: proposal, verifyContext }: SessionProposalArgs) => {
       const dapp = proposal.proposer.metadata.name;
+      verify({ topic: proposal.pairingTopic!, id }, verifyContext.verified);
 
       const chains = sessionChains(proposal);
       if (!chains.length) {
@@ -36,5 +39,5 @@ export const useSessionConnectionListener = () => {
     return () => {
       client.off('session_proposal', handler);
     };
-  }, [client, router]);
+  }, [client, router, verify]);
 };

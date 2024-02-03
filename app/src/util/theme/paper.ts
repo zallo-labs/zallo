@@ -162,7 +162,6 @@ export const LIGHT_THEME = {
 
 export const ICON_SIZE = LIGHT_THEME.iconSize;
 export const CORNER = LIGHT_THEME.corner;
-export const ROUNDNESS = LIGHT_THEME.roundness;
 
 export type Theme = typeof LIGHT_THEME;
 type AppTheme = Theme;

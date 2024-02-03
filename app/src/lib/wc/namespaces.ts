@@ -1,8 +1,9 @@
 import { UAddress, asAddress, asChain, asUAddress } from 'lib';
-import { WC_METHODS } from './methods';
 import { CHAINS, Chain, ChainConfig } from 'chains';
 import { BuildApprovedNamespacesParams } from '@walletconnect/utils';
 import { SessionTypes } from '@walletconnect/types';
+import { WC_TRANSACTION_METHODS } from './methods/transaction';
+import { WC_SIGNING_METHODS } from './methods/signing';
 
 export const WC_NAMESPACE = 'eip155';
 
@@ -11,7 +12,7 @@ export function supportedNamespaces(
 ): BuildApprovedNamespacesParams['supportedNamespaces'] {
   return {
     [WC_NAMESPACE]: {
-      methods: [...WC_METHODS],
+      methods: [...WC_TRANSACTION_METHODS, ...WC_SIGNING_METHODS],
       events: ['accountsChanged', 'chainChanged'],
       ...accountNamespaces(accounts),
     },

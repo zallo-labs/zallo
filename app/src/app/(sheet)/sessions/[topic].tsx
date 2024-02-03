@@ -14,7 +14,7 @@ import {
 import { CloseIcon, DisconnectIcon, ExternalLinkIcon } from '@theme/icons';
 import { z } from 'zod';
 import { useLocalParams } from '~/hooks/useLocalParams';
-import { PeerHeader } from '~/components/walletconnect/PeerHeader';
+import { DappHeader } from '~/components/walletconnect/DappHeader';
 import { Updater, useImmer } from 'use-immer';
 import { UAddress } from 'lib';
 import { gql } from '@api';
@@ -94,7 +94,7 @@ export default function SessionDetailsSheet() {
 
   return (
     <Sheet contentContainerStyle={styles.container}>
-      <PeerHeader peer={peer} />
+      <DappHeader dapp={peer} />
 
       {accounts.length > 0 && (
         <AccountsList accounts={accounts} selected={selected} updateSelected={updateSelected} />

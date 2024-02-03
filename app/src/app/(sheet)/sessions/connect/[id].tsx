@@ -7,7 +7,7 @@ import { Button } from '~/components/Button';
 import { Actions } from '~/components/layout/Actions';
 import { Sheet } from '~/components/sheet/Sheet';
 import { AccountsList } from '~/components/walletconnect/AccountsList';
-import { PeerHeader } from '~/components/walletconnect/PeerHeader';
+import { DappHeader } from '~/components/walletconnect/DappHeader';
 import { useQuery } from '~/gql';
 import { hideSnackbar, showError, showSuccess } from '~/components/provider/SnackbarProvider';
 import {
@@ -22,6 +22,11 @@ import { useLocalParams } from '~/hooks/useLocalParams';
 import { useSelectedAccount } from '~/hooks/useSelectedAccount';
 import { Text } from 'react-native-paper';
 import { SignClientTypes } from '@walletconnect/types';
+import {
+  useDappVerification,
+  type VerificationStatus,
+} from '~/components/walletconnect/DappVerification';
+import { P, match } from 'ts-pattern';
 
 const Query = gql(/* GraphQL */ `
   query ConnectSessionSheet {
@@ -48,6 +53,7 @@ export default function ConnectSessionSheet() {
   );
   const dapp = proposal?.proposer.metadata.name;
   const chains = sessionChains(proposal);
+  const verification = useDappVerification({ topic: proposal?.pairingTopic ?? '', id });
 
   const accounts = useQuery(Query).data.accounts.filter((a) => chains.includes(a.chain));
   const [selected, updateSelected] = useImmer(new Set([useSelectedAccount()].filter(Boolean)));
@@ -106,7 +112,14 @@ export default function ConnectSessionSheet() {
 
   return (
     <Sheet onClose={reject}>
-      <PeerHeader peer={proposal.proposer.metadata} action="wants to connect" />
+      <DappHeader
+        dapp={proposal.proposer.metadata}
+        request={{
+          topic: proposal.pairingTopic!,
+          id: proposal.id,
+        }}
+        action="wants to connect"
+      />
 
       {firstConnection && (
         <Text variant="bodyMedium" style={styles.pairWarning}>
@@ -117,7 +130,17 @@ export default function ConnectSessionSheet() {
       <AccountsList accounts={accounts} selected={selected} updateSelected={updateSelected} />
 
       <Actions>
-        <Button mode="contained" onPress={connect} disabled={selected.size === 0}>
+        <Button mode="text" onPress={reject}>
+          Reject
+        </Button>
+
+        <Button
+          mode="contained"
+          onPress={connect}
+          disabled={selected.size === 0}
+          style={styles.connect(verification)}
+          labelStyle={styles.connectLabel(verification)}
+        >
           Connect
         </Button>
       </Actions>
@@ -131,4 +154,18 @@ const stylesheet = createStyles(({ colors }) => ({
     textAlign: 'center',
     color: colors.warning,
   },
+  connect: (status: VerificationStatus) => ({
+    backgroundColor: match(status)
+      .with('safe', () => colors.primary)
+      .with('unverified', () => colors.warning)
+      .with(P.union('domain-mismatch', 'malicious'), () => colors.error)
+      .exhaustive(),
+  }),
+  connectLabel: (status: VerificationStatus) => ({
+    color: match(status)
+      .with('safe', () => colors.onPrimary)
+      .with('unverified', () => colors.onWarning)
+      .with(P.union('domain-mismatch', 'malicious'), () => colors.onError)
+      .exhaustive(),
+  }),
 }));
