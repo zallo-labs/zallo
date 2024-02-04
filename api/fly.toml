@@ -17,8 +17,8 @@ swap_size_mb = 512
   # DOTENV_KEY                  # npx dotenv-vault keys
 
 [processes]
-  web    = "PROCESS_EVENTS=false yarn start"
-  worker = "PROCESS_EVENTS=true yarn start"
+  web    = "yarn start:web"
+  worker = "yarn start:worker"
 
 [http_service]
   processes = ["web"]

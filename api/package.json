@@ -6,6 +6,8 @@
     "build": "nest build",
     "dev": "nest start --debug --watch --preserveWatchOutput",
     "start": "node dist/src/main.js",
+    "start:web": "PROCESS_EVENTS=false yarn start",
+    "start:worker": "PROCESS_EVENTS=true yarn start",
     "generate:ampli": "ampli pull -p ./src/util/ampli --omit-api-keys",
     "test": "yarn with-env -- jest",
     "test:watch": "yarn test --watch",
