@@ -178,11 +178,7 @@ export class TransactionProposalsService {
         ),
       ),
       validFrom,
-      gasLimit:
-        gas ||
-        (
-          await estimateTransactionOperationsGas({ account: asAddress(account), tx, network })
-        ).unwrapOr(FALLBACK_OPERATIONS_GAS),
+      gasLimit: gas,
       paymaster: tx.paymaster,
       maxPaymasterEthFees: e.insert(e.PaymasterFees, {
         activation: maxPaymasterEthFees.activation.toString(),
