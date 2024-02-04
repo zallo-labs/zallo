@@ -14,7 +14,6 @@ import { useEffect, useState } from 'react';
 import { useSubscription } from 'urql';
 import { createStyles, useStyles } from '@theme/styles';
 import { Divider } from 'react-native-paper';
-import { RiskRating } from '~/components/proposal/RiskRating';
 import { FeesSection } from '~/components/transaction/FeesSection';
 import { OperationsSection } from '~/components/transaction/OperationsSection';
 import { TransactionActions } from '~/components/transaction/TransactionActions';
@@ -43,7 +42,6 @@ const TransactionProposal = gql(/* GraphQL */ `
       @arguments(account: $account, includeAccount: $includeAccount)
     ...FeesSection_TransactionProposal
       @arguments(account: $account, includeAccount: $includeAccount)
-    ...RiskRating_Proposal
     ...TransactionActions_TransactionProposal @arguments(proposal: $proposal)
   }
 `);
@@ -124,8 +122,6 @@ export default function TransactionScreen() {
         <FeesSection proposal={p} />
         <Divider horizontalInset style={styles.divider} />
 
-        <RiskRating proposal={p} style={styles.riskLabel} />
-
         <TransactionActions proposal={p} user={query.data.user} approvalsSheet={sideSheet} />
       </ScrollableScreenSurface>
 
@@ -143,9 +139,5 @@ const stylesheet = createStyles({
   },
   divider: {
     marginVertical: 8,
-  },
-  riskLabel: {
-    marginVertical: 8,
-    marginHorizontal: 16,
   },
 });

@@ -15,7 +15,6 @@ import { MessageStatus } from '~/components/message/MessageStatus';
 import { StyleSheet, View } from 'react-native';
 import { MessageIcon } from '~/components/message/MessageIcon';
 import { DataView } from '~/components/DataView/DataView';
-import { RiskRating } from '~/components/proposal/RiskRating';
 import { MessageActions } from '~/components/message/MessageActions';
 import { asChain } from 'lib';
 import { SideSheetLayout } from '~/components/SideSheet/SideSheetLayout';
@@ -37,7 +36,6 @@ const Query = gql(/* GraphQL */ `
       }
       ...MessageStatus_MessageProposal
       ...MessageIcon_MessageProposal
-      ...RiskRating_Proposal
       ...MessageActions_MessageProposal
     }
 
@@ -92,7 +90,7 @@ export default function MessageScreen() {
         )}
       />
 
-      <ScrollableScreenSurface>
+      <ScrollableScreenSurface contentContainerStyle={styles.container}>
         <MessageStatus proposal={p} />
 
         <View style={styles.header}>
@@ -103,8 +101,6 @@ export default function MessageScreen() {
         </View>
 
         <DataView chain={asChain(p.account.address)}>{p.typedData ?? p.message}</DataView>
-
-        <RiskRating proposal={p} />
 
         <MessageActions proposal={p} user={query.data.user} approvalsSheet={sideSheet} />
       </ScrollableScreenSurface>
