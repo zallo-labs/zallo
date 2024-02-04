@@ -4,7 +4,7 @@ import { useUpdateWalletConnect, useWalletConnectWithoutWatching } from '~/lib/w
 import { useSessionRequestListener } from './useSessionRequestListener';
 import { withSuspense } from '~/components/skeleton/withSuspense';
 import { ISignClientEvents, SignClientTypes } from '@walletconnect/types';
-import { logTrace } from '~/util/analytics';
+import { logDebug } from '~/util/analytics';
 
 function WalletConnectListeners_() {
   const client = useWalletConnectWithoutWatching();
@@ -51,7 +51,7 @@ function traceEvents(client: ISignClientEvents, events: SignClientTypes.Event[])
       [
         event,
         (args) =>
-          logTrace(`WalletConnect`, {
+          logDebug(`WalletConnect`, {
             event,
             params: 'params' in args ? args.params : undefined,
           }),
