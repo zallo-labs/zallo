@@ -206,14 +206,14 @@ export class TransactionProposalsService {
     return insert;
   }
 
-  propose({ signature, ...args }: ProposeTransactionInput) {
-    return this.db.transaction(async (db) => {
-      const id = asUUID((await (await this.getInsertProposal(args)).run(db)).id);
+  async propose({ signature, ...args }: ProposeTransactionInput) {
+    const id = await this.db.transaction(async (db) =>
+      asUUID((await (await this.getInsertProposal(args)).run(db)).id),
+    );
 
-      if (signature) await this.approve({ id, signature });
+    if (signature) await this.approve({ id, signature });
 
-      return { id };
-    });
+    return { id };
   }
 
   async approve(input: ApproveInput) {
