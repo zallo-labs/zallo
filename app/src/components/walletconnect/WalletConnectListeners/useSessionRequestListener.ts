@@ -93,7 +93,7 @@ export const useSessionRequestListener = () => {
     const handleRequest = async ({ id, topic, params, verifyContext }: SessionRequestArgs) => {
       const method = params.request.method;
       const dapp = client.getActiveSessions()[topic].peer.metadata;
-      verify({ topic, id }, verifyContext.verified);
+      verify(id, verifyContext.verified);
 
       const chain = Object.values(CHAINS).find((c) => asCaip2(c) === params.chainId)?.key;
       if (!chain)

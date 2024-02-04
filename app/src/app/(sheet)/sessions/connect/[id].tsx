@@ -53,7 +53,7 @@ export default function ConnectSessionSheet() {
   );
   const dapp = proposal?.proposer.metadata.name;
   const chains = sessionChains(proposal);
-  const verification = useDappVerification({ topic: proposal?.pairingTopic ?? '', id });
+  const verification = useDappVerification(id);
 
   const accounts = useQuery(Query).data.accounts.filter((a) => chains.includes(a.chain));
   const [selected, updateSelected] = useImmer(new Set([useSelectedAccount()].filter(Boolean)));
@@ -114,10 +114,7 @@ export default function ConnectSessionSheet() {
     <Sheet onClose={reject}>
       <DappHeader
         dapp={proposal.proposer.metadata}
-        request={{
-          topic: proposal.pairingTopic!,
-          id: proposal.id,
-        }}
+        request={proposal.id}
         action="wants to connect"
       />
 

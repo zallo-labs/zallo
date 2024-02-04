@@ -11,15 +11,10 @@ import { materialCommunityIcon } from '@theme/icons';
 const WarningIcon = materialCommunityIcon('alert-circle');
 const DangerIcon = materialCommunityIcon('alert');
 
-export interface DappRequestId {
-  topic: string;
-  id: number;
-}
-
 export type VerificationStatus = 'safe' | 'unverified' | 'domain-mismatch' | 'malicious';
 
 export interface DappVerificationProps {
-  request: DappRequestId;
+  request: number;
   style?: StyleProp<ViewStyle>;
 }
 
@@ -112,8 +107,8 @@ const stylesheet = createStyles(({ colors, corner, iconSize }) => ({
         b: {
           color: 'blue' as const,
         },
-      }
-    }
+      },
+    },
   },
   surface: {
     gap: 4,
@@ -164,21 +159,17 @@ const stylesheet = createStyles(({ colors, corner, iconSize }) => ({
   },
 }));
 
-const statuses = atom<Map<string, VerificationStatus>>(new Map());
+const statuses = atom<Map<number, VerificationStatus>>(new Map());
 
-function id(request: DappRequestId) {
-  return `${request.topic}:${request.id}`;
-}
-
-export function useDappVerification(request: DappRequestId) {
-  return useAtomValue(statuses).get(id(request)) || 'unverified';
+export function useDappVerification(request: number) {
+  return useAtomValue(statuses).get(request) || 'unverified';
 }
 
 export function useVerifyDapp() {
   const update = useSetImmerAtom(statuses);
 
   return useCallback(
-    (request: DappRequestId, context: Verify.Context['verified']) =>
+    (request: number, context: Verify.Context['verified']) =>
       update((draft) => {
         const status = match(context)
           .returnType<VerificationStatus>()
@@ -188,7 +179,7 @@ export function useVerifyDapp() {
           .with({ validation: 'INVALID' }, () => 'domain-mismatch')
           .exhaustive();
 
-        draft.set(id(request), status);
+        draft.set(request, status);
       }),
     [update],
   );

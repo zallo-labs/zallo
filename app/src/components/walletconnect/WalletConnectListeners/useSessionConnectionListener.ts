@@ -22,7 +22,7 @@ export const useSessionConnectionListener = () => {
   useEffect(() => {
     const handler = async ({ id, params: proposal, verifyContext }: SessionProposalArgs) => {
       const dapp = proposal.proposer.metadata.name;
-      verify({ topic: proposal.pairingTopic!, id }, verifyContext.verified);
+      verify(id, verifyContext.verified);
 
       const chains = sessionChains(proposal);
       if (!chains.length) {

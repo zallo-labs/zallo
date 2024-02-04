@@ -4,12 +4,12 @@ import { Text } from 'react-native-paper';
 import { SignClientTypes } from '@walletconnect/types';
 import { createStyles, useStyles } from '@theme/styles';
 import { Link } from 'expo-router';
-import { DappRequestId, DappVerification } from './DappVerification';
+import { DappVerification } from './DappVerification';
 
 export interface DappHeaderProps {
   dapp: SignClientTypes.Metadata | undefined;
   action?: string;
-  request?: DappRequestId;
+  request?: number;
 }
 
 export function DappHeader({ dapp, action, request }: DappHeaderProps) {
