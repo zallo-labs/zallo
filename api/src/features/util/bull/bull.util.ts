@@ -48,33 +48,19 @@ export const createQueue = <Data, ReturnType = unknown>(
 
 export type TypedQueue<Q extends QueueDefintion> = Queue<QueueData<Q>, QueueReturnType<Q>, string>;
 
-export type TypedWorker<Q extends QueueDefintion<unknown, unknown>> = Q extends QueueDefintion<
-  infer Data,
-  infer ReturnType
->
-  ? BaseWorker<Data, ReturnType, string>
-  : never;
+export type TypedWorker<Q extends QueueDefintion<unknown, unknown>> =
+  Q extends QueueDefintion<infer Data, infer ReturnType>
+    ? BaseWorker<Data, ReturnType, string>
+    : never;
 
-export type TypedJob<Q extends QueueDefintion<unknown, unknown>> = Q extends QueueDefintion<
-  infer Data,
-  infer ReturnType
->
-  ? Job<Data, ReturnType, string>
-  : never;
+export type TypedJob<Q extends QueueDefintion<unknown, unknown>> =
+  Q extends QueueDefintion<infer Data, infer ReturnType> ? Job<Data, ReturnType, string> : never;
 
-export type QueueData<Q extends QueueDefintion<unknown, unknown>> = Q extends QueueDefintion<
-  infer Data,
-  unknown
->
-  ? Data
-  : never;
+export type QueueData<Q extends QueueDefintion<unknown, unknown>> =
+  Q extends QueueDefintion<infer Data, unknown> ? Data : never;
 
-export type QueueReturnType<Q extends QueueDefintion<unknown, unknown>> = Q extends QueueDefintion<
-  unknown,
-  infer ReturnType
->
-  ? ReturnType
-  : never;
+export type QueueReturnType<Q extends QueueDefintion<unknown, unknown>> =
+  Q extends QueueDefintion<unknown, infer ReturnType> ? ReturnType : never;
 
 export abstract class Worker<Q extends QueueDefintion>
   extends WorkerHost<TypedWorker<Q>>
@@ -89,6 +75,11 @@ export abstract class Worker<Q extends QueueDefintion>
   abstract process(job: TypedJob<Q>, token?: string): Promise<QueueReturnType<Q>>;
 
   onModuleInit() {
+    if (!CONFIG.processEvents) {
+      this.worker.close();
+      return;
+    }
+
     this.worker.on('failed', (job, err) => {
       this.log.warn(`Job (${job?.id ?? '?'}) failed with ${err.name}: ${err.message}`);
     });

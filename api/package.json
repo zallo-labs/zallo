@@ -5,7 +5,7 @@
   "scripts": {
     "build": "nest build",
     "dev": "nest start --debug --watch --preserveWatchOutput",
-    "serve": "node dist/src/main.js",
+    "start": "node dist/src/main.js",
     "generate:ampli": "ampli pull -p ./src/util/ampli --omit-api-keys",
     "test": "yarn with-env -- jest",
     "test:watch": "yarn test --watch",
