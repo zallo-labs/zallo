@@ -20,6 +20,7 @@ export const CONFIG = {
   debug: optional`DEBUG` === 'true' || (optional`DEBUG` === undefined && env === 'development'),
   logLevel: Object.values(LogLevel).find((l) => l === optional`LOG_LEVEL`) ?? LogLevel.Debug,
   apiPort: optional`API_PORT` || 3000,
+  processEvents: optional`PROCESS_EVENTS` === 'false' ? false : true,
   expoToken: required`EXPO_TOKEN`,
   ensSuffix: required`ENS_SUFFIX`,
   redisUrl: required`REDIS_URL`,
