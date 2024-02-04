@@ -16,8 +16,12 @@ swap_size_mb = 512
   # Secrets
   # DOTENV_KEY                  # npx dotenv-vault keys
 
+[processes]
+  web    = "PROCESS_EVENTS=false yarn start"
+  worker = "PROCESS_EVENTS=true yarn start"
 
 [http_service]
+  processes = ["web"]
   internal_port = 3000
   force_https = true
   auto_stop_machines = true
@@ -29,3 +33,9 @@ swap_size_mb = 512
     # Example used in docs, testing is needed
     soft_limit = 500
     hard_limit = 1000
+
+[[services]]
+  processes = ["worker"]
+  auto_stop_machines = true
+  auto_start_machines = true
+  min_machines_running = 1
