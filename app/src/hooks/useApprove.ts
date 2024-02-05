@@ -9,7 +9,9 @@ import { useGetAppleApprover } from '~/hooks/cloud/useGetAppleApprover';
 import { useGetGoogleApprover } from '~/hooks/cloud/useGetGoogleApprover';
 import { useGetLedgerApprover } from '~/app/(sheet)/ledger/approve';
 import { useSignWithApprover } from '~/components/transaction/useSignWithApprover';
-import { ampli } from '~/lib/ampli';
+import { ampli, type ApprovalProperties } from '~/lib/ampli';
+import type { ApproveInput } from '@api/generated/graphql';
+import { hapticFeedback } from '~/lib/haptic';
 
 const User = gql(/* GraphQL */ `
   fragment UseApprove_User on User {
@@ -88,10 +90,19 @@ export function useApprove({ approver, ...params }: UseApproveParams) {
   const getLedgerApprover = useGetLedgerApprover();
   const approveTransaction = useMutation(ApproveTransaction)[1];
   const approveMessage = useMutation(ApproveMessage)[1];
-  const approve = p.__typename === 'TransactionProposal' ? approveTransaction : approveMessage;
   const getAppleApprover = useGetAppleApprover();
   const getGoogleApprover = useGetGoogleApprover();
-  const type = p.__typename === 'TransactionProposal' ? 'Transaction' : 'Message';
+
+  const approve = async (method: ApprovalProperties['method'], input: Omit<ApproveInput, 'id'>) => {
+    hapticFeedback('neutral');
+
+    const mutation = p.__typename === 'TransactionProposal' ? approveTransaction : approveMessage;
+    const r = await mutation({ input: { ...input, id: p.id } });
+
+    const type = p.__typename === 'TransactionProposal' ? 'Transaction' : 'Message';
+    ampli.approval({ method, type });
+    return r;
+  };
 
   const userApprover = user.approvers.find((a) => a.address === approver);
   const canApprove =
@@ -111,10 +122,8 @@ export function useApprove({ approver, ...params }: UseApproveParams) {
             : signWithDevice.signMessage({ message: p.message }),
         )
         .exhaustive();
-      if (signature.isOk()) {
-        await approve({ input: { id: p.id, signature: signature.value } });
-        ampli.approval({ type, method: 'Device' });
-      }
+
+      if (signature.isOk()) await approve('Device', { signature: signature.value });
     };
   } else if (userApprover?.bluetoothDevices?.length) {
     return async () => {
@@ -126,10 +135,8 @@ export function useApprove({ approver, ...params }: UseApproveParams) {
           p.typedData ? signTypedData(p.typedData) : signMessage({ message: p.message }),
         )
         .exhaustive();
-      if (signature) {
-        await approve({ input: { id: p.id, approver, signature } });
-        ampli.approval({ type, method: 'Ledger' });
-      }
+
+      if (signature) await approve('Ledger', { approver, signature });
     };
   } else if (userApprover.cloud) {
     return match(userApprover.cloud)
@@ -156,10 +163,7 @@ export function useApprove({ approver, ...params }: UseApproveParams) {
             )
             .exhaustive();
 
-          await approve({
-            input: { id: p.id, approver: approver.address, signature },
-          });
-          ampli.approval({ type, method: 'Apple' });
+          await approve('Apple', { approver: approver.address, signature });
         };
       })
       .with({ provider: 'Google' }, ({ subject }) => {
@@ -185,10 +189,7 @@ export function useApprove({ approver, ...params }: UseApproveParams) {
             )
             .exhaustive();
 
-          await approve({
-            input: { id: p.id, approver: approver.address, signature },
-          });
-          ampli.approval({ type, method: 'Google' });
+          await approve('Google', { approver: approver.address, signature });
         };
       })
       .exhaustive();
