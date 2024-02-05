@@ -88,7 +88,7 @@ const client = atom(async (get) => {
           logError('[urql] error: ' + error.message, { error, operation });
         },
       }),
-      requestPolicyExchange({ ttl: 30_000 /* ms */ }),
+      requestPolicyExchange({ ttl: 60_000 /* ms */ }),
       // refocusExchange(),
       offlineExchange({
         storage: makeAsyncStorage({
