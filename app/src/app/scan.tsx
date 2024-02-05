@@ -2,7 +2,7 @@ import { Route, Stack } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { Platform, StyleSheet, View } from 'react-native';
 import { CameraView, useCameraPermissions } from 'expo-camera/next';
-import { Button, Text } from 'react-native-paper';
+import { Text } from 'react-native-paper';
 import { Actions } from '~/components/layout/Actions';
 import { Address, UAddress, tryAsAddress } from 'lib';
 import * as Linking from 'expo-linking';
@@ -18,6 +18,7 @@ import { z } from 'zod';
 import { zUAddress } from '~/lib/zod';
 import { useLocalParams } from '~/hooks/useLocalParams';
 import { isWalletConnectUri } from '~/lib/wc/uri';
+import { Button } from '~/components/Button';
 
 export const SCANNED_ADDRESSES = new Subject<Address>();
 export function useScanAddress() {

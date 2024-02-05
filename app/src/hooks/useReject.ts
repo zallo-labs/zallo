@@ -3,10 +3,12 @@ import { authContext } from '@api/client';
 import { useApproverAddress } from '~/lib/network/useApprover';
 import { Address } from 'lib';
 import { match } from 'ts-pattern';
-import { useMutation } from 'urql';
+import { useMutation, type OperationContext } from 'urql';
 import { showError } from '~/components/provider/SnackbarProvider';
 import { useGetAppleApprover } from '~/hooks/cloud/useGetAppleApprover';
 import { useGetGoogleApprover } from '~/hooks/cloud/useGetGoogleApprover';
+import { hapticFeedback } from '~/lib/haptic';
+import { ampli, type RejectionProperties } from '~/lib/ampli';
 
 const User = gql(/* GraphQL */ `
   fragment UseReject_User on User {
@@ -66,10 +68,21 @@ export interface UseRejectParams {
 export function useReject({ approver, ...params }: UseRejectParams) {
   const user = useFragment(User, params.user);
   const p = useFragment(Proposal, params.proposal);
-  const reject = useMutation(Reject)[1];
+  const rejectMutation = useMutation(Reject)[1];
   const device = useApproverAddress();
   const getAppleApprover = useGetAppleApprover();
   const getGoogleApprover = useGetGoogleApprover();
+
+  const reject = async (
+    method: RejectionProperties['method'],
+    context?: Partial<OperationContext>,
+  ) => {
+    hapticFeedback('neutral');
+    await rejectMutation({ proposal: p.id }, context);
+
+    const type = p.__typename === 'TransactionProposal' ? 'Transaction' : 'Message';
+    ampli.rejection({ method, type });
+  };
 
   const userApprover = user.approvers.find((a) => a.address === approver);
   const canReject =
@@ -79,7 +92,7 @@ export function useReject({ approver, ...params }: UseRejectParams) {
 
   if (approver === device) {
     return async () => {
-      await reject({ proposal: p.id });
+      await reject('Device');
     };
   } else if (userApprover.cloud) {
     return match(userApprover.cloud)
@@ -93,7 +106,7 @@ export function useReject({ approver, ...params }: UseRejectParams) {
               event: { error: r.error, subject },
             });
 
-          await reject({ proposal: p.id }, await authContext(r.value.approver));
+          await reject('Apple', await authContext(r.value.approver));
         };
       })
       .with({ provider: 'Google' }, ({ subject }) => {
@@ -106,7 +119,7 @@ export function useReject({ approver, ...params }: UseRejectParams) {
               event: { error: r.error, subject },
             });
 
-          await reject({ proposal: p.id }, await authContext(r.value.approver));
+          await reject('Google', await authContext(r.value.approver));
         };
       })
       .exhaustive();

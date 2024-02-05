@@ -13,7 +13,7 @@ import { withSuspense } from '~/components/skeleton/withSuspense';
 import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
 import { AppbarOptions } from '~/components/Appbar/AppbarOptions';
 import { ScrollableScreenSurface } from '~/components/layout/ScrollableScreenSurface';
-import { ActivityIcon, IconProps, TransferIcon, UpdateIcon } from '@theme/icons';
+import { IconProps, TransferIcon, UpdateIcon, materialCommunityIcon } from '@theme/icons';
 import { FC } from 'react';
 import { AppbarMenu } from '~/components/Appbar/AppbarMenu';
 
@@ -40,7 +40,7 @@ export const NotificationChannelConfig: Record<
   activity: {
     name: 'Account activity',
     description: 'Proposal approvals',
-    icon: ActivityIcon,
+    icon: materialCommunityIcon('chart-timeline-variant'),
     importance: Notifications.AndroidImportance.MAX,
     showBadge: true,
     enableLights: true,

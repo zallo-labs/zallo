@@ -12,5 +12,7 @@
   "SDK": "@amplitude/analytics-react-native@^1.0",
   "Path": "./src/lib/ampli",
   "OmitApiKeys": true,
-  "SourceDirs": ["./src/lib/ampli"]
+  "SourceDirs": [
+    "./src/lib/ampli"
+  ]
 }
