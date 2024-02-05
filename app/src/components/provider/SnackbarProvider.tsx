@@ -4,6 +4,7 @@ import { StyleProp, TextStyle } from 'react-native';
 import { Snackbar, SnackbarProps, Text } from 'react-native-paper';
 import RnToast, { ToastConfig, ToastConfigParams, ToastOptions } from 'react-native-toast-message';
 import { useMemoApply } from '~/hooks/useMemoized';
+import { hapticFeedback } from '~/lib/haptic';
 import { LogEventParams, logEvent } from '~/util/analytics';
 
 type SnackVariant = 'info' | 'success' | 'warning' | 'error';
@@ -23,6 +24,10 @@ const Snack = ({
   props: { message, variant = 'info', messageStyle, event: eventProp, action, style, ...props },
 }: SnackProps) => {
   const { styles, theme } = useStyles(useMemoApply(getStylesheet, { variant }));
+
+  useEffect(() => {
+    if (variant !== 'info') hapticFeedback(variant);
+  }, [variant]);
 
   useEffect(() => {
     if (eventProp && (variant === 'warning' || variant === 'error')) {
