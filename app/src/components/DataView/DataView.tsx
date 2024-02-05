@@ -1,7 +1,8 @@
-import { StyleProp, View, ViewStyle } from 'react-native';
+import { StyleProp, ViewStyle } from 'react-native';
 import { Node, NodeValue } from './Node';
 import { createStyles, useStyles } from '@theme/styles';
 import { Chain } from 'chains';
+import { Surface } from 'react-native-paper';
 
 export interface DataViewProps {
   children: NodeValue;
@@ -13,21 +14,16 @@ export function DataView({ children, chain, style }: DataViewProps) {
   const { styles } = useStyles(stylesheet);
 
   return (
-    <View style={[styles.container, style]}>
-      <Node chain={chain} style={styles.node}>
-        {children}
-      </Node>
-    </View>
+    <Surface elevation={1} style={[styles.container, style]}>
+      <Node chain={chain}>{children}</Node>
+    </Surface>
   );
 }
 
-const stylesheet = createStyles(({ colors }) => ({
+const stylesheet = createStyles(({ colors, corner }) => ({
   container: {
-    backgroundColor: colors.surfaceContainer.highest,
-    borderRadius: 16,
+    backgroundColor: colors.surfaceContainer.medium,
+    borderRadius: corner.l,
     padding: 16,
-  },
-  node: {
-    color: colors.onSurfaceVariant,
   },
 }));

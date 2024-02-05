@@ -34,6 +34,7 @@ export const ListHeader = ({
   return (
     <View style={[styles.container, containerStyle]}>
       <Text variant="titleSmall" style={styles.header} {...props} />
+
       {typeof Trailing === 'function' ? (
         <Trailing Text={TrailingText} />
       ) : (
@@ -49,7 +50,8 @@ const stylesheet = createStyles(({ colors }) => ({
     alignItems: 'center',
     marginTop: 8,
     marginBottom: 4,
-    marginHorizontal: 16,
+    marginLeft: 16,
+    marginRight: 24,
   },
   header: {
     flex: 1,

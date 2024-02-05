@@ -4,13 +4,13 @@ import { withSuspense } from '~/components/skeleton/withSuspense';
 import { ListItemSkeleton } from '~/components/list/ListItemSkeleton';
 import { match } from 'ts-pattern';
 import { materialCommunityIcon } from '@theme/icons';
-import { ICON_SIZE } from '@theme/paper';
 import { FragmentType, gql, useFragment } from '@api/generated';
 import { OperationLabel } from './OperationLabel';
 import { ProposalValue } from './ProposalValue';
 import { Link } from 'expo-router';
 import { createStyles, useStyles } from '@theme/styles';
 import { OperationIcon } from '~/components/transaction/OperationIcon';
+import { Image } from 'expo-image';
 
 const Proposal = gql(/* GraphQL */ `
   fragment TransactionItem_TransactionProposal on TransactionProposal {
@@ -19,6 +19,7 @@ const Proposal = gql(/* GraphQL */ `
     status
     createdAt
     updatable
+    iconUri
     account {
       id
       chain
@@ -99,8 +100,10 @@ function TransactionItem_({
     <Link href={{ pathname: `/(drawer)/transaction/[id]`, params: { id: p.id } }} asChild>
       <ListItem
         leading={(props) =>
-          isMulti ? (
-            <MultiOperationIcon {...props} size={ICON_SIZE.medium} />
+          p.iconUri ? (
+            <Image source={{ uri: p.iconUri }} style={styles.icon} {...props} />
+          ) : isMulti ? (
+            <MultiOperationIcon {...props} style={styles.icon} />
           ) : (
             <OperationIcon operation={p.operations[0]} chain={p.account.chain} {...props} />
           )
@@ -126,7 +129,7 @@ function TransactionItem_({
   );
 }
 
-const stylesheet = createStyles(({ colors }) => ({
+const stylesheet = createStyles(({ colors, iconSize, corner }) => ({
   approvalRequired: {
     color: colors.primary,
   },
@@ -135,6 +138,11 @@ const stylesheet = createStyles(({ colors }) => ({
   },
   failed: {
     color: colors.error,
+  },
+  icon: {
+    width: iconSize.medium,
+    height: iconSize.medium,
+    borderRadius: corner.l,
   },
 }));
 

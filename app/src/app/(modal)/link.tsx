@@ -11,8 +11,8 @@ import { useSubscription } from 'urql';
 import { useEffect } from 'react';
 import { Subject } from 'rxjs';
 import { LinkingTokenModal_SubscriptionSubscription } from '@api/generated/graphql';
-import { useRouter } from 'expo-router';
-import { getDeepLink } from '~/util/config';
+import { Link } from 'expo-router';
+import { appLink } from '~/util/config';
 import { share } from '~/lib/share';
 import { createStyles, useStyles } from '@theme/styles';
 import { EdgeInsets, useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -38,10 +38,9 @@ const Subscription = gql(/* GraphQL */ `
 
 export default function LinkingModal() {
   const { styles } = useStyles(stylesheet);
-  const router = useRouter();
 
   const { user } = useQuery(Query).data;
-  const link = getDeepLink({ pathname: `/link/token`, params: { token: user.linkingToken } });
+  const link = appLink({ pathname: `/link/token`, params: { token: user.linkingToken } });
 
   const [subscription] = useSubscription({ query: Subscription });
   useEffect(() => {
@@ -51,12 +50,9 @@ export default function LinkingModal() {
   return (
     <Blur>
       <View style={styles.container(useSafeAreaInsets())}>
-        <IconButton
-          mode="contained-tonal"
-          icon={CloseIcon}
-          style={styles.close}
-          onPress={router.back}
-        />
+        <Link href=".." asChild>
+          <IconButton mode="contained-tonal" icon={CloseIcon} style={styles.close} />
+        </Link>
 
         <View style={styles.qrContainer}>
           <Surface style={styles.qrSurface}>
@@ -87,9 +83,15 @@ export default function LinkingModal() {
         </View>
 
         <Actions flex={false}>
-          <Button mode="contained" icon={ShareIcon} onPress={() => share({ url: link })}>
-            Linking token
+          <Button mode="contained-tonal" icon={ShareIcon} onPress={() => share({ url: link })}>
+            Share token
           </Button>
+
+          <Link href="/scan" asChild>
+            <Button mode="contained" icon={ScanIcon}>
+              Scan instead
+            </Button>
+          </Link>
         </Actions>
       </View>
     </Blur>

@@ -1,6 +1,6 @@
 import { useRouter } from 'expo-router';
 import { useRef } from 'react';
-import BottomSheet, { BottomSheetScrollView } from '@gorhom/bottom-sheet';
+import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import { Sheet } from '~/components/sheet/Sheet';
 import { ListHeader } from '~/components/list/ListHeader';
 import { AddIcon, CheckCircleIcon, materialCommunityIcon } from '@theme/icons';
@@ -31,15 +31,12 @@ export default function AccountsSheet() {
   const router = useRouter();
   const selectedAddress = useSelectedAccount();
 
-  const ref = useRef<BottomSheet>(null);
-
   const { accounts } = useQuery(Query).data;
 
   const goBackOnClose = useRef(true);
 
   return (
     <Sheet
-      ref={ref}
       onClose={() => {
         if (goBackOnClose.current) router.back();
         goBackOnClose.current = true;

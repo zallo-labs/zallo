@@ -5,17 +5,11 @@ import { useEffect, useMemo } from 'react';
 import { showError, showInfo } from '~/components/provider/SnackbarProvider';
 import { logError } from '~/util/analytics';
 import {
+  asCaip2,
   asWalletConnectError,
   asWalletConnectResult,
   useWalletConnectWithoutWatching,
-} from '~/util/walletconnect';
-import {
-  SigningRequest,
-  WC_SIGNING_METHODS,
-  WC_TRANSACTION_METHODS,
-  WalletConnectSendTransactionRequest,
-  normalizeSigningRequest,
-} from '~/util/walletconnect/methods';
+} from '~/lib/wc';
 import { usePropose } from '@api/usePropose';
 import { getOptimizedDocument, useQuery } from '~/gql';
 import { Subject } from 'rxjs';
@@ -23,6 +17,16 @@ import { SignClientTypes } from '@walletconnect/types';
 import { useMutation, useSubscription } from 'urql';
 import { SessionRequestListener_ProposalSubscription } from '@api/generated/graphql';
 import { useRouter } from 'expo-router';
+import {
+  WC_SIGNING_METHODS,
+  normalizeSigningRequest,
+  SigningRequest,
+} from '~/lib/wc/methods/signing';
+import {
+  WC_TRANSACTION_METHODS,
+  WalletConnectSendTransactionRequest,
+} from '~/lib/wc/methods/transaction';
+import { useVerifyDapp } from '../DappVerification';
 
 const Query = gql(/* GraphQL */ `
   query UseSessionRequestListener {
@@ -64,9 +68,10 @@ type SessionRequestArgs = SignClientTypes.EventArguments['session_request'];
 
 export const useSessionRequestListener = () => {
   const router = useRouter();
+  const client = useWalletConnectWithoutWatching();
   const proposeTransaction = usePropose();
   const proposeMessage = useMutation(ProposeMessage)[1];
-  const client = useWalletConnectWithoutWatching();
+  const verify = useVerifyDapp();
 
   const accounts = useQuery(Query).data.accounts.map((a) => a.address);
 
@@ -85,13 +90,14 @@ export const useSessionRequestListener = () => {
   );
 
   useEffect(() => {
-    const handleRequest = async ({ id, topic, params }: SessionRequestArgs) => {
+    const handleRequest = async ({ id, topic, params, verifyContext }: SessionRequestArgs) => {
       const method = params.request.method;
-      const peer = client.session.get(topic).peer.metadata;
+      const dapp = client.getActiveSessions()[topic].peer.metadata;
+      verify(id, verifyContext.verified);
 
-      const chain = Object.values(CHAINS).find((c) => `${c.id}` === params.chainId)?.key;
+      const chain = Object.values(CHAINS).find((c) => asCaip2(c) === params.chainId)?.key;
       if (!chain)
-        return client.respond({
+        return client.respondSessionRequest({
           topic,
           response: asWalletConnectError(id, 'UNSUPPORTED_CHAINS'),
         });
@@ -112,11 +118,14 @@ export const useSessionRequestListener = () => {
         });
         if (!proposal) return;
 
-        showInfo(`${peer.name} has proposed a transaction`);
+        showInfo(`${dapp.name} has proposed a transaction`);
 
         const sub = proposals.subscribe((p) => {
           if (p.id === proposal && p.__typename === 'TransactionProposal' && p.transaction?.hash) {
-            client.respond({ topic, response: asWalletConnectResult(id, p.transaction.hash) });
+            client.respondSessionRequest({
+              topic,
+              response: asWalletConnectResult(id, p.transaction.hash),
+            });
             sub.unsubscribe();
           }
         });
@@ -131,25 +140,31 @@ export const useSessionRequestListener = () => {
           await proposeMessage({
             input: {
               account: asUAddress(request.account, chain),
-              label: `${peer.name} message`,
-              iconUri: peer.icons[0],
+              label: `${dapp.name} message`,
+              iconUri: dapp.icons[0],
               ...(request.method === 'personal-sign'
                 ? { message: request.message }
                 : { typedData: request.typedData }),
             },
           })
         ).data?.proposeMessage;
-        if (!proposal) return showError(`${peer.name}: failed to propose transaction`);
+        if (!proposal) return showError(`${dapp.name}: failed to propose transaction`);
 
         // Respond immediately if message has previously been signed
         if (proposal.signature)
-          return client.respond({ topic, response: asWalletConnectResult(id, proposal.signature) });
+          return client.respondSessionRequest({
+            topic,
+            response: asWalletConnectResult(id, proposal.signature),
+          });
 
-        showInfo(`${peer.name} wants you to sign a message`);
+        showInfo(`${dapp.name} wants you to sign a message`);
 
         const sub = proposals.subscribe((p) => {
           if (p.id === proposal.id && p.__typename === 'MessageProposal' && p.signature) {
-            client.respond({ topic, response: asWalletConnectResult(id, p.signature) });
+            client.respondSessionRequest({
+              topic,
+              response: asWalletConnectResult(id, p.signature),
+            });
             sub.unsubscribe();
           }
         });
@@ -167,5 +182,5 @@ export const useSessionRequestListener = () => {
     return () => {
       client.off('session_request', handleRequest);
     };
-  }, [client, router, proposals, proposeMessage, proposeTransaction]);
+  }, [client, router, proposals, proposeMessage, proposeTransaction, verify]);
 };

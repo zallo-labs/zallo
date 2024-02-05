@@ -5,7 +5,7 @@ import { gql } from '@api/generated';
 import { NotFound } from '~/components/NotFound';
 import { useQuery } from '~/gql';
 import { AppbarMore } from '~/components/Appbar/AppbarMore';
-import { Menu, Text } from 'react-native-paper';
+import { Menu } from 'react-native-paper';
 import { useMutation } from 'urql';
 import { useConfirmRemoval } from '~/hooks/useConfirm';
 import { useRouter } from 'expo-router';
@@ -15,13 +15,14 @@ import { MessageStatus } from '~/components/message/MessageStatus';
 import { StyleSheet, View } from 'react-native';
 import { MessageIcon } from '~/components/message/MessageIcon';
 import { DataView } from '~/components/DataView/DataView';
-import { RiskRating } from '~/components/proposal/RiskRating';
 import { MessageActions } from '~/components/message/MessageActions';
 import { asChain } from 'lib';
 import { SideSheetLayout } from '~/components/SideSheet/SideSheetLayout';
 import { SideSheet } from '~/components/SideSheet/SideSheet';
 import { useSideSheetVisibility } from '~/components/SideSheet/useSideSheetVisibility';
 import { ProposalApprovals } from '~/components/policy/ProposalApprovals';
+import { ListHeader } from '~/components/list/ListHeader';
+import { ListItem } from '~/components/list/ListItem';
 
 const Query = gql(/* GraphQL */ `
   query MessageScreen($proposal: UUID!) {
@@ -37,7 +38,6 @@ const Query = gql(/* GraphQL */ `
       }
       ...MessageStatus_MessageProposal
       ...MessageIcon_MessageProposal
-      ...RiskRating_Proposal
       ...MessageActions_MessageProposal
     }
 
@@ -95,16 +95,20 @@ export default function MessageScreen() {
       <ScrollableScreenSurface>
         <MessageStatus proposal={p} />
 
-        <View style={styles.header}>
-          <MessageIcon proposal={p} />
-          <Text>
-            <Text variant="titleMedium">{p.label || 'Message'}</Text>
-          </Text>
+        <View>
+          <ListHeader>Overview</ListHeader>
+          <ListItem
+            leading={(props) => <MessageIcon proposal={p} {...props} />}
+            headline={p.label || 'Message'}
+          />
         </View>
 
-        <DataView chain={asChain(p.account.address)}>{p.typedData ?? p.message}</DataView>
-
-        <RiskRating proposal={p} />
+        <View style={styles.messageContainer}>
+          <ListHeader>Message</ListHeader>
+          <DataView chain={asChain(p.account.address)} style={styles.messageData}>
+            {p.typedData ?? p.message}
+          </DataView>
+        </View>
 
         <MessageActions proposal={p} user={query.data.user} approvalsSheet={sideSheet} />
       </ScrollableScreenSurface>
@@ -117,16 +121,10 @@ export default function MessageScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flexGrow: 1,
-    gap: 16,
-    marginHorizontal: 16,
-    paddingTop: 24,
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
+  messageContainer: {
     gap: 8,
+  },
+  messageData: {
+    marginHorizontal: 16,
   },
 });

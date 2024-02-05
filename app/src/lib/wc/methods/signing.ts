@@ -12,7 +12,7 @@ const WC_SIGNING_METHODS_ARRAY = [
   'eth_signTypedData_v4',
 ] as const;
 
-export const WC_SIGNING_METHODS = new Set<string>(WC_SIGNING_METHODS_ARRAY);
+export const WC_SIGNING_METHODS = new Set(WC_SIGNING_METHODS_ARRAY);
 
 // Assert that WC_SIGNING_METHODS contains all SigningRequest methods
 // eslint-disable-next-line @typescript-eslint/no-unused-vars

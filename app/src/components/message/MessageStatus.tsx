@@ -37,7 +37,7 @@ export function MessageStatus(props: MessageStatusProps) {
           <>
             <DoubleCheckIcon style={styles.text} size={styles.icon.width} />
             <Text variant="headlineSmall" style={styles.text}>
-              Executed
+              Signed
             </Text>
           </>
         ))

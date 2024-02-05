@@ -43,6 +43,7 @@ import { and, isExclusivityConstraintViolation } from '../database/database.util
 import { selectAccount } from '../accounts/accounts.util';
 import { err, fromPromise, ok } from 'neverthrow';
 import { encodeFunctionData } from 'viem';
+import { $TransactionProposal } from '~/edgeql-js/modules/default';
 
 export const policySatisfiabilityDeps = {
   key: true,
@@ -332,6 +333,7 @@ export class PoliciesService {
     const proposal = await this.db.query(
       e.select(e.Proposal, (p) => ({
         filter_single: { id: proposalId },
+        __type__: { name: true },
         approvals: { approver: { address: true } },
         ...e.is(e.TransactionProposal, proposalTxShape(p)),
       })),
@@ -342,7 +344,7 @@ export class PoliciesService {
     const p = policyStateAsPolicy(key, state);
     const approvals = new Set(proposal.approvals.map((a) => asAddress(a.approver.address)));
 
-    return proposal.operations
+    return proposal.__type__.name === $TransactionProposal['__name__']
       ? getTransactionSatisfiability(
           p,
           transactionProposalAsTx(proposal as ProposalTxShape),
