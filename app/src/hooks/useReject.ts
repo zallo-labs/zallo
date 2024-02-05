@@ -8,6 +8,7 @@ import { showError } from '~/components/provider/SnackbarProvider';
 import { useGetAppleApprover } from '~/hooks/cloud/useGetAppleApprover';
 import { useGetGoogleApprover } from '~/hooks/cloud/useGetGoogleApprover';
 import { hapticFeedback } from '~/lib/haptic';
+import { ampli, type RejectionProperties } from '~/lib/ampli';
 
 const User = gql(/* GraphQL */ `
   fragment UseReject_User on User {
@@ -72,9 +73,15 @@ export function useReject({ approver, ...params }: UseRejectParams) {
   const getAppleApprover = useGetAppleApprover();
   const getGoogleApprover = useGetGoogleApprover();
 
-  const reject = async (context?: Partial<OperationContext>) => {
+  const reject = async (
+    method: RejectionProperties['method'],
+    context?: Partial<OperationContext>,
+  ) => {
     hapticFeedback('neutral');
     await rejectMutation({ proposal: p.id }, context);
+
+    const type = p.__typename === 'TransactionProposal' ? 'Transaction' : 'Message';
+    ampli.rejection({ method, type });
   };
 
   const userApprover = user.approvers.find((a) => a.address === approver);
@@ -85,7 +92,7 @@ export function useReject({ approver, ...params }: UseRejectParams) {
 
   if (approver === device) {
     return async () => {
-      await reject();
+      await reject('Device');
     };
   } else if (userApprover.cloud) {
     return match(userApprover.cloud)
@@ -99,7 +106,7 @@ export function useReject({ approver, ...params }: UseRejectParams) {
               event: { error: r.error, subject },
             });
 
-          await reject(await authContext(r.value.approver));
+          await reject('Apple', await authContext(r.value.approver));
         };
       })
       .with({ provider: 'Google' }, ({ subject }) => {
@@ -112,7 +119,7 @@ export function useReject({ approver, ...params }: UseRejectParams) {
               event: { error: r.error, subject },
             });
 
-          await reject(await authContext(r.value.approver));
+          await reject('Google', await authContext(r.value.approver));
         };
       })
       .exhaustive();

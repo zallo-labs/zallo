@@ -30,7 +30,7 @@ export type ReactNativeOptions = amplitude.Types.ReactNativeOptions;
 export type Environment = 'zallo';
 
 export const ApiKey: Record<Environment, string> = {
-  zallo: '',
+  zallo: ''
 };
 
 /**
@@ -41,35 +41,23 @@ export const DefaultConfiguration: ReactNativeOptions = {
     version: '1',
     branch: 'main',
     source: 'app',
-    versionId: 'c32a6255-e786-4628-acf8-49e4bcdc9835',
+    versionId: 'c32a6255-e786-4628-acf8-49e4bcdc9835'
   },
   ...{
     ingestionMetadata: {
       sourceName: 'react-native-typescript-ampli',
-      sourceVersion: '2.0.0',
-    },
-  },
+      sourceVersion: '2.0.0'
+    }
+  }
 };
 
-export interface LoadOptionsBase {
-  disabled?: boolean;
-}
+export interface LoadOptionsBase { disabled?: boolean }
 
-export type LoadOptionsWithEnvironment = LoadOptionsBase & {
-  environment: Environment;
-  client?: { configuration?: ReactNativeOptions };
-};
-export type LoadOptionsWithApiKey = LoadOptionsBase & {
-  client: { apiKey: string; configuration?: ReactNativeOptions };
-};
-export type LoadOptionsWithClientInstance = LoadOptionsBase & {
-  client: { instance: ReactNativeClient };
-};
+export type LoadOptionsWithEnvironment = LoadOptionsBase & { environment: Environment; client?: { configuration?: ReactNativeOptions; }; };
+export type LoadOptionsWithApiKey = LoadOptionsBase & { client: { apiKey: string; configuration?: ReactNativeOptions; } };
+export type LoadOptionsWithClientInstance = LoadOptionsBase & { client: { instance: ReactNativeClient; } };
 
-export type LoadOptions =
-  | LoadOptionsWithEnvironment
-  | LoadOptionsWithApiKey
-  | LoadOptionsWithClientInstance;
+export type LoadOptions = LoadOptionsWithEnvironment | LoadOptionsWithApiKey | LoadOptionsWithClientInstance;
 
 export interface ApprovalProperties {
   /**
@@ -77,13 +65,13 @@ export interface ApprovalProperties {
    * |---|---|
    * | Enum Values | Device, Ledger, Google, Apple |
    */
-  method: 'Device' | 'Ledger' | 'Google' | 'Apple';
+  method: "Device" | "Ledger" | "Google" | "Apple";
   /**
    * | Rule | Value |
    * |---|---|
    * | Enum Values | Transaction, Message |
    */
-  type: 'Transaction' | 'Message';
+  type: "Transaction" | "Message";
 }
 
 export interface LedgerLinkedProperties {
@@ -99,6 +87,21 @@ export interface NotificationPressedProperties {
   pathname: string;
 }
 
+export interface RejectionProperties {
+  /**
+   * | Rule | Value |
+   * |---|---|
+   * | Enum Values | Device, Ledger, Google, Apple |
+   */
+  method: "Device" | "Ledger" | "Google" | "Apple";
+  /**
+   * | Rule | Value |
+   * |---|---|
+   * | Enum Values | Transaction, Message |
+   */
+  type: "Transaction" | "Message";
+}
+
 export interface ScreenViewProperties {
   params: any;
   pathname: string;
@@ -111,7 +114,7 @@ export interface SocialLinkedProperties {
    * |---|---|
    * | Enum Values | Apple, Google |
    */
-  cloud: 'Apple' | 'Google';
+  cloud: "Apple" | "Google";
 }
 
 export interface SwapProposalProperties {
@@ -126,7 +129,9 @@ export interface TransferProposalProperties {
 export class Approval implements BaseEvent {
   event_type = 'Approval';
 
-  constructor(public event_properties: ApprovalProperties) {
+  constructor(
+    public event_properties: ApprovalProperties,
+  ) {
     this.event_properties = event_properties;
   }
 }
@@ -134,7 +139,9 @@ export class Approval implements BaseEvent {
 export class LedgerLinked implements BaseEvent {
   event_type = 'Ledger Linked';
 
-  constructor(public event_properties?: LedgerLinkedProperties) {
+  constructor(
+    public event_properties?: LedgerLinkedProperties,
+  ) {
     this.event_properties = event_properties;
   }
 }
@@ -142,7 +149,9 @@ export class LedgerLinked implements BaseEvent {
 export class ModifyPolicy implements BaseEvent {
   event_type = 'Modify Policy';
 
-  constructor(public event_properties: ModifyPolicyProperties) {
+  constructor(
+    public event_properties: ModifyPolicyProperties,
+  ) {
     this.event_properties = event_properties;
   }
 }
@@ -150,7 +159,19 @@ export class ModifyPolicy implements BaseEvent {
 export class NotificationPressed implements BaseEvent {
   event_type = 'Notification Pressed';
 
-  constructor(public event_properties: NotificationPressedProperties) {
+  constructor(
+    public event_properties: NotificationPressedProperties,
+  ) {
+    this.event_properties = event_properties;
+  }
+}
+
+export class Rejection implements BaseEvent {
+  event_type = 'Rejection';
+
+  constructor(
+    public event_properties: RejectionProperties,
+  ) {
     this.event_properties = event_properties;
   }
 }
@@ -158,7 +179,9 @@ export class NotificationPressed implements BaseEvent {
 export class ScreenView implements BaseEvent {
   event_type = 'Screen View';
 
-  constructor(public event_properties: ScreenViewProperties) {
+  constructor(
+    public event_properties: ScreenViewProperties,
+  ) {
     this.event_properties = event_properties;
   }
 }
@@ -166,7 +189,9 @@ export class ScreenView implements BaseEvent {
 export class SocialLinked implements BaseEvent {
   event_type = 'Social Linked';
 
-  constructor(public event_properties: SocialLinkedProperties) {
+  constructor(
+    public event_properties: SocialLinkedProperties,
+  ) {
     this.event_properties = event_properties;
   }
 }
@@ -174,7 +199,9 @@ export class SocialLinked implements BaseEvent {
 export class SwapProposal implements BaseEvent {
   event_type = 'Swap Proposal';
 
-  constructor(public event_properties: SwapProposalProperties) {
+  constructor(
+    public event_properties: SwapProposalProperties,
+  ) {
     this.event_properties = event_properties;
   }
 }
@@ -182,7 +209,9 @@ export class SwapProposal implements BaseEvent {
 export class TransferProposal implements BaseEvent {
   event_type = 'Transfer Proposal';
 
-  constructor(public event_properties: TransferProposalProperties) {
+  constructor(
+    public event_properties: TransferProposalProperties,
+  ) {
     this.event_properties = event_properties;
   }
 }
@@ -360,6 +389,23 @@ export class Ampli {
     options?: EventOptions,
   ) {
     return this.track(new NotificationPressed(properties), options);
+  }
+
+  /**
+   * Rejection
+   *
+   * [View in Tracking Plan](https://data.amplitude.com/zallo/Zallo/events/main/latest/Rejection)
+   *
+   * Event has no description in tracking plan.
+   *
+   * @param properties The event's properties (e.g. method)
+   * @param options Amplitude event options.
+   */
+  rejection(
+    properties: RejectionProperties,
+    options?: EventOptions,
+  ) {
+    return this.track(new Rejection(properties), options);
   }
 
   /**
