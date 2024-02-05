@@ -4,9 +4,10 @@ import { createStyles, useStyles } from '@theme/styles';
 import Decimal from 'decimal.js';
 import { Dispatch, SetStateAction } from 'react';
 import { View } from 'react-native';
-import { Button, IconButton, Text } from 'react-native-paper';
+import { IconButton, Text } from 'react-native-paper';
 import { FiatValue } from '~/components/FiatValue';
 import { TokenAmount } from '~/components/token/TokenAmount';
+import { Button } from './Button';
 
 const FragmentDoc = gql(/* GraphQL */ `
   fragment InputsView_token on Token @argumentDefinitions(account: { type: "UAddress!" }) {

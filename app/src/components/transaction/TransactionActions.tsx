@@ -1,4 +1,3 @@
-import { Button } from 'react-native-paper';
 import { Actions } from '~/components/layout/Actions';
 import { ShareIcon } from '@theme/icons';
 import { FragmentType, gql, useFragment } from '@api/generated';
@@ -10,6 +9,7 @@ import { share } from '~/lib/share';
 import { createStyles, useStyles } from '@theme/styles';
 import { CHAINS } from 'chains';
 import { useConfirm } from '~/hooks/useConfirm';
+import { Button } from '../Button';
 
 const Transaction = gql(/* GraphQL */ `
   fragment TransactionActions_TransactionProposal on TransactionProposal
