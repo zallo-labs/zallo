@@ -120,7 +120,6 @@ export default function TransactionScreen() {
         </TransfersSection>
 
         <FeesSection proposal={p} />
-        <Divider horizontalInset style={styles.divider} />
 
         <TransactionActions proposal={p} user={query.data.user} approvalsSheet={sideSheet} />
       </ScrollableScreenSurface>

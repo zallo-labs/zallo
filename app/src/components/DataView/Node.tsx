@@ -1,14 +1,14 @@
-import { Hex, asUAddress, isAddress, isHex } from 'lib';
-import { StyleProp, StyleSheet, TextStyle, View } from 'react-native';
+import { Hex, asUAddress, isAddress, isHex, type Address } from 'lib';
+import { StyleProp, TextStyle, View, type ViewStyle } from 'react-native';
 import { Text } from 'react-native-paper';
 import { tryDecodeHexString } from '~/util/decodeHex';
 import { AddressLabel } from '../address/AddressLabel';
-import { match } from 'ts-pattern';
+import { P, match } from 'ts-pattern';
 import { TypedDataDefinition } from 'viem';
 import { createStyles, useStyles } from '@theme/styles';
 import { Chain } from 'chains';
 
-export type NodeValue = string | Hex | TypedDataNode | TypedDataDefinition;
+export type NodeValue = Address | Hex | string | TypedDataDefinition | TypedDataNode;
 
 export interface TypedDataNode {
   type?: string;
@@ -19,72 +19,95 @@ export interface TypedDataNode {
 export interface NodeProps {
   children: NodeValue;
   chain: Chain;
-  style?: StyleProp<TextStyle>;
+  root?: boolean;
+  containerStyle?: StyleProp<ViewStyle>;
+  textStyle?: StyleProp<TextStyle>;
 }
 
-export function Node({ children: value, chain, style }: NodeProps) {
+export function Node({ children: value, chain, root, containerStyle }: NodeProps) {
   const { styles } = useStyles(stylesheet);
-  const marginLeft = (StyleSheet.flatten(style)?.marginLeft as number) ?? 0;
 
   return match(value)
     .when(isAddress, (v) => (
-      <Text style={style}>
+      <Text style={containerStyle}>
         <AddressLabel address={asUAddress(v, chain)} />
       </Text>
     ))
-    .when(isHex, (v) => <Text style={style}>{tryDecodeHexString(v) ?? v}</Text>)
+    .when(isHex, (v) => (
+      <Text style={[containerStyle, styles.value]}>{tryDecodeHexString(v) ?? v}</Text>
+    ))
+    .with(P.string, (v) => <Text style={[containerStyle, styles.value]}>{v}</Text>)
     .when(isTypedData, (data) => (
-      <Node chain={chain} style={style}>
+      <Node root chain={chain} containerStyle={containerStyle}>
         {asTypedDataNode(data)}
       </Node>
     ))
-    .when(isTypedDataNode, ({ name, type, children }) =>
-      children instanceof Array ? (
-        <View>
-          <Text style={style}>
-            <Text style={[style, styles.name]}>{name}</Text>
-            {name && type && ' '}
-            <Text style={[style, styles.type]}>{type}</Text>
-            {' {'}
+    .with(
+      P.intersection(P.when(isTypedDataNode), { children: P.string }),
+      ({ name, type: _, children }) => (
+        <View style={[containerStyle, styles.valueContainer]}>
+          <Text variant="labelLarge" style={styles.name}>
+            {name}
           </Text>
-
-          {children.map((child, i) => (
-            <Node key={i} chain={chain} style={[style, { marginLeft: marginLeft + 8 }]}>
-              {child}
-            </Node>
-          ))}
-
-          <Text style={style}>{'}'}</Text>
-        </View>
-      ) : (
-        <View style={styles.valueNodeContainer}>
-          <Text style={[style, styles.name]}>{name}</Text>
           {/* Omit type */}
 
-          <Node chain={chain} style={[style, styles.value]}>
+          <Node chain={chain} textStyle={styles.value}>
             {children}
           </Node>
         </View>
       ),
     )
-    .otherwise((v) => <Text style={style}>{v}</Text>);
+    .with(
+      P.intersection(P.when(isTypedDataNode), { children: P.array(P.when(isTypedDataNode)) }),
+      ({ name, type, children }) => (
+        <View style={containerStyle}>
+          <Text>
+            <Text variant="labelLarge" style={styles.name}>
+              {name}
+            </Text>
+            {name && type && ' '}
+            <Text variant="labelLarge" style={styles.type}>
+              {type}
+            </Text>
+            <Text variant="labelLarge" style={styles.nodeInfoSeparator}>
+              :
+            </Text>
+          </Text>
+
+          <View style={styles.nodeChildren(root)}>
+            {children.map((child, i) => (
+              <Node key={i} chain={chain} containerStyle={containerStyle}>
+                {child}
+              </Node>
+            ))}
+          </View>
+        </View>
+      ),
+    )
+    .exhaustive();
 }
 
 const stylesheet = createStyles(({ colors }) => ({
-  valueNodeContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    gap: 4,
-  },
   name: {
-    // color: colors.onSurface,
-    // color: colors.tertiary,
+    color: colors.tertiary,
   },
   type: {
-    color: colors.onSurface,
+    color: colors.primary,
+  },
+  nodeInfoSeparator: {
+    color: colors.onSurfaceVariant,
+  },
+  nodeChildren: (root?: boolean) => ({
+    marginLeft: 8,
+    marginBottom: root ? 0 : 8,
+  }),
+  valueContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: 32,
   },
   value: {
-    color: colors.secondary,
+    color: colors.onSurface,
   },
 }));
 
