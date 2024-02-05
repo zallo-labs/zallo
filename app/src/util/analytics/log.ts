@@ -25,18 +25,10 @@ export const logEvent = ({ level, message, error: ep, ...contextParam }: LogEven
   }
 
   // Console
-  CONSOLE[level](
-    `Event: ${message}`,
-    JSON.stringify(
-      {
-        ep,
-        ...(error && { error }),
-        ...context,
-      },
-      null,
-      2,
-    ),
-  );
+  CONSOLE[level](`Event: ${message}`, {
+    ...(error && { error }),
+    ...context,
+  });
 };
 
 export const logDebug = (message: string, opts?: LogEventOptions) =>
