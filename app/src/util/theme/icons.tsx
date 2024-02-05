@@ -1,7 +1,7 @@
 import { Image, ImageProps, ImageSource } from 'expo-image';
-import { ComponentPropsWithoutRef, ElementType, FC, Ref, forwardRef } from 'react';
+import { ComponentPropsWithoutRef, Ref, forwardRef } from 'react';
 import { ColorValue, TouchableOpacity, TouchableOpacityProps } from 'react-native';
-import { Ionicons, MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
+import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
 import { ICON_SIZE } from './paper';
 
 export interface IconProps {
@@ -11,24 +11,29 @@ export interface IconProps {
 }
 
 type NameProp<Props> = Props extends { name: infer Name } ? Name : never;
-type Curried<C extends ElementType, Props = ComponentPropsWithoutRef<C>> = (
-  name: NameProp<Props>,
-) => FC<Omit<Props, 'name'>>;
 
-export const materialIcon: Curried<typeof MaterialIcons> = (name) => (props) => (
-  <MaterialIcons name={name} size={ICON_SIZE.small} {...props} />
-);
+const iconSet = {
+  material: MaterialIcons,
+  materialCommunity: MaterialCommunityIcons,
+};
 
-export const materialCommunityIcon: Curried<typeof MaterialCommunityIcons> = (name) => (props) => (
-  <MaterialCommunityIcons name={name} size={ICON_SIZE.small} {...props} />
-);
+export const icon =
+  <S extends keyof typeof iconSet, Props extends ComponentPropsWithoutRef<(typeof iconSet)[S]>>(
+    set: S,
+  ) =>
+  (name: NameProp<Props>) => {
+    return (props: Omit<Props, 'name'>) => {
+      const IconSet = iconSet[set];
 
-export const ionIcon: Curried<typeof Ionicons> = (name) => (props) => (
-  <Ionicons name={name} size={ICON_SIZE.small} {...props} />
-);
+      return <IconSet size={ICON_SIZE.small} {...(props as any)} name={name} />;
+    };
+  };
+
+export const materialIcon = icon('material');
+
+export const materialCommunityIcon = icon('materialCommunity');
 
 export const HomeIcon = materialIcon('home');
-export const ActivityIcon = materialCommunityIcon('chart-timeline-variant');
 export const TransferIcon = materialCommunityIcon('send');
 export const TransferOutlineIcon = materialCommunityIcon('send-outline');
 export const UserIcon = materialIcon('person');
@@ -59,7 +64,6 @@ export const PayCircleIcon = materialCommunityIcon('contactless-payment-circle')
 export const PayCircleOutlineIcon = materialCommunityIcon('contactless-payment-circle-outline');
 export const DeviceIcon = materialIcon('account-circle');
 export const AccountIcon = materialCommunityIcon('bank');
-export const WalletIcon = ionIcon('wallet');
 export const BackIcon = materialIcon('arrow-back');
 export const IssueIcon = materialCommunityIcon('github');
 export const FeedbackIcon = materialCommunityIcon('chat');
