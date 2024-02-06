@@ -12,9 +12,6 @@ import 'react-native-get-random-values';
 // depends on react-native-get-random-values
 import './crypto';
 
-// Core JS
-import 'core-js/stable/symbol/async-iterator'; // Required by urql
-
 // Ethers - https://docs.ethers.org/v6/cookbook/react-native/
 import { ethers } from 'ethers';
 import crypto from 'crypto'; // Replaced by babel with correct pollyfill
