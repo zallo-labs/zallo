@@ -96,7 +96,12 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     'expo-camera',
     '@react-native-firebase/app',
     'react-native-ble-plx',
-    '@react-native-google-signin/google-signin',
+    [
+      '@react-native-google-signin/google-signin',
+      {
+        iosUrlScheme: ENV.GOOGLE_OAUTH_IOS_URL_SCHEME,
+      },
+    ],
     'expo-apple-authentication',
     [
       'react-native-cloud-storage',

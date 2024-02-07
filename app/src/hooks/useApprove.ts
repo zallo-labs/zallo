@@ -6,12 +6,12 @@ import { useMutation } from 'urql';
 import { showError } from '~/components/provider/SnackbarProvider';
 import { proposalAsTypedData } from '~/lib/proposalAsTypedData';
 import { useGetAppleApprover } from '~/hooks/cloud/useGetAppleApprover';
-import { useGetGoogleApprover } from '~/hooks/cloud/useGetGoogleApprover';
 import { useGetLedgerApprover } from '~/app/(sheet)/ledger/approve';
 import { useSignWithApprover } from '~/components/transaction/useSignWithApprover';
 import { ampli, type ApprovalProperties } from '~/lib/ampli';
 import type { ApproveInput } from '@api/generated/graphql';
 import { hapticFeedback } from '~/lib/haptic';
+import { useGetGoogleApprover } from '~/components/link/google/useGetGoogleApprover';
 
 const User = gql(/* GraphQL */ `
   fragment UseApprove_User on User {
@@ -170,7 +170,7 @@ export function useApprove({ approver, ...params }: UseApproveParams) {
         if (!getGoogleApprover) return undefined;
 
         return async () => {
-          const r = await getGoogleApprover({ subject });
+          const r = await getGoogleApprover(subject);
           if (r.isErr())
             return showError('Failed to approve with Google account', {
               event: { error: r.error, subject },

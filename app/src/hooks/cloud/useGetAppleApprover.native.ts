@@ -59,7 +59,7 @@ export function useGetAppleApprover() {
         getCloudApprover({
           idToken: credentials.identityToken!,
           accessToken: null,
-          create: { name: 'Apple account' },
+          create: { name: credentials.email ? `${credentials.email} (Apple)` : 'Apple account' },
         }),
       ).map((approver) => ({
         credentials,

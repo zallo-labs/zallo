@@ -24,6 +24,7 @@ import { TQueryProvider } from '~/components/provider/TQueryProvider';
 import { StyleSheet } from 'react-native';
 import { Fonts } from '~/components/Fonts';
 import { SentryProvider } from '~/components/provider/SentryProvider';
+import { GoogleAuthProvider } from '~/components/link/google/GoogleAuthProvider';
 
 export const unstable_settings = {
   initialRouteName: `index`,
@@ -58,21 +59,23 @@ function RootLayout() {
                     <AuthGate>
                       <GqlProvider>
                         <TQueryProvider>
-                          <ErrorBoundary>
-                            <Suspense fallback={<Splash />}>
-                              <Portal.Host>
-                                <Layout />
-                              </Portal.Host>
-                            </Suspense>
-                          </ErrorBoundary>
-                          <MinimalErrorBoundary>
-                            <Suspense fallback={null}>
-                              <Analytics />
-                              <WalletConnectListeners />
-                              <NotificationsProvider />
-                              <ApproverNameUpdater />
-                            </Suspense>
-                          </MinimalErrorBoundary>
+                          <GoogleAuthProvider>
+                            <ErrorBoundary>
+                              <Suspense fallback={<Splash />}>
+                                <Portal.Host>
+                                  <Layout />
+                                </Portal.Host>
+                              </Suspense>
+                            </ErrorBoundary>
+                            <MinimalErrorBoundary>
+                              <Suspense fallback={null}>
+                                <Analytics />
+                                <WalletConnectListeners />
+                                <NotificationsProvider />
+                                <ApproverNameUpdater />
+                              </Suspense>
+                            </MinimalErrorBoundary>
+                          </GoogleAuthProvider>
                         </TQueryProvider>
                       </GqlProvider>
                     </AuthGate>

@@ -5,9 +5,9 @@ import { ListHeader } from '~/components/list/ListHeader';
 import { UserApproverItem } from '~/components/item/UserApproverItem';
 import { gql } from '@api/generated';
 import { useQuery } from '~/gql';
-import { LinkGoogleButton } from '~/components/link/LinkGoogleButton';
+import { LinkGoogleButton } from '~/components/link/google/LinkGoogleButton';
 import { LinkLedgerButton } from '~/components/link/ledger/LinkLedgerButton';
-import { LinkingButton } from '~/components/link/LinkingButton';
+import { LinkZalloButton } from '~/components/link/LinkZallo';
 import { LinkAppleButton } from '~/components/link/LinkAppleButton';
 import { showSuccess } from '~/components/provider/SnackbarProvider';
 import { AppbarOptions } from '~/components/Appbar/AppbarOptions';
@@ -55,19 +55,14 @@ function MyApproversScreen() {
               Link
             </Text>
 
-            <View style={styles.methodsContainer}>
-              <LinkAppleButton user={user} onLink={() => showSuccess('Linked Apple account')} />
-
-              <LinkGoogleButton
-                user={user}
-                signOut
-                onLink={() => showSuccess('Linked Google account')}
-              />
-
-              <LinkLedgerButton />
-
-              <LinkingButton />
-            </View>
+            <LinkZalloButton />
+            <LinkLedgerButton />
+            <LinkAppleButton user={user} onLink={() => showSuccess('Linked Apple account')} />
+            <LinkGoogleButton
+              user={user}
+              signOut
+              onLink={() => showSuccess('Linked Google account')}
+            />
           </Actions>
         </ScrollView>
       </ScrollableScreenSurface>

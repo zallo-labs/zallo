@@ -6,9 +6,9 @@ import { match } from 'ts-pattern';
 import { useMutation, type OperationContext } from 'urql';
 import { showError } from '~/components/provider/SnackbarProvider';
 import { useGetAppleApprover } from '~/hooks/cloud/useGetAppleApprover';
-import { useGetGoogleApprover } from '~/hooks/cloud/useGetGoogleApprover';
 import { hapticFeedback } from '~/lib/haptic';
 import { ampli, type RejectionProperties } from '~/lib/ampli';
+import { useGetGoogleApprover } from '~/components/link/google/useGetGoogleApprover';
 
 const User = gql(/* GraphQL */ `
   fragment UseReject_User on User {
@@ -113,7 +113,7 @@ export function useReject({ approver, ...params }: UseRejectParams) {
         if (!getGoogleApprover) return undefined;
 
         return async () => {
-          const r = await getGoogleApprover({ subject });
+          const r = await getGoogleApprover(subject);
           if (r.isErr())
             return showError('Failed to approve with Google account', {
               event: { error: r.error, subject },

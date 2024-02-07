@@ -8329,17 +8329,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@react-native-google-signin/google-signin@npm:^11.0.0":
-  version: 11.0.0
-  resolution: "@react-native-google-signin/google-signin@npm:11.0.0"
+"@react-native-google-signin/google-signin@npm:^13.0.3":
+  version: 13.0.3
+  resolution: "@react-native-google-signin/google-signin@npm:13.0.3::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40react-native-google-signin%2Fgoogle-signin%2F13.0.3%2F0d2e86ea77cc4a22c864f039e54cb6684e5e2ca9"
+  dependencies:
+    jwt-decode: "npm:^4.0.0"
   peerDependencies:
     expo: ">=47.0.0"
     react: "*"
+    react-dom: "*"
     react-native: "*"
-  peerDependenciesMeta:
-    expo:
-      optional: true
-  checksum: 10/f1cb6ff77eb32ed9100ab8271eb30c1338199498c366962b9f2f8406aa59f34fcc6191bd6b3299e57eac867e2023170d1154f4ef0774140f2ffbd2e7da935db8
+  checksum: 10/b0f28a7c289870946c7cf3eb59bd6aa93a9bfaf880046b1940e000fd73a4c9e9055a3e3df4332980f949dd5a8576f7f6a153d60e5b37d0932c7f840aa1255a00
   languageName: node
   linkType: hard
 
@@ -8650,6 +8650,16 @@ __metadata:
   dependencies:
     nanoid: "npm:^3.1.23"
   checksum: 10/35af21aa89074b6c4ef8e7a52701694cf393eda4bc3b237e8c908b27468a2f14c04acfaf702acfe833713730e65cac31733e411a3bdf459859e9b1c823d0c06e
+  languageName: node
+  linkType: hard
+
+"@react-oauth/google@npm:^0.12.1":
+  version: 0.12.1
+  resolution: "@react-oauth/google@npm:0.12.1"
+  peerDependencies:
+    react: ">=16.8.0"
+    react-dom: ">=16.8.0"
+  checksum: 10/89d9c2db5be484b9fdbc45e4ce534cb44b62d76b3a29da6f8f09f42b8fb154ab1e4e7c2a281a121b94a2b34a4c2857464e944e58fccc83804e1c2816a494f1eb
   languageName: node
   linkType: hard
 
@@ -10053,6 +10063,13 @@ __metadata:
     "@types/minimatch": "npm:*"
     "@types/node": "npm:*"
   checksum: 10/6ae717fedfdfdad25f3d5a568323926c64f52ef35897bcac8aca8e19bc50c0bd84630bbd063e5d52078b2137d8e7d3c26eabebd1a2f03ff350fff8a91e79fc19
+  languageName: node
+  linkType: hard
+
+"@types/google-one-tap@npm:^1.2.6":
+  version: 1.2.6
+  resolution: "@types/google-one-tap@npm:1.2.6"
+  checksum: 10/7439aa51d79ad07e587087887ce86f0932222f4fa5e24e4a62fce5d8bf17ba663441d2f69da97d55056b82ed11f0474591d8c6a508232dd0a8f61b42ecc036ba
   languageName: node
   linkType: hard
 
@@ -12019,11 +12036,12 @@ __metadata:
     "@react-native-community/blur": "npm:^4.4.0"
     "@react-native-community/netinfo": "npm:11.1.0"
     "@react-native-firebase/app": "npm:^18.7.3"
-    "@react-native-google-signin/google-signin": "npm:^11.0.0"
+    "@react-native-google-signin/google-signin": "npm:^13.0.3"
     "@react-navigation/drawer": "npm:^6.6.4"
     "@react-navigation/material-top-tabs": "npm:^6.6.4"
     "@react-navigation/native": "npm:^6.1.8"
     "@react-navigation/native-stack": "npm:^6.9.14"
+    "@react-oauth/google": "npm:^0.12.1"
     "@sentry/react-native": "npm:5.17.0"
     "@shopify/flash-list": "npm:1.6.3"
     "@tanstack/eslint-plugin-query": "npm:^5.18.0"
@@ -12032,6 +12050,7 @@ __metadata:
     "@testing-library/react-native": "npm:^12.4.3"
     "@total-typescript/ts-reset": "npm:^0.5.1"
     "@types/color": "npm:^3.0.6"
+    "@types/google-one-tap": "npm:^1.2.6"
     "@types/lodash": "npm:^4.14.202"
     "@types/luxon": "npm:^3.4.2"
     "@types/react-test-renderer": "npm:^18.0.7"

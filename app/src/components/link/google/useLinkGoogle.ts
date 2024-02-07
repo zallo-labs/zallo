@@ -1,9 +1,9 @@
 import { FragmentType, gql, useFragment } from '@api';
 import { useMutation } from 'urql';
 import { authContext } from '@api/client';
-import { useGetGoogleApprover } from '~/hooks/cloud/useGetGoogleApprover';
 import { showError } from '~/components/provider/SnackbarProvider';
 import { ampli } from '~/lib/ampli';
+import { useGetGoogleApprover } from '~/components/link/google/useGetGoogleApprover';
 
 const User = gql(/* GraphQL */ `
   fragment useLinkGoogle_User on User {
@@ -36,9 +36,9 @@ export function useLinkGoogle({ signOut, ...props }: UseLinkGoogleProps) {
   if (!getApprover) return undefined;
 
   return async () => {
-    const r = await getApprover({ signOut });
+    const r = await getApprover();
     if (r.isErr()) {
-      if (r.error !== 'SIGN_IN_CANCELLED')
+      if (r.error !== 'cancelled')
         showError('Something went wrong, failed to sign into Google', {
           event: { error: r.error },
         });
@@ -46,6 +46,7 @@ export function useLinkGoogle({ signOut, ...props }: UseLinkGoogleProps) {
     }
 
     const { approver } = r.value;
+    console.log(approver.address);
     await link({ token: user.linkingToken }, await authContext(approver));
     ampli.socialLinked({ cloud: 'Google' });
 

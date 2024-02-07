@@ -3,7 +3,7 @@ import { useApproverAddress } from '~/lib/network/useApprover';
 import { GoogleIcon } from '@theme/icons';
 import { Suggestion } from '~/components/home/GettingStarted/suggestions';
 import { ListItem } from '~/components/list/ListItem';
-import { useLinkGoogle } from '~/hooks/cloud/useLinkGoogle';
+import { useLinkGoogle } from '~/components/link/google/useLinkGoogle';
 
 const User = gql(/* GraphQL */ `
   fragment useLinkGoogleSuggestion_User on User {
