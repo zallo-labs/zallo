@@ -75,9 +75,6 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
             ],
           },
         },
-        ios: {
-          useFrameworks: 'static', // Required by react-native-firebase
-        },
       } as BuildPropertiesConfig,
     ],
     ['expo-router', { origin: CONFIG.webAppUrl } as PluginConfig<typeof expoRouterPlugin>],
@@ -94,12 +91,11 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       },
     ],
     'expo-camera',
-    '@react-native-firebase/app',
     'react-native-ble-plx',
     [
       '@react-native-google-signin/google-signin',
       {
-        iosUrlScheme: ENV.GOOGLE_OAUTH_IOS_URL_SCHEME,
+        iosUrlScheme: ENV.GOOGLE_OAUTH_IOS_URL_SCHEME ?? '',
       },
     ],
     'expo-apple-authentication',
