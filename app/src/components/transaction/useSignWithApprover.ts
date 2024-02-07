@@ -2,8 +2,8 @@ import { useApproverWallet } from '~/lib/network/useApprover';
 import { ok, err } from 'neverthrow';
 import { useMemo } from 'react';
 import { useAuthenticate } from '~/app/(modal)/auth';
-import { showError } from '~/components/provider/SnackbarProvider';
-import { useAuthRequiredOnApproval } from '~/components/shared/AuthSettings';
+import { showError } from '#/provider/SnackbarProvider';
+import { useAuthRequiredOnApproval } from '#/shared/AuthSettings';
 
 export function useSignWithApprover() {
   const approver = useApproverWallet();

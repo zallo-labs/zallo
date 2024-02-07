@@ -1,6 +1,6 @@
 import { Link } from 'expo-router';
-import { Button } from '~/components/Button';
-import { AuthSettings } from '~/components/shared/AuthSettings';
+import { Button } from '#/Button';
+import { AuthSettings } from '#/shared/AuthSettings';
 
 export default function NotificationsOnboardingScreen() {
   return (

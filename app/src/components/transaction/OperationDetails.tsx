@@ -3,11 +3,11 @@ import { ClockOutlineIcon } from '@theme/icons';
 import { UAddress, asChain, asUAddress } from 'lib';
 import { DateTime } from 'luxon';
 import { match } from 'ts-pattern';
-import { useAddressLabel } from '~/components/address/AddressLabel';
-import { useTimestamp } from '~/components/format/Timestamp';
-import { ListItem } from '~/components/list/ListItem';
-import { useFormattedTokenAmount } from '~/components/token/TokenAmount';
-import { TokenIcon } from '~/components/token/TokenIcon';
+import { useAddressLabel } from '#/address/AddressLabel';
+import { useTimestamp } from '#/format/Timestamp';
+import { ListItem } from '#/list/ListItem';
+import { useFormattedTokenAmount } from '#/token/TokenAmount';
+import { TokenIcon } from '#/token/TokenIcon';
 
 const FragmentDoc = gql(/* GraphQL */ `
   fragment OperationDetails_OperationFragment on Operation {

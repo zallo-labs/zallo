@@ -1,17 +1,17 @@
 import { FragmentType, gql, useFragment } from '@api/generated';
 import { useMutation } from 'urql';
-import { TokenItem } from '~/components/token/TokenItem';
+import { TokenItem } from '#/token/TokenItem';
 import { useSelectToken } from '~/app/(drawer)/[account]/tokens';
 import { createStyles, useStyles } from '@theme/styles';
 import { asAddress } from 'lib';
 import Decimal from 'decimal.js';
-import { Button } from '~/components/Button';
+import { Button } from '#/Button';
 import { GenericTokenIcon } from '@theme/icons';
 import { useToggle } from '~/hooks/useToggle';
 import Collapsible from 'react-native-collapsible';
 import { View } from 'react-native';
 import { Text } from 'react-native-paper';
-import { TokenAmount } from '~/components/token/TokenAmount';
+import { TokenAmount } from '#/token/TokenAmount';
 import { getOptimizedDocument } from '~/gql';
 
 const TransactionProposal = gql(/* GraphQL */ `

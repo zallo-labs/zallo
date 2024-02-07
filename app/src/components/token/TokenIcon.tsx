@@ -4,8 +4,8 @@ import { createStyles, useStyles } from '@theme/styles';
 import { Image, ImageProps } from 'expo-image';
 import { UAddress, isUAddress } from 'lib';
 import { ImageStyle, StyleProp } from 'react-native';
-import { CircleSkeleton } from '~/components/skeleton/CircleSkeleton';
-import { withSuspense } from '~/components/skeleton/withSuspense';
+import { CircleSkeleton } from '#/skeleton/CircleSkeleton';
+import { withSuspense } from '#/skeleton/withSuspense';
 import { useQuery } from '~/gql';
 
 export const ETH_ICON_URI =

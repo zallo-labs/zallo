@@ -1,4 +1,4 @@
-import NotificationSettings from '~/components/shared/NotificationSettings';
+import NotificationSettings from '#/shared/NotificationSettings';
 
 export default function NotificationSettingsScreen() {
   return <NotificationSettings appbarMenu />;

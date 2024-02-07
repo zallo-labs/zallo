@@ -1,13 +1,13 @@
 import { Link, useRouter } from 'expo-router';
 import { View, ScrollView } from 'react-native';
 import { Text } from 'react-native-paper';
-import { Button } from '~/components/Button';
-import { Actions } from '~/components/layout/Actions';
-import { LinkAppleButton } from '~/components/link/LinkAppleButton';
-import { LinkGoogleButton } from '~/components/link/LinkGoogleButton';
-import { LinkingButton } from '~/components/link/LinkingButton';
-import { LinkLedgerButton } from '~/components/link/ledger/LinkLedgerButton';
-import { AppbarOptions } from '~/components/Appbar/AppbarOptions';
+import { Button } from '#/Button';
+import { Actions } from '#/layout/Actions';
+import { LinkAppleButton } from '#/link/LinkAppleButton';
+import { LinkGoogleButton } from '#/link/LinkGoogleButton';
+import { LinkZalloButton } from '#/link/LinkZalloButton';
+import { LinkLedgerButton } from '#/link/ledger/LinkLedgerButton';
+import { AppbarOptions } from '#/Appbar/AppbarOptions';
 import {
   AppScreenshots,
   AppStoreBadge,
@@ -80,16 +80,10 @@ export default function LandingScreen() {
       </View>
 
       <Actions flex={false} style={styles.actionsContainer}>
-        <Text variant="titleMedium" style={styles.text}>
-          Continue with
-        </Text>
-
-        <View style={styles.methodsContainer}>
-          <LinkAppleButton user={user} onLink={next} />
-          <LinkGoogleButton user={user} onLink={next} />
-          <LinkLedgerButton onLink={next} />
-          <LinkingButton onLink={next} />
-        </View>
+        <LinkZalloButton onLink={next} />
+        <LinkLedgerButton onLink={next} />
+        <LinkGoogleButton user={user} onLink={next} />
+        <LinkAppleButton user={user} onLink={next} />
 
         <Button mode="contained" onPress={next} labelStyle={styles.actionButtonLabel}>
           Continue

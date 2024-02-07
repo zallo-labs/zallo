@@ -9,7 +9,7 @@ import { logError } from '~/util/analytics';
 import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts';
 import { asHex } from 'lib';
 
-const CLOUD_SHARE_PATH = 'cloud-approver.share';
+const CLOUD_SHARE_PATH = '/cloud-approver.share';
 const SCOPE = CloudStorageScope.AppData;
 
 const Query = gql(/* GraphQL */ `

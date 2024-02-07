@@ -2,13 +2,13 @@ import { useRouter } from 'expo-router';
 import { ScanIcon } from '@theme/icons';
 import { StyleSheet, FlatList } from 'react-native';
 import { useWalletConnect } from '~/lib/wc';
-import { PairingItem } from '~/components/walletconnect/PairingItem';
+import { PairingItem } from '#/walletconnect/PairingItem';
 import { Divider, Text } from 'react-native-paper';
-import { AppbarOptions } from '~/components/Appbar/AppbarOptions';
-import { withSuspense } from '~/components/skeleton/withSuspense';
-import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
-import { ScrollableScreenSurface } from '~/components/layout/ScrollableScreenSurface';
-import { Fab } from '~/components/Fab';
+import { AppbarOptions } from '#/Appbar/AppbarOptions';
+import { withSuspense } from '#/skeleton/withSuspense';
+import { ScreenSkeleton } from '#/skeleton/ScreenSkeleton';
+import { ScrollableScreenSurface } from '#/layout/ScrollableScreenSurface';
+import { Fab } from '#/Fab';
 
 function SessionsScreen() {
   const router = useRouter();

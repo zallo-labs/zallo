@@ -4,9 +4,9 @@ import { createStyles, useStyles } from '@theme/styles';
 import { Link } from 'expo-router';
 import { bytesize } from 'lib';
 import { slice } from 'viem';
-import { ListHeader } from '~/components/list/ListHeader';
-import { ListItem } from '~/components/list/ListItem';
-import { OperationSection } from '~/components/transaction/OperationSection';
+import { ListHeader } from '#/list/ListHeader';
+import { ListItem } from '#/list/ListItem';
+import { OperationSection } from '#/transaction/OperationSection';
 
 const AlertIcon = materialCommunityIcon('alert-circle-outline');
 

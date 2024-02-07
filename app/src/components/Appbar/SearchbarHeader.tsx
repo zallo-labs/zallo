@@ -1,7 +1,7 @@
 import { NativeStackHeaderProps } from '@react-navigation/native-stack';
 import { DrawerHeaderProps } from '@react-navigation/drawer';
 import type { SearchbarOptionsProps } from './SearchbarOptions';
-import { Searchbar } from '~/components/Appbar/Searchbar';
+import { Searchbar } from '#/Appbar/Searchbar';
 
 type NavHeaderProps = NativeStackHeaderProps | DrawerHeaderProps;
 

@@ -1,8 +1,8 @@
 import { FragmentType, gql, useFragment } from '@api';
-import { Fab } from '~/components/Fab';
-import { createStyles } from '@theme/styles';
 import { GoogleIcon } from '@theme/icons';
-import { UseLinkGoogleProps, useLinkGoogle } from '~/hooks/cloud/useLinkGoogle';
+import { UseLinkGoogleProps, useLinkGoogle } from '#/cloud/google/useLinkGoogle';
+import { createStyles } from '@theme/styles';
+import { Button } from '#/Button';
 
 const User = gql(/* GraphQL */ `
   fragment LinkGoogleButton_User on User {
@@ -11,7 +11,7 @@ const User = gql(/* GraphQL */ `
   }
 `);
 
-export interface LinkGoogleButtonProps extends Pick<UseLinkGoogleProps, 'signOut'> {
+export interface LinkGoogleButtonProps extends Omit<UseLinkGoogleProps, 'user'> {
   user: FragmentType<typeof User>;
   onLink?: () => void | Promise<void>;
 }
@@ -24,15 +24,20 @@ export function LinkGoogleButton({ user, onLink, ...params }: LinkGoogleButtonPr
 
   if (!link) return null;
 
+  const handlePress = async () => {
+    if (await link()) await onLink?.();
+  };
+
   return (
-    <Fab
-      position="relative"
-      icon={(iconProps) => <GoogleIcon style={styles.icon(iconProps.size)} />}
-      style={styles.container}
-      onPress={async () => {
-        if (await link()) await onLink?.();
-      }}
-    />
+    <Button
+      mode="outlined"
+      icon={({ size }) => <GoogleIcon size={size} />}
+      style={styles.button}
+      labelStyle={styles.label}
+      onPress={handlePress}
+    >
+      Continue with Google
+    </Button>
   );
 }
 
@@ -44,4 +49,10 @@ const styles = createStyles({
     aspectRatio: 1,
     height: size,
   }),
+  button: {
+    backgroundColor: 'white',
+  },
+  label: {
+    color: 'black',
+  },
 });

@@ -5,7 +5,7 @@ import {
   UseControllerProps,
   useController,
 } from 'react-hook-form';
-import { SelectChip, SelectChipProps } from '~/components/fields/SelectChip';
+import { SelectChip, SelectChipProps } from '#/fields/SelectChip';
 
 export interface FormSelectChipProps<
   TFieldValues extends FieldValues,

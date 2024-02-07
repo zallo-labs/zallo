@@ -1,7 +1,7 @@
 import { FragmentType, gql, useFragment } from '@api';
 import { QrCodeIcon } from '@theme/icons';
-import { Suggestion } from '~/components/home/GettingStarted/suggestions';
-import { ListItem } from '~/components/list/ListItem';
+import { Suggestion } from '#/home/GettingStarted/suggestions';
+import { ListItem } from '#/list/ListItem';
 
 const Query = gql(/* GraphQL */ `
   fragment useDepositSuggestion_Query on Query

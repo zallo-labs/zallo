@@ -3,8 +3,8 @@ import { DateTime, Duration } from 'luxon';
 import { AppState } from 'react-native';
 import { lockSecureStorage, unlockSecureStorage } from '~/lib/secure-storage';
 import AuthenticateScreen from '~/app/(modal)/auth';
-import { Blur } from '~/components/Blur';
-import { useAuthRequiredOnOpen } from '~/components/shared/AuthSettings';
+import { Blur } from '#/Blur';
+import { useAuthRequiredOnOpen } from '#/shared/AuthSettings';
 
 const TIMEOUT_AFTER = Duration.fromObject({ minutes: 5 }).toMillis();
 

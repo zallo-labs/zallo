@@ -1,14 +1,14 @@
 import { useRouter } from 'expo-router';
 import { useRef } from 'react';
 import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
-import { Sheet } from '~/components/sheet/Sheet';
-import { ListHeader } from '~/components/list/ListHeader';
+import { Sheet } from '#/sheet/Sheet';
+import { ListHeader } from '#/list/ListHeader';
 import { AddIcon, CheckCircleIcon, materialCommunityIcon } from '@theme/icons';
-import { ListItem } from '~/components/list/ListItem';
+import { ListItem } from '#/list/ListItem';
 import { View } from 'react-native';
 import { gql } from '@api/generated';
 import { ICON_SIZE } from '@theme/paper';
-import { AccountItem } from '~/components/item/AccountItem';
+import { AccountItem } from '#/item/AccountItem';
 import { useQuery } from '~/gql';
 import { useSelectedAccount } from '~/hooks/useSelectedAccount';
 import { createStyles, useStyles } from '@theme/styles';

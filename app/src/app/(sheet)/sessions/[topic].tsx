@@ -1,8 +1,8 @@
 import { Link, useRouter } from 'expo-router';
 import { getSdkError } from '@walletconnect/utils';
 import { StyleSheet } from 'react-native';
-import { ListItem } from '~/components/list/ListItem';
-import { Sheet } from '~/components/sheet/Sheet';
+import { ListItem } from '#/list/ListItem';
+import { Sheet } from '#/sheet/Sheet';
 import {
   WC_NAMESPACE,
   fromCaip10,
@@ -14,12 +14,12 @@ import {
 import { CloseIcon, DisconnectIcon, ExternalLinkIcon } from '@theme/icons';
 import { z } from 'zod';
 import { useLocalParams } from '~/hooks/useLocalParams';
-import { DappHeader } from '~/components/walletconnect/DappHeader';
+import { DappHeader } from '#/walletconnect/DappHeader';
 import { Updater, useImmer } from 'use-immer';
 import { UAddress } from 'lib';
 import { gql } from '@api';
 import { useQuery } from '~/gql';
-import { AccountsList } from '~/components/walletconnect/AccountsList';
+import { AccountsList } from '#/walletconnect/AccountsList';
 import _ from 'lodash';
 
 const Query = gql(/* GraphQL */ `

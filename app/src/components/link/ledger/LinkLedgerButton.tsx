@@ -1,18 +1,15 @@
 import { useEffect } from 'react';
-import { StyleSheet } from 'react-native';
-import { useRouter } from 'expo-router';
-import { Fab } from '~/components/Fab';
+import { Link } from 'expo-router';
 import { LINKINGS_FROM_DEVICE } from '~/app/(sheet)/link/token';
 import { LedgerIcon } from '@theme/icons';
 import { __WEB__ } from '~/util/config';
+import { Button } from '#/Button';
 
 export interface LinkLedgerButtonProps {
   onLink?: () => void;
 }
 
 export function LinkLedgerButton({ onLink }: LinkLedgerButtonProps) {
-  const router = useRouter();
-
   useEffect(() => {
     const sub = LINKINGS_FROM_DEVICE.subscribe({ next: () => onLink?.() });
     return () => {
@@ -23,20 +20,10 @@ export function LinkLedgerButton({ onLink }: LinkLedgerButtonProps) {
   if (__WEB__) return null;
 
   return (
-    <Fab
-      position="relative"
-      icon={(props) => <LedgerIcon {...props} />}
-      style={styles.container}
-      onPress={() => router.push(`/ledger/link`)}
-    />
+    <Link href="/ledger/link" asChild>
+      <Button mode="contained-tonal" icon={(props) => <LedgerIcon {...props} />}>
+        Continue with Ledger
+      </Button>
+    </Link>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    backgroundColor: 'white',
-  },
-  icon: {
-    color: 'black',
-  },
-});

@@ -1,7 +1,7 @@
 import { FragmentType, gql, useFragment } from '@api/generated';
 import { useApproverAddress } from '~/lib/network/useApprover';
 import { Link } from 'expo-router';
-import { ListItem, ListItemProps } from '~/components/list/ListItem';
+import { ListItem, ListItemProps } from '#/list/ListItem';
 import { truncateAddr } from '~/util/format';
 
 const UserApprover = gql(/* GraphQL */ `

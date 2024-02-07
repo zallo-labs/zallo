@@ -1,6 +1,6 @@
 import { createStyles, useStyles } from '@theme/styles';
 import { Surface, SurfaceProps } from 'react-native-paper';
-import { useMaybeDrawerContext } from '~/components/drawer/DrawerContextProvider';
+import { useMaybeDrawerContext } from '#/drawer/DrawerContextProvider';
 
 export function ScreenSurface(props: SurfaceProps) {
   const { styles } = useStyles(stylesheet);

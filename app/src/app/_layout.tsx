@@ -3,27 +3,28 @@ import { getLocales } from 'expo-localization';
 import { Stack } from 'expo-router';
 import { Suspense } from 'react';
 import { IntlProvider } from 'react-intl';
-import { Analytics } from '~/components/Analytics';
-import { ErrorBoundary } from '~/components/ErrorBoundary/ErrorBoundary';
+import { Analytics } from '#/Analytics';
+import { ErrorBoundary } from '#/ErrorBoundary/ErrorBoundary';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { MinimalErrorBoundary } from '~/components/ErrorBoundary/MinimalErrorBoundary';
-import { Background } from '~/components/layout/Background';
-import { Splash } from '~/components/Splash';
-import { WalletConnectListeners } from '~/components/walletconnect/WalletConnectListeners';
+import { MinimalErrorBoundary } from '#/ErrorBoundary/MinimalErrorBoundary';
+import { Background } from '#/layout/Background';
+import { Splash } from '#/Splash';
+import { WalletConnectListeners } from '#/walletconnect/WalletConnectListeners';
 import { GqlProvider } from '~/gql/GqlProvider';
-import { AuthGate } from '~/components/provider/AuthGate';
-import { NotificationsProvider } from '~/components/provider/NotificationsProvider';
-import { SnackbarProvider } from '~/components/provider/SnackbarProvider';
-import { UpdateProvider } from '~/components/provider/UpdateProvider';
+import { AuthGate } from '#/provider/AuthGate';
+import { NotificationsProvider } from '#/provider/NotificationsProvider';
+import { SnackbarProvider } from '#/provider/SnackbarProvider';
+import { UpdateProvider } from '#/provider/UpdateProvider';
 import { ThemeProvider } from '~/util/theme/ThemeProvider';
-import { AppbarHeader } from '~/components/Appbar/AppbarHeader';
+import { AppbarHeader } from '#/Appbar/AppbarHeader';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { ApproverNameUpdater } from '~/components/ApproverNameUpdater';
+import { ApproverNameUpdater } from '#/ApproverNameUpdater';
 import { Portal } from 'react-native-paper';
-import { TQueryProvider } from '~/components/provider/TQueryProvider';
+import { TQueryProvider } from '#/provider/TQueryProvider';
 import { StyleSheet } from 'react-native';
-import { Fonts } from '~/components/Fonts';
-import { SentryProvider } from '~/components/provider/SentryProvider';
+import { Fonts } from '#/Fonts';
+import { SentryProvider } from '#/provider/SentryProvider';
+import { GoogleAuthProvider } from '#/cloud/google/GoogleAuthProvider';
 
 export const unstable_settings = {
   initialRouteName: `index`,
@@ -58,21 +59,23 @@ function RootLayout() {
                     <AuthGate>
                       <GqlProvider>
                         <TQueryProvider>
-                          <ErrorBoundary>
-                            <Suspense fallback={<Splash />}>
-                              <Portal.Host>
-                                <Layout />
-                              </Portal.Host>
-                            </Suspense>
-                          </ErrorBoundary>
-                          <MinimalErrorBoundary>
-                            <Suspense fallback={null}>
-                              <Analytics />
-                              <WalletConnectListeners />
-                              <NotificationsProvider />
-                              <ApproverNameUpdater />
-                            </Suspense>
-                          </MinimalErrorBoundary>
+                          <GoogleAuthProvider>
+                            <ErrorBoundary>
+                              <Suspense fallback={<Splash />}>
+                                <Portal.Host>
+                                  <Layout />
+                                </Portal.Host>
+                              </Suspense>
+                            </ErrorBoundary>
+                            <MinimalErrorBoundary>
+                              <Suspense fallback={null}>
+                                <Analytics />
+                                <WalletConnectListeners />
+                                <NotificationsProvider />
+                                <ApproverNameUpdater />
+                              </Suspense>
+                            </MinimalErrorBoundary>
+                          </GoogleAuthProvider>
                         </TQueryProvider>
                       </GqlProvider>
                     </AuthGate>

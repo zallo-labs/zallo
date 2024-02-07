@@ -8,7 +8,7 @@ import { AppbarBack } from './AppbarBack';
 import { AppbarClose } from './AppbarClose';
 import { TextProps } from '@theme/types';
 import { P, match } from 'ts-pattern';
-import { AppbarMenu } from '~/components/Appbar/AppbarMenu';
+import { AppbarMenu } from '#/Appbar/AppbarMenu';
 import { createStyles, useStyles } from '@theme/styles';
 import { useMemoApply } from '~/hooks/useMemoized';
 

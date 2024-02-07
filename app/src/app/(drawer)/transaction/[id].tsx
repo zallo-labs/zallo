@@ -1,27 +1,27 @@
-import { AppbarMore } from '~/components/Appbar/AppbarMore';
+import { AppbarMore } from '#/Appbar/AppbarMore';
 import { gql, useFragment } from '@api/generated';
-import { NotFound } from '~/components/NotFound';
+import { NotFound } from '#/NotFound';
 import { DocumentVariables, getOptimizedDocument, useQuery } from '~/gql';
 import { z } from 'zod';
 import { useLocalParams } from '~/hooks/useLocalParams';
-import { AppbarOptions } from '~/components/Appbar/AppbarOptions';
-import { ScrollableScreenSurface } from '~/components/layout/ScrollableScreenSurface';
+import { AppbarOptions } from '#/Appbar/AppbarOptions';
+import { ScrollableScreenSurface } from '#/layout/ScrollableScreenSurface';
 import { zUuid } from '~/lib/zod';
-import { RemoveTransactionItem } from '~/components/transaction/RemoveTransactionItem';
-import { TransactionStatus } from '~/components/transaction/TransactionStatus';
+import { RemoveTransactionItem } from '#/transaction/RemoveTransactionItem';
+import { TransactionStatus } from '#/transaction/TransactionStatus';
 import { UAddress, asUAddress, ZERO_ADDR } from 'lib';
 import { useEffect, useState } from 'react';
 import { useSubscription } from 'urql';
 import { createStyles, useStyles } from '@theme/styles';
 import { Divider } from 'react-native-paper';
-import { FeesSection } from '~/components/transaction/FeesSection';
-import { OperationsSection } from '~/components/transaction/OperationsSection';
-import { TransactionActions } from '~/components/transaction/TransactionActions';
-import { TransfersSection } from '~/components/transaction/TransfersSection';
-import { SideSheetLayout } from '~/components/SideSheet/SideSheetLayout';
-import { SideSheet } from '~/components/SideSheet/SideSheet';
-import { useSideSheetVisibility } from '~/components/SideSheet/useSideSheetVisibility';
-import { ProposalApprovals } from '~/components/policy/ProposalApprovals';
+import { FeesSection } from '#/transaction/FeesSection';
+import { OperationsSection } from '#/transaction/OperationsSection';
+import { TransactionActions } from '#/transaction/TransactionActions';
+import { TransfersSection } from '#/transaction/TransfersSection';
+import { SideSheetLayout } from '#/SideSheet/SideSheetLayout';
+import { SideSheet } from '#/SideSheet/SideSheet';
+import { useSideSheetVisibility } from '#/SideSheet/useSideSheetVisibility';
+import { ProposalApprovals } from '#/policy/ProposalApprovals';
 
 const TransactionProposal = gql(/* GraphQL */ `
   fragment TransactionScreen_TransactionProposal on TransactionProposal

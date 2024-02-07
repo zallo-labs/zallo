@@ -1,28 +1,28 @@
 import { useState } from 'react';
 import { Platform } from 'react-native';
 import { NavigateNextIcon, ScanIcon, SearchIcon } from '~/util/theme/icons';
-import { AppbarBack } from '~/components/Appbar/AppbarBack';
-import { ListItemHeight } from '~/components/list/ListItem';
+import { AppbarBack } from '#/Appbar/AppbarBack';
+import { ListItemHeight } from '#/list/ListItem';
 import { gql } from '@api/generated';
 import { FlashList } from '@shopify/flash-list';
 import { P, match } from 'ts-pattern';
-import { AccountItem } from '~/components/item/AccountItem';
-import { UserApproverItem } from '~/components/item/UserApproverItem';
-import { ContactItem } from '~/components/item/ContactItem';
-import { ListHeader } from '~/components/list/ListHeader';
+import { AccountItem } from '#/item/AccountItem';
+import { UserApproverItem } from '#/item/UserApproverItem';
+import { ContactItem } from '#/item/ContactItem';
+import { ListHeader } from '#/list/ListHeader';
 import { useQuery } from '~/gql';
 import { useScanAddress } from '~/app/scan';
 import { StyleSheet } from 'react-native';
 import { ADDRESS_SELECTED } from '~/hooks/useSelectAddress';
-import { TokenItem } from '~/components/token/TokenItem';
+import { TokenItem } from '#/token/TokenItem';
 import { z } from 'zod';
 import { zAddress, zArray, zUAddress } from '~/lib/zod';
 import { useLocalParams } from '~/hooks/useLocalParams';
-import { withSuspense } from '~/components/skeleton/withSuspense';
-import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
+import { withSuspense } from '#/skeleton/withSuspense';
+import { ScreenSkeleton } from '#/skeleton/ScreenSkeleton';
 import { asAddress } from 'lib';
-import { ScreenSurface } from '~/components/layout/ScreenSurface';
-import { SearchbarOptions } from '~/components/Appbar/SearchbarOptions';
+import { ScreenSurface } from '#/layout/ScreenSurface';
+import { SearchbarOptions } from '#/Appbar/SearchbarOptions';
 
 const Query = gql(/* GraphQL */ `
   query AddressesScreen(

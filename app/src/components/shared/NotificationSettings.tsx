@@ -4,18 +4,18 @@ import { useImmerAtom } from 'jotai-immer';
 import * as Notifications from 'expo-notifications';
 import type { NotificationChannelInput } from 'expo-notifications';
 import { Switch } from 'react-native-paper';
-import { Actions } from '~/components/layout/Actions';
-import { Button } from '~/components/Button';
-import { ListItem } from '~/components/list/ListItem';
+import { Actions } from '#/layout/Actions';
+import { Button } from '#/Button';
+import { ListItem } from '#/list/ListItem';
 import { useAtomValue } from 'jotai';
-import { ListHeader } from '~/components/list/ListHeader';
-import { withSuspense } from '~/components/skeleton/withSuspense';
-import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
-import { AppbarOptions } from '~/components/Appbar/AppbarOptions';
-import { ScrollableScreenSurface } from '~/components/layout/ScrollableScreenSurface';
+import { ListHeader } from '#/list/ListHeader';
+import { withSuspense } from '#/skeleton/withSuspense';
+import { ScreenSkeleton } from '#/skeleton/ScreenSkeleton';
+import { AppbarOptions } from '#/Appbar/AppbarOptions';
+import { ScrollableScreenSurface } from '#/layout/ScrollableScreenSurface';
 import { IconProps, TransferIcon, UpdateIcon, materialCommunityIcon } from '@theme/icons';
 import { FC } from 'react';
-import { AppbarMenu } from '~/components/Appbar/AppbarMenu';
+import { AppbarMenu } from '#/Appbar/AppbarMenu';
 
 export type NotificationChannel = 'product' | 'activity' | 'transfers';
 export const NotificationChannelConfig: Record<

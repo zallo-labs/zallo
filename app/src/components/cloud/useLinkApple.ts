@@ -2,7 +2,7 @@ import { FragmentType, gql, useFragment } from '@api';
 import { useGetAppleApprover } from './useGetAppleApprover';
 import { useMutation } from 'urql';
 import { authContext } from '@api/client';
-import { showError } from '~/components/provider/SnackbarProvider';
+import { showError } from '#/provider/SnackbarProvider';
 import { ampli } from '~/lib/ampli';
 
 const User = gql(/* GraphQL */ `

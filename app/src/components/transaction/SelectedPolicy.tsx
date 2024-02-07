@@ -1,7 +1,7 @@
 import { StyleSheet, View } from 'react-native';
 import Collapsible from 'react-native-collapsible';
 import { SatisfiablePolicyItem } from './SatisfiablePolicyItem';
-import { Chevron } from '~/components/Chevron';
+import { Chevron } from '#/Chevron';
 import { useToggle } from '~/hooks/useToggle';
 import { Divider } from 'react-native-paper';
 import { FragmentType, gql, useFragment } from '@api/generated';

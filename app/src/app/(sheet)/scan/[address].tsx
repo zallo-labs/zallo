@@ -1,7 +1,7 @@
 import { useRouter } from 'expo-router';
-import { Sheet } from '~/components/sheet/Sheet';
+import { Sheet } from '#/sheet/Sheet';
 import { ContactsIcon, NavigateNextIcon, TransferIcon } from '@theme/icons';
-import { ListItem } from '~/components/list/ListItem';
+import { ListItem } from '#/list/ListItem';
 import { StyleSheet } from 'react-native';
 import { z } from 'zod';
 import { zAddress, zUAddress } from '~/lib/zod';

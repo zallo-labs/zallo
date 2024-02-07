@@ -4,12 +4,12 @@ import { Link } from 'expo-router';
 import { Address, TransferLimit, asDecimal } from 'lib';
 import _ from 'lodash';
 import { Duration } from 'luxon';
-import { AddressIcon } from '~/components/Identicon/AddressIcon';
-import { ListItem } from '~/components/list/ListItem';
-import { ListItemHorizontalTrailing } from '~/components/list/ListItemHorizontalTrailing';
-import { ListItemTrailingText } from '~/components/list/ListItemTrailingText';
-import { useFormattedTokenAmount } from '~/components/token/TokenAmount';
-import { TokenIcon } from '~/components/token/TokenIcon';
+import { AddressIcon } from '#/Identicon/AddressIcon';
+import { ListItem } from '#/list/ListItem';
+import { ListItemHorizontalTrailing } from '#/list/ListItemHorizontalTrailing';
+import { ListItemTrailingText } from '#/list/ListItemTrailingText';
+import { useFormattedTokenAmount } from '#/token/TokenAmount';
+import { TokenIcon } from '#/token/TokenIcon';
 import { usePolicyDraftState } from '~/lib/policy/draft';
 import { truncateAddr } from '~/util/format';
 

@@ -2,8 +2,8 @@ import { FragmentType, gql, useFragment } from '@api';
 import { CheckIcon } from '@theme/icons';
 import { asUAddress } from 'lib';
 import { IconButton } from 'react-native-paper';
-import { AddressLabel } from '~/components/address/AddressLabel';
-import { ListItem } from '~/components/list/ListItem';
+import { AddressLabel } from '#/address/AddressLabel';
+import { ListItem } from '#/list/ListItem';
 import { useApprove } from '~/hooks/useApprove';
 
 const User = gql(/* GraphQL */ `

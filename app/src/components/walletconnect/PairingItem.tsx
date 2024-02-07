@@ -1,5 +1,5 @@
 import { Image } from 'expo-image';
-import { ListItem } from '~/components/list/ListItem';
+import { ListItem } from '#/list/ListItem';
 import { SessionTypes, PairingTypes } from '@walletconnect/types';
 import { ICON_SIZE } from '@theme/paper';
 import { StyleSheet } from 'react-native';

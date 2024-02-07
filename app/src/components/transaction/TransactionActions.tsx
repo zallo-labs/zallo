@@ -1,4 +1,4 @@
-import { Actions } from '~/components/layout/Actions';
+import { Actions } from '#/layout/Actions';
 import { ShareIcon } from '@theme/icons';
 import { FragmentType, gql, useFragment } from '@api/generated';
 import { useMutation } from 'urql';

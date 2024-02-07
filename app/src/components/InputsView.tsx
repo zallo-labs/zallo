@@ -5,8 +5,8 @@ import Decimal from 'decimal.js';
 import { Dispatch, SetStateAction } from 'react';
 import { View } from 'react-native';
 import { IconButton, Text } from 'react-native-paper';
-import { FiatValue } from '~/components/FiatValue';
-import { TokenAmount } from '~/components/token/TokenAmount';
+import { FiatValue } from '#/FiatValue';
+import { TokenAmount } from '#/token/TokenAmount';
 import { Button } from './Button';
 
 const FragmentDoc = gql(/* GraphQL */ `

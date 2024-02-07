@@ -3,8 +3,8 @@ import { createStyles, useStyles } from '@theme/styles';
 import { Image } from 'expo-image';
 import { View } from 'react-native';
 import { Text } from 'react-native-paper';
-import { AddressIcon } from '~/components/Identicon/AddressIcon';
-import { withSuspense } from '~/components/skeleton/withSuspense';
+import { AddressIcon } from '#/Identicon/AddressIcon';
+import { withSuspense } from '#/skeleton/withSuspense';
 import { useQuery } from '~/gql';
 import { useSelectedAccount } from '~/hooks/useSelectedAccount';
 

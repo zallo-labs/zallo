@@ -1,22 +1,22 @@
 import { LedgerLogo } from '@theme/icons';
 import { FlatList, StyleSheet, View } from 'react-native';
 import { ActivityIndicator, Text } from 'react-native-paper';
-import { ListHeader } from '~/components/list/ListHeader';
-import { Actions } from '~/components/layout/Actions';
-import { Button } from '~/components/Button';
+import { ListHeader } from '#/list/ListHeader';
+import { Actions } from '#/layout/Actions';
+import { Button } from '#/Button';
 import { gql } from '@api/generated';
 import { match } from 'ts-pattern';
 import { useQuery } from '~/gql';
-import { LedgerItem } from '~/components/link/ledger/LedgerItem';
-import { AppbarOptions } from '~/components/Appbar/AppbarOptions';
+import { LedgerItem } from '#/link/ledger/LedgerItem';
+import { AppbarOptions } from '#/Appbar/AppbarOptions';
 import { useObservable } from '~/hooks/useObservable';
 import { bleDevices } from '~/lib/ble/manager';
 import { ok } from 'neverthrow';
 import useBluetoothPermissions from '~/hooks/ble/useBluetoothPermissions';
 import { useMemo } from 'react';
-import { withSuspense } from '~/components/skeleton/withSuspense';
-import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
-import { ScreenSurface } from '~/components/layout/ScreenSurface';
+import { withSuspense } from '#/skeleton/withSuspense';
+import { ScreenSkeleton } from '#/skeleton/ScreenSkeleton';
+import { ScreenSurface } from '#/layout/ScreenSurface';
 
 const Query = gql(/* GraphQL */ `
   query LinkLedgerScreen {

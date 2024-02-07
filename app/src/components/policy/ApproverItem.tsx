@@ -1,6 +1,6 @@
 import { UAddress } from 'lib';
-import { useAddressLabel } from '~/components/address/AddressLabel';
-import { ListItem } from '~/components/list/ListItem';
+import { useAddressLabel } from '#/address/AddressLabel';
+import { ListItem } from '#/list/ListItem';
 import { truncateAddr } from '~/util/format';
 import { I18nManager } from 'react-native';
 import { RectButton, Swipeable } from 'react-native-gesture-handler';

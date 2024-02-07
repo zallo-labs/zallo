@@ -4,7 +4,7 @@ import { useEffect } from 'react';
 import { View } from 'react-native';
 import { ActivityIndicator, Text } from 'react-native-paper';
 import { z } from 'zod';
-import { Sheet } from '~/components/sheet/Sheet';
+import { Sheet } from '#/sheet/Sheet';
 import { useLocalParams } from '~/hooks/useLocalParams';
 import { useWalletConnectWithoutWatching } from '~/lib/wc';
 import { zWalletConnectUri } from '~/lib/wc/uri';

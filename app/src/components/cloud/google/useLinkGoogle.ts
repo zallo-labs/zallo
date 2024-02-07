@@ -1,9 +1,9 @@
 import { FragmentType, gql, useFragment } from '@api';
 import { useMutation } from 'urql';
 import { authContext } from '@api/client';
-import { useGetGoogleApprover } from '~/hooks/cloud/useGetGoogleApprover';
-import { showError } from '~/components/provider/SnackbarProvider';
+import { showError } from '#/provider/SnackbarProvider';
 import { ampli } from '~/lib/ampli';
+import { useGetGoogleApprover } from '#/cloud/google/useGetGoogleApprover';
 
 const User = gql(/* GraphQL */ `
   fragment useLinkGoogle_User on User {
@@ -25,10 +25,9 @@ const Link = gql(/* GraphQL */ `
 
 export interface UseLinkGoogleProps {
   user: FragmentType<typeof User>;
-  signOut?: boolean;
 }
 
-export function useLinkGoogle({ signOut, ...props }: UseLinkGoogleProps) {
+export function useLinkGoogle(props: UseLinkGoogleProps) {
   const user = useFragment(User, props.user);
   const getApprover = useGetGoogleApprover();
   const link = useMutation(Link)[1];
@@ -36,9 +35,9 @@ export function useLinkGoogle({ signOut, ...props }: UseLinkGoogleProps) {
   if (!getApprover) return undefined;
 
   return async () => {
-    const r = await getApprover({ signOut });
+    const r = await getApprover();
     if (r.isErr()) {
-      if (r.error !== 'SIGN_IN_CANCELLED')
+      if (r.error !== 'cancelled')
         showError('Something went wrong, failed to sign into Google', {
           event: { error: r.error },
         });

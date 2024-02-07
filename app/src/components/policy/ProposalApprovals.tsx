@@ -1,14 +1,14 @@
-import { ListHeader } from '~/components/list/ListHeader';
+import { ListHeader } from '#/list/ListHeader';
 import { UUID } from 'lib';
 import { gql, useFragment } from '@api/generated';
 import { getOptimizedDocument, useQuery } from '~/gql';
 import { useSubscription } from 'urql';
-import { ApprovalItem } from '~/components/transaction/ApprovalItem';
-import { SelectedPolicy } from '~/components/transaction/SelectedPolicy';
-import { AwaitingApprovalItem } from '~/components/transaction/AwaitingApprovalItem';
-import { RejectionItem } from '~/components/transaction/RejectionItem';
-import { withSuspense } from '~/components/skeleton/withSuspense';
-import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
+import { ApprovalItem } from '#/transaction/ApprovalItem';
+import { SelectedPolicy } from '#/transaction/SelectedPolicy';
+import { AwaitingApprovalItem } from '#/transaction/AwaitingApprovalItem';
+import { RejectionItem } from '#/transaction/RejectionItem';
+import { withSuspense } from '#/skeleton/withSuspense';
+import { ScreenSkeleton } from '#/skeleton/ScreenSkeleton';
 
 const Proposal = gql(/* GraphQL */ `
   fragment ProposalApprovals_Proposal on Proposal

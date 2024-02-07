@@ -1,20 +1,20 @@
-import { ScrollView, StyleSheet, View } from 'react-native';
-import { Actions } from '~/components/layout/Actions';
+import { ScrollView, StyleSheet } from 'react-native';
+import { Actions } from '#/layout/Actions';
 import { Text } from 'react-native-paper';
-import { ListHeader } from '~/components/list/ListHeader';
-import { UserApproverItem } from '~/components/item/UserApproverItem';
+import { ListHeader } from '#/list/ListHeader';
+import { UserApproverItem } from '#/item/UserApproverItem';
 import { gql } from '@api/generated';
 import { useQuery } from '~/gql';
-import { LinkGoogleButton } from '~/components/link/LinkGoogleButton';
-import { LinkLedgerButton } from '~/components/link/ledger/LinkLedgerButton';
-import { LinkingButton } from '~/components/link/LinkingButton';
-import { LinkAppleButton } from '~/components/link/LinkAppleButton';
-import { showSuccess } from '~/components/provider/SnackbarProvider';
-import { AppbarOptions } from '~/components/Appbar/AppbarOptions';
-import { AppbarMenu } from '~/components/Appbar/AppbarMenu';
-import { withSuspense } from '~/components/skeleton/withSuspense';
-import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
-import { ScrollableScreenSurface } from '~/components/layout/ScrollableScreenSurface';
+import { LinkGoogleButton } from '#/link/LinkGoogleButton';
+import { LinkLedgerButton } from '#/link/ledger/LinkLedgerButton';
+import { LinkZalloButton } from '#/link/LinkZalloButton';
+import { LinkAppleButton } from '#/link/LinkAppleButton';
+import { showSuccess } from '#/provider/SnackbarProvider';
+import { AppbarOptions } from '#/Appbar/AppbarOptions';
+import { AppbarMenu } from '#/Appbar/AppbarMenu';
+import { withSuspense } from '#/skeleton/withSuspense';
+import { ScreenSkeleton } from '#/skeleton/ScreenSkeleton';
+import { ScrollableScreenSurface } from '#/layout/ScrollableScreenSurface';
 
 const Query = gql(/* GraphQL */ `
   query MyApproversScreen {
@@ -55,19 +55,10 @@ function MyApproversScreen() {
               Link
             </Text>
 
-            <View style={styles.methodsContainer}>
-              <LinkAppleButton user={user} onLink={() => showSuccess('Linked Apple account')} />
-
-              <LinkGoogleButton
-                user={user}
-                signOut
-                onLink={() => showSuccess('Linked Google account')}
-              />
-
-              <LinkLedgerButton />
-
-              <LinkingButton />
-            </View>
+            <LinkZalloButton />
+            <LinkLedgerButton />
+            <LinkAppleButton user={user} onLink={() => showSuccess('Linked Apple account')} />
+            <LinkGoogleButton user={user} onLink={() => showSuccess('Linked Google account')} />
           </Actions>
         </ScrollView>
       </ScrollableScreenSurface>

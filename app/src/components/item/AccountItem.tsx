@@ -1,5 +1,5 @@
 import { FragmentType, gql, useFragment } from '@api/generated';
-import { ListItem, ListItemProps } from '~/components/list/ListItem';
+import { ListItem, ListItemProps } from '#/list/ListItem';
 import { truncateAddr } from '~/util/format';
 
 const Account = gql(/* GraphQL */ `

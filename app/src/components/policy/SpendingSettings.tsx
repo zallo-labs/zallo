@@ -6,13 +6,13 @@ import { Address, asAddress, asChain, asUAddress } from 'lib';
 import { useMemo } from 'react';
 import Collapsible from 'react-native-collapsible';
 import { Divider, Switch } from 'react-native-paper';
-import { Chevron } from '~/components/Chevron';
-import { ListItem } from '~/components/list/ListItem';
-import { ListItemHorizontalTrailing } from '~/components/list/ListItemHorizontalTrailing';
-import { ListItemSkeleton } from '~/components/list/ListItemSkeleton';
-import { ListItemTrailingText } from '~/components/list/ListItemTrailingText';
-import { TokenLimitItem } from '~/components/policy/TokenLimitItem';
-import { withSuspense } from '~/components/skeleton/withSuspense';
+import { Chevron } from '#/Chevron';
+import { ListItem } from '#/list/ListItem';
+import { ListItemHorizontalTrailing } from '#/list/ListItemHorizontalTrailing';
+import { ListItemSkeleton } from '#/list/ListItemSkeleton';
+import { ListItemTrailingText } from '#/list/ListItemTrailingText';
+import { TokenLimitItem } from '#/policy/TokenLimitItem';
+import { withSuspense } from '#/skeleton/withSuspense';
 import { useQuery } from '~/gql';
 import { useSelectAddress } from '~/hooks/useSelectAddress';
 import { useToggle } from '~/hooks/useToggle';
@@ -64,8 +64,8 @@ function SpendingSettings_(props: SpendingSettingsProps) {
               {tokens.length
                 ? tokens.length + (transfers.defaultAllow ? '+' : '')
                 : transfers.defaultAllow
-                ? 'Allowed'
-                : 'Not allowed'}
+                  ? 'Allowed'
+                  : 'Not allowed'}
             </ListItemTrailingText>
             <Chevron {...props} expanded={expanded} />
           </ListItemHorizontalTrailing>

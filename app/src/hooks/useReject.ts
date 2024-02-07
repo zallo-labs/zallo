@@ -4,11 +4,11 @@ import { useApproverAddress } from '~/lib/network/useApprover';
 import { Address } from 'lib';
 import { match } from 'ts-pattern';
 import { useMutation, type OperationContext } from 'urql';
-import { showError } from '~/components/provider/SnackbarProvider';
-import { useGetAppleApprover } from '~/hooks/cloud/useGetAppleApprover';
-import { useGetGoogleApprover } from '~/hooks/cloud/useGetGoogleApprover';
+import { showError } from '#/provider/SnackbarProvider';
 import { hapticFeedback } from '~/lib/haptic';
 import { ampli, type RejectionProperties } from '~/lib/ampli';
+import { useGetGoogleApprover } from '#/cloud/google/useGetGoogleApprover';
+import { useGetAppleApprover } from '#/cloud/useGetAppleApprover';
 
 const User = gql(/* GraphQL */ `
   fragment UseReject_User on User {
@@ -113,7 +113,7 @@ export function useReject({ approver, ...params }: UseRejectParams) {
         if (!getGoogleApprover) return undefined;
 
         return async () => {
-          const r = await getGoogleApprover({ subject });
+          const r = await getGoogleApprover(subject);
           if (r.isErr())
             return showError('Failed to approve with Google account', {
               event: { error: r.error, subject },

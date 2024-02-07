@@ -9,7 +9,7 @@ import {
 import { Chain } from 'chains';
 import { asUAddress } from 'lib';
 import { P, match } from 'ts-pattern';
-import { TokenIcon } from '~/components/token/TokenIcon';
+import { TokenIcon } from '#/token/TokenIcon';
 
 const Operation = gql(/* GraphQL */ `
   fragment OperationIcon_Operation on Operation {

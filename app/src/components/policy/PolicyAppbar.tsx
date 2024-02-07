@@ -1,11 +1,11 @@
 import { SettingsOutlineIcon, SwapIcon, UndoIcon } from '@theme/icons';
 import { Chip, Menu } from 'react-native-paper';
-import { AppbarMore } from '~/components/Appbar/AppbarMore';
+import { AppbarMore } from '#/Appbar/AppbarMore';
 import { useAtomValue } from 'jotai';
 import { FragmentType, gql, useFragment } from '@api/generated';
 import { PolicyView } from '~/hooks/useHydratePolicyDraft';
 import { POLICY_DRAFT_ATOM } from '~/lib/policy/draft';
-import { AppbarOptions } from '~/components/Appbar/AppbarOptions';
+import { AppbarOptions } from '#/Appbar/AppbarOptions';
 import { useRouter } from 'expo-router';
 import { PolicyKey, UAddress } from 'lib';
 import { createStyles, useStyles } from '@theme/styles';

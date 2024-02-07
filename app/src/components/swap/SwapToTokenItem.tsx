@@ -2,12 +2,12 @@ import { FragmentType, gql, useFragment } from '@api';
 import { Chain } from 'chains';
 import Decimal from 'decimal.js';
 import { asDecimal, asFp } from 'lib';
-import { FormattedNumber } from '~/components/format/FormattedNumber';
-import { ListItem } from '~/components/list/ListItem';
-import { ListItemSkeleton } from '~/components/list/ListItemSkeleton';
-import { withSuspense } from '~/components/skeleton/withSuspense';
-import { TokenAmount } from '~/components/token/TokenAmount';
-import { TokenIcon } from '~/components/token/TokenIcon';
+import { FormattedNumber } from '#/format/FormattedNumber';
+import { ListItem } from '#/list/ListItem';
+import { ListItemSkeleton } from '#/list/ListItemSkeleton';
+import { withSuspense } from '#/skeleton/withSuspense';
+import { TokenAmount } from '#/token/TokenAmount';
+import { TokenIcon } from '#/token/TokenIcon';
 import { SwapRoute } from '~/hooks/swap/useSwapRoute';
 import { useEstimateSwap } from '~/util/swap/syncswap/estimate';
 

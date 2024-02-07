@@ -3,7 +3,7 @@ import { useStyles } from '@theme/styles';
 import { Href, Link, useRouter, useSegments } from 'expo-router';
 import { ComponentPropsWithoutRef, FC } from 'react';
 import { Drawer } from 'react-native-paper';
-import { useDrawerActions } from '~/components/drawer/DrawerContextProvider';
+import { useDrawerActions } from '#/drawer/DrawerContextProvider';
 
 export interface DrawerItemProps<R>
   extends Pick<ComponentPropsWithoutRef<typeof Drawer.Item>, 'onPress'> {

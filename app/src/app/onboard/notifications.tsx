@@ -1,5 +1,5 @@
 import { useRouter } from 'expo-router';
-import NotificationSettings from '~/components/shared/NotificationSettings';
+import NotificationSettings from '#/shared/NotificationSettings';
 
 export default function NotificationsOnboardingScreen() {
   const router = useRouter();
