@@ -1,4 +1,4 @@
-import { Drawer } from '~/components/drawer/Drawer';
+import { Drawer } from '#/drawer/Drawer';
 import { Drawer as PaperDrawer } from 'react-native-paper';
 import {
   ContactsIcon,
@@ -15,12 +15,12 @@ import {
   DevicesIcon,
   AccountIcon,
 } from '@theme/icons';
-import { DrawerItem as Item } from '~/components/drawer/DrawerItem';
+import { DrawerItem as Item } from '#/drawer/DrawerItem';
 import { useSelectedAccount } from '~/hooks/useSelectedAccount';
 import { CONFIG } from '~/util/config';
-import { AccountDrawerHeader } from '~/components/drawer/AccountDrawerHeader';
+import { AccountDrawerHeader } from '#/drawer/AccountDrawerHeader';
 import { useTransfer } from '~/hooks/useTransfer';
-import { DrawerSurface } from '~/components/drawer/DrawerSurface';
+import { DrawerSurface } from '#/drawer/DrawerSurface';
 
 const Section = PaperDrawer.Section;
 

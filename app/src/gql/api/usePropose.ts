@@ -2,7 +2,7 @@ import { useCallback } from 'react';
 import { gql } from '@api/generated';
 import { ProposeTransactionInput } from '@api/generated/graphql';
 import { useMutation } from 'urql';
-import { showError } from '~/components/provider/SnackbarProvider';
+import { showError } from '#/provider/SnackbarProvider';
 
 const Propose = gql(/* GraphQL */ `
   mutation UsePropose($input: ProposeTransactionInput!) {

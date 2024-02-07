@@ -2,7 +2,7 @@ import { BackIcon, ContactsIcon, PasteIcon } from '~/util/theme/icons';
 import { IconButton } from 'react-native-paper';
 import { StyleSheet, View } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
-import { showWarning } from '~/components/provider/SnackbarProvider';
+import { showWarning } from '#/provider/SnackbarProvider';
 import { useSelectAddress } from '~/hooks/useSelectAddress';
 import {
   EdgeInsets,

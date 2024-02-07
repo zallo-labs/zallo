@@ -1,6 +1,6 @@
 import { FragmentType, gql, useFragment } from '@api';
 import { createStyles, useStyles } from '@theme/styles';
-import { useLinkApple } from '~/hooks/cloud/useLinkApple';
+import { useLinkApple } from '#/cloud/useLinkApple';
 import {
   AppleAuthenticationButton,
   AppleAuthenticationButtonStyle,

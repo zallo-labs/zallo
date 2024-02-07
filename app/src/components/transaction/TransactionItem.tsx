@@ -1,7 +1,7 @@
-import { Timestamp } from '~/components/format/Timestamp';
-import { ListItem, ListItemProps } from '~/components/list/ListItem';
-import { withSuspense } from '~/components/skeleton/withSuspense';
-import { ListItemSkeleton } from '~/components/list/ListItemSkeleton';
+import { Timestamp } from '#/format/Timestamp';
+import { ListItem, ListItemProps } from '#/list/ListItem';
+import { withSuspense } from '#/skeleton/withSuspense';
+import { ListItemSkeleton } from '#/list/ListItemSkeleton';
 import { match } from 'ts-pattern';
 import { materialCommunityIcon } from '@theme/icons';
 import { FragmentType, gql, useFragment } from '@api/generated';
@@ -9,7 +9,7 @@ import { OperationLabel } from './OperationLabel';
 import { ProposalValue } from './ProposalValue';
 import { Link } from 'expo-router';
 import { createStyles, useStyles } from '@theme/styles';
-import { OperationIcon } from '~/components/transaction/OperationIcon';
+import { OperationIcon } from '#/transaction/OperationIcon';
 import { Image } from 'expo-image';
 
 const Proposal = gql(/* GraphQL */ `

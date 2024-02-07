@@ -1,8 +1,8 @@
 import { ScanIcon } from '@theme/icons';
 import { StyleSheet, View } from 'react-native';
-import { AccountSelector } from '~/components/AccountSelector';
+import { AccountSelector } from '#/AccountSelector';
 import { FragmentType, gql, useFragment } from '@api/generated';
-import { AppbarOptions } from '~/components/Appbar/AppbarOptions';
+import { AppbarOptions } from '#/Appbar/AppbarOptions';
 import { useRouter } from 'expo-router';
 
 const FragmentDoc = gql(/* GraphQL */ `

@@ -2,24 +2,24 @@ import { useRouter } from 'expo-router';
 import { StyleSheet } from 'react-native';
 import { UAddress, asChain } from 'lib';
 import { AddIcon, SearchIcon } from '@theme/icons';
-import { ListHeader } from '~/components/list/ListHeader';
-import { TokenItem } from '~/components/token/TokenItem';
+import { ListHeader } from '#/list/ListHeader';
+import { TokenItem } from '#/token/TokenItem';
 import { useState } from 'react';
 import { gql } from '@api/generated';
 import { FlashList } from '@shopify/flash-list';
-import { ListItemHeight } from '~/components/list/ListItem';
+import { ListItemHeight } from '#/list/ListItem';
 import { useQuery } from '~/gql';
 import { Subject } from 'rxjs';
 import { useGetEvent } from '~/hooks/useGetEvent';
 import { OperationContext } from 'urql';
-import { AppbarMenu } from '~/components/Appbar/AppbarMenu';
+import { AppbarMenu } from '#/Appbar/AppbarMenu';
 import { z } from 'zod';
 import { zArray, zUAddress } from '~/lib/zod';
 import { useLocalParams } from '~/hooks/useLocalParams';
-import { withSuspense } from '~/components/skeleton/withSuspense';
-import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
-import { SearchbarOptions } from '~/components/Appbar/SearchbarOptions';
-import { ScrollableScreenSurface } from '~/components/layout/ScrollableScreenSurface';
+import { withSuspense } from '#/skeleton/withSuspense';
+import { ScreenSkeleton } from '#/skeleton/ScreenSkeleton';
+import { SearchbarOptions } from '#/Appbar/SearchbarOptions';
+import { ScrollableScreenSurface } from '#/layout/ScrollableScreenSurface';
 
 const Query = gql(/* GraphQL */ `
   query TokensScreen($account: UAddress!, $query: String, $feeToken: Boolean, $chain: Chain) {

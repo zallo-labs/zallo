@@ -1,10 +1,10 @@
 import QRCode from 'react-native-qrcode-svg';
 import { IconButton, Surface, Text } from 'react-native-paper';
 import { CloseIcon, PasteIcon, ScanIcon, ShareIcon } from '@theme/icons';
-import { Actions } from '~/components/layout/Actions';
+import { Actions } from '#/layout/Actions';
 import { ScaledSize, View, useWindowDimensions } from 'react-native';
-import { Blur } from '~/components/Blur';
-import { Button } from '~/components/Button';
+import { Blur } from '#/Blur';
+import { Button } from '#/Button';
 import { gql } from '@api/generated';
 import { useQuery } from '~/gql';
 import { useSubscription } from 'urql';

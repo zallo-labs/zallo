@@ -1,8 +1,8 @@
 import { Dialog, Text } from 'react-native-paper';
-import { Button } from '~/components/Button';
-import { DialogModal } from '~/components/Dialog/DialogModal';
+import { Button } from '#/Button';
+import { DialogModal } from '#/Dialog/DialogModal';
 import { Subject } from 'rxjs';
-import { DialogActions } from '~/components/Dialog/DialogActions';
+import { DialogActions } from '#/Dialog/DialogActions';
 import { createStyles, useStyles } from '@theme/styles';
 import { z } from 'zod';
 import { useLocalParams } from '~/hooks/useLocalParams';

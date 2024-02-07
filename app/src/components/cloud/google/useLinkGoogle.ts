@@ -1,19 +1,19 @@
 import { FragmentType, gql, useFragment } from '@api';
-import { useGetAppleApprover } from './useGetAppleApprover';
 import { useMutation } from 'urql';
 import { authContext } from '@api/client';
-import { showError } from '~/components/provider/SnackbarProvider';
+import { showError } from '#/provider/SnackbarProvider';
 import { ampli } from '~/lib/ampli';
+import { useGetGoogleApprover } from '#/cloud/google/useGetGoogleApprover';
 
 const User = gql(/* GraphQL */ `
-  fragment useLinkApple_User on User {
+  fragment useLinkGoogle_User on User {
     id
     linkingToken
   }
 `);
 
 const Link = gql(/* GraphQL */ `
-  mutation LinkAppleButton_Link($token: String!) {
+  mutation UseLinkGoogle_Link($token: String!) {
     link(input: { token: $token }) {
       id
       approvers {
@@ -23,22 +23,22 @@ const Link = gql(/* GraphQL */ `
   }
 `);
 
-export interface useLinkAppleParams {
+export interface UseLinkGoogleProps {
   user: FragmentType<typeof User>;
 }
 
-export function useLinkApple(params: useLinkAppleParams) {
-  const user = useFragment(User, params.user);
-  const getApprover = useGetAppleApprover();
+export function useLinkGoogle(props: UseLinkGoogleProps) {
+  const user = useFragment(User, props.user);
+  const getApprover = useGetGoogleApprover();
   const link = useMutation(Link)[1];
 
   if (!getApprover) return undefined;
 
   return async () => {
-    const r = await getApprover({});
+    const r = await getApprover();
     if (r.isErr()) {
-      if (r.error !== 'ERR_REQUEST_CANCELED')
-        showError('Something went wrong, failed to sign in with Apple', {
+      if (r.error !== 'cancelled')
+        showError('Something went wrong, failed to sign into Google', {
           event: { error: r.error },
         });
       return;
@@ -46,7 +46,7 @@ export function useLinkApple(params: useLinkAppleParams) {
 
     const { approver } = r.value;
     await link({ token: user.linkingToken }, await authContext(approver));
-    ampli.socialLinked({ cloud: 'Apple' });
+    ampli.socialLinked({ cloud: 'Google' });
 
     return r.value;
   };

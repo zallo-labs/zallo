@@ -1,9 +1,9 @@
-import { useAddressLabel } from '~/components/address/AddressLabel';
-import { Timestamp } from '~/components/format/Timestamp';
-import { ListItem } from '~/components/list/ListItem';
-import { ListItemSkeleton } from '~/components/list/ListItemSkeleton';
-import { withSuspense } from '~/components/skeleton/withSuspense';
-import { FiatValue } from '~/components/FiatValue';
+import { useAddressLabel } from '#/address/AddressLabel';
+import { Timestamp } from '#/format/Timestamp';
+import { ListItem } from '#/list/ListItem';
+import { ListItemSkeleton } from '#/list/ListItemSkeleton';
+import { withSuspense } from '#/skeleton/withSuspense';
+import { FiatValue } from '#/FiatValue';
 import { FragmentType, gql, useFragment } from '@api/generated';
 import { TokenIcon } from '../token/TokenIcon';
 import { asUAddress } from 'lib';

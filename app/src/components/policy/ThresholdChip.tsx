@@ -1,6 +1,6 @@
 import { useImmerAtom } from 'jotai-immer';
 import { DownArrowIcon } from '@theme/icons';
-import { SelectChip } from '~/components/fields/SelectChip';
+import { SelectChip } from '#/fields/SelectChip';
 import _ from 'lodash';
 import { match } from 'ts-pattern';
 import { useEffect } from 'react';

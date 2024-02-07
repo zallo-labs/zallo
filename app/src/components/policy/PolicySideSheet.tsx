@@ -1,13 +1,13 @@
 import { useRouter } from 'expo-router';
 import { useImmerAtom } from 'jotai-immer';
 import { useForm } from 'react-hook-form';
-import { FormTextField } from '~/components/fields/FormTextField';
-import { Actions } from '~/components/layout/Actions';
-import { FormSubmitButton } from '~/components/fields/FormSubmitButton';
+import { FormTextField } from '#/fields/FormTextField';
+import { Actions } from '#/layout/Actions';
+import { FormSubmitButton } from '#/fields/FormSubmitButton';
 import { FragmentType, gql, useFragment } from '@api/generated';
 import { useMutation } from 'urql';
 import { POLICY_DRAFT_ATOM } from '~/lib/policy/draft';
-import { showError } from '~/components/provider/SnackbarProvider';
+import { showError } from '#/provider/SnackbarProvider';
 import { SideSheet, SideSheetProps } from '../SideSheet/SideSheet';
 import { useConfirmRemoval } from '~/hooks/useConfirm';
 import { Button } from '../Button';

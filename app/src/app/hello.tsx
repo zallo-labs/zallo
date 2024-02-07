@@ -1,13 +1,13 @@
 import { Link, useRouter } from 'expo-router';
 import { View, ScrollView } from 'react-native';
 import { Text } from 'react-native-paper';
-import { Button } from '~/components/Button';
-import { Actions } from '~/components/layout/Actions';
-import { LinkAppleButton } from '~/components/link/LinkAppleButton';
-import { LinkGoogleButton } from '~/components/link/google/LinkGoogleButton';
-import { LinkZalloButton } from '~/components/link/LinkZallo';
-import { LinkLedgerButton } from '~/components/link/ledger/LinkLedgerButton';
-import { AppbarOptions } from '~/components/Appbar/AppbarOptions';
+import { Button } from '#/Button';
+import { Actions } from '#/layout/Actions';
+import { LinkAppleButton } from '#/link/LinkAppleButton';
+import { LinkGoogleButton } from '#/link/LinkGoogleButton';
+import { LinkZalloButton } from '#/link/LinkZalloButton';
+import { LinkLedgerButton } from '#/link/ledger/LinkLedgerButton';
+import { AppbarOptions } from '#/Appbar/AppbarOptions';
 import {
   AppScreenshots,
   AppStoreBadge,

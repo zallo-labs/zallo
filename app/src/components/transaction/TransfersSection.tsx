@@ -4,10 +4,10 @@ import Decimal from 'decimal.js';
 import { ReactNode } from 'react';
 import { View } from 'react-native';
 import { Text } from 'react-native-paper';
-import { ListHeader } from '~/components/list/ListHeader';
-import { ProposalValue } from '~/components/transaction/ProposalValue';
-import { TokenAmount } from '~/components/token/TokenAmount';
-import { TokenItem } from '~/components/token/TokenItem';
+import { ListHeader } from '#/list/ListHeader';
+import { ProposalValue } from '#/transaction/ProposalValue';
+import { TokenAmount } from '#/token/TokenAmount';
+import { TokenItem } from '#/token/TokenItem';
 
 const TransactionProposal = gql(/* GraphQL */ `
   fragment TransfersSection_TransactionProposal on TransactionProposal

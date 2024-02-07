@@ -1,9 +1,9 @@
 import { Text } from 'react-native-paper';
 import { FlashList } from '@shopify/flash-list';
-import { ListItemHeight } from '~/components/list/ListItem';
-import { TokenItem } from '~/components/token/TokenItem';
-import { withSuspense } from '~/components/skeleton/withSuspense';
-import { TabScreenSkeleton } from '~/components/tab/TabScreenSkeleton';
+import { ListItemHeight } from '#/list/ListItem';
+import { TokenItem } from '#/token/TokenItem';
+import { withSuspense } from '#/skeleton/withSuspense';
+import { TabScreenSkeleton } from '#/tab/TabScreenSkeleton';
 import { StyleSheet } from 'react-native';
 import { asChain } from 'lib';
 import { gql } from '@api/generated';

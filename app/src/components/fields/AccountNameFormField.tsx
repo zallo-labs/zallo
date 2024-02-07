@@ -4,7 +4,7 @@ import { createStyles, useStyles } from '@theme/styles';
 import { useState } from 'react';
 import { FieldValues, FieldPath } from 'react-hook-form';
 import { TextInput } from 'react-native-paper';
-import { FormTextField, FormTextFieldProps } from '~/components/fields/FormTextField';
+import { FormTextField, FormTextFieldProps } from '#/fields/FormTextField';
 import { CONFIG } from '~/util/config';
 
 const LabelAvailable = gql(/* GraphQL */ `

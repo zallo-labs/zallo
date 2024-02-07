@@ -1,5 +1,5 @@
 import { FC } from 'react';
-import { ListItemProps } from '~/components/list/ListItem';
+import { ListItemProps } from '#/list/ListItem';
 
 export interface Suggestion {
   Item: FC<Partial<ListItemProps>>;

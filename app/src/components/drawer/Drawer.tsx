@@ -1,7 +1,7 @@
 import { ComponentPropsWithoutRef } from 'react';
 import { Drawer as DrawerLayout } from 'expo-router/drawer';
 import { DrawerContextProvider, DrawerType } from './DrawerContextProvider';
-import { AppbarHeader } from '~/components/Appbar/AppbarHeader';
+import { AppbarHeader } from '#/Appbar/AppbarHeader';
 import { BREAKPOINTS, createStyles, useStyles } from '@theme/styles';
 
 type DrawerLayoutProps = ComponentPropsWithoutRef<typeof DrawerLayout>;

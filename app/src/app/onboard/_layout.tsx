@@ -1,7 +1,7 @@
-import { Drawer } from '~/components/drawer/Drawer';
-import { DrawerSurface } from '~/components/drawer/DrawerSurface';
+import { Drawer } from '#/drawer/Drawer';
+import { DrawerSurface } from '#/drawer/DrawerSurface';
 import { Drawer as RnpDrawer } from 'react-native-paper';
-import { DrawerItem } from '~/components/drawer/DrawerItem';
+import { DrawerItem } from '#/drawer/DrawerItem';
 import { StyleSheet } from 'react-native';
 import { FingerprintIcon, ZalloLogo, NotificationsIcon, AccountIcon } from '@theme/icons';
 import { DrawerContentComponentProps } from '@react-navigation/drawer';

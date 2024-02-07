@@ -2,7 +2,7 @@ import { gql } from '@api/generated';
 import { asUAddress } from 'lib';
 import { CHAINS } from 'chains';
 import { useEffect, useMemo } from 'react';
-import { showError, showInfo } from '~/components/provider/SnackbarProvider';
+import { showError, showInfo } from '#/provider/SnackbarProvider';
 import { logError } from '~/util/analytics';
 import {
   asCaip2,

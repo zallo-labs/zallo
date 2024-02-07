@@ -2,9 +2,9 @@ import { FragmentType, gql, useFragment } from '@api/generated';
 import { useForm } from 'react-hook-form';
 import { StyleSheet, View } from 'react-native';
 import { useMutation } from 'urql';
-import { FormSubmitButton } from '~/components/fields/FormSubmitButton';
-import { Actions } from '~/components/layout/Actions';
-import { AccountNameFormField } from '~/components/fields/AccountNameFormField';
+import { FormSubmitButton } from '#/fields/FormSubmitButton';
+import { Actions } from '#/layout/Actions';
+import { AccountNameFormField } from '#/fields/AccountNameFormField';
 import { SideSheet, SideSheetProps } from '../SideSheet/SideSheet';
 
 const Account = gql(/* GraphQL */ `

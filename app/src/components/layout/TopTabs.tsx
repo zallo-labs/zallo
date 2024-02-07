@@ -6,7 +6,7 @@ import {
 import { ParamListBase, TabNavigationState } from '@react-navigation/native';
 import { withLayoutContext } from 'expo-router';
 import { ComponentPropsWithoutRef } from 'react';
-import { TopTabBar } from '~/components/tab/TopTabBar';
+import { TopTabBar } from '#/tab/TopTabBar';
 
 const TopTabNavigator = createMaterialTopTabNavigator().Navigator;
 

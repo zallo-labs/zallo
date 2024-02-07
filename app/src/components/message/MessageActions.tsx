@@ -1,6 +1,6 @@
 import { FragmentType, gql, useFragment } from '@api/generated';
 import { useApproverAddress } from '~/lib/network/useApprover';
-import { Actions } from '~/components/layout/Actions';
+import { Actions } from '#/layout/Actions';
 import { useApprove } from '~/hooks/useApprove';
 import { useReject } from '~/hooks/useReject';
 import { Button } from '../Button';

@@ -1,11 +1,11 @@
 import { useRouter } from 'expo-router';
-import { Sheet } from '~/components/sheet/Sheet';
+import { Sheet } from '#/sheet/Sheet';
 import { materialCommunityIcon } from '@theme/icons';
 import { View } from 'react-native';
 import { Text } from 'react-native-paper';
-import { Button } from '~/components/Button';
+import { Button } from '#/Button';
 import { gql } from '@api/generated';
-import { showSuccess } from '~/components/provider/SnackbarProvider';
+import { showSuccess } from '#/provider/SnackbarProvider';
 import { useMutation } from 'urql';
 import { Subject } from 'rxjs';
 import { ConfirmLinkSheet_LinkMutation } from '@api/generated/graphql';

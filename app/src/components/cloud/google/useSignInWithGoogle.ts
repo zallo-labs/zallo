@@ -1,11 +1,10 @@
 import {
-  GoogleSignin,
   GoogleOneTapSignIn,
   statusCodes as ErrorCode,
   isErrorWithCode,
 } from '@react-native-google-signin/google-signin';
 import { CONFIG } from '~/util/config';
-import { fromPromise } from 'neverthrow';
+import { errAsync, fromPromise, okAsync } from 'neverthrow';
 import { jwtDecode } from 'jwt-decode';
 import { DateTime } from 'luxon';
 import { match } from 'ts-pattern';
@@ -42,10 +41,15 @@ export async function signInWithGoogle(subject?: string) {
         return 'unknown';
       }
     },
-  );
+  ).andThen((user) => {
+    if (subject && user.id !== subject) return errAsync('wrong-account' as const);
+    if (!isCurrentToken(user.idToken)) return errAsync('expired' as const);
+
+    return okAsync(user);
+  });
 }
 
-export function isCurrentToken(idToken: string) {
+function isCurrentToken(idToken: string) {
   const decoded = jwtDecode(idToken);
 
   return (

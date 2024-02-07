@@ -1,19 +1,19 @@
 import { FragmentType, gql, useFragment } from '@api';
+import { useGetAppleApprover } from './useGetAppleApprover';
 import { useMutation } from 'urql';
 import { authContext } from '@api/client';
-import { showError } from '~/components/provider/SnackbarProvider';
+import { showError } from '#/provider/SnackbarProvider';
 import { ampli } from '~/lib/ampli';
-import { useGetGoogleApprover } from '~/components/link/google/useGetGoogleApprover';
 
 const User = gql(/* GraphQL */ `
-  fragment useLinkGoogle_User on User {
+  fragment useLinkApple_User on User {
     id
     linkingToken
   }
 `);
 
 const Link = gql(/* GraphQL */ `
-  mutation UseLinkGoogle_Link($token: String!) {
+  mutation LinkAppleButton_Link($token: String!) {
     link(input: { token: $token }) {
       id
       approvers {
@@ -23,32 +23,30 @@ const Link = gql(/* GraphQL */ `
   }
 `);
 
-export interface UseLinkGoogleProps {
+export interface useLinkAppleParams {
   user: FragmentType<typeof User>;
-  signOut?: boolean;
 }
 
-export function useLinkGoogle({ signOut, ...props }: UseLinkGoogleProps) {
-  const user = useFragment(User, props.user);
-  const getApprover = useGetGoogleApprover();
+export function useLinkApple(params: useLinkAppleParams) {
+  const user = useFragment(User, params.user);
+  const getApprover = useGetAppleApprover();
   const link = useMutation(Link)[1];
 
   if (!getApprover) return undefined;
 
   return async () => {
-    const r = await getApprover();
+    const r = await getApprover({});
     if (r.isErr()) {
-      if (r.error !== 'cancelled')
-        showError('Something went wrong, failed to sign into Google', {
+      if (r.error !== 'ERR_REQUEST_CANCELED')
+        showError('Something went wrong, failed to sign in with Apple', {
           event: { error: r.error },
         });
       return;
     }
 
     const { approver } = r.value;
-    console.log(approver.address);
     await link({ token: user.linkingToken }, await authContext(approver));
-    ampli.socialLinked({ cloud: 'Google' });
+    ampli.socialLinked({ cloud: 'Apple' });
 
     return r.value;
   };

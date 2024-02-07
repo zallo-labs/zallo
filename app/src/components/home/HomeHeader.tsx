@@ -1,13 +1,13 @@
 import { UAddress } from 'lib';
-import { NotFound } from '~/components/NotFound';
+import { NotFound } from '#/NotFound';
 import { gql } from '@api/generated';
 import { useQuery } from '~/gql';
 import { View } from 'react-native';
 import { AccountValue } from './AccountValue';
 import { HomeAppbar } from './HomeAppbar';
 import { QuickActions } from './QuickActions';
-import { withSuspense } from '~/components/skeleton/withSuspense';
-import { GettingStarted } from '~/components/home/GettingStarted';
+import { withSuspense } from '#/skeleton/withSuspense';
+import { GettingStarted } from '#/home/GettingStarted';
 import { createStyles } from '@theme/styles';
 
 const Query = gql(/* GraphQL */ `

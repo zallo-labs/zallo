@@ -1,6 +1,6 @@
 import { QrCodeIcon } from '@theme/icons';
 import { useEffect } from 'react';
-import { showSuccess } from '~/components/provider/SnackbarProvider';
+import { showSuccess } from '#/provider/SnackbarProvider';
 import { LINKINGS_FROM_TOKEN } from '~/app/(modal)/link';
 import { Link } from 'expo-router';
 import { Button } from '../Button';

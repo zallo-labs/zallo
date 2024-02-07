@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { FieldValues, useFormState, UseFormStateProps } from 'react-hook-form';
 import { GestureResponderEvent } from 'react-native';
-import { Button, ButtonProps } from '~/components/Button';
+import { Button, ButtonProps } from '#/Button';
 
 export interface FormSubmitButtonProps<TFieldValues extends FieldValues>
   extends Omit<ButtonProps, 'onPress'> {

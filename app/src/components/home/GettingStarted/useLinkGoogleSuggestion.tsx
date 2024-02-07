@@ -1,9 +1,9 @@
 import { FragmentType, gql, useFragment } from '@api';
 import { useApproverAddress } from '~/lib/network/useApprover';
 import { GoogleIcon } from '@theme/icons';
-import { Suggestion } from '~/components/home/GettingStarted/suggestions';
-import { ListItem } from '~/components/list/ListItem';
-import { useLinkGoogle } from '~/components/link/google/useLinkGoogle';
+import { Suggestion } from '#/home/GettingStarted/suggestions';
+import { ListItem } from '#/list/ListItem';
+import { useLinkGoogle } from '#/cloud/google/useLinkGoogle';
 
 const User = gql(/* GraphQL */ `
   fragment useLinkGoogleSuggestion_User on User {

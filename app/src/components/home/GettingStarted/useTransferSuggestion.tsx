@@ -1,6 +1,6 @@
 import { FragmentType, gql, useFragment } from '@api';
 import { Suggestion } from './suggestions';
-import { ListItem } from '~/components/list/ListItem';
+import { ListItem } from '#/list/ListItem';
 import { TransferIcon } from '@theme/icons';
 import { useTransfer } from '~/hooks/useTransfer';
 

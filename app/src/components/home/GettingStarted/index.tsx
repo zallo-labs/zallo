@@ -9,15 +9,15 @@ import { useDepositSuggestion } from './useDepositSuggestion';
 import { useAtom } from 'jotai';
 import { persistedAtom } from '~/lib/persistedAtom';
 import { ReactNode } from 'react';
-import { useCreatePolicySuggestion } from '~/components/home/GettingStarted/useCreatePolicySuggestion';
+import { useCreatePolicySuggestion } from '#/home/GettingStarted/useCreatePolicySuggestion';
 import { createStyles, useStyles } from '@theme/styles';
 import { View } from 'react-native';
 import Collapsible from 'react-native-collapsible';
 import { ProgressBar, Surface, Text, TouchableRipple } from 'react-native-paper';
 import Animated, { FadeIn, SlideOutRight } from 'react-native-reanimated';
-import { Button } from '~/components/Button';
-import { Chevron } from '~/components/Chevron';
-import { FormattedNumber } from '~/components/format/FormattedNumber';
+import { Button } from '#/Button';
+import { Chevron } from '#/Chevron';
+import { FormattedNumber } from '#/format/FormattedNumber';
 
 const Query = gql(/* GraphQL */ `
   fragment GettingStarted_Query on Query @argumentDefinitions(account: { type: "UAddress!" }) {

@@ -3,8 +3,8 @@ import { useRouter } from 'expo-router';
 import { UAddress } from 'lib';
 import { useCallback, useEffect } from 'react';
 import CreateAccountScreen from '~/app/(drawer)/accounts/create';
-import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
-import { withSuspense } from '~/components/skeleton/withSuspense';
+import { ScreenSkeleton } from '#/skeleton/ScreenSkeleton';
+import { withSuspense } from '#/skeleton/withSuspense';
 import { useQuery } from '~/gql';
 import { useSetSelectedAccont } from '~/hooks/useSelectedAccount';
 

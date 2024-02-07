@@ -3,24 +3,24 @@ import { gql } from '@api/generated';
 import { FlashList } from '@shopify/flash-list';
 import { EditIcon, NavigateNextIcon } from '@theme/icons';
 import { StyleSheet } from 'react-native';
-import { NotFound } from '~/components/NotFound';
-import { ListHeader } from '~/components/list/ListHeader';
-import { ListItemHeight } from '~/components/list/ListItem';
+import { NotFound } from '#/NotFound';
+import { ListHeader } from '#/list/ListHeader';
+import { ListItemHeight } from '#/list/ListItem';
 import { useQuery } from '~/gql';
-import { PolicyItem } from '~/components/policy/PolicyItem';
-import { AppbarOptions } from '~/components/Appbar/AppbarOptions';
+import { PolicyItem } from '#/policy/PolicyItem';
+import { AppbarOptions } from '#/Appbar/AppbarOptions';
 import { useLocalParams } from '~/hooks/useLocalParams';
-import { withSuspense } from '~/components/skeleton/withSuspense';
-import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
-import { ScrollableScreenSurface } from '~/components/layout/ScrollableScreenSurface';
-import { Actions } from '~/components/layout/Actions';
-import { Button } from '~/components/Button';
+import { withSuspense } from '#/skeleton/withSuspense';
+import { ScreenSkeleton } from '#/skeleton/ScreenSkeleton';
+import { ScrollableScreenSurface } from '#/layout/ScrollableScreenSurface';
+import { Actions } from '#/layout/Actions';
+import { Button } from '#/Button';
 import { match } from 'ts-pattern';
 import { useMutation } from 'urql';
 import { AccountParams } from '~/app/(drawer)/[account]/(home)/_layout';
-import { SideSheetLayout } from '~/components/SideSheet/SideSheetLayout';
-import { useSideSheetVisibility } from '~/components/SideSheet/useSideSheetVisibility';
-import { AccountSettingsSideSheet } from '~/components/account/AccountSettingsSideSheet';
+import { SideSheetLayout } from '#/SideSheet/SideSheetLayout';
+import { useSideSheetVisibility } from '#/SideSheet/useSideSheetVisibility';
+import { AccountSettingsSideSheet } from '#/account/AccountSettingsSideSheet';
 
 const Query = gql(/* GraphQL */ `
   query AccountSettingsScreen($account: UAddress!) {

@@ -3,8 +3,8 @@ import BottomSheet, { BottomSheetProps, BottomSheetView } from '@gorhom/bottom-s
 import { StyleProp, View, ViewStyle } from 'react-native';
 import { EdgeInsets, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { SheetBackground } from '~/components/sheet/SheetBackground';
-import { SheetBackdrop } from '~/components/sheet/SheetBackdrop';
+import { SheetBackground } from '#/sheet/SheetBackground';
+import { SheetBackdrop } from '#/sheet/SheetBackdrop';
 import { createStyles, useStyles } from '@theme/styles';
 
 export interface SheetProps extends Omit<BottomSheetProps, 'ref'> {

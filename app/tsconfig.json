@@ -10,8 +10,9 @@
       "@network/*": ["src/lib/network/*"],
       "@theme/*": ["./src/util/theme/*"],
       "@token/*": ["./src/util/token/*"],
-      "~/*": ["./src/*"]
-    }
+      "#/*": ["./src/components/*"],
+      "~/*": ["./src/*"],
+    },
   },
-  "include": ["src/**/*.ts", "src/**/*.tsx", ".expo/types/**/*.ts", "expo-env.d.ts"]
+  "include": ["src/**/*.ts", "src/**/*.tsx", ".expo/types/**/*.ts", "expo-env.d.ts"],
 }

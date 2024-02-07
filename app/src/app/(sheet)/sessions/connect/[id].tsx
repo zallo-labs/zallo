@@ -3,13 +3,13 @@ import { gql } from '@api/generated';
 import { buildApprovedNamespaces, getSdkError } from '@walletconnect/utils';
 import { useEffect, useMemo } from 'react';
 import { useImmer } from 'use-immer';
-import { Button } from '~/components/Button';
-import { Actions } from '~/components/layout/Actions';
-import { Sheet } from '~/components/sheet/Sheet';
-import { AccountsList } from '~/components/walletconnect/AccountsList';
-import { DappHeader } from '~/components/walletconnect/DappHeader';
+import { Button } from '#/Button';
+import { Actions } from '#/layout/Actions';
+import { Sheet } from '#/sheet/Sheet';
+import { AccountsList } from '#/walletconnect/AccountsList';
+import { DappHeader } from '#/walletconnect/DappHeader';
 import { useQuery } from '~/gql';
-import { hideSnackbar, showError, showSuccess } from '~/components/provider/SnackbarProvider';
+import { hideSnackbar, showError, showSuccess } from '#/provider/SnackbarProvider';
 import {
   sessionChains,
   supportedNamespaces,
@@ -22,10 +22,7 @@ import { useLocalParams } from '~/hooks/useLocalParams';
 import { useSelectedAccount } from '~/hooks/useSelectedAccount';
 import { Text } from 'react-native-paper';
 import { SignClientTypes } from '@walletconnect/types';
-import {
-  useDappVerification,
-  type VerificationStatus,
-} from '~/components/walletconnect/DappVerification';
+import { useDappVerification, type VerificationStatus } from '#/walletconnect/DappVerification';
 import { P, match } from 'ts-pattern';
 
 const Query = gql(/* GraphQL */ `

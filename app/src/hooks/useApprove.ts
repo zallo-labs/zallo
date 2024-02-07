@@ -3,15 +3,15 @@ import { useApproverAddress } from '~/lib/network/useApprover';
 import { Address } from 'lib';
 import { match } from 'ts-pattern';
 import { useMutation } from 'urql';
-import { showError } from '~/components/provider/SnackbarProvider';
+import { showError } from '#/provider/SnackbarProvider';
 import { proposalAsTypedData } from '~/lib/proposalAsTypedData';
-import { useGetAppleApprover } from '~/hooks/cloud/useGetAppleApprover';
 import { useGetLedgerApprover } from '~/app/(sheet)/ledger/approve';
-import { useSignWithApprover } from '~/components/transaction/useSignWithApprover';
+import { useSignWithApprover } from '#/transaction/useSignWithApprover';
 import { ampli, type ApprovalProperties } from '~/lib/ampli';
 import type { ApproveInput } from '@api/generated/graphql';
 import { hapticFeedback } from '~/lib/haptic';
-import { useGetGoogleApprover } from '~/components/link/google/useGetGoogleApprover';
+import { useGetAppleApprover } from '#/cloud/useGetAppleApprover';
+import { useGetGoogleApprover } from '#/cloud/google/useGetGoogleApprover';
 
 const User = gql(/* GraphQL */ `
   fragment UseApprove_User on User {
@@ -90,8 +90,8 @@ export function useApprove({ approver, ...params }: UseApproveParams) {
   const getLedgerApprover = useGetLedgerApprover();
   const approveTransaction = useMutation(ApproveTransaction)[1];
   const approveMessage = useMutation(ApproveMessage)[1];
-  const getAppleApprover = useGetAppleApprover();
   const getGoogleApprover = useGetGoogleApprover();
+  const getAppleApprover = useGetAppleApprover();
 
   const approve = async (method: ApprovalProperties['method'], input: Omit<ApproveInput, 'id'>) => {
     hapticFeedback('neutral');
