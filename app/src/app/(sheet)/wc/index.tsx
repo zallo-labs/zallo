@@ -8,17 +8,32 @@ import { Sheet } from '#/sheet/Sheet';
 import { useLocalParams } from '~/hooks/useLocalParams';
 import { useWalletConnectWithoutWatching } from '~/lib/wc';
 import { zWalletConnectUri } from '~/lib/wc/uri';
+import { showError } from '#/provider/SnackbarProvider';
+import { useRouter } from 'expo-router';
 
 export const WalletConnectUriScreenParams = z.object({ uri: zWalletConnectUri() });
 
 export default function WalletConnectUriScreen() {
   const { uri } = useLocalParams(WalletConnectUriScreenParams);
   const { styles } = useStyles(stylesheet);
+  const router = useRouter();
   const client = useWalletConnectWithoutWatching();
 
   useEffect(() => {
-    client.pair({ uri });
-  }, [client, uri]);
+    (async () => {
+      try {
+        await client.pair({ uri });
+      } catch (e) {
+        const alreadyExists = e instanceof Error && e.message.includes('already exists');
+        if (!alreadyExists) {
+          showError('Something went wrong while connecting to the dapp. Please try again.', {
+            event: { error: e },
+          });
+        }
+        router.back();
+      }
+    })();
+  }, [client, router, uri]);
 
   return (
     <Sheet handle={false} contentContainerStyle={styles.container}>
