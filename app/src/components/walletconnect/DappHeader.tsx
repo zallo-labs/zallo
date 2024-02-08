@@ -15,19 +15,21 @@ export interface DappHeaderProps {
 export function DappHeader({ dapp, action, request }: DappHeaderProps) {
   const { styles } = useStyles(stylesheet);
 
+  const url = asUrl(dapp?.url);
+
   return (
     <View style={styles.container}>
-      <Image source={dapp?.icons} style={styles.icon} />
+      {dapp && dapp.icons.length > 0 && <Image source={dapp.icons} style={styles.icon} />}
 
       <Text variant="headlineMedium" style={styles.actionText}>
         <Text variant="headlineMedium">{dapp?.name || 'Unknown dapp'} </Text>
         {action}
       </Text>
 
-      {dapp && (
-        <Link href={dapp.url as `${string}:${string}`} asChild>
+      {url && (
+        <Link href={url.href as `${string}:${string}`} asChild>
           <Text variant="titleMedium" style={styles.url}>
-            {new URL(dapp.url).hostname}
+            {url.hostname}
           </Text>
         </Link>
       )}
@@ -59,3 +61,9 @@ const stylesheet = createStyles(({ colors, corner }) => ({
     marginTop: 16,
   },
 }));
+
+function asUrl(url?: string) {
+  if (!url) return undefined;
+
+  return new URL(url.startsWith('http') ? url : `https://${url}`);
+}
