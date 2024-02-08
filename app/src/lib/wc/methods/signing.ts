@@ -1,6 +1,7 @@
 import { match } from 'ts-pattern';
 import { Addresslike, asAddress, isHex } from 'lib';
 import { TypedDataDefinition, hexToString } from 'viem';
+import { SignClientTypes } from '@walletconnect/types';
 
 export type SigningRequest = PersonalSignRequest | SignTypedDataRequest;
 
@@ -19,6 +20,12 @@ export const WC_SIGNING_METHODS = new Set(WC_SIGNING_METHODS_ARRAY);
 const allMethodsHandled: (typeof WC_SIGNING_METHODS_ARRAY)[number] extends SigningRequest['method']
   ? true
   : false = true;
+
+export function isSignatureRequest(
+  r: SignClientTypes.EventArguments['session_request']['params']['request'],
+): r is SigningRequest {
+  return WC_SIGNING_METHODS.has(r.method);
+}
 
 export interface EthSignRequest {
   // https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_sign

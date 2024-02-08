@@ -1,17 +1,19 @@
-import { useEffect } from 'react';
+import { memo, useEffect } from 'react';
 import { useSessionConnectionListener } from './useSessionConnectionListener';
 import { useUpdateWalletConnect, useWalletConnectWithoutWatching } from '~/lib/wc';
 import { useSessionRequestListener } from './useSessionRequestListener';
 import { withSuspense } from '#/skeleton/withSuspense';
 import { ISignClientEvents, SignClientTypes } from '@walletconnect/types';
 import { logDebug } from '~/util/analytics';
+import { useProposalsListener } from './useProposalsListener';
 
 function WalletConnectListeners_() {
   const client = useWalletConnectWithoutWatching();
   const update = useUpdateWalletConnect();
 
+  const proposals = useProposalsListener();
   useSessionConnectionListener();
-  useSessionRequestListener();
+  useSessionRequestListener({ proposals });
 
   useEffect(() => {
     // https://specs.walletconnect.com/2.0/specs/clients/sign/session-events
@@ -43,7 +45,7 @@ function WalletConnectListeners_() {
   return null;
 }
 
-export const WalletConnectListeners = withSuspense(WalletConnectListeners_);
+export const WalletConnectListeners = withSuspense(memo(WalletConnectListeners_));
 
 function traceEvents(client: ISignClientEvents, events: SignClientTypes.Event[]) {
   return events.map(
