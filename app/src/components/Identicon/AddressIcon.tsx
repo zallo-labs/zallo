@@ -1,35 +1,36 @@
 import { ICON_SIZE } from '@theme/paper';
-import { Address, UAddress, asAddress } from 'lib';
-import { ImageStyle } from 'react-native';
-import { StyleProp, TextStyle } from 'react-native';
-import { withSuspense } from '../skeleton/withSuspense';
-import { CircleSkeleton } from '../skeleton/CircleSkeleton';
+import { Address, UAddress, asAddress, asChain, isUAddress } from 'lib';
+import { ImageStyle, StyleProp, View } from 'react-native';
 import { Blockie } from './Blockie';
+import { useMemo } from 'react';
+import { createStyles } from '@theme/styles';
+import { ChainIcon } from './ChainIcon';
 
 export interface AddressIconProps {
   address: Address | UAddress;
   size?: number;
-  style?: ImageStyle;
-  labelStyle?: StyleProp<TextStyle>;
+  style?: StyleProp<ImageStyle>;
 }
 
-function AddressIcon_({
-  address,
-  size = ICON_SIZE.medium,
-  style,
-  labelStyle,
-  ...props
-}: AddressIconProps) {
-  // const name = useAddressLabel(address);
+export function AddressIcon({ address, size = ICON_SIZE.medium, style }: AddressIconProps) {
+  const chain = useMemo(() => (isUAddress(address) ? asChain(address) : undefined), [address]);
+  const seed = useMemo(() => asAddress(address), [address]);
 
-  // if (name)
-  //   return <LabelIcon label={name} size={size} containerStyle={style} labelStyle={labelStyle} />;
-
-  // return <Jazzicon size={size} {...props} address={address} containerStyle={style} />;
-
-  return <Blockie seed={asAddress(address)} size={size} style={style} />;
+  return (
+    <View>
+      <Blockie seed={seed} size={size} style={style} />
+      {chain && <ChainIcon chain={chain} style={styles.chain(size)} />}
+    </View>
+  );
 }
 
-export const AddressIcon = withSuspense(AddressIcon_, ({ size = ICON_SIZE.medium }) => (
-  <CircleSkeleton size={size} />
-));
+const styles = createStyles({
+  chain: (size: number) => ({
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    marginTop: -size,
+    width: (size * 10) / 24,
+    height: (size * 10) / 24,
+  }),
+});
