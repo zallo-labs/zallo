@@ -71,9 +71,8 @@ export const TransactionActions = (props: ProposalActionsProps) => {
   const { styles } = useStyles(stylesheet);
   const p = useFragment(Transaction, props.proposal);
   const user = useFragment(User, props.user);
-  const approver = useApproverAddress();
-  const approve = useApprove({ proposal: p, user, approver });
-  const reject = useReject({ proposal: p, user, approver });
+  const approve = useApprove({ proposal: p, user });
+  const reject = useReject({ proposal: p, user });
   const execute = useMutation(Execute)[1];
   const confirmExecute = useConfirm({
     title: 'Force execute?',

@@ -62,16 +62,23 @@ const Reject = gql(/* GraphQL */ `
 export interface UseRejectParams {
   user: FragmentType<typeof User>;
   proposal: FragmentType<typeof Proposal>;
-  approver: Address;
+  approver?: Address;
 }
 
-export function useReject({ approver, ...params }: UseRejectParams) {
+export function useReject(params: UseRejectParams) {
   const user = useFragment(User, params.user);
   const p = useFragment(Proposal, params.proposal);
   const rejectMutation = useMutation(Reject)[1];
-  const device = useApproverAddress();
   const getAppleApprover = useGetAppleApprover();
   const getGoogleApprover = useGetGoogleApprover();
+  const device = useApproverAddress();
+  const approver = params.approver ?? device;
+
+  const userApprover = user.approvers.find((a) => a.address === approver);
+  const canReject =
+    p.updatable && !!userApprover && !!p.potentialRejectors.find((a) => a.id === userApprover.id);
+
+  if (!p.updatable || !canReject) return undefined;
 
   const reject = async (
     method: RejectionProperties['method'],
@@ -83,12 +90,6 @@ export function useReject({ approver, ...params }: UseRejectParams) {
     const type = p.__typename === 'TransactionProposal' ? 'Transaction' : 'Message';
     ampli.rejection({ method, type });
   };
-
-  const userApprover = user.approvers.find((a) => a.address === approver);
-  const canReject =
-    p.updatable && !!userApprover && !!p.potentialRejectors.find((a) => a.id === userApprover.id);
-
-  if (!p.updatable || !canReject) return undefined;
 
   if (approver === device) {
     return async () => {

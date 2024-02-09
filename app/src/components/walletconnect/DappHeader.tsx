@@ -1,21 +1,31 @@
 import { Image } from 'expo-image';
 import { View } from 'react-native';
 import { Text } from 'react-native-paper';
-import { SignClientTypes } from '@walletconnect/types';
+import { CoreTypes } from '@walletconnect/types';
 import { createStyles, useStyles } from '@theme/styles';
 import { Link } from 'expo-router';
 import { DappVerification } from './DappVerification';
+import { FragmentType, gql, useFragment as getFragment } from '@api';
+
+const DappMetadata = gql(/* GraphQL */ `
+  fragment DappHeader_DappMetadata on DappMetadata {
+    __typename
+    name
+    url
+    icons
+  }
+`);
 
 export interface DappHeaderProps {
-  dapp: SignClientTypes.Metadata | undefined;
+  dapp: CoreTypes.Metadata | FragmentType<typeof DappMetadata> | undefined;
   action?: string;
   request?: number;
 }
 
-export function DappHeader({ dapp, action, request }: DappHeaderProps) {
+export function DappHeader({ action, request, ...props }: DappHeaderProps) {
   const { styles } = useStyles(stylesheet);
-
-  const url = asUrl(dapp?.url);
+  const dapp =
+    props.dapp && isFragment(props.dapp) ? getFragment(DappMetadata, props.dapp) : props.dapp;
 
   return (
     <View style={styles.container}>
@@ -26,10 +36,10 @@ export function DappHeader({ dapp, action, request }: DappHeaderProps) {
         {action}
       </Text>
 
-      {url && (
-        <Link href={url.href as `${string}:${string}`} asChild>
+      {dapp?.url && (
+        <Link href={dapp.url as `${string}:${string}`} asChild>
           <Text variant="titleMedium" style={styles.url}>
-            {url.hostname}
+            {new URL(dapp.url).hostname}
           </Text>
         </Link>
       )}
@@ -62,8 +72,8 @@ const stylesheet = createStyles(({ colors, corner }) => ({
   },
 }));
 
-function asUrl(url?: string) {
-  if (!url) return undefined;
-
-  return new URL(url.startsWith('http') ? url : `https://${url}`);
+function isFragment(
+  d: CoreTypes.Metadata | FragmentType<typeof DappMetadata>,
+): d is FragmentType<typeof DappMetadata> {
+  return '__typename' in d;
 }

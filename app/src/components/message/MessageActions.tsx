@@ -1,5 +1,4 @@
 import { FragmentType, gql, useFragment } from '@api/generated';
-import { useApproverAddress } from '~/lib/network/useApprover';
 import { Actions } from '#/layout/Actions';
 import { useApprove } from '~/hooks/useApprove';
 import { useReject } from '~/hooks/useReject';
@@ -31,15 +30,14 @@ export interface MessageActionsProps {
 export function MessageActions(props: MessageActionsProps) {
   const p = useFragment(MessageProposal, props.proposal);
   const user = useFragment(User, props.user);
-  const approver = useApproverAddress();
-  const approve = useApprove({ proposal: p, user, approver });
-  const reject = useReject({ proposal: p, user, approver });
+  const approve = useApprove({ proposal: p, user });
+  const reject = useReject({ proposal: p, user });
 
   return (
     <Actions>
       {reject && <Button onPress={reject}>Reject</Button>}
 
-      {!props.approvalsSheet.open && (
+      {!props.approvalsSheet.visible && (
         <Button mode="contained-tonal" icon="menu-open" onPress={props.approvalsSheet.open}>
           View approvals
         </Button>

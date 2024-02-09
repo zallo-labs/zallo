@@ -19,7 +19,7 @@ import { normalizeSigningRequest, isSignatureRequest } from '~/lib/wc/methods/si
 import { isTransactionRequest } from '~/lib/wc/methods/transaction';
 import { useVerifyDapp } from '../DappVerification';
 import { ApprovedProposal } from './useProposalsListener';
-import { asUrl } from '~/lib/wc/uri';
+import { asDapp } from '~/lib/wc/uri';
 
 const ProposeMessage = gql(/* GraphQL */ `
   mutation UseSessionRequestListener_ProposeMessage($input: ProposeMessageInput!) {
@@ -45,15 +45,16 @@ export const useSessionRequestListener = ({ proposals }: UseSessionRequestListen
 
   useEffect(() => {
     const handleRequest = async ({ id, topic, params, verifyContext }: SessionRequestArgs) => {
-      const dapp = client.getActiveSessions()[topic].peer.metadata;
-      verify(id, verifyContext.verified);
-
       const chain = Object.values(CHAINS).find((c) => asCaip2(c) === params.chainId)?.key;
       if (!chain)
         return client.respondSessionRequest({
           topic,
           response: asWalletConnectError(id, 'UNSUPPORTED_CHAINS'),
         });
+
+      verify(id, verifyContext.verified);
+      const peer = client.getActiveSessions()[topic].peer.metadata;
+      const dapp = asDapp(peer);
 
       const request = params.request;
       if (isTransactionRequest(request)) {
@@ -69,6 +70,7 @@ export const useSessionRequestListener = ({ proposals }: UseSessionRequestListen
             },
           ],
           gas: tx.gasLimit ? BigInt(tx.gasLimit) : undefined,
+          dapp,
         });
         if (!proposal) return;
 
@@ -99,6 +101,7 @@ export const useSessionRequestListener = ({ proposals }: UseSessionRequestListen
               ...(r.method === 'personal-sign'
                 ? { message: r.message }
                 : { typedData: r.typedData }),
+              dapp,
             },
           })
         ).data?.proposeMessage;
@@ -110,8 +113,6 @@ export const useSessionRequestListener = ({ proposals }: UseSessionRequestListen
             topic,
             response: asWalletConnectResult(id, proposal.signature),
           });
-
-        showInfo(`${dapp.name} wants you to sign a message`);
 
         const sub = proposals.subscribe((p) => {
           if (p.id === proposal.id && p.__typename === 'MessageProposal' && p.signature) {

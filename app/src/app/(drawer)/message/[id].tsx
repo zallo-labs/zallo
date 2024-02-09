@@ -5,7 +5,7 @@ import { gql } from '@api/generated';
 import { NotFound } from '#/NotFound';
 import { useQuery } from '~/gql';
 import { AppbarMore } from '#/Appbar/AppbarMore';
-import { Menu } from 'react-native-paper';
+import { Divider, Menu } from 'react-native-paper';
 import { useMutation } from 'urql';
 import { useConfirmRemoval } from '~/hooks/useConfirm';
 import { useRouter } from 'expo-router';
@@ -13,16 +13,15 @@ import { AppbarOptions } from '#/Appbar/AppbarOptions';
 import { ScrollableScreenSurface } from '#/layout/ScrollableScreenSurface';
 import { MessageStatus } from '#/message/MessageStatus';
 import { StyleSheet, View } from 'react-native';
-import { MessageIcon } from '#/message/MessageIcon';
 import { DataView } from '#/DataView/DataView';
 import { MessageActions } from '#/message/MessageActions';
-import { asChain } from 'lib';
 import { SideSheetLayout } from '#/SideSheet/SideSheetLayout';
 import { SideSheet } from '#/SideSheet/SideSheet';
 import { useSideSheetVisibility } from '#/SideSheet/useSideSheetVisibility';
 import { ProposalApprovals } from '#/policy/ProposalApprovals';
 import { ListHeader } from '#/list/ListHeader';
-import { ListItem } from '#/list/ListItem';
+import { DappHeader } from '#/walletconnect/DappHeader';
+import { AccountSection } from '#/proposal/AccountSection';
 
 const Query = gql(/* GraphQL */ `
   query MessageScreen($proposal: UUID!) {
@@ -33,11 +32,13 @@ const Query = gql(/* GraphQL */ `
       typedData
       account {
         id
-        address
-        name
+        chain
+        ...AccountSection_Account
+      }
+      dapp {
+        ...DappHeader_DappMetadata
       }
       ...MessageStatus_MessageProposal
-      ...MessageIcon_MessageProposal
       ...MessageActions_MessageProposal
     }
 
@@ -68,12 +69,13 @@ export default function MessageScreen() {
   const query = useQuery(Query, { proposal: id });
   const p = query.data?.messageProposal;
 
-  if (!p) return query.stale ? null : <NotFound name="Proposal" />;
+  if (!p) return query.stale ? null : <NotFound name="Message" />;
 
   return (
     <SideSheetLayout>
       <AppbarOptions
-        headline={p.account.name}
+        headline={(props) => <MessageStatus proposal={p} {...props} />}
+        mode="large"
         trailing={(props) => (
           <AppbarMore iconProps={props}>
             {({ close }) => (
@@ -92,20 +94,15 @@ export default function MessageScreen() {
         )}
       />
 
-      <ScrollableScreenSurface>
-        <MessageStatus proposal={p} />
+      <ScrollableScreenSurface contentContainerStyle={styles.sheet}>
+        {p.dapp && <DappHeader dapp={p.dapp} action="wants you to sign" />}
 
-        <View>
-          <ListHeader>Overview</ListHeader>
-          <ListItem
-            leading={(props) => <MessageIcon proposal={p} {...props} />}
-            headline={p.label || 'Message'}
-          />
-        </View>
+        <AccountSection account={p.account} />
+        <Divider horizontalInset style={styles.divider} />
 
         <View style={styles.messageContainer}>
           <ListHeader>Message</ListHeader>
-          <DataView chain={asChain(p.account.address)} style={styles.messageData}>
+          <DataView chain={p.account.chain} style={styles.messageData}>
             {p.typedData ?? p.message}
           </DataView>
         </View>
@@ -121,6 +118,12 @@ export default function MessageScreen() {
 }
 
 const styles = StyleSheet.create({
+  sheet: {
+    paddingVertical: 8,
+  },
+  divider: {
+    marginVertical: 8,
+  },
   messageContainer: {
     gap: 8,
   },

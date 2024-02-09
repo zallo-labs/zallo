@@ -51,6 +51,7 @@ const Proposal = gql(/* GraphQL */ `
 const ApproveTransaction = gql(/* GraphQL */ `
   mutation UseApprove_ApproveTransaction($input: ApproveInput!) {
     approveTransaction(input: $input) {
+      __typename
       id
       approvals {
         id
@@ -65,6 +66,7 @@ const ApproveTransaction = gql(/* GraphQL */ `
 const ApproveMessage = gql(/* GraphQL */ `
   mutation UseApprove_ApproveMessage($input: ApproveInput!) {
     approveMessage(input: $input) {
+      __typename
       id
       approvals {
         id
@@ -79,10 +81,10 @@ const ApproveMessage = gql(/* GraphQL */ `
 export interface UseApproveParams {
   user: FragmentType<typeof User>;
   proposal: FragmentType<typeof Proposal>;
-  approver: Address;
+  approver?: Address;
 }
 
-export function useApprove({ approver, ...params }: UseApproveParams) {
+export function useApprove(params: UseApproveParams) {
   const user = useFragment(User, params.user);
   const p = useFragment(Proposal, params.proposal);
   const device = useApproverAddress();
@@ -92,6 +94,14 @@ export function useApprove({ approver, ...params }: UseApproveParams) {
   const approveMessage = useMutation(ApproveMessage)[1];
   const getGoogleApprover = useGetGoogleApprover();
   const getAppleApprover = useGetAppleApprover();
+  const deviceApprover = useApproverAddress();
+  const approver = params.approver ?? deviceApprover;
+
+  const userApprover = user.approvers.find((a) => a.address === approver);
+  const canApprove =
+    p.updatable && !!userApprover && !!p.potentialApprovers.find((a) => a.id === userApprover.id);
+
+  if (!userApprover || !p.updatable || !canApprove) return undefined;
 
   const approve = async (method: ApprovalProperties['method'], input: Omit<ApproveInput, 'id'>) => {
     hapticFeedback('neutral');
@@ -101,14 +111,13 @@ export function useApprove({ approver, ...params }: UseApproveParams) {
 
     const type = p.__typename === 'TransactionProposal' ? 'Transaction' : 'Message';
     ampli.approval({ method, type });
-    return r;
+
+    return r.data
+      ? 'approveTransaction' in r.data
+        ? r.data.approveTransaction
+        : r.data.approveMessage
+      : undefined;
   };
-
-  const userApprover = user.approvers.find((a) => a.address === approver);
-  const canApprove =
-    p.updatable && !!userApprover && !!p.potentialApprovers.find((a) => a.id === userApprover.id);
-
-  if (!userApprover || !p.updatable || !canApprove) return undefined;
 
   if (approver === device) {
     return async () => {
@@ -123,7 +132,7 @@ export function useApprove({ approver, ...params }: UseApproveParams) {
         )
         .exhaustive();
 
-      if (signature.isOk()) await approve('Device', { signature: signature.value });
+      if (signature.isOk()) return approve('Device', { signature: signature.value });
     };
   } else if (userApprover?.bluetoothDevices?.length) {
     return async () => {
@@ -136,7 +145,7 @@ export function useApprove({ approver, ...params }: UseApproveParams) {
         )
         .exhaustive();
 
-      if (signature) await approve('Ledger', { approver, signature });
+      if (signature) return approve('Ledger', { approver, signature });
     };
   } else if (userApprover.cloud) {
     return match(userApprover.cloud)
@@ -163,7 +172,7 @@ export function useApprove({ approver, ...params }: UseApproveParams) {
             )
             .exhaustive();
 
-          await approve('Apple', { approver: approver.address, signature });
+          return approve('Apple', { approver: approver.address, signature });
         };
       })
       .with({ provider: 'Google' }, ({ subject }) => {
@@ -189,7 +198,7 @@ export function useApprove({ approver, ...params }: UseApproveParams) {
             )
             .exhaustive();
 
-          await approve('Google', { approver: approver.address, signature });
+          return approve('Google', { approver: approver.address, signature });
         };
       })
       .exhaustive();
