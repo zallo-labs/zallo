@@ -148,8 +148,6 @@ export interface Proposal extends std.$Object {
   "account": Account;
   "proposedBy": Approver;
   "createdAt": Date;
-  "hash": string;
-  "iconUri"?: string | null;
   "label"?: string | null;
   "validFrom": Date;
   "approvals": Approval[];
@@ -158,6 +156,9 @@ export interface Proposal extends std.$Object {
   "policy"?: Policy | null;
   "potentialApprovers": Approver[];
   "potentialRejectors": Approver[];
+  "hash": string;
+  "dapp"?: {name: string, url: string, icons: string[]} | null;
+  "iconUri"?: string | null;
 }
 export interface MessageProposal extends Proposal {
   "message": string;

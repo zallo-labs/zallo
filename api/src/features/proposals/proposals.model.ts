@@ -1,4 +1,4 @@
-import { Field, InterfaceType, registerEnumType } from '@nestjs/graphql';
+import { Field, InterfaceType, ObjectType, registerEnumType } from '@nestjs/graphql';
 import { Account } from '../accounts/accounts.model';
 import { Policy } from '../policies/policies.model';
 import { Bytes32Field } from '~/apollo/scalars/Bytes.scalar';
@@ -6,6 +6,19 @@ import { Approver } from '../approvers/approvers.model';
 import { Node, NodeType } from '~/decorators/interface.decorator';
 import { makeUnionTypeResolver } from '../database/database.util';
 import { Risk } from './proposals.input';
+import { GraphQLURL } from 'graphql-scalars';
+
+@ObjectType()
+export class DappMetadata {
+  @Field(() => String)
+  name: string;
+
+  @Field(() => GraphQLURL)
+  url: URL;
+
+  @Field(() => [GraphQLURL])
+  icons: URL[];
+}
 
 @InterfaceType({ implements: () => Node, resolveType: makeUnionTypeResolver() })
 export class Proposal {
@@ -32,6 +45,9 @@ export class Proposal {
 
   @Field(() => Approver)
   proposedBy: Approver;
+
+  @Field(() => DappMetadata, { nullable: true })
+  dapp?: DappMetadata;
 
   @Field(() => [Approval])
   approvals: Approval[];

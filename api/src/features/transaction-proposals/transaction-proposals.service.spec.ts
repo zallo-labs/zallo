@@ -9,7 +9,7 @@ import {
   randomUAddress,
   randomUser,
 } from '~/util/test';
-import { randomDeploySalt, Hex, UAddress, ZERO_ADDR } from 'lib';
+import { randomDeploySalt, Hex, UAddress, ZERO_ADDR, asUUID } from 'lib';
 import { Network, NetworksService } from '../util/networks/networks.service';
 import { ProposeTransactionInput } from './transaction-proposals.input';
 import { DatabaseService } from '../database/database.service';
@@ -20,7 +20,7 @@ import {
 import e from '~/edgeql-js';
 import { selectAccount } from '../accounts/accounts.util';
 import { selectPolicy } from '../policies/policies.util';
-import { v1 as uuidv1 } from 'uuid';
+import { v4 as uuid } from 'uuid';
 import { BullModule, getFlowProducerToken, getQueueToken } from '@nestjs/bullmq';
 import { SimulationsQueue } from '~/features/simulations/simulations.worker';
 import { ExecutionsQueue } from '~/features/transaction-proposals/executions.worker';
@@ -85,7 +85,7 @@ describe(TransactionProposalsService.name, () => {
     ...params
   }: Partial<ProposeTransactionInput> = {}) => {
     // Create account with an active policy
-    const accountId = uuidv1();
+    const accountId = uuid();
     getUserCtx().accounts.push({ id: accountId, address: account });
 
     const inserted = await e
@@ -401,7 +401,7 @@ describe(TransactionProposalsService.name, () => {
 
     it("not remove if the policy doesn't exist", () =>
       asUser(user1, async () => {
-        expect(await service.delete(randomHash())).toEqual(null);
+        expect(await service.delete(asUUID(uuid()))).toEqual(null);
       }));
 
     it("not remove if the user isn't a member of the proposing account", async () => {

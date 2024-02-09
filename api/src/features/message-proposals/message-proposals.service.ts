@@ -39,7 +39,7 @@ export class MessageProposalsService {
     return this.db.query(
       e.select(e.MessageProposal, (p) => ({
         ...shape?.(p),
-        filter_single: isHex(id) ? { hash: id } : { id },
+        filter_single: { id },
       })),
     );
   }
@@ -50,6 +50,7 @@ export class MessageProposalsService {
     typedData,
     label,
     iconUri,
+    dapp,
     validFrom = new Date(),
     signature,
   }: ProposeMessageInput) {
@@ -69,7 +70,11 @@ export class MessageProposalsService {
 
     // upsert can't be used as exclusive hash constraint exists on parent type (Proposal)
     const proposal =
-      (await this.db.query(e.select(e.MessageProposal, () => ({ filter_single: { hash } })))) ??
+      (await this.db.query(
+        e.select(e.MessageProposal, () => ({
+          filter_single: { hash, account: selectAccount(account) },
+        })),
+      )) ??
       (await (async () => {
         const p = await this.db.query(
           e.insert(e.MessageProposal, {
@@ -79,6 +84,11 @@ export class MessageProposalsService {
             typedData,
             label,
             iconUri,
+            dapp: dapp && {
+              name: dapp.name,
+              url: dapp.url.href,
+              icons: dapp.icons.map((i) => i.href),
+            },
             validFrom,
           }),
         );

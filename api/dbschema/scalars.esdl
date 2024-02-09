@@ -52,4 +52,8 @@ module default {
   scalar type Amount extending decimal {
     constraint min_value(0.0n);
   }
+
+  scalar type Url extending str {
+    constraint regexp(r'^https?://');
+  }
 }

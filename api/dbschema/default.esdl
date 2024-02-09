@@ -36,11 +36,11 @@ module default {
   }
 
   abstract type Proposal {
-    required hash: Bytes32 { constraint exclusive; }
+    required hash: Bytes32;
     required account: Account;
     policy: Policy;
     label: Label;
-    iconUri: str;
+    iconUri: Url;
     required validFrom: datetime;
     required createdAt: datetime {
       readonly := true;
@@ -50,6 +50,7 @@ module default {
       readonly := true;
       default := (<Approver>(global current_approver).id);
     }
+    dapp: tuple<name: str, url: Url, icons: array<Url>>;
     multi link approvals := .<proposal[is Approval];
     multi link rejections := .<proposal[is Rejection];
     multi link potentialApprovers := (
@@ -63,6 +64,8 @@ module default {
       select Approver filter .id in ids
     );
     property riskLabel := assert_single((select .<proposal[is ProposalRiskLabel] filter .user = global current_user)).risk;
+
+    constraint exclusive on ((.hash, .account));
 
     access policy members_only
       allow all
@@ -150,6 +153,8 @@ module default {
       ))
     );
     required property nonce := <bigint>math::floor(datetime_get(.validFrom, 'epochseconds'));
+
+    constraint exclusive on (.hash);
   }
 
   scalar type TransactionProposalStatus extending enum<'Pending', 'Executing', 'Successful', 'Failed'>;

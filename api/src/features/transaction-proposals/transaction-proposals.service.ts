@@ -52,7 +52,7 @@ export const selectTransactionProposal = (
 ) =>
   e.select(e.TransactionProposal, (p) => ({
     ...shape?.(p),
-    filter_single: isHex(id) ? { hash: id } : { id },
+    filter_single: { id },
   }));
 
 export const estimateFeesDeps = {
@@ -138,6 +138,7 @@ export class TransactionProposalsService {
     operations,
     label,
     iconUri,
+    dapp,
     validFrom = new Date(),
     gas,
     feeToken = ETH_ADDRESS,
@@ -168,6 +169,11 @@ export class TransactionProposalsService {
       account: selectAccount(account),
       label,
       iconUri,
+      dapp: dapp && {
+        name: dapp.name,
+        url: dapp.url.href,
+        icons: dapp.icons.map((i) => i.href),
+      },
       operations: e.set(
         ...operations.map((op) =>
           e.insert(e.Operation, {
@@ -293,7 +299,7 @@ export class TransactionProposalsService {
       // 1. Policies the proposal was going to create
       // Delete policies the proposal was going to activate
       const proposalPolicies = e.select(e.TransactionProposal, (p) => ({
-        filter_single: isHex(id) ? { hash: id } : { id },
+        filter_single: { id },
         beingCreated: e.select(p['<proposal[is PolicyState]'], (ps) => ({
           filter: e.op(e.count(ps.policy.stateHistory), '=', 1),
           policy: () => ({ id: true }),

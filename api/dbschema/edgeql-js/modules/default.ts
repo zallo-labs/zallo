@@ -65,6 +65,9 @@ const TransferDirection: $TransferDirection = $.makeType<$TransferDirection>(_.s
 export type $UAddress = $.ScalarType<"std::str", string>;
 const UAddress: $.scalarTypeWithConstructor<_std.$str, never> = $.makeType<$.scalarTypeWithConstructor<_std.$str, never>>(_.spec, "6055ec33-9eb1-11ee-b040-6512afc4d633", _.syntax.literal);
 
+export type $Url = $.ScalarType<"std::str", string>;
+const Url: $.scalarTypeWithConstructor<_std.$str, never> = $.makeType<$.scalarTypeWithConstructor<_std.$str, never>>(_.spec, "d5027c44-c661-11ee-8085-211a59ea5371", _.syntax.literal);
+
 export type $current_accounts_set = $.ScalarType<"std::uuid", string>;
 const current_accounts_set: $.scalarTypeWithConstructor<_std.$uuid, never> = $.makeType<$.scalarTypeWithConstructor<_std.$uuid, never>>(_.spec, "6055c7ea-9eb1-11ee-81f8-83dd695319ad", _.syntax.literal);
 
@@ -314,8 +317,6 @@ export type $ProposalλShape = $.typeutil.flatten<_std.$Object_8ce8c71ee4fa5f738
   "account": $.LinkDesc<$Account, $.Cardinality.One, {}, false, false,  false, false>;
   "proposedBy": $.LinkDesc<$Approver, $.Cardinality.One, {}, false, false,  true, true>;
   "createdAt": $.PropertyDesc<_std.$datetime, $.Cardinality.One, false, false, true, true>;
-  "hash": $.PropertyDesc<$Bytes32, $.Cardinality.One, true, false, false, false>;
-  "iconUri": $.PropertyDesc<_std.$str, $.Cardinality.AtMostOne, false, false, false, false>;
   "label": $.PropertyDesc<$Label, $.Cardinality.AtMostOne, false, false, false, false>;
   "validFrom": $.PropertyDesc<_std.$datetime, $.Cardinality.One, false, false, false, false>;
   "approvals": $.LinkDesc<$Approval, $.Cardinality.Many, {}, false, true,  false, false>;
@@ -324,6 +325,9 @@ export type $ProposalλShape = $.typeutil.flatten<_std.$Object_8ce8c71ee4fa5f738
   "policy": $.LinkDesc<$Policy, $.Cardinality.AtMostOne, {}, false, false,  false, false>;
   "potentialApprovers": $.LinkDesc<$Approver, $.Cardinality.Many, {}, false, true,  false, false>;
   "potentialRejectors": $.LinkDesc<$Approver, $.Cardinality.Many, {}, false, true,  false, false>;
+  "hash": $.PropertyDesc<$Bytes32, $.Cardinality.One, false, false, false, false>;
+  "dapp": $.PropertyDesc<$.NamedTupleType<{name: _std.$str, url: $Url, icons: $.ArrayType<$Url>}>, $.Cardinality.AtMostOne, false, false, false, false>;
+  "iconUri": $.PropertyDesc<$Url, $.Cardinality.AtMostOne, false, false, false, false>;
   "<proposal[is ProposalResponse]": $.LinkDesc<$ProposalResponse, $.Cardinality.Many, {}, false, false,  false, false>;
   "<proposal[is Approval]": $.LinkDesc<$Approval, $.Cardinality.Many, {}, false, false,  false, false>;
   "<proposal[is Rejection]": $.LinkDesc<$Rejection, $.Cardinality.Many, {}, false, false,  false, false>;
@@ -335,7 +339,7 @@ export type $ProposalλShape = $.typeutil.flatten<_std.$Object_8ce8c71ee4fa5f738
 }>;
 type $Proposal = $.ObjectType<"default::Proposal", $ProposalλShape, null, [
   ..._std.$Object_8ce8c71ee4fa5f73840c22d7eaa58588['__exclusives__'],
-  {hash: {__element__: $Bytes32, __cardinality__: $.Cardinality.One | $.Cardinality.AtMostOne },},
+  {hash: {__element__: $Bytes32, __cardinality__: $.Cardinality.One | $.Cardinality.AtMostOne },account: {__element__: $Account, __cardinality__: $.Cardinality.One | $.Cardinality.AtMostOne },},
 ]>;
 const $Proposal = $.makeType<$Proposal>(_.spec, "611c412b-9eb1-11ee-a799-19af5ce2506a", _.syntax.literal);
 
@@ -841,7 +845,7 @@ const $default__globals: {  current_accounts: _.syntax.$expr_Global<
 
 
 
-export { AbiSource, Address, Amount, ApprovalIssue, Bytes, Bytes32, Bytes4, CloudProvider, Label, MAC, ProposalRisk, TransactionProposalStatus, TransferDirection, UAddress, current_accounts_set, uint16, uint224, uint256, uint32, uint64, $Account, Account, $Action, Action, $ActionFunction, ActionFunction, $ProposalResponse, ProposalResponse, $Approval, Approval, $Approver, Approver, $CloudShare, CloudShare, $Contact, Contact, $Contract, Contract, $Event, Event, $Function, Function, $Proposal, Proposal, $MessageProposal, MessageProposal, $Operation, Operation, $PaymasterFees, PaymasterFees, $Policy, Policy, $PolicyState, PolicyState, $ProposalRiskLabel, ProposalRiskLabel, $Receipt, Receipt, $Refund, Refund, $Rejection, Rejection, $Simulation, Simulation, $Token, Token, $Transaction, Transaction, $TransactionProposal, TransactionProposal, $TransferDetails, TransferDetails, $Transferlike, Transferlike, $Transfer, Transfer, $TransferApproval, TransferApproval, $TransferLimit, TransferLimit, $TransfersConfig, TransfersConfig, $User, User, $current_accounts, current_accounts, $current_approver, current_approver, $current_user, current_user };
+export { AbiSource, Address, Amount, ApprovalIssue, Bytes, Bytes32, Bytes4, CloudProvider, Label, MAC, ProposalRisk, TransactionProposalStatus, TransferDirection, UAddress, Url, current_accounts_set, uint16, uint224, uint256, uint32, uint64, $Account, Account, $Action, Action, $ActionFunction, ActionFunction, $ProposalResponse, ProposalResponse, $Approval, Approval, $Approver, Approver, $CloudShare, CloudShare, $Contact, Contact, $Contract, Contract, $Event, Event, $Function, Function, $Proposal, Proposal, $MessageProposal, MessageProposal, $Operation, Operation, $PaymasterFees, PaymasterFees, $Policy, Policy, $PolicyState, PolicyState, $ProposalRiskLabel, ProposalRiskLabel, $Receipt, Receipt, $Refund, Refund, $Rejection, Rejection, $Simulation, Simulation, $Token, Token, $Transaction, Transaction, $TransactionProposal, TransactionProposal, $TransferDetails, TransferDetails, $Transferlike, Transferlike, $Transfer, Transfer, $TransferApproval, TransferApproval, $TransferLimit, TransferLimit, $TransfersConfig, TransfersConfig, $User, User, $current_accounts, current_accounts, $current_approver, current_approver, $current_user, current_user };
 
 type __defaultExports = {
   "AbiSource": typeof AbiSource;
@@ -858,6 +862,7 @@ type __defaultExports = {
   "TransactionProposalStatus": typeof TransactionProposalStatus;
   "TransferDirection": typeof TransferDirection;
   "UAddress": typeof UAddress;
+  "Url": typeof Url;
   "current_accounts_set": typeof current_accounts_set;
   "uint16": typeof uint16;
   "uint224": typeof uint224;
@@ -918,6 +923,7 @@ const __defaultExports: __defaultExports = {
   "TransactionProposalStatus": TransactionProposalStatus,
   "TransferDirection": TransferDirection,
   "UAddress": UAddress,
+  "Url": Url,
   "current_accounts_set": current_accounts_set,
   "uint16": uint16,
   "uint224": uint224,

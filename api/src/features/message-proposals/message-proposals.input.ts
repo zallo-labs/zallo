@@ -4,6 +4,7 @@ import { TypedDataDefinition } from 'viem';
 import { UAddressField } from '~/apollo/scalars/UAddress.scalar';
 import { BytesScalar } from '~/apollo/scalars/Bytes.scalar';
 import { TypedDataField } from '~/apollo/scalars/TypedData.scalar';
+import { DappMetadataInput } from '../proposals/proposals.input';
 
 @InputType()
 export class ProposeMessageInput {
@@ -21,6 +22,9 @@ export class ProposeMessageInput {
 
   @Field(() => String, { nullable: true })
   iconUri?: string;
+
+  @Field(() => DappMetadataInput, { nullable: true })
+  dapp?: DappMetadataInput;
 
   @Field(() => Date, { nullable: true })
   validFrom?: Date;
