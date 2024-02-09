@@ -46,7 +46,9 @@ const stylesheet = createStyleSheet(({ corner }) => ({
   },
 }));
 
-export function useSideSheetType() {
+export type SideSheetType = 'standard' | 'modal';
+
+export function useSideSheetType(): SideSheetType {
   // return 'modal' as 'standard' | 'modal';
   return useWindowDimensions().width >= BREAKPOINTS.medium ? 'standard' : 'modal';
 }

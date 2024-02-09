@@ -5,7 +5,7 @@ import { useMutation } from 'urql';
 import { FormSubmitButton } from '#/fields/FormSubmitButton';
 import { Actions } from '#/layout/Actions';
 import { AccountNameFormField } from '#/fields/AccountNameFormField';
-import { SideSheet, SideSheetProps } from '../SideSheet/SideSheet';
+import { SideSheet } from '../SideSheet/SideSheet';
 
 const Account = gql(/* GraphQL */ `
   fragment AccountSettingsSideSheet_Account on Account {
@@ -29,7 +29,7 @@ interface Inputs {
   label: string;
 }
 
-export interface AccountSettingsSideSheetProps extends Pick<SideSheetProps, 'visible' | 'close'> {
+export interface AccountSettingsSideSheetProps {
   account: FragmentType<typeof Account>;
 }
 
@@ -42,7 +42,7 @@ export function AccountSettingsSideSheet(props: AccountSettingsSideSheetProps) {
   });
 
   return (
-    <SideSheet headline="Details" style={styles.sheet} {...props}>
+    <SideSheet headline="Details" style={styles.sheet}>
       <View style={styles.fields}>
         <AccountNameFormField name="label" control={control} required />
       </View>

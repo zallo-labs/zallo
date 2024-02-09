@@ -2,7 +2,6 @@ import { Actions } from '#/layout/Actions';
 import { ShareIcon } from '@theme/icons';
 import { FragmentType, gql, useFragment } from '@api/generated';
 import { useMutation } from 'urql';
-import { useApproverAddress } from '~/lib/network/useApprover';
 import { useApprove } from '~/hooks/useApprove';
 import { useReject } from '~/hooks/useReject';
 import { share } from '~/lib/share';
@@ -10,6 +9,7 @@ import { createStyles, useStyles } from '@theme/styles';
 import { CHAINS } from 'chains';
 import { useConfirm } from '~/hooks/useConfirm';
 import { Button } from '../Button';
+import { useSideSheet } from '#/SideSheet/SideSheetLayout';
 
 const Transaction = gql(/* GraphQL */ `
   fragment TransactionActions_TransactionProposal on TransactionProposal
@@ -61,10 +61,6 @@ const Execute = gql(/* GraphQL */ `
 export interface ProposalActionsProps {
   proposal: FragmentType<typeof Transaction>;
   user: FragmentType<typeof User>;
-  approvalsSheet: {
-    visible: boolean;
-    open: () => void;
-  };
 }
 
 export const TransactionActions = (props: ProposalActionsProps) => {
@@ -74,6 +70,7 @@ export const TransactionActions = (props: ProposalActionsProps) => {
   const approve = useApprove({ proposal: p, user });
   const reject = useReject({ proposal: p, user });
   const execute = useMutation(Execute)[1];
+  const sheet = useSideSheet();
   const confirmExecute = useConfirm({
     title: 'Force execute?',
     message: 'This transaction is expected to fail.\nAre you sure you want to execute it anyway?',
@@ -104,8 +101,8 @@ export const TransactionActions = (props: ProposalActionsProps) => {
 
       {reject && <Button onPress={reject}>Reject</Button>}
 
-      {!props.approvalsSheet.open && (
-        <Button mode="contained-tonal" icon="menu-open" onPress={props.approvalsSheet.open}>
+      {!sheet.show && (
+        <Button mode="contained-tonal" icon="menu-open" onPress={() => sheet.show(true)}>
           View approvals
         </Button>
       )}

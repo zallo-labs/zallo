@@ -17,7 +17,6 @@ import { DataView } from '#/DataView/DataView';
 import { MessageActions } from '#/message/MessageActions';
 import { SideSheetLayout } from '#/SideSheet/SideSheetLayout';
 import { SideSheet } from '#/SideSheet/SideSheet';
-import { useSideSheetVisibility } from '#/SideSheet/useSideSheetVisibility';
 import { ProposalApprovals } from '#/policy/ProposalApprovals';
 import { ListHeader } from '#/list/ListHeader';
 import { DappHeader } from '#/walletconnect/DappHeader';
@@ -64,8 +63,6 @@ export default function MessageScreen() {
   const confirmRemoval = useConfirmRemoval({
     message: 'Are you sure you want to remove this proposal?',
   });
-  const sideSheet = useSideSheetVisibility();
-
   const query = useQuery(Query, { proposal: id });
   const p = query.data?.messageProposal;
 
@@ -107,10 +104,10 @@ export default function MessageScreen() {
           </DataView>
         </View>
 
-        <MessageActions proposal={p} user={query.data.user} approvalsSheet={sideSheet} />
+        <MessageActions proposal={p} user={query.data.user} />
       </ScrollableScreenSurface>
 
-      <SideSheet headline="Approvals" {...sideSheet}>
+      <SideSheet headline="Approvals">
         <ProposalApprovals proposal={id} />
       </SideSheet>
     </SideSheetLayout>
