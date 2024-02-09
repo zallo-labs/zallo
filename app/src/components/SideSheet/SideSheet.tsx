@@ -1,9 +1,10 @@
 import { createStyleSheet, useStyles } from 'react-native-unistyles';
-import { ReactNode } from 'react';
+import { ReactNode, useEffect } from 'react';
 import { ScrollView, StyleProp, View, ViewStyle } from 'react-native';
 import { SideSheetSurface, useSideSheetType } from './SideSheetSurface';
 import { Text } from 'react-native-paper';
 import { CloseIcon } from '@theme/icons';
+import { usePrevious } from '~/hooks/usePrevious';
 
 export interface SideSheetProps {
   children: ReactNode;
@@ -14,9 +15,15 @@ export interface SideSheetProps {
 }
 
 export function SideSheet({ children, headline, visible, close, style }: SideSheetProps) {
-  const { styles } = useStyles(stylesheet, { type: useSideSheetType() });
+  const type = useSideSheetType();
+  const { styles } = useStyles(stylesheet, { type });
 
-  if (!visible) return null;
+  const shouldClose = usePrevious(type) === 'standard' && type === 'modal';
+  useEffect(() => {
+    if (shouldClose) close();
+  }, [close, shouldClose]);
+
+  if (!visible || shouldClose) return null;
 
   return (
     <SideSheetSurface close={close}>

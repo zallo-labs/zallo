@@ -1,7 +1,7 @@
 import { createStyleSheet, useStyles } from 'react-native-unistyles';
 import { ScreenSurface } from '../layout/ScreenSurface';
 import { ReactNode } from 'react';
-import { StyleProp, ViewStyle } from 'react-native';
+import { StyleProp, ViewStyle, useWindowDimensions } from 'react-native';
 import { Surface } from 'react-native-paper';
 import { SlideInRight, SlideOutRight } from 'react-native-reanimated';
 import { BREAKPOINTS } from '@theme/styles';
@@ -48,5 +48,5 @@ const stylesheet = createStyleSheet(({ corner }) => ({
 
 export function useSideSheetType() {
   // return 'modal' as 'standard' | 'modal';
-  return BREAKPOINTS[useStyles().breakpoint] >= BREAKPOINTS.medium ? 'standard' : 'modal';
+  return useWindowDimensions().width >= BREAKPOINTS.medium ? 'standard' : 'modal';
 }
