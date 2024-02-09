@@ -1,11 +1,9 @@
 import { FragmentType, gql, useFragment } from '@api';
-import { CancelIcon, DoubleCheckIcon, materialCommunityIcon } from '@theme/icons';
 import { createStyles, useStyles } from '@theme/styles';
+import { TextProps } from '@theme/types';
 import { View } from 'react-native';
 import { ActivityIndicator, Text } from 'react-native-paper';
 import { match } from 'ts-pattern';
-
-const ApprovalIcon = materialCommunityIcon('security');
 
 const TransactionProposal = gql(/* GraphQL */ `
   fragment TransactionStatus_TransactionProposal on TransactionProposal {
@@ -14,7 +12,7 @@ const TransactionProposal = gql(/* GraphQL */ `
   }
 `);
 
-export interface TransactionStatusProps {
+export interface TransactionStatusProps extends Omit<TextProps, 'children'> {
   proposal: FragmentType<typeof TransactionProposal>;
 }
 
@@ -26,36 +24,27 @@ export function TransactionStatus(props: TransactionStatusProps) {
     <View style={styles.container}>
       {match(p.status)
         .with('Pending', () => (
-          <>
-            <ApprovalIcon style={styles.text} size={styles.icon.width} />
-            <Text variant="headlineSmall" style={styles.text}>
-              Awaiting approval
-            </Text>
-          </>
+          <Text {...props} style={[props.style, styles.pending]}>
+            Pending approval
+          </Text>
         ))
         .with('Executing', () => (
           <>
-            <ActivityIndicator size="small" color={styles.text.color} />
-            <Text variant="headlineSmall" style={styles.text}>
+            <ActivityIndicator size="small" color={styles.executing.color} />
+            <Text {...props} style={[props.style, styles.executing]}>
               Executing
             </Text>
           </>
         ))
         .with('Successful', () => (
-          <>
-            <DoubleCheckIcon style={styles.text} size={styles.icon.width} />
-            <Text variant="headlineSmall" style={styles.text}>
-              Executed
-            </Text>
-          </>
+          <Text {...props} style={[props.style, styles.successful]}>
+            Executed
+          </Text>
         ))
         .with('Failed', () => (
-          <>
-            <CancelIcon style={styles.failed} size={styles.icon.width} />
-            <Text variant="headlineSmall" style={styles.failed}>
-              Failed
-            </Text>
-          </>
+          <Text {...props} style={[props.style, styles.failed]}>
+            Failed
+          </Text>
         ))
         .exhaustive()}
     </View>
@@ -65,18 +54,17 @@ export function TransactionStatus(props: TransactionStatusProps) {
 const stylesheet = createStyles(({ colors }) => ({
   container: {
     flexDirection: 'row',
-    justifyContent: 'center',
     alignItems: 'center',
     gap: 8,
-    marginHorizontal: 16,
-    marginTop: 16,
-    marginBottom: 8,
   },
-  icon: {
-    width: 24,
+  pending: {
+    color: colors.primary,
   },
-  text: {
+  executing: {
     color: colors.tertiary,
+  },
+  successful: {
+    color: colors.success,
   },
   failed: {
     color: colors.error,

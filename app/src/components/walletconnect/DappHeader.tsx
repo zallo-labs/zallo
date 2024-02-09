@@ -37,7 +37,7 @@ export function DappHeader({ action, request, ...props }: DappHeaderProps) {
       </Text>
 
       {dapp?.url && (
-        <Link href={dapp.url as `${string}:${string}`} asChild>
+        <Link href={dapp.url as `${string}:${string}`} asChild target="_blank">
           <Text variant="titleMedium" style={styles.url}>
             {new URL(dapp.url).hostname}
           </Text>

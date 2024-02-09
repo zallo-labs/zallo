@@ -20,8 +20,9 @@ import { TransactionActions } from '#/transaction/TransactionActions';
 import { TransfersSection } from '#/transaction/TransfersSection';
 import { SideSheetLayout } from '#/SideSheet/SideSheetLayout';
 import { SideSheet } from '#/SideSheet/SideSheet';
-import { useSideSheetVisibility } from '#/SideSheet/useSideSheetVisibility';
 import { ProposalApprovals } from '#/policy/ProposalApprovals';
+import { AccountSection } from '#/proposal/AccountSection';
+import { DappHeader } from '#/walletconnect/DappHeader';
 
 const TransactionProposal = gql(/* GraphQL */ `
   fragment TransactionScreen_TransactionProposal on TransactionProposal
@@ -34,7 +35,10 @@ const TransactionProposal = gql(/* GraphQL */ `
     account {
       id
       address
-      name
+      ...AccountSection_Account
+    }
+    dapp {
+      ...DappHeader_DappMetadata
     }
     ...TransactionStatus_TransactionProposal
     ...OperationsSection_TransactionProposal
@@ -78,7 +82,6 @@ const TransactionScreenParams = z.object({ id: zUuid() });
 export default function TransactionScreen() {
   const { styles } = useStyles(stylesheet);
   const { id } = useLocalParams(TransactionScreenParams);
-  const sideSheet = useSideSheetVisibility();
 
   // Extract account from TransactionProposal result, and use it as a variable to get the full result
   const [account, setAccount] = useState<UAddress>();
@@ -101,7 +104,7 @@ export default function TransactionScreen() {
   return (
     <SideSheetLayout>
       <AppbarOptions
-        headline={p.account.name}
+        headline={(props) => <TransactionStatus proposal={p} {...props} />}
         trailing={(props) => (
           <AppbarMore iconProps={props}>
             {({ close }) => <RemoveTransactionItem proposal={id} close={close} />}
@@ -110,7 +113,10 @@ export default function TransactionScreen() {
       />
 
       <ScrollableScreenSurface>
-        <TransactionStatus proposal={p} />
+        {p.dapp && <DappHeader dapp={p.dapp} action="wants you to execute" />}
+
+        <AccountSection account={p.account} />
+        <Divider horizontalInset style={styles.divider} />
 
         <OperationsSection proposal={p} />
         <Divider horizontalInset style={styles.divider} />
@@ -121,10 +127,10 @@ export default function TransactionScreen() {
 
         <FeesSection proposal={p} />
 
-        <TransactionActions proposal={p} user={query.data.user} approvalsSheet={sideSheet} />
+        <TransactionActions proposal={p} user={query.data.user} />
       </ScrollableScreenSurface>
 
-      <SideSheet headline="Approvals" {...sideSheet}>
+      <SideSheet headline="Approvals">
         <ProposalApprovals proposal={id} />
       </SideSheet>
     </SideSheetLayout>
