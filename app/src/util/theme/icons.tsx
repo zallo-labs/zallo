@@ -96,7 +96,6 @@ export const RejectedCircleIcon = materialCommunityIcon('close-circle');
 export const DoubleCheckIcon = materialCommunityIcon('check-all');
 export const DescriptionIcon = materialIcon('description');
 export const NameIcon = materialIcon('text-fields');
-export const ChainIcon = materialIcon('location-pin');
 export const ClockIcon = materialCommunityIcon('clock');
 export const ClockOutlineIcon = materialCommunityIcon('clock-outline');
 export const GasIcon = materialCommunityIcon('gas-station');
