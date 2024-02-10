@@ -1,7 +1,7 @@
 import { UserInputError } from '@nestjs/apollo';
 import { Injectable } from '@nestjs/common';
 import e from '~/edgeql-js';
-import { Hex, UAddress, asApproval, asHex, asUAddress, UUID, asUUID } from 'lib';
+import { UAddress, asApproval, asHex, asUAddress, UUID, asUUID } from 'lib';
 import { getUserCtx } from '~/request/ctx';
 import { ShapeFunc } from '../database/database.select';
 import { DatabaseService } from '../database/database.service';

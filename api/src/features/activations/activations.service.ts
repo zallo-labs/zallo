@@ -91,10 +91,17 @@ export class ActivationsService {
     if (!params) return null;
 
     const network = this.networks.get(address);
-    return network.estimateContractGas({
-      account: asAddress(network.walletAddress),
-      ...deployAccountProxyRequest(params),
-    });
+    try {
+      return await network.estimateContractGas({
+        account: asAddress(network.walletAddress),
+        ...deployAccountProxyRequest(params),
+      });
+    } catch (e) {
+      const isDeployed = !!(await network.getBytecode({ address: asAddress(address) }))?.length;
+      if (isDeployed) return 0n;
+
+      throw e;
+    }
   }
 
   async params(address: UAddress) {
