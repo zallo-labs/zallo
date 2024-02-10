@@ -46,8 +46,6 @@ export function SelectChip<T>({
           onClose={() => {}}
           {...chipProps}
           onPress={toggle}
-          style={[styles.chip, chipProps?.style]}
-          textStyle={[styles.chipText, chipProps?.textStyle]}
         >
           {entry?.title ?? 'Select...'}
         </Chip>
@@ -71,12 +69,6 @@ export function SelectChip<T>({
 }
 
 const stylesheet = createStyles(({ colors }) => ({
-  chip: {
-    backgroundColor: colors.secondaryContainer,
-  },
-  chipText: {
-    color: colors.onSecondaryContainer,
-  },
   selected: {
     color: colors.primary,
   },

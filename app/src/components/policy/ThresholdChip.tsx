@@ -8,18 +8,21 @@ import { POLICY_DRAFT_ATOM } from '~/lib/policy/draft';
 import { createStyles, useStyles } from '@theme/styles';
 import { useMemoApply } from '~/hooks/useMemoized';
 
-const getLabel = (threshold: number) =>
-  match(threshold)
-    .with(0, () => 'No approvals required')
-    .with(1, () => '1 approval required')
-    .otherwise((n) => `${n} approvals required`);
-
 export function ThresholdChip() {
   const [{ threshold, approvers }, updateDraft] = useImmerAtom(POLICY_DRAFT_ATOM);
   const { styles } = useStyles(useMemoApply(getStylesheet, { threshold }));
 
   const validThresholds = _.range(Math.min(approvers.size, 1), approvers.size + 1);
-  const entries = validThresholds.map((n) => [getLabel(n), n] as const);
+  const entries = validThresholds.map(
+    (n) =>
+      ({
+        title: match(n)
+          .with(0, () => 'No approvals required')
+          .with(1, () => '1 approval required')
+          .otherwise((n) => `${n} approvals required`),
+        value: n,
+      }) as const,
+  );
 
   useEffect(() => {
     if (!validThresholds.includes(threshold)) {

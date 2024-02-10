@@ -1,7 +1,7 @@
 import QRCode from 'react-native-qrcode-svg';
 import { Address, UAddress, asAddress, asChain, isUAddress } from 'lib';
 import { IconButton, Surface, Text } from 'react-native-paper';
-import { CloseIcon, DownArrowIcon, ShareIcon } from '@theme/icons';
+import { CloseIcon, DownArrowIcon, ShareIcon, materialCommunityIcon } from '@theme/icons';
 import { Actions } from '#/layout/Actions';
 import { ScaledSize, View, useWindowDimensions } from 'react-native';
 import { AddressLabel } from '#/address/AddressLabel';
@@ -14,6 +14,9 @@ import { EdgeInsets, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ReactNode, useState } from 'react';
 import { SelectChip } from './fields/SelectChip';
 import { CHAINS } from 'chains';
+import { ChainIcon } from './Identicon/ChainIcon';
+
+const UniqueAddressIcon = materialCommunityIcon('web');
 
 export interface QrModalProps {
   address: Address | UAddress;
@@ -25,6 +28,7 @@ export function QrModal({ address, actions }: QrModalProps) {
 
   const [mode, setMode] = useState<'address' | 'uaddress'>('address');
   const displayed = mode === 'address' ? asAddress(address) : address;
+  const chain = isUAddress(address) && asChain(address);
 
   return (
     <Blur>
@@ -42,13 +46,21 @@ export function QrModal({ address, actions }: QrModalProps) {
         </View>
 
         <View style={styles.contentContainer}>
-          {isUAddress(address) && (
+          {chain && (
             <View style={styles.modeContainer}>
               <View style={styles.modeSelectorContainer}>
                 <SelectChip
                   entries={[
-                    [`${CHAINS[asChain(address)].name} address`, 'address' as const],
-                    ['Unique address', 'uaddress' as const],
+                    {
+                      icon: (props) => <ChainIcon chain={chain} {...props} />,
+                      title: `${CHAINS[chain].name} address`,
+                      value: 'address' as const,
+                    },
+                    {
+                      icon: UniqueAddressIcon,
+                      title: 'Unique address',
+                      value: 'uaddress' as const,
+                    },
                   ]}
                   value={mode}
                   chipProps={{ elevated: true, closeIcon: DownArrowIcon }}
