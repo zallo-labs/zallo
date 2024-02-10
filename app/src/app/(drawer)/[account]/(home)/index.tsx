@@ -6,6 +6,7 @@ import { withSuspense } from '#/skeleton/withSuspense';
 import { TabScreenSkeleton } from '#/tab/TabScreenSkeleton';
 import { StyleSheet } from 'react-native';
 import { asChain } from 'lib';
+import { useMemo } from 'react';
 import { gql } from '@api/generated';
 import { useQuery, usePollQuery } from '~/gql';
 import { AccountParams } from '~/app/(drawer)/[account]/(home)/_layout';
@@ -31,19 +32,19 @@ const TokensTabParams = AccountParams;
 
 function TokensTab() {
   const { account } = useLocalParams(TokensTabParams);
-  const { data, reexecute } = useQuery(
-    Query,
-    { account, chain: asChain(account) },
-    { requestPolicy: 'cache-and-network' },
-  );
-  usePollQuery(reexecute, 15000);
+  const { data, reexecute } = useQuery(Query, { account, chain: asChain(account) });
+  usePollQuery(reexecute, 30000);
 
-  const tokens = (data.tokens ?? [])
-    .map((t) => ({
-      ...t,
-      value: new Decimal(t.balance).mul(new Decimal(t.price?.usd ?? 0)),
-    }))
-    .sort((a, b) => b.value.comparedTo(a.value));
+  const tokens = useMemo(
+    () =>
+      (data.tokens ?? [])
+        .map((t) => ({
+          ...t,
+          value: new Decimal(t.balance).mul(new Decimal(t.price?.usd ?? 0)),
+        }))
+        .sort((a, b) => b.value.comparedTo(a.value)),
+    [data.tokens],
+  );
 
   return (
     <FlashList
@@ -57,7 +58,6 @@ function TokensTab() {
       }
       contentContainerStyle={styles.contentContainer}
       estimatedItemSize={ListItemHeight.DOUBLE_LINE}
-      getItemType={(item) => item.__typename}
       keyExtractor={(item) => item.id}
       showsVerticalScrollIndicator={false}
     />

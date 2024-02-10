@@ -7,6 +7,9 @@ import { ImageStyle, StyleProp } from 'react-native';
 import { CircleSkeleton } from '#/skeleton/CircleSkeleton';
 import { withSuspense } from '#/skeleton/withSuspense';
 import { useQuery } from '~/gql';
+import { memo } from 'react';
+import deepEqual from 'fast-deep-equal';
+import _ from 'lodash';
 
 export const ETH_ICON_URI =
   'https://cloudfront-us-east-1.images.arcpublishing.com/coindesk/ZJZZK5B2ZNF25LYQHMUTBTOMLU.png';
@@ -29,6 +32,15 @@ const Token = gql(/* GraphQL */ `
   }
 `);
 
+/**
+ * @summary Trims the token to only the fragment fields to avoid unnecessary re-renders\\n
+ * @see https://github.com/urql-graphql/urql/issues/1408
+ * @returns Token fields required by TokenIcon
+ */
+export function trimTokenIconTokenProp(token: any): any {
+  return _.pick(token, ['id', 'iconUri']);
+}
+
 export interface TokenIconProps extends Omit<ImageProps, 'source' | 'style'> {
   token: FragmentType<typeof Token> | UAddress | null | undefined;
   fallbackUri?: string;
@@ -37,7 +49,7 @@ export interface TokenIconProps extends Omit<ImageProps, 'source' | 'style'> {
 }
 
 function TokenIcon_({
-  token: tokenFragment,
+  token: fragOrAddr,
   fallbackUri,
   size,
   style,
@@ -47,13 +59,12 @@ function TokenIcon_({
 
   const query = useQuery(
     Query,
-    { token: isUAddress(tokenFragment) ? tokenFragment : 'zksync:0x' },
-    { pause: !isUAddress(tokenFragment) },
+    { token: isUAddress(fragOrAddr) ? fragOrAddr : 'zksync:0x' },
+    { pause: !isUAddress(fragOrAddr) },
   ).data;
 
   const iconUri =
-    getFragment(Token, !isUAddress(tokenFragment) ? tokenFragment : query?.token)?.iconUri ??
-    fallbackUri;
+    getFragment(Token, !isUAddress(fragOrAddr) ? fragOrAddr : query?.token)?.iconUri ?? fallbackUri;
 
   if (!iconUri)
     return <UnknownTokenIcon {...imageProps} size={size} style={[style, styles.icon(size)]} />;
@@ -62,7 +73,8 @@ function TokenIcon_({
     <Image
       {...imageProps}
       source={{ uri: iconUri }}
-      style={[style, styles.icon(size)].filter(Boolean)}
+      style={[style, styles.icon(size)]}
+      cachePolicy="memory-disk"
     />
   );
 }
@@ -75,4 +87,17 @@ const stylesheet = createStyles(({ iconSize }) => ({
   }),
 }));
 
-export const TokenIcon = withSuspense(TokenIcon_, ({ size }) => <CircleSkeleton size={size} />);
+// export const TokenIcon = TokenIcon_;
+export const TokenIcon = withSuspense(
+  memo(TokenIcon_, (prev, next) => deepEqual(normalizeProps(prev), normalizeProps(next))),
+  ({ size }) => <CircleSkeleton size={size} />,
+);
+
+function normalizeProps(props: any) {
+  if (typeof props.token !== 'object') return props;
+
+  return {
+    ...props,
+    token: trimTokenIconTokenProp(props.token),
+  };
+}
