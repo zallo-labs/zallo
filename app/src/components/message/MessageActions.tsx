@@ -1,9 +1,9 @@
 import { FragmentType, gql, useFragment } from '@api/generated';
-import { useApproverAddress } from '~/lib/network/useApprover';
 import { Actions } from '#/layout/Actions';
 import { useApprove } from '~/hooks/useApprove';
 import { useReject } from '~/hooks/useReject';
 import { Button } from '../Button';
+import { useSideSheet } from '#/SideSheet/SideSheetLayout';
 
 const MessageProposal = gql(/* GraphQL */ `
   fragment MessageActions_MessageProposal on MessageProposal {
@@ -22,25 +22,21 @@ const User = gql(/* GraphQL */ `
 export interface MessageActionsProps {
   proposal: FragmentType<typeof MessageProposal>;
   user: FragmentType<typeof User>;
-  approvalsSheet: {
-    visible: boolean;
-    open: () => void;
-  };
 }
 
 export function MessageActions(props: MessageActionsProps) {
   const p = useFragment(MessageProposal, props.proposal);
   const user = useFragment(User, props.user);
-  const approver = useApproverAddress();
-  const approve = useApprove({ proposal: p, user, approver });
-  const reject = useReject({ proposal: p, user, approver });
+  const approve = useApprove({ proposal: p, user });
+  const reject = useReject({ proposal: p, user });
+  const sheet = useSideSheet();
 
   return (
     <Actions>
       {reject && <Button onPress={reject}>Reject</Button>}
 
-      {!props.approvalsSheet.open && (
-        <Button mode="contained-tonal" icon="menu-open" onPress={props.approvalsSheet.open}>
+      {!sheet.visible && (
+        <Button mode="contained-tonal" icon="menu-open" onPress={() => sheet.show(true)}>
           View approvals
         </Button>
       )}

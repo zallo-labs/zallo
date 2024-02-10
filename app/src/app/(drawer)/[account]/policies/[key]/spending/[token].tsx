@@ -37,12 +37,12 @@ const DEFAULT_DURATION = Duration.fromObject({ day: 1 });
 const DEFAULT_LIMIT: TransferLimit = { amount: 0n, duration: DEFAULT_DURATION.as('seconds') };
 
 export const SPENDING_LIMIT_DURATIONS = [
-  ['Hour', Duration.fromObject({ hours: 1 })],
-  ['Day', DEFAULT_DURATION],
-  ['Week', Duration.fromObject({ weeks: 1 })],
-  ['Month (4 weeks)', Duration.fromObject({ weeks: 4 })],
-  ['Quarter (12 weeks)', Duration.fromObject({ weeks: 12 })],
-  ['Year (52 weeks)', Duration.fromObject({ days: 364 })],
+  { title: 'Hour', value: Duration.fromObject({ hours: 1 }) },
+  { title: 'Day', value: DEFAULT_DURATION },
+  { title: 'Week', value: Duration.fromObject({ weeks: 1 }) },
+  { title: 'Month (4 weeks)', value: Duration.fromObject({ weeks: 4 }) },
+  { title: 'Quarter (12 weeks)', value: Duration.fromObject({ weeks: 12 }) },
+  { title: 'Year (52 weeks)', value: Duration.fromObject({ days: 364 }) },
 ] as const;
 
 export const TokenLimitScreenParams = PolicyScreenParams.extend({ token: zAddress() });

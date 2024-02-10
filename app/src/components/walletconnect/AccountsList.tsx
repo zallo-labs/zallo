@@ -2,11 +2,10 @@ import { Updater } from 'use-immer';
 import { ListItem } from '../list/ListItem';
 import { Checkbox } from 'react-native-paper';
 import { StyleSheet, View } from 'react-native';
-import { UAddress, asChain } from 'lib';
+import { UAddress } from 'lib';
 import { FragmentType, gql, useFragment } from '@api/generated';
 import { AddressIcon } from '../Identicon/AddressIcon';
 import { ListHeader } from '../list/ListHeader';
-import { CHAINS } from 'chains';
 
 const Account = gql(/* GraphQL */ `
   fragment AccountsList_Account on Account {
@@ -60,7 +59,6 @@ export const AccountsList = ({ selected, updateSelected, ...props }: AccountsLis
           leading={(props) => <AddressIcon address={account.address} {...props} />}
           leadingSize="medium"
           headline={account.name}
-          supporting={CHAINS[asChain(account.address)].name}
           trailing={<Checkbox status={selected.has(account.address) ? 'checked' : 'unchecked'} />}
           onPress={() =>
             updateSelected((draft) => {

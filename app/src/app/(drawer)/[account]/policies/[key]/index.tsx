@@ -23,9 +23,8 @@ import { PolicySuggestions } from '#/policy/PolicySuggestions';
 import { createStyles } from '@theme/styles';
 import { Actions } from '#/layout/Actions';
 import { Button } from '#/Button';
-import { SideSheetLayout } from '#/SideSheet/SideSheetLayout';
+import { SideSheetLayout, useSideSheet } from '#/SideSheet/SideSheetLayout';
 import { PolicySideSheet } from '#/policy/PolicySideSheet';
-import { useSideSheetVisibility } from '#/SideSheet/useSideSheetVisibility';
 
 const Query = gql(/* GraphQL */ `
   query PolicyScreen($account: UAddress!, $key: PolicyKey!, $queryPolicy: Boolean!) {
@@ -107,7 +106,7 @@ function PolicyScreen() {
   const router = useRouter();
   const create = useMutation(Create)[1];
   const update = useMutation(Update)[1];
-  const sheet = useSideSheetVisibility();
+  const sheet = useSideSheet();
 
   const key = params.key === 'add' ? undefined : asPolicyKey(params.key);
 
@@ -136,7 +135,7 @@ function PolicyScreen() {
         view={view}
         setView={(view) => router.setParams({ ...params, key: `${params.key}`, view })}
         reset={isModified ? () => setDraft(init) : undefined}
-        openSettings={sheet.open}
+        openSettings={() => sheet.show(true)}
       />
 
       <ScrollableScreenSurface contentContainerStyle={styles.container}>
@@ -171,7 +170,7 @@ function PolicyScreen() {
         )}
       </ScrollableScreenSurface>
 
-      <PolicySideSheet account={account} policy={policy} {...sheet} />
+      <PolicySideSheet account={account} policy={policy} />
     </SideSheetLayout>
   );
 }

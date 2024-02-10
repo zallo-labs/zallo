@@ -3,7 +3,7 @@ import { zAddress, zChain, zUAddress } from '~/lib/zod';
 import { useLocalParams } from '~/hooks/useLocalParams';
 import { useRouter } from 'expo-router';
 import { Address, asAddress, asChain, asUAddress, tryAsUAddress } from 'lib';
-import { ChainIcon, RemoveIcon } from '@theme/icons';
+import { RemoveIcon } from '@theme/icons';
 import { useForm } from 'react-hook-form';
 import { StyleSheet } from 'react-native';
 import { View } from 'react-native';
@@ -27,7 +27,7 @@ import { Chain } from 'chains';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useSelectedChain } from '~/hooks/useSelectedAccount';
 import { FormSelectChip } from '#/fields/FormSelectChip';
-import { SUPPORTED_CHAINS } from '@network/chains';
+import { CHAIN_ENTRIES } from '@network/chains';
 
 const Contact = gql(/* GraphQL */ `
   fragment ContactScreen_Contact on Contact {
@@ -64,8 +64,6 @@ const schema = z.object({
   address: zAddress(),
   chain: zChain(),
 });
-
-const chainEntries = Object.values(SUPPORTED_CHAINS).map((c) => [c.name, c.key] as const);
 
 export interface ContactScreenProps {
   address?: Address;
@@ -159,12 +157,7 @@ function ContactScreen_(props: ContactScreenProps) {
           </View>
 
           <View style={[styles.fieldContainer, styles.networkFieldContainer]}>
-            <FormSelectChip
-              name="chain"
-              control={control}
-              entries={chainEntries}
-              chipProps={{ icon: ChainIcon }}
-            />
+            <FormSelectChip name="chain" control={control} entries={CHAIN_ENTRIES} />
           </View>
         </View>
 

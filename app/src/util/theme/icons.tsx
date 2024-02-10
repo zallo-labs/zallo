@@ -1,13 +1,13 @@
-import { Image, ImageProps, ImageSource } from 'expo-image';
+import { Image, ImageProps, ImageSource, ImageStyle } from 'expo-image';
 import { ComponentPropsWithoutRef, Ref, forwardRef } from 'react';
-import { ColorValue, TouchableOpacity, TouchableOpacityProps } from 'react-native';
+import { ColorValue, StyleProp, TouchableOpacity, TouchableOpacityProps, ViewStyle } from 'react-native';
 import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
 import { ICON_SIZE } from './paper';
 
 export interface IconProps {
   size?: number;
   color?: ColorValue;
-  // style?: StyleProp<ImageStyle | TextStyle>;
+  style?: StyleProp<ImageStyle>;
 }
 
 type NameProp<Props> = Props extends { name: infer Name } ? Name : never;
@@ -96,7 +96,6 @@ export const RejectedCircleIcon = materialCommunityIcon('close-circle');
 export const DoubleCheckIcon = materialCommunityIcon('check-all');
 export const DescriptionIcon = materialIcon('description');
 export const NameIcon = materialIcon('text-fields');
-export const ChainIcon = materialIcon('location-pin');
 export const ClockIcon = materialCommunityIcon('clock');
 export const ClockOutlineIcon = materialCommunityIcon('clock-outline');
 export const GasIcon = materialCommunityIcon('gas-station');

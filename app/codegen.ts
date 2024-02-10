@@ -16,6 +16,7 @@ const scalars = {
   Selector: 'lib#Selector',
   Uint256: 'bigint | string',
   UUID: 'lib#UUID',
+  URL: 'string',
   TypedData: 'viem#TypedDataDefinition',
   AbiFunction: 'abitype#AbiFunction',
 };

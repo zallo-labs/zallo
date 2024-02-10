@@ -18,7 +18,7 @@ module.exports = {
     'react-hooks/exhaustive-deps': [
       'error',
       {
-        additionalHooks: '(useMyCustomHook|useMyOtherCustomHook)',
+        additionalHooks: '(useDeepMemo|useMyOtherCustomHook)',
       },
     ],
     'react-native/split-platform-components': 'error',

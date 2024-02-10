@@ -5,7 +5,7 @@ import { Uint256Field } from '~/apollo/scalars/BigInt.scalar';
 import { BytesField, BytesScalar } from '~/apollo/scalars/Bytes.scalar';
 import { PolicyKeyField } from '~/apollo/scalars/PolicyKey.scalar';
 import { TransactionProposalStatus } from './transaction-proposals.model';
-import { UniqueProposalInput } from '../proposals/proposals.input';
+import { DappMetadataInput, UniqueProposalInput } from '../proposals/proposals.input';
 import { UAddressField, UAddressScalar } from '~/apollo/scalars/UAddress.scalar';
 
 @InputType()
@@ -42,6 +42,9 @@ export class ProposeTransactionInput {
 
   @Field(() => String, { nullable: true })
   iconUri?: string;
+
+  @Field(() => DappMetadataInput, { nullable: true })
+  dapp?: DappMetadataInput;
 
   @Field(() => Date, { nullable: true })
   validFrom?: Date;

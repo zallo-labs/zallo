@@ -1,4 +1,5 @@
 import { Field, InputType, registerEnumType } from '@nestjs/graphql';
+import { GraphQLURL } from 'graphql-scalars';
 import { Address, Hex, PolicyKey, UAddress, UUID } from 'lib';
 import { AddressField } from '~/apollo/scalars/Address.scalar';
 import { Bytes32Field, BytesField } from '~/apollo/scalars/Bytes.scalar';
@@ -83,4 +84,16 @@ export class ProposalSubscriptionInput {
 
   @Field(() => [ProposalEvent], { nullable: true, description: 'Defaults to all events' })
   events?: ProposalEvent[];
+}
+
+@InputType()
+export class DappMetadataInput {
+  @Field(() => String)
+  name: string;
+
+  @Field(() => GraphQLURL)
+  url: URL;
+
+  @Field(() => [GraphQLURL])
+  icons: URL[];
 }

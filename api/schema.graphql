@@ -214,6 +214,18 @@ interface CustomNode {
   id: ID!
 }
 
+type DappMetadata {
+  icons: [URL!]!
+  name: String!
+  url: URL!
+}
+
+input DappMetadataInput {
+  icons: [URL!]!
+  name: String!
+  url: URL!
+}
+
 """
 A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
 """
@@ -300,6 +312,7 @@ type MessageProposal implements Node & Proposal {
   account: Account!
   approvals: [Approval!]!
   createdAt: DateTime!
+  dapp: DappMetadata
   hash: Bytes32!
   iconUri: String
   id: UUID!
@@ -429,6 +442,7 @@ interface Proposal implements Node {
   account: Account!
   approvals: [Approval!]!
   createdAt: DateTime!
+  dapp: DappMetadata
   hash: Bytes32!
   iconUri: String
   id: UUID!
@@ -476,6 +490,7 @@ input ProposalsInput {
 
 input ProposeMessageInput {
   account: UAddress!
+  dapp: DappMetadataInput
   iconUri: String
   label: String
 
@@ -490,6 +505,7 @@ input ProposeMessageInput {
 
 input ProposeTransactionInput {
   account: UAddress!
+  dapp: DappMetadataInput
   feeToken: Address
   gas: Uint256
   iconUri: String
@@ -698,6 +714,7 @@ type TransactionProposal implements Node & Proposal {
   account: Account!
   approvals: [Approval!]!
   createdAt: DateTime!
+  dapp: DappMetadata
   estimatedFees: EstimatedTransactionFees!
   feeToken: Token!
   gasLimit: BigInt!

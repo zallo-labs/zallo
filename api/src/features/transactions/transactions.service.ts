@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { isPresent, Hex, getTransactionSatisfiability, isHex, asAddress } from 'lib';
+import { isPresent, Hex, getTransactionSatisfiability, asAddress } from 'lib';
 import { policyStateAsPolicy, policyStateShape } from '../policies/policies.util';
 import { DatabaseService } from '../database/database.service';
 import e from '~/edgeql-js';
@@ -26,7 +26,7 @@ export class TransactionsService {
   async satisfiablePolicies(id: UniqueProposal) {
     const proposal = await this.db.query(
       e.select(e.TransactionProposal, (p) => ({
-        filter_single: isHex(id) ? { hash: id } : { id },
+        filter_single: { id },
         ...proposalTxShape(p),
         approvals: {
           approver: { address: true },

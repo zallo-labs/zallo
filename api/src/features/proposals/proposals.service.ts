@@ -1,7 +1,7 @@
 import { UserInputError } from '@nestjs/apollo';
 import { Injectable } from '@nestjs/common';
 import e from '~/edgeql-js';
-import { Hex, UAddress, asApproval, asHex, asUAddress, isHex, UUID, asUUID } from 'lib';
+import { UAddress, asApproval, asHex, asUAddress, UUID, asUUID } from 'lib';
 import { getUserCtx } from '~/request/ctx';
 import { ShapeFunc } from '../database/database.select';
 import { DatabaseService } from '../database/database.service';
@@ -17,12 +17,10 @@ import { PubsubService } from '~/features/util/pubsub/pubsub.service';
 import { and } from '../database/database.util';
 import { selectAccount } from '../accounts/accounts.util';
 
-export type UniqueProposal = UUID | Hex;
+export type UniqueProposal = UUID;
 
 export const selectProposal = (id: UniqueProposal) =>
-  e.select(e.Proposal, () => ({
-    filter_single: isHex(id) ? { hash: id } : { id: e.uuid(id) },
-  }));
+  e.select(e.Proposal, () => ({ filter_single: { id: e.uuid(id) } }));
 
 export interface ProposalSubscriptionPayload {
   id: UUID;
@@ -121,7 +119,7 @@ export class ProposalsService {
         .run(db);
     });
 
-    await this.publishProposal(hash, ProposalEvent.approval);
+    await this.publishProposal(id, ProposalEvent.approval);
   }
 
   async reject(id: UUID) {
@@ -166,7 +164,7 @@ export class ProposalsService {
   }
 
   async publishProposal(
-    proposal: Pick<ProposalSubscriptionPayload, 'id' | 'account'> | UniqueProposal,
+    proposal: Pick<ProposalSubscriptionPayload, 'id' | 'account'> | UUID,
     event: ProposalSubscriptionPayload['event'],
   ) {
     const { id, account } =
@@ -175,7 +173,7 @@ export class ProposalsService {
             const p = await this.db.query(
               e.assert_exists(
                 e.select(e.Proposal, () => ({
-                  filter_single: isHex(proposal) ? { hash: proposal } : { id: proposal },
+                  filter_single: { id: proposal },
                   id: true,
                   account: { address: true },
                 })),

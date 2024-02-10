@@ -1,6 +1,7 @@
 import { Address, Hex } from 'lib';
+import { SignClientTypes } from '@walletconnect/types';
 
-export interface WalletConnectSendTransactionData {
+export interface WcTransactionRequest {
   from: Address;
   to: Address;
   value?: number | string;
@@ -8,9 +9,9 @@ export interface WalletConnectSendTransactionData {
   gasLimit?: number | string;
 }
 
-export interface WalletConnectSendTransactionRequest {
+interface WcSendTransactionRequest {
   method: 'eth_sendTransaction';
-  params: [tx: WalletConnectSendTransactionData];
+  params: [tx: WcTransactionRequest];
 }
 
 const WC_TRANSACTION_METHODS_ARRAY = [
@@ -22,6 +23,12 @@ export const WC_TRANSACTION_METHODS = new Set(WC_TRANSACTION_METHODS_ARRAY);
 
 // Assert that WC_TRANSACTION_METHODS_ARRAY contains all WcTransactionRequest methods
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const allMethodsHandled: (typeof WC_TRANSACTION_METHODS_ARRAY)[number] extends WalletConnectSendTransactionRequest['method']
+const allMethodsHandled: (typeof WC_TRANSACTION_METHODS_ARRAY)[number] extends WcSendTransactionRequest['method']
   ? true
   : false = true;
+
+export function isTransactionRequest(
+  r: SignClientTypes.EventArguments['session_request']['params']['request'],
+): r is WcSendTransactionRequest {
+  return WC_TRANSACTION_METHODS.has(r.method);
+}

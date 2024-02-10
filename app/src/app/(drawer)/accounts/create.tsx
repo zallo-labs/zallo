@@ -18,8 +18,7 @@ import { usePolicyPresets } from '~/lib/policy/presets';
 import { asPolicyInput } from '~/lib/policy/draft';
 import { CHAINS, Chain } from 'chains';
 import { FormSelectChip } from '#/fields/FormSelectChip';
-import { SUPPORTED_CHAINS } from '@network/chains';
-import { ChainIcon } from '@theme/icons';
+import { CHAIN_ENTRIES } from '@network/chains';
 
 const Create = gql(/* GraphQL */ `
   mutation CreateAccountScreen_Create($input: CreateAccountInput!) {
@@ -34,8 +33,6 @@ interface Inputs {
   label: string;
   chain: Chain;
 }
-
-const chainEntries = Object.values(SUPPORTED_CHAINS).map((c) => [c.name, c.key] as const);
 
 export interface CreateAccountScreenProps {
   onCreate?: (account: UAddress) => void;
@@ -74,12 +71,7 @@ function CreateAccountScreen({ onCreate }: CreateAccountScreenProps) {
         </View>
 
         <View style={styles.chainContainer}>
-          <FormSelectChip
-            name="chain"
-            control={control}
-            entries={chainEntries}
-            chipProps={{ icon: ChainIcon }}
-          />
+          <FormSelectChip name="chain" control={control} entries={CHAIN_ENTRIES} />
 
           {CHAINS[chain].testnet && (
             <Text variant="titleSmall" style={styles.warning}>

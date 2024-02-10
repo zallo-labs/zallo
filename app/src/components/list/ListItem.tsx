@@ -46,7 +46,6 @@ export const ListItem = forwardRef<View, ListItemProps>(
       lines = (1 + Number(!!Overline) + Number(!!Supporting)) as Lines,
       selected,
       disabled,
-      avatarLeadingSize,
       containerStyle,
       textStyle,
       ...touchableProps
@@ -54,7 +53,7 @@ export const ListItem = forwardRef<View, ListItemProps>(
     ref,
   ) => {
     const { styles } = useStyles(
-      useMemoApply(getStylesheet, { lines, leadingSize, selected, disabled, avatarLeadingSize }),
+      useMemoApply(getStylesheet, { lines, leadingSize, selected, disabled }),
     );
 
     const OverlineText = ({ style, ...props }: TextProps) => (
@@ -158,7 +157,6 @@ interface StyleProps {
   lines: Lines;
   selected?: boolean;
   disabled?: boolean;
-  avatarLeadingSize?: boolean;
   leadingSize: 'small' | 'medium';
 }
 

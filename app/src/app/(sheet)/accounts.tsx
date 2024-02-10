@@ -48,22 +48,19 @@ export default function AccountsSheet() {
       >
         <ListHeader>Accounts</ListHeader>
 
-        {accounts.map((a) => {
-          const selected = a.address === selectedAddress;
-          return (
-            <AccountItem
-              key={a.id}
-              account={a}
-              trailing={selected ? CheckCircleIcon : SwitchIcon}
-              onPress={() =>
-                router.push({
-                  pathname: `/(drawer)/[account]/(home)/`,
-                  params: { account: a.address },
-                })
-              }
-            />
-          );
-        })}
+        {accounts.map((a) => (
+          <AccountItem
+            key={a.id}
+            account={a}
+            trailing={a.address === selectedAddress ? CheckCircleIcon : SwitchIcon}
+            onPress={() =>
+              router.push({
+                pathname: `/(drawer)/[account]/(home)/`,
+                params: { account: a.address },
+              })
+            }
+          />
+        ))}
 
         <ListItem
           leading={(props) => (

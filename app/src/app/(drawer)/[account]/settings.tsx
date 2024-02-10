@@ -18,8 +18,7 @@ import { Button } from '#/Button';
 import { match } from 'ts-pattern';
 import { useMutation } from 'urql';
 import { AccountParams } from '~/app/(drawer)/[account]/(home)/_layout';
-import { SideSheetLayout } from '#/SideSheet/SideSheetLayout';
-import { useSideSheetVisibility } from '#/SideSheet/useSideSheetVisibility';
+import { SideSheetLayout, useSideSheet } from '#/SideSheet/SideSheetLayout';
 import { AccountSettingsSideSheet } from '#/account/AccountSettingsSideSheet';
 
 const Query = gql(/* GraphQL */ `
@@ -63,7 +62,7 @@ function AccountSettingsScreen() {
   const params = useLocalParams(AccountSettingsScreenParams);
   const router = useRouter();
   const updateUser = useMutation(UpdateUser)[1];
-  const sheet = useSideSheetVisibility();
+  const sheet = useSideSheet();
 
   const query = useQuery(Query, { account: params.account });
   const { account, user } = query.data;
@@ -78,7 +77,7 @@ function AccountSettingsScreen() {
         leading="menu"
         headline={account.name}
         {...(!sheet.visible && {
-          trailing: (props) => <EditIcon {...props} onPress={sheet.open} />,
+          trailing: (props) => <EditIcon {...props} onPress={() => sheet.show(true)} />,
         })}
       />
 

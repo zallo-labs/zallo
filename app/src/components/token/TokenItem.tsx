@@ -6,10 +6,11 @@ import { withSuspense } from '../skeleton/withSuspense';
 import { TokenAmount } from './TokenAmount';
 import { Decimallike } from 'lib';
 import { FragmentType, gql, useFragment } from '@api/generated';
-import { TokenIcon } from './TokenIcon';
+import { TokenIcon, trimTokenIconTokenProp } from './TokenIcon';
 import { FC, memo } from 'react';
 import deepEqual from 'fast-deep-equal';
 import Decimal from 'decimal.js';
+import { useDeepCallback } from '~/hooks/useDeepMemo';
 
 const Token = gql(/* GraphQL */ `
   fragment TokenItem_Token on Token {
@@ -51,9 +52,15 @@ const TokenItem_ = memo(
         </Text>
       );
 
+    const t = trimTokenIconTokenProp(token); // Avoid re-rendering any time *any* field of the token changes
+    const Leading = useDeepCallback(
+      (props: ListIconElementProps) => <TokenIcon token={t} {...props} />,
+      [t],
+    );
+
     return (
       <ListItem
-        leading={(props) => <TokenIcon token={token} {...props} />}
+        leading={Leading}
         leadingSize="medium"
         headline={token.name}
         supporting={({ Text }) => (

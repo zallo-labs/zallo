@@ -33,10 +33,9 @@ import { z } from 'zod';
 import { zAddress, zChain, zUAddress } from '~/lib/zod';
 import { useLocalParams } from '~/hooks/useLocalParams';
 import { useSelectedChain } from '~/hooks/useSelectedAccount';
-import { SUPPORTED_CHAINS } from '@network/chains';
+import { CHAIN_ENTRIES } from '@network/chains';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { FormSelectChip } from '#/fields/FormSelectChip';
-import { ChainIcon } from '@theme/icons';
 
 const Query = gql(/* GraphQL */ `
   query TokenScreen($token: UAddress!) {
@@ -77,8 +76,6 @@ const RemoveToken = gql(/* GraphQL */ `
     removeToken(input: { address: $token })
   }
 `);
-
-const chainEntries = Object.values(SUPPORTED_CHAINS).map((c) => [c.name, c.key] as const);
 
 const scheme = z.object({
   address: zAddress(),
@@ -191,12 +188,7 @@ function SharedTokenScreen_(props: TokenScreenProps) {
           </Indented>
 
           <View style={styles.chainFieldContainer}>
-            <FormSelectChip
-              name="chain"
-              control={control}
-              entries={chainEntries}
-              chipProps={{ icon: ChainIcon }}
-            />
+            <FormSelectChip name="chain" control={control} entries={CHAIN_ENTRIES} />
           </View>
 
           <Indented>

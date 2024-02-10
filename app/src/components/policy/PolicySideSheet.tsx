@@ -8,7 +8,7 @@ import { FragmentType, gql, useFragment } from '@api/generated';
 import { useMutation } from 'urql';
 import { POLICY_DRAFT_ATOM } from '~/lib/policy/draft';
 import { showError } from '#/provider/SnackbarProvider';
-import { SideSheet, SideSheetProps } from '../SideSheet/SideSheet';
+import { SideSheet } from '../SideSheet/SideSheet';
 import { useConfirmRemoval } from '~/hooks/useConfirm';
 import { Button } from '../Button';
 import { createStyles, useStyles } from '@theme/styles';
@@ -71,7 +71,7 @@ interface Inputs {
   name: string;
 }
 
-export interface PolicySideSheetProps extends Pick<SideSheetProps, 'visible' | 'close'> {
+export interface PolicySideSheetProps {
   account: FragmentType<typeof Account>;
   policy?: FragmentType<typeof Policy> | null;
 }
@@ -98,7 +98,7 @@ export function PolicySideSheet(props: PolicySideSheetProps) {
   );
 
   return (
-    <SideSheet headline="Settings" style={styles.sheet} {...props}>
+    <SideSheet headline="Settings" style={styles.sheet}>
       <FormTextField
         label="Name"
         control={control}

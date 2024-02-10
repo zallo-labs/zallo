@@ -1,12 +1,18 @@
-import { DownArrowIcon } from '@theme/icons';
+import { DownArrowIcon, IconProps } from '@theme/icons';
 import { createStyles, useStyles } from '@theme/styles';
-import { useState } from 'react';
+import { FC, useState } from 'react';
 import { Chip, ChipProps, Menu, MenuProps } from 'react-native-paper';
+
+export interface SelectEntry<T> {
+  title: string;
+  value: T;
+  icon?: FC<IconProps & { value: T }>;
+}
 
 export interface SelectChipProps<T> {
   value: T;
   onChange: (value: T) => void;
-  entries: readonly (readonly [string, T])[];
+  entries: readonly SelectEntry<T>[];
   menuProps?: Partial<MenuProps>;
   chipProps?: Partial<Omit<ChipProps, 'children' | 'onPress'>>;
   equals?: (a: T, b: T) => boolean;
@@ -26,7 +32,8 @@ export function SelectChip<T>({
   const close = () => setVisible(false);
   const toggle = () => setVisible((v) => !v);
 
-  const label = entries.find((e) => equals(e[1], value))![0];
+  const entry = entries.find((e) => equals(e.value, value));
+  const EntryIcon = entry?.icon;
 
   return (
     <Menu
@@ -34,19 +41,18 @@ export function SelectChip<T>({
       onDismiss={close}
       anchor={
         <Chip
+          icon={EntryIcon && ((props) => <EntryIcon {...props} value={value} />)}
           closeIcon={DownArrowIcon}
           onClose={() => {}}
           {...chipProps}
           onPress={toggle}
-          style={[styles.chip, chipProps?.style]}
-          textStyle={[styles.chipText, chipProps?.textStyle]}
         >
-          {label}
+          {entry?.title ?? 'Select...'}
         </Chip>
       }
       {...menuProps}
     >
-      {entries.map(([title, value]) => (
+      {entries.map(({ title, value, icon: Icon }) => (
         <Menu.Item
           key={title}
           title={title}
@@ -54,7 +60,8 @@ export function SelectChip<T>({
             onChange(value);
             close();
           }}
-          titleStyle={title === label ? styles.selected : undefined}
+          titleStyle={title === entry?.title ? styles.selected : undefined}
+          leadingIcon={Icon && ((props) => <Icon {...props} value={value} />)}
         />
       ))}
     </Menu>
@@ -62,12 +69,6 @@ export function SelectChip<T>({
 }
 
 const stylesheet = createStyles(({ colors }) => ({
-  chip: {
-    backgroundColor: colors.secondaryContainer,
-  },
-  chipText: {
-    color: colors.onSecondaryContainer,
-  },
   selected: {
     color: colors.primary,
   },
