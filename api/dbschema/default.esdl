@@ -170,6 +170,7 @@ module default {
   }
 
   type MessageProposal extending Proposal {
+    required signedHash: Bytes32;
     required message: str;
     typedData: json;
     signature: Bytes;

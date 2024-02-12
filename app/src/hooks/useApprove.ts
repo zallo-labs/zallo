@@ -1,6 +1,6 @@
 import { FragmentType, gql, useFragment } from '@api';
 import { useApproverAddress } from '~/lib/network/useApprover';
-import { Address } from 'lib';
+import { Address, asMessageTypedData } from 'lib';
 import { match } from 'ts-pattern';
 import { useMutation } from 'urql';
 import { showError } from '#/provider/SnackbarProvider';
@@ -12,6 +12,8 @@ import type { ApproveInput } from '@api/generated/graphql';
 import { hapticFeedback } from '~/lib/haptic';
 import { useGetAppleApprover } from '#/cloud/useGetAppleApprover';
 import { useGetGoogleApprover } from '#/cloud/google/useGetGoogleApprover';
+import { TypedDataDefinition, hashMessage, hashTypedData } from 'viem';
+import { useMemo } from 'react';
 
 const User = gql(/* GraphQL */ `
   fragment UseApprove_User on User {
@@ -43,6 +45,10 @@ const Proposal = gql(/* GraphQL */ `
       updatable
       message
       typedData
+      account {
+        id
+        address
+      }
     }
     ...proposalAsTypedData_TransactionProposal
   }
@@ -101,6 +107,17 @@ export function useApprove(params: UseApproveParams) {
   const canApprove =
     p.updatable && !!userApprover && !!p.potentialApprovers.find((a) => a.id === userApprover.id);
 
+  const proposalData: TypedDataDefinition = useMemo(
+    () =>
+      p.__typename === 'TransactionProposal'
+        ? proposalAsTypedData(p)
+        : asMessageTypedData(
+            p.account.address,
+            p.typedData ? hashTypedData(p.typedData) : hashMessage(p.message),
+          ),
+    [p],
+  );
+
   if (!userApprover || !p.updatable || !canApprove) return undefined;
 
   const approve = async (method: ApprovalProperties['method'], input: Omit<ApproveInput, 'id'>) => {
@@ -121,29 +138,14 @@ export function useApprove(params: UseApproveParams) {
 
   if (approver === device) {
     return async () => {
-      const signature = await match(p)
-        .with({ __typename: 'TransactionProposal' }, (p) =>
-          signWithDevice.signTypedData(proposalAsTypedData(p)),
-        )
-        .with({ __typename: 'MessageProposal' }, (p) =>
-          p.typedData
-            ? signWithDevice.signTypedData(p.typedData)
-            : signWithDevice.signMessage({ message: p.message }),
-        )
-        .exhaustive();
+      const signature = await signWithDevice.signTypedData(proposalData);
 
       if (signature.isOk()) return approve('Device', { signature: signature.value });
     };
   } else if (userApprover?.bluetoothDevices?.length) {
     return async () => {
-      const { signTypedData, signMessage } = await getLedgerApprover({ device: approver });
-
-      const signature = await match(p)
-        .with({ __typename: 'TransactionProposal' }, (p) => signTypedData(proposalAsTypedData(p)))
-        .with({ __typename: 'MessageProposal' }, (p) =>
-          p.typedData ? signTypedData(p.typedData) : signMessage({ message: p.message }),
-        )
-        .exhaustive();
+      const { signTypedData } = await getLedgerApprover({ device: approver });
+      const signature = await signTypedData(proposalData);
 
       if (signature) return approve('Ledger', { approver, signature });
     };
@@ -160,17 +162,7 @@ export function useApprove(params: UseApproveParams) {
             });
 
           const { approver } = r.value;
-
-          const signature = await match(p)
-            .with({ __typename: 'TransactionProposal' }, (p) =>
-              approver.signTypedData(proposalAsTypedData(p)),
-            )
-            .with({ __typename: 'MessageProposal' }, (p) =>
-              p.typedData
-                ? approver.signTypedData(p.typedData)
-                : approver.signMessage({ message: p.message }),
-            )
-            .exhaustive();
+          const signature = await approver.signTypedData(proposalData);
 
           return approve('Apple', { approver: approver.address, signature });
         };
@@ -186,17 +178,7 @@ export function useApprove(params: UseApproveParams) {
             });
 
           const { approver } = r.value;
-
-          const signature = await match(p)
-            .with({ __typename: 'TransactionProposal' }, (p) =>
-              approver.signTypedData(proposalAsTypedData(p)),
-            )
-            .with({ __typename: 'MessageProposal' }, (p) =>
-              p.typedData
-                ? approver.signTypedData(p.typedData)
-                : approver.signMessage({ message: p.message }),
-            )
-            .exhaustive();
+          const signature = await approver.signTypedData(proposalData);
 
           return approve('Google', { approver: approver.address, signature });
         };

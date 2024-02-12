@@ -7,6 +7,9 @@ import { TypedDataDefinition } from 'viem';
 
 @ObjectType({ implements: () => [Proposal] })
 export class MessageProposal extends Proposal {
+  @Bytes32Field()
+  signedHash: Hex;
+
   @Field(() => String)
   message: string;
 

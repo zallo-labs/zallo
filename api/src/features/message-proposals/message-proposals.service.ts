@@ -2,7 +2,14 @@ import { Injectable } from '@nestjs/common';
 import { DatabaseService } from '../database/database.service';
 import { ProposeMessageInput } from './message-proposals.input';
 import { ApproveInput, ProposalEvent } from '../proposals/proposals.input';
-import { TypedDataDefinition, concat, hashMessage, hexToString, keccak256 } from 'viem';
+import {
+  TypedDataDefinition,
+  concat,
+  hashMessage,
+  hashTypedData,
+  hexToString,
+  keccak256,
+} from 'viem';
 import e from '~/edgeql-js';
 import { selectAccount } from '../accounts/accounts.util';
 import { ProposalsService, UniqueProposal } from '../proposals/proposals.service';
@@ -12,6 +19,7 @@ import {
   asAddress,
   asApproval,
   asHex,
+  asMessageTypedData,
   asUAddress,
   asUUID,
   encodeMessageSignature,
@@ -80,6 +88,7 @@ export class MessageProposalsService {
           e.insert(e.MessageProposal, {
             account: selectAccount(account),
             hash,
+            signedHash: hashTypedData(asMessageTypedData(account, hash)),
             message,
             typedData,
             label,

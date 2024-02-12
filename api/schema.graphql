@@ -325,6 +325,7 @@ type MessageProposal implements Node & Proposal {
   rejections: [Rejection!]!
   riskLabel: Risk
   signature: Bytes32
+  signedHash: Bytes32!
   typedData: TypedData
   updatable: Boolean!
   validFrom: DateTime!
