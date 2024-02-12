@@ -16,14 +16,14 @@ contract MockSignatureValidator is ISignatureValidator {
 
   function isValidSignature(
     bytes32 hash,
-    bytes memory signature
+    bytes calldata signature
   ) external view returns (bytes4 magicValue) {
     if (_isValidSignature(hash, signature)) magicValue = EIP1271_SUCCESS;
   }
 
   function _isValidSignature(
     bytes32 hash,
-    bytes memory signature
+    bytes calldata signature
   ) internal view returns (bool valid) {
     return _validSignature;
   }

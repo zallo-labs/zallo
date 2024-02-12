@@ -13,6 +13,7 @@ export * from './deploy';
 export * from './execute';
 export * from './gas';
 export * from './id';
+export * from './message';
 export * from './policy';
 export * from './safe-viem';
 export * from './satisfiability';
