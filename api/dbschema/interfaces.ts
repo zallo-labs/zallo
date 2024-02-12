@@ -164,6 +164,7 @@ export interface MessageProposal extends Proposal {
   "message": string;
   "signature"?: string | null;
   "typedData"?: unknown | null;
+  "signedHash": string;
 }
 export interface Operation extends std.$Object {
   "data"?: string | null;
