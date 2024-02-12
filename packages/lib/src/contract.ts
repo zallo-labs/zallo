@@ -11,8 +11,8 @@ export const TEST_VERIFIER_ABI = testVerifierArtifact.abi;
 export const ACCOUNT_IMPLEMENTATION = {
   ...accountArtifact,
   address: addresses({
-    'zksync-sepolia': '0x0BeDda5e7c06A4bd781b1F40c56a0755Cb358598',
-    'zksync-goerli': '0x0BeDda5e7c06A4bd781b1F40c56a0755Cb358598',
+    'zksync-sepolia': '0xC0E8F271fF669CB3b8b5888beFD3408d522B2c4A',
+    'zksync-goerli': '0xC0E8F271fF669CB3b8b5888beFD3408d522B2c4A',
   }),
 } as const;
 
