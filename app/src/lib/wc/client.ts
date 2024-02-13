@@ -2,7 +2,8 @@ import { Core } from '@walletconnect/core';
 import { Web3Wallet } from '@walletconnect/web3wallet';
 import { atom, useAtomValue, useSetAtom } from 'jotai';
 import { useCallback } from 'react';
-import { CONFIG, appLink } from '~/util/config';
+import { CONFIG } from '~/util/config';
+import { appLink } from '~/lib/appLink';
 
 const core = new Core({ projectId: CONFIG.walletConnectProjectId });
 
