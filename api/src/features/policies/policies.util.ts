@@ -50,6 +50,7 @@ export const policyStateShape = {
     defaultAllow: true,
     budget: true,
   },
+  allowMessages: true,
 } satisfies Shape<typeof e.PolicyState>;
 
 const s = e.select(e.PolicyState, () => policyStateShape);
@@ -106,6 +107,7 @@ export const policyStateAsPolicy = <S extends PolicyStateShape>(key: number, sta
             ...state.transfers,
             limits: state.transfers.limits.map((l) => ({ ...l, token: asAddress(l.token) })),
           }),
+          otherMessage: { allow: state.allowMessages },
         },
       })
     : null) as S extends null ? Policy | null : Policy;
@@ -125,6 +127,7 @@ export const policyInputAsStateShape = (
       },
     ],
     transfers: { limits: [], defaultAllow: false, budget: key },
+    allowMessages: false,
   },
 ): NonNullable<PolicyStateShape> => ({
   ...defaults,
@@ -140,6 +143,7 @@ export const policyInputAsStateShape = (
       budget: p.transfers.budget ?? key,
     },
   }),
+  allowMessages: p.allowMessages ?? defaults.allowMessages,
 });
 
 export const inputAsPolicy = (key: PolicyKey, p: PolicyInput) =>

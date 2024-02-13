@@ -185,6 +185,7 @@ export class PoliciesService {
           limits: e.set(...p.transfers.limits.map((limit) => e.insert(e.TransferLimit, limit))),
         }),
       }),
+      allowMessages: p.allowMessages,
     } satisfies Partial<Parameters<typeof e.insert<typeof e.PolicyState>>[1]>;
   }
 
