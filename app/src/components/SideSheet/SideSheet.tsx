@@ -23,6 +23,8 @@ export function SideSheet({ children, headline, style }: SideSheetProps) {
     if (type !== prevType) show(type === 'standard');
   }, [prevType, type, show]);
 
+  const close = () => show(false);
+
   if (!visible) return null;
 
   return (
