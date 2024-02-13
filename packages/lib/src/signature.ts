@@ -23,16 +23,3 @@ export function encodeTransactionSignature({ tx, policy, approvals }: EncodeTran
     encodeApprovalsStruct({ approvals, approvers: policy.approvers }),
   ]);
 }
-
-export interface EncodeMessageSignature {
-  policy: Policy;
-  approvals: Approval[];
-}
-
-export function encodeMessageSignature({ policy, approvals }: EncodeMessageSignature) {
-  return encodeAbiParameters(TRANSACTION_SIGNATURE_ABI, [
-    0,
-    encodePolicyStruct(policy),
-    encodeApprovalsStruct({ approvals, approvers: policy.approvers }),
-  ]);
-}

@@ -1,49 +1,82 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 pragma solidity ^0.8.0;
 
-import {Operation} from '../../TransactionUtil.sol';
-import {TargetHook} from '../hooks/TargetHook.sol';
-import {TransferHook} from '../hooks/TransferHook.sol';
+import {Operation} from '../../libraries/TransactionUtil.sol';
+import {TargetHook} from './TargetHook.sol';
+import {TransferHook} from './TransferHook.sol';
+import {OtherMessageHook} from './OtherMessageHook.sol';
 
 struct Hook {
-  HookSelector selector;
+  uint8 selector;
   bytes config;
 }
 
-enum HookSelector {
-  Target,
-  Transfer
-}
+// Transaction hooks [0x00, 0x7f]
+uint8 constant TARGET_HOOK = 0x10;
+uint8 constant TRANSFER_HOOK = 0x11;
+
+// Message hooks [0x80, 0xff]
+uint8 constant OTHER_MESSAGE_HOOK = 0xff;
 
 library Hooks {
-  function validate(Hook[] memory hooks, Operation[] memory operations) internal view {
-    HookSelector selector;
+  error HooksOutOfOrder();
+
+  function checkConfigs(Hook[] memory hooks) internal pure {
+    uint8 lastSelector /* = 0 */;
+    uint8 selector;
     for (uint256 i; i < hooks.length; ++i) {
       selector = hooks[i].selector;
-      if (selector == HookSelector.Target) {
-        TargetHook.validate(operations, hooks[i].config);
+
+      // Hooks must be sorted ascending by selector, ensuring order of execution
+      if (selector < lastSelector) revert HooksOutOfOrder();
+      lastSelector = selector;
+
+      if (selector == TARGET_HOOK) {
+        TargetHook.checkConfig(hooks[i].config);
+      } else if (selector == TRANSFER_HOOK) {
+        TransferHook.checkConfig(hooks[i].config);
+      }
+    }
+  }
+
+  /*//////////////////////////////////////////////////////////////
+                              TRANSACTION
+  //////////////////////////////////////////////////////////////*/
+
+  function validateOperations(Hook[] memory hooks, Operation[] memory operations) internal pure {
+    uint8 selector;
+    for (uint256 i; i < hooks.length; ++i) {
+      selector = hooks[i].selector;
+
+      if (selector == TARGET_HOOK) {
+        TargetHook.validateOperations(operations, hooks[i].config);
       }
     }
   }
 
   function beforeExecute(Hook[] memory hooks, Operation[] memory operations) internal {
-    HookSelector selector;
+    uint8 selector;
     for (uint256 i; i < hooks.length; ++i) {
       selector = hooks[i].selector;
-      if (selector == HookSelector.Transfer) {
+
+      if (selector == TRANSFER_HOOK) {
         TransferHook.beforeExecute(operations, hooks[i].config);
       }
     }
   }
 
-  function checkConfigs(Hook[] memory hooks) internal {
-    HookSelector selector;
+  /*//////////////////////////////////////////////////////////////
+                                MESSAGE
+  //////////////////////////////////////////////////////////////*/
+
+  function validateMessage(Hook[] memory hooks, bytes memory message) internal pure {
+    bool handled /* = false */;
+    uint8 selector;
     for (uint256 i; i < hooks.length; ++i) {
       selector = hooks[i].selector;
-      if (selector == HookSelector.Target) {
-        TargetHook.checkConfig(hooks[i].config);
-      } else if (selector == HookSelector.Transfer) {
-        TransferHook.checkConfig(hooks[i].config);
+
+      if (selector == OTHER_MESSAGE_HOOK) {
+        handled = OtherMessageHook.validateMessage(hooks[i].config, handled) || handled;
       }
     }
   }

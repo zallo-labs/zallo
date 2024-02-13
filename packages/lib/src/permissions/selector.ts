@@ -1,4 +1,7 @@
 export enum HookSelector {
-  Target,
-  Transfer,
+  // Transaction
+  Target = 0x10,
+  Transfer = 0x11,
+  // Message
+  OtherMessage = 0xff,
 }

@@ -129,6 +129,8 @@ export class MessageProposalsService {
       e.select(e.MessageProposal, () => ({
         filter_single: { id },
         hash: true,
+        message: true,
+        typedData: true,
         signature: true,
         approvals: {
           approver: { address: true },
@@ -169,7 +171,11 @@ export class MessageProposalsService {
       )
     ).filter(isPresent);
 
-    const signature = encodeMessageSignature({ policy, approvals });
+    const signature = encodeMessageSignature({
+      message: (proposal.typedData as TypedDataDefinition | null) ?? proposal.message,
+      policy,
+      approvals,
+    });
 
     await this.db.query(
       e.update(e.MessageProposal, () => ({

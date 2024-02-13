@@ -19,7 +19,7 @@ export interface EncodedOperations {
 const operationAbi = getAbiItem({ abi: TEST_VERIFIER_ABI, name: 'validateTarget' }).inputs[0];
 type OperationStruct = AbiParameterToPrimitiveType<typeof operationAbi>;
 
-const operationsAbi = getAbiItem({ abi: TEST_VERIFIER_ABI, name: 'validate' }).inputs[1];
+const operationsAbi = getAbiItem({ abi: TEST_VERIFIER_ABI, name: 'validateOperations' }).inputs[1];
 
 export function encodeOperations(
   account: Address,

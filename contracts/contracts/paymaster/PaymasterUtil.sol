@@ -31,7 +31,7 @@ library PaymasterUtil {
 
   function signedInput(
     bytes calldata paymasterInput
-  ) internal pure returns (bytes memory signedInput) {
+  ) internal pure returns (bytes memory signedInput_) {
     if (
       paymasterInput.length < 4 ||
       selector(paymasterInput) != IPaymasterFlow.payForTransaction.selector

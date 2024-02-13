@@ -33,6 +33,7 @@ describe('SignatureValidator', () => {
     const hash = hashMessage(message);
     const messageTypedData = asMessageTypedData(asUAddress(address, CONFIG.chain.key), hash);
     const signature = encodeMessageSignature({
+      message,
       policy,
       approvals: [
         {
@@ -64,6 +65,7 @@ describe('SignatureValidator', () => {
     const hash = hashTypedData(message);
     const messageTypedData = asMessageTypedData(asUAddress(address, CONFIG.chain.key), hash);
     const signature = encodeMessageSignature({
+      message,
       policy,
       approvals: [
         {
