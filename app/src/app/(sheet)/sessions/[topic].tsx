@@ -1,4 +1,4 @@
-import { Link, useRouter } from 'expo-router';
+import { Link, Redirect, useRouter } from 'expo-router';
 import { getSdkError } from '@walletconnect/utils';
 import { StyleSheet } from 'react-native';
 import { ListItem } from '#/list/ListItem';
@@ -78,10 +78,7 @@ export default function SessionDetailsSheet() {
   };
 
   // Close sheet if the pairing doesn't exist anymore
-  if (!pairing) {
-    router.back();
-    return null;
-  }
+  if (!pairing) return <Redirect href=".." />;
 
   const peer = pairing.peerMetadata ?? session?.peer.metadata;
 
