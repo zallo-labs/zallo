@@ -25,6 +25,7 @@ import { Actions } from '#/layout/Actions';
 import { Button } from '#/Button';
 import { SideSheetLayout, useSideSheet } from '#/SideSheet/SideSheetLayout';
 import { PolicySideSheet } from '#/policy/PolicySideSheet';
+import { SignMessageSettings } from '#/policy/SignMessageSettings';
 
 const Query = gql(/* GraphQL */ `
   query PolicyScreen($account: UAddress!, $key: PolicyKey!, $queryPolicy: Boolean!) {
@@ -143,6 +144,7 @@ function PolicyScreen() {
         <ApprovalSettings initiallyExpanded={initiallyExpanded} />
         <SpendingSettings initiallyExpanded={initiallyExpanded} />
         <ActionsSettings initiallyExpanded={initiallyExpanded} />
+        <SignMessageSettings />
 
         {(draft.key === undefined || isModified) && (
           <Actions>

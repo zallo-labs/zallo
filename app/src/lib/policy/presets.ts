@@ -129,6 +129,7 @@ export function usePolicyPresets({ chain, ...params }: UsePolicyPresetsParams) {
           { ...ACTION_PRESETS.all, allow: false },
         ].filter(Boolean),
         transfers: { defaultAllow: false, limits: {} }, // TODO: allow transfers up to $x
+        allowMessages: true,
       },
       medium: {
         name: 'Medium risk',
@@ -153,6 +154,7 @@ export function usePolicyPresets({ chain, ...params }: UsePolicyPresetsParams) {
           { ...ACTION_PRESETS.all, allow: true },
         ].filter(Boolean),
         transfers: { defaultAllow: false, limits: {} }, // TODO: allow transfers up to $y
+        allowMessages: true,
       },
       high: {
         name: 'High risk',
@@ -177,6 +179,7 @@ export function usePolicyPresets({ chain, ...params }: UsePolicyPresetsParams) {
           { ...ACTION_PRESETS.all, allow: true },
         ].filter(Boolean),
         transfers: { defaultAllow: true, limits: {} },
+        allowMessages: true,
       },
     } satisfies Record<string, Omit<PolicyDraft, 'account' | 'key'>>;
   }, [chain, account?.approvers, accountAddress, approver]);

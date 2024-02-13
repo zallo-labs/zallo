@@ -1,9 +1,9 @@
 import { FragmentType, gql, useFragment } from '@api/generated';
-import { IconProps, materialCommunityIcon } from '@theme/icons';
+import { IconProps, materialIcon } from '@theme/icons';
 import { createStyles, useStyles } from '@theme/styles';
 import { Image } from 'expo-image';
 
-const SignatureIcon = materialCommunityIcon('signature');
+export const GenericMessageIcon = materialIcon('mail');
 
 const MessageProposal = gql(/* GraphQL */ `
   fragment MessageIcon_MessageProposal on Proposal {
@@ -23,7 +23,7 @@ export function MessageIcon({ proposal: proposalFragment, ...iconProps }: Messag
   return p.iconUri ? (
     <Image source={{ uri: p.iconUri }} style={styles.icon} {...iconProps} />
   ) : (
-    <SignatureIcon {...iconProps} />
+    <GenericMessageIcon {...iconProps} />
   );
 }
 
