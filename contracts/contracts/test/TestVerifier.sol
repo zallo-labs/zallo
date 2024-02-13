@@ -43,7 +43,7 @@ contract TestVerifier {
   function validateOtherMessage(
     bool previouslyHandled,
     OtherMessageConfig calldata config
-  ) external {
+  ) external pure {
     OtherMessageHook.validateMessage(abi.encode(config), previouslyHandled);
   }
 }
