@@ -1,5 +1,6 @@
 import { Address } from './address';
 import { verifyTargetsPermission, verifyTransfersPermission } from './permissions';
+import { verifyOtherMessagePermission } from './permissions/OtherMessagePermission';
 import { Policy } from './policy';
 import { Tx } from './tx';
 
@@ -25,6 +26,7 @@ export const getTransactionSatisfiability = (
   approvals: Set<Address>,
 ): SatisfiabilityResult => {
   const r = [
+    verifyApprovals(p, approvals),
     ...tx.operations.map((op, i) => ({
       ...verifyTargetsPermission(p.permissions.targets, op),
       operation: i,
@@ -33,7 +35,6 @@ export const getTransactionSatisfiability = (
       ...verifyTransfersPermission(p.permissions.transfers, op),
       operation: i,
     })),
-    verifyApprovals(p, approvals),
   ];
 
   const unsatisfiable = r.filter((v) => v.result === 'unsatisfiable');
@@ -69,20 +70,32 @@ export const verifyApprovals = (
     : { result: 'satisfiable', reason: 'Awaiting approvals' };
 };
 
+export type MessagePermissionVerifier = [handled: boolean, result: OperationSatisfiability];
+
 export const getMessageSatisfiability = (
   p: Policy,
   approvals: Set<Address>,
 ): SatisfiabilityResult => {
-  const r = [verifyApprovals(p, approvals)];
+  let handled = false;
+  const functions = [
+    () => [false, verifyApprovals(p, approvals)] as const,
+    () => verifyOtherMessagePermission(p.permissions.otherMessage, handled),
+  ];
 
-  const unsatisfiable = r.filter((v) => v.result === 'unsatisfiable');
+  const results = functions.map((f) => {
+    const [funcHandled, result] = f();
+    handled ||= funcHandled;
+    return result;
+  });
+
+  const unsatisfiable = results.filter((v) => v.result === 'unsatisfiable');
   if (unsatisfiable.length)
     return {
       result: Satisfiability.unsatisfiable,
       reasons: unsatisfiable.map((v) => ({ reason: v.reason!, operation: v.operation })),
     };
 
-  const satisfiable = r.filter((v) => v.result === 'satisfiable');
+  const satisfiable = results.filter((v) => v.result === 'satisfiable');
   if (satisfiable.length)
     return {
       result: Satisfiability.satisfiable,

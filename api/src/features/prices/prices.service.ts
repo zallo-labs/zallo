@@ -114,6 +114,10 @@ export class PricesService {
 
   async updatePriceFeedsIfNecessary(chain: Chain, priceIds: Hex[]) {
     priceIds = [...new Set(priceIds)];
+
+    // No need to update ETH/USD if it's the only required pricefeed; all fees are priced in ETH, so ETH/USD is only used when converting from token -> ETH
+    if (priceIds.length === 1 && priceIds[0] === ETH.pythUsdPriceId) return;
+
     if (
       priceIds
         .map((priceId) => this.isPriceFeedGuaranteedFresh(chain, priceId))

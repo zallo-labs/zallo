@@ -202,6 +202,7 @@ input CreateAccountInput {
 input CreatePolicyInput {
   account: UAddress!
   actions: [ActionInput!]
+  allowMessages: Boolean
   approvers: [Address!]
   name: String
   threshold: Float
@@ -405,6 +406,7 @@ type Policy {
 
 input PolicyInput {
   actions: [ActionInput!]
+  allowMessages: Boolean
   approvers: [Address!]
   name: String
   threshold: Float
@@ -417,6 +419,7 @@ scalar PolicyKey
 type PolicyState {
   actions: [Action!]!
   activationBlock: BigInt
+  allowMessages: Boolean!
   approvers: [Approver!]!
   createdAt: DateTime!
   hasBeenActive: Boolean!
@@ -935,6 +938,7 @@ input UpdateApproverInput {
 input UpdatePolicyInput {
   account: UAddress!
   actions: [ActionInput!]
+  allowMessages: Boolean
   approvers: [Address!]
   key: PolicyKey!
   name: String

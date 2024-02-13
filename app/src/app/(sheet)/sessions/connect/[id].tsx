@@ -1,4 +1,4 @@
-import { useRouter } from 'expo-router';
+import { Redirect, useRouter } from 'expo-router';
 import { gql } from '@api/generated';
 import { buildApprovedNamespaces, getSdkError } from '@walletconnect/utils';
 import { useEffect, useMemo } from 'react';
@@ -75,8 +75,7 @@ export default function ConnectSessionSheet() {
 
   if (!proposal) {
     showError(`${dapp} session proposal wasn't found, please try again`);
-    router.back();
-    return null;
+    return <Redirect href=".." />;
   }
 
   const connect = async () => {

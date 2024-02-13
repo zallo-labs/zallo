@@ -3,6 +3,7 @@ import { Address, asAddress, compareAddress, UAddress } from './address';
 import {
   ALLOW_ALL_TRANSFERS_CONFIG,
   decodeTransfersHook,
+  encodeTransfersHook,
   HookSelector,
   Permissions,
 } from './permissions';
@@ -16,6 +17,11 @@ import { Arraylike, isPresent, toSet } from './util';
 import { decodeAbiParameters, encodeAbiParameters, getAbiItem, keccak256 } from 'viem';
 import { ACCOUNT_IMPLEMENTATION } from './contract';
 import { AbiParametersToPrimitiveTypes } from 'abitype';
+import {
+  ALLOW_OTHER_MESSAGES_CONFIG,
+  decodeOtherMessageHook,
+  encodeOtherMessageHook,
+} from './permissions/OtherMessagePermission';
 
 export type PolicyKey = A.Type<number, 'PolicyKey'>;
 export const MIN_POLICY_KEY = 0;
@@ -31,8 +37,6 @@ export interface PolicyId {
   readonly account: UAddress;
   readonly key: PolicyKey;
 }
-
-export type UniquePolicy = PolicyId & Policy;
 
 export interface Policy {
   readonly key: PolicyKey;
@@ -50,7 +54,14 @@ export function encodePolicyStruct(p: Policy): PolicyStruct {
     key: p.key,
     approvers: [...p.approvers].sort(compareAddress),
     threshold: p.threshold,
-    hooks: [encodeTargetsHook(p.permissions.targets)].filter(isPresent),
+    hooks: [
+      encodeTargetsHook(p.permissions.targets),
+      encodeTransfersHook(p.permissions.transfers),
+      encodeOtherMessageHook(p.permissions.otherMessage),
+    ]
+      .filter(isPresent)
+      // Hooks must be sorted ascending by selector
+      .sort((a, b) => a.selector - b.selector),
   };
 }
 
@@ -62,6 +73,9 @@ export function decodePolicyStruct(s: PolicyStruct): Policy {
     permissions: {
       targets: decodeTargetsHook(s.hooks.find((h) => h.selector === HookSelector.Target)),
       transfers: decodeTransfersHook(s.hooks.find((h) => h.selector === HookSelector.Transfer)),
+      otherMessage: decodeOtherMessageHook(
+        s.hooks.find((h) => h.selector === HookSelector.OtherMessage),
+      ),
     },
   };
 }
@@ -96,6 +110,7 @@ export const asPolicy = (p: {
     permissions: {
       targets: p.permissions?.targets ?? ALLOW_ALL_TARGETS,
       transfers: p.permissions?.transfers ?? ALLOW_ALL_TRANSFERS_CONFIG,
+      otherMessage: p.permissions?.otherMessage ?? ALLOW_OTHER_MESSAGES_CONFIG,
     },
   };
 };

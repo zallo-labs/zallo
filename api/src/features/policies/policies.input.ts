@@ -91,6 +91,9 @@ export class PolicyInput {
 
   @Field(() => TransfersConfigInput, { nullable: true })
   transfers?: TransfersConfigInput;
+
+  @Field(() => Boolean, { nullable: true })
+  allowMessages?: boolean;
 }
 
 @InputType()

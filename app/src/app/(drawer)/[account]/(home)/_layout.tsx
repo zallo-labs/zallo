@@ -6,6 +6,19 @@ import { useLocalParams } from '~/hooks/useLocalParams';
 import { useSelectedAccount, useSetSelectedAccont } from '~/hooks/useSelectedAccount';
 import { zUAddress } from '~/lib/zod';
 import { ScrollableScreenSurface } from '#/layout/ScrollableScreenSurface';
+import { gql } from '@api';
+import { useQuery } from '~/gql';
+import { Redirect } from 'expo-router';
+
+const Query = gql(/* GraphQL */ `
+  query HomeLayout($account: UAddress!) {
+    account(input: { account: $account }) {
+      id
+    }
+  }
+`);
+
+const context = { suspense: false };
 
 const InternalParams = z.object({ account: zUAddress().optional() }); // Required as the this route is always first in the history, so may be rendered at any time
 export const AccountParams = z.object({ account: zUAddress() });
@@ -18,6 +31,11 @@ export default function HomeLayout() {
   useEffect(() => {
     if (account) setSelectedAccount(account);
   }, [account, setSelectedAccount]);
+
+  const query = useQuery(Query, { account }, { context });
+
+  // Redirect to the home page if account isn't found
+  if (!query.data?.account && !query.fetching) return <Redirect href="/" />;
 
   return (
     <ScrollableScreenSurface>

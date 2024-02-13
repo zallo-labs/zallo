@@ -3,12 +3,12 @@ pragma solidity ^0.8.0;
 
 import {Transaction} from '@matterlabs/zksync-contracts/l2/system-contracts/libraries/TransactionHelper.sol';
 
-import {Policy} from './policy/Policy.sol';
-import {Approvals} from './policy/ApprovalsVerifier.sol';
-import {Hook} from './policy/hooks/Hooks.sol';
-import {Cast} from './libraries/Cast.sol';
-import {TypedData} from './libraries/TypedData.sol';
-import {PaymasterUtil} from './paymaster/PaymasterUtil.sol';
+import {Policy, PolicyLib} from '../policy/Policy.sol';
+import {Approvals} from '../policy/ApprovalsVerifier.sol';
+import {Hook} from '../policy/hooks/Hooks.sol';
+import {Cast} from './Cast.sol';
+import {TypedData} from './TypedData.sol';
+import {PaymasterUtil} from '../paymaster/PaymasterUtil.sol';
 
 struct Operation {
   address to;
@@ -43,6 +43,13 @@ library TransactionUtil {
     return TypedData.hashTypedData(structHash);
   }
 
+  function decodeSignature(
+    bytes calldata signature
+  ) internal view returns (Policy memory policy, Approvals memory approvals) {
+    (, policy, approvals) = abi.decode(signature, (uint32, Policy, Approvals));
+    PolicyLib.verify(policy);
+  }
+
   function to(Transaction calldata t) internal pure returns (address) {
     return address(uint160(t.to)); // won't truncate
   }
@@ -61,16 +68,16 @@ library TransactionUtil {
     }
   }
 
-  function hooks(Transaction calldata t) internal pure returns (Hook[] memory hooks) {
+  function hooks(Transaction calldata t) internal pure returns (Hook[] memory hooks_) {
     if (isGasEstimation(t)) return new Hook[](0);
 
     Policy memory policy;
-    (, policy, ) = abi.decode(t.signature, (uint32, Policy, Approvals));
+    (, policy) = abi.decode(t.signature, (uint32, Policy));
 
     return policy.hooks;
   }
 
-  /// @dev estimateGas always calls with a 65 byte signature
+  /// @dev estimateGas always calls with a 65 byte signature - https://github.com/zkSync-Community-Hub/zksync-developers/discussions/81#discussioncomment-7861481
   function isGasEstimation(Transaction calldata t) internal pure returns (bool) {
     return t.signature.length == 65;
   }

@@ -11,7 +11,6 @@ export function useGetGoogleAccessToken() {
     };
 
     return fromPromise(getAccessToken(), (e) => {
-      console.error('Error getting Google access token', e);
       return 'failed-to-get-access-token' as const;
     });
   };

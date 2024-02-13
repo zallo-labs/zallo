@@ -101,7 +101,7 @@ export const TransactionActions = (props: ProposalActionsProps) => {
 
       {reject && <Button onPress={reject}>Reject</Button>}
 
-      {!sheet.show && (
+      {!sheet.visible && (
         <Button mode="contained-tonal" icon="menu-open" onPress={() => sheet.show(true)}>
           View approvals
         </Button>

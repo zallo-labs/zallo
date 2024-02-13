@@ -6,7 +6,7 @@ import {IContractDeployer, INonceHolder, DEPLOYER_SYSTEM_CONTRACT, NONCE_HOLDER_
 import {SystemContractsCaller} from '@matterlabs/zksync-contracts/l2/system-contracts/libraries/SystemContractsCaller.sol';
 
 import {Cast} from './libraries/Cast.sol';
-import {TransactionUtil, Operation} from './TransactionUtil.sol';
+import {TransactionUtil, Operation} from './libraries/TransactionUtil.sol';
 import {Hook, Hooks} from './policy/hooks/Hooks.sol';
 
 abstract contract Executor {

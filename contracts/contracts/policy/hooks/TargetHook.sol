@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 pragma solidity ^0.8.0;
 
-import {Operation} from '../../TransactionUtil.sol';
+import {Operation} from '../../libraries/TransactionUtil.sol';
 
 struct TargetsConfig {
   ContractTarget[] contracts; /// @dev unique and sorted by `addr` ascending
@@ -27,15 +27,15 @@ library TargetHook {
   error TargetDenied(address to, bytes4 selector);
   error TargetsConfigInvalid();
 
-  function validate(Operation[] memory operations, bytes memory configData) internal pure {
+  function validateOperations(Operation[] memory operations, bytes memory configData) internal pure {
     TargetsConfig memory config = abi.decode(configData, (TargetsConfig));
 
     for (uint256 i; i < operations.length; ++i) {
-      validateOp(operations[i], config);
+      validateOperation(operations[i], config);
     }
   }
 
-  function validateOp(Operation memory op, TargetsConfig memory c) internal pure {
+  function validateOperation(Operation memory op, TargetsConfig memory c) internal pure {
     for (uint256 i; i < c.contracts.length && op.to <= c.contracts[i].addr; ++i) {
       if (op.to == c.contracts[i].addr) return _validateTarget(op, c.contracts[i].target);
     }

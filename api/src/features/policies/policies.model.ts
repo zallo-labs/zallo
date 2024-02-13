@@ -103,6 +103,9 @@ export class PolicyState {
   transfers: TransfersConfig;
 
   @Field(() => Boolean)
+  allowMessages: boolean;
+
+  @Field(() => Boolean)
   isRemoved: boolean;
 
   @Field(() => GraphQLBigInt, { nullable: true })

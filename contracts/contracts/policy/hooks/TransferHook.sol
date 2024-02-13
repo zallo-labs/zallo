@@ -4,7 +4,7 @@ pragma solidity ^0.8.0;
 import {ERC20} from '@openzeppelin/contracts/token/ERC20/ERC20.sol';
 
 import {PolicyKey} from '../Policy.sol';
-import {Operation} from '../../TransactionUtil.sol';
+import {Operation} from '../../libraries/TransactionUtil.sol';
 import {Cast} from '../../libraries/Cast.sol';
 
 struct TransfersConfig {

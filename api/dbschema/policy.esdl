@@ -50,6 +50,7 @@ module default {
     required threshold: uint16;
     multi actions: Action;
     required transfers: TransfersConfig;
+    required allowMessages: bool { default := false; }
     required isRemoved: bool { default := false; }
     activationBlock: bigint { constraint min_value(0n); }
     required property hasBeenActive := exists .activationBlock or .isAccountInitState;

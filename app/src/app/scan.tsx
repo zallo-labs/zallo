@@ -1,4 +1,4 @@
-import { Route, Stack } from 'expo-router';
+import { Stack } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { Platform, StyleSheet, View } from 'react-native';
 import { CameraView, useCameraPermissions } from 'expo-camera/next';
@@ -8,7 +8,7 @@ import { Address, UAddress, tryAsAddress } from 'lib';
 import * as Linking from 'expo-linking';
 import useAsyncEffect from 'use-async-effect';
 import { showError } from '#/provider/SnackbarProvider';
-import { parseAppLink } from '~/util/config';
+import { parseAppLink } from '~/lib/appLink';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { ScanOverlay } from '#/ScanOverlay';
 import { Subject } from 'rxjs';
@@ -60,7 +60,7 @@ export default function ScanScreen() {
         showError('Failed to connect. Please refresh the DApp and try again');
       }
     } else if (parseAppLink(data)) {
-      router.push(parseAppLink(data) as Route<string>);
+      router.push(parseAppLink(data)!);
       return true;
     }
 

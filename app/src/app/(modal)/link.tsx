@@ -12,7 +12,7 @@ import { useEffect } from 'react';
 import { Subject } from 'rxjs';
 import { LinkingTokenModal_SubscriptionSubscription } from '@api/generated/graphql';
 import { Link } from 'expo-router';
-import { appLink } from '~/util/config';
+import { appLink } from '~/lib/appLink';
 import { share } from '~/lib/share';
 import { createStyles, useStyles } from '@theme/styles';
 import { EdgeInsets, useSafeAreaInsets } from 'react-native-safe-area-context';

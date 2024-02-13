@@ -17,7 +17,7 @@ import {Executor} from './Executor.sol';
 import {ERC165} from './standards/ERC165.sol';
 import {ERC721Receiver} from './standards/ERC721Receiver.sol';
 import {SignatureValidator} from './base/SignatureValidator.sol';
-import {TransactionUtil} from './TransactionUtil.sol';
+import {TransactionUtil} from './libraries/TransactionUtil.sol';
 import {PaymasterUtil} from './paymaster/PaymasterUtil.sol';
 
 contract Account is
@@ -93,13 +93,15 @@ contract Account is
     _incrementNonceIfEquals(transaction);
     _validateTransactionUnexecuted(proposal);
 
-    if (transaction.isGasEstimation()) return bytes4(0); // Gas estimation requires failure without reverting
-    (Policy memory policy, Approvals memory approvals) = _decodeSignature(transaction.signature);
-    policy.hooks.validate(transaction.operations());
+    // An EOA signature is always passed in when estimating gas - https://github.com/zkSync-Community-Hub/zksync-developers/discussions/81#discussioncomment-7861481
+    if (transaction.isGasEstimation()) return bytes4(0);
 
-    if (!approvals.verify(proposal, policy)) return bytes4(0);
+    (Policy memory policy, Approvals memory approvals) = TransactionUtil.decodeSignature(
+      transaction.signature
+    );
+    policy.hooks.validateOperations(transaction.operations());
 
-    return ACCOUNT_VALIDATION_SUCCESS_MAGIC;
+    return approvals.verify(proposal, policy) ? ACCOUNT_VALIDATION_SUCCESS_MAGIC : bytes4(0);
   }
 
   /// @inheritdoc IAccount

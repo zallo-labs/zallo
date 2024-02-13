@@ -6,6 +6,7 @@ import { Surface } from 'react-native-paper';
 import { SlideInRight, SlideOutRight } from 'react-native-reanimated';
 import { BREAKPOINTS } from '@theme/styles';
 import { Modal as CustomModal } from '../Modal';
+import { EdgeInsets, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export interface SideSheetSurfaceProps {
   children: ReactNode;
@@ -17,12 +18,15 @@ export interface SideSheetSurfaceProps {
 export function SideSheetSurface({ children, close, contentStyle }: SideSheetSurfaceProps) {
   const { styles } = useStyles(stylesheet);
   const type = useSideSheetType();
+  const insets = useSafeAreaInsets();
 
   return type === 'standard' ? (
     <ScreenSurface style={[styles.contentContainer, contentStyle]}>{children}</ScreenSurface>
   ) : (
     <CustomModal close={close} entering={SlideInRight} exiting={SlideOutRight} style={styles.modal}>
-      <Surface style={[styles.modalContentContainer, styles.contentContainer, contentStyle]}>
+      <Surface
+        style={[styles.modalContentContainer(insets), styles.contentContainer, contentStyle]}
+      >
         {children}
       </Surface>
     </CustomModal>
@@ -40,10 +44,14 @@ const stylesheet = createStyleSheet(({ corner }) => ({
     flexDirection: 'row',
     justifyContent: 'flex-end',
   },
-  modalContentContainer: {
+  modalContentContainer: (insets: EdgeInsets) => ({
     borderTopLeftRadius: corner.l,
     borderBottomLeftRadius: corner.l,
-  },
+    paddingTop: insets.top,
+    paddingBottom: insets.bottom,
+    paddingLeft: insets.left,
+    paddingRight: insets.right,
+  }),
 }));
 
 export type SideSheetType = 'standard' | 'modal';

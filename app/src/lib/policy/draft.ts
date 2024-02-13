@@ -17,6 +17,7 @@ export interface PolicyDraft {
   threshold: number;
   actions: PolicyDraftAction[];
   transfers: TransfersConfig;
+  allowMessages: boolean;
 }
 
 export const POLICY_DRAFT_ATOM = atom<PolicyDraft>({} as PolicyDraft);
@@ -54,12 +55,15 @@ const PolicyState = gql(/* GraphQL */ `
       defaultAllow
       budget
     }
+    allowMessages
   }
 `);
 
 export function policyAsDraft(
   stateFragment: FragmentType<typeof PolicyState>,
-): Pick<PolicyDraft, 'approvers' | 'threshold' | 'actions' | 'transfers'> | undefined {
+):
+  | Pick<PolicyDraft, 'approvers' | 'threshold' | 'actions' | 'transfers' | 'allowMessages'>
+  | undefined {
   const s = getFragment(PolicyState, stateFragment);
 
   return {
@@ -82,6 +86,7 @@ export function policyAsDraft(
       defaultAllow: s.transfers.defaultAllow,
       budget: s.transfers.budget,
     },
+    allowMessages: s.allowMessages,
   };
 }
 
@@ -100,5 +105,6 @@ export function asPolicyInput(p: Omit<PolicyDraft, 'account'>): PolicyInput {
       budget: p.transfers.budget,
       defaultAllow: p.transfers.defaultAllow,
     },
+    allowMessages: p.allowMessages,
   };
 }

@@ -2,11 +2,12 @@
 pragma solidity ^0.8.0;
 
 import {SelfOwned} from '../SelfOwned.sol';
-import {Policy, PolicyKey} from './Policy.sol';
+import {Policy, PolicyKey, PolicyLib} from './Policy.sol';
 import {Approvals, ApprovalsVerifier} from './ApprovalsVerifier.sol';
 import {Hooks, Hook} from '../policy/hooks/Hooks.sol';
 
 abstract contract PolicyManager is SelfOwned {
+  using PolicyLib for Policy;
   using Hooks for Hook[];
 
   event PolicyAdded(PolicyKey key, bytes32 hash);
@@ -15,7 +16,6 @@ abstract contract PolicyManager is SelfOwned {
   error TooManyApprovers(uint256 max, uint256 nApprovers);
   error ThresholdTooLow(uint8 threshold, uint256 nApprovers);
   error ThresholdTooHigh(uint8 threshold, uint256 nApprovers);
-  error PolicyDoesNotMatchExpectedHash(bytes32 actualHash, bytes32 expectedHash);
 
   function addPolicy(Policy calldata policy) external payable onlySelf {
     _addPolicy(policy);
@@ -35,8 +35,8 @@ abstract contract PolicyManager is SelfOwned {
     // Validate hooks
     policy.hooks.checkConfigs();
 
-    bytes32 hash = _hashPolicyCalldata(policy);
-    _policyHashes()[policy.key] = hash;
+    bytes32 hash = policy.hash();
+    PolicyLib.hashes()[policy.key] = hash;
 
     emit PolicyAdded(policy.key, hash);
   }
@@ -49,47 +49,12 @@ abstract contract PolicyManager is SelfOwned {
   }
 
   function removePolicy(PolicyKey key) external payable onlySelf {
-    delete _policyHashes()[key];
+    delete PolicyLib.hashes()[key];
     emit PolicyRemoved(key);
   }
 
-  function _decodeSignature(
-    bytes memory signature
-  ) internal view returns (Policy memory policy, Approvals memory approvals) {
-    // proposalNonce is ignored
-    (, policy, approvals) = abi.decode(signature, (uint32, Policy, Approvals));
-
-    bytes32 actualHash = _hashPolicy(policy);
-    bytes32 expectedHash = _policyHashes()[policy.key];
-    if (actualHash != expectedHash) revert PolicyDoesNotMatchExpectedHash(actualHash, expectedHash);
-  }
-
-  function _hashPolicy(Policy memory p) private pure returns (bytes32) {
-    return keccak256(abi.encode(p));
-  }
-
-  function _hashPolicyCalldata(Policy calldata p) private pure returns (bytes32) {
-    return keccak256(abi.encode(p));
-  }
-
-  /*//////////////////////////////////////////////////////////////
-                                STORAGE
-  //////////////////////////////////////////////////////////////*/
-
-  function _policyHashes()
-    private
-    pure
-    returns (mapping(PolicyKey => bytes32 policyHash) storage s)
-  {
-    assembly {
-      // keccack256('PolicyManager.policyHashes')
-      s.slot := 0x68d3b202751d1eafbbbccef4366b90f189c9dbf92607a017c704d21f14314581
-    }
-  }
-
-  /// @dev This should **only ever be used for testing**
-  /// @dev Use _decodeSignature()
+  /// @dev Used for testing
   function _getPolicyHash(PolicyKey key) internal view returns (bytes32) {
-    return _policyHashes()[key];
+    return PolicyLib.hashes()[key];
   }
 }
