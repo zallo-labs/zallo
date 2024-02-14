@@ -1,6 +1,6 @@
 import { Address, asAddress, compareAddress } from '../address';
 import { Selector, asSelector, compareHex } from '../bytes';
-import { HookSelector } from './selector';
+import { HookSelector, PLACEHOLDER_ACCOUNT_ADDRESS } from './util';
 import { HookStruct } from './permissions';
 import _ from 'lodash';
 import { Operation } from '../operation';
@@ -151,4 +151,17 @@ function optimize(targets: TargetsConfig): TargetsConfig {
   );
 
   return targets;
+}
+
+export function replaceTargetsSelfAddress(targets: TargetsConfig, self: Address): TargetsConfig {
+  const selfTarget = targets.contracts[PLACEHOLDER_ACCOUNT_ADDRESS];
+  if (!selfTarget) return targets;
+
+  return {
+    ...targets,
+    contracts: {
+      ..._.omit(targets.contracts, PLACEHOLDER_ACCOUNT_ADDRESS),
+      [self]: selfTarget,
+    },
+  };
 }

@@ -39,6 +39,21 @@ library Hooks {
     }
   }
 
+  function replaceSelfAddress(Hook[] memory hooks) internal view {
+    uint8 selector;
+    bytes memory replacementConfig;
+    uint256 len = hooks.length;
+    for (uint256 i; i < len; ++i) {
+      selector = hooks[i].selector;
+
+      if (selector == TARGET_HOOK) {
+        replacementConfig = TargetHook.replaceSelfAddress(hooks[i].config);
+      }
+
+      if (replacementConfig.length > 0) hooks[i].config = replacementConfig;
+    }
+  }
+
   /*//////////////////////////////////////////////////////////////
                               TRANSACTION
   //////////////////////////////////////////////////////////////*/

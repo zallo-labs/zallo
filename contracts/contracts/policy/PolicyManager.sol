@@ -41,9 +41,10 @@ abstract contract PolicyManager is SelfOwned {
     emit PolicyAdded(policy.key, hash);
   }
 
-  function _addPolicies(Policy[] calldata policies) internal {
-    uint256 policiesLen = policies.length;
-    for (uint256 i; i < policiesLen; ++i) {
+  function _initializeWithPolicies(Policy[] calldata policies) internal {
+    uint256 len = policies.length;
+    for (uint256 i; i < len; ++i) {
+      policies[i].hooks.replaceSelfAddress();
       _addPolicy(policies[i]);
     }
   }

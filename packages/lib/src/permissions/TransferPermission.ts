@@ -1,7 +1,7 @@
 import { Address, ETH_ADDRESS, asAddress } from '../address';
 import { tryOrIgnore } from '../util';
 import { HookStruct } from './permissions';
-import { HookSelector } from './selector';
+import { HookSelector } from './util';
 import { Operation } from '../operation';
 import { decodeAbiParameters, decodeFunctionData, encodeAbiParameters, getAbiItem } from 'viem';
 import { ERC20 } from '../dapps';

@@ -2,6 +2,7 @@
 pragma solidity ^0.8.0;
 
 import {Operation} from '../../libraries/TransactionUtil.sol';
+import {PLACEHOLDER_SELF_ADDRESS} from './SelfAddress.sol';
 
 struct TargetsConfig {
   ContractTarget[] contracts; /// @dev unique and sorted by `addr` ascending
@@ -27,7 +28,10 @@ library TargetHook {
   error TargetDenied(address to, bytes4 selector);
   error TargetsConfigInvalid();
 
-  function validateOperations(Operation[] memory operations, bytes memory configData) internal pure {
+  function validateOperations(
+    Operation[] memory operations,
+    bytes memory configData
+  ) internal pure {
     TargetsConfig memory config = abi.decode(configData, (TargetsConfig));
 
     for (uint256 i; i < operations.length; ++i) {
@@ -75,6 +79,38 @@ library TargetHook {
         if (c.target.functions[fi].selector <= c.target.functions[fi - 1].selector)
           revert TargetsConfigInvalid();
       }
+    }
+  }
+
+  /// @notice Replaces the placeholder self address with the account address
+  function replaceSelfAddress(
+    bytes memory configData
+  ) internal view returns (bytes memory newConfigData) {
+    TargetsConfig memory c = abi.decode(configData, (TargetsConfig));
+
+    uint256 len = c.contracts.length;
+    for (uint256 i; i < len && c.contracts[i].addr <= PLACEHOLDER_SELF_ADDRESS; ++i) {
+      if (c.contracts[i].addr == PLACEHOLDER_SELF_ADDRESS) {
+        c.contracts[i].addr = address(this);
+        _resortContract(c.contracts, i);
+        return abi.encode(c);
+      }
+    }
+  }
+
+  /// @notice Resorts a sorted array with one out of place element
+  function _resortContract(
+    ContractTarget[] memory contracts,
+    uint256 outOfPlaceElement
+  ) private pure {
+    // Swap the element with the next one (to the right) until it's in the right place
+    // `outOfPlaceContract` is address(1) so will always be at the start of the array
+    for (
+      uint256 i = outOfPlaceElement;
+      i < contracts.length - 1 && contracts[i].addr > contracts[i + 1].addr;
+      ++i
+    ) {
+      (contracts[i], contracts[i + 1]) = (contracts[i + 1], contracts[i]);
     }
   }
 }

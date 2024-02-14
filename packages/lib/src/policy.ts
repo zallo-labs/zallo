@@ -11,6 +11,7 @@ import {
   ALLOW_ALL_TARGETS,
   decodeTargetsHook,
   encodeTargetsHook,
+  replaceTargetsSelfAddress,
 } from './permissions/TargetPermission';
 import { Hex } from './bytes';
 import { Arraylike, isPresent, toSet } from './util';
@@ -114,3 +115,13 @@ export const asPolicy = (p: {
     },
   };
 };
+
+export function replaceSelfAddress(policy: Policy, self: Address): Policy {
+  return {
+    ...policy,
+    permissions: {
+      ...policy.permissions,
+      targets: replaceTargetsSelfAddress(policy.permissions.targets, self),
+    },
+  };
+}
