@@ -11,10 +11,12 @@ library ERC1271 {
     bytes32 hash,
     address signer
   ) internal view returns (bool success) {
-    (bool success, bytes memory result) = signer.staticcall(
+    (bool callSuccess, bytes memory result) = signer.staticcall(
       abi.encodeWithSelector(IERC1271.isValidSignature.selector, hash, signature)
     );
 
-    return (success && result.length == 32 && abi.decode(result, (bytes32)) == ERC1271_MAGICVALUE);
+    return (callSuccess &&
+      result.length == 32 &&
+      abi.decode(result, (bytes32)) == ERC1271_MAGICVALUE);
   }
 }

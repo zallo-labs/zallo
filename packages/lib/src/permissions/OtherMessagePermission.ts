@@ -1,5 +1,5 @@
 import { HookStruct } from './permissions';
-import { HookSelector } from './selector';
+import { HookSelector } from './util';
 import { decodeAbiParameters, encodeAbiParameters, getAbiItem } from 'viem';
 import { MessagePermissionVerifier } from '../satisfiability';
 import { AbiParameterToPrimitiveType } from 'abitype';

@@ -6,7 +6,9 @@ import {
   deployAccountProxy,
   encodeTransactionSignature,
   executeTransactionUnsafe,
+  Policy,
   randomDeploySalt,
+  replaceSelfAddress,
   TxOptions,
 } from 'lib';
 import { network, testNetwork, wallet, wallets } from './network';
@@ -99,29 +101,36 @@ export interface DeployProxyOptions {
   nApprovers?: number;
   extraBalance?: bigint;
   implementation?: Address;
+  policies?: Policy[];
 }
 
 export const deployProxy = async ({
   nApprovers = 2,
   extraBalance = 0n,
+  policies: inputPolicies,
 }: DeployProxyOptions = {}) => {
   const approvers = new Set(wallets.slice(0, nApprovers).map((signer) => signer.address));
-  const policy = asPolicy({ key: 1, approvers, threshold: approvers.size });
 
   const { address: factory } = await deployFactory(AccountProxy);
   const { address: implementation } = await deploy(Account, []);
 
+  const initPolicies = inputPolicies ?? [
+    asPolicy({ key: 1, approvers, threshold: approvers.size }),
+  ];
   const { proxy: account, transactionHash: deployTransactionHash } = (
     await deployAccountProxy({
       network,
       wallet,
       factory,
       implementation,
-      policies: [policy],
+      policies: initPolicies,
       salt: randomDeploySalt(),
     })
   )._unsafeUnwrap();
   await network.waitForTransactionReceipt({ hash: deployTransactionHash });
+
+  const policies = initPolicies.map((p) => replaceSelfAddress(p, asAddress(account)));
+  const policy = policies[0];
 
   await testNetwork.setBalance({
     address: asAddress(account),
@@ -131,6 +140,7 @@ export const deployProxy = async ({
   return {
     account,
     policy,
+    policies,
     execute: async (txOpts: TxOptions) => {
       const tx = asTx(txOpts);
       const approvals = await getApprovals(account, approvers, tx);

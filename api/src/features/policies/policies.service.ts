@@ -10,8 +10,10 @@ import {
   Policy,
   PolicyKey,
   Satisfiability,
+  Address,
   UAddress,
   UUID,
+  PLACEHOLDER_ACCOUNT_ADDRESS,
 } from 'lib';
 import { TransactionProposalsService } from '../transaction-proposals/transaction-proposals.service';
 import {
@@ -58,7 +60,7 @@ export type PolicySatisfiabilityDeps = $infer<typeof s_>;
 
 export interface CreatePolicyParams extends CreatePolicyInput {
   key?: PolicyKey;
-  skipProposal?: boolean;
+  isInitState?: boolean;
 }
 
 @Injectable()
@@ -97,7 +99,7 @@ export class PoliciesService {
       .run(this.db.client);
   }
 
-  async create({ account, name, key: keyArg, skipProposal, ...policyInput }: CreatePolicyParams) {
+  async create({ account, name, key: keyArg, isInitState, ...policyInput }: CreatePolicyParams) {
     const selectedAccount = selectAccount(account);
 
     const r = this.db.transaction(async (db) => {
@@ -115,7 +117,7 @@ export class PoliciesService {
 
       const state = policyInputAsStateShape(key, policyInput);
       const proposal =
-        !skipProposal && (await this.getStateProposal(account, policyStateAsPolicy(key, state)));
+        !isInitState && (await this.getStateProposal(account, policyStateAsPolicy(key, state)));
 
       // with proposal required - https://github.com/edgedb/edgedb/issues/6305
       const { id } = await e
@@ -128,7 +130,10 @@ export class PoliciesService {
               name: name || `Policy ${key}`,
               stateHistory: e.insert(e.PolicyState, {
                 ...(proposal && { proposal }),
-                ...this.insertStateShape(state),
+                ...this.insertStateShape(
+                  state,
+                  isInitState ? { account: asAddress(account) } : undefined,
+                ),
               }),
             }),
           ),
@@ -152,7 +157,7 @@ export class PoliciesService {
     }
   }
 
-  private insertStateShape(p: NonNullable<PolicyStateShape>) {
+  private insertStateShape(p: NonNullable<PolicyStateShape>, isInitState?: { account: Address }) {
     return {
       approvers: e.for(e.cast(e.str, e.set(...p.approvers.map((a) => a.address))), (approver) =>
         e.insert(e.Approver, { address: e.cast(e.str, approver) }).unlessConflict((approver) => ({
@@ -168,7 +173,10 @@ export class PoliciesService {
             functions: e.set(
               ...a.functions.map((f) =>
                 e.insert(e.ActionFunction, {
-                  contract: f.contract,
+                  contract:
+                    isInitState && f.contract === PLACEHOLDER_ACCOUNT_ADDRESS
+                      ? isInitState.account
+                      : f.contract,
                   selector: f.selector,
                 }),
               ),

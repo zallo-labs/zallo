@@ -129,7 +129,7 @@ export class AccountsService {
           ...policy,
           account,
           key: asPolicyKey(i),
-          skipProposal: true,
+          isInitState: true,
         });
       }
     });

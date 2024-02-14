@@ -55,7 +55,7 @@ contract Account is
 
   function initialize(Policy[] calldata policies) external initializer {
     // _initializeArbitraryNonceOrdering();
-    _addPolicies(policies);
+    _initializeWithPolicies(policies);
   }
 
   /*//////////////////////////////////////////////////////////////

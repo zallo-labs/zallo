@@ -5,3 +5,5 @@ export enum HookSelector {
   // Message
   OtherMessage = 0xff,
 }
+
+export const PLACEHOLDER_ACCOUNT_ADDRESS = '0x0000000000000000000000000000000000000001';
