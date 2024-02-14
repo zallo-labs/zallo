@@ -14,11 +14,21 @@ import { UAddress } from 'lib';
 import { Text } from 'react-native-paper';
 import { AccountNameFormField } from '#/fields/AccountNameFormField';
 import { createStyles, useStyles } from '@theme/styles';
-import { usePolicyPresets } from '~/lib/policy/presets';
+import { usePolicyPresets } from '~/lib/policy/usePolicyPresets';
 import { asPolicyInput } from '~/lib/policy/draft';
 import { CHAINS, Chain } from 'chains';
 import { FormSelectChip } from '#/fields/FormSelectChip';
 import { CHAIN_ENTRIES } from '@network/chains';
+import { useQuery } from '~/gql';
+
+const Query = gql(/* GraphQL */ `
+  query CreateAccountScreen {
+    user {
+      id
+      ...UsePolicyPresets_User
+    }
+  }
+`);
 
 const Create = gql(/* GraphQL */ `
   mutation CreateAccountScreen_Create($input: CreateAccountInput!) {
@@ -43,13 +53,15 @@ function CreateAccountScreen({ onCreate }: CreateAccountScreenProps) {
   const router = useRouter();
   const create = useMutation(Create)[1];
 
+  const { user } = useQuery(Query).data;
+
   const { control, handleSubmit, reset, watch } = useForm<Inputs>({
     defaultValues: { label: '', chain: 'zksync-goerli' },
     mode: 'onChange',
   });
 
   const chain = watch('chain');
-  const presets = usePolicyPresets({ chain, account: undefined });
+  const presets = usePolicyPresets({ chain, user, account: undefined });
 
   return (
     <>

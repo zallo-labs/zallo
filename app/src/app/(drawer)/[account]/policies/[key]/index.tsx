@@ -50,6 +50,12 @@ const Query = gql(/* GraphQL */ `
       ...PolicySuggestions_Account
       ...PolicySideSheet_Account
     }
+
+    user {
+      id
+      ...useHydratePolicyDraft_User
+      ...PolicySuggestions_User
+    }
   }
 `);
 
@@ -111,7 +117,7 @@ function PolicyScreen() {
 
   const key = params.key === 'add' ? undefined : asPolicyKey(params.key);
 
-  const { policy, account } = useQuery(Query, {
+  const { policy, account, user } = useQuery(Query, {
     account: params.account,
     key: key ?? (0 as PolicyKey),
     queryPolicy: key !== undefined,
@@ -120,7 +126,7 @@ function PolicyScreen() {
   const view =
     (params.view === 'state' && policy?.state && 'state') || (policy?.draft && 'draft') || 'state';
 
-  const { init } = useHydratePolicyDraft({ account, policy, view });
+  const { init } = useHydratePolicyDraft({ account, user, policy, view });
   const [draft, setDraft] = useAtom(POLICY_DRAFT_ATOM);
   const isModified = !_.isEqual(init, draft);
   const initiallyExpanded = useLayout().layout === 'expanded';
@@ -140,7 +146,7 @@ function PolicyScreen() {
       />
 
       <ScrollableScreenSurface contentContainerStyle={styles.container}>
-        <PolicySuggestions account={account} />
+        <PolicySuggestions account={account} user={user} />
         <ApprovalSettings initiallyExpanded={initiallyExpanded} />
         <SpendingSettings initiallyExpanded={initiallyExpanded} />
         <ActionsSettings initiallyExpanded={initiallyExpanded} />

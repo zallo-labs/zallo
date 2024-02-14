@@ -5,23 +5,32 @@ import { useAtomValue, useSetAtom } from 'jotai';
 import { ScrollView, View } from 'react-native';
 import { Chip, Text } from 'react-native-paper';
 import { POLICY_DRAFT_ATOM } from '~/lib/policy/draft';
-import { usePolicyPresets } from '~/lib/policy/presets';
+import { usePolicyPresets } from '~/lib/policy/usePolicyPresets';
 
 const Account = gql(/* GraphQL */ `
   fragment PolicySuggestions_Account on Account {
     id
     chain
-    ...getPolicyPresets_Account
+    ...UsePolicyPresets_Account
+  }
+`);
+
+const User = gql(/* GraphQL */ `
+  fragment PolicySuggestions_User on User {
+    id
+    ...UsePolicyPresets_User
   }
 `);
 
 export interface PolicySuggestionsProps {
   account: FragmentType<typeof Account>;
+  user: FragmentType<typeof User>;
 }
 
 export function PolicySuggestions(props: PolicySuggestionsProps) {
   const account = useFragment(Account, props.account);
-  const presets = usePolicyPresets({ account, chain: account.chain });
+  const user = useFragment(User, props.user);
+  const presets = usePolicyPresets({ account, user, chain: account.chain });
 
   const policy = useAtomValue(POLICY_DRAFT_ATOM);
   const setDraft = useSetAtom(POLICY_DRAFT_ATOM);

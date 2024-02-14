@@ -7,12 +7,11 @@ import {
   materialIcon,
 } from '@theme/icons';
 import { PolicyDraft, PolicyDraftAction } from './draft';
-import { FragmentType, gql, useFragment as getFragment } from '@api';
-import { ACCOUNT_ABI, Address, asAddress, asSelector } from 'lib';
+import { FragmentType, gql, useFragment } from '@api';
+import { ACCOUNT_ABI, Address, PLACEHOLDER_ACCOUNT_ADDRESS, asAddress, asSelector } from 'lib';
 import _ from 'lodash';
 import { FC, useMemo } from 'react';
 import { getAbiItem, toFunctionSelector } from 'viem';
-import { useApproverAddress } from '~/lib/network/useApprover';
 import { SYNCSWAP, ERC721_ABI } from 'lib/dapps';
 import { Chain } from 'chains';
 
@@ -87,7 +86,7 @@ export const ACTION_PRESETS = {
 >;
 
 const Account = gql(/* GraphQL */ `
-  fragment getPolicyPresets_Account on Account {
+  fragment UsePolicyPresets_Account on Account {
     id
     address
     approvers {
@@ -97,18 +96,32 @@ const Account = gql(/* GraphQL */ `
   }
 `);
 
+const User = gql(/* GraphQL */ `
+  fragment UsePolicyPresets_User on User {
+    id
+    approvers {
+      id
+      address
+    }
+  }
+`);
+
 export interface UsePolicyPresetsParams {
   account: FragmentType<typeof Account> | null | undefined;
+  user: FragmentType<typeof User>;
   chain: Chain;
 }
 
 export function usePolicyPresets({ chain, ...params }: UsePolicyPresetsParams) {
-  const account = getFragment(Account, params.account);
-  const approver = useApproverAddress();
-  const accountAddress = asAddress(account?.address);
+  const account = useFragment(Account, params.account);
+  const user = useFragment(User, params.user);
 
   return useMemo(() => {
-    const approvers = new Set([approver, ...(account?.approvers.map((a) => a.address) ?? [])]);
+    const accountAddress = asAddress(account?.address) ?? PLACEHOLDER_ACCOUNT_ADDRESS;
+    const approvers = new Set([
+      ...(account?.approvers.map((a) => a.address) ?? []),
+      ...user.approvers.map((a) => a.address),
+    ]);
 
     return {
       low: {
@@ -116,7 +129,7 @@ export function usePolicyPresets({ chain, ...params }: UsePolicyPresetsParams) {
         approvers,
         threshold: 1,
         actions: [
-          accountAddress && {
+          {
             ...ACTION_PRESETS.manageAccount,
             functions: ACTION_PRESETS.manageAccount.functions(accountAddress),
             allow: false,
@@ -127,7 +140,7 @@ export function usePolicyPresets({ chain, ...params }: UsePolicyPresetsParams) {
             allow: true,
           },
           { ...ACTION_PRESETS.all, allow: false },
-        ].filter(Boolean),
+        ],
         transfers: { defaultAllow: false, limits: {} }, // TODO: allow transfers up to $x
         allowMessages: true,
       },
@@ -136,7 +149,7 @@ export function usePolicyPresets({ chain, ...params }: UsePolicyPresetsParams) {
         approvers,
         threshold: Math.max(approvers.size > 3 ? 3 : 2, approvers.size),
         actions: [
-          accountAddress && {
+          {
             ...ACTION_PRESETS.manageAccount,
             functions: ACTION_PRESETS.manageAccount.functions(accountAddress),
             allow: false,
@@ -152,7 +165,7 @@ export function usePolicyPresets({ chain, ...params }: UsePolicyPresetsParams) {
             allow: true,
           },
           { ...ACTION_PRESETS.all, allow: true },
-        ].filter(Boolean),
+        ],
         transfers: { defaultAllow: false, limits: {} }, // TODO: allow transfers up to $y
         allowMessages: true,
       },
@@ -161,7 +174,7 @@ export function usePolicyPresets({ chain, ...params }: UsePolicyPresetsParams) {
         approvers,
         threshold: _.clamp(approvers.size - 2, 1, 5),
         actions: [
-          accountAddress && {
+          {
             ...ACTION_PRESETS.manageAccount,
             functions: ACTION_PRESETS.manageAccount.functions(accountAddress),
             allow: true,
@@ -177,10 +190,10 @@ export function usePolicyPresets({ chain, ...params }: UsePolicyPresetsParams) {
             allow: true,
           },
           { ...ACTION_PRESETS.all, allow: true },
-        ].filter(Boolean),
+        ],
         transfers: { defaultAllow: true, limits: {} },
         allowMessages: true,
       },
     } satisfies Record<string, Omit<PolicyDraft, 'account' | 'key'>>;
-  }, [chain, account?.approvers, accountAddress, approver]);
+  }, [account?.address, account?.approvers, user.approvers, chain]);
 }

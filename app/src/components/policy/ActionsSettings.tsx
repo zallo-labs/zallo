@@ -8,7 +8,7 @@ import { ListItemHorizontalTrailing } from '#/list/ListItemHorizontalTrailing';
 import { ListItemTrailingText } from '#/list/ListItemTrailingText';
 import { useToggle } from '~/hooks/useToggle';
 import { PolicyDraftAction, usePolicyDraftState } from '~/lib/policy/draft';
-import { ACTION_PRESETS } from '~/lib/policy/presets';
+import { ACTION_PRESETS } from '~/lib/policy/usePolicyPresets';
 
 function isDefaultAllowAction(a: PolicyDraftAction) {
   return a.functions.some((f) => !f.contract && !f.selector);
