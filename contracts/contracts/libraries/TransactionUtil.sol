@@ -34,23 +34,25 @@ library TransactionUtil {
   uint160 private constant ACCOUNT_CONTRACTS_OFFSET = 0x10000; // 2^16, above zkSync's MAX_SYSTEM_CONTRACT_ADDRESS
   address private constant MULTI_OPERATION_ADDRESS = address(ACCOUNT_CONTRACTS_OFFSET + 0x1);
 
-  function asTx(SystemTransaction calldata t) internal pure returns (Tx memory) {
+  function asTx(SystemTransaction calldata systx) internal pure returns (Tx memory) {
     return
       Tx({
-        operations: _operations(t),
-        validFrom: _validFrom(t),
-        paymaster: t.paymaster.toAddressUnsafe(), // won't truncate
-        paymasterSignedInput: PaymasterUtil.signedInput(t.paymasterInput)
+        operations: _operations(systx),
+        validFrom: _validFrom(systx),
+        paymaster: systx.paymaster.toAddressUnsafe(), // won'systx truncate
+        paymasterSignedInput: PaymasterUtil.signedInput(systx.paymasterInput)
       });
   }
 
-  function _operations(SystemTransaction calldata t) private pure returns (Operation[] memory ops) {
-    address to = t.to.toAddressUnsafe(); // won't truncate
+  function _operations(
+    SystemTransaction calldata systx
+  ) private pure returns (Operation[] memory ops) {
+    address to = systx.to.toAddressUnsafe(); // won'systx truncate
     if (to == MULTI_OPERATION_ADDRESS) {
-      ops = abi.decode(t.data, (Operation[]));
+      ops = abi.decode(systx.data, (Operation[]));
     } else {
       ops = new Operation[](1);
-      ops[0] = Operation({to: to, value: t.value.toU96(), data: t.data});
+      ops[0] = Operation({to: to, value: systx.value.toU96(), data: systx.data});
     }
   }
 
@@ -93,26 +95,26 @@ library TransactionUtil {
   //////////////////////////////////////////////////////////////*/
 
   /// @dev estimateGas always calls with a 65 byte signature - https://github.com/zkSync-Community-Hub/zksync-developers/discussions/81#discussioncomment-7861481
-  function isGasEstimation(SystemTransaction calldata t) internal pure returns (bool) {
-    return t.signature.length == 65;
+  function isGasEstimation(SystemTransaction calldata systx) internal pure returns (bool) {
+    return systx.signature.length == 65;
   }
 
-  function _validFrom(SystemTransaction calldata t) internal pure returns (uint256 validFrom) {
-    validFrom = abi.decode(t.signature, (uint32 /* first part of signature */));
+  function _validFrom(SystemTransaction calldata systx) private pure returns (uint256 validFrom) {
+    validFrom = abi.decode(systx.signature, (uint32 /* first part of signature */));
   }
 
-  function policy(SystemTransaction calldata t) internal view returns (Policy memory policy_) {
-    if (!isGasEstimation(t)) {
-      (, policy_) = abi.decode(t.signature, (uint32, Policy));
+  function policy(SystemTransaction calldata systx) internal view returns (Policy memory policy_) {
+    if (!isGasEstimation(systx)) {
+      (, policy_) = abi.decode(systx.signature, (uint32, Policy));
       PolicyLib.verify(policy_);
     }
   }
 
   function policyAndApprovals(
-    SystemTransaction calldata t
+    SystemTransaction calldata systx
   ) internal pure returns (Policy memory policy_, Approvals memory approvals_) {
-    if (!isGasEstimation(t)) {
-      (, policy_, approvals_) = abi.decode(t.signature, (uint32, Policy, Approvals));
+    if (!isGasEstimation(systx)) {
+      (, policy_, approvals_) = abi.decode(systx.signature, (uint32, Policy, Approvals));
     }
   }
 }

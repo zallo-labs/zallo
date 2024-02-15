@@ -68,38 +68,38 @@ contract Account is
   fallback() external payable {}
 
   /*//////////////////////////////////////////////////////////////
-                          TRANSACTION HANDLING
+                          systx HANDLING
   //////////////////////////////////////////////////////////////*/
 
   /// @inheritdoc IAccount
   function validateTransaction(
     bytes32 /* _txHash */,
     bytes32 /* suggestedSignedHash */,
-    SystemTransaction calldata transaction
+    SystemTransaction calldata systx
   ) external payable override onlyBootloader returns (bytes4 magic) {
-    return _validateTransaction(transaction);
+    return _validateTransaction(systx);
   }
 
   /**
-   * @notice Validates transaction and returns magic value if successful
+   * @notice Validates systx and returns magic value if successful
    * @return magic ACCOUNT_VALIDATION_SUCCESS_MAGIC on success, and bytes(0) when approval is insufficient
    * @dev Reverts with errors when non-approval related validation fails
-   * @param transaction SystemTransaction
+   * @param systx SystemTransaction
    */
   function _validateTransaction(
-    SystemTransaction calldata transaction
+    SystemTransaction calldata systx
   ) internal returns (bytes4 magic) {
-    Tx memory t = transaction.asTx();
-    bytes32 proposal = t.hash();
+    Tx memory transaction = systx.asTx();
+    bytes32 proposal = transaction.hash();
 
-    _incrementNonceIfEquals(transaction);
+    _incrementNonceIfEquals(systx);
     _validateTransactionUnexecuted(proposal);
 
-    (Policy memory policy, Approvals memory approvals) = transaction.policyAndApprovals();
-    policy.hooks.validateOperations(t.operations);
+    (Policy memory policy, Approvals memory approvals) = systx.policyAndApprovals();
+    policy.hooks.validateOperations(transaction.operations);
 
     bool isApproved = approvals.verify(proposal, policy);
-    bool notGasEstimation = !transaction.isGasEstimation();
+    bool notGasEstimation = !systx.isGasEstimation();
     if (isApproved && notGasEstimation) magic = ACCOUNT_VALIDATION_SUCCESS_MAGIC;
   }
 
@@ -107,24 +107,24 @@ contract Account is
   function executeTransaction(
     bytes32 /* txHash */,
     bytes32 /* suggestedSignedHash */,
-    SystemTransaction calldata transaction
+    SystemTransaction calldata systx
   ) external payable override onlyBootloader {
-    _executeTransaction(transaction);
+    _executeTransaction(systx);
   }
 
-  function _executeTransaction(SystemTransaction calldata transaction) internal {
-    Tx memory t = transaction.asTx();
-    _executeOperations(t.hash(), t.operations, transaction.policy().hooks);
+  function _executeTransaction(SystemTransaction calldata systx) internal {
+    Tx memory transaction = systx.asTx();
+    _executeOperations(transaction.hash(), transaction.operations, systx.policy().hooks);
   }
 
   /// @inheritdoc IAccount
   function executeTransactionFromOutside(
-    SystemTransaction calldata transaction
+    SystemTransaction calldata systx
   ) external payable override {
-    if (_validateTransaction(transaction) != ACCOUNT_VALIDATION_SUCCESS_MAGIC)
+    if (_validateTransaction(systx) != ACCOUNT_VALIDATION_SUCCESS_MAGIC)
       revert InsufficientApproval();
 
-    _executeTransaction(transaction);
+    _executeTransaction(systx);
   }
 
   /*//////////////////////////////////////////////////////////////
@@ -134,18 +134,18 @@ contract Account is
   function payForTransaction(
     bytes32 /* txHash */,
     bytes32 /* txDataHash */,
-    SystemTransaction calldata transaction
+    SystemTransaction calldata systx
   ) external payable override onlyBootloader {
-    bool success = SystemTransactionHelper.payToTheBootloader(transaction);
+    bool success = SystemTransactionHelper.payToTheBootloader(systx);
     if (!success) revert FailedToPayBootloader();
   }
 
   function prepareForPaymaster(
     bytes32 /* txHash */,
     bytes32 /* txDataHash */,
-    SystemTransaction calldata transaction
+    SystemTransaction calldata systx
   ) external payable override onlyBootloader {
-    PaymasterUtil.processPaymasterInput(transaction);
+    PaymasterUtil.processPaymasterInput(systx);
   }
 
   /*//////////////////////////////////////////////////////////////
