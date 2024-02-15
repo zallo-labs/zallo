@@ -32,6 +32,7 @@
       "**/.git/**": true,
       "**/.pnp.*": true,
       "**/.yarn/**": true,
+      "**/artifacts*/**": true,
       "**/build/**": true,
       "**/dist/**": true,
       "**/node_modules/**": true,
