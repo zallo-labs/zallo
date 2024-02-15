@@ -37,7 +37,6 @@ export async function txProposalCallParams({
   tx,
   ...params
 }: TxProposalCallParamsOptions) {
-  const { to, value, data } = encodeOperations(account, tx.operations);
   const { maxFeePerGas, maxPriorityFeePerGas } = await network.estimateFeesPerGas();
   const gas =
     tx.gas ??
@@ -46,11 +45,9 @@ export async function txProposalCallParams({
     )) + estimateTransactionVerificationGas(1);
 
   return {
+    ...encodeOperations(tx.operations),
     type: 'eip712',
     account,
-    to,
-    value,
-    data,
     nonce: await network.getTransactionCount({ address: account }),
     maxFeePerGas,
     maxPriorityFeePerGas,

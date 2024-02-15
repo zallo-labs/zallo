@@ -6,7 +6,7 @@ import {IContractDeployer, INonceHolder, DEPLOYER_SYSTEM_CONTRACT, NONCE_HOLDER_
 import {SystemContractsCaller} from '@matterlabs/zksync-contracts/l2/system-contracts/libraries/SystemContractsCaller.sol';
 
 import {Cast} from './libraries/Cast.sol';
-import {TransactionUtil, Operation} from './libraries/TransactionUtil.sol';
+import {TransactionUtil, Tx, Operation} from './libraries/TransactionUtil.sol';
 import {Hook, Hooks} from './policy/hooks/Hooks.sol';
 
 abstract contract Executor {
@@ -29,12 +29,14 @@ abstract contract Executor {
   //////////////////////////////////////////////////////////////*/
 
   /// @dev **Only to be called post validation**
-  function _executeTransaction(bytes32 proposal, Transaction calldata t) internal {
-    _setExecuted(proposal);
+  function _executeOperations(
+    bytes32 proposal,
+    Operation[] memory operations,
+    Hook[] memory hooks
+  ) internal {
+    _setExecuted(proposal); // TODO: set as executed when `_validateTransactionUnexecuted` is called to prevent gas griefing
 
-    Operation[] memory operations = t.operations();
-
-    t.hooks().beforeExecute(operations);
+    hooks.beforeExecute(operations);
 
     if (operations.length == 1) {
       bytes memory response = _executeOperation(operations[0], 0);

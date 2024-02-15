@@ -14,4 +14,8 @@ library Cast {
     if (v > type(uint224).max) revert Uint224CastOverflow(v);
     return uint224(v);
   }
+
+  function toAddressUnsafe(uint256 v) internal pure returns (address) {
+    return address(uint160(v));
+  }
 }

@@ -5,7 +5,7 @@ import '../Account.sol';
 import {TransactionUtil} from '../libraries/TransactionUtil.sol';
 
 contract TestAccount is Account {
-  function testExecuteTransaction(Transaction calldata transaction) external {
-    _executeTransaction(TransactionUtil.hash(transaction), transaction);
+  function testExecuteTransaction(SystemTransaction calldata transaction) external {
+    _executeTransaction(transaction);
   }
 }

@@ -1,5 +1,5 @@
-import { Address, ETH_ADDRESS, UAddress, asAddress } from './address';
-import { Operation, encodeOperations } from './operation';
+import { Address, ETH_ADDRESS, UAddress } from './address';
+import { Operation } from './operation';
 import _ from 'lodash';
 import { hashTypedData, TypedData, TypedDataDefinition, zeroAddress } from 'viem';
 import { TypedDataToPrimitiveTypes } from 'abitype';
@@ -37,24 +37,20 @@ export const TX_EIP712_TYPES = {
   // 2. Setting the gasLimit too high means the user pays more than necessary
   // Issue: the operator may perform a single gas griefing attack by submitting a transaction with a high gasLimit
 
-  // FIXME: Gas griefing attack - *anyone* may re-submit a failed but valid transaction that has sufficient gas for verification but insufficient gas for execution
-  // Mitigation: track transaction validation, not execution
-
-  // Encoding operations (to, value, data)[] instead of packed operations
-  // Pros: improve HW wallet signing readability; allowing changing operation encoding without changing the Tx hashing
-  // Cons: higher gas - but likely by very little?
-
   /* Fields NOT included: */
   // factoryDeps: not dangerous
   // reserved:        maybe it should be? Currently unused by zkSync
   // reservedDynamic: ^
   Tx: [
+    { name: 'operations', type: 'Operation[]' },
+    { name: 'validFrom', type: 'uint256' },
+    { name: 'paymaster', type: 'address' },
+    { name: 'paymasterSignedInput', type: 'bytes' },
+  ] as const,
+  Operation: [
     { name: 'to', type: 'address' },
     { name: 'value', type: 'uint256' },
     { name: 'data', type: 'bytes' },
-    { name: 'nonce', type: 'uint256' },
-    { name: 'paymaster', type: 'address' },
-    { name: 'paymasterSignedInput', type: 'bytes' },
   ] as const,
 } satisfies TypedData;
 
@@ -62,8 +58,12 @@ export type TxTypedDataMessage = TypedDataToPrimitiveTypes<typeof TX_EIP712_TYPE
 
 export function asTypedData(account: UAddress, tx: Tx) {
   const message = {
-    ...encodeOperations(asAddress(account), tx.operations),
-    nonce: tx.nonce,
+    operations: tx.operations.map((op) => ({
+      to: op.to,
+      value: op.value ?? 0n,
+      data: op.data ?? '0x',
+    })),
+    validFrom: tx.nonce,
     paymaster: tx.paymaster ?? zeroAddress,
     paymasterSignedInput: paymasterSignedInput(
       tx.paymaster

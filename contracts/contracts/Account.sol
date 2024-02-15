@@ -2,7 +2,7 @@
 pragma solidity ^0.8.0;
 
 import {IAccount} from '@matterlabs/zksync-contracts/l2/system-contracts/interfaces/IAccount.sol';
-import {Transaction, TransactionHelper} from '@matterlabs/zksync-contracts/l2/system-contracts/libraries/TransactionHelper.sol';
+import {Transaction as SystemTransaction, TransactionHelper as SystemTransactionHelper} from '@matterlabs/zksync-contracts/l2/system-contracts/libraries/TransactionHelper.sol';
 import {ACCOUNT_VALIDATION_SUCCESS_MAGIC} from '@matterlabs/zksync-contracts/l2/system-contracts/interfaces/IAccount.sol';
 import {IContractDeployer, DEPLOYER_SYSTEM_CONTRACT, BOOTLOADER_FORMAL_ADDRESS} from '@matterlabs/zksync-contracts/l2/system-contracts/Constants.sol';
 import {SystemContractsCaller} from '@matterlabs/zksync-contracts/l2/system-contracts/libraries/SystemContractsCaller.sol';
@@ -17,7 +17,7 @@ import {Executor} from './Executor.sol';
 import {ERC165} from './standards/ERC165.sol';
 import {ERC721Receiver} from './standards/ERC721Receiver.sol';
 import {SignatureValidator} from './base/SignatureValidator.sol';
-import {TransactionUtil} from './libraries/TransactionUtil.sol';
+import {TransactionUtil, Tx} from './libraries/TransactionUtil.sol';
 import {PaymasterUtil} from './paymaster/PaymasterUtil.sol';
 
 contract Account is
@@ -30,8 +30,9 @@ contract Account is
   ERC721Receiver,
   SignatureValidator
 {
-  using TransactionHelper for Transaction;
-  using TransactionUtil for Transaction;
+  using SystemTransactionHelper for SystemTransaction;
+  using TransactionUtil for SystemTransaction;
+  using TransactionUtil for Tx;
   using Hooks for Hook[];
   using ApprovalsVerifier for Approvals;
 
@@ -74,55 +75,56 @@ contract Account is
   function validateTransaction(
     bytes32 /* _txHash */,
     bytes32 /* suggestedSignedHash */,
-    Transaction calldata transaction
+    SystemTransaction calldata transaction
   ) external payable override onlyBootloader returns (bytes4 magic) {
-    return _validateTransaction(transaction.hash(), transaction);
+    return _validateTransaction(transaction);
   }
 
   /**
    * @notice Validates transaction and returns magic value if successful
    * @return magic ACCOUNT_VALIDATION_SUCCESS_MAGIC on success, and bytes(0) when approval is insufficient
    * @dev Reverts with errors when non-approval related validation fails
-   * @param proposal Proposal hash - distinct from the suggested signed hash
-   * @param transaction Transaction
+   * @param transaction SystemTransaction
    */
   function _validateTransaction(
-    bytes32 proposal,
-    Transaction calldata transaction
+    SystemTransaction calldata transaction
   ) internal returns (bytes4 magic) {
+    Tx memory t = transaction.asTx();
+    bytes32 proposal = t.hash();
+
     _incrementNonceIfEquals(transaction);
     _validateTransactionUnexecuted(proposal);
 
-    // An EOA signature is always passed in when estimating gas - https://github.com/zkSync-Community-Hub/zksync-developers/discussions/81#discussioncomment-7861481
-    if (transaction.isGasEstimation()) return bytes4(0);
+    (Policy memory policy, Approvals memory approvals) = transaction.policyAndApprovals();
+    policy.hooks.validateOperations(t.operations);
 
-    (Policy memory policy, Approvals memory approvals) = TransactionUtil.decodeSignature(
-      transaction.signature
-    );
-    policy.hooks.validateOperations(transaction.operations());
-
-    return approvals.verify(proposal, policy) ? ACCOUNT_VALIDATION_SUCCESS_MAGIC : bytes4(0);
+    bool isApproved = approvals.verify(proposal, policy);
+    bool notGasEstimation = !transaction.isGasEstimation();
+    if (isApproved && notGasEstimation) magic = ACCOUNT_VALIDATION_SUCCESS_MAGIC;
   }
 
   /// @inheritdoc IAccount
   function executeTransaction(
     bytes32 /* txHash */,
     bytes32 /* suggestedSignedHash */,
-    Transaction calldata transaction
+    SystemTransaction calldata transaction
   ) external payable override onlyBootloader {
-    _executeTransaction(transaction.hash(), transaction);
+    _executeTransaction(transaction);
+  }
+
+  function _executeTransaction(SystemTransaction calldata transaction) internal {
+    Tx memory t = transaction.asTx();
+    _executeOperations(t.hash(), t.operations, transaction.policy().hooks);
   }
 
   /// @inheritdoc IAccount
   function executeTransactionFromOutside(
-    Transaction calldata transaction
+    SystemTransaction calldata transaction
   ) external payable override {
-    bytes32 proposal = transaction.hash();
-
-    if (_validateTransaction(proposal, transaction) != ACCOUNT_VALIDATION_SUCCESS_MAGIC)
+    if (_validateTransaction(transaction) != ACCOUNT_VALIDATION_SUCCESS_MAGIC)
       revert InsufficientApproval();
 
-    _executeTransaction(proposal, transaction);
+    _executeTransaction(transaction);
   }
 
   /*//////////////////////////////////////////////////////////////
@@ -132,16 +134,16 @@ contract Account is
   function payForTransaction(
     bytes32 /* txHash */,
     bytes32 /* txDataHash */,
-    Transaction calldata transaction
+    SystemTransaction calldata transaction
   ) external payable override onlyBootloader {
-    bool success = transaction.payToTheBootloader();
+    bool success = SystemTransactionHelper.payToTheBootloader(transaction);
     if (!success) revert FailedToPayBootloader();
   }
 
   function prepareForPaymaster(
     bytes32 /* txHash */,
     bytes32 /* txDataHash */,
-    Transaction calldata transaction
+    SystemTransaction calldata transaction
   ) external payable override onlyBootloader {
     PaymasterUtil.processPaymasterInput(transaction);
   }
