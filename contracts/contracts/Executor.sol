@@ -34,9 +34,8 @@ abstract contract Executor {
     Operation[] memory operations,
     Hook[] memory hooks
   ) internal {
-    _setExecuted(proposal); // TODO: set as executed when `_validateTransactionUnexecuted` is called to prevent gas griefing
-
-    hooks.beforeExecute(operations);
+    bool execute = hooks.beforeExecute(proposal, operations);
+    if (!execute) return;
 
     if (operations.length == 1) {
       bytes memory response = _executeOperation(operations[0], 0);
@@ -75,20 +74,14 @@ abstract contract Executor {
     }
   }
 
-  function _setExecuted(bytes32 proposal) private {
-    uint256 wordIndex = uint256(proposal) / 256;
-    uint256 bitIndex = uint256(proposal) % 256;
+  function _consumeExecution(bytes32 proposal) internal {
+    uint256 word = uint256(proposal) / 256;
+    uint256 bit = uint256(proposal) % 256;
+    uint256 mask = 1 << bit;
 
-    _executedTransactions()[wordIndex] |= (1 << bitIndex);
-  }
+    if (_executedTransactions()[word] & mask == mask) revert TransactionAlreadyExecuted(proposal);
 
-  function _validateTransactionUnexecuted(bytes32 proposal) internal view {
-    uint256 wordIndex = uint256(proposal) / 256;
-    uint256 bitIndex = uint256(proposal) % 256;
-    uint256 mask = (1 << bitIndex);
-
-    if (_executedTransactions()[wordIndex] & mask == mask)
-      revert TransactionAlreadyExecuted(proposal);
+    _executedTransactions()[word] |= mask;
   }
 
   /*//////////////////////////////////////////////////////////////
@@ -103,43 +96,4 @@ abstract contract Executor {
       abi.encodeCall(INonceHolder.incrementMinNonceIfEquals, (t.nonce))
     );
   }
-
-  // function _initializeArbitraryNonceOrdering() internal {
-  //   // Use arbitrary nonce ordering
-  //   SystemContractsCaller.systemCallWithPropagatedRevert(
-  //     uint32(gasleft()),
-  //     address(DEPLOYER_SYSTEM_CONTRACT),
-  //     0,
-  //     abi.encodeCall(
-  //       DEPLOYER_SYSTEM_CONTRACT.updateNonceOrdering,
-  //       (IContractDeployer.AccountNonceOrdering.Arbitrary)
-  //     )
-  //   );
-  // }
-
-  // function _ensureNonceUnusedAndUse(Transaction memory t, bytes32 proposal) internal {
-  //   SystemContractsCaller.systemCallWithPropagatedRevert(
-  //     uint32(gasleft()),
-  //     address(NONCE_HOLDER_SYSTEM_CONTRACT),
-  //     0,
-  //     abi.encodeCall(INonceHolder.incrementMinNonceIfEquals, (t.nonce))
-  //   );
-
-  //   bytes memory response = SystemContractsCaller.systemCallWithPropagatedRevert(
-  //     uint32(gasleft()),
-  //     address(NONCE_HOLDER_SYSTEM_CONTRACT),
-  //     0,
-  //     abi.encodeCall(INonceHolder.getValueUnderNonce, (t.nonce))
-  //   );
-
-  //   bool nonceUsed = response.length > 0 ? response[0] != 0 : false;
-  //   if (nonceUsed) revert TransactionAlreadyExecuted(proposal, t.nonce);
-
-  //   SystemContractsCaller.systemCallWithPropagatedRevert(
-  //     uint32(gasleft()),
-  //     address(NONCE_HOLDER_SYSTEM_CONTRACT),
-  //     0,
-  //     abi.encodeCall(INonceHolder.setValueUnderNonce, (t.nonce, 1))
-  //   );
-  // }
 }

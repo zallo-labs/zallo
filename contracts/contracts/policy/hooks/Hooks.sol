@@ -4,6 +4,7 @@ pragma solidity ^0.8.0;
 import {Operation} from '../../libraries/TransactionUtil.sol';
 import {TargetHook} from './TargetHook.sol';
 import {TransferHook} from './TransferHook.sol';
+import {DelayHook} from './DelayHook.sol';
 import {OtherMessageHook} from './OtherMessageHook.sol';
 
 struct Hook {
@@ -14,6 +15,7 @@ struct Hook {
 // Transaction hooks [0x00, 0x7f]
 uint8 constant TARGET_HOOK = 0x10;
 uint8 constant TRANSFER_HOOK = 0x11;
+uint8 constant DELAY_HOOK = 0x7f;
 
 // Message hooks [0x80, 0xff]
 uint8 constant OTHER_MESSAGE_HOOK = 0xff;
@@ -69,13 +71,20 @@ library Hooks {
     }
   }
 
-  function beforeExecute(Hook[] memory hooks, Operation[] memory operations) internal {
+  function beforeExecute(
+    Hook[] memory hooks,
+    bytes32 proposal,
+    Operation[] memory operations
+  ) internal returns (bool execute) {
+    execute = true;
     uint8 selector;
     for (uint256 i; i < hooks.length; ++i) {
       selector = hooks[i].selector;
 
       if (selector == TRANSFER_HOOK) {
         TransferHook.beforeExecute(operations, hooks[i].config);
+      } else if (selector == DELAY_HOOK) {
+        execute = DelayHook.beforeExecute(proposal, hooks[i].config);
       }
     }
   }

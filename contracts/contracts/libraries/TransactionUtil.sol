@@ -10,6 +10,11 @@ import {Cast} from './Cast.sol';
 import {TypedData} from './TypedData.sol';
 import {PaymasterUtil} from '../paymaster/PaymasterUtil.sol';
 
+enum TxType {
+  Standard,
+  Scheduled
+}
+
 struct Tx {
   Operation[] operations;
   uint256 validFrom;
@@ -31,10 +36,19 @@ library TransactionUtil {
                                    TX
   //////////////////////////////////////////////////////////////*/
 
-  uint160 private constant ACCOUNT_CONTRACTS_OFFSET = 0x10000; // 2^16, above zkSync's MAX_SYSTEM_CONTRACT_ADDRESS
-  address private constant MULTI_OPERATION_ADDRESS = address(ACCOUNT_CONTRACTS_OFFSET + 0x1);
+  uint256 private constant TX_TYPE_OFFSET = 0x10000; // 2^16, above zkSync's MAX_SYSTEM_CONTRACT_ADDRESS
+  uint256 private constant MULTI_OP_TX = TX_TYPE_OFFSET + (1 << 0);
+  uint256 private constant SCHEDULED_TX = TX_TYPE_OFFSET + (1 << 1);
 
-  function asTx(SystemTransaction calldata systx) internal pure returns (Tx memory) {
+  function transactionType(SystemTransaction calldata systx) internal pure returns (TxType) {
+    if (systx.to == SCHEDULED_TX) {
+      return TxType.Scheduled;
+    } else {
+      return TxType.Standard;
+    }
+  }
+
+  function transaction(SystemTransaction calldata systx) internal pure returns (Tx memory) {
     return
       Tx({
         operations: _operations(systx),
@@ -47,12 +61,15 @@ library TransactionUtil {
   function _operations(
     SystemTransaction calldata systx
   ) private pure returns (Operation[] memory ops) {
-    address to = systx.to.toAddressUnsafe(); // won'systx truncate
-    if (to == MULTI_OPERATION_ADDRESS) {
+    if (systx.to == MULTI_OP_TX) {
       ops = abi.decode(systx.data, (Operation[]));
     } else {
       ops = new Operation[](1);
-      ops[0] = Operation({to: to, value: systx.value.toU96(), data: systx.data});
+      ops[0] = Operation({
+        to: systx.to.toAddressUnsafe(), // Never truncates
+        value: systx.value.toU96(),
+        data: systx.data
+      });
     }
   }
 
@@ -100,12 +117,12 @@ library TransactionUtil {
   }
 
   function _validFrom(SystemTransaction calldata systx) private pure returns (uint256 validFrom) {
-    validFrom = abi.decode(systx.signature, (uint32 /* first part of signature */));
+    validFrom = abi.decode(systx.signature, (uint32 /*, Policy, Approvals */));
   }
 
   function policy(SystemTransaction calldata systx) internal view returns (Policy memory policy_) {
     if (!isGasEstimation(systx)) {
-      (, policy_) = abi.decode(systx.signature, (uint32, Policy));
+      (, policy_) = abi.decode(systx.signature, (uint32, Policy /*, Approvals */));
       PolicyLib.verify(policy_);
     }
   }

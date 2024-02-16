@@ -23,6 +23,7 @@ import {
   decodeOtherMessageHook,
   encodeOtherMessageHook,
 } from './permissions/OtherMessagePermission';
+import { decodeDelayHook, encodeDelayHook, NO_DELAY_CONFIG } from './permissions/DelayPermission';
 
 export type PolicyKey = A.Type<number, 'PolicyKey'>;
 export const MIN_POLICY_KEY = 0;
@@ -58,6 +59,7 @@ export function encodePolicyStruct(p: Policy): PolicyStruct {
     hooks: [
       encodeTargetsHook(p.permissions.targets),
       encodeTransfersHook(p.permissions.transfers),
+      encodeDelayHook(p.permissions.delay),
       encodeOtherMessageHook(p.permissions.otherMessage),
     ]
       .filter(isPresent)
@@ -67,16 +69,17 @@ export function encodePolicyStruct(p: Policy): PolicyStruct {
 }
 
 export function decodePolicyStruct(s: PolicyStruct): Policy {
+  const hook = (selector: HookSelector) => s.hooks.find((h) => h.selector === selector);
+
   return {
     key: asPolicyKey(s.key),
     approvers: new Set(s.approvers.map((a) => asAddress(a))),
     threshold: s.threshold,
     permissions: {
-      targets: decodeTargetsHook(s.hooks.find((h) => h.selector === HookSelector.Target)),
-      transfers: decodeTransfersHook(s.hooks.find((h) => h.selector === HookSelector.Transfer)),
-      otherMessage: decodeOtherMessageHook(
-        s.hooks.find((h) => h.selector === HookSelector.OtherMessage),
-      ),
+      targets: decodeTargetsHook(hook(HookSelector.Target)),
+      transfers: decodeTransfersHook(hook(HookSelector.Transfer)),
+      delay: decodeDelayHook(hook(HookSelector.Delay)),
+      otherMessage: decodeOtherMessageHook(hook(HookSelector.OtherMessage)),
     },
   };
 }
@@ -111,6 +114,7 @@ export const asPolicy = (p: {
     permissions: {
       targets: p.permissions?.targets ?? ALLOW_ALL_TARGETS,
       transfers: p.permissions?.transfers ?? ALLOW_ALL_TRANSFERS_CONFIG,
+      delay: p.permissions?.delay ?? NO_DELAY_CONFIG,
       otherMessage: p.permissions?.otherMessage ?? ALLOW_OTHER_MESSAGES_CONFIG,
     },
   };

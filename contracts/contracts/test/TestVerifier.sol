@@ -9,6 +9,7 @@ import {Approvals, ApprovalsVerifier} from '../policy/ApprovalsVerifier.sol';
 import {TransactionUtil, Operation} from '../libraries/TransactionUtil.sol';
 import {TargetHook, TargetsConfig} from '../policy/hooks/TargetHook.sol';
 import {TransferHook, TransfersConfig} from '../policy/hooks/TransferHook.sol';
+import {DelayHook, DelayConfig} from '../policy/hooks/DelayHook.sol';
 import {OtherMessageHook, OtherMessageConfig} from '../policy/hooks/OtherMessageHook.sol';
 
 contract TestVerifier {
@@ -38,6 +39,13 @@ contract TestVerifier {
 
   function beforeExecuteTransfer(Operation calldata op, TransfersConfig calldata config) external {
     TransferHook.beforeExecuteOp(op, config);
+  }
+
+  function beforeExecuteDelay(
+    bytes32 proposal,
+    DelayConfig calldata config
+  ) external returns (bool execute) {
+    DelayHook.beforeExecute(proposal, abi.encode(config));
   }
 
   function validateOtherMessage(

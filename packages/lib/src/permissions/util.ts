@@ -2,6 +2,7 @@ export enum HookSelector {
   // Transaction
   Target = 0x10,
   Transfer = 0x11,
+  Delay = 0x7f,
   // Message
   OtherMessage = 0xff,
 }

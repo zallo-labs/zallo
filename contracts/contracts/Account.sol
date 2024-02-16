@@ -17,8 +17,9 @@ import {Executor} from './Executor.sol';
 import {ERC165} from './standards/ERC165.sol';
 import {ERC721Receiver} from './standards/ERC721Receiver.sol';
 import {SignatureValidator} from './base/SignatureValidator.sol';
-import {TransactionUtil, Tx} from './libraries/TransactionUtil.sol';
+import {TransactionUtil, Tx, TxType} from './libraries/TransactionUtil.sol';
 import {PaymasterUtil} from './paymaster/PaymasterUtil.sol';
+import {Scheduler} from './libraries/Scheduler.sol';
 
 contract Account is
   IAccount,
@@ -44,6 +45,7 @@ contract Account is
   error InsufficientBalance();
   error FailedToPayBootloader();
   error OnlyCallableByBootloader();
+  error UnexpectedTransactionType(TxType txType);
 
   /*//////////////////////////////////////////////////////////////
                              INITIALIZATION
@@ -55,7 +57,6 @@ contract Account is
   }
 
   function initialize(Policy[] calldata policies) external initializer {
-    // _initializeArbitraryNonceOrdering();
     _initializeWithPolicies(policies);
   }
 
@@ -68,7 +69,7 @@ contract Account is
   fallback() external payable {}
 
   /*//////////////////////////////////////////////////////////////
-                          systx HANDLING
+                      SYSTEM TRANSACTION HANDLING
   //////////////////////////////////////////////////////////////*/
 
   /// @inheritdoc IAccount
@@ -77,30 +78,44 @@ contract Account is
     bytes32 /* suggestedSignedHash */,
     SystemTransaction calldata systx
   ) external payable override onlyBootloader returns (bytes4 magic) {
-    return _validateTransaction(systx);
+    if (_validateSystemTransaction(systx)) magic = ACCOUNT_VALIDATION_SUCCESS_MAGIC;
   }
 
-  /**
-   * @notice Validates systx and returns magic value if successful
-   * @return magic ACCOUNT_VALIDATION_SUCCESS_MAGIC on success, and bytes(0) when approval is insufficient
-   * @dev Reverts with errors when non-approval related validation fails
-   * @param systx SystemTransaction
-   */
-  function _validateTransaction(
+  function _validateSystemTransaction(
     SystemTransaction calldata systx
-  ) internal returns (bytes4 magic) {
-    Tx memory transaction = systx.asTx();
-    bytes32 proposal = transaction.hash();
-
+  ) internal returns (bool success) {
     _incrementNonceIfEquals(systx);
-    _validateTransactionUnexecuted(proposal);
 
+    bool valid;
+    TxType txType = systx.transactionType();
+    if (txType == TxType.Standard) {
+      valid = _validateTransaction(systx);
+    } else if (txType == TxType.Scheduled) {
+      valid = _validateScheduledTransaction(systx);
+    } else {
+      revert UnexpectedTransactionType(txType);
+    }
+
+    return valid && !systx.isGasEstimation();
+  }
+
+  function _validateTransaction(SystemTransaction calldata systx) internal returns (bool success) {
+    Tx memory transaction = systx.transaction();
+    bytes32 proposal = transaction.hash();
     (Policy memory policy, Approvals memory approvals) = systx.policyAndApprovals();
+
+    _consumeExecution(proposal);
     policy.hooks.validateOperations(transaction.operations);
 
-    bool isApproved = approvals.verify(proposal, policy);
-    bool notGasEstimation = !systx.isGasEstimation();
-    if (isApproved && notGasEstimation) magic = ACCOUNT_VALIDATION_SUCCESS_MAGIC;
+    success = approvals.verify(proposal, policy);
+  }
+
+  function _validateScheduledTransaction(
+    SystemTransaction calldata systx
+  ) internal returns (bool success) {
+    Tx memory transaction = abi.decode(systx.data, (Tx));
+    Scheduler.consume(transaction.hash());
+    success = true;
   }
 
   /// @inheritdoc IAccount
@@ -109,22 +124,37 @@ contract Account is
     bytes32 /* suggestedSignedHash */,
     SystemTransaction calldata systx
   ) external payable override onlyBootloader {
-    _executeTransaction(systx);
+    _executeSystemTransaction(systx);
+  }
+
+  function _executeSystemTransaction(SystemTransaction calldata systx) internal {
+    TxType txType = systx.transactionType();
+    if (txType == TxType.Standard) {
+      _executeTransaction(systx);
+    } else if (txType == TxType.Scheduled) {
+      _executeScheduledTransaction(systx);
+    } else {
+      revert UnexpectedTransactionType(txType);
+    }
   }
 
   function _executeTransaction(SystemTransaction calldata systx) internal {
-    Tx memory transaction = systx.asTx();
+    Tx memory transaction = systx.transaction();
     _executeOperations(transaction.hash(), transaction.operations, systx.policy().hooks);
+  }
+
+  function _executeScheduledTransaction(SystemTransaction calldata systx) internal {
+    Tx memory transaction = abi.decode(systx.data, (Tx));
+    _executeOperations(transaction.hash(), transaction.operations, new Hook[](0));
   }
 
   /// @inheritdoc IAccount
   function executeTransactionFromOutside(
     SystemTransaction calldata systx
   ) external payable override {
-    if (_validateTransaction(systx) != ACCOUNT_VALIDATION_SUCCESS_MAGIC)
-      revert InsufficientApproval();
+    if (!_validateSystemTransaction(systx)) revert InsufficientApproval();
 
-    _executeTransaction(systx);
+    _executeSystemTransaction(systx);
   }
 
   /*//////////////////////////////////////////////////////////////
