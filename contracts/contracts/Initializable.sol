@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.20;
 
 /// @notice Track whether the contract has been initialized
 /// Heavily inspired by OZ's Initializable contract
