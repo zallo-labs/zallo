@@ -239,6 +239,8 @@ module default {
     required property maxNetworkEthFee := .maxEthFeePerGas * .proposal.gasLimit;
     required property maxEthFees := .maxNetworkEthFee + .paymasterEthFees.total - .ethDiscount;
     required submittedAt: datetime { default := datetime_of_statement(); }
+    required cancelled: bool { default := false; }
+    scheduledFor: datetime;
     receipt: Receipt { constraint exclusive; }
     multi link events := .<transaction[is Event];
     multi link refunds := .<transaction[is Refund];
