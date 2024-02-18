@@ -11,6 +11,7 @@ import {TargetHook, TargetsConfig} from '../policy/hooks/TargetHook.sol';
 import {TransferHook, TransfersConfig} from '../policy/hooks/TransferHook.sol';
 import {DelayHook, DelayConfig} from '../policy/hooks/DelayHook.sol';
 import {OtherMessageHook, OtherMessageConfig} from '../policy/hooks/OtherMessageHook.sol';
+import {Scheduler} from '../libraries/Scheduler.sol';
 
 contract TestVerifier {
   using TransactionUtil for Transaction;
@@ -41,17 +42,25 @@ contract TestVerifier {
     TransferHook.beforeExecuteOp(op, config);
   }
 
-  function beforeExecuteDelay(
-    bytes32 proposal,
-    DelayConfig calldata config
-  ) external returns (bool execute) {
-    DelayHook.beforeExecute(proposal, abi.encode(config));
-  }
-
   function validateOtherMessage(
     bool previouslyHandled,
     OtherMessageConfig calldata config
   ) external pure {
     OtherMessageHook.validateMessage(abi.encode(config), previouslyHandled);
+  }
+
+  /*//////////////////////////////////////////////////////////////
+                                 DELAY
+  //////////////////////////////////////////////////////////////*/
+
+  function beforeExecuteDelay(
+    bytes32 proposal,
+    DelayConfig calldata config
+  ) external returns (bool execute) {
+    return DelayHook.beforeExecute(proposal, abi.encode(config));
+  }
+
+  function getSchedule(bytes32 proposal) external view returns (uint256 timestamp) {
+    return Scheduler.getSchedule(proposal);
   }
 }

@@ -26,6 +26,10 @@ library Scheduler {
     emit ScheduleCancelled(proposal);
   }
 
+  function getSchedule(bytes32 proposal) internal view returns (uint256) {
+    return _scheduled()[proposal];
+  }
+
   /*//////////////////////////////////////////////////////////////
                                 STORAGE
   //////////////////////////////////////////////////////////////*/
