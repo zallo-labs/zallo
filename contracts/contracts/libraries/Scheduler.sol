@@ -5,7 +5,8 @@ library Scheduler {
   event Scheduled(bytes32 proposal, uint256 timestamp);
   event ScheduleCancelled(bytes32 proposal);
 
-  error NotScheduled(bytes32 proposal, uint256 scheduledTimestamp);
+  error NotScheduled(bytes32 proposal);
+  error NotScheduledYet(bytes32 proposal, uint256 timestamp);
 
   function schedule(bytes32 proposal, uint256 delay) internal {
     uint256 timestamp = block.timestamp + delay;
@@ -16,7 +17,8 @@ library Scheduler {
 
   function consume(bytes32 proposal) internal {
     uint256 timestamp = _scheduled()[proposal];
-    if (timestamp < block.timestamp) revert NotScheduled(proposal, timestamp);
+    if (timestamp == 0) revert NotScheduled(proposal);
+    if (block.timestamp < timestamp) revert NotScheduledYet(proposal, timestamp);
 
     delete _scheduled()[proposal];
   }

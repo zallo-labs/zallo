@@ -69,7 +69,7 @@ contract Account is
   fallback() external payable {}
 
   /*//////////////////////////////////////////////////////////////
-                      SYSTEM TRANSACTION HANDLING
+                          TRANSACTION HANDLING
   //////////////////////////////////////////////////////////////*/
 
   /// @inheritdoc IAccount
@@ -155,6 +155,10 @@ contract Account is
     if (!_validateSystemTransaction(systx)) revert InsufficientApproval();
 
     _executeSystemTransaction(systx);
+  }
+
+  function cancelScheduledTransaction(bytes32 proposal) external payable onlySelf {
+    Scheduler.cancel(proposal);
   }
 
   /*//////////////////////////////////////////////////////////////
