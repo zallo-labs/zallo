@@ -130,7 +130,9 @@ export const deployProxy = async ({
   )._unsafeUnwrap();
   await network.waitForTransactionReceipt({ hash: deployTransactionHash });
 
-  const policies = initPolicies.map((p) => replaceSelfAddress(p, asAddress(account)));
+  const policies = initPolicies.map((p) =>
+    replaceSelfAddress({ policy: p, to: asAddress(account) }),
+  );
   const policy = policies[0];
 
   await testNetwork.setBalance({

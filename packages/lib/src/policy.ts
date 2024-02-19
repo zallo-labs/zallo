@@ -6,6 +6,7 @@ import {
   encodeTransfersHook,
   HookSelector,
   Permissions,
+  PLACEHOLDER_ACCOUNT_ADDRESS,
 } from './permissions';
 import {
   ALLOW_ALL_TARGETS,
@@ -120,12 +121,22 @@ export const asPolicy = (p: {
   };
 };
 
-export function replaceSelfAddress(policy: Policy, self: Address): Policy {
+export interface ReplaceSelfAddressParams {
+  policy: Policy;
+  from?: Address;
+  to: Address;
+}
+
+export function replaceSelfAddress({
+  policy,
+  from = PLACEHOLDER_ACCOUNT_ADDRESS,
+  to,
+}: ReplaceSelfAddressParams): Policy {
   return {
     ...policy,
     permissions: {
       ...policy.permissions,
-      targets: replaceTargetsSelfAddress(policy.permissions.targets, self),
+      targets: replaceTargetsSelfAddress(policy.permissions.targets, from, to),
     },
   };
 }
