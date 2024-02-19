@@ -94,6 +94,9 @@ export class PolicyInput {
 
   @Field(() => Boolean, { nullable: true })
   allowMessages?: boolean;
+
+  @Field(() => Number, { nullable: true, description: 'seconds' })
+  delay?: number;
 }
 
 @InputType()

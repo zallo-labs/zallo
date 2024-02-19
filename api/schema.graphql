@@ -204,6 +204,9 @@ input CreatePolicyInput {
   actions: [ActionInput!]
   allowMessages: Boolean
   approvers: [Address!]
+
+  """seconds"""
+  delay: Float
   name: String
   threshold: Float
   transfers: TransfersConfigInput
@@ -408,6 +411,9 @@ input PolicyInput {
   actions: [ActionInput!]
   allowMessages: Boolean
   approvers: [Address!]
+
+  """seconds"""
+  delay: Float
   name: String
   threshold: Float
   transfers: TransfersConfigInput
@@ -422,6 +428,9 @@ type PolicyState {
   allowMessages: Boolean!
   approvers: [Approver!]!
   createdAt: DateTime!
+
+  """seconds"""
+  delay: Float!
   hasBeenActive: Boolean!
   id: ID!
   isAccountInitState: Boolean!
@@ -940,6 +949,9 @@ input UpdatePolicyInput {
   actions: [ActionInput!]
   allowMessages: Boolean
   approvers: [Address!]
+
+  """seconds"""
+  delay: Float
   key: PolicyKey!
   name: String
   threshold: Float

@@ -194,6 +194,7 @@ export class PoliciesService {
         }),
       }),
       allowMessages: p.allowMessages,
+      delay: p.delay,
     } satisfies Partial<Parameters<typeof e.insert<typeof e.PolicyState>>[1]>;
   }
 
