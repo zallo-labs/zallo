@@ -9,6 +9,7 @@ import { AppbarOptions } from '#/Appbar/AppbarOptions';
 import { useRouter } from 'expo-router';
 import { PolicyKey, UAddress } from 'lib';
 import { createStyles, useStyles } from '@theme/styles';
+import { useSideSheet } from '#/SideSheet/SideSheetLayout';
 
 const Policy = gql(/* GraphQL */ `
   fragment PolicyAppbar_Policy on Policy {
@@ -40,13 +41,13 @@ export interface PolicyAppbarProps {
   view: PolicyView;
   setView: (view: PolicyView) => void;
   reset?: () => void;
-  openSettings: () => void;
 }
 
-export function PolicyAppbar({ view, setView, reset, openSettings, ...props }: PolicyAppbarProps) {
+export function PolicyAppbar({ view, setView, reset, ...props }: PolicyAppbarProps) {
   const { styles } = useStyles(stylesheet);
   const router = useRouter();
   const policy = useFragment(Policy, props.policy);
+  const sheet = useSideSheet();
 
   const { name } = useAtomValue(POLICY_DRAFT_ATOM);
 
@@ -81,7 +82,7 @@ export function PolicyAppbar({ view, setView, reset, openSettings, ...props }: P
               {stateChipLabel}
             </Chip>
           ),
-        (props) => <SettingsOutlineIcon {...props} onPress={openSettings} />,
+        (props) => <SettingsOutlineIcon {...props} onPress={() => sheet.show(true)} />,
         (iconProps) =>
           state?.proposal ? (
             <AppbarMore iconProps={iconProps}>

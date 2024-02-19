@@ -49,8 +49,8 @@ export const ACTION_PRESETS = {
       })),
   },
   cancelDelayedTransactions: {
-    icon: CancelIcon,
-    label: 'Cancel delayed transactions',
+    icon: materialCommunityIcon('calendar-remove'),
+    label: 'Cancel scheduled transaction',
     functions: (account: Address) => [
       {
         contract: account,
@@ -148,6 +148,11 @@ export function usePolicyPresets({ chain, ...params }: UsePolicyPresetsParams) {
             allow: false,
           },
           {
+            ...ACTION_PRESETS.cancelDelayedTransactions,
+            functions: ACTION_PRESETS.cancelDelayedTransactions.functions(accountAddress),
+            allow: false,
+          },
+          {
             ...ACTION_PRESETS.syncswapSwap,
             functions: ACTION_PRESETS.syncswapSwap.functions(chain),
             allow: true,
@@ -166,6 +171,11 @@ export function usePolicyPresets({ chain, ...params }: UsePolicyPresetsParams) {
             ...ACTION_PRESETS.manageAccount,
             functions: ACTION_PRESETS.manageAccount.functions(accountAddress),
             allow: false,
+          },
+          {
+            ...ACTION_PRESETS.cancelDelayedTransactions,
+            functions: ACTION_PRESETS.cancelDelayedTransactions.functions(accountAddress),
+            allow: true,
           },
           {
             ...ACTION_PRESETS.syncswapSwap,
@@ -190,6 +200,11 @@ export function usePolicyPresets({ chain, ...params }: UsePolicyPresetsParams) {
           {
             ...ACTION_PRESETS.manageAccount,
             functions: ACTION_PRESETS.manageAccount.functions(accountAddress),
+            allow: true,
+          },
+          {
+            ...ACTION_PRESETS.cancelDelayedTransactions,
+            functions: ACTION_PRESETS.cancelDelayedTransactions.functions(accountAddress),
             allow: true,
           },
           {
