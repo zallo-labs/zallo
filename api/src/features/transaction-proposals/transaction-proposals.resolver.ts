@@ -45,9 +45,7 @@ export class TransactionProposalsResolver {
 
   @ComputedField<typeof e.TransactionProposal>(() => Boolean, { status: true })
   async updatable(@Parent() { status }: TransactionProposal): Promise<boolean> {
-    return (
-      status === TransactionProposalStatus.Pending || status === TransactionProposalStatus.Failed
-    );
+    return status === TransactionProposalStatus.Pending;
   }
 
   @ComputedField<typeof e.TransactionProposal>(() => EstimatedTransactionFees, estimateFeesDeps)
