@@ -11,6 +11,8 @@ import {
   isPresent,
   simulateDeployAccountProxy,
   DeployAccountProxyRequestParams,
+  replaceSelfAddress,
+  PLACEHOLDER_ACCOUNT_ADDRESS,
 } from 'lib';
 import { NetworksService } from '../util/networks/networks.service';
 import e from '~/edgeql-js';
@@ -127,7 +129,14 @@ export class ActivationsService {
       implementation: asAddress(account.implementation),
       policies: account.initPolicies
         .map((p) => policyStateAsPolicy(p.key, p.state))
-        .filter(isPresent),
+        .filter(isPresent)
+        .map((p) =>
+          replaceSelfAddress({
+            policy: p,
+            from: asAddress(address),
+            to: PLACEHOLDER_ACCOUNT_ADDRESS,
+          }),
+        ),
     } satisfies DeployAccountProxyRequestParams;
   }
 }
