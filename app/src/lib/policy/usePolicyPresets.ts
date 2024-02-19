@@ -1,5 +1,6 @@
 import {
   AccountIcon,
+  CancelIcon,
   IconProps,
   SwapIcon,
   imageFromSource,
@@ -46,6 +47,18 @@ export const ACTION_PRESETS = {
         contract: account,
         selector: asSelector(toFunctionSelector(f)),
       })),
+  },
+  cancelDelayedTransactions: {
+    icon: CancelIcon,
+    label: 'Cancel delayed transactions',
+    functions: (account: Address) => [
+      {
+        contract: account,
+        selector: asSelector(
+          toFunctionSelector(getAbiItem({ abi: ACCOUNT_ABI, name: 'cancelScheduledTransaction' })),
+        ),
+      },
+    ],
   },
   syncswapSwap: {
     icon: SwapIcon,
