@@ -19,15 +19,21 @@ export async function encodeScheduledTransaction({
 }: EncodeScheduledTransactionParams): Promise<CallParams> {
   const { maxFeePerGas, maxPriorityFeePerGas } = await network.estimateFeesPerGas();
 
-  return {
-    network,
+  const t = {
     type: 'eip712',
+    account,
     to: SCHEDULED_TX,
     data: encodeAbiParameters([TX_ABI], [encodeTxStruct(tx)]),
-    account,
+  } as const;
+
+  return {
+    ...t,
+    network,
     nonce: await network.getTransactionCount({ address: account }),
+    gas: await network.estimateGas(t),
     maxFeePerGas,
     maxPriorityFeePerGas,
     gasPerPubdata: BigInt(zkUtils.DEFAULT_GAS_PER_PUBDATA_LIMIT),
+    customSignature: '0x00', // Empty signatures are not allowed by zksync
   };
 }
