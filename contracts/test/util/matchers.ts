@@ -148,6 +148,8 @@ function viemChaiMatchers(chai: Chai.ChaiStatic, _utils: Chai.ChaiUtils) {
               strict: true,
             });
 
+            if (event.eventName !== eventName) return false;
+
             if (args) {
               const equals = deepEqual(event.args, args);
               if (!equals) foundWithMismatchingArgs.push(event.args);
