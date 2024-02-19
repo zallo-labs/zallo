@@ -47,7 +47,6 @@ const stylesheet = createStyles(({ colors }) => {
         // Modal type
         compact: 360,
         // Standard type
-        expanded: 240, // Use a reduced (non-standard MD3) width for smaller screens that use the standard type
         large: 360,
       },
       //  Unset borders
