@@ -1,9 +1,9 @@
 import { Address, ETH_ADDRESS, UAddress } from './address';
 import { Operation } from './operation';
 import _ from 'lodash';
-import { hashTypedData, TypedData, TypedDataDefinition, zeroAddress } from 'viem';
-import { TypedDataToPrimitiveTypes } from 'abitype';
-import { asFp, paymasterSignedInput } from '.';
+import { getAbiItem, hashTypedData, TypedData, TypedDataDefinition, zeroAddress } from 'viem';
+import { AbiParameterToPrimitiveType, TypedDataToPrimitiveTypes } from 'abitype';
+import { TEST_VERIFIER_ABI, asFp, paymasterSignedInput } from '.';
 import { ETH } from './dapps';
 import Decimal from 'decimal.js';
 import { getContractTypedDataDomain } from './util/typed-data';
@@ -57,7 +57,23 @@ export const TX_EIP712_TYPES = {
 export type TxTypedDataMessage = TypedDataToPrimitiveTypes<typeof TX_EIP712_TYPES>['Tx'];
 
 export function asTypedData(account: UAddress, tx: Tx) {
-  const message = {
+  return {
+    domain: getContractTypedDataDomain(account),
+    types: TX_EIP712_TYPES,
+    primaryType: 'Tx' as const,
+    message: encodeTxStruct(tx) satisfies TxTypedDataMessage,
+  } satisfies TypedDataDefinition;
+}
+
+export function hashTx(...params: Parameters<typeof asTypedData>) {
+  return hashTypedData(asTypedData(...params));
+}
+
+export const TX_ABI = getAbiItem({ abi: TEST_VERIFIER_ABI, name: 'transaction' }).inputs[0];
+export type TxStruct = AbiParameterToPrimitiveType<typeof TX_ABI>;
+
+export function encodeTxStruct(tx: Tx): TxStruct {
+  return {
     operations: tx.operations.map((op) => ({
       to: op.to,
       value: op.value ?? 0n,
@@ -73,16 +89,5 @@ export function asTypedData(account: UAddress, tx: Tx) {
           }
         : '0x',
     ),
-  } satisfies TxTypedDataMessage;
-
-  return {
-    domain: getContractTypedDataDomain(account),
-    types: TX_EIP712_TYPES,
-    primaryType: 'Tx' as const,
-    message,
-  } satisfies TypedDataDefinition;
-}
-
-export function hashTx(...params: Parameters<typeof asTypedData>) {
-  return hashTypedData(asTypedData(...params));
+  };
 }

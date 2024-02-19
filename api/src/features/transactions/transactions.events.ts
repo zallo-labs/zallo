@@ -24,7 +24,6 @@ import { RUNNING_JOB_STATUSES, TypedQueue } from '../util/bull/bull.util';
 import { ETH } from 'lib/dapps';
 import { runOnce } from '~/util/mutex';
 import { ampli } from '~/util/ampli';
-import Decimal from 'decimal.js';
 
 const opExecutedEvent = getAbiItem({ abi: ACCOUNT_IMPLEMENTATION.abi, name: 'OperationExecuted' });
 const opsExecutedEvent = getAbiItem({

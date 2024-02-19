@@ -9,9 +9,10 @@ import {
   asHex,
   asUAddress,
   asUUID,
+  encodeTransaction,
   isHex,
   isTruthy,
-  txProposalCallParams,
+  simulate,
 } from 'lib';
 import { DatabaseService } from '../database/database.service';
 import e from '~/edgeql-js';
@@ -35,8 +36,6 @@ import {
   proposalTxShape,
   transactionProposalAsTx,
 } from '~/features/transaction-proposals/transaction-proposals.util';
-import { ResultAsync } from 'neverthrow';
-import { CallErrorType } from 'viem';
 import { runOnce } from '~/util/mutex';
 
 type TransferDetails = Parameters<typeof e.insert<typeof e.TransferDetails>>[1];
@@ -81,26 +80,23 @@ export class SimulationsWorker extends Worker<SimulationsQueue> {
     const selectedAccount = selectAccount(account);
 
     const network = this.networks.get(chain);
-    const response = await ResultAsync.fromPromise(
-      network.call(
-        await txProposalCallParams({
-          network,
-          account: localAccount,
-          tx: transactionProposalAsTx(p),
-        }),
-      ),
-      (error) => {
-        const e = (error as CallErrorType).walk();
+    const response = await simulate(
+      await encodeTransaction({
+        network,
+        account: localAccount,
+        tx: transactionProposalAsTx(p),
+      }),
+    ).mapErr((callError) => {
+      const e = callError.walk();
 
-        return typeof e === 'object' &&
-          e &&
-          'data' in e &&
-          typeof e.data === 'string' &&
-          isHex(e.data)
-          ? e.data
-          : undefined;
-      },
-    );
+      return typeof e === 'object' &&
+        e &&
+        'data' in e &&
+        typeof e.data === 'string' &&
+        isHex(e.data)
+        ? e.data
+        : undefined;
+    });
 
     const transfers: TransferDetails[] = [];
     for (const op of p.operations) {

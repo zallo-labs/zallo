@@ -9,8 +9,9 @@ import {
   asApproval,
   asHex,
   asUAddress,
+  encodeTransaction,
   encodeTransactionSignature,
-  executeTransaction,
+  execute,
   getTransactionSatisfiability,
   isPresent,
   mapAsync,
@@ -159,14 +160,16 @@ export class ExecutionsWorker extends Worker<ExecutionsQueue> {
         },
       });
 
-      const transactionResult = await executeTransaction({
-        network,
-        account: asAddress(account),
-        tx,
-        paymaster,
-        paymasterInput,
-        customSignature: encodeTransactionSignature({ tx, policy, approvals }),
-      });
+      const transactionResult = await execute(
+        await encodeTransaction({
+          network,
+          account: asAddress(account),
+          tx,
+          paymaster,
+          paymasterInput,
+          customSignature: encodeTransactionSignature({ tx, policy, approvals }),
+        }),
+      );
 
       // TODO: handle failed transaction execution
       if (transactionResult.isErr()) throw transactionResult.error;

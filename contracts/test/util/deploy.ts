@@ -4,8 +4,9 @@ import {
   asPolicy,
   asTx,
   deployAccountProxy,
+  encodeTransaction,
   encodeTransactionSignature,
-  executeTransactionUnsafe,
+  execute,
   Policy,
   randomDeploySalt,
   replaceSelfAddress,
@@ -145,12 +146,14 @@ export const deployProxy = async ({
       const tx = asTx(txOpts);
       const approvals = await getApprovals(account, approvers, tx);
 
-      const r = await executeTransactionUnsafe({
-        network,
-        account: asAddress(account),
-        tx,
-        customSignature: encodeTransactionSignature({ tx, policy, approvals }),
-      });
+      const r = await execute(
+        await encodeTransaction({
+          network,
+          account: asAddress(account),
+          tx,
+          customSignature: encodeTransactionSignature({ tx, policy, approvals }),
+        }),
+      );
 
       if (r.isErr())
         throw new Error(`Execute failed with error ${r.error.message}`, { cause: r.error });
