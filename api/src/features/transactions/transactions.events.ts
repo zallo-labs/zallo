@@ -107,7 +107,7 @@ export class TransactionsEvents implements OnModuleInit {
     if (receipt.status !== 'reverted') return;
 
     const network = this.networks.get(chain);
-    const tx = await network.getTransaction({ hash: receipt.transactionHash });
+    const { gasPrice: _, ...tx } = await network.getTransaction({ hash: receipt.transactionHash });
     const callResponse = await network.call(tx);
 
     const updatedTransaction = e.update(e.Transaction, () => ({
