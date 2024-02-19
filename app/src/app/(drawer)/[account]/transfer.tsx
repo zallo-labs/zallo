@@ -116,7 +116,7 @@ function TransferScreen() {
               });
               if (!proposal) return;
 
-              router.replace({
+              router.push({
                 pathname: `/(drawer)/transaction/[id]`,
                 params: { id: proposal },
               });
