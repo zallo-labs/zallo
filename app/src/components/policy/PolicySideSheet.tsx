@@ -12,6 +12,7 @@ import { SideSheet } from '../SideSheet/SideSheet';
 import { useConfirmRemoval } from '~/hooks/useConfirm';
 import { Button } from '../Button';
 import { createStyles, useStyles } from '@theme/styles';
+import { useEffect } from 'react';
 
 const trimmed = (v: string) => v.trim();
 
@@ -92,6 +93,10 @@ export function PolicySideSheet(props: PolicySideSheetProps) {
   const { control, handleSubmit, reset } = useForm<Inputs>({
     defaultValues: { name: draft.name },
   });
+
+  useEffect(() => {
+    reset({ name: draft.name });
+  }, [draft.name, reset]);
 
   const takenNames = new Set(
     account?.policies.filter((p) => p.key !== draft.key).map((p) => p.name) ?? [],
