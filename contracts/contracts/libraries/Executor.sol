@@ -2,14 +2,14 @@
 pragma solidity ^0.8.20;
 
 import {Transaction} from '@matterlabs/zksync-contracts/l2/system-contracts/libraries/TransactionHelper.sol';
-import {IContractDeployer, INonceHolder, DEPLOYER_SYSTEM_CONTRACT, NONCE_HOLDER_SYSTEM_CONTRACT, BOOTLOADER_FORMAL_ADDRESS} from '@matterlabs/zksync-contracts/l2/system-contracts/Constants.sol';
+import {DEPLOYER_SYSTEM_CONTRACT} from '@matterlabs/zksync-contracts/l2/system-contracts/Constants.sol';
 import {SystemContractsCaller} from '@matterlabs/zksync-contracts/l2/system-contracts/libraries/SystemContractsCaller.sol';
 
-import {Cast} from './libraries/Cast.sol';
-import {TransactionUtil, Tx, Operation} from './libraries/TransactionUtil.sol';
-import {Hook, Hooks} from './policy/hooks/Hooks.sol';
+import {Cast} from './Cast.sol';
+import {TransactionUtil, Tx, Operation} from './TransactionUtil.sol';
+import {Hook, Hooks} from '../policy/hooks/Hooks.sol';
 
-abstract contract Executor {
+library Executor {
   using Cast for uint256;
   using TransactionUtil for Transaction;
   using Hooks for Hook[];
@@ -29,7 +29,7 @@ abstract contract Executor {
   //////////////////////////////////////////////////////////////*/
 
   /// @dev **Only to be called post validation**
-  function _executeOperations(
+  function executeOperations(
     bytes32 proposal,
     Operation[] memory operations,
     Hook[] memory hooks
@@ -74,7 +74,7 @@ abstract contract Executor {
     }
   }
 
-  function _consumeExecution(bytes32 proposal) internal {
+  function consume(bytes32 proposal) internal {
     uint256 word = uint256(proposal) / 256;
     uint256 bit = uint256(proposal) % 256;
     uint256 mask = 1 << bit;
@@ -82,18 +82,5 @@ abstract contract Executor {
     if (_executedTransactions()[word] & mask == mask) revert TransactionAlreadyExecuted(proposal);
 
     _executedTransactions()[word] |= mask;
-  }
-
-  /*//////////////////////////////////////////////////////////////
-                                  NONCE
-  //////////////////////////////////////////////////////////////*/
-
-  function _incrementNonceIfEquals(Transaction calldata t) internal {
-    SystemContractsCaller.systemCallWithPropagatedRevert(
-      uint32(gasleft()), // truncation ok
-      address(NONCE_HOLDER_SYSTEM_CONTRACT),
-      0,
-      abi.encodeCall(INonceHolder.incrementMinNonceIfEquals, (t.nonce))
-    );
   }
 }

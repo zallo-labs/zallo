@@ -4,7 +4,7 @@ pragma solidity ^0.8.20;
 import {IAccount} from '@matterlabs/zksync-contracts/l2/system-contracts/interfaces/IAccount.sol';
 import {Transaction as SystemTransaction, TransactionHelper as SystemTransactionHelper} from '@matterlabs/zksync-contracts/l2/system-contracts/libraries/TransactionHelper.sol';
 import {ACCOUNT_VALIDATION_SUCCESS_MAGIC} from '@matterlabs/zksync-contracts/l2/system-contracts/interfaces/IAccount.sol';
-import {IContractDeployer, DEPLOYER_SYSTEM_CONTRACT, BOOTLOADER_FORMAL_ADDRESS} from '@matterlabs/zksync-contracts/l2/system-contracts/Constants.sol';
+import {INonceHolder, BOOTLOADER_FORMAL_ADDRESS, NONCE_HOLDER_SYSTEM_CONTRACT} from '@matterlabs/zksync-contracts/l2/system-contracts/Constants.sol';
 import {SystemContractsCaller} from '@matterlabs/zksync-contracts/l2/system-contracts/libraries/SystemContractsCaller.sol';
 
 import {Initializable} from './Initializable.sol';
@@ -13,7 +13,7 @@ import {Policy, PolicyKey} from './policy/Policy.sol';
 import {PolicyManager} from './policy/PolicyManager.sol';
 import {Approvals, ApprovalsVerifier} from './policy/ApprovalsVerifier.sol';
 import {Hook, Hooks} from './policy/hooks/Hooks.sol';
-import {Executor} from './Executor.sol';
+import {Executor} from './libraries/Executor.sol';
 import {ERC165} from './standards/ERC165.sol';
 import {ERC721Receiver} from './standards/ERC721Receiver.sol';
 import {SignatureValidator} from './base/SignatureValidator.sol';
@@ -26,7 +26,6 @@ contract Account is
   Initializable,
   Upgradeable,
   PolicyManager,
-  Executor,
   ERC165,
   ERC721Receiver,
   SignatureValidator
@@ -104,7 +103,7 @@ contract Account is
     bytes32 proposal = transaction.hash();
     (Policy memory policy, Approvals memory approvals) = systx.policyAndApprovals();
 
-    _consumeExecution(proposal);
+    Executor.consume(proposal);
     policy.hooks.validateOperations(transaction.operations);
 
     success = approvals.verify(proposal, policy);
@@ -140,12 +139,12 @@ contract Account is
 
   function _executeTransaction(SystemTransaction calldata systx) internal {
     Tx memory transaction = systx.transaction();
-    _executeOperations(transaction.hash(), transaction.operations, systx.policy().hooks);
+    Executor.executeOperations(transaction.hash(), transaction.operations, systx.policy().hooks);
   }
 
   function _executeScheduledTransaction(SystemTransaction calldata systx) internal {
     Tx memory transaction = abi.decode(systx.data, (Tx));
-    _executeOperations(transaction.hash(), transaction.operations, new Hook[](0));
+    Executor.executeOperations(transaction.hash(), transaction.operations, new Hook[](0));
   }
 
   /// @inheritdoc IAccount
@@ -159,6 +158,15 @@ contract Account is
 
   function cancelScheduledTransaction(bytes32 proposal) external payable onlySelf {
     Scheduler.cancel(proposal);
+  }
+
+  function _incrementNonceIfEquals(SystemTransaction calldata systx) private {
+    SystemContractsCaller.systemCallWithPropagatedRevert(
+      uint32(gasleft()), // truncation ok
+      address(NONCE_HOLDER_SYSTEM_CONTRACT),
+      0,
+      abi.encodeCall(INonceHolder.incrementMinNonceIfEquals, (systx.nonce))
+    );
   }
 
   /*//////////////////////////////////////////////////////////////
