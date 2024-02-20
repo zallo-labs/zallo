@@ -21,7 +21,7 @@ abstract contract PolicyManager is SelfOwned {
     _addPolicy(policy);
   }
 
-  function _addPolicy(Policy calldata policy) internal {
+  function _addPolicy(Policy memory policy) internal {
     // Validate approvers and threshold
     uint256 nApprovers = policy.approvers.length;
     if (nApprovers > ApprovalsVerifier.MAX_APPROVERS)
@@ -41,10 +41,10 @@ abstract contract PolicyManager is SelfOwned {
     emit PolicyAdded(policy.key, hash);
   }
 
-  function _initializeWithPolicies(Policy[] calldata policies) internal {
+  function _initializeWithPolicies(Policy[] memory policies) internal {
     uint256 len = policies.length;
     for (uint256 i; i < len; ++i) {
-      policies[i].hooks.replaceSelfAddress();
+      policies[i].hooks = policies[i].hooks.replaceSelfAddress();
       _addPolicy(policies[i]);
     }
   }

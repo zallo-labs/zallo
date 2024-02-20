@@ -41,7 +41,7 @@ library Hooks {
     }
   }
 
-  function replaceSelfAddress(Hook[] memory hooks) internal view {
+  function replaceSelfAddress(Hook[] memory hooks) internal view returns (Hook[] memory) {
     uint8 selector;
     bytes memory replacementConfig;
     uint256 len = hooks.length;
@@ -54,6 +54,8 @@ library Hooks {
 
       if (replacementConfig.length > 0) hooks[i].config = replacementConfig;
     }
+
+    return hooks;
   }
 
   /*//////////////////////////////////////////////////////////////

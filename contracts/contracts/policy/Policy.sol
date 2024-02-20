@@ -18,16 +18,12 @@ library PolicyLib {
   error PolicyDoesNotMatchExpectedHash(bytes32 actualHash, bytes32 expectedHash);
 
   function verify(Policy memory policy) internal view {
-    bytes32 actualHash = _hashMemory(policy);
+    bytes32 actualHash = hash(policy);
     bytes32 expectedHash = hashes()[policy.key];
     if (actualHash != expectedHash) revert PolicyDoesNotMatchExpectedHash(actualHash, expectedHash);
   }
 
-  function _hashMemory(Policy memory p) private pure returns (bytes32) {
-    return keccak256(abi.encode(p));
-  }
-
-  function hash(Policy calldata p) internal pure returns (bytes32) {
+  function hash(Policy memory p) internal pure returns (bytes32) {
     return keccak256(abi.encode(p));
   }
 
