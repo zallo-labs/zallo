@@ -129,9 +129,10 @@ library TransactionUtil {
 
   function policyAndApprovals(
     SystemTransaction calldata systx
-  ) internal pure returns (Policy memory policy_, Approvals memory approvals_) {
+  ) internal view returns (Policy memory policy_, Approvals memory approvals_) {
     if (!isGasEstimation(systx)) {
       (, policy_, approvals_) = abi.decode(systx.signature, (uint32, Policy, Approvals));
+      PolicyLib.verify(policy_);
     }
   }
 }
