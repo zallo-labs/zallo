@@ -8,10 +8,8 @@ library Scheduler {
   error NotScheduled(bytes32 proposal);
   error NotScheduledYet(bytes32 proposal, uint256 timestamp);
 
-  function schedule(bytes32 proposal, uint256 delay) internal {
-    uint256 timestamp = block.timestamp + delay;
+  function schedule(bytes32 proposal, uint256 timestamp) internal {
     _scheduled()[proposal] = timestamp;
-
     emit Scheduled(proposal, timestamp);
   }
 
