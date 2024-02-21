@@ -36,7 +36,7 @@ module default {
   }
 
   abstract type Proposal {
-    required hash: Bytes32;
+    required hash: Bytes32 { constraint exclusive; }
     required account: Account;
     policy: Policy;
     # required multi link policies := assert_exists(<Policy>{.policy} ?? .account.policies);
@@ -65,8 +65,6 @@ module default {
       select Approver filter .id in ids
     );
     property riskLabel := assert_single((select .<proposal[is ProposalRiskLabel] filter .user = global current_user)).risk;
-
-    constraint exclusive on ((.hash, .account));
 
     access policy members_only
       allow all
@@ -173,7 +171,7 @@ module default {
   }
 
   type MessageProposal extending Proposal {
-    required signedHash: Bytes32;
+    required messageHash: Bytes32;
     required message: str;
     typedData: json;
     signature: Bytes;

@@ -65,7 +65,7 @@ export class MessageProposalsService {
     if (!messageInput && !typedData)
       throw new UserInputError('Either message or typedData is required');
 
-    const [message, hash] = (() => {
+    const [message, messageHash] = (() => {
       if (typedData) {
         const m = this.typedDataAsMessage(typedData);
         return [hexToString(m), keccak256(m)];
@@ -76,19 +76,17 @@ export class MessageProposalsService {
       }
     })();
 
+    const hash = hashTypedData(asMessageTypedData(account, messageHash));
+
     // upsert can't be used as exclusive hash constraint exists on parent type (Proposal)
     const proposal =
-      (await this.db.query(
-        e.select(e.MessageProposal, () => ({
-          filter_single: { hash, account: selectAccount(account) },
-        })),
-      )) ??
+      (await this.db.query(e.select(e.MessageProposal, () => ({ filter_single: { hash } })))) ??
       (await (async () => {
         const p = await this.db.query(
           e.insert(e.MessageProposal, {
             account: selectAccount(account),
             hash,
-            signedHash: hashTypedData(asMessageTypedData(account, hash)),
+            messageHash,
             message,
             typedData,
             label,
