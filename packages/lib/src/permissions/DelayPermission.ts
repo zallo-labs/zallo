@@ -14,7 +14,7 @@ export function encodeDelayHook(delay: DelayConfig): HookStruct | undefined {
 
   return {
     selector: HookSelector.Delay,
-    config: encodeAbiParameters([configAbi], [{ delay: BigInt(delay) }]),
+    config: encodeAbiParameters([configAbi], [{ delay }]),
   };
 }
 

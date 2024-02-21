@@ -20,10 +20,6 @@ export function randomHex(n: number) {
   return bytesToHex(getRandomValues(new Uint8Array(n)));
 }
 
-export function compareHex(a: Hex, b: Hex) {
-  return a.toLowerCase().localeCompare(b.toLowerCase());
-}
-
 export function bytesize(v: Hex) {
   return (v.length - 2) / 2;
 }

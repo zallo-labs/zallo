@@ -1,12 +1,12 @@
 import { Address, asAddress, compareAddress } from '../address';
-import { Selector, asSelector, compareHex } from '../bytes';
+import { Selector, asSelector } from '../bytes';
 import { HookSelector } from './util';
 import { HookStruct } from './permissions';
 import _ from 'lodash';
 import { Operation } from '../operation';
 import { OperationSatisfiability } from '../satisfiability';
 import assert from 'assert';
-import { getAbiItem, encodeAbiParameters, decodeAbiParameters } from 'viem';
+import { getAbiItem, encodeAbiParameters, decodeAbiParameters, hexToNumber } from 'viem';
 import { AbiParameterToPrimitiveType } from 'abitype';
 import { TEST_VERIFIER_ABI } from '../contract';
 
@@ -41,7 +41,7 @@ export function encodeTargetsConfigStruct(c: TargetsConfig): TargetsConfigStruct
               selector: asSelector(selector),
               allow,
             }))
-            .sort((a, b) => compareHex(a.selector, b.selector)),
+            .sort((a, b) => hexToNumber(a.selector) - hexToNumber(b.selector)),
           defaultAllow: !!target.defaultAllow,
         },
       }))
@@ -52,7 +52,7 @@ export function encodeTargetsConfigStruct(c: TargetsConfig): TargetsConfigStruct
           selector: asSelector(selector),
           allow,
         }))
-        .sort((a, b) => compareHex(a.selector, b.selector)),
+        .sort((a, b) => hexToNumber(a.selector) - hexToNumber(b.selector)),
       defaultAllow: !!c.default.defaultAllow,
     },
   };

@@ -2,6 +2,7 @@ import { expect } from 'chai';
 import {
   ACCOUNT_ABI,
   Address,
+  asAddress,
   asSelector,
   encodeTargetsConfigStruct,
   Hex,
@@ -55,7 +56,63 @@ describe('TargetPermission', () => {
             default: { functions: {}, defaultAllow: false },
           },
         ),
-      ).to.not.be.rejected;
+      ).to.not.be.reverted;
+    });
+
+    it('contract and multiple functions', async () => {
+      await expect(
+        verify(
+          { to, data },
+          {
+            contracts: {
+              [to]: {
+                functions: {
+                  [asSelector('0x10000000')]: true,
+                  [asSelector('0xa0000000')]: true,
+                  [asSelector(data)]: true,
+                  [asSelector('0xb0000000')]: true,
+                  [asSelector('0x20000000')]: true,
+                },
+                defaultAllow: false,
+              },
+            },
+            default: { functions: {}, defaultAllow: false },
+          },
+        ),
+      ).to.not.be.reverted;
+    });
+
+    it('multiple contract and function', async () => {
+      await expect(
+        verify(
+          { to, data },
+          {
+            contracts: {
+              [asAddress('0x0100000000000000000000000000000000000000')]: {
+                functions: {},
+                defaultAllow: false,
+              },
+              [asAddress('0xa000000000000000000000000000000000000000')]: {
+                functions: {},
+                defaultAllow: false,
+              },
+              [to]: {
+                functions: { [asSelector(data)]: true },
+                defaultAllow: false,
+              },
+              [asAddress('0xff00000000000000000000000000000000000000')]: {
+                functions: {},
+                defaultAllow: false,
+              },
+              [asAddress('0x2000000000000000000000000000000000000000')]: {
+                functions: {},
+                defaultAllow: false,
+              },
+            },
+            default: { functions: {}, defaultAllow: false },
+          },
+        ),
+      ).to.not.be.reverted;
     });
 
     it('contract, no function, and default allow', async () => {
@@ -67,7 +124,7 @@ describe('TargetPermission', () => {
             default: { functions: {}, defaultAllow: false },
           },
         ),
-      ).to.not.be.rejected;
+      ).to.not.be.reverted;
     });
 
     it('no contract, and allowed default function', async () => {
@@ -79,7 +136,7 @@ describe('TargetPermission', () => {
             default: { functions: { [asSelector(data)]: true }, defaultAllow: false },
           },
         ),
-      ).to.not.be.rejected;
+      ).to.not.be.reverted;
     });
 
     it('no contract, and default allow', async () => {
@@ -91,7 +148,7 @@ describe('TargetPermission', () => {
             default: { functions: {}, defaultAllow: true },
           },
         ),
-      ).to.not.be.rejected;
+      ).to.not.be.reverted;
     });
   });
 
