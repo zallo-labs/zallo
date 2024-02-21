@@ -39,6 +39,7 @@ module default {
     required hash: Bytes32;
     required account: Account;
     policy: Policy;
+    # required multi link policies := assert_exists(<Policy>{.policy} ?? .account.policies);
     label: Label;
     iconUri: Url;
     required validFrom: datetime;
@@ -147,6 +148,8 @@ module default {
     required property status := (
       select assert_exists((
         TransactionProposalStatus.Pending if (not exists .transaction and not .submitted) else
+        TransactionProposalStatus.Cancelled if (.transaction.cancelled ?= true) else
+        TransactionProposalStatus.Scheduled if (exists .transaction.scheduledFor) else
         TransactionProposalStatus.Executing if (not exists .transaction.receipt) else
         TransactionProposalStatus.Successful if (.transaction.receipt.success) else
         TransactionProposalStatus.Failed
@@ -157,7 +160,7 @@ module default {
     constraint exclusive on (.hash);
   }
 
-  scalar type TransactionProposalStatus extending enum<'Pending', 'Executing', 'Successful', 'Failed'>;
+  scalar type TransactionProposalStatus extending enum<'Pending', 'Scheduled', 'Executing', 'Successful', 'Failed', 'Cancelled'>;
 
   type Simulation {
     required success: bool;
