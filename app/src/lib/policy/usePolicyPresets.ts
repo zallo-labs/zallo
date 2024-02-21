@@ -1,6 +1,5 @@
 import {
   AccountIcon,
-  CancelIcon,
   IconProps,
   SwapIcon,
   imageFromSource,
@@ -38,15 +37,7 @@ export const ACTION_PRESETS = {
   manageAccount: {
     icon: AccountIcon,
     label: 'Manage account',
-    functions: (account: Address) =>
-      [
-        getAbiItem({ abi: ACCOUNT_ABI, name: 'addPolicy' }),
-        getAbiItem({ abi: ACCOUNT_ABI, name: 'removePolicy' }),
-        getAbiItem({ abi: ACCOUNT_ABI, name: 'upgradeToAndCall' }),
-      ].map((f) => ({
-        contract: account,
-        selector: asSelector(toFunctionSelector(f)),
-      })),
+    functions: (account: Address) => [{ contract: account }],
   },
   cancelDelayedTransactions: {
     icon: materialCommunityIcon('calendar-remove'),
@@ -161,6 +152,7 @@ export function usePolicyPresets({ chain, ...params }: UsePolicyPresetsParams) {
         ],
         transfers: { defaultAllow: false, limits: {} }, // TODO: allow transfers up to $x
         allowMessages: true,
+        delay: 0,
       },
       medium: {
         name: 'Medium risk',
@@ -191,6 +183,7 @@ export function usePolicyPresets({ chain, ...params }: UsePolicyPresetsParams) {
         ],
         transfers: { defaultAllow: false, limits: {} }, // TODO: allow transfers up to $y
         allowMessages: true,
+        delay: 0,
       },
       high: {
         name: 'High risk',
@@ -221,6 +214,7 @@ export function usePolicyPresets({ chain, ...params }: UsePolicyPresetsParams) {
         ],
         transfers: { defaultAllow: true, limits: {} },
         allowMessages: true,
+        delay: 0,
       },
     } satisfies Record<string, Omit<PolicyDraft, 'account' | 'key'>>;
   }, [account?.address, account?.approvers, user.approvers, chain]);
