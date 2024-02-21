@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { UserInputError } from '@nestjs/apollo';
 import {
   hashTx,
-  isHex,
   Tx,
   estimateTransactionOperationsGas,
   FALLBACK_OPERATIONS_GAS,
@@ -45,6 +44,7 @@ import { v4 as uuid } from 'uuid';
 import { FlowProducer } from 'bullmq';
 import { ActivationsService } from '../activations/activations.service';
 import { totalPaymasterEthFees } from '../paymasters/paymasters.util';
+import { ReceiptsQueue } from '../transactions/receipts.queue';
 
 export const selectTransactionProposal = (
   id: UniqueProposal,
@@ -114,18 +114,26 @@ export class TransactionProposalsService {
       (await this.db.query(e.select(updatedProposal.account.address))) ?? undefined,
     );
     if (!account) throw new Error(`Transaction proposal not found: ${txProposal}`);
+    const chain = asChain(account);
 
-    // simulate -> execute
+    // activate -> simulate -> execute -> receipt
     this.flows.add({
-      queueName: ExecutionsQueue.name,
-      name: 'Execute transaction',
-      data: { txProposal, ignoreSimulation } satisfies QueueData<ExecutionsQueue>,
+      queueName: ReceiptsQueue.name,
+      name: 'Transaction proposal',
+      data: { chain, transaction: { child: 0 } } satisfies QueueData<ReceiptsQueue>,
       children: [
         {
-          queueName: SimulationsQueue.name,
-          name: 'Simulate transaction',
-          data: { txProposal } satisfies QueueData<SimulationsQueue>,
-          children: [this.activations.activationFlow(account)],
+          queueName: ExecutionsQueue.name,
+          name: 'Execute transaction',
+          data: { txProposal, ignoreSimulation } satisfies QueueData<ExecutionsQueue>,
+          children: [
+            {
+              queueName: SimulationsQueue.name,
+              name: 'Simulate transaction',
+              data: { txProposal } satisfies QueueData<SimulationsQueue>,
+              children: [this.activations.activationFlow(account)],
+            },
+          ],
         },
       ],
     });

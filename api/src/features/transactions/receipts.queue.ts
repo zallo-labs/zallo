@@ -9,4 +9,3 @@ interface ReceiptEvent {
   chain: Chain;
   transaction: Hex | { child: number };
 }
-g

@@ -1,4 +1,4 @@
-import { InjectQueue, Processor } from '@nestjs/bullmq';
+import { Processor } from '@nestjs/bullmq';
 import { Injectable } from '@nestjs/common';
 import {
   Address,
@@ -19,7 +19,6 @@ import {
 import { DatabaseService } from '~/features/database/database.service';
 import { PaymastersService } from '~/features/paymasters/paymasters.service';
 import { ProposalsService } from '~/features/proposals/proposals.service';
-import { TransactionsQueue } from '~/features/transactions/transactions.queue';
 import { NetworksService } from '~/features/util/networks/networks.service';
 import e from '~/edgeql-js';
 import {
@@ -36,13 +35,7 @@ import Decimal from 'decimal.js';
 import { selectApprover } from '~/features/approvers/approvers.service';
 import { ProposalEvent } from '~/features/proposals/proposals.input';
 import { selectTransactionProposal } from '~/features/transaction-proposals/transaction-proposals.service';
-import {
-  QueueReturnType,
-  TypedJob,
-  TypedQueue,
-  Worker,
-  createQueue,
-} from '~/features/util/bull/bull.util';
+import { QueueReturnType, TypedJob, Worker, createQueue } from '~/features/util/bull/bull.util';
 import { UnrecoverableError } from 'bullmq';
 
 export const ExecutionsQueue = createQueue<
@@ -57,8 +50,6 @@ export class ExecutionsWorker extends Worker<ExecutionsQueue> {
   constructor(
     private networks: NetworksService,
     private db: DatabaseService,
-    @InjectQueue(TransactionsQueue.name)
-    private transactionsQueue: TypedQueue<TransactionsQueue>,
     private proposals: ProposalsService,
     private paymaster: PaymastersService,
   ) {
@@ -150,7 +141,7 @@ export class ExecutionsWorker extends Worker<ExecutionsQueue> {
     );
     if (!policy) return 'no suitable policy';
 
-    const transaction = await this.db.transaction(async (db) => {
+    return await this.db.transaction(async (db) => {
       const { paymaster, paymasterInput, ...feeData } = await this.paymaster.usePaymaster({
         account,
         gasLimit: tx.gas!,
@@ -200,17 +191,12 @@ export class ExecutionsWorker extends Worker<ExecutionsQueue> {
         })
         .run(db);
 
+      this.db.afterTransaction(() =>
+        this.proposals.publishProposal({ id, account }, ProposalEvent.submitted),
+      );
+
       return transaction;
     });
-
-    await this.proposals.publishProposal({ id, account }, ProposalEvent.submitted);
-
-    await this.transactionsQueue.add('Transaction proposal', {
-      chain: network.chain.key,
-      transaction,
-    });
-
-    return transaction;
   }
 
   private async getExecutionPolicy(
