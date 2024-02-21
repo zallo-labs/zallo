@@ -144,7 +144,10 @@ contract Account is
 
   function _executeScheduledTransaction(SystemTransaction calldata systx) internal {
     Tx memory transaction = abi.decode(systx.data, (Tx));
-    Executor.executeOperations(transaction.hash(), transaction.operations, new Hook[](0));
+    bytes32 proposal = transaction.hash();
+
+    Scheduler.requireReady(proposal);
+    Executor.executeOperations(proposal, transaction.operations, new Hook[](0));
   }
 
   /// @inheritdoc IAccount

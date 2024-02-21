@@ -4,7 +4,7 @@ pragma solidity ^0.8.20;
 import {Scheduler} from '../../libraries/Scheduler.sol';
 
 struct DelayConfig {
-  uint256 delay /* seconds */;
+  uint32 delay /* seconds */;
 }
 
 library DelayHook {
@@ -15,7 +15,7 @@ library DelayHook {
     DelayConfig memory config = abi.decode(configData, (DelayConfig));
     if (config.delay == 0) return true;
 
-    Scheduler.schedule(proposal, block.timestamp + config.delay);
+    Scheduler.schedule(proposal, uint32(block.timestamp) + config.delay);
     return false;
   }
 }
