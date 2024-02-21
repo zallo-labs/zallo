@@ -10,6 +10,8 @@ import {
   transactionProposalAsTx,
 } from '../transaction-proposals/transaction-proposals.util';
 import { selectTransactionProposal } from '../transaction-proposals/transaction-proposals.service';
+import { PaymastersService } from '~/features/paymasters/paymasters.service';
+import Decimal from 'decimal.js';
 
 export const SchedulerQueue = createQueue<{ transactionProposal: UUID }>('Scheduled');
 export type SchedulerQueue = typeof SchedulerQueue;
@@ -20,6 +22,7 @@ export class SchedulerWorker extends Worker<SchedulerQueue> {
   constructor(
     private db: DatabaseService,
     private networks: NetworksService,
+    private paymaster: PaymastersService,
   ) {
     super();
   }
@@ -31,26 +34,40 @@ export class SchedulerWorker extends Worker<SchedulerQueue> {
         simulation: { success: true },
         transaction: { receipt: true },
         ...proposalTxShape(p),
+        maxPaymasterEthFees: { activation: true, total: true },
       })),
     );
     if (!proposal) return 'Proposal not found';
     if (!proposal.simulation) return 'Not simulated';
     if (!proposal.simulation.success) return 'Simulation failed';
     if (!proposal.transaction) return 'Not scheduled';
-    if (proposal.transaction.receipt) return 'Already executed'
+    if (proposal.transaction.receipt) return 'Already executed';
 
     const account = asUAddress(proposal.account.address);
 
-    // Execute scheduled transaction
-    const r = await execute(
-      await encodeScheduledTransaction({
+    return await this.db.transaction(async () => {
+      const { paymaster, paymasterInput } = await this.paymaster.usePaymaster({
+        account,
+        gasLimit: proposal.gasLimit,
+        feeToken: asAddress(proposal.feeToken.address),
+        maxPaymasterEthFees: {
+          activation: new Decimal(proposal.maxPaymasterEthFees.activation),
+        },
+      });
+
+      // Execute scheduled transaction
+      const scheduledTx = await encodeScheduledTransaction({
         network: this.networks.get(account),
         account: asAddress(account),
         tx: transactionProposalAsTx(proposal),
-      }),
-    );
-    if (r.isErr()) throw r.error;
+        paymaster,
+        paymasterInput,
+      });
 
-    return r.value.transactionHash;
+      const r = await execute(scheduledTx);
+      if (r.isErr()) throw r.error;
+
+      return r.value.transactionHash;
+    });
   }
 }

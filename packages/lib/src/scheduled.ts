@@ -5,17 +5,20 @@ import { SCHEDULED_TX } from './constants';
 import { Address } from './address';
 import { utils as zkUtils } from 'zksync-ethers';
 import { CallParams } from './safe-viem';
+import { AllOrNone } from './util';
+import { Hex } from './bytes';
 
-export interface EncodeScheduledTransactionParams {
+export type EncodeScheduledTransactionParams = {
   network: Network;
   account: Address;
   tx: Tx;
-}
+} & AllOrNone<{ paymaster: Address; paymasterInput: Hex }>;
 
 export async function encodeScheduledTransaction({
   network,
   account,
   tx,
+  ...params
 }: EncodeScheduledTransactionParams): Promise<CallParams> {
   const { maxFeePerGas, maxPriorityFeePerGas } = await network.estimateFeesPerGas();
 
@@ -30,10 +33,11 @@ export async function encodeScheduledTransaction({
     ...t,
     network,
     nonce: await network.getTransactionCount({ address: account }),
-    gas: await network.estimateGas(t),
+    gas: tx.gas,
     maxFeePerGas,
     maxPriorityFeePerGas,
     gasPerPubdata: BigInt(zkUtils.DEFAULT_GAS_PER_PUBDATA_LIMIT),
     customSignature: '0x00', // Empty signatures are not allowed by zksync
+    ...params,
   };
 }
