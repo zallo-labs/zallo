@@ -1,6 +1,6 @@
 import { Processor } from '@nestjs/bullmq';
 import { Injectable } from '@nestjs/common';
-import { TransactionsQueue } from './transactions.queue';
+import { ReceiptsQueue } from './receipts.queue';
 import { NetworksService } from '../util/networks/networks.service';
 import { Chain, ChainConfig } from 'chains';
 import {
@@ -13,7 +13,7 @@ import {
 import { AbiEvent } from 'abitype';
 import { Log } from '~/features/events/events.worker';
 import { QueueReturnType, TypedJob, Worker } from '~/features/util/bull/bull.util';
-import { asHex, isPresent } from 'lib';
+import { asHex, isHex, isPresent } from 'lib';
 import { ActivationsQueue } from '../activations/activations.queue';
 
 export const REQUIRED_CONFIRMATIONS = 1;
@@ -35,8 +35,8 @@ export type TransactionEventListener<TAbiEvent extends AbiEvent> = (
 ) => Promise<void>;
 
 @Injectable()
-@Processor(TransactionsQueue.name)
-export class TransactionsWorker extends Worker<TransactionsQueue> {
+@Processor(ReceiptsQueue.name)
+export class ReceiptsWorker extends Worker<ReceiptsQueue> {
   private listeners: TransactionListener[] = [];
   private events: AbiEvent[] = [];
   private eventListeners = new Map<Hex, TransactionEventListener<AbiEvent>[]>();
@@ -61,14 +61,15 @@ export class TransactionsWorker extends Worker<TransactionsQueue> {
     this.events.push(event);
   }
 
-  async process(job: TypedJob<TransactionsQueue>) {
+  async process(job: TypedJob<ReceiptsQueue>) {
     const { chain } = job.data;
-    const transaction =
-      job.data.transaction === 'child'
-        ? asHex(
-            Object.values(await job.getChildrenValues())[0] as QueueReturnType<ActivationsQueue>,
-          )
-        : job.data.transaction;
+    const transaction = isHex(job.data.transaction)
+      ? job.data.transaction
+      : asHex(
+          Object.values(await job.getChildrenValues())[
+            job.data.transaction.child
+          ] as QueueReturnType<ActivationsQueue>,
+        );
     if (!transaction) return;
 
     const network = this.networks.get(chain);
@@ -98,11 +99,10 @@ export class TransactionsWorker extends Worker<TransactionsQueue> {
           }
         })
         .filter(isPresent)
-        .flatMap(
-          (log) =>
-            this.eventListeners
-              .get(log.topics[0]!)
-              ?.map((listener) => listener({ chain, log, receipt, block })),
+        .flatMap((log) =>
+          this.eventListeners
+            .get(log.topics[0]!)
+            ?.map((listener) => listener({ chain, log, receipt, block })),
         ),
     ]);
   }

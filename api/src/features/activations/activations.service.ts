@@ -19,7 +19,7 @@ import e from '~/edgeql-js';
 import { DatabaseService } from '../database/database.service';
 import { policyStateAsPolicy, policyStateShape } from '../policies/policies.util';
 import { FlowJob } from 'bullmq';
-import { TransactionsQueue } from '../transactions/transactions.queue';
+import { ReceiptsQueue } from '../transactions/receipts.queue';
 import Decimal from 'decimal.js';
 
 interface FeeParams {
@@ -37,12 +37,12 @@ export class ActivationsService {
 
   activationFlow(account: UAddress) {
     return {
-      queueName: TransactionsQueue.name,
+      queueName: ReceiptsQueue.name,
       name: 'Activation transaction',
       data: {
         chain: asChain(account),
-        transaction: 'child',
-      } satisfies QueueData<TransactionsQueue>,
+        transaction: { child: 0 },
+      } satisfies QueueData<ReceiptsQueue>,
       children: [
         {
           queueName: ActivationsQueue.name,

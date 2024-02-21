@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Address, UAddress, asAddress, asUAddress, isTruthy, ETH_ADDRESS, isEthToken } from 'lib';
 import { ERC20 } from 'lib/dapps';
-import { TransactionEventData, TransactionsWorker } from '../transactions/transactions.worker';
+import { TransactionEventData, ReceiptsWorker } from '../transactions/receipts.worker';
 import { EventData, EventsWorker } from '../events/events.worker';
 import { DatabaseService } from '../database/database.service';
 import e from '~/edgeql-js';
@@ -36,8 +36,8 @@ export class TransfersEvents {
 
   constructor(
     private db: DatabaseService,
-    private eventsProcessor: EventsWorker,
-    private transactionsProcessor: TransactionsWorker,
+    private events: EventsWorker,
+    private receipts: ReceiptsWorker,
     private networks: NetworksService,
     private pubsub: PubsubService,
     private accountsCache: AccountsCacheService,
@@ -49,11 +49,11 @@ export class TransfersEvents {
      * Events processor handles events `to` account
      * Transactions processor handles events `from` account - in order to be associated with the transaction
      */
-    this.eventsProcessor.on(transferEvent, (data) => this.transfer(data));
-    this.transactionsProcessor.onEvent(transferEvent, (data) => this.transfer(data));
+    this.events.on(transferEvent, (data) => this.transfer(data));
+    this.receipts.onEvent(transferEvent, (data) => this.transfer(data));
 
-    this.eventsProcessor.on(approvalEvent, (data) => this.approval(data));
-    this.transactionsProcessor.onEvent(approvalEvent, (data) => this.approval(data));
+    this.events.on(approvalEvent, (data) => this.approval(data));
+    this.receipts.onEvent(approvalEvent, (data) => this.approval(data));
   }
 
   private async transfer(

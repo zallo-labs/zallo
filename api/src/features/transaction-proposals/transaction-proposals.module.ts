@@ -11,13 +11,13 @@ import {
   ExecutionsQueue,
   ExecutionsWorker,
 } from '~/features/transaction-proposals/executions.worker';
-import { TransactionsQueue } from '~/features/transactions/transactions.queue';
+import { ReceiptsQueue } from '~/features/transactions/receipts.queue';
 import { SimulationsQueue } from '~/features/simulations/simulations.worker';
 import { ActivationsModule } from '../activations/activations.module';
 
 @Module({
   imports: [
-    ...registerBullQueue(SimulationsQueue, ExecutionsQueue, TransactionsQueue),
+    ...registerBullQueue(SimulationsQueue, ExecutionsQueue, ReceiptsQueue),
     registerFlowsProducer(),
     TransactionsModule,
     ExpoModule,
