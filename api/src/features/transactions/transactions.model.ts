@@ -42,6 +42,12 @@ export class Transaction extends Node {
   @Field(() => Date)
   submittedAt: Date;
 
+  @Field(() => Boolean)
+  cancelled: boolean;
+
+  @Field(() => Date, { nullable: true })
+  scheduledFor?: Date;
+
   @Field(() => Receipt, { nullable: true })
   receipt?: Receipt | null;
 }

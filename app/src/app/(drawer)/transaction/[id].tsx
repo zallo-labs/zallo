@@ -23,6 +23,7 @@ import { SideSheet } from '#/SideSheet/SideSheet';
 import { ProposalApprovals } from '#/policy/ProposalApprovals';
 import { AccountSection } from '#/proposal/AccountSection';
 import { DappHeader } from '#/walletconnect/DappHeader';
+import { ScheduleSection } from '#/transaction/ScheduleSection';
 
 const TransactionProposal = gql(/* GraphQL */ `
   fragment TransactionScreen_TransactionProposal on TransactionProposal
@@ -42,6 +43,7 @@ const TransactionProposal = gql(/* GraphQL */ `
     }
     ...TransactionStatus_TransactionProposal
     ...OperationsSection_TransactionProposal
+    ...ScheduleSection_TransactionProposal
     ...TransfersSection_TransactionProposal
       @arguments(account: $account, includeAccount: $includeAccount)
     ...FeesSection_TransactionProposal
@@ -117,6 +119,10 @@ export default function TransactionScreen() {
 
         <AccountSection account={p.account} />
         <Divider horizontalInset style={styles.divider} />
+
+        <ScheduleSection proposal={p}>
+          <Divider horizontalInset style={styles.divider} />
+        </ScheduleSection>
 
         <OperationsSection proposal={p} />
         <Divider horizontalInset style={styles.divider} />

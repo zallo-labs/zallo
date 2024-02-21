@@ -31,6 +31,7 @@ const Proposal = gql(/* GraphQL */ `
     }
     transaction {
       id
+      scheduledFor
       receipt {
         id
         timestamp
@@ -76,10 +77,19 @@ function TransactionItem_({
     .returnType<ListItemProps['supporting']>()
     .with({ status: 'Pending' }, () =>
       canApprove
-        ? ({ Text }) => <Text style={styles.approvalRequired}>Approval required</Text>
+        ? ({ Text }) => <Text style={styles.pending}>Approval required</Text>
         : 'Awaiting approval',
     )
+    .with({ status: 'Scheduled' }, (p) => ({ Text }) => (
+      <Text style={styles.scheduled}>
+        Scheduled for <Timestamp timestamp={p.transaction!.scheduledFor!} time />
+      </Text>
+    ))
     .with({ status: 'Executing' }, () => 'Executing...')
+    .with(
+      { status: 'Successful' },
+      () => p.transaction?.receipt && <Timestamp timestamp={p.transaction.receipt.timestamp} />,
+    )
     .with(
       { status: 'Failed' },
       () =>
@@ -90,10 +100,9 @@ function TransactionItem_({
             </Text>
           ),
     )
-    .with(
-      { status: 'Successful' },
-      () => p.transaction?.receipt && <Timestamp timestamp={p.transaction.receipt.timestamp} />,
-    )
+    .with({ status: 'Cancelled' }, () => ({ Text }) => (
+      <Text style={styles.cancelled}>Cancelled</Text>
+    ))
     .exhaustive();
 
   return (
@@ -130,14 +139,17 @@ function TransactionItem_({
 }
 
 const stylesheet = createStyles(({ colors, iconSize, corner }) => ({
-  approvalRequired: {
+  pending: {
     color: colors.primary,
   },
-  noSatisfiablePolicy: {
-    color: colors.error,
+  scheduled: {
+    color: colors.tertiary,
   },
   failed: {
     color: colors.error,
+  },
+  cancelled: {
+    color: colors.warning,
   },
   icon: {
     width: iconSize.medium,

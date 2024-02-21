@@ -705,6 +705,7 @@ input TokensInput {
 }
 
 type Transaction implements Node {
+  cancelled: Boolean!
   ethCreditUsed: Decimal!
   ethPerFeeToken: Decimal!
   hash: Bytes32!
@@ -715,6 +716,7 @@ type Transaction implements Node {
   paymasterEthFees: PaymasterFees!
   proposal: TransactionProposal!
   receipt: Receipt
+  scheduledFor: DateTime
   submittedAt: DateTime!
   usdPerFeeToken: Decimal!
 }
@@ -754,9 +756,11 @@ type TransactionProposal implements Node & Proposal {
 }
 
 enum TransactionProposalStatus {
+  Cancelled
   Executing
   Failed
   Pending
+  Scheduled
   Successful
 }
 

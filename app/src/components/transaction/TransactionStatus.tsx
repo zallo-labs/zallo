@@ -28,6 +28,11 @@ export function TransactionStatus(props: TransactionStatusProps) {
             Pending approval
           </Text>
         ))
+        .with('Scheduled', () => (
+          <Text {...props} style={[props.style, styles.scheduled]}>
+            Scheduled
+          </Text>
+        ))
         .with('Executing', () => (
           <>
             <ActivityIndicator size="small" color={styles.executing.color} />
@@ -46,6 +51,11 @@ export function TransactionStatus(props: TransactionStatusProps) {
             Failed
           </Text>
         ))
+        .with('Cancelled', () => (
+          <Text {...props} style={[props.style, styles.cancelled]}>
+            Cancelled
+          </Text>
+        ))
         .exhaustive()}
     </View>
   );
@@ -60,6 +70,9 @@ const stylesheet = createStyles(({ colors }) => ({
   pending: {
     color: colors.primary,
   },
+  scheduled: {
+    color: colors.tertiary,
+  },
   executing: {
     color: colors.tertiary,
   },
@@ -68,5 +81,8 @@ const stylesheet = createStyles(({ colors }) => ({
   },
   failed: {
     color: colors.error,
+  },
+  cancelled: {
+    color: colors.warning,
   },
 }));

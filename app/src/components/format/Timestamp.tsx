@@ -20,8 +20,9 @@ export const useTimestamp = ({ timestamp, weekday, time = true }: TimestampProps
       day: 'numeric',
       ...(weekday && { weekday: 'short' }),
       ...(time && {
-        hour: '2-digit',
+        hour: 'numeric',
         minute: '2-digit',
+        hour12: true,
       }),
     });
   }, [timestamp, weekday, time]);

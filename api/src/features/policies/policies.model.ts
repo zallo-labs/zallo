@@ -1,5 +1,5 @@
 import { Field, ObjectType, createUnionType, registerEnumType } from '@nestjs/graphql';
-import { GraphQLBigInt, GraphQLDuration } from 'graphql-scalars';
+import { GraphQLBigInt } from 'graphql-scalars';
 import { Account } from '../accounts/accounts.model';
 import { TransactionProposal } from '../transaction-proposals/transaction-proposals.model';
 import { IdField } from '~/apollo/scalars/Id.scalar';
@@ -106,7 +106,7 @@ export class PolicyState {
   allowMessages: boolean;
 
   @Field(() => Number, { description: 'seconds' })
-  delay: boolean;
+  delay: number;
 
   @Field(() => Boolean)
   isRemoved: boolean;

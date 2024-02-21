@@ -47,9 +47,11 @@ export class TransactionProposal extends Proposal {
 
 export enum TransactionProposalStatus {
   Pending = 'Pending',
+  Scheduled = 'Scheduled',
   Executing = 'Executing',
   Successful = 'Successful',
   Failed = 'Failed',
+  Cancelled = 'Cancelled',
 }
 registerEnumType(TransactionProposalStatus, { name: 'TransactionProposalStatus' });
 
