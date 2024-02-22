@@ -16,7 +16,7 @@ describe('DelayHook', () => {
     proposal = randomHex(32);
   });
 
-  const schedule = (delay: bigint) =>
+  const schedule = (delay: number) =>
     wallet.writeContract({
       address,
       abi,
@@ -34,8 +34,8 @@ describe('DelayHook', () => {
 
   describe('> 0s', () => {
     it('schedule transaction', async () => {
-      await schedule(1n);
-      expect(await getSchedule()).to.be.gt(0n);
+      await schedule(1);
+      expect(await getSchedule()).to.be.gt(0);
     });
 
     it('not execute', async () => {
@@ -43,7 +43,7 @@ describe('DelayHook', () => {
         address,
         abi,
         functionName: 'beforeExecuteDelay',
-        args: [proposal, { delay: 1n }],
+        args: [proposal, { delay: 1 }],
       });
       expect(r.result).to.be.false;
     });
@@ -51,8 +51,8 @@ describe('DelayHook', () => {
 
   describe('= 0s', () => {
     it('not schedule transaction', async () => {
-      await schedule(0n);
-      expect(await getSchedule()).to.eq(0n);
+      await schedule(0);
+      expect(await getSchedule()).to.eq(0);
     });
 
     it('execute immediately', async () => {
@@ -60,7 +60,7 @@ describe('DelayHook', () => {
         address,
         abi,
         functionName: 'beforeExecuteDelay',
-        args: [proposal, { delay: 0n }],
+        args: [proposal, { delay: 0 }],
       });
       expect(r.result).to.be.true;
     });
