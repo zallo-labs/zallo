@@ -1,14 +1,13 @@
 import { Link, useRouter } from 'expo-router';
 import { gql } from '@api/generated';
 import { FlashList } from '@shopify/flash-list';
-import { EditIcon, NavigateNextIcon } from '@theme/icons';
+import { NavigateNextIcon } from '@theme/icons';
 import { StyleSheet } from 'react-native';
 import { NotFound } from '#/NotFound';
 import { ListHeader } from '#/list/ListHeader';
 import { ListItemHeight } from '#/list/ListItem';
 import { useQuery } from '~/gql';
 import { PolicyItem } from '#/policy/PolicyItem';
-import { AppbarOptions } from '#/Appbar/AppbarOptions';
 import { useLocalParams } from '~/hooks/useLocalParams';
 import { withSuspense } from '#/skeleton/withSuspense';
 import { ScreenSkeleton } from '#/skeleton/ScreenSkeleton';
@@ -18,21 +17,22 @@ import { Button } from '#/Button';
 import { match } from 'ts-pattern';
 import { useMutation } from 'urql';
 import { AccountParams } from '~/app/(drawer)/[account]/(home)/_layout';
-import { SideSheetLayout, useSideSheet } from '#/SideSheet/SideSheetLayout';
+import { SideSheetLayout } from '#/SideSheet/SideSheetLayout';
 import { AccountSettingsSideSheet } from '#/account/AccountSettingsSideSheet';
+import { AccountSettingsAppbar } from '#/account/AccountSettingsAppbar';
 
 const Query = gql(/* GraphQL */ `
   query AccountSettingsScreen($account: UAddress!) {
     account(input: { account: $account }) {
       id
       address
-      name
       policies {
         __typename
         id
         key
         ...PolicyItem_Policy
       }
+      ...AccountSettingsAppbar_Account
       ...AccountSettingsSideSheet_Account
     }
 
@@ -62,7 +62,6 @@ function AccountSettingsScreen() {
   const params = useLocalParams(AccountSettingsScreenParams);
   const router = useRouter();
   const updateUser = useMutation(UpdateUser)[1];
-  const sheet = useSideSheet();
 
   const query = useQuery(Query, { account: params.account });
   const { account, user } = query.data;
@@ -72,14 +71,7 @@ function AccountSettingsScreen() {
 
   return (
     <SideSheetLayout>
-      <AppbarOptions
-        mode="large"
-        leading="menu"
-        headline={account.name}
-        {...(!sheet.visible && {
-          trailing: (props) => <EditIcon {...props} onPress={() => sheet.show(true)} />,
-        })}
-      />
+      <AccountSettingsAppbar account={account} />
 
       <ScrollableScreenSurface>
         <FlashList
@@ -128,7 +120,7 @@ function AccountSettingsScreen() {
         </Actions>
       </ScrollableScreenSurface>
 
-      <AccountSettingsSideSheet account={account} {...sheet} />
+      <AccountSettingsSideSheet account={account} />
     </SideSheetLayout>
   );
 }

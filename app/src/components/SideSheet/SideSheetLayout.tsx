@@ -3,12 +3,17 @@ import { Dispatch, ReactNode, SetStateAction, createContext, useContext, useStat
 import { View } from 'react-native';
 import { useSideSheetType } from './SideSheetSurface';
 
-const context = createContext<{ visible: boolean; show: Dispatch<SetStateAction<boolean>> }>({
-  visible: false,
-  show: () => {},
-});
+const context = createContext<{ visible: boolean; show: Dispatch<SetStateAction<boolean>> } | null>(
+  null,
+);
 
-export const useSideSheet = () => useContext(context);
+export const useSideSheet = () => {
+  const c = useContext(context);
+  if (!c)
+    throw new Error("Attempting to use 'useSideSheet' outside of a 'SideSheetLayout' context");
+
+  return c;
+};
 
 export interface SideSheetLayoutProps {
   children: ReactNode;
