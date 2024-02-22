@@ -12,11 +12,14 @@ import {TransferHook, TransfersConfig} from '../policy/hooks/TransferHook.sol';
 import {DelayHook, DelayConfig} from '../policy/hooks/DelayHook.sol';
 import {OtherMessageHook, OtherMessageConfig} from '../policy/hooks/OtherMessageHook.sol';
 import {Scheduler} from '../libraries/Scheduler.sol';
+import {Tx} from '../libraries/TransactionUtil.sol';
 
 contract TestVerifier {
   using TransactionUtil for Transaction;
   using ApprovalsVerifier for Approvals;
   using Hooks for Hook[];
+
+  function transaction(Tx calldata tx) external pure {}
 
   function validateOperations(Hook[] memory hooks, Operation[] calldata operations) external pure {
     hooks.validateOperations(operations);
