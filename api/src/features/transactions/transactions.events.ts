@@ -6,11 +6,12 @@ import {
   asHex,
   asUAddress,
   asUUID,
+  isHex,
   isTruthy,
 } from 'lib';
-import { TransactionData, TransactionEventData, TransactionsWorker } from './transactions.worker';
+import { TransactionData, TransactionEventData, ReceiptsWorker } from './receipts.worker';
 import { InjectQueue } from '@nestjs/bullmq';
-import { TransactionsQueue } from './transactions.queue';
+import { ReceiptsQueue } from './receipts.queue';
 import e from '~/edgeql-js';
 import { DatabaseService } from '../database/database.service';
 import { and } from '../database/database.util';
@@ -36,17 +37,17 @@ export class TransactionsEvents implements OnModuleInit {
   private log = new Logger(this.constructor.name);
 
   constructor(
-    @InjectQueue(TransactionsQueue.name)
-    private queue: TypedQueue<TransactionsQueue>,
+    @InjectQueue(ReceiptsQueue.name)
+    private queue: TypedQueue<ReceiptsQueue>,
     private db: DatabaseService,
     @InjectRedis() private redis: Redis,
     private networks: NetworksService,
-    private transactionsProcessor: TransactionsWorker,
+    private receipts: ReceiptsWorker,
     private proposals: ProposalsService,
   ) {
-    this.transactionsProcessor.onEvent(opExecutedEvent, (data) => this.executed(data));
-    this.transactionsProcessor.onEvent(opsExecutedEvent, (data) => this.executed(data));
-    this.transactionsProcessor.onTransaction((data) => this.reverted(data));
+    this.receipts.onEvent(opExecutedEvent, (data) => this.executed(data));
+    this.receipts.onEvent(opsExecutedEvent, (data) => this.executed(data));
+    this.receipts.onTransaction((data) => this.reverted(data));
   }
 
   onModuleInit() {
@@ -62,7 +63,7 @@ export class TransactionsEvents implements OnModuleInit {
     const { args } = log;
 
     const updatedTransaction = e.update(e.Transaction, () => ({
-      filter_single: { hash: asHex(receipt.transactionHash) },
+      filter_single: { hash: receipt.transactionHash },
       set: {
         receipt: e.insert(e.Receipt, {
           success: true,
@@ -155,15 +156,15 @@ export class TransactionsEvents implements OnModuleInit {
   private async addMissingJobs() {
     await runOnce(
       async () => {
-        const jobs = await this.queue.getJobs(RUNNING_JOB_STATUSES);
+        const jobs = (await this.queue.getJobs(RUNNING_JOB_STATUSES))
+          .map((j) => j.data.transaction)
+          .filter(isHex);
 
         const orphanedTransactions = await this.db.query(
           e.select(e.Transaction, (t) => ({
             filter: and(
               e.op('not', e.op('exists', t.receipt)),
-              jobs.length
-                ? e.op(t.hash, 'not in', e.set(...jobs.map((job) => job.data.transaction)))
-                : undefined,
+              jobs.length ? e.op(t.hash, 'not in', e.set(...jobs)) : undefined,
             ),
             hash: true,
             proposal: {
@@ -175,7 +176,7 @@ export class TransactionsEvents implements OnModuleInit {
         if (orphanedTransactions.length) {
           await this.queue.addBulk(
             orphanedTransactions.map((t) => ({
-              name: TransactionsQueue.name,
+              name: ReceiptsQueue.name,
               data: {
                 chain: asChain(asUAddress(t.proposal.account.address)),
                 transaction: asHex(t.hash),

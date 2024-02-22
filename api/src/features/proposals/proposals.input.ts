@@ -68,6 +68,8 @@ export enum ProposalEvent {
   approved,
   submitted,
   executed,
+  scheduled,
+  cancelled,
 }
 registerEnumType(ProposalEvent, { name: 'ProposalEvent' });
 

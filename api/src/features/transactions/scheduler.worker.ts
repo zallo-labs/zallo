@@ -28,8 +28,9 @@ export class SchedulerWorker extends Worker<SchedulerQueue> {
   }
 
   async process(job: TypedJob<SchedulerQueue>) {
+    const selectedProposal = selectTransactionProposal(job.data.transactionProposal);
     const proposal = await this.db.query(
-      e.select(selectTransactionProposal(job.data.transactionProposal), (p) => ({
+      e.select(selectedProposal, (p) => ({
         account: { address: true },
         simulation: { success: true },
         transaction: { receipt: true },
@@ -46,7 +47,7 @@ export class SchedulerWorker extends Worker<SchedulerQueue> {
     const account = asUAddress(proposal.account.address);
 
     return await this.db.transaction(async () => {
-      const { paymaster, paymasterInput } = await this.paymaster.usePaymaster({
+      const { paymaster, paymasterInput, ...feeData } = await this.paymaster.usePaymaster({
         account,
         gasLimit: proposal.gasLimit,
         feeToken: asAddress(proposal.feeToken.address),
@@ -64,10 +65,27 @@ export class SchedulerWorker extends Worker<SchedulerQueue> {
         paymasterInput,
       });
 
+      // TODO: handle failed transaction execution
       const r = await execute(scheduledTx);
       if (r.isErr()) throw r.error;
 
-      return r.value.transactionHash;
+      const transaction = r.value.transactionHash;
+
+      await this.db.query(
+        e.insert(e.Transaction, {
+          hash: transaction,
+          proposal: selectedProposal,
+          maxEthFeePerGas: feeData.maxEthFeePerGas.toString(),
+          paymasterEthFees: e.insert(e.PaymasterFees, {
+            activation: feeData.paymasterEthFees.activation.toString(),
+          }),
+          ethCreditUsed: feeData.ethCreditUsed.toString(),
+          ethPerFeeToken: feeData.tokenPrice.eth.toString(),
+          usdPerFeeToken: feeData.tokenPrice.usd.toString(),
+        }),
+      );
+
+      return transaction;
     });
   }
 }

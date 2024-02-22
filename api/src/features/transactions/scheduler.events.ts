@@ -1,10 +1,10 @@
-import { Injectable, OnModuleInit } from '@nestjs/common';
+import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { DatabaseService } from '../database/database.service';
 import { AccountsCacheService } from '../auth/accounts.cache.service';
 import { getAbiItem } from 'viem';
-import { ACCOUNT_IMPLEMENTATION, UUID, asUAddress, asUUID } from 'lib';
+import { ACCOUNT_IMPLEMENTATION, UUID, asChain, asUAddress, asUUID } from 'lib';
 import e from '~/edgeql-js';
-import { TransactionEventData, TransactionsWorker } from './transactions.worker';
+import { TransactionEventData, ReceiptsWorker } from './receipts.worker';
 import { InjectFlowProducer, InjectQueue } from '@nestjs/bullmq';
 import { SchedulerQueue } from './scheduler.worker';
 import { FLOW_PRODUCER, QueueData, RUNNING_JOB_STATUSES, TypedQueue } from '../util/bull/bull.util';
@@ -14,6 +14,10 @@ import Redis from 'ioredis';
 import { and } from '../database/database.util';
 import { FlowJob, FlowProducer } from 'bullmq';
 import { SimulationsQueue } from '../simulations/simulations.worker';
+import { ReceiptsQueue } from './receipts.queue';
+import { Chain } from 'chains';
+import { ProposalsService } from '../proposals/proposals.service';
+import { ProposalEvent } from '../proposals/proposals.input';
 
 const scheduledEvent = getAbiItem({ abi: ACCOUNT_IMPLEMENTATION.abi, name: 'Scheduled' });
 const scheduleCancelledEvent = getAbiItem({
@@ -23,19 +27,20 @@ const scheduleCancelledEvent = getAbiItem({
 
 @Injectable()
 export class SchedulerEvents implements OnModuleInit {
+  private log = new Logger(this.constructor.name);
+
   constructor(
     private db: DatabaseService,
-    private transactionsProcessor: TransactionsWorker,
+    private receipts: ReceiptsWorker,
     private accountsCache: AccountsCacheService,
     @InjectQueue(SchedulerQueue.name) private queue: TypedQueue<SchedulerQueue>,
     @InjectRedis() private redis: Redis,
     @InjectFlowProducer(FLOW_PRODUCER)
     private flows: FlowProducer,
+    private proposals: ProposalsService,
   ) {
-    this.transactionsProcessor.onEvent(scheduledEvent, (event) => this.scheduled(event));
-    this.transactionsProcessor.onEvent(scheduleCancelledEvent, (event) =>
-      this.scheduleCancelled(event),
-    );
+    this.receipts.onEvent(scheduledEvent, (event) => this.scheduled(event));
+    this.receipts.onEvent(scheduleCancelledEvent, (event) => this.scheduleCancelled(event));
   }
 
   onModuleInit() {
@@ -50,41 +55,60 @@ export class SchedulerEvents implements OnModuleInit {
       filter_single: { hash: event.log.transactionHash },
     }));
 
-    const scheduledFor = new Date(Number(event.log.args.timestamp) * 1000);
+    const scheduledFor = new Date(event.log.args.timestamp * 1000);
     const proposalId = await this.db.query(
       e.update(transaction, () => ({ set: { scheduledFor } })).proposal.id,
     );
 
-    if (proposalId) this.flows.add(this.getJob(asUUID(proposalId), scheduledFor));
+    if (proposalId) {
+      this.flows.add(this.getJob(asUUID(proposalId), event.chain, scheduledFor));
+      this.proposals.publishProposal({ id: asUUID(proposalId), account }, ProposalEvent.scheduled);
+      this.log.debug(`Scheduled ${proposalId}`);
+    }
   }
 
   private async scheduleCancelled(event: TransactionEventData<typeof scheduleCancelledEvent>) {
     const account = asUAddress(event.log.address, event.chain);
     if (!(await this.accountsCache.isAccount(account))) return;
 
-    const transaction = e.select(e.Transaction, () => ({
-      filter_single: { hash: event.log.transactionHash },
+    const selectedProposal = e.select(e.TransactionProposal, () => ({
+      filter_single: { hash: event.log.args.proposal },
     }));
-
     const proposalId = await this.db.query(
-      e.update(transaction, () => ({ set: { cancelled: true } })).proposal.id,
+      e.assert_single(
+        e.update(e.Transaction, (t) => ({
+          filter: and(e.op(t.proposal, '=', selectedProposal), e.op('exists', t.scheduledFor)),
+          set: { cancelled: true },
+        })),
+      ).proposal.id,
     );
 
-    if (proposalId) this.queue.remove(event.log.args.proposal);
+    if (proposalId) {
+      this.queue.remove(event.log.args.proposal);
+      this.proposals.publishProposal({ id: asUUID(proposalId), account }, ProposalEvent.cancelled);
+      this.log.debug(`Cancelled scheduled ${proposalId}`);
+    }
   }
 
-  private getJob(txProposal: UUID, scheduledFor: Date): FlowJob {
+  private getJob(txProposal: UUID, chain: Chain, scheduledFor: Date): FlowJob {
     return {
-      queueName: SchedulerQueue.name,
-      name: 'Schedule transaction',
-      data: { transactionProposal: txProposal } satisfies QueueData<SchedulerQueue>,
-      opts: { jobId: txProposal },
+      queueName: ReceiptsQueue.name,
+      name: 'Scheduled transaction',
+      data: { chain, transaction: { child: 0 } } satisfies QueueData<ReceiptsQueue>,
       children: [
         {
-          queueName: SimulationsQueue.name,
-          name: 'Simulate scheduled transaction',
-          data: { txProposal } satisfies QueueData<SimulationsQueue>,
-          opts: { delay: scheduledFor.getTime() - Date.now() },
+          queueName: SchedulerQueue.name,
+          name: 'Schedule transaction',
+          data: { transactionProposal: txProposal } satisfies QueueData<SchedulerQueue>,
+          opts: { jobId: txProposal },
+          children: [
+            {
+              queueName: SimulationsQueue.name,
+              name: 'Simulate scheduled transaction',
+              data: { txProposal } satisfies QueueData<SimulationsQueue>,
+              opts: { delay: scheduledFor.getTime() - Date.now() },
+            },
+          ],
         },
       ],
     };
@@ -109,7 +133,10 @@ export class SchedulerEvents implements OnModuleInit {
                   )
                 : undefined,
             ),
-            proposal: true,
+            proposal: {
+              id: true,
+              account: { address: true },
+            },
             scheduledFor: true,
           })),
         );
@@ -117,7 +144,11 @@ export class SchedulerEvents implements OnModuleInit {
         if (orphanedProposals.length)
           await this.flows.addBulk(
             orphanedProposals.map((t) =>
-              this.getJob(asUUID(t.proposal.id), new Date(t.scheduledFor!)),
+              this.getJob(
+                asUUID(t.proposal.id),
+                asChain(asUAddress(t.proposal.account.address)),
+                new Date(t.scheduledFor!),
+              ),
             ),
           );
       },
