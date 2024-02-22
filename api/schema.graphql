@@ -344,6 +344,7 @@ type Mutation {
   execute(input: ExecuteTransactionProposalInput!): TransactionProposal
   labelProposalRisk(input: LabelProposalRiskInput!): Proposal!
   link(input: LinkInput!): User!
+  proposeCancelScheduledTransaction(input: ProposeCancelScheduledTransactionInput!): TransactionProposal!
   proposeMessage(input: ProposeMessageInput!): MessageProposal!
   proposeTransaction(input: ProposeTransactionInput!): TransactionProposal!
   rejectProposal(input: UniqueProposalInput!): Proposal!
@@ -472,10 +473,12 @@ interface Proposal implements Node {
 enum ProposalEvent {
   approval
   approved
+  cancelled
   create
   delete
   executed
   rejection
+  scheduled
   submitted
   update
 }
@@ -499,6 +502,20 @@ input ProposalSubscriptionInput {
 input ProposalsInput {
   accounts: [UAddress!]
   pending: Boolean
+}
+
+input ProposeCancelScheduledTransactionInput {
+  account: UAddress!
+  dapp: DappMetadataInput
+  feeToken: Address
+  gas: Uint256
+  iconUri: String
+  label: String
+  proposal: UUID!
+
+  """Approve the proposal"""
+  signature: Bytes
+  validFrom: DateTime
 }
 
 input ProposeMessageInput {

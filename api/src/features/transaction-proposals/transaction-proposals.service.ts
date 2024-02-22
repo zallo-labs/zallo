@@ -13,9 +13,12 @@ import {
   asUUID,
   UUID,
   estimateTransactionVerificationGas,
+  ACCOUNT_ABI,
+  asHex,
 } from 'lib';
 import { NetworksService } from '~/features/util/networks/networks.service';
 import {
+  ProposeCancelScheduledTransactionInput,
   ProposeTransactionInput,
   TransactionProposalsInput,
   UpdateTransactionProposalInput,
@@ -39,7 +42,7 @@ import {
   proposalTxShape,
   transactionProposalAsTx,
 } from '~/features/transaction-proposals/transaction-proposals.util';
-import { hashTypedData } from 'viem';
+import { encodeFunctionData, hashTypedData } from 'viem';
 import { v4 as uuid } from 'uuid';
 import { FlowProducer } from 'bullmq';
 import { ActivationsService } from '../activations/activations.service';
@@ -224,6 +227,28 @@ export class TransactionProposalsService {
     if (signature) await this.approve({ id, signature });
 
     return { id };
+  }
+
+  async proposeCancelScheduledTransaction({
+    proposal,
+    ...params
+  }: ProposeCancelScheduledTransactionInput) {
+    const hash = await this.db.query(e.select(selectTransactionProposal(proposal).hash));
+    if (!hash) throw new UserInputError('Transaction proposal not found');
+
+    return this.propose({
+      ...params,
+      operations: [
+        {
+          to: asAddress(params.account),
+          data: encodeFunctionData({
+            abi: ACCOUNT_ABI,
+            functionName: 'cancelScheduledTransaction',
+            args: [asHex(hash)],
+          }),
+        },
+      ],
+    });
   }
 
   async approve(input: ApproveInput) {

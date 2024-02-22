@@ -2,6 +2,7 @@ import { ID, Info, Mutation, Parent, Query, Resolver } from '@nestjs/graphql';
 import { GraphQLResolveInfo } from 'graphql';
 import {
   ExecuteTransactionProposalInput,
+  ProposeCancelScheduledTransactionInput,
   ProposeTransactionInput,
   TransactionProposalsInput,
   UpdateTransactionProposalInput,
@@ -59,6 +60,15 @@ export class TransactionProposalsResolver {
     @Info() info: GraphQLResolveInfo,
   ) {
     const { id } = await this.service.propose(input);
+    return this.service.selectUnique(id, getShape(info));
+  }
+
+  @Mutation(() => TransactionProposal)
+  async proposeCancelScheduledTransaction(
+    @Input() input: ProposeCancelScheduledTransactionInput,
+    @Info() info: GraphQLResolveInfo,
+  ) {
+    const { id } = await this.service.proposeCancelScheduledTransaction(input);
     return this.service.selectUnique(id, getShape(info));
   }
 

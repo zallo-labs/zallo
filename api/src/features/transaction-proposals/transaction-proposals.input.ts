@@ -1,5 +1,5 @@
-import { Field, InputType } from '@nestjs/graphql';
-import { Address, Hex, PolicyKey, UAddress } from 'lib';
+import { Field, InputType, OmitType } from '@nestjs/graphql';
+import { Address, Hex, PolicyKey, UAddress, UUID } from 'lib';
 import { AddressField } from '~/apollo/scalars/Address.scalar';
 import { Uint256Field } from '~/apollo/scalars/BigInt.scalar';
 import { BytesField, BytesScalar } from '~/apollo/scalars/Bytes.scalar';
@@ -7,6 +7,7 @@ import { PolicyKeyField } from '~/apollo/scalars/PolicyKey.scalar';
 import { TransactionProposalStatus } from './transaction-proposals.model';
 import { DappMetadataInput, UniqueProposalInput } from '../proposals/proposals.input';
 import { UAddressField, UAddressScalar } from '~/apollo/scalars/UAddress.scalar';
+import { UUIDField } from '~/apollo/scalars/Uuid.scalar';
 
 @InputType()
 export class TransactionProposalsInput {
@@ -57,6 +58,14 @@ export class ProposeTransactionInput {
 
   @Field(() => BytesScalar, { nullable: true, description: 'Approve the proposal' })
   signature?: Hex;
+}
+
+@InputType()
+export class ProposeCancelScheduledTransactionInput extends OmitType(ProposeTransactionInput, [
+  'operations',
+]) {
+  @UUIDField()
+  proposal: UUID;
 }
 
 @InputType()
