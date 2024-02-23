@@ -25,8 +25,8 @@ import { AccountSection } from '#/proposal/AccountSection';
 import { DappHeader } from '#/walletconnect/DappHeader';
 import { ScheduleSection } from '#/transaction/ScheduleSection';
 
-const TransactionProposal = gql(/* GraphQL */ `
-  fragment TransactionScreen_TransactionProposal on TransactionProposal
+const Transaction = gql(/* GraphQL */ `
+  fragment TransactionScreen_Transaction on Transaction
   @argumentDefinitions(
     proposal: { type: "UUID!" }
     account: { type: "UAddress!" }
@@ -41,21 +41,19 @@ const TransactionProposal = gql(/* GraphQL */ `
     dapp {
       ...DappHeader_DappMetadata
     }
-    ...TransactionStatus_TransactionProposal
-    ...OperationsSection_TransactionProposal
-    ...ScheduleSection_TransactionProposal
-    ...TransfersSection_TransactionProposal
-      @arguments(account: $account, includeAccount: $includeAccount)
-    ...FeesSection_TransactionProposal
-      @arguments(account: $account, includeAccount: $includeAccount)
-    ...TransactionActions_TransactionProposal @arguments(proposal: $proposal)
+    ...TransactionStatus_Transaction
+    ...OperationsSection_Transaction
+    ...ScheduleSection_Transaction
+    ...TransfersSection_Transaction @arguments(account: $account, includeAccount: $includeAccount)
+    ...FeesSection_Transaction @arguments(account: $account, includeAccount: $includeAccount)
+    ...TransactionActions_Transaction @arguments(proposal: $proposal)
   }
 `);
 
 const Query = gql(/* GraphQL */ `
   query TransactionScreen($proposal: UUID!, $account: UAddress!, $includeAccount: Boolean!) {
-    transactionProposal(input: { id: $proposal }) {
-      ...TransactionScreen_TransactionProposal
+    transaction(input: { id: $proposal }) {
+      ...TransactionScreen_Transaction
         @arguments(proposal: $proposal, account: $account, includeAccount: $includeAccount)
     }
 
@@ -73,7 +71,7 @@ const Subscription = gql(/* GraphQL */ `
     $includeAccount: Boolean!
   ) {
     proposal(input: { proposals: [$proposal] }) {
-      ...TransactionScreen_TransactionProposal
+      ...TransactionScreen_Transaction
         @arguments(proposal: $proposal, account: $account, includeAccount: $includeAccount)
     }
   }
@@ -85,7 +83,7 @@ export default function TransactionScreen() {
   const { styles } = useStyles(stylesheet);
   const { id } = useLocalParams(TransactionScreenParams);
 
-  // Extract account from TransactionProposal result, and use it as a variable to get the full result
+  // Extract account from Transaction result, and use it as a variable to get the full result
   const [account, setAccount] = useState<UAddress>();
   const variables = {
     proposal: id,
@@ -95,7 +93,7 @@ export default function TransactionScreen() {
 
   const query = useQuery(Query, variables);
   useSubscription({ query: getOptimizedDocument(Subscription), variables });
-  const p = useFragment(TransactionProposal, query.data?.transactionProposal);
+  const p = useFragment(Transaction, query.data?.transaction);
 
   useEffect(() => {
     if (account !== p?.account.address) setAccount(p?.account.address);

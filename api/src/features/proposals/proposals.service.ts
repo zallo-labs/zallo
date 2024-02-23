@@ -56,11 +56,11 @@ export class ProposalsService {
 
           const isPending = e.select(
             e.op(
-              e.op(p.is(e.TransactionProposal).status, '=', e.TransactionProposalStatus.Pending),
+              e.op(p.is(e.Transaction).status, '=', e.TransactionStatus.Pending),
               'if',
-              e.op('exists', p.is(e.TransactionProposal)),
+              e.op('exists', p.is(e.Transaction)),
               'else',
-              e.op('not', e.op('exists', p.is(e.MessageProposal).signature)),
+              e.op('not', e.op('exists', p.is(e.Message).signature)),
             ),
           );
 

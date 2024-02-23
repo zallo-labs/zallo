@@ -1,17 +1,13 @@
 import { forwardRef, Module } from '@nestjs/common';
-import { TransactionProposalsModule } from '../transaction-proposals/transaction-proposals.module';
 import { TransactionsModule } from '../transactions/transactions.module';
+import { SystemTxsModule } from '../system-txs/system-txs.module';
 import { PoliciesResolver } from './policies.resolver';
 import { PoliciesService } from './policies.service';
 import { PoliciesEventsProcessor } from './policies.events';
 import { EventsModule } from '../events/events.module';
 
 @Module({
-  imports: [
-    forwardRef(() => TransactionProposalsModule),
-    forwardRef(() => TransactionsModule),
-    EventsModule,
-  ],
+  imports: [forwardRef(() => TransactionsModule), forwardRef(() => SystemTxsModule), EventsModule],
   exports: [PoliciesService],
   providers: [PoliciesResolver, PoliciesService, PoliciesEventsProcessor],
 })

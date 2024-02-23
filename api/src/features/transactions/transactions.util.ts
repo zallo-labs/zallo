@@ -2,7 +2,7 @@ import Decimal from 'decimal.js';
 import { Operation, asAddress, asHex, asTx } from 'lib';
 import e, { $infer } from '~/edgeql-js';
 
-export const proposalTxShape = e.shape(e.TransactionProposal, () => ({
+export const proposalTxShape = e.shape(e.Transaction, () => ({
   operations: {
     to: true,
     value: true,
@@ -15,10 +15,10 @@ export const proposalTxShape = e.shape(e.TransactionProposal, () => ({
   feeToken: { address: true },
 }));
 
-const s = e.select(e.TransactionProposal, proposalTxShape);
+const s = e.select(e.Transaction, proposalTxShape);
 export type ProposalTxShape = NonNullable<$infer<typeof s>>[0];
 
-export const transactionProposalAsTx = (p: ProposalTxShape) =>
+export const transactionAsTx = (p: ProposalTxShape) =>
   asTx({
     operations: p.operations.map(
       (op): Operation => ({

@@ -24,7 +24,7 @@ import { AccountSection } from '#/proposal/AccountSection';
 
 const Query = gql(/* GraphQL */ `
   query MessageScreen($proposal: UUID!) {
-    messageProposal(input: { id: $proposal }) {
+    message(input: { id: $proposal }) {
       id
       label
       message
@@ -37,8 +37,8 @@ const Query = gql(/* GraphQL */ `
       dapp {
         ...DappHeader_DappMetadata
       }
-      ...MessageStatus_MessageProposal
-      ...MessageActions_MessageProposal
+      ...MessageStatus_Message
+      ...MessageActions_Message
     }
 
     user {
@@ -64,7 +64,7 @@ export default function MessageScreen() {
     message: 'Are you sure you want to remove this proposal?',
   });
   const query = useQuery(Query, { proposal: id });
-  const p = query.data?.messageProposal;
+  const p = query.data?.message;
 
   if (!p) return query.stale ? null : <NotFound name="Message" />;
 

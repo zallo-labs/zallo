@@ -6,7 +6,7 @@ import { TypedDataField } from '~/apollo/scalars/TypedData.scalar';
 import { TypedDataDefinition } from 'viem';
 
 @ObjectType({ implements: () => [Proposal] })
-export class MessageProposal extends Proposal {
+export class Message extends Proposal {
   @Bytes32Field()
   signedHash: Hex;
 

@@ -19,13 +19,13 @@ const Subscription = gql(/* GraphQL */ `
     proposal(input: { accounts: $accounts, events: [approved, executed] }) {
       __typename
       id
-      ... on TransactionProposal {
+      ... on Transaction {
         systx {
           id
           hash
         }
       }
-      ... on MessageProposal {
+      ... on Message {
         signature
       }
     }

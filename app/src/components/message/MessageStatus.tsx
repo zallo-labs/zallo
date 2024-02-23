@@ -4,7 +4,7 @@ import { Text } from 'react-native-paper';
 import { TextProps } from '@theme/types';
 
 const Message = gql(/* GraphQL */ `
-  fragment MessageStatus_MessageProposal on MessageProposal {
+  fragment MessageStatus_Message on Message {
     id
     signature
   }

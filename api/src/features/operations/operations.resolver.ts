@@ -11,7 +11,7 @@ const functionDeps = {
   to: true,
   value: true,
   data: true,
-  '<operations[is TransactionProposal]': { account: { chain: true } },
+  '<operations[is Transaction]': { account: { chain: true } },
 } satisfies Shape<typeof e.Operation>;
 
 const s = e.select(e.Operation, () => functionDeps);
@@ -29,7 +29,7 @@ export class OperationsResolver {
         value: deps.value ?? undefined,
         data: asHex(deps.data),
       },
-      getChain(deps['<operations[is TransactionProposal]']!.account.chain).key,
+      getChain(deps['<operations[is Transaction]']!.account.chain).key,
     );
   }
 }

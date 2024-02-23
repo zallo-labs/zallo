@@ -5,15 +5,12 @@ import { UUID, asAddress, asUAddress, encodeScheduledTransaction, execute } from
 import { NetworksService } from '../util/networks/networks.service';
 import { DatabaseService } from '../database/database.service';
 import e from '~/edgeql-js';
-import {
-  proposalTxShape,
-  transactionProposalAsTx,
-} from '../transaction-proposals/transaction-proposals.util';
-import { selectTransactionProposal } from '../transaction-proposals/transaction-proposals.service';
+import { proposalTxShape, transactionAsTx } from '../transactions/transactions.util';
+import { selectTransaction } from '../transactions/transactions.service';
 import { PaymastersService } from '~/features/paymasters/paymasters.service';
 import Decimal from 'decimal.js';
 
-export const SchedulerQueue = createQueue<{ transactionProposal: UUID }>('Scheduled');
+export const SchedulerQueue = createQueue<{ transaction: UUID }>('Scheduled');
 export type SchedulerQueue = typeof SchedulerQueue;
 
 @Injectable()
@@ -28,7 +25,7 @@ export class SchedulerWorker extends Worker<SchedulerQueue> {
   }
 
   async process(job: TypedJob<SchedulerQueue>) {
-    const selectedProposal = selectTransactionProposal(job.data.transactionProposal);
+    const selectedProposal = selectTransaction(job.data.transaction);
     const proposal = await this.db.query(
       e.select(selectedProposal, (p) => ({
         account: { address: true },
@@ -60,7 +57,7 @@ export class SchedulerWorker extends Worker<SchedulerQueue> {
       const scheduledTx = await encodeScheduledTransaction({
         network: this.networks.get(account),
         account: asAddress(account),
-        tx: transactionProposalAsTx(proposal),
+        tx: transactionAsTx(proposal),
         paymaster,
         paymasterInput,
       });

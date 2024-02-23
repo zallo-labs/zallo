@@ -1,22 +1,14 @@
 import { ID, Info, Mutation, Parent, Query, Resolver } from '@nestjs/graphql';
 import { GraphQLResolveInfo } from 'graphql';
 import {
-  ExecuteTransactionProposalInput,
+  ExecuteTransactionInput,
   ProposeCancelScheduledTransactionInput,
   ProposeTransactionInput,
-  TransactionProposalsInput,
-  UpdateTransactionProposalInput,
-} from './transaction-proposals.input';
-import {
-  EstimatedTransactionFees,
-  TransactionProposal,
-  TransactionProposalStatus,
-} from './transaction-proposals.model';
-import {
-  EstimateFeesDeps,
-  TransactionProposalsService,
-  estimateFeesDeps,
-} from './transaction-proposals.service';
+  TransactionsInput,
+  UpdateTransactionInput,
+} from './transactions.input';
+import { EstimatedTransactionFees, Transaction, TransactionStatus } from './transactions.model';
+import { EstimateFeesDeps, TransactionsService, estimateFeesDeps } from './transactions.service';
 import { getShape } from '../database/database.select';
 import e from '~/edgeql-js';
 import { Input } from '~/decorators/input.decorator';
@@ -24,37 +16,31 @@ import { uuid } from 'edgedb/dist/codecs/ifaces';
 import { ComputedField } from '~/decorators/computed.decorator';
 import { ApproveInput, UniqueProposalInput } from '../proposals/proposals.input';
 
-@Resolver(() => TransactionProposal)
-export class TransactionProposalsResolver {
-  constructor(private service: TransactionProposalsService) {}
+@Resolver(() => Transaction)
+export class TransactionsResolver {
+  constructor(private service: TransactionsService) {}
 
-  @Query(() => TransactionProposal, { nullable: true })
-  async transactionProposal(
-    @Input() { id }: UniqueProposalInput,
-    @Info() info: GraphQLResolveInfo,
-  ) {
+  @Query(() => Transaction, { nullable: true })
+  async transaction(@Input() { id }: UniqueProposalInput, @Info() info: GraphQLResolveInfo) {
     return this.service.selectUnique(id, getShape(info));
   }
 
-  @Query(() => [TransactionProposal])
-  async transactionProposals(
-    @Input() input: TransactionProposalsInput,
-    @Info() info: GraphQLResolveInfo,
-  ) {
+  @Query(() => [Transaction])
+  async transactions(@Input() input: TransactionsInput, @Info() info: GraphQLResolveInfo) {
     return this.service.select(input, getShape(info));
   }
 
-  @ComputedField<typeof e.TransactionProposal>(() => Boolean, { status: true })
-  async updatable(@Parent() { status }: TransactionProposal): Promise<boolean> {
-    return status === TransactionProposalStatus.Pending;
+  @ComputedField<typeof e.Transaction>(() => Boolean, { status: true })
+  async updatable(@Parent() { status }: Transaction): Promise<boolean> {
+    return status === TransactionStatus.Pending;
   }
 
-  @ComputedField<typeof e.TransactionProposal>(() => EstimatedTransactionFees, estimateFeesDeps)
+  @ComputedField<typeof e.Transaction>(() => EstimatedTransactionFees, estimateFeesDeps)
   async estimatedFees(@Parent() deps: EstimateFeesDeps): Promise<EstimatedTransactionFees> {
     return this.service.estimateFees(deps);
   }
 
-  @Mutation(() => TransactionProposal)
+  @Mutation(() => Transaction)
   async proposeTransaction(
     @Input() input: ProposeTransactionInput,
     @Info() info: GraphQLResolveInfo,
@@ -63,7 +49,7 @@ export class TransactionProposalsResolver {
     return this.service.selectUnique(id, getShape(info));
   }
 
-  @Mutation(() => TransactionProposal)
+  @Mutation(() => Transaction)
   async proposeCancelScheduledTransaction(
     @Input() input: ProposeCancelScheduledTransactionInput,
     @Info() info: GraphQLResolveInfo,
@@ -72,15 +58,15 @@ export class TransactionProposalsResolver {
     return this.service.selectUnique(id, getShape(info));
   }
 
-  @Mutation(() => TransactionProposal)
+  @Mutation(() => Transaction)
   async approveTransaction(@Input() input: ApproveInput, @Info() info: GraphQLResolveInfo) {
     await this.service.approve(input);
     return this.service.selectUnique(input.id, getShape(info));
   }
 
-  @Mutation(() => TransactionProposal)
+  @Mutation(() => Transaction)
   async updateTransaction(
-    @Input() input: UpdateTransactionProposalInput,
+    @Input() input: UpdateTransactionInput,
     @Info() info: GraphQLResolveInfo,
   ) {
     await this.service.update(input);
@@ -92,9 +78,9 @@ export class TransactionProposalsResolver {
     return this.service.delete(id);
   }
 
-  @Mutation(() => TransactionProposal, { nullable: true })
+  @Mutation(() => Transaction, { nullable: true })
   async execute(
-    @Input() { id, ignoreSimulation }: ExecuteTransactionProposalInput,
+    @Input() { id, ignoreSimulation }: ExecuteTransactionInput,
     @Info() info: GraphQLResolveInfo,
   ) {
     this.service.tryExecute(id, ignoreSimulation);

@@ -9,8 +9,8 @@ import { ProposalValue } from '#/transaction/ProposalValue';
 import { TokenAmount } from '#/token/TokenAmount';
 import { TokenItem } from '#/token/TokenItem';
 
-const TransactionProposal = gql(/* GraphQL */ `
-  fragment TransfersSection_TransactionProposal on TransactionProposal
+const Transaction = gql(/* GraphQL */ `
+  fragment TransfersSection_Transaction on Transaction
   @argumentDefinitions(account: { type: "UAddress!" }, includeAccount: { type: "Boolean!" }) {
     id
     result {
@@ -46,22 +46,22 @@ const TransactionProposal = gql(/* GraphQL */ `
         isFeeTransfer
       }
     }
-    ...ProposalValue_TransactionProposal
+    ...ProposalValue_Transaction
   }
 `);
 
 export interface TransfersSectionProps {
-  proposal: FragmentType<typeof TransactionProposal>;
+  proposal: FragmentType<typeof Transaction>;
   children: ReactNode;
 }
 
 export function TransfersSection(props: TransfersSectionProps) {
   const { styles } = useStyles(stylesheet);
-  const p = useFragment(TransactionProposal, props.proposal);
+  const p = useFragment(Transaction, props.proposal);
 
-  const transfers = [
-    ...(p.result?.transfers ?? p.simulation?.transfers ?? []),
-  ].filter((t) => !t.isFeeTransfer); // Ignore fee transfers, this is shown by FeeToken
+  const transfers = [...(p.result?.transfers ?? p.simulation?.transfers ?? [])].filter(
+    (t) => !t.isFeeTransfer,
+  ); // Ignore fee transfers, this is shown by FeeToken
 
   if (!transfers.length) return null;
 

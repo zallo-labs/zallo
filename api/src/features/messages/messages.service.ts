@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { DatabaseService } from '../database/database.service';
-import { ProposeMessageInput } from './message-proposals.input';
+import { ProposeMessageInput } from './messages.input';
 import { ApproveInput, ProposalEvent } from '../proposals/proposals.input';
 import {
   TypedDataDefinition,
@@ -36,16 +36,16 @@ import _ from 'lodash';
 import { WritableDeep } from 'ts-toolbelt/out/Object/Writable';
 
 @Injectable()
-export class MessageProposalsService {
+export class MessagesService {
   constructor(
     private db: DatabaseService,
     private networks: NetworksService,
     private proposals: ProposalsService,
   ) {}
 
-  async selectUnique(id: UniqueProposal, shape?: ShapeFunc<typeof e.MessageProposal>) {
+  async selectUnique(id: UniqueProposal, shape?: ShapeFunc<typeof e.Message>) {
     return this.db.query(
-      e.select(e.MessageProposal, (p) => ({
+      e.select(e.Message, (p) => ({
         ...shape?.(p),
         filter_single: { id },
       })),
@@ -80,10 +80,10 @@ export class MessageProposalsService {
 
     // upsert can't be used as exclusive hash constraint exists on parent type (Proposal)
     const proposal =
-      (await this.db.query(e.select(e.MessageProposal, () => ({ filter_single: { hash } })))) ??
+      (await this.db.query(e.select(e.Message, () => ({ filter_single: { hash } })))) ??
       (await (async () => {
         const p = await this.db.query(
-          e.insert(e.MessageProposal, {
+          e.insert(e.Message, {
             account: selectAccount(account),
             hash,
             messageHash,
@@ -118,13 +118,13 @@ export class MessageProposalsService {
 
   async remove(proposal: UUID) {
     return this.db.query(
-      e.delete(e.select(e.MessageProposal, () => ({ filter_single: { id: proposal } }))).id,
+      e.delete(e.select(e.Message, () => ({ filter_single: { id: proposal } }))).id,
     );
   }
 
   private async trySign(id: UUID) {
     const proposal = await this.db.query(
-      e.select(e.MessageProposal, () => ({
+      e.select(e.Message, () => ({
         filter_single: { id },
         hash: true,
         message: true,
@@ -176,7 +176,7 @@ export class MessageProposalsService {
     });
 
     await this.db.query(
-      e.update(e.MessageProposal, () => ({
+      e.update(e.Message, () => ({
         filter_single: { id },
         set: { signature },
       })),

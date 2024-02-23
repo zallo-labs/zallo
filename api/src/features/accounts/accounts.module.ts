@@ -6,7 +6,7 @@ import { ContractsModule } from '../contracts/contracts.module';
 import { PoliciesModule } from '../policies/policies.module';
 import { UpgradeEvents } from '~/features/accounts/upgrades.events';
 import { EventsModule } from '~/features/events/events.module';
-import { TransactionsModule } from '~/features/transactions/transactions.module';
+import { SystemTxsModule } from '~/features/system-txs/system-txs.module';
 
 @Module({
   imports: [
@@ -14,7 +14,7 @@ import { TransactionsModule } from '~/features/transactions/transactions.module'
     FaucetModule,
     forwardRef(() => PoliciesModule),
     EventsModule,
-    TransactionsModule,
+    SystemTxsModule,
   ],
   exports: [AccountsService],
   providers: [AccountsResolver, AccountsService, UpgradeEvents],

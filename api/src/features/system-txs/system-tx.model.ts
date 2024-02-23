@@ -1,5 +1,5 @@
 import { Field } from '@nestjs/graphql';
-import { TransactionProposal } from '../transaction-proposals/transaction-proposals.model';
+import { Transaction } from '../transactions/transactions.model';
 import { PaymasterFees } from '../paymasters/paymasters.model';
 import { Bytes32Field } from '~/apollo/scalars/Bytes.scalar';
 import { Result } from './results.model';
@@ -13,8 +13,8 @@ export class SystemTx extends Node {
   @Bytes32Field()
   hash: Hex;
 
-  @Field(() => TransactionProposal)
-  proposal: TransactionProposal;
+  @Field(() => Transaction)
+  proposal: Transaction;
 
   @DecimalField()
   maxEthFeePerGas: Decimal;

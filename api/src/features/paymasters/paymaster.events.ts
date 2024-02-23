@@ -1,5 +1,5 @@
 import { Injectable, forwardRef, Inject } from '@nestjs/common';
-import { TransactionEventData, ReceiptsWorker } from '../transactions/receipts.worker';
+import { TransactionEventData, ReceiptsWorker } from '../system-txs/receipts.worker';
 import { getAbiItem } from 'viem';
 import { PAYMASTER, asAddress, asHex, asUAddress, asDecimal } from 'lib';
 import { AccountsCacheService } from '~/features/auth/accounts.cache.service';

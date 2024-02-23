@@ -4,18 +4,18 @@ import { AddressField } from '~/apollo/scalars/Address.scalar';
 import { Uint256Field } from '~/apollo/scalars/BigInt.scalar';
 import { BytesField, BytesScalar } from '~/apollo/scalars/Bytes.scalar';
 import { PolicyKeyField } from '~/apollo/scalars/PolicyKey.scalar';
-import { TransactionProposalStatus } from './transaction-proposals.model';
+import { TransactionStatus } from './transactions.model';
 import { DappMetadataInput, UniqueProposalInput } from '../proposals/proposals.input';
 import { UAddressField, UAddressScalar } from '~/apollo/scalars/UAddress.scalar';
 import { UUIDField } from '~/apollo/scalars/Uuid.scalar';
 
 @InputType()
-export class TransactionProposalsInput {
+export class TransactionsInput {
   @Field(() => [UAddressScalar], { nullable: true })
   accounts?: UAddress[];
 
-  @Field(() => [TransactionProposalStatus], { nullable: true })
-  statuses?: TransactionProposalStatus[];
+  @Field(() => [TransactionStatus], { nullable: true })
+  statuses?: TransactionStatus[];
 }
 
 @InputType()
@@ -69,7 +69,7 @@ export class ProposeCancelScheduledTransactionInput extends OmitType(ProposeTran
 }
 
 @InputType()
-export class UpdateTransactionProposalInput extends UniqueProposalInput {
+export class UpdateTransactionInput extends UniqueProposalInput {
   @PolicyKeyField({ nullable: true })
   policy?: PolicyKey | null;
 
@@ -78,7 +78,7 @@ export class UpdateTransactionProposalInput extends UniqueProposalInput {
 }
 
 @InputType()
-export class ExecuteTransactionProposalInput extends UniqueProposalInput {
+export class ExecuteTransactionInput extends UniqueProposalInput {
   @Field(() => Boolean, { nullable: true })
   ignoreSimulation?: boolean;
 }

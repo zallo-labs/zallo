@@ -2,8 +2,8 @@ import { FragmentType, gql, useFragment } from '@api/generated';
 import { FiatValue } from '../FiatValue';
 import Decimal from 'decimal.js';
 
-const TransactionProposal = gql(/* GraphQL */ `
-  fragment ProposalValue_TransactionProposal on TransactionProposal {
+const Transaction = gql(/* GraphQL */ `
+  fragment ProposalValue_Transaction on Transaction {
     id
     result {
       id
@@ -25,12 +25,12 @@ const TransactionProposal = gql(/* GraphQL */ `
 `);
 
 export interface ProposalValueProps {
-  proposal: FragmentType<typeof TransactionProposal>;
+  proposal: FragmentType<typeof Transaction>;
   hideZero?: boolean;
 }
 
 export function ProposalValue(props: ProposalValueProps) {
-  const p = useFragment(TransactionProposal, props.proposal);
+  const p = useFragment(Transaction, props.proposal);
 
   const transfers = [...(p.result?.transfers ?? p.simulation?.transfers ?? [])].filter(
     (t) => !t.isFeeTransfer,

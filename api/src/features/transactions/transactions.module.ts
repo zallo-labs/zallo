@@ -1,28 +1,29 @@
-import { Module, forwardRef } from '@nestjs/common';
-import { ReceiptsWorker } from './receipts.worker';
-import { ReceiptsQueue } from './receipts.queue';
+import { Module } from '@nestjs/common';
+import { ExpoModule } from '~/features/util/expo/expo.module';
+import { TransactionsResolver } from './transactions.resolver';
 import { TransactionsService } from './transactions.service';
-import { TransactionsEvents } from './transactions.events';
-import { PaymastersModule } from '../paymasters/paymasters.module';
-import { registerBullQueue, registerFlowsProducer } from '../util/bull/bull.util';
 import { ProposalsModule } from '../proposals/proposals.module';
-import { SchedulerEvents } from './scheduler.events';
-import { SchedulerQueue, SchedulerWorker } from './scheduler.worker';
+import { PaymastersModule } from '~/features/paymasters/paymasters.module';
+import { PricesModule } from '~/features/prices/prices.module';
+import { SystemTxsModule } from '~/features/system-txs/system-txs.module';
+import { registerBullQueue, registerFlowsProducer } from '~/features/util/bull/bull.util';
+import { ExecutionsQueue, ExecutionsWorker } from '~/features/transactions/executions.worker';
+import { ReceiptsQueue } from '~/features/system-txs/receipts.queue';
+import { SimulationsQueue } from '~/features/simulations/simulations.worker';
+import { ActivationsModule } from '../activations/activations.module';
 
 @Module({
   imports: [
-    ...registerBullQueue(ReceiptsQueue, SchedulerQueue),
+    ...registerBullQueue(SimulationsQueue, ExecutionsQueue, ReceiptsQueue),
     registerFlowsProducer(),
+    SystemTxsModule,
+    ExpoModule,
     ProposalsModule,
-    forwardRef(() => PaymastersModule),
+    PricesModule,
+    PaymastersModule,
+    ActivationsModule,
   ],
-  exports: [TransactionsService, ReceiptsWorker],
-  providers: [
-    TransactionsService,
-    ReceiptsWorker,
-    TransactionsEvents,
-    SchedulerEvents,
-    SchedulerWorker,
-  ],
+  exports: [TransactionsService],
+  providers: [TransactionsResolver, TransactionsService, ExecutionsWorker],
 })
 export class TransactionsModule {}

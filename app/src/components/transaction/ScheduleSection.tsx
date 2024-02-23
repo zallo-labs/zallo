@@ -4,7 +4,6 @@ import { ListItem } from '#/list/ListItem';
 import { DELAY_ENTRIES } from '#/policy/DelaySettings';
 import { showError } from '#/provider/SnackbarProvider';
 import { FragmentType, gql, useFragment } from '@api';
-import { TransactionProposalStatus } from '@api/documents.generated';
 import { CancelIcon, materialCommunityIcon } from '@theme/icons';
 import { createStyles } from '@theme/styles';
 import { useRouter } from 'expo-router';
@@ -17,8 +16,8 @@ const DelayIcon = materialCommunityIcon('timer-outline');
 const ScheduledIcon = materialCommunityIcon('calendar-month');
 const CancelledIcon = materialCommunityIcon('calendar-remove');
 
-const TransactionProposal = gql(/* GraphQL */ `
-  fragment ScheduleSection_TransactionProposal on TransactionProposal {
+const Transaction = gql(/* GraphQL */ `
+  fragment ScheduleSection_Transaction on Transaction {
     id
     status
     account {
@@ -36,6 +35,7 @@ const TransactionProposal = gql(/* GraphQL */ `
       id
     }
     result {
+      __typename
       id
       ... on Scheduled {
         scheduledFor
@@ -53,27 +53,20 @@ const CancelScheduledTx = gql(/* GraphQL */ `
   }
 `);
 
-const DISPLAY_STATUSES: TransactionProposalStatus[] = [
-  'Pending',
-  'Scheduled',
-  'Executing',
-  'Cancelled',
-];
-
 export interface ScheduleSectionProps {
   children?: ReactNode;
-  proposal: FragmentType<typeof TransactionProposal>;
+  proposal: FragmentType<typeof Transaction>;
 }
 
 export function ScheduleSection({ children, ...props }: ScheduleSectionProps) {
-  const p = useFragment(TransactionProposal, props.proposal);
+  const p = useFragment(Transaction, props.proposal);
   const router = useRouter();
   const proposeCancelScheduledTx = useMutation(CancelScheduledTx)[1];
 
   const delay = p.account.policies.find((policy) => !p.policy || policy.id === p.policy.id)?.state
     ?.delay;
 
-  if (!delay || !DISPLAY_STATUSES.includes(p.status)) return;
+  if (!delay || (p.result && p.result.__typename !== 'Scheduled')) return;
 
   return (
     <>

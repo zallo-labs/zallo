@@ -11,10 +11,10 @@ const FragmentDoc = gql(/* GraphQL */ `
   fragment SelectedPolicy_ProposalFragment on Proposal
   @argumentDefinitions(proposal: { type: "UUID!" }) {
     id
-    ... on TransactionProposal {
+    ... on Transaction {
       updatable
     }
-    ... on MessageProposal {
+    ... on Message {
       updatable
     }
     account {

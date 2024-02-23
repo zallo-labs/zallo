@@ -27,14 +27,11 @@ import {
   policyStateShape,
   selectPolicy,
 } from '~/features/policies/policies.util';
-import {
-  proposalTxShape,
-  transactionProposalAsTx,
-} from '../transaction-proposals/transaction-proposals.util';
+import { proposalTxShape, transactionAsTx } from './transactions.util';
 import Decimal from 'decimal.js';
 import { selectApprover } from '~/features/approvers/approvers.service';
 import { ProposalEvent } from '~/features/proposals/proposals.input';
-import { selectTransactionProposal } from '~/features/transaction-proposals/transaction-proposals.service';
+import { selectTransaction } from '~/features/transactions/transactions.service';
 import { QueueReturnType, TypedJob, Worker, createQueue } from '~/features/util/bull/bull.util';
 import { UnrecoverableError } from 'bullmq';
 
@@ -59,7 +56,7 @@ export class ExecutionsWorker extends Worker<ExecutionsQueue> {
   async process(job: TypedJob<ExecutionsQueue>): Promise<QueueReturnType<ExecutionsQueue>> {
     const { txProposal: id, ignoreSimulation } = job.data;
     const proposal = await this.db.query(
-      e.select(e.TransactionProposal, (p) => ({
+      e.select(e.Transaction, (p) => ({
         filter_single: { id },
         id: true,
         account: {
@@ -124,7 +121,7 @@ export class ExecutionsWorker extends Worker<ExecutionsQueue> {
       await e
         .for(e.set(...expiredApprovals.map((approver) => selectApprover(approver))), (approver) =>
           e.delete(e.Approval, () => ({
-            filter_single: { proposal: selectTransactionProposal(id), approver },
+            filter_single: { proposal: selectTransaction(id), approver },
           })),
         )
         .run(this.db.DANGEROUS_superuserClient);
@@ -132,7 +129,7 @@ export class ExecutionsWorker extends Worker<ExecutionsQueue> {
       return 'retry';
     }
 
-    const tx = transactionProposalAsTx(proposal);
+    const tx = transactionAsTx(proposal);
     const policy = await this.getExecutionPolicy(
       tx,
       new Set(approvals.map((a) => a.approver)),
@@ -169,8 +166,8 @@ export class ExecutionsWorker extends Worker<ExecutionsQueue> {
 
       // Set executing policy if not already set
       const selectedProposal = proposal.policy?.state
-        ? selectTransactionProposal(id)
-        : e.update(e.TransactionProposal, () => ({
+        ? selectTransaction(id)
+        : e.update(e.Transaction, () => ({
             filter_single: { id: proposal.id },
             set: {
               policy: selectPolicy({ account, key: policy.key }),

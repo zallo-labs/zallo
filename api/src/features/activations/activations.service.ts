@@ -19,7 +19,7 @@ import e from '~/edgeql-js';
 import { DatabaseService } from '../database/database.service';
 import { policyStateAsPolicy, policyStateShape } from '../policies/policies.util';
 import { FlowJob } from 'bullmq';
-import { ReceiptsQueue } from '../transactions/receipts.queue';
+import { ReceiptsQueue } from '../system-txs/receipts.queue';
 import Decimal from 'decimal.js';
 
 interface FeeParams {

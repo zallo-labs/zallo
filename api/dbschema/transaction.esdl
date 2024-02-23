@@ -10,7 +10,9 @@ module default {
     required activation: decimal { constraint min_value(0); default := 0; }
   }
 
-  type TransactionProposal extending Proposal {
+  scalar type TransactionStatus extending enum<'Pending', 'Scheduled', 'Executing', 'Successful', 'Failed', 'Cancelled'>;
+
+  type Transaction extending Proposal {
     required multi operations: Operation {
       constraint exclusive;
       on source delete delete target;
@@ -30,19 +32,17 @@ module default {
     link result := (select .results order by .timestamp desc limit 1);
     required property status := (
       select assert_exists((
-        TransactionProposalStatus.Pending if (not .submitted) else
-        TransactionProposalStatus.Executing if (not exists .result) else
-        TransactionProposalStatus.Successful if (.result is Successful) else
-        TransactionProposalStatus.Failed if (.result is Failed) else
-        TransactionProposalStatus.Scheduled if (not .result[is Scheduled].cancelled) else
-        TransactionProposalStatus.Cancelled
+        TransactionStatus.Pending if (not .submitted) else
+        TransactionStatus.Executing if (not exists .result) else
+        TransactionStatus.Successful if (.result is Successful) else
+        TransactionStatus.Failed if (.result is Failed) else
+        TransactionStatus.Scheduled if (not .result[is Scheduled].cancelled) else
+        TransactionStatus.Cancelled
       ))
     );
 
     constraint exclusive on (.hash);
   }
-
-  scalar type TransactionProposalStatus extending enum<'Pending', 'Scheduled', 'Executing', 'Successful', 'Failed', 'Cancelled'>;
 
   type Simulation {
     required success: bool;
@@ -56,7 +56,7 @@ module default {
 
   type SystemTx {
     required hash: Bytes32 { constraint exclusive; }
-    required proposal: TransactionProposal;
+    required proposal: Transaction;
     required maxEthFeePerGas: decimal { constraint min_value(0); }
     required paymasterEthFees: PaymasterFees { constraint exclusive; default := (insert PaymasterFees {}); }
     required ethCreditUsed: decimal { constraint min_value(0); default := 0; }
@@ -74,7 +74,7 @@ module default {
   }
 
   abstract type Result {
-    required transaction: TransactionProposal;
+    required transaction: Transaction;
     required systx: SystemTx { constraint exclusive; };
     required timestamp: datetime { default := datetime_of_statement(); }
     multi link events := .<result[is Event];

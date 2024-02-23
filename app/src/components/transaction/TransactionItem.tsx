@@ -12,8 +12,8 @@ import { createStyles, useStyles } from '@theme/styles';
 import { OperationIcon } from '#/transaction/OperationIcon';
 import { Image } from 'expo-image';
 
-const Proposal = gql(/* GraphQL */ `
-  fragment TransactionItem_TransactionProposal on TransactionProposal {
+const Transaction = gql(/* GraphQL */ `
+  fragment TransactionItem_Transaction on Transaction {
     id
     label
     status
@@ -40,7 +40,7 @@ const Proposal = gql(/* GraphQL */ `
     potentialApprovers {
       id
     }
-    ...ProposalValue_TransactionProposal
+    ...ProposalValue_Transaction
   }
 `);
 
@@ -56,17 +56,17 @@ const User = gql(/* GraphQL */ `
 const MultiOperationIcon = materialCommunityIcon('multiplication');
 
 export interface TransactionItemProps extends Partial<ListItemProps> {
-  proposal: FragmentType<typeof Proposal>;
+  transaction: FragmentType<typeof Transaction>;
   user: FragmentType<typeof User>;
 }
 
 function TransactionItem_({
-  proposal: proposalFragment,
+  transaction: txFragment,
   user: userFragment,
   ...itemProps
 }: TransactionItemProps) {
   const { styles } = useStyles(stylesheet);
-  const p = useFragment(Proposal, proposalFragment);
+  const p = useFragment(Transaction, txFragment);
   const user = useFragment(User, userFragment);
 
   const isMulti = p.operations.length > 1;

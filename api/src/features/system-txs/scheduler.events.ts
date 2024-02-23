@@ -19,7 +19,7 @@ import { Chain } from 'chains';
 import { ProposalsService } from '../proposals/proposals.service';
 import { ProposalEvent } from '../proposals/proposals.input';
 import { selectSysTx } from './system-tx.util';
-import { selectTransactionProposal } from '../transaction-proposals/transaction-proposals.service';
+import { selectTransaction } from '../transactions/transactions.service';
 
 const scheduledEvent = getAbiItem({ abi: ACCOUNT_IMPLEMENTATION.abi, name: 'Scheduled' });
 const scheduleCancelledEvent = getAbiItem({
@@ -56,7 +56,7 @@ export class SchedulerEvents implements OnModuleInit {
     const scheduledFor = new Date(event.log.args.timestamp * 1000);
     const proposalId = await this.db.query(
       e.insert(e.Scheduled, {
-        transaction: selectTransactionProposal(event.log.args.proposal),
+        transaction: selectTransaction(event.log.args.proposal),
         systx: selectSysTx(event.log.transactionHash),
         scheduledFor,
       }).transaction.id,
@@ -77,7 +77,7 @@ export class SchedulerEvents implements OnModuleInit {
       e.assert_single(
         e.update(e.Scheduled, (t) => ({
           filter: and(
-            e.op(t.transaction, '=', selectTransactionProposal(event.log.args.proposal)),
+            e.op(t.transaction, '=', selectTransaction(event.log.args.proposal)),
             e.op(t.transaction.account.address, '=', account),
           ),
           set: { cancelled: true },
@@ -101,7 +101,7 @@ export class SchedulerEvents implements OnModuleInit {
         {
           queueName: SchedulerQueue.name,
           name: 'Schedule transaction',
-          data: { transactionProposal: txProposal } satisfies QueueData<SchedulerQueue>,
+          data: { transaction: txProposal } satisfies QueueData<SchedulerQueue>,
           opts: { jobId: txProposal },
           children: [
             {
@@ -122,14 +122,14 @@ export class SchedulerEvents implements OnModuleInit {
         const jobs = await this.queue.getJobs(RUNNING_JOB_STATUSES);
 
         const orphanedProposals = await this.db.query(
-          e.select(e.select(e.TransactionProposal).result.is(e.Scheduled), (s) => ({
+          e.select(e.select(e.Transaction).result.is(e.Scheduled), (s) => ({
             filter: and(
               e.op('not', s.cancelled),
               jobs.length
                 ? e.op(
                     s.transaction.id,
                     'not in',
-                    e.cast(e.uuid, e.set(...jobs.map((j) => j.data.transactionProposal))),
+                    e.cast(e.uuid, e.set(...jobs.map((j) => j.data.transaction))),
                   )
                 : undefined,
             ),

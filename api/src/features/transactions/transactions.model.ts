@@ -1,6 +1,6 @@
 import { Field, ObjectType, registerEnumType } from '@nestjs/graphql';
 import { GraphQLBigInt } from 'graphql-scalars';
-import { SystemTx } from '../transactions/system-tx.model';
+import { SystemTx } from '../system-txs/system-tx.model';
 import { Operation } from '../operations/operations.model';
 import { Token } from '../tokens/tokens.model';
 import { Simulation } from '../simulations/simulations.model';
@@ -11,10 +11,10 @@ import { DecimalField } from '~/apollo/scalars/Decimal.scalar';
 import Decimal from 'decimal.js';
 import { CustomNode, CustomNodeType } from '~/decorators/interface.decorator';
 import { PaymasterFees } from '../paymasters/paymasters.model';
-import { Result } from '../transactions/results.model';
+import { Result } from '../system-txs/results.model';
 
 @ObjectType({ implements: () => Proposal })
-export class TransactionProposal extends Proposal {
+export class Transaction extends Proposal {
   @Field(() => [Operation])
   operations: Operation[];
 
@@ -51,11 +51,11 @@ export class TransactionProposal extends Proposal {
   @Field(() => Result, { nullable: true })
   result?: Result;
 
-  @Field(() => TransactionProposalStatus)
-  status: TransactionProposalStatus;
+  @Field(() => TransactionStatus)
+  status: TransactionStatus;
 }
 
-export enum TransactionProposalStatus {
+export enum TransactionStatus {
   Pending = 'Pending',
   Scheduled = 'Scheduled',
   Executing = 'Executing',
@@ -63,7 +63,7 @@ export enum TransactionProposalStatus {
   Failed = 'Failed',
   Cancelled = 'Cancelled',
 }
-registerEnumType(TransactionProposalStatus, { name: 'TransactionProposalStatus' });
+registerEnumType(TransactionStatus, { name: 'TransactionStatus' });
 
 @CustomNodeType()
 export class EstimatedTransactionFees extends CustomNode {

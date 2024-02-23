@@ -12,7 +12,7 @@ import { Button } from '../Button';
 import { useSideSheet } from '#/SideSheet/SideSheetLayout';
 
 const Transaction = gql(/* GraphQL */ `
-  fragment TransactionActions_TransactionProposal on TransactionProposal
+  fragment TransactionActions_Transaction on Transaction
   @argumentDefinitions(proposal: { type: "UUID!" }) {
     id
     status
@@ -51,7 +51,7 @@ const User = gql(/* GraphQL */ `
 `);
 
 const Execute = gql(/* GraphQL */ `
-  mutation TransactionActions_Execute($input: ExecuteTransactionProposalInput!) {
+  mutation TransactionActions_Execute($input: ExecuteTransactionInput!) {
     execute(input: $input) {
       id
     }

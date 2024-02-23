@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { asUAddress, ACCOUNT_PROXY, asDecimal } from 'lib';
-import { TransactionEventData, ReceiptsWorker } from '../transactions/receipts.worker';
+import { TransactionEventData, ReceiptsWorker } from '../system-txs/receipts.worker';
 import { DatabaseService } from '../database/database.service';
 import { selectAccount } from './accounts.util';
 import { getAbiItem } from 'viem';

@@ -41,7 +41,7 @@ module default {
 
   type PolicyState {
     link policy := .<stateHistory[is Policy];
-    proposal: TransactionProposal {
+    proposal: Transaction {
       on source delete delete target; 
       on target delete delete source;
     }

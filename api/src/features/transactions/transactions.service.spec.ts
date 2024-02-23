@@ -11,19 +11,16 @@ import {
 } from '~/util/test';
 import { randomDeploySalt, Hex, UAddress, ZERO_ADDR, asUUID } from 'lib';
 import { Network, NetworksService } from '../util/networks/networks.service';
-import { ProposeTransactionInput } from './transaction-proposals.input';
+import { ProposeTransactionInput } from './transactions.input';
 import { DatabaseService } from '../database/database.service';
-import {
-  TransactionProposalsService,
-  selectTransactionProposal,
-} from './transaction-proposals.service';
+import { TransactionsService, selectTransaction } from './transactions.service';
 import e from '~/edgeql-js';
 import { selectAccount } from '../accounts/accounts.util';
 import { selectPolicy } from '../policies/policies.util';
 import { v4 as uuid } from 'uuid';
 import { BullModule, getFlowProducerToken, getQueueToken } from '@nestjs/bullmq';
 import { SimulationsQueue } from '~/features/simulations/simulations.worker';
-import { ExecutionsQueue } from '~/features/transaction-proposals/executions.worker';
+import { ExecutionsQueue } from '~/features/transactions/executions.worker';
 import { FLOW_PRODUCER, registerFlowsProducer } from '../util/bull/bull.util';
 import { CHAINS } from 'chains';
 import { PaymastersService } from '~/features/paymasters/paymasters.service';
@@ -31,8 +28,8 @@ import Decimal from 'decimal.js';
 
 const signature = '0x1234' as Hex;
 
-describe(TransactionProposalsService.name, () => {
-  let service: TransactionProposalsService;
+describe(TransactionsService.name, () => {
+  let service: TransactionsService;
   let db: DatabaseService;
   let networks: DeepMocked<NetworksService>;
   let paymasters: DeepMocked<PaymastersService>;
@@ -43,7 +40,7 @@ describe(TransactionProposalsService.name, () => {
         BullModule.registerQueue(SimulationsQueue, ExecutionsQueue),
         registerFlowsProducer(),
       ],
-      providers: [TransactionProposalsService, DatabaseService],
+      providers: [TransactionsService, DatabaseService],
     })
       .overrideProvider(getQueueToken(SimulationsQueue.name))
       .useValue(createMock())
@@ -54,7 +51,7 @@ describe(TransactionProposalsService.name, () => {
       .useMocker(createMock)
       .compile();
 
-    service = module.get(TransactionProposalsService);
+    service = module.get(TransactionsService);
     db = module.get(DatabaseService);
     networks = module.get(NetworksService);
     paymasters = module.get(PaymastersService);
@@ -130,7 +127,7 @@ describe(TransactionProposalsService.name, () => {
       asUser(user1, async () => {
         const { id } = await propose();
 
-        expect(await db.query(selectTransactionProposal(id))).toBeTruthy();
+        expect(await db.query(selectTransaction(id))).toBeTruthy();
       }));
 
     it('approves proposal if signature was provided', () =>
@@ -204,12 +201,12 @@ describe(TransactionProposalsService.name, () => {
   //         await Promise.all(
   //           [
   //             e.insert(e.SystemTx, {
-  //               proposal: selectTransactionProposal(executing),
+  //               proposal: selectTransaction(executing),
   //               hash: randomHash(),
   //               gasPrice: 0n,
   //             }),
   //             e.insert(e.SystemTx, {
-  //               proposal: selectTransactionProposal(successful),
+  //               proposal: selectTransaction(successful),
   //               hash: randomHash(),
   //               gasPrice: 0n,
   //               receipt: e.insert(e.Receipt, {
@@ -222,7 +219,7 @@ describe(TransactionProposalsService.name, () => {
   //               }),
   //             }),
   //             e.insert(e.SystemTx, {
-  //               proposal: selectTransactionProposal(failed),
+  //               proposal: selectTransaction(failed),
   //               hash: randomHash(),
   //               gasPrice: 0n,
   //               receipt: e.insert(e.Receipt, {
@@ -241,14 +238,14 @@ describe(TransactionProposalsService.name, () => {
 
   //     it('pending', () =>
   //       asUser(user1, async () => {
-  //         const proposals = await service.select({ statuses: [TransactionProposalStatus.Pending] });
+  //         const proposals = await service.select({ statuses: [TransactionStatus.Pending] });
   //         expect(proposals.map((p) => p.id)).toEqual([pending]);
   //       }));
 
   //     it('executing', () =>
   //       asUser(user1, async () => {
   //         const proposals = await service.select({
-  //           statuses: [TransactionProposalStatus.Executing],
+  //           statuses: [TransactionStatus.Executing],
   //         });
   //         expect(proposals.map((p) => p.id)).toEqual([executing]);
   //       }));
@@ -256,21 +253,21 @@ describe(TransactionProposalsService.name, () => {
   //     it('successful', () =>
   //       asUser(user1, async () => {
   //         const proposals = await service.select({
-  //           statuses: [TransactionProposalStatus.Successful],
+  //           statuses: [TransactionStatus.Successful],
   //         });
   //         expect(proposals.map((p) => p.id)).toEqual([successful]);
   //       }));
 
   //     it('failure', () =>
   //       asUser(user1, async () => {
-  //         const proposals = await service.select({ statuses: [TransactionProposalStatus.Failed] });
+  //         const proposals = await service.select({ statuses: [TransactionStatus.Failed] });
   //         expect(proposals.map((p) => p.id)).toEqual([failed]);
   //       }));
 
   //     it('multiple statuses', () =>
   //       asUser(user1, async () => {
   //         const proposals = await service.select({
-  //           statuses: [TransactionProposalStatus.Pending, TransactionProposalStatus.Failed],
+  //           statuses: [TransactionStatus.Pending, TransactionStatus.Failed],
   //         });
   //         expect(new Set(proposals.map((p) => p.id))).toEqual(new Set([pending, failed]));
   //       }));
@@ -288,7 +285,7 @@ describe(TransactionProposalsService.name, () => {
   //         await db.query(
   //           e.select(e.Approval, () => ({
   //             filter_single: {
-  //               proposal: selectTransactionProposal(hash),
+  //               proposal: selectTransaction(hash),
   //               approver: e.global.current_approver,
   //             },
   //           })),
@@ -357,7 +354,7 @@ describe(TransactionProposalsService.name, () => {
   //         await db.query(
   //           e.select(e.Rejection, () => ({
   //             filter_single: {
-  //               proposal: selectTransactionProposal(hash),
+  //               proposal: selectTransaction(hash),
   //               approver: e.global.current_approver,
   //             },
   //           })),
@@ -376,7 +373,7 @@ describe(TransactionProposalsService.name, () => {
   //         await db.query(
   //           e.select(e.Rejection, () => ({
   //             filter_single: {
-  //               proposal: selectTransactionProposal(hash),
+  //               proposal: selectTransaction(hash),
   //               approver: e.global.current_approver,
   //             },
   //           })),
@@ -396,7 +393,7 @@ describe(TransactionProposalsService.name, () => {
         const { id } = await propose();
         await service.delete(id);
 
-        expect(await db.query(selectTransactionProposal(id))).toBeNull();
+        expect(await db.query(selectTransaction(id))).toBeNull();
       }));
 
     it("not remove if the policy doesn't exist", () =>
@@ -420,7 +417,7 @@ describe(TransactionProposalsService.name, () => {
             key: 1,
             name: 'Policy 1',
             stateHistory: e.insert(e.PolicyState, {
-              proposal: selectTransactionProposal(id),
+              proposal: selectTransaction(id),
               threshold: 0,
               transfers: e.insert(e.TransfersConfig, { budget: 0 }),
             }),
@@ -447,7 +444,7 @@ describe(TransactionProposalsService.name, () => {
                 transfers: e.insert(e.TransfersConfig, { budget: 0 }),
               }),
               e.insert(e.PolicyState, {
-                proposal: selectTransactionProposal(id),
+                proposal: selectTransaction(id),
                 threshold: 0,
                 transfers: e.insert(e.TransfersConfig, { budget: 0 }),
               }),

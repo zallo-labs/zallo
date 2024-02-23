@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Address, UAddress, asAddress, asUAddress, isTruthy, ETH_ADDRESS, isEthToken } from 'lib';
 import { ERC20 } from 'lib/dapps';
-import { TransactionEventData, ReceiptsWorker } from '../transactions/receipts.worker';
+import { TransactionEventData, ReceiptsWorker } from '../system-txs/receipts.worker';
 import { EventData, EventsWorker } from '../events/events.worker';
 import { DatabaseService } from '../database/database.service';
 import e from '~/edgeql-js';
@@ -18,7 +18,7 @@ import { BalancesService } from '~/features/util/balances/balances.service';
 import Decimal from 'decimal.js';
 import { TokensService } from '~/features/tokens/tokens.service';
 import { ampli } from '~/util/ampli';
-import { selectSysTx } from '../transactions/system-tx.util';
+import { selectSysTx } from '../system-txs/system-tx.util';
 
 export const getTransferTrigger = (account: UAddress) => `transfer.account.${account}`;
 export interface TransferSubscriptionPayload {

@@ -38,10 +38,10 @@ const Proposal = gql(/* GraphQL */ `
     potentialApprovers {
       id
     }
-    ... on TransactionProposal {
+    ... on Transaction {
       updatable
     }
-    ... on MessageProposal {
+    ... on Message {
       updatable
       message
       typedData
@@ -50,7 +50,7 @@ const Proposal = gql(/* GraphQL */ `
         address
       }
     }
-    ...proposalAsTypedData_TransactionProposal
+    ...proposalAsTypedData_Transaction
   }
 `);
 
@@ -109,7 +109,7 @@ export function useApprove(params: UseApproveParams) {
 
   const proposalData: TypedDataDefinition = useMemo(
     () =>
-      p.__typename === 'TransactionProposal'
+      p.__typename === 'Transaction'
         ? proposalAsTypedData(p)
         : asMessageTypedData(
             p.account.address,
@@ -123,10 +123,10 @@ export function useApprove(params: UseApproveParams) {
   const approve = async (method: ApprovalProperties['method'], input: Omit<ApproveInput, 'id'>) => {
     hapticFeedback('neutral');
 
-    const mutation = p.__typename === 'TransactionProposal' ? approveTransaction : approveMessage;
+    const mutation = p.__typename === 'Transaction' ? approveTransaction : approveMessage;
     const r = await mutation({ input: { ...input, id: p.id } });
 
-    const type = p.__typename === 'TransactionProposal' ? 'Transaction' : 'Message';
+    const type = p.__typename === 'Transaction' ? 'Transaction' : 'Message';
     ampli.approval({ method, type });
 
     return r.data

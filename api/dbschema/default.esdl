@@ -23,7 +23,8 @@ module default {
     required property isActive := exists .upgradedAtBlock;
     multi link policies := (select .<account[is Policy] filter .isEnabled);
     multi link proposals := .<account[is Proposal];
-    multi link transactionProposals := .<account[is TransactionProposal];
+    multi link transactions := .<account[is Transaction];
+    multi link messages := .<account[is Message];
     multi link transfers := .<account[is Transfer];
     multi link approvers := (distinct (.policies.state.approvers union .policies.draft.approvers));
 
@@ -36,7 +37,6 @@ module default {
     required hash: Bytes32 { constraint exclusive; }
     required account: Account;
     policy: Policy;
-    # required multi link policies := assert_exists(<Policy>{.policy} ?? .account.policies);
     label: Label;
     iconUri: Url;
     required validFrom: datetime;
@@ -68,7 +68,7 @@ module default {
       using (.account in global current_accounts);
   }
 
-  type MessageProposal extending Proposal {
+  type Message extending Proposal {
     required messageHash: Bytes32;
     required message: str;
     typedData: json;

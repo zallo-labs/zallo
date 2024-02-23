@@ -15,7 +15,7 @@ import {
   UUID,
   PLACEHOLDER_ACCOUNT_ADDRESS,
 } from 'lib';
-import { TransactionProposalsService } from '../transaction-proposals/transaction-proposals.service';
+import { TransactionsService } from '../transactions/transactions.service';
 import {
   CreatePolicyInput,
   PoliciesInput,
@@ -38,14 +38,14 @@ import {
 import { NameTaken, SatisfiabilityResult, Policy as PolicyModel } from './policies.model';
 import {
   proposalTxShape,
-  transactionProposalAsTx,
+  transactionAsTx,
   ProposalTxShape,
-} from '../transaction-proposals/transaction-proposals.util';
+} from '../transactions/transactions.util';
 import { and, isExclusivityConstraintViolation } from '../database/database.util';
 import { selectAccount } from '../accounts/accounts.util';
 import { err, fromPromise, ok } from 'neverthrow';
 import { encodeFunctionData } from 'viem';
-import { $TransactionProposal } from '~/edgeql-js/modules/default';
+import { $Transaction } from '~/edgeql-js/modules/default';
 
 export const policySatisfiabilityDeps = {
   key: true,
@@ -67,8 +67,8 @@ export interface CreatePolicyParams extends CreatePolicyInput {
 export class PoliciesService {
   constructor(
     private db: DatabaseService,
-    @Inject(forwardRef(() => TransactionProposalsService))
-    private proposals: TransactionProposalsService,
+    @Inject(forwardRef(() => TransactionsService))
+    private proposals: TransactionsService,
     private userAccounts: AccountsCacheService,
   ) {}
 
@@ -345,7 +345,7 @@ export class PoliciesService {
         filter_single: { id: proposalId },
         __type__: { name: true },
         approvals: { approver: { address: true } },
-        ...e.is(e.TransactionProposal, proposalTxShape(p)),
+        ...e.is(e.Transaction, proposalTxShape(p)),
       })),
     );
     if (!proposal)
@@ -354,12 +354,8 @@ export class PoliciesService {
     const p = policyStateAsPolicy(key, state);
     const approvals = new Set(proposal.approvals.map((a) => asAddress(a.approver.address)));
 
-    return proposal.__type__.name === $TransactionProposal['__name__']
-      ? getTransactionSatisfiability(
-          p,
-          transactionProposalAsTx(proposal as ProposalTxShape),
-          approvals,
-        )
+    return proposal.__type__.name === $Transaction['__name__']
+      ? getTransactionSatisfiability(p, transactionAsTx(proposal as ProposalTxShape), approvals)
       : getMessageSatisfiability(p, approvals);
   }
 

@@ -10,8 +10,8 @@ import { OperationSection } from '#/transaction/OperationSection';
 
 const AlertIcon = materialCommunityIcon('alert-circle-outline');
 
-const TransactionProposal = gql(/* GraphQL */ `
-  fragment OperationsSection_TransactionProposal on TransactionProposal {
+const Transaction = gql(/* GraphQL */ `
+  fragment OperationsSection_Transaction on Transaction {
     id
     operations {
       ...OperationSection_Operation
@@ -21,17 +21,17 @@ const TransactionProposal = gql(/* GraphQL */ `
       success
       responses
     }
-    ...OperationSection_TransactionProposal
+    ...OperationSection_Transaction
   }
 `);
 
 export interface OperationsSectionProps {
-  proposal: FragmentType<typeof TransactionProposal>;
+  proposal: FragmentType<typeof Transaction>;
 }
 
 export function OperationsSection(props: OperationsSectionProps) {
   const { styles } = useStyles(stylesheet);
-  const p = useFragment(TransactionProposal, props.proposal);
+  const p = useFragment(Transaction, props.proposal);
 
   const simulatedErrorSelector =
     p.simulation?.responses.length &&

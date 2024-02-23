@@ -30,12 +30,9 @@ import {
   createQueue,
 } from '../util/bull/bull.util';
 import { ETH } from 'lib/dapps';
-import { selectTransactionProposal } from '~/features/transaction-proposals/transaction-proposals.service';
+import { selectTransaction } from '~/features/transactions/transactions.service';
 import { NetworksService } from '~/features/util/networks/networks.service';
-import {
-  proposalTxShape,
-  transactionProposalAsTx,
-} from '~/features/transaction-proposals/transaction-proposals.util';
+import { proposalTxShape, transactionAsTx } from '~/features/transactions/transactions.util';
 import { runOnce } from '~/util/mutex';
 
 type TransferDetails = Parameters<typeof e.insert<typeof e.TransferDetails>>[1];
@@ -66,7 +63,7 @@ export class SimulationsWorker extends Worker<SimulationsQueue> {
     const { txProposal } = job.data;
 
     const p = await this.db.query(
-      e.select(e.TransactionProposal, (p) => ({
+      e.select(e.Transaction, (p) => ({
         filter_single: { id: txProposal },
         account: { address: true },
         ...proposalTxShape(p),
@@ -84,7 +81,7 @@ export class SimulationsWorker extends Worker<SimulationsQueue> {
       await encodeTransaction({
         network,
         account: localAccount,
-        tx: transactionProposalAsTx(p),
+        tx: transactionAsTx(p),
       }),
     ).mapErr((callError) => {
       const e = callError.walk();
@@ -149,7 +146,7 @@ export class SimulationsWorker extends Worker<SimulationsQueue> {
       }
     }
 
-    const proposal = selectTransactionProposal(txProposal);
+    const proposal = selectTransaction(txProposal);
     await this.db.query(
       e.select({
         prevSimulation: e.delete(proposal.simulation, () => ({})),
@@ -174,7 +171,7 @@ export class SimulationsWorker extends Worker<SimulationsQueue> {
         const jobs = await this.queue.getJobs(RUNNING_JOB_STATUSES);
 
         const orphanedProposals = await this.db.query(
-          e.select(e.TransactionProposal, (p) => ({
+          e.select(e.Transaction, (p) => ({
             filter: and(
               e.op('not', e.op('exists', p.simulation)),
               jobs.length

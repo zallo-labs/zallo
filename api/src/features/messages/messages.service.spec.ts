@@ -1,18 +1,18 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { MessageProposalsService } from './message-proposals.service';
+import { MessagesService } from './messages.service';
 import { createMock } from '@golevelup/ts-jest';
 
-describe('MessageProposalsService', () => {
-  let service: MessageProposalsService;
+describe('MessagesService', () => {
+  let service: MessagesService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [MessageProposalsService],
+      providers: [MessagesService],
     })
       .useMocker(createMock)
       .compile();
 
-    service = module.get<MessageProposalsService>(MessageProposalsService);
+    service = module.get<MessagesService>(MessagesService);
   });
 
   it('should be defined', () => {

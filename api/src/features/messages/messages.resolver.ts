@@ -1,35 +1,35 @@
 import { ID, Info, Mutation, Parent, Query, Resolver } from '@nestjs/graphql';
-import { MessageProposal } from './message-proposals.model';
+import { Message } from './messages.model';
 import { Input } from '~/decorators/input.decorator';
-import { ProposeMessageInput } from './message-proposals.input';
+import { ProposeMessageInput } from './messages.input';
 import { GraphQLResolveInfo } from 'graphql';
 import { ApproveInput, UniqueProposalInput } from '../proposals/proposals.input';
-import { MessageProposalsService } from './message-proposals.service';
+import { MessagesService } from './messages.service';
 import { getShape } from '../database/database.select';
 import { ComputedField } from '~/decorators/computed.decorator';
 import e from '~/edgeql-js';
 
-@Resolver(() => MessageProposal)
-export class MessageProposalsResolver {
-  constructor(private service: MessageProposalsService) {}
+@Resolver(() => Message)
+export class MessagesResolver {
+  constructor(private service: MessagesService) {}
 
-  @Query(() => MessageProposal, { nullable: true })
-  async messageProposal(@Input() input: UniqueProposalInput, @Info() info: GraphQLResolveInfo) {
+  @Query(() => Message, { nullable: true })
+  async message(@Input() input: UniqueProposalInput, @Info() info: GraphQLResolveInfo) {
     return this.service.selectUnique(input.id, getShape(info));
   }
 
-  @ComputedField<typeof e.MessageProposal>(() => Boolean, { signature: true })
-  async updatable(@Parent() { signature }: MessageProposal) {
+  @ComputedField<typeof e.Message>(() => Boolean, { signature: true })
+  async updatable(@Parent() { signature }: Message) {
     return !signature;
   }
 
-  @Mutation(() => MessageProposal)
+  @Mutation(() => Message)
   async proposeMessage(@Input() input: ProposeMessageInput, @Info() info: GraphQLResolveInfo) {
     const { id } = await this.service.propose(input);
     return this.service.selectUnique(id, getShape(info));
   }
 
-  @Mutation(() => MessageProposal)
+  @Mutation(() => Message)
   async approveMessage(@Input() input: ApproveInput, @Info() info: GraphQLResolveInfo) {
     await this.service.approve(input);
     return this.service.selectUnique(input.id, getShape(info));

@@ -11,8 +11,8 @@ import { NetworksModule } from './features/util/networks/networks.module';
 import { ContactsModule } from './features/contacts/contacts.module';
 import { DatabaseModule } from './features/database/database.module';
 import { ContractFunctionsModule } from './features/contract-functions/contract-functions.module';
-import { TransactionProposalsModule } from './features/transaction-proposals/transaction-proposals.module';
 import { TransactionsModule } from './features/transactions/transactions.module';
+import { SystemTxsModule } from './features/system-txs/system-txs.module';
 import { FaucetModule } from './features/faucet/faucet.module';
 import { ExpoModule } from './features/util/expo/expo.module';
 import { PubsubModule } from './features/util/pubsub/pubsub.module';
@@ -30,7 +30,7 @@ import { SimulationsModule } from './features/simulations/simulations.module';
 import { BullModule } from './features/util/bull/bull.module';
 import { TokensModule } from './features/tokens/tokens.module';
 import { PricesModule } from './features/prices/prices.module';
-import { MessageProposalsModule } from './features/message-proposals/message-proposals.module';
+import { MessagesModule } from './features/messages/messages.module';
 import { ProposalsModule } from './features/proposals/proposals.module';
 import { BalancesModule } from '~/features/util/balances/balances.module';
 
@@ -56,15 +56,15 @@ import { BalancesModule } from '~/features/util/balances/balances.module';
     ExplorerModule,
     FaucetModule,
     HealthModule,
-    MessageProposalsModule,
+    MessagesModule,
     OperationsModule,
     PaymastersModule,
     PoliciesModule,
     PricesModule,
     ProposalsModule,
     SimulationsModule,
+    SystemTxsModule,
     TokensModule,
-    TransactionProposalsModule,
     TransactionsModule,
     TransfersModule,
     UsersModule,

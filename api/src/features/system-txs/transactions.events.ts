@@ -25,7 +25,7 @@ import { RUNNING_JOB_STATUSES, TypedQueue } from '../util/bull/bull.util';
 import { ETH } from 'lib/dapps';
 import { runOnce } from '~/util/mutex';
 import { ampli } from '~/util/ampli';
-import { selectTransactionProposal } from '../transaction-proposals/transaction-proposals.service';
+import { selectTransaction } from '../transactions/transactions.service';
 import { selectSysTx } from './system-tx.util';
 
 const opExecutedEvent = getAbiItem({ abi: ACCOUNT_IMPLEMENTATION.abi, name: 'OperationExecuted' });
@@ -65,7 +65,7 @@ export class TransactionsEvents implements OnModuleInit {
     const { args } = log;
 
     const insertResult = e.insert(e.Successful, {
-      transaction: selectTransactionProposal(args.proposal),
+      transaction: selectTransaction(args.proposal),
       systx: selectSysTx(receipt.transactionHash),
       timestamp: new Date(Number(block.timestamp) * 1000), // block.timestamp is in seconds
       block: BigInt(receipt.blockNumber),
