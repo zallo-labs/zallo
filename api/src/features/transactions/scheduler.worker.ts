@@ -34,6 +34,7 @@ export class SchedulerWorker extends Worker<SchedulerQueue> {
         account: { address: true },
         simulation: { success: true },
         transaction: { receipt: true },
+        isScheduled: p.result.is(e.Scheduled),
         ...proposalTxShape(p),
         maxPaymasterEthFees: { activation: true, total: true },
       })),
@@ -41,8 +42,7 @@ export class SchedulerWorker extends Worker<SchedulerQueue> {
     if (!proposal) return 'Proposal not found';
     if (!proposal.simulation) return 'Not simulated';
     if (!proposal.simulation.success) return 'Simulation failed';
-    if (!proposal.transaction) return 'Not scheduled';
-    if (proposal.transaction.receipt) return 'Already executed';
+    if (!proposal.isScheduled) return 'Not scheduled';
 
     const account = asUAddress(proposal.account.address);
 
@@ -72,7 +72,7 @@ export class SchedulerWorker extends Worker<SchedulerQueue> {
       const transaction = r.value.transactionHash;
 
       await this.db.query(
-        e.insert(e.Transaction, {
+        e.insert(e.SystemTx, {
           hash: transaction,
           proposal: selectedProposal,
           maxEthFeePerGas: feeData.maxEthFeePerGas.toString(),

@@ -1,4 +1,11 @@
-import { Field, ID, InterfaceType, ObjectType, ObjectTypeOptions } from '@nestjs/graphql';
+import {
+  Field,
+  ID,
+  InterfaceType,
+  InterfaceTypeOptions,
+  ObjectType,
+  ObjectTypeOptions,
+} from '@nestjs/graphql';
 import { UUID } from 'lib';
 import { UUIDField } from '~/apollo/scalars/Uuid.scalar';
 
@@ -7,6 +14,22 @@ const createObjectWithInterfaceDecorator =
   (options?: ObjectTypeOptions): ClassDecorator =>
   (target) =>
     ObjectType({
+      ...options,
+      implements: [
+        iface,
+        ...(options?.implements
+          ? Array.isArray(options.implements)
+            ? options.implements
+            : [options.implements]
+          : []),
+      ],
+    })(target);
+
+const createInterfaceWithInterfaceDecorator =
+  (iface: Function | (() => Function)) =>
+  (options?: InterfaceTypeOptions): ClassDecorator =>
+  (target) =>
+    InterfaceType({
       ...options,
       implements: [
         iface,
@@ -33,6 +56,8 @@ export class Node {
 }
 
 export const NodeType = createObjectWithInterfaceDecorator(Node);
+
+export const NodeInterface = createInterfaceWithInterfaceDecorator(Node);
 
 @InterfaceType()
 export class Err {

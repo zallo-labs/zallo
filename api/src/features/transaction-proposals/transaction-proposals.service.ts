@@ -15,6 +15,8 @@ import {
   estimateTransactionVerificationGas,
   ACCOUNT_ABI,
   asHex,
+  isHex,
+  Hex,
 } from 'lib';
 import { NetworksService } from '~/features/util/networks/networks.service';
 import {
@@ -49,13 +51,9 @@ import { ActivationsService } from '../activations/activations.service';
 import { totalPaymasterEthFees } from '../paymasters/paymasters.util';
 import { ReceiptsQueue } from '../transactions/receipts.queue';
 
-export const selectTransactionProposal = (
-  id: UniqueProposal,
-  shape?: ShapeFunc<typeof e.TransactionProposal>,
-) =>
-  e.select(e.TransactionProposal, (p) => ({
-    ...shape?.(p),
-    filter_single: { id },
+export const selectTransactionProposal = (id: UUID | Hex) =>
+  e.select(e.TransactionProposal, () => ({
+    filter_single: isHex(id) ? { hash: id } : { id },
   }));
 
 export const estimateFeesDeps = {
@@ -86,7 +84,12 @@ export class TransactionProposalsService {
   ) {}
 
   async selectUnique(id: UniqueProposal, shape?: ShapeFunc<typeof e.TransactionProposal>) {
-    return this.db.query(selectTransactionProposal(id, shape));
+    return this.db.query(
+      e.select(e.TransactionProposal, (t) => ({
+        ...shape?.(t),
+        filter_single: { id },
+      })),
+    );
   }
 
   async select(

@@ -33,8 +33,8 @@ export class PaymasterEvents {
     if (!(await this.accountsCache.isAccount(account))) return;
 
     const selectedAccount = selectAccount(account);
-    const transaction = e.assert_single(
-      e.select(e.Transaction, (t) => ({
+    const systx = e.assert_single(
+      e.select(e.SystemTx, (t) => ({
         filter: and(
           e.op(t.hash, '=', asHex(receipt.transactionHash)),
           e.op(t.proposal.paymaster, '=', asAddress(log.address)),
@@ -46,13 +46,7 @@ export class PaymasterEvents {
     const ethAmount = e.decimal(asDecimal(args.amount, ETH).toString());
 
     await this.db.transaction(async (db) => {
-      const refund = await e
-        .insert(e.Refund, {
-          transaction,
-          ethAmount,
-        })
-        .unlessConflict()
-        .run(db);
+      const refund = await e.insert(e.Refund, { systx, ethAmount }).unlessConflict().run(db);
 
       // Refund may have already been granted
       if (refund) {

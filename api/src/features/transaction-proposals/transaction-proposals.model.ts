@@ -1,6 +1,6 @@
 import { Field, ObjectType, registerEnumType } from '@nestjs/graphql';
 import { GraphQLBigInt } from 'graphql-scalars';
-import { Transaction } from '../transactions/transactions.model';
+import { SystemTx } from '../transactions/system-tx.model';
 import { Operation } from '../operations/operations.model';
 import { Token } from '../tokens/tokens.model';
 import { Simulation } from '../simulations/simulations.model';
@@ -11,6 +11,7 @@ import { DecimalField } from '~/apollo/scalars/Decimal.scalar';
 import Decimal from 'decimal.js';
 import { CustomNode, CustomNodeType } from '~/decorators/interface.decorator';
 import { PaymasterFees } from '../paymasters/paymasters.model';
+import { Result } from '../transactions/results.model';
 
 @ObjectType({ implements: () => Proposal })
 export class TransactionProposal extends Proposal {
@@ -35,11 +36,20 @@ export class TransactionProposal extends Proposal {
   @Field(() => Simulation, { nullable: true })
   simulation?: Simulation;
 
-  @Field(() => [Transaction])
-  transactions: Transaction[];
+  @Field(() => Boolean)
+  submitted: boolean;
 
-  @Field(() => Transaction, { nullable: true })
-  transaction?: Transaction | null;
+  @Field(() => [SystemTx])
+  systxs: SystemTx[];
+
+  @Field(() => SystemTx, { nullable: true })
+  systx?: SystemTx | null;
+
+  @Field(() => [Result])
+  results: Result[];
+
+  @Field(() => Result, { nullable: true })
+  result?: Result;
 
   @Field(() => TransactionProposalStatus)
   status: TransactionProposalStatus;

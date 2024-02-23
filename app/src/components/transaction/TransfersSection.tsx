@@ -13,22 +13,19 @@ const TransactionProposal = gql(/* GraphQL */ `
   fragment TransfersSection_TransactionProposal on TransactionProposal
   @argumentDefinitions(account: { type: "UAddress!" }, includeAccount: { type: "Boolean!" }) {
     id
-    transaction {
+    result {
       id
-      receipt {
+      transfers {
+        __typename
         id
-        transferEvents {
-          __typename
-          id
-          tokenAddress
-          token {
-            ...TokenItem_Token
-          }
-          amount
-          from
-          to
-          isFeeTransfer
+        tokenAddress
+        token {
+          ...TokenItem_Token
         }
+        amount
+        from
+        to
+        isFeeTransfer
       }
     }
     simulation {
@@ -63,7 +60,7 @@ export function TransfersSection(props: TransfersSectionProps) {
   const p = useFragment(TransactionProposal, props.proposal);
 
   const transfers = [
-    ...(p.transaction?.receipt?.transferEvents ?? p.simulation?.transfers ?? []),
+    ...(p.result?.transfers ?? p.simulation?.transfers ?? []),
   ].filter((t) => !t.isFeeTransfer); // Ignore fee transfers, this is shown by FeeToken
 
   if (!transfers.length) return null;

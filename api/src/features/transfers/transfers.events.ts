@@ -10,7 +10,6 @@ import { NetworksService } from '../util/networks/networks.service';
 import { uuid } from 'edgedb/dist/codecs/ifaces';
 import { PubsubService } from '../util/pubsub/pubsub.service';
 import { getAbiItem } from 'viem';
-import { and } from '../database/database.util';
 import { TransferDirection } from './transfers.input';
 import { AccountsCacheService } from '../auth/accounts.cache.service';
 import { ExpoService } from '../util/expo/expo.service';
@@ -19,6 +18,7 @@ import { BalancesService } from '~/features/util/balances/balances.service';
 import Decimal from 'decimal.js';
 import { TokensService } from '~/features/tokens/tokens.service';
 import { ampli } from '~/util/ampli';
+import { selectSysTx } from '../transactions/system-tx.util';
 
 export const getTransferTrigger = (account: UAddress) => `transfer.account.${account}`;
 export interface TransferSubscriptionPayload {
@@ -78,22 +78,15 @@ export class TransfersEvents {
     await Promise.all(
       accounts.map(async (account) => {
         const selectedAccount = selectAccount(account);
-        const transaction = e.assert_single(
-          e.select(e.Transaction, (t) => ({
-            filter: and(
-              e.op(t.hash, '=', log.transactionHash),
-              e.op(t.proposal.account, '=', selectedAccount),
-            ),
-          })),
-        );
+        const systx = selectSysTx(log.transactionHash);
 
         const transfer = await this.db.query(
           e.select(
             e
               .insert(e.Transfer, {
                 account: selectedAccount,
-                transactionHash: log.transactionHash,
-                transaction,
+                systxHash: log.transactionHash,
+                systx,
                 logIndex: log.logIndex,
                 block: log.blockNumber,
                 timestamp: new Date(Number(block.timestamp) * 1000),
@@ -110,7 +103,7 @@ export class TransfersEvents {
                   'In',
                 ],
                 isFeeTransfer: e.op(
-                  e.op(transaction.proposal.paymaster, 'in', e.set(localFrom, localTo)),
+                  e.op(systx.proposal.paymaster, 'in', e.set(localFrom, localTo)),
                   '??',
                   false,
                 ),
@@ -179,20 +172,14 @@ export class TransfersEvents {
     await Promise.all(
       accounts.map(async (account) => {
         const selectedAccount = selectAccount(account);
-        const transaction = e.assert_single(
-          e.select(e.Transaction, (t) => ({
-            filter: and(
-              e.op(t.hash, '=', log.transactionHash),
-              e.op(t.proposal.account, '=', selectedAccount),
-            ),
-          })),
-        );
+        const systx = selectSysTx(log.transactionHash);
 
         await this.db.query(
           e
             .insert(e.TransferApproval, {
               account: selectedAccount,
-              transactionHash: log.transactionHash,
+              systxHash: log.transactionHash,
+              systx,
               logIndex: log.logIndex,
               block: log.blockNumber,
               timestamp: new Date(Number(block.timestamp) * 1000),
@@ -209,7 +196,7 @@ export class TransfersEvents {
                 'In',
               ],
               isFeeTransfer: e.op(
-                e.op(transaction.proposal.paymaster, 'in', e.set(localFrom, localTo)),
+                e.op(systx.proposal.paymaster, 'in', e.set(localFrom, localTo)),
                 '??',
                 false,
               ),

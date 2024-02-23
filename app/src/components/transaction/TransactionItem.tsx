@@ -29,12 +29,12 @@ const Proposal = gql(/* GraphQL */ `
       ...OperationIcon_Operation
       ...OperationLabel_OperationFragment
     }
-    transaction {
+    result {
+      __typename
       id
-      scheduledFor
-      receipt {
-        id
-        timestamp
+      timestamp
+      ... on Scheduled {
+        scheduledFor
       }
     }
     potentialApprovers {
@@ -80,23 +80,25 @@ function TransactionItem_({
         ? ({ Text }) => <Text style={styles.pending}>Approval required</Text>
         : 'Awaiting approval',
     )
-    .with({ status: 'Scheduled' }, (p) => ({ Text }) => (
-      <Text style={styles.scheduled}>
-        Scheduled for <Timestamp timestamp={p.transaction!.scheduledFor!} time />
-      </Text>
-    ))
-    .with({ status: 'Executing' }, () => 'Executing...')
     .with(
-      { status: 'Successful' },
-      () => p.transaction?.receipt && <Timestamp timestamp={p.transaction.receipt.timestamp} />,
+      { status: 'Scheduled' },
+      (p) =>
+        ({ Text }) =>
+          p.result?.__typename === 'Scheduled' && (
+            <Text style={styles.scheduled}>
+              Scheduled for <Timestamp timestamp={p.result.scheduledFor} time />
+            </Text>
+          ),
     )
+    .with({ status: 'Executing' }, () => 'Executing...')
+    .with({ status: 'Successful' }, () => p.result && <Timestamp timestamp={p.result.timestamp} />)
     .with(
       { status: 'Failed' },
       () =>
         ({ Text }) =>
-          p.transaction?.receipt && (
+          p.result && (
             <Text style={styles.failed}>
-              <Timestamp timestamp={p.transaction.receipt.timestamp} />
+              <Timestamp timestamp={p.result.timestamp} />
             </Text>
           ),
     )

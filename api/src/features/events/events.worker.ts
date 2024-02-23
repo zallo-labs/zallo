@@ -170,17 +170,10 @@ export class EventsWorker extends Worker<EventsQueue> {
 
           const lastProcessedBlock = (await e
             .max(
-              e.op(
-                e.select(e.Receipt, (r) => ({
-                  filter: e.op(r.transaction.proposal.account.chain, '=', network.chain.key),
-                  block: true,
-                })).block,
-                'union',
-                e.select(e.Transfer, (t) => ({
-                  filter: e.op(t.account.chain, '=', network.chain.key),
-                  block: true,
-                })).block,
-              ),
+              e.select(e.Transfer, (t) => ({
+                filter: e.op(t.account.chain, '=', network.chain.key),
+                block: true,
+              })).block,
             )
             .run(this.db.client)) as bigint | null; // Return type is overly broad - https://github.com/edgedb/edgedb-js/issues/594
 

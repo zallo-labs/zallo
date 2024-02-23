@@ -35,10 +35,12 @@ const TransactionProposal = gql(/* GraphQL */ `
     policy {
       id
     }
-    transaction {
+    result {
       id
-      scheduledFor
-      cancelled
+      ... on Scheduled {
+        scheduledFor
+        cancelled
+      }
     }
   }
 `);
@@ -75,8 +77,8 @@ export function ScheduleSection({ children, ...props }: ScheduleSectionProps) {
 
   return (
     <>
-      {match(p.transaction)
-        .with(P.union(P.nullish, { scheduledFor: P.nullish }), () => (
+      {match(p.result)
+        .with(P.nullish, () => (
           <>
             <ListHeader>Delay</ListHeader>
             <ListItem
@@ -92,7 +94,7 @@ export function ScheduleSection({ children, ...props }: ScheduleSectionProps) {
             <ListItem
               leading={ScheduledIcon}
               leadingSize="medium"
-              headline={<Timestamp timestamp={t.scheduledFor!} time />}
+              headline={<Timestamp timestamp={t.scheduledFor} time />}
               trailing={(props) => (
                 <IconButton
                   {...props}
@@ -121,7 +123,7 @@ export function ScheduleSection({ children, ...props }: ScheduleSectionProps) {
               leadingSize="medium"
               headline={({ Text }) => (
                 <Text style={styles.strike}>
-                  <Timestamp timestamp={t.scheduledFor!} time />
+                  <Timestamp timestamp={t.scheduledFor} time />
                 </Text>
               )}
             />

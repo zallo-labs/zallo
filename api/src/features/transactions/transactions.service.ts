@@ -1,9 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { isPresent, Hex, getTransactionSatisfiability, asAddress } from 'lib';
+import { isPresent, getTransactionSatisfiability, asAddress } from 'lib';
 import { policyStateAsPolicy, policyStateShape } from '../policies/policies.util';
 import { DatabaseService } from '../database/database.service';
 import e from '~/edgeql-js';
-import { ShapeFunc } from '../database/database.select';
 import {
   proposalTxShape,
   transactionProposalAsTx,
@@ -13,15 +12,6 @@ import { UniqueProposal } from '../proposals/proposals.service';
 @Injectable()
 export class TransactionsService {
   constructor(private db: DatabaseService) {}
-
-  async selectUnique(txHash: Hex, shape?: ShapeFunc<typeof e.Transaction>) {
-    return this.db.query(
-      e.select(e.Transaction, (t) => ({
-        filter_single: { hash: txHash },
-        ...shape?.(t),
-      })),
-    );
-  }
 
   async satisfiablePolicies(id: UniqueProposal) {
     const proposal = await this.db.query(

@@ -18,6 +18,8 @@ import { ReceiptsQueue } from './receipts.queue';
 import { Chain } from 'chains';
 import { ProposalsService } from '../proposals/proposals.service';
 import { ProposalEvent } from '../proposals/proposals.input';
+import { selectSysTx } from './system-tx.util';
+import { selectTransactionProposal } from '../transaction-proposals/transaction-proposals.service';
 
 const scheduledEvent = getAbiItem({ abi: ACCOUNT_IMPLEMENTATION.abi, name: 'Scheduled' });
 const scheduleCancelledEvent = getAbiItem({
@@ -51,13 +53,13 @@ export class SchedulerEvents implements OnModuleInit {
     const account = asUAddress(event.log.address, event.chain);
     if (!(await this.accountsCache.isAccount(account))) return;
 
-    const transaction = e.select(e.Transaction, () => ({
-      filter_single: { hash: event.log.transactionHash },
-    }));
-
     const scheduledFor = new Date(event.log.args.timestamp * 1000);
     const proposalId = await this.db.query(
-      e.update(transaction, () => ({ set: { scheduledFor } })).proposal.id,
+      e.insert(e.Scheduled, {
+        transaction: selectTransactionProposal(event.log.args.proposal),
+        systx: selectSysTx(event.log.transactionHash),
+        scheduledFor,
+      }).transaction.id,
     );
 
     if (proposalId) {
@@ -71,16 +73,16 @@ export class SchedulerEvents implements OnModuleInit {
     const account = asUAddress(event.log.address, event.chain);
     if (!(await this.accountsCache.isAccount(account))) return;
 
-    const selectedProposal = e.select(e.TransactionProposal, () => ({
-      filter_single: { hash: event.log.args.proposal },
-    }));
     const proposalId = await this.db.query(
       e.assert_single(
-        e.update(e.Transaction, (t) => ({
-          filter: and(e.op(t.proposal, '=', selectedProposal), e.op('exists', t.scheduledFor)),
+        e.update(e.Scheduled, (t) => ({
+          filter: and(
+            e.op(t.transaction, '=', selectTransactionProposal(event.log.args.proposal)),
+            e.op(t.transaction.account.address, '=', account),
+          ),
           set: { cancelled: true },
         })),
-      ).proposal.id,
+      ).transaction.id,
     );
 
     if (proposalId) {
@@ -120,20 +122,18 @@ export class SchedulerEvents implements OnModuleInit {
         const jobs = await this.queue.getJobs(RUNNING_JOB_STATUSES);
 
         const orphanedProposals = await this.db.query(
-          e.select(e.Transaction, (t) => ({
+          e.select(e.select(e.TransactionProposal).result.is(e.Scheduled), (s) => ({
             filter: and(
-              e.op('not', e.op('exists', t.receipt)),
-              e.op('exists', t.scheduledFor),
-              e.op('not', t.cancelled),
+              e.op('not', s.cancelled),
               jobs.length
                 ? e.op(
-                    t.proposal.id,
+                    s.transaction.id,
                     'not in',
                     e.cast(e.uuid, e.set(...jobs.map((j) => j.data.transactionProposal))),
                   )
                 : undefined,
             ),
-            proposal: {
+            transaction: {
               id: true,
               account: { address: true },
             },
@@ -145,8 +145,8 @@ export class SchedulerEvents implements OnModuleInit {
           await this.flows.addBulk(
             orphanedProposals.map((t) =>
               this.getJob(
-                asUUID(t.proposal.id),
-                asChain(asUAddress(t.proposal.account.address)),
+                asUUID(t.transaction.id),
+                asChain(asUAddress(t.transaction.account.address)),
                 new Date(t.scheduledFor!),
               ),
             ),

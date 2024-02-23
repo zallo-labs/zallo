@@ -20,7 +20,7 @@ const Subscription = gql(/* GraphQL */ `
       __typename
       id
       ... on TransactionProposal {
-        transaction {
+        systx {
           id
           hash
         }

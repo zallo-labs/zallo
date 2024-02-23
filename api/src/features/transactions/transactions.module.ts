@@ -3,7 +3,6 @@ import { ReceiptsWorker } from './receipts.worker';
 import { ReceiptsQueue } from './receipts.queue';
 import { TransactionsService } from './transactions.service';
 import { TransactionsEvents } from './transactions.events';
-import { TransactionsResolver } from './transactions.resolver';
 import { PaymastersModule } from '../paymasters/paymasters.module';
 import { registerBullQueue, registerFlowsProducer } from '../util/bull/bull.util';
 import { ProposalsModule } from '../proposals/proposals.module';
@@ -20,7 +19,6 @@ import { SchedulerQueue, SchedulerWorker } from './scheduler.worker';
   exports: [TransactionsService, ReceiptsWorker],
   providers: [
     TransactionsService,
-    TransactionsResolver,
     ReceiptsWorker,
     TransactionsEvents,
     SchedulerEvents,

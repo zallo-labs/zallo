@@ -5,15 +5,12 @@ import Decimal from 'decimal.js';
 const TransactionProposal = gql(/* GraphQL */ `
   fragment ProposalValue_TransactionProposal on TransactionProposal {
     id
-    transaction {
+    result {
       id
-      receipt {
+      transfers {
         id
-        transferEvents {
-          id
-          value
-          isFeeTransfer
-        }
+        value
+        isFeeTransfer
       }
     }
     simulation {
@@ -35,9 +32,9 @@ export interface ProposalValueProps {
 export function ProposalValue(props: ProposalValueProps) {
   const p = useFragment(TransactionProposal, props.proposal);
 
-  const transfers = [
-    ...(p.transaction?.receipt?.transferEvents ?? p.simulation?.transfers ?? []),
-  ].filter((t) => !t.isFeeTransfer);
+  const transfers = [...(p.result?.transfers ?? p.simulation?.transfers ?? [])].filter(
+    (t) => !t.isFeeTransfer,
+  );
 
   const value = Decimal.sum(0, ...transfers.map((t) => t.value ?? 0));
 

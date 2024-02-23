@@ -25,6 +25,8 @@ import { RUNNING_JOB_STATUSES, TypedQueue } from '../util/bull/bull.util';
 import { ETH } from 'lib/dapps';
 import { runOnce } from '~/util/mutex';
 import { ampli } from '~/util/ampli';
+import { selectTransactionProposal } from '../transaction-proposals/transaction-proposals.service';
+import { selectSysTx } from './system-tx.util';
 
 const opExecutedEvent = getAbiItem({ abi: ACCOUNT_IMPLEMENTATION.abi, name: 'OperationExecuted' });
 const opsExecutedEvent = getAbiItem({
@@ -62,37 +64,27 @@ export class TransactionsEvents implements OnModuleInit {
   }: TransactionEventData<typeof opExecutedEvent> | TransactionEventData<typeof opsExecutedEvent>) {
     const { args } = log;
 
-    const updatedTransaction = e.update(e.Transaction, () => ({
-      filter_single: { hash: receipt.transactionHash },
-      set: {
-        receipt: e.insert(e.Receipt, {
-          success: true,
-          responses: 'responses' in args ? [...args.responses] : [args.response],
-          gasUsed: receipt.gasUsed,
-          ethFeePerGas: asDecimal(receipt.effectiveGasPrice, ETH).toString(),
-          block: BigInt(receipt.blockNumber),
-          timestamp: new Date(Number(block.timestamp) * 1000), // block.timestamp is in seconds
-        }),
-      },
-    }));
+    const insertResult = e.insert(e.Successful, {
+      transaction: selectTransactionProposal(args.proposal),
+      systx: selectSysTx(receipt.transactionHash),
+      timestamp: new Date(Number(block.timestamp) * 1000), // block.timestamp is in seconds
+      block: BigInt(receipt.blockNumber),
+      gasUsed: receipt.gasUsed,
+      ethFeePerGas: asDecimal(receipt.effectiveGasPrice, ETH).toString(),
+      responses: 'responses' in args ? [...args.responses] : [args.response],
+    });
 
-    const transaction = await this.db.query(
-      e.select(updatedTransaction, () => ({
-        proposal: {
-          id: true,
-          account: { approvers: { user: true } },
-        },
-        ethPerFeeToken: true,
-        usdPerFeeToken: true,
+    const proposal = await this.db.query(
+      e.select(insertResult.transaction, () => ({
+        id: true,
+        account: { approvers: { user: true } },
       })),
     );
-    if (!transaction)
+    if (!proposal)
       throw new Error(`Transaction not found for executed transaction: ${receipt.transactionHash}`);
 
-    const proposal = transaction.proposal;
     this.log.debug(`Proposal executed: ${proposal.id}`);
-
-    await this.proposals.publishProposal(
+    this.proposals.publishProposal(
       { id: asUUID(proposal.id), account: asUAddress(receipt.from, chain) },
       ProposalEvent.executed,
     );
@@ -100,7 +92,7 @@ export class TransactionsEvents implements OnModuleInit {
     // const usdPerEth = new Decimal(transaction.usdPerFeeToken).div(transaction.ethPerFeeToken);
     const revenue = 0; // new Decimal(0).mul(usdPerEth).toNumber();
     proposal.account.approvers.forEach(({ user }) => {
-      ampli.transactionExecuted(user.id, { success: false }, { revenue });
+      ampli.transactionExecuted(user.id, { success: true }, { revenue });
     });
   }
 
@@ -111,37 +103,28 @@ export class TransactionsEvents implements OnModuleInit {
     const { gasPrice: _, ...tx } = await network.getTransaction({ hash: receipt.transactionHash });
     const callResponse = await network.call(tx);
 
-    const updatedTransaction = e.update(e.Transaction, () => ({
-      filter_single: { hash: asHex(receipt.transactionHash) },
-      set: {
-        receipt: e.insert(e.Receipt, {
-          success: false,
-          responses: [callResponse.data].filter(isTruthy),
-          gasUsed: receipt.gasUsed,
-          ethFeePerGas: asDecimal(receipt.effectiveGasPrice, ETH).toString(),
-          block: receipt.blockNumber,
-          timestamp: new Date(Number(block.timestamp) * 1000), // block.timestamp is in seconds
-        }),
-      },
-    }));
+    const systx = selectSysTx(receipt.transactionHash);
+    const insertResult = e.insert(e.Successful, {
+      transaction: systx.proposal,
+      systx,
+      timestamp: new Date(Number(block.timestamp) * 1000), // block.timestamp is in seconds
+      block: BigInt(receipt.blockNumber),
+      gasUsed: receipt.gasUsed,
+      ethFeePerGas: asDecimal(receipt.effectiveGasPrice, ETH).toString(),
+      responses: [callResponse.data].filter(isTruthy),
+    });
 
-    const transaction = await this.db.query(
-      e.select(updatedTransaction, () => ({
-        proposal: {
-          id: true,
-          account: { approvers: { user: true } },
-        },
-        ethPerFeeToken: true,
-        usdPerFeeToken: true,
+    const proposal = await this.db.query(
+      e.select(insertResult.transaction, () => ({
+        id: true,
+        account: { approvers: { user: true } },
       })),
     );
-    if (!transaction)
+    if (!proposal)
       throw new Error(`Transaction not found for reverted transaction: ${receipt.transactionHash}`);
 
-    const proposal = transaction.proposal;
     this.log.debug(`Proposal reverted: ${proposal.id}`);
-
-    await this.proposals.publishProposal(
+    this.proposals.publishProposal(
       { id: asUUID(proposal.id), account: asUAddress(receipt.from, chain) },
       ProposalEvent.executed,
     );
@@ -161,9 +144,9 @@ export class TransactionsEvents implements OnModuleInit {
           .filter(isHex);
 
         const orphanedTransactions = await this.db.query(
-          e.select(e.Transaction, (t) => ({
+          e.select(e.SystemTx, (t) => ({
             filter: and(
-              e.op('not', e.op('exists', t.receipt)),
+              e.op('not', e.op('exists', t.result)),
               jobs.length ? e.op(t.hash, 'not in', e.set(...jobs)) : undefined,
             ),
             hash: true,

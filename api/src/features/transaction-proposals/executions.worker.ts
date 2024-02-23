@@ -165,7 +165,7 @@ export class ExecutionsWorker extends Worker<ExecutionsQueue> {
       // TODO: handle failed transaction execution
       if (transactionResult.isErr()) throw transactionResult.error;
 
-      const transaction = transactionResult.value.transactionHash;
+      const hash = transactionResult.value.transactionHash;
 
       // Set executing policy if not already set
       const selectedProposal = proposal.policy?.state
@@ -178,8 +178,8 @@ export class ExecutionsWorker extends Worker<ExecutionsQueue> {
           }));
 
       await e
-        .insert(e.Transaction, {
-          hash: transaction,
+        .insert(e.SystemTx, {
+          hash,
           proposal: selectedProposal,
           maxEthFeePerGas: feeData.maxEthFeePerGas.toString(),
           paymasterEthFees: e.insert(e.PaymasterFees, {
@@ -195,7 +195,7 @@ export class ExecutionsWorker extends Worker<ExecutionsQueue> {
         this.proposals.publishProposal({ id, account }, ProposalEvent.submitted),
       );
 
-      return transaction;
+      return hash;
     });
   }
 

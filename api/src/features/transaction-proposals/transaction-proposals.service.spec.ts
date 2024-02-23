@@ -203,12 +203,12 @@ describe(TransactionProposalsService.name, () => {
 
   //         await Promise.all(
   //           [
-  //             e.insert(e.Transaction, {
+  //             e.insert(e.SystemTx, {
   //               proposal: selectTransactionProposal(executing),
   //               hash: randomHash(),
   //               gasPrice: 0n,
   //             }),
-  //             e.insert(e.Transaction, {
+  //             e.insert(e.SystemTx, {
   //               proposal: selectTransactionProposal(successful),
   //               hash: randomHash(),
   //               gasPrice: 0n,
@@ -221,7 +221,7 @@ describe(TransactionProposalsService.name, () => {
   //                 timestamp: new Date(),
   //               }),
   //             }),
-  //             e.insert(e.Transaction, {
+  //             e.insert(e.SystemTx, {
   //               proposal: selectTransactionProposal(failed),
   //               hash: randomHash(),
   //               gasPrice: 0n,

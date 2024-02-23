@@ -17,7 +17,7 @@ const Transaction = gql(/* GraphQL */ `
     id
     status
     updatable
-    transaction {
+    systx {
       id
       hash
     }
@@ -89,11 +89,11 @@ export const TransactionActions = (props: ProposalActionsProps) => {
 
   return (
     <Actions>
-      {p.transaction && blockExplorer && (
+      {p.systx && blockExplorer && (
         <Button
           mode="text"
           icon={ShareIcon}
-          onPress={() => share({ url: `${blockExplorer.url}/tx/${p.transaction!.hash}` })}
+          onPress={() => share({ url: `${blockExplorer.url}/tx/${p.systx!.hash}` })}
         >
           Share receipt
         </Button>

@@ -48,7 +48,7 @@ const TransactionProposal = gql(/* GraphQL */ `
         activation
       }
     }
-    transaction {
+    systx {
       id
       maxNetworkEthFee
       ethCreditUsed

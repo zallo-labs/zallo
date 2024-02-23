@@ -253,19 +253,29 @@ type EstimatedTransactionFees implements CustomNode {
   paymasterEthFees: PaymasterFees!
 }
 
-union Event = Transfer | TransferApproval
-
-interface EventBase {
-  account: Account!
+interface Event implements Node {
   block: BigInt!
-  id: ID!
+  id: UUID!
   logIndex: Float!
+  systxHash: Bytes32!
   timestamp: DateTime!
 }
 
 input ExecuteTransactionProposalInput {
   id: UUID!
   ignoreSimulation: Boolean
+}
+
+type Failed implements Node & ReceiptResult & Result {
+  block: BigInt!
+  ethFeePerGas: Decimal!
+  events: [Event!]!
+  gasUsed: BigInt!
+  id: UUID!
+  reason: Bytes!
+  timestamp: DateTime!
+  transferApprovals: [TransferApproval!]!
+  transfers: [Transfer!]!
 }
 
 type FeesPerGas implements CustomNode {
@@ -568,26 +578,21 @@ type Query {
   token(input: TokenInput!): Token
   tokenMetadata(input: TokenInput!): TokenMetadata!
   tokens(input: TokensInput! = {}): [Token!]!
-  transaction(input: TransactionInput!): Transaction
   transactionProposal(input: UniqueProposalInput!): TransactionProposal
   transactionProposals(input: TransactionProposalsInput!): [TransactionProposal!]!
   transfers(input: TransfersInput! = {}): [Transfer!]!
   user: User!
 }
 
-type Receipt {
+interface ReceiptResult implements Node & Result {
   block: BigInt!
   ethFeePerGas: Decimal!
-  ethFees: Decimal!
   events: [Event!]!
   gasUsed: BigInt!
-  id: ID!
-  networkEthFee: Decimal!
-  responses: [Bytes!]!
-  success: Boolean!
+  id: UUID!
   timestamp: DateTime!
-  transferApprovalEvents: [TransferApproval!]!
-  transferEvents: [Transfer!]!
+  transferApprovals: [TransferApproval!]!
+  transfers: [Transfer!]!
 }
 
 type Rejection implements Node & ProposalResponse {
@@ -606,6 +611,14 @@ type RemovePolicyOp {
 
 input RequestTokensInput {
   account: UAddress!
+}
+
+interface Result implements Node {
+  events: [Event!]!
+  id: UUID!
+  timestamp: DateTime!
+  transferApprovals: [TransferApproval!]!
+  transfers: [Transfer!]!
 }
 
 enum Risk {
@@ -634,14 +647,25 @@ type SatisfiabilityResult {
   result: Satisfiability!
 }
 
+type Scheduled implements Node & Result {
+  cancelled: Boolean!
+  events: [Event!]!
+  id: UUID!
+  scheduledFor: DateTime!
+  timestamp: DateTime!
+  transferApprovals: [TransferApproval!]!
+  transfers: [Transfer!]!
+}
+
 """function selector (4-byte hex string)"""
 scalar Selector
 
-type SimulatedTransfer implements TransferDetails {
+type SimulatedTransfer implements Node & TransferDetails {
   account: Account!
   amount: Decimal!
+  direction: [TransferDirection!]!
   from: Address!
-  id: ID!
+  id: UUID!
   isFeeTransfer: Boolean!
   to: Address!
   token: Token
@@ -664,6 +688,18 @@ type Subscription {
   user: User!
 }
 
+type Successful implements Node & ReceiptResult & Result {
+  block: BigInt!
+  ethFeePerGas: Decimal!
+  events: [Event!]!
+  gasUsed: BigInt!
+  id: UUID!
+  responses: [Bytes!]!
+  timestamp: DateTime!
+  transferApprovals: [TransferApproval!]!
+  transfers: [Transfer!]!
+}
+
 type SwapOp {
   _args: [JSON!]!
   _name: String!
@@ -672,6 +708,21 @@ type SwapOp {
   fromToken: Address!
   minimumToAmount: Decimal!
   toToken: Address!
+}
+
+type SystemTx implements Node {
+  ethCreditUsed: Decimal!
+  ethPerFeeToken: Decimal!
+  hash: Bytes32!
+  id: UUID!
+  maxEthFeePerGas: Decimal!
+  maxEthFees: Decimal!
+  maxNetworkEthFee: Decimal!
+  paymasterEthFees: PaymasterFees!
+  proposal: TransactionProposal!
+  receipt: Result
+  submittedAt: DateTime!
+  usdPerFeeToken: Decimal!
 }
 
 type Token implements Node {
@@ -721,27 +772,6 @@ input TokensInput {
   query: String
 }
 
-type Transaction implements Node {
-  cancelled: Boolean!
-  ethCreditUsed: Decimal!
-  ethPerFeeToken: Decimal!
-  hash: Bytes32!
-  id: UUID!
-  maxEthFeePerGas: Decimal!
-  maxEthFees: Decimal!
-  maxNetworkEthFee: Decimal!
-  paymasterEthFees: PaymasterFees!
-  proposal: TransactionProposal!
-  receipt: Receipt
-  scheduledFor: DateTime
-  submittedAt: DateTime!
-  usdPerFeeToken: Decimal!
-}
-
-input TransactionInput {
-  hash: Bytes32!
-}
-
 type TransactionProposal implements Node & Proposal {
   account: Account!
   approvals: [Approval!]!
@@ -763,11 +793,14 @@ type TransactionProposal implements Node & Proposal {
   potentialRejectors: [Approver!]!
   proposedBy: Approver!
   rejections: [Rejection!]!
+  result: Result
+  results: [Result!]!
   riskLabel: Risk
   simulation: Simulation
   status: TransactionProposalStatus!
-  transaction: Transaction
-  transactions: [Transaction!]!
+  submitted: Boolean!
+  systx: SystemTx
+  systxs: [SystemTx!]!
   updatable: Boolean!
   validFrom: DateTime!
 }
@@ -786,14 +819,16 @@ input TransactionProposalsInput {
   statuses: [TransactionProposalStatus!]
 }
 
-type Transfer implements EventBase & TransferDetails & Transferlike {
+type Transfer implements Event & Node & TransferDetails & Transferlike {
   account: Account!
   amount: Decimal!
   block: BigInt!
+  direction: [TransferDirection!]!
   from: Address!
-  id: ID!
+  id: UUID!
   isFeeTransfer: Boolean!
   logIndex: Float!
+  systxHash: Bytes32!
   timestamp: DateTime!
   to: Address!
   token: Token
@@ -801,15 +836,17 @@ type Transfer implements EventBase & TransferDetails & Transferlike {
   value: Decimal
 }
 
-type TransferApproval implements EventBase & TransferDetails & Transferlike {
+type TransferApproval implements Event & Node & TransferDetails & Transferlike {
   account: Account!
   amount: Decimal!
   block: BigInt!
   delta: Decimal!
+  direction: [TransferDirection!]!
   from: Address!
-  id: ID!
+  id: UUID!
   isFeeTransfer: Boolean!
   logIndex: Float!
+  systxHash: Bytes32!
   timestamp: DateTime!
   to: Address!
   token: Token
@@ -823,11 +860,12 @@ type TransferApprovalOp implements TransferlikeOp {
   token: Address!
 }
 
-interface TransferDetails {
+interface TransferDetails implements Node {
   account: Account!
   amount: Decimal!
+  direction: [TransferDirection!]!
   from: Address!
-  id: ID!
+  id: UUID!
   isFeeTransfer: Boolean!
   to: Address!
   token: Token
@@ -878,14 +916,16 @@ input TransferSubscriptionInput {
   internal: Boolean
 }
 
-interface Transferlike implements EventBase & TransferDetails {
+interface Transferlike implements Event & Node & TransferDetails {
   account: Account!
   amount: Decimal!
   block: BigInt!
+  direction: [TransferDirection!]!
   from: Address!
-  id: ID!
+  id: UUID!
   isFeeTransfer: Boolean!
   logIndex: Float!
+  systxHash: Bytes32!
   timestamp: DateTime!
   to: Address!
   token: Token
