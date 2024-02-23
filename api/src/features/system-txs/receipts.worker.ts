@@ -12,9 +12,8 @@ import {
 } from 'viem';
 import { AbiEvent } from 'abitype';
 import { Log } from '~/features/events/events.worker';
-import { QueueReturnType, TypedJob, Worker } from '~/features/util/bull/bull.util';
-import { asHex, isHex, isPresent } from 'lib';
-import { ActivationsQueue } from '../activations/activations.queue';
+import { TypedJob, Worker } from '~/features/util/bull/bull.util';
+import { isHex, isPresent } from 'lib';
 
 export const REQUIRED_CONFIRMATIONS = 1;
 
@@ -65,11 +64,13 @@ export class ReceiptsWorker extends Worker<ReceiptsQueue> {
     const { chain } = job.data;
     const transaction = isHex(job.data.transaction)
       ? job.data.transaction
-      : asHex(
-          Object.values(await job.getChildrenValues())[
-            job.data.transaction.child
-          ] as QueueReturnType<ActivationsQueue>,
-        );
+      : await (async () => {
+          const v =
+            typeof job.data.transaction === 'object' &&
+            Object.values(await job.getChildrenValues())[job.data.transaction.child];
+
+          return isHex(v) ? v : undefined;
+        })();
     if (!transaction) return;
 
     const network = this.networks.get(chain);

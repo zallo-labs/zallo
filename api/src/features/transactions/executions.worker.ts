@@ -7,6 +7,7 @@ import {
   UUID,
   asAddress,
   asApproval,
+  asDecimal,
   asHex,
   asUAddress,
   encodeTransaction,
@@ -34,11 +35,11 @@ import { ProposalEvent } from '~/features/proposals/proposals.input';
 import { selectTransaction } from '~/features/transactions/transactions.service';
 import { QueueReturnType, TypedJob, Worker, createQueue } from '~/features/util/bull/bull.util';
 import { UnrecoverableError } from 'bullmq';
+import { ETH } from 'lib/dapps';
 
-export const ExecutionsQueue = createQueue<
-  { txProposal: UUID; ignoreSimulation?: boolean },
-  Hex | string
->('Executions');
+export const ExecutionsQueue = createQueue<{ txProposal: UUID; ignoreSimulation?: boolean }>(
+  'Executions',
+);
 export type ExecutionsQueue = typeof ExecutionsQueue;
 
 @Injectable()
@@ -148,7 +149,7 @@ export class ExecutionsWorker extends Worker<ExecutionsQueue> {
         },
       });
 
-      const transactionResult = await execute(
+      const execution = await execute(
         await encodeTransaction({
           network,
           account: asAddress(account),
@@ -159,10 +160,21 @@ export class ExecutionsWorker extends Worker<ExecutionsQueue> {
         }),
       );
 
-      // TODO: handle failed transaction execution
-      if (transactionResult.isErr()) throw transactionResult.error;
+      if (execution.isErr()) {
+        await this.db.query(
+          e.insert(e.Failed, {
+            transaction: selectTransaction(id),
+            block: network.blockNumber(),
+            gasUsed: 0n,
+            ethFeePerGas: asDecimal(await network.getGasPrice(), ETH).toString(),
+            reason: execution.error.message,
+          }),
+        );
 
-      const hash = transactionResult.value.transactionHash;
+        return execution.error;
+      }
+
+      const hash = execution.value.transactionHash;
 
       // Set executing policy if not already set
       const selectedProposal = proposal.policy?.state

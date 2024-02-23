@@ -75,7 +75,7 @@ module default {
 
   abstract type Result {
     required transaction: Transaction;
-    required systx: SystemTx { constraint exclusive; };
+    systx: SystemTx { constraint exclusive; };
     required timestamp: datetime { default := datetime_of_statement(); }
     multi link events := .<result[is Event];
     multi link transfers := .<result[is Transfer];
@@ -93,7 +93,7 @@ module default {
   }
 
   type Failed extending ReceiptResult {
-    reason: Bytes;
+    reason: str;
   }
 
   type Scheduled extending Result {

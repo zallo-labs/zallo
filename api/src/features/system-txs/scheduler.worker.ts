@@ -1,7 +1,7 @@
 import { Processor } from '@nestjs/bullmq';
 import { Injectable } from '@nestjs/common';
 import { TypedJob, Worker, createQueue } from '../util/bull/bull.util';
-import { UUID, asAddress, asUAddress, encodeScheduledTransaction, execute } from 'lib';
+import { UUID, asAddress, asDecimal, asUAddress, encodeScheduledTransaction, execute } from 'lib';
 import { NetworksService } from '../util/networks/networks.service';
 import { DatabaseService } from '../database/database.service';
 import e from '~/edgeql-js';
@@ -9,6 +9,7 @@ import { proposalTxShape, transactionAsTx } from '../transactions/transactions.u
 import { selectTransaction } from '../transactions/transactions.service';
 import { PaymastersService } from '~/features/paymasters/paymasters.service';
 import Decimal from 'decimal.js';
+import { ETH } from 'lib/dapps';
 
 export const SchedulerQueue = createQueue<{ transaction: UUID }>('Scheduled');
 export type SchedulerQueue = typeof SchedulerQueue;
@@ -42,6 +43,7 @@ export class SchedulerWorker extends Worker<SchedulerQueue> {
     if (!proposal.isScheduled) return 'Not scheduled';
 
     const account = asUAddress(proposal.account.address);
+    const network = this.networks.get(account);
 
     return await this.db.transaction(async () => {
       const { paymaster, paymasterInput, ...feeData } = await this.paymaster.usePaymaster({
@@ -55,22 +57,34 @@ export class SchedulerWorker extends Worker<SchedulerQueue> {
 
       // Execute scheduled transaction
       const scheduledTx = await encodeScheduledTransaction({
-        network: this.networks.get(account),
+        network,
         account: asAddress(account),
         tx: transactionAsTx(proposal),
         paymaster,
         paymasterInput,
       });
 
-      // TODO: handle failed transaction execution
-      const r = await execute(scheduledTx);
-      if (r.isErr()) throw r.error;
+      const execution = await execute(scheduledTx);
 
-      const transaction = r.value.transactionHash;
+      if (execution.isErr()) {
+        await this.db.query(
+          e.insert(e.Failed, {
+            transaction: selectedProposal,
+            block: network.blockNumber(),
+            gasUsed: 0n,
+            ethFeePerGas: asDecimal(await network.getGasPrice(), ETH).toString(),
+            reason: execution.error.message,
+          }),
+        );
+
+        return execution.error;
+      }
+
+      const hash = execution.value.transactionHash;
 
       await this.db.query(
         e.insert(e.SystemTx, {
-          hash: transaction,
+          hash,
           proposal: selectedProposal,
           maxEthFeePerGas: feeData.maxEthFeePerGas.toString(),
           paymasterEthFees: e.insert(e.PaymasterFees, {
@@ -82,7 +96,7 @@ export class SchedulerWorker extends Worker<SchedulerQueue> {
         }),
       );
 
-      return transaction;
+      return hash;
     });
   }
 }
