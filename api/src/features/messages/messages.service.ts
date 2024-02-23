@@ -35,6 +35,9 @@ import { ethers } from 'ethers';
 import _ from 'lodash';
 import { WritableDeep } from 'ts-toolbelt/out/Object/Writable';
 
+export const selectMessage = (id: UUID | Hex) =>
+  e.select(e.Message, () => ({ filter_single: isHex(id) ? { hash: id } : { id } }));
+
 @Injectable()
 export class MessagesService {
   constructor(
@@ -78,33 +81,37 @@ export class MessagesService {
 
     const hash = hashTypedData(asMessageTypedData(account, messageHash));
 
-    // upsert can't be used as exclusive hash constraint exists on parent type (Proposal)
-    const proposal =
-      (await this.db.query(e.select(e.Message, () => ({ filter_single: { hash } })))) ??
-      (await (async () => {
-        const p = await this.db.query(
-          e.insert(e.Message, {
-            account: selectAccount(account),
-            hash,
-            messageHash,
-            message,
-            typedData,
-            label,
-            iconUri,
-            dapp: dapp && {
-              name: dapp.name,
-              url: dapp.url.href,
-              icons: dapp.icons.map((i) => i.href),
-            },
-            validFrom,
-          }),
-        );
+    const existingMessage = selectMessage(hash);
+    const { proposal, inserted } = await this.db.query(
+      e.select({
+        // upsert can't be used as exclusive hash constraint exists on parent type (Proposal)
+        proposal: e.assert_exists(
+          e.op(
+            existingMessage,
+            '??',
+            e.insert(e.Message, {
+              account: selectAccount(account),
+              hash,
+              messageHash,
+              message,
+              typedData,
+              label,
+              iconUri,
+              dapp: dapp && {
+                name: dapp.name,
+                url: dapp.url.href,
+                icons: dapp.icons.map((i) => i.href),
+              },
+              validFrom,
+            }),
+          ),
+        ),
+        inserted: e.op('not', e.op('exists', existingMessage)),
+      }),
+    );
 
-        await this.proposals.publishProposal({ id: asUUID(p.id), account }, ProposalEvent.create);
-
-        return p;
-      })());
     const id = asUUID(proposal.id);
+    if (inserted) this.proposals.publishProposal({ id, account }, ProposalEvent.create);
 
     if (signature) await this.approve({ id, signature });
 
@@ -117,9 +124,7 @@ export class MessagesService {
   }
 
   async remove(proposal: UUID) {
-    return this.db.query(
-      e.delete(e.select(e.Message, () => ({ filter_single: { id: proposal } }))).id,
-    );
+    return this.db.query(e.delete(selectMessage(proposal)).id);
   }
 
   private async trySign(id: UUID) {
