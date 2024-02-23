@@ -201,7 +201,9 @@ export class TransfersEvents {
                 false,
               ),
             })
-            .unlessConflict(),
+            .unlessConflict((t) => ({
+              on: e.tuple([t.account, t.block, t.logIndex]),
+            })),
         );
 
         if (to === account) {

@@ -9,7 +9,6 @@ module default {
     required timestamp: datetime { default := datetime_of_statement(); }
     required property internal := exists .systx;
 
-    constraint exclusive on ((.account, .block, .logIndex));
     index on ((.account, .internal));
 
     access policy members_can_select
@@ -43,7 +42,9 @@ module default {
 
   abstract type Transferlike extending Event, TransferDetails {}
 
-  type Transfer extending Transferlike {}
+  type Transfer extending Transferlike {
+    constraint exclusive on ((.account, .block, .logIndex));  # Must be declared directly on type
+  }
 
   type TransferApproval extending Transferlike {
     link previous := (
@@ -53,5 +54,7 @@ module default {
       limit 1
     );
     required property delta := .amount - (.previous.amount ?? 0);
+
+    constraint exclusive on ((.account, .block, .logIndex));  # Must be declared directly on type
   }
 }
