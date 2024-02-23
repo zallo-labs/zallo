@@ -61,7 +61,6 @@ module default {
            ids := approvers except .rejections.approver.id
       select Approver filter .id in ids
     );
-    property riskLabel := assert_single((select .<proposal[is ProposalRiskLabel] filter .user = global current_user)).risk;
 
     access policy members_only
       allow all
@@ -107,21 +106,6 @@ module default {
   }
 
   type Rejection extending ProposalResponse {}
-
-  scalar type ProposalRisk extending enum<'Low', 'Medium', 'High'>;
-
-  type ProposalRiskLabel {
-    required proposal: Proposal {
-      on target delete delete source;
-    }
-    required user: User { 
-      default := (<User>(global current_user).id);
-      on target delete delete source;
-    }
-    required risk: ProposalRisk;
-
-    constraint exclusive on ((.proposal, .user));
-  }
 
   type Contract {
     required address: Address {

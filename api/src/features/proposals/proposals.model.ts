@@ -5,7 +5,6 @@ import { Bytes32Field } from '~/apollo/scalars/Bytes.scalar';
 import { Approver } from '../approvers/approvers.model';
 import { Node, NodeType } from '~/decorators/interface.decorator';
 import { makeUnionTypeResolver } from '../database/database.util';
-import { Risk } from './proposals.input';
 import { GraphQLURL } from 'graphql-scalars';
 
 @ObjectType()
@@ -60,9 +59,6 @@ export class Proposal {
 
   @Field(() => [Approver])
   potentialRejectors: Approver[];
-
-  @Field(() => Risk, { nullable: true })
-  riskLabel?: Risk;
 }
 
 @InterfaceType({ implements: Node })

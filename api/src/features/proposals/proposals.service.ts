@@ -8,7 +8,6 @@ import { DatabaseService } from '../database/database.service';
 import { NetworksService } from '~/features/util/networks/networks.service';
 import {
   ApproveInput,
-  LabelProposalRiskInput,
   ProposalEvent,
   ProposalsInput,
   UpdateProposalInput,
@@ -190,14 +189,5 @@ export class ProposalsService {
       this.pubsub.publish<ProposalSubscriptionPayload>(getProposalTrigger(id), payload),
       this.pubsub.publish<ProposalSubscriptionPayload>(getProposalAccountTrigger(account), payload),
     ]);
-  }
-
-  async labelProposalRisk({ id, risk }: LabelProposalRiskInput) {
-    await this.db.query(
-      e.insert(e.ProposalRiskLabel, { proposal: selectProposal(id), risk }).unlessConflict((l) => ({
-        on: e.tuple([l.proposal, l.user]),
-        else: e.update(l, () => ({ set: { risk } })),
-      })),
-    );
   }
 }

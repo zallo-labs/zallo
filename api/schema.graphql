@@ -309,11 +309,6 @@ input LabelInput {
   address: UAddress!
 }
 
-input LabelProposalRiskInput {
-  id: UUID!
-  risk: Risk!
-}
-
 input LinkInput {
   token: String!
 }
@@ -338,7 +333,6 @@ type Message implements Node & Proposal {
   potentialRejectors: [Approver!]!
   proposedBy: Approver!
   rejections: [Rejection!]!
-  riskLabel: Risk
   signature: Bytes32
   signedHash: Bytes32!
   typedData: TypedData
@@ -353,7 +347,6 @@ type Mutation {
   createPolicy(input: CreatePolicyInput!): CreatePolicyResponse!
   deleteContact(input: ContactInput!): ID
   execute(input: ExecuteTransactionInput!): Transaction
-  labelProposalRisk(input: LabelProposalRiskInput!): Proposal!
   link(input: LinkInput!): User!
   proposeCancelScheduledTransaction(input: ProposeCancelScheduledTransactionInput!): Transaction!
   proposeMessage(input: ProposeMessageInput!): Message!
@@ -477,7 +470,6 @@ interface Proposal implements Node {
   potentialRejectors: [Approver!]!
   proposedBy: Approver!
   rejections: [Rejection!]!
-  riskLabel: Risk
   validFrom: DateTime!
 }
 
@@ -620,12 +612,6 @@ interface Result implements Node {
   timestamp: DateTime!
   transferApprovals: [TransferApproval!]!
   transfers: [Transfer!]!
-}
-
-enum Risk {
-  High
-  Low
-  Medium
 }
 
 enum Satisfiability {
@@ -796,7 +782,6 @@ type Transaction implements Node & Proposal {
   rejections: [Rejection!]!
   result: Result
   results: [Result!]!
-  riskLabel: Risk
   simulation: Simulation
   status: TransactionStatus!
   submitted: Boolean!
