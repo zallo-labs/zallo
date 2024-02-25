@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Address, UAddress, asAddress, asUAddress, isTruthy, ETH_ADDRESS, isEthToken } from 'lib';
 import { ERC20 } from 'lib/dapps';
-import { TransactionEventData, TransactionsWorker } from '../transactions/transactions.worker';
+import { TransactionEventData, ReceiptsWorker } from '../system-txs/receipts.worker';
 import { EventData, EventsWorker } from '../events/events.worker';
 import { DatabaseService } from '../database/database.service';
 import e from '~/edgeql-js';
@@ -10,7 +10,6 @@ import { NetworksService } from '../util/networks/networks.service';
 import { uuid } from 'edgedb/dist/codecs/ifaces';
 import { PubsubService } from '../util/pubsub/pubsub.service';
 import { getAbiItem } from 'viem';
-import { and } from '../database/database.util';
 import { TransferDirection } from './transfers.input';
 import { AccountsCacheService } from '../auth/accounts.cache.service';
 import { ExpoService } from '../util/expo/expo.service';
@@ -19,6 +18,7 @@ import { BalancesService } from '~/features/util/balances/balances.service';
 import Decimal from 'decimal.js';
 import { TokensService } from '~/features/tokens/tokens.service';
 import { ampli } from '~/util/ampli';
+import { selectSysTx } from '../system-txs/system-tx.util';
 
 export const getTransferTrigger = (account: UAddress) => `transfer.account.${account}`;
 export interface TransferSubscriptionPayload {
@@ -36,8 +36,8 @@ export class TransfersEvents {
 
   constructor(
     private db: DatabaseService,
-    private eventsProcessor: EventsWorker,
-    private transactionsProcessor: TransactionsWorker,
+    private events: EventsWorker,
+    private receipts: ReceiptsWorker,
     private networks: NetworksService,
     private pubsub: PubsubService,
     private accountsCache: AccountsCacheService,
@@ -49,11 +49,11 @@ export class TransfersEvents {
      * Events processor handles events `to` account
      * Transactions processor handles events `from` account - in order to be associated with the transaction
      */
-    this.eventsProcessor.on(transferEvent, (data) => this.transfer(data));
-    this.transactionsProcessor.onEvent(transferEvent, (data) => this.transfer(data));
+    this.events.on(transferEvent, (data) => this.transfer(data));
+    this.receipts.onEvent(transferEvent, (data) => this.transfer(data));
 
-    this.eventsProcessor.on(approvalEvent, (data) => this.approval(data));
-    this.transactionsProcessor.onEvent(approvalEvent, (data) => this.approval(data));
+    this.events.on(approvalEvent, (data) => this.approval(data));
+    this.receipts.onEvent(approvalEvent, (data) => this.approval(data));
   }
 
   private async transfer(
@@ -78,22 +78,15 @@ export class TransfersEvents {
     await Promise.all(
       accounts.map(async (account) => {
         const selectedAccount = selectAccount(account);
-        const transaction = e.assert_single(
-          e.select(e.Transaction, (t) => ({
-            filter: and(
-              e.op(t.hash, '=', log.transactionHash),
-              e.op(t.proposal.account, '=', selectedAccount),
-            ),
-          })),
-        );
+        const systx = selectSysTx(log.transactionHash);
 
         const transfer = await this.db.query(
           e.select(
             e
               .insert(e.Transfer, {
                 account: selectedAccount,
-                transactionHash: log.transactionHash,
-                transaction,
+                systxHash: log.transactionHash,
+                systx,
                 logIndex: log.logIndex,
                 block: log.blockNumber,
                 timestamp: new Date(Number(block.timestamp) * 1000),
@@ -110,7 +103,7 @@ export class TransfersEvents {
                   'In',
                 ],
                 isFeeTransfer: e.op(
-                  e.op(transaction.proposal.paymaster, 'in', e.set(localFrom, localTo)),
+                  e.op(systx.proposal.paymaster, 'in', e.set(localFrom, localTo)),
                   '??',
                   false,
                 ),
@@ -179,20 +172,14 @@ export class TransfersEvents {
     await Promise.all(
       accounts.map(async (account) => {
         const selectedAccount = selectAccount(account);
-        const transaction = e.assert_single(
-          e.select(e.Transaction, (t) => ({
-            filter: and(
-              e.op(t.hash, '=', log.transactionHash),
-              e.op(t.proposal.account, '=', selectedAccount),
-            ),
-          })),
-        );
+        const systx = selectSysTx(log.transactionHash);
 
         await this.db.query(
           e
             .insert(e.TransferApproval, {
               account: selectedAccount,
-              transactionHash: log.transactionHash,
+              systxHash: log.transactionHash,
+              systx,
               logIndex: log.logIndex,
               block: log.blockNumber,
               timestamp: new Date(Number(block.timestamp) * 1000),
@@ -209,12 +196,14 @@ export class TransfersEvents {
                 'In',
               ],
               isFeeTransfer: e.op(
-                e.op(transaction.proposal.paymaster, 'in', e.set(localFrom, localTo)),
+                e.op(systx.proposal.paymaster, 'in', e.set(localFrom, localTo)),
                 '??',
                 false,
               ),
             })
-            .unlessConflict(),
+            .unlessConflict((t) => ({
+              on: e.tuple([t.account, t.block, t.logIndex]),
+            })),
         );
 
         if (to === account) {

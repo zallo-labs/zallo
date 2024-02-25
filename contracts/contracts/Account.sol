@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.20;
 
 import {IAccount} from '@matterlabs/zksync-contracts/l2/system-contracts/interfaces/IAccount.sol';
-import {Transaction, TransactionHelper} from '@matterlabs/zksync-contracts/l2/system-contracts/libraries/TransactionHelper.sol';
+import {Transaction as SystemTransaction, TransactionHelper as SystemTransactionHelper} from '@matterlabs/zksync-contracts/l2/system-contracts/libraries/TransactionHelper.sol';
 import {ACCOUNT_VALIDATION_SUCCESS_MAGIC} from '@matterlabs/zksync-contracts/l2/system-contracts/interfaces/IAccount.sol';
-import {IContractDeployer, DEPLOYER_SYSTEM_CONTRACT, BOOTLOADER_FORMAL_ADDRESS} from '@matterlabs/zksync-contracts/l2/system-contracts/Constants.sol';
+import {INonceHolder, BOOTLOADER_FORMAL_ADDRESS, NONCE_HOLDER_SYSTEM_CONTRACT} from '@matterlabs/zksync-contracts/l2/system-contracts/Constants.sol';
 import {SystemContractsCaller} from '@matterlabs/zksync-contracts/l2/system-contracts/libraries/SystemContractsCaller.sol';
 
 import {Initializable} from './Initializable.sol';
@@ -13,25 +13,26 @@ import {Policy, PolicyKey} from './policy/Policy.sol';
 import {PolicyManager} from './policy/PolicyManager.sol';
 import {Approvals, ApprovalsVerifier} from './policy/ApprovalsVerifier.sol';
 import {Hook, Hooks} from './policy/hooks/Hooks.sol';
-import {Executor} from './Executor.sol';
+import {Executor} from './libraries/Executor.sol';
 import {ERC165} from './standards/ERC165.sol';
 import {ERC721Receiver} from './standards/ERC721Receiver.sol';
 import {SignatureValidator} from './base/SignatureValidator.sol';
-import {TransactionUtil} from './libraries/TransactionUtil.sol';
+import {TransactionUtil, Tx, TxType} from './libraries/TransactionUtil.sol';
 import {PaymasterUtil} from './paymaster/PaymasterUtil.sol';
+import {Scheduler} from './libraries/Scheduler.sol';
 
 contract Account is
   IAccount,
   Initializable,
   Upgradeable,
   PolicyManager,
-  Executor,
   ERC165,
   ERC721Receiver,
   SignatureValidator
 {
-  using TransactionHelper for Transaction;
-  using TransactionUtil for Transaction;
+  using SystemTransactionHelper for SystemTransaction;
+  using TransactionUtil for SystemTransaction;
+  using TransactionUtil for Tx;
   using Hooks for Hook[];
   using ApprovalsVerifier for Approvals;
 
@@ -43,6 +44,7 @@ contract Account is
   error InsufficientBalance();
   error FailedToPayBootloader();
   error OnlyCallableByBootloader();
+  error UnexpectedTransactionType(TxType txType);
 
   /*//////////////////////////////////////////////////////////////
                              INITIALIZATION
@@ -54,7 +56,6 @@ contract Account is
   }
 
   function initialize(Policy[] calldata policies) external initializer {
-    // _initializeArbitraryNonceOrdering();
     _initializeWithPolicies(policies);
   }
 
@@ -74,55 +75,101 @@ contract Account is
   function validateTransaction(
     bytes32 /* _txHash */,
     bytes32 /* suggestedSignedHash */,
-    Transaction calldata transaction
+    SystemTransaction calldata systx
   ) external payable override onlyBootloader returns (bytes4 magic) {
-    return _validateTransaction(transaction.hash(), transaction);
+    if (_validateSystemTransaction(systx)) magic = ACCOUNT_VALIDATION_SUCCESS_MAGIC;
   }
 
-  /**
-   * @notice Validates transaction and returns magic value if successful
-   * @return magic ACCOUNT_VALIDATION_SUCCESS_MAGIC on success, and bytes(0) when approval is insufficient
-   * @dev Reverts with errors when non-approval related validation fails
-   * @param proposal Proposal hash - distinct from the suggested signed hash
-   * @param transaction Transaction
-   */
-  function _validateTransaction(
-    bytes32 proposal,
-    Transaction calldata transaction
-  ) internal returns (bytes4 magic) {
-    _incrementNonceIfEquals(transaction);
-    _validateTransactionUnexecuted(proposal);
+  function _validateSystemTransaction(
+    SystemTransaction calldata systx
+  ) internal returns (bool success) {
+    _incrementNonceIfEquals(systx);
 
-    // An EOA signature is always passed in when estimating gas - https://github.com/zkSync-Community-Hub/zksync-developers/discussions/81#discussioncomment-7861481
-    if (transaction.isGasEstimation()) return bytes4(0);
+    bool valid;
+    TxType txType = systx.transactionType();
+    if (txType == TxType.Standard) {
+      valid = _validateTransaction(systx);
+    } else if (txType == TxType.Scheduled) {
+      valid = _validateScheduledTransaction(systx);
+    } else {
+      revert UnexpectedTransactionType(txType);
+    }
 
-    (Policy memory policy, Approvals memory approvals) = TransactionUtil.decodeSignature(
-      transaction.signature
-    );
-    policy.hooks.validateOperations(transaction.operations());
+    return valid && !systx.isGasEstimation();
+  }
 
-    return approvals.verify(proposal, policy) ? ACCOUNT_VALIDATION_SUCCESS_MAGIC : bytes4(0);
+  function _validateTransaction(SystemTransaction calldata systx) internal returns (bool success) {
+    Tx memory transaction = systx.transaction();
+    bytes32 proposal = transaction.hash();
+    (Policy memory policy, Approvals memory approvals) = systx.policyAndApprovals();
+
+    Executor.consume(proposal);
+    policy.hooks.validateOperations(transaction.operations);
+
+    success = approvals.verify(proposal, policy);
+  }
+
+  function _validateScheduledTransaction(
+    SystemTransaction calldata systx
+  ) internal returns (bool success) {
+    Tx memory transaction = abi.decode(systx.data, (Tx));
+    Scheduler.consume(transaction.hash());
+    success = true;
   }
 
   /// @inheritdoc IAccount
   function executeTransaction(
     bytes32 /* txHash */,
     bytes32 /* suggestedSignedHash */,
-    Transaction calldata transaction
+    SystemTransaction calldata systx
   ) external payable override onlyBootloader {
-    _executeTransaction(transaction.hash(), transaction);
+    _executeSystemTransaction(systx);
+  }
+
+  function _executeSystemTransaction(SystemTransaction calldata systx) internal {
+    TxType txType = systx.transactionType();
+    if (txType == TxType.Standard) {
+      _executeTransaction(systx);
+    } else if (txType == TxType.Scheduled) {
+      _executeScheduledTransaction(systx);
+    } else {
+      revert UnexpectedTransactionType(txType);
+    }
+  }
+
+  function _executeTransaction(SystemTransaction calldata systx) internal {
+    Tx memory transaction = systx.transaction();
+    Executor.executeOperations(transaction.hash(), transaction.operations, systx.policy().hooks);
+  }
+
+  function _executeScheduledTransaction(SystemTransaction calldata systx) internal {
+    Tx memory transaction = abi.decode(systx.data, (Tx));
+    bytes32 proposal = transaction.hash();
+
+    Scheduler.requireReady(proposal);
+    Executor.executeOperations(proposal, transaction.operations, new Hook[](0));
   }
 
   /// @inheritdoc IAccount
   function executeTransactionFromOutside(
-    Transaction calldata transaction
+    SystemTransaction calldata systx
   ) external payable override {
-    bytes32 proposal = transaction.hash();
+    if (!_validateSystemTransaction(systx)) revert InsufficientApproval();
 
-    if (_validateTransaction(proposal, transaction) != ACCOUNT_VALIDATION_SUCCESS_MAGIC)
-      revert InsufficientApproval();
+    _executeSystemTransaction(systx);
+  }
 
-    _executeTransaction(proposal, transaction);
+  function cancelScheduledTransaction(bytes32 proposal) external payable onlySelf {
+    Scheduler.cancel(proposal);
+  }
+
+  function _incrementNonceIfEquals(SystemTransaction calldata systx) private {
+    SystemContractsCaller.systemCallWithPropagatedRevert(
+      uint32(gasleft()), // truncation ok
+      address(NONCE_HOLDER_SYSTEM_CONTRACT),
+      0,
+      abi.encodeCall(INonceHolder.incrementMinNonceIfEquals, (systx.nonce))
+    );
   }
 
   /*//////////////////////////////////////////////////////////////
@@ -132,18 +179,18 @@ contract Account is
   function payForTransaction(
     bytes32 /* txHash */,
     bytes32 /* txDataHash */,
-    Transaction calldata transaction
+    SystemTransaction calldata systx
   ) external payable override onlyBootloader {
-    bool success = transaction.payToTheBootloader();
+    bool success = SystemTransactionHelper.payToTheBootloader(systx);
     if (!success) revert FailedToPayBootloader();
   }
 
   function prepareForPaymaster(
     bytes32 /* txHash */,
     bytes32 /* txDataHash */,
-    Transaction calldata transaction
+    SystemTransaction calldata systx
   ) external payable override onlyBootloader {
-    PaymasterUtil.processPaymasterInput(transaction);
+    PaymasterUtil.processPaymasterInput(systx);
   }
 
   /*//////////////////////////////////////////////////////////////

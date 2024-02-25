@@ -26,7 +26,7 @@ export default {
     version: '0.8.23',
   },
   zksolc: {
-    version: '1.3.22', // https://github.com/matter-labs/zksolc-bin/tree/main/linux-amd64
+    version: '1.3.23', // https://github.com/matter-labs/zksolc-bin/tree/main/linux-amd64
     settings: {
       isSystem: true, // Required to deploy AA contracts
       optimizer: {

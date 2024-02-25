@@ -8,7 +8,6 @@ import { DatabaseService } from '../database/database.service';
 import { NetworksService } from '~/features/util/networks/networks.service';
 import {
   ApproveInput,
-  LabelProposalRiskInput,
   ProposalEvent,
   ProposalsInput,
   UpdateProposalInput,
@@ -43,7 +42,6 @@ export class ProposalsService {
       e.select(e.Proposal, (p) => ({
         filter_single: { id },
         ...shape?.(p),
-        __type__: { name: true },
       })),
     );
   }
@@ -56,11 +54,11 @@ export class ProposalsService {
 
           const isPending = e.select(
             e.op(
-              e.op(p.is(e.TransactionProposal).status, '=', e.TransactionProposalStatus.Pending),
+              e.op(p.is(e.Transaction).status, '=', e.TransactionStatus.Pending),
               'if',
-              e.op('exists', p.is(e.TransactionProposal)),
+              e.op('exists', p.is(e.Transaction)),
               'else',
-              e.op('not', e.op('exists', p.is(e.MessageProposal).signature)),
+              e.op('not', e.op('exists', p.is(e.Message).signature)),
             ),
           );
 
@@ -69,7 +67,6 @@ export class ProposalsService {
 
         return {
           ...shape?.(p),
-          __type__: { name: true },
           ...(pendingFilter ? { pendingFilter } : {}), // Must be included in the select (not just the filter) to avoid bug
           filter: and(
             accounts && e.op(p.account, 'in', e.set(...accounts.map((a) => selectAccount(a)))),
@@ -190,14 +187,5 @@ export class ProposalsService {
       this.pubsub.publish<ProposalSubscriptionPayload>(getProposalTrigger(id), payload),
       this.pubsub.publish<ProposalSubscriptionPayload>(getProposalAccountTrigger(account), payload),
     ]);
-  }
-
-  async labelProposalRisk({ id, risk }: LabelProposalRiskInput) {
-    await this.db.query(
-      e.insert(e.ProposalRiskLabel, { proposal: selectProposal(id), risk }).unlessConflict((l) => ({
-        on: e.tuple([l.proposal, l.user]),
-        else: e.update(l, () => ({ set: { risk } })),
-      })),
-    );
   }
 }

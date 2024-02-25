@@ -1,10 +1,10 @@
-import { ObjectType, Field } from '@nestjs/graphql';
+import { Field } from '@nestjs/graphql';
 import { TransferDetails } from '../transfers/transfers.model';
 import { Node, NodeType } from '~/decorators/interface.decorator';
 import { BytesScalar } from '~/apollo/scalars/Bytes.scalar';
 import { Hex } from 'lib';
 
-@ObjectType({ implements: TransferDetails })
+@NodeType({ implements: TransferDetails })
 export class SimulatedTransfer extends TransferDetails {}
 
 @NodeType()

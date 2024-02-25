@@ -106,7 +106,7 @@ export const SubscribeExample = withBrowser(() => {
   //           transaction {
   //             hash
   //             gasPrice
-  //             submittedAt
+  //             timestamp
   //             receipt {
   //               success
   //               responses
@@ -143,7 +143,7 @@ export const ProposalExample = withBrowser(() => {
   //           transaction {
   //             hash
   //             gasPrice
-  //             submittedAt
+  //             timestamp
   //             receipt {
   //               success
   //               responses
@@ -179,7 +179,7 @@ export const ProposalsExample = withBrowser(() => {
   //           transaction {
   //             hash
   //             gasPrice
-  //             submittedAt
+  //             timestamp
   //             receipt {
   //               success
   //               responses

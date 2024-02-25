@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { asUAddress, ACCOUNT_PROXY, asDecimal } from 'lib';
-import { TransactionEventData, TransactionsWorker } from '../transactions/transactions.worker';
+import { TransactionEventData, ReceiptsWorker } from '../system-txs/receipts.worker';
 import { DatabaseService } from '../database/database.service';
 import { selectAccount } from './accounts.util';
 import { getAbiItem } from 'viem';
@@ -19,11 +19,11 @@ export class UpgradeEvents {
 
   constructor(
     private db: DatabaseService,
-    private transactionsWorker: TransactionsWorker,
+    private receipts: ReceiptsWorker,
     private accounts: AccountsService,
     private accountsCache: AccountsCacheService,
   ) {
-    this.transactionsWorker.onEvent(upgradedEvent, (data) => this.upgraded(data));
+    this.receipts.onEvent(upgradedEvent, (data) => this.upgraded(data));
   }
 
   private async upgraded(event: TransactionEventData<typeof upgradedEvent>) {

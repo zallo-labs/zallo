@@ -5,8 +5,8 @@ import { P, match } from 'ts-pattern';
 import { Link } from 'expo-router';
 import { createStyles, useStyles } from '@theme/styles';
 
-const MessageProposal = gql(/* GraphQL */ `
-  fragment MessageItem_MessageProposal on MessageProposal {
+const Message = gql(/* GraphQL */ `
+  fragment MessageItem_Message on Message {
     id
     label
     signature
@@ -14,7 +14,7 @@ const MessageProposal = gql(/* GraphQL */ `
     potentialApprovers {
       id
     }
-    ...MessageIcon_MessageProposal
+    ...MessageIcon_Message
   }
 `);
 
@@ -28,13 +28,13 @@ const User = gql(/* GraphQL */ `
 `);
 
 export interface MessageItemProps {
-  proposal: FragmentType<typeof MessageProposal>;
+  message: FragmentType<typeof Message>;
   user: FragmentType<typeof User>;
 }
 
 export function MessageItem(props: MessageItemProps) {
   const { styles } = useStyles(stylesheet);
-  const p = useFragment(MessageProposal, props.proposal);
+  const p = useFragment(Message, props.message);
   const user = useFragment(User, props.user);
 
   const canApprove =

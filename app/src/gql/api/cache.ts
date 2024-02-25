@@ -45,11 +45,11 @@ export const CACHE_SCHEMA_CONFIG: Pick<
         invalidate(cache, 'Query', ['proposals']);
       },
       removeTransaction: (result: string, _args, cache) => {
-        invalidate(cache, { __typename: 'TransactionProposal', id: result });
+        invalidate(cache, { __typename: 'Transaction', id: result });
         invalidate(cache, 'Query', ['proposals']);
       },
       removeMessage: (result: string, _args, cache) => {
-        invalidate(cache, { __typename: 'MessageProposal', id: result });
+        invalidate(cache, { __typename: 'Message', id: result });
         invalidate(cache, 'Query', ['proposals']);
       },
       proposeMessage: (_result, _args, cache) => {

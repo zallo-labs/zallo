@@ -21,8 +21,8 @@ const Query = gql(/* GraphQL */ `
       __typename
       id
       timestamp: createdAt
-      ...TransactionItem_TransactionProposal
-      ...MessageItem_MessageProposal
+      ...TransactionItem_Transaction
+      ...MessageItem_Message
     }
 
     user {
@@ -46,7 +46,7 @@ const ProposalSubscription = gql(/* GraphQL */ `
       __typename
       id
       timestamp: createdAt
-      ...TransactionItem_TransactionProposal
+      ...TransactionItem_Transaction
     }
   }
 `);
@@ -85,10 +85,10 @@ function ActivityTab() {
       data={items}
       renderItem={({ item }) =>
         match(item)
-          .with({ __typename: 'TransactionProposal' }, (p) => (
-            <TransactionItem proposal={p} user={user} />
+          .with({ __typename: 'Transaction' }, (p) => (
+            <TransactionItem transaction={p} user={user} />
           ))
-          .with({ __typename: 'MessageProposal' }, (p) => <MessageItem proposal={p} user={user} />)
+          .with({ __typename: 'Message' }, (p) => <MessageItem message={p} user={user} />)
           .with({ __typename: 'Transfer' }, (transfer) => (
             <IncomingTransferItem transfer={transfer} />
           ))

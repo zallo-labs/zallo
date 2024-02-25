@@ -4,7 +4,7 @@ import { CreatePolicyParams, PoliciesService } from './policies.service';
 import { asPolicyKey, asSelector, randomDeploySalt, randomHex, UAddress, ZERO_ADDR } from 'lib';
 import { asUser, getUserCtx, UserContext } from '~/request/ctx';
 import { randomAddress, randomLabel, randomUAddress, randomUser } from '~/util/test';
-import { TransactionProposalsService } from '../transaction-proposals/transaction-proposals.service';
+import { TransactionsService } from '../transactions/transactions.service';
 import { AccountsCacheService } from '../auth/accounts.cache.service';
 import { DatabaseService } from '../database/database.service';
 import e from '~/edgeql-js';
@@ -21,7 +21,7 @@ import { v1 as uuidv1 } from 'uuid';
 describe(PoliciesService.name, () => {
   let service: PoliciesService;
   let db: DatabaseService;
-  let proposals: DeepMocked<TransactionProposalsService>;
+  let proposals: DeepMocked<TransactionsService>;
   let userAccounts: DeepMocked<AccountsCacheService>;
 
   beforeEach(async () => {
@@ -33,7 +33,7 @@ describe(PoliciesService.name, () => {
 
     service = module.get(PoliciesService);
     db = module.get(DatabaseService);
-    proposals = module.get(TransactionProposalsService);
+    proposals = module.get(TransactionsService);
     userAccounts = module.get(AccountsCacheService);
   });
 
@@ -70,7 +70,7 @@ describe(PoliciesService.name, () => {
     proposals.getInsertProposal.mockImplementation(async () => {
       const hash = randomHex(32);
 
-      return e.insert(e.TransactionProposal, {
+      return e.insert(e.Transaction, {
         hash,
         account: e.select(e.Account, () => ({ filter_single: { address: account } })),
         operations: e.insert(e.Operation, { to: ZERO_ADDR }),

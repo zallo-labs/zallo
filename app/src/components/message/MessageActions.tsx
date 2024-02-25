@@ -5,8 +5,8 @@ import { useReject } from '~/hooks/useReject';
 import { Button } from '../Button';
 import { useSideSheet } from '#/SideSheet/SideSheetLayout';
 
-const MessageProposal = gql(/* GraphQL */ `
-  fragment MessageActions_MessageProposal on MessageProposal {
+const Message = gql(/* GraphQL */ `
+  fragment MessageActions_Message on Message {
     ...UseApprove_Proposal
     ...UseReject_Proposal
   }
@@ -20,12 +20,12 @@ const User = gql(/* GraphQL */ `
 `);
 
 export interface MessageActionsProps {
-  proposal: FragmentType<typeof MessageProposal>;
+  proposal: FragmentType<typeof Message>;
   user: FragmentType<typeof User>;
 }
 
 export function MessageActions(props: MessageActionsProps) {
-  const p = useFragment(MessageProposal, props.proposal);
+  const p = useFragment(Message, props.proposal);
   const user = useFragment(User, props.user);
   const approve = useApprove({ proposal: p, user });
   const reject = useReject({ proposal: p, user });

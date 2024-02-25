@@ -11,8 +11,8 @@ export const TEST_VERIFIER_ABI = testVerifierArtifact.abi;
 export const ACCOUNT_IMPLEMENTATION = {
   ...accountArtifact,
   address: addresses({
-    'zksync-sepolia': '0x46B1093737019d9f4BF76c59E3de6C098CdC8Dd8',
-    'zksync-goerli': '0x46B1093737019d9f4BF76c59E3de6C098CdC8Dd8',
+    'zksync-sepolia': '0x64F47f81D8B9Ad0362220601BE5b07BEC60dE3da',
+    'zksync-goerli': '0x64F47f81D8B9Ad0362220601BE5b07BEC60dE3da',
   }),
 } as const;
 
@@ -24,8 +24,8 @@ export const ACCOUNT_PROXY = {
 export const ACCOUNT_PROXY_FACTORY = {
   abi: accountProxyFactoryArtifact.abi,
   address: addresses({
-    'zksync-sepolia': '0xf98eb6B78E717170529AB1411713666E0c701eB1',
-    'zksync-goerli': '0xf98eb6B78E717170529AB1411713666E0c701eB1',
+    'zksync-sepolia': '0xF4e2526Be59C3095A8300494CdDE8349Ae019469',
+    'zksync-goerli': '0xF4e2526Be59C3095A8300494CdDE8349Ae019469',
   }),
 };
 

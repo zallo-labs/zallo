@@ -37,15 +37,19 @@ export const ACTION_PRESETS = {
   manageAccount: {
     icon: AccountIcon,
     label: 'Manage account',
-    functions: (account: Address) =>
-      [
-        getAbiItem({ abi: ACCOUNT_ABI, name: 'addPolicy' }),
-        getAbiItem({ abi: ACCOUNT_ABI, name: 'removePolicy' }),
-        getAbiItem({ abi: ACCOUNT_ABI, name: 'upgradeToAndCall' }),
-      ].map((f) => ({
+    functions: (account: Address) => [{ contract: account }],
+  },
+  cancelDelayedTransactions: {
+    icon: materialCommunityIcon('calendar-remove'),
+    label: 'Cancel scheduled transaction',
+    functions: (account: Address) => [
+      {
         contract: account,
-        selector: asSelector(toFunctionSelector(f)),
-      })),
+        selector: asSelector(
+          toFunctionSelector(getAbiItem({ abi: ACCOUNT_ABI, name: 'cancelScheduledTransaction' })),
+        ),
+      },
+    ],
   },
   syncswapSwap: {
     icon: SwapIcon,
@@ -135,6 +139,11 @@ export function usePolicyPresets({ chain, ...params }: UsePolicyPresetsParams) {
             allow: false,
           },
           {
+            ...ACTION_PRESETS.cancelDelayedTransactions,
+            functions: ACTION_PRESETS.cancelDelayedTransactions.functions(accountAddress),
+            allow: false,
+          },
+          {
             ...ACTION_PRESETS.syncswapSwap,
             functions: ACTION_PRESETS.syncswapSwap.functions(chain),
             allow: true,
@@ -143,6 +152,7 @@ export function usePolicyPresets({ chain, ...params }: UsePolicyPresetsParams) {
         ],
         transfers: { defaultAllow: false, limits: {} }, // TODO: allow transfers up to $x
         allowMessages: true,
+        delay: 0,
       },
       medium: {
         name: 'Medium risk',
@@ -153,6 +163,11 @@ export function usePolicyPresets({ chain, ...params }: UsePolicyPresetsParams) {
             ...ACTION_PRESETS.manageAccount,
             functions: ACTION_PRESETS.manageAccount.functions(accountAddress),
             allow: false,
+          },
+          {
+            ...ACTION_PRESETS.cancelDelayedTransactions,
+            functions: ACTION_PRESETS.cancelDelayedTransactions.functions(accountAddress),
+            allow: true,
           },
           {
             ...ACTION_PRESETS.syncswapSwap,
@@ -168,6 +183,7 @@ export function usePolicyPresets({ chain, ...params }: UsePolicyPresetsParams) {
         ],
         transfers: { defaultAllow: false, limits: {} }, // TODO: allow transfers up to $y
         allowMessages: true,
+        delay: 0,
       },
       high: {
         name: 'High risk',
@@ -177,6 +193,11 @@ export function usePolicyPresets({ chain, ...params }: UsePolicyPresetsParams) {
           {
             ...ACTION_PRESETS.manageAccount,
             functions: ACTION_PRESETS.manageAccount.functions(accountAddress),
+            allow: true,
+          },
+          {
+            ...ACTION_PRESETS.cancelDelayedTransactions,
+            functions: ACTION_PRESETS.cancelDelayedTransactions.functions(accountAddress),
             allow: true,
           },
           {
@@ -193,6 +214,7 @@ export function usePolicyPresets({ chain, ...params }: UsePolicyPresetsParams) {
         ],
         transfers: { defaultAllow: true, limits: {} },
         allowMessages: true,
+        delay: 0,
       },
     } satisfies Record<string, Omit<PolicyDraft, 'account' | 'key'>>;
   }, [account?.address, account?.approvers, user.approvers, chain]);

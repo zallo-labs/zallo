@@ -22,12 +22,13 @@ type Account implements Node {
   implementation: Address!
   isActive: Boolean!
   label: String!
+  messages: [Message!]!
   name: String!
   photoUri: String
   policies: [Policy!]!
   proposals: [Proposal!]!
   salt: Bytes32!
-  transactionProposals: [TransactionProposal!]!
+  transactions: [Transaction!]!
   transfers: [Transfer!]!
   upgradedAtBlock: BigInt
 }
@@ -204,6 +205,9 @@ input CreatePolicyInput {
   actions: [ActionInput!]
   allowMessages: Boolean
   approvers: [Address!]
+
+  """seconds"""
+  delay: Float
   name: String
   threshold: Float
   transfers: TransfersConfigInput
@@ -250,19 +254,29 @@ type EstimatedTransactionFees implements CustomNode {
   paymasterEthFees: PaymasterFees!
 }
 
-union Event = Transfer | TransferApproval
-
-interface EventBase {
-  account: Account!
+interface Event implements Node {
   block: BigInt!
-  id: ID!
+  id: UUID!
   logIndex: Float!
+  systxHash: Bytes32!
   timestamp: DateTime!
 }
 
-input ExecuteTransactionProposalInput {
+input ExecuteTransactionInput {
   id: UUID!
   ignoreSimulation: Boolean
+}
+
+type Failed implements Node & ReceiptResult & Result {
+  block: BigInt!
+  ethFeePerGas: Decimal!
+  events: [Event!]!
+  gasUsed: BigInt!
+  id: UUID!
+  reason: Bytes!
+  timestamp: DateTime!
+  transferApprovals: [TransferApproval!]!
+  transfers: [Transfer!]!
 }
 
 type FeesPerGas implements CustomNode {
@@ -295,11 +309,6 @@ input LabelInput {
   address: UAddress!
 }
 
-input LabelProposalRiskInput {
-  id: UUID!
-  risk: Risk!
-}
-
 input LinkInput {
   token: String!
 }
@@ -309,7 +318,7 @@ A field whose value is a IEEE 802 48-bit MAC address: https://en.wikipedia.org/w
 """
 scalar MAC
 
-type MessageProposal implements Node & Proposal {
+type Message implements Node & Proposal {
   account: Account!
   approvals: [Approval!]!
   createdAt: DateTime!
@@ -324,7 +333,6 @@ type MessageProposal implements Node & Proposal {
   potentialRejectors: [Approver!]!
   proposedBy: Approver!
   rejections: [Rejection!]!
-  riskLabel: Risk
   signature: Bytes32
   signedHash: Bytes32!
   typedData: TypedData
@@ -333,16 +341,16 @@ type MessageProposal implements Node & Proposal {
 }
 
 type Mutation {
-  approveMessage(input: ApproveInput!): MessageProposal!
-  approveTransaction(input: ApproveInput!): TransactionProposal!
+  approveMessage(input: ApproveInput!): Message!
+  approveTransaction(input: ApproveInput!): Transaction!
   createAccount(input: CreateAccountInput!): Account!
   createPolicy(input: CreatePolicyInput!): CreatePolicyResponse!
   deleteContact(input: ContactInput!): ID
-  execute(input: ExecuteTransactionProposalInput!): TransactionProposal
-  labelProposalRisk(input: LabelProposalRiskInput!): Proposal!
+  execute(input: ExecuteTransactionInput!): Transaction
   link(input: LinkInput!): User!
-  proposeMessage(input: ProposeMessageInput!): MessageProposal!
-  proposeTransaction(input: ProposeTransactionInput!): TransactionProposal!
+  proposeCancelScheduledTransaction(input: ProposeCancelScheduledTransactionInput!): Transaction!
+  proposeMessage(input: ProposeMessageInput!): Message!
+  proposeTransaction(input: ProposeTransactionInput!): Transaction!
   rejectProposal(input: UniqueProposalInput!): Proposal!
   removeMessage(input: UniqueProposalInput!): ID!
   removePolicy(input: UniquePolicyInput!): Policy!
@@ -353,7 +361,7 @@ type Mutation {
   updateApprover(input: UpdateApproverInput!): UserApprover!
   updatePolicy(input: UpdatePolicyInput!): UpdatePolicyResponse!
   updateProposal(input: UpdateProposalInput!): Proposal!
-  updateTransaction(input: UpdateTransactionProposalInput!): TransactionProposal!
+  updateTransaction(input: UpdateTransactionInput!): Transaction!
   updateUser(input: UpdateUserInput!): User!
   upsertContact(input: UpsertContactInput!): Contact!
   upsertToken(input: UpsertTokenInput!): Token!
@@ -408,6 +416,9 @@ input PolicyInput {
   actions: [ActionInput!]
   allowMessages: Boolean
   approvers: [Address!]
+
+  """seconds"""
+  delay: Float
   name: String
   threshold: Float
   transfers: TransfersConfigInput
@@ -422,12 +433,15 @@ type PolicyState {
   allowMessages: Boolean!
   approvers: [Approver!]!
   createdAt: DateTime!
+
+  """seconds"""
+  delay: Float!
   hasBeenActive: Boolean!
   id: ID!
   isAccountInitState: Boolean!
   isActive: Boolean!
   isRemoved: Boolean!
-  proposal: TransactionProposal
+  proposal: Transaction
   threshold: Float!
   transfers: TransfersConfig!
 }
@@ -456,17 +470,18 @@ interface Proposal implements Node {
   potentialRejectors: [Approver!]!
   proposedBy: Approver!
   rejections: [Rejection!]!
-  riskLabel: Risk
   validFrom: DateTime!
 }
 
 enum ProposalEvent {
   approval
   approved
+  cancelled
   create
   delete
   executed
   rejection
+  scheduled
   submitted
   update
 }
@@ -490,6 +505,20 @@ input ProposalSubscriptionInput {
 input ProposalsInput {
   accounts: [UAddress!]
   pending: Boolean
+}
+
+input ProposeCancelScheduledTransactionInput {
+  account: UAddress!
+  dapp: DappMetadataInput
+  feeToken: Address
+  gas: Uint256
+  iconUri: String
+  label: String
+  proposal: UUID!
+
+  """Approve the proposal"""
+  signature: Bytes
+  validFrom: DateTime
 }
 
 input ProposeMessageInput {
@@ -533,7 +562,7 @@ type Query {
   estimateFeesPerGas(input: EstimateFeesPerGasInput!): FeesPerGas
   label(input: LabelInput!): String
   labelAvailable(input: LabelAvailableInput!): Boolean!
-  messageProposal(input: UniqueProposalInput!): MessageProposal
+  message(input: UniqueProposalInput!): Message
   policies(input: PoliciesInput! = {}): [Policy!]!
   policy(input: UniquePolicyInput!): Policy
   proposal(input: UniqueProposalInput!): Proposal
@@ -542,26 +571,21 @@ type Query {
   token(input: TokenInput!): Token
   tokenMetadata(input: TokenInput!): TokenMetadata!
   tokens(input: TokensInput! = {}): [Token!]!
-  transaction(input: TransactionInput!): Transaction
-  transactionProposal(input: UniqueProposalInput!): TransactionProposal
-  transactionProposals(input: TransactionProposalsInput!): [TransactionProposal!]!
+  transaction(input: UniqueProposalInput!): Transaction
+  transactions(input: TransactionsInput!): [Transaction!]!
   transfers(input: TransfersInput! = {}): [Transfer!]!
   user: User!
 }
 
-type Receipt {
+interface ReceiptResult implements Node & Result {
   block: BigInt!
   ethFeePerGas: Decimal!
-  ethFees: Decimal!
   events: [Event!]!
   gasUsed: BigInt!
-  id: ID!
-  networkEthFee: Decimal!
-  responses: [Bytes!]!
-  success: Boolean!
+  id: UUID!
   timestamp: DateTime!
-  transferApprovalEvents: [TransferApproval!]!
-  transferEvents: [Transfer!]!
+  transferApprovals: [TransferApproval!]!
+  transfers: [Transfer!]!
 }
 
 type Rejection implements Node & ProposalResponse {
@@ -582,10 +606,12 @@ input RequestTokensInput {
   account: UAddress!
 }
 
-enum Risk {
-  High
-  Low
-  Medium
+interface Result implements Node {
+  events: [Event!]!
+  id: UUID!
+  timestamp: DateTime!
+  transferApprovals: [TransferApproval!]!
+  transfers: [Transfer!]!
 }
 
 enum Satisfiability {
@@ -608,14 +634,25 @@ type SatisfiabilityResult {
   result: Satisfiability!
 }
 
+type Scheduled implements Node & Result {
+  cancelled: Boolean!
+  events: [Event!]!
+  id: UUID!
+  scheduledFor: DateTime!
+  timestamp: DateTime!
+  transferApprovals: [TransferApproval!]!
+  transfers: [Transfer!]!
+}
+
 """function selector (4-byte hex string)"""
 scalar Selector
 
-type SimulatedTransfer implements TransferDetails {
+type SimulatedTransfer implements Node & TransferDetails {
   account: Account!
   amount: Decimal!
+  direction: [TransferDirection!]!
   from: Address!
-  id: ID!
+  id: UUID!
   isFeeTransfer: Boolean!
   to: Address!
   token: Token
@@ -638,6 +675,18 @@ type Subscription {
   user: User!
 }
 
+type Successful implements Node & ReceiptResult & Result {
+  block: BigInt!
+  ethFeePerGas: Decimal!
+  events: [Event!]!
+  gasUsed: BigInt!
+  id: UUID!
+  responses: [Bytes!]!
+  timestamp: DateTime!
+  transferApprovals: [TransferApproval!]!
+  transfers: [Transfer!]!
+}
+
 type SwapOp {
   _args: [JSON!]!
   _name: String!
@@ -646,6 +695,21 @@ type SwapOp {
   fromToken: Address!
   minimumToAmount: Decimal!
   toToken: Address!
+}
+
+type SystemTx implements Node {
+  ethCreditUsed: Decimal!
+  ethPerFeeToken: Decimal!
+  hash: Bytes32!
+  id: UUID!
+  maxEthFeePerGas: Decimal!
+  maxEthFees: Decimal!
+  maxNetworkEthFee: Decimal!
+  paymasterEthFees: PaymasterFees!
+  proposal: Transaction!
+  receipt: Result
+  timestamp: DateTime!
+  usdPerFeeToken: Decimal!
 }
 
 type Token implements Node {
@@ -695,26 +759,7 @@ input TokensInput {
   query: String
 }
 
-type Transaction implements Node {
-  ethCreditUsed: Decimal!
-  ethPerFeeToken: Decimal!
-  hash: Bytes32!
-  id: UUID!
-  maxEthFeePerGas: Decimal!
-  maxEthFees: Decimal!
-  maxNetworkEthFee: Decimal!
-  paymasterEthFees: PaymasterFees!
-  proposal: TransactionProposal!
-  receipt: Receipt
-  submittedAt: DateTime!
-  usdPerFeeToken: Decimal!
-}
-
-input TransactionInput {
-  hash: Bytes32!
-}
-
-type TransactionProposal implements Node & Proposal {
+type Transaction implements Node & Proposal {
   account: Account!
   approvals: [Approval!]!
   createdAt: DateTime!
@@ -735,35 +780,41 @@ type TransactionProposal implements Node & Proposal {
   potentialRejectors: [Approver!]!
   proposedBy: Approver!
   rejections: [Rejection!]!
-  riskLabel: Risk
+  result: Result
+  results: [Result!]!
   simulation: Simulation
-  status: TransactionProposalStatus!
-  transaction: Transaction
-  transactions: [Transaction!]!
+  status: TransactionStatus!
+  submitted: Boolean!
+  systx: SystemTx
+  systxs: [SystemTx!]!
   updatable: Boolean!
   validFrom: DateTime!
 }
 
-enum TransactionProposalStatus {
+enum TransactionStatus {
+  Cancelled
   Executing
   Failed
   Pending
+  Scheduled
   Successful
 }
 
-input TransactionProposalsInput {
+input TransactionsInput {
   accounts: [UAddress!]
-  statuses: [TransactionProposalStatus!]
+  statuses: [TransactionStatus!]
 }
 
-type Transfer implements EventBase & TransferDetails & Transferlike {
+type Transfer implements Event & Node & TransferDetails & Transferlike {
   account: Account!
   amount: Decimal!
   block: BigInt!
+  direction: [TransferDirection!]!
   from: Address!
-  id: ID!
+  id: UUID!
   isFeeTransfer: Boolean!
   logIndex: Float!
+  systxHash: Bytes32!
   timestamp: DateTime!
   to: Address!
   token: Token
@@ -771,15 +822,17 @@ type Transfer implements EventBase & TransferDetails & Transferlike {
   value: Decimal
 }
 
-type TransferApproval implements EventBase & TransferDetails & Transferlike {
+type TransferApproval implements Event & Node & TransferDetails & Transferlike {
   account: Account!
   amount: Decimal!
   block: BigInt!
   delta: Decimal!
+  direction: [TransferDirection!]!
   from: Address!
-  id: ID!
+  id: UUID!
   isFeeTransfer: Boolean!
   logIndex: Float!
+  systxHash: Bytes32!
   timestamp: DateTime!
   to: Address!
   token: Token
@@ -793,11 +846,12 @@ type TransferApprovalOp implements TransferlikeOp {
   token: Address!
 }
 
-interface TransferDetails {
+interface TransferDetails implements Node {
   account: Account!
   amount: Decimal!
+  direction: [TransferDirection!]!
   from: Address!
-  id: ID!
+  id: UUID!
   isFeeTransfer: Boolean!
   to: Address!
   token: Token
@@ -848,14 +902,16 @@ input TransferSubscriptionInput {
   internal: Boolean
 }
 
-interface Transferlike implements EventBase & TransferDetails {
+interface Transferlike implements Event & Node & TransferDetails {
   account: Account!
   amount: Decimal!
   block: BigInt!
+  direction: [TransferDirection!]!
   from: Address!
-  id: ID!
+  id: UUID!
   isFeeTransfer: Boolean!
   logIndex: Float!
+  systxHash: Bytes32!
   timestamp: DateTime!
   to: Address!
   token: Token
@@ -940,6 +996,9 @@ input UpdatePolicyInput {
   actions: [ActionInput!]
   allowMessages: Boolean
   approvers: [Address!]
+
+  """seconds"""
+  delay: Float
   key: PolicyKey!
   name: String
   threshold: Float
@@ -962,7 +1021,7 @@ input UpdateProposalInput {
   policy: PolicyKey
 }
 
-input UpdateTransactionProposalInput {
+input UpdateTransactionInput {
   feeToken: Address
   id: UUID!
   policy: PolicyKey

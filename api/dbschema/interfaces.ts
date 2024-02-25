@@ -65,21 +65,22 @@ export namespace cfg {
 }
 export type AbiSource = "Verified";
 export interface Account extends std.$Object {
+  "activationEthFee"?: string | null;
   "address": string;
   "chain": string;
   "implementation": string;
+  "upgradedAtBlock"?: bigint | null;
+  "isActive": boolean;
   "label": string;
   "paymasterEthCredit": string;
   "photoUri"?: string | null;
   "salt": string;
   "policies": Policy[];
   "approvers": Approver[];
+  "messages": Message[];
   "proposals": Proposal[];
-  "transactionProposals": TransactionProposal[];
+  "transactions": Transaction[];
   "transfers": Transfer[];
-  "activationEthFee"?: string | null;
-  "upgradedAtBlock"?: bigint | null;
-  "isActive": boolean;
 }
 export interface Action extends std.$Object {
   "functions": ActionFunction[];
@@ -122,21 +123,39 @@ export interface CloudShare extends std.$Object {
   "share": string;
 }
 export interface Contact extends std.$Object {
+  "user": User;
   "address": string;
   "label": string;
-  "user": User;
 }
 export interface Contract extends std.$Object {
   "functions": Function[];
   "address": string;
 }
 export interface Event extends std.$Object {
-  "transaction"?: Transaction | null;
+  "account": Account;
+  "result"?: Result | null;
   "block": bigint;
-  "internal": boolean;
   "logIndex": number;
+  "systxHash": string;
   "timestamp": Date;
-  "transactionHash": string;
+  "systx"?: SystemTx | null;
+  "internal": boolean;
+}
+export interface Result extends std.$Object {
+  "timestamp": Date;
+  "events": Event[];
+  "systx"?: SystemTx | null;
+  "transaction": Transaction;
+  "transferApprovals": TransferApproval[];
+  "transfers": Transfer[];
+}
+export interface ReceiptResult extends Result {
+  "block": bigint;
+  "ethFeePerGas": string;
+  "gasUsed": bigint;
+}
+export interface Failed extends ReceiptResult {
+  "reason"?: string | null;
 }
 export interface Function extends std.$Object {
   "selector": string;
@@ -146,25 +165,24 @@ export interface Function extends std.$Object {
 }
 export interface Proposal extends std.$Object {
   "account": Account;
+  "hash": string;
   "createdAt": Date;
+  "dapp"?: {name: string, url: string, icons: string[]} | null;
+  "iconUri"?: string | null;
   "label"?: string | null;
   "validFrom": Date;
   "approvals": Approval[];
   "proposedBy": Approver;
   "rejections": Rejection[];
-  "riskLabel"?: ProposalRisk | null;
   "policy"?: Policy | null;
   "potentialApprovers": Approver[];
   "potentialRejectors": Approver[];
-  "dapp"?: {name: string, url: string, icons: string[]} | null;
-  "hash": string;
-  "iconUri"?: string | null;
 }
-export interface MessageProposal extends Proposal {
+export interface Message extends Proposal {
   "message": string;
+  "messageHash": string;
   "signature"?: string | null;
   "typedData"?: unknown | null;
-  "signedHash": string;
 }
 export interface Operation extends std.$Object {
   "data"?: string | null;
@@ -180,57 +198,59 @@ export interface Policy extends std.$Object {
   "name": string;
   "key": number;
   "stateHistory": PolicyState[];
-  "isActive": boolean;
-  "isEnabled": boolean;
   "draft"?: PolicyState | null;
   "state"?: PolicyState | null;
+  "isActive": boolean;
+  "isEnabled": boolean;
   "stateOrDraft": PolicyState;
 }
 export interface PolicyState extends std.$Object {
+  "proposal"?: Transaction | null;
   "activationBlock"?: bigint | null;
   "createdAt": Date;
   "isRemoved": boolean;
+  "isAccountInitState": boolean;
+  "hasBeenActive": boolean;
   "approvers": Approver[];
   "actions": Action[];
-  "proposal"?: TransactionProposal | null;
-  "isAccountInitState": boolean;
+  "isActive": boolean;
   "transfers": TransfersConfig;
+  "allowMessages": boolean;
+  "delay": number;
   "threshold": number;
   "policy"?: Policy | null;
-  "hasBeenActive": boolean;
-  "isActive": boolean;
-  "allowMessages": boolean;
-}
-export type ProposalRisk = "Low" | "Medium" | "High";
-export interface ProposalRiskLabel extends std.$Object {
-  "proposal": Proposal;
-  "risk": ProposalRisk;
-  "user": User;
-}
-export interface Receipt extends std.$Object {
-  "responses": string[];
-  "success": boolean;
-  "ethFeePerGas": string;
-  "block": bigint;
-  "gasUsed": bigint;
-  "timestamp": Date;
-  "transaction": Transaction;
-  "events": Event[];
-  "transferApprovalEvents": TransferApproval[];
-  "transferEvents": Transfer[];
-  "networkEthFee": string;
-  "ethFees": string;
 }
 export interface Refund extends std.$Object {
-  "transaction": Transaction;
+  "systx": SystemTx;
   "ethAmount": string;
 }
 export interface Rejection extends ProposalResponse {}
+export interface Scheduled extends Result {
+  "cancelled": boolean;
+  "scheduledFor": Date;
+}
 export interface Simulation extends std.$Object {
   "responses": string[];
   "success": boolean;
   "timestamp": Date;
   "transfers": TransferDetails[];
+}
+export interface Successful extends ReceiptResult {
+  "responses": string[];
+}
+export interface SystemTx extends std.$Object {
+  "ethCreditUsed": string;
+  "maxEthFeePerGas": string;
+  "ethPerFeeToken": string;
+  "hash": string;
+  "usdPerFeeToken": string;
+  "proposal": Transaction;
+  "paymasterEthFees": PaymasterFees;
+  "ethDiscount": string;
+  "maxNetworkEthFee": string;
+  "maxEthFees": string;
+  "result"?: Result | null;
+  "timestamp": Date;
 }
 export interface Token extends std.$Object {
   "units"?: {symbol: string, decimals: number}[] | null;
@@ -245,36 +265,22 @@ export interface Token extends std.$Object {
   "pythUsdPriceId"?: string | null;
   "user"?: User | null;
 }
-export interface Transaction extends std.$Object {
-  "receipt"?: Receipt | null;
-  "submittedAt": Date;
-  "maxEthFeePerGas": string;
-  "ethPerFeeToken": string;
-  "hash": string;
-  "usdPerFeeToken": string;
-  "proposal": TransactionProposal;
-  "events": Event[];
-  "maxNetworkEthFee": string;
-  "refunds": Refund[];
-  "paymasterEthFees": PaymasterFees;
-  "ethCreditUsed": string;
-  "ethDiscount": string;
-  "maxEthFees": string;
-}
-export interface TransactionProposal extends Proposal {
+export interface Transaction extends Proposal {
   "gasLimit": bigint;
+  "submitted": boolean;
   "operations": Operation[];
   "simulation"?: Simulation | null;
   "feeToken": Token;
   "nonce": bigint;
   "paymaster": string;
-  "transactions": Transaction[];
-  "transaction"?: Transaction | null;
   "maxPaymasterEthFees": PaymasterFees;
-  "submitted": boolean;
-  "status": TransactionProposalStatus;
+  "results": Result[];
+  "systxs": SystemTx[];
+  "result"?: Result | null;
+  "status": TransactionStatus;
+  "systx"?: SystemTx | null;
 }
-export type TransactionProposalStatus = "Pending" | "Executing" | "Successful" | "Failed";
+export type TransactionStatus = "Pending" | "Scheduled" | "Executing" | "Successful" | "Failed" | "Cancelled";
 export interface TransferDetails extends std.$Object {
   "account": Account;
   "tokenAddress": string;
@@ -580,23 +586,25 @@ export interface types {
     "Contact": Contact;
     "Contract": Contract;
     "Event": Event;
+    "Result": Result;
+    "ReceiptResult": ReceiptResult;
+    "Failed": Failed;
     "Function": Function;
     "Proposal": Proposal;
-    "MessageProposal": MessageProposal;
+    "Message": Message;
     "Operation": Operation;
     "PaymasterFees": PaymasterFees;
     "Policy": Policy;
     "PolicyState": PolicyState;
-    "ProposalRisk": ProposalRisk;
-    "ProposalRiskLabel": ProposalRiskLabel;
-    "Receipt": Receipt;
     "Refund": Refund;
     "Rejection": Rejection;
+    "Scheduled": Scheduled;
     "Simulation": Simulation;
+    "Successful": Successful;
+    "SystemTx": SystemTx;
     "Token": Token;
     "Transaction": Transaction;
-    "TransactionProposal": TransactionProposal;
-    "TransactionProposalStatus": TransactionProposalStatus;
+    "TransactionStatus": TransactionStatus;
     "TransferDetails": TransferDetails;
     "Transferlike": Transferlike;
     "Transfer": Transfer;

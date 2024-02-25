@@ -3,14 +3,14 @@ import { PaymastersService } from './paymasters.service';
 import { PaymastersResolver } from './paymasters.resolver';
 import { PricesModule } from '~/features/prices/prices.module';
 import { PaymasterEvents } from '~/features/paymasters/paymaster.events';
-import { TransactionsModule } from '~/features/transactions/transactions.module';
+import { SystemTxsModule } from '~/features/system-txs/system-txs.module';
 import { TokensModule } from '~/features/tokens/tokens.module';
 import { ActivationsModule } from '../activations/activations.module';
 
 @Module({
   imports: [
     PricesModule,
-    forwardRef(() => TransactionsModule),
+    forwardRef(() => SystemTxsModule),
     forwardRef(() => TokensModule),
     ActivationsModule,
   ],

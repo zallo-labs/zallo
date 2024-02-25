@@ -12,8 +12,8 @@ import { createStyles, useStyles } from '@theme/styles';
 import { OperationIcon } from '#/transaction/OperationIcon';
 import { Image } from 'expo-image';
 
-const Proposal = gql(/* GraphQL */ `
-  fragment TransactionItem_TransactionProposal on TransactionProposal {
+const Transaction = gql(/* GraphQL */ `
+  fragment TransactionItem_Transaction on Transaction {
     id
     label
     status
@@ -29,17 +29,18 @@ const Proposal = gql(/* GraphQL */ `
       ...OperationIcon_Operation
       ...OperationLabel_OperationFragment
     }
-    transaction {
+    result {
+      __typename
       id
-      receipt {
-        id
-        timestamp
+      timestamp
+      ... on Scheduled {
+        scheduledFor
       }
     }
     potentialApprovers {
       id
     }
-    ...ProposalValue_TransactionProposal
+    ...ProposalValue_Transaction
   }
 `);
 
@@ -55,17 +56,17 @@ const User = gql(/* GraphQL */ `
 const MultiOperationIcon = materialCommunityIcon('multiplication');
 
 export interface TransactionItemProps extends Partial<ListItemProps> {
-  proposal: FragmentType<typeof Proposal>;
+  transaction: FragmentType<typeof Transaction>;
   user: FragmentType<typeof User>;
 }
 
 function TransactionItem_({
-  proposal: proposalFragment,
+  transaction: txFragment,
   user: userFragment,
   ...itemProps
 }: TransactionItemProps) {
   const { styles } = useStyles(stylesheet);
-  const p = useFragment(Proposal, proposalFragment);
+  const p = useFragment(Transaction, txFragment);
   const user = useFragment(User, userFragment);
 
   const isMulti = p.operations.length > 1;
@@ -76,24 +77,34 @@ function TransactionItem_({
     .returnType<ListItemProps['supporting']>()
     .with({ status: 'Pending' }, () =>
       canApprove
-        ? ({ Text }) => <Text style={styles.approvalRequired}>Approval required</Text>
+        ? ({ Text }) => <Text style={styles.pending}>Approval required</Text>
         : 'Awaiting approval',
     )
+    .with(
+      { status: 'Scheduled' },
+      (p) =>
+        ({ Text }) =>
+          p.result?.__typename === 'Scheduled' && (
+            <Text style={styles.scheduled}>
+              Scheduled for <Timestamp timestamp={p.result.scheduledFor} time />
+            </Text>
+          ),
+    )
     .with({ status: 'Executing' }, () => 'Executing...')
+    .with({ status: 'Successful' }, () => p.result && <Timestamp timestamp={p.result.timestamp} />)
     .with(
       { status: 'Failed' },
       () =>
         ({ Text }) =>
-          p.transaction?.receipt && (
+          p.result && (
             <Text style={styles.failed}>
-              <Timestamp timestamp={p.transaction.receipt.timestamp} />
+              <Timestamp timestamp={p.result.timestamp} />
             </Text>
           ),
     )
-    .with(
-      { status: 'Successful' },
-      () => p.transaction?.receipt && <Timestamp timestamp={p.transaction.receipt.timestamp} />,
-    )
+    .with({ status: 'Cancelled' }, () => ({ Text }) => (
+      <Text style={styles.cancelled}>Cancelled</Text>
+    ))
     .exhaustive();
 
   return (
@@ -130,14 +141,17 @@ function TransactionItem_({
 }
 
 const stylesheet = createStyles(({ colors, iconSize, corner }) => ({
-  approvalRequired: {
+  pending: {
     color: colors.primary,
   },
-  noSatisfiablePolicy: {
-    color: colors.error,
+  scheduled: {
+    color: colors.tertiary,
   },
   failed: {
     color: colors.error,
+  },
+  cancelled: {
+    color: colors.warning,
   },
   icon: {
     width: iconSize.medium,

@@ -4,8 +4,9 @@ import {
   asPolicy,
   asTx,
   deployAccountProxy,
+  encodeTransaction,
   encodeTransactionSignature,
-  executeTransactionUnsafe,
+  execute,
   Policy,
   randomDeploySalt,
   replaceSelfAddress,
@@ -15,12 +16,13 @@ import { network, testNetwork, wallet, wallets } from './network';
 import { BytesLike, hexlify, Interface, Overrides } from 'ethers';
 import * as zk from 'zksync-ethers';
 import { getApprovals } from './approval';
-import { Abi, Address, bytesToHex, parseEther, zeroHash } from 'viem';
+import { Abi, bytesToHex, parseEther, zeroHash } from 'viem';
 import { CONFIG } from '../../config';
 import { AbiParametersToPrimitiveTypes } from 'abitype';
 import Factory from '../contracts/Factory';
 import Account from '../contracts/Account';
 import AccountProxy from '../contracts/AccountProxy';
+import TestAccount from '../contracts/TestAccount';
 
 const zkProvider = new zk.Provider(CONFIG.chain.rpcUrls.default.http[0]);
 
@@ -100,20 +102,17 @@ export const deployFactory = async (childDetails: ContractArtifact<Abi>) => {
 export interface DeployProxyOptions {
   nApprovers?: number;
   extraBalance?: bigint;
-  implementation?: Address;
   policies?: Policy[];
+  testAccount?: boolean;
 }
 
 export const deployProxy = async ({
   nApprovers = 2,
   extraBalance = 0n,
   policies: inputPolicies,
+  testAccount,
 }: DeployProxyOptions = {}) => {
   const approvers = new Set(wallets.slice(0, nApprovers).map((signer) => signer.address));
-
-  const { address: factory } = await deployFactory(AccountProxy);
-  const { address: implementation } = await deploy(Account, []);
-
   const initPolicies = inputPolicies ?? [
     asPolicy({ key: 1, approvers, threshold: approvers.size }),
   ];
@@ -121,15 +120,17 @@ export const deployProxy = async ({
     await deployAccountProxy({
       network,
       wallet,
-      factory,
-      implementation,
+      factory: (await deployFactory(AccountProxy)).address,
+      implementation: (await (testAccount ? deploy(TestAccount) : deploy(Account, []))).address,
       policies: initPolicies,
       salt: randomDeploySalt(),
     })
   )._unsafeUnwrap();
   await network.waitForTransactionReceipt({ hash: deployTransactionHash });
 
-  const policies = initPolicies.map((p) => replaceSelfAddress(p, asAddress(account)));
+  const policies = initPolicies.map((p) =>
+    replaceSelfAddress({ policy: p, to: asAddress(account) }),
+  );
   const policy = policies[0];
 
   await testNetwork.setBalance({
@@ -145,12 +146,14 @@ export const deployProxy = async ({
       const tx = asTx(txOpts);
       const approvals = await getApprovals(account, approvers, tx);
 
-      const r = await executeTransactionUnsafe({
-        network,
-        account: asAddress(account),
-        tx,
-        customSignature: encodeTransactionSignature({ tx, policy, approvals }),
-      });
+      const r = await execute(
+        await encodeTransaction({
+          network,
+          account: asAddress(account),
+          tx,
+          customSignature: encodeTransactionSignature({ tx, policy, approvals }),
+        }),
+      );
 
       if (r.isErr())
         throw new Error(`Execute failed with error ${r.error.message}`, { cause: r.error });

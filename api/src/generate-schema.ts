@@ -10,10 +10,10 @@ import { ContractFunctionsResolver } from './features/contract-functions/contrac
 import { ContractsResolver } from './features/contracts/contracts.resolver';
 import { FaucetResolver } from './features/faucet/faucet.resolver';
 import { PoliciesResolver } from './features/policies/policies.resolver';
-import { TransactionProposalsResolver } from './features/transaction-proposals/transaction-proposals.resolver';
+import { TransactionsResolver } from './features/transactions/transactions.resolver';
 import { TransfersResolver } from './features/transfers/transfers.resolver';
 import { UsersResolver } from './features/users/users.resolver';
-import { MessageProposalsResolver } from './features/message-proposals/message-proposals.resolver';
+import { MessagesResolver } from './features/messages/messages.resolver';
 
 const resolvers = [
   AccountsResolver,
@@ -21,10 +21,9 @@ const resolvers = [
   ContractFunctionsResolver,
   ContractsResolver,
   FaucetResolver,
-  MessageProposalsResolver,
+  MessagesResolver,
   PoliciesResolver,
-  TransactionProposalsResolver,
-  TransfersResolver,
+  TransactionsResolver,
   TransfersResolver,
   UsersResolver,
 ];

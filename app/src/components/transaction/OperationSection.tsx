@@ -8,7 +8,7 @@ import { OperationLabel } from '#/transaction/OperationLabel';
 import { OperationIcon } from '#/transaction/OperationIcon';
 
 const Transaction = gql(/* GraphQL */ `
-  fragment OperationSection_TransactionProposal on TransactionProposal {
+  fragment OperationSection_Transaction on Transaction {
     account {
       id
       address

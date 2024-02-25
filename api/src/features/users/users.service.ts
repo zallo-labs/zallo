@@ -87,10 +87,6 @@ export class UsersService {
             filter: e.op(c.label, 'not in', newUser.contacts.label),
             set: { user: newUser },
           })),
-          riskLabels: e.update(oldUser['<user[is ProposalRiskLabel]'], (l) => ({
-            filter: e.op(l.proposal, 'not in', newUser['<user[is ProposalRiskLabel]'].proposal),
-            set: { user: newUser },
-          })),
         })
         .run(db);
 

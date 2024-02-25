@@ -1,7 +1,7 @@
 import { Field, ObjectType, createUnionType, registerEnumType } from '@nestjs/graphql';
 import { GraphQLBigInt } from 'graphql-scalars';
 import { Account } from '../accounts/accounts.model';
-import { TransactionProposal } from '../transaction-proposals/transaction-proposals.model';
+import { Transaction } from '../transactions/transactions.model';
 import { IdField } from '~/apollo/scalars/Id.scalar';
 import * as eql from '~/edgeql-interfaces';
 import { uuid } from 'edgedb/dist/codecs/ifaces';
@@ -84,8 +84,8 @@ export class PolicyState {
   @IdField()
   id: uuid;
 
-  @Field(() => TransactionProposal, { nullable: true })
-  proposal?: TransactionProposal | null;
+  @Field(() => Transaction, { nullable: true })
+  proposal?: Transaction | null;
 
   @Field(() => Boolean)
   isAccountInitState: boolean;
@@ -104,6 +104,9 @@ export class PolicyState {
 
   @Field(() => Boolean)
   allowMessages: boolean;
+
+  @Field(() => Number, { description: 'seconds' })
+  delay: number;
 
   @Field(() => Boolean)
   isRemoved: boolean;

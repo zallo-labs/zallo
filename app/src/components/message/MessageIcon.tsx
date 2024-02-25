@@ -5,20 +5,20 @@ import { Image } from 'expo-image';
 
 export const GenericMessageIcon = materialIcon('mail');
 
-const MessageProposal = gql(/* GraphQL */ `
-  fragment MessageIcon_MessageProposal on Proposal {
+const Message = gql(/* GraphQL */ `
+  fragment MessageIcon_Message on Proposal {
     id
     iconUri
   }
 `);
 
 export interface MessageIconProps extends Partial<IconProps> {
-  proposal: FragmentType<typeof MessageProposal>;
+  proposal: FragmentType<typeof Message>;
 }
 
 export function MessageIcon({ proposal: proposalFragment, ...iconProps }: MessageIconProps) {
   const { styles } = useStyles(stylesheet);
-  const p = useFragment(MessageProposal, proposalFragment);
+  const p = useFragment(Message, proposalFragment);
 
   return p.iconUri ? (
     <Image source={{ uri: p.iconUri }} style={styles.icon} {...iconProps} />

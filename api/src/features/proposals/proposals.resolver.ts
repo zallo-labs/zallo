@@ -8,7 +8,6 @@ import {
   ProposalSubscriptionInput,
   ProposalsInput,
   UpdateProposalInput,
-  LabelProposalRiskInput,
 } from './proposals.input';
 import { Proposal } from './proposals.model';
 import {
@@ -48,15 +47,6 @@ export class ProposalsResolver {
   @Mutation(() => Proposal)
   async updateProposal(@Input() input: UpdateProposalInput, @Info() info: GraphQLResolveInfo) {
     await this.service.update(input);
-    return this.service.selectUnique(input.id, getShape(info));
-  }
-
-  @Mutation(() => Proposal)
-  async labelProposalRisk(
-    @Input() input: LabelProposalRiskInput,
-    @Info() info: GraphQLResolveInfo,
-  ) {
-    await this.service.labelProposalRisk(input);
     return this.service.selectUnique(input.id, getShape(info));
   }
 

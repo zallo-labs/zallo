@@ -9,9 +9,10 @@ import {
   asHex,
   asUAddress,
   asUUID,
+  encodeTransaction,
   isHex,
   isTruthy,
-  txProposalCallParams,
+  simulate,
 } from 'lib';
 import { DatabaseService } from '../database/database.service';
 import e from '~/edgeql-js';
@@ -29,14 +30,9 @@ import {
   createQueue,
 } from '../util/bull/bull.util';
 import { ETH } from 'lib/dapps';
-import { selectTransactionProposal } from '~/features/transaction-proposals/transaction-proposals.service';
+import { selectTransaction } from '~/features/transactions/transactions.service';
 import { NetworksService } from '~/features/util/networks/networks.service';
-import {
-  proposalTxShape,
-  transactionProposalAsTx,
-} from '~/features/transaction-proposals/transaction-proposals.util';
-import { ResultAsync } from 'neverthrow';
-import { CallErrorType } from 'viem';
+import { proposalTxShape, transactionAsTx } from '~/features/transactions/transactions.util';
 import { runOnce } from '~/util/mutex';
 
 type TransferDetails = Parameters<typeof e.insert<typeof e.TransferDetails>>[1];
@@ -67,7 +63,7 @@ export class SimulationsWorker extends Worker<SimulationsQueue> {
     const { txProposal } = job.data;
 
     const p = await this.db.query(
-      e.select(e.TransactionProposal, (p) => ({
+      e.select(e.Transaction, (p) => ({
         filter_single: { id: txProposal },
         account: { address: true },
         ...proposalTxShape(p),
@@ -81,26 +77,23 @@ export class SimulationsWorker extends Worker<SimulationsQueue> {
     const selectedAccount = selectAccount(account);
 
     const network = this.networks.get(chain);
-    const response = await ResultAsync.fromPromise(
-      network.call(
-        await txProposalCallParams({
-          network,
-          account: localAccount,
-          tx: transactionProposalAsTx(p),
-        }),
-      ),
-      (error) => {
-        const e = (error as CallErrorType).walk();
+    const response = await simulate(
+      await encodeTransaction({
+        network,
+        account: localAccount,
+        tx: transactionAsTx(p),
+      }),
+    ).mapErr((callError) => {
+      const e = callError.walk();
 
-        return typeof e === 'object' &&
-          e &&
-          'data' in e &&
-          typeof e.data === 'string' &&
-          isHex(e.data)
-          ? e.data
-          : undefined;
-      },
-    );
+      return typeof e === 'object' &&
+        e &&
+        'data' in e &&
+        typeof e.data === 'string' &&
+        isHex(e.data)
+        ? e.data
+        : undefined;
+    });
 
     const transfers: TransferDetails[] = [];
     for (const op of p.operations) {
@@ -153,7 +146,7 @@ export class SimulationsWorker extends Worker<SimulationsQueue> {
       }
     }
 
-    const proposal = selectTransactionProposal(txProposal);
+    const proposal = selectTransaction(txProposal);
     await this.db.query(
       e.select({
         prevSimulation: e.delete(proposal.simulation, () => ({})),
@@ -178,7 +171,7 @@ export class SimulationsWorker extends Worker<SimulationsQueue> {
         const jobs = await this.queue.getJobs(RUNNING_JOB_STATUSES);
 
         const orphanedProposals = await this.db.query(
-          e.select(e.TransactionProposal, (p) => ({
+          e.select(e.Transaction, (p) => ({
             filter: and(
               e.op('not', e.op('exists', p.simulation)),
               jobs.length

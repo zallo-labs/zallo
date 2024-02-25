@@ -1,12 +1,12 @@
 import { Address, asAddress, compareAddress } from '../address';
-import { Selector, asSelector, compareHex } from '../bytes';
-import { HookSelector, PLACEHOLDER_ACCOUNT_ADDRESS } from './util';
+import { Selector, asSelector } from '../bytes';
+import { HookSelector } from './util';
 import { HookStruct } from './permissions';
 import _ from 'lodash';
 import { Operation } from '../operation';
 import { OperationSatisfiability } from '../satisfiability';
 import assert from 'assert';
-import { getAbiItem, encodeAbiParameters, decodeAbiParameters } from 'viem';
+import { getAbiItem, encodeAbiParameters, decodeAbiParameters, hexToNumber } from 'viem';
 import { AbiParameterToPrimitiveType } from 'abitype';
 import { TEST_VERIFIER_ABI } from '../contract';
 
@@ -41,7 +41,7 @@ export function encodeTargetsConfigStruct(c: TargetsConfig): TargetsConfigStruct
               selector: asSelector(selector),
               allow,
             }))
-            .sort((a, b) => compareHex(a.selector, b.selector)),
+            .sort((a, b) => hexToNumber(a.selector) - hexToNumber(b.selector)),
           defaultAllow: !!target.defaultAllow,
         },
       }))
@@ -52,7 +52,7 @@ export function encodeTargetsConfigStruct(c: TargetsConfig): TargetsConfigStruct
           selector: asSelector(selector),
           allow,
         }))
-        .sort((a, b) => compareHex(a.selector, b.selector)),
+        .sort((a, b) => hexToNumber(a.selector) - hexToNumber(b.selector)),
       defaultAllow: !!c.default.defaultAllow,
     },
   };
@@ -153,15 +153,19 @@ function optimize(targets: TargetsConfig): TargetsConfig {
   return targets;
 }
 
-export function replaceTargetsSelfAddress(targets: TargetsConfig, self: Address): TargetsConfig {
-  const selfTarget = targets.contracts[PLACEHOLDER_ACCOUNT_ADDRESS];
+export function replaceTargetsSelfAddress(
+  targets: TargetsConfig,
+  from: Address,
+  to: Address,
+): TargetsConfig {
+  const selfTarget = targets.contracts[from];
   if (!selfTarget) return targets;
 
   return {
     ...targets,
     contracts: {
-      ..._.omit(targets.contracts, PLACEHOLDER_ACCOUNT_ADDRESS),
-      [self]: selfTarget,
+      ..._.omit(targets.contracts, from),
+      [to]: selfTarget,
     },
   };
 }

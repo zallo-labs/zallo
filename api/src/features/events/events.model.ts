@@ -1,37 +1,33 @@
 import { Field, InterfaceType, createUnionType } from '@nestjs/graphql';
-import { IdField } from '~/apollo/scalars/Id.scalar';
-import { uuid } from 'edgedb/dist/codecs/ifaces';
 import { GraphQLBigInt } from 'graphql-scalars';
-import { Account } from '../accounts/accounts.model';
 import { Transfer, TransferApproval } from '../transfers/transfers.model';
 import { makeUnionTypeResolver } from '../database/database.util';
 import e from '~/edgeql-js';
+import { Bytes32Field } from '~/apollo/scalars/Bytes.scalar';
+import { Hex } from 'lib';
+import { Node, NodeInterface } from '~/decorators/interface.decorator';
 
-@InterfaceType()
-export class EventBase {
-  @IdField()
-  id: uuid;
-
-  @Field(() => Account)
-  account: Account;
-
-  @Field(() => Number)
-  logIndex: number;
+@NodeInterface()
+export class Event extends Node {
+  @Bytes32Field()
+  systxHash: Hex;
 
   @Field(() => GraphQLBigInt)
   block: bigint;
+
+  @Field(() => Number)
+  logIndex: number;
 
   @Field(() => Date)
   timestamp: Date;
 }
 
-export type Event = typeof Event;
-
-export const Event = createUnionType({
-  name: 'Event',
-  types: () => [Transfer, TransferApproval] as const,
-  resolveType: makeUnionTypeResolver([
-    [e.Transfer, Transfer],
-    [e.TransferApproval, TransferApproval],
-  ]),
-});
+// export type Event = typeof Event;
+// export const Event = createUnionType({
+//   name: 'Event',
+//   types: () => [Transfer, TransferApproval] as const,
+//   resolveType: makeUnionTypeResolver([
+//     [e.Transfer, Transfer],
+//     [e.TransferApproval, TransferApproval],
+//   ]),
+// });

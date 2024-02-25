@@ -64,7 +64,7 @@ function TransferScreen() {
   const setToken = useSetSelectedToken(chain);
 
   const [input, setInput] = useState('');
-  const [type, setType] = useState(InputType.Fiat);
+  const [type, setType] = useState(InputType.Token);
 
   if (!token) return null; // TODO: handle
 
@@ -116,7 +116,7 @@ function TransferScreen() {
               });
               if (!proposal) return;
 
-              router.replace({
+              router.push({
                 pathname: `/(drawer)/transaction/[id]`,
                 params: { id: proposal },
               });

@@ -14,8 +14,8 @@ import { Text } from 'react-native-paper';
 import { TokenAmount } from '#/token/TokenAmount';
 import { getOptimizedDocument } from '~/gql';
 
-const TransactionProposal = gql(/* GraphQL */ `
-  fragment FeesSection_TransactionProposal on TransactionProposal
+const Transaction = gql(/* GraphQL */ `
+  fragment FeesSection_Transaction on Transaction
   @argumentDefinitions(account: { type: "UAddress!" }, includeAccount: { type: "Boolean!" }) {
     id
     status
@@ -48,7 +48,7 @@ const TransactionProposal = gql(/* GraphQL */ `
         activation
       }
     }
-    transaction {
+    systx {
       id
       maxNetworkEthFee
       ethCreditUsed
@@ -70,37 +70,36 @@ const Update = gql(/* GraphQL */ `
     $includeAccount: Boolean!
   ) {
     updateTransaction(input: { id: $id, feeToken: $feeToken }) {
-      ...FeesSection_TransactionProposal
-        @arguments(account: $account, includeAccount: $includeAccount)
+      ...FeesSection_Transaction @arguments(account: $account, includeAccount: $includeAccount)
     }
   }
 `);
 const OptimizedUpdate = getOptimizedDocument(Update);
 
 export interface FeeTokenProps {
-  proposal: FragmentType<typeof TransactionProposal>;
+  proposal: FragmentType<typeof Transaction>;
 }
 
 export function FeesSection(props: FeeTokenProps) {
   const { styles } = useStyles(stylesheet);
-  const p = useFragment(TransactionProposal, props.proposal);
+  const p = useFragment(Transaction, props.proposal);
   const update = useMutation(OptimizedUpdate)[1];
   const selectToken = useSelectToken();
 
   const [expanded, toggleExpanded] = useToggle(false);
 
   const networkEthFee = new Decimal(
-    p.transaction?.maxNetworkEthFee ?? p.estimatedFees.maxNetworkEthFee,
+    p.systx?.maxNetworkEthFee ?? p.estimatedFees.maxNetworkEthFee,
   ).neg();
-  const paymasterEthFees = p.transaction?.paymasterEthFees ?? p.estimatedFees.paymasterEthFees;
-  const ethCreditUsed = new Decimal(p.transaction?.ethCreditUsed ?? p.estimatedFees.ethCreditUsed);
+  const paymasterEthFees = p.systx?.paymasterEthFees ?? p.estimatedFees.paymasterEthFees;
+  const ethCreditUsed = new Decimal(p.systx?.ethCreditUsed ?? p.estimatedFees.ethCreditUsed);
   const ethFees = Decimal.min(networkEthFee.sub(paymasterEthFees.total).add(ethCreditUsed), 0);
-  const paymasterFeesEstimatedLabel = !p.transaction ? ' (estimate)' : '';
-  const networkFeeEstimatedLabel = !p.transaction ? ' (max)' : '';
+  const paymasterFeesEstimatedLabel = !p.systx ? ' (estimate)' : '';
+  const networkFeeEstimatedLabel = !p.systx ? ' (max)' : '';
   const activationFee = new Decimal(paymasterEthFees.activation).neg();
   const maxActivationFee = new Decimal(p.maxPaymasterEthFees.activation).neg();
 
-  const ethPerFeeToken = new Decimal(p.transaction?.ethPerFeeToken ?? p.feeToken.price?.eth ?? 0);
+  const ethPerFeeToken = new Decimal(p.systx?.ethPerFeeToken ?? p.feeToken.price?.eth ?? 0);
   const amount = ethFees.div(ethPerFeeToken);
   const insufficient =
     p.status === 'Pending' && p.feeToken.balance && amount.plus(p.feeToken.balance).isNeg();

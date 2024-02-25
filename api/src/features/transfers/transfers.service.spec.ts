@@ -65,7 +65,7 @@ describe(TransfersService.name, () => {
     db.query(
       e.insert(e.Transfer, {
         account: e.select(e.Account, () => ({ filter_single: { address: account } })),
-        transactionHash: zeroHash,
+        systxHash: zeroHash,
         logIndex: 0,
         block: BigInt(Math.floor(Math.random() * 1000)),
         from: ZERO_ADDR,

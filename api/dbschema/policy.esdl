@@ -41,7 +41,7 @@ module default {
 
   type PolicyState {
     link policy := .<stateHistory[is Policy];
-    proposal: TransactionProposal {
+    proposal: Transaction {
       on source delete delete target; 
       on target delete delete source;
     }
@@ -51,6 +51,7 @@ module default {
     multi actions: Action;
     required transfers: TransfersConfig;
     required allowMessages: bool { default := false; }
+    required delay: uint32 { default := 0; }
     required isRemoved: bool { default := false; }
     activationBlock: bigint { constraint min_value(0n); }
     required property hasBeenActive := exists .activationBlock or .isAccountInitState;

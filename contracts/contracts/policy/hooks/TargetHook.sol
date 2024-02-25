@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.20;
 
 import {Operation} from '../../libraries/TransactionUtil.sol';
 import {PLACEHOLDER_SELF_ADDRESS} from './SelfAddress.sol';
@@ -40,7 +40,7 @@ library TargetHook {
   }
 
   function validateOperation(Operation memory op, TargetsConfig memory c) internal pure {
-    for (uint256 i; i < c.contracts.length && op.to <= c.contracts[i].addr; ++i) {
+    for (uint256 i; i < c.contracts.length && op.to >= c.contracts[i].addr; ++i) {
       if (op.to == c.contracts[i].addr) return _validateTarget(op, c.contracts[i].target);
     }
 
@@ -51,13 +51,13 @@ library TargetHook {
   function _validateTarget(Operation memory op, Target memory target) private pure {
     bytes4 selector = bytes4(op.data);
 
-    for (uint256 i; i < target.functions.length && selector <= target.functions[i].selector; ++i) {
-      if (selector == target.functions[i].selector) {
-        if (target.functions[i].allow) {
-          return;
-        } else {
-          revert TargetDenied(op.to, selector);
-        }
+    for (uint256 i; i < target.functions.length && selector >= target.functions[i].selector; ++i) {
+      if (selector != target.functions[i].selector) continue;
+
+      if (target.functions[i].allow) {
+        return;
+      } else {
+        revert TargetDenied(op.to, selector);
       }
     }
 

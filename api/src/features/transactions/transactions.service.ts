@@ -1,63 +1,351 @@
 import { Injectable } from '@nestjs/common';
-import { isPresent, Hex, getTransactionSatisfiability, asAddress } from 'lib';
-import { policyStateAsPolicy, policyStateShape } from '../policies/policies.util';
-import { DatabaseService } from '../database/database.service';
-import e from '~/edgeql-js';
-import { ShapeFunc } from '../database/database.select';
+import { UserInputError } from '@nestjs/apollo';
 import {
-  proposalTxShape,
-  transactionProposalAsTx,
-} from '../transaction-proposals/transaction-proposals.util';
-import { UniqueProposal } from '../proposals/proposals.service';
+  hashTx,
+  Tx,
+  estimateTransactionOperationsGas,
+  FALLBACK_OPERATIONS_GAS,
+  asAddress,
+  asUAddress,
+  asChain,
+  ETH_ADDRESS,
+  asTypedData,
+  asUUID,
+  UUID,
+  estimateTransactionVerificationGas,
+  ACCOUNT_ABI,
+  asHex,
+  isHex,
+  Hex,
+} from 'lib';
+import { NetworksService } from '~/features/util/networks/networks.service';
+import {
+  ProposeCancelScheduledTransactionInput,
+  ProposeTransactionInput,
+  TransactionsInput,
+  UpdateTransactionInput,
+} from './transactions.input';
+import { DatabaseService } from '../database/database.service';
+import e, { $infer } from '~/edgeql-js';
+import { Shape, ShapeFunc } from '../database/database.select';
+import { and } from '../database/database.util';
+import { selectAccount } from '../accounts/accounts.util';
+import { ProposalsService, UniqueProposal } from '../proposals/proposals.service';
+import { ApproveInput, ProposalEvent } from '../proposals/proposals.input';
+import { PaymastersService } from '~/features/paymasters/paymasters.service';
+import { EstimatedTransactionFees } from '~/features/transactions/transactions.model';
+import Decimal from 'decimal.js';
+import { InjectFlowProducer, InjectQueue } from '@nestjs/bullmq';
+import { ExecutionsQueue } from '~/features/transactions/executions.worker';
+import { FLOW_PRODUCER } from '../util/bull/bull.util';
+import { QueueData, TypedQueue } from '~/features/util/bull/bull.util';
+import { SimulationsQueue } from '~/features/simulations/simulations.worker';
+import { proposalTxShape, transactionAsTx } from '~/features/transactions/transactions.util';
+import { encodeFunctionData, hashTypedData } from 'viem';
+import { v4 as uuid } from 'uuid';
+import { FlowProducer } from 'bullmq';
+import { ActivationsService } from '../activations/activations.service';
+import { totalPaymasterEthFees } from '../paymasters/paymasters.util';
+import { ReceiptsQueue } from '../system-txs/receipts.queue';
+
+export const selectTransaction = (id: UUID | Hex) =>
+  e.select(e.Transaction, () => ({
+    filter_single: isHex(id) ? { hash: id } : { id },
+  }));
+
+export const estimateFeesDeps = {
+  id: true,
+  account: { address: true },
+  gasLimit: true,
+  maxPaymasterEthFees: {
+    activation: true,
+  },
+} satisfies Shape<typeof e.Transaction>;
+const s_ = e.assert_exists(e.assert_single(e.select(e.Transaction, () => estimateFeesDeps)));
+export type EstimateFeesDeps = $infer<typeof s_>;
 
 @Injectable()
 export class TransactionsService {
-  constructor(private db: DatabaseService) {}
+  constructor(
+    private db: DatabaseService,
+    private networks: NetworksService,
+    private proposals: ProposalsService,
+    private paymasters: PaymastersService,
+    @InjectQueue(SimulationsQueue.name)
+    private simulations: TypedQueue<SimulationsQueue>,
+    @InjectFlowProducer(FLOW_PRODUCER)
+    private flows: FlowProducer,
+    private activations: ActivationsService,
+  ) {}
 
-  async selectUnique(txHash: Hex, shape?: ShapeFunc<typeof e.Transaction>) {
+  async selectUnique(id: UniqueProposal, shape?: ShapeFunc<typeof e.Transaction>) {
     return this.db.query(
       e.select(e.Transaction, (t) => ({
-        filter_single: { hash: txHash },
         ...shape?.(t),
+        filter_single: { id },
       })),
     );
   }
 
-  async satisfiablePolicies(id: UniqueProposal) {
-    const proposal = await this.db.query(
-      e.select(e.TransactionProposal, (p) => ({
-        filter_single: { id },
-        ...proposalTxShape(p),
-        approvals: {
-          approver: { address: true },
+  async select(
+    { accounts, statuses }: TransactionsInput = {},
+    shape?: ShapeFunc<typeof e.Transaction>,
+  ) {
+    return this.db.query(
+      e.select(e.Transaction, (p) => ({
+        ...shape?.(p),
+        filter: and(
+          accounts && e.op(p.account, 'in', e.set(...accounts.map((a) => selectAccount(a)))),
+          statuses &&
+            e.op(p.status, 'in', e.set(...statuses.map((s) => e.cast(e.TransactionStatus, s)))),
+        ),
+      })),
+    );
+  }
+
+  async tryExecute(txProposal: UUID, ignoreSimulation?: boolean) {
+    const updatedProposal = e.update(selectTransaction(txProposal), () => ({
+      set: { submitted: true },
+    }));
+    const account = asUAddress(
+      (await this.db.query(e.select(updatedProposal.account.address))) ?? undefined,
+    );
+    if (!account) throw new Error(`Transaction proposal not found: ${txProposal}`);
+    const chain = asChain(account);
+
+    // activate -> simulate -> execute -> receipt
+    this.flows.add({
+      queueName: ReceiptsQueue.name,
+      name: 'Transaction proposal',
+      data: { chain, transaction: { child: 0 } } satisfies QueueData<ReceiptsQueue>,
+      children: [
+        {
+          queueName: ExecutionsQueue.name,
+          name: 'Execute transaction',
+          data: { txProposal, ignoreSimulation } satisfies QueueData<ExecutionsQueue>,
+          children: [
+            {
+              queueName: SimulationsQueue.name,
+              name: 'Simulate transaction',
+              data: { txProposal } satisfies QueueData<SimulationsQueue>,
+              children: [this.activations.activationFlow(account)],
+            },
+          ],
         },
-        rejections: {
-          approver: { address: true },
+      ],
+    });
+
+    this.proposals.publishProposal({ id: txProposal, account }, ProposalEvent.submitted);
+  }
+
+  async getInsertProposal({
+    account,
+    operations,
+    label,
+    iconUri,
+    dapp,
+    validFrom = new Date(),
+    gas,
+    feeToken = ETH_ADDRESS,
+  }: Omit<ProposeTransactionInput, 'signature'>) {
+    if (!operations.length) throw new UserInputError('No operations provided');
+
+    const chain = asChain(account);
+    const network = this.networks.get(chain);
+    const maxPaymasterEthFees = await this.paymasters.paymasterEthFees({ account, use: false });
+    const tx = {
+      operations,
+      nonce: BigInt(Math.floor(validFrom.getTime() / 1000)),
+      gas,
+      feeToken,
+      paymaster: this.paymasters.for(chain),
+      paymasterEthFee: totalPaymasterEthFees(maxPaymasterEthFees),
+    } satisfies Tx;
+
+    gas ??=
+      (
+        await estimateTransactionOperationsGas({ account: asAddress(account), tx, network })
+      ).unwrapOr(FALLBACK_OPERATIONS_GAS) + estimateTransactionVerificationGas(3);
+
+    const id = asUUID(uuid());
+    const insert = e.insert(e.Transaction, {
+      id,
+      hash: hashTx(account, tx),
+      account: selectAccount(account),
+      label,
+      iconUri,
+      dapp: dapp && {
+        name: dapp.name,
+        url: dapp.url.href,
+        icons: dapp.icons.map((i) => i.href),
+      },
+      operations: e.set(
+        ...operations.map((op) =>
+          e.insert(e.Operation, {
+            to: op.to,
+            value: op.value,
+            data: op.data,
+          }),
+        ),
+      ),
+      validFrom,
+      gasLimit: gas,
+      paymaster: tx.paymaster,
+      maxPaymasterEthFees: e.insert(e.PaymasterFees, {
+        activation: maxPaymasterEthFees.activation.toString(),
+      }),
+      feeToken: e.assert_single(
+        e.select(e.Token, (t) => ({
+          filter: and(
+            e.op(t.address, '=', e.op(asChain(account), '++', e.op(':', '++', feeToken))),
+            e.op(t.isFeeToken, '=', true),
+          ),
+          limit: 1,
+        })),
+      ),
+    });
+
+    this.db.afterTransaction(() => {
+      this.simulations.add(SimulationsQueue.name, { txProposal: id });
+      this.proposals.publishProposal({ id, account }, ProposalEvent.create);
+    });
+
+    return insert;
+  }
+
+  async propose({ signature, ...args }: ProposeTransactionInput) {
+    const id = await this.db.transaction(async (db) =>
+      asUUID((await (await this.getInsertProposal(args)).run(db)).id),
+    );
+
+    if (signature) await this.approve({ id, signature });
+
+    return { id };
+  }
+
+  async proposeCancelScheduledTransaction({
+    proposal,
+    ...params
+  }: ProposeCancelScheduledTransactionInput) {
+    const hash = await this.db.query(e.select(selectTransaction(proposal).hash));
+    if (!hash) throw new UserInputError('Transaction proposal not found');
+
+    return this.propose({
+      ...params,
+      operations: [
+        {
+          to: asAddress(params.account),
+          data: encodeFunctionData({
+            abi: ACCOUNT_ABI,
+            functionName: 'cancelScheduledTransaction',
+            args: [asHex(hash)],
+          }),
         },
-        account: {
-          id: true,
-          policies: {
-            key: true,
-            state: policyStateShape,
-          },
+      ],
+    });
+  }
+
+  async approve(input: ApproveInput) {
+    await this.proposals.approve(input);
+    await this.tryExecute(input.id);
+  }
+
+  async update({ id, policy, feeToken }: UpdateTransactionInput) {
+    const updatedProposal = e.assert_single(
+      e.update(e.Transaction, (p) => ({
+        filter: and(
+          e.op(p.id, '=', e.uuid(id)),
+          // Require proposal to be pending or failed
+          e.op(p.status, 'in', e.set(e.TransactionStatus.Pending, e.TransactionStatus.Failed)),
+        ),
+        set: {
+          ...(policy !== undefined && {
+            policy:
+              policy !== null
+                ? e.select(e.Policy, () => ({ filter_single: { account: p.account, key: policy } }))
+                : null,
+          }),
+          feeToken:
+            feeToken &&
+            e.assert_single(
+              e.select(e.Token, (t) => ({
+                filter: and(
+                  e.op(t.address, '=', e.op(p.account.chain, '++', e.op(':', '++', feeToken))),
+                  e.op(t.isFeeToken, '=', true),
+                ),
+                limit: 1,
+              })),
+            ),
         },
       })),
     );
-    if (!proposal) throw new Error(`Proposal ${id} not found`);
 
-    const tx = transactionProposalAsTx(proposal);
+    const p = await this.db.transaction(async (tx) => {
+      const p = await e
+        .select(updatedProposal, () => ({
+          hash: true,
+          account: { address: true },
+          ...proposalTxShape(tx),
+        }))
+        .run(tx);
+      if (!p) return;
 
-    const approvals = new Set(proposal.approvals.map((a) => asAddress(a.approver.address)));
-    const rejections = new Set(proposal.rejections.map((a) => asAddress(a.approver.address)));
+      const hash = hashTypedData(asTypedData(asUAddress(p.account.address), transactionAsTx(p)));
+      if (hash !== p.hash) {
+        // Approvals are marked as invalid when the signed hash differs from the proposal hash
+        await e
+          .update(e.Transaction, (proposal) => ({
+            filter: e.op(proposal.id, '=', e.uuid(id)),
+            set: { hash },
+          }))
+          .run(tx);
+      }
 
-    const policies = proposal.account.policies
-      .map((policy) => policyStateAsPolicy(policy.key, policy.state))
-      .filter(isPresent)
-      .map((policy) => ({
-        policy,
-        satisfiability: getTransactionSatisfiability(policy, tx, approvals),
+      return { ...p, hash };
+    });
+    if (!p) return;
+
+    if (policy !== undefined) await this.tryExecute(id);
+
+    this.proposals.publishProposal(
+      { id, account: asUAddress(p.account.address) },
+      ProposalEvent.update,
+    );
+
+    return p;
+  }
+
+  async delete(id: UniqueProposal) {
+    return this.db.transaction(async (db) => {
+      // 1. Policies the proposal was going to create
+      // Delete policies the proposal was going to activate
+      const proposalPolicies = e.select(e.Transaction, (p) => ({
+        filter_single: { id },
+        beingCreated: e.select(p['<proposal[is PolicyState]'], (ps) => ({
+          filter: e.op(e.count(ps.policy.stateHistory), '=', 1),
+          policy: () => ({ id: true }),
+        })),
       }));
 
-    return { accountId: proposal.account.id, policies, approvals, rejections };
+      // TODO: use policies service instead? Ensures nothing weird happens
+      await e.for(e.set(proposalPolicies.beingCreated.policy), (p) => e.delete(p)).run(db);
+
+      return e.delete(selectTransaction(id)).id.run(db);
+    });
+  }
+
+  async estimateFees(d: EstimateFeesDeps): Promise<EstimatedTransactionFees> {
+    const account = asUAddress(d.account.address);
+    const maxEthFeePerGas = await this.paymasters.estimateMaxEthFeePerGas(asChain(account));
+    const gasLimit = new Decimal(d.gasLimit.toString());
+    const maxNetworkEthFee = maxEthFeePerGas.mul(gasLimit);
+
+    return {
+      id: `EstimatedTransactionFees:${d.id}`,
+      maxNetworkEthFee,
+      ...(await this.paymasters.estimateEthDiscount(account, maxNetworkEthFee, {
+        activation: new Decimal(d.maxPaymasterEthFees.activation),
+      })),
+    };
   }
 }

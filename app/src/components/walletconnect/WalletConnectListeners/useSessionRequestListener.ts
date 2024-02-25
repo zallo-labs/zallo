@@ -77,10 +77,10 @@ export const useSessionRequestListener = ({ proposals }: UseSessionRequestListen
         showInfo(`${dapp.name} has proposed a transaction`);
 
         const sub = proposals.subscribe((p) => {
-          if (p.id === proposal && p.__typename === 'TransactionProposal' && p.transaction?.hash) {
+          if (p.id === proposal && p.__typename === 'Transaction' && p.systx?.hash) {
             client.respondSessionRequest({
               topic,
-              response: asWalletConnectResult(id, p.transaction.hash),
+              response: asWalletConnectResult(id, p.systx.hash),
             });
             sub.unsubscribe();
           }
@@ -115,7 +115,7 @@ export const useSessionRequestListener = ({ proposals }: UseSessionRequestListen
           });
 
         const sub = proposals.subscribe((p) => {
-          if (p.id === proposal.id && p.__typename === 'MessageProposal' && p.signature) {
+          if (p.id === proposal.id && p.__typename === 'Message' && p.signature) {
             client.respondSessionRequest({
               topic,
               response: asWalletConnectResult(id, p.signature),

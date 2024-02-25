@@ -36,10 +36,10 @@ const Proposal = gql(/* GraphQL */ `
       id
       key
     }
-    ... on TransactionProposal {
+    ... on Transaction {
       updatable
     }
-    ... on MessageProposal {
+    ... on Message {
       updatable
     }
   }
@@ -87,7 +87,7 @@ export function useReject(params: UseRejectParams) {
     hapticFeedback('neutral');
     await rejectMutation({ proposal: p.id }, context);
 
-    const type = p.__typename === 'TransactionProposal' ? 'Transaction' : 'Message';
+    const type = p.__typename === 'Transaction' ? 'Transaction' : 'Message';
     ampli.rejection({ method, type });
   };
 

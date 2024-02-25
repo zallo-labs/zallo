@@ -28,7 +28,7 @@ export function estimateTransactionOperationsGas({
       network.estimateGas({
         type: 'eip712',
         account,
-        ...encodeOperations(account, tx.operations),
+        ...encodeOperations(tx.operations),
       }))(),
     (e) => e as EstimateGasErrorType,
   );

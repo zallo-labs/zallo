@@ -13,7 +13,7 @@ export function SignMessageSettings(_props: SignMessageSettingsProps) {
     <>
       <ListItem
         leading={GenericMessageIcon}
-        headline="Sign messages"
+        headline="Sign message"
         trailing={
           <Switch
             value={allowMessages}

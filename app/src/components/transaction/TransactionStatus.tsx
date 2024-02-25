@@ -5,20 +5,20 @@ import { View } from 'react-native';
 import { ActivityIndicator, Text } from 'react-native-paper';
 import { match } from 'ts-pattern';
 
-const TransactionProposal = gql(/* GraphQL */ `
-  fragment TransactionStatus_TransactionProposal on TransactionProposal {
+const Transaction = gql(/* GraphQL */ `
+  fragment TransactionStatus_Transaction on Transaction {
     id
     status
   }
 `);
 
 export interface TransactionStatusProps extends Omit<TextProps, 'children'> {
-  proposal: FragmentType<typeof TransactionProposal>;
+  proposal: FragmentType<typeof Transaction>;
 }
 
 export function TransactionStatus(props: TransactionStatusProps) {
   const { styles } = useStyles(stylesheet);
-  const p = useFragment(TransactionProposal, props.proposal);
+  const p = useFragment(Transaction, props.proposal);
 
   return (
     <View style={styles.container}>
@@ -26,6 +26,11 @@ export function TransactionStatus(props: TransactionStatusProps) {
         .with('Pending', () => (
           <Text {...props} style={[props.style, styles.pending]}>
             Pending approval
+          </Text>
+        ))
+        .with('Scheduled', () => (
+          <Text {...props} style={[props.style, styles.scheduled]}>
+            Scheduled
           </Text>
         ))
         .with('Executing', () => (
@@ -46,6 +51,11 @@ export function TransactionStatus(props: TransactionStatusProps) {
             Failed
           </Text>
         ))
+        .with('Cancelled', () => (
+          <Text {...props} style={[props.style, styles.cancelled]}>
+            Cancelled
+          </Text>
+        ))
         .exhaustive()}
     </View>
   );
@@ -60,6 +70,9 @@ const stylesheet = createStyles(({ colors }) => ({
   pending: {
     color: colors.primary,
   },
+  scheduled: {
+    color: colors.tertiary,
+  },
   executing: {
     color: colors.tertiary,
   },
@@ -68,5 +81,8 @@ const stylesheet = createStyles(({ colors }) => ({
   },
   failed: {
     color: colors.error,
+  },
+  cancelled: {
+    color: colors.warning,
   },
 }));

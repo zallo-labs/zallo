@@ -1,20 +1,29 @@
-import { Module, forwardRef } from '@nestjs/common';
-import { TransactionsWorker } from './transactions.worker';
-import { TransactionsQueue } from './transactions.queue';
-import { TransactionsService } from './transactions.service';
-import { TransactionsEvents } from './transactions.events';
+import { Module } from '@nestjs/common';
+import { ExpoModule } from '~/features/util/expo/expo.module';
 import { TransactionsResolver } from './transactions.resolver';
-import { PaymastersModule } from '../paymasters/paymasters.module';
-import { registerBullQueue } from '../util/bull/bull.util';
+import { TransactionsService } from './transactions.service';
 import { ProposalsModule } from '../proposals/proposals.module';
+import { PaymastersModule } from '~/features/paymasters/paymasters.module';
+import { PricesModule } from '~/features/prices/prices.module';
+import { SystemTxsModule } from '~/features/system-txs/system-txs.module';
+import { registerBullQueue, registerFlowsProducer } from '~/features/util/bull/bull.util';
+import { ExecutionsQueue, ExecutionsWorker } from '~/features/transactions/executions.worker';
+import { ReceiptsQueue } from '~/features/system-txs/receipts.queue';
+import { SimulationsQueue } from '~/features/simulations/simulations.worker';
+import { ActivationsModule } from '../activations/activations.module';
 
 @Module({
   imports: [
-    ...registerBullQueue(TransactionsQueue),
+    ...registerBullQueue(SimulationsQueue, ExecutionsQueue, ReceiptsQueue),
+    registerFlowsProducer(),
+    SystemTxsModule,
+    ExpoModule,
     ProposalsModule,
-    forwardRef(() => PaymastersModule),
+    PricesModule,
+    PaymastersModule,
+    ActivationsModule,
   ],
-  exports: [TransactionsService, TransactionsWorker],
-  providers: [TransactionsService, TransactionsResolver, TransactionsWorker, TransactionsEvents],
+  exports: [TransactionsService],
+  providers: [TransactionsResolver, TransactionsService, ExecutionsWorker],
 })
 export class TransactionsModule {}

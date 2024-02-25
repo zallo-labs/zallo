@@ -2,18 +2,15 @@ import { FragmentType, gql, useFragment } from '@api/generated';
 import { FiatValue } from '../FiatValue';
 import Decimal from 'decimal.js';
 
-const TransactionProposal = gql(/* GraphQL */ `
-  fragment ProposalValue_TransactionProposal on TransactionProposal {
+const Transaction = gql(/* GraphQL */ `
+  fragment ProposalValue_Transaction on Transaction {
     id
-    transaction {
+    result {
       id
-      receipt {
+      transfers {
         id
-        transferEvents {
-          id
-          value
-          isFeeTransfer
-        }
+        value
+        isFeeTransfer
       }
     }
     simulation {
@@ -28,16 +25,16 @@ const TransactionProposal = gql(/* GraphQL */ `
 `);
 
 export interface ProposalValueProps {
-  proposal: FragmentType<typeof TransactionProposal>;
+  proposal: FragmentType<typeof Transaction>;
   hideZero?: boolean;
 }
 
 export function ProposalValue(props: ProposalValueProps) {
-  const p = useFragment(TransactionProposal, props.proposal);
+  const p = useFragment(Transaction, props.proposal);
 
-  const transfers = [
-    ...(p.transaction?.receipt?.transferEvents ?? p.simulation?.transfers ?? []),
-  ].filter((t) => !t.isFeeTransfer);
+  const transfers = [...(p.result?.transfers ?? p.simulation?.transfers ?? [])].filter(
+    (t) => !t.isFeeTransfer,
+  );
 
   const value = Decimal.sum(0, ...transfers.map((t) => t.value ?? 0));
 
