@@ -6,7 +6,7 @@ export function GoogleAuthProvider({ children }: PropsWithChildren) {
   // Required by @react-native-google-signin/google-signin
   // @ts-expect-error google sdk is not typed
   const isInitialized = typeof window.__G_ID_CLIENT__ !== 'undefined';
-  if (!isInitialized) {
+  if (!isInitialized && 'google' in window) {
     window.google.accounts.id.initialize({
       client_id: CONFIG.googleOAuth.webClient,
       auto_select: false,
