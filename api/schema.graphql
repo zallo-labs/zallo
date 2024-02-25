@@ -708,7 +708,7 @@ type SystemTx implements Node {
   paymasterEthFees: PaymasterFees!
   proposal: Transaction!
   receipt: Result
-  submittedAt: DateTime!
+  timestamp: DateTime!
   usdPerFeeToken: Decimal!
 }
 

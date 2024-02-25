@@ -41,7 +41,7 @@ export class SystemTx extends Node {
   maxEthFees: Decimal;
 
   @Field(() => Date)
-  submittedAt: Date;
+  timestamp: Date;
 
   @Field(() => Result, { nullable: true })
   receipt?: Result | null;

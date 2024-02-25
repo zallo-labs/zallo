@@ -25,11 +25,9 @@ module default {
     simulation: Simulation { constraint exclusive; on target delete deferred restrict; }
     required submitted: bool { default := false; }
     multi link systxs := .<proposal[is SystemTx];
-    # link systx: SystemTx { constraint exclusive; }  # Latest .submittedAt systx
-    link systx := (select .systxs order by .submittedAt desc limit 1);
+    link systx: SystemTx { constraint exclusive; } # Latest .timestamp
     multi link results := .<transaction[is Result];
-    # link result: Result { constraint exclusive; } # Latest .timestamp result
-    link result := (select .results order by .timestamp desc limit 1);
+    link result: Result { constraint exclusive; } # Latest .timestamp
     required property status := (
       select assert_exists((
         TransactionStatus.Pending if (not .submitted) else
@@ -65,12 +63,16 @@ module default {
     required usdPerFeeToken: decimal { constraint min_value(0); }
     required property maxNetworkEthFee := .maxEthFeePerGas * .proposal.gasLimit;
     required property maxEthFees := .maxNetworkEthFee + .paymasterEthFees.total - .ethDiscount;
-    required submittedAt: datetime { default := datetime_of_statement(); }
+    required timestamp: datetime { default := datetime_of_statement(); }
     result := .<systx[is Result];
 
     access policy members_can_select_insert
       allow select, insert
       using (.proposal.account in global current_accounts);
+
+    trigger update_tx_systx after insert for each do (
+      update __new__.proposal set { systx := __new__ } 
+    );
   }
 
   abstract type Result {
@@ -80,6 +82,10 @@ module default {
     multi link events := .<result[is Event];
     multi link transfers := .<result[is Transfer];
     multi link transferApprovals := .<result[is TransferApproval];
+
+    trigger update_tx_result after insert for each do (
+      update __new__.transaction set { result := __new__ } 
+    );
   }
 
   abstract type ReceiptResult extending Result {

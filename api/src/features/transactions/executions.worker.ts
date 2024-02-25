@@ -2,7 +2,6 @@ import { Processor } from '@nestjs/bullmq';
 import { Injectable } from '@nestjs/common';
 import {
   Address,
-  Hex,
   Tx,
   UUID,
   asAddress,
@@ -69,6 +68,7 @@ export class ExecutionsWorker extends Worker<ExecutionsQueue> {
         },
         hash: true,
         ...proposalTxShape(p),
+        status: true,
         feeToken: { address: true },
         maxPaymasterEthFees: {
           total: true,
@@ -83,7 +83,6 @@ export class ExecutionsWorker extends Worker<ExecutionsQueue> {
           key: true,
           state: policyStateShape,
         },
-        transaction: true,
         simulation: {
           success: true,
           timestamp: true,
@@ -91,7 +90,8 @@ export class ExecutionsWorker extends Worker<ExecutionsQueue> {
       })),
     );
     if (!proposal) return 'proposal not found';
-    if (proposal.transaction) return 'already executed';
+    if (proposal.status !== 'Pending' && proposal.status !== 'Executing')
+      return `Can't execute transaction with status ${proposal.status}`;
 
     // Require simulation to have succeed, unless ignored
     if (!ignoreSimulation) {
@@ -139,7 +139,7 @@ export class ExecutionsWorker extends Worker<ExecutionsQueue> {
     );
     if (!policy) return 'no suitable policy';
 
-    return await this.db.transaction(async (db) => {
+    return await this.db.transaction(async () => {
       const { paymaster, paymasterInput, ...feeData } = await this.paymaster.usePaymaster({
         account,
         gasLimit: tx.gas!,
@@ -176,20 +176,22 @@ export class ExecutionsWorker extends Worker<ExecutionsQueue> {
 
       const hash = execution.value.transactionHash;
 
-      // Set executing policy if not already set
-      const selectedProposal = proposal.policy?.state
-        ? selectTransaction(id)
-        : e.update(e.Transaction, () => ({
+      // Set executing policy if not already set; the insert trigger breaks if this is done in the same query as the insert
+      if (!proposal.policy) {
+        await this.db.query(
+          e.update(e.Transaction, () => ({
             filter_single: { id: proposal.id },
             set: {
               policy: selectPolicy({ account, key: policy.key }),
             },
-          }));
+          })),
+        );
+      }
 
-      await e
-        .insert(e.SystemTx, {
+      await this.db.query(
+        e.insert(e.SystemTx, {
           hash,
-          proposal: selectedProposal,
+          proposal: selectTransaction(id),
           maxEthFeePerGas: feeData.maxEthFeePerGas.toString(),
           paymasterEthFees: e.insert(e.PaymasterFees, {
             activation: feeData.paymasterEthFees.activation.toString(),
@@ -197,8 +199,8 @@ export class ExecutionsWorker extends Worker<ExecutionsQueue> {
           ethCreditUsed: feeData.ethCreditUsed.toString(),
           ethPerFeeToken: feeData.tokenPrice.eth.toString(),
           usdPerFeeToken: feeData.tokenPrice.usd.toString(),
-        })
-        .run(db);
+        }),
+      );
 
       this.db.afterTransaction(() =>
         this.proposals.publishProposal({ id, account }, ProposalEvent.submitted),
