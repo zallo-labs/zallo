@@ -42,7 +42,6 @@ export class ProposalsService {
       e.select(e.Proposal, (p) => ({
         filter_single: { id },
         ...shape?.(p),
-        __type__: { name: true },
       })),
     );
   }
@@ -68,7 +67,6 @@ export class ProposalsService {
 
         return {
           ...shape?.(p),
-          __type__: { name: true },
           ...(pendingFilter ? { pendingFilter } : {}), // Must be included in the select (not just the filter) to avoid bug
           filter: and(
             accounts && e.op(p.account, 'in', e.set(...accounts.map((a) => selectAccount(a)))),

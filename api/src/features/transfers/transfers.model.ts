@@ -42,11 +42,11 @@ export class TransferDetails extends Node {
 export class Transferlike extends IntersectionType(Event, TransferDetails) {}
 
 @NodeType({ implements: Transferlike })
-@Extensions({ eqlType: e.Transfer, select: { __type__: { id: true, name: true } } })
+@Extensions({ eqlType: e.Transfer })
 export class Transfer extends Transferlike {}
 
 @NodeType({ implements: Transferlike })
-@Extensions({ eqlType: e.TransferApproval, select: { __type__: { id: true, name: true } } })
+@Extensions({ eqlType: e.TransferApproval })
 export class TransferApproval extends Transferlike {
   @DecimalField()
   delta: Decimal;

@@ -8,6 +8,7 @@ import {
 } from '@nestjs/graphql';
 import { UUID } from 'lib';
 import { UUIDField } from '~/apollo/scalars/Uuid.scalar';
+import { makeUnionTypeResolver } from '~/features/database/database.util';
 
 const createObjectWithInterfaceDecorator =
   (iface: Function | (() => Function)) =>
@@ -30,6 +31,7 @@ const createInterfaceWithInterfaceDecorator =
   (options?: InterfaceTypeOptions): ClassDecorator =>
   (target) =>
     InterfaceType({
+      resolveType: makeUnionTypeResolver(),
       ...options,
       implements: [
         iface,
