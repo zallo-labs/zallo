@@ -58,8 +58,7 @@ export type scalarAssignableBy<T extends $.ScalarType> =
   T extends _default.$Url ? _default.$Url : 
   T extends _default.$UAddress ? _default.$UAddress : 
   T extends _default.$TransferDirection ? _default.$TransferDirection : 
-  T extends _default.$TransactionProposalStatus ? _default.$TransactionProposalStatus : 
-  T extends _default.$ProposalRisk ? _default.$ProposalRisk : 
+  T extends _default.$TransactionStatus ? _default.$TransactionStatus : 
   T extends _default.$MAC ? _default.$MAC : 
   T extends _default.$Label ? _default.$Label : 
   T extends _default.$CloudProvider ? _default.$CloudProvider : 
@@ -129,8 +128,7 @@ export type scalarCastableFrom<T extends $.ScalarType> =
   T extends _default.$Url ? _default.$Url : 
   T extends _default.$UAddress ? _default.$UAddress : 
   T extends _default.$TransferDirection ? _default.$TransferDirection : 
-  T extends _default.$TransactionProposalStatus ? _default.$TransactionProposalStatus : 
-  T extends _default.$ProposalRisk ? _default.$ProposalRisk : 
+  T extends _default.$TransactionStatus ? _default.$TransactionStatus : 
   T extends _default.$MAC ? _default.$MAC : 
   T extends _default.$Label ? _default.$Label : 
   T extends _default.$CloudProvider ? _default.$CloudProvider : 
@@ -433,14 +431,8 @@ type getSharedParentScalar<A, B> =
     :
     never
   :
-  A extends _default.$TransactionProposalStatus ?
-    B extends _default.$TransactionProposalStatus ?
-    B
-    :
-    never
-  :
-  A extends _default.$ProposalRisk ?
-    B extends _default.$ProposalRisk ?
+  A extends _default.$TransactionStatus ?
+    B extends _default.$TransactionStatus ?
     B
     :
     never
@@ -864,14 +856,8 @@ function getSharedParentScalar<A extends $.ScalarType, B extends $.ScalarType>(a
     }
     throw new Error(`Types are not castable: ${a.__name__}, ${b.__name__}`);
     }
-  if (a.__name__ === "default::TransactionProposalStatus") {
-    if(b.__name__ === "default::TransactionProposalStatus") {
-      return b;
-    }
-    throw new Error(`Types are not castable: ${a.__name__}, ${b.__name__}`);
-    }
-  if (a.__name__ === "default::ProposalRisk") {
-    if(b.__name__ === "default::ProposalRisk") {
+  if (a.__name__ === "default::TransactionStatus") {
+    if(b.__name__ === "default::TransactionStatus") {
       return b;
     }
     throw new Error(`Types are not castable: ${a.__name__}, ${b.__name__}`);
