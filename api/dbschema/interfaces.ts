@@ -107,7 +107,6 @@ export interface Approval extends ProposalResponse {
 export type ApprovalIssue = "HashMismatch" | "Expired";
 export interface Approver extends std.$Object {
   "bluetoothDevices"?: string[] | null;
-  "cloud"?: CloudShare | null;
   "address": string;
   "name"?: string | null;
   "pushToken"?: string | null;
@@ -115,13 +114,9 @@ export interface Approver extends std.$Object {
   "accounts": Account[];
   "contact"?: Contact | null;
   "label"?: string | null;
+  "cloud"?: {provider: CloudProvider, subject: string} | null;
 }
 export type CloudProvider = "Apple" | "Google";
-export interface CloudShare extends std.$Object {
-  "provider": CloudProvider;
-  "subject": string;
-  "share": string;
-}
 export interface Contact extends std.$Object {
   "user": User;
   "address": string;
@@ -133,19 +128,19 @@ export interface Contract extends std.$Object {
 }
 export interface Event extends std.$Object {
   "account": Account;
-  "result"?: Result | null;
   "block": bigint;
   "logIndex": number;
   "systxHash": string;
   "timestamp": Date;
   "systx"?: SystemTx | null;
   "internal": boolean;
+  "result"?: Result | null;
 }
 export interface Result extends std.$Object {
   "timestamp": Date;
-  "events": Event[];
   "systx"?: SystemTx | null;
   "transaction": Transaction;
+  "events": Event[];
   "transferApprovals": TransferApproval[];
   "transfers": Transfer[];
 }
@@ -243,6 +238,7 @@ export interface SystemTx extends std.$Object {
   "maxEthFeePerGas": string;
   "ethPerFeeToken": string;
   "hash": string;
+  "timestamp": Date;
   "usdPerFeeToken": string;
   "proposal": Transaction;
   "paymasterEthFees": PaymasterFees;
@@ -250,7 +246,6 @@ export interface SystemTx extends std.$Object {
   "maxNetworkEthFee": string;
   "maxEthFees": string;
   "result"?: Result | null;
-  "timestamp": Date;
 }
 export interface Token extends std.$Object {
   "units"?: {symbol: string, decimals: number}[] | null;
@@ -267,6 +262,8 @@ export interface Token extends std.$Object {
 }
 export interface Transaction extends Proposal {
   "gasLimit": bigint;
+  "result"?: Result | null;
+  "systx"?: SystemTx | null;
   "submitted": boolean;
   "operations": Operation[];
   "simulation"?: Simulation | null;
@@ -274,11 +271,9 @@ export interface Transaction extends Proposal {
   "nonce": bigint;
   "paymaster": string;
   "maxPaymasterEthFees": PaymasterFees;
+  "status": TransactionStatus;
   "results": Result[];
   "systxs": SystemTx[];
-  "result"?: Result | null;
-  "status": TransactionStatus;
-  "systx"?: SystemTx | null;
 }
 export type TransactionStatus = "Pending" | "Scheduled" | "Executing" | "Successful" | "Failed" | "Cancelled";
 export interface TransferDetails extends std.$Object {
@@ -582,7 +577,6 @@ export interface types {
     "ApprovalIssue": ApprovalIssue;
     "Approver": Approver;
     "CloudProvider": CloudProvider;
-    "CloudShare": CloudShare;
     "Contact": Contact;
     "Contract": Contract;
     "Event": Event;

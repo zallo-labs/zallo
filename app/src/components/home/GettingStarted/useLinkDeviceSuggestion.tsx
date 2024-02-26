@@ -13,7 +13,6 @@ const User = gql(/* GraphQL */ `
       address
       bluetoothDevices
       cloud {
-        id
         provider
       }
     }

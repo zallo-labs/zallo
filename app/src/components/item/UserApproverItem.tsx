@@ -10,7 +10,6 @@ const UserApprover = gql(/* GraphQL */ `
     address
     name
     cloud {
-      id
       provider
       subject
     }

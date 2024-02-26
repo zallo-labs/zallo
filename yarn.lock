@@ -8312,17 +8312,18 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@react-native-google-signin/google-signin@npm:^13.0.3":
-  version: 13.0.3
-  resolution: "@react-native-google-signin/google-signin@npm:13.0.3::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40react-native-google-signin%2Fgoogle-signin%2F13.0.3%2F0d2e86ea77cc4a22c864f039e54cb6684e5e2ca9"
+"@react-native-google-signin/google-signin@npm:^14.0.0":
+  version: 14.0.0
+  resolution: "@react-native-google-signin/google-signin@npm:14.0.0::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40react-native-google-signin%2Fgoogle-signin%2F14.0.0%2F38391b742bb4cd03ec7fd7c8315111f04d548641"
   dependencies:
     jwt-decode: "npm:^4.0.0"
+    nanoevents: "npm:^9.0.0"
   peerDependencies:
     expo: ">=47.0.0"
     react: "*"
     react-dom: "*"
     react-native: "*"
-  checksum: 10/b0f28a7c289870946c7cf3eb59bd6aa93a9bfaf880046b1940e000fd73a4c9e9055a3e3df4332980f949dd5a8576f7f6a153d60e5b37d0932c7f840aa1255a00
+  checksum: 10/a5bae13087454d4086f3db6d4215a4427490388dcadcc524cbc72f2ca68b4785152410ca68616d0fc5b5d026dccede40e7318fcc1507c4c69ffb71a083ca8ace
   languageName: node
   linkType: hard
 
@@ -12079,7 +12080,7 @@ __metadata:
     "@react-native-clipboard/clipboard": "npm:^1.13.2"
     "@react-native-community/blur": "npm:^4.4.0"
     "@react-native-community/netinfo": "npm:11.1.0"
-    "@react-native-google-signin/google-signin": "npm:^13.0.3"
+    "@react-native-google-signin/google-signin": "npm:^14.0.0"
     "@react-navigation/drawer": "npm:^6.6.4"
     "@react-navigation/material-top-tabs": "npm:^6.6.4"
     "@react-navigation/native": "npm:^6.1.8"
@@ -23956,6 +23957,13 @@ __metadata:
   dependencies:
     node-gyp: "npm:latest"
   checksum: 10/5520e22c64e2b5b495b1d765d6334c989b848bbe1502fec89c5857cabcc7f9f0474563377259e7574bff1c8a041d3b90e9ffa1f5e15502ffddee7b2550cc26a0
+  languageName: node
+  linkType: hard
+
+"nanoevents@npm:^9.0.0":
+  version: 9.0.0
+  resolution: "nanoevents@npm:9.0.0"
+  checksum: 10/d5e062bc67eac903991973ca923a0c9c6a3aa224583647540a0fdbe99d569f3c51f8fc6f281851e1721b24b3d0b8ea47c12215a50a0e1a3d0df1e64a41406974
   languageName: node
   linkType: hard
 

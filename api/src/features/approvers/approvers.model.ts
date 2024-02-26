@@ -1,4 +1,4 @@
-import { Field, registerEnumType } from '@nestjs/graphql';
+import { Field, ObjectType, registerEnumType } from '@nestjs/graphql';
 import { GraphQLMAC } from 'graphql-scalars';
 import { Address } from 'lib';
 import { AddressField } from '~/apollo/scalars/Address.scalar';
@@ -20,15 +20,13 @@ export enum CloudProvider {
 }
 registerEnumType(CloudProvider, { name: 'CloudProvider' });
 
-@NodeType()
-export class CloudShare extends Node {
+@ObjectType()
+export class Cloud {
   @Field(() => CloudProvider)
   provider: CloudProvider;
 
   @Field(() => String)
   subject: string;
-
-  // share is hidden
 }
 
 @NodeType()
@@ -42,6 +40,6 @@ export class UserApprover extends Approver {
   @Field(() => [GraphQLMAC], { nullable: true })
   bluetoothDevices?: string[];
 
-  @Field(() => CloudShare, { nullable: true })
-  cloud?: CloudShare;
+  @Field(() => Cloud, { nullable: true })
+  cloud?: Cloud;
 }

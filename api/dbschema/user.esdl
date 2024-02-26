@@ -7,6 +7,7 @@ module default {
   }
 
   scalar type MAC extending str { constraint regexp(r'^([0-9A-F]{2}[:-]){5}([0-9A-F]{2})$'); }
+  scalar type CloudProvider extending enum<'Apple', 'Google'>;
 
   type Approver {
     required address: Address {
@@ -21,7 +22,7 @@ module default {
     property label := .contact.label ?? .name;
     pushToken: str;
     bluetoothDevices: array<MAC>;
-    cloud: CloudShare { constraint exclusive; };
+    cloud: tuple<provider: CloudProvider, subject: str>;
     link contact := (
       assert_single((
         with address := .address
@@ -39,18 +40,6 @@ module default {
     access policy user_select_update
       allow select, update
       using (.user ?= global current_user);
-  }
-
-  scalar type CloudProvider extending enum<'Apple', 'Google'>;
-
-  type CloudShare {
-    required provider: CloudProvider;
-    required subject: str;
-    required share: str;
-
-    constraint exclusive on ((.provider, .subject));
-    
-    # Needs to be accessable to anyone that can provide a valid JWT
   }
 
   type Contact {

@@ -54,23 +54,6 @@ export class ApproversService {
     bluetoothDevices,
     cloud,
   }: UpdateApproverInput) {
-    const upsertCloud =
-      cloud &&
-      (await (async () => {
-        const { provider, subject } = await this.validateJwt(cloud.idToken);
-
-        return e
-          .insert(e.CloudShare, {
-            provider,
-            subject,
-            share: cloud.share,
-          })
-          .unlessConflict((s) => ({
-            on: e.tuple([s.provider, s.subject]),
-            else: e.update(s, () => ({ set: { share: cloud.share } })),
-          }));
-      })());
-
     return this.db.query(
       e.update(e.Approver, () => ({
         filter_single: { address },
@@ -78,46 +61,9 @@ export class ApproversService {
           name,
           pushToken,
           bluetoothDevices: bluetoothDevices && [...new Set(bluetoothDevices)],
-          cloud: upsertCloud,
+          ...(cloud !== undefined && { cloud }),
         },
       })),
     );
-  }
-
-  async selectUniqueShare({ idToken }: UniqueCloudShareInput) {
-    const { provider, subject } = await this.validateJwt(idToken);
-
-    return this.db.query(
-      e.select(e.CloudShare, () => ({
-        filter_single: { provider, subject },
-        share: true,
-      })).share,
-    );
-  }
-
-  private APPLE_JWKS = createRemoteJWKSet(new URL('https://appleid.apple.com/auth/keys'));
-  private GOOGLE_JWKS = createRemoteJWKSet(new URL('https://www.googleapis.com/oauth2/v3/certs'));
-
-  private async validateJwt(jwt: string) {
-    const appleResult = tryOrIgnoreAsync(async () => ({
-      ...(await jwtVerify(jwt, this.APPLE_JWKS)),
-      provider: CloudProvider.Apple,
-    }));
-    const googleResult = tryOrIgnoreAsync(async () => ({
-      ...(await jwtVerify(jwt, this.GOOGLE_JWKS)),
-      provider: CloudProvider.Google,
-    }));
-
-    const r = (await appleResult) ?? (await googleResult);
-    if (!r) throw new UserInputError('Invalid JWT: must be from Apple or Google and not expired');
-
-    // Verify JWT is for an acceptable oauth client
-    if (!toArray(r.payload.aud ?? []).find((aud) => CONFIG.oauthClients.has(aud)))
-      throw new UserInputError('Invalid JWT: must be for Zallo');
-
-    const subject = r.payload.sub;
-    if (!subject) throw new UserInputError('Invalid JWT: must include subject');
-
-    return { provider: r.provider, subject };
   }
 }
