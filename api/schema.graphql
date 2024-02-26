@@ -700,7 +700,7 @@ type SystemTx implements Node {
   maxNetworkEthFee: Decimal!
   paymasterEthFees: PaymasterFees!
   proposal: Transaction!
-  receipt: Result
+  result: Result
   timestamp: DateTime!
   usdPerFeeToken: Decimal!
 }

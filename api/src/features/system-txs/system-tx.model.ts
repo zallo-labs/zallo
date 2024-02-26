@@ -44,5 +44,5 @@ export class SystemTx extends Node {
   timestamp: Date;
 
   @Field(() => Result, { nullable: true })
-  receipt?: Result | null;
+  result?: Result | null;
 }

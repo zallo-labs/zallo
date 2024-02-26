@@ -3,7 +3,6 @@ module default {
     required account: Account;
     required systxHash: Bytes32;
     systx: SystemTx;
-    result: Result;
     required block: bigint { constraint min_value(0); }
     required logIndex: uint32;
     required timestamp: datetime { default := datetime_of_statement(); }

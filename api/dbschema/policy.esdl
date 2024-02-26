@@ -9,6 +9,7 @@ module default {
       on source delete delete target;
       on target delete allow;
     }
+    # TODO: use cached links (updated by triggers) to avoid the need for this link, once issue is resolved - https://github.com/edgedb/edgedb/issues/6925
     link state := (
       select (
         select .stateHistory

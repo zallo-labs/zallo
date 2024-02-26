@@ -134,15 +134,14 @@ export interface Event extends std.$Object {
   "timestamp": Date;
   "systx"?: SystemTx | null;
   "internal": boolean;
-  "result"?: Result | null;
 }
 export interface Result extends std.$Object {
   "timestamp": Date;
   "systx"?: SystemTx | null;
   "transaction": Transaction;
   "events": Event[];
-  "transferApprovals": TransferApproval[];
   "transfers": Transfer[];
+  "transferApprovals": TransferApproval[];
 }
 export interface ReceiptResult extends Result {
   "block": bigint;
@@ -246,6 +245,7 @@ export interface SystemTx extends std.$Object {
   "maxNetworkEthFee": string;
   "maxEthFees": string;
   "result"?: Result | null;
+  "events": Event[];
 }
 export interface Token extends std.$Object {
   "units"?: {symbol: string, decimals: number}[] | null;

@@ -65,6 +65,7 @@ module default {
     required property maxEthFees := .maxNetworkEthFee + .paymasterEthFees.total - .ethDiscount;
     required timestamp: datetime { default := datetime_of_statement(); }
     result := .<systx[is Result];
+    events := .<systx[is Event];
 
     access policy members_can_select_insert
       allow select, insert
@@ -79,9 +80,9 @@ module default {
     required transaction: Transaction;
     systx: SystemTx { constraint exclusive; };
     required timestamp: datetime { default := datetime_of_statement(); }
-    multi link events := .<result[is Event];
-    multi link transfers := .<result[is Transfer];
-    multi link transferApprovals := .<result[is TransferApproval];
+    multi link events := .systx.events;
+    multi link transfers := .events[is Transfer];
+    multi link transferApprovals := .events[is TransferApproval];
 
     trigger update_tx_result after insert for each do (
       update __new__.transaction set { result := __new__ } 
