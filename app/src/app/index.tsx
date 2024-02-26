@@ -14,9 +14,10 @@ const Query = gql(/* GraphQL */ `
 
 export default function RootScreen() {
   const selectedAccount = useSelectedAccount();
-  const accounts = useQuery(Query).data?.accounts ?? [];
+  const query = useQuery(Query);
+  const accounts = query.data?.accounts;
 
-  return accounts.length ? (
+  return accounts?.length && !query.fetching ? (
     <Redirect
       href={{
         pathname: `/(drawer)/[account]/(home)/`,
