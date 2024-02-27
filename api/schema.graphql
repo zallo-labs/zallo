@@ -51,6 +51,10 @@ input AccountSubscriptionInput {
   events: AccountEvent
 }
 
+input AccountsInput {
+  chain: Chain
+}
+
 type Action implements Node {
   allow: Boolean!
   description: String
@@ -166,6 +170,7 @@ input ContactInput {
 }
 
 input ContactsInput {
+  chain: Chain
   query: String
 }
 
@@ -546,7 +551,7 @@ input ProposeTransactionInput {
 
 type Query {
   account(input: AccountInput! = {}): Account
-  accounts: [Account!]!
+  accounts(input: AccountsInput! = {}): [Account!]!
   approver(input: ApproverInput! = {}): UserApprover
   contact(input: ContactInput!): Contact
   contacts(input: ContactsInput! = {}): [Contact!]!
