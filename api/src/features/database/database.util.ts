@@ -4,7 +4,6 @@ import e from '~/edgeql-js';
 import { isTruthy } from 'lib';
 import { orScalarLiteral } from '~/edgeql-js/castMaps';
 import { $bool } from '~/edgeql-js/modules/std';
-import { spec } from '~/edgeql-js/__spec__';
 
 export const and = (<Op extends orScalarLiteral<TypeSet<$bool>>>() => {
   const chain = (ops: Op[]) => {
@@ -37,8 +36,7 @@ export const makeUnionTypeResolver = (mappings: [ObjectTypeSet, unknown][] = [])
     if (typeof value !== 'object' || !value) return undefined;
 
     // EdgeDB module name, e.g. default::Proposal
-    const typeId = (value as any).__type__?.id as string | undefined;
-    const typename = typeId && spec.get(typeId).name;
+    const typename = (value as any).__type__?.name as string | undefined;
     if (typeof typename === 'string') return typenameMappings[typename] || typename.split('::')[1];
 
     // // GraphQL returned type
