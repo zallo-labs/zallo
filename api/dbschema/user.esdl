@@ -48,6 +48,7 @@ module default {
       on target delete delete source;
     }
     required address: UAddress;
+    required property chain := as_chain(.address);
     required label: Label;
 
     constraint exclusive on ((.user, .address));

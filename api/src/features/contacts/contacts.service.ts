@@ -5,7 +5,7 @@ import { DatabaseService } from '../database/database.service';
 import e from '~/edgeql-js';
 import { ContactsInput, UpsertContactInput } from './contacts.input';
 import { uuid } from 'edgedb/dist/codecs/ifaces';
-import { or } from '../database/database.util';
+import { and, or } from '../database/database.util';
 import { CONFIG } from '~/config';
 
 type UniqueContact = uuid | UAddress;
@@ -37,13 +37,14 @@ export class ContactsService {
       .run(this.db.client);
   }
 
-  async select({ query }: ContactsInput, shape?: ShapeFunc<typeof e.Contact>) {
+  async select({ query, chain }: ContactsInput, shape?: ShapeFunc<typeof e.Contact>) {
     return e
       .select(e.Contact, (c) => ({
         ...shape?.(c),
-        filter: query
-          ? or(e.op(c.address, 'ilike', query), e.op(c.label, 'ilike', query))
-          : undefined,
+        filter: and(
+          query && or(e.op(c.address, 'ilike', query), e.op(c.label, 'ilike', query)),
+          chain && e.op(c.chain, '=', chain),
+        ),
       }))
       .run(this.db.client);
   }
