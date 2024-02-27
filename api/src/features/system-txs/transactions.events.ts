@@ -104,14 +104,14 @@ export class TransactionsEvents implements OnModuleInit {
     const callResponse = await network.call(tx);
 
     const systx = selectSysTx(receipt.transactionHash);
-    const insertResult = e.insert(e.Successful, {
+    const insertResult = e.insert(e.Failed, {
       transaction: systx.proposal,
       systx,
       timestamp: new Date(Number(block.timestamp) * 1000), // block.timestamp is in seconds
       block: BigInt(receipt.blockNumber),
       gasUsed: receipt.gasUsed,
       ethFeePerGas: asDecimal(receipt.effectiveGasPrice, ETH).toString(),
-      responses: [callResponse.data].filter(isTruthy),
+      reason: callResponse.data,
     });
 
     const proposal = await this.db.query(
