@@ -1,25 +1,38 @@
 import { ok, safeTry } from 'neverthrow';
-import { useGetGoogleAccessToken } from './useGetGoogleAccessToken';
 import { useGetCloudApprover } from '~/hooks/cloud/useGetCloudApprover';
-import { signInWithGoogle } from './useSignInWithGoogle';
+import { useSignInWithGoogle } from './useSignInWithGoogle';
 
 export function useGetGoogleApprover() {
+  const signIn = useSignInWithGoogle();
   const getCloudApprover = useGetCloudApprover();
-  const getAccessToken = useGetGoogleAccessToken();
 
   return (subject?: string) =>
     safeTry(async function* () {
-      const user = yield* (await signInWithGoogle(subject)).safeUnwrap();
-      const accessToken = yield* (await getAccessToken(user.id)).safeUnwrap();
+      const { accessToken } = yield* (await signIn(subject)).safeUnwrap();
 
       const approver = yield* (
         await getCloudApprover({
-          idToken: user.idToken,
           accessToken,
-          create: { name: user.email ? `${user.email} (Google)` : 'Google account' },
+          details: !subject
+            ? await (async () => {
+                const u = (await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+                  headers: { Authorization: `Bearer ${accessToken}` },
+                }).then((res) => res.json())) as {
+                  sub: string;
+                  email: string;
+                  name: string;
+                  picture?: string;
+                };
+
+                return {
+                  name: `${u.email} (Google)`,
+                  cloud: { provider: 'Google', subject: u.sub },
+                };
+              })()
+            : undefined,
         })
       ).safeUnwrap();
 
-      return ok({ ...user, approver });
+      return ok(approver);
     });
 }

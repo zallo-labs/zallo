@@ -97,7 +97,7 @@ export class UsersService {
     });
 
     // Remove approver -> user cache
-    await this.accountsCache.removeApproverUserCache(...(approvers as Address[]));
+    await this.accountsCache.invalidateApproverUserAccountsCache(...(approvers as Address[]));
     await Promise.all([
       this.pubsub.publish<UserSubscriptionPayload>(getUserTrigger(newId), {}),
       ...approvers.map((approver) =>

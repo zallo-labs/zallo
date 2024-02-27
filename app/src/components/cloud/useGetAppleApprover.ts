@@ -1,9 +1,8 @@
 import { useGetCloudApprover } from '../../hooks/cloud/useGetCloudApprover';
 import * as Auth from 'expo-apple-authentication';
 import { atom, useAtomValue } from 'jotai';
-import { Result, ResultAsync, err, ok, okAsync, safeTry } from 'neverthrow';
+import { ResultAsync, err, ok, okAsync, safeTry } from 'neverthrow';
 import { CodedError } from 'expo-modules-core';
-import { showError } from '#/provider/SnackbarProvider';
 
 // https://docs.expo.dev/versions/latest/sdk/apple-authentication/#error-codes
 type SignInError =
@@ -43,12 +42,14 @@ export function useGetAppleApprover() {
 
       const approver = yield* (
         await getCloudApprover({
-          idToken: credentials.identityToken!,
           accessToken: null,
-          create: { name: credentials.email ? `${credentials.email} (Apple)` : 'Apple account' },
+          details: {
+            name: credentials.email ? `${credentials.email} (Apple)` : 'Apple account',
+            cloud: { provider: 'Apple', subject: credentials.user },
+          },
         })
       ).safeUnwrap();
 
-      return ok({ credentials, approver });
+      return ok(approver);
     });
 }

@@ -708,7 +708,6 @@ export type $ObjectTypeλShape = $.typeutil.flatten<$SourceλShape & Omit<$Consi
   "<__type__[is Result]": $.LinkDesc<_default.$Result, $.Cardinality.Many, {}, false, false,  false, false>;
   "<__type__[is ReceiptResult]": $.LinkDesc<_default.$ReceiptResult, $.Cardinality.Many, {}, false, false,  false, false>;
   "<__type__[is Successful]": $.LinkDesc<_default.$Successful, $.Cardinality.Many, {}, false, false,  false, false>;
-  "<__type__[is CloudShare]": $.LinkDesc<_default.$CloudShare, $.Cardinality.Many, {}, false, false,  false, false>;
   "<__type__[is Approver]": $.LinkDesc<_default.$Approver, $.Cardinality.Many, {}, false, false,  false, false>;
   "<__type__[is current_approver]": $.LinkDesc<_default.$current_approver, $.Cardinality.Many, {}, false, false,  false, false>;
   "<__type__[is Token]": $.LinkDesc<_default.$Token, $.Cardinality.Many, {}, false, false,  false, false>;

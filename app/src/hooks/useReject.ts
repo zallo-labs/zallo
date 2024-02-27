@@ -18,7 +18,6 @@ const User = gql(/* GraphQL */ `
       address
       bluetoothDevices
       cloud {
-        id
         provider
         subject
       }
@@ -107,7 +106,7 @@ export function useReject(params: UseRejectParams) {
               event: { error: r.error, subject },
             });
 
-          await reject('Apple', await authContext(r.value.approver));
+          await reject('Apple', await authContext(r.value));
         };
       })
       .with({ provider: 'Google' }, ({ subject }) => {
@@ -120,7 +119,7 @@ export function useReject(params: UseRejectParams) {
               event: { error: r.error, subject },
             });
 
-          await reject('Google', await authContext(r.value.approver));
+          await reject('Google', await authContext(r.value));
         };
       })
       .exhaustive();

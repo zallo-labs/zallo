@@ -37,7 +37,7 @@
     "@react-native-clipboard/clipboard": "^1.13.2",
     "@react-native-community/blur": "^4.4.0",
     "@react-native-community/netinfo": "11.1.0",
-    "@react-native-google-signin/google-signin": "^13.0.3",
+    "@react-native-google-signin/google-signin": "^14.0.0",
     "@react-navigation/drawer": "^6.6.4",
     "@react-navigation/material-top-tabs": "^6.6.4",
     "@react-navigation/native": "^6.1.8",

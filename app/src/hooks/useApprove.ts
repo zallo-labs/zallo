@@ -23,7 +23,6 @@ const User = gql(/* GraphQL */ `
       address
       bluetoothDevices
       cloud {
-        id
         provider
         subject
       }
@@ -161,7 +160,7 @@ export function useApprove(params: UseApproveParams) {
               event: { error: r.error, subject },
             });
 
-          const { approver } = r.value;
+          const approver = r.value;
           const signature = await approver.signTypedData(proposalData);
 
           return approve('Apple', { approver: approver.address, signature });
@@ -177,7 +176,7 @@ export function useApprove(params: UseApproveParams) {
               event: { error: r.error, subject },
             });
 
-          const { approver } = r.value;
+          const approver = r.value;
           const signature = await approver.signTypedData(proposalData);
 
           return approve('Google', { approver: approver.address, signature });

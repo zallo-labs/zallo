@@ -41,13 +41,13 @@ export function useLinkApple(params: useLinkAppleParams) {
         showError('Something went wrong, failed to sign in with Apple', {
           event: { error: r.error },
         });
-      return;
+      return false;
     }
 
-    const { approver } = r.value;
+    const approver = r.value;
     await link({ token: user.linkingToken }, await authContext(approver));
     ampli.socialLinked({ cloud: 'Apple' });
 
-    return r.value;
+    return true;
   };
 }
