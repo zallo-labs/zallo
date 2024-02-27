@@ -94,7 +94,7 @@ function SpendingSettings_(props: SpendingSettingsProps) {
           leading={AddIcon}
           headline="Add token"
           onPress={async () => {
-            const token = asUAddress(await selectAddress({ include: ['tokens'] }), chain);
+            const token = asUAddress(await selectAddress({ chain, include: ['tokens'] }), chain);
             if (token)
               router.push({
                 pathname: `/(drawer)/[account]/policies/[key]/spending/[token]`,

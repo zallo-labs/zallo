@@ -16,7 +16,7 @@ import { StyleSheet } from 'react-native';
 import { ADDRESS_SELECTED } from '~/hooks/useSelectAddress';
 import { TokenItem } from '#/token/TokenItem';
 import { z } from 'zod';
-import { zAddress, zArray, zUAddress } from '~/lib/zod';
+import { zAddress, zArray, zChain, zUAddress } from '~/lib/zod';
 import { useLocalParams } from '~/hooks/useLocalParams';
 import { withSuspense } from '#/skeleton/withSuspense';
 import { ScreenSkeleton } from '#/skeleton/ScreenSkeleton';
@@ -27,12 +27,13 @@ import { SearchbarOptions } from '#/Appbar/SearchbarOptions';
 const Query = gql(/* GraphQL */ `
   query AddressesScreen(
     $query: String
+    $chain: Chain
     $includeAccounts: Boolean!
     $includeApprovers: Boolean!
     $includeContacts: Boolean!
     $includeTokens: Boolean!
   ) {
-    accounts @include(if: $includeAccounts) {
+    accounts(input: { chain: $chain }) @include(if: $includeAccounts) {
       __typename
       id
       address
@@ -49,14 +50,14 @@ const Query = gql(/* GraphQL */ `
       }
     }
 
-    contacts(input: { query: $query }) @include(if: $includeContacts) {
+    contacts(input: { query: $query, chain: $chain }) @include(if: $includeContacts) {
       __typename
       id
       address
       ...ContactItem_Contact
     }
 
-    tokens @include(if: $includeTokens) {
+    tokens(input: { query: $query, chain: $chain }) @include(if: $includeTokens) {
       __typename
       id
       address
@@ -66,13 +67,14 @@ const Query = gql(/* GraphQL */ `
 `);
 
 const AddressesScreenParams = z.object({
+  chain: zChain().optional(),
   include: zArray(z.enum(['accounts', 'approvers', 'contacts', 'tokens'])).optional(),
   disabled: zArray(z.union([zUAddress(), zAddress({ strict: true })])).optional(),
 });
 export type AddressesModalParams = z.infer<typeof AddressesScreenParams>;
 
 function AddressesScreen() {
-  const params = useLocalParams(AddressesScreenParams);
+  const { chain, include, ...params } = useLocalParams(AddressesScreenParams);
   const disabled = params.disabled && new Set(params.disabled.flatMap((a) => [a, asAddress(a)]));
   const scanAddress = useScanAddress();
 
@@ -80,10 +82,11 @@ function AddressesScreen() {
 
   const { accounts, user, contacts, tokens } = useQuery(Query, {
     query,
-    includeAccounts: !params.include || params.include.includes('accounts'),
-    includeApprovers: !params.include || params.include.includes('approvers'),
-    includeContacts: !params.include || params.include.includes('contacts'),
-    includeTokens: !params.include || params.include.includes('tokens'),
+    chain,
+    includeAccounts: !include || include.includes('accounts'),
+    includeApprovers: !include || include.includes('approvers'),
+    includeContacts: !include || include.includes('contacts'),
+    includeTokens: !include || include.includes('tokens'),
   }).data;
 
   return (
