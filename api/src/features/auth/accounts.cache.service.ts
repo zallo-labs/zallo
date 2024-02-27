@@ -1,5 +1,5 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
-import { Address, UAddress, asUAddress, isPresent } from 'lib';
+import { Address, UAddress, asAddress, asUAddress, isPresent } from 'lib';
 import { InjectRedis } from '@songkeys/nestjs-redis';
 import Redis from 'ioredis';
 import { UserAccountContext, getUserCtx } from '~/request/ctx';
@@ -14,8 +14,9 @@ interface AdApproverToAccountParams {
 }
 
 const ACCOUNTS_ADDRESS_SET = 'accounts';
-const approverUserKey = (approver: Address) => `approver:${approver}:user`;
-const userAccountsKey = (user: uuid) => `user:${user}:accounts`;
+const userApproversKey = (user: uuid) => `user:${user}:approvers`; // user -> approver[]
+const approverAccountsKey = (approver: Address) => `approver:${approver}:accounts`; // approver -> account[]
+const approverUserKey = (approver: Address) => `approver:${approver}:user`; // approver -> user
 
 @Injectable()
 export class AccountsCacheService implements OnModuleInit {
@@ -43,8 +44,8 @@ export class AccountsCacheService implements OnModuleInit {
   }
 
   async getApproverAccounts(approver: Address): Promise<UserAccountContext[]> {
-    const cachedAccounts = await this.getCachedAccounts(approver);
-    if (cachedAccounts) return cachedAccounts;
+    const cachedAccounts = await this.redis.get(approverAccountsKey(approver));
+    if (cachedAccounts) return JSON.parse(cachedAccounts) as UserAccountContext[];
 
     const { user } = await this.db.query(
       e.select(
@@ -55,6 +56,7 @@ export class AccountsCacheService implements OnModuleInit {
         () => ({
           user: {
             id: true,
+            approvers: { address: true },
             accounts: { id: true, address: true },
           },
         }),
@@ -65,7 +67,11 @@ export class AccountsCacheService implements OnModuleInit {
       (a): UserAccountContext => ({ id: a.id, address: asUAddress(a.address) }),
     );
 
-    await this.setCachedAccounts(user.id, approver, accounts);
+    await this.setCachedAccounts(
+      user.id,
+      accounts,
+      user.approvers.map((a) => asAddress(a.address)),
+    );
 
     return accounts;
   }
@@ -86,38 +92,50 @@ export class AccountsCacheService implements OnModuleInit {
     );
 
     if (user) {
-      await this.setCachedAccounts(user, approver, accounts);
+      await this.setCachedAccounts(user, accounts);
     } else {
       this.log.error(`No user found for approver ${approver}`);
     }
   }
 
-  async removeApproverUserCache(...approvers: Address[]) {
-    await this.redis.del(...approvers.map(approverUserKey));
-  }
-
   async removeUserAccountsCache(...users: uuid[]) {
-    await this.redis.del(...users.map(userAccountsKey));
+    const userApprovers = await Promise.all(
+      users.map(async (user) => {
+        const json = await this.redis.get(userApproversKey(user));
+        return json ? (JSON.parse(json) as Address[]) : [];
+      }),
+    );
+    await this.redis.del(
+      ...userApprovers.flat().map((approver) => approverAccountsKey(asAddress(approver))),
+    );
   }
 
   async invalidateApproverUserAccountsCache(...approvers: Address[]) {
     if (!approvers.length) return;
     const users = (await this.redis.mget(...approvers.map(approverUserKey))).filter(isPresent);
-    await this.redis.del(...users.map(userAccountsKey));
+    await this.removeUserAccountsCache(...users);
   }
 
-  private async getCachedAccounts(approver: Address): Promise<UserAccountContext[] | null> {
-    const user = await this.redis.get(approverUserKey(approver));
-    if (!user) return null;
+  private async setCachedAccounts(
+    user: uuid,
+    accounts: UserAccountContext[],
+    approvers?: Address[],
+  ) {
+    approvers ??= JSON.parse((await this.redis.get(userApproversKey(user)))!) as Address[];
 
-    const json = await this.redis.get(userAccountsKey(user));
-    return json ? (JSON.parse(json) as UserAccountContext[]) : null;
-  }
-
-  private async setCachedAccounts(user: uuid, approver: Address, accounts: UserAccountContext[]) {
     await Promise.all([
-      this.redis.set(approverUserKey(approver), user, 'EX', this.EXPIRY_SECONDS),
-      this.redis.set(userAccountsKey(user), JSON.stringify(accounts), 'EX', this.EXPIRY_SECONDS),
+      this.redis.set(userApproversKey(user), JSON.stringify(approvers), 'EX', this.EXPIRY_SECONDS),
+      ...approvers.map((approver) =>
+        this.redis.set(approverUserKey(approver), user, 'EX', this.EXPIRY_SECONDS),
+      ),
+      ...approvers.map((approver) =>
+        this.redis.set(
+          approverAccountsKey(approver),
+          JSON.stringify(accounts),
+          'EX',
+          this.EXPIRY_SECONDS,
+        ),
+      ),
     ]);
   }
 }
