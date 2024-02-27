@@ -141,7 +141,7 @@ function getFragmentShape(
 
   // Include EQL type name for union types
   if (isUnionType(baseGqlType) || isInterfaceType(baseGqlType))
-    shape = merge(shape, { __type__: true });
+    shape = merge(shape, { __type__: { name: true } });
 
   return simpleGqlTypes.reduce((shape, fieldBaseGqlType) => {
     const fragmentShape = getBaseTypeFragmentShape(
