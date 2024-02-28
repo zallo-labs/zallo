@@ -82,6 +82,11 @@ function fieldToShape(field: FieldDetails, graphqlInfo: GraphQLResolveInfo) {
   if (typeExtensions.select && typeof typeExtensions.select === 'object')
     shape = merge(shape, typeExtensions.select);
 
+  // Include EQL type name for union types
+  const baseGqlType = getGraphqlBaseType(field.graphql);
+  if (isUnionType(baseGqlType) || isInterfaceType(baseGqlType))
+    shape = merge(shape, { __type__: { name: true } });
+
   const graphqlFields = getGraphqlTypeFields(field.graphql);
 
   return field.selections.reduce(
@@ -136,12 +141,7 @@ function getFragmentShape(
   fragment: FragmentDefinitionNode | InlineFragmentNode,
   shape: object,
 ) {
-  const baseGqlType = getGraphqlBaseType(field.graphql);
-  const simpleGqlTypes = getGraphqlSimpleTypes(baseGqlType);
-
-  // Include EQL type name for union types
-  if (isUnionType(baseGqlType) || isInterfaceType(baseGqlType))
-    shape = merge(shape, { __type__: { name: true } });
+  const simpleGqlTypes = getGraphqlSimpleTypes(getGraphqlBaseType(field.graphql));
 
   return simpleGqlTypes.reduce((shape, fieldBaseGqlType) => {
     const fragmentShape = getBaseTypeFragmentShape(
