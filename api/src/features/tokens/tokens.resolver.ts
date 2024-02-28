@@ -1,8 +1,15 @@
 import { ID, Info, Mutation, Parent, Query, Resolver } from '@nestjs/graphql';
 import { Token, TokenMetadata } from './tokens.model';
+import { TokenSpending } from './spending.model';
 import { Input } from '~/decorators/input.decorator';
-import { BalanceInput, TokenInput, TokensInput, UpsertTokenInput } from './tokens.input';
-import { TokensService } from './tokens.service';
+import {
+  BalanceInput,
+  SpendingInput,
+  TokenInput,
+  TokensInput,
+  UpsertTokenInput,
+} from './tokens.input';
+import { SPENDING_SHAPE, SpendingDeps, TokensService } from './tokens.service';
 import { GraphQLResolveInfo } from 'graphql';
 import { getShape } from '../database/database.select';
 import { uuid } from 'edgedb/dist/codecs/ifaces';
@@ -58,6 +65,15 @@ export class TokensResolver {
   async price(@Parent() { pythUsdPriceId }: Token): Promise<Price | null> {
     if (!pythUsdPriceId) return null;
     return this.prices.price(pythUsdPriceId);
+  }
+
+  @ComputedField<typeof e.Token>(() => TokenSpending, SPENDING_SHAPE)
+  async spending(
+    @Parent() deps: SpendingDeps,
+    @Input() input: SpendingInput,
+    @Info() info: GraphQLResolveInfo,
+  ) {
+    return this.service.spending(input, deps, getShape(info));
   }
 
   @ComputedField<typeof e.Token>(
