@@ -22,14 +22,7 @@ module default {
     required from: Address;
     required to: Address;
     required tokenAddress: UAddress;
-    link token := (
-      assert_single((
-        with address := .tokenAddress
-        select Token filter .address = address
-        order by (exists .user) desc
-        limit 1
-      ))
-    );
+    link token := assert_single((select Token filter .address = TransferDetails.tokenAddress order by (exists .user) desc limit 1));
     required amount: decimal;
     required multi direction: TransferDirection;
     required isFeeTransfer: bool { default := false; }
