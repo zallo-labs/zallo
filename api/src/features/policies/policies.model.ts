@@ -2,9 +2,7 @@ import { Field, ObjectType, createUnionType, registerEnumType } from '@nestjs/gr
 import { GraphQLBigInt } from 'graphql-scalars';
 import { Account } from '../accounts/accounts.model';
 import { Transaction } from '../transactions/transactions.model';
-import { IdField } from '~/apollo/scalars/Id.scalar';
 import * as eql from '~/edgeql-interfaces';
-import { uuid } from 'edgedb/dist/codecs/ifaces';
 import { PolicyKeyField } from '~/apollo/scalars/PolicyKey.scalar';
 import { AddressField } from '~/apollo/scalars/Address.scalar';
 import {
@@ -49,11 +47,8 @@ export class Action extends Node implements eql.Action {
   description: string | null;
 }
 
-@ObjectType()
-export class TransferLimit {
-  @IdField()
-  id: uuid;
-
+@NodeType()
+export class TransferLimit extends Node {
   @AddressField()
   token: Address;
 
@@ -64,11 +59,8 @@ export class TransferLimit {
   duration: number;
 }
 
-@ObjectType()
-export class TransfersConfig implements eql.TransfersConfig {
-  @IdField()
-  id: uuid;
-
+@NodeType()
+export class TransfersConfig extends Node implements eql.TransfersConfig {
   @Field(() => [TransferLimit])
   limits: TransferLimit[];
 
@@ -79,11 +71,8 @@ export class TransfersConfig implements eql.TransfersConfig {
   budget: number;
 }
 
-@ObjectType()
-export class PolicyState {
-  @IdField()
-  id: uuid;
-
+@NodeType()
+export class PolicyState extends Node {
   @Field(() => Transaction, { nullable: true })
   proposal?: Transaction | null;
 
@@ -124,11 +113,8 @@ export class PolicyState {
   createdAt: Date;
 }
 
-@ObjectType()
-export class Policy {
-  @IdField()
-  id: uuid;
-
+@NodeType()
+export class Policy extends Node {
   @Field(() => Account)
   account: Account;
 

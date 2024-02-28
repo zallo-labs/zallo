@@ -239,11 +239,11 @@ export class PoliciesService {
         if (!existing.policy) throw new UserInputError("Policy doesn't exist");
 
         const currentState = existing.policy.draft ?? existing.policy.state!;
-        const currentEncoded = encodePolicy(policyStateAsPolicy(key, currentState));
+        const currentPolicy = policyStateAsPolicy(key, currentState);
 
         const newState = policyInputAsStateShape(key, policyInput, currentState);
         const newPolicy = policyStateAsPolicy(key, newState);
-        if (currentEncoded === encodePolicy(newPolicy)) return ok(undefined); // Only update if policy would actually change
+        if (encodePolicy(currentPolicy) === encodePolicy(newPolicy)) return ok(undefined); // Only update if policy would actually change
 
         const proposal = await this.getStateProposal(account, newPolicy);
 

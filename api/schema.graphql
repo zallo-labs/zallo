@@ -159,9 +159,9 @@ enum CloudProvider {
   Google
 }
 
-type Contact {
+type Contact implements Node {
   address: UAddress!
-  id: ID!
+  id: UUID!
   label: String!
 }
 
@@ -174,16 +174,16 @@ input ContactsInput {
   query: String
 }
 
-type Contract {
+type Contract implements Node {
   address: Address!
   functions: [ContractFunction!]!
-  id: ID!
+  id: UUID!
 }
 
-type ContractFunction {
+type ContractFunction implements Node {
   abi: JSON!
   abiMd5: String!
-  id: ID!
+  id: UUID!
   selector: Selector!
   source: AbiSource!
   sourceConfidence: AbiSourceConfidence!
@@ -398,10 +398,10 @@ input PoliciesInput {
   includeDisabled: Boolean! = false
 }
 
-type Policy {
+type Policy implements Node {
   account: Account!
   draft: PolicyState
-  id: ID!
+  id: UUID!
   isActive: Boolean!
   key: PolicyKey!
   name: String!
@@ -426,7 +426,7 @@ input PolicyInput {
 """Policy key: an unsigned integer [0, 65535]"""
 scalar PolicyKey
 
-type PolicyState {
+type PolicyState implements Node {
   actions: [Action!]!
   activationBlock: BigInt
   allowMessages: Boolean!
@@ -436,7 +436,7 @@ type PolicyState {
   """seconds"""
   delay: Float!
   hasBeenActive: Boolean!
-  id: ID!
+  id: UUID!
   isAccountInitState: Boolean!
   isActive: Boolean!
   isRemoved: Boolean!
@@ -666,6 +666,14 @@ type Simulation implements Node {
   transfers: [SimulatedTransfer!]!
 }
 
+input SpendingInput {
+  account: UAddress!
+
+  """seconds"""
+  duration: Float
+  policyKey: PolicyKey
+}
+
 type Subscription {
   account(input: AccountSubscriptionInput! = {}): Account!
   proposal(input: ProposalSubscriptionInput! = {}): Proposal!
@@ -722,6 +730,7 @@ type Token implements Node {
   price: Price
   pythUsdPriceId: Bytes32
   removable: Boolean!
+  spending(input: SpendingInput!): TokenSpending!
   symbol: String!
   units: [TokenUnit!]
   userOwned: Boolean!
@@ -738,6 +747,14 @@ type TokenMetadata {
   name: String
   pythUsdPriceId: Bytes32
   symbol: String
+}
+
+type TokenSpending {
+  """seconds"""
+  duration: Float!
+  limit: Decimal
+  total: Decimal!
+  transfers: [Transferlike!]!
 }
 
 type TokenUnit {
@@ -869,12 +886,12 @@ type TransferFromOp implements TransferlikeOp {
   token: Address!
 }
 
-type TransferLimit {
+type TransferLimit implements Node {
   amount: BigInt!
 
   """seconds"""
   duration: Float!
-  id: ID!
+  id: UUID!
   token: Address!
 }
 
@@ -922,10 +939,10 @@ interface TransferlikeOp {
   token: Address!
 }
 
-type TransfersConfig {
+type TransfersConfig implements Node {
   budget: Float!
   defaultAllow: Boolean!
-  id: ID!
+  id: UUID!
   limits: [TransferLimit!]!
 }
 

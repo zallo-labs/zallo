@@ -1,15 +1,11 @@
-import { Field, ObjectType, registerEnumType } from '@nestjs/graphql';
-import { uuid } from 'edgedb/dist/codecs/ifaces';
+import { Field, registerEnumType } from '@nestjs/graphql';
 import { GraphQLJSON } from 'graphql-scalars';
 import { SelectorField } from '~/apollo/scalars/Bytes.scalar';
-import { IdField } from '~/apollo/scalars/Id.scalar';
+import { Node, NodeType } from '~/decorators/interface.decorator';
 import * as eql from '~/edgeql-interfaces';
 
-@ObjectType()
-export class ContractFunction implements eql.Function {
-  @IdField()
-  id: uuid;
-
+@NodeType()
+export class ContractFunction extends Node implements eql.Function {
   @SelectorField()
   selector: string; // Selector
 

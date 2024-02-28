@@ -1,15 +1,11 @@
-import { Field, ObjectType } from '@nestjs/graphql';
-import { uuid } from 'edgedb/dist/codecs/ifaces';
+import { Field } from '@nestjs/graphql';
 import { UAddressField } from '~/apollo/scalars/UAddress.scalar';
-import { IdField } from '~/apollo/scalars/Id.scalar';
 import * as eql from '~/edgeql-interfaces';
 import { UAddress } from 'lib';
+import { Node, NodeType } from '~/decorators/interface.decorator';
 
-@ObjectType()
-export class Contact implements Partial<eql.Contact> {
-  @IdField()
-  id: uuid;
-
+@NodeType()
+export class Contact extends Node implements Partial<eql.Contact> {
   @UAddressField()
   address: UAddress;
 
