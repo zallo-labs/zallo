@@ -50,19 +50,20 @@ export type Scope<Expr extends ObjectTypeExpression> = $scopify<Expr['__element_
 export type Shape<T extends ObjectTypeSet> = objectTypeToSelectShape<T['__element__']> &
   SelectModifiers<T['__element__']>;
 
-export type ShapeFunc<Expr extends ObjectTypeExpression> = (
+export type ShapeFunc<Expr extends ObjectTypeExpression = ObjectTypeExpression> = ((
   scope: Scope<Expr>,
   field?: string,
-) => Shape<Expr>;
+) => Shape<Expr>) & { includes?: (field: string) => boolean };
 
-export const getShape = <Expr extends ObjectTypeExpression>(
-  info: GraphQLResolveInfo,
-): ShapeFunc<Expr> => {
+export const getShape = <Expr extends ObjectTypeExpression>(info: GraphQLResolveInfo) => {
   const rootSelections = info.fieldNodes.find((node) => node.name.value === info.fieldName)!
     .selectionSet?.selections;
   const rootType = info.parentType.getFields()[info.fieldName].type;
 
-  return function resolveShape(scope: Scope<Expr>, field?: string): Shape<Expr> {
+  const f: ShapeFunc<Expr> = function resolveShape(
+    scope: Scope<Expr>,
+    field?: string,
+  ): Shape<Expr> {
     const edgeql = scope.__element__;
 
     return field
@@ -80,6 +81,11 @@ export const getShape = <Expr extends ObjectTypeExpression>(
         })()
       : fieldToShape({ selections: rootSelections, graphql: rootType, edgeql }, info);
   };
+
+  f.includes = (field: string) =>
+    !!rootSelections?.find((n) => n.kind === Kind.FIELD && n.name.value === field);
+
+  return f;
 };
 
 interface FieldDetails {

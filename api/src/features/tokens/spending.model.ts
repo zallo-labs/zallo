@@ -12,8 +12,11 @@ export class TokenSpending {
   duration: number;
 
   @DecimalField()
-  total: Decimal;
+  spent: Decimal;
 
   @DecimalField({ nullable: true })
   limit?: Decimal;
+
+  @DecimalField({ nullable: true })
+  remaining?: Decimal;
 }

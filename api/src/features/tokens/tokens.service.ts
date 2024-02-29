@@ -184,7 +184,7 @@ export class TokensService {
   async spending(
     input: SpendingInput,
     { address: token }: SpendingDeps,
-    shape: ShapeFunc<any>,
+    shape?: ShapeFunc,
   ): Promise<TokenSpending> {
     if (input.policyKey === undefined && !input.duration)
       throw new UserInputError('policyKey or duration is required');
@@ -195,8 +195,8 @@ export class TokensService {
         input.policyKey !== undefined && e.op(p.key, '=', input.policyKey),
       ),
     }));
+    // May technically be multiple, but only used when there's one (when policyKey is provided)
     const limit = e.assert_single(
-      // May technically be multiple, but only used when there's one (when policyKey is provided)
       e.select(policy.state.transfers.limits, (l) => ({
         filter: e.op(l.token, '=', asAddress(token)),
         amount: true,
@@ -211,8 +211,7 @@ export class TokensService {
       '-',
       e.to_duration({ seconds: durationSeconds }),
     );
-    const transactions = e.select(e.Transaction, (t) => ({ filter: e.op(t.policy, '=', policy) }));
-    const systxs = e.select(transactions.systxs, (t) => ({
+    const systxs = e.select(policy['<policy[is Transaction]'].systxs, (t) => ({
       filter: e.op(t.timestamp, '>', oldest),
     }));
     const transfers = e.select(systxs.events.is(e.Transferlike), (t) => ({
@@ -220,23 +219,27 @@ export class TokensService {
         e.op(t.tokenAddress, '=', asUAddress(token)),
         e.op(e.TransferDirection.Out, 'in', t.direction),
       ),
-      ...shape(t, 'transfers'),
+      ...shape?.(t, 'transfers'),
     }));
 
     const r = await this.db.query(
       e.select({
-        transfers,
-        total: e.op(e.sum(transfers.amount), '*', e.decimal('-1')),
+        transfers: shape?.includes?.('transfers') ? transfers : e.cast(e.Transfer, e.set()),
+        spent: e.op(e.sum(transfers.amount), '*', e.decimal('-1')),
         limit_: limit,
         durationSeconds: e.select(durationSeconds),
       }),
     );
 
+    const spent = new Decimal(r.spent);
+    const limit_ = r.limit_ ? await this.asDecimal(asUAddress(token), r.limit_.amount) : undefined;
+
     return {
       transfers: r.transfers as Transferlike[],
       duration: r.durationSeconds,
-      total: new Decimal(r.total),
-      limit: r.limit_ ? await this.asDecimal(asUAddress(token), r.limit_.amount) : undefined,
+      spent,
+      limit: limit_,
+      remaining: limit_ ? limit_.minus(spent) : undefined,
     };
   }
 }
