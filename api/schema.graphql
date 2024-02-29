@@ -327,7 +327,7 @@ type Message implements Node & Proposal {
   id: UUID!
   label: String
   message: String!
-  policy: Policy
+  policy: Policy!
   potentialApprovers: [Approver!]!
   potentialRejectors: [Approver!]!
   proposedBy: Approver!
@@ -464,7 +464,7 @@ interface Proposal implements Node {
   iconUri: String
   id: UUID!
   label: String
-  policy: Policy
+  policy: Policy!
   potentialApprovers: [Approver!]!
   potentialRejectors: [Approver!]!
   proposedBy: Approver!
@@ -791,7 +791,7 @@ type Transaction implements Node & Proposal {
   nonce: BigInt!
   operations: [Operation!]!
   paymaster: Address!
-  policy: Policy
+  policy: Policy!
   potentialApprovers: [Approver!]!
   potentialRejectors: [Approver!]!
   proposedBy: Approver!

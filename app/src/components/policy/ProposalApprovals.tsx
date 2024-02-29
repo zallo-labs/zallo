@@ -14,26 +14,20 @@ const Proposal = gql(/* GraphQL */ `
   fragment ProposalApprovals_Proposal on Proposal
   @argumentDefinitions(proposal: { type: "UUID!" }) {
     id
-    account {
-      id
-      policies {
-        id
-        satisfiability(input: { proposal: $proposal }) {
-          result
-        }
-        state {
-          id
-          threshold
-          approvers {
-            id
-            address
-            ...AwaitingApprovalItem_Approver
-          }
-        }
-      }
-    }
     policy {
       id
+      satisfiability(input: { proposal: $proposal }) {
+        result
+      }
+      state {
+        id
+        threshold
+        approvers {
+          id
+          address
+          ...AwaitingApprovalItem_Approver
+        }
+      }
     }
     rejections {
       id
@@ -54,7 +48,7 @@ const Proposal = gql(/* GraphQL */ `
       id
       address
     }
-    ...SelectedPolicy_ProposalFragment @arguments(proposal: $proposal)
+    ...SelectedPolicy_Proposal @arguments(proposal: $proposal)
     ...AwaitingApprovalItem_Proposal
     ...RejectionItem_Proposal
     ...ApprovalItem_Proposal
@@ -98,24 +92,23 @@ function ProposalApprovals_({ proposal: id }: PolicyTabProps) {
 
   if (!p) return null;
 
-  const selected =
-    p.account.policies.find(({ id }) => id === p.policy?.id) ?? p.account.policies[0];
-
-  const awaitingApproval = p.approvals.length < (selected.state?.threshold ?? 0);
-  const awaitingApprovers = selected.state?.approvers.filter(
-    (approver) =>
-      !p.approvals.find((a) => a.approver.id === approver.id) &&
-      !p.rejections.find((r) => r.approver.id === approver.id),
-  );
+  const awaitingApprovers =
+    p.policy.state &&
+    p.approvals.length < (p.policy.state?.threshold ?? 0) &&
+    p.policy.state.approvers.filter(
+      (approver) =>
+        !p.approvals.find((a) => a.approver.id === approver.id) &&
+        !p.rejections.find((r) => r.approver.id === approver.id),
+    );
 
   return (
     <>
       <SelectedPolicy proposal={p} />
 
-      {awaitingApproval && (
+      {awaitingApprovers && (
         <>
           <ListHeader>Awaiting</ListHeader>
-          {awaitingApprovers?.map((approver) => (
+          {awaitingApprovers.map((approver) => (
             <AwaitingApprovalItem key={approver.id} user={user} proposal={p} approver={approver} />
           ))}
         </>

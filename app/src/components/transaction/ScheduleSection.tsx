@@ -23,16 +23,13 @@ const Transaction = gql(/* GraphQL */ `
     account {
       id
       address
-      policies {
-        id
-        state {
-          id
-          delay
-        }
-      }
     }
     policy {
       id
+      state {
+        id
+        delay
+      }
     }
     result {
       __typename
@@ -63,8 +60,7 @@ export function ScheduleSection({ children, ...props }: ScheduleSectionProps) {
   const router = useRouter();
   const proposeCancelScheduledTx = useMutation(CancelScheduledTx)[1];
 
-  const delay = p.account.policies.find((policy) => !p.policy || policy.id === p.policy.id)?.state
-    ?.delay;
+  const delay = p.policy.state?.delay;
 
   if (!delay || (p.result && p.result.__typename !== 'Scheduled')) return;
 

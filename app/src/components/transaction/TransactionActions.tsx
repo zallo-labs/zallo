@@ -24,15 +24,12 @@ const Transaction = gql(/* GraphQL */ `
     account {
       id
       chain
-      policies {
-        id
-        satisfiability(input: { proposal: $proposal }) {
-          result
-        }
-      }
     }
     policy {
       id
+      satisfiability(input: { proposal: $proposal }) {
+        result
+      }
     }
     simulation {
       id
@@ -79,13 +76,7 @@ export const TransactionActions = (props: ProposalActionsProps) => {
   });
 
   const blockExplorer = CHAINS[p.account.chain].blockExplorers?.default;
-
-  const showForceExecute =
-    p.status === 'Pending' &&
-    p.account.policies.some(
-      (policy) =>
-        policy.satisfiability.result === 'satisfied' && (!p.policy || policy.id === p.policy.id),
-    );
+  const showForceExecute = p.status === 'Pending' && p.policy.satisfiability.result === 'satisfied';
 
   return (
     <Actions>

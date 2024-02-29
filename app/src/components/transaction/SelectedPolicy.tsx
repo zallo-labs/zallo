@@ -1,15 +1,14 @@
-import { StyleSheet, View } from 'react-native';
 import Collapsible from 'react-native-collapsible';
 import { SatisfiablePolicyItem } from './SatisfiablePolicyItem';
 import { Chevron } from '#/Chevron';
 import { useToggle } from '~/hooks/useToggle';
 import { Divider } from 'react-native-paper';
 import { FragmentType, gql, useFragment } from '@api/generated';
-import { useMutation } from 'urql';
+import { OtherPolicies } from './OtherPolicies';
+import { createStyles } from '@theme/styles';
 
-const FragmentDoc = gql(/* GraphQL */ `
-  fragment SelectedPolicy_ProposalFragment on Proposal
-  @argumentDefinitions(proposal: { type: "UUID!" }) {
+const Proposal = gql(/* GraphQL */ `
+  fragment SelectedPolicy_Proposal on Proposal @argumentDefinitions(proposal: { type: "UUID!" }) {
     id
     ... on Transaction {
       updatable
@@ -17,91 +16,44 @@ const FragmentDoc = gql(/* GraphQL */ `
     ... on Message {
       updatable
     }
-    account {
-      id
-      policies {
-        id
-        key
-        satisfiability(input: { proposal: $proposal }) {
-          result
-        }
-        ...SatisfiabePolicyItem_PolicyFragment @arguments(proposal: $proposal)
-      }
-    }
     policy {
       id
+      ...SatisfiabePolicyItem_Policy @arguments(proposal: $proposal)
     }
-  }
-`);
-
-const Update = gql(/* GraphQL */ `
-  mutation SelectedPolicy_Update($id: UUID!, $policy: PolicyKey!) {
-    updateProposal(input: { id: $id, policy: $policy }) {
-      id
-      policy {
-        id
-      }
-    }
+    ...OtherPolicies_Proposal
   }
 `);
 
 export interface SelectedPolicyProps {
-  proposal: FragmentType<typeof FragmentDoc>;
+  proposal: FragmentType<typeof Proposal>;
 }
 
-export const SelectedPolicy = (props: SelectedPolicyProps) => {
-  const proposal = useFragment(FragmentDoc, props.proposal);
-  const update = useMutation(Update)[1];
+export function SelectedPolicy(props: SelectedPolicyProps) {
+  const proposal = useFragment(Proposal, props.proposal);
 
   const [expanded, toggleExpanded] = useToggle(false);
-
-  const selected =
-    proposal.account.policies.find(({ id }) => id === proposal.policy?.id) ??
-    proposal.account.policies[0];
-
-  const satisfiablePolicies = proposal.account.policies.filter(
-    (p) => p.satisfiability.result !== 'unsatisfiable',
-  );
 
   return (
     <>
       <SatisfiablePolicyItem
-        policy={selected}
+        policy={proposal.policy}
         {...(proposal.updatable && {
           onPress: toggleExpanded,
-          trailing: ({ Text, ...props }) => (
-            <View style={styles.trailingContainer}>
-              <Text>{satisfiablePolicies.length}</Text>
-
-              <Chevron {...props} expanded={expanded} />
-            </View>
-          ),
+          trailing: (props) => <Chevron {...props} expanded={expanded} />,
         })}
       />
 
-      <Divider horizontalInset />
+      <Divider horizontalInset style={styles.divider} />
 
       <Collapsible collapsed={!expanded}>
-        {proposal.account.policies.map((p) => (
-          <SatisfiablePolicyItem
-            key={p.id}
-            policy={p}
-            selected={p.id === selected.id}
-            onPress={() => {
-              if (p.key !== selected.key) update({ id: proposal.id, policy: p.key });
-              toggleExpanded();
-            }}
-          />
-        ))}
+        <OtherPolicies proposal={proposal} toggleExpanded={toggleExpanded} />
       </Collapsible>
     </>
   );
-};
+}
 
-const styles = StyleSheet.create({
-  trailingContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 16,
+const styles = createStyles({
+  divider: {
+    marginVertical: 4,
   },
 });

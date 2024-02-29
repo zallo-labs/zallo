@@ -26,8 +26,8 @@ export class Proposal {
   @Field(() => Account)
   account: Account;
 
-  @Field(() => Policy, { nullable: true })
-  policy?: Policy | null;
+  @Field(() => Policy)
+  policy: Policy;
 
   @Field(() => String, { nullable: true })
   label?: string;
