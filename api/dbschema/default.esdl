@@ -36,7 +36,7 @@ module default {
   abstract type Proposal {
     required hash: Bytes32 { constraint exclusive; }
     required account: Account;
-    policy: Policy;
+    required policy: Policy;
     label: Label;
     iconUri: Url;
     required validFrom: datetime;
@@ -51,16 +51,8 @@ module default {
     dapp: tuple<name: str, url: Url, icons: array<Url>>;
     multi link approvals := .<proposal[is Approval];
     multi link rejections := .<proposal[is Rejection];
-    multi link potentialApprovers := (
-      with approvers := distinct (.policy ?? .account.policies).stateOrDraft.approvers.id,
-          ids := approvers except .approvals.approver.id
-      select Approver filter .id in ids
-    );
-    multi link potentialRejectors := (
-      with approvers := distinct (.policy ?? .account.policies).stateOrDraft.approvers.id,
-           ids := approvers except .rejections.approver.id
-      select Approver filter .id in ids
-    );
+    multi link potentialApprovers := (.policy.stateOrDraft.approvers except .approvals.approver);
+    multi link potentialRejectors := (.policy.stateOrDraft.approvers except .rejections.approver);
 
     access policy members_only
       allow all

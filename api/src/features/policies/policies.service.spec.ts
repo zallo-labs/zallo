@@ -17,6 +17,7 @@ import {
 import assert from 'assert';
 import { PolicyInput } from './policies.input';
 import { v1 as uuidv1 } from 'uuid';
+import { selectAccount } from '../accounts/accounts.util';
 
 describe(PoliciesService.name, () => {
   let service: PoliciesService;
@@ -72,7 +73,7 @@ describe(PoliciesService.name, () => {
 
       return e.insert(e.Transaction, {
         hash,
-        account: e.select(e.Account, () => ({ filter_single: { address: account } })),
+        account: selectAccount(account),
         operations: e.insert(e.Operation, { to: ZERO_ADDR }),
         validFrom: new Date(),
         paymaster: ZERO_ADDR,
@@ -82,6 +83,7 @@ describe(PoliciesService.name, () => {
             limit: 1,
           })),
         ),
+        policy: e.assert_single(e.select(selectAccount(account).policies, () => ({ limit: 1 }))),
       });
     });
 

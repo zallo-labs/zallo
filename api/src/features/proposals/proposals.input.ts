@@ -43,7 +43,7 @@ export class ApproveInput extends UniqueProposalInput {
 @InputType()
 export class UpdateProposalInput extends UniqueProposalInput {
   @PolicyKeyField({ nullable: true })
-  policy?: PolicyKey | null;
+  policy?: PolicyKey;
 }
 
 export enum ProposalEvent {

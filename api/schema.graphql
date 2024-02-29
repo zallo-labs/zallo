@@ -753,7 +753,8 @@ type TokenSpending {
   """seconds"""
   duration: Float!
   limit: Decimal
-  total: Decimal!
+  remaining: Decimal
+  spent: Decimal!
   transfers: [Transferlike!]!
 }
 

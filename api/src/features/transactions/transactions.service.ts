@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable, forwardRef } from '@nestjs/common';
 import { UserInputError } from '@nestjs/apollo';
 import {
   hashTx,
@@ -47,6 +47,7 @@ import { FlowProducer } from 'bullmq';
 import { ActivationsService } from '../activations/activations.service';
 import { totalPaymasterEthFees } from '../paymasters/paymasters.util';
 import { ReceiptsQueue } from '../system-txs/receipts.queue';
+import { PoliciesService } from '../policies/policies.service';
 
 export const selectTransaction = (id: UUID | Hex) =>
   e.select(e.Transaction, () => ({
@@ -76,6 +77,8 @@ export class TransactionsService {
     @InjectFlowProducer(FLOW_PRODUCER)
     private flows: FlowProducer,
     private activations: ActivationsService,
+    @Inject(forwardRef(() => PoliciesService))
+    private policies: PoliciesService,
   ) {}
 
   async selectUnique(id: UniqueProposal, shape?: ShapeFunc<typeof e.Transaction>) {
@@ -190,6 +193,7 @@ export class TransactionsService {
       ),
       validFrom,
       gasLimit: gas,
+      policy: await this.policies.best(account, tx),
       paymaster: tx.paymaster,
       maxPaymasterEthFees: e.insert(e.PaymasterFees, {
         activation: maxPaymasterEthFees.activation.toString(),
@@ -247,7 +251,7 @@ export class TransactionsService {
 
   async approve(input: ApproveInput) {
     await this.proposals.approve(input);
-    await this.tryExecute(input.id);
+    this.tryExecute(input.id);
   }
 
   async update({ id, policy, feeToken }: UpdateTransactionInput) {
@@ -259,11 +263,10 @@ export class TransactionsService {
           e.op(p.status, 'in', e.set(e.TransactionStatus.Pending, e.TransactionStatus.Failed)),
         ),
         set: {
-          ...(policy !== undefined && {
-            policy:
-              policy !== null
-                ? e.select(e.Policy, () => ({ filter_single: { account: p.account, key: policy } }))
-                : null,
+          ...(policy && {
+            policy: e.select(e.Policy, () => ({
+              filter_single: { account: p.account, key: policy },
+            })),
           }),
           feeToken:
             feeToken &&

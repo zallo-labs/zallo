@@ -34,6 +34,7 @@ import { UserInputError } from '@nestjs/apollo';
 import { ethers } from 'ethers';
 import _ from 'lodash';
 import { WritableDeep } from 'ts-toolbelt/out/Object/Writable';
+import { PoliciesService } from '../policies/policies.service';
 
 export const selectMessage = (id: UUID | Hex) =>
   e.select(e.Message, () => ({ filter_single: isHex(id) ? { hash: id } : { id } }));
@@ -44,6 +45,7 @@ export class MessagesService {
     private db: DatabaseService,
     private networks: NetworksService,
     private proposals: ProposalsService,
+    private policies: PoliciesService,
   ) {}
 
   async selectUnique(id: UniqueProposal, shape?: ShapeFunc<typeof e.Message>) {
@@ -103,6 +105,7 @@ export class MessagesService {
                 icons: dapp.icons.map((i) => i.href),
               },
               validFrom,
+              policy: await this.policies.best(account, 'message'),
             }),
           ),
         ),
