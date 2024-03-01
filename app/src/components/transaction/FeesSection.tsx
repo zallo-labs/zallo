@@ -16,7 +16,7 @@ import { getOptimizedDocument } from '~/gql';
 
 const Transaction = gql(/* GraphQL */ `
   fragment FeesSection_Transaction on Transaction
-  @argumentDefinitions(account: { type: "UAddress!" }, includeAccount: { type: "Boolean!" }) {
+  @argumentDefinitions(transaction: { type: "UUID!" }) {
     id
     status
     account {
@@ -30,7 +30,7 @@ const Transaction = gql(/* GraphQL */ `
         id
         eth
       }
-      balance(input: { account: $account }) @include(if: $includeAccount)
+      balance(input: { transaction: $transaction })
       ...TokenItem_Token
       ...TokenAmount_token
     }
@@ -63,14 +63,9 @@ const Transaction = gql(/* GraphQL */ `
 `);
 
 const Update = gql(/* GraphQL */ `
-  mutation FeeToken_Update(
-    $id: UUID!
-    $feeToken: Address!
-    $account: UAddress!
-    $includeAccount: Boolean!
-  ) {
-    updateTransaction(input: { id: $id, feeToken: $feeToken }) {
-      ...FeesSection_Transaction @arguments(account: $account, includeAccount: $includeAccount)
+  mutation FeeToken_Update($transaction: UUID!, $feeToken: Address!) {
+    updateTransaction(input: { id: $transaction, feeToken: $feeToken }) {
+      ...FeesSection_Transaction @arguments(transaction: $transaction)
     }
   }
 `);
@@ -168,13 +163,7 @@ export function FeesSection(props: FeeTokenProps) {
           style={styles.button}
           onPress={async () => {
             const token = await selectToken({ account: p.account.address, feeToken: true });
-            if (token)
-              await update({
-                id: p.id,
-                feeToken: asAddress(token),
-                account: p.account.address,
-                includeAccount: true,
-              });
+            if (token) await update({ transaction: p.id, feeToken: asAddress(token) });
           }}
         >
           Pay fees in another token

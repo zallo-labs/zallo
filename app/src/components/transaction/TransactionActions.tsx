@@ -13,7 +13,7 @@ import { useSideSheet } from '#/SideSheet/SideSheetLayout';
 
 const Transaction = gql(/* GraphQL */ `
   fragment TransactionActions_Transaction on Transaction
-  @argumentDefinitions(proposal: { type: "UUID!" }) {
+  @argumentDefinitions(transaction: { type: "UUID!" }) {
     id
     status
     updatable
@@ -27,7 +27,7 @@ const Transaction = gql(/* GraphQL */ `
     }
     policy {
       id
-      satisfiability(input: { proposal: $proposal }) {
+      satisfiability(input: { proposal: $transaction }) {
         result
       }
     }
