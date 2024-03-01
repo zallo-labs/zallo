@@ -128,6 +128,7 @@ input ApproverInput {
 
 input BalanceInput {
   account: UAddress
+  transaction: UUID
 }
 
 """
@@ -668,10 +669,8 @@ type Simulation implements Node {
 
 input SpendingInput {
   account: UAddress!
-
-  """seconds"""
-  duration: Float
   policyKey: PolicyKey
+  since: DateTime
 }
 
 type Subscription {
@@ -750,10 +749,9 @@ type TokenMetadata {
 }
 
 type TokenSpending {
-  """seconds"""
-  duration: Float!
   limit: Decimal
   remaining: Decimal
+  since: DateTime!
   spent: Decimal!
   transfers: [Transferlike!]!
 }

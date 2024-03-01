@@ -8,8 +8,8 @@ export class TokenSpending {
   @Field(() => [Transferlike])
   transfers: Transferlike[];
 
-  @Field(() => Number, { description: 'seconds' })
-  duration: number;
+  @Field(() => Date)
+  since: Date;
 
   @DecimalField()
   spent: Decimal;

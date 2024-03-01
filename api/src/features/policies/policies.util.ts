@@ -27,6 +27,10 @@ export const uniquePolicy = (unique: UniquePolicy) =>
   }));
 
 export const selectPolicy = (id: UniquePolicy) => e.select(e.Policy, uniquePolicy(id));
+export type SelectedPolicy = ReturnType<typeof selectPolicy>;
+
+const selectPolicies = () => e.assert_exists(e.select(e.Policy));
+export type SelectedPolicies = ReturnType<typeof selectPolicies>;
 
 export const policyStateShape = {
   approvers: { address: true },
