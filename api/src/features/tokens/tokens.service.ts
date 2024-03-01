@@ -4,7 +4,7 @@ import { BalanceInput, SpendingInput, TokensInput, UpsertTokenInput } from './to
 import { Scope, ShapeFunc } from '../database/database.select';
 import e from '~/edgeql-js';
 import { uuid } from 'edgedb/dist/codecs/ifaces';
-import { UAddress, asAddress, asChain, asDecimal, asFp, asUAddress, isUAddress } from 'lib';
+import { UAddress, asAddress, asDecimal, asFp, asUAddress, isUAddress } from 'lib';
 import { ERC20, TOKENS, flattenToken } from 'lib/dapps';
 import { and, or } from '../database/database.util';
 import { NetworksService } from '../util/networks/networks.service';
@@ -182,17 +182,17 @@ export class TokensService {
     return asFp(amount, await this.decimals(token));
   }
 
-  async balance(
-    token: UAddress,
-    { account = getUserCtx().accounts[0]?.address, transaction }: BalanceInput,
-  ): Promise<Decimal> {
+  async balance(token: UAddress, { account, transaction }: BalanceInput): Promise<Decimal> {
     if (!account) {
+      const accounts = getUserCtx().accounts;
+      if (accounts.length === 1) account = accounts[0].address;
+
       if (!transaction) throw new UserInputError('account or transaction is required');
+
       account = asUAddress(
         await this.db.query(e.assert_exists(selectTransaction(transaction).account.address)),
       );
     }
-    if (asChain(token) !== asChain(account)) return new Decimal(0);
 
     const balance = await this.asDecimal(
       token,
