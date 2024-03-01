@@ -35,7 +35,7 @@ const Query = gql(/* GraphQL */ `
       __typename
       id
       timestamp
-      ...IncomingTransferItem_TransferFragment
+      ...IncomingTransferItem_Transfer
     }
   }
 `);
@@ -57,7 +57,7 @@ const TransferSubscription = gql(/* GraphQL */ `
       __typename
       id
       timestamp
-      ...IncomingTransferItem_TransferFragment
+      ...IncomingTransferItem_Transfer
     }
   }
 `);

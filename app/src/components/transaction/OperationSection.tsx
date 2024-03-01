@@ -21,7 +21,7 @@ const Operation = gql(/* GraphQL */ `
   fragment OperationSection_Operation on Operation {
     ...OperationIcon_Operation
     ...OperationLabel_OperationFragment
-    ...OperationDetails_OperationFragment
+    ...OperationDetails_Operation
   }
 `);
 
