@@ -260,22 +260,22 @@ export class TokensService {
 
     const r = await this.db.query(
       e.with(
-        [policy],
+        [policy, limit],
         e.select({
           transfers: shape?.includes?.('transfers') ? transfers : e.cast(e.Transfer, e.set()),
           spent: e.op(e.sum(transfers.amount), '*', e.decimal('-1')),
-          limit_: limit,
+          limitAmount: limit.amount,
           since,
         }),
       ),
     );
 
     const spent = new Decimal(r.spent);
-    const limit_ = r.limit_ ? await this.asDecimal(token, r.limit_.amount) : undefined;
+    const limit_ = r.limitAmount ? await this.asDecimal(token, r.limitAmount) : undefined;
 
     return {
       transfers: r.transfers as Transferlike[],
-      since: r.since!,
+      since: r.since ?? new Date(),
       spent,
       limit: limit_,
       remaining: limit_ ? limit_.minus(spent) : undefined,
