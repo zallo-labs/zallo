@@ -17,7 +17,7 @@ export default function RootScreen() {
   const query = useQuery(Query);
   const accounts = query.data?.accounts;
 
-  if (query.stale) return null;
+  if (query.stale || query.fetching) return null;
 
   return accounts?.length ? (
     <Redirect

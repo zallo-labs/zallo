@@ -35,7 +35,7 @@ export default function HomeLayout() {
   const query = useQuery(Query, { account }, { context });
 
   // Redirect to the home page if account isn't found
-  if (!query.data?.account && !query.fetching) return <Redirect href="/" />;
+  if (!query.data?.account && !query.fetching && !query.stale) return <Redirect href="/" />;
 
   return (
     <ScrollableScreenSurface>
