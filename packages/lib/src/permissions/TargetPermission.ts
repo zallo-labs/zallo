@@ -105,11 +105,7 @@ export function verifyTargetsPermission(t: TargetsConfig, op: Operation): Operat
       };
 }
 
-export const isTargetAllowed = (
-  targets: TargetsConfig,
-  to: Address,
-  selector: Selector | undefined,
-) => {
+function isTargetAllowed(targets: TargetsConfig, to: Address, selector: Selector | undefined) {
   if (!selector) return true;
 
   const target = targets.contracts[to];
@@ -117,23 +113,7 @@ export const isTargetAllowed = (
   return target
     ? target.functions[selector] ?? target.defaultAllow
     : targets.default.functions[selector] ?? targets.default.defaultAllow;
-};
-
-export const setTargetAllowed = (
-  targets: TargetsConfig,
-  to: Address,
-  selector: Selector,
-  allow: boolean,
-) => {
-  if (!targets.contracts[to])
-    targets.contracts[to] = { functions: {}, defaultAllow: targets.default.defaultAllow };
-
-  targets.contracts[to].functions[selector] = allow;
-
-  targets = optimize(targets);
-
-  assert(isTargetAllowed(targets, to, selector) == allow);
-};
+}
 
 function optimize(targets: TargetsConfig): TargetsConfig {
   // Remove selectors that match the contract default
@@ -148,6 +128,12 @@ function optimize(targets: TargetsConfig): TargetsConfig {
     (target) =>
       Object.keys(target.functions).length > 0 ||
       target.defaultAllow !== targets.default.defaultAllow,
+  );
+
+  // Remove fallback functions that match the fallback default
+  targets.default.functions = _.pickBy(
+    targets.default.functions,
+    (allow) => allow !== targets.default.defaultAllow,
   );
 
   return targets;
