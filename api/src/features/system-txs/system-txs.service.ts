@@ -3,7 +3,7 @@ import { isPresent, getTransactionSatisfiability, asAddress } from 'lib';
 import { policyStateAsPolicy, policyStateShape } from '../policies/policies.util';
 import { DatabaseService } from '../database/database.service';
 import e from '~/edgeql-js';
-import { proposalTxShape, transactionAsTx } from '../transactions/transactions.util';
+import { TX_SHAPE, transactionAsTx } from '../transactions/transactions.util';
 import { UniqueProposal } from '../proposals/proposals.service';
 
 @Injectable()
@@ -14,7 +14,7 @@ export class SystemTxsService {
     const proposal = await this.db.query(
       e.select(e.Transaction, (p) => ({
         filter_single: { id },
-        ...proposalTxShape(p),
+        ...TX_SHAPE,
         approvals: {
           approver: { address: true },
         },

@@ -1,8 +1,6 @@
 import { Processor } from '@nestjs/bullmq';
 import { Injectable } from '@nestjs/common';
 import {
-  Address,
-  Tx,
   UUID,
   asAddress,
   asApproval,
@@ -22,18 +20,16 @@ import { ProposalsService } from '~/features/proposals/proposals.service';
 import { NetworksService } from '~/features/util/networks/networks.service';
 import e from '~/edgeql-js';
 import {
-  PolicyStateShape,
   policyStateAsPolicy,
   policyStateShape,
   selectPolicy,
 } from '~/features/policies/policies.util';
-import { proposalTxShape, transactionAsTx } from './transactions.util';
+import { TX_SHAPE, transactionAsTx } from './transactions.util';
 import Decimal from 'decimal.js';
 import { selectApprover } from '~/features/approvers/approvers.service';
 import { ProposalEvent } from '~/features/proposals/proposals.input';
 import { selectTransaction } from '~/features/transactions/transactions.service';
 import { QueueReturnType, TypedJob, Worker, createQueue } from '~/features/util/bull/bull.util';
-import { UnrecoverableError } from 'bullmq';
 import { ETH } from 'lib/dapps';
 
 export const ExecutionsQueue = createQueue<{ txProposal: UUID; ignoreSimulation?: boolean }>(
@@ -56,18 +52,12 @@ export class ExecutionsWorker extends Worker<ExecutionsQueue> {
   async process(job: TypedJob<ExecutionsQueue>): Promise<QueueReturnType<ExecutionsQueue>> {
     const { txProposal: id, ignoreSimulation } = job.data;
     const proposal = await this.db.query(
-      e.select(e.Transaction, (p) => ({
+      e.select(e.Transaction, () => ({
         filter_single: { id },
         id: true,
-        account: {
-          address: true,
-          policies: {
-            key: true,
-            state: policyStateShape,
-          },
-        },
+        account: { address: true },
         hash: true,
-        ...proposalTxShape(p),
+        ...TX_SHAPE,
         status: true,
         feeToken: { address: true },
         maxPaymasterEthFees: {
@@ -94,11 +84,7 @@ export class ExecutionsWorker extends Worker<ExecutionsQueue> {
       return `Can't execute transaction with status ${proposal.status}`;
 
     // Require simulation to have succeed, unless ignored
-    if (!ignoreSimulation) {
-      if (!proposal.simulation)
-        throw new UnrecoverableError('Simulation was not found and is required to execute');
-      if (!proposal.simulation.success) return 'simulation failed';
-    }
+    if (!ignoreSimulation && !proposal.simulation?.success) return 'simulation failed';
 
     const account = asUAddress(proposal.account.address);
     const network = this.networks.get(account);
@@ -131,13 +117,15 @@ export class ExecutionsWorker extends Worker<ExecutionsQueue> {
     }
 
     const tx = transactionAsTx(proposal);
-    const policy = await this.getExecutionPolicy(
+    const policy = policyStateAsPolicy(proposal.policy.key, proposal.policy.state);
+    if (!policy) return fail('policy not active');
+
+    const satisfiability = getTransactionSatisfiability(
+      policy,
       tx,
       new Set(approvals.map((a) => a.approver)),
-      proposal.policy,
-      proposal.account.policies,
     );
-    if (!policy) return 'no suitable policy';
+    if (satisfiability.result !== 'satisfied') return satisfiability;
 
     return await this.db.transaction(async () => {
       const { paymaster, paymasterInput, ...feeData } = await this.paymaster.usePaymaster({
@@ -208,25 +196,5 @@ export class ExecutionsWorker extends Worker<ExecutionsQueue> {
 
       return hash;
     });
-  }
-
-  private async getExecutionPolicy(
-    tx: Tx,
-    approvals: Set<Address>,
-    proposalPolicy: { key: number; state: PolicyStateShape } | null,
-    accountPolicies: { key: number; state: PolicyStateShape }[],
-  ) {
-    if (proposalPolicy) {
-      // Only execute with proposal policy if specified
-      const p = policyStateAsPolicy(proposalPolicy.key, proposalPolicy.state);
-      if (p && getTransactionSatisfiability(p, tx, approvals).result === 'satisfied') return p;
-    } else {
-      return accountPolicies
-        .map((policy) => policyStateAsPolicy(policy.key, policy.state))
-        .find(
-          (policy) =>
-            policy && getTransactionSatisfiability(policy, tx, approvals).result === 'satisfied',
-        );
-    }
   }
 }

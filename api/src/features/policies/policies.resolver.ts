@@ -9,8 +9,8 @@ import {
 } from './policies.input';
 import {
   PoliciesService,
-  PolicySatisfiabilityDeps,
-  policySatisfiabilityDeps,
+  ProposalPolicySatisfiabilityShape,
+  ProposalSatisfiabilityShape,
 } from './policies.service';
 import {
   CreatePolicyResponse,
@@ -22,10 +22,15 @@ import { getShape } from '../database/database.select';
 import { Input } from '~/decorators/input.decorator';
 import e from '~/edgeql-js';
 import { ComputedField } from '~/decorators/computed.decorator';
+import { DatabaseService } from '../database/database.service';
+import { selectProposal } from '../proposals/proposals.service';
 
 @Resolver(() => Policy)
 export class PoliciesResolver {
-  constructor(private service: PoliciesService) {}
+  constructor(
+    private service: PoliciesService,
+    private db: DatabaseService,
+  ) {}
 
   @Query(() => Policy, { nullable: true })
   async policy(@Input() policy: UniquePolicyInput, @Info() info: GraphQLResolveInfo) {
@@ -40,12 +45,16 @@ export class PoliciesResolver {
     return this.service.select(input, getShape(info));
   }
 
-  @ComputedField<typeof e.Policy>(() => SatisfiabilityResult, policySatisfiabilityDeps)
+  @ComputedField<typeof e.Policy>(() => SatisfiabilityResult, ProposalPolicySatisfiabilityShape)
   async satisfiability(
     @Input() { proposal }: SatisfiabilityInput,
-    @Parent() policyDeps: PolicySatisfiabilityDeps,
+    @Parent() policy: ProposalPolicySatisfiabilityShape,
   ): Promise<SatisfiabilityResult> {
-    return this.service.satisfiability(proposal, policyDeps);
+    const p = await this.db.query(
+      e.select(selectProposal(proposal), () => ProposalSatisfiabilityShape),
+    );
+
+    return this.service.satisfiability(p, policy);
   }
 
   @Mutation(() => CreatePolicyResponse)

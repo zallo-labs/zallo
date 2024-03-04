@@ -1,8 +1,9 @@
 import Decimal from 'decimal.js';
 import { Operation, asAddress, asHex, asTx } from 'lib';
 import e, { $infer } from '~/edgeql-js';
+import { Shape } from '../database/database.select';
 
-export const proposalTxShape = e.shape(e.Transaction, () => ({
+export const TX_SHAPE = {
   operations: {
     to: true,
     value: true,
@@ -13,9 +14,9 @@ export const proposalTxShape = e.shape(e.Transaction, () => ({
   paymaster: true,
   maxPaymasterEthFees: { total: true },
   feeToken: { address: true },
-}));
+} satisfies Shape<typeof e.Transaction>;
 
-const s = e.select(e.Transaction, proposalTxShape);
+const s = e.select(e.Transaction, () => TX_SHAPE);
 export type ProposalTxShape = NonNullable<$infer<typeof s>>[0];
 
 export const transactionAsTx = (p: ProposalTxShape) =>

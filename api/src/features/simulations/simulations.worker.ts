@@ -32,7 +32,7 @@ import {
 import { ETH } from 'lib/dapps';
 import { selectTransaction } from '~/features/transactions/transactions.service';
 import { NetworksService } from '~/features/util/networks/networks.service';
-import { proposalTxShape, transactionAsTx } from '~/features/transactions/transactions.util';
+import { TX_SHAPE, transactionAsTx } from '~/features/transactions/transactions.util';
 import { runOnce } from '~/util/mutex';
 
 type TransferDetails = Parameters<typeof e.insert<typeof e.TransferDetails>>[1];
@@ -66,7 +66,7 @@ export class SimulationsWorker extends Worker<SimulationsQueue> {
       e.select(e.Transaction, (p) => ({
         filter_single: { id: txProposal },
         account: { address: true },
-        ...proposalTxShape(p),
+        ...TX_SHAPE,
       })),
     );
     if (!p) return; // Job is complete if the proposal no longer exists

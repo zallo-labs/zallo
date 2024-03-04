@@ -36,12 +36,8 @@ import {
   PolicyStateShape,
   policyInputAsStateShape,
 } from './policies.util';
-import { NameTaken, SatisfiabilityResult, Policy as PolicyModel } from './policies.model';
-import {
-  proposalTxShape,
-  transactionAsTx,
-  ProposalTxShape,
-} from '../transactions/transactions.util';
+import { NameTaken, Policy as PolicyModel } from './policies.model';
+import { TX_SHAPE, transactionAsTx, ProposalTxShape } from '../transactions/transactions.util';
 import { and, isExclusivityConstraintViolation } from '../database/database.util';
 import { selectAccount } from '../accounts/accounts.util';
 import { err, fromPromise, ok } from 'neverthrow';
@@ -49,30 +45,28 @@ import { encodeFunctionData } from 'viem';
 import { $Transaction } from '~/edgeql-js/modules/default';
 import { getUserCtx } from '~/request/ctx';
 
-export const policySatisfiabilityDeps = {
+export const ProposalSatisfiabilityShape = {
+  __type__: { name: true },
+  approvals: { approver: { address: true } },
+  ...e.is(e.Transaction, TX_SHAPE),
+} satisfies Shape<typeof e.Proposal>;
+const s2_ = e.assert_exists(
+  e.assert_single(e.select(e.Proposal, () => ProposalSatisfiabilityShape)),
+);
+export type ProposalSatisfiabilityShape = $infer<typeof s2_>;
+
+export const ProposalPolicySatisfiabilityShape = {
   key: true,
   state: {
     isActive: true,
     isAccountInitState: true,
     ...policyStateShape,
   },
-  // '<policy[is Transaction]': (t) => {
-  //   const limits = t.policy.state.transfers.limits;
-  //   const transferlikes = e.select(t.systxs['<systx[is Transferlike]'], (t2) => ({
-  //     // filter: e.op(t.policy.),
-  //     id: true,
-  //   }));
-
-  //   return {
-  //     transferlikes: e.select(t.systxs['<systx[is Transferlike]'], (t2) => ({
-  //       // filter: e.op(t.policy.),
-  //       id: true,
-  //     })),
-  //   };
-  // },
 } satisfies Shape<typeof e.Policy>;
-const s_ = e.assert_exists(e.assert_single(e.select(e.Policy, () => policySatisfiabilityDeps)));
-export type PolicySatisfiabilityDeps = $infer<typeof s_>;
+const s_ = e.assert_exists(
+  e.assert_single(e.select(e.Policy, () => ProposalPolicySatisfiabilityShape)),
+);
+export type ProposalPolicySatisfiabilityShape = NonNullable<$infer<typeof s_>>;
 
 export interface CreatePolicyParams extends CreatePolicyInput {
   key?: PolicyKey;
@@ -348,24 +342,14 @@ export class PoliciesService {
         .run(db);
     });
   }
-
   async satisfiability(
-    proposalId: UUID,
-    { key, state }: PolicySatisfiabilityDeps,
-  ): Promise<SatisfiabilityResult> {
-    if (!state?.isActive)
-      return { result: Satisfiability.unsatisfiable, reasons: [{ reason: 'Policy inactive' }] };
-
-    const proposal = await this.db.query(
-      e.select(e.Proposal, (p) => ({
-        filter_single: { id: proposalId },
-        __type__: { name: true },
-        approvals: { approver: { address: true } },
-        ...e.is(e.Transaction, proposalTxShape(p)),
-      })),
-    );
+    proposal: ProposalSatisfiabilityShape | null,
+    { key, state }: ProposalPolicySatisfiabilityShape,
+  ) {
     if (!proposal)
       return { result: Satisfiability.unsatisfiable, reasons: [{ reason: 'Proposal not found' }] };
+    if (!state)
+      return { result: Satisfiability.unsatisfiable, reasons: [{ reason: 'Policy not active' }] };
 
     const p = policyStateAsPolicy(key, state);
     const approvals = new Set(proposal.approvals.map((a) => asAddress(a.approver.address)));
@@ -373,16 +357,6 @@ export class PoliciesService {
     return proposal.__type__.name === $Transaction['__name__']
       ? getTransactionSatisfiability(p, transactionAsTx(proposal as ProposalTxShape), approvals)
       : getMessageSatisfiability(p, approvals);
-  }
-
-  private async satisfiability2(
-    policy: Policy,
-    proposal: Tx | 'message',
-    approvals: Set<Address> = new Set(),
-  ): Promise<SatisfiabilityResult> {
-    return proposal === 'message'
-      ? getMessageSatisfiability(policy, approvals)
-      : getTransactionSatisfiability(policy, proposal, approvals);
   }
 
   async best(account: UAddress, proposal: Tx | 'message') {
@@ -396,13 +370,18 @@ export class PoliciesService {
     );
 
     const { approver } = getUserCtx();
+    const approvals = new Set<Address>();
     const sorted = (
       await Promise.all(
         policies.map(async (p) => {
           const policy = policyStateAsPolicy(p.key, p.state!);
-          const sat = await this.satisfiability2(policy, proposal);
+          const sat =
+            proposal === 'message'
+              ? getMessageSatisfiability(policy, approvals)
+              : getTransactionSatisfiability(policy, proposal, approvals);
+
           const satisfiability = { satisfied: 0, satisfiable: 1, unsatisfiable: 2 }[sat.result];
-          const threshold = policy.threshold - Number(policy.approvers.has(approver));  // Expect the proposer to approve
+          const threshold = policy.threshold - Number(policy.approvers.has(approver)); // Expect the proposer to approve
 
           return { id: p.id, satisfiability, ...policy, threshold };
         }),
