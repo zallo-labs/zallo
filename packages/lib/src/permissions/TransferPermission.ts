@@ -3,11 +3,18 @@ import { tryOrIgnore } from '../util';
 import { HookStruct } from './permissions';
 import { HookSelector } from './util';
 import { Operation } from '../operation';
-import { decodeAbiParameters, decodeFunctionData, encodeAbiParameters, getAbiItem } from 'viem';
+import {
+  decodeAbiParameters,
+  decodeFunctionData,
+  encodeAbiParameters,
+  getAbiItem,
+  toFunctionSelector,
+} from 'viem';
 import { ERC20 } from '../dapps';
 import { OperationSatisfiability } from '../satisfiability';
 import { AbiParameterToPrimitiveType } from 'abitype';
 import { TEST_VERIFIER_ABI } from '../contract';
+import { Selector, asSelector } from '../bytes';
 
 export interface TransferLimit {
   amount: bigint;
@@ -101,3 +108,9 @@ function decodeTransfer(op: Operation) {
     ? { token: op.to, to: r.args[0], amount: r.args[1] }
     : { token: ETH_ADDRESS, to: op.to, amount: op.value };
 }
+
+export const TRANSFER_SELECTORS = [
+  asSelector(toFunctionSelector(getAbiItem({ abi: ERC20, name: 'transfer' }))),
+  asSelector(toFunctionSelector(getAbiItem({ abi: ERC20, name: 'approve' }))),
+  asSelector(toFunctionSelector(getAbiItem({ abi: ERC20, name: 'increaseAllowance' }))),
+] satisfies Selector[];

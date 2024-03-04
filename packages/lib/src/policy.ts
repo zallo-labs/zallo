@@ -7,12 +7,14 @@ import {
   HookSelector,
   Permissions,
   PLACEHOLDER_ACCOUNT_ADDRESS,
+  TRANSFER_SELECTORS,
 } from './permissions';
 import {
   ALLOW_ALL_TARGETS,
   decodeTargetsHook,
   encodeTargetsHook,
   replaceTargetsSelfAddress,
+  TargetsConfig,
 } from './permissions/TargetPermission';
 import { Hex } from './bytes';
 import { Arraylike, isPresent, toSet } from './util';
@@ -25,6 +27,7 @@ import {
   encodeOtherMessageHook,
 } from './permissions/OtherMessagePermission';
 import { decodeDelayHook, encodeDelayHook, NO_DELAY_CONFIG } from './permissions/DelayPermission';
+import { merge } from 'ts-deepmerge';
 
 export type PolicyKey = A.Type<number, 'PolicyKey'>;
 export const MIN_POLICY_KEY = 0;
@@ -108,12 +111,20 @@ export const asPolicy = (p: {
   if (p.threshold !== undefined && p.threshold > approvers.size)
     throw new Error(`Policy threshold must be <= approvers`);
 
+  const targets = merge(
+    {
+      // Transfer functions are allowed as they're configured via the transfers hook
+      default: { functions: Object.fromEntries(TRANSFER_SELECTORS.map((s) => [s, true])) },
+    } satisfies Partial<TargetsConfig>,
+    p.permissions?.targets ?? ALLOW_ALL_TARGETS,
+  );
+
   return {
     key: asPolicyKey(p.key),
     approvers,
     threshold: p.threshold ?? approvers.size,
     permissions: {
-      targets: p.permissions?.targets ?? ALLOW_ALL_TARGETS,
+      targets,
       transfers: p.permissions?.transfers ?? ALLOW_ALL_TRANSFERS_CONFIG,
       delay: p.permissions?.delay ?? NO_DELAY_CONFIG,
       otherMessage: p.permissions?.otherMessage ?? ALLOW_OTHER_MESSAGES_CONFIG,
