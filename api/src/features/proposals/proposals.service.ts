@@ -152,18 +152,26 @@ export class ProposalsService {
           },
         })),
         () => ({
+          id: true,
           account: { address: true },
         }),
       ),
     );
 
-    if (p) this.publish({ id, account: asUAddress(p.account.address) }, ProposalEvent.update);
+    this.publish(p, ProposalEvent.update);
   }
 
   async publish(
-    proposal: Pick<ProposalSubscriptionPayload, 'id' | 'account'> | UUID,
+    proposal:
+      | { id: UUID; account: UAddress }
+      | { id: string; account: { address: string } }
+      | UUID
+      | undefined
+      | null,
     event: ProposalEvent,
   ) {
+    if (!proposal) return;
+
     const { id, account } =
       typeof proposal === 'string'
         ? await (async () => {
@@ -179,7 +187,9 @@ export class ProposalsService {
 
             return { id: asUUID(p.id), account: asUAddress(p.account.address) };
           })()
-        : proposal;
+        : typeof proposal.account === 'object'
+          ? { id: asUUID(proposal.id), account: asUAddress(proposal.account.address) }
+          : (proposal as { id: UUID; account: UAddress });
 
     const payload: ProposalSubscriptionPayload = { id, account, event };
 

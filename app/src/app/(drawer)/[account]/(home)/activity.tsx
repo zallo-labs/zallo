@@ -42,11 +42,13 @@ const Query = gql(/* GraphQL */ `
 
 const ProposalSubscription = gql(/* GraphQL */ `
   subscription ActivityTab_ProposalSubscription($accounts: [UAddress!]!) {
-    proposal(input: { accounts: $accounts }) {
-      __typename
-      id
-      timestamp: createdAt
-      ...TransactionItem_Transaction
+    proposalUpdated(input: { accounts: $accounts }) {
+      proposal {
+        __typename
+        id
+        timestamp: createdAt
+        ...TransactionItem_Transaction
+      }
     }
   }
 `);

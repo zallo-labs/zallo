@@ -129,7 +129,17 @@ export class MessagesService {
   }
 
   async remove(proposal: UUID) {
-    return this.db.query(e.delete(selectMessage(proposal)).id);
+    const selectedMessage = selectMessage(proposal);
+    const { account } = await this.db.query(
+      e.select({
+        account: e.assert_exists(selectedMessage.account.address),
+        deleted: e.delete(selectedMessage),
+      }),
+    );
+
+    this.proposals.publish({ id: proposal, account: asUAddress(account) }, ProposalEvent.delete);
+
+    return proposal;
   }
 
   private async trySign(id: UUID) {

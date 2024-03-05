@@ -496,7 +496,12 @@ interface ProposalResponse implements Node {
   proposal: Proposal!
 }
 
-input ProposalSubscriptionInput {
+type ProposalUpdated {
+  event: ProposalEvent!
+  proposal: Proposal!
+}
+
+input ProposalUpdatedInput {
   """Defaults to user accounts if no proposals are provided"""
   accounts: [UAddress!]
 
@@ -658,7 +663,7 @@ input SpendingInput {
 
 type Subscription {
   account(input: AccountSubscriptionInput! = {}): Account!
-  proposal(input: ProposalSubscriptionInput! = {}): Proposal!
+  proposalUpdated(input: ProposalUpdatedInput! = {}): ProposalUpdated!
   transfer(input: TransferSubscriptionInput! = {}): Transfer!
   user: User!
 }

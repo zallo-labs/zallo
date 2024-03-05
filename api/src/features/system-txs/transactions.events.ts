@@ -77,17 +77,14 @@ export class TransactionsEvents implements OnModuleInit {
     const proposal = await this.db.query(
       e.select(insertResult.transaction, () => ({
         id: true,
-        account: { approvers: { user: true } },
+        account: { address: true, approvers: { user: true } },
       })),
     );
     if (!proposal)
       throw new Error(`Transaction not found for executed transaction: ${receipt.transactionHash}`);
 
     this.log.debug(`Proposal executed: ${proposal.id}`);
-    this.proposals.publish(
-      { id: asUUID(proposal.id), account: asUAddress(receipt.from, chain) },
-      ProposalEvent.executed,
-    );
+    this.proposals.publish(proposal, ProposalEvent.executed);
 
     // const usdPerEth = new Decimal(transaction.usdPerFeeToken).div(transaction.ethPerFeeToken);
     const revenue = 0; // new Decimal(0).mul(usdPerEth).toNumber();
@@ -117,17 +114,14 @@ export class TransactionsEvents implements OnModuleInit {
     const proposal = await this.db.query(
       e.select(insertResult.transaction, () => ({
         id: true,
-        account: { approvers: { user: true } },
+        account: { address: true, approvers: { user: true } },
       })),
     );
     if (!proposal)
       throw new Error(`Transaction not found for reverted transaction: ${receipt.transactionHash}`);
 
     this.log.debug(`Proposal reverted: ${proposal.id}`);
-    this.proposals.publish(
-      { id: asUUID(proposal.id), account: asUAddress(receipt.from, chain) },
-      ProposalEvent.executed,
-    );
+    this.proposals.publish(proposal, ProposalEvent.executed);
 
     // const usdPerEth = new Decimal(transaction.usdPerFeeToken).div(transaction.ethPerFeeToken);
     const revenue = 0; // new Decimal(0).mul(usdPerEth).toNumber();

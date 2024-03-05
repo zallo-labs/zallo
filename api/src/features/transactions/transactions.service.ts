@@ -292,6 +292,7 @@ export class TransactionsService {
     const p = await this.db.transaction(async (tx) => {
       const p = await e
         .select(updatedProposal, () => ({
+          id: true,
           hash: true,
           account: { address: true },
           ...TX_SHAPE,
@@ -316,7 +317,7 @@ export class TransactionsService {
 
     if (policy !== undefined) await this.tryExecute(id);
 
-    this.proposals.publish({ id, account: asUAddress(p.account.address) }, ProposalEvent.update);
+    this.proposals.publish(p, ProposalEvent.update);
 
     return p;
   }
@@ -325,16 +326,20 @@ export class TransactionsService {
     return this.db.transaction(async (db) => {
       // 1. Policies the proposal was going to create
       // Delete policies the proposal was going to activate
-      const proposalPolicies = e.select(e.Transaction, (p) => ({
+      const t = e.select(e.Transaction, (t) => ({
         filter_single: { id },
-        beingCreated: e.select(p['<proposal[is PolicyState]'], (ps) => ({
+        id: true,
+        account: { address: true },
+        beingCreated: e.select(t['<proposal[is PolicyState]'], (ps) => ({
           filter: e.op(e.count(ps.policy.stateHistory), '=', 1),
           policy: () => ({ id: true }),
         })),
       }));
 
       // TODO: use policies service instead? Ensures nothing weird happens
-      await e.for(e.set(proposalPolicies.beingCreated.policy), (p) => e.delete(p)).run(db);
+      await e.for(e.set(t.beingCreated.policy), (p) => e.delete(p)).run(db);
+
+      this.db.afterTransaction(() => this.proposals.publish(t, ProposalEvent.delete));
 
       return e.delete(selectTransaction(id)).id.run(db);
     });

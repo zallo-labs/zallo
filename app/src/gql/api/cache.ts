@@ -67,9 +67,6 @@ export const CACHE_SCHEMA_CONFIG: Pick<
       },
     } as Partial<Record<Mutation, UpdateResolver<unknown, unknown>>>,
     Subscription: {
-      proposal: (_result, _args, cache) => {
-        invalidate(cache, 'Query', ['proposals']);
-      },
       transfer: (_result, _args, cache) => {
         invalidate(cache, 'Query', ['transfers', 'tokens']);
       },

@@ -5,6 +5,9 @@ import { Bytes32Field } from '~/apollo/scalars/Bytes.scalar';
 import { Approver } from '../approvers/approvers.model';
 import { Node, NodeInterface, NodeType } from '~/decorators/interface.decorator';
 import { GraphQLURL } from 'graphql-scalars';
+import { ProposalEvent } from './proposals.input';
+import { UUIDField } from '~/apollo/scalars/Uuid.scalar';
+import { UUID } from 'lib';
 
 @ObjectType()
 export class DappMetadata {
@@ -94,3 +97,15 @@ export class Approval extends ProposalResponse {
 
 @NodeType({ implements: ProposalResponse })
 export class Rejection extends ProposalResponse {}
+
+@ObjectType()
+export class ProposalUpdated {
+  @UUIDField()
+  id: UUID;
+
+  @Field(() => Proposal, { nullable: true })
+  proposal?: Proposal;
+
+  @Field(() => ProposalEvent)
+  event: ProposalEvent;
+}

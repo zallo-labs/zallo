@@ -36,7 +36,7 @@ export class MessagesResolver {
   }
 
   @Mutation(() => ID)
-  async removeMessage(@Input() input: UniqueProposalInput, @Info() info: GraphQLResolveInfo) {
+  async removeMessage(@Input() input: UniqueProposalInput) {
     return this.service.remove(input.id);
   }
 }

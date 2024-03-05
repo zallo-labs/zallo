@@ -62,7 +62,7 @@ export enum ProposalEvent {
 registerEnumType(ProposalEvent, { name: 'ProposalEvent' });
 
 @InputType()
-export class ProposalSubscriptionInput {
+export class ProposalUpdatedInput {
   @Field(() => [UUIDScalar], { nullable: true })
   proposals?: UUID[];
 
