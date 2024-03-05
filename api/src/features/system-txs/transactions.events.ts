@@ -84,7 +84,7 @@ export class TransactionsEvents implements OnModuleInit {
       throw new Error(`Transaction not found for executed transaction: ${receipt.transactionHash}`);
 
     this.log.debug(`Proposal executed: ${proposal.id}`);
-    this.proposals.publishProposal(
+    this.proposals.publish(
       { id: asUUID(proposal.id), account: asUAddress(receipt.from, chain) },
       ProposalEvent.executed,
     );
@@ -124,7 +124,7 @@ export class TransactionsEvents implements OnModuleInit {
       throw new Error(`Transaction not found for reverted transaction: ${receipt.transactionHash}`);
 
     this.log.debug(`Proposal reverted: ${proposal.id}`);
-    this.proposals.publishProposal(
+    this.proposals.publish(
       { id: asUUID(proposal.id), account: asUAddress(receipt.from, chain) },
       ProposalEvent.executed,
     );

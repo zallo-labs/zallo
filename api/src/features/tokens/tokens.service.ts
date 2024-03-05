@@ -223,7 +223,7 @@ export class TokensService {
     return this.policySpending(token, policy, input.since, shape);
   }
 
-  private async policySpending(
+  async policySpending(
     token: UAddress,
     policy: SelectedPolicies,
     sinceParam?: Date,

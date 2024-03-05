@@ -338,6 +338,7 @@ type Message implements Node & Proposal {
   typedData: TypedData
   updatable: Boolean!
   validFrom: DateTime!
+  validationErrors: [ValidationError!]!
 }
 
 type Mutation {
@@ -406,10 +407,10 @@ type Policy implements Node {
   isActive: Boolean!
   key: PolicyKey!
   name: String!
-  satisfiability(input: SatisfiabilityInput!): SatisfiabilityResult!
   state: PolicyState
   stateHistory: [PolicyState!]!
   stateOrDraft: PolicyState!
+  validationErrors(input: ValidationErrorsInput!): [ValidationError!]!
 }
 
 input PolicyInput {
@@ -471,6 +472,7 @@ interface Proposal implements Node {
   proposedBy: Approver!
   rejections: [Rejection!]!
   validFrom: DateTime!
+  validationErrors: [ValidationError!]!
 }
 
 enum ProposalEvent {
@@ -482,6 +484,7 @@ enum ProposalEvent {
   executed
   rejection
   scheduled
+  simulated
   submitted
   update
 }
@@ -611,26 +614,6 @@ interface Result implements Node {
   timestamp: DateTime!
   transferApprovals: [TransferApproval!]!
   transfers: [Transfer!]!
-}
-
-enum Satisfiability {
-  satisfiable
-  satisfied
-  unsatisfiable
-}
-
-input SatisfiabilityInput {
-  proposal: UUID!
-}
-
-type SatisfiabilityReason {
-  operation: Float
-  reason: String!
-}
-
-type SatisfiabilityResult {
-  reasons: [SatisfiabilityReason!]!
-  result: Satisfiability!
 }
 
 type Scheduled implements Node & Result {
@@ -779,6 +762,7 @@ type Transaction implements Node & Proposal {
   createdAt: DateTime!
   dapp: DappMetadata
   estimatedFees: EstimatedTransactionFees!
+  executable: Boolean!
   feeToken: Token!
   gasLimit: BigInt!
   hash: Bytes32!
@@ -803,6 +787,7 @@ type Transaction implements Node & Proposal {
   systxs: [SystemTx!]!
   updatable: Boolean!
   validFrom: DateTime!
+  validationErrors: [ValidationError!]!
 }
 
 enum TransactionStatus {
@@ -1073,4 +1058,13 @@ type UserApprover implements Node {
   label: String
   name: String
   pushToken: String
+}
+
+type ValidationError {
+  operation: Float
+  reason: String!
+}
+
+input ValidationErrorsInput {
+  proposal: UUID!
 }

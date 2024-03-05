@@ -1,17 +1,11 @@
-import { Field, ObjectType, createUnionType, registerEnumType } from '@nestjs/graphql';
+import { Field, ObjectType, createUnionType } from '@nestjs/graphql';
 import { GraphQLBigInt } from 'graphql-scalars';
 import { Account } from '../accounts/accounts.model';
 import { Transaction } from '../transactions/transactions.model';
 import * as eql from '~/edgeql-interfaces';
 import { PolicyKeyField } from '~/apollo/scalars/PolicyKey.scalar';
 import { AddressField } from '~/apollo/scalars/Address.scalar';
-import {
-  Address,
-  Satisfiability,
-  Selector,
-  SatisfiabilityResult as ISatisfiabilityResult,
-  SatisfiabilityReason as ISatisfiabilityReason,
-} from 'lib';
+import { Address, Selector } from 'lib';
 import { Approver } from '../approvers/approvers.model';
 import { SelectorField } from '~/apollo/scalars/Bytes.scalar';
 import { Err, ErrorType, Node, NodeType } from '~/decorators/interface.decorator';
@@ -140,19 +134,8 @@ export class Policy extends Node {
   isActive: boolean;
 }
 
-registerEnumType(Satisfiability, { name: 'Satisfiability' });
-
 @ObjectType()
-export class SatisfiabilityResult implements ISatisfiabilityResult {
-  @Field(() => Satisfiability)
-  result: Satisfiability;
-
-  @Field(() => [SatisfiabilityReason])
-  reasons: SatisfiabilityReason[];
-}
-
-@ObjectType()
-export class SatisfiabilityReason implements ISatisfiabilityReason {
+export class ValidationError {
   @Field(() => String)
   reason: string;
 

@@ -116,7 +116,7 @@ export class ProposalsService {
         .run(db);
     });
 
-    await this.publishProposal(id, ProposalEvent.approval);
+    await this.publish(id, ProposalEvent.approval);
   }
 
   async reject(id: UUID) {
@@ -133,7 +133,7 @@ export class ProposalsService {
       await e.insert(e.Rejection, { proposal }).run(db);
     });
 
-    await this.publishProposal(id, ProposalEvent.rejection);
+    await this.publish(id, ProposalEvent.rejection);
   }
 
   async update({ id, policy }: UpdateProposalInput) {
@@ -157,13 +157,12 @@ export class ProposalsService {
       ),
     );
 
-    if (p)
-      this.publishProposal({ id, account: asUAddress(p.account.address) }, ProposalEvent.update);
+    if (p) this.publish({ id, account: asUAddress(p.account.address) }, ProposalEvent.update);
   }
 
-  async publishProposal(
+  async publish(
     proposal: Pick<ProposalSubscriptionPayload, 'id' | 'account'> | UUID,
-    event: ProposalSubscriptionPayload['event'],
+    event: ProposalEvent,
   ) {
     const { id, account } =
       typeof proposal === 'string'

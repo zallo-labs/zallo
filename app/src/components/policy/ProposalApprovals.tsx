@@ -16,9 +16,6 @@ const Proposal = gql(/* GraphQL */ `
     id
     policy {
       id
-      satisfiability(input: { proposal: $proposal }) {
-        result
-      }
       state {
         id
         threshold

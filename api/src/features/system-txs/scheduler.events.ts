@@ -64,7 +64,7 @@ export class SchedulerEvents implements OnModuleInit {
 
     if (proposalId) {
       this.flows.add(this.getJob(asUUID(proposalId), event.chain, scheduledFor));
-      this.proposals.publishProposal({ id: asUUID(proposalId), account }, ProposalEvent.scheduled);
+      this.proposals.publish({ id: asUUID(proposalId), account }, ProposalEvent.scheduled);
       this.log.debug(`Scheduled ${proposalId}`);
     }
   }
@@ -87,7 +87,7 @@ export class SchedulerEvents implements OnModuleInit {
 
     if (proposalId) {
       this.queue.remove(event.log.args.proposal);
-      this.proposals.publishProposal({ id: asUUID(proposalId), account }, ProposalEvent.cancelled);
+      this.proposals.publish({ id: asUUID(proposalId), account }, ProposalEvent.cancelled);
       this.log.debug(`Cancelled scheduled ${proposalId}`);
     }
   }
@@ -107,7 +107,7 @@ export class SchedulerEvents implements OnModuleInit {
             {
               queueName: SimulationsQueue.name,
               name: 'Simulate scheduled transaction',
-              data: { txProposal } satisfies QueueData<SimulationsQueue>,
+              data: { transaction: txProposal } satisfies QueueData<SimulationsQueue>,
               opts: { delay: scheduledFor.getTime() - Date.now() },
             },
           ],

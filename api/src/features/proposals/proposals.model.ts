@@ -1,6 +1,6 @@
 import { Field, ObjectType, registerEnumType } from '@nestjs/graphql';
 import { Account } from '../accounts/accounts.model';
-import { Policy } from '../policies/policies.model';
+import { Policy, ValidationError } from '../policies/policies.model';
 import { Bytes32Field } from '~/apollo/scalars/Bytes.scalar';
 import { Approver } from '../approvers/approvers.model';
 import { Node, NodeInterface, NodeType } from '~/decorators/interface.decorator';
@@ -28,6 +28,9 @@ export class Proposal {
 
   @Field(() => Policy)
   policy: Policy;
+
+  @Field(() => [ValidationError])
+  validationErrors: ValidationError[];
 
   @Field(() => String, { nullable: true })
   label?: string;

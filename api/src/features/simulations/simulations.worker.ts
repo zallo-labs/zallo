@@ -1,6 +1,7 @@
 import { InjectQueue, Processor } from '@nestjs/bullmq';
 import { Injectable } from '@nestjs/common';
 import {
+  Address,
   ETH_ADDRESS,
   UUID,
   asAddress,
@@ -9,13 +10,14 @@ import {
   asHex,
   asUAddress,
   asUUID,
+  decodeTransfer,
   encodeTransaction,
   isHex,
   isTruthy,
   simulate,
 } from 'lib';
 import { DatabaseService } from '../database/database.service';
-import e from '~/edgeql-js';
+import e, { $infer } from '~/edgeql-js';
 import { and } from '../database/database.util';
 import { OperationsService } from '../operations/operations.service';
 import { selectAccount } from '../accounts/accounts.util';
@@ -30,15 +32,31 @@ import {
   createQueue,
 } from '../util/bull/bull.util';
 import { ETH } from 'lib/dapps';
-import { selectTransaction } from '~/features/transactions/transactions.service';
 import { NetworksService } from '~/features/util/networks/networks.service';
 import { TX_SHAPE, transactionAsTx } from '~/features/transactions/transactions.util';
 import { runOnce } from '~/util/mutex';
+import { Shape } from '../database/database.select';
+import { TokensService } from '../tokens/tokens.service';
+import { selectTransaction } from '../transactions/transactions.service';
+import { SelectedPolicies, selectPolicy } from '../policies/policies.util';
+import { ProposalsService } from '../proposals/proposals.service';
+import { ProposalEvent } from '../proposals/proposals.input';
+
+export const SimulationsQueue = createQueue<{ transaction: UUID }>('Simulations');
+export type SimulationsQueue = typeof SimulationsQueue;
 
 type TransferDetails = Parameters<typeof e.insert<typeof e.TransferDetails>>[1];
 
-export const SimulationsQueue = createQueue<{ txProposal: UUID }>('Simulations');
-export type SimulationsQueue = typeof SimulationsQueue;
+const TransactionExecutableShape = {
+  account: { address: true },
+  approvals: { approver: { address: true } },
+  policy: { id: true, state: { threshold: true } },
+  ...TX_SHAPE,
+} satisfies Shape<typeof e.Transaction>;
+const s_ = e.assert_exists(
+  e.assert_single(e.select(e.Transaction, () => TransactionExecutableShape)),
+);
+type TransactionExecutableShape = $infer<typeof s_>;
 
 @Injectable()
 @Processor(SimulationsQueue.name)
@@ -50,6 +68,8 @@ export class SimulationsWorker extends Worker<SimulationsQueue> {
     @InjectRedis() private redis: Redis,
     private networks: NetworksService,
     private operations: OperationsService,
+    private tokens: TokensService,
+    private proposals: ProposalsService,
   ) {
     super();
   }
@@ -60,17 +80,11 @@ export class SimulationsWorker extends Worker<SimulationsQueue> {
   }
 
   async process(job: TypedJob<SimulationsQueue>) {
-    const { txProposal } = job.data;
+    const proposal = selectTransaction(job.data.transaction);
+    const p = await this.db.query(e.select(proposal, () => TransactionExecutableShape));
+    if (!p) return 'Transaction not found';
 
-    const p = await this.db.query(
-      e.select(e.Transaction, (p) => ({
-        filter_single: { id: txProposal },
-        account: { address: true },
-        ...TX_SHAPE,
-      })),
-    );
-    if (!p) return; // Job is complete if the proposal no longer exists
-
+    const promisedExecutable = this.isExecutable(p);
     const account = asUAddress(p.account.address);
     const localAccount = asAddress(account);
     const chain = asChain(account);
@@ -146,12 +160,13 @@ export class SimulationsWorker extends Worker<SimulationsQueue> {
       }
     }
 
-    const proposal = selectTransaction(txProposal);
+    const executable = await promisedExecutable;
     await this.db.query(
       e.select({
         prevSimulation: e.delete(proposal.simulation, () => ({})),
         proposal: e.update(proposal, () => ({
           set: {
+            executable,
             simulation: e.insert(e.Simulation, {
               success: response.isOk(),
               responses: [response.map((r) => r.data).unwrapOr(null)].filter(isTruthy),
@@ -163,6 +178,41 @@ export class SimulationsWorker extends Worker<SimulationsQueue> {
         })),
       }),
     );
+
+    this.proposals.publish({ id: job.data.transaction, account }, ProposalEvent.simulated);
+  }
+
+  private async isExecutable(t: TransactionExecutableShape) {
+    const policy = t.policy.state;
+    if (!policy) return false;
+
+    const approved = policy.threshold <= t.approvals.length;
+    if (!approved) return false;
+
+    // Check all limits
+    const transfers = transactionAsTx(t)
+      .operations.map(decodeTransfer)
+      .reduce<Record<Address, bigint>>((transfers, t) => {
+        // Aggregate transfers by token
+        if (t) {
+          transfers[t.token] ??= 0n;
+          transfers[t.token] += t.amount;
+        }
+        return transfers;
+      }, {});
+
+    const chain = asChain(asUAddress(t.account.address));
+    const selectedPolicy = selectPolicy(t.policy) as unknown as SelectedPolicies;
+    const limitResults = await Promise.all(
+      Object.entries(transfers).map(async ([localToken, amount]) => {
+        const token = asUAddress(localToken, chain);
+        const { remaining } = await this.tokens.policySpending(token, selectedPolicy);
+
+        return remaining === undefined || remaining.gte(await this.tokens.asDecimal(token, amount));
+      }),
+    );
+
+    return limitResults.every((r) => r);
   }
 
   private async addMissingJobs() {
@@ -170,7 +220,7 @@ export class SimulationsWorker extends Worker<SimulationsQueue> {
       async () => {
         const jobs = await this.queue.getJobs(RUNNING_JOB_STATUSES);
 
-        const orphanedProposals = await this.db.query(
+        const orphanedTransactions = await this.db.query(
           e.select(e.Transaction, (p) => ({
             filter: and(
               e.op('not', e.op('exists', p.simulation)),
@@ -178,18 +228,18 @@ export class SimulationsWorker extends Worker<SimulationsQueue> {
                 ? e.op(
                     p.id,
                     'not in',
-                    e.cast(e.uuid, e.set(...jobs.map((job) => job.data.txProposal))),
+                    e.cast(e.uuid, e.set(...jobs.map((job) => job.data.transaction))),
                   )
                 : undefined,
             ),
           })).id,
         );
 
-        if (orphanedProposals.length) {
+        if (orphanedTransactions.length) {
           await this.queue.addBulk(
-            orphanedProposals.map((id) => ({
+            orphanedTransactions.map((id) => ({
               name: SimulationsQueue.name,
-              data: { txProposal: asUUID(id) },
+              data: { transaction: asUUID(id) },
             })),
           );
         }

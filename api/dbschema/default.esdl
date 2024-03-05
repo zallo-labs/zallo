@@ -37,17 +37,12 @@ module default {
     required hash: Bytes32 { constraint exclusive; }
     required account: Account;
     required policy: Policy;
+    required validationErrors: array<tuple<reason: str, operation: int32>>;
     label: Label;
     iconUri: Url;
     required validFrom: datetime;
-    required createdAt: datetime {
-      readonly := true;
-      default := datetime_of_statement();
-    }
-    required proposedBy: Approver {
-      readonly := true;
-      default := (<Approver>(global current_approver).id);
-    }
+    required createdAt: datetime { default := datetime_of_statement(); }
+    required proposedBy: Approver { default := (<Approver>(global current_approver).id); }
     dapp: tuple<name: str, url: Url, icons: array<Url>>;
     multi link approvals := .<proposal[is Approval];
     multi link rejections := .<proposal[is Rejection];

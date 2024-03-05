@@ -1,10 +1,10 @@
 import { FragmentType, gql, useFragment } from '@api/generated';
 import { useMutation } from 'urql';
-import { SatisfiablePolicyItem } from './SatisfiablePolicyItem';
 import { useQuery } from '~/gql';
 import { withSuspense } from '#/skeleton/withSuspense';
 import { ListItemSkeleton } from '#/list/ListItemSkeleton';
 import { PolicyIcon } from '@theme/icons';
+import { ListItem } from '#/list/ListItem';
 
 // TODO: replace query with @deferred fragment once supported (graphql-js 17)
 const Query = gql(/* GraphQL */ `
@@ -16,10 +16,10 @@ const Query = gql(/* GraphQL */ `
         policies {
           id
           key
-          satisfiability(input: { proposal: $proposal }) {
-            result
+          name
+          validationErrors(input: { proposal: $proposal }) {
+            reason
           }
-          ...SatisfiabePolicyItem_Policy @arguments(proposal: $proposal)
         }
       }
     }
@@ -60,9 +60,15 @@ function OtherPolicies_(props: OtherPoliciesProps) {
   return (
     <>
       {policies.map((p) => (
-        <SatisfiablePolicyItem
+        <ListItem
           key={p.id}
-          policy={p}
+          leading={PolicyIcon}
+          headline={p.name}
+          supporting={
+            p.validationErrors.length
+              ? 'Policy lacks permission to execute this transaction'
+              : undefined
+          }
           selected={p.id === proposal.policy.id}
           onPress={() => {
             if (p.id !== proposal.policy.id) update({ proposal: proposal.id, policy: p.key });

@@ -82,6 +82,7 @@ export class MessagesService {
     })();
 
     const hash = hashTypedData(asMessageTypedData(account, messageHash));
+    const { policy, validationErrors } = await this.policies.best(account, 'message');
 
     const existingMessage = selectMessage(hash);
     const { proposal, inserted } = await this.db.query(
@@ -93,6 +94,8 @@ export class MessagesService {
             '??',
             e.insert(e.Message, {
               account: selectAccount(account),
+              policy,
+              validationErrors,
               hash,
               messageHash,
               message,
@@ -105,7 +108,6 @@ export class MessagesService {
                 icons: dapp.icons.map((i) => i.href),
               },
               validFrom,
-              policy: await this.policies.best(account, 'message'),
             }),
           ),
         ),
@@ -114,7 +116,7 @@ export class MessagesService {
     );
 
     const id = asUUID(proposal.id);
-    if (inserted) this.proposals.publishProposal({ id, account }, ProposalEvent.create);
+    if (inserted) this.proposals.publish({ id, account }, ProposalEvent.create);
 
     if (signature) await this.approve({ id, signature });
 
@@ -190,7 +192,7 @@ export class MessagesService {
       })),
     );
 
-    await this.proposals.publishProposal({ id, account }, ProposalEvent.approved);
+    await this.proposals.publish({ id, account }, ProposalEvent.approved);
 
     return signature;
   }

@@ -4,8 +4,7 @@ import { HookSelector } from './util';
 import { HookStruct } from './permissions';
 import _ from 'lodash';
 import { Operation } from '../operation';
-import { OperationSatisfiability } from '../satisfiability';
-import assert from 'assert';
+import { PermissionValidation } from '../validation';
 import { getAbiItem, encodeAbiParameters, decodeAbiParameters, hexToNumber } from 'viem';
 import { AbiParameterToPrimitiveType } from 'abitype';
 import { TEST_VERIFIER_ABI } from '../contract';
@@ -96,13 +95,11 @@ export function decodeTargetsHook(h: HookStruct | undefined) {
   return decodeTargetsConfigStruct(decodeAbiParameters([configAbi], h.config)[0]);
 }
 
-export function verifyTargetsPermission(t: TargetsConfig, op: Operation): OperationSatisfiability {
-  return isTargetAllowed(t, op.to, asSelector(op.data))
-    ? { result: 'satisfied' }
-    : {
-        result: 'unsatisfiable',
-        reason: "Calling this function on this address isn't allowed",
-      };
+export function verifyTargetsPermission(t: TargetsConfig, op: Operation): PermissionValidation {
+  return (
+    isTargetAllowed(t, op.to, asSelector(op.data)) ||
+    "Calling this function on this address isn't allowed"
+  );
 }
 
 function isTargetAllowed(targets: TargetsConfig, to: Address, selector: Selector | undefined) {

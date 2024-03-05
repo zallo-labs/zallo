@@ -3,34 +3,25 @@ import { GraphQLResolveInfo } from 'graphql';
 import {
   CreatePolicyInput,
   PoliciesInput,
-  SatisfiabilityInput,
+  ValidationErrorsInput,
   UniquePolicyInput,
   UpdatePolicyInput,
 } from './policies.input';
-import {
-  PoliciesService,
-  ProposalPolicySatisfiabilityShape,
-  ProposalSatisfiabilityShape,
-} from './policies.service';
+import { PoliciesService, ValidatePolicyShape } from './policies.service';
 import {
   CreatePolicyResponse,
   Policy,
-  SatisfiabilityResult,
+  ValidationError,
   UpdatePolicyResponse,
 } from './policies.model';
 import { getShape } from '../database/database.select';
 import { Input } from '~/decorators/input.decorator';
 import e from '~/edgeql-js';
 import { ComputedField } from '~/decorators/computed.decorator';
-import { DatabaseService } from '../database/database.service';
-import { selectProposal } from '../proposals/proposals.service';
 
 @Resolver(() => Policy)
 export class PoliciesResolver {
-  constructor(
-    private service: PoliciesService,
-    private db: DatabaseService,
-  ) {}
+  constructor(private service: PoliciesService) {}
 
   @Query(() => Policy, { nullable: true })
   async policy(@Input() policy: UniquePolicyInput, @Info() info: GraphQLResolveInfo) {
@@ -45,16 +36,12 @@ export class PoliciesResolver {
     return this.service.select(input, getShape(info));
   }
 
-  @ComputedField<typeof e.Policy>(() => SatisfiabilityResult, ProposalPolicySatisfiabilityShape)
-  async satisfiability(
-    @Input() { proposal }: SatisfiabilityInput,
-    @Parent() policy: ProposalPolicySatisfiabilityShape,
-  ): Promise<SatisfiabilityResult> {
-    const p = await this.db.query(
-      e.select(selectProposal(proposal), () => ProposalSatisfiabilityShape),
-    );
-
-    return this.service.satisfiability(p, policy);
+  @ComputedField<typeof e.Policy>(() => [ValidationError], ValidatePolicyShape)
+  async validationErrors(
+    @Input() { proposal }: ValidationErrorsInput,
+    @Parent() policy: ValidatePolicyShape,
+  ): Promise<ValidationError[]> {
+    return this.service.validateProposal(proposal, policy);
   }
 
   @Mutation(() => CreatePolicyResponse)

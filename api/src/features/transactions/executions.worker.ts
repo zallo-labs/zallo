@@ -10,7 +10,6 @@ import {
   encodeTransaction,
   encodeTransactionSignature,
   execute,
-  getTransactionSatisfiability,
   isPresent,
   mapAsync,
 } from 'lib';
@@ -26,11 +25,11 @@ import {
 } from '~/features/policies/policies.util';
 import { TX_SHAPE, transactionAsTx } from './transactions.util';
 import Decimal from 'decimal.js';
-import { selectApprover } from '~/features/approvers/approvers.service';
 import { ProposalEvent } from '~/features/proposals/proposals.input';
 import { selectTransaction } from '~/features/transactions/transactions.service';
 import { QueueReturnType, TypedJob, Worker, createQueue } from '~/features/util/bull/bull.util';
 import { ETH } from 'lib/dapps';
+import { UnrecoverableError } from 'bullmq';
 
 export const ExecutionsQueue = createQueue<{ txProposal: UUID; ignoreSimulation?: boolean }>(
   'Executions',
@@ -59,6 +58,7 @@ export class ExecutionsWorker extends Worker<ExecutionsQueue> {
         hash: true,
         ...TX_SHAPE,
         status: true,
+        executable: true,
         feeToken: { address: true },
         maxPaymasterEthFees: {
           total: true,
@@ -83,8 +83,8 @@ export class ExecutionsWorker extends Worker<ExecutionsQueue> {
     if (proposal.status !== 'Pending' && proposal.status !== 'Executing')
       return `Can't execute transaction with status ${proposal.status}`;
 
-    // Require simulation to have succeed, unless ignored
     if (!ignoreSimulation && !proposal.simulation?.success) return 'simulation failed';
+    if (!proposal.executable) return 'not executable';
 
     const account = asUAddress(proposal.account.address);
     const network = this.networks.get(account);
@@ -99,33 +99,12 @@ export class ExecutionsWorker extends Worker<ExecutionsQueue> {
         }),
       )
     ).filter(isPresent);
-
-    if (approvals.length !== proposal.approvals.length) {
-      const expiredApprovals = proposal.approvals
-        .map((a) => asAddress(a.approver.address))
-        .filter((a) => !approvals.find((approval) => approval.approver === a));
-      // TODO: Mark approvals as expired rather than removing
-      await e
-        .for(e.set(...expiredApprovals.map((approver) => selectApprover(approver))), (approver) =>
-          e.delete(e.Approval, () => ({
-            filter_single: { proposal: selectTransaction(id), approver },
-          })),
-        )
-        .run(this.db.DANGEROUS_superuserClient);
-      job.retry();
-      return 'retry';
-    }
+    if (approvals.length !== proposal.approvals.length)
+      throw new UnrecoverableError('Approval expired'); // TODO: handle expiring approvals
 
     const tx = transactionAsTx(proposal);
     const policy = policyStateAsPolicy(proposal.policy.key, proposal.policy.state);
     if (!policy) return fail('policy not active');
-
-    const satisfiability = getTransactionSatisfiability(
-      policy,
-      tx,
-      new Set(approvals.map((a) => a.approver)),
-    );
-    if (satisfiability.result !== 'satisfied') return satisfiability;
 
     return await this.db.transaction(async () => {
       const { paymaster, paymasterInput, ...feeData } = await this.paymaster.usePaymaster({
@@ -191,7 +170,7 @@ export class ExecutionsWorker extends Worker<ExecutionsQueue> {
       );
 
       this.db.afterTransaction(() =>
-        this.proposals.publishProposal({ id, account }, ProposalEvent.submitted),
+        this.proposals.publish({ id, account }, ProposalEvent.submitted),
       );
 
       return hash;

@@ -37,6 +37,9 @@ export class Transaction extends Proposal {
   simulation?: Simulation;
 
   @Field(() => Boolean)
+  executable: boolean;
+
+  @Field(() => Boolean)
   submitted: boolean;
 
   @Field(() => [SystemTx])

@@ -23,6 +23,7 @@ module default {
     required paymaster: Address;
     required maxPaymasterEthFees: PaymasterFees { constraint exclusive; default := (insert PaymasterFees {}); }
     simulation: Simulation { constraint exclusive; on target delete deferred restrict; }
+    required executable: bool { default := false; }
     required submitted: bool { default := false; }
     multi link systxs := .<proposal[is SystemTx];
     link systx: SystemTx { constraint exclusive; } # Latest .timestamp

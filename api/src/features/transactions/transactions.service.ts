@@ -40,7 +40,7 @@ import { ExecutionsQueue } from '~/features/transactions/executions.worker';
 import { FLOW_PRODUCER } from '../util/bull/bull.util';
 import { QueueData, TypedQueue } from '~/features/util/bull/bull.util';
 import { SimulationsQueue } from '~/features/simulations/simulations.worker';
-import { proposalTxShape, transactionAsTx } from '~/features/transactions/transactions.util';
+import { TX_SHAPE, transactionAsTx } from '~/features/transactions/transactions.util';
 import { encodeFunctionData, hashTypedData } from 'viem';
 import { v4 as uuid } from 'uuid';
 import { FlowProducer } from 'bullmq';
@@ -110,10 +110,12 @@ export class TransactionsService {
     const updatedProposal = e.update(selectTransaction(txProposal), () => ({
       set: { submitted: true },
     }));
-    const account = asUAddress(
-      (await this.db.query(e.select(updatedProposal.account.address))) ?? undefined,
+
+    const t = await this.db.query(
+      e.select(updatedProposal, () => ({ account: { address: true, isActive: true } })),
     );
-    if (!account) throw new Error(`Transaction proposal not found: ${txProposal}`);
+    if (!t) throw new Error(`Transaction proposal not found: ${txProposal}`);
+    const account = asUAddress(t.account.address);
     const chain = asChain(account);
 
     // activate -> simulate -> execute -> receipt
@@ -130,15 +132,17 @@ export class TransactionsService {
             {
               queueName: SimulationsQueue.name,
               name: 'Simulate transaction',
-              data: { txProposal } satisfies QueueData<SimulationsQueue>,
-              children: [this.activations.activationFlow(account)],
+              data: { transaction: txProposal } satisfies QueueData<SimulationsQueue>,
+              ...(!t.account.isActive && {
+                children: [this.activations.activationFlow(account)],
+              }),
             },
           ],
         },
       ],
     });
 
-    this.proposals.publishProposal({ id: txProposal, account }, ProposalEvent.submitted);
+    this.proposals.publish({ id: txProposal, account }, ProposalEvent.submitted);
   }
 
   async getInsertProposal({
@@ -164,6 +168,7 @@ export class TransactionsService {
       paymaster: this.paymasters.for(chain),
       paymasterEthFee: totalPaymasterEthFees(maxPaymasterEthFees),
     } satisfies Tx;
+    const { policy, validationErrors } = await this.policies.best(account, tx);
 
     gas ??=
       (
@@ -175,6 +180,8 @@ export class TransactionsService {
       id,
       hash: hashTx(account, tx),
       account: selectAccount(account),
+      policy,
+      validationErrors,
       label,
       iconUri,
       dapp: dapp && {
@@ -193,7 +200,6 @@ export class TransactionsService {
       ),
       validFrom,
       gasLimit: gas,
-      policy: await this.policies.best(account, tx),
       paymaster: tx.paymaster,
       maxPaymasterEthFees: e.insert(e.PaymasterFees, {
         activation: maxPaymasterEthFees.activation.toString(),
@@ -210,8 +216,8 @@ export class TransactionsService {
     });
 
     this.db.afterTransaction(() => {
-      this.simulations.add(SimulationsQueue.name, { txProposal: id });
-      this.proposals.publishProposal({ id, account }, ProposalEvent.create);
+      this.simulations.add(SimulationsQueue.name, { transaction: id });
+      this.proposals.publish({ id, account }, ProposalEvent.create);
     });
 
     return insert;
@@ -288,7 +294,7 @@ export class TransactionsService {
         .select(updatedProposal, () => ({
           hash: true,
           account: { address: true },
-          ...proposalTxShape(tx),
+          ...TX_SHAPE,
         }))
         .run(tx);
       if (!p) return;
@@ -310,10 +316,7 @@ export class TransactionsService {
 
     if (policy !== undefined) await this.tryExecute(id);
 
-    this.proposals.publishProposal(
-      { id, account: asUAddress(p.account.address) },
-      ProposalEvent.update,
-    );
+    this.proposals.publish({ id, account: asUAddress(p.account.address) }, ProposalEvent.update);
 
     return p;
   }

@@ -17,23 +17,21 @@ const Transaction = gql(/* GraphQL */ `
     id
     status
     updatable
-    systx {
-      id
-      hash
-    }
+    executable
     account {
       id
       chain
     }
-    policy {
-      id
-      satisfiability(input: { proposal: $transaction }) {
-        result
-      }
+    validationErrors {
+      reason
     }
     simulation {
       id
       success
+    }
+    systx {
+      id
+      hash
     }
     ...UseApprove_Proposal
     ...UseReject_Proposal
@@ -76,7 +74,7 @@ export const TransactionActions = (props: ProposalActionsProps) => {
   });
 
   const blockExplorer = CHAINS[p.account.chain].blockExplorers?.default;
-  const showForceExecute = p.status === 'Pending' && p.policy.satisfiability.result === 'satisfied';
+  const showForceExecute = p.status === 'Pending' && p.executable && !p.simulation?.success;
 
   return (
     <Actions>

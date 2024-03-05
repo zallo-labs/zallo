@@ -112,7 +112,7 @@ export class UpdatePolicyInput extends IntersectionType(
 ) {}
 
 @InputType()
-export class SatisfiabilityInput {
+export class ValidationErrorsInput {
   @UUIDField()
   proposal: UUID;
 }

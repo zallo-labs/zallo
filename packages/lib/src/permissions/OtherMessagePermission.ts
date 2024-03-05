@@ -1,7 +1,7 @@
 import { HookStruct } from './permissions';
 import { HookSelector } from './util';
 import { decodeAbiParameters, encodeAbiParameters, getAbiItem } from 'viem';
-import { MessagePermissionVerifier } from '../satisfiability';
+import { MessagePermissionVerifier } from '../validation';
 import { TEST_VERIFIER_ABI } from '../contract';
 
 export interface OtherMessageConfig {
@@ -36,10 +36,7 @@ export function verifyOtherMessagePermission(
   c: OtherMessageConfig,
   previouslyHandled: boolean,
 ): MessagePermissionVerifier {
-  if (previouslyHandled) return [false, { result: 'satisfied' }];
+  if (previouslyHandled) return [false, true];
 
-  const r = c.allow
-    ? ({ result: 'satisfied' } as const)
-    : ({ result: 'unsatisfiable', reason: 'Arbitrary messages are not allowed' } as const);
-  return [true, r];
+  return [true, c.allow || 'Arbitrary messages are not allowed'];
 }

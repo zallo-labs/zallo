@@ -74,6 +74,8 @@ describe(PoliciesService.name, () => {
       return e.insert(e.Transaction, {
         hash,
         account: selectAccount(account),
+        policy: e.assert_single(e.select(selectAccount(account).policies, () => ({ limit: 1 }))),
+        validationErrors: [],
         operations: e.insert(e.Operation, { to: ZERO_ADDR }),
         validFrom: new Date(),
         paymaster: ZERO_ADDR,
@@ -83,7 +85,6 @@ describe(PoliciesService.name, () => {
             limit: 1,
           })),
         ),
-        policy: e.assert_single(e.select(selectAccount(account).policies, () => ({ limit: 1 }))),
       });
     });
 
