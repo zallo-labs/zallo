@@ -788,7 +788,6 @@ type Transaction implements Node & Proposal {
   results: [Result!]!
   simulation: Simulation
   status: TransactionStatus!
-  submitted: Boolean!
   systx: SystemTx
   systxs: [SystemTx!]!
   updatable: Boolean!

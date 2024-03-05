@@ -24,14 +24,13 @@ module default {
     required maxPaymasterEthFees: PaymasterFees { constraint exclusive; default := (insert PaymasterFees {}); }
     simulation: Simulation { constraint exclusive; on target delete deferred restrict; }
     required executable: bool { default := false; }
-    required submitted: bool { default := false; }
     multi link systxs := .<proposal[is SystemTx];
     link systx: SystemTx { constraint exclusive; } # Latest .timestamp
     multi link results := .<transaction[is Result];
     link result: Result { constraint exclusive; } # Latest .timestamp
     required property status := (
       select assert_exists((
-        TransactionStatus.Pending if (not .submitted) else
+        TransactionStatus.Pending if (not .executable) else
         TransactionStatus.Executing if (not exists .result) else
         TransactionStatus.Successful if (.result is Successful) else
         TransactionStatus.Failed if (.result is Failed) else
@@ -39,8 +38,6 @@ module default {
         TransactionStatus.Cancelled
       ))
     );
-
-    constraint exclusive on (.hash);
   }
 
   type Simulation {

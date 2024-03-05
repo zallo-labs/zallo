@@ -107,12 +107,11 @@ export class TransactionsService {
   }
 
   async tryExecute(txProposal: UUID, ignoreSimulation?: boolean) {
-    const updatedProposal = e.update(selectTransaction(txProposal), () => ({
-      set: { submitted: true },
-    }));
-
     const t = await this.db.query(
-      e.select(updatedProposal, () => ({ account: { address: true, isActive: true } })),
+      e.select(e.Transaction, () => ({
+        filter_single: { id: txProposal },
+        account: { address: true, isActive: true },
+      })),
     );
     if (!t) throw new Error(`Transaction proposal not found: ${txProposal}`);
     const account = asUAddress(t.account.address);
@@ -141,8 +140,6 @@ export class TransactionsService {
         },
       ],
     });
-
-    this.proposals.publish({ id: txProposal, account }, ProposalEvent.submitted);
   }
 
   async getInsertProposal({
