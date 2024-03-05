@@ -323,22 +323,22 @@ export class TransactionsService {
     return this.db.transaction(async () => {
       // 1. Policies the proposal was going to create
       // Delete policies the proposal was going to activate
-      const selectedTransaction = e.select(e.Transaction, (t) => ({
-        filter_single: { id },
-        id: true,
-        account: { address: true },
-        beingCreated: e.select(t['<proposal[is PolicyState]'], (ps) => ({
-          filter: e.op(e.count(ps.policy.stateHistory), '=', 1),
-          policy: () => ({ id: true }),
-        })),
-      }));
-
+      const selectedTransaction = selectTransaction(id);
       const { transaction: t } = await this.db.query(
         e.select({
-          transaction: selectedTransaction,
-          // TODO: use policies service instead? Ensures nothing weird happens
-          deletedPolicies: e.for(e.set(selectedTransaction.beingCreated.policy), (p) =>
-            e.delete(p),
+          transaction: e.select(selectedTransaction, () => ({
+            id: true,
+            account: { address: true },
+          })),
+          deletedPolicies: e.assert_distinct(
+            e.for(
+              e.set(
+                e.select(selectedTransaction['<proposal[is PolicyState]'], (ps) => ({
+                  filter: e.op(e.count(ps.policy.stateHistory), '=', 1),
+                })).policy,
+              ),
+              (p) => e.delete(p),
+            ),
           ),
           deletedTransaction: e.delete(selectedTransaction),
         }),
@@ -346,7 +346,7 @@ export class TransactionsService {
 
       this.db.afterTransaction(() => this.proposals.publish(t, ProposalEvent.delete));
 
-      return id;
+      return t?.id ?? null;
     });
   }
 
