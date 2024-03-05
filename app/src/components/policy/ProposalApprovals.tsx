@@ -5,7 +5,7 @@ import { getOptimizedDocument, useQuery } from '~/gql';
 import { useSubscription } from 'urql';
 import { ApprovalItem } from '#/transaction/ApprovalItem';
 import { SelectedPolicy } from '#/transaction/SelectedPolicy';
-import { AwaitingApprovalItem } from '#/transaction/AwaitingApprovalItem';
+import { PendingApprovalItem } from '#/transaction/PendingApprovalItem';
 import { RejectionItem } from '#/transaction/RejectionItem';
 import { withSuspense } from '#/skeleton/withSuspense';
 import { ScreenSkeleton } from '#/skeleton/ScreenSkeleton';
@@ -22,7 +22,7 @@ const Proposal = gql(/* GraphQL */ `
         approvers {
           id
           address
-          ...AwaitingApprovalItem_Approver
+          ...PendingApprovalItem_Approver
         }
       }
     }
@@ -46,7 +46,7 @@ const Proposal = gql(/* GraphQL */ `
       address
     }
     ...SelectedPolicy_Proposal @arguments(proposal: $proposal)
-    ...AwaitingApprovalItem_Proposal
+    ...PendingApprovalItem_Proposal
     ...RejectionItem_Proposal
     ...ApprovalItem_Proposal
   }
@@ -59,7 +59,7 @@ const Query = gql(/* GraphQL */ `
     }
 
     user {
-      ...AwaitingApprovalItem_User
+      ...PendingApprovalItem_User
       ...RejectionItem_User
       ...ApprovalItem_User
     }
@@ -92,9 +92,10 @@ function ProposalApprovals_({ proposal: id }: PolicyTabProps) {
 
   if (!p) return null;
 
+  const threshold = p.policy.state?.threshold;
   const awaitingApprovers =
     p.policy.state &&
-    p.approvals.length < (p.policy.state?.threshold ?? 0) &&
+    p.approvals.length < (threshold ?? 0) &&
     p.policy.state.approvers.filter(
       (approver) =>
         !p.approvals.find((a) => a.approver.id === approver.id) &&
@@ -107,9 +108,11 @@ function ProposalApprovals_({ proposal: id }: PolicyTabProps) {
 
       {awaitingApprovers && (
         <>
-          <ListHeader>Awaiting</ListHeader>
+          <ListHeader trailing={threshold && `${threshold - p.approvals.length} required`}>
+            Pending
+          </ListHeader>
           {awaitingApprovers.map((approver) => (
-            <AwaitingApprovalItem key={approver.id} user={user} proposal={p} approver={approver} />
+            <PendingApprovalItem key={approver.id} user={user} proposal={p} approver={approver} />
           ))}
         </>
       )}

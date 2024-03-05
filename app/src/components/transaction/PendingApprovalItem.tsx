@@ -1,19 +1,19 @@
 import { FragmentType, gql, useFragment } from '@api';
 import { CheckIcon } from '@theme/icons';
 import { asUAddress } from 'lib';
-import { IconButton } from 'react-native-paper';
 import { AddressLabel } from '#/address/AddressLabel';
 import { ListItem } from '#/list/ListItem';
 import { useApprove } from '~/hooks/useApprove';
+import { IconButton } from '#/IconButton';
 
 const User = gql(/* GraphQL */ `
-  fragment AwaitingApprovalItem_User on User {
+  fragment PendingApprovalItem_User on User {
     ...UseApprove_User
   }
 `);
 
 const Approver = gql(/* GraphQL */ `
-  fragment AwaitingApprovalItem_Approver on Approver {
+  fragment PendingApprovalItem_Approver on Approver {
     id
     address
     label
@@ -21,7 +21,7 @@ const Approver = gql(/* GraphQL */ `
 `);
 
 const Proposal = gql(/* GraphQL */ `
-  fragment AwaitingApprovalItem_Proposal on Proposal {
+  fragment PendingApprovalItem_Proposal on Proposal {
     account {
       id
       chain
@@ -30,13 +30,13 @@ const Proposal = gql(/* GraphQL */ `
   }
 `);
 
-export interface AwaitingApprovalItemProps {
+export interface PendingApprovalItemProps {
   user: FragmentType<typeof User>;
   approver: FragmentType<typeof Approver>;
   proposal: FragmentType<typeof Proposal>;
 }
 
-export function AwaitingApprovalItem(props: AwaitingApprovalItemProps) {
+export function PendingApprovalItem(props: PendingApprovalItemProps) {
   const user = useFragment(User, props.user);
   const approver = useFragment(Approver, props.approver);
   const proposal = useFragment(Proposal, props.proposal);
