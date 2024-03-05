@@ -52,7 +52,7 @@ export enum ProposalEvent {
   approval,
   rejection,
   delete,
-  approved,
+  signed,
   submitted,
   executed,
   scheduled,

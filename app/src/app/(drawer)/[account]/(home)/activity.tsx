@@ -42,7 +42,9 @@ const Query = gql(/* GraphQL */ `
 
 const ProposalSubscription = gql(/* GraphQL */ `
   subscription ActivityTab_ProposalSubscription($accounts: [UAddress!]!) {
-    proposalUpdated(input: { accounts: $accounts }) {
+    proposalUpdated(input: { accounts: $accounts, events: [create, delete] }) {
+      id
+      event
       proposal {
         __typename
         id

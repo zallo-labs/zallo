@@ -60,6 +60,8 @@ const Query = gql(/* GraphQL */ `
 const Subscription = gql(/* GraphQL */ `
   subscription TransactionScreen_Subscription($transaction: UUID!) {
     proposalUpdated(input: { proposals: [$transaction] }) {
+      id
+      event
       proposal {
         ...TransactionScreen_Transaction @arguments(transaction: $transaction)
       }

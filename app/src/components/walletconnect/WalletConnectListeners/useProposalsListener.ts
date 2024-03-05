@@ -16,7 +16,8 @@ const Query = gql(/* GraphQL */ `
 
 const Subscription = gql(/* GraphQL */ `
   subscription UseProposalsListenerSubscription($accounts: [UAddress!]!) {
-    proposalUpdated(input: { accounts: $accounts, events: [approved, executed] }) {
+    proposalUpdated(input: { accounts: $accounts, events: [executed, signed] }) {
+      id
       event
       proposal {
         __typename

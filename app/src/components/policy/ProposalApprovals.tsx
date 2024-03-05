@@ -68,7 +68,8 @@ const Query = gql(/* GraphQL */ `
 
 const Subscription = gql(/* GraphQL */ `
   subscription ProposalApprovals_Subscription($proposal: UUID!) {
-    proposalUpdated(input: { proposals: [$proposal] }) {
+    proposalUpdated(input: { proposals: [$proposal], events: [approval, rejection] }) {
+      id
       proposal {
         ...ProposalApprovals_Proposal @arguments(proposal: $proposal)
       }

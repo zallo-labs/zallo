@@ -202,7 +202,7 @@ export class MessagesService {
       })),
     );
 
-    await this.proposals.publish({ id, account }, ProposalEvent.approved);
+    await this.proposals.publish({ id, account }, ProposalEvent.signed);
 
     return signature;
   }

@@ -10,6 +10,7 @@ import { Node, MutationCreatePolicyArgs, MutationRemovePolicyArgs } from '@api/g
 import { gql } from './generated';
 import { UAddress } from 'lib';
 import { WritableDeep } from 'ts-toolbelt/out/Object/Writable';
+import { ProposalUpdated } from './documents.generated';
 
 export const CACHE_SCHEMA_CONFIG: Pick<
   CacheExchangeOpts,
@@ -67,8 +68,13 @@ export const CACHE_SCHEMA_CONFIG: Pick<
       },
     } as Partial<Record<Mutation, UpdateResolver<unknown, unknown>>>,
     Subscription: {
+      proposalUpdated: (r: { proposalUpdated: Partial<ProposalUpdated> }, _args, cache) => {
+        if (r.proposalUpdated.event === 'create' || r.proposalUpdated.event === 'delete')
+          invalidate(cache, 'Query', ['proposals']);
+      },
       transfer: (_result, _args, cache) => {
         invalidate(cache, 'Query', ['transfers', 'tokens']);
+        console.log({ transfer: { _result, _args } });
       },
     } satisfies Partial<Record<Subscription, UpdateResolver<unknown, unknown>>>,
   },

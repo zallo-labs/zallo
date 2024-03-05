@@ -477,13 +477,13 @@ interface Proposal implements Node {
 
 enum ProposalEvent {
   approval
-  approved
   cancelled
   create
   delete
   executed
   rejection
   scheduled
+  signed
   simulated
   submitted
   update
@@ -498,7 +498,8 @@ interface ProposalResponse implements Node {
 
 type ProposalUpdated {
   event: ProposalEvent!
-  proposal: Proposal!
+  id: UUID!
+  proposal: Proposal
 }
 
 input ProposalUpdatedInput {
