@@ -43,7 +43,7 @@ export class ApproveInput extends UniqueProposalInput {
 @InputType()
 export class UpdateProposalInput extends UniqueProposalInput {
   @PolicyKeyField({ nullable: true })
-  policy?: PolicyKey | null;
+  policy?: PolicyKey;
 }
 
 export enum ProposalEvent {
@@ -52,16 +52,17 @@ export enum ProposalEvent {
   approval,
   rejection,
   delete,
-  approved,
+  signed,
   submitted,
   executed,
   scheduled,
   cancelled,
+  simulated,
 }
 registerEnumType(ProposalEvent, { name: 'ProposalEvent' });
 
 @InputType()
-export class ProposalSubscriptionInput {
+export class ProposalUpdatedInput {
   @Field(() => [UUIDScalar], { nullable: true })
   proposals?: UUID[];
 

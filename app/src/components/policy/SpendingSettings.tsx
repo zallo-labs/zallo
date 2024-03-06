@@ -16,7 +16,7 @@ import { withSuspense } from '#/skeleton/withSuspense';
 import { useQuery } from '~/gql';
 import { useSelectAddress } from '~/hooks/useSelectAddress';
 import { useToggle } from '~/hooks/useToggle';
-import { usePolicyDraftState } from '~/lib/policy/draft';
+import { usePolicyDraft } from '~/lib/policy/draft';
 
 const Query = gql(/* GraphQL */ `
   query SpendingSettings($input: TokensInput!) {
@@ -36,7 +36,7 @@ function SpendingSettings_(props: SpendingSettingsProps) {
   const router = useRouter();
   const selectAddress = useSelectAddress();
 
-  const [policy, update] = usePolicyDraftState();
+  const [policy, update] = usePolicyDraft();
   const [expanded, toggleExpanded] = useToggle(props.initiallyExpanded);
 
   const { transfers } = policy;
@@ -94,7 +94,7 @@ function SpendingSettings_(props: SpendingSettingsProps) {
           leading={AddIcon}
           headline="Add token"
           onPress={async () => {
-            const token = asUAddress(await selectAddress({ include: ['tokens'] }), chain);
+            const token = asUAddress(await selectAddress({ chain, include: ['tokens'] }), chain);
             if (token)
               router.push({
                 pathname: `/(drawer)/[account]/policies/[key]/spending/[token]`,

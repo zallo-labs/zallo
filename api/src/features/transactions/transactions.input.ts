@@ -71,7 +71,7 @@ export class ProposeCancelScheduledTransactionInput extends OmitType(ProposeTran
 @InputType()
 export class UpdateTransactionInput extends UniqueProposalInput {
   @PolicyKeyField({ nullable: true })
-  policy?: PolicyKey | null;
+  policy?: PolicyKey;
 
   @AddressField({ nullable: true })
   feeToken?: Address;

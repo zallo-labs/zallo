@@ -77,17 +77,14 @@ export class TransactionsEvents implements OnModuleInit {
     const proposal = await this.db.query(
       e.select(insertResult.transaction, () => ({
         id: true,
-        account: { approvers: { user: true } },
+        account: { address: true, approvers: { user: true } },
       })),
     );
     if (!proposal)
       throw new Error(`Transaction not found for executed transaction: ${receipt.transactionHash}`);
 
     this.log.debug(`Proposal executed: ${proposal.id}`);
-    this.proposals.publishProposal(
-      { id: asUUID(proposal.id), account: asUAddress(receipt.from, chain) },
-      ProposalEvent.executed,
-    );
+    this.proposals.publish(proposal, ProposalEvent.executed);
 
     // const usdPerEth = new Decimal(transaction.usdPerFeeToken).div(transaction.ethPerFeeToken);
     const revenue = 0; // new Decimal(0).mul(usdPerEth).toNumber();
@@ -104,30 +101,27 @@ export class TransactionsEvents implements OnModuleInit {
     const callResponse = await network.call(tx);
 
     const systx = selectSysTx(receipt.transactionHash);
-    const insertResult = e.insert(e.Successful, {
+    const insertResult = e.insert(e.Failed, {
       transaction: systx.proposal,
       systx,
       timestamp: new Date(Number(block.timestamp) * 1000), // block.timestamp is in seconds
       block: BigInt(receipt.blockNumber),
       gasUsed: receipt.gasUsed,
       ethFeePerGas: asDecimal(receipt.effectiveGasPrice, ETH).toString(),
-      responses: [callResponse.data].filter(isTruthy),
+      reason: callResponse.data,
     });
 
     const proposal = await this.db.query(
       e.select(insertResult.transaction, () => ({
         id: true,
-        account: { approvers: { user: true } },
+        account: { address: true, approvers: { user: true } },
       })),
     );
     if (!proposal)
       throw new Error(`Transaction not found for reverted transaction: ${receipt.transactionHash}`);
 
     this.log.debug(`Proposal reverted: ${proposal.id}`);
-    this.proposals.publishProposal(
-      { id: asUUID(proposal.id), account: asUAddress(receipt.from, chain) },
-      ProposalEvent.executed,
-    );
+    this.proposals.publish(proposal, ProposalEvent.executed);
 
     // const usdPerEth = new Decimal(transaction.usdPerFeeToken).div(transaction.ethPerFeeToken);
     const revenue = 0; // new Decimal(0).mul(usdPerEth).toNumber();

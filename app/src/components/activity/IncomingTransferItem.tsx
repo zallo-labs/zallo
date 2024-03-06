@@ -8,8 +8,8 @@ import { FragmentType, gql, useFragment } from '@api/generated';
 import { TokenIcon } from '../token/TokenIcon';
 import { asUAddress } from 'lib';
 
-const FragmentDoc = gql(/* GraphQL */ `
-  fragment IncomingTransferItem_TransferFragment on Transfer {
+const Transfer = gql(/* GraphQL */ `
+  fragment IncomingTransferItem_Transfer on Transfer {
     account {
       id
       chain
@@ -25,11 +25,11 @@ const FragmentDoc = gql(/* GraphQL */ `
 `);
 
 export interface IncomingTransferItemProps {
-  transfer: FragmentType<typeof FragmentDoc>;
+  transfer: FragmentType<typeof Transfer>;
 }
 
 function IncomingTransferItem_(props: IncomingTransferItemProps) {
-  const transfer = useFragment(FragmentDoc, props.transfer);
+  const transfer = useFragment(Transfer, props.transfer);
 
   return (
     <ListItem

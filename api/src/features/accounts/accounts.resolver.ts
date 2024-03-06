@@ -6,6 +6,7 @@ import {
   CreateAccountInput,
   AccountSubscriptionInput,
   LabelAvailableInput,
+  AccountsInput,
 } from './accounts.input';
 import { PubsubService } from '../util/pubsub/pubsub.service';
 import { GqlContext, asUser, getApprover, getUserCtx } from '~/request/ctx';
@@ -45,8 +46,11 @@ export class AccountsResolver {
   }
 
   @Query(() => [Account])
-  async accounts(@Info() info: GraphQLResolveInfo) {
-    return this.service.select({}, getShape(info));
+  async accounts(
+    @Input({ defaultValue: {} }) input: AccountsInput,
+    @Info() info: GraphQLResolveInfo,
+  ) {
+    return this.service.select(input, getShape(info));
   }
 
   @Query(() => Boolean)

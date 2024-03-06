@@ -121,6 +121,7 @@ export interface Contact extends std.$Object {
   "user": User;
   "address": string;
   "label": string;
+  "chain": string;
 }
 export interface Contract extends std.$Object {
   "functions": Function[];
@@ -168,7 +169,8 @@ export interface Proposal extends std.$Object {
   "approvals": Approval[];
   "proposedBy": Approver;
   "rejections": Rejection[];
-  "policy"?: Policy | null;
+  "validationErrors": {reason: string, operation: number}[];
+  "policy": Policy;
   "potentialApprovers": Approver[];
   "potentialRejectors": Approver[];
 }
@@ -264,16 +266,16 @@ export interface Transaction extends Proposal {
   "gasLimit": bigint;
   "result"?: Result | null;
   "systx"?: SystemTx | null;
-  "submitted": boolean;
   "operations": Operation[];
   "simulation"?: Simulation | null;
   "feeToken": Token;
   "nonce": bigint;
   "paymaster": string;
   "maxPaymasterEthFees": PaymasterFees;
-  "status": TransactionStatus;
   "results": Result[];
   "systxs": SystemTx[];
+  "executable": boolean;
+  "status": TransactionStatus;
 }
 export type TransactionStatus = "Pending" | "Scheduled" | "Executing" | "Successful" | "Failed" | "Cancelled";
 export interface TransferDetails extends std.$Object {
@@ -286,7 +288,9 @@ export interface TransferDetails extends std.$Object {
   "isFeeTransfer": boolean;
   "to": string;
 }
-export interface Transferlike extends Event, TransferDetails {}
+export interface Transferlike extends Event, TransferDetails {
+  "spentBy"?: Policy | null;
+}
 export interface Transfer extends Transferlike {}
 export interface TransferApproval extends Transferlike {
   "previous"?: TransferApproval | null;

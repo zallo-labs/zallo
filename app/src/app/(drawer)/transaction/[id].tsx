@@ -9,8 +9,6 @@ import { ScrollableScreenSurface } from '#/layout/ScrollableScreenSurface';
 import { zUuid } from '~/lib/zod';
 import { RemoveTransactionItem } from '#/transaction/RemoveTransactionItem';
 import { TransactionStatus } from '#/transaction/TransactionStatus';
-import { UAddress, asUAddress, ZERO_ADDR } from 'lib';
-import { useEffect, useState } from 'react';
 import { useSubscription } from 'urql';
 import { createStyles, useStyles } from '@theme/styles';
 import { Divider } from 'react-native-paper';
@@ -27,11 +25,7 @@ import { ScheduleSection } from '#/transaction/ScheduleSection';
 
 const Transaction = gql(/* GraphQL */ `
   fragment TransactionScreen_Transaction on Transaction
-  @argumentDefinitions(
-    proposal: { type: "UUID!" }
-    account: { type: "UAddress!" }
-    includeAccount: { type: "Boolean!" }
-  ) {
+  @argumentDefinitions(transaction: { type: "UUID!" }) {
     id
     account {
       id
@@ -44,17 +38,16 @@ const Transaction = gql(/* GraphQL */ `
     ...TransactionStatus_Transaction
     ...OperationsSection_Transaction
     ...ScheduleSection_Transaction
-    ...TransfersSection_Transaction @arguments(account: $account, includeAccount: $includeAccount)
-    ...FeesSection_Transaction @arguments(account: $account, includeAccount: $includeAccount)
-    ...TransactionActions_Transaction @arguments(proposal: $proposal)
+    ...TransfersSection_Transaction @arguments(transaction: $transaction)
+    ...FeesSection_Transaction @arguments(transaction: $transaction)
+    ...TransactionActions_Transaction @arguments(transaction: $transaction)
   }
 `);
 
 const Query = gql(/* GraphQL */ `
-  query TransactionScreen($proposal: UUID!, $account: UAddress!, $includeAccount: Boolean!) {
-    transaction(input: { id: $proposal }) {
-      ...TransactionScreen_Transaction
-        @arguments(proposal: $proposal, account: $account, includeAccount: $includeAccount)
+  query TransactionScreen($transaction: UUID!) {
+    transaction(input: { id: $transaction }) {
+      ...TransactionScreen_Transaction @arguments(transaction: $transaction)
     }
 
     user {
@@ -65,14 +58,13 @@ const Query = gql(/* GraphQL */ `
 `);
 
 const Subscription = gql(/* GraphQL */ `
-  subscription TransactionScreen_Subscription(
-    $proposal: UUID!
-    $account: UAddress!
-    $includeAccount: Boolean!
-  ) {
-    proposal(input: { proposals: [$proposal] }) {
-      ...TransactionScreen_Transaction
-        @arguments(proposal: $proposal, account: $account, includeAccount: $includeAccount)
+  subscription TransactionScreen_Subscription($transaction: UUID!) {
+    proposalUpdated(input: { proposals: [$transaction] }) {
+      id
+      event
+      proposal {
+        ...TransactionScreen_Transaction @arguments(transaction: $transaction)
+      }
     }
   }
 `);
@@ -84,20 +76,11 @@ export default function TransactionScreen() {
   const { id } = useLocalParams(TransactionScreenParams);
 
   // Extract account from Transaction result, and use it as a variable to get the full result
-  const [account, setAccount] = useState<UAddress>();
-  const variables = {
-    proposal: id,
-    account: account ?? asUAddress(ZERO_ADDR, 'zksync'),
-    includeAccount: !!account,
-  } satisfies DocumentVariables<typeof Query>;
+  const variables = { transaction: id } satisfies DocumentVariables<typeof Query>;
 
   const query = useQuery(Query, variables);
   useSubscription({ query: getOptimizedDocument(Subscription), variables });
   const p = useFragment(Transaction, query.data?.transaction);
-
-  useEffect(() => {
-    if (account !== p?.account.address) setAccount(p?.account.address);
-  }, [account, p?.account.address]);
 
   if (!p) return query.stale ? null : <NotFound name="Proposal" />;
 

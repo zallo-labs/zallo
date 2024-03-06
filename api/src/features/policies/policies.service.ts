@@ -5,15 +5,15 @@ import {
   asPolicyKey,
   encodePolicy,
   encodePolicyStruct,
-  getMessageSatisfiability,
-  getTransactionSatisfiability,
+  validateMessage,
+  validateTransaction,
   Policy,
   PolicyKey,
-  Satisfiability,
   Address,
   UAddress,
-  UUID,
   PLACEHOLDER_ACCOUNT_ADDRESS,
+  Tx,
+  UUID,
 } from 'lib';
 import { TransactionsService } from '../transactions/transactions.service';
 import {
@@ -35,28 +35,21 @@ import {
   PolicyStateShape,
   policyInputAsStateShape,
 } from './policies.util';
-import { NameTaken, SatisfiabilityResult, Policy as PolicyModel } from './policies.model';
-import {
-  proposalTxShape,
-  transactionAsTx,
-  ProposalTxShape,
-} from '../transactions/transactions.util';
+import { NameTaken, Policy as PolicyModel, ValidationError } from './policies.model';
+import { TX_SHAPE, transactionAsTx, ProposalTxShape } from '../transactions/transactions.util';
 import { and, isExclusivityConstraintViolation } from '../database/database.util';
 import { selectAccount } from '../accounts/accounts.util';
 import { err, fromPromise, ok } from 'neverthrow';
 import { encodeFunctionData } from 'viem';
 import { $Transaction } from '~/edgeql-js/modules/default';
+import { getUserCtx } from '~/request/ctx';
 
-export const policySatisfiabilityDeps = {
+export const ValidatePolicyShape = {
   key: true,
-  state: {
-    isActive: true,
-    isAccountInitState: true,
-    ...policyStateShape,
-  },
+  state: policyStateShape,
 } satisfies Shape<typeof e.Policy>;
-const s_ = e.assert_exists(e.assert_single(e.select(e.Policy, () => policySatisfiabilityDeps)));
-export type PolicySatisfiabilityDeps = $infer<typeof s_>;
+const s_ = e.assert_exists(e.assert_single(e.select(e.Policy, () => ValidatePolicyShape)));
+export type ValidatePolicyShape = NonNullable<$infer<typeof s_>>;
 
 export interface CreatePolicyParams extends CreatePolicyInput {
   key?: PolicyKey;
@@ -68,7 +61,7 @@ export class PoliciesService {
   constructor(
     private db: DatabaseService,
     @Inject(forwardRef(() => TransactionsService))
-    private proposals: TransactionsService,
+    private transactions: TransactionsService,
     private userAccounts: AccountsCacheService,
   ) {}
 
@@ -239,11 +232,11 @@ export class PoliciesService {
         if (!existing.policy) throw new UserInputError("Policy doesn't exist");
 
         const currentState = existing.policy.draft ?? existing.policy.state!;
-        const currentEncoded = encodePolicy(policyStateAsPolicy(key, currentState));
+        const currentPolicy = policyStateAsPolicy(key, currentState);
 
         const newState = policyInputAsStateShape(key, policyInput, currentState);
         const newPolicy = policyStateAsPolicy(key, newState);
-        if (currentEncoded === encodePolicy(newPolicy)) return ok(undefined); // Only update if policy would actually change
+        if (encodePolicy(currentPolicy) === encodePolicy(newPolicy)) return ok(undefined); // Only update if policy would actually change
 
         const proposal = await this.getStateProposal(account, newPolicy);
 
@@ -296,7 +289,7 @@ export class PoliciesService {
 
       const proposal =
         policy.isActive &&
-        (await this.proposals.getInsertProposal({
+        (await this.transactions.getInsertProposal({
           account,
           operations: [
             {
@@ -333,34 +326,76 @@ export class PoliciesService {
     });
   }
 
-  async satisfiability(
-    proposalId: UUID,
-    { key, state }: PolicySatisfiabilityDeps,
-  ): Promise<SatisfiabilityResult> {
-    if (!state?.isActive)
-      return { result: Satisfiability.unsatisfiable, reasons: [{ reason: 'Policy inactive' }] };
+  validate(proposal: Tx | 'message' | null, policy: Policy | null) {
+    if (!proposal) return [{ reason: 'Proposal not found', operation: -1 }];
+    if (!policy) return [{ reason: 'Policy not active', operation: -1 }];
 
-    const proposal = await this.db.query(
-      e.select(e.Proposal, (p) => ({
-        filter_single: { id: proposalId },
+    const errors =
+      proposal === 'message' ? validateMessage(policy) : validateTransaction(policy, proposal);
+
+    return errors.map((e) => ({ reason: e.reason, operation: e.operation ?? -1 }));
+  }
+
+  async validateProposal(
+    proposal: UUID,
+    { key, state }: ValidatePolicyShape,
+  ): Promise<ValidationError[]> {
+    if (!state) return [{ reason: 'Policy not active' }];
+
+    const p = await this.db.query(
+      e.select(e.Proposal, () => ({
+        filter_single: { id: proposal },
         __type__: { name: true },
-        approvals: { approver: { address: true } },
-        ...e.is(e.Transaction, proposalTxShape(p)),
+        ...e.is(e.Transaction, TX_SHAPE),
       })),
     );
-    if (!proposal)
-      return { result: Satisfiability.unsatisfiable, reasons: [{ reason: 'Proposal not found' }] };
+    if (!p) return [{ reason: 'Proposal not found' }];
 
-    const p = policyStateAsPolicy(key, state);
-    const approvals = new Set(proposal.approvals.map((a) => asAddress(a.approver.address)));
+    return this.validate(
+      p.__type__.name === $Transaction['__name__']
+        ? transactionAsTx(p as ProposalTxShape)
+        : 'message',
+      policyStateAsPolicy(key, state),
+    );
+  }
 
-    return proposal.__type__.name === $Transaction['__name__']
-      ? getTransactionSatisfiability(p, transactionAsTx(proposal as ProposalTxShape), approvals)
-      : getMessageSatisfiability(p, approvals);
+  async best(account: UAddress, proposal: Tx | 'message') {
+    const policies = await this.db.query(
+      e.select(e.Policy, (p) => ({
+        filter: and(e.op(p.account, '=', selectAccount(account)), e.op('exists', p.state)),
+        id: true,
+        key: true,
+        state: policyStateShape,
+      })),
+    );
+
+    const { approver } = getUserCtx();
+    const sorted = (
+      await Promise.all(
+        policies.map(async (p) => {
+          const policy = policyStateAsPolicy(p.key, p.state!);
+          const validationErrors = this.validate(proposal, policy);
+          const threshold = policy.threshold - Number(policy.approvers.has(approver)); // Expect the proposer to approve
+
+          return { id: p.id, validationErrors, ...policy, threshold };
+        }),
+      )
+    ).sort(
+      (a, b) =>
+        Number(a.validationErrors.length) - Number(b.validationErrors.length) ||
+        a.permissions.delay - b.permissions.delay ||
+        a.threshold - b.threshold,
+    );
+
+    const p = sorted[0];
+    return {
+      policy: e.assert_exists(e.select(e.Policy, () => ({ filter_single: { id: p.id } }))),
+      validationErrors: p.validationErrors,
+    };
   }
 
   private async getStateProposal(account: UAddress, policy: Policy) {
-    return await this.proposals.getInsertProposal({
+    return await this.transactions.getInsertProposal({
       account,
       operations: [
         {

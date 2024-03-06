@@ -3,19 +3,15 @@ import { GraphQLResolveInfo } from 'graphql';
 import {
   CreatePolicyInput,
   PoliciesInput,
-  SatisfiabilityInput,
+  ValidationErrorsInput,
   UniquePolicyInput,
   UpdatePolicyInput,
 } from './policies.input';
-import {
-  PoliciesService,
-  PolicySatisfiabilityDeps,
-  policySatisfiabilityDeps,
-} from './policies.service';
+import { PoliciesService, ValidatePolicyShape } from './policies.service';
 import {
   CreatePolicyResponse,
   Policy,
-  SatisfiabilityResult,
+  ValidationError,
   UpdatePolicyResponse,
 } from './policies.model';
 import { getShape } from '../database/database.select';
@@ -40,12 +36,12 @@ export class PoliciesResolver {
     return this.service.select(input, getShape(info));
   }
 
-  @ComputedField<typeof e.Policy>(() => SatisfiabilityResult, policySatisfiabilityDeps)
-  async satisfiability(
-    @Input() { proposal }: SatisfiabilityInput,
-    @Parent() policyDeps: PolicySatisfiabilityDeps,
-  ): Promise<SatisfiabilityResult> {
-    return this.service.satisfiability(proposal, policyDeps);
+  @ComputedField<typeof e.Policy>(() => [ValidationError], ValidatePolicyShape)
+  async validationErrors(
+    @Input() { proposal }: ValidationErrorsInput,
+    @Parent() policy: ValidatePolicyShape,
+  ): Promise<ValidationError[]> {
+    return this.service.validateProposal(proposal, policy);
   }
 
   @Mutation(() => CreatePolicyResponse)

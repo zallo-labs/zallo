@@ -16,23 +16,29 @@ const Query = gql(/* GraphQL */ `
 
 const Subscription = gql(/* GraphQL */ `
   subscription UseProposalsListenerSubscription($accounts: [UAddress!]!) {
-    proposal(input: { accounts: $accounts, events: [approved, executed] }) {
-      __typename
+    proposalUpdated(input: { accounts: $accounts, events: [executed, signed] }) {
       id
-      ... on Transaction {
-        systx {
-          id
-          hash
+      event
+      proposal {
+        __typename
+        id
+        ... on Transaction {
+          systx {
+            id
+            hash
+          }
         }
-      }
-      ... on Message {
-        signature
+        ... on Message {
+          signature
+        }
       }
     }
   }
 `);
 
-export type ApprovedProposal = UseProposalsListenerSubscriptionSubscription['proposal'];
+export type ApprovedProposal = NonNullable<
+  UseProposalsListenerSubscriptionSubscription['proposalUpdated']['proposal']
+>;
 
 export function useProposalsListener() {
   const api = useUrqlApiClient();
@@ -47,7 +53,7 @@ export function useProposalsListener() {
         accounts: accounts.map((a) => a.address),
       })
       .subscribe(({ data }) => {
-        data && proposals.next(data.proposal);
+        data?.proposalUpdated.proposal && proposals.next(data.proposalUpdated.proposal);
       });
 
     return subscription.unsubscribe;

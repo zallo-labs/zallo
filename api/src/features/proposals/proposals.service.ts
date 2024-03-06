@@ -116,7 +116,7 @@ export class ProposalsService {
         .run(db);
     });
 
-    await this.publishProposal(id, ProposalEvent.approval);
+    await this.publish(id, ProposalEvent.approval);
   }
 
   async reject(id: UUID) {
@@ -133,7 +133,7 @@ export class ProposalsService {
       await e.insert(e.Rejection, { proposal }).run(db);
     });
 
-    await this.publishProposal(id, ProposalEvent.rejection);
+    await this.publish(id, ProposalEvent.rejection);
   }
 
   async update({ id, policy }: UpdateProposalInput) {
@@ -144,26 +144,34 @@ export class ProposalsService {
         e.update(e.Proposal, (p) => ({
           filter_single: { id },
           set: {
-            policy:
-              policy !== null
-                ? e.select(e.Policy, () => ({ filter_single: { account: p.account, key: policy } }))
-                : null,
+            ...(policy && {
+              policy: e.select(e.Policy, () => ({
+                filter_single: { account: p.account, key: policy },
+              })),
+            }),
           },
         })),
         () => ({
+          id: true,
           account: { address: true },
         }),
       ),
     );
 
-    if (p)
-      this.publishProposal({ id, account: asUAddress(p.account.address) }, ProposalEvent.update);
+    this.publish(p, ProposalEvent.update);
   }
 
-  async publishProposal(
-    proposal: Pick<ProposalSubscriptionPayload, 'id' | 'account'> | UUID,
-    event: ProposalSubscriptionPayload['event'],
+  async publish(
+    proposal:
+      | { id: UUID; account: UAddress }
+      | { id: string; account: { address: string } }
+      | UUID
+      | undefined
+      | null,
+    event: ProposalEvent,
   ) {
+    if (!proposal) return;
+
     const { id, account } =
       typeof proposal === 'string'
         ? await (async () => {
@@ -179,7 +187,9 @@ export class ProposalsService {
 
             return { id: asUUID(p.id), account: asUAddress(p.account.address) };
           })()
-        : proposal;
+        : typeof proposal.account === 'object'
+          ? { id: asUUID(proposal.id), account: asUAddress(proposal.account.address) }
+          : (proposal as { id: UUID; account: UAddress });
 
     const payload: ProposalSubscriptionPayload = { id, account, event };
 

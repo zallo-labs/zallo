@@ -4,8 +4,7 @@ import { HookSelector } from './util';
 import { HookStruct } from './permissions';
 import _ from 'lodash';
 import { Operation } from '../operation';
-import { OperationSatisfiability } from '../satisfiability';
-import assert from 'assert';
+import { PermissionValidation } from '../validation';
 import { getAbiItem, encodeAbiParameters, decodeAbiParameters, hexToNumber } from 'viem';
 import { AbiParameterToPrimitiveType } from 'abitype';
 import { TEST_VERIFIER_ABI } from '../contract';
@@ -96,20 +95,14 @@ export function decodeTargetsHook(h: HookStruct | undefined) {
   return decodeTargetsConfigStruct(decodeAbiParameters([configAbi], h.config)[0]);
 }
 
-export function verifyTargetsPermission(t: TargetsConfig, op: Operation): OperationSatisfiability {
-  return isTargetAllowed(t, op.to, asSelector(op.data))
-    ? { result: 'satisfied' }
-    : {
-        result: 'unsatisfiable',
-        reason: "Calling this function on this address isn't allowed",
-      };
+export function verifyTargetsPermission(t: TargetsConfig, op: Operation): PermissionValidation {
+  return (
+    isTargetAllowed(t, op.to, asSelector(op.data)) ||
+    "Calling this function on this address isn't allowed"
+  );
 }
 
-export const isTargetAllowed = (
-  targets: TargetsConfig,
-  to: Address,
-  selector: Selector | undefined,
-) => {
+function isTargetAllowed(targets: TargetsConfig, to: Address, selector: Selector | undefined) {
   if (!selector) return true;
 
   const target = targets.contracts[to];
@@ -117,23 +110,7 @@ export const isTargetAllowed = (
   return target
     ? target.functions[selector] ?? target.defaultAllow
     : targets.default.functions[selector] ?? targets.default.defaultAllow;
-};
-
-export const setTargetAllowed = (
-  targets: TargetsConfig,
-  to: Address,
-  selector: Selector,
-  allow: boolean,
-) => {
-  if (!targets.contracts[to])
-    targets.contracts[to] = { functions: {}, defaultAllow: targets.default.defaultAllow };
-
-  targets.contracts[to].functions[selector] = allow;
-
-  targets = optimize(targets);
-
-  assert(isTargetAllowed(targets, to, selector) == allow);
-};
+}
 
 function optimize(targets: TargetsConfig): TargetsConfig {
   // Remove selectors that match the contract default
@@ -148,6 +125,12 @@ function optimize(targets: TargetsConfig): TargetsConfig {
     (target) =>
       Object.keys(target.functions).length > 0 ||
       target.defaultAllow !== targets.default.defaultAllow,
+  );
+
+  // Remove fallback functions that match the fallback default
+  targets.default.functions = _.pickBy(
+    targets.default.functions,
+    (allow) => allow !== targets.default.defaultAllow,
   );
 
   return targets;

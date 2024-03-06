@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable, forwardRef } from '@nestjs/common';
 import { UserInputError } from '@nestjs/apollo';
 import {
   hashTx,
@@ -40,13 +40,14 @@ import { ExecutionsQueue } from '~/features/transactions/executions.worker';
 import { FLOW_PRODUCER } from '../util/bull/bull.util';
 import { QueueData, TypedQueue } from '~/features/util/bull/bull.util';
 import { SimulationsQueue } from '~/features/simulations/simulations.worker';
-import { proposalTxShape, transactionAsTx } from '~/features/transactions/transactions.util';
+import { TX_SHAPE, transactionAsTx } from '~/features/transactions/transactions.util';
 import { encodeFunctionData, hashTypedData } from 'viem';
 import { v4 as uuid } from 'uuid';
 import { FlowProducer } from 'bullmq';
 import { ActivationsService } from '../activations/activations.service';
 import { totalPaymasterEthFees } from '../paymasters/paymasters.util';
 import { ReceiptsQueue } from '../system-txs/receipts.queue';
+import { PoliciesService } from '../policies/policies.service';
 
 export const selectTransaction = (id: UUID | Hex) =>
   e.select(e.Transaction, () => ({
@@ -76,6 +77,8 @@ export class TransactionsService {
     @InjectFlowProducer(FLOW_PRODUCER)
     private flows: FlowProducer,
     private activations: ActivationsService,
+    @Inject(forwardRef(() => PoliciesService))
+    private policies: PoliciesService,
   ) {}
 
   async selectUnique(id: UniqueProposal, shape?: ShapeFunc<typeof e.Transaction>) {
@@ -104,13 +107,14 @@ export class TransactionsService {
   }
 
   async tryExecute(txProposal: UUID, ignoreSimulation?: boolean) {
-    const updatedProposal = e.update(selectTransaction(txProposal), () => ({
-      set: { submitted: true },
-    }));
-    const account = asUAddress(
-      (await this.db.query(e.select(updatedProposal.account.address))) ?? undefined,
+    const t = await this.db.query(
+      e.select(e.Transaction, () => ({
+        filter_single: { id: txProposal },
+        account: { address: true, isActive: true },
+      })),
     );
-    if (!account) throw new Error(`Transaction proposal not found: ${txProposal}`);
+    if (!t) throw new Error(`Transaction proposal not found: ${txProposal}`);
+    const account = asUAddress(t.account.address);
     const chain = asChain(account);
 
     // activate -> simulate -> execute -> receipt
@@ -127,15 +131,15 @@ export class TransactionsService {
             {
               queueName: SimulationsQueue.name,
               name: 'Simulate transaction',
-              data: { txProposal } satisfies QueueData<SimulationsQueue>,
-              children: [this.activations.activationFlow(account)],
+              data: { transaction: txProposal } satisfies QueueData<SimulationsQueue>,
+              ...(!t.account.isActive && {
+                children: [this.activations.activationFlow(account)],
+              }),
             },
           ],
         },
       ],
     });
-
-    this.proposals.publishProposal({ id: txProposal, account }, ProposalEvent.submitted);
   }
 
   async getInsertProposal({
@@ -161,6 +165,7 @@ export class TransactionsService {
       paymaster: this.paymasters.for(chain),
       paymasterEthFee: totalPaymasterEthFees(maxPaymasterEthFees),
     } satisfies Tx;
+    const { policy, validationErrors } = await this.policies.best(account, tx);
 
     gas ??=
       (
@@ -172,6 +177,8 @@ export class TransactionsService {
       id,
       hash: hashTx(account, tx),
       account: selectAccount(account),
+      policy,
+      validationErrors,
       label,
       iconUri,
       dapp: dapp && {
@@ -206,8 +213,8 @@ export class TransactionsService {
     });
 
     this.db.afterTransaction(() => {
-      this.simulations.add(SimulationsQueue.name, { txProposal: id });
-      this.proposals.publishProposal({ id, account }, ProposalEvent.create);
+      this.simulations.add(SimulationsQueue.name, { transaction: id });
+      this.proposals.publish({ id, account }, ProposalEvent.create);
     });
 
     return insert;
@@ -247,7 +254,7 @@ export class TransactionsService {
 
   async approve(input: ApproveInput) {
     await this.proposals.approve(input);
-    await this.tryExecute(input.id);
+    this.tryExecute(input.id);
   }
 
   async update({ id, policy, feeToken }: UpdateTransactionInput) {
@@ -259,11 +266,10 @@ export class TransactionsService {
           e.op(p.status, 'in', e.set(e.TransactionStatus.Pending, e.TransactionStatus.Failed)),
         ),
         set: {
-          ...(policy !== undefined && {
-            policy:
-              policy !== null
-                ? e.select(e.Policy, () => ({ filter_single: { account: p.account, key: policy } }))
-                : null,
+          ...(policy && {
+            policy: e.select(e.Policy, () => ({
+              filter_single: { account: p.account, key: policy },
+            })),
           }),
           feeToken:
             feeToken &&
@@ -283,9 +289,10 @@ export class TransactionsService {
     const p = await this.db.transaction(async (tx) => {
       const p = await e
         .select(updatedProposal, () => ({
+          id: true,
           hash: true,
           account: { address: true },
-          ...proposalTxShape(tx),
+          ...TX_SHAPE,
         }))
         .run(tx);
       if (!p) return;
@@ -307,30 +314,39 @@ export class TransactionsService {
 
     if (policy !== undefined) await this.tryExecute(id);
 
-    this.proposals.publishProposal(
-      { id, account: asUAddress(p.account.address) },
-      ProposalEvent.update,
-    );
+    this.proposals.publish(p, ProposalEvent.update);
 
     return p;
   }
 
   async delete(id: UniqueProposal) {
-    return this.db.transaction(async (db) => {
+    return this.db.transaction(async () => {
       // 1. Policies the proposal was going to create
       // Delete policies the proposal was going to activate
-      const proposalPolicies = e.select(e.Transaction, (p) => ({
-        filter_single: { id },
-        beingCreated: e.select(p['<proposal[is PolicyState]'], (ps) => ({
-          filter: e.op(e.count(ps.policy.stateHistory), '=', 1),
-          policy: () => ({ id: true }),
-        })),
-      }));
+      const selectedTransaction = selectTransaction(id);
+      const { transaction: t } = await this.db.query(
+        e.select({
+          transaction: e.select(selectedTransaction, () => ({
+            id: true,
+            account: { address: true },
+          })),
+          deletedPolicies: e.assert_distinct(
+            e.for(
+              e.set(
+                e.select(selectedTransaction['<proposal[is PolicyState]'], (ps) => ({
+                  filter: e.op(e.count(ps.policy.stateHistory), '=', 1),
+                })).policy,
+              ),
+              (p) => e.delete(p),
+            ),
+          ),
+          deletedTransaction: e.delete(selectedTransaction),
+        }),
+      );
 
-      // TODO: use policies service instead? Ensures nothing weird happens
-      await e.for(e.set(proposalPolicies.beingCreated.policy), (p) => e.delete(p)).run(db);
+      this.db.afterTransaction(() => this.proposals.publish(t, ProposalEvent.delete));
 
-      return e.delete(selectTransaction(id)).id.run(db);
+      return t?.id ?? null;
     });
   }
 

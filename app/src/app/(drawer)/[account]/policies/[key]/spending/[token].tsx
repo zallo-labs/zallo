@@ -2,7 +2,7 @@ import { PolicyScreenParams } from '~/app/(drawer)/[account]/policies/[key]';
 import { useLocalParams } from '~/hooks/useLocalParams';
 import { zAddress } from '~/lib/zod';
 import { TransferLimit, asChain, asUAddress } from 'lib';
-import { Duration } from 'luxon';
+import { DateTime, Duration } from 'luxon';
 import { View } from 'react-native';
 import { BasicTextField } from '#/fields/BasicTextField';
 import { SelectChip } from '#/fields/SelectChip';
@@ -10,24 +10,37 @@ import { ListHeader } from '#/list/ListHeader';
 import { useBigIntInput } from '#/fields/useBigIntInput';
 import { ClockOutlineIcon } from '@theme/icons';
 import { gql } from '@api/generated';
-import { usePolicyDraftState } from '~/lib/policy/draft';
+import { usePolicyDraft } from '~/lib/policy/draft';
 import { useQuery } from '~/gql';
 import { AppbarOptions } from '#/Appbar/AppbarOptions';
 import { truncateAddr } from '~/util/format';
 import { ScrollableScreenSurface } from '#/layout/ScrollableScreenSurface';
-import { Text } from 'react-native-paper';
+import { ProgressBar, Text } from 'react-native-paper';
 import { Actions } from '#/layout/Actions';
 import { Button } from '#/Button';
 import { useRouter } from 'expo-router';
 import { useEffect } from 'react';
 import { createStyles, useStyles } from '@theme/styles';
+import { Timestamp } from '#/format/Timestamp';
+import Decimal from 'decimal.js';
+import { IncomingTransferItem } from '#/activity/IncomingTransferItem';
 
 const Query = gql(/* GraphQL */ `
-  query TokenLimitScreen($token: UAddress!) {
+  query TokenLimitScreen($token: UAddress!, $spending: SpendingInput!, $includeSpending: Boolean!) {
     token(input: { address: $token }) {
       id
       name
       decimals
+      spending(input: $spending) @include(if: $includeSpending) {
+        since
+        spent
+        limit
+        transfers {
+          __typename
+          id
+          ...IncomingTransferItem_Transfer
+        }
+      }
     }
   }
 `);
@@ -52,9 +65,13 @@ export default function TokenLimitScreen() {
   const { styles } = useStyles(stylesheet);
   const router = useRouter();
 
-  const { token: t } = useQuery(Query, { token: asUAddress(address, asChain(account)) }).data;
+  const [policy, update] = usePolicyDraft();
 
-  const [policy, update] = usePolicyDraftState();
+  const { token: t } = useQuery(Query, {
+    token: asUAddress(address, asChain(account)),
+    spending: { account, policyKey: policy.key },
+    includeSpending: policy.key !== undefined,
+  }).data;
 
   const currentLimit: TransferLimit | undefined = policy.transfers.limits[address];
   const limit = currentLimit ?? DEFAULT_LIMIT;
@@ -92,7 +109,7 @@ export default function TokenLimitScreen() {
       <ScrollableScreenSurface style={styles.surface}>
         <ListHeader>Spending limit</ListHeader>
 
-        <View style={styles.container}>
+        <View style={styles.limitContainer}>
           <BasicTextField
             {...inputProps}
             placeholder="0"
@@ -118,6 +135,33 @@ export default function TokenLimitScreen() {
           />
         </View>
 
+        {t?.spending && t.spending.limit && (
+          <View>
+            <View style={styles.periodContainer}>
+              <Text variant="bodyLarge">
+                <Timestamp timestamp={t.spending.since} />
+                {' - '}
+                <Timestamp
+                  timestamp={DateTime.fromISO(t.spending.since).plus({ seconds: limit.duration })}
+                />
+              </Text>
+
+              <ProgressBar
+                progress={new Decimal(t.spending.spent).div(t.spending.limit).toNumber()}
+              />
+            </View>
+
+            {t.spending.transfers
+              .filter(
+                (t): t is Extract<typeof t, { __typename: 'Transfer' }> =>
+                  t.__typename === 'Transfer',
+              )
+              .map((t) => (
+                <IncomingTransferItem key={t.id} transfer={t} />
+              ))}
+          </View>
+        )}
+
         <Actions>
           <Button
             mode="contained"
@@ -142,7 +186,7 @@ const stylesheet = createStyles(({ colors, fonts }) => ({
   surface: {
     paddingTop: 8,
   },
-  container: {
+  limitContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 16,
@@ -159,13 +203,16 @@ const stylesheet = createStyles(({ colors, fonts }) => ({
   inputPlaceholder: {
     color: colors.tertiary,
   },
+  periodContainer: {
+    alignItems: 'center',
+    gap: 8,
+    marginVertical: 8,
+    marginHorizontal: 16,
+  },
   removeContainer: {
     backgroundColor: colors.errorContainer,
   },
   removeLabel: {
     color: colors.onErrorContainer,
-  },
-  input2Container: {
-    backgroundColor: colors.surface,
   },
 }));

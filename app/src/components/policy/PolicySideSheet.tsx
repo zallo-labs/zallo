@@ -1,12 +1,11 @@
 import { useRouter } from 'expo-router';
-import { useImmerAtom } from 'jotai-immer';
 import { useForm } from 'react-hook-form';
 import { FormTextField } from '#/fields/FormTextField';
 import { Actions } from '#/layout/Actions';
 import { FormSubmitButton } from '#/fields/FormSubmitButton';
 import { FragmentType, gql, useFragment } from '@api/generated';
 import { useMutation } from 'urql';
-import { POLICY_DRAFT_ATOM } from '~/lib/policy/draft';
+import { usePolicyDraft } from '~/lib/policy/draft';
 import { showError } from '#/provider/SnackbarProvider';
 import { SideSheet } from '../SideSheet/SideSheet';
 import { useConfirmRemoval } from '~/hooks/useConfirm';
@@ -89,7 +88,7 @@ export function PolicySideSheet(props: PolicySideSheetProps) {
     message: 'Are you sure you want to remove this policy?',
   });
 
-  const [draft, updateDraft] = useImmerAtom(POLICY_DRAFT_ATOM);
+  const [draft, updateDraft] = usePolicyDraft();
   const { control, handleSubmit, reset } = useForm<Inputs>({
     defaultValues: { name: draft.name },
   });

@@ -1,4 +1,5 @@
 import {
+  FieldNode,
   FragmentDefinitionNode,
   GraphQLEnumType,
   GraphQLFieldMap,
@@ -49,23 +50,43 @@ export type Scope<Expr extends ObjectTypeExpression> = $scopify<Expr['__element_
 export type Shape<T extends ObjectTypeSet> = objectTypeToSelectShape<T['__element__']> &
   SelectModifiers<T['__element__']>;
 
-export type ShapeFunc<Expr extends ObjectTypeExpression> = (scope: Scope<Expr>) => Shape<Expr>;
+export type ShapeFunc<Expr extends ObjectTypeExpression = ObjectTypeExpression> = ((
+  scope: Scope<Expr>,
+  field?: string,
+) => Shape<Expr>) & { includes?: (field: string) => boolean };
 
-export const getShape =
-  <Expr extends ObjectTypeExpression>(info: GraphQLResolveInfo): ShapeFunc<Expr> =>
-  (scope): Shape<Expr> => {
-    const s = fieldToShape(
-      {
-        selections: info.fieldNodes.find((node) => node.name.value === info.fieldName)!.selectionSet
-          ?.selections,
-        graphql: info.parentType.getFields()[info.fieldName].type,
-        edgeql: scope.__element__,
-      },
-      info,
-    );
+export const getShape = <Expr extends ObjectTypeExpression>(info: GraphQLResolveInfo) => {
+  const rootSelections = info.fieldNodes.find((node) => node.name.value === info.fieldName)!
+    .selectionSet?.selections;
+  const rootType = info.parentType.getFields()[info.fieldName].type;
 
-    return s;
+  const f: ShapeFunc<Expr> = function resolveShape(
+    scope: Scope<Expr>,
+    field?: string,
+  ): Shape<Expr> {
+    const edgeql = scope.__element__;
+
+    return field
+      ? (() => {
+          const fieldNode = rootSelections?.find(
+            (n) => n.kind === Kind.FIELD && n.name.value === field,
+          ) as FieldNode | undefined;
+          if (!fieldNode) return {};
+
+          const fieldSelections = fieldNode.selectionSet?.selections;
+          const rootFieldTypes = getGraphqlTypeFields(rootType);
+          const fieldType = rootFieldTypes[field].type;
+
+          return fieldToShape({ selections: fieldSelections, graphql: fieldType, edgeql }, info);
+        })()
+      : fieldToShape({ selections: rootSelections, graphql: rootType, edgeql }, info);
   };
+
+  f.includes = (field: string) =>
+    !!rootSelections?.find((n) => n.kind === Kind.FIELD && n.name.value === field);
+
+  return f;
+};
 
 interface FieldDetails {
   selections: readonly SelectionNode[] | undefined;
@@ -81,6 +102,11 @@ function fieldToShape(field: FieldDetails, graphqlInfo: GraphQLResolveInfo) {
   const typeExtensions = getGraphqlTypeExtensions(field.graphql);
   if (typeExtensions.select && typeof typeExtensions.select === 'object')
     shape = merge(shape, typeExtensions.select);
+
+  // Include EQL type name for union types
+  const baseGqlType = getGraphqlBaseType(field.graphql);
+  if (isUnionType(baseGqlType) || isInterfaceType(baseGqlType))
+    shape = merge(shape, { __type__: { name: true } });
 
   const graphqlFields = getGraphqlTypeFields(field.graphql);
 
@@ -136,12 +162,7 @@ function getFragmentShape(
   fragment: FragmentDefinitionNode | InlineFragmentNode,
   shape: object,
 ) {
-  const baseGqlType = getGraphqlBaseType(field.graphql);
-  const simpleGqlTypes = getGraphqlSimpleTypes(baseGqlType);
-
-  // Include EQL type name for union types
-  if (isUnionType(baseGqlType) || isInterfaceType(baseGqlType))
-    shape = merge(shape, { __type__: { name: true } });
+  const simpleGqlTypes = getGraphqlSimpleTypes(getGraphqlBaseType(field.graphql));
 
   return simpleGqlTypes.reduce((shape, fieldBaseGqlType) => {
     const fragmentShape = getBaseTypeFragmentShape(

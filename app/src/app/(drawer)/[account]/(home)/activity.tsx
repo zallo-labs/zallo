@@ -35,18 +35,22 @@ const Query = gql(/* GraphQL */ `
       __typename
       id
       timestamp
-      ...IncomingTransferItem_TransferFragment
+      ...IncomingTransferItem_Transfer
     }
   }
 `);
 
 const ProposalSubscription = gql(/* GraphQL */ `
   subscription ActivityTab_ProposalSubscription($accounts: [UAddress!]!) {
-    proposal(input: { accounts: $accounts }) {
-      __typename
+    proposalUpdated(input: { accounts: $accounts, events: [create, delete] }) {
       id
-      timestamp: createdAt
-      ...TransactionItem_Transaction
+      event
+      proposal {
+        __typename
+        id
+        timestamp: createdAt
+        ...TransactionItem_Transaction
+      }
     }
   }
 `);
@@ -57,7 +61,7 @@ const TransferSubscription = gql(/* GraphQL */ `
       __typename
       id
       timestamp
-      ...IncomingTransferItem_TransferFragment
+      ...IncomingTransferItem_Transfer
     }
   }
 `);

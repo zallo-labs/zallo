@@ -5,11 +5,11 @@ import { GqlContext, asUser, getUserCtx } from '~/request/ctx';
 import { getShape } from '../database/database.select';
 import {
   UniqueProposalInput,
-  ProposalSubscriptionInput,
+  ProposalUpdatedInput,
   ProposalsInput,
   UpdateProposalInput,
 } from './proposals.input';
-import { Proposal } from './proposals.model';
+import { Proposal, ProposalUpdated } from './proposals.model';
 import {
   ProposalsService,
   ProposalSubscriptionPayload,
@@ -50,24 +50,30 @@ export class ProposalsResolver {
     return this.service.selectUnique(input.id, getShape(info));
   }
 
-  @Subscription(() => Proposal, {
-    name: 'proposal',
+  @Subscription(() => ProposalUpdated, {
     filter: (
       { event }: ProposalSubscriptionPayload,
-      { input: { events } }: InputArgs<ProposalSubscriptionInput>,
+      { input: { events } }: InputArgs<ProposalUpdatedInput>,
     ) => !events || events.includes(event),
-    resolve(
+    async resolve(
       this: ProposalsResolver,
-      { id: hash }: ProposalSubscriptionPayload,
+      { id, event }: ProposalSubscriptionPayload,
       _input,
       ctx: GqlContext,
       info: GraphQLResolveInfo,
     ) {
-      return asUser(ctx, async () => await this.service.selectUnique(hash, getShape(info)));
+      return {
+        id,
+        proposal: await asUser(
+          ctx,
+          async () => await this.service.selectUnique(id, (p) => getShape(info)(p, 'proposal')),
+        ),
+        event,
+      };
     },
   })
-  async subscribeToProposals(
-    @Input({ defaultValue: {} }) { proposals, accounts }: ProposalSubscriptionInput,
+  async proposalUpdated(
+    @Input({ defaultValue: {} }) { proposals, accounts }: ProposalUpdatedInput,
     @Context() ctx: GqlContext,
   ) {
     return asUser(ctx, async () => {

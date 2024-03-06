@@ -1,7 +1,6 @@
 import { Module, forwardRef } from '@nestjs/common';
 import { ReceiptsWorker } from './receipts.worker';
 import { ReceiptsQueue } from './receipts.queue';
-import { SystemTxsService } from './system-txs.service';
 import { TransactionsEvents } from './transactions.events';
 import { PaymastersModule } from '../paymasters/paymasters.module';
 import { registerBullQueue, registerFlowsProducer } from '../util/bull/bull.util';
@@ -16,13 +15,7 @@ import { SchedulerQueue, SchedulerWorker } from './scheduler.worker';
     ProposalsModule,
     forwardRef(() => PaymastersModule),
   ],
-  exports: [SystemTxsService, ReceiptsWorker],
-  providers: [
-    SystemTxsService,
-    ReceiptsWorker,
-    TransactionsEvents,
-    SchedulerEvents,
-    SchedulerWorker,
-  ],
+  exports: [ReceiptsWorker],
+  providers: [ReceiptsWorker, TransactionsEvents, SchedulerEvents, SchedulerWorker],
 })
 export class SystemTxsModule {}

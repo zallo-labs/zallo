@@ -1,9 +1,9 @@
 import { CircleSkeleton } from '../skeleton/CircleSkeleton';
 import { LineSkeleton } from '../skeleton/LineSkeleton';
-import { ListItem } from './ListItem';
+import { ListItem, ListItemProps } from './ListItem';
 
 export interface ListItemSkeletonProps {
-  leading?: boolean;
+  leading?: ListItemProps['leading'] | boolean;
   supporting?: boolean;
   trailing?: boolean;
 }
@@ -11,7 +11,7 @@ export interface ListItemSkeletonProps {
 export function ListItemSkeleton({ leading, supporting, trailing }: ListItemSkeletonProps) {
   return (
     <ListItem
-      leading={leading ? () => <CircleSkeleton /> : undefined}
+      leading={leading ? (leading === true ? () => <CircleSkeleton /> : leading) : undefined}
       headline={({ Text }) => (
         <Text>
           <LineSkeleton width={140} height={8} />

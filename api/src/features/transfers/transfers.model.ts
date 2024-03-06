@@ -1,4 +1,4 @@
-import { Extensions, Field, InterfaceType, IntersectionType } from '@nestjs/graphql';
+import { Extensions, Field, IntersectionType } from '@nestjs/graphql';
 import { AddressField } from '~/apollo/scalars/Address.scalar';
 import { Account } from '../accounts/accounts.model';
 import { Event } from '../events/events.model';
@@ -38,7 +38,7 @@ export class TransferDetails extends Node {
   isFeeTransfer: boolean;
 }
 
-@InterfaceType({ implements: [Node, Event, TransferDetails] })
+@NodeInterface({ implements: [Event, TransferDetails] })
 export class Transferlike extends IntersectionType(Event, TransferDetails) {}
 
 @NodeType({ implements: Transferlike })

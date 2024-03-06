@@ -5,7 +5,7 @@ import { UUID, asAddress, asDecimal, asUAddress, encodeScheduledTransaction, exe
 import { NetworksService } from '../util/networks/networks.service';
 import { DatabaseService } from '../database/database.service';
 import e from '~/edgeql-js';
-import { proposalTxShape, transactionAsTx } from '../transactions/transactions.util';
+import { TX_SHAPE, transactionAsTx } from '../transactions/transactions.util';
 import { selectTransaction } from '../transactions/transactions.service';
 import { PaymastersService } from '~/features/paymasters/paymasters.service';
 import Decimal from 'decimal.js';
@@ -33,7 +33,7 @@ export class SchedulerWorker extends Worker<SchedulerQueue> {
         simulation: { success: true },
         transaction: { receipt: true },
         isScheduled: p.result.is(e.Scheduled),
-        ...proposalTxShape(p),
+        ...TX_SHAPE,
         maxPaymasterEthFees: { activation: true, total: true },
       })),
     );

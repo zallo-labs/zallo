@@ -18,8 +18,6 @@ export function AccountSettingsAppbar(props: AccountSettingsAppbarProps) {
   const account = useFragment(Account, props.account);
   const sheet = useSideSheet();
 
-  console.log(sheet.visible);
-
   return (
     <AppbarOptions
       mode="large"

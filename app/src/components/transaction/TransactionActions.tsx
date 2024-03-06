@@ -13,30 +13,25 @@ import { useSideSheet } from '#/SideSheet/SideSheetLayout';
 
 const Transaction = gql(/* GraphQL */ `
   fragment TransactionActions_Transaction on Transaction
-  @argumentDefinitions(proposal: { type: "UUID!" }) {
+  @argumentDefinitions(transaction: { type: "UUID!" }) {
     id
     status
     updatable
-    systx {
-      id
-      hash
-    }
+    executable
     account {
       id
       chain
-      policies {
-        id
-        satisfiability(input: { proposal: $proposal }) {
-          result
-        }
-      }
     }
-    policy {
-      id
+    validationErrors {
+      reason
     }
     simulation {
       id
       success
+    }
+    systx {
+      id
+      hash
     }
     ...UseApprove_Proposal
     ...UseReject_Proposal
@@ -79,13 +74,7 @@ export const TransactionActions = (props: ProposalActionsProps) => {
   });
 
   const blockExplorer = CHAINS[p.account.chain].blockExplorers?.default;
-
-  const showForceExecute =
-    p.status === 'Pending' &&
-    p.account.policies.some(
-      (policy) =>
-        policy.satisfiability.result === 'satisfied' && (!p.policy || policy.id === p.policy.id),
-    );
+  const showForceExecute = p.status === 'Pending' && p.executable && !p.simulation?.success;
 
   return (
     <Actions>

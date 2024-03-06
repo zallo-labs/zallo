@@ -12,17 +12,18 @@ import {
   inputAsPolicy,
   policyStateAsPolicy,
   policyStateShape,
+  selectPolicy,
   uniquePolicy,
 } from './policies.util';
 import assert from 'assert';
 import { PolicyInput } from './policies.input';
 import { v1 as uuidv1 } from 'uuid';
+import { selectAccount } from '../accounts/accounts.util';
 
 describe(PoliciesService.name, () => {
   let service: PoliciesService;
   let db: DatabaseService;
   let proposals: DeepMocked<TransactionsService>;
-  let userAccounts: DeepMocked<AccountsCacheService>;
 
   beforeEach(async () => {
     const module = await Test.createTestingModule({
@@ -34,7 +35,6 @@ describe(PoliciesService.name, () => {
     service = module.get(PoliciesService);
     db = module.get(DatabaseService);
     proposals = module.get(TransactionsService);
-    userAccounts = module.get(AccountsCacheService);
   });
 
   let user1Account: UAddress;
@@ -49,6 +49,7 @@ describe(PoliciesService.name, () => {
 
     const accountId = uuidv1();
     userCtx.accounts.push({ id: accountId, address: account });
+    await e.insert(e.Approver, { address: userCtx.approver }).unlessConflict().run(db.client);
 
     await e
       .insert(e.Account, {
@@ -60,19 +61,22 @@ describe(PoliciesService.name, () => {
       })
       .run(db.client);
 
-    // userAccounts.addCachedAccount.mockImplementation(async (p) => {
-    //   if (userCtx.approver === p.approver && accountId === p.account)
-    //     userCtx.accounts.push(accountId);
-    // });
-
-    await e.insert(e.Approver, { address: userCtx.approver }).unlessConflict().run(db.client);
+    const initPolicy = (
+      await service.create({
+        account,
+        approvers: [userCtx.approver],
+        isInitState: true,
+      })
+    )._unsafeUnwrap();
 
     proposals.getInsertProposal.mockImplementation(async () => {
       const hash = randomHex(32);
 
       return e.insert(e.Transaction, {
         hash,
-        account: e.select(e.Account, () => ({ filter_single: { address: account } })),
+        account: selectAccount(account),
+        policy: selectPolicy(initPolicy),
+        validationErrors: [],
         operations: e.insert(e.Operation, { to: ZERO_ADDR }),
         validFrom: new Date(),
         paymaster: ZERO_ADDR,

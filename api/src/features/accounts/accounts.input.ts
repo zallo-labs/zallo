@@ -14,6 +14,12 @@ export class AccountInput {
 }
 
 @InputType()
+export class AccountsInput {
+  @ChainField({ nullable: true })
+  chain?: Chain;
+}
+
+@InputType()
 export class LabelAvailableInput {
   @Field(() => String)
   label: string;

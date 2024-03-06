@@ -3,11 +3,18 @@ import { tryOrIgnore } from '../util';
 import { HookStruct } from './permissions';
 import { HookSelector } from './util';
 import { Operation } from '../operation';
-import { decodeAbiParameters, decodeFunctionData, encodeAbiParameters, getAbiItem } from 'viem';
+import {
+  decodeAbiParameters,
+  decodeFunctionData,
+  encodeAbiParameters,
+  getAbiItem,
+  toFunctionSelector,
+} from 'viem';
 import { ERC20 } from '../dapps';
-import { OperationSatisfiability } from '../satisfiability';
+import { PermissionValidation } from '../validation';
 import { AbiParameterToPrimitiveType } from 'abitype';
 import { TEST_VERIFIER_ABI } from '../contract';
+import { Selector, asSelector } from '../bytes';
 
 export interface TransferLimit {
   amount: bigint;
@@ -72,32 +79,30 @@ export function decodeTransfersHook(h: HookStruct | undefined): TransfersConfig 
   return decodeTransfersConfigStruct(decodeAbiParameters([configAbi], h.config)[0]);
 }
 
-export function verifyTransfersPermission(
-  c: TransfersConfig,
-  op: Operation,
-): OperationSatisfiability {
+export function verifyTransfersPermission(c: TransfersConfig, op: Operation): PermissionValidation {
   const transfer = decodeTransfer(op);
-  if (!transfer.amount) return { result: 'satisfied' };
+  if (!transfer) return true;
 
   const limit = c.limits[transfer.token];
-  if (!limit)
-    return c.defaultAllow
-      ? { result: 'satisfied' }
-      : { result: 'unsatisfiable', reason: "Transfers without a limit aren't allowed" };
+  if (!limit) return c.defaultAllow || "Transfers without a limit aren't allowed";
 
-  // TODO: factor in spending that has already occured this epoch
-
-  return transfer.amount <= limit.amount
-    ? { result: 'satisfied' }
-    : { result: 'unsatisfiable', reason: 'Above transfer limit' };
+  return transfer.amount <= limit.amount || 'Above transfer limit';
 }
 
-function decodeTransfer(op: Operation) {
+export function decodeTransfer(op: Operation) {
   const r = tryOrIgnore(() => decodeFunctionData({ abi: ERC20, data: op.data ?? '0x' }));
 
   return r?.functionName === 'transfer' ||
     r?.functionName === 'approve' ||
     r?.functionName === 'increaseAllowance'
     ? { token: op.to, to: r.args[0], amount: r.args[1] }
-    : { token: ETH_ADDRESS, to: op.to, amount: op.value };
+    : op.value
+      ? { token: ETH_ADDRESS, to: op.to, amount: op.value }
+      : undefined;
 }
+
+export const TRANSFER_SELECTORS = [
+  asSelector(toFunctionSelector(getAbiItem({ abi: ERC20, name: 'transfer' }))),
+  asSelector(toFunctionSelector(getAbiItem({ abi: ERC20, name: 'approve' }))),
+  asSelector(toFunctionSelector(getAbiItem({ abi: ERC20, name: 'increaseAllowance' }))),
+] satisfies Selector[];

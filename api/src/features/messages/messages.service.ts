@@ -34,6 +34,7 @@ import { UserInputError } from '@nestjs/apollo';
 import { ethers } from 'ethers';
 import _ from 'lodash';
 import { WritableDeep } from 'ts-toolbelt/out/Object/Writable';
+import { PoliciesService } from '../policies/policies.service';
 
 export const selectMessage = (id: UUID | Hex) =>
   e.select(e.Message, () => ({ filter_single: isHex(id) ? { hash: id } : { id } }));
@@ -44,6 +45,7 @@ export class MessagesService {
     private db: DatabaseService,
     private networks: NetworksService,
     private proposals: ProposalsService,
+    private policies: PoliciesService,
   ) {}
 
   async selectUnique(id: UniqueProposal, shape?: ShapeFunc<typeof e.Message>) {
@@ -80,6 +82,7 @@ export class MessagesService {
     })();
 
     const hash = hashTypedData(asMessageTypedData(account, messageHash));
+    const { policy, validationErrors } = await this.policies.best(account, 'message');
 
     const existingMessage = selectMessage(hash);
     const { proposal, inserted } = await this.db.query(
@@ -91,6 +94,8 @@ export class MessagesService {
             '??',
             e.insert(e.Message, {
               account: selectAccount(account),
+              policy,
+              validationErrors,
               hash,
               messageHash,
               message,
@@ -111,7 +116,7 @@ export class MessagesService {
     );
 
     const id = asUUID(proposal.id);
-    if (inserted) this.proposals.publishProposal({ id, account }, ProposalEvent.create);
+    if (inserted) this.proposals.publish({ id, account }, ProposalEvent.create);
 
     if (signature) await this.approve({ id, signature });
 
@@ -124,7 +129,17 @@ export class MessagesService {
   }
 
   async remove(proposal: UUID) {
-    return this.db.query(e.delete(selectMessage(proposal)).id);
+    const selectedMessage = selectMessage(proposal);
+    const { account } = await this.db.query(
+      e.select({
+        account: e.assert_exists(selectedMessage.account.address),
+        deleted: e.delete(selectedMessage),
+      }),
+    );
+
+    this.proposals.publish({ id: proposal, account: asUAddress(account) }, ProposalEvent.delete);
+
+    return proposal;
   }
 
   private async trySign(id: UUID) {
@@ -187,7 +202,7 @@ export class MessagesService {
       })),
     );
 
-    await this.proposals.publishProposal({ id, account }, ProposalEvent.approved);
+    await this.proposals.publish({ id, account }, ProposalEvent.signed);
 
     return signature;
   }

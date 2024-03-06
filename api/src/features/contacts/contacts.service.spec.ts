@@ -4,7 +4,7 @@ import { UAddress } from 'lib';
 import { asUser, UserContext } from '~/request/ctx';
 import { randomUAddress, randomUser } from '~/util/test';
 import { DatabaseService } from '../database/database.service';
-import { ContactsService, uniqueContact } from './contacts.service';
+import { ContactsService, selectContact } from './contacts.service';
 import e from '~/edgeql-js';
 
 describe(ContactsService.name, () => {
@@ -46,7 +46,7 @@ describe(ContactsService.name, () => {
       asUser(user1, async () => {
         const id = await upsertContact();
 
-        expect(await db.query(e.select(e.Contact, uniqueContact(id)))).toBeTruthy();
+        expect(await db.query(selectContact(id))).toBeTruthy();
       }));
 
     it('updates a contact if it already existed', () =>
@@ -55,14 +55,7 @@ describe(ContactsService.name, () => {
         await upsertContact(user1Contact, 'a');
         await upsertContact(user1Contact, newLabel);
 
-        expect(
-          await db.query(
-            e.select(e.Contact, (c) => ({
-              ...uniqueContact(user1Contact)(c),
-              label: true,
-            })).label,
-          ),
-        ).toEqual(newLabel);
+        expect(await db.query(selectContact(user1Contact).label)).toEqual(newLabel);
       }));
 
     it('only allow unique names (within the scope of a user)', () =>

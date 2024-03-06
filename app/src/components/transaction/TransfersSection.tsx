@@ -11,7 +11,7 @@ import { TokenItem } from '#/token/TokenItem';
 
 const Transaction = gql(/* GraphQL */ `
   fragment TransfersSection_Transaction on Transaction
-  @argumentDefinitions(account: { type: "UAddress!" }, includeAccount: { type: "Boolean!" }) {
+  @argumentDefinitions(transaction: { type: "UUID!" }) {
     id
     result {
       id
@@ -36,7 +36,7 @@ const Transaction = gql(/* GraphQL */ `
         tokenAddress
         token {
           id
-          balance(input: { account: $account }) @include(if: $includeAccount)
+          balance(input: { transaction: $transaction })
           ...TokenItem_Token
           ...TokenAmount_token
         }

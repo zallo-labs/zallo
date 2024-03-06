@@ -51,6 +51,10 @@ input AccountSubscriptionInput {
   events: AccountEvent
 }
 
+input AccountsInput {
+  chain: Chain
+}
+
 type Action implements Node {
   allow: Boolean!
   description: String
@@ -124,6 +128,7 @@ input ApproverInput {
 
 input BalanceInput {
   account: UAddress
+  transaction: UUID
 }
 
 """
@@ -155,9 +160,9 @@ enum CloudProvider {
   Google
 }
 
-type Contact {
+type Contact implements Node {
   address: UAddress!
-  id: ID!
+  id: UUID!
   label: String!
 }
 
@@ -166,19 +171,20 @@ input ContactInput {
 }
 
 input ContactsInput {
+  chain: Chain
   query: String
 }
 
-type Contract {
+type Contract implements Node {
   address: Address!
   functions: [ContractFunction!]!
-  id: ID!
+  id: UUID!
 }
 
-type ContractFunction {
+type ContractFunction implements Node {
   abi: JSON!
   abiMd5: String!
-  id: ID!
+  id: UUID!
   selector: Selector!
   source: AbiSource!
   sourceConfidence: AbiSourceConfidence!
@@ -322,7 +328,7 @@ type Message implements Node & Proposal {
   id: UUID!
   label: String
   message: String!
-  policy: Policy
+  policy: Policy!
   potentialApprovers: [Approver!]!
   potentialRejectors: [Approver!]!
   proposedBy: Approver!
@@ -332,6 +338,7 @@ type Message implements Node & Proposal {
   typedData: TypedData
   updatable: Boolean!
   validFrom: DateTime!
+  validationErrors: [ValidationError!]!
 }
 
 type Mutation {
@@ -393,17 +400,17 @@ input PoliciesInput {
   includeDisabled: Boolean! = false
 }
 
-type Policy {
+type Policy implements Node {
   account: Account!
   draft: PolicyState
-  id: ID!
+  id: UUID!
   isActive: Boolean!
   key: PolicyKey!
   name: String!
-  satisfiability(input: SatisfiabilityInput!): SatisfiabilityResult!
   state: PolicyState
   stateHistory: [PolicyState!]!
   stateOrDraft: PolicyState!
+  validationErrors(input: ValidationErrorsInput!): [ValidationError!]!
 }
 
 input PolicyInput {
@@ -421,7 +428,7 @@ input PolicyInput {
 """Policy key: an unsigned integer [0, 65535]"""
 scalar PolicyKey
 
-type PolicyState {
+type PolicyState implements Node {
   actions: [Action!]!
   activationBlock: BigInt
   allowMessages: Boolean!
@@ -431,7 +438,7 @@ type PolicyState {
   """seconds"""
   delay: Float!
   hasBeenActive: Boolean!
-  id: ID!
+  id: UUID!
   isAccountInitState: Boolean!
   isActive: Boolean!
   isRemoved: Boolean!
@@ -459,23 +466,25 @@ interface Proposal implements Node {
   iconUri: String
   id: UUID!
   label: String
-  policy: Policy
+  policy: Policy!
   potentialApprovers: [Approver!]!
   potentialRejectors: [Approver!]!
   proposedBy: Approver!
   rejections: [Rejection!]!
   validFrom: DateTime!
+  validationErrors: [ValidationError!]!
 }
 
 enum ProposalEvent {
   approval
-  approved
   cancelled
   create
   delete
   executed
   rejection
   scheduled
+  signed
+  simulated
   submitted
   update
 }
@@ -487,7 +496,13 @@ interface ProposalResponse implements Node {
   proposal: Proposal!
 }
 
-input ProposalSubscriptionInput {
+type ProposalUpdated {
+  event: ProposalEvent!
+  id: UUID!
+  proposal: Proposal
+}
+
+input ProposalUpdatedInput {
   """Defaults to user accounts if no proposals are provided"""
   accounts: [UAddress!]
 
@@ -546,7 +561,7 @@ input ProposeTransactionInput {
 
 type Query {
   account(input: AccountInput! = {}): Account
-  accounts: [Account!]!
+  accounts(input: AccountsInput! = {}): [Account!]!
   approver(input: ApproverInput! = {}): UserApprover
   contact(input: ContactInput!): Contact
   contacts(input: ContactsInput! = {}): [Contact!]!
@@ -607,26 +622,6 @@ interface Result implements Node {
   transfers: [Transfer!]!
 }
 
-enum Satisfiability {
-  satisfiable
-  satisfied
-  unsatisfiable
-}
-
-input SatisfiabilityInput {
-  proposal: UUID!
-}
-
-type SatisfiabilityReason {
-  operation: Float
-  reason: String!
-}
-
-type SatisfiabilityResult {
-  reasons: [SatisfiabilityReason!]!
-  result: Satisfiability!
-}
-
 type Scheduled implements Node & Result {
   cancelled: Boolean!
   events: [Event!]!
@@ -661,9 +656,15 @@ type Simulation implements Node {
   transfers: [SimulatedTransfer!]!
 }
 
+input SpendingInput {
+  account: UAddress!
+  policyKey: PolicyKey
+  since: DateTime
+}
+
 type Subscription {
   account(input: AccountSubscriptionInput! = {}): Account!
-  proposal(input: ProposalSubscriptionInput! = {}): Proposal!
+  proposalUpdated(input: ProposalUpdatedInput! = {}): ProposalUpdated!
   transfer(input: TransferSubscriptionInput! = {}): Transfer!
   user: User!
 }
@@ -717,6 +718,7 @@ type Token implements Node {
   price: Price
   pythUsdPriceId: Bytes32
   removable: Boolean!
+  spending(input: SpendingInput!): TokenSpending!
   symbol: String!
   units: [TokenUnit!]
   userOwned: Boolean!
@@ -733,6 +735,14 @@ type TokenMetadata {
   name: String
   pythUsdPriceId: Bytes32
   symbol: String
+}
+
+type TokenSpending {
+  limit: Decimal
+  remaining: Decimal
+  since: DateTime!
+  spent: Decimal!
+  transfers: [Transferlike!]!
 }
 
 type TokenUnit {
@@ -758,6 +768,7 @@ type Transaction implements Node & Proposal {
   createdAt: DateTime!
   dapp: DappMetadata
   estimatedFees: EstimatedTransactionFees!
+  executable: Boolean!
   feeToken: Token!
   gasLimit: BigInt!
   hash: Bytes32!
@@ -768,7 +779,7 @@ type Transaction implements Node & Proposal {
   nonce: BigInt!
   operations: [Operation!]!
   paymaster: Address!
-  policy: Policy
+  policy: Policy!
   potentialApprovers: [Approver!]!
   potentialRejectors: [Approver!]!
   proposedBy: Approver!
@@ -777,11 +788,11 @@ type Transaction implements Node & Proposal {
   results: [Result!]!
   simulation: Simulation
   status: TransactionStatus!
-  submitted: Boolean!
   systx: SystemTx
   systxs: [SystemTx!]!
   updatable: Boolean!
   validFrom: DateTime!
+  validationErrors: [ValidationError!]!
 }
 
 enum TransactionStatus {
@@ -864,12 +875,12 @@ type TransferFromOp implements TransferlikeOp {
   token: Address!
 }
 
-type TransferLimit {
+type TransferLimit implements Node {
   amount: BigInt!
 
   """seconds"""
   duration: Float!
-  id: ID!
+  id: UUID!
   token: Address!
 }
 
@@ -917,10 +928,10 @@ interface TransferlikeOp {
   token: Address!
 }
 
-type TransfersConfig {
+type TransfersConfig implements Node {
   budget: Float!
   defaultAllow: Boolean!
-  id: ID!
+  id: UUID!
   limits: [TransferLimit!]!
 }
 
@@ -1052,4 +1063,13 @@ type UserApprover implements Node {
   label: String
   name: String
   pushToken: String
+}
+
+type ValidationError {
+  operation: Float
+  reason: String!
+}
+
+input ValidationErrorsInput {
+  proposal: UUID!
 }

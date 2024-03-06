@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { ExpoModule } from '~/features/util/expo/expo.module';
 import { TransactionsResolver } from './transactions.resolver';
 import { TransactionsService } from './transactions.service';
@@ -11,6 +11,7 @@ import { ExecutionsQueue, ExecutionsWorker } from '~/features/transactions/execu
 import { ReceiptsQueue } from '~/features/system-txs/receipts.queue';
 import { SimulationsQueue } from '~/features/simulations/simulations.worker';
 import { ActivationsModule } from '../activations/activations.module';
+import { PoliciesModule } from '../policies/policies.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { ActivationsModule } from '../activations/activations.module';
     PricesModule,
     PaymastersModule,
     ActivationsModule,
+    forwardRef(() => PoliciesModule)
   ],
   exports: [TransactionsService],
   providers: [TransactionsResolver, TransactionsService, ExecutionsWorker],

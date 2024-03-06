@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { DatabaseService } from '../database/database.service';
-import { TokensInput, UpsertTokenInput } from './tokens.input';
+import { BalanceInput, SpendingInput, TokensInput, UpsertTokenInput } from './tokens.input';
 import { Scope, ShapeFunc } from '../database/database.select';
 import e from '~/edgeql-js';
 import { uuid } from 'edgedb/dist/codecs/ifaces';
-import { UAddress, asAddress, asDecimal, asFp, isUAddress } from 'lib';
+import { UAddress, asAddress, asDecimal, asFp, asUAddress, isUAddress } from 'lib';
 import { ERC20, TOKENS, flattenToken } from 'lib/dapps';
 import { and, or } from '../database/database.util';
 import { NetworksService } from '../util/networks/networks.service';
@@ -12,6 +12,13 @@ import { UserInputError } from '@nestjs/apollo';
 import { OrderByObjExpr } from '~/edgeql-js/select';
 import { TokenMetadata } from '~/features/tokens/tokens.model';
 import Decimal from 'decimal.js';
+import { selectAccount } from '../accounts/accounts.util';
+import { TokenSpending } from './spending.model';
+import { Transferlike } from '../transfers/transfers.model';
+import { getUserCtx } from '~/request/ctx';
+import { BalancesService } from '../util/balances/balances.service';
+import { selectTransaction } from '../transactions/transactions.service';
+import { SelectedPolicies } from '../policies/policies.util';
 
 @Injectable()
 export class TokensService {
@@ -21,6 +28,7 @@ export class TokensService {
   constructor(
     private db: DatabaseService,
     private networks: NetworksService,
+    private balances: BalancesService,
   ) {}
 
   async selectUnique(id: uuid | UAddress, shape?: ShapeFunc<typeof e.Token>) {
@@ -172,6 +180,106 @@ export class TokensService {
 
   async asFp(token: UAddress, amount: Decimal): Promise<bigint> {
     return asFp(amount, await this.decimals(token));
+  }
+
+  async balance(token: UAddress, { account, transaction }: BalanceInput): Promise<Decimal> {
+    if (!account) {
+      const accounts = getUserCtx().accounts;
+      if (accounts.length === 1) account = accounts[0].address;
+
+      if (!transaction) throw new UserInputError('account or transaction is required');
+
+      account = asUAddress(
+        await this.db.query(e.assert_exists(selectTransaction(transaction).account.address)),
+      );
+    }
+
+    const balance = await this.asDecimal(
+      token,
+      await this.balances.balance({ account, token: asAddress(token) }),
+    );
+    if (balance.eq(0)) return balance;
+
+    const limitRemaining =
+      transaction &&
+      (
+        await this.policySpending(
+          token,
+          selectTransaction(transaction).policy as unknown as SelectedPolicies,
+        )
+      ).remaining;
+
+    return limitRemaining ? Decimal.min(balance, limitRemaining) : balance;
+  }
+
+  async spending(token: UAddress, input: SpendingInput, shape?: ShapeFunc): Promise<TokenSpending> {
+    const policy = e.select(e.Policy, (p) => ({
+      filter: and(
+        e.op(p.account, '=', selectAccount(input.account)),
+        input.policyKey !== undefined && e.op(p.key, '=', input.policyKey),
+      ),
+    })) as unknown as SelectedPolicies;
+
+    return this.policySpending(token, policy, input.since, shape);
+  }
+
+  async policySpending(
+    token: UAddress,
+    policy: SelectedPolicies,
+    sinceParam?: Date,
+    shape?: ShapeFunc,
+  ): Promise<TokenSpending> {
+    if (!policy && !sinceParam) throw new UserInputError('policy or since is required');
+
+    // May technically be multiple, but only used when there's one (when policyKey is provided)
+    const limit = e.assert_single(
+      e.select(policy.state.transfers.limits, (l) => ({
+        filter: e.op(l.token, '=', asAddress(token)),
+        amount: true,
+        duration: true,
+      })),
+    );
+
+    const now = e.datetime_get(e.datetime_of_transaction(), 'epochseconds');
+    const since = sinceParam
+      ? e.datetime(sinceParam)
+      : e.with([now], e.select(e.to_datetime(e.op(now, '-', e.op(now, '%', limit.duration))))); // {} if limit is {}
+
+    const transfers = e.select(
+      e.op(e.Transferlike, 'if', e.op('exists', since), 'else', e.cast(e.Transferlike, e.set())),
+      (t) => ({
+        filter: and(
+          e.op(t.spentBy, '=', policy),
+          e.op(t.tokenAddress, '=', token),
+          e.op(t.timestamp, '>=', since),
+        ),
+        ...shape?.(t, 'transfers'),
+        amount: true,
+      }),
+    );
+
+    const r = await this.db.query(
+      e.with(
+        [policy, limit],
+        e.select({
+          transfers: shape?.includes?.('transfers') ? transfers : e.cast(e.Transfer, e.set()),
+          spent: e.op(e.sum(transfers.amount), '*', e.decimal('-1')),
+          limitAmount: limit.amount,
+          since,
+        }),
+      ),
+    );
+
+    const spent = new Decimal(r.spent);
+    const limit_ = r.limitAmount ? await this.asDecimal(token, r.limitAmount) : undefined;
+
+    return {
+      transfers: r.transfers as Transferlike[],
+      since: r.since ?? new Date(),
+      spent,
+      limit: limit_,
+      remaining: limit_ ? limit_.minus(spent) : undefined,
+    };
   }
 }
 

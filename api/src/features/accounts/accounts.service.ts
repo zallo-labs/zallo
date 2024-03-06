@@ -12,7 +12,12 @@ import {
   ACCOUNT_PROXY_FACTORY,
 } from 'lib';
 import { ShapeFunc } from '../database/database.select';
-import { AccountEvent, CreateAccountInput, UpdateAccountInput } from './accounts.input';
+import {
+  AccountEvent,
+  AccountsInput,
+  CreateAccountInput,
+  UpdateAccountInput,
+} from './accounts.input';
 import { getApprover, getUserCtx } from '~/request/ctx';
 import { UserInputError } from '@nestjs/apollo';
 import { NetworksService } from '../util/networks/networks.service';
@@ -63,11 +68,11 @@ export class AccountsService {
     );
   }
 
-  select(_filter: Record<string, never>, shape?: ShapeFunc<typeof e.Account>) {
+  select({ chain }: AccountsInput, shape?: ShapeFunc<typeof e.Account>) {
     return this.db.query(
       e.select(e.Account, (a) => ({
         ...shape?.(a),
-        id: true,
+        filter: and(chain && e.op(a.chain, '=', chain)),
       })),
     );
   }

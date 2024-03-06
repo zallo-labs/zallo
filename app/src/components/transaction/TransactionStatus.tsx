@@ -2,7 +2,7 @@ import { FragmentType, gql, useFragment } from '@api';
 import { createStyles, useStyles } from '@theme/styles';
 import { TextProps } from '@theme/types';
 import { View } from 'react-native';
-import { ActivityIndicator, Text } from 'react-native-paper';
+import { Text } from 'react-native-paper';
 import { match } from 'ts-pattern';
 
 const Transaction = gql(/* GraphQL */ `
@@ -34,12 +34,9 @@ export function TransactionStatus(props: TransactionStatusProps) {
           </Text>
         ))
         .with('Executing', () => (
-          <>
-            <ActivityIndicator size="small" color={styles.executing.color} />
-            <Text {...props} style={[props.style, styles.executing]}>
-              Executing
-            </Text>
-          </>
+          <Text {...props} style={[props.style, styles.executing]}>
+            Executing...
+          </Text>
         ))
         .with('Successful', () => (
           <Text {...props} style={[props.style, styles.successful]}>

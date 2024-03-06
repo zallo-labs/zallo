@@ -17,7 +17,9 @@ export default function RootScreen() {
   const query = useQuery(Query);
   const accounts = query.data?.accounts;
 
-  return accounts?.length && !query.fetching ? (
+  if (query.stale || query.fetching) return null;
+
+  return accounts?.length ? (
     <Redirect
       href={{
         pathname: `/(drawer)/[account]/(home)/`,

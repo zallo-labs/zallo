@@ -7,9 +7,8 @@ import { useMutation } from 'urql';
 import { z } from 'zod';
 import { PolicyAppbar } from '#/policy/PolicyAppbar';
 import { useQuery } from '~/gql';
-import { useHydratePolicyDraft } from '~/hooks/useHydratePolicyDraft';
 import { useLocalParams } from '~/hooks/useLocalParams';
-import { POLICY_DRAFT_ATOM, asPolicyInput } from '~/lib/policy/draft';
+import { usePolicyDraftAtom, asPolicyInput, usePolicyDraftContext } from '~/lib/policy/draft';
 import { showError } from '#/provider/SnackbarProvider';
 import { withSuspense } from '#/skeleton/withSuspense';
 import { ScreenSkeleton } from '#/skeleton/ScreenSkeleton';
@@ -27,19 +26,12 @@ import { SideSheetLayout } from '#/SideSheet/SideSheetLayout';
 import { PolicySideSheet } from '#/policy/PolicySideSheet';
 import { SignMessageSettings } from '#/policy/SignMessageSettings';
 import { DelaySettings } from '#/policy/DelaySettings';
+import { PolicyLayoutParams } from './_layout';
 
 const Query = gql(/* GraphQL */ `
-  query PolicyScreen($account: UAddress!, $key: PolicyKey!, $queryPolicy: Boolean!) {
-    policy(input: { account: $account, key: $key }) @include(if: $queryPolicy) {
+  query PolicyScreen($account: UAddress!, $key: PolicyKey!, $includePolicy: Boolean!) {
+    policy(input: { account: $account, key: $key }) @include(if: $includePolicy) {
       id
-      key
-      state {
-        id
-      }
-      draft {
-        id
-      }
-      ...useHydratePolicyDraft_Policy
       ...PolicyAppbar_Policy
       ...PolicySideSheet_Policy
     }
@@ -47,14 +39,12 @@ const Query = gql(/* GraphQL */ `
     account(input: { account: $account }) {
       id
       address
-      ...useHydratePolicyDraft_Account
       ...PolicySuggestions_Account
       ...PolicySideSheet_Account
     }
 
     user {
       id
-      ...useHydratePolicyDraft_User
       ...PolicySuggestions_User
     }
   }
@@ -102,11 +92,7 @@ const Update = gql(/* GraphQL */ `
   }
 `);
 
-export const PolicyScreenParams = z.object({
-  account: zUAddress(),
-  key: z.union([z.coerce.number().transform(asPolicyKey), z.literal('add')]),
-  view: z.enum(['state', 'draft']).optional(),
-});
+export const PolicyScreenParams = PolicyLayoutParams;
 export type PolicyScreenParams = z.infer<typeof PolicyScreenParams>;
 
 function PolicyScreen() {
@@ -115,19 +101,15 @@ function PolicyScreen() {
   const create = useMutation(Create)[1];
   const update = useMutation(Update)[1];
 
-  const key = params.key === 'add' ? undefined : asPolicyKey(params.key);
+  const { initial: init, view } = usePolicyDraftContext();
+  const [draft, setDraft] = useAtom(usePolicyDraftAtom());
 
   const { policy, account, user } = useQuery(Query, {
     account: params.account,
-    key: key ?? (0 as PolicyKey),
-    queryPolicy: key !== undefined,
+    key: draft.key ?? (0 as PolicyKey),
+    includePolicy: draft.key !== undefined,
   }).data;
 
-  const view =
-    (params.view === 'state' && policy?.state && 'state') || (policy?.draft && 'draft') || 'state';
-
-  const { init } = useHydratePolicyDraft({ account, user, policy, view });
-  const [draft, setDraft] = useAtom(POLICY_DRAFT_ATOM);
   const isModified = !_.isEqual(init, draft);
   const initiallyExpanded = useLayout().layout === 'expanded';
 
@@ -140,7 +122,13 @@ function PolicyScreen() {
         policyKey={params.key}
         policy={policy}
         view={view}
-        setView={(view) => router.setParams({ ...params, key: `${params.key}`, view })}
+        setView={(view) =>
+          router.setParams({
+            account: params.account,
+            key: `${params.key}`,
+            ...(view === 'draft' && { draft: `${params.draft}` }),
+          })
+        }
         reset={isModified ? () => setDraft(init) : undefined}
       />
 
@@ -165,7 +153,7 @@ function PolicyScreen() {
 
                 if (r?.__typename !== 'Policy') return showError(r?.message);
 
-                router.setParams({ ...params, key: `${r.key}`, view: 'draft' });
+                router.setParams({ ...params, key: `${r.key}`, draft: 'true' });
                 router.push({
                   pathname: `/(drawer)/transaction/[id]`,
                   params: { id: r.draft!.proposal!.id },

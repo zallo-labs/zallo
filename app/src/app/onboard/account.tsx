@@ -1,12 +1,11 @@
 import { gql } from '@api';
 import { useRouter } from 'expo-router';
 import { UAddress } from 'lib';
-import { useCallback, useEffect } from 'react';
+import { useCallback } from 'react';
 import CreateAccountScreen from '~/app/(drawer)/accounts/create';
-import { ScreenSkeleton } from '#/skeleton/ScreenSkeleton';
-import { withSuspense } from '#/skeleton/withSuspense';
 import { useQuery } from '~/gql';
 import { useSetSelectedAccont } from '~/hooks/useSelectedAccount';
+import { useFocusEffect } from 'expo-router';
 
 const Query = gql(/* GraphQL */ `
   query AccountOnboarding {
@@ -31,11 +30,13 @@ function AccountOnboardingScreen() {
     [router, setSelected],
   );
 
-  useEffect(() => {
+  useFocusEffect(() => {
     if (accounts.length) next(accounts[0].address);
-  }, [accounts, next]);
+  });
+
+  if (accounts.length) return null;
 
   return <CreateAccountScreen onCreate={next} />;
 }
 
-export default withSuspense(AccountOnboardingScreen, <ScreenSkeleton />);
+export default AccountOnboardingScreen;

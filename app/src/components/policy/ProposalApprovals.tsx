@@ -5,7 +5,7 @@ import { getOptimizedDocument, useQuery } from '~/gql';
 import { useSubscription } from 'urql';
 import { ApprovalItem } from '#/transaction/ApprovalItem';
 import { SelectedPolicy } from '#/transaction/SelectedPolicy';
-import { AwaitingApprovalItem } from '#/transaction/AwaitingApprovalItem';
+import { PendingApprovalItem } from '#/transaction/PendingApprovalItem';
 import { RejectionItem } from '#/transaction/RejectionItem';
 import { withSuspense } from '#/skeleton/withSuspense';
 import { ScreenSkeleton } from '#/skeleton/ScreenSkeleton';
@@ -14,26 +14,17 @@ const Proposal = gql(/* GraphQL */ `
   fragment ProposalApprovals_Proposal on Proposal
   @argumentDefinitions(proposal: { type: "UUID!" }) {
     id
-    account {
-      id
-      policies {
-        id
-        satisfiability(input: { proposal: $proposal }) {
-          result
-        }
-        state {
-          id
-          threshold
-          approvers {
-            id
-            address
-            ...AwaitingApprovalItem_Approver
-          }
-        }
-      }
-    }
     policy {
       id
+      state {
+        id
+        threshold
+        approvers {
+          id
+          address
+          ...PendingApprovalItem_Approver
+        }
+      }
     }
     rejections {
       id
@@ -54,8 +45,8 @@ const Proposal = gql(/* GraphQL */ `
       id
       address
     }
-    ...SelectedPolicy_ProposalFragment @arguments(proposal: $proposal)
-    ...AwaitingApprovalItem_Proposal
+    ...SelectedPolicy_Proposal @arguments(proposal: $proposal)
+    ...PendingApprovalItem_Proposal
     ...RejectionItem_Proposal
     ...ApprovalItem_Proposal
   }
@@ -68,7 +59,7 @@ const Query = gql(/* GraphQL */ `
     }
 
     user {
-      ...AwaitingApprovalItem_User
+      ...PendingApprovalItem_User
       ...RejectionItem_User
       ...ApprovalItem_User
     }
@@ -77,8 +68,11 @@ const Query = gql(/* GraphQL */ `
 
 const Subscription = gql(/* GraphQL */ `
   subscription ProposalApprovals_Subscription($proposal: UUID!) {
-    proposal(input: { proposals: [$proposal] }) {
-      ...ProposalApprovals_Proposal @arguments(proposal: $proposal)
+    proposalUpdated(input: { proposals: [$proposal], events: [approval, rejection] }) {
+      id
+      proposal {
+        ...ProposalApprovals_Proposal @arguments(proposal: $proposal)
+      }
     }
   }
 `);
@@ -98,25 +92,27 @@ function ProposalApprovals_({ proposal: id }: PolicyTabProps) {
 
   if (!p) return null;
 
-  const selected =
-    p.account.policies.find(({ id }) => id === p.policy?.id) ?? p.account.policies[0];
-
-  const awaitingApproval = p.approvals.length < (selected.state?.threshold ?? 0);
-  const awaitingApprovers = selected.state?.approvers.filter(
-    (approver) =>
-      !p.approvals.find((a) => a.approver.id === approver.id) &&
-      !p.rejections.find((r) => r.approver.id === approver.id),
-  );
+  const threshold = p.policy.state?.threshold;
+  const awaitingApprovers =
+    p.policy.state &&
+    p.approvals.length < (threshold ?? 0) &&
+    p.policy.state.approvers.filter(
+      (approver) =>
+        !p.approvals.find((a) => a.approver.id === approver.id) &&
+        !p.rejections.find((r) => r.approver.id === approver.id),
+    );
 
   return (
     <>
       <SelectedPolicy proposal={p} />
 
-      {awaitingApproval && (
+      {awaitingApprovers && (
         <>
-          <ListHeader>Awaiting</ListHeader>
-          {awaitingApprovers?.map((approver) => (
-            <AwaitingApprovalItem key={approver.id} user={user} proposal={p} approver={approver} />
+          <ListHeader trailing={threshold && `${threshold - p.approvals.length} required`}>
+            Pending
+          </ListHeader>
+          {awaitingApprovers.map((approver) => (
+            <PendingApprovalItem key={approver.id} user={user} proposal={p} approver={approver} />
           ))}
         </>
       )}

@@ -1,19 +1,11 @@
-import { Field, ObjectType, createUnionType, registerEnumType } from '@nestjs/graphql';
+import { Field, ObjectType, createUnionType } from '@nestjs/graphql';
 import { GraphQLBigInt } from 'graphql-scalars';
 import { Account } from '../accounts/accounts.model';
 import { Transaction } from '../transactions/transactions.model';
-import { IdField } from '~/apollo/scalars/Id.scalar';
 import * as eql from '~/edgeql-interfaces';
-import { uuid } from 'edgedb/dist/codecs/ifaces';
 import { PolicyKeyField } from '~/apollo/scalars/PolicyKey.scalar';
 import { AddressField } from '~/apollo/scalars/Address.scalar';
-import {
-  Address,
-  Satisfiability,
-  Selector,
-  SatisfiabilityResult as ISatisfiabilityResult,
-  SatisfiabilityReason as ISatisfiabilityReason,
-} from 'lib';
+import { Address, Selector } from 'lib';
 import { Approver } from '../approvers/approvers.model';
 import { SelectorField } from '~/apollo/scalars/Bytes.scalar';
 import { Err, ErrorType, Node, NodeType } from '~/decorators/interface.decorator';
@@ -49,11 +41,8 @@ export class Action extends Node implements eql.Action {
   description: string | null;
 }
 
-@ObjectType()
-export class TransferLimit {
-  @IdField()
-  id: uuid;
-
+@NodeType()
+export class TransferLimit extends Node {
   @AddressField()
   token: Address;
 
@@ -64,11 +53,8 @@ export class TransferLimit {
   duration: number;
 }
 
-@ObjectType()
-export class TransfersConfig implements eql.TransfersConfig {
-  @IdField()
-  id: uuid;
-
+@NodeType()
+export class TransfersConfig extends Node implements eql.TransfersConfig {
   @Field(() => [TransferLimit])
   limits: TransferLimit[];
 
@@ -79,11 +65,8 @@ export class TransfersConfig implements eql.TransfersConfig {
   budget: number;
 }
 
-@ObjectType()
-export class PolicyState {
-  @IdField()
-  id: uuid;
-
+@NodeType()
+export class PolicyState extends Node {
   @Field(() => Transaction, { nullable: true })
   proposal?: Transaction | null;
 
@@ -124,11 +107,8 @@ export class PolicyState {
   createdAt: Date;
 }
 
-@ObjectType()
-export class Policy {
-  @IdField()
-  id: uuid;
-
+@NodeType()
+export class Policy extends Node {
   @Field(() => Account)
   account: Account;
 
@@ -154,19 +134,8 @@ export class Policy {
   isActive: boolean;
 }
 
-registerEnumType(Satisfiability, { name: 'Satisfiability' });
-
 @ObjectType()
-export class SatisfiabilityResult implements ISatisfiabilityResult {
-  @Field(() => Satisfiability)
-  result: Satisfiability;
-
-  @Field(() => [SatisfiabilityReason])
-  reasons: SatisfiabilityReason[];
-}
-
-@ObjectType()
-export class SatisfiabilityReason implements ISatisfiabilityReason {
+export class ValidationError {
   @Field(() => String)
   reason: string;
 

@@ -7,7 +7,7 @@ import { ListItem } from '#/list/ListItem';
 import { ListItemHorizontalTrailing } from '#/list/ListItemHorizontalTrailing';
 import { ListItemTrailingText } from '#/list/ListItemTrailingText';
 import { useToggle } from '~/hooks/useToggle';
-import { PolicyDraftAction, usePolicyDraftState } from '~/lib/policy/draft';
+import { PolicyDraftAction, usePolicyDraft } from '~/lib/policy/draft';
 import { ACTION_PRESETS } from '~/lib/policy/usePolicyPresets';
 
 function isDefaultAllowAction(a: PolicyDraftAction) {
@@ -19,7 +19,7 @@ export interface ActionsSettingsProps {
 }
 
 export function ActionsSettings(props: ActionsSettingsProps) {
-  const [{ actions }, update] = usePolicyDraftState();
+  const [{ actions }, update] = usePolicyDraft();
   const [expanded, toggleExpanded] = useToggle(props.initiallyExpanded);
 
   const actionPresets = Object.values(ACTION_PRESETS);

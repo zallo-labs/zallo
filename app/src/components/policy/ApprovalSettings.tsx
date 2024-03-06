@@ -14,7 +14,7 @@ import { ThresholdChip } from '#/policy/ThresholdChip';
 import { showInfo } from '#/provider/SnackbarProvider';
 import { useSelectAddress } from '~/hooks/useSelectAddress';
 import { useToggle } from '~/hooks/useToggle';
-import { usePolicyDraftState } from '~/lib/policy/draft';
+import { usePolicyDraft } from '~/lib/policy/draft';
 
 export interface ApprovalSettingsProps {
   initiallyExpanded: boolean;
@@ -24,7 +24,7 @@ export function ApprovalSettings(props: ApprovalSettingsProps) {
   const { styles } = useStyles(stylesheet);
   const selectAddress = useSelectAddress();
 
-  const [policy, update] = usePolicyDraftState();
+  const [policy, update] = usePolicyDraft();
   const [expanded, toggleExpanded] = useToggle(props.initiallyExpanded);
 
   const addApprover = async () => {

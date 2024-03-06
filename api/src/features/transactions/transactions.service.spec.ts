@@ -25,6 +25,7 @@ import { FLOW_PRODUCER, registerFlowsProducer } from '../util/bull/bull.util';
 import { CHAINS } from 'chains';
 import { PaymastersService } from '~/features/paymasters/paymasters.service';
 import Decimal from 'decimal.js';
+import { PoliciesService } from '../policies/policies.service';
 
 const signature = '0x1234' as Hex;
 
@@ -33,6 +34,7 @@ describe(TransactionsService.name, () => {
   let db: DatabaseService;
   let networks: DeepMocked<NetworksService>;
   let paymasters: DeepMocked<PaymastersService>;
+  let policies: DeepMocked<PoliciesService>;
 
   beforeEach(async () => {
     const module = await Test.createTestingModule({
@@ -55,6 +57,7 @@ describe(TransactionsService.name, () => {
     db = module.get(DatabaseService);
     networks = module.get(NetworksService);
     paymasters = module.get(PaymastersService);
+    policies = module.get(PoliciesService);
 
     networks.get.mockReturnValue({
       chain: CHAINS['zksync-local'],
@@ -118,6 +121,13 @@ describe(TransactionsService.name, () => {
         .unlessConflict()
         .run(db.client);
     }
+
+    policies.best.mockImplementation(async () => ({
+      policy: e.select(e.Policy, () => ({
+        filter_single: { account: selectAccount(account), key: 0 },
+      })) as any,
+      validationErrors: [],
+    }));
 
     return service.propose({ account, operations, gas: 1n, ...params });
   };

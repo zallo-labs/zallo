@@ -10,7 +10,7 @@ import { useFormattedTokenAmount } from '#/token/TokenAmount';
 import { TokenIcon } from '#/token/TokenIcon';
 
 const FragmentDoc = gql(/* GraphQL */ `
-  fragment OperationDetails_OperationFragment on Operation {
+  fragment OperationDetails_Operation on Operation {
     to
     data
     function {

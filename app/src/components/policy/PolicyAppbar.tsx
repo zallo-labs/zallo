@@ -3,8 +3,7 @@ import { Chip, Menu } from 'react-native-paper';
 import { AppbarMore } from '#/Appbar/AppbarMore';
 import { useAtomValue } from 'jotai';
 import { FragmentType, gql, useFragment } from '@api/generated';
-import { PolicyView } from '~/hooks/useHydratePolicyDraft';
-import { POLICY_DRAFT_ATOM } from '~/lib/policy/draft';
+import { PolicyView, usePolicyDraftAtom } from '~/lib/policy/draft';
 import { AppbarOptions } from '#/Appbar/AppbarOptions';
 import { useRouter } from 'expo-router';
 import { PolicyKey, UAddress } from 'lib';
@@ -49,7 +48,7 @@ export function PolicyAppbar({ view, setView, reset, ...props }: PolicyAppbarPro
   const policy = useFragment(Policy, props.policy);
   const sheet = useSideSheet();
 
-  const { name } = useAtomValue(POLICY_DRAFT_ATOM);
+  const { name } = useAtomValue(usePolicyDraftAtom());
 
   const state = view === 'state' ? policy?.state : policy?.draft;
   const stateChipLabel = view === 'draft' || !policy ? 'Draft' : 'Active';
