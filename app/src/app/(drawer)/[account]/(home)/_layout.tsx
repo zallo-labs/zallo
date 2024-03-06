@@ -1,4 +1,3 @@
-import { useEffect } from 'react';
 import { z } from 'zod';
 import { TopTabs } from '#/layout/TopTabs';
 import { HomeHeader } from '#/home/HomeHeader';
@@ -28,9 +27,7 @@ export default function HomeLayout() {
   const account = useLocalParams(InternalParams).account ?? lastSelected!;
   const setSelectedAccount = useSetSelectedAccont();
 
-  useEffect(() => {
-    if (account) setSelectedAccount(account);
-  }, [account, setSelectedAccount]);
+  if (account) setSelectedAccount(account);
 
   const query = useQuery(Query, { account }, { context });
 

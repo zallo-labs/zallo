@@ -1,4 +1,3 @@
-import { useEffect } from 'react';
 import { SplashScreen } from 'expo-router';
 import { loadAsync } from 'expo-font';
 import { logError } from '~/util/analytics';
@@ -11,11 +10,9 @@ const FONTS = {
 SplashScreen.preventAutoHideAsync();
 
 export function Fonts() {
-  useEffect(() => {
-    loadAsync(FONTS)
-      .catch((error) => logError('Failed to load fonts', { error }))
-      .finally(SplashScreen.hideAsync);
-  }, []);
+  loadAsync(FONTS)
+    .catch((error) => logError('Failed to load fonts', { error }))
+    .finally(SplashScreen.hideAsync);
 
   return null;
 }
