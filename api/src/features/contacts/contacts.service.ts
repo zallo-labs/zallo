@@ -10,10 +10,11 @@ import { CONFIG } from '~/config';
 
 type UniqueContact = uuid | UAddress;
 
-export const uniqueContact = (u: UniqueContact) =>
-  e.shape(e.Contact, () => ({
-    filter_single: isUAddress(u) ? { user: e.global.current_user, address: u } : { id: u },
+export const selectContact = (c: UniqueContact) => {
+  return e.select(e.Contact, () => ({
+    filter_single: isUAddress(c) ? { user: e.global.current_user, address: c } : { id: c },
   }));
+};
 
 @Injectable()
 export class ContactsService {
@@ -29,12 +30,12 @@ export class ContactsService {
   }
 
   async selectUnique(id: UniqueContact, shape?: ShapeFunc<typeof e.Contact>) {
-    return e
-      .select(e.Contact, (c) => ({
+    return this.db.query(
+      e.select(e.Contact, (c) => ({
+        filter_single: isUAddress(id) ? { user: e.global.current_user, address: id } : { id },
         ...shape?.(c),
-        ...uniqueContact(id)(c),
-      }))
-      .run(this.db.client);
+      })),
+    );
   }
 
   async select({ query, chain }: ContactsInput, shape?: ShapeFunc<typeof e.Contact>) {
@@ -56,12 +57,8 @@ export class ContactsService {
     // UNLESS CONFLICT ON can only be used on a single property, so (= newAddress OR = previousAddress) nor a simple upsert is  possible
     if (previousAddress && previousAddress !== address) {
       const id = await this.db.query(
-        e.update(e.Contact, (c) => ({
-          ...uniqueContact(previousAddress)(c),
-          set: {
-            address,
-            name: label,
-          },
+        e.update(selectContact(previousAddress), () => ({
+          set: { address, label },
         })).id,
       );
 
@@ -82,7 +79,7 @@ export class ContactsService {
   }
 
   async delete(address: UAddress) {
-    return this.db.query(e.delete(e.Contact, uniqueContact(address)).id);
+    return this.db.query(e.delete(selectContact(address)).id);
   }
 
   async label(address: UAddress) {
