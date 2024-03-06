@@ -74,7 +74,6 @@ export const CACHE_SCHEMA_CONFIG: Pick<
       },
       transfer: (_result, _args, cache) => {
         invalidate(cache, 'Query', ['transfers', 'tokens']);
-        console.log({ transfer: { _result, _args } });
       },
     } satisfies Partial<Record<Subscription, UpdateResolver<unknown, unknown>>>,
   },

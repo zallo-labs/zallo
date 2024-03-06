@@ -1,15 +1,14 @@
-import { useImmerAtom } from 'jotai-immer';
 import { DownArrowIcon } from '@theme/icons';
 import { SelectChip } from '#/fields/SelectChip';
 import _ from 'lodash';
 import { match } from 'ts-pattern';
 import { useEffect } from 'react';
-import { POLICY_DRAFT_ATOM } from '~/lib/policy/draft';
+import { usePolicyDraft } from '~/lib/policy/draft';
 import { createStyles, useStyles } from '@theme/styles';
 import { useMemoApply } from '~/hooks/useMemoized';
 
 export function ThresholdChip() {
-  const [{ threshold, approvers }, updateDraft] = useImmerAtom(POLICY_DRAFT_ATOM);
+  const [{ threshold, approvers }, updateDraft] = usePolicyDraft();
   const { styles } = useStyles(useMemoApply(getStylesheet, { threshold }));
 
   const validThresholds = _.range(Math.min(approvers.size, 1), approvers.size + 1);

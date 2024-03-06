@@ -36,8 +36,9 @@ const Subscription = gql(/* GraphQL */ `
   }
 `);
 
-export type ApprovedProposal =
-  UseProposalsListenerSubscriptionSubscription['proposalUpdated']['proposal'];
+export type ApprovedProposal = NonNullable<
+  UseProposalsListenerSubscriptionSubscription['proposalUpdated']['proposal']
+>;
 
 export function useProposalsListener() {
   const api = useUrqlApiClient();
@@ -52,7 +53,7 @@ export function useProposalsListener() {
         accounts: accounts.map((a) => a.address),
       })
       .subscribe(({ data }) => {
-        data && proposals.next(data.proposalUpdated.proposal);
+        data?.proposalUpdated.proposal && proposals.next(data.proposalUpdated.proposal);
       });
 
     return subscription.unsubscribe;

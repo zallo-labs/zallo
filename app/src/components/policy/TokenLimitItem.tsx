@@ -10,7 +10,7 @@ import { ListItemHorizontalTrailing } from '#/list/ListItemHorizontalTrailing';
 import { ListItemTrailingText } from '#/list/ListItemTrailingText';
 import { useFormattedTokenAmount } from '#/token/TokenAmount';
 import { TokenIcon } from '#/token/TokenIcon';
-import { usePolicyDraftState } from '~/lib/policy/draft';
+import { usePolicyDraft } from '~/lib/policy/draft';
 import { truncateAddr } from '~/util/format';
 
 const Token = gql(/* GraphQL */ `
@@ -29,7 +29,7 @@ export interface TokenSpendingProps {
 
 export function TokenLimitItem({ address, ...props }: TokenSpendingProps) {
   const token = getFragment(Token, props.token);
-  const [policy] = usePolicyDraftState();
+  const [policy] = usePolicyDraft();
 
   const limit: TransferLimit | undefined = policy.transfers.limits[address];
   // TODO: make limit.amount a decimal

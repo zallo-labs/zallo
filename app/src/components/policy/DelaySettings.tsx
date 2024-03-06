@@ -4,7 +4,7 @@ import { materialCommunityIcon } from '@theme/icons';
 import { createStyles } from '@theme/styles';
 import { Duration } from 'luxon';
 import { Divider } from 'react-native-paper';
-import { usePolicyDraftState } from '~/lib/policy/draft';
+import { usePolicyDraft } from '~/lib/policy/draft';
 
 export const DELAY_ENTRIES = [
   { title: 'None', value: 0 },
@@ -20,7 +20,7 @@ export const DELAY_ENTRIES = [
 const TimerIcon = materialCommunityIcon('timer-outline');
 
 export function DelaySettings() {
-  const [{ delay }, update] = usePolicyDraftState();
+  const [{ delay }, update] = usePolicyDraft();
 
   return (
     <>

@@ -16,7 +16,7 @@ import { withSuspense } from '#/skeleton/withSuspense';
 import { useQuery } from '~/gql';
 import { useSelectAddress } from '~/hooks/useSelectAddress';
 import { useToggle } from '~/hooks/useToggle';
-import { usePolicyDraftState } from '~/lib/policy/draft';
+import { usePolicyDraft } from '~/lib/policy/draft';
 
 const Query = gql(/* GraphQL */ `
   query SpendingSettings($input: TokensInput!) {
@@ -36,7 +36,7 @@ function SpendingSettings_(props: SpendingSettingsProps) {
   const router = useRouter();
   const selectAddress = useSelectAddress();
 
-  const [policy, update] = usePolicyDraftState();
+  const [policy, update] = usePolicyDraft();
   const [expanded, toggleExpanded] = useToggle(props.initiallyExpanded);
 
   const { transfers } = policy;

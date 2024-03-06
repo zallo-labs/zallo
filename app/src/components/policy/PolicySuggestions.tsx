@@ -4,7 +4,7 @@ import { createStyles } from '@theme/styles';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { ScrollView, View } from 'react-native';
 import { Chip, Text } from 'react-native-paper';
-import { POLICY_DRAFT_ATOM } from '~/lib/policy/draft';
+import { usePolicyDraftAtom } from '~/lib/policy/draft';
 import { usePolicyPresets } from '~/lib/policy/usePolicyPresets';
 
 const Account = gql(/* GraphQL */ `
@@ -32,8 +32,8 @@ export function PolicySuggestions(props: PolicySuggestionsProps) {
   const user = useFragment(User, props.user);
   const presets = usePolicyPresets({ account, user, chain: account.chain });
 
-  const policy = useAtomValue(POLICY_DRAFT_ATOM);
-  const setDraft = useSetAtom(POLICY_DRAFT_ATOM);
+  const policy = useAtomValue(usePolicyDraftAtom());
+  const setDraft = useSetAtom(usePolicyDraftAtom());
 
   // Only show when creating policy
   if (policy.key !== undefined) return null;

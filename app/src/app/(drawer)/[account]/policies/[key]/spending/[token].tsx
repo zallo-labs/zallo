@@ -10,7 +10,7 @@ import { ListHeader } from '#/list/ListHeader';
 import { useBigIntInput } from '#/fields/useBigIntInput';
 import { ClockOutlineIcon } from '@theme/icons';
 import { gql } from '@api/generated';
-import { usePolicyDraftState } from '~/lib/policy/draft';
+import { usePolicyDraft } from '~/lib/policy/draft';
 import { useQuery } from '~/gql';
 import { AppbarOptions } from '#/Appbar/AppbarOptions';
 import { truncateAddr } from '~/util/format';
@@ -65,7 +65,7 @@ export default function TokenLimitScreen() {
   const { styles } = useStyles(stylesheet);
   const router = useRouter();
 
-  const [policy, update] = usePolicyDraftState();
+  const [policy, update] = usePolicyDraft();
 
   const { token: t } = useQuery(Query, {
     token: asUAddress(address, asChain(account)),
