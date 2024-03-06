@@ -7,6 +7,7 @@ import { ScreenSkeleton } from '#/skeleton/ScreenSkeleton';
 import { withSuspense } from '#/skeleton/withSuspense';
 import { useQuery } from '~/gql';
 import { useSetSelectedAccont } from '~/hooks/useSelectedAccount';
+import { useRootNavigationState } from 'expo-router';
 
 const Query = gql(/* GraphQL */ `
   query AccountOnboarding {
@@ -31,9 +32,10 @@ function AccountOnboardingScreen() {
     [router, setSelected],
   );
 
+  const navMounted = !!useRootNavigationState().key;
   useEffect(() => {
-    if (accounts.length) next(accounts[0].address);
-  }, [accounts, next]);
+    if (accounts.length && navMounted) next(accounts[0].address);
+  }, [accounts, navMounted, next]);
 
   return <CreateAccountScreen onCreate={next} />;
 }
