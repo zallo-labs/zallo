@@ -228,14 +228,14 @@ const $Approver = $.makeType<$Approver>(_.spec, "32be8495-db73-11ee-8c88-4105955
 const Approver: $.$expr_PathNode<$.TypeSet<$Approver, $.Cardinality.Many>, null> = _.syntax.$PathNode($.$toSet($Approver, $.Cardinality.Many), null);
 
 export type $ContactλShape = $.typeutil.flatten<_std.$Object_8ce8c71ee4fa5f73840c22d7eaa58588λShape & {
-  "user": $.LinkDesc<$User, $.Cardinality.One, {}, false, false,  false, true>;
   "address": $.PropertyDesc<$UAddress, $.Cardinality.One, false, false, false, false>;
   "label": $.PropertyDesc<$Label, $.Cardinality.One, false, false, false, false>;
   "chain": $.PropertyDesc<_std.$str, $.Cardinality.One, false, true, false, false>;
+  "user": $.LinkDesc<$User, $.Cardinality.One, {}, false, false,  false, true>;
   "<contact[is Approver]": $.LinkDesc<$Approver, $.Cardinality.Many, {}, false, false,  false, false>;
-  "<contact[is current_approver]": $.LinkDesc<$current_approver, $.Cardinality.Many, {}, false, false,  false, false>;
   "<contacts[is User]": $.LinkDesc<$User, $.Cardinality.Many, {}, false, false,  false, false>;
   "<contacts[is current_user]": $.LinkDesc<$current_user, $.Cardinality.Many, {}, false, false,  false, false>;
+  "<contact[is current_approver]": $.LinkDesc<$current_approver, $.Cardinality.Many, {}, false, false,  false, false>;
   "<contact": $.LinkDesc<$.ObjectType, $.Cardinality.Many, {}, false, false,  false, false>;
   "<contacts": $.LinkDesc<$.ObjectType, $.Cardinality.Many, {}, false, false,  false, false>;
 }>;
@@ -341,6 +341,18 @@ type $Function = $.ObjectType<"default::Function", $FunctionλShape, null, [
 const $Function = $.makeType<$Function>(_.spec, "3ab005d0-db73-11ee-bcd5-af803375d8c8", _.syntax.literal);
 
 const Function: $.$expr_PathNode<$.TypeSet<$Function, $.Cardinality.Many>, null> = _.syntax.$PathNode($.$toSet($Function, $.Cardinality.Many), null);
+
+export type $GlobalLabelλShape = $.typeutil.flatten<_std.$Object_8ce8c71ee4fa5f73840c22d7eaa58588λShape & {
+  "address": $.PropertyDesc<$UAddress, $.Cardinality.One, true, false, false, false>;
+  "label": $.PropertyDesc<$Label, $.Cardinality.One, false, false, false, false>;
+}>;
+type $GlobalLabel = $.ObjectType<"default::GlobalLabel", $GlobalLabelλShape, null, [
+  ..._std.$Object_8ce8c71ee4fa5f73840c22d7eaa58588['__exclusives__'],
+  {address: {__element__: $UAddress, __cardinality__: $.Cardinality.One | $.Cardinality.AtMostOne },},
+]>;
+const $GlobalLabel = $.makeType<$GlobalLabel>(_.spec, "0d935bc6-dc0e-11ee-b56f-d3886ccbcb1a", _.syntax.literal);
+
+const GlobalLabel: $.$expr_PathNode<$.TypeSet<$GlobalLabel, $.Cardinality.Many>, null> = _.syntax.$PathNode($.$toSet($GlobalLabel, $.Cardinality.Many), null);
 
 export type $ProposalλShape = $.typeutil.flatten<_std.$Object_8ce8c71ee4fa5f73840c22d7eaa58588λShape & {
   "account": $.LinkDesc<$Account, $.Cardinality.One, {}, false, false,  false, false>;
@@ -839,6 +851,84 @@ function as_address(...args: any[]) {
   }) as any;
 };
 
+type tokenλFuncExpr<
+  P1 extends _.castMaps.orScalarLiteral<$.TypeSet<$UAddress>>,
+  P2 extends $.TypeSet<$User> | undefined,
+> = $.$expr_Function<
+  $Token, $.cardutil.overrideLowerBound<$.cardutil.multiplyCardinalities<$.cardutil.paramCardinality<P1>, $.cardutil.optionalParamCardinality<P2>>, 'Zero'>
+>;
+function token<
+  P1 extends _.castMaps.orScalarLiteral<$.TypeSet<$UAddress>>,
+  P2 extends $.TypeSet<$User> | undefined,
+>(
+  address: P1,
+  userParam?: P2,
+): tokenλFuncExpr<P1, P2>;
+function token(...args: any[]) {
+  const {returnType, cardinality, args: positionalArgs, namedArgs} = _.syntax.$resolveOverload('default::token', args, _.spec, [
+    {args: [{typeId: "324ddade-db73-11ee-b00c-9fcda2486e7b", optional: false, setoftype: false, variadic: false}, {typeId: "32ce1ecc-db73-11ee-8ab8-d109a129473b", optional: true, setoftype: false, variadic: false}], returnTypeId: "32c96bc0-db73-11ee-bec3-9d6a82bb48e7", returnTypemod: "OptionalType"},
+  ]);
+  return _.syntax.$expressionify({
+    __kind__: $.ExpressionKind.Function,
+    __element__: returnType,
+    __cardinality__: cardinality,
+    __name__: "default::token",
+    __args__: positionalArgs,
+    __namedargs__: namedArgs,
+  }) as any;
+};
+
+type labelForUserλFuncExpr<
+  P1 extends _.castMaps.orScalarLiteral<$.TypeSet<_std.$str>>,
+  P2 extends $.TypeSet<$User>,
+> = $.$expr_Function<
+  _std.$str, $.cardutil.overrideLowerBound<$.cardutil.multiplyCardinalities<$.cardutil.paramCardinality<P1>, $.cardutil.paramCardinality<P2>>, 'Zero'>
+>;
+function labelForUser<
+  P1 extends _.castMaps.orScalarLiteral<$.TypeSet<_std.$str>>,
+  P2 extends $.TypeSet<$User>,
+>(
+  addressParam: P1,
+  user: P2,
+): labelForUserλFuncExpr<P1, P2>;
+function labelForUser(...args: any[]) {
+  const {returnType, cardinality, args: positionalArgs, namedArgs} = _.syntax.$resolveOverload('default::labelForUser', args, _.spec, [
+    {args: [{typeId: "00000000-0000-0000-0000-000000000101", optional: false, setoftype: false, variadic: false}, {typeId: "32ce1ecc-db73-11ee-8ab8-d109a129473b", optional: false, setoftype: false, variadic: false}], returnTypeId: "00000000-0000-0000-0000-000000000101", returnTypemod: "OptionalType"},
+  ]);
+  return _.syntax.$expressionify({
+    __kind__: $.ExpressionKind.Function,
+    __element__: returnType,
+    __cardinality__: cardinality,
+    __name__: "default::labelForUser",
+    __args__: positionalArgs,
+    __namedargs__: namedArgs,
+  }) as any;
+};
+
+type labelλFuncExpr<
+  P1 extends _.castMaps.orScalarLiteral<$.TypeSet<_std.$str>>,
+> = $.$expr_Function<
+  _std.$str, $.cardutil.overrideLowerBound<$.cardutil.paramCardinality<P1>, 'Zero'>
+>;
+function label<
+  P1 extends _.castMaps.orScalarLiteral<$.TypeSet<_std.$str>>,
+>(
+  address: P1,
+): labelλFuncExpr<P1>;
+function label(...args: any[]) {
+  const {returnType, cardinality, args: positionalArgs, namedArgs} = _.syntax.$resolveOverload('default::label', args, _.spec, [
+    {args: [{typeId: "00000000-0000-0000-0000-000000000101", optional: false, setoftype: false, variadic: false}], returnTypeId: "00000000-0000-0000-0000-000000000101", returnTypemod: "OptionalType"},
+  ]);
+  return _.syntax.$expressionify({
+    __kind__: $.ExpressionKind.Function,
+    __element__: returnType,
+    __cardinality__: cardinality,
+    __name__: "default::label",
+    __args__: positionalArgs,
+    __namedargs__: namedArgs,
+  }) as any;
+};
+
 const $default__globals: {  current_accounts: _.syntax.$expr_Global<
               // "default::current_accounts",
               $current_accounts,
@@ -885,7 +975,7 @@ const $default__globals: {  current_accounts: _.syntax.$expr_Global<
 
 
 
-export { AbiSource, Address, Amount, ApprovalIssue, Bytes, Bytes32, Bytes4, CloudProvider, Label, MAC, TransactionStatus, TransferDirection, UAddress, Url, current_accounts_set, uint16, uint224, uint256, uint32, uint64, $Account, Account, $Action, Action, $ActionFunction, ActionFunction, $ProposalResponse, ProposalResponse, $Approval, Approval, $Approver, Approver, $Contact, Contact, $Contract, Contract, $Event, Event, $Result, Result, $ReceiptResult, ReceiptResult, $Failed, Failed, $Function, Function, $Proposal, Proposal, $Message, Message, $Operation, Operation, $PaymasterFees, PaymasterFees, $Policy, Policy, $PolicyState, PolicyState, $Refund, Refund, $Rejection, Rejection, $Scheduled, Scheduled, $Simulation, Simulation, $Successful, Successful, $SystemTx, SystemTx, $Token, Token, $Transaction, Transaction, $TransferDetails, TransferDetails, $Transferlike, Transferlike, $Transfer, Transfer, $TransferApproval, TransferApproval, $TransferLimit, TransferLimit, $TransfersConfig, TransfersConfig, $User, User, $current_accounts, current_accounts, $current_approver, current_approver, $current_user, current_user };
+export { AbiSource, Address, Amount, ApprovalIssue, Bytes, Bytes32, Bytes4, CloudProvider, Label, MAC, TransactionStatus, TransferDirection, UAddress, Url, current_accounts_set, uint16, uint224, uint256, uint32, uint64, $Account, Account, $Action, Action, $ActionFunction, ActionFunction, $ProposalResponse, ProposalResponse, $Approval, Approval, $Approver, Approver, $Contact, Contact, $Contract, Contract, $Event, Event, $Result, Result, $ReceiptResult, ReceiptResult, $Failed, Failed, $Function, Function, $GlobalLabel, GlobalLabel, $Proposal, Proposal, $Message, Message, $Operation, Operation, $PaymasterFees, PaymasterFees, $Policy, Policy, $PolicyState, PolicyState, $Refund, Refund, $Rejection, Rejection, $Scheduled, Scheduled, $Simulation, Simulation, $Successful, Successful, $SystemTx, SystemTx, $Token, Token, $Transaction, Transaction, $TransferDetails, TransferDetails, $Transferlike, Transferlike, $Transfer, Transfer, $TransferApproval, TransferApproval, $TransferLimit, TransferLimit, $TransfersConfig, TransfersConfig, $User, User, $current_accounts, current_accounts, $current_approver, current_approver, $current_user, current_user };
 
 type __defaultExports = {
   "AbiSource": typeof AbiSource;
@@ -921,6 +1011,7 @@ type __defaultExports = {
   "ReceiptResult": typeof ReceiptResult;
   "Failed": typeof Failed;
   "Function": typeof Function;
+  "GlobalLabel": typeof GlobalLabel;
   "Proposal": typeof Proposal;
   "Message": typeof Message;
   "Operation": typeof Operation;
@@ -947,6 +1038,9 @@ type __defaultExports = {
   "current_user": typeof current_user;
   "as_chain": typeof as_chain;
   "as_address": typeof as_address;
+  "token": typeof token;
+  "labelForUser": typeof labelForUser;
+  "label": typeof label;
   "global": typeof $default__globals
 };
 const __defaultExports: __defaultExports = {
@@ -983,6 +1077,7 @@ const __defaultExports: __defaultExports = {
   "ReceiptResult": ReceiptResult,
   "Failed": Failed,
   "Function": Function,
+  "GlobalLabel": GlobalLabel,
   "Proposal": Proposal,
   "Message": Message,
   "Operation": Operation,
@@ -1009,6 +1104,9 @@ const __defaultExports: __defaultExports = {
   "current_user": current_user,
   "as_chain": as_chain,
   "as_address": as_address,
+  "token": token,
+  "labelForUser": labelForUser,
+  "label": label,
   "global": $default__globals
 };
 export default __defaultExports;
