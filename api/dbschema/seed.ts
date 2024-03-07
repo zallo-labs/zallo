@@ -4,7 +4,7 @@ import * as eql from './interfaces';
 import { ERC20, TOKENS, flattenToken } from 'lib/dapps';
 import { toFunctionSelector, toFunctionSignature } from 'viem';
 import { AbiFunction } from 'abitype';
-import { getGlobalLabels } from '~/features/contacts/labels.list';
+import { getGlobalLabels } from '../src/features/contacts/labels.list';
 require('dotenv').config({ path: '../.env' });
 
 const client = createClient();
