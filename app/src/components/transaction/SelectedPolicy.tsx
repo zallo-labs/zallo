@@ -4,9 +4,9 @@ import { useToggle } from '~/hooks/useToggle';
 import { Divider } from 'react-native-paper';
 import { FragmentType, gql, useFragment } from '@api/generated';
 import { OtherPolicies } from './OtherPolicies';
-import { createStyles } from '@theme/styles';
-import { ListItem } from '#/list/ListItem';
-import { PolicyIcon } from '@theme/icons';
+import { createStyles, useStyles } from '@theme/styles';
+import { PolicyItem } from '#/policy/PolicyItem';
+import { View } from 'react-native';
 
 const Proposal = gql(/* GraphQL */ `
   fragment SelectedPolicy_Proposal on Proposal @argumentDefinitions(proposal: { type: "UUID!" }) {
@@ -19,7 +19,7 @@ const Proposal = gql(/* GraphQL */ `
     }
     policy {
       id
-      name
+      ...PolicyItem_Policy
     }
     validationErrors {
       reason
@@ -33,24 +33,25 @@ export interface SelectedPolicyProps {
 }
 
 export function SelectedPolicy(props: SelectedPolicyProps) {
+  const { styles } = useStyles(stylesheet);
   const proposal = useFragment(Proposal, props.proposal);
 
   const [expanded, toggleExpanded] = useToggle(false);
 
   return (
     <>
-      <ListItem
-        leading={PolicyIcon}
-        headline={proposal.policy.name}
-        supporting={
-          proposal.validationErrors.length
-            ? 'Policy lacks permission to execute this transaction'
-            : undefined
-        }
-        {...(proposal.updatable && {
-          onPress: toggleExpanded,
-          trailing: (props) => <Chevron {...props} expanded={expanded} />,
-        })}
+      <PolicyItem
+        policy={proposal.policy}
+        trailing={({ Text, ...props }) => (
+          <View style={styles.trailingContainer}>
+            {proposal.validationErrors.length === 0 && (
+              <Text style={styles.error}>Insufficient permission</Text>
+            )}
+
+            {proposal.updatable && <Chevron {...props} expanded={expanded} />}
+          </View>
+        )}
+        {...(proposal.updatable && { onPress: toggleExpanded })}
       />
 
       <Divider horizontalInset style={styles.divider} />
@@ -62,8 +63,16 @@ export function SelectedPolicy(props: SelectedPolicyProps) {
   );
 }
 
-const styles = createStyles({
+const stylesheet = createStyles(({ colors }) => ({
+  trailingContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  error: {
+    color: colors.error,
+  },
   divider: {
     marginVertical: 4,
   },
-});
+}));

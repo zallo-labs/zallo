@@ -2,7 +2,7 @@ import { Link, useRouter } from 'expo-router';
 import { gql } from '@api/generated';
 import { FlashList } from '@shopify/flash-list';
 import { NavigateNextIcon } from '@theme/icons';
-import { StyleSheet } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { NotFound } from '#/NotFound';
 import { ListHeader } from '#/list/ListHeader';
 import { ListItemHeight } from '#/list/ListItem';
@@ -30,6 +30,12 @@ const Query = gql(/* GraphQL */ `
         __typename
         id
         key
+        state {
+          id
+        }
+        draft {
+          id
+        }
         ...PolicyItem_Policy
       }
       ...AccountSettingsAppbar_Account
@@ -81,7 +87,16 @@ function AccountSettingsScreen() {
               .with({ __typename: 'Policy' }, (policy) => (
                 <PolicyItem
                   policy={policy}
-                  trailing={NavigateNextIcon}
+                  trailing={({ Text, ...props }) => (
+                    <View style={styles.trailingContainer}>
+                      <Text>
+                        {[policy.state && 'Active', policy.draft && 'Draft']
+                          .filter(Boolean)
+                          .join(' | ')}
+                      </Text>
+                      <NavigateNextIcon {...props} />
+                    </View>
+                  )}
                   onPress={() => {
                     router.push({
                       pathname: `/(drawer)/[account]/policies/[key]/`,
@@ -128,6 +143,11 @@ function AccountSettingsScreen() {
 const styles = StyleSheet.create({
   contentContainer: {
     paddingVertical: 8,
+  },
+  trailingContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
   },
 });
 

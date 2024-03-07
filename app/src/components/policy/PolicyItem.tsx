@@ -1,27 +1,24 @@
 import { FragmentType, gql, useFragment } from '@api/generated';
-import { match } from 'ts-pattern';
 import { ListItem, ListItemProps } from '#/list/ListItem';
-import { PolicyIcon } from '#/policy/PolicyIcon';
+import { materialCommunityIcon } from '@theme/icons';
+import { Blockie } from '#/Identicon/Blockie';
+import { truncateAddr } from '~/util/format';
+
+const GroupIcon = materialCommunityIcon('account-supervisor-circle');
 
 const Policy = gql(/* GraphQL */ `
   fragment PolicyItem_Policy on Policy {
     id
     name
-    state {
+    stateOrDraft {
       id
       threshold
       approvers {
         id
+        address
+        label
       }
     }
-    draft {
-      id
-      threshold
-      approvers {
-        id
-      }
-    }
-    ...PolicyIcon_Policy
   }
 `);
 
@@ -31,17 +28,23 @@ export interface PolicyItemProps extends Partial<ListItemProps> {
 
 export function PolicyItem(props: PolicyItemProps) {
   const policy = useFragment(Policy, props.policy);
+  const state = policy.stateOrDraft;
+  const approver = state.approvers.length === 1 ? state.approvers[0] : null;
 
-  const state = (policy.state ?? policy.draft)!;
-
-  return (
+  return approver ? (
     <ListItem
-      leading={(props) => <PolicyIcon policy={policy} {...props} />}
+      leading={(props) => <Blockie seed={approver.address} {...props} />}
+      leadingSize="medium"
+      headline={approver.label ?? truncateAddr(approver.address)}
+      supporting={policy.name}
+      {...props}
+    />
+  ) : (
+    <ListItem
+      leading={GroupIcon}
+      leadingSize="medium"
       headline={policy.name}
-      supporting={match(state.approvers.length)
-        .with(0, () => 'No approvers')
-        .with(1, () => '1 approver')
-        .otherwise((approvers) => `${state.threshold}/${approvers} approvers`)}
+      supporting={`${state.threshold}/${state.approvers.length} approvals`}
       {...props}
     />
   );
