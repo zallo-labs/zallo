@@ -86,4 +86,35 @@ module default {
       allow all
       using (.user ?= global current_user);
   }
+
+  function token(address: UAddress, userParam: optional User) -> optional Token using (
+    with user := userParam ?? global current_user
+    select assert_single(
+      (select Token filter .address = address and .user = user) ??
+      (select Token filter .address = address)
+    )
+  );
+
+  type GlobalLabel {
+    required address: UAddress { constraint exclusive; }
+    required label: Label;
+  }
+
+  function label(address: str) -> optional str using (
+    select labelForUser(address, global current_user)
+  );
+
+  # TODO: use `address: UAddress` param when fixed - https://github.com/edgedb/edgedb-js/issues/893
+  # TODO: use `user: optional User` param when fixed - https://github.com/edgedb/edgedb-js/issues/894
+  function labelForUser(addressParam: str, user: User) -> optional str using (
+    with address := <UAddress>addressParam 
+    select assert_single(
+      (select Contact filter .address = address and .user = user).label ??
+      (select Account filter .address = address).label ??
+      (select Token filter .address = address and .user = user).name ??
+      (select Token filter .address = address).name ??
+      (select Approver filter .address = as_address(address)).name ??
+      (select GlobalLabel filter .address = address).label
+    )
+  );
 }

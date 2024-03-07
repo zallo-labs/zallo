@@ -118,10 +118,10 @@ export interface Approver extends std.$Object {
 }
 export type CloudProvider = "Apple" | "Google";
 export interface Contact extends std.$Object {
-  "user": User;
   "address": string;
   "label": string;
   "chain": string;
+  "user": User;
 }
 export interface Contract extends std.$Object {
   "functions": Function[];
@@ -157,6 +157,10 @@ export interface Function extends std.$Object {
   "abi": unknown;
   "abiMd5": string;
   "source": AbiSource;
+}
+export interface GlobalLabel extends std.$Object {
+  "address": string;
+  "label": string;
 }
 export interface Proposal extends std.$Object {
   "account": Account;
@@ -588,6 +592,7 @@ export interface types {
     "ReceiptResult": ReceiptResult;
     "Failed": Failed;
     "Function": Function;
+    "GlobalLabel": GlobalLabel;
     "Proposal": Proposal;
     "Message": Message;
     "Operation": Operation;

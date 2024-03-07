@@ -89,8 +89,8 @@ function ContactsScreen() {
             />
           )}
           ListEmptyComponent={
-            <Text variant="bodyLarge" style={styles.emptyText}>
-              Add a contact to get started
+            <Text variant="titleLarge" style={styles.emptyText}>
+              Add a friend or trusted address to get started
             </Text>
           }
           extraData={[disabled, router.push]}
@@ -105,15 +105,14 @@ function ContactsScreen() {
   );
 }
 
-const stylesheet = createStyles(({ colors }) => ({
+const stylesheet = createStyles({
   contentContainer: {
     paddingVertical: 8,
   },
   emptyText: {
     marginHorizontal: 16,
     marginVertical: 8,
-    color: colors.onSurfaceVariant,
   },
-}));
+});
 
 export default withSuspense(ContactsScreen, ScreenSkeleton);

@@ -29,7 +29,6 @@
     "@formatjs/intl-pluralrules": "^5.2.12",
     "@gorhom/bottom-sheet": "^5.0.0-alpha.6",
     "@hookform/resolvers": "^3.3.4",
-    "@json-rpc-tools/utils": "^1.7.6",
     "@ledgerhq/hw-app-eth": "^6.34.0",
     "@ledgerhq/hw-transport-web-ble": "6.27.17",
     "@ledgerhq/react-native-hw-transport-ble": "patch:@ledgerhq/react-native-hw-transport-ble@npm:6.29.3#../.yarn/patches/@ledgerhq-react-native-hw-transport-ble-npm-6.29.3-2fa5aa09cc.patch",

@@ -31,16 +31,11 @@ export class TokensService {
     private balances: BalancesService,
   ) {}
 
-  async selectUnique(id: uuid | UAddress, shape?: ShapeFunc<typeof e.Token>) {
+  async selectUnique(address: UAddress, shape?: ShapeFunc<typeof e.Token>) {
     return this.db.query(
-      e.assert_single(
-        e.select(e.Token, (t) => ({
-          filter: isUAddress(id) ? e.op(t.address, '=', id) : e.op(t.id, '=', e.uuid(id)),
-          limit: 1,
-          order_by: preferUserToken(t),
-          ...shape?.(t),
-        })),
-      ),
+      e.select(e.token(address), (t) => ({
+        ...shape?.(t),
+      })),
     );
   }
 
