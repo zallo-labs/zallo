@@ -1,9 +1,10 @@
-import { ACCOUNT_ABI } from 'lib';
+import { ACCOUNT_ABI, asUAddress } from 'lib';
 import e, { createClient } from './edgeql-js';
 import * as eql from './interfaces';
 import { ERC20, TOKENS, flattenToken } from 'lib/dapps';
 import { toFunctionSelector, toFunctionSignature } from 'viem';
 import { AbiFunction } from 'abitype';
+import { getGlobalLabels } from '~/features/contacts/labels.list';
 require('dotenv').config({ path: '../.env' });
 
 const client = createClient();
@@ -11,6 +12,7 @@ const client = createClient();
 const main = async () => {
   await createContractFunctions();
   await upsertTokens();
+  await upsertGlobalLabels();
 
   console.log('🌱 Seeded');
 };
@@ -113,6 +115,54 @@ async function upsertTokens() {
           'and',
           e.op('not', e.op('exists', t.user)),
         ),
+      })),
+    })
+    .run(client);
+}
+
+async function upsertGlobalLabels() {
+  const gLabels = Object.entries(getGlobalLabels()).map(([address, label]) => ({
+    address: asUAddress(address),
+    label,
+  }));
+
+  const toUpdate = await e
+    .select(e.GlobalLabel, (l) => ({
+      filter: e.op(l.address, 'in', e.set(...gLabels.map((l) => l.address))),
+      id: true,
+      address: true,
+    }))
+    .run(client);
+
+  const updates = gLabels
+    .map((globalLabel) => ({
+      globalLabel,
+      id: toUpdate.find((ut) => ut.address === globalLabel.address)?.id,
+    }))
+    .filter((t) => t.id)
+    .map(
+      ({ globalLabel, id }) =>
+        e.update(e.GlobalLabel, () => ({
+          filter_single: { id: id! },
+          set: globalLabel,
+        })).id,
+    );
+
+  await e
+    .select({
+      ...(updates.length && { updated: e.set(...updates) }),
+      inserted: e.assert_distinct(
+        e.cast(
+          e.uuid,
+          e.set(
+            ...gLabels
+              .filter((t) => !toUpdate.find((ut) => ut.address === t.address))
+              .map((globalLabel) => e.insert(e.GlobalLabel, globalLabel).id),
+          ),
+        ),
+      ),
+      removed: e.delete(e.GlobalLabel, (t) => ({
+        filter: e.op(t.address, 'not in', e.set(...gLabels.map((t) => t.address))),
       })),
     })
     .run(client);
