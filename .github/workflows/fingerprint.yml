@@ -1,0 +1,82 @@
+# https://github.com/expo/expo-github-action/tree/main/fingerprint
+name: Fingerprint
+
+on:
+  push:
+    branches: [main] # To update the fingerprint database
+  pull_request:
+    types: [opened, synchronize]
+
+jobs:
+  fingerprint:
+    runs-on: ubuntu-latest
+    concurrency: fingerprint-${{ github.event_name != 'pull_request' && 'main' || github.run_id }}
+    permissions:
+      pull-requests: write # Allow comments on PRs
+      actions: write # Allow updating fingerprint in action caches
+      contents: read # Allow reading of repo contents for private projects
+
+    steps:
+      - name: 🚧 Setup repo
+        uses: actions/checkout@v4
+
+      - name: 🚧 Setup Node
+        uses: actions/setup-node@v4
+        with:
+          cache: 'yarn'
+          node-version-file: '.nvmrc'
+
+      - name: 📦 Install
+        run: YARN_ENABLE_HARDENED_MODE=0 yarn
+
+      - name: 🧪 Fingerprint
+        id: fingerprint
+        uses: expo/expo-github-action/fingerprint@main
+
+      - name: 🏷️ Label PR if compatible
+        uses: actions/github-script@v6
+        if: ${{ github.event_name == 'pull_request' && steps.fingerprint.outputs.fingerprint-diff == '[]' }}
+        with:
+          script: |
+            try {
+              await github.rest.issues.removeLabel({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                name: ['Fingerprint:changed']
+              })
+            } catch (e) {
+              if (e.status != 404) {
+                throw e;
+              }
+            }
+            github.rest.issues.addLabels({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              labels: ['Fingerprint:compatible']
+            })
+
+      - name: 🏷️ Label PR if incompatible
+        uses: actions/github-script@v6
+        if: ${{ github.event_name == 'pull_request' && steps.fingerprint.outputs.fingerprint-diff != '[]' }}
+        with:
+          script: |
+            try {
+              await github.rest.issues.removeLabel({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                name: ['Fingerprint:compatible']
+              })
+            } catch (e) {
+              if (e.status != 404) {
+                throw e;
+              }
+            }
+            github.rest.issues.addLabels({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              labels: ['Fingerprint:changed']
+            })
