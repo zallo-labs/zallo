@@ -36,6 +36,13 @@ const Query = gql(/* GraphQL */ `
         draft {
           id
         }
+        stateOrDraft {
+          id
+          threshold
+          approvers {
+            id
+          }
+        }
         ...PolicyItem_Policy
       }
       ...AccountSettingsAppbar_Account
@@ -75,13 +82,20 @@ function AccountSettingsScreen() {
 
   if (!account) return query.stale ? null : <NotFound name="Account" />;
 
+  const policies = account.policies.sort(
+    (a, b) =>
+      a.stateOrDraft.threshold - b.stateOrDraft.threshold ||
+      a.stateOrDraft.approvers.length - b.stateOrDraft.approvers.length ||
+      a.key - b.key,
+  );
+
   return (
     <SideSheetLayout>
       <AccountSettingsAppbar account={account} />
 
       <ScrollableScreenSurface>
         <FlashList
-          data={['Policies', ...account.policies]}
+          data={['Policies', ...policies]}
           renderItem={({ item }) =>
             match(item)
               .with({ __typename: 'Policy' }, (policy) => (
