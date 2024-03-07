@@ -221,46 +221,29 @@ export class TransfersEvents {
     token: UAddress,
     amount: Decimal,
   ) {
-    const { acc, tokenMetadata } = await this.db.query(
-      e.select({
-        acc: e.select(e.Account, (a) => ({
-          filter_single: { address: account },
-          label: true,
-          approvers: e.select(a.approvers, (approver) => ({
-            filter: e.op('exists', approver.pushToken),
-            pushToken: approver.pushToken,
-            fromContactLabel: e.assert_single(
-              e.select(approver.user.contacts, (c) => ({
-                filter: e.op(c.address, '=', from),
-                label: true,
-              })).label,
-            ),
-            token: e.select(e.Token, () => ({
-              filter_single: { address: token, user: approver.user },
-              symbol: true,
-              decimals: true,
-            })),
-          })),
-        })),
-        tokenMetadata: e.assert_single(
-          e.select(e.Token, (t) => ({
-            filter: e.op(e.op(t.address, '=', token), 'and', e.op('not', e.op('exists', t.user))),
-            limit: 1,
+    const acc = await this.db.query(
+      e.select(e.Account, (a) => ({
+        filter_single: { address: account },
+        label: true,
+        approvers: e.select(a.approvers, (approver) => ({
+          filter: e.op('exists', approver.pushToken),
+          pushToken: approver.pushToken,
+          fromLabel: e.labelForUser(from, approver.user),
+          token: e.select(e.token(token, approver.user), () => ({
             symbol: true,
             decimals: true,
           })),
-        ),
-      }),
+        })),
+      })),
     );
-
     if (!acc) return;
 
     const accountName = acc.label + CONFIG.ensSuffix;
 
     await this.expo.sendNotification(
       acc.approvers.map((a) => {
-        const fromLabel = a.fromContactLabel || truncateAddress(from);
-        const t = a.token ?? tokenMetadata;
+        const fromLabel = a.fromLabel || truncateAddress(from);
+        const t = a.token;
 
         return {
           to: a.pushToken!,

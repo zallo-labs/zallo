@@ -86,6 +86,15 @@ module default {
       allow all
       using (.user ?= global current_user);
   }
+
+  function token(address: UAddress, userParam: optional User) -> optional Token using (
+    with user := userParam ?? global current_user
+    select assert_single(
+      (select Token filter .address = address and .user = user) ??
+      (select Token filter .address = address)
+    )
+  );
+
   type GlobalLabel {
     required address: UAddress { constraint exclusive; }
     required label: Label;

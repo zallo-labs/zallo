@@ -83,8 +83,8 @@ export class TokensResolver {
 
   @Mutation(() => Token)
   async upsertToken(@Input() input: UpsertTokenInput, @Info() info: GraphQLResolveInfo) {
-    const { id } = await this.service.upsert(input);
-    return this.service.selectUnique(id, getShape(info));
+    await this.service.upsert(input);
+    return this.service.selectUnique(input.address, getShape(info));
   }
 
   @Mutation(() => ID, { nullable: true })
