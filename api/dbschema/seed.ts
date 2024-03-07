@@ -4,7 +4,7 @@ import * as eql from './interfaces';
 import { ERC20, TOKENS, flattenToken } from 'lib/dapps';
 import { toFunctionSelector, toFunctionSignature } from 'viem';
 import { AbiFunction } from 'abitype';
-import { getGlobalLabels } from '~/features/contacts/labels.list';
+import { GLOBAL_LABELS } from './labels.list';
 require('dotenv').config({ path: '../.env' });
 
 const client = createClient();
@@ -121,7 +121,7 @@ async function upsertTokens() {
 }
 
 async function upsertGlobalLabels() {
-  const gLabels = Object.entries(getGlobalLabels()).map(([address, label]) => ({
+  const gLabels = Object.entries(GLOBAL_LABELS).map(([address, label]) => ({
     address: asUAddress(address),
     label,
   }));
