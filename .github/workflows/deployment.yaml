@@ -75,7 +75,7 @@ jobs:
       - name: 🚧 Checkout
         uses: actions/checkout@v4
         with:
-          fetch-depth: 2
+          fetch-depth: 200 # Sentry looks for the previous release in the git history
 
       - name: 🚧 Setup Node
         uses: actions/setup-node@v4

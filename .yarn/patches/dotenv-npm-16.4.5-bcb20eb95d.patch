@@ -1,0 +1,13 @@
+diff --git a/lib/main.js b/lib/main.js
+index 314f49ad00e2d26f0e7041fef86bde540ea3dc23..580c4b8ad5da769315f796de9733d20baa0a98ac 100644
+--- a/lib/main.js
++++ b/lib/main.js
+@@ -90,7 +90,7 @@ function _parseVault (options) {
+ }
+ 
+ function _log (message) {
+-  console.log(`[dotenv@${version}][INFO] ${message}`)
++  // console.log(`[dotenv@${version}][INFO] ${message}`)
+ }
+ 
+ function _warn (message) {

@@ -50,19 +50,12 @@ export async function deploy<TAbi extends Abi>(
 
   const sender = new zk.Wallet(CONFIG.walletPrivateKey, zkProvider);
   const artifact = await hre.artifacts.readArtifact(artifactDetails.contractName);
-
   const factory = new zk.ContractFactory(artifact.abi, artifact.bytecode, sender, 'create2');
 
   const salt = zeroHash;
-
   const encodedConstructorArgs = new Interface(artifact.abi).encodeDeploy(
     (constructorArgs as unknown[]) ?? [],
   );
-
-  // const constructorAbiParams =
-  //   (artifact.abi as Abi).find((x): x is AbiConstructor => 'type' in x && x.type === 'constructor')
-  //     ?.inputs ?? [];
-  // const encodedConstructorArgs = encodeAbiParameters(constructorAbiParams, constructorArgs ?? []);
 
   const potentialAddress = asAddress(
     zk.utils.create2Address(

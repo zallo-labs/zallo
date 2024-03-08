@@ -3,7 +3,7 @@
   "pipeline": {
     "prepare": {
       "dependsOn": ["^build", "generate:gql"],
-      "inputs": ["tsconfig.json"],
+      "inputs": ["tsconfig.json", "package.json"],
       "outputs": [".expo/types/**", "expo-env.d.ts"]
     },
     "generate:gql": {

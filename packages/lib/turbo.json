@@ -3,7 +3,7 @@
   "pipeline": {
     "build": {
       "dependsOn": ["^build", "contracts#build"],
-      "inputs": ["src/**"],
+      "inputs": ["src/**", "package.json"],
       "outputs": ["dist/**"]
     },
     "dev": {

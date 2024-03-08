@@ -106,6 +106,8 @@ jobs:
     steps:
       - name: 🚧 Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
 
       - name: 🧪 Verify analytics implementation
         run: cd api && ampli status -t ${{secrets.AMPLI_TOKEN}} --is-merged --is-latest
@@ -163,6 +165,8 @@ jobs:
     steps:
       - name: 🚧 Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
 
       - name: 🧪 Verify analytics implementation
         run: cd app && ampli status -t ${{secrets.AMPLI_TOKEN}} --is-merged --is-latest
