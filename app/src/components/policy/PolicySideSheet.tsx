@@ -19,11 +19,6 @@ const Account = gql(/* GraphQL */ `
   fragment PolicySideSheet_Account on Account {
     id
     address
-    policies {
-      id
-      key
-      name
-    }
   }
 `);
 
@@ -97,10 +92,6 @@ export function PolicySideSheet(props: PolicySideSheetProps) {
     reset({ name: draft.name });
   }, [draft.name, reset]);
 
-  const takenNames = new Set(
-    account?.policies.filter((p) => p.key !== draft.key).map((p) => p.name) ?? [],
-  );
-
   return (
     <SideSheet headline="Settings" style={styles.sheet}>
       <FormTextField
@@ -111,12 +102,7 @@ export function PolicySideSheet(props: PolicySideSheetProps) {
         rules={{
           required: true,
           minLength: 1,
-          pattern: {
-            value: /\S+/,
-            message: 'Name cannot contain only whitespace',
-          },
-          validate: (value) =>
-            !takenNames.has(trimmed(value)) || 'Account already has a policy with this name',
+          pattern: { value: /\S+/, message: 'Name cannot contain only whitespace' },
         }}
       />
 

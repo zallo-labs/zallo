@@ -455,7 +455,6 @@ export type $PolicyλShape = $.typeutil.flatten<_std.$Object_8ce8c71ee4fa5f73840
 }>;
 type $Policy = $.ObjectType<"default::Policy", $PolicyλShape, null, [
   ..._std.$Object_8ce8c71ee4fa5f73840c22d7eaa58588['__exclusives__'],
-  {account: {__element__: $Account, __cardinality__: $.Cardinality.One | $.Cardinality.AtMostOne },name: {__element__: $Label, __cardinality__: $.Cardinality.One | $.Cardinality.AtMostOne },},
   {account: {__element__: $Account, __cardinality__: $.Cardinality.One | $.Cardinality.AtMostOne },key: {__element__: $uint16, __cardinality__: $.Cardinality.One | $.Cardinality.AtMostOne },},
   {stateHistory: {__element__: $PolicyState, __cardinality__: $.Cardinality.One | $.Cardinality.AtMostOne },},
 ]>;

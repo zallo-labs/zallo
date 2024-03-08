@@ -3,7 +3,7 @@
   "pipeline": {
     "build": {
       "dependsOn": ["chains#build"],
-      "inputs": ["contracts/**", "config.ts", "hardhat.config.ts"],
+      "inputs": ["contracts/**", "config.ts", "hardhat.config.ts", "package.json"],
       "outputs": [
         "abi/**",
         "artifacts-zk/**",

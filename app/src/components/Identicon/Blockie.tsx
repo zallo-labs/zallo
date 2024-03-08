@@ -1,3 +1,4 @@
+import { ICON_SIZE } from '@theme/paper';
 import { createStyles } from '@theme/styles';
 import { View } from 'react-native';
 import Svg, { Rect, SvgProps } from 'react-native-svg';
@@ -71,11 +72,11 @@ const createImageData = (randseed: Randseed, nBlocks: number) => {
 
 export interface BlockieProps extends Omit<SvgProps, 'width' | 'height' | 'color'> {
   seed?: string;
-  size: number;
+  size?: number;
   nBlocks?: number;
 }
 
-export function Blockie({ size = 24, nBlocks = 8, style, ...props }: BlockieProps) {
+export function Blockie({ size = ICON_SIZE.medium, nBlocks = 8, style, ...props }: BlockieProps) {
   const pxPerBlock = size / nBlocks;
   const seed = seedrand(props.seed || Math.floor(Math.random() * Math.pow(10, 16)).toString(16));
 

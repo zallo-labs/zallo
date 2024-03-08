@@ -10,7 +10,7 @@
     },
     "build": {
       "dependsOn": ["prepare"],
-      "inputs": ["dbschema/**", "src/**"],
+      "inputs": ["dbschema/**", "src/**", "package.json"],
       "outputs": ["dist/**"]
     },
     "dev": {

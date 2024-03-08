@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { ACCOUNT_ABI, Address } from 'lib';
 import { DatabaseService } from '../database/database.service';
-import { ExplorerService } from '../explorer/explorer.service';
 import e from '~/edgeql-js';
 import { ShapeFunc } from '../database/database.select';
 import { AbiSource } from '../contract-functions/contract-functions.model';
@@ -10,9 +9,7 @@ import { toFunctionSelector, toFunctionSignature } from 'viem';
 
 @Injectable()
 export class ContractsService {
-  constructor(private db: DatabaseService) {
-    // private explorer: ExplorerService,
-  }
+  constructor(private db: DatabaseService) {}
 
   async select(contract: Address, shape?: ShapeFunc<typeof e.Contract>) {
     const stored = await e

@@ -29,7 +29,6 @@ module default {
     required property isEnabled := (.isActive or .draft.isRemoved ?= false);
 
     constraint exclusive on ((.account, .key));
-    constraint exclusive on ((.account, .name));
 
     access policy members_select_insert_update
       allow select, insert, update

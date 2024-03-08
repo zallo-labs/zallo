@@ -1,14 +1,5 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
-import {
-  ACCOUNT_IMPLEMENTATION,
-  asChain,
-  asDecimal,
-  asHex,
-  asUAddress,
-  asUUID,
-  isHex,
-  isTruthy,
-} from 'lib';
+import { ACCOUNT_IMPLEMENTATION, asChain, asDecimal, asHex, asUAddress, isHex } from 'lib';
 import { TransactionData, TransactionEventData, ReceiptsWorker } from './receipts.worker';
 import { InjectQueue } from '@nestjs/bullmq';
 import { ReceiptsQueue } from './receipts.queue';
@@ -16,7 +7,7 @@ import e from '~/edgeql-js';
 import { DatabaseService } from '../database/database.service';
 import { and } from '../database/database.util';
 import { NetworksService } from '../util/networks/networks.service';
-import { getAbiItem } from 'viem';
+import { CallParameters, getAbiItem } from 'viem';
 import { ProposalsService } from '../proposals/proposals.service';
 import { ProposalEvent } from '../proposals/proposals.input';
 import { InjectRedis } from '@songkeys/nestjs-redis';
@@ -57,7 +48,6 @@ export class TransactionsEvents implements OnModuleInit {
   }
 
   private async executed({
-    chain,
     log,
     receipt,
     block,
@@ -98,7 +88,7 @@ export class TransactionsEvents implements OnModuleInit {
 
     const network = this.networks.get(chain);
     const { gasPrice: _, ...tx } = await network.getTransaction({ hash: receipt.transactionHash });
-    const callResponse = await network.call(tx);
+    const callResponse = await network.call(tx as CallParameters);
 
     const systx = selectSysTx(receipt.transactionHash);
     const insertResult = e.insert(e.Failed, {

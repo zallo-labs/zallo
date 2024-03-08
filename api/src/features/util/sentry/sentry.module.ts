@@ -2,7 +2,7 @@ import { DynamicModule, Global, Module, OnApplicationShutdown } from '@nestjs/co
 import * as Sentry from '@sentry/node';
 import { CONFIG } from '~/config';
 import { SentryInterceptor } from './sentry.interceptor';
-import { ProfilingIntegration } from '@sentry/profiling-node';
+import { nodeProfilingIntegration } from '@sentry/profiling-node';
 
 const SHUTDOWN_TIMEOUT = 3_000;
 
@@ -61,8 +61,7 @@ export class SentryModule implements OnApplicationShutdown {
         new Sentry.Integrations.Http({ tracing: true }),
         new Sentry.Integrations.GraphQL(),
         new Sentry.Integrations.Apollo({ useNestjs: true }),
-        // @ts-expect-error Sentry types are wrong
-        new ProfilingIntegration(),
+        nodeProfilingIntegration(),
       ],
     });
   }
