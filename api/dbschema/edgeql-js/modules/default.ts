@@ -851,21 +851,18 @@ function as_address(...args: any[]) {
 };
 
 type tokenλFuncExpr<
-  P1 extends _.castMaps.orScalarLiteral<$.TypeSet<$UAddress>>,
-  P2 extends $.TypeSet<$User> | undefined,
+  P1 extends _.castMaps.orScalarLiteral<$.TypeSet<_std.$str>>,
 > = $.$expr_Function<
-  $Token, $.cardutil.overrideLowerBound<$.cardutil.multiplyCardinalities<$.cardutil.paramCardinality<P1>, $.cardutil.optionalParamCardinality<P2>>, 'Zero'>
+  $Token, $.cardutil.overrideLowerBound<$.cardutil.paramCardinality<P1>, 'Zero'>
 >;
 function token<
-  P1 extends _.castMaps.orScalarLiteral<$.TypeSet<$UAddress>>,
-  P2 extends $.TypeSet<$User> | undefined,
+  P1 extends _.castMaps.orScalarLiteral<$.TypeSet<_std.$str>>,
 >(
   address: P1,
-  userParam?: P2,
-): tokenλFuncExpr<P1, P2>;
+): tokenλFuncExpr<P1>;
 function token(...args: any[]) {
   const {returnType, cardinality, args: positionalArgs, namedArgs} = _.syntax.$resolveOverload('default::token', args, _.spec, [
-    {args: [{typeId: "324ddade-db73-11ee-b00c-9fcda2486e7b", optional: false, setoftype: false, variadic: false}, {typeId: "32ce1ecc-db73-11ee-8ab8-d109a129473b", optional: true, setoftype: false, variadic: false}], returnTypeId: "32c96bc0-db73-11ee-bec3-9d6a82bb48e7", returnTypemod: "OptionalType"},
+    {args: [{typeId: "00000000-0000-0000-0000-000000000101", optional: false, setoftype: false, variadic: false}], returnTypeId: "32c96bc0-db73-11ee-bec3-9d6a82bb48e7", returnTypemod: "OptionalType"},
   ]);
   return _.syntax.$expressionify({
     __kind__: $.ExpressionKind.Function,
@@ -923,6 +920,33 @@ function label(...args: any[]) {
     __element__: returnType,
     __cardinality__: cardinality,
     __name__: "default::label",
+    __args__: positionalArgs,
+    __namedargs__: namedArgs,
+  }) as any;
+};
+
+type tokenForUserλFuncExpr<
+  P1 extends _.castMaps.orScalarLiteral<$.TypeSet<_std.$str>>,
+  P2 extends $.TypeSet<$User>,
+> = $.$expr_Function<
+  $Token, $.cardutil.overrideLowerBound<$.cardutil.multiplyCardinalities<$.cardutil.paramCardinality<P1>, $.cardutil.paramCardinality<P2>>, 'Zero'>
+>;
+function tokenForUser<
+  P1 extends _.castMaps.orScalarLiteral<$.TypeSet<_std.$str>>,
+  P2 extends $.TypeSet<$User>,
+>(
+  addressParam: P1,
+  user: P2,
+): tokenForUserλFuncExpr<P1, P2>;
+function tokenForUser(...args: any[]) {
+  const {returnType, cardinality, args: positionalArgs, namedArgs} = _.syntax.$resolveOverload('default::tokenForUser', args, _.spec, [
+    {args: [{typeId: "00000000-0000-0000-0000-000000000101", optional: false, setoftype: false, variadic: false}, {typeId: "32ce1ecc-db73-11ee-8ab8-d109a129473b", optional: false, setoftype: false, variadic: false}], returnTypeId: "32c96bc0-db73-11ee-bec3-9d6a82bb48e7", returnTypemod: "OptionalType"},
+  ]);
+  return _.syntax.$expressionify({
+    __kind__: $.ExpressionKind.Function,
+    __element__: returnType,
+    __cardinality__: cardinality,
+    __name__: "default::tokenForUser",
     __args__: positionalArgs,
     __namedargs__: namedArgs,
   }) as any;
@@ -1040,6 +1064,7 @@ type __defaultExports = {
   "token": typeof token;
   "labelForUser": typeof labelForUser;
   "label": typeof label;
+  "tokenForUser": typeof tokenForUser;
   "global": typeof $default__globals
 };
 const __defaultExports: __defaultExports = {
@@ -1106,6 +1131,7 @@ const __defaultExports: __defaultExports = {
   "token": token,
   "labelForUser": labelForUser,
   "label": label,
+  "tokenForUser": tokenForUser,
   "global": $default__globals
 };
 export default __defaultExports;

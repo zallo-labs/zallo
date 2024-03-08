@@ -87,8 +87,12 @@ module default {
       using (.user ?= global current_user);
   }
 
-  function token(address: UAddress, userParam: optional User) -> optional Token using (
-    with user := userParam ?? global current_user
+  function token(address: str) -> optional Token using (
+    select tokenForUser(address, global current_user)
+  );
+
+  function tokenForUser(addressParam: str, user: User) -> optional Token using (
+    with address := <UAddress>addressParam
     select assert_single(
       (select Token filter .address = address and .user = user) ??
       (select Token filter .address = address)

@@ -229,7 +229,7 @@ export class TransfersEvents {
           filter: e.op('exists', approver.pushToken),
           pushToken: approver.pushToken,
           fromLabel: e.labelForUser(from, approver.user),
-          token: e.select(e.token(token, approver.user), () => ({
+          token: e.select(e.tokenForUser(token, approver.user), () => ({
             symbol: true,
             decimals: true,
           })),
