@@ -10,7 +10,7 @@ import { DefaultJobOptions } from 'bullmq';
 
 export const DEFAULT_JOB_OPTIONS = {
   removeOnComplete: 1000,
-  removeOnFail: false,
+  removeOnFail: 1000, // Prevents OOM
   attempts: 18, // 2^18 * 200ms = ~14.5h
   backoff: { type: 'exponential', delay: 200 },
 } satisfies DefaultJobOptions;
