@@ -12,6 +12,8 @@ import { useFormattedTokenAmount } from '#/token/TokenAmount';
 import { TokenIcon } from '#/token/TokenIcon';
 import { usePolicyDraft } from '~/lib/policy/draft';
 import { truncateAddr } from '~/util/format';
+import { useLocalParams } from '~/hooks/useLocalParams';
+import { PolicyScreenParams } from '~/app/(drawer)/[account]/policies/[id]';
 
 const Token = gql(/* GraphQL */ `
   fragment TokenLimitItem_Token on Token {
@@ -29,6 +31,7 @@ export interface TokenSpendingProps {
 
 export function TokenLimitItem({ address, ...props }: TokenSpendingProps) {
   const token = getFragment(Token, props.token);
+  const params = useLocalParams(PolicyScreenParams);
   const [policy] = usePolicyDraft();
 
   const limit: TransferLimit | undefined = policy.transfers.limits[address];
@@ -42,8 +45,8 @@ export function TokenLimitItem({ address, ...props }: TokenSpendingProps) {
   return (
     <Link
       href={{
-        pathname: `/(drawer)/[account]/policies/[key]/spending/[token]`,
-        params: { account: policy.account, key: policy.key ?? 'add', token: address },
+        pathname: `/(drawer)/[account]/policies/[id]/spending/[token]`,
+        params: { ...params, token: address },
       }}
       asChild
     >

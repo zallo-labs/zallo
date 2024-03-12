@@ -27,8 +27,8 @@ const Policy = gql(/* GraphQL */ `
     id
     key
     draft {
+      __typename
       id
-      isRemoved
     }
   }
 `);
@@ -107,7 +107,7 @@ export function PolicySideSheet(props: PolicySideSheetProps) {
       />
 
       <Actions>
-        {policy && !policy.draft?.isRemoved && (
+        {policy && policy.draft?.__typename !== 'RemovedPolicy' && (
           <Button
             mode="contained"
             style={styles.removeButton}

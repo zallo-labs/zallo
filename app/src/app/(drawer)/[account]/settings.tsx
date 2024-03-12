@@ -30,18 +30,13 @@ const Query = gql(/* GraphQL */ `
         __typename
         id
         key
-        state {
+        active
+        threshold
+        approvers {
           id
         }
         draft {
           id
-        }
-        stateOrDraft {
-          id
-          threshold
-          approvers {
-            id
-          }
         }
         ...PolicyItem_Policy
       }
@@ -83,10 +78,7 @@ function AccountSettingsScreen() {
   if (!account) return query.stale ? null : <NotFound name="Account" />;
 
   const policies = account.policies.sort(
-    (a, b) =>
-      a.stateOrDraft.threshold - b.stateOrDraft.threshold ||
-      a.stateOrDraft.approvers.length - b.stateOrDraft.approvers.length ||
-      a.key - b.key,
+    (a, b) => a.threshold - b.threshold || a.approvers.length - b.approvers.length || a.key - b.key,
   );
 
   return (
@@ -104,7 +96,7 @@ function AccountSettingsScreen() {
                   trailing={({ Text, ...props }) => (
                     <View style={styles.trailingContainer}>
                       <Text>
-                        {[policy.state && 'Active', policy.draft && 'Draft']
+                        {[policy.active && 'Active', policy.draft && 'Draft']
                           .filter(Boolean)
                           .join(' | ')}
                       </Text>
@@ -113,8 +105,8 @@ function AccountSettingsScreen() {
                   )}
                   onPress={() => {
                     router.push({
-                      pathname: `/(drawer)/[account]/policies/[key]/`,
-                      params: { account: account.address, key: policy.key },
+                      pathname: `/(drawer)/[account]/policies/[id]/`,
+                      params: { account: account.address, id: policy.id },
                     });
                   }}
                 />
@@ -139,8 +131,8 @@ function AccountSettingsScreen() {
 
           <Link
             href={{
-              pathname: `/(drawer)/[account]/policies/[key]/`,
-              params: { account: account.address, key: 'add' },
+              pathname: `/(drawer)/[account]/policies/[id]/`,
+              params: { account: account.address, id: 'add' },
             }}
             asChild
           >

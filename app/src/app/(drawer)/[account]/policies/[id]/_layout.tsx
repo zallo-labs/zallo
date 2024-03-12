@@ -2,29 +2,22 @@ import { AppbarHeader } from '#/Appbar/AppbarHeader';
 import { gql } from '@api';
 import { Stack } from 'expo-router';
 import { atom } from 'jotai';
-import { PolicyKey, ZERO_ADDR, asChain, asPolicyKey } from 'lib';
+import { ZERO_ADDR, asChain, asUUID } from 'lib';
 import { useMemo } from 'react';
 import { z } from 'zod';
 import { useQuery } from '~/gql';
 import { useLocalParams } from '~/hooks/useLocalParams';
 import { PolicyDraft, PolicyDraftContext, policyAsDraft } from '~/lib/policy/draft';
 import { usePolicyPresets } from '~/lib/policy/usePolicyPresets';
-import { zUAddress } from '~/lib/zod';
+import { zUAddress, zUuid } from '~/lib/zod';
 
 const Query = gql(/* GraphQL */ `
-  query PolicyLayout($account: UAddress!, $key: PolicyKey!, $includePolicy: Boolean!) {
-    policy(input: { account: $account, key: $key }) @include(if: $includePolicy) {
+  query PolicyLayout($account: UAddress!, $policy: ID!, $includePolicy: Boolean!) {
+    policy: policyState(id: $policy) @include(if: $includePolicy) {
       id
       key
       name
-      state {
-        id
-        ...policyAsDraft_PolicyState
-      }
-      draft {
-        id
-        ...policyAsDraft_PolicyState
-      }
+      ...policyAsDraft_Policy
     }
 
     account(input: { account: $account }) {
@@ -40,27 +33,27 @@ const Query = gql(/* GraphQL */ `
   }
 `);
 
+export const ZERO_UUID = asUUID('00000000-0000-0000-0000-000000000000');
+
 export const unstable_settings = {
   initialRouteName: `index`,
 };
 
 export const PolicyLayoutParams = z.object({
   account: zUAddress(),
-  key: z.union([z.coerce.number().transform(asPolicyKey), z.literal('add')]),
-  draft: z.coerce.boolean().optional(),
+  id: z.union([zUuid(), z.literal('add')]),
 });
 export type PolicyLayoutParams = z.infer<typeof PolicyLayoutParams>;
 
 export default function PolicyLayout() {
   const params = useLocalParams(PolicyLayoutParams);
-  const key = params.key === 'add' ? undefined : asPolicyKey(params.key);
+  const id = params.id !== 'add' ? params.id : undefined;
 
   const { policy, account, user } = useQuery(Query, {
     account: params.account,
-    key: key ?? (0 as PolicyKey),
-    includePolicy: key !== undefined,
+    policy: id ?? ZERO_UUID,
+    includePolicy: !!id,
   }).data;
-  const view = (params.draft && policy?.draft && 'draft') || 'state';
 
   const presets = usePolicyPresets({
     account,
@@ -73,17 +66,14 @@ export default function PolicyLayout() {
       account: account?.address ?? `zksync:${ZERO_ADDR}`, // Should only occur whilst loading
       key: policy?.key,
       name: policy?.name || '',
-      ...((view === 'state' && policy?.state && policyAsDraft(policy.state)) ||
-        (policy?.draft && policyAsDraft(policy.draft)) ||
-        (policy?.state && policyAsDraft(policy.state)) ||
-        presets.low),
+      ...((policy && policyAsDraft(policy)) || presets.low),
     };
-  }, [account, policy?.draft, policy?.key, policy?.name, policy?.state, presets.low, view]);
+  }, [account?.address, policy, presets.low]);
 
   const draftAtom = useMemo(() => atom(initial), [initial]);
 
   return (
-    <PolicyDraftContext.Provider value={{ draftAtom, initial, view }}>
+    <PolicyDraftContext.Provider value={{ id, draftAtom, initial }}>
       <Stack.Screen options={{ headerShown: false }} />
       <Stack screenOptions={{ header: AppbarHeader }} />
     </PolicyDraftContext.Provider>

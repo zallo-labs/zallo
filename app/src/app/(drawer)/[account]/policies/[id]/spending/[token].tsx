@@ -1,4 +1,4 @@
-import { PolicyScreenParams } from '~/app/(drawer)/[account]/policies/[key]';
+import { PolicyScreenParams } from '~/app/(drawer)/[account]/policies/[id]';
 import { useLocalParams } from '~/hooks/useLocalParams';
 import { zAddress } from '~/lib/zod';
 import { TransferLimit, asChain, asUAddress } from 'lib';

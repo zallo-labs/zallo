@@ -3,61 +3,53 @@ import { Chip, Menu } from 'react-native-paper';
 import { AppbarMore } from '#/Appbar/AppbarMore';
 import { useAtomValue } from 'jotai';
 import { FragmentType, gql, useFragment } from '@api/generated';
-import { PolicyView, usePolicyDraftAtom } from '~/lib/policy/draft';
+import { usePolicyDraftAtom } from '~/lib/policy/draft';
 import { AppbarOptions } from '#/Appbar/AppbarOptions';
 import { useRouter } from 'expo-router';
-import { PolicyKey, UAddress } from 'lib';
 import { createStyles, useStyles } from '@theme/styles';
 import { useSideSheet } from '#/SideSheet/SideSheetLayout';
+import { useLocalParams } from '~/hooks/useLocalParams';
+import { PolicyScreenParams } from '~/app/(drawer)/[account]/policies/[id]';
 
 const Policy = gql(/* GraphQL */ `
   fragment PolicyAppbar_Policy on Policy {
     id
     key
-    account {
+    active
+    latest {
       id
-      address
-    }
-    state {
-      id
-      proposal {
-        id
-      }
     }
     draft {
       id
-      proposal {
-        id
-      }
+    }
+    proposal {
+      id
     }
   }
 `);
 
 export interface PolicyAppbarProps {
-  account: UAddress;
-  policyKey: PolicyKey | 'add';
   policy?: FragmentType<typeof Policy> | null;
-  view: PolicyView;
-  setView: (view: PolicyView) => void;
   reset?: () => void;
 }
 
-export function PolicyAppbar({ view, setView, reset, ...props }: PolicyAppbarProps) {
+export function PolicyAppbar({ reset, ...props }: PolicyAppbarProps) {
   const { styles } = useStyles(stylesheet);
-  const router = useRouter();
   const policy = useFragment(Policy, props.policy);
+  const router = useRouter();
+  const params = useLocalParams(PolicyScreenParams);
   const sheet = useSideSheet();
 
   const { name } = useAtomValue(usePolicyDraftAtom());
 
-  const state = view === 'state' ? policy?.state : policy?.draft;
-  const stateChipLabel = view === 'draft' || !policy ? 'Draft' : 'Active';
+  const stateLabel =
+    (policy?.active && 'Active') ||
+    ((!policy || policy.id === policy.draft?.id) && 'Draft') ||
+    'Historic';
+
   const switchState =
-    view === 'state' && policy?.draft
-      ? () => setView('draft')
-      : view === 'draft' && policy?.state
-        ? () => setView('state')
-        : undefined;
+    (policy?.id !== policy?.latest?.id && policy?.latest?.id) ||
+    (policy?.id !== policy?.draft?.id && policy?.draft?.id);
 
   return (
     <AppbarOptions
@@ -69,21 +61,21 @@ export function PolicyAppbar({ view, setView, reset, ...props }: PolicyAppbarPro
           switchState ? (
             <Chip
               mode="flat"
-              onPress={switchState}
+              onPress={() => router.setParams({ ...params, id: switchState })}
               icon={(props) => <SwapIcon {...props} style={styles.pressableStateChipLabel} />}
               style={styles.pressableStateChipContainer}
               textStyle={styles.pressableStateChipLabel}
             >
-              {stateChipLabel}
+              {stateLabel}
             </Chip>
           ) : (
             <Chip mode="outlined" textStyle={styles.unpressableStateChipLabel}>
-              {stateChipLabel}
+              {stateLabel}
             </Chip>
           ),
         (props) => <SettingsOutlineIcon {...props} onPress={() => sheet.show(true)} />,
         (iconProps) =>
-          state?.proposal ? (
+          policy?.proposal && (
             <AppbarMore iconProps={iconProps}>
               {({ close }) => (
                 <Menu.Item
@@ -92,13 +84,13 @@ export function PolicyAppbar({ view, setView, reset, ...props }: PolicyAppbarPro
                     close();
                     router.push({
                       pathname: `/(drawer)/transaction/[id]`,
-                      params: { id: state.proposal!.id },
+                      params: { id: policy.proposal!.id },
                     });
                   }}
                 />
               )}
             </AppbarMore>
-          ) : null,
+          ),
       ]}
     />
   );

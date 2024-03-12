@@ -2,7 +2,7 @@ import { gql } from '@api';
 import { AddIcon, GenericTokenIcon, TransferIcon } from '@theme/icons';
 import { createStyles } from '@theme/styles';
 import { useRouter } from 'expo-router';
-import { Address, asAddress, asChain, asUAddress } from 'lib';
+import { asAddress, asChain, asUAddress } from 'lib';
 import { useMemo } from 'react';
 import Collapsible from 'react-native-collapsible';
 import { Divider, Switch } from 'react-native-paper';
@@ -17,6 +17,8 @@ import { useQuery } from '~/gql';
 import { useSelectAddress } from '~/hooks/useSelectAddress';
 import { useToggle } from '~/hooks/useToggle';
 import { usePolicyDraft } from '~/lib/policy/draft';
+import { useLocalParams } from '~/hooks/useLocalParams';
+import { PolicyScreenParams } from '~/app/(drawer)/[account]/policies/[id]';
 
 const Query = gql(/* GraphQL */ `
   query SpendingSettings($input: TokensInput!) {
@@ -34,6 +36,7 @@ export interface SpendingSettingsProps {
 
 function SpendingSettings_(props: SpendingSettingsProps) {
   const router = useRouter();
+  const params = useLocalParams(PolicyScreenParams);
   const selectAddress = useSelectAddress();
 
   const [policy, update] = usePolicyDraft();
@@ -97,8 +100,8 @@ function SpendingSettings_(props: SpendingSettingsProps) {
             const token = asUAddress(await selectAddress({ chain, include: ['tokens'] }), chain);
             if (token)
               router.push({
-                pathname: `/(drawer)/[account]/policies/[key]/spending/[token]`,
-                params: { account: policy.account, key: policy.key ?? 'add', token },
+                pathname: `/(drawer)/[account]/policies/[id]/spending/[token]`,
+                params: { ...params, token },
               });
           }}
         />

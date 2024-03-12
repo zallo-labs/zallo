@@ -1,7 +1,7 @@
 import { gql } from '@api';
 import { useRouter } from 'expo-router';
 import { useAtom } from 'jotai';
-import { PolicyKey, asPolicyKey } from 'lib';
+import { PolicyKey } from 'lib';
 import _ from 'lodash';
 import { useMutation } from 'urql';
 import { z } from 'zod';
@@ -13,7 +13,6 @@ import { showError } from '#/provider/SnackbarProvider';
 import { withSuspense } from '#/skeleton/withSuspense';
 import { ScreenSkeleton } from '#/skeleton/ScreenSkeleton';
 import { ScrollableScreenSurface } from '#/layout/ScrollableScreenSurface';
-import { zUAddress } from '~/lib/zod';
 import { ApprovalSettings } from '#/policy/ApprovalSettings';
 import { SpendingSettings } from '#/policy/SpendingSettings';
 import { useLayout } from '~/hooks/useLayout';
@@ -26,11 +25,11 @@ import { SideSheetLayout } from '#/SideSheet/SideSheetLayout';
 import { PolicySideSheet } from '#/policy/PolicySideSheet';
 import { SignMessageSettings } from '#/policy/SignMessageSettings';
 import { DelaySettings } from '#/policy/DelaySettings';
-import { PolicyLayoutParams } from './_layout';
+import { PolicyLayoutParams, ZERO_UUID } from './_layout';
 
 const Query = gql(/* GraphQL */ `
-  query PolicyScreen($account: UAddress!, $key: PolicyKey!, $includePolicy: Boolean!) {
-    policy(input: { account: $account, key: $key }) @include(if: $includePolicy) {
+  query PolicyScreen($account: UAddress!, $policy: ID!, $includePolicy: Boolean!) {
+    policy: policyState(id: $policy) @include(if: $includePolicy) {
       id
       ...PolicyAppbar_Policy
       ...PolicySideSheet_Policy
@@ -56,7 +55,9 @@ const Create = gql(/* GraphQL */ `
       __typename
       ... on Policy {
         id
-        key
+        proposal {
+          id
+        }
         draft {
           id
           proposal {
@@ -77,7 +78,9 @@ const Update = gql(/* GraphQL */ `
       __typename
       ... on Policy {
         id
-        key
+        proposal {
+          id
+        }
         draft {
           id
           proposal {
@@ -101,13 +104,13 @@ function PolicyScreen() {
   const create = useMutation(Create)[1];
   const update = useMutation(Update)[1];
 
-  const { initial: init, view } = usePolicyDraftContext();
+  const { id, initial: init } = usePolicyDraftContext();
   const [draft, setDraft] = useAtom(usePolicyDraftAtom());
 
   const { policy, account, user } = useQuery(Query, {
     account: params.account,
-    key: draft.key ?? (0 as PolicyKey),
-    includePolicy: draft.key !== undefined,
+    policy: id || ZERO_UUID,
+    includePolicy: !!id,
   }).data;
 
   const isModified = !_.isEqual(init, draft);
@@ -117,20 +120,7 @@ function PolicyScreen() {
 
   return (
     <SideSheetLayout>
-      <PolicyAppbar
-        account={account.address}
-        policyKey={params.key}
-        policy={policy}
-        view={view}
-        setView={(view) =>
-          router.setParams({
-            account: params.account,
-            key: `${params.key}`,
-            ...(view === 'draft' && { draft: `${params.draft}` }),
-          })
-        }
-        reset={isModified ? () => setDraft(init) : undefined}
-      />
+      <PolicyAppbar policy={policy} reset={isModified ? () => setDraft(init) : undefined} />
 
       <ScrollableScreenSurface contentContainerStyle={styles.container}>
         <PolicySuggestions account={account} user={user} />
@@ -153,11 +143,14 @@ function PolicyScreen() {
 
                 if (r?.__typename !== 'Policy') return showError(r?.message);
 
-                router.setParams({ ...params, key: `${r.key}`, draft: 'true' });
-                router.push({
-                  pathname: `/(drawer)/transaction/[id]`,
-                  params: { id: r.draft!.proposal!.id },
-                });
+                const p = r.draft ?? r;
+                router.setParams({ ...params, id: p.id });
+                if (p.proposal) {
+                  router.push({
+                    pathname: `/(drawer)/transaction/[id]`,
+                    params: { id: p.proposal.id },
+                  });
+                }
               }}
             >
               {draft.key === undefined ? 'Create' : 'Update'}
