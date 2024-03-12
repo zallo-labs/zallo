@@ -1,4 +1,4 @@
-import { Info, Mutation, Parent, Query, Resolver } from '@nestjs/graphql';
+import { Args, Info, Mutation, Parent, Query, Resolver } from '@nestjs/graphql';
 import { GraphQLResolveInfo } from 'graphql';
 import {
   CreatePolicyInput,
@@ -6,18 +6,20 @@ import {
   ValidationErrorsInput,
   UniquePolicyInput,
   UpdatePolicyInput,
+  PolicyStateArgs,
 } from './policies.input';
-import { PoliciesService, ValidatePolicyShape } from './policies.service';
+import { PoliciesService } from './policies.service';
 import {
   CreatePolicyResponse,
   Policy,
-  ValidationError,
   UpdatePolicyResponse,
+  ValidationError,
 } from './policies.model';
 import { getShape } from '../database/database.select';
 import { Input } from '~/decorators/input.decorator';
 import e from '~/edgeql-js';
 import { ComputedField } from '~/decorators/computed.decorator';
+import { PolicyShape } from './policies.util';
 
 @Resolver(() => Policy)
 export class PoliciesResolver {
@@ -25,7 +27,12 @@ export class PoliciesResolver {
 
   @Query(() => Policy, { nullable: true })
   async policy(@Input() policy: UniquePolicyInput, @Info() info: GraphQLResolveInfo) {
-    return this.service.selectUnique(policy, getShape(info));
+    return this.service.latest(policy, getShape(info));
+  }
+
+  @Query(() => Policy, { nullable: true })
+  async policyState(@Args() { id }: PolicyStateArgs, @Info() info: GraphQLResolveInfo) {
+    return this.service.unique(id, getShape(info));
   }
 
   @Query(() => [Policy])
@@ -36,10 +43,10 @@ export class PoliciesResolver {
     return this.service.select(input, getShape(info));
   }
 
-  @ComputedField<typeof e.Policy>(() => [ValidationError], ValidatePolicyShape)
+  @ComputedField<typeof e.Policy>(() => [ValidationError], PolicyShape)
   async validationErrors(
     @Input() { proposal }: ValidationErrorsInput,
-    @Parent() policy: ValidatePolicyShape,
+    @Parent() policy: PolicyShape,
   ): Promise<ValidationError[]> {
     return this.service.validateProposal(proposal, policy);
   }
@@ -50,26 +57,18 @@ export class PoliciesResolver {
     @Info() info: GraphQLResolveInfo,
   ): Promise<typeof CreatePolicyResponse> {
     const r = await this.service.create(input);
-    return r.isOk() ? (await this.service.selectUnique(r.value, getShape(info)))! : r.error;
+    return r.isOk() ? (await this.service.latest(r.value.id, getShape(info)))! : r.error;
   }
 
   @Mutation(() => UpdatePolicyResponse)
-  async updatePolicy(
-    @Input() input: UpdatePolicyInput,
-    @Info() info: GraphQLResolveInfo,
-  ): Promise<typeof UpdatePolicyResponse> {
-    const r = await this.service.update(input);
-    return r.isOk()
-      ? (await this.service.selectUnique(
-          { account: input.account, key: input.key },
-          getShape(info),
-        ))!
-      : r.error;
+  async updatePolicy(@Input() input: UpdatePolicyInput, @Info() info: GraphQLResolveInfo) {
+    await this.service.update(input);
+    return (await this.service.latest({ account: input.account, key: input.key }, getShape(info)))!;
   }
 
   @Mutation(() => Policy)
   async removePolicy(@Input() input: UniquePolicyInput, @Info() info: GraphQLResolveInfo) {
     await this.service.remove(input);
-    return this.service.selectUnique({ account: input.account, key: input.key }, getShape(info));
+    return this.service.latest({ account: input.account, key: input.key }, getShape(info));
   }
 }

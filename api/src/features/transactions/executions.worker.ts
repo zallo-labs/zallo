@@ -18,11 +18,7 @@ import { PaymastersService } from '~/features/paymasters/paymasters.service';
 import { ProposalsService } from '~/features/proposals/proposals.service';
 import { NetworksService } from '~/features/util/networks/networks.service';
 import e from '~/edgeql-js';
-import {
-  policyStateAsPolicy,
-  policyStateShape,
-  selectPolicy,
-} from '~/features/policies/policies.util';
+import { policyStateAsPolicy, PolicyShape, selectPolicy } from '~/features/policies/policies.util';
 import { TX_SHAPE, transactionAsTx } from './transactions.util';
 import Decimal from 'decimal.js';
 import { ProposalEvent } from '~/features/proposals/proposals.input';
@@ -69,10 +65,7 @@ export class ExecutionsWorker extends Worker<ExecutionsQueue> {
           approver: { address: true },
           signature: true,
         }),
-        policy: {
-          key: true,
-          state: policyStateShape,
-        },
+        policy: PolicyShape,
         simulation: {
           success: true,
           timestamp: true,
@@ -103,7 +96,7 @@ export class ExecutionsWorker extends Worker<ExecutionsQueue> {
       throw new UnrecoverableError('Approval expired'); // TODO: handle expiring approvals
 
     const tx = transactionAsTx(proposal);
-    const policy = policyStateAsPolicy(proposal.policy.key, proposal.policy.state);
+    const policy = policyStateAsPolicy(proposal.policy);
     if (!policy) return fail('policy not active');
 
     return await this.db.transaction(async () => {

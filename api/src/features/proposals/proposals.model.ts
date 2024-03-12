@@ -7,7 +7,8 @@ import { Node, NodeInterface, NodeType } from '~/decorators/interface.decorator'
 import { GraphQLURL } from 'graphql-scalars';
 import { ProposalEvent } from './proposals.input';
 import { UUIDField } from '~/apollo/scalars/Uuid.scalar';
-import { UUID } from 'lib';
+import { UAddress, UUID } from 'lib';
+import { UAddressField } from '~/apollo/scalars/UAddress.scalar';
 
 @ObjectType()
 export class DappMetadata {
@@ -105,6 +106,9 @@ export class ProposalUpdated {
 
   @Field(() => Proposal, { nullable: true })
   proposal?: Proposal;
+
+  @UAddressField()
+  account: UAddress;
 
   @Field(() => ProposalEvent)
   event: ProposalEvent;

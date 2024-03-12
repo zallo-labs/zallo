@@ -57,7 +57,7 @@ export class ProposalsResolver {
     ) => !events || events.includes(event),
     async resolve(
       this: ProposalsResolver,
-      { id, event }: ProposalSubscriptionPayload,
+      { id, account, event }: ProposalSubscriptionPayload,
       _input,
       ctx: GqlContext,
       info: GraphQLResolveInfo,
@@ -68,6 +68,7 @@ export class ProposalsResolver {
           ctx,
           async () => await this.service.selectUnique(id, (p) => getShape(info)(p, 'proposal')),
         ),
+        account,
         event,
       };
     },

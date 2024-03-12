@@ -134,7 +134,7 @@ export class AccountsService {
           ...policy,
           account,
           key: asPolicyKey(i),
-          isInitState: true,
+          initState: true,
         });
       }
     });

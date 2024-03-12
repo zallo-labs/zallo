@@ -47,7 +47,7 @@ export class UpgradeEvents {
             asDecimal(event.receipt.gasUsed * event.receipt.effectiveGasPrice, ETH).toString(),
           ),
           'if',
-          e.op('not', a.isActive),
+          e.op('not', a.active),
           'else',
           e.cast(e.decimal, e.set()),
         ),
@@ -57,7 +57,7 @@ export class UpgradeEvents {
 
     const { activated, updated, users } = await this.db.query(
       e.select({
-        activated: e.op('not', selectedAccount.isActive),
+        activated: e.op('not', selectedAccount.active),
         updated: shouldUpdate,
         users: updatedAccount.approvers.user,
       }),

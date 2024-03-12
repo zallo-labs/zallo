@@ -1,12 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { EventsWorker, EventData, Log } from '../events/events.worker';
-import { ACCOUNT_ABI, PolicyKey, asHex, asPolicyKey, asUAddress } from 'lib';
+import { ACCOUNT_ABI, PolicyKey, asPolicyKey, asUAddress } from 'lib';
 import { Chain } from 'chains';
 import { DatabaseService } from '../database/database.service';
 import e from '~/edgeql-js';
-import { and } from '../database/database.util';
-import { selectPolicy } from './policies.util';
+import { and, or } from '../database/database.util';
 import { getAbiItem } from 'viem';
+import { selectAccount } from '../accounts/accounts.util';
 
 const policyAddedEvent = getAbiItem({ abi: ACCOUNT_ABI, name: 'PolicyAdded' });
 const policyRemovedEvent = getAbiItem({ abi: ACCOUNT_ABI, name: 'PolicyRemoved' });
@@ -32,22 +32,16 @@ export class PoliciesEventsProcessor {
   private async markStateAsActive(chain: Chain, log: Log, key: PolicyKey) {
     // TODO: filter state by state hash (part of event log) to ensure correct state is activated
     // It's possible that two policies are activated in the same proposal; it's not prohibited by a constraint.
+    const proposal = e.select(e.SystemTx, () => ({
+      filter_single: { hash: log.transactionHash },
+    })).proposal;
+
     await this.db.query(
       e.update(e.PolicyState, (ps) => ({
         filter: and(
-          e.op(ps.policy, '=', selectPolicy({ account: asUAddress(log.address, chain), key })),
-          e.op(
-            e.op(
-              ps.proposal,
-              '?=', // Returns {false} rather than {} if one doesn't exist
-              e.select(e.SystemTx, () => ({
-                filter_single: { hash: asHex(log.transactionHash!) },
-                proposal: { id: true },
-              })).proposal,
-            ),
-            'or',
-            ps.isAccountInitState,
-          ),
+          e.op(ps.account, '=', selectAccount(asUAddress(log.address, chain))),
+          e.op(ps.key, '=', key),
+          or(e.op(ps.proposal, '?=', proposal), ps.initState),
         ),
         set: {
           activationBlock: log.blockNumber,

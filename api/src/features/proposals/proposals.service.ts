@@ -144,11 +144,7 @@ export class ProposalsService {
         e.update(e.Proposal, (p) => ({
           filter_single: { id },
           set: {
-            ...(policy && {
-              policy: e.select(e.Policy, () => ({
-                filter_single: { account: p.account, key: policy },
-              })),
-            }),
+            ...(policy && { policy: e.latestPolicy(p.account, policy) }),
           },
         })),
         () => ({

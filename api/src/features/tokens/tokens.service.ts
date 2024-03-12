@@ -3,8 +3,7 @@ import { DatabaseService } from '../database/database.service';
 import { BalanceInput, SpendingInput, TokensInput, UpsertTokenInput } from './tokens.input';
 import { Scope, ShapeFunc } from '../database/database.select';
 import e from '~/edgeql-js';
-import { uuid } from 'edgedb/dist/codecs/ifaces';
-import { UAddress, asAddress, asDecimal, asFp, asUAddress, isUAddress } from 'lib';
+import { UAddress, asAddress, asDecimal, asFp, asUAddress } from 'lib';
 import { ERC20, TOKENS, flattenToken } from 'lib/dapps';
 import { and, or } from '../database/database.util';
 import { NetworksService } from '../util/networks/networks.service';
@@ -228,7 +227,7 @@ export class TokensService {
 
     // May technically be multiple, but only used when there's one (when policyKey is provided)
     const limit = e.assert_single(
-      e.select(policy.state.transfers.limits, (l) => ({
+      e.select(policy.transfers.limits, (l) => ({
         filter: e.op(l.token, '=', asAddress(token)),
         amount: true,
         duration: true,

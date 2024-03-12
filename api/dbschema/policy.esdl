@@ -1,69 +1,73 @@
 module default {
-  type Policy {
-    required account: Account;
+  abstract type PolicyState {
+    required account: Account { on target delete delete source; }
     required key: uint16;
-    required name: Label;
-
-    required multi stateHistory: PolicyState {
-      constraint exclusive;
-      on source delete delete target;
-      on target delete allow;
-    }
-    # TODO: use cached links (updated by triggers) to avoid the need for this link, once issue is resolved - https://github.com/edgedb/edgedb/issues/6925
-    link state := (
-      select (
-        select .stateHistory
-        order by .activationBlock desc
-        limit 1
-      ) filter .hasBeenActive
-    );
-    link draft := (
-      select (
-        select .stateHistory
-        order by .createdAt desc
-        limit 1
-      ) filter not .hasBeenActive
-    );
-    link stateOrDraft := assert_exists(.state ?? .draft);
-    required property isActive := (.state.isRemoved ?= false);
-    required property isEnabled := (.isActive or .draft.isRemoved ?= false);
-
-    constraint exclusive on ((.account, .key));
-
-    access policy members_select_insert_update
-      allow select, insert, update
-      using (.account in global current_accounts);
-
-    access policy can_be_deleted_when_inactive
-      allow delete
-      using (not .isActive);
-  }
-
-  type PolicyState {
-    link policy := .<stateHistory[is Policy];
+    required createdAt: datetime { default := datetime_of_statement(); }
     proposal: Transaction {
-      on source delete delete target; 
+      on source delete delete target;
       on target delete delete source;
     }
-    required property isAccountInitState := not exists .proposal and not .isRemoved;
-    multi approvers: Approver;
+    activationBlock: bigint { constraint min_value(0n); }
+    required property initState := (.activationBlock ?= 0);
+    required property hasBeenActive := exists .activationBlock;
+    required property active := (.hasBeenActive and .latest ?= __source__);
+    latest := latestPolicy(.account, .key);
+    draft := assert_single((
+      select PolicyState filter .account = __source__.account and .key = __source__.key and not .hasBeenActive
+      order by .createdAt desc limit 1
+    ));
+
+    index on ((.account, .key));
+
+    access policy members_select_insert_update allow select, insert, update
+      using (.account in global current_accounts);
+
+    access policy can_be_deleted_when_never_activated allow delete
+      using (not .hasBeenActive);
+  }
+
+  function should_be_latest(p: PolicyState) -> bool using (
+    (p.activationBlock ?? 0) > ((select p.account.policies filter .key = p.key limit 1).activationBlock ?? -1)
+  );
+
+  type Policy extending PolicyState {
+    required name: Label;
     required threshold: uint16;
+    multi approvers: Approver;
     multi actions: Action;
-    required transfers: TransfersConfig;
+    required transfers: TransfersConfig { default := (insert TransfersConfig { budget := 0 }); }
     required allowMessages: bool { default := false; }
     required delay: uint32 { default := 0; }
-    required isRemoved: bool { default := false; }
-    activationBlock: bigint { constraint min_value(0n); }
-    required property hasBeenActive := exists .activationBlock or .isAccountInitState;
-    required property isActive := .hasBeenActive and not .isRemoved;
-    required createdAt: datetime {
-      readonly := true;
-      default := datetime_of_statement();
-    }
 
-    index on (.activationBlock);
-    index on (.createdAt);
+    trigger link_insert after insert, update for each
+    when (should_be_latest(__new__)) do (
+      update __new__.account set {
+        policies := assert_distinct((select __new__.account.policies filter .key != __new__.key) union __new__)
+      }
+    );
+
+    trigger update_proposals after insert, update for each
+    when (should_be_latest(__new__)) do (
+      update Proposal filter .account = __new__.account and .policy.key = __new__.key and (([is Transaction].status ?= TransactionStatus.Pending) or (not exists [is Message].signature)) set {
+        policy := __new__
+      }
+    );
   }
+
+  type RemovedPolicy extending PolicyState {
+    trigger rm_policy_draft_link after insert, update for each
+    when (should_be_latest(__new__)) do (
+      update __new__.account set {
+        policies := assert_distinct((select __new__.account.policies filter .key != __new__.key))
+      } 
+    );
+
+    # TODO: update pending Proposals with a new policy
+  }
+
+  function latestPolicy(account: Account, key: int32) -> optional Policy using (
+    assert_single((select account.policies filter .key = key))
+  );
 
   type Action {
     required label: Label;

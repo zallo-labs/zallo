@@ -110,7 +110,7 @@ export class TransactionsService {
     const t = await this.db.query(
       e.select(e.Transaction, () => ({
         filter_single: { id: txProposal },
-        account: { address: true, isActive: true },
+        account: { address: true, active: true },
       })),
     );
     if (!t) throw new Error(`Transaction proposal not found: ${txProposal}`);
@@ -132,7 +132,7 @@ export class TransactionsService {
               queueName: SimulationsQueue.name,
               name: 'Simulate transaction',
               data: { transaction: txProposal } satisfies QueueData<SimulationsQueue>,
-              ...(!t.account.isActive && {
+              ...(!t.account.active && {
                 children: [this.activations.activationFlow(account)],
               }),
             },
@@ -266,11 +266,7 @@ export class TransactionsService {
           e.op(p.status, 'in', e.set(e.TransactionStatus.Pending, e.TransactionStatus.Failed)),
         ),
         set: {
-          ...(policy && {
-            policy: e.select(e.Policy, () => ({
-              filter_single: { account: p.account, key: policy },
-            })),
-          }),
+          ...(policy && { policy: e.latestPolicy(p.account, policy) }),
           feeToken:
             feeToken &&
             e.assert_single(
@@ -331,14 +327,7 @@ export class TransactionsService {
             account: { address: true },
           })),
           deletedPolicies: e.assert_distinct(
-            e.for(
-              e.set(
-                e.select(selectedTransaction['<proposal[is PolicyState]'], (ps) => ({
-                  filter: e.op(e.count(ps.policy.stateHistory), '=', 1),
-                })).policy,
-              ),
-              (p) => e.delete(p),
-            ),
+            e.for(selectedTransaction['<proposal[is PolicyState]'], (p) => e.delete(p)),
           ),
           deletedTransaction: e.delete(selectedTransaction),
         }),
