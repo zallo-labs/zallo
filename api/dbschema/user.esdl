@@ -94,8 +94,8 @@ module default {
   function tokenForUser(addressParam: str, user: User) -> optional Token using (
     with address := <UAddress>addressParam
     select assert_single(
-      (select Token filter .address = address and .user = user) ??
-      (select Token filter .address = address)
+      (select Token filter .address = address and .user = user limit 1) ??
+      (select Token filter .address = address limit 1)
     )
   );
 
