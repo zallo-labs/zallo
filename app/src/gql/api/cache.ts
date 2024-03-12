@@ -8,7 +8,7 @@ import {
 import schema from './schema.generated';
 import { Node, MutationCreatePolicyArgs, MutationRemovePolicyArgs } from '@api/generated/graphql';
 import { gql } from './generated';
-import { UAddress } from 'lib';
+import { Arraylike, UAddress, toArray } from 'lib';
 import { WritableDeep } from 'ts-toolbelt/out/Object/Writable';
 import { ProposalUpdated } from './documents.generated';
 
@@ -33,14 +33,14 @@ export const CACHE_SCHEMA_CONFIG: Pick<
         invalidate(cache, 'Query', ['user', 'accounts']);
       },
       createPolicy: (_result, { input }: MutationCreatePolicyArgs, cache) => {
-        invalidate(cache, getAccountEntity(cache, input.account), ['policies']);
+        invalidate(cache, accountEntities(cache, input.account), ['policies']);
       },
       updatePolicy: (result: Node, _args, cache) => {
         invalidate(cache, { __typename: 'Policy', id: result.id }); // Required to update fields not fetched by mutation
       },
       removePolicy: (result: Node, { input }: MutationRemovePolicyArgs, cache) => {
         invalidate(cache, { __typename: 'Policy', id: result.id });
-        invalidate(cache, getAccountEntity(cache, input.account), ['policies']);
+        invalidate(cache, accountEntities(cache, input.account), ['policies']);
       },
       proposeTransaction: (_result, _args, cache) => {
         invalidate(cache, 'Query', ['proposals']);
@@ -68,9 +68,16 @@ export const CACHE_SCHEMA_CONFIG: Pick<
       },
     } as Partial<Record<Mutation, UpdateResolver<unknown, unknown>>>,
     Subscription: {
-      proposalUpdated: (r: { proposalUpdated: Partial<ProposalUpdated> }, _args, cache) => {
-        if (r.proposalUpdated.event === 'create' || r.proposalUpdated.event === 'delete')
-          invalidate(cache, 'Query', ['proposals']);
+      proposalUpdated: (
+        { proposalUpdated: r }: { proposalUpdated: Partial<ProposalUpdated> },
+        _args,
+        cache,
+      ) => {
+        if (r.event === 'create' || r.event === 'delete') invalidate(cache, 'Query', ['proposals']);
+        if (r.event === 'executed') {
+          invalidate(cache, 'Query', ['policy', 'policyState', 'policies']);
+          invalidate(cache, accountEntities(cache, r.account), ['policies']);
+        }
       },
       transfer: (_result, _args, cache) => {
         invalidate(cache, 'Query', ['transfers', 'tokens']);
@@ -136,36 +143,39 @@ function invalidate<
   Fieldname extends Entity['fields'][number]['name'],
 >(
   cache: Cache,
-  entity: EntityName | { __typename: EntityName; id: string } | undefined,
+  entities: Arraylike<EntityName | { __typename: EntityName; id: string } | undefined>,
   fieldnames: Fieldname[] = [],
 ) {
-  const key = entity && cache.keyOfEntity(entity);
-  if (!key) return;
+  for (const entity of toArray(entities)) {
+    const key = entity && cache.keyOfEntity(entity);
+    if (!key) return;
 
-  if (fieldnames.length) {
-    cache
-      .inspectFields(key)
-      .filter((field) => fieldnames.includes(field.fieldName as Fieldname))
-      .forEach((field) => cache.invalidate(key, field.fieldKey));
-  } else {
-    // Invalidate entire entity
-    cache.invalidate(key);
+    if (fieldnames.length) {
+      cache
+        .inspectFields(key)
+        .filter((field) => fieldnames.includes(field.fieldName as Fieldname))
+        .forEach((field) => cache.invalidate(key, field.fieldKey));
+    } else {
+      // Invalidate entire entity
+      cache.invalidate(key);
+    }
   }
 }
 
-const AccountIdQuery = gql(/* GraphQL */ `
-  query Cache_Account($account: UAddress!) {
-    account(input: { account: $account }) {
+const AccountsQuery = gql(/* GraphQL */ `
+  query Cache_Accounts {
+    accounts {
       id
+      address
     }
   }
 `);
 
-function getAccountEntity(cache: Cache, account: UAddress) {
-  const id = cache.readQuery({
-    query: AccountIdQuery,
-    variables: { account },
-  })?.account?.id;
-
-  return id ? ({ __typename: 'Account', id } as const) : undefined;
+function accountEntities(cache: Cache, account?: UAddress) {
+  return (
+    cache
+      .readQuery({ query: AccountsQuery })
+      ?.accounts.filter((a) => !account || a.address === account)
+      .map((a) => ({ __typename: 'Account', id: a.id }) as const) ?? []
+  );
 }
