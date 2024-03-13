@@ -120,6 +120,10 @@ export class ExecutionsWorker extends Worker<ExecutionsQueue> {
         }),
       );
 
+      this.db.afterTransaction(() =>
+        this.proposals.publish({ id, account }, ProposalEvent.submitted),
+      );
+
       if (execution.isErr()) {
         await this.db.query(
           e.insert(e.Failed, {
@@ -160,10 +164,6 @@ export class ExecutionsWorker extends Worker<ExecutionsQueue> {
           ethPerFeeToken: feeData.tokenPrice.eth.toString(),
           usdPerFeeToken: feeData.tokenPrice.usd.toString(),
         }),
-      );
-
-      this.db.afterTransaction(() =>
-        this.proposals.publish({ id, account }, ProposalEvent.submitted),
       );
 
       return hash;
