@@ -181,8 +181,6 @@ export class PoliciesService {
           ),
         );
       }
-
-      return ok(undefined);
     });
   }
 

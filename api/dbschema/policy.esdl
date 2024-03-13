@@ -27,10 +27,6 @@ module default {
       using (not .hasBeenActive);
   }
 
-  function should_be_latest(p: PolicyState) -> bool using (
-    (p.activationBlock ?? 0) > ((select p.account.policies filter .key = p.key limit 1).activationBlock ?? -1)
-  );
-
   type Policy extending PolicyState {
     required name: Label;
     required threshold: uint16;
@@ -41,32 +37,41 @@ module default {
     required delay: uint32 { default := 0; }
 
     trigger link_insert after insert, update for each
-    when (should_be_latest(__new__)) do (
+    when ((__new__.activationBlock ?? 0) > ((select __new__.account.policies filter .key = __new__.key limit 1).activationBlock ?? -1)) do (
       update __new__.account set {
         policies := assert_distinct((select __new__.account.policies filter .key != __new__.key) union __new__)
       }
     );
 
     trigger update_proposals after insert, update for each
-    when (should_be_latest(__new__)) do (
-      update Proposal filter .account = __new__.account and .policy.key = __new__.key and (([is Transaction].status ?= TransactionStatus.Pending) or (not exists [is Message].signature)) set {
-        policy := __new__
+    when ((__new__.activationBlock ?? 0) > ((select __new__.account.policies filter .key = __new__.key limit 1).activationBlock ?? -1)) do (
+      update Proposal filter .account = __new__.account and .policy.key = __new__.key and
+        (([is Transaction].status ?= TransactionStatus.Pending) or ((exists [is Message].id) and (not exists [is Message].signature))) 
+      set { 
+        policy := __new__ 
       }
     );
   }
 
   type RemovedPolicy extending PolicyState {
     trigger rm_policy_draft_link after insert, update for each
-    when (should_be_latest(__new__)) do (
+    when ((__new__.activationBlock ?? 0) > ((select __new__.account.policies filter .key = __new__.key limit 1).activationBlock ?? -1)) do (
       update __new__.account set {
         policies := assert_distinct((select __new__.account.policies filter .key != __new__.key))
       } 
     );
 
-    # TODO: update pending Proposals with a new policy
+    trigger update_proposals after insert, update for each
+    when ((__new__.activationBlock ?? 0) > ((select __new__.account.policies filter .key = __new__.key limit 1).activationBlock ?? -1)) do (
+      update Proposal filter .account = __new__.account and .policy.key = __new__.key and
+        (([is Transaction].status ?= TransactionStatus.Pending) or ((exists [is Message].id) and (not exists [is Message].signature))) 
+      set {
+        policy := (select __new__.account.policies limit 1)
+      }
+    );
   }
-
-  function latestPolicy(account: Account, key: int32) -> optional Policy using (
+  
+  function latestPolicy(account: Account, key: int64) -> optional Policy using (
     assert_single((select account.policies filter .key = key))
   );
 

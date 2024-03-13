@@ -8,7 +8,6 @@ import { TransactionsService } from '../transactions/transactions.service';
 import { DatabaseService } from '../database/database.service';
 import e from '~/edgeql-js';
 import { inputAsPolicy, policyStateAsPolicy, PolicyShape, selectPolicy } from './policies.util';
-import assert from 'assert';
 import { PolicyInput } from './policies.input';
 import { v1 as uuidv1 } from 'uuid';
 import { selectAccount } from '../accounts/accounts.util';
@@ -163,20 +162,7 @@ describe(PoliciesService.name, () => {
   });
 
   describe('update', () => {
-    it('updates names', () =>
-      asUser(user1, async () => {
-        const { account, key } = await create();
-        const newName = 'new name';
-        await service.update({ account, key, name: newName });
-
-        const names = e.select(e.Policy, (p) => ({
-          filter: and(e.op(p.account, '=', selectAccount(account)), e.op(p.key, '=', key)),
-        })).name;
-
-        expect(await db.query(names)).toEqual([newName]);
-      }));
-
-    it('creates state', () =>
+    it('creates draft state', () =>
       asUser(user1, async () => {
         const { account, key } = await create();
         await service.update({ account, key, approvers: [] });
@@ -190,12 +176,45 @@ describe(PoliciesService.name, () => {
         expect(states).toHaveLength(2);
       }));
 
-    it('propose', () =>
+    it('proposes transaction', () =>
       asUser(user1, async () => {
         const policy = await create();
 
         expect(proposals.getInsertProposal).toHaveBeenCalled();
         await service.update({ ...policy, approvers: [] });
+      }));
+
+    it('updates policies link when activated', () =>
+      asUser(user1, async () => {
+        const { account, key } = await create();
+        await service.update({ account, key, approvers: [] });
+
+        const newPolicy = e.assert_single(
+          e.select(e.Policy, (p) => ({
+            filter: and(e.op(p.account, '=', selectAccount(account)), e.op(p.key, '=', key)),
+            order_by: { expression: p.createdAt, direction: 'DESC' },
+            limit: 1,
+          })),
+        );
+        const newPolicyId = await db.query(
+          e.update(newPolicy, () => ({ set: { activationBlock: 100n } })).id,
+        );
+
+        const link = await db.query(e.select(selectPolicy({ account, key }).id));
+        expect(link).toEqual(newPolicyId);
+      }));
+
+    it('updates names', () =>
+      asUser(user1, async () => {
+        const { account, key } = await create();
+        const newName = 'new name';
+        await service.update({ account, key, name: newName });
+
+        const names = e.select(e.Policy, (p) => ({
+          filter: and(e.op(p.account, '=', selectAccount(account)), e.op(p.key, '=', key)),
+        })).name;
+
+        expect(await db.query(names)).toEqual([newName]);
       }));
 
     it("throws if the user isn't a member of the account", async () => {
