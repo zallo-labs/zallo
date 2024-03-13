@@ -66,8 +66,8 @@ export class EventsWorker extends Worker<EventsQueue> {
   private listeners = new Map<Hex, EventListener<AbiEvent>[]>();
   private events: AbiEvent[] = [];
   private logsPerBlock = Object.fromEntries(
-    Object.keys(CHAINS).map((chain) => [chain as Chain, DEFAULT_LOGS_PER_BLOCK]),
-  ) as Record<Chain, number>;
+    Object.keys(CHAINS).map((chain) => [chain as Chain, undefined]),
+  ) as Record<Chain, number | undefined>;
 
   constructor(
     @InjectQueue(EventsQueue.name)
@@ -153,12 +153,15 @@ export class EventsWorker extends Worker<EventsQueue> {
   }
 
   targetBlocks(chain: Chain) {
-    return Math.max(1, Math.floor(TARGET_LOGS_PER_JOB / this.logsPerBlock[chain]));
+    const logsPerBlock = this.logsPerBlock[chain] ?? DEFAULT_LOGS_PER_BLOCK;
+    return Math.max(1, Math.floor(TARGET_LOGS_PER_JOB / logsPerBlock));
   }
 
   updateLogsPerBlock(chain: Chain, logs: number, blocks: number) {
-    this.logsPerBlock[chain] =
-      (1 - LPB_ALPHA) * this.logsPerBlock[chain] + LPB_ALPHA * (logs / blocks);
+    const lpb = this.logsPerBlock[chain];
+    this.logsPerBlock[chain] = lpb
+      ? (1 - LPB_ALPHA) * lpb + LPB_ALPHA * (logs / blocks)
+      : logs / blocks;
   }
 
   private async addMissingJob() {
