@@ -6,6 +6,7 @@ export namespace std {
     "id": string;
   }
   export interface $Object extends BaseObject {}
+  export type Endian = "Little" | "Big";
   export interface FreeObject extends BaseObject {}
   export type JsonEmpty = "ReturnEmpty" | "ReturnTarget" | "Error" | "UseNull" | "DeleteKey";
   export namespace enc {
@@ -26,6 +27,8 @@ export namespace cfg {
     "allow_bare_ddl"?: AllowBareDDL | null;
     "apply_access_policies"?: boolean | null;
     "allow_user_specified_id"?: boolean | null;
+    "cors_allow_origins": string[];
+    "auto_rebuild_query_cache"?: boolean | null;
     "shared_buffers"?: edgedb.ConfigMemory | null;
     "query_work_mem"?: edgedb.ConfigMemory | null;
     "maintenance_work_mem"?: edgedb.ConfigMemory | null;
@@ -46,7 +49,7 @@ export namespace cfg {
     "transports": ConnectionTransport[];
   }
   export interface Config extends AbstractConfig {}
-  export type ConnectionTransport = "TCP" | "TCP_PG" | "HTTP" | "SIMPLE_HTTP";
+  export type ConnectionTransport = "TCP" | "TCP_PG" | "HTTP" | "SIMPLE_HTTP" | "HTTP_METRICS" | "HTTP_HEALTH";
   export interface DatabaseConfig extends AbstractConfig {}
   export interface ExtensionConfig extends ConfigObject {
     "cfg": AbstractConfig;
@@ -62,15 +65,18 @@ export namespace cfg {
     "transports": ConnectionTransport[];
   }
   export interface Trust extends AuthMethod {}
+  export interface mTLS extends AuthMethod {
+    "transports": ConnectionTransport[];
+  }
 }
 export type AbiSource = "Verified";
 export interface Account extends std.$Object {
   "activationEthFee"?: string | null;
+  "upgradedAtBlock"?: bigint | null;
+  "active": boolean;
   "address": string;
   "chain": string;
   "implementation": string;
-  "upgradedAtBlock"?: bigint | null;
-  "isActive": boolean;
   "label": string;
   "paymasterEthCredit": string;
   "photoUri"?: string | null;
@@ -108,20 +114,20 @@ export type ApprovalIssue = "HashMismatch" | "Expired";
 export interface Approver extends std.$Object {
   "bluetoothDevices"?: string[] | null;
   "address": string;
+  "cloud"?: {provider: CloudProvider, subject: string} | null;
   "name"?: string | null;
   "pushToken"?: string | null;
   "user": User;
   "accounts": Account[];
   "contact"?: Contact | null;
   "label"?: string | null;
-  "cloud"?: {provider: CloudProvider, subject: string} | null;
 }
 export type CloudProvider = "Apple" | "Google";
 export interface Contact extends std.$Object {
+  "user": User;
   "address": string;
   "label": string;
   "chain": string;
-  "user": User;
 }
 export interface Contract extends std.$Object {
   "functions": Function[];
@@ -139,10 +145,10 @@ export interface Event extends std.$Object {
 export interface Result extends std.$Object {
   "timestamp": Date;
   "systx"?: SystemTx | null;
-  "transaction": Transaction;
   "events": Event[];
-  "transfers": Transfer[];
+  "transaction": Transaction;
   "transferApprovals": TransferApproval[];
+  "transfers": Transfer[];
 }
 export interface ReceiptResult extends Result {
   "block": bigint;
@@ -170,18 +176,18 @@ export interface Proposal extends std.$Object {
   "iconUri"?: string | null;
   "label"?: string | null;
   "validFrom": Date;
+  "validationErrors": {reason: string, operation: number}[];
   "approvals": Approval[];
   "proposedBy": Approver;
   "rejections": Rejection[];
-  "validationErrors": {reason: string, operation: number}[];
   "policy": Policy;
   "potentialApprovers": Approver[];
   "potentialRejectors": Approver[];
 }
 export interface Message extends Proposal {
+  "signature"?: string | null;
   "message": string;
   "messageHash": string;
-  "signature"?: string | null;
   "typedData"?: unknown | null;
 }
 export interface Operation extends std.$Object {
@@ -193,38 +199,33 @@ export interface PaymasterFees extends std.$Object {
   "activation": string;
   "total": string;
 }
-export interface Policy extends std.$Object {
-  "account": Account;
-  "name": string;
-  "key": number;
-  "stateHistory": PolicyState[];
-  "draft"?: PolicyState | null;
-  "state"?: PolicyState | null;
-  "isActive": boolean;
-  "isEnabled": boolean;
-  "stateOrDraft": PolicyState;
-}
 export interface PolicyState extends std.$Object {
-  "proposal"?: Transaction | null;
+  "account": Account;
+  "key": number;
   "activationBlock"?: bigint | null;
   "createdAt": Date;
-  "isRemoved": boolean;
-  "isAccountInitState": boolean;
   "hasBeenActive": boolean;
+  "draft"?: PolicyState | null;
+  "proposal"?: Transaction | null;
+  "initState": boolean;
+  "latest"?: Policy | null;
+  "active": boolean;
+}
+export interface Policy extends PolicyState {
   "approvers": Approver[];
   "actions": Action[];
-  "isActive": boolean;
   "transfers": TransfersConfig;
   "allowMessages": boolean;
   "delay": number;
+  "name": string;
   "threshold": number;
-  "policy"?: Policy | null;
 }
 export interface Refund extends std.$Object {
   "systx": SystemTx;
   "ethAmount": string;
 }
 export interface Rejection extends ProposalResponse {}
+export interface RemovedPolicy extends PolicyState {}
 export interface Scheduled extends Result {
   "cancelled": boolean;
   "scheduledFor": Date;
@@ -239,26 +240,26 @@ export interface Successful extends ReceiptResult {
   "responses": string[];
 }
 export interface SystemTx extends std.$Object {
+  "proposal": Transaction;
   "ethCreditUsed": string;
   "maxEthFeePerGas": string;
+  "maxNetworkEthFee": string;
   "ethPerFeeToken": string;
   "hash": string;
   "timestamp": Date;
   "usdPerFeeToken": string;
-  "proposal": Transaction;
+  "events": Event[];
   "paymasterEthFees": PaymasterFees;
   "ethDiscount": string;
-  "maxNetworkEthFee": string;
   "maxEthFees": string;
   "result"?: Result | null;
-  "events": Event[];
 }
 export interface Token extends std.$Object {
   "units"?: {symbol: string, decimals: number}[] | null;
   "address": string;
+  "name": string;
   "chain": string;
   "symbol": string;
-  "name": string;
   "isFeeToken": boolean;
   "decimals": number;
   "ethereumAddress"?: string | null;
@@ -269,17 +270,17 @@ export interface Token extends std.$Object {
 export interface Transaction extends Proposal {
   "gasLimit": bigint;
   "result"?: Result | null;
-  "systx"?: SystemTx | null;
+  "executable": boolean;
   "operations": Operation[];
   "simulation"?: Simulation | null;
-  "feeToken": Token;
   "nonce": bigint;
   "paymaster": string;
   "maxPaymasterEthFees": PaymasterFees;
+  "status": TransactionStatus;
+  "systx"?: SystemTx | null;
   "results": Result[];
   "systxs": SystemTx[];
-  "executable": boolean;
-  "status": TransactionStatus;
+  "feeToken": Token;
 }
 export type TransactionStatus = "Pending" | "Scheduled" | "Executing" | "Successful" | "Failed" | "Cancelled";
 export interface TransferDetails extends std.$Object {
@@ -307,8 +308,8 @@ export interface TransferLimit extends std.$Object {
   "token": string;
 }
 export interface TransfersConfig extends std.$Object {
-  "limits": TransferLimit[];
   "budget": number;
+  "limits": TransferLimit[];
   "defaultAllow": boolean;
 }
 export interface User extends std.$Object {
@@ -437,6 +438,7 @@ export namespace schema {
     "readonly"?: boolean | null;
     "default"?: string | null;
     "expr"?: string | null;
+    "secret"?: boolean | null;
     "source"?: Source | null;
     "target"?: Type | null;
     "rewrites": Rewrite[];
@@ -553,6 +555,7 @@ export interface types {
   "std": {
     "BaseObject": std.BaseObject;
     "Object": std.$Object;
+    "Endian": std.Endian;
     "FreeObject": std.FreeObject;
     "JsonEmpty": std.JsonEmpty;
     "enc": {
@@ -574,6 +577,7 @@ export interface types {
     "Password": cfg.Password;
     "SCRAM": cfg.SCRAM;
     "Trust": cfg.Trust;
+    "mTLS": cfg.mTLS;
   };
   "default": {
     "AbiSource": AbiSource;
@@ -597,10 +601,11 @@ export interface types {
     "Message": Message;
     "Operation": Operation;
     "PaymasterFees": PaymasterFees;
-    "Policy": Policy;
     "PolicyState": PolicyState;
+    "Policy": Policy;
     "Refund": Refund;
     "Rejection": Rejection;
+    "RemovedPolicy": RemovedPolicy;
     "Scheduled": Scheduled;
     "Simulation": Simulation;
     "Successful": Successful;
