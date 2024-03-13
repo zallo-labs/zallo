@@ -46,7 +46,7 @@ async function getSyncswapPools(chain: Chain): Promise<SyncswapPool[]> {
       (address) =>
         ({
           address,
-          abi: SYNCSWAP.classicPool.abi,
+          abi: SYNCSWAP.poolAbi,
           functionName: 'getAssets',
         }) as const,
     ),
