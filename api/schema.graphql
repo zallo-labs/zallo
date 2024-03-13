@@ -200,7 +200,7 @@ input ContractInput {
 }
 
 input CreateAccountInput {
-  chain: Chain
+  chain: Chain! = "zksync-sepolia"
   label: String!
   policies: [PolicyInput!]!
 }

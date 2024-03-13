@@ -59,20 +59,8 @@ describe(AccountsService.name, () => {
 
     getProxyAddressMock.mockReturnValue((async () => account)());
 
-    // TODO: mock
-    // networks.getProxyAddress.mockReturnValue((async () => account)());
-    // networks.deployProxy.mockReturnValue(
-    //   (async () => ({
-    //     account: {
-    //       address: account,
-    //     },
-    //     transaction: {
-    //       hash: randomHash(),
-    //     },
-    //   }))() as any,
-    // );
-
     return service.createAccount({
+      chain: 'zksync-local',
       label: randomLabel(),
       policies: [{ approvers: [userCtx.approver] }],
     });
