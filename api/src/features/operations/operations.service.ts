@@ -165,8 +165,8 @@ export class OperationsService {
           const path = f.args[0][0];
 
           // Figure out the toToken by querying the pool
-          // Mainnet TODO: fix hardcoded network; just remove SyncSwap custom decoding if Uniswap deploys?
-          const tokenCalls = await this.networks.get('zksync-goerli').multicall({
+          // TODO: find a better way to do this
+          const tokenCalls = await this.networks.get(chain).multicall({
             contracts: [
               {
                 address: path.steps[0].pool,
