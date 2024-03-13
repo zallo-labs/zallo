@@ -51,6 +51,14 @@ module default {
         policy := __new__ 
       }
     );
+
+    trigger update_proposals_when_deleted after delete for each do (
+      update Proposal filter .account = __old__.account and .policy.key = __old__.key and
+        (([is Transaction].status ?= TransactionStatus.Pending) or ((exists [is Message].id) and (not exists [is Message].signature))) 
+      set {
+        policy := (select __old__.account.policies limit 1)
+      }
+    )
   }
 
   type RemovedPolicy extending PolicyState {
