@@ -56,7 +56,7 @@ function CreateAccountScreen({ onCreate }: CreateAccountScreenProps) {
   const { user } = useQuery(Query).data;
 
   const { control, handleSubmit, reset, watch } = useForm<Inputs>({
-    defaultValues: { label: '', chain: 'zksync-goerli' },
+    defaultValues: { label: '', chain: 'zksync-sepolia' },
     mode: 'onChange',
   });
 
