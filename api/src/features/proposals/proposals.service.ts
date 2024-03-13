@@ -144,7 +144,7 @@ export class ProposalsService {
         e.update(e.Proposal, (p) => ({
           filter_single: { id },
           set: {
-            ...(policy && { policy: e.latestPolicy(p.account, policy) }),
+            ...(policy !== undefined && { policy: e.latestPolicy(p.account, policy) }),
           },
         })),
         () => ({
