@@ -13,7 +13,8 @@ module default {
     required property active := (.hasBeenActive and .latest ?= __source__);
     latest := latestPolicy(.account, .key);
     draft := assert_single((
-      select PolicyState filter .account = __source__.account and .key = __source__.key and not .hasBeenActive
+      with account := __source__.account, key := __source__.key
+      select detached PolicyState filter .account = account and .key = key and not .hasBeenActive
       order by .createdAt desc limit 1
     ));
 
