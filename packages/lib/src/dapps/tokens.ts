@@ -30,7 +30,7 @@ export const ETH = {
     'zksync-goerli': ETH_ADDRESS,
   }),
   ethereumAddress: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
-  iconUri: icon('ETH.png'),
+  iconUri: icon('ETH.webp'),
   isFeeToken: true,
   pythUsdPriceId: '0xff61491a931112ddf1bd8147cd1b641375f79f5825126d665480874634fd0ace',
 } satisfies Token;
@@ -49,7 +49,7 @@ export const WETH = {
     'zksync-goerli': '0x20b28B1e4665FFf290650586ad76E977EAb90c5D',
   }),
   ethereumAddress: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
-  iconUri: icon('WETH.png'),
+  iconUri: icon('WETH.webp'),
   isFeeToken: true,
   pythUsdPriceId: '0xff61491a931112ddf1bd8147cd1b641375f79f5825126d665480874634fd0ace',
 } satisfies Token;
