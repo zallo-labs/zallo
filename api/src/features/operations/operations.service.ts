@@ -28,10 +28,9 @@ import {
   SwapOp,
 } from './operations.model';
 import { ACCOUNT_IMPLEMENTATION } from 'lib';
-import { ERC20, ETH, SYNCSWAP } from 'lib/dapps';
+import { ERC20, ETH, SYNCSWAP, WETH } from 'lib/dapps';
 import { match } from 'ts-pattern';
 import { NetworksService } from '../util/networks/networks.service';
-import { WETH } from '../tokens/tokens.list';
 import { Chain } from 'chains';
 import { TokensService } from '~/features/tokens/tokens.service';
 
