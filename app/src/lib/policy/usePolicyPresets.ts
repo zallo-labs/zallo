@@ -216,6 +216,37 @@ export function usePolicyPresets({ chain, ...params }: UsePolicyPresetsParams) {
         allowMessages: true,
         delay: 0,
       },
+      highDelayed: {
+        name: 'High risk (delayed)',
+        approvers,
+        threshold: Math.max(approvers.size > 3 ? 3 : 2, approvers.size),
+        transfers: { defaultAllow: true, limits: {} },
+        actions: [
+          {
+            ...ACTION_PRESETS.manageAccount,
+            functions: ACTION_PRESETS.manageAccount.functions(accountAddress),
+            allow: true,
+          },
+          {
+            ...ACTION_PRESETS.cancelDelayedTransactions,
+            functions: ACTION_PRESETS.cancelDelayedTransactions.functions(accountAddress),
+            allow: true,
+          },
+          {
+            ...ACTION_PRESETS.syncswapSwap,
+            functions: ACTION_PRESETS.syncswapSwap.functions(chain),
+            allow: true,
+          },
+          {
+            ...ACTION_PRESETS.syncswapLiquidity,
+            functions: ACTION_PRESETS.syncswapLiquidity.functions(chain),
+            allow: true,
+          },
+          { ...ACTION_PRESETS.all, allow: true },
+        ],
+        allowMessages: true,
+        delay: Duration.fromObject({ week: 1 }).as('seconds'),
+      },
     } satisfies Record<string, Omit<PolicyDraft, 'account' | 'key'>>;
   }, [account?.address, account?.approvers, user.approvers, chain]);
 }
