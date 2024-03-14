@@ -8,12 +8,21 @@ import {
 } from '@theme/icons';
 import { PolicyDraft, PolicyDraftAction } from './draft';
 import { FragmentType, gql, useFragment } from '@api';
-import { ACCOUNT_ABI, Address, PLACEHOLDER_ACCOUNT_ADDRESS, asAddress, asSelector } from 'lib';
+import {
+  ACCOUNT_ABI,
+  Address,
+  PLACEHOLDER_ACCOUNT_ADDRESS,
+  asAddress,
+  asFp,
+  asSelector,
+} from 'lib';
 import _ from 'lodash';
 import { FC, useMemo } from 'react';
 import { getAbiItem, toFunctionSelector } from 'viem';
-import { SYNCSWAP, ERC721_ABI } from 'lib/dapps';
+import { SYNCSWAP, ERC721_ABI, USDC, USDT, DAI, Token } from 'lib/dapps';
 import { Chain } from 'chains';
+import Decimal from 'decimal.js';
+import { Duration, DurationLikeObject } from 'luxon';
 
 type ActionDefinition = Omit<PolicyDraftAction, 'allow'> & { icon?: FC<IconProps> };
 
@@ -110,6 +119,17 @@ const User = gql(/* GraphQL */ `
   }
 `);
 
+function limit(chain: Chain, token: Token, amount: Decimal, duration: DurationLikeObject) {
+  if (!token.address[chain]) return {};
+
+  return {
+    [token.address[chain]!]: {
+      amount: asFp(amount, token),
+      duration: Duration.fromObject(duration).as('seconds'),
+    },
+  };
+}
+
 export interface UsePolicyPresetsParams {
   account: FragmentType<typeof Account> | null | undefined;
   user: FragmentType<typeof User>;
@@ -132,6 +152,14 @@ export function usePolicyPresets({ chain, ...params }: UsePolicyPresetsParams) {
         name: 'Low risk',
         approvers,
         threshold: 1,
+        transfers: {
+          defaultAllow: false,
+          limits: {
+            ...limit(chain, USDC, new Decimal(100), { day: 1 }),
+            ...limit(chain, USDT, new Decimal(100), { day: 1 }),
+            ...limit(chain, DAI, new Decimal(100), { day: 1 }),
+          },
+        },
         actions: [
           {
             ...ACTION_PRESETS.manageAccount,
@@ -148,9 +176,13 @@ export function usePolicyPresets({ chain, ...params }: UsePolicyPresetsParams) {
             functions: ACTION_PRESETS.syncswapSwap.functions(chain),
             allow: true,
           },
+          {
+            ...ACTION_PRESETS.syncswapLiquidity,
+            functions: ACTION_PRESETS.syncswapLiquidity.functions(chain),
+            allow: false,
+          },
           { ...ACTION_PRESETS.all, allow: false },
         ],
-        transfers: { defaultAllow: false, limits: {} }, // TODO: allow transfers up to $x
         allowMessages: true,
         delay: 0,
       },
@@ -158,6 +190,14 @@ export function usePolicyPresets({ chain, ...params }: UsePolicyPresetsParams) {
         name: 'Medium risk',
         approvers,
         threshold: Math.max(approvers.size > 3 ? 3 : 2, approvers.size),
+        transfers: {
+          defaultAllow: false,
+          limits: {
+            ...limit(chain, USDC, new Decimal(500), { week: 1 }),
+            ...limit(chain, USDT, new Decimal(500), { week: 1 }),
+            ...limit(chain, DAI, new Decimal(500), { week: 1 }),
+          },
+        },
         actions: [
           {
             ...ACTION_PRESETS.manageAccount,
@@ -181,7 +221,6 @@ export function usePolicyPresets({ chain, ...params }: UsePolicyPresetsParams) {
           },
           { ...ACTION_PRESETS.all, allow: true },
         ],
-        transfers: { defaultAllow: false, limits: {} }, // TODO: allow transfers up to $y
         allowMessages: true,
         delay: 0,
       },
