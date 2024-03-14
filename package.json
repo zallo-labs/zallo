@@ -1,6 +1,6 @@
 {
   "name": "zallo",
-  "packageManager": "yarn@4.1.0",
+  "packageManager": "yarn@4.1.1",
   "private": true,
   "version": "0.1.0",
   "author": "Hayden Briese <haydenbriese@gmail.com>",
@@ -32,7 +32,7 @@
     "yarn": "4.x"
   },
   "devDependencies": {
-    "@typescript-eslint/eslint-plugin": "^7.1.1",
+    "@typescript-eslint/eslint-plugin": "^7.2.1",
     "@typescript-eslint/parser": "^7.1.1",
     "eslint": "^8.57.0",
     "eslint-config-prettier": "^9.1.0",
