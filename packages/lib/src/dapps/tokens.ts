@@ -60,7 +60,7 @@ export const USDC = {
   decimals: 6,
   address: addressMap({
     zksync: '0x3355df6D4c9C3035724Fd0e3914dE96A5a83aaf4',
-    'zksync-sepolia': '0xd45ab0e1dc7f503eb177949c2fb2ab772b4b6cfc',
+    'zksync-sepolia': '0xd45ab0E1dc7F503Eb177949c2Fb2Ab772B4B6CFC',
     'zksync-goerli': '0x0faF6df7054946141266420b43783387A78d82A9',
   }),
   ethereumAddress: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
@@ -75,7 +75,7 @@ export const USDT = {
   decimals: 6,
   address: addressMap({
     zksync: '0x493257fD37EDB34451f62EDf8D2a0C418852bA4C',
-    'zksync-sepolia': '0x8c9d66ba3e1d7681cffffa3c7d9807adae368e74',
+    'zksync-sepolia': '0x8C9d66bA3E1D7681cfFFfa3C7d9807adae368E74',
     'zksync-goerli': '0xfcEd12dEbc831D3a84931c63687C395837D42c2B',
   }),
   ethereumAddress: '0xdAC17F958D2ee523a2206206994597C13D831ec7',
@@ -143,7 +143,7 @@ export const SHIB = {
   decimals: 18,
   address: {
     zksync: '0x5B09802d62d213c4503B4b1Ef5F727ef62c9F4eF',
-    'zksync-sepolia': '0xe0ef1c039a36ec77339e7277ecd4d48e57b61eec',
+    'zksync-sepolia': '0xE0eF1c039a36eC77339E7277ECd4D48e57b61eec',
   },
   ethereumAddress: '0x95aD61b0a150d79219dCF64E1E6Cc01f0B64C4cE',
   iconUri: icon('SHIB.webp'),
