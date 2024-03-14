@@ -117,7 +117,7 @@ const client = atom(async (get) => {
         refreshAuth,
         willAuthError,
       })),
-      retryExchange({}),
+      retryExchange({ maxNumberAttempts: 5, maxDelayMs: 30000 }),
       fetchExchange,
       subscriptionExchange({
         forwardSubscription(request) {
