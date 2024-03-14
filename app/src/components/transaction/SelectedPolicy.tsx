@@ -44,7 +44,7 @@ export function SelectedPolicy(props: SelectedPolicyProps) {
         policy={proposal.policy}
         trailing={({ Text, ...props }) => (
           <View style={styles.trailingContainer}>
-            {proposal.validationErrors.length === 0 && (
+            {proposal.validationErrors.length !== 0 && (
               <Text style={styles.error}>Insufficient permission</Text>
             )}
 

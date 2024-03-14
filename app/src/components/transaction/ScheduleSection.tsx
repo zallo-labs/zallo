@@ -26,10 +26,7 @@ const Transaction = gql(/* GraphQL */ `
     }
     policy {
       id
-      state {
-        id
-        delay
-      }
+      delay
     }
     result {
       __typename
@@ -60,7 +57,7 @@ export function ScheduleSection({ children, ...props }: ScheduleSectionProps) {
   const router = useRouter();
   const proposeCancelScheduledTx = useMutation(CancelScheduledTx)[1];
 
-  const delay = p.policy.state?.delay;
+  const delay = p.policy.delay;
 
   if (!delay || (p.result && p.result.__typename !== 'Scheduled')) return;
 

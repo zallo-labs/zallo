@@ -106,26 +106,18 @@ describe(TransactionsService.name, () => {
           account: selectAccount(accountId),
           key: 0,
           name: 'Policy 0',
-          stateHistory: e.insert(e.PolicyState, {
-            threshold: 0,
-            approvers: e
-              .insert(e.Approver, { address: getApprover() })
-              .unlessConflict((approver) => ({
-                on: approver.address,
-                else: approver,
-              })),
-            activationBlock: 0n,
-            transfers: e.insert(e.TransfersConfig, { budget: 0 }),
-          }),
+          threshold: 0,
+          approvers: e
+            .insert(e.Approver, { address: getApprover() })
+            .unlessConflict((approver) => ({ on: approver.address, else: approver })),
+          transfers: e.insert(e.TransfersConfig, { budget: 0 }),
         })
         .unlessConflict()
         .run(db.client);
     }
 
     policies.best.mockImplementation(async () => ({
-      policy: e.select(e.Policy, () => ({
-        filter_single: { account: selectAccount(account), key: 0 },
-      })) as any,
+      policy: selectPolicy({ account, key: 0 }) as any,
       validationErrors: [],
     }));
 
@@ -421,50 +413,20 @@ describe(TransactionsService.name, () => {
       asUser(user1, async () => {
         const { id } = await propose();
 
-        const policy = await e
-          .insert(e.Policy, {
+        const policy = await db.query(
+          e.insert(e.Policy, {
             account: selectAccount(user1Account1),
             key: 1,
             name: 'Policy 1',
-            stateHistory: e.insert(e.PolicyState, {
-              proposal: selectTransaction(id),
-              threshold: 0,
-              transfers: e.insert(e.TransfersConfig, { budget: 0 }),
-            }),
-          })
-          .run(db.client);
+            proposal: selectTransaction(id),
+            threshold: 0,
+            transfers: e.insert(e.TransfersConfig, { budget: 0 }),
+          }),
+        );
 
         await service.delete(id);
 
-        expect(await db.query(selectPolicy(policy))).toBeNull();
-      }));
-
-    it("policies being updated by proposal aren't deleted", () =>
-      asUser(user1, async () => {
-        const { id } = await propose();
-
-        const policy = await e
-          .insert(e.Policy, {
-            account: selectAccount(user1Account1),
-            key: 1,
-            name: 'Policy 1',
-            stateHistory: e.set(
-              e.insert(e.PolicyState, {
-                threshold: 0,
-                transfers: e.insert(e.TransfersConfig, { budget: 0 }),
-              }),
-              e.insert(e.PolicyState, {
-                proposal: selectTransaction(id),
-                threshold: 0,
-                transfers: e.insert(e.TransfersConfig, { budget: 0 }),
-              }),
-            ),
-          })
-          .run(db.client);
-
-        await service.delete(id);
-
-        expect(await db.query(selectPolicy(policy))).toBeTruthy();
+        expect(await db.query(selectPolicy(policy.id))).toBeNull();
       }));
   });
 });

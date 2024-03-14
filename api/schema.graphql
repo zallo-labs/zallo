@@ -15,12 +15,12 @@ enum AbiSourceConfidence {
 }
 
 type Account implements Node {
+  active: Boolean!
   address: UAddress!
   approvers: [Approver!]!
   chain: Chain!
   id: UUID!
   implementation: Address!
-  isActive: Boolean!
   label: String!
   messages: [Message!]!
   name: String!
@@ -142,7 +142,7 @@ scalar Bytes
 """32-byte hex string"""
 scalar Bytes32
 
-"""zksync | zksync-goerli | zksync-sepolia | zksync-local"""
+"""zksync | zksync-sepolia | zksync-goerli | zksync-local"""
 scalar Chain
 
 type Cloud {
@@ -200,7 +200,7 @@ input ContractInput {
 }
 
 input CreateAccountInput {
-  chain: Chain
+  chain: Chain! = "zksync-sepolia"
   label: String!
   policies: [PolicyInput!]!
 }
@@ -397,19 +397,30 @@ type PaymasterFees {
 }
 
 input PoliciesInput {
-  includeDisabled: Boolean! = false
+  active: Boolean
 }
 
-type Policy implements Node {
+type Policy implements Node & PolicyState {
   account: Account!
+  actions: [Action!]!
+  activationBlock: BigInt
+  active: Boolean!
+  allowMessages: Boolean!
+  approvers: [Approver!]!
+  createdAt: DateTime!
+
+  """seconds"""
+  delay: Float!
   draft: PolicyState
+  hasBeenActive: Boolean!
   id: UUID!
-  isActive: Boolean!
+  initState: Boolean!
   key: PolicyKey!
+  latest: Policy
   name: String!
-  state: PolicyState
-  stateHistory: [PolicyState!]!
-  stateOrDraft: PolicyState!
+  proposal: Transaction
+  threshold: Float!
+  transfers: TransfersConfig!
   validationErrors(input: ValidationErrorsInput!): [ValidationError!]!
 }
 
@@ -428,23 +439,18 @@ input PolicyInput {
 """Policy key: an unsigned integer [0, 65535]"""
 scalar PolicyKey
 
-type PolicyState implements Node {
-  actions: [Action!]!
+interface PolicyState implements Node {
+  account: Account!
   activationBlock: BigInt
-  allowMessages: Boolean!
-  approvers: [Approver!]!
+  active: Boolean!
   createdAt: DateTime!
-
-  """seconds"""
-  delay: Float!
+  draft: PolicyState
   hasBeenActive: Boolean!
   id: UUID!
-  isAccountInitState: Boolean!
-  isActive: Boolean!
-  isRemoved: Boolean!
+  initState: Boolean!
+  key: PolicyKey!
+  latest: Policy
   proposal: Transaction
-  threshold: Float!
-  transfers: TransfersConfig!
 }
 
 type Price implements CustomNode {
@@ -497,6 +503,7 @@ interface ProposalResponse implements Node {
 }
 
 type ProposalUpdated {
+  account: UAddress!
   event: ProposalEvent!
   id: UUID!
   proposal: Proposal
@@ -573,6 +580,7 @@ type Query {
   message(input: UniqueProposalInput!): Message
   policies(input: PoliciesInput! = {}): [Policy!]!
   policy(input: UniquePolicyInput!): Policy
+  policyState(id: ID!): Policy
   proposal(input: UniqueProposalInput!): Proposal
   proposals(input: ProposalsInput! = {}): [Proposal!]!
   requestableTokens(input: RequestTokensInput!): [Address!]!
@@ -608,6 +616,20 @@ type RemovePolicyOp {
   _name: String!
   account: Address!
   key: PolicyKey!
+}
+
+type RemovedPolicy implements Node & PolicyState {
+  account: Account!
+  activationBlock: BigInt
+  active: Boolean!
+  createdAt: DateTime!
+  draft: PolicyState
+  hasBeenActive: Boolean!
+  id: UUID!
+  initState: Boolean!
+  key: PolicyKey!
+  latest: Policy
+  proposal: Transaction
 }
 
 input RequestTokensInput {

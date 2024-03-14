@@ -23,11 +23,11 @@
     },
     "test": {
       "dependsOn": ["prepare"],
-      "inputs": ["dbschema/**", "src/**", "jest.config.ts"]
+      "inputs": ["dbschema/**/*", "src/**", "jest.config.ts"]
     },
     "db:prepare": {
       "dependsOn": ["prepare"],
-      "inputs": ["dbschema/**", "src/**", "jest.config.ts"]
+      "inputs": ["dbschema/**/*", "src/**", "jest.config.ts"]
     }
   }
 }

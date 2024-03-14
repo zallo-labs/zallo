@@ -16,14 +16,11 @@ const Proposal = gql(/* GraphQL */ `
     id
     policy {
       id
-      state {
+      threshold
+      approvers {
         id
-        threshold
-        approvers {
-          id
-          address
-          ...PendingApprovalItem_Approver
-        }
+        address
+        ...PendingApprovalItem_Approver
       }
     }
     rejections {
@@ -92,11 +89,10 @@ function ProposalApprovals_({ proposal: id }: PolicyTabProps) {
 
   if (!p) return null;
 
-  const threshold = p.policy.state?.threshold;
   const awaitingApprovers =
-    p.policy.state &&
-    p.approvals.length < (threshold ?? 0) &&
-    p.policy.state.approvers.filter(
+    p.policy &&
+    p.approvals.length < p.policy.threshold &&
+    p.policy.approvers.filter(
       (approver) =>
         !p.approvals.find((a) => a.approver.id === approver.id) &&
         !p.rejections.find((r) => r.approver.id === approver.id),
@@ -108,7 +104,9 @@ function ProposalApprovals_({ proposal: id }: PolicyTabProps) {
 
       {awaitingApprovers && (
         <>
-          <ListHeader trailing={threshold && `${threshold - p.approvals.length} required`}>
+          <ListHeader
+            trailing={p.policy.threshold && `${p.policy.threshold - p.approvals.length} required`}
+          >
             Pending
           </ListHeader>
           {awaitingApprovers.map((approver) => (

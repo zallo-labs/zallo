@@ -5,20 +5,13 @@ import { asPolicyKey, asSelector, randomDeploySalt, randomHex, UAddress, ZERO_AD
 import { asUser, getUserCtx, UserContext } from '~/request/ctx';
 import { randomAddress, randomLabel, randomUAddress, randomUser } from '~/util/test';
 import { TransactionsService } from '../transactions/transactions.service';
-import { AccountsCacheService } from '../auth/accounts.cache.service';
 import { DatabaseService } from '../database/database.service';
 import e from '~/edgeql-js';
-import {
-  inputAsPolicy,
-  policyStateAsPolicy,
-  policyStateShape,
-  selectPolicy,
-  uniquePolicy,
-} from './policies.util';
-import assert from 'assert';
+import { inputAsPolicy, policyStateAsPolicy, PolicyShape, selectPolicy } from './policies.util';
 import { PolicyInput } from './policies.input';
 import { v1 as uuidv1 } from 'uuid';
 import { selectAccount } from '../accounts/accounts.util';
+import { and } from '../database/database.util';
 
 describe(PoliciesService.name, () => {
   let service: PoliciesService;
@@ -51,21 +44,21 @@ describe(PoliciesService.name, () => {
     userCtx.accounts.push({ id: accountId, address: account });
     await e.insert(e.Approver, { address: userCtx.approver }).unlessConflict().run(db.client);
 
-    await e
-      .insert(e.Account, {
+    await db.query(
+      e.insert(e.Account, {
         id: accountId,
         address: account,
         label: randomLabel(),
         implementation: randomAddress(),
         salt: randomDeploySalt(),
-      })
-      .run(db.client);
+      }),
+    );
 
     const initPolicy = (
       await service.create({
         account,
         approvers: [userCtx.approver],
-        isInitState: true,
+        initState: true,
       })
     )._unsafeUnwrap();
 
@@ -75,7 +68,7 @@ describe(PoliciesService.name, () => {
       return e.insert(e.Transaction, {
         hash,
         account: selectAccount(account),
-        policy: selectPolicy(initPolicy),
+        policy: selectPolicy(initPolicy.id),
         validationErrors: [],
         operations: e.insert(e.Operation, { to: ZERO_ADDR }),
         validFrom: new Date(),
@@ -98,19 +91,12 @@ describe(PoliciesService.name, () => {
     )._unsafeUnwrap();
 
     if (activate) {
-      await e
-        .update(e.PolicyState, () => ({
-          filter_single: {
-            id: e.select(e.Policy, () => ({
-              filter_single: { id },
-              draft: { id: true },
-            })).draft.id,
-          },
-          set: {
-            activationBlock: 0n,
-          },
-        }))
-        .run(db.client);
+      await db.query(
+        e.update(e.PolicyState, () => ({
+          filter_single: { id },
+          set: { activationBlock: 0n },
+        })),
+      );
     }
 
     return { id, account, key };
@@ -129,20 +115,6 @@ describe(PoliciesService.name, () => {
         expect(
           await e.select(e.Policy, () => ({ filter_single: { id } })).run(db.client),
         ).toBeTruthy();
-      }));
-
-    it('creates state', () =>
-      asUser(user1, async () => {
-        const { id } = await create();
-
-        const policy = await e
-          .select(e.Policy, () => ({
-            filter_single: { id },
-            stateHistory: { id: true },
-          }))
-          .run(db.client);
-
-        expect(policy?.stateHistory).toHaveLength(1);
       }));
 
     it('proposes an upsert', () =>
@@ -183,56 +155,66 @@ describe(PoliciesService.name, () => {
 
         const { id } = await create({ ...policyInput, key });
 
-        const p = await e
-          .select(e.Policy, (p) => ({
-            ...uniquePolicy({ id })(p),
-            draft: policyStateShape,
-          }))
-          .run(db.client);
-
-        assert(p?.draft);
-        const actualPolicy = policyStateAsPolicy(key, p.draft);
-
+        const p = await db.query(e.select(selectPolicy(id), () => PolicyShape));
+        const actualPolicy = policyStateAsPolicy(p);
         expect(actualPolicy).toEqual(expectedPolicy);
       }));
   });
 
   describe('update', () => {
-    it('updates name', () =>
+    it('creates draft state', () =>
       asUser(user1, async () => {
-        const policy = await create();
-        const newName = 'new';
-        await service.update({ ...policy, name: newName });
+        const { account, key } = await create();
+        await service.update({ account, key, approvers: [] });
 
-        const select = e.select(e.Policy, (p) => ({
-          filter_single: { id: policy.id },
-          name: true,
-        }));
+        const states = await db.query(
+          e.select(e.Policy, (p) => ({
+            filter: and(e.op(p.account, '=', selectAccount(account)), e.op(p.key, '=', key)),
+          })),
+        );
 
-        expect((await select.run(db.client))?.name).toEqual(newName);
+        expect(states).toHaveLength(2);
       }));
 
-    it('creates state', () =>
-      asUser(user1, async () => {
-        const policy = await create();
-        await service.update({ ...policy, approvers: [] });
-
-        const policyWithStates = await e
-          .select(e.Policy, () => ({
-            filter_single: { id: policy.id },
-            stateHistory: { id: true },
-          }))
-          .run(db.client);
-
-        expect(policyWithStates?.stateHistory).toHaveLength(2);
-      }));
-
-    it('propose', () =>
+    it('proposes transaction', () =>
       asUser(user1, async () => {
         const policy = await create();
 
         expect(proposals.getInsertProposal).toHaveBeenCalled();
         await service.update({ ...policy, approvers: [] });
+      }));
+
+    it('updates policies link when activated', () =>
+      asUser(user1, async () => {
+        const { account, key } = await create();
+        await service.update({ account, key, approvers: [] });
+
+        const newPolicy = e.assert_single(
+          e.select(e.Policy, (p) => ({
+            filter: and(e.op(p.account, '=', selectAccount(account)), e.op(p.key, '=', key)),
+            order_by: { expression: p.createdAt, direction: 'DESC' },
+            limit: 1,
+          })),
+        );
+        const newPolicyId = await db.query(
+          e.update(newPolicy, () => ({ set: { activationBlock: 100n } })).id,
+        );
+
+        const link = await db.query(e.select(selectPolicy({ account, key }).id));
+        expect(link).toEqual(newPolicyId);
+      }));
+
+    it('updates names', () =>
+      asUser(user1, async () => {
+        const { account, key } = await create();
+        const newName = 'new name';
+        await service.update({ account, key, name: newName });
+
+        const names = e.select(e.Policy, (p) => ({
+          filter: and(e.op(p.account, '=', selectAccount(account)), e.op(p.key, '=', key)),
+        })).name;
+
+        expect(await db.query(names)).toEqual([newName]);
       }));
 
     it("throws if the user isn't a member of the account", async () => {
@@ -256,23 +238,26 @@ describe(PoliciesService.name, () => {
   });
 
   describe('remove', () => {
-    it('creates a removed state', () =>
+    it('becomes draft of active policy', () =>
       asUser(user1, async () => {
-        const policy = await create();
-        await service.remove(policy);
+        const { account, key } = await create({ activate: true });
+        await service.remove({ account, key });
 
-        const selected = await e
-          .select(e.Policy, (p) => ({
-            filter_single: { id: policy.id },
-            nRemovedPolicies: e.count(
-              e.select(p.stateHistory, (state) => ({
-                filter: e.op(state.isRemoved, '=', true),
-              })),
-            ),
-          }))
-          .run(db.client);
+        const removalDrafted = await db.query(
+          e.select(selectPolicy({ account, key }), (p) => ({
+            removalDrafted: e.op('exists', p.draft.is(e.RemovedPolicy)),
+          })).removalDrafted,
+        );
+        expect(removalDrafted).toBeTruthy();
+      }));
 
-        expect(selected?.nRemovedPolicies).toEqual(1);
+    it('removes link of draft policy', () =>
+      asUser(user1, async () => {
+        const { account, key } = await create();
+        await service.remove({ account, key });
+
+        const linkedPolicy = await db.query(e.select(selectPolicy({ account, key })));
+        expect(linkedPolicy).toBeNull();
       }));
 
     it('proposes a remove if the policy is active', () =>
@@ -293,10 +278,12 @@ describe(PoliciesService.name, () => {
         expect(proposals.getInsertProposal).not.toHaveBeenCalled();
       }));
 
-    it("throws if the user isn't a member of the account", async () => {
+    it("returns undefined if the user isn't a member of the account", async () => {
       const policy = await asUser(user1, create);
 
-      await asUser(randomUser(), () => expect(service.remove(policy)).rejects.toThrow());
+      await asUser(randomUser(), async () =>
+        expect(await service.remove(policy)).toEqual(undefined),
+      );
     });
   });
 

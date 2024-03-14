@@ -32,7 +32,6 @@ export const EventsQueue = createQueue<EventJobData>('Events', {
     // LIFO ensures that the oldest blocks are processed first, without the overhead of prioritized jobs
     // This is due to the next block being added prior to (potential) block splits
     lifo: true,
-    removeOnFail: 1000, // Prevent
   },
 });
 export type EventsQueue = typeof EventsQueue;
@@ -67,8 +66,8 @@ export class EventsWorker extends Worker<EventsQueue> {
   private listeners = new Map<Hex, EventListener<AbiEvent>[]>();
   private events: AbiEvent[] = [];
   private logsPerBlock = Object.fromEntries(
-    Object.keys(CHAINS).map((chain) => [chain as Chain, DEFAULT_LOGS_PER_BLOCK]),
-  ) as Record<Chain, number>;
+    Object.keys(CHAINS).map((chain) => [chain as Chain, undefined]),
+  ) as Record<Chain, number | undefined>;
 
   constructor(
     @InjectQueue(EventsQueue.name)
@@ -97,22 +96,15 @@ export class EventsWorker extends Worker<EventsQueue> {
   async process(job: TypedJob<EventsQueue>) {
     const { chain, from } = job.data;
     const network = this.networks.get(chain);
-    if (typeof from !== 'number' && !isNaN(from)) throw new UnrecoverableError('Invalid `from`');
-
     const latest = Number(network.blockNumber()); // Warning: bigint -> number
-    const targetBlocks = Math.max(1, Math.floor(TARGET_LOGS_PER_JOB / this.logsPerBlock[chain]));
-    const to = Math.min(job.data.to ?? from + targetBlocks - 1, latest);
+    const to = Math.min(job.data.to ?? from + this.targetBlocks(chain) - 1, latest);
 
     // Queue next job on the first attempt unless split job
     const shouldQueue = job.attemptsMade === 1 && !job.data.split;
-
     if (shouldQueue) {
       if (latest < from) {
-        // Up to date; retry after a delay
         this.queue.add('Ahead', { chain, from }, { delay: network.blockTime() });
-        return;
       } else {
-        // Queue up next job
         this.queue.add(
           latest === from ? 'Tracking' : 'Behind',
           { chain, from: to + 1 },
@@ -120,6 +112,8 @@ export class EventsWorker extends Worker<EventsQueue> {
         );
       }
     }
+
+    if (to < from) return;
 
     try {
       const logs = await network.getLogs({
@@ -129,10 +123,8 @@ export class EventsWorker extends Worker<EventsQueue> {
         strict: true,
       });
 
-      // Update logs per block exponential moving average
       const blocksProcessed = to - from + 1;
-      this.logsPerBlock[chain] =
-        (1 - LPB_ALPHA) * this.logsPerBlock[chain] + LPB_ALPHA * (logs.length / blocksProcessed);
+      this.updateLogsPerBlock(chain, logs.length, blocksProcessed);
 
       await Promise.all(
         logs
@@ -149,15 +141,27 @@ export class EventsWorker extends Worker<EventsQueue> {
       if (!match) throw e;
 
       // Split the job into two smaller jobs
-      const newTo = hexToNumber(asHex(match[1]));
-      if (typeof newTo !== 'number' && !isNaN(newTo))
-        throw new UnrecoverableError('Invalid `newTo`');
+      const mid = hexToNumber(asHex(match[1]));
+      if (to < mid || (typeof mid !== 'number' && !isNaN(mid)))
+        throw new UnrecoverableError(`Invalid split block range: [${from}), ${mid}] for split`);
 
       this.queue.addBulk([
-        { name: 'Split (lower)', data: { chain, from, to: newTo, split: true } },
-        { name: 'Split (upper)', data: { chain, from: newTo + 1, to, split: true } },
+        { name: 'Split (lower)', data: { chain, from, to: mid, split: true } },
+        { name: 'Split (upper)', data: { chain, from: mid + 1, to, split: true } },
       ]);
     }
+  }
+
+  targetBlocks(chain: Chain) {
+    const logsPerBlock = this.logsPerBlock[chain] ?? DEFAULT_LOGS_PER_BLOCK;
+    return Math.max(1, Math.floor(TARGET_LOGS_PER_JOB / logsPerBlock));
+  }
+
+  updateLogsPerBlock(chain: Chain, logs: number, blocks: number) {
+    const lpb = this.logsPerBlock[chain];
+    this.logsPerBlock[chain] = lpb
+      ? (1 - LPB_ALPHA) * lpb + LPB_ALPHA * (logs / blocks)
+      : logs / blocks;
   }
 
   private async addMissingJob() {

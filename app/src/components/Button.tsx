@@ -6,13 +6,15 @@ import { forwardRef } from 'react';
 export interface ButtonProps extends PaperButtonProps {}
 
 export const Button = forwardRef<View, PaperButtonProps>((props, ref) => {
-  const [loading, onPress] = useWithLoading(props.onPress);
+  const [onPressloading, onPress] = useWithLoading(props.onPress);
+  const loading = props.loading || (props.loading !== false && onPressloading);
 
   return (
     <PaperButton
       ref={ref}
+      disabled={loading}
       {...props}
-      loading={props.loading || (props.loading !== false && loading)}
+      loading={loading}
       {...(onPress && {
         onPress: async (e) => {
           Keyboard.dismiss();

@@ -28,7 +28,7 @@ import {
   mapAsync,
 } from 'lib';
 import { ShapeFunc } from '../database/database.select';
-import { policyStateAsPolicy, policyStateShape } from '../policies/policies.util';
+import { policyStateAsPolicy, PolicyShape } from '../policies/policies.util';
 import { NetworksService } from '../util/networks/networks.service';
 import { UserInputError } from '@nestjs/apollo';
 import { ethers } from 'ethers';
@@ -156,10 +156,7 @@ export class MessagesService {
         },
         account: {
           address: true,
-          policies: {
-            key: true,
-            state: policyStateShape,
-          },
+          policies: PolicyShape,
         },
       })),
     );
@@ -167,12 +164,9 @@ export class MessagesService {
 
     if (proposal.signature) return proposal.signature as Hex;
 
-    const satisfiedPolicy = proposal?.account.policies.find(
-      (p) => p.state && proposal.approvals.length >= p.state.threshold,
+    const policy = policyStateAsPolicy(
+      proposal?.account.policies.find((p) => proposal.approvals.length >= p.threshold) ?? null,
     );
-    const policy = satisfiedPolicy
-      ? policyStateAsPolicy(satisfiedPolicy.key, satisfiedPolicy.state)
-      : undefined;
     if (!policy) return undefined;
 
     // TODO: handle expired approvals

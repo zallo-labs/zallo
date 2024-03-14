@@ -14,7 +14,9 @@ export type $ConnectionTransport = {
   "TCP_PG": $.$expr_Literal<$ConnectionTransport>;
   "HTTP": $.$expr_Literal<$ConnectionTransport>;
   "SIMPLE_HTTP": $.$expr_Literal<$ConnectionTransport>;
-} & $.EnumType<"cfg::ConnectionTransport", ["TCP", "TCP_PG", "HTTP", "SIMPLE_HTTP"]>;
+  "HTTP_METRICS": $.$expr_Literal<$ConnectionTransport>;
+  "HTTP_HEALTH": $.$expr_Literal<$ConnectionTransport>;
+} & $.EnumType<"cfg::ConnectionTransport", ["TCP", "TCP_PG", "HTTP", "SIMPLE_HTTP", "HTTP_METRICS", "HTTP_HEALTH"]>;
 const ConnectionTransport: $ConnectionTransport = $.makeType<$ConnectionTransport>(_.spec, "1adbf789-39c3-5070-bc17-776f94d59e46", _.syntax.literal);
 
 export type $memory = $.ScalarType<"cfg::memory", _.edgedb.ConfigMemory>;
@@ -41,6 +43,8 @@ export type $AbstractConfigλShape = $.typeutil.flatten<$ConfigObjectλShape & {
   "allow_bare_ddl": $.PropertyDesc<$AllowBareDDL, $.Cardinality.AtMostOne, false, false, false, true>;
   "apply_access_policies": $.PropertyDesc<_std.$bool, $.Cardinality.AtMostOne, false, false, false, true>;
   "allow_user_specified_id": $.PropertyDesc<_std.$bool, $.Cardinality.AtMostOne, false, false, false, true>;
+  "cors_allow_origins": $.PropertyDesc<_std.$str, $.Cardinality.Many, false, false, false, false>;
+  "auto_rebuild_query_cache": $.PropertyDesc<_std.$bool, $.Cardinality.AtMostOne, false, false, false, true>;
   "shared_buffers": $.PropertyDesc<$memory, $.Cardinality.AtMostOne, false, false, false, false>;
   "query_work_mem": $.PropertyDesc<$memory, $.Cardinality.AtMostOne, false, false, false, false>;
   "maintenance_work_mem": $.PropertyDesc<$memory, $.Cardinality.AtMostOne, false, false, false, false>;
@@ -173,6 +177,16 @@ const $Trust = $.makeType<$Trust>(_.spec, "7fc09ace-4af4-5d90-a9ab-94f9bb4cdb42"
 
 const Trust: $.$expr_PathNode<$.TypeSet<$Trust, $.Cardinality.Many>, null> = _.syntax.$PathNode($.$toSet($Trust, $.Cardinality.Many), null);
 
+export type $mTLSλShape = $.typeutil.flatten<Omit<$AuthMethodλShape, "transports"> & {
+  "transports": $.PropertyDesc<$ConnectionTransport, $.Cardinality.Many, false, false, true, true>;
+}>;
+type $mTLS = $.ObjectType<"cfg::mTLS", $mTLSλShape, null, [
+  ...$AuthMethod['__exclusives__'],
+]>;
+const $mTLS = $.makeType<$mTLS>(_.spec, "e96db572-9980-5ce1-8049-1561b3980d0e", _.syntax.literal);
+
+const mTLS: $.$expr_PathNode<$.TypeSet<$mTLS, $.Cardinality.Many>, null> = _.syntax.$PathNode($.$toSet($mTLS, $.Cardinality.Many), null);
+
 type get_config_jsonλFuncExpr<
   NamedArgs extends {
     "sources"?: $.TypeSet<$.ArrayType<_std.$str>>,
@@ -205,7 +219,7 @@ function get_config_json(...args: any[]) {
 
 
 
-export { AllowBareDDL, ConnectionTransport, memory, $ConfigObject, ConfigObject, $AbstractConfig, AbstractConfig, $Auth, Auth, $AuthMethod, AuthMethod, $Config, Config, $DatabaseConfig, DatabaseConfig, $ExtensionConfig, ExtensionConfig, $InstanceConfig, InstanceConfig, $JWT, JWT, $Password, Password, $SCRAM, SCRAM, $Trust, Trust };
+export { AllowBareDDL, ConnectionTransport, memory, $ConfigObject, ConfigObject, $AbstractConfig, AbstractConfig, $Auth, Auth, $AuthMethod, AuthMethod, $Config, Config, $DatabaseConfig, DatabaseConfig, $ExtensionConfig, ExtensionConfig, $InstanceConfig, InstanceConfig, $JWT, JWT, $Password, Password, $SCRAM, SCRAM, $Trust, Trust, $mTLS, mTLS };
 
 type __defaultExports = {
   "AllowBareDDL": typeof AllowBareDDL;
@@ -223,6 +237,7 @@ type __defaultExports = {
   "Password": typeof Password;
   "SCRAM": typeof SCRAM;
   "Trust": typeof Trust;
+  "mTLS": typeof mTLS;
   "get_config_json": typeof get_config_json
 };
 const __defaultExports: __defaultExports = {
@@ -241,6 +256,7 @@ const __defaultExports: __defaultExports = {
   "Password": Password,
   "SCRAM": SCRAM,
   "Trust": Trust,
+  "mTLS": mTLS,
   "get_config_json": get_config_json
 };
 export default __defaultExports;

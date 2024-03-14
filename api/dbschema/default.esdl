@@ -20,17 +20,19 @@ module default {
     upgradedAtBlock: bigint { constraint min_value(0); }
     photoUri: str;
     required property chain := as_chain(.address);
-    required property isActive := exists .upgradedAtBlock;
-    multi link policies := (select .<account[is Policy] filter .isEnabled);
+    required property active := exists .upgradedAtBlock;
+    multi policies: Policy { on source delete delete target; on target delete allow; }
     multi link proposals := .<account[is Proposal];
     multi link transactions := .<account[is Transaction];
     multi link messages := .<account[is Message];
     multi link transfers := .<account[is Transfer];
-    multi link approvers := (distinct (.policies.state.approvers union .policies.draft.approvers));
+    multi link approvers := (distinct (.policies.approvers union .policies.draft[is Policy].approvers));
 
-    access policy members_select_insert_update
-      allow select, insert, update
+    access policy members_select_insert_update allow select, insert, update
       using (.id in global current_accounts_set);
+
+    access policy can_be_deleted_when_inactive allow delete
+      using (not .active);
   }
 
   abstract type Proposal {
@@ -46,8 +48,8 @@ module default {
     dapp: tuple<name: str, url: Url, icons: array<Url>>;
     multi link approvals := .<proposal[is Approval];
     multi link rejections := .<proposal[is Rejection];
-    multi link potentialApprovers := (.policy.stateOrDraft.approvers except .approvals.approver);
-    multi link potentialRejectors := (.policy.stateOrDraft.approvers except .rejections.approver);
+    multi link potentialApprovers := (.policy.approvers except .approvals.approver);
+    multi link potentialRejectors := (.policy.approvers except .rejections.approver);
 
     access policy members_only
       allow all

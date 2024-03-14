@@ -41,7 +41,7 @@ export class Account extends Node {
   chain: Chain;
 
   @Field(() => Boolean)
-  isActive: boolean;
+  active: boolean;
 
   @Field(() => [Policy])
   policies: Policy[];

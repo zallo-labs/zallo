@@ -1,14 +1,14 @@
 import { FragmentType, gql, useFragment as getFragment } from '@api';
-import { PolicyAsDraft_PolicyStateFragment, PolicyInput } from '@api/generated/graphql';
+import { PolicyAsDraft_PolicyFragment, PolicyInput } from '@api/generated/graphql';
 import { PrimitiveAtom } from 'jotai';
 import { useImmerAtom } from 'jotai-immer';
-import { Address, PolicyKey, TransfersConfig, UAddress } from 'lib';
+import { Address, PolicyKey, TransfersConfig, UAddress, UUID } from 'lib';
 import { createContext, useContext } from 'react';
 
 export type PolicyDraftAction = Omit<
-  PolicyAsDraft_PolicyStateFragment['actions'][0],
+PolicyAsDraft_PolicyFragment['actions'][0],
   'id' | 'functions'
-> & { functions: Omit<PolicyAsDraft_PolicyStateFragment['actions'][0]['functions'][0], 'id'>[] };
+> & { functions: Omit<PolicyAsDraft_PolicyFragment['actions'][0]['functions'][0], 'id'>[] };
 
 export interface PolicyDraft {
   account: UAddress;
@@ -25,9 +25,9 @@ export interface PolicyDraft {
 export type PolicyView = 'state' | 'draft';
 
 interface PolicyDraftContext {
+  id?: UUID;
   draftAtom: PrimitiveAtom<PolicyDraft>;
   initial: PolicyDraft;
-  view: PolicyView;
 }
 export const PolicyDraftContext = createContext<PolicyDraftContext | null>(null);
 export const usePolicyDraftContext = () => useContext(PolicyDraftContext)!;
@@ -35,7 +35,7 @@ export const usePolicyDraftAtom = () => usePolicyDraftContext().draftAtom;
 export const usePolicyDraft = () => useImmerAtom(usePolicyDraftAtom());
 
 const PolicyState = gql(/* GraphQL */ `
-  fragment policyAsDraft_PolicyState on PolicyState {
+  fragment policyAsDraft_Policy on Policy {
     id
     approvers {
       id

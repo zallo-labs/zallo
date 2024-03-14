@@ -45,8 +45,8 @@ export class AccountSubscriptionInput {
 
 @InputType()
 export class CreateAccountInput {
-  @ChainField({ nullable: true })
-  chain?: Chain;
+  @ChainField({ defaultValue: 'zksync-sepolia' })
+  chain: Chain;
 
   @Field(() => String)
   label: string;

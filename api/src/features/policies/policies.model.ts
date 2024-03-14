@@ -5,10 +5,10 @@ import { Transaction } from '../transactions/transactions.model';
 import * as eql from '~/edgeql-interfaces';
 import { PolicyKeyField } from '~/apollo/scalars/PolicyKey.scalar';
 import { AddressField } from '~/apollo/scalars/Address.scalar';
-import { Address, Selector } from 'lib';
+import { Address, PolicyKey, Selector } from 'lib';
 import { Approver } from '../approvers/approvers.model';
 import { SelectorField } from '~/apollo/scalars/Bytes.scalar';
-import { Err, ErrorType, Node, NodeType } from '~/decorators/interface.decorator';
+import { Err, ErrorType, Node, NodeInterface, NodeType } from '~/decorators/interface.decorator';
 import { AbiFunctionField } from '~/apollo/scalars/AbiFunction.scalar';
 import { AbiFunction } from 'abitype';
 import { makeUnionTypeResolver } from '~/features/database/database.util';
@@ -65,19 +65,49 @@ export class TransfersConfig extends Node implements eql.TransfersConfig {
   budget: number;
 }
 
-@NodeType()
+@NodeInterface()
 export class PolicyState extends Node {
+  @Field(() => Account)
+  account: Account;
+
+  @PolicyKeyField()
+  key: PolicyKey;
+
+  @Field(() => Date)
+  createdAt: Date;
+
   @Field(() => Transaction, { nullable: true })
   proposal?: Transaction | null;
 
-  @Field(() => Boolean)
-  isAccountInitState: boolean;
+  @Field(() => GraphQLBigInt, { nullable: true })
+  activationBlock?: bigint | null;
 
-  @Field(() => [Approver])
-  approvers: Approver[];
+  @Field(() => Boolean)
+  initState: boolean;
+
+  @Field(() => Boolean)
+  hasBeenActive: boolean;
+
+  @Field(() => Boolean)
+  active: boolean;
+
+  @Field(() => Policy, { nullable: true })
+  latest?: Policy | null;
+
+  @Field(() => PolicyState, { nullable: true })
+  draft?: PolicyState | null;
+}
+
+@NodeType({ implements: [PolicyState] })
+export class Policy extends PolicyState {
+  @Field(() => String)
+  name: string;
 
   @Field(() => Number)
   threshold: number;
+
+  @Field(() => [Approver])
+  approvers: Approver[];
 
   @Field(() => [Action])
   actions: Action[];
@@ -90,49 +120,10 @@ export class PolicyState extends Node {
 
   @Field(() => Number, { description: 'seconds' })
   delay: number;
-
-  @Field(() => Boolean)
-  isRemoved: boolean;
-
-  @Field(() => GraphQLBigInt, { nullable: true })
-  activationBlock?: bigint | null;
-
-  @Field(() => Boolean)
-  hasBeenActive: boolean;
-
-  @Field(() => Boolean)
-  isActive: boolean;
-
-  @Field(() => Date)
-  createdAt: Date;
 }
 
-@NodeType()
-export class Policy extends Node {
-  @Field(() => Account)
-  account: Account;
-
-  @PolicyKeyField()
-  key: number; // PolicyKey;
-
-  @Field(() => String)
-  name: string;
-
-  @Field(() => PolicyState, { nullable: true })
-  state?: PolicyState | null;
-
-  @Field(() => PolicyState, { nullable: true })
-  draft?: PolicyState | null;
-
-  @Field(() => PolicyState)
-  stateOrDraft: PolicyState;
-
-  @Field(() => [PolicyState])
-  stateHistory: PolicyState[];
-
-  @Field(() => Boolean)
-  isActive: boolean;
-}
+@NodeType({ implements: [PolicyState] })
+export class RemovedPolicy extends PolicyState {}
 
 @ObjectType()
 export class ValidationError {

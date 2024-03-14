@@ -8,6 +8,7 @@ import { ScrollableScreenSurface } from '#/layout/ScrollableScreenSurface';
 import { gql } from '@api';
 import { useQuery } from '~/gql';
 import { Redirect } from 'expo-router';
+import { useEffect } from 'react';
 
 const Query = gql(/* GraphQL */ `
   query HomeLayout($account: UAddress!) {
@@ -27,7 +28,9 @@ export default function HomeLayout() {
   const account = useLocalParams(InternalParams).account ?? lastSelected!;
   const setSelectedAccount = useSetSelectedAccont();
 
-  if (account) setSelectedAccount(account);
+  useEffect(() => {
+    if (account !== lastSelected) setSelectedAccount(account);
+  }, [account, lastSelected, setSelectedAccount]);
 
   const query = useQuery(Query, { account }, { context });
 

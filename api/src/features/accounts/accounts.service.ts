@@ -88,24 +88,20 @@ export class AccountsService {
       .run(this.db.DANGEROUS_superuserClient);
   }
 
-  async createAccount({
-    chain: chainKey = 'zksync-goerli',
-    label,
-    policies: policyInputs,
-  }: CreateAccountInput) {
-    const network = this.networks.get(chainKey);
+  async createAccount({ chain, label, policies: policyInputs }: CreateAccountInput) {
+    const network = this.networks.get(chain);
     const approver = getApprover();
 
     if (!policyInputs.find((p) => p.approvers.includes(approver)))
       throw new UserInputError('User must be included in at least one policy');
 
-    const implementation = ACCOUNT_IMPLEMENTATION.address[chainKey];
+    const implementation = ACCOUNT_IMPLEMENTATION.address[chain];
     const salt = randomDeploySalt();
     const policies = policyInputs.map((p, i) => inputAsPolicy(asPolicyKey(i), p));
 
     const account = await getProxyAddress({
       network,
-      factory: ACCOUNT_PROXY_FACTORY.address[chainKey],
+      factory: ACCOUNT_PROXY_FACTORY.address[chain],
       implementation: implementation,
       salt,
       policies,
@@ -134,7 +130,7 @@ export class AccountsService {
           ...policy,
           account,
           key: asPolicyKey(i),
-          isInitState: true,
+          initState: true,
         });
       }
     });

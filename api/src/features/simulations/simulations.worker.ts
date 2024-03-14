@@ -50,7 +50,7 @@ type TransferDetails = Parameters<typeof e.insert<typeof e.TransferDetails>>[1];
 const TransactionExecutableShape = {
   account: { address: true },
   approvals: { approver: { address: true } },
-  policy: { id: true, state: { threshold: true } },
+  policy: { id: true, threshold: true },
   ...TX_SHAPE,
 } satisfies Shape<typeof e.Transaction>;
 const s_ = e.assert_exists(
@@ -183,10 +183,7 @@ export class SimulationsWorker extends Worker<SimulationsQueue> {
   }
 
   private async isExecutable(t: TransactionExecutableShape) {
-    const policy = t.policy.state;
-    if (!policy) return false;
-
-    const approved = policy.threshold <= t.approvals.length;
+    const approved = t.policy.threshold <= t.approvals.length;
     if (!approved) return false;
 
     // Check all limits
@@ -202,7 +199,7 @@ export class SimulationsWorker extends Worker<SimulationsQueue> {
       }, {});
 
     const chain = asChain(asUAddress(t.account.address));
-    const selectedPolicy = selectPolicy(t.policy) as unknown as SelectedPolicies;
+    const selectedPolicy = selectPolicy(t.policy.id) as unknown as SelectedPolicies;
     const limitResults = await Promise.all(
       Object.entries(transfers).map(async ([localToken, amount]) => {
         const token = asUAddress(localToken, chain);

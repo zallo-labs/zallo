@@ -16,7 +16,6 @@ import Redis from 'ioredis';
 import { InjectRedis } from '@songkeys/nestjs-redis';
 import { firstValueFrom, ReplaySubject } from 'rxjs';
 import { runExclusively } from '~/util/mutex';
-import { DateTime } from 'luxon';
 
 export type Network = ReturnType<typeof create>;
 
@@ -104,7 +103,12 @@ function blockNumberAndStatusActions(client: Client) {
   const status = new ReplaySubject<'healthy' | WatchBlockNumberErrorType>(1);
   let blockNumber = 0n;
   let blockTime = DEFAULT_BLOCK_TIME;
-  let updated = DateTime.now();
+  let updated = Date.now();
+
+  const getBlockTime = () => {
+    const diff = Date.now() - updated;
+    return Math.ceil((1 - BLOCK_TIME_ALPHA) * blockTime + BLOCK_TIME_ALPHA * diff);
+  };
 
   client.watchBlockNumber({
     onBlockNumber: (newBlockNumber) => {
@@ -112,12 +116,8 @@ function blockNumberAndStatusActions(client: Client) {
 
       status.next('healthy');
       blockNumber = newBlockNumber;
-
-      // blockTime
-      const t = DateTime.now();
-      const diff = t.diff(updated).toMillis();
-      blockTime = Math.ceil((1 - BLOCK_TIME_ALPHA) * blockTime + BLOCK_TIME_ALPHA * diff);
-      updated = t;
+      updated = Date.now();
+      blockTime = getBlockTime();
     },
     onError: (error) => {
       status.next(error as WatchBlockNumberErrorType);
@@ -134,7 +134,7 @@ function blockNumberAndStatusActions(client: Client) {
       return blockNumber;
     },
     blockTime() {
-      return blockTime;
+      return getBlockTime();
     },
   };
 }

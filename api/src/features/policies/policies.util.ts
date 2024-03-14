@@ -16,23 +16,23 @@ import { merge } from 'ts-deepmerge';
 import { match, P } from 'ts-pattern';
 import { getUserCtx } from '~/request/ctx';
 
-export type UniquePolicy = { id: uuid } | { account: UAddress; key: PolicyKey };
+export type UniquePolicy = uuid | { account: UAddress; key: PolicyKey | number };
 
-export const uniquePolicy = (unique: UniquePolicy) =>
-  e.shape(e.Policy, () => ({
-    filter_single:
-      'id' in unique
-        ? { id: e.uuid(unique.id) }
-        : { account: selectAccount(unique.account), key: unique.key },
-  }));
+export const selectPolicy = (id: UniquePolicy) =>
+  typeof id === 'string'
+    ? e.select(e.Policy, () => ({ filter_single: { id } }))
+    : e.assert_single(
+        e.select(selectAccount(id.account).policies, (p) => ({ filter: e.op(p.key, '=', id.key) })),
+      );
 
-export const selectPolicy = (id: UniquePolicy) => e.select(e.Policy, uniquePolicy(id));
-export type SelectedPolicy = ReturnType<typeof selectPolicy>;
+const s_ = (id: uuid) => e.select(e.Policy, () => ({ filter_single: { id } }));
+export type SelectedPolicy = ReturnType<typeof s_>;
 
 const selectPolicies = () => e.assert_exists(e.select(e.Policy));
 export type SelectedPolicies = ReturnType<typeof selectPolicies>;
 
-export const policyStateShape = {
+export const PolicyShape = {
+  key: true,
   approvers: { address: true },
   threshold: true,
   actions: {
@@ -56,15 +56,15 @@ export const policyStateShape = {
   },
   allowMessages: true,
   delay: true,
-} satisfies Shape<typeof e.PolicyState>;
+} satisfies Shape<typeof e.Policy>;
 
-const s = e.select(e.PolicyState, () => policyStateShape);
-export type PolicyStateShape = $infer<typeof s>[0] | null;
+const s = e.select(e.Policy, () => PolicyShape);
+export type PolicyShape = $infer<typeof s>[0] | null;
 
-export const policyStateAsPolicy = <S extends PolicyStateShape>(key: number, state: S) =>
+export const policyStateAsPolicy = <S extends PolicyShape>(state: S) =>
   (state
     ? asPolicy({
-        key,
+        key: state.key,
         approvers: new Set(state.approvers.map((a) => asAddress(a.address))),
         threshold: state.threshold,
         permissions: {
@@ -121,7 +121,8 @@ export const policyStateAsPolicy = <S extends PolicyStateShape>(key: number, sta
 export const policyInputAsStateShape = (
   key: PolicyKey,
   p: Partial<PolicyInput>,
-  defaults: NonNullable<PolicyStateShape> = {
+  defaults: NonNullable<PolicyShape> = {
+    key: 0,
     approvers: [{ address: getUserCtx().approver }],
     threshold: p.approvers ? p.approvers.length : 1,
     actions: [
@@ -136,13 +137,14 @@ export const policyInputAsStateShape = (
     allowMessages: false,
     delay: 0,
   },
-): NonNullable<PolicyStateShape> => ({
+): NonNullable<PolicyShape> => ({
   ...defaults,
+  key,
   threshold: p.threshold ?? p.approvers?.length ?? defaults.approvers.length,
   ...(p.approvers && { approvers: p.approvers.map((a) => ({ address: a })) }),
   ...(p.threshold !== undefined && { threshold: p.threshold }),
   ...(p.actions?.length && {
-    actions: p.actions as unknown as NonNullable<PolicyStateShape>['actions'],
+    actions: p.actions as unknown as NonNullable<PolicyShape>['actions'],
   }),
   ...(p.transfers && {
     transfers: {
@@ -155,7 +157,7 @@ export const policyInputAsStateShape = (
 });
 
 export const inputAsPolicy = (key: PolicyKey, p: PolicyInput) =>
-  policyStateAsPolicy(key, policyInputAsStateShape(key, p));
+  policyStateAsPolicy(policyInputAsStateShape(key, p));
 
 export const asTransfersConfig = (c: TransfersConfigInput): TransfersConfig => ({
   defaultAllow: c.defaultAllow,

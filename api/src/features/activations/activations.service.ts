@@ -8,7 +8,6 @@ import {
   asChain,
   asHex,
   deployAccountProxyRequest,
-  isPresent,
   simulateDeployAccountProxy,
   DeployAccountProxyRequestParams,
   replaceSelfAddress,
@@ -17,7 +16,7 @@ import {
 import { NetworksService } from '../util/networks/networks.service';
 import e from '~/edgeql-js';
 import { DatabaseService } from '../database/database.service';
-import { policyStateAsPolicy, policyStateShape } from '../policies/policies.util';
+import { policyStateAsPolicy, PolicyShape } from '../policies/policies.util';
 import { FlowJob } from 'bullmq';
 import { ReceiptsQueue } from '../system-txs/receipts.queue';
 import Decimal from 'decimal.js';
@@ -65,7 +64,6 @@ export class ActivationsService {
     const a = await this.db.query(
       e.select(e.Account, () => ({
         filter_single: { address },
-        isActive: true,
         activationEthFee: true,
       })),
     );
@@ -110,33 +108,29 @@ export class ActivationsService {
     const account = await this.db.query(
       e.select(e.Account, (a) => ({
         filter_single: { address },
-        isActive: true,
+        active: true,
         implementation: true,
         salt: true,
         initPolicies: e.select(a.policies, (p) => ({
-          filter: p.state.isAccountInitState,
-          key: true,
-          state: policyStateShape,
+          filter: p.initState,
+          ...PolicyShape,
         })),
       })),
     );
     if (!account) throw new Error(`Account ${address} not found`);
-    if (account.isActive) return null;
+    if (account.active) return null;
 
     return {
       factory: ACCOUNT_PROXY_FACTORY.address[asChain(address)],
       salt: asHex(account.salt),
       implementation: asAddress(account.implementation),
-      policies: account.initPolicies
-        .map((p) => policyStateAsPolicy(p.key, p.state))
-        .filter(isPresent)
-        .map((p) =>
-          replaceSelfAddress({
-            policy: p,
-            from: asAddress(address),
-            to: PLACEHOLDER_ACCOUNT_ADDRESS,
-          }),
-        ),
+      policies: account.initPolicies.map((p) =>
+        replaceSelfAddress({
+          policy: policyStateAsPolicy(p),
+          from: asAddress(address),
+          to: PLACEHOLDER_ACCOUNT_ADDRESS,
+        }),
+      ),
     } satisfies DeployAccountProxyRequestParams;
   }
 }

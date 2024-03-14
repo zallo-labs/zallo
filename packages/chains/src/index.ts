@@ -15,13 +15,6 @@ export const CHAINS = {
     verifyUrl: 'https://zksync2-mainnet-explorer.zksync.io/contract_verification',
     testnet: false,
   } as const,
-  'zksync-goerli': {
-    ...viemChain.zkSyncTestnet,
-    key: 'zksync-goerli',
-    name: 'zkSync Goerli testnet',
-    layer1: viemChain.goerli,
-    verifyUrl: 'https://zksync2-testnet-explorer.zksync.dev/contract_verification',
-  } as const,
   'zksync-sepolia': {
     ...viemChain.zkSyncSepoliaTestnet,
     key: 'zksync-sepolia',
@@ -29,8 +22,16 @@ export const CHAINS = {
     layer1: viemChain.sepolia,
     verifyUrl: 'https://explorer.sepolia.era.zksync.dev/contract_verification',
   } as const,
-  'zksync-local': {
+  /** @deprecated use zksync-sepolia */
+  'zksync-goerli': {
     ...viemChain.zkSyncTestnet,
+    key: 'zksync-goerli',
+    name: 'zkSync Goerli testnet',
+    layer1: viemChain.goerli,
+    verifyUrl: 'https://zksync2-testnet-explorer.zksync.dev/contract_verification',
+  } as const,
+  'zksync-local': {
+    ...viemChain.zkSyncSepoliaTestnet,
     key: 'zksync-local',
     name: 'zkSync Local testnet',
     /* era-test-node - https://github.com/matter-labs/era-test-node */

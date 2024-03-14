@@ -40,6 +40,12 @@ const bigint: $.scalarTypeWithConstructor<$bigint, never> = $.makeType<$.scalarT
 export type $int64 = $.ScalarType<"std::number", number>;
 const int64: $.scalarTypeWithConstructor<$number, string> = $.makeType<$.scalarTypeWithConstructor<$number, string>>(_.spec, "00000000-0000-0000-0000-000000000105", _.syntax.literal);
 
+export type $Endian = {
+  "Little": $.$expr_Literal<$Endian>;
+  "Big": $.$expr_Literal<$Endian>;
+} & $.EnumType<"std::Endian", ["Little", "Big"]>;
+const Endian: $Endian = $.makeType<$Endian>(_.spec, "e4a1d11b-227e-5744-a0c9-31f9cd756e7b", _.syntax.literal);
+
 export type $JsonEmpty = {
   "ReturnEmpty": $.$expr_Literal<$JsonEmpty>;
   "ReturnTarget": $.$expr_Literal<$JsonEmpty>;
@@ -726,44 +732,44 @@ type maxλFuncExpr5<
   $duration, $.cardutil.overrideUpperBound<$.cardutil.paramCardinality<P1>, "One">
 >;
 type maxλFuncExpr6<
-  P1 extends $.TypeSet<$.ArrayType<_cal.$relative_durationλICastableTo>>,
-> = $.$expr_Function<
-  $.ArrayType<_cal.$relative_duration>, $.cardutil.overrideUpperBound<$.cardutil.paramCardinality<P1>, "One">
->;
-type maxλFuncExpr7<
-  P1 extends $.TypeSet<$.ArrayType<_cal.$date_duration>>,
-> = $.$expr_Function<
-  $.ArrayType<_cal.$date_duration>, $.cardutil.overrideUpperBound<$.cardutil.paramCardinality<P1>, "One">
->;
-type maxλFuncExpr8<
   P1 extends _.castMaps.orScalarLiteral<$.TypeSet<_cal.$local_date>>,
 > = $.$expr_Function<
   _cal.$local_date, $.cardutil.overrideUpperBound<$.cardutil.paramCardinality<P1>, "One">
 >;
-type maxλFuncExpr9<
+type maxλFuncExpr7<
   P1 extends _.castMaps.orScalarLiteral<$.TypeSet<_cal.$local_time>>,
 > = $.$expr_Function<
   _cal.$local_time, $.cardutil.overrideUpperBound<$.cardutil.paramCardinality<P1>, "One">
 >;
-type maxλFuncExpr10<
+type maxλFuncExpr8<
   P1 extends _.castMaps.orScalarLiteral<$.TypeSet<_cal.$date_duration>>,
 > = $.$expr_Function<
   _cal.$date_duration, $.cardutil.overrideUpperBound<$.cardutil.paramCardinality<P1>, "One">
 >;
-type maxλFuncExpr11<
+type maxλFuncExpr9<
   P1 extends $.TypeSet<$.ArrayType<_cal.$local_datetimeλICastableTo>>,
 > = $.$expr_Function<
   $.ArrayType<_cal.$local_datetime>, $.cardutil.overrideUpperBound<$.cardutil.paramCardinality<P1>, "One">
 >;
-type maxλFuncExpr12<
+type maxλFuncExpr10<
   P1 extends $.TypeSet<$.ArrayType<_cal.$local_date>>,
 > = $.$expr_Function<
   $.ArrayType<_cal.$local_date>, $.cardutil.overrideUpperBound<$.cardutil.paramCardinality<P1>, "One">
 >;
-type maxλFuncExpr13<
+type maxλFuncExpr11<
   P1 extends $.TypeSet<$.ArrayType<_cal.$local_time>>,
 > = $.$expr_Function<
   $.ArrayType<_cal.$local_time>, $.cardutil.overrideUpperBound<$.cardutil.paramCardinality<P1>, "One">
+>;
+type maxλFuncExpr12<
+  P1 extends $.TypeSet<$.ArrayType<_cal.$relative_durationλICastableTo>>,
+> = $.$expr_Function<
+  $.ArrayType<_cal.$relative_duration>, $.cardutil.overrideUpperBound<$.cardutil.paramCardinality<P1>, "One">
+>;
+type maxλFuncExpr13<
+  P1 extends $.TypeSet<$.ArrayType<_cal.$date_duration>>,
+> = $.$expr_Function<
+  $.ArrayType<_cal.$date_duration>, $.cardutil.overrideUpperBound<$.cardutil.paramCardinality<P1>, "One">
 >;
 type maxλFuncExpr14<
   P1 extends _.castMaps.orScalarLiteral<$.TypeSet<_cal.$local_datetimeλICastableTo>>,
@@ -824,7 +830,7 @@ function max<
  * Return the smallest value of the input set.
  */
 function max<
-  P1 extends $.TypeSet<$.ArrayType<_cal.$relative_durationλICastableTo>>,
+  P1 extends _.castMaps.orScalarLiteral<$.TypeSet<_cal.$local_date>>,
 >(
   vals: P1,
 ): maxλFuncExpr6<P1>;
@@ -832,26 +838,10 @@ function max<
  * Return the smallest value of the input set.
  */
 function max<
-  P1 extends $.TypeSet<$.ArrayType<_cal.$date_duration>>,
->(
-  vals: P1,
-): maxλFuncExpr7<P1>;
-/**
- * Return the smallest value of the input set.
- */
-function max<
-  P1 extends _.castMaps.orScalarLiteral<$.TypeSet<_cal.$local_date>>,
->(
-  vals: P1,
-): maxλFuncExpr8<P1>;
-/**
- * Return the smallest value of the input set.
- */
-function max<
   P1 extends _.castMaps.orScalarLiteral<$.TypeSet<_cal.$local_time>>,
 >(
   vals: P1,
-): maxλFuncExpr9<P1>;
+): maxλFuncExpr7<P1>;
 /**
  * Return the greatest value of the input set.
  */
@@ -859,7 +849,7 @@ function max<
   P1 extends _.castMaps.orScalarLiteral<$.TypeSet<_cal.$date_duration>>,
 >(
   vals: P1,
-): maxλFuncExpr10<P1>;
+): maxλFuncExpr8<P1>;
 /**
  * Return the smallest value of the input set.
  */
@@ -867,7 +857,7 @@ function max<
   P1 extends $.TypeSet<$.ArrayType<_cal.$local_datetimeλICastableTo>>,
 >(
   vals: P1,
-): maxλFuncExpr11<P1>;
+): maxλFuncExpr9<P1>;
 /**
  * Return the smallest value of the input set.
  */
@@ -875,12 +865,28 @@ function max<
   P1 extends $.TypeSet<$.ArrayType<_cal.$local_date>>,
 >(
   vals: P1,
-): maxλFuncExpr12<P1>;
+): maxλFuncExpr10<P1>;
 /**
  * Return the smallest value of the input set.
  */
 function max<
   P1 extends $.TypeSet<$.ArrayType<_cal.$local_time>>,
+>(
+  vals: P1,
+): maxλFuncExpr11<P1>;
+/**
+ * Return the smallest value of the input set.
+ */
+function max<
+  P1 extends $.TypeSet<$.ArrayType<_cal.$relative_durationλICastableTo>>,
+>(
+  vals: P1,
+): maxλFuncExpr12<P1>;
+/**
+ * Return the smallest value of the input set.
+ */
+function max<
+  P1 extends $.TypeSet<$.ArrayType<_cal.$date_duration>>,
 >(
   vals: P1,
 ): maxλFuncExpr13<P1>;
@@ -915,14 +921,14 @@ function max(...args: any[]) {
     {args: [{typeId: "00000000-0000-0000-0000-000000000101", optional: false, setoftype: true, variadic: false}], returnTypeId: "00000000-0000-0000-0000-000000000101", returnTypemod: "OptionalType", preservesOptionality: true},
     {args: [{typeId: "00000000-0000-0000-0000-00000000010a", optional: false, setoftype: true, variadic: false}], returnTypeId: "00000000-0000-0000-0000-00000000010a", returnTypemod: "OptionalType", preservesOptionality: true},
     {args: [{typeId: "00000000-0000-0000-0000-00000000010e", optional: false, setoftype: true, variadic: false}], returnTypeId: "00000000-0000-0000-0000-00000000010e", returnTypemod: "OptionalType", preservesOptionality: true},
-    {args: [{typeId: "2417884d-4995-5a45-8c61-614adab347a7", optional: false, setoftype: true, variadic: false}], returnTypeId: "2417884d-4995-5a45-8c61-614adab347a7", returnTypemod: "OptionalType", preservesOptionality: true},
-    {args: [{typeId: "fd652c7f-67e3-516f-b508-c8e6f227311e", optional: false, setoftype: true, variadic: false}], returnTypeId: "fd652c7f-67e3-516f-b508-c8e6f227311e", returnTypemod: "OptionalType", preservesOptionality: true},
     {args: [{typeId: "00000000-0000-0000-0000-00000000010c", optional: false, setoftype: true, variadic: false}], returnTypeId: "00000000-0000-0000-0000-00000000010c", returnTypemod: "OptionalType", preservesOptionality: true},
     {args: [{typeId: "00000000-0000-0000-0000-00000000010d", optional: false, setoftype: true, variadic: false}], returnTypeId: "00000000-0000-0000-0000-00000000010d", returnTypemod: "OptionalType", preservesOptionality: true},
     {args: [{typeId: "00000000-0000-0000-0000-000000000112", optional: false, setoftype: true, variadic: false}], returnTypeId: "00000000-0000-0000-0000-000000000112", returnTypemod: "OptionalType", preservesOptionality: true},
     {args: [{typeId: "3a39c464-a115-5b5e-8968-fb30b2c6a7a1", optional: false, setoftype: true, variadic: false}], returnTypeId: "3a39c464-a115-5b5e-8968-fb30b2c6a7a1", returnTypemod: "OptionalType", preservesOptionality: true},
     {args: [{typeId: "80d4b62c-e31c-51c6-b994-afaae5b6eff6", optional: false, setoftype: true, variadic: false}], returnTypeId: "80d4b62c-e31c-51c6-b994-afaae5b6eff6", returnTypemod: "OptionalType", preservesOptionality: true},
     {args: [{typeId: "d9d5e4a4-d545-5a03-a9da-571d8807619f", optional: false, setoftype: true, variadic: false}], returnTypeId: "d9d5e4a4-d545-5a03-a9da-571d8807619f", returnTypemod: "OptionalType", preservesOptionality: true},
+    {args: [{typeId: "2417884d-4995-5a45-8c61-614adab347a7", optional: false, setoftype: true, variadic: false}], returnTypeId: "2417884d-4995-5a45-8c61-614adab347a7", returnTypemod: "OptionalType", preservesOptionality: true},
+    {args: [{typeId: "fd652c7f-67e3-516f-b508-c8e6f227311e", optional: false, setoftype: true, variadic: false}], returnTypeId: "fd652c7f-67e3-516f-b508-c8e6f227311e", returnTypemod: "OptionalType", preservesOptionality: true},
     {args: [{typeId: "00000000-0000-0000-0000-00000000010b", optional: false, setoftype: true, variadic: false}], returnTypeId: "00000000-0000-0000-0000-00000000010b", returnTypemod: "OptionalType", preservesOptionality: true},
     {args: [{typeId: "00000000-0000-0000-0000-000000000111", optional: false, setoftype: true, variadic: false}], returnTypeId: "00000000-0000-0000-0000-000000000111", returnTypemod: "OptionalType", preservesOptionality: true},
     {args: [{typeId: "00000000-0000-0000-0000-000000000001", optional: false, setoftype: true, variadic: false}], returnTypeId: "00000000-0000-0000-0000-000000000001", returnTypemod: "OptionalType", preservesOptionality: true},
@@ -2154,6 +2160,12 @@ type array_joinλFuncExpr<
 > = $.$expr_Function<
   $str, $.cardutil.multiplyCardinalities<$.cardutil.paramCardinality<P1>, $.cardutil.paramCardinality<P2>>
 >;
+type array_joinλFuncExpr2<
+  P1 extends $.TypeSet<$.ArrayType<$bytes>>,
+  P2 extends _.castMaps.orScalarLiteral<$.TypeSet<$bytes>>,
+> = $.$expr_Function<
+  $bytes, $.cardutil.multiplyCardinalities<$.cardutil.paramCardinality<P1>, $.cardutil.paramCardinality<P2>>
+>;
 /**
  * Render an array to a string.
  */
@@ -2164,9 +2176,20 @@ function array_join<
   array: P1,
   delimiter: P2,
 ): array_joinλFuncExpr<P1, P2>;
+/**
+ * Render an array to a byte-string.
+ */
+function array_join<
+  P1 extends $.TypeSet<$.ArrayType<$bytes>>,
+  P2 extends _.castMaps.orScalarLiteral<$.TypeSet<$bytes>>,
+>(
+  array: P1,
+  delimiter: P2,
+): array_joinλFuncExpr2<P1, P2>;
 function array_join(...args: any[]) {
   const {returnType, cardinality, args: positionalArgs, namedArgs} = _.syntax.$resolveOverload('std::array_join', args, _.spec, [
     {args: [{typeId: "bb221d39-09f1-507e-8851-62075bb61823", optional: false, setoftype: false, variadic: false}, {typeId: "00000000-0000-0000-0000-000000000101", optional: false, setoftype: false, variadic: false}], returnTypeId: "00000000-0000-0000-0000-000000000101"},
+    {args: [{typeId: "48aa45ef-4d93-5fbd-bfb5-81bf67b49eab", optional: false, setoftype: false, variadic: false}, {typeId: "00000000-0000-0000-0000-000000000102", optional: false, setoftype: false, variadic: false}], returnTypeId: "00000000-0000-0000-0000-000000000102"},
   ]);
   return _.syntax.$expressionify({
     __kind__: $.ExpressionKind.Function,
@@ -2874,47 +2897,6 @@ function range_unpack(...args: any[]) {
     __element__: returnType,
     __cardinality__: cardinality,
     __name__: "std::range_unpack",
-    __args__: positionalArgs,
-    __namedargs__: namedArgs,
-  }) as any;
-};
-
-type strictly_aboveλFuncExpr<
-  P1 extends $.TypeSet<$.MultiRangeType<$anypoint>>,
-  P2 extends $.TypeSet<$.MultiRangeType<$.getPrimitiveBaseType<P1["__element__"]["__element__"]>>>,
-> = $.$expr_Function<
-  $bool, $.cardutil.multiplyCardinalities<$.cardutil.paramCardinality<P1>, $.cardutil.paramCardinality<P2>>
->;
-type strictly_aboveλFuncExpr2<
-  P1 extends $.TypeSet<$.RangeType<$anypoint>>,
-  P2 extends $.TypeSet<$.RangeType<$.getPrimitiveBaseType<P1["__element__"]["__element__"]>>>,
-> = $.$expr_Function<
-  $bool, $.cardutil.multiplyCardinalities<$.cardutil.paramCardinality<P1>, $.cardutil.paramCardinality<P2>>
->;
-function strictly_above<
-  P1 extends $.TypeSet<$.MultiRangeType<$anypoint>>,
-  P2 extends $.TypeSet<$.MultiRangeType<$.getPrimitiveBaseType<P1["__element__"]["__element__"]>>>,
->(
-  l: P1,
-  r: P2,
-): strictly_aboveλFuncExpr<P1, P2>;
-function strictly_above<
-  P1 extends $.TypeSet<$.RangeType<$anypoint>>,
-  P2 extends $.TypeSet<$.RangeType<$.getPrimitiveBaseType<P1["__element__"]["__element__"]>>>,
->(
-  l: P1,
-  r: P2,
-): strictly_aboveλFuncExpr2<P1, P2>;
-function strictly_above(...args: any[]) {
-  const {returnType, cardinality, args: positionalArgs, namedArgs} = _.syntax.$resolveOverload('std::strictly_above', args, _.spec, [
-    {args: [{typeId: "c3231f27-c8a1-5a0c-9830-c71206020eac", optional: false, setoftype: false, variadic: false}, {typeId: "c3231f27-c8a1-5a0c-9830-c71206020eac", optional: false, setoftype: false, variadic: false}], returnTypeId: "00000000-0000-0000-0000-000000000109"},
-    {args: [{typeId: "49748e47-8d91-5269-9a34-2e8ca194e0f2", optional: false, setoftype: false, variadic: false}, {typeId: "49748e47-8d91-5269-9a34-2e8ca194e0f2", optional: false, setoftype: false, variadic: false}], returnTypeId: "00000000-0000-0000-0000-000000000109"},
-  ]);
-  return _.syntax.$expressionify({
-    __kind__: $.ExpressionKind.Function,
-    __element__: returnType,
-    __cardinality__: cardinality,
-    __name__: "std::strictly_above",
     __args__: positionalArgs,
     __namedargs__: namedArgs,
   }) as any;
@@ -3655,6 +3637,47 @@ function range_is_empty(...args: any[]) {
   }) as any;
 };
 
+type strictly_aboveλFuncExpr<
+  P1 extends $.TypeSet<$.RangeType<$anypoint>>,
+  P2 extends $.TypeSet<$.RangeType<$.getPrimitiveBaseType<P1["__element__"]["__element__"]>>>,
+> = $.$expr_Function<
+  $bool, $.cardutil.multiplyCardinalities<$.cardutil.paramCardinality<P1>, $.cardutil.paramCardinality<P2>>
+>;
+type strictly_aboveλFuncExpr2<
+  P1 extends $.TypeSet<$.MultiRangeType<$anypoint>>,
+  P2 extends $.TypeSet<$.MultiRangeType<$.getPrimitiveBaseType<P1["__element__"]["__element__"]>>>,
+> = $.$expr_Function<
+  $bool, $.cardutil.multiplyCardinalities<$.cardutil.paramCardinality<P1>, $.cardutil.paramCardinality<P2>>
+>;
+function strictly_above<
+  P1 extends $.TypeSet<$.RangeType<$anypoint>>,
+  P2 extends $.TypeSet<$.RangeType<$.getPrimitiveBaseType<P1["__element__"]["__element__"]>>>,
+>(
+  l: P1,
+  r: P2,
+): strictly_aboveλFuncExpr<P1, P2>;
+function strictly_above<
+  P1 extends $.TypeSet<$.MultiRangeType<$anypoint>>,
+  P2 extends $.TypeSet<$.MultiRangeType<$.getPrimitiveBaseType<P1["__element__"]["__element__"]>>>,
+>(
+  l: P1,
+  r: P2,
+): strictly_aboveλFuncExpr2<P1, P2>;
+function strictly_above(...args: any[]) {
+  const {returnType, cardinality, args: positionalArgs, namedArgs} = _.syntax.$resolveOverload('std::strictly_above', args, _.spec, [
+    {args: [{typeId: "49748e47-8d91-5269-9a34-2e8ca194e0f2", optional: false, setoftype: false, variadic: false}, {typeId: "49748e47-8d91-5269-9a34-2e8ca194e0f2", optional: false, setoftype: false, variadic: false}], returnTypeId: "00000000-0000-0000-0000-000000000109"},
+    {args: [{typeId: "c3231f27-c8a1-5a0c-9830-c71206020eac", optional: false, setoftype: false, variadic: false}, {typeId: "c3231f27-c8a1-5a0c-9830-c71206020eac", optional: false, setoftype: false, variadic: false}], returnTypeId: "00000000-0000-0000-0000-000000000109"},
+  ]);
+  return _.syntax.$expressionify({
+    __kind__: $.ExpressionKind.Function,
+    __element__: returnType,
+    __cardinality__: cardinality,
+    __name__: "std::strictly_above",
+    __args__: positionalArgs,
+    __namedargs__: namedArgs,
+  }) as any;
+};
+
 type range_get_upperλFuncExpr<
   P1 extends $.TypeSet<$.RangeType<$anypoint>>,
 > = $.$expr_Function<
@@ -4320,6 +4343,17 @@ type to_bytesλFuncExpr<
 > = $.$expr_Function<
   $bytes, $.cardutil.paramCardinality<P1>
 >;
+type to_bytesλFuncExpr2<
+  P1 extends _.castMaps.orScalarLiteral<$.TypeSet<$uuid>>,
+> = $.$expr_Function<
+  $bytes, $.cardutil.paramCardinality<P1>
+>;
+type to_bytesλFuncExpr3<
+  P1 extends _.castMaps.orScalarLiteral<$.TypeSet<$number>>,
+  P2 extends _.castMaps.orScalarLiteral<$.TypeSet<$Endian>>,
+> = $.$expr_Function<
+  $bytes, $.cardutil.multiplyCardinalities<$.cardutil.paramCardinality<P1>, $.cardutil.paramCardinality<P2>>
+>;
 /**
  * Convert a text string to a binary UTF-8 string.
  */
@@ -4328,9 +4362,29 @@ function to_bytes<
 >(
   s: P1,
 ): to_bytesλFuncExpr<P1>;
+/**
+ * Convert an UUID to binary format.
+ */
+function to_bytes<
+  P1 extends _.castMaps.orScalarLiteral<$.TypeSet<$uuid>>,
+>(
+  val: P1,
+): to_bytesλFuncExpr2<P1>;
+/**
+ * Convert an int16 using specified endian binary format.
+ */
+function to_bytes<
+  P1 extends _.castMaps.orScalarLiteral<$.TypeSet<$number>>,
+  P2 extends _.castMaps.orScalarLiteral<$.TypeSet<$Endian>>,
+>(
+  val: P1,
+  endian: P2,
+): to_bytesλFuncExpr3<P1, P2>;
 function to_bytes(...args: any[]) {
   const {returnType, cardinality, args: positionalArgs, namedArgs} = _.syntax.$resolveOverload('std::to_bytes', args, _.spec, [
     {args: [{typeId: "00000000-0000-0000-0000-000000000101", optional: false, setoftype: false, variadic: false}], returnTypeId: "00000000-0000-0000-0000-000000000102"},
+    {args: [{typeId: "00000000-0000-0000-0000-000000000100", optional: false, setoftype: false, variadic: false}], returnTypeId: "00000000-0000-0000-0000-000000000102"},
+    {args: [{typeId: "00000000-0000-0000-0000-0000000001ff", optional: false, setoftype: false, variadic: false}, {typeId: "e4a1d11b-227e-5744-a0c9-31f9cd756e7b", optional: false, setoftype: false, variadic: false}], returnTypeId: "00000000-0000-0000-0000-000000000102"},
   ]);
   return _.syntax.$expressionify({
     __kind__: $.ExpressionKind.Function,
@@ -4364,44 +4418,6 @@ function to_json(...args: any[]) {
     __element__: returnType,
     __cardinality__: cardinality,
     __name__: "std::to_json",
-    __args__: positionalArgs,
-    __namedargs__: namedArgs,
-  }) as any;
-};
-
-type sequence_resetλFuncExpr<
-  P1 extends $.TypeSet<_schema.$ScalarType>,
-> = $.$expr_Function<
-  $number, $.cardutil.paramCardinality<P1>
->;
-type sequence_resetλFuncExpr2<
-  P1 extends $.TypeSet<_schema.$ScalarType>,
-  P2 extends _.castMaps.orScalarLiteral<$.TypeSet<$number>>,
-> = $.$expr_Function<
-  $number, $.cardutil.multiplyCardinalities<$.cardutil.paramCardinality<P1>, $.cardutil.paramCardinality<P2>>
->;
-function sequence_reset<
-  P1 extends $.TypeSet<_schema.$ScalarType>,
->(
-  seq: P1,
-): sequence_resetλFuncExpr<P1>;
-function sequence_reset<
-  P1 extends $.TypeSet<_schema.$ScalarType>,
-  P2 extends _.castMaps.orScalarLiteral<$.TypeSet<$number>>,
->(
-  seq: P1,
-  value: P2,
-): sequence_resetλFuncExpr2<P1, P2>;
-function sequence_reset(...args: any[]) {
-  const {returnType, cardinality, args: positionalArgs, namedArgs} = _.syntax.$resolveOverload('std::sequence_reset', args, _.spec, [
-    {args: [{typeId: "d055dd47-3eb9-5a31-9d8f-5e7053bbe11e", optional: false, setoftype: false, variadic: false}], returnTypeId: "00000000-0000-0000-0000-0000000001ff"},
-    {args: [{typeId: "d055dd47-3eb9-5a31-9d8f-5e7053bbe11e", optional: false, setoftype: false, variadic: false}, {typeId: "00000000-0000-0000-0000-0000000001ff", optional: false, setoftype: false, variadic: false}], returnTypeId: "00000000-0000-0000-0000-0000000001ff"},
-  ]);
-  return _.syntax.$expressionify({
-    __kind__: $.ExpressionKind.Function,
-    __element__: returnType,
-    __cardinality__: cardinality,
-    __name__: "std::sequence_reset",
     __args__: positionalArgs,
     __namedargs__: namedArgs,
   }) as any;
@@ -4617,6 +4633,12 @@ type to_int64λFuncExpr<
 > = $.$expr_Function<
   $number, $.cardutil.multiplyCardinalities<$.cardutil.paramCardinality<P1>, $.cardutil.optionalParamCardinality<P2>>
 >;
+type to_int64λFuncExpr2<
+  P1 extends _.castMaps.orScalarLiteral<$.TypeSet<$bytes>>,
+  P2 extends _.castMaps.orScalarLiteral<$.TypeSet<$Endian>>,
+> = $.$expr_Function<
+  $number, $.cardutil.multiplyCardinalities<$.cardutil.paramCardinality<P1>, $.cardutil.paramCardinality<P2>>
+>;
 /**
  * Create a `int64` value.
  */
@@ -4627,9 +4649,20 @@ function to_int64<
   s: P1,
   fmt?: P2,
 ): to_int64λFuncExpr<P1, P2>;
+/**
+ * Convert bytes into `int64` value.
+ */
+function to_int64<
+  P1 extends _.castMaps.orScalarLiteral<$.TypeSet<$bytes>>,
+  P2 extends _.castMaps.orScalarLiteral<$.TypeSet<$Endian>>,
+>(
+  val: P1,
+  endian: P2,
+): to_int64λFuncExpr2<P1, P2>;
 function to_int64(...args: any[]) {
   const {returnType, cardinality, args: positionalArgs, namedArgs} = _.syntax.$resolveOverload('std::to_int64', args, _.spec, [
     {args: [{typeId: "00000000-0000-0000-0000-000000000101", optional: false, setoftype: false, variadic: false}, {typeId: "00000000-0000-0000-0000-000000000101", optional: true, setoftype: false, variadic: false}], returnTypeId: "00000000-0000-0000-0000-0000000001ff"},
+    {args: [{typeId: "00000000-0000-0000-0000-000000000102", optional: false, setoftype: false, variadic: false}, {typeId: "e4a1d11b-227e-5744-a0c9-31f9cd756e7b", optional: false, setoftype: false, variadic: false}], returnTypeId: "00000000-0000-0000-0000-0000000001ff"},
   ]);
   return _.syntax.$expressionify({
     __kind__: $.ExpressionKind.Function,
@@ -4647,6 +4680,12 @@ type to_int32λFuncExpr<
 > = $.$expr_Function<
   $number, $.cardutil.multiplyCardinalities<$.cardutil.paramCardinality<P1>, $.cardutil.optionalParamCardinality<P2>>
 >;
+type to_int32λFuncExpr2<
+  P1 extends _.castMaps.orScalarLiteral<$.TypeSet<$bytes>>,
+  P2 extends _.castMaps.orScalarLiteral<$.TypeSet<$Endian>>,
+> = $.$expr_Function<
+  $number, $.cardutil.multiplyCardinalities<$.cardutil.paramCardinality<P1>, $.cardutil.paramCardinality<P2>>
+>;
 /**
  * Create a `int32` value.
  */
@@ -4657,9 +4696,20 @@ function to_int32<
   s: P1,
   fmt?: P2,
 ): to_int32λFuncExpr<P1, P2>;
+/**
+ * Convert bytes into `int32` value.
+ */
+function to_int32<
+  P1 extends _.castMaps.orScalarLiteral<$.TypeSet<$bytes>>,
+  P2 extends _.castMaps.orScalarLiteral<$.TypeSet<$Endian>>,
+>(
+  val: P1,
+  endian: P2,
+): to_int32λFuncExpr2<P1, P2>;
 function to_int32(...args: any[]) {
   const {returnType, cardinality, args: positionalArgs, namedArgs} = _.syntax.$resolveOverload('std::to_int32', args, _.spec, [
     {args: [{typeId: "00000000-0000-0000-0000-000000000101", optional: false, setoftype: false, variadic: false}, {typeId: "00000000-0000-0000-0000-000000000101", optional: true, setoftype: false, variadic: false}], returnTypeId: "00000000-0000-0000-0000-0000000001ff"},
+    {args: [{typeId: "00000000-0000-0000-0000-000000000102", optional: false, setoftype: false, variadic: false}, {typeId: "e4a1d11b-227e-5744-a0c9-31f9cd756e7b", optional: false, setoftype: false, variadic: false}], returnTypeId: "00000000-0000-0000-0000-0000000001ff"},
   ]);
   return _.syntax.$expressionify({
     __kind__: $.ExpressionKind.Function,
@@ -4677,6 +4727,12 @@ type to_int16λFuncExpr<
 > = $.$expr_Function<
   $number, $.cardutil.multiplyCardinalities<$.cardutil.paramCardinality<P1>, $.cardutil.optionalParamCardinality<P2>>
 >;
+type to_int16λFuncExpr2<
+  P1 extends _.castMaps.orScalarLiteral<$.TypeSet<$bytes>>,
+  P2 extends _.castMaps.orScalarLiteral<$.TypeSet<$Endian>>,
+> = $.$expr_Function<
+  $number, $.cardutil.multiplyCardinalities<$.cardutil.paramCardinality<P1>, $.cardutil.paramCardinality<P2>>
+>;
 /**
  * Create a `int16` value.
  */
@@ -4687,9 +4743,20 @@ function to_int16<
   s: P1,
   fmt?: P2,
 ): to_int16λFuncExpr<P1, P2>;
+/**
+ * Convert bytes into `int16` value.
+ */
+function to_int16<
+  P1 extends _.castMaps.orScalarLiteral<$.TypeSet<$bytes>>,
+  P2 extends _.castMaps.orScalarLiteral<$.TypeSet<$Endian>>,
+>(
+  val: P1,
+  endian: P2,
+): to_int16λFuncExpr2<P1, P2>;
 function to_int16(...args: any[]) {
   const {returnType, cardinality, args: positionalArgs, namedArgs} = _.syntax.$resolveOverload('std::to_int16', args, _.spec, [
     {args: [{typeId: "00000000-0000-0000-0000-000000000101", optional: false, setoftype: false, variadic: false}, {typeId: "00000000-0000-0000-0000-000000000101", optional: true, setoftype: false, variadic: false}], returnTypeId: "00000000-0000-0000-0000-0000000001ff"},
+    {args: [{typeId: "00000000-0000-0000-0000-000000000102", optional: false, setoftype: false, variadic: false}, {typeId: "e4a1d11b-227e-5744-a0c9-31f9cd756e7b", optional: false, setoftype: false, variadic: false}], returnTypeId: "00000000-0000-0000-0000-0000000001ff"},
   ]);
   return _.syntax.$expressionify({
     __kind__: $.ExpressionKind.Function,
@@ -4761,6 +4828,71 @@ function to_float32(...args: any[]) {
   }) as any;
 };
 
+type to_uuidλFuncExpr<
+  P1 extends _.castMaps.orScalarLiteral<$.TypeSet<$bytes>>,
+> = $.$expr_Function<
+  $uuid, $.cardutil.paramCardinality<P1>
+>;
+/**
+ * Convert binary representation into UUID value.
+ */
+function to_uuid<
+  P1 extends _.castMaps.orScalarLiteral<$.TypeSet<$bytes>>,
+>(
+  val: P1,
+): to_uuidλFuncExpr<P1>;
+function to_uuid(...args: any[]) {
+  const {returnType, cardinality, args: positionalArgs, namedArgs} = _.syntax.$resolveOverload('std::to_uuid', args, _.spec, [
+    {args: [{typeId: "00000000-0000-0000-0000-000000000102", optional: false, setoftype: false, variadic: false}], returnTypeId: "00000000-0000-0000-0000-000000000100"},
+  ]);
+  return _.syntax.$expressionify({
+    __kind__: $.ExpressionKind.Function,
+    __element__: returnType,
+    __cardinality__: cardinality,
+    __name__: "std::to_uuid",
+    __args__: positionalArgs,
+    __namedargs__: namedArgs,
+  }) as any;
+};
+
+type sequence_resetλFuncExpr<
+  P1 extends $.TypeSet<_schema.$ScalarType>,
+> = $.$expr_Function<
+  $number, $.cardutil.paramCardinality<P1>
+>;
+type sequence_resetλFuncExpr2<
+  P1 extends $.TypeSet<_schema.$ScalarType>,
+  P2 extends _.castMaps.orScalarLiteral<$.TypeSet<$number>>,
+> = $.$expr_Function<
+  $number, $.cardutil.multiplyCardinalities<$.cardutil.paramCardinality<P1>, $.cardutil.paramCardinality<P2>>
+>;
+function sequence_reset<
+  P1 extends $.TypeSet<_schema.$ScalarType>,
+>(
+  seq: P1,
+): sequence_resetλFuncExpr<P1>;
+function sequence_reset<
+  P1 extends $.TypeSet<_schema.$ScalarType>,
+  P2 extends _.castMaps.orScalarLiteral<$.TypeSet<$number>>,
+>(
+  seq: P1,
+  value: P2,
+): sequence_resetλFuncExpr2<P1, P2>;
+function sequence_reset(...args: any[]) {
+  const {returnType, cardinality, args: positionalArgs, namedArgs} = _.syntax.$resolveOverload('std::sequence_reset', args, _.spec, [
+    {args: [{typeId: "d055dd47-3eb9-5a31-9d8f-5e7053bbe11e", optional: false, setoftype: false, variadic: false}], returnTypeId: "00000000-0000-0000-0000-0000000001ff"},
+    {args: [{typeId: "d055dd47-3eb9-5a31-9d8f-5e7053bbe11e", optional: false, setoftype: false, variadic: false}, {typeId: "00000000-0000-0000-0000-0000000001ff", optional: false, setoftype: false, variadic: false}], returnTypeId: "00000000-0000-0000-0000-0000000001ff"},
+  ]);
+  return _.syntax.$expressionify({
+    __kind__: $.ExpressionKind.Function,
+    __element__: returnType,
+    __cardinality__: cardinality,
+    __name__: "std::sequence_reset",
+    __args__: positionalArgs,
+    __namedargs__: namedArgs,
+  }) as any;
+};
+
 type sequence_nextλFuncExpr<
   P1 extends $.TypeSet<_schema.$ScalarType>,
 > = $.$expr_Function<
@@ -4787,7 +4919,7 @@ function sequence_next(...args: any[]) {
 
 
 
-export { str, decimal, uuid, int32, bigint, int64, JsonEmpty, bool, bytes, datetime, duration, float32, float64, int16, json, $sequence, number, $BaseObject, BaseObject, $Object_8ce8c71ee4fa5f73840c22d7eaa58588, Object_8ce8c71ee4fa5f73840c22d7eaa58588, $FreeObject, FreeObject };
+export { str, decimal, uuid, int32, bigint, int64, Endian, JsonEmpty, bool, bytes, datetime, duration, float32, float64, int16, json, $sequence, number, $BaseObject, BaseObject, $Object_8ce8c71ee4fa5f73840c22d7eaa58588, Object_8ce8c71ee4fa5f73840c22d7eaa58588, $FreeObject, FreeObject };
 
 export type { $anyscalar, $anypoint, $anydiscrete, $anycontiguous, $anyreal, $anynumeric, $anyint, $anyfloat };
 
@@ -4798,6 +4930,7 @@ type __defaultExports = {
   "int32": typeof int32;
   "bigint": typeof bigint;
   "int64": typeof int64;
+  "Endian": typeof Endian;
   "JsonEmpty": typeof JsonEmpty;
   "bool": typeof bool;
   "bytes": typeof bytes;
@@ -4854,7 +4987,6 @@ type __defaultExports = {
   "json_get": typeof json_get;
   "json_set": typeof json_set;
   "range_unpack": typeof range_unpack;
-  "strictly_above": typeof strictly_above;
   "re_match": typeof re_match;
   "re_match_all": typeof re_match_all;
   "re_test": typeof re_test;
@@ -4880,6 +5012,7 @@ type __defaultExports = {
   "range": typeof range;
   "multirange": typeof multirange;
   "range_is_empty": typeof range_is_empty;
+  "strictly_above": typeof strictly_above;
   "range_get_upper": typeof range_get_upper;
   "range_get_lower": typeof range_get_lower;
   "range_is_inclusive_upper": typeof range_is_inclusive_upper;
@@ -4893,7 +5026,6 @@ type __defaultExports = {
   "to_str": typeof to_str;
   "to_bytes": typeof to_bytes;
   "to_json": typeof to_json;
-  "sequence_reset": typeof sequence_reset;
   "to_datetime": typeof to_datetime;
   "to_duration": typeof to_duration;
   "to_bigint": typeof to_bigint;
@@ -4903,6 +5035,8 @@ type __defaultExports = {
   "to_int16": typeof to_int16;
   "to_float64": typeof to_float64;
   "to_float32": typeof to_float32;
+  "to_uuid": typeof to_uuid;
+  "sequence_reset": typeof sequence_reset;
   "sequence_next": typeof sequence_next;
   "enc": typeof _module__enc
 };
@@ -4913,6 +5047,7 @@ const __defaultExports: __defaultExports = {
   "int32": int32,
   "bigint": bigint,
   "int64": int64,
+  "Endian": Endian,
   "JsonEmpty": JsonEmpty,
   "bool": bool,
   "bytes": bytes,
@@ -4969,7 +5104,6 @@ const __defaultExports: __defaultExports = {
   "json_get": json_get,
   "json_set": json_set,
   "range_unpack": range_unpack,
-  "strictly_above": strictly_above,
   "re_match": re_match,
   "re_match_all": re_match_all,
   "re_test": re_test,
@@ -4995,6 +5129,7 @@ const __defaultExports: __defaultExports = {
   "range": range,
   "multirange": multirange,
   "range_is_empty": range_is_empty,
+  "strictly_above": strictly_above,
   "range_get_upper": range_get_upper,
   "range_get_lower": range_get_lower,
   "range_is_inclusive_upper": range_is_inclusive_upper,
@@ -5008,7 +5143,6 @@ const __defaultExports: __defaultExports = {
   "to_str": to_str,
   "to_bytes": to_bytes,
   "to_json": to_json,
-  "sequence_reset": sequence_reset,
   "to_datetime": to_datetime,
   "to_duration": to_duration,
   "to_bigint": to_bigint,
@@ -5018,6 +5152,8 @@ const __defaultExports: __defaultExports = {
   "to_int16": to_int16,
   "to_float64": to_float64,
   "to_float32": to_float32,
+  "to_uuid": to_uuid,
+  "sequence_reset": sequence_reset,
   "sequence_next": sequence_next,
   "enc": _module__enc
 };
