@@ -38,8 +38,8 @@ export const PAYMASTER = {
   abi: paymasterArtifact.abi,
   address: addresses({
     // Addresses differ due to token addresses differing on networks
-    'zksync-sepolia': '0xcE92aeCa1f4126bdcEAe9cb949ebD895Bd59d51D',
-    'zksync-goerli': '0x2CFB10415ce77A026CD6CC40a83349b32d52825A',
+    'zksync-sepolia': '0x2E4971D7a2f2b9D90497a21ffE308cE5AbeCb137',
+    'zksync-goerli': '0x65680536d53b98a47c21Ca95322EE4a591853Bfa',
   }),
 };
 
