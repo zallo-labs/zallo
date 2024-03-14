@@ -69,20 +69,6 @@ export const USDC = {
   pythUsdPriceId: '0xeaa020c61cc479712813461ce153894a96a6c00b21ed0cfc2798d1f9a9e9c94a',
 } satisfies Token;
 
-export const DAI = {
-  name: 'Dai',
-  symbol: 'DAI',
-  decimals: 18,
-  address: addressMap({
-    zksync: '0x4B9eb6c0b6ea15176BBF62841C6B2A8a398cb656',
-    'zksync-goerli': '0x3e7676937A7E96CFB7616f255b9AD9FF47363D4b',
-  }),
-  ethereumAddress: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
-  iconUri: icon(`DAI.svg`),
-  isFeeToken: true,
-  pythUsdPriceId: '0xb0948a5e5313200c632b51bb5ca32f6de0d36e9950a942d19751e833f70dabfd',
-} satisfies Token;
-
 export const USDT = {
   name: 'Tether USD',
   symbol: 'USDT',
@@ -95,6 +81,20 @@ export const USDT = {
   ethereumAddress: '0xdAC17F958D2ee523a2206206994597C13D831ec7',
   iconUri: icon(`USDT.svg`),
   pythUsdPriceId: '0x2b89b9dc8fdf9f34709a5b106b472f0f39bb6ca9ce04b0fd7f2e971688e2e53b',
+} satisfies Token;
+
+export const DAI = {
+  name: 'Dai',
+  symbol: 'DAI',
+  decimals: 18,
+  address: addressMap({
+    zksync: '0x4B9eb6c0b6ea15176BBF62841C6B2A8a398cb656',
+    'zksync-goerli': '0x3e7676937A7E96CFB7616f255b9AD9FF47363D4b',
+  }),
+  ethereumAddress: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
+  iconUri: icon(`DAI.svg`),
+  isFeeToken: true,
+  pythUsdPriceId: '0xb0948a5e5313200c632b51bb5ca32f6de0d36e9950a942d19751e833f70dabfd',
 } satisfies Token;
 
 export const WBTC = {
@@ -150,7 +150,7 @@ export const SHIB = {
   pythUsdPriceId: '0xf0d57deca57b3da2fe63a493f4c25925fdfd8edf834b20f93e1f84dbd1504d4a',
 } satisfies Token;
 
-export const TOKENS = [ETH, WETH, USDC, DAI, USDC, WBTC, RETH, CBETH, SHIB] satisfies Token[];
+export const TOKENS = [ETH, WETH, USDC, USDT, DAI, WBTC, RETH, CBETH, SHIB] satisfies Token[];
 
 export function flattenToken(t: Token) {
   return Object.keys(t.address)
