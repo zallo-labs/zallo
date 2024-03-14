@@ -16,7 +16,6 @@ import {
   asFp,
   asSelector,
 } from 'lib';
-import _ from 'lodash';
 import { FC, useMemo } from 'react';
 import { getAbiItem, toFunctionSelector } from 'viem';
 import { SYNCSWAP, ERC721_ABI, USDC, USDT, DAI, Token } from 'lib/dapps';
@@ -146,6 +145,7 @@ export function usePolicyPresets({ chain, ...params }: UsePolicyPresetsParams) {
       ...(account?.approvers.map((a) => a.address) ?? []),
       ...user.approvers.map((a) => a.address),
     ]);
+    const n = approvers.size;
 
     return {
       low: {
@@ -189,7 +189,7 @@ export function usePolicyPresets({ chain, ...params }: UsePolicyPresetsParams) {
       medium: {
         name: 'Medium risk',
         approvers,
-        threshold: Math.max(approvers.size > 3 ? 3 : 2, approvers.size),
+        threshold: Math.max(Math.round(n * 0.4), 1),
         transfers: {
           defaultAllow: false,
           limits: {
@@ -224,10 +224,27 @@ export function usePolicyPresets({ chain, ...params }: UsePolicyPresetsParams) {
         allowMessages: true,
         delay: 0,
       },
+      recovery: {
+        name: 'Recovery',
+        approvers,
+        threshold: Math.max(Math.round(n * 0.63), 1),
+        transfers: { defaultAllow: false, limits: {} },
+        actions: [
+          {
+            ...ACTION_PRESETS.manageAccount,
+            functions: ACTION_PRESETS.manageAccount.functions(accountAddress),
+            allow: true,
+          },
+          { ...ACTION_PRESETS.all, allow: false },
+        ],
+        allowMessages: false,
+        delay: Duration.fromObject({ week: 1 }).as('seconds'),
+      },
       high: {
         name: 'High risk',
         approvers,
-        threshold: _.clamp(approvers.size - 2, 1, 5),
+        threshold: Math.max(Math.round(n * 0.85), 1),
+        transfers: { defaultAllow: true, limits: {} },
         actions: [
           {
             ...ACTION_PRESETS.manageAccount,
@@ -251,40 +268,8 @@ export function usePolicyPresets({ chain, ...params }: UsePolicyPresetsParams) {
           },
           { ...ACTION_PRESETS.all, allow: true },
         ],
-        transfers: { defaultAllow: true, limits: {} },
         allowMessages: true,
         delay: 0,
-      },
-      highDelayed: {
-        name: 'High risk (delayed)',
-        approvers,
-        threshold: Math.max(approvers.size > 3 ? 3 : 2, approvers.size),
-        transfers: { defaultAllow: true, limits: {} },
-        actions: [
-          {
-            ...ACTION_PRESETS.manageAccount,
-            functions: ACTION_PRESETS.manageAccount.functions(accountAddress),
-            allow: true,
-          },
-          {
-            ...ACTION_PRESETS.cancelDelayedTransactions,
-            functions: ACTION_PRESETS.cancelDelayedTransactions.functions(accountAddress),
-            allow: true,
-          },
-          {
-            ...ACTION_PRESETS.syncswapSwap,
-            functions: ACTION_PRESETS.syncswapSwap.functions(chain),
-            allow: true,
-          },
-          {
-            ...ACTION_PRESETS.syncswapLiquidity,
-            functions: ACTION_PRESETS.syncswapLiquidity.functions(chain),
-            allow: true,
-          },
-          { ...ACTION_PRESETS.all, allow: true },
-        ],
-        allowMessages: true,
-        delay: Duration.fromObject({ week: 1 }).as('seconds'),
       },
     } satisfies Record<string, Omit<PolicyDraft, 'account' | 'key'>>;
   }, [account?.address, account?.approvers, user.approvers, chain]);
