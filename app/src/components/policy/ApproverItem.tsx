@@ -8,6 +8,7 @@ import { DeleteIcon } from '@theme/icons';
 import { useRef } from 'react';
 import { ICON_SIZE } from '@theme/paper';
 import { createStyles, useStyles } from '@theme/styles';
+import { AddressIcon } from '#/Identicon/AddressIcon';
 
 export interface ApproverItemProps {
   address: UAddress;
@@ -44,7 +45,8 @@ export function ApproverItem({ address, remove }: ApproverItemProps) {
       }}
     >
       <ListItem
-        leading={address}
+        leading={(props) => <AddressIcon {...props} address={address} />}
+        leadingSize="medium"
         headline={label}
         trailing={label !== truncated ? truncated : undefined}
         containerStyle={styles.itemContainer}
