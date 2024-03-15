@@ -37,7 +37,7 @@ export const ETH = {
 
 export const WETH = {
   name: 'Wrapped ETH',
-  symbol: 'wETH',
+  symbol: 'WETH',
   decimals: 18,
   units: [
     { symbol: 'WWEI', decimals: 0 },
