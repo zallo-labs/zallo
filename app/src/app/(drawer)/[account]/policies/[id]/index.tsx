@@ -1,7 +1,6 @@
 import { gql } from '@api';
-import { useRouter } from 'expo-router';
+import { Link, useRouter } from 'expo-router';
 import { useAtom } from 'jotai';
-import { PolicyKey } from 'lib';
 import _ from 'lodash';
 import { useMutation } from 'urql';
 import { z } from 'zod';
@@ -17,7 +16,7 @@ import { ApprovalSettings } from '#/policy/ApprovalSettings';
 import { SpendingSettings } from '#/policy/SpendingSettings';
 import { useLayout } from '~/hooks/useLayout';
 import { ActionsSettings } from '#/policy/ActionsSettings';
-import { PolicySuggestions } from '#/policy/PolicySuggestions';
+import { PolicyPresets } from '#/policy/PolicyPresets';
 import { createStyles } from '@theme/styles';
 import { Actions } from '#/layout/Actions';
 import { Button } from '#/Button';
@@ -31,6 +30,12 @@ const Query = gql(/* GraphQL */ `
   query PolicyScreen($account: UAddress!, $policy: ID!, $includePolicy: Boolean!) {
     policy: policyState(id: $policy) @include(if: $includePolicy) {
       id
+      draft {
+        id
+      }
+      proposal {
+        id
+      }
       ...PolicyAppbar_Policy
       ...PolicySideSheet_Policy
     }
@@ -38,13 +43,13 @@ const Query = gql(/* GraphQL */ `
     account(input: { account: $account }) {
       id
       address
-      ...PolicySuggestions_Account
+      ...PolicyPresets_Account
       ...PolicySideSheet_Account
     }
 
     user {
       id
-      ...PolicySuggestions_User
+      ...PolicyPresets_User
     }
   }
 `);
@@ -114,6 +119,7 @@ function PolicyScreen() {
   }).data;
 
   const isModified = !_.isEqual(init, draft);
+  const showSubmit = draft.key === undefined || isModified;
   const initiallyExpanded = useLayout().layout === 'expanded';
 
   if (!account) return null;
@@ -123,15 +129,15 @@ function PolicyScreen() {
       <PolicyAppbar policy={policy} reset={isModified ? () => setDraft(init) : undefined} />
 
       <ScrollableScreenSurface contentContainerStyle={styles.container}>
-        <PolicySuggestions account={account} user={user} />
+        <PolicyPresets account={account} user={user} />
         <ApprovalSettings initiallyExpanded={initiallyExpanded} />
         <SpendingSettings initiallyExpanded={initiallyExpanded} />
         <ActionsSettings initiallyExpanded={initiallyExpanded} />
         <SignMessageSettings />
         <DelaySettings />
 
-        {(draft.key === undefined || isModified) && (
-          <Actions>
+        <Actions>
+          {showSubmit ? (
             <Button
               mode="contained"
               onPress={async () => {
@@ -155,8 +161,21 @@ function PolicyScreen() {
             >
               {draft.key === undefined ? 'Create' : 'Update'}
             </Button>
-          </Actions>
-        )}
+          ) : (
+            policy?.proposal &&
+            policy?.id === policy?.draft?.id && (
+              <Link
+                href={{
+                  pathname: '/(drawer)/transaction/[id]',
+                  params: { id: policy.proposal.id },
+                }}
+                asChild
+              >
+                <Button mode="contained">View proposal</Button>
+              </Link>
+            )
+          )}
+        </Actions>
       </ScrollableScreenSurface>
 
       <PolicySideSheet account={account} policy={policy} />
