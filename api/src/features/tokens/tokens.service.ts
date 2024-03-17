@@ -3,7 +3,7 @@ import { DatabaseService } from '../database/database.service';
 import { BalanceInput, SpendingInput, TokensInput, UpsertTokenInput } from './tokens.input';
 import { Scope, ShapeFunc } from '../database/database.select';
 import e from '~/edgeql-js';
-import { UAddress, asAddress, asDecimal, asFp, asUAddress } from 'lib';
+import { UAddress, asAddress, asDecimal, asFp, asHex, asUAddress } from 'lib';
 import { ERC20, TOKENS, flattenToken } from 'lib/dapps';
 import { and, or } from '../database/database.util';
 import { NetworksService } from '../util/networks/networks.service';
@@ -78,6 +78,7 @@ export class TokensService {
       name: metadata.name,
       symbol: metadata.symbol,
       decimals: metadata.decimals,
+      pythUsdPriceId: metadata.pythUsdPriceId,
       ...token,
     };
     if (!c.name) throw new UserInputError('Name could not be detected so is required');
@@ -108,7 +109,7 @@ export class TokensService {
     );
   }
 
-  async getTokenMetadata(address: UAddress) {
+  async getTokenMetadata(address: UAddress): Promise<TokenMetadata> {
     const t = await this.db.query(
       e.assert_single(
         e.select(e.Token, (t) => ({
@@ -120,10 +121,16 @@ export class TokensService {
           decimals: true,
           isFeeToken: true,
           iconUri: true,
+          pythUsdPriceId: true,
         })),
       ),
     );
-    if (t) return t;
+    if (t)
+      return {
+        id: `TokenMetadata:${address}`,
+        ...t,
+        pythUsdPriceId: asHex(t.pythUsdPriceId),
+      };
 
     const [name, symbol, decimals] = await this.networks.get(address).multicall({
       contracts: [
@@ -151,7 +158,7 @@ export class TokensService {
       symbol: symbol.result,
       decimals: decimals.result,
       iconUri: null,
-    } satisfies TokenMetadata;
+    };
   }
 
   async decimals(token: UAddress): Promise<number> {

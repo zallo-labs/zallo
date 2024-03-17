@@ -40,6 +40,9 @@ export class UpsertTokenInput {
   @Field(() => String, { nullable: true })
   symbol?: string;
 
+  @Field(() => GraphQLInt, { nullable: true })
+  decimals?: number;
+
   @Field(() => String, { nullable: true })
   iconUri?: string;
 
