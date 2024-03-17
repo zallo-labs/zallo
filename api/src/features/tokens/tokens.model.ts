@@ -49,9 +49,6 @@ export class TokenMetadata {
   @Field(() => ID)
   id: string;
 
-  @Bytes32Field({ nullable: true })
-  pythUsdPriceId?: Hex;
-
   @Field(() => String, { nullable: true })
   name?: string;
 
@@ -63,4 +60,7 @@ export class TokenMetadata {
 
   @Field(() => String, { nullable: true })
   iconUri?: string | null;
+
+  @Bytes32Field({ nullable: true })
+  pythUsdPriceId?: Hex;
 }

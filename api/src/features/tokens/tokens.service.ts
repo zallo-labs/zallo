@@ -279,7 +279,13 @@ export class TokensService {
 
 export function preferUserToken(t: Scope<typeof e.Token>): OrderByObjExpr {
   return {
-    expression: e.op('exists', t.user),
+    expression: e.op(
+      e.op('exists', t.user),
+      'if',
+      e.op('exists', e.global.current_user),
+      'else',
+      e.op('not', e.op('exists', t.user)),
+    ),
     direction: e.DESC,
   };
 }

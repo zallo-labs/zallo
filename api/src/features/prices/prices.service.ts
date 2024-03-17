@@ -96,7 +96,7 @@ export class PricesService {
     return r;
   }
 
-  async getUsdPriceId(token: UAddress) {
+  private async getUsdPriceId(token: UAddress) {
     const usdPriceId = await this.db.query(
       e.assert_single(
         e.select(e.Token, (t) => ({
