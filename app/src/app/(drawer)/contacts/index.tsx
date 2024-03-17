@@ -19,6 +19,7 @@ import { createStyles, useStyles } from '@theme/styles';
 import { z } from 'zod';
 import { zArray, zUAddress } from '~/lib/zod';
 import { useLocalParams } from '~/hooks/useLocalParams';
+import { ScreenSurface } from '#/layout/ScreenSurface';
 
 const Query = gql(/* GraphQL */ `
   query ContactsScreen($query: String) {
@@ -71,7 +72,7 @@ function ContactsScreen() {
         onChangeText={setQuery}
       />
 
-      <ScrollableScreenSurface>
+      <ScreenSurface>
         <FlashList
           data={contacts}
           ListHeaderComponent={<ListHeader>Contacts</ListHeader>}
@@ -100,7 +101,7 @@ function ContactsScreen() {
         />
 
         <Fab icon={AddContactIcon} label="Add" onPress={async () => router.push(`/contacts/add`)} />
-      </ScrollableScreenSurface>
+      </ScreenSurface>
     </>
   );
 }
