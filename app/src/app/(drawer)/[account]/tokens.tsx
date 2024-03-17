@@ -1,13 +1,11 @@
 import { useRouter } from 'expo-router';
-import { StyleSheet } from 'react-native';
+import { FlatList, StyleSheet } from 'react-native';
 import { UAddress, asChain } from 'lib';
 import { AddIcon, SearchIcon } from '@theme/icons';
 import { ListHeader } from '#/list/ListHeader';
 import { TokenItem } from '#/token/TokenItem';
 import { useState } from 'react';
 import { gql } from '@api/generated';
-import { FlashList } from '@shopify/flash-list';
-import { ListItemHeight } from '#/list/ListItem';
 import { useQuery } from '~/gql';
 import { Subject } from 'rxjs';
 import { useGetEvent } from '~/hooks/useGetEvent';
@@ -85,7 +83,7 @@ function TokensScreen() {
       />
 
       <ScrollableScreenSurface>
-        <FlashList
+        <FlatList
           data={tokens}
           ListHeaderComponent={<ListHeader>Tokens</ListHeader>}
           renderItem={({ item: token }) => (
@@ -107,7 +105,6 @@ function TokensScreen() {
           )}
           contentContainerStyle={styles.container}
           showsVerticalScrollIndicator={false}
-          estimatedItemSize={ListItemHeight.DOUBLE_LINE}
           keyExtractor={(item) => item.id}
         />
       </ScrollableScreenSurface>
