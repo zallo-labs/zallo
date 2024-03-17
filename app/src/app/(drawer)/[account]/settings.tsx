@@ -1,46 +1,30 @@
-import { Link, useRouter } from 'expo-router';
+import { Link } from 'expo-router';
 import { gql } from '@api/generated';
-import { FlashList } from '@shopify/flash-list';
-import { NavigateNextIcon } from '@theme/icons';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet } from 'react-native';
 import { NotFound } from '#/NotFound';
-import { ListHeader } from '#/list/ListHeader';
-import { ListItemHeight } from '#/list/ListItem';
 import { useQuery } from '~/gql';
-import { PolicyItem } from '#/policy/PolicyItem';
 import { useLocalParams } from '~/hooks/useLocalParams';
 import { withSuspense } from '#/skeleton/withSuspense';
 import { ScreenSkeleton } from '#/skeleton/ScreenSkeleton';
 import { ScrollableScreenSurface } from '#/layout/ScrollableScreenSurface';
 import { Actions } from '#/layout/Actions';
 import { Button } from '#/Button';
-import { match } from 'ts-pattern';
 import { useMutation } from 'urql';
 import { AccountParams } from '~/app/(drawer)/[account]/(home)/_layout';
 import { SideSheetLayout } from '#/SideSheet/SideSheetLayout';
 import { AccountSettingsSideSheet } from '#/account/AccountSettingsSideSheet';
 import { AccountSettingsAppbar } from '#/account/AccountSettingsAppbar';
+import { PolicySuggestions } from '#/account/PolicySuggestions';
+import { AccountPolicies } from '#/account/AccountPolicies';
 
 const Query = gql(/* GraphQL */ `
   query AccountSettingsScreen($account: UAddress!) {
     account(input: { account: $account }) {
       id
       address
-      policies {
-        __typename
-        id
-        key
-        active
-        threshold
-        approvers {
-          id
-        }
-        draft {
-          id
-        }
-        ...PolicyItem_Policy
-      }
       ...AccountSettingsAppbar_Account
+      ...PolicySuggestions_Account
+      ...AccountPolicies_Account
       ...AccountSettingsSideSheet_Account
     }
 
@@ -49,6 +33,7 @@ const Query = gql(/* GraphQL */ `
       primaryAccount {
         id
       }
+      ...PolicySuggestions_User
     }
   }
 `);
@@ -68,7 +53,6 @@ const AccountSettingsScreenParams = AccountParams;
 
 function AccountSettingsScreen() {
   const params = useLocalParams(AccountSettingsScreenParams);
-  const router = useRouter();
   const updateUser = useMutation(UpdateUser)[1];
 
   const query = useQuery(Query, { account: params.account });
@@ -77,47 +61,13 @@ function AccountSettingsScreen() {
 
   if (!account) return query.stale ? null : <NotFound name="Account" />;
 
-  const policies = account.policies.sort(
-    (a, b) => a.threshold - b.threshold || a.approvers.length - b.approvers.length || a.key - b.key,
-  );
-
   return (
     <SideSheetLayout>
       <AccountSettingsAppbar account={account} />
 
-      <ScrollableScreenSurface>
-        <FlashList
-          data={['Policies', ...policies]}
-          renderItem={({ item }) =>
-            match(item)
-              .with({ __typename: 'Policy' }, (policy) => (
-                <PolicyItem
-                  policy={policy}
-                  trailing={({ Text, ...props }) => (
-                    <View style={styles.trailingContainer}>
-                      <Text>
-                        {[policy.active && 'Active', policy.draft && 'Draft']
-                          .filter(Boolean)
-                          .join(' | ')}
-                      </Text>
-                      <NavigateNextIcon {...props} />
-                    </View>
-                  )}
-                  onPress={() => {
-                    router.push({
-                      pathname: `/(drawer)/[account]/policies/[id]/`,
-                      params: { account: account.address, id: policy.id },
-                    });
-                  }}
-                />
-              ))
-              .otherwise((header) => <ListHeader>{header}</ListHeader>)
-          }
-          estimatedItemSize={ListItemHeight.DOUBLE_LINE}
-          keyExtractor={(item) => (typeof item === 'string' ? item : item.id)}
-          contentContainerStyle={styles.contentContainer}
-          showsVerticalScrollIndicator={false}
-        />
+      <ScrollableScreenSurface contentContainerStyle={styles.content}>
+        <PolicySuggestions account={account} user={user} />
+        <AccountPolicies account={account} />
 
         <Actions>
           {!isPrimaryAccount && (
@@ -147,7 +97,7 @@ function AccountSettingsScreen() {
 }
 
 const styles = StyleSheet.create({
-  contentContainer: {
+  content: {
     paddingVertical: 8,
   },
   trailingContainer: {
