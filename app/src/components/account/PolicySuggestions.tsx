@@ -1,7 +1,9 @@
 import { Chip } from '#/Chip';
+import { AddressIcon } from '#/Identicon/AddressIcon';
 import { ListHeader } from '#/list/ListHeader';
 import { showError } from '#/provider/SnackbarProvider';
 import { FragmentType, gql, useFragment } from '@api';
+import { GroupIcon, RecoveryIcon } from '@theme/icons';
 import { createStyles } from '@theme/styles';
 import { useRouter } from 'expo-router';
 import { asAddress, asChain } from 'lib';
@@ -99,8 +101,6 @@ export function PolicySuggestions(props: PolicySuggestionsProps) {
       p.approvers.length > 1 &&
       !user.approvers.every(({ id }) => p.approvers.find((a) => a.id === id)),
   );
-
-  console.log(user.approvers);
 
   const approverPolicies = user.approvers.filter(
     ({ id }) => !account.policies.find((p) => p.approvers.length === 1 && p.approvers[0].id === id),
@@ -200,10 +200,17 @@ export function PolicySuggestions(props: PolicySuggestionsProps) {
       <ListHeader>Suggestions</ListHeader>
 
       <View style={styles.container}>
+        {suggestRecovery && (
+          <Chip mode="outlined" icon={RecoveryIcon} onPress={addRecoveryPolicy}>
+            Recovery policy
+          </Chip>
+        )}
+
         {groupPoliciesMissingApprovers.map((p) => (
           <Chip
             key={p.id}
             mode="outlined"
+            icon={GroupIcon}
             onPress={() => addMissingApprovers(p)}
           >{`Add approvers to ${p.name}`}</Chip>
         ))}
@@ -212,16 +219,10 @@ export function PolicySuggestions(props: PolicySuggestionsProps) {
           <Chip
             key={approver.id}
             mode="outlined"
+            icon={(props) => <AddressIcon address={approver.address} {...props} />}
             onPress={() => addApproverPolicy(approver)}
           >{`Low risk for ${approver.label || truncateAddr(approver.address)}`}</Chip>
         ))}
-
-        {/* TODO: suggestion icons */}
-        {suggestRecovery && (
-          <Chip mode="outlined" onPress={addRecoveryPolicy}>
-            Recovery policy
-          </Chip>
-        )}
       </View>
     </>
   );
