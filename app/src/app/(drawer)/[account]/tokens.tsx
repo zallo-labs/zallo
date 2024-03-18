@@ -17,7 +17,7 @@ import { useLocalParams } from '~/hooks/useLocalParams';
 import { withSuspense } from '#/skeleton/withSuspense';
 import { ScreenSkeleton } from '#/skeleton/ScreenSkeleton';
 import { SearchbarOptions } from '#/Appbar/SearchbarOptions';
-import { ScrollableScreenSurface } from '#/layout/ScrollableScreenSurface';
+import { ScreenSurface } from '#/layout/ScreenSurface';
 
 const Query = gql(/* GraphQL */ `
   query TokensScreen($account: UAddress!, $query: String, $feeToken: Boolean, $chain: Chain) {
@@ -82,7 +82,7 @@ function TokensScreen() {
         onChangeText={setQuery}
       />
 
-      <ScrollableScreenSurface>
+      <ScreenSurface>
         <FlatList
           data={tokens}
           ListHeaderComponent={<ListHeader>Tokens</ListHeader>}
@@ -107,7 +107,7 @@ function TokensScreen() {
           showsVerticalScrollIndicator={false}
           keyExtractor={(item) => item.id}
         />
-      </ScrollableScreenSurface>
+      </ScreenSurface>
     </>
   );
 }
