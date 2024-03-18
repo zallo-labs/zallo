@@ -21,6 +21,8 @@ import { CONFIG } from '~/util/config';
 import { AccountDrawerHeader } from '#/drawer/AccountDrawerHeader';
 import { useTransfer } from '~/hooks/useTransfer';
 import { DrawerSurface } from '#/drawer/DrawerSurface';
+import { Stack } from 'expo-router';
+import { AppbarHeader } from '#/Appbar/AppbarHeader';
 
 const Section = PaperDrawer.Section;
 
@@ -29,7 +31,11 @@ export const unstable_settings = {
 };
 
 export default function DrawerLayout() {
-  return <Drawer drawerContent={Content} />;
+  return (
+    <Drawer drawerContent={Content}>
+      <Stack screenOptions={{ header: AppbarHeader }} />
+    </Drawer>
+  );
 }
 
 function Content() {

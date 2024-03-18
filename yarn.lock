@@ -12274,6 +12274,7 @@ __metadata:
     react-native-ble-plx: "npm:^3.1.2"
     react-native-cloud-storage: "npm:^1.3.0"
     react-native-collapsible: "npm:^1.6.1"
+    react-native-drawer-layout: "npm:^3.3.0"
     react-native-gesture-handler: "npm:~2.14.0"
     react-native-get-random-values: "npm:~1.8.0"
     react-native-jazzicon: "patch:react-native-jazzicon@npm:^0.1.2#../.yarn/patches/react-native-jazzicon-npm-0.1.2-c1633b051f.patch"
@@ -26388,6 +26389,20 @@ __metadata:
   languageName: node
   linkType: hard
 
+"react-native-drawer-layout@npm:^3.3.0":
+  version: 3.3.0
+  resolution: "react-native-drawer-layout@npm:3.3.0"
+  dependencies:
+    use-latest-callback: "npm:^0.1.9"
+  peerDependencies:
+    react: "*"
+    react-native: "*"
+    react-native-gesture-handler: ">= 1.0.0"
+    react-native-reanimated: ">= 1.0.0"
+  checksum: 10/4cddc45e00459d47fb4bc12a73aa6e9d63f2b0b75dc08cebe25ad35d862f65d867d7fed571b85b83cc519e54e107a1f6b1b9ac2531b2a858e70d8353bdb12646
+  languageName: node
+  linkType: hard
+
 "react-native-gesture-handler@npm:~2.14.0":
   version: 2.14.1
   resolution: "react-native-gesture-handler@npm:2.14.1"
@@ -30930,6 +30945,15 @@ __metadata:
   version: 0.1.5
   resolution: "use-latest-callback@npm:0.1.5"
   checksum: 10/a7af3275985b7918c3e0e7a57bb5fc8ad678b21673fc618fe778d111992bdabb4f9592cd3e0286e032a7c956ee3c9d1aba39801c13f32d68bc4c4a008e38783b
+  languageName: node
+  linkType: hard
+
+"use-latest-callback@npm:^0.1.9":
+  version: 0.1.9
+  resolution: "use-latest-callback@npm:0.1.9"
+  peerDependencies:
+    react: ">=16.8"
+  checksum: 10/620969d85763b65aca5f9b601c31eb476a8f7602cfccfb3c0f9dc60ff3b863e04dd64360ada255e15606771513de33b25e4631607d702605b26630f61381b3d4
   languageName: node
   linkType: hard
 

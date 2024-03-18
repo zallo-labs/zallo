@@ -4,47 +4,44 @@ import { Drawer as RnpDrawer } from 'react-native-paper';
 import { DrawerItem } from '#/drawer/DrawerItem';
 import { StyleSheet } from 'react-native';
 import { FingerprintIcon, ZalloLogo, NotificationsIcon, AccountIcon } from '@theme/icons';
-import { DrawerContentComponentProps } from '@react-navigation/drawer';
+import { Stack, usePathname } from 'expo-router';
+import { AppbarHeader } from '#/Appbar/AppbarHeader';
 
 export default function OnboardingDrawerLayout() {
-  return <Drawer drawerContent={Content} />;
+  return (
+    <Drawer drawerContent={Content}>
+      <Stack screenOptions={{ header: AppbarHeader }} />
+    </Drawer>
+  );
 }
 
 enum ORDER {
-  user = 1,
-  auth,
-  notifications,
+  '/onboard/account' = 1,
+  '/onboard/auth',
+  '/onboard/notifications',
 }
 
-function Content({ state }: DrawerContentComponentProps) {
-  const position = Math.max(
-    ORDER.user,
-    ...state.history
-      .map(
-        (route) =>
-          route.type === 'route' &&
-          ORDER[state.routes.find((r) => r.key === route.key)?.name as keyof typeof ORDER],
-      )
-      .filter(Boolean),
-  );
+function Content() {
+  const pathname = usePathname();
+  const position = ORDER[pathname as keyof typeof ORDER] ?? 0;
 
   return (
     <DrawerSurface contentContainerStyle={styles.surface}>
       <ZalloLogo style={styles.logo} contentFit="contain" />
 
       <RnpDrawer.Section title="Onboarding" showDivider={false}>
-        <DrawerItem href={`/onboard/account`} icon={AccountIcon} label="Account" />
+        <DrawerItem href="/onboard/account" icon={AccountIcon} label="Account" />
         <DrawerItem
-          href={`/onboard/auth`}
+          href="/onboard/auth"
           icon={FingerprintIcon}
           label="Authentication"
-          disabled={position < ORDER.auth}
+          disabled={position < ORDER['/onboard/auth']}
         />
         <DrawerItem
-          href={`/onboard/notifications`}
+          href="/onboard/notifications"
           icon={NotificationsIcon}
           label="Notifications"
-          disabled={position < ORDER.notifications}
+          disabled={position < ORDER['/onboard/notifications']}
         />
       </RnpDrawer.Section>
     </DrawerSurface>
