@@ -1,5 +1,5 @@
 import { ComponentPropsWithoutRef } from 'react';
-import { ActivityIndicator, Chip as Base } from 'react-native-paper';
+import { Chip as Base } from 'react-native-paper';
 import { useWithLoading } from '~/hooks/useWithLoading';
 
 type BaseProps = ComponentPropsWithoutRef<typeof Base>;
@@ -13,10 +13,7 @@ export function Chip(props: ChipProps) {
     <Base
       {...props}
       onPress={onPress}
-      {...(loading && {
-        disabled: true,
-        icon: ActivityIndicator,
-      })}
+      {...(loading && { disabled: true })}
     />
   );
 }
