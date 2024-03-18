@@ -96,6 +96,8 @@ library TargetHook {
         return abi.encode(c);
       }
     }
+
+    return configData;
   }
 
   /// @notice Resorts a sorted array with one out of place element
