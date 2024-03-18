@@ -57,12 +57,7 @@ export function OperationsSection(props: OperationsSectionProps) {
       <ListHeader>Operations</ListHeader>
 
       {p.operations.map((operation, i) => (
-        <OperationSection
-          key={i}
-          proposal={p}
-          operation={operation}
-          initiallyExpanded={p.operations.length === 1}
-        />
+        <OperationSection key={i} proposal={p} operation={operation} />
       ))}
 
       {expectedFailureItem &&
