@@ -8,6 +8,7 @@ import {
   decodeFunctionData,
   encodeAbiParameters,
   getAbiItem,
+  hexToNumber,
   toFunctionSelector,
 } from 'viem';
 import { ERC20 } from '../dapps';
@@ -39,11 +40,13 @@ export type TransfersConfigStruct = AbiParameterToPrimitiveType<typeof configAbi
 
 export function encodeTransfersConfigStruct(c: TransfersConfig): TransfersConfigStruct {
   return {
-    limits: Object.entries(c.limits).map(([token, { amount, duration }]) => ({
-      token: asAddress(token),
-      amount,
-      duration,
-    })),
+    limits: Object.entries(c.limits)
+      .map(([token, { amount, duration }]) => ({
+        token: asAddress(token),
+        amount,
+        duration,
+      }))
+      .sort((a, b) => hexToNumber(a.token) - hexToNumber(b.token)),
     defaultAllow: c.defaultAllow ?? false,
     budget: c.budget ?? 0,
   };
