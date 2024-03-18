@@ -1,4 +1,4 @@
-import { Address, asAddress, compareAddress } from '../address';
+import { Address, asAddress } from '../address';
 import { Selector, asSelector } from '../bytes';
 import { HookSelector } from './util';
 import { HookStruct } from './permissions';
@@ -44,7 +44,7 @@ export function encodeTargetsConfigStruct(c: TargetsConfig): TargetsConfigStruct
           defaultAllow: !!target.defaultAllow,
         },
       }))
-      .sort((a, b) => compareAddress(a.addr, b.addr)),
+      .sort((a, b) => hexToNumber(a.addr) - hexToNumber(b.addr)),
     defaultTarget: {
       functions: Object.entries(c.default.functions)
         .map(([selector, allow]) => ({

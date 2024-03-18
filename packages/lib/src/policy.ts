@@ -1,5 +1,5 @@
 import { A } from 'ts-toolbelt';
-import { Address, asAddress, compareAddress, UAddress } from './address';
+import { Address, asAddress, UAddress } from './address';
 import {
   ALLOW_ALL_TRANSFERS_CONFIG,
   decodeTransfersHook,
@@ -18,7 +18,7 @@ import {
 } from './permissions/TargetPermission';
 import { Hex } from './bytes';
 import { Arraylike, isPresent, toSet } from './util';
-import { decodeAbiParameters, encodeAbiParameters, getAbiItem, keccak256 } from 'viem';
+import { decodeAbiParameters, encodeAbiParameters, getAbiItem, hexToNumber, keccak256 } from 'viem';
 import { ACCOUNT_IMPLEMENTATION } from './contract';
 import { AbiParametersToPrimitiveTypes } from 'abitype';
 import {
@@ -58,7 +58,7 @@ export type PolicyStruct = AbiParametersToPrimitiveTypes<[typeof POLICY_STRUCT_A
 export function encodePolicyStruct(p: Policy): PolicyStruct {
   return {
     key: p.key,
-    approvers: [...p.approvers].sort(compareAddress),
+    approvers: [...p.approvers].sort((a, b) => hexToNumber(a) - hexToNumber(b)),
     threshold: p.threshold,
     hooks: [
       encodeTargetsHook(p.permissions.targets),
