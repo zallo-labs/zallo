@@ -1,21 +1,27 @@
 import { useEffect } from 'react';
 import { logError } from '~/util/analytics';
-import { ErrorBoundaryProps as BaseProps, usePathname } from 'expo-router';
+import { ErrorBoundaryProps as BaseProps } from 'expo-router';
+import { atom, useAtom } from 'jotai';
+
+const attemptsAtom = atom(0);
+const MAX_ATTEMPTS = 3;
+const RETRY_DELAY = 2000;
 
 export interface IgnoredErrorBoundaryProps extends BaseProps {}
 
 export function IgnoredErrorBoundary({ error, retry }: IgnoredErrorBoundaryProps) {
-  const pathname = usePathname();
+  const [attempts, setAttempts] = useAtom(attemptsAtom);
 
   useEffect(() => {
-    logError(error.name, { error, pathname, caught: true });
-  }, [error, pathname]);
+    if (attempts < MAX_ATTEMPTS) {
+      setAttempts((a) => a + 1);
+      logError(error.name, { error, ignored: true, attempts });
 
-  useEffect(() => {
-    const timer = setTimeout(retry, 1000);
+      const timer = setTimeout(retry, RETRY_DELAY);
 
-    return () => clearTimeout(timer);
-  }, [retry]);
+      return () => clearTimeout(timer);
+    }
+  }, [attempts, error, retry, setAttempts]);
 
   return null;
 }
