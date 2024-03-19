@@ -24,7 +24,8 @@ const Update = gql(/* GraphQL */ `
 
 export function ApproverNameUpdater() {
   const update = useMutation(Update)[1];
-  const { approver } = useQuery(Query).data;
+
+  const { approver } = useQuery(Query, {}, { requestPolicy: 'cache-first' }).data;
 
   useEffect(() => {
     if (approver && !approver.name) update({ name: getDeviceModel() });

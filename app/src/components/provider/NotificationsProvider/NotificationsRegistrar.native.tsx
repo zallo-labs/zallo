@@ -45,9 +45,9 @@ Notifications.setNotificationHandler({
 
 export const NotificationsRegistrar = () => {
   const channelEnabled = useNotificationSettings();
-
-  const { approver, proposals } = useQuery(Query).data;
   const updatePushToken = useMutation(UpdatePushToken)[1];
+
+  const { approver, proposals } = useQuery(Query, {}, { requestPolicy: 'cache-first' }).data;
 
   const hasPermission = Notifications.usePermissions()[0]?.granted;
 
