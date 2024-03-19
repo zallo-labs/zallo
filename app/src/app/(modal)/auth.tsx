@@ -140,3 +140,5 @@ const stylesheet = createStyles(({ colors }) => ({
 }));
 
 export default withSuspense(AuthenticateScreen, null);
+
+export { ErrorBoundary } from '#/ErrorBoundary';

@@ -133,3 +133,5 @@ const stylesheet = createStyles({
     marginVertical: 8,
   },
 });
+
+export { ErrorBoundary } from '#/ErrorBoundary';

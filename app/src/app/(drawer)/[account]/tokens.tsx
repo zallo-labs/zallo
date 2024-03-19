@@ -119,3 +119,5 @@ const styles = StyleSheet.create({
 });
 
 export default withSuspense(TokensScreen, <ScreenSkeleton />);
+
+export { ErrorBoundary } from '#/ErrorBoundary';

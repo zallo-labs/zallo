@@ -10,3 +10,5 @@ export default function ApproverQrModal() {
 
   return <QrModal address={params.address} />;
 }
+
+export { ErrorBoundary } from '#/ErrorBoundary';

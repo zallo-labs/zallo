@@ -293,3 +293,5 @@ export default function TokenScreen() {
   const { token } = useLocalParams(TokenScreenParams);
   return <SharedTokenScreen token={token} />;
 }
+
+export { ErrorBoundary } from '#/ErrorBoundary';

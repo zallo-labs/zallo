@@ -125,3 +125,5 @@ const styles = StyleSheet.create({
 });
 
 export default withSuspense(ApproverScreen, <ScreenSkeleton />);
+
+export { ErrorBoundary } from '#/ErrorBoundary';

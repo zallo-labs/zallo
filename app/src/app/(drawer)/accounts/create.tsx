@@ -173,3 +173,5 @@ const stylesheet = createStyles(({ colors }) => ({
 }));
 
 export default withSuspense(CreateAccountScreen, <ScreenSkeleton />);
+
+export { ErrorBoundary } from '#/ErrorBoundary';

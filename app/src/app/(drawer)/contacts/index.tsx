@@ -14,7 +14,6 @@ import { ContactItem } from '#/item/ContactItem';
 import { AppbarMenu } from '#/Appbar/AppbarMenu';
 import { withSuspense } from '#/skeleton/withSuspense';
 import { ScreenSkeleton } from '#/skeleton/ScreenSkeleton';
-import { ScrollableScreenSurface } from '#/layout/ScrollableScreenSurface';
 import { createStyles, useStyles } from '@theme/styles';
 import { z } from 'zod';
 import { zArray, zUAddress } from '~/lib/zod';
@@ -116,4 +115,6 @@ const stylesheet = createStyles({
   },
 });
 
-export default withSuspense(ContactsScreen, ScreenSkeleton);
+export default withSuspense(ContactsScreen, <ScreenSkeleton />);
+
+export { ErrorBoundary } from '#/ErrorBoundary';

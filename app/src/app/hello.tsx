@@ -170,3 +170,5 @@ const stylesheet = createStyles({
     alignSelf: 'stretch',
   },
 });
+
+export { ErrorBoundary } from '#/ErrorBoundary';

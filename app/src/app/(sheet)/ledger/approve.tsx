@@ -233,3 +233,5 @@ const stylesheet = createStyles(({ colors }) => ({
     marginTop: 8,
   },
 }));
+
+export { ErrorBoundary } from '#/ErrorBoundary';

@@ -143,3 +143,5 @@ const styles = StyleSheet.create({
 });
 
 export default withSuspense(TransferScreen, ScreenSkeleton);
+
+export { ErrorBoundary } from '#/ErrorBoundary';

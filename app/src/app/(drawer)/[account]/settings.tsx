@@ -108,3 +108,5 @@ const styles = StyleSheet.create({
 });
 
 export default withSuspense(AccountSettingsScreen, ScreenSkeleton);
+
+export { ErrorBoundary } from '#/ErrorBoundary';

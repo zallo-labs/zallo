@@ -60,3 +60,5 @@ const styles = StyleSheet.create({
 });
 
 export default withSuspense(SessionsScreen, <ScreenSkeleton />);
+
+export { ErrorBoundary } from '#/ErrorBoundary';

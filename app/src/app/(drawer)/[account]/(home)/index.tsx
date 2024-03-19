@@ -78,3 +78,5 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
 });
+
+export { ErrorBoundary } from '#/ErrorBoundary';

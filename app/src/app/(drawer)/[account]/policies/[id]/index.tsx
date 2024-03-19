@@ -191,3 +191,5 @@ const styles = createStyles({
 });
 
 export default withSuspense(PolicyScreen, ScreenSkeleton);
+
+export { ErrorBoundary } from '#/ErrorBoundary';

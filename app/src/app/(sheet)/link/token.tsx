@@ -95,3 +95,5 @@ const stylesheet = createStyles(({ colors, iconSize }) => ({
     alignSelf: 'stretch',
   },
 }));
+
+export { ErrorBoundary } from '#/ErrorBoundary';

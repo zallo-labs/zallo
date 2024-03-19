@@ -14,3 +14,5 @@ export default function NotificationsOnboardingScreen() {
     />
   );
 }
+
+export { ErrorBoundary } from '#/ErrorBoundary';

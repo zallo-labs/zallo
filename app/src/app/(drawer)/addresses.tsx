@@ -12,7 +12,6 @@ import { ContactItem } from '#/item/ContactItem';
 import { ListHeader } from '#/list/ListHeader';
 import { useQuery } from '~/gql';
 import { useScanAddress } from '~/app/scan';
-import { StyleSheet } from 'react-native';
 import { ADDRESS_SELECTED } from '~/hooks/useSelectAddress';
 import { TokenItem } from '#/token/TokenItem';
 import { z } from 'zod';
@@ -173,10 +172,6 @@ function AddressesScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-  },
-});
-
 export default withSuspense(AddressesScreen, <ScreenSkeleton />);
+
+export { ErrorBoundary } from '#/ErrorBoundary';

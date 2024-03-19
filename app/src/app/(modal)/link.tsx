@@ -146,3 +146,5 @@ const stylesheet = createStyles(({ colors }) => ({
     color: colors.inverseOnSurface,
   },
 }));
+
+export { ErrorBoundary } from '#/ErrorBoundary';

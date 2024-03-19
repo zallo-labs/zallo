@@ -116,3 +116,5 @@ const styles = StyleSheet.create({
 });
 
 export default withSuspense(LinkLedgerScreen, <ScreenSkeleton />);
+
+export { ErrorBoundary } from '#/ErrorBoundary';

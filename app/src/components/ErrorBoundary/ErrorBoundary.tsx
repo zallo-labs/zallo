@@ -7,7 +7,7 @@ import { ErrorBoundaryDetails } from './ErrorBoundaryDetails';
 
 export interface ErrorBoundaryProps extends BaseProps {}
 
-export function ErrorBoundary({ error }: ErrorBoundaryProps) {
+export function ErrorBoundary({ error, retry }: ErrorBoundaryProps) {
   const pathname = usePathname();
 
   useEffect(() => {
@@ -17,9 +17,15 @@ export function ErrorBoundary({ error }: ErrorBoundaryProps) {
   return (
     <ErrorBoundaryDetails
       actions={
-        <Link href=".." asChild>
-          <Button mode="contained">Back</Button>
-        </Link>
+        <>
+          <Button mode="text" onPress={retry}>
+            Retry
+          </Button>
+
+          <Link href=".." asChild>
+            <Button mode="contained">Back</Button>
+          </Link>
+        </>
       }
     />
   );
