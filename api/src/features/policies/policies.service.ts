@@ -252,8 +252,7 @@ export class PoliciesService {
 
   async best(account: UAddress, proposal: Tx | 'message') {
     const policies = await this.db.query(
-      e.select(e.Policy, (p) => ({
-        filter: e.op(p.account, '=', selectAccount(account)),
+      e.select(selectAccount(account).policies, () => ({
         id: true,
         ...PolicyShape,
       })),
