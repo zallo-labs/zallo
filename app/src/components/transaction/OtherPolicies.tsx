@@ -4,7 +4,8 @@ import { useQuery } from '~/gql';
 import { withSuspense } from '#/skeleton/withSuspense';
 import { ListItemSkeleton } from '#/list/ListItemSkeleton';
 import { PolicyIcon } from '@theme/icons';
-import { ListItem } from '#/list/ListItem';
+import { PolicyItem } from '#/policy/PolicyItem';
+import { createStyles, useStyles } from '@theme/styles';
 
 // TODO: replace query with @deferred fragment once supported (graphql-js 17)
 const Query = gql(/* GraphQL */ `
@@ -16,10 +17,10 @@ const Query = gql(/* GraphQL */ `
         policies {
           id
           key
-          name
           validationErrors(input: { proposal: $proposal }) {
             reason
           }
+          ...PolicyItem_Policy
         }
       }
     }
@@ -52,6 +53,7 @@ interface OtherPoliciesProps {
 }
 
 function OtherPolicies_(props: OtherPoliciesProps) {
+  const { styles } = useStyles(stylesheet);
   const proposal = useFragment(Proposal, props.proposal);
   const update = useMutation(Update)[1];
 
@@ -60,15 +62,12 @@ function OtherPolicies_(props: OtherPoliciesProps) {
   return (
     <>
       {policies.map((p) => (
-        <ListItem
+        <PolicyItem
           key={p.id}
-          leading={PolicyIcon}
-          headline={p.name}
-          supporting={
-            p.validationErrors.length
-              ? 'Policy lacks permission to execute this transaction'
-              : undefined
-          }
+          policy={p}
+          {...(p.validationErrors.length && {
+            trailing: ({ Text }) => <Text style={styles.error}>Insufficient permission</Text>,
+          })}
           selected={p.id === proposal.policy.id}
           onPress={() => {
             if (p.id !== proposal.policy.id) update({ proposal: proposal.id, policy: p.key });
@@ -79,6 +78,12 @@ function OtherPolicies_(props: OtherPoliciesProps) {
     </>
   );
 }
+
+const stylesheet = createStyles(({ colors }) => ({
+  error: {
+    color: colors.error,
+  },
+}));
 
 export const OtherPolicies = withSuspense(OtherPolicies_, () => (
   <>
