@@ -1,9 +1,8 @@
 import * as Updates from 'expo-updates';
 import { useEffect } from 'react';
-import { AppState } from 'react-native';
+import { AppState, Platform } from 'react-native';
 import { showInfo } from './SnackbarProvider';
 import { showWarning } from './SnackbarProvider';
-import { __WEB__ } from '~/util/config';
 import { DateTime } from 'luxon';
 import * as Sentry from '@sentry/react-native';
 
@@ -25,7 +24,8 @@ export function UpdateProvider() {
   // - on launch (default)
   // - on foreground every 5 minutes
   useEffect(() => {
-    if (__DEV__ || __WEB__) return;
+    if (__DEV__ || Platform.OS === 'web') return;
+
     const listener = AppState.addEventListener('change', async (newState) => {
       if (newState === 'active' && periodElapsed(lastCheckForUpdateTimeSinceRestart))
         Updates.checkForUpdateAsync();
