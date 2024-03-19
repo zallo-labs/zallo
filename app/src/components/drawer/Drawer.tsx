@@ -15,8 +15,6 @@ export function Drawer({ children, drawerContent, ...props }: DrawerProps) {
   const type: DrawerType = BREAKPOINTS[breakpoint] >= BREAKPOINTS.expanded ? 'standard' : 'modal';
   const [open, setOpen] = useState(false);
 
-  console.log({ open });
-
   return (
     <DrawerContextProvider type={type} setOpen={setOpen}>
       <DrawerLayout

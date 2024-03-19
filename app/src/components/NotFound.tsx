@@ -18,7 +18,7 @@ export function NotFound({ name }: NotFoundProps) {
   return (
     <View style={styles.root}>
       <View style={styles.container}>
-        <MaterialCommunityIcons name="robot-confused" size={ICON_SIZE.large} style={styles.error} />
+        <MaterialCommunityIcons name="robot-dead-outline" size={ICON_SIZE.large} style={styles.error} />
 
         <Text variant="headlineLarge" style={styles.error}>
           {name} not found
