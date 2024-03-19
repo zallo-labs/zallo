@@ -5,7 +5,7 @@ import { StyleProp, ViewStyle, useWindowDimensions } from 'react-native';
 import { Surface } from 'react-native-paper';
 import { SlideInRight, SlideOutRight } from 'react-native-reanimated';
 import { BREAKPOINTS } from '@theme/styles';
-import { Modal as CustomModal } from '../Modal';
+import { Modal } from '../Modal';
 import { EdgeInsets, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export interface SideSheetSurfaceProps {
@@ -21,30 +21,27 @@ export function SideSheetSurface({ children, close, contentStyle }: SideSheetSur
   const insets = useSafeAreaInsets();
 
   return type === 'standard' ? (
-    <ScreenSurface style={[styles.contentContainer, contentStyle]}>{children}</ScreenSurface>
+    <ScreenSurface style={[styles.standardSurface, contentStyle]}>{children}</ScreenSurface>
   ) : (
-    <CustomModal close={close} entering={SlideInRight} exiting={SlideOutRight} style={styles.modal}>
-      <Surface
-        style={[styles.modalContentContainer(insets), styles.contentContainer, contentStyle]}
-      >
-        {children}
-      </Surface>
-    </CustomModal>
+    <Modal close={close} entering={SlideInRight} exiting={SlideOutRight} style={styles.modal}>
+      <Surface style={[styles.modalSurface(insets), contentStyle]}>{children}</Surface>
+    </Modal>
   );
 }
 
 const stylesheet = createStyleSheet(({ corner }) => ({
-  contentContainer: {
+  standardSurface: {
     flex: 1,
     minWidth: 256,
     maxWidth: 400,
   },
   modal: {
     flex: 1,
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
+    marginLeft: 'auto',
   },
-  modalContentContainer: (insets: EdgeInsets) => ({
+  modalSurface: (insets: EdgeInsets) => ({
+    flex: 1,
+    width: 400,   // minWidth is always used in modal on android
     borderTopLeftRadius: corner.l,
     borderBottomLeftRadius: corner.l,
     paddingTop: insets.top,
