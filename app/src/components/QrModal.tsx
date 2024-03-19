@@ -63,7 +63,7 @@ export function QrModal({ address, actions }: QrModalProps) {
                     },
                   ]}
                   value={mode}
-                  chipProps={{ elevated: true, closeIcon: DownArrowIcon }}
+                  chipProps={{ elevated: true, mode: 'outlined', closeIcon: DownArrowIcon }}
                   onChange={(v) => setMode(v)}
                 />
               </View>
