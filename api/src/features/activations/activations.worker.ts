@@ -4,11 +4,14 @@ import { Worker, TypedJob, QueueReturnType } from '~/features/util/bull/bull.uti
 import { NetworksService } from '~/features/util/networks/networks.service';
 import { ActivationsService } from './activations.service';
 import { ActivationsQueue } from './activations.queue';
+import { DatabaseService } from '../database/database.service';
+import { selectTransaction } from '../transactions/transactions.service';
 
 @Injectable()
 @Processor(ActivationsQueue.name)
 export class ActivationsWorker extends Worker<ActivationsQueue> {
   constructor(
+    private db: DatabaseService,
     private networks: NetworksService,
     private activations: ActivationsService,
   ) {
@@ -16,15 +19,18 @@ export class ActivationsWorker extends Worker<ActivationsQueue> {
   }
 
   async process(job: TypedJob<ActivationsQueue>): Promise<QueueReturnType<ActivationsQueue>> {
-    const { account } = job.data;
+    const { account, sponsoringTransaction: tx } = job.data;
+
+    const sponsored = !tx || (await this.db.query(selectTransaction(tx).executable));
+    if (!sponsored) return `Sponsoring transaction is not executable: ${tx}`;
 
     const sim = await this.activations.simulate(account);
     if (!sim) return null;
 
-    const transaction = await this.networks
+    const receipt = await this.networks
       .get(account)
       .useWallet(async (wallet) => wallet.writeContract(sim.request));
 
-    return transaction;
+    return receipt;
   }
 }

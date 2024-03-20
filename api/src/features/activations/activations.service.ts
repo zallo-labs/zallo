@@ -12,6 +12,7 @@ import {
   DeployAccountProxyRequestParams,
   replaceSelfAddress,
   PLACEHOLDER_ACCOUNT_ADDRESS,
+  UUID,
 } from 'lib';
 import { NetworksService } from '../util/networks/networks.service';
 import e from '~/edgeql-js';
@@ -20,6 +21,7 @@ import { policyStateAsPolicy, PolicyShape } from '../policies/policies.util';
 import { FlowJob } from 'bullmq';
 import { ReceiptsQueue } from '../system-txs/receipts.queue';
 import Decimal from 'decimal.js';
+import { SimulationsQueue } from '../simulations/simulations.worker';
 
 interface FeeParams {
   address: UAddress;
@@ -34,7 +36,7 @@ export class ActivationsService {
     private networks: NetworksService,
   ) {}
 
-  activationFlow(account: UAddress) {
+  activationFlow(account: UAddress, sponsoringTransaction: UUID) {
     return {
       queueName: ReceiptsQueue.name,
       name: 'Activation transaction',
@@ -46,7 +48,14 @@ export class ActivationsService {
         {
           queueName: ActivationsQueue.name,
           name: 'Activation',
-          data: { account } satisfies QueueData<typeof ActivationsQueue>,
+          data: { account, sponsoringTransaction } satisfies QueueData<typeof ActivationsQueue>,
+          children: [
+            {
+              queueName: SimulationsQueue.name,
+              name: 'Simulate transaction',
+              data: { transaction: sponsoringTransaction } satisfies QueueData<SimulationsQueue>,
+            },
+          ],
         },
       ],
     } satisfies FlowJob;

@@ -181,11 +181,13 @@ export class SimulationsWorker extends Worker<SimulationsQueue> {
     );
 
     this.proposals.publish({ id: job.data.transaction, account }, ProposalEvent.simulated);
+
+    return { executable };
   }
 
   private async isExecutable(t: TransactionExecutableShape) {
     if (t.validationErrors.length) return false;
-    
+
     const approved = t.policy.threshold <= t.approvals.length;
     if (!approved) return false;
 
