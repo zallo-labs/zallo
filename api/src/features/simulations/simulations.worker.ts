@@ -51,6 +51,7 @@ const TransactionExecutableShape = {
   account: { address: true },
   approvals: { approver: { address: true } },
   policy: { id: true, threshold: true },
+  validationErrors: true,
   ...TX_SHAPE,
 } satisfies Shape<typeof e.Transaction>;
 const s_ = e.assert_exists(
@@ -183,6 +184,8 @@ export class SimulationsWorker extends Worker<SimulationsQueue> {
   }
 
   private async isExecutable(t: TransactionExecutableShape) {
+    if (t.validationErrors.length) return false;
+    
     const approved = t.policy.threshold <= t.approvals.length;
     if (!approved) return false;
 
