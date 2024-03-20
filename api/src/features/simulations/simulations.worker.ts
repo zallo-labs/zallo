@@ -91,24 +91,41 @@ export class SimulationsWorker extends Worker<SimulationsQueue> {
     const chain = asChain(account);
     const selectedAccount = selectAccount(account);
 
-    const network = this.networks.get(chain);
-    const response = await simulate(
-      await encodeTransaction({
-        network,
-        account: localAccount,
-        tx: transactionAsTx(p),
-      }),
-    ).mapErr((callError) => {
-      const e = callError.walk();
+    const simulations = await Promise.all(
+      p.operations.map(async (op) =>
+        (
+          await simulate({
+            network: this.networks.get(chain),
+            account: localAccount,
+            gas: p.gasLimit,
+            type: 'eip712',
+            to: asAddress(op.to),
+            value: op.value ?? 0n,
+            data: asHex(op.data) ?? '0x',
+          })
+        ).mapErr((callError) => {
+          const e = callError.walk();
 
-      return typeof e === 'object' &&
-        e &&
-        'data' in e &&
-        typeof e.data === 'string' &&
-        isHex(e.data)
-        ? e.data
-        : undefined;
-    });
+          return typeof e === 'object' &&
+            e &&
+            'data' in e &&
+            typeof e.data === 'string' &&
+            isHex(e.data)
+            ? e.data
+            : undefined;
+        }),
+      ),
+    );
+    const success = simulations.every((r) => r.isOk());
+    const responses = simulations
+      .filter((r) => success || r.isErr())
+      .map((r) =>
+        r.match(
+          (r) => r.data,
+          (r) => r,
+        ),
+      )
+      .filter(isTruthy);
 
     const transfers: TransferDetails[] = [];
     for (const op of p.operations) {
@@ -169,8 +186,8 @@ export class SimulationsWorker extends Worker<SimulationsQueue> {
           set: {
             executable,
             simulation: e.insert(e.Simulation, {
-              success: response.isOk(),
-              responses: [response.map((r) => r.data).unwrapOr(null)].filter(isTruthy),
+              success,
+              responses,
               ...(transfers.length && {
                 transfers: e.set(...transfers.map((t) => e.insert(e.TransferDetails, t))),
               }),
