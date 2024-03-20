@@ -22,23 +22,22 @@ type OperationStruct = AbiParameterToPrimitiveType<typeof operationAbi>;
 
 const operationsAbi = getAbiItem({ abi: TEST_VERIFIER_ABI, name: 'validateOperations' }).inputs[1];
 
-export function encodeOperations(ops: [Operation, ...Operation[]]): EncodedOperations {
+export function encodeOperations(opsParam: [Operation, ...Operation[]]): EncodedOperations {
+  const ops = opsParam.map(
+    (op): OperationStruct => ({
+      to: op.to,
+      value: op.value ?? 0n,
+      data: op.data ?? '0x',
+    }),
+  );
+
   if (ops.length === 0) throw new Error('No operations provided');
 
-  return {
-    to: MULTI_OP_TX,
-    value: 0n,
-    data: encodeAbiParameters(
-      [operationsAbi],
-      [
-        ops.map(
-          (op): OperationStruct => ({
-            to: op.to,
-            value: op.value ?? 0n,
-            data: op.data ?? '0x',
-          }),
-        ),
-      ],
-    ),
-  };
+  return ops.length === 1
+    ? ops[0]
+    : {
+        to: MULTI_OP_TX,
+        value: 0n,
+        data: encodeAbiParameters([operationsAbi], [ops]),
+      };
 }
