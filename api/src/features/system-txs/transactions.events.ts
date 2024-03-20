@@ -54,15 +54,17 @@ export class TransactionsEvents implements OnModuleInit {
   }: TransactionEventData<typeof opExecutedEvent> | TransactionEventData<typeof opsExecutedEvent>) {
     const { args } = log;
 
-    const insertResult = e.insert(e.Successful, {
-      transaction: selectTransaction(args.proposal),
-      systx: selectSysTx(receipt.transactionHash),
-      timestamp: new Date(Number(block.timestamp) * 1000), // block.timestamp is in seconds
-      block: BigInt(receipt.blockNumber),
-      gasUsed: receipt.gasUsed,
-      ethFeePerGas: asDecimal(receipt.effectiveGasPrice, ETH).toString(),
-      responses: 'responses' in args ? [...args.responses] : [args.response],
-    });
+    const insertResult = e
+      .insert(e.Successful, {
+        transaction: selectTransaction(args.proposal),
+        systx: selectSysTx(receipt.transactionHash),
+        timestamp: new Date(Number(block.timestamp) * 1000), // block.timestamp is in seconds
+        block: BigInt(receipt.blockNumber),
+        gasUsed: receipt.gasUsed,
+        ethFeePerGas: asDecimal(receipt.effectiveGasPrice, ETH).toString(),
+        responses: 'responses' in args ? [...args.responses] : [args.response],
+      })
+      .unlessConflict();
 
     const proposal = await this.db.query(
       e.select(insertResult.transaction, () => ({
@@ -70,8 +72,7 @@ export class TransactionsEvents implements OnModuleInit {
         account: { address: true, approvers: { user: true } },
       })),
     );
-    if (!proposal)
-      throw new Error(`Transaction not found for executed transaction: ${receipt.transactionHash}`);
+    if (!proposal) return `Transaction already processed: ${receipt.transactionHash}`;
 
     this.log.debug(`Proposal executed: ${proposal.id}`);
     this.proposals.publish(proposal, ProposalEvent.executed);
@@ -91,15 +92,17 @@ export class TransactionsEvents implements OnModuleInit {
     const callResponse = await network.call(tx as CallParameters);
 
     const systx = selectSysTx(receipt.transactionHash);
-    const insertResult = e.insert(e.Failed, {
-      transaction: systx.proposal,
-      systx,
-      timestamp: new Date(Number(block.timestamp) * 1000), // block.timestamp is in seconds
-      block: BigInt(receipt.blockNumber),
-      gasUsed: receipt.gasUsed,
-      ethFeePerGas: asDecimal(receipt.effectiveGasPrice, ETH).toString(),
-      reason: callResponse.data,
-    });
+    const insertResult = e
+      .insert(e.Failed, {
+        transaction: systx.proposal,
+        systx,
+        timestamp: new Date(Number(block.timestamp) * 1000), // block.timestamp is in seconds
+        block: BigInt(receipt.blockNumber),
+        gasUsed: receipt.gasUsed,
+        ethFeePerGas: asDecimal(receipt.effectiveGasPrice, ETH).toString(),
+        reason: callResponse.data,
+      })
+      .unlessConflict();
 
     const proposal = await this.db.query(
       e.select(insertResult.transaction, () => ({
@@ -107,8 +110,7 @@ export class TransactionsEvents implements OnModuleInit {
         account: { address: true, approvers: { user: true } },
       })),
     );
-    if (!proposal)
-      throw new Error(`Transaction not found for reverted transaction: ${receipt.transactionHash}`);
+    if (!proposal) return `Transaction already processed: ${receipt.transactionHash}`;
 
     this.log.debug(`Proposal reverted: ${proposal.id}`);
     this.proposals.publish(proposal, ProposalEvent.executed);

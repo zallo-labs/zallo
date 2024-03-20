@@ -106,18 +106,18 @@ export class TransactionsService {
     );
   }
 
-  async tryExecute(txProposal: UUID, ignoreSimulation?: boolean) {
+  async tryExecute(transaction: UUID, ignoreSimulation?: boolean) {
     const t = await this.db.query(
       e.select(e.Transaction, () => ({
-        filter_single: { id: txProposal },
+        filter_single: { id: transaction },
         account: { address: true, active: true },
       })),
     );
-    if (!t) throw new Error(`Transaction proposal not found: ${txProposal}`);
+    if (!t) throw new Error(`Transaction proposal not found: ${transaction}`);
     const account = asUAddress(t.account.address);
     const chain = asChain(account);
 
-    // activate -> simulate -> execute -> receipt
+    // simulate -> (activate -> activation-receipt)? -> execute -> receipt
     this.flows.add({
       queueName: ReceiptsQueue.name,
       name: 'Transaction proposal',
@@ -126,17 +126,16 @@ export class TransactionsService {
         {
           queueName: ExecutionsQueue.name,
           name: 'Execute transaction',
-          data: { txProposal, ignoreSimulation } satisfies QueueData<ExecutionsQueue>,
-          children: [
-            {
-              queueName: SimulationsQueue.name,
-              name: 'Simulate transaction',
-              data: { transaction: txProposal } satisfies QueueData<SimulationsQueue>,
-              ...(!t.account.active && {
-                children: [this.activations.activationFlow(account)],
-              }),
-            },
-          ],
+          data: { transaction, ignoreSimulation } satisfies QueueData<ExecutionsQueue>,
+          children: t.account.active
+            ? [
+                {
+                  queueName: SimulationsQueue.name,
+                  name: 'Simulate transaction',
+                  data: { transaction } satisfies QueueData<SimulationsQueue>,
+                },
+              ]
+            : [this.activations.activationFlow(account, transaction) /* Includes simulation */],
         },
       ],
     });
@@ -225,7 +224,11 @@ export class TransactionsService {
       asUUID((await (await this.getInsertProposal(args)).run(db)).id),
     );
 
-    if (signature) await this.approve({ id, signature });
+    if (signature) {
+      await this.approve({ id, signature });
+    } else {
+      this.tryExecute(id);
+    }
 
     return { id };
   }

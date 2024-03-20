@@ -88,3 +88,5 @@ const styles = StyleSheet.create({
 });
 
 export default withSuspense(MyApproversScreen, <ScreenSkeleton />);
+
+export { ErrorBoundary } from '#/ErrorBoundary';

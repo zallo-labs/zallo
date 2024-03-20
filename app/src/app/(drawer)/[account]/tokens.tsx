@@ -1,13 +1,11 @@
 import { useRouter } from 'expo-router';
-import { StyleSheet } from 'react-native';
+import { FlatList, StyleSheet } from 'react-native';
 import { UAddress, asChain } from 'lib';
 import { AddIcon, SearchIcon } from '@theme/icons';
 import { ListHeader } from '#/list/ListHeader';
 import { TokenItem } from '#/token/TokenItem';
 import { useState } from 'react';
 import { gql } from '@api/generated';
-import { FlashList } from '@shopify/flash-list';
-import { ListItemHeight } from '#/list/ListItem';
 import { useQuery } from '~/gql';
 import { Subject } from 'rxjs';
 import { useGetEvent } from '~/hooks/useGetEvent';
@@ -19,7 +17,7 @@ import { useLocalParams } from '~/hooks/useLocalParams';
 import { withSuspense } from '#/skeleton/withSuspense';
 import { ScreenSkeleton } from '#/skeleton/ScreenSkeleton';
 import { SearchbarOptions } from '#/Appbar/SearchbarOptions';
-import { ScrollableScreenSurface } from '#/layout/ScrollableScreenSurface';
+import { ScreenSurface } from '#/layout/ScreenSurface';
 
 const Query = gql(/* GraphQL */ `
   query TokensScreen($account: UAddress!, $query: String, $feeToken: Boolean, $chain: Chain) {
@@ -84,8 +82,8 @@ function TokensScreen() {
         onChangeText={setQuery}
       />
 
-      <ScrollableScreenSurface>
-        <FlashList
+      <ScreenSurface>
+        <FlatList
           data={tokens}
           ListHeaderComponent={<ListHeader>Tokens</ListHeader>}
           renderItem={({ item: token }) => (
@@ -107,10 +105,9 @@ function TokensScreen() {
           )}
           contentContainerStyle={styles.container}
           showsVerticalScrollIndicator={false}
-          estimatedItemSize={ListItemHeight.DOUBLE_LINE}
           keyExtractor={(item) => item.id}
         />
-      </ScrollableScreenSurface>
+      </ScreenSurface>
     </>
   );
 }
@@ -122,3 +119,5 @@ const styles = StyleSheet.create({
 });
 
 export default withSuspense(TokensScreen, <ScreenSkeleton />);
+
+export { ErrorBoundary } from '#/ErrorBoundary';

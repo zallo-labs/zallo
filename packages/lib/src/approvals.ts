@@ -1,10 +1,11 @@
-import { Address, asAddress, compareAddress } from './address';
+import { Address, asAddress } from './address';
 import { Hex } from './bytes';
 import { tryOrIgnoreAsync } from './util';
 import { ERC1271_ABI } from './abi/erc1271';
 import { Network } from 'chains';
 import {
   getAbiItem,
+  hexToNumber,
   hexToSignature,
   recoverAddress,
   signatureToCompactSignature,
@@ -31,8 +32,8 @@ export const APPROVALS_ABI = getAbiItem({ abi: TEST_VERIFIER_ABI, name: 'verifyA
 export type ApprovalsStruct = AbiParameterToPrimitiveType<typeof APPROVALS_ABI>;
 
 export function encodeApprovalsStruct({ approvals, approvers }: ApprovalsParams): ApprovalsStruct {
-  approvals = approvals.sort((a, b) => compareAddress(a.approver, b.approver));
-  const sortedApprovers = [...approvers].sort(compareAddress);
+  approvals = approvals.sort((a, b) => hexToNumber(a.approver) - hexToNumber(b.approver));
+  const sortedApprovers = [...approvers].sort((a, b) => hexToNumber(a) - hexToNumber(b));
 
   // Approvers are encoded as a bitfield, where each bit represents whether the approver has signed
   let approversSigned = 0n;

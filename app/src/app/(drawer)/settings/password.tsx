@@ -151,4 +151,6 @@ const stylesheet = createStyles(({ colors }) => ({
   },
 }));
 
-export default withSuspense(PasswordScreen, ScreenSkeleton);
+export default withSuspense(PasswordScreen, <ScreenSkeleton />);
+
+export { ErrorBoundary } from '#/ErrorBoundary';

@@ -8,6 +8,10 @@ contract TestPolicyManager is PolicyManager {
     this.addPolicy(policy);
   }
 
+  function testInitializeWithPolicies(Policy[] memory policies) external {
+    _initializeWithPolicies(policies);
+  }
+
   function testRemovePolicy(PolicyKey key) external {
     this.removePolicy(key);
   }

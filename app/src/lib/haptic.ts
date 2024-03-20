@@ -4,7 +4,7 @@ import { match } from 'ts-pattern';
 
 export type HapticFeedbackType = 'selection' | 'neutral' | 'success' | 'warning' | 'error';
 
-export const hapticFeedback = Platform.select({ default: web, native });
+export const hapticFeedback = Platform.select({ default: native, web });
 
 const patterns: Record<HapticFeedbackType, VibratePattern> = {
   selection: 10,

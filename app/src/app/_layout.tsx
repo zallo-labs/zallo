@@ -4,10 +4,9 @@ import { Stack } from 'expo-router';
 import { Suspense } from 'react';
 import { IntlProvider } from 'react-intl';
 import { Analytics } from '#/Analytics';
-import { ErrorBoundary } from '#/ErrorBoundary/ErrorBoundary';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { MinimalErrorBoundary } from '#/ErrorBoundary/MinimalErrorBoundary';
 import { Background } from '#/layout/Background';
+import { RootErrorBoundary, IgnoredErrorBoundary } from '#/ErrorBoundary';
 import { Splash } from '#/Splash';
 import { WalletConnectListeners } from '#/walletconnect/WalletConnectListeners';
 import { GqlProvider } from '~/gql/GqlProvider';
@@ -25,6 +24,7 @@ import { StyleSheet } from 'react-native';
 import { Fonts } from '#/Fonts';
 import { SentryProvider } from '#/provider/SentryProvider';
 import { GoogleAuthProvider } from '#/cloud/google/GoogleAuthProvider';
+import { Try } from 'expo-router/build/views/Try';
 
 export const unstable_settings = {
   initialRouteName: `index`,
@@ -46,49 +46,47 @@ function Layout() {
 
 function RootLayout() {
   return (
-    <MinimalErrorBoundary>
-      <SentryProvider />
+    <ThemeProvider>
       <Fonts />
-      <IntlProvider locale={getLocales()?.[0]?.languageTag ?? 'en-US'} defaultLocale="en-US">
-        <SafeAreaProvider>
-          <GestureHandlerRootView style={styles.flex}>
-            <ThemeProvider>
+      <SentryProvider />
+      <Try catch={RootErrorBoundary}>
+        <IntlProvider locale={getLocales()?.[0]?.languageTag ?? 'en-US'} defaultLocale="en-US">
+          <SafeAreaProvider>
+            <GestureHandlerRootView style={styles.flex}>
               <Background>
-                <ErrorBoundary>
-                  <Suspense fallback={<Splash />}>
-                    <AuthGate>
-                      <GqlProvider>
-                        <TQueryProvider>
-                          <GoogleAuthProvider>
-                            <ErrorBoundary>
-                              <Suspense fallback={<Splash />}>
-                                <Portal.Host>
-                                  <Layout />
-                                </Portal.Host>
-                              </Suspense>
-                            </ErrorBoundary>
-                            <MinimalErrorBoundary>
-                              <Suspense fallback={null}>
-                                <Analytics />
-                                <WalletConnectListeners />
-                                <NotificationsProvider />
-                                <ApproverNameUpdater />
-                              </Suspense>
-                            </MinimalErrorBoundary>
-                          </GoogleAuthProvider>
-                        </TQueryProvider>
-                      </GqlProvider>
-                    </AuthGate>
-                  </Suspense>
-                </ErrorBoundary>
+                <Suspense fallback={<Splash />}>
+                  <AuthGate>
+                    <GqlProvider>
+                      <TQueryProvider>
+                        <GoogleAuthProvider>
+                          <Try catch={RootErrorBoundary}>
+                            <Suspense fallback={<Splash />}>
+                              <Portal.Host>
+                                <Layout />
+                              </Portal.Host>
+                            </Suspense>
+                          </Try>
+                          <Try catch={IgnoredErrorBoundary}>
+                            <Suspense fallback={null}>
+                              <Analytics />
+                              <WalletConnectListeners />
+                              <NotificationsProvider />
+                              <ApproverNameUpdater />
+                            </Suspense>
+                          </Try>
+                        </GoogleAuthProvider>
+                      </TQueryProvider>
+                    </GqlProvider>
+                  </AuthGate>
+                </Suspense>
               </Background>
               <SnackbarProvider />
               <UpdateProvider />
-            </ThemeProvider>
-          </GestureHandlerRootView>
-        </SafeAreaProvider>
-      </IntlProvider>
-    </MinimalErrorBoundary>
+            </GestureHandlerRootView>
+          </SafeAreaProvider>
+        </IntlProvider>
+      </Try>
+    </ThemeProvider>
   );
 }
 

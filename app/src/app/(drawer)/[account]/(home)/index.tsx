@@ -33,7 +33,7 @@ const TokensTabParams = AccountParams;
 function TokensTab() {
   const { account } = useLocalParams(TokensTabParams);
   const { data, reexecute } = useQuery(Query, { account, chain: asChain(account) });
-  usePollQuery(reexecute, 30000);
+  // usePollQuery(reexecute, 30000);
 
   const tokens = useMemo(
     () =>
@@ -78,3 +78,5 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
 });
+
+export { ErrorBoundary } from '#/ErrorBoundary';

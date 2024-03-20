@@ -31,7 +31,7 @@ export function Analytics() {
 
   const previousPathname = useRef<string>();
 
-  const userId = useQuery(Query).data?.user.id;
+  const userId = useQuery(Query, {}, { requestPolicy: 'cache-first' }).data?.user.id;
 
   useEffect(() => {
     ampli.identify(userId, { device_id: approver });

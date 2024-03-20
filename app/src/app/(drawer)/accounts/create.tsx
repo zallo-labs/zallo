@@ -20,11 +20,16 @@ import { CHAINS, Chain } from 'chains';
 import { FormSelectChip } from '#/fields/FormSelectChip';
 import { CHAIN_ENTRIES } from '@network/chains';
 import { useQuery } from '~/gql';
+import { useMemo } from 'react';
 
 const Query = gql(/* GraphQL */ `
   query CreateAccountScreen {
     user {
       id
+      approvers {
+        id
+        address
+      }
       ...UsePolicyPresets_User
     }
   }
@@ -63,6 +68,25 @@ function CreateAccountScreen({ onCreate }: CreateAccountScreenProps) {
   const chain = watch('chain');
   const presets = usePolicyPresets({ chain, user, account: undefined });
 
+  const policies = useMemo(() => {
+    const all =
+      user.approvers.length === 1
+        ? [presets.high]
+        : [presets.high, presets.low, presets.medium, presets.recovery];
+    return all
+      .filter(
+        (p, i) =>
+          // Filter out redundant policies
+          all.findIndex((p2) => p.threshold === p2.threshold && p.delay === p2.delay) === i,
+      )
+      .flatMap((p) =>
+        // Low risk policy for each user approver
+        p.name === presets.low.name
+          ? user.approvers.map((a) => ({ ...p, approvers: new Set([a.address]) }))
+          : [p],
+      );
+  }, [presets.high, presets.low, presets.medium, presets.recovery, user.approvers]);
+
   return (
     <>
       <AppbarOptions mode="large" headline="Let's setup your account" />
@@ -99,7 +123,7 @@ function CreateAccountScreen({ onCreate }: CreateAccountScreenProps) {
             control={control}
             onPress={handleSubmit(async ({ label, chain }) => {
               const r = await create({
-                input: { label, chain, policies: [asPolicyInput(presets.high)] },
+                input: { label, chain, policies: policies.map(asPolicyInput) },
               });
 
               const account = r.data?.createAccount.address;
@@ -149,3 +173,5 @@ const stylesheet = createStyles(({ colors }) => ({
 }));
 
 export default withSuspense(CreateAccountScreen, <ScreenSkeleton />);
+
+export { ErrorBoundary } from '#/ErrorBoundary';

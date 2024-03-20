@@ -1,4 +1,4 @@
-import { createStyles, useStyles } from '@theme/styles';
+import { createStyles } from '@theme/styles';
 import { ScrollView, ScrollViewProps, StyleProp, ViewStyle } from 'react-native';
 import { ScreenSurface } from './ScreenSurface';
 
@@ -7,11 +7,10 @@ export interface ScreenSurfaceProps extends ScrollViewProps {
 }
 
 export function ScrollableScreenSurface({ children, ...scrollViewProps }: ScreenSurfaceProps) {
-  const { styles } = useStyles(stylesheet);
-
   return (
     <ScreenSurface>
       <ScrollView
+        showsVerticalScrollIndicator={false}
         {...scrollViewProps}
         contentContainerStyle={[styles.contentContainer, scrollViewProps.contentContainerStyle]}
       >
@@ -21,8 +20,8 @@ export function ScrollableScreenSurface({ children, ...scrollViewProps }: Screen
   );
 }
 
-const stylesheet = createStyles({
+const styles = createStyles({
   contentContainer: {
-    flex: 1,
+    flexGrow: 1,
   },
 });

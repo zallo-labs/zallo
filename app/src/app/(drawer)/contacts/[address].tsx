@@ -210,3 +210,5 @@ export default function ContactScreen() {
 
   return <SharedContactScreen address={asAddress(address)} chain={asChain(address)} />;
 }
+
+export { ErrorBoundary } from '#/ErrorBoundary';

@@ -1,12 +1,12 @@
-import { Address } from '../address';
+import { Address, asAddress } from '../address';
 import { Chain } from 'chains';
 
 export function addressMap<M extends Partial<Record<Chain, Address>>>(m: M) {
   return {
-    zksync: m.zksync,
-    'zksync-sepolia': m['zksync-sepolia'],
-    'zksync-goerli': m['zksync-goerli'],
-    'zksync-local': m['zksync-local'] ?? m['zksync-sepolia'], // Expects a zksync-local to be a fork
+    zksync: asAddress(m.zksync),
+    'zksync-sepolia': asAddress(m['zksync-sepolia']),
+    'zksync-goerli': asAddress(m['zksync-goerli']),
+    'zksync-local': asAddress(m['zksync-local']) ?? asAddress(m['zksync-sepolia']), // Expects a zksync-local to be a fork
   } as M &
     Partial<Record<Chain, Address>> &
     (M extends Record<'zksync-local', unknown>

@@ -34,9 +34,6 @@ export class UpsertTokenInput {
   @UAddressField()
   address: UAddress;
 
-  @Bytes32Field({ nullable: true })
-  pythUsdPriceId?: Hex;
-
   @Field(() => String, { nullable: true })
   name?: string;
 
@@ -51,6 +48,9 @@ export class UpsertTokenInput {
 
   @Field(() => [TokenUnitInput], { defaultValue: [] })
   units: TokenUnitInput[];
+
+  @Bytes32Field({ nullable: true })
+  pythUsdPriceId?: Hex;
 }
 
 @InputType()

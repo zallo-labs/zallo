@@ -28,18 +28,16 @@ const Operation = gql(/* GraphQL */ `
 export interface OperationSectionProps {
   proposal: FragmentType<typeof Transaction>;
   operation: FragmentType<typeof Operation>;
-  initiallyExpanded?: boolean;
 }
 
 export function OperationSection({
   proposal: proposalFragment,
   operation: operationFragment,
-  initiallyExpanded = false,
 }: OperationSectionProps) {
   const proposal = useFragment(Transaction, proposalFragment);
   const op = useFragment(Operation, operationFragment);
 
-  const [expanded, toggleExpanded] = useToggle(initiallyExpanded);
+  const [expanded, toggleExpanded] = useToggle(false);
 
   return (
     <>

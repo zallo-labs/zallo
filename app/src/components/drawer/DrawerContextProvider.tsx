@@ -1,6 +1,4 @@
-import { DrawerActions } from '@react-navigation/native';
-import { useNavigation } from 'expo-router';
-import { ReactNode, createContext, useContext } from 'react';
+import { Dispatch, ReactNode, SetStateAction, createContext, useContext, useMemo } from 'react';
 
 const CONTEXT = createContext<DrawerContext | undefined>(undefined);
 
@@ -18,6 +16,7 @@ export type DrawerType = 'standard' | 'modal';
 
 export interface DrawerContext {
   type: DrawerType;
+  setOpen: Dispatch<SetStateAction<boolean>>;
 }
 
 export interface DrawerContextProviderProps extends DrawerContext {
@@ -29,11 +28,14 @@ export function DrawerContextProvider({ children, ...context }: DrawerContextPro
 }
 
 export function useDrawerActions() {
-  const navigation = useNavigation();
+  const set = useDrawerContext().setOpen;
 
-  return {
-    toggle: () => navigation.dispatch(DrawerActions.toggleDrawer()),
-    open: () => navigation.dispatch(DrawerActions.openDrawer()),
-    close: () => navigation.dispatch(DrawerActions.closeDrawer()),
-  };
+  return useMemo(
+    () => ({
+      toggle: () => set((open) => !open),
+      open: () => set(true),
+      close: () => set(false),
+    }),
+    [set],
+  );
 }

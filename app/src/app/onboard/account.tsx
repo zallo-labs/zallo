@@ -40,3 +40,5 @@ function AccountOnboardingScreen() {
 }
 
 export default AccountOnboardingScreen;
+
+export { ErrorBoundary } from '#/ErrorBoundary';

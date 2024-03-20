@@ -162,3 +162,5 @@ const stylesheet = createStyles(({ colors }) => ({
       .exhaustive(),
   }),
 }));
+
+export { ErrorBoundary } from '#/ErrorBoundary';

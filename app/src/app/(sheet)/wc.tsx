@@ -68,3 +68,5 @@ const stylesheet = createStyles(({ fonts }) => ({
     width: fonts.headlineMedium.fontSize,
   },
 }));
+
+export { ErrorBoundary } from '#/ErrorBoundary';

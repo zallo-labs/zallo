@@ -1,10 +1,8 @@
 import { FragmentType, gql, useFragment } from '@api/generated';
 import { ListItem, ListItemProps } from '#/list/ListItem';
-import { materialCommunityIcon } from '@theme/icons';
 import { Blockie } from '#/Identicon/Blockie';
 import { truncateAddr } from '~/util/format';
-
-const GroupIcon = materialCommunityIcon('account-supervisor-circle');
+import { GroupIcon } from '@theme/icons';
 
 const Policy = gql(/* GraphQL */ `
   fragment PolicyItem_Policy on Policy {

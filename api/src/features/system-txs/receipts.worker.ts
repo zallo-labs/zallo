@@ -23,7 +23,7 @@ export interface TransactionData {
   block: FormattedBlock<ChainConfig, false>;
 }
 
-export type TransactionListener = (data: TransactionData) => Promise<void>;
+export type TransactionListener = (data: TransactionData) => Promise<unknown>;
 
 export interface TransactionEventData<TAbiEvent extends AbiEvent> extends TransactionData {
   log: Log<TAbiEvent>;
@@ -31,7 +31,7 @@ export interface TransactionEventData<TAbiEvent extends AbiEvent> extends Transa
 
 export type TransactionEventListener<TAbiEvent extends AbiEvent> = (
   data: TransactionEventData<TAbiEvent>,
-) => Promise<void>;
+) => Promise<unknown>;
 
 @Injectable()
 @Processor(ReceiptsQueue.name)

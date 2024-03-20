@@ -127,3 +127,5 @@ const styles = StyleSheet.create({
     margin: 16,
   },
 });
+
+export { ErrorBoundary } from '#/ErrorBoundary';

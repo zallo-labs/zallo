@@ -8,7 +8,7 @@ import { usePolicyDraftAtom } from '~/lib/policy/draft';
 import { usePolicyPresets } from '~/lib/policy/usePolicyPresets';
 
 const Account = gql(/* GraphQL */ `
-  fragment PolicySuggestions_Account on Account {
+  fragment PolicyPresets_Account on Account {
     id
     chain
     ...UsePolicyPresets_Account
@@ -16,18 +16,18 @@ const Account = gql(/* GraphQL */ `
 `);
 
 const User = gql(/* GraphQL */ `
-  fragment PolicySuggestions_User on User {
+  fragment PolicyPresets_User on User {
     id
     ...UsePolicyPresets_User
   }
 `);
 
-export interface PolicySuggestionsProps {
+export interface PolicyPresetsProps {
   account: FragmentType<typeof Account>;
   user: FragmentType<typeof User>;
 }
 
-export function PolicySuggestions(props: PolicySuggestionsProps) {
+export function PolicyPresets(props: PolicyPresetsProps) {
   const account = useFragment(Account, props.account);
   const user = useFragment(User, props.user);
   const presets = usePolicyPresets({ account, user, chain: account.chain });

@@ -216,3 +216,5 @@ const stylesheet = createStyles(({ colors, fonts }) => ({
     color: colors.onErrorContainer,
   },
 }));
+
+export { ErrorBoundary } from '#/ErrorBoundary';

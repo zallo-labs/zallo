@@ -43,7 +43,7 @@ export class TokensResolver {
 
   @Query(() => TokenMetadata)
   async tokenMetadata(@Input() { address }: TokenInput): Promise<TokenMetadata> {
-    return { ...(await this.service.getTokenMetadata(address)), id: `TokenMetadata:${address}` };
+    return await this.service.getTokenMetadata(address);
   }
 
   @ComputedField<typeof e.Token>(() => DecimalScalar, { address: true })

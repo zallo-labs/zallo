@@ -103,3 +103,5 @@ const stylesheet = createStyles(({ colors }) => ({
     width: ICON_SIZE.medium,
   },
 }));
+
+export { ErrorBoundary } from '#/ErrorBoundary';

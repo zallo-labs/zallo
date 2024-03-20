@@ -117,3 +117,5 @@ const styles = StyleSheet.create({
     paddingBottom: 16,
   },
 });
+
+export { ErrorBoundary } from '#/ErrorBoundary';

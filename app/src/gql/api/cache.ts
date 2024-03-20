@@ -47,7 +47,8 @@ export const CACHE_SCHEMA_CONFIG: Pick<
       },
       removeTransaction: (result: string, _args, cache) => {
         invalidate(cache, { __typename: 'Transaction', id: result });
-        invalidate(cache, 'Query', ['proposals']);
+        invalidate(cache, 'Query', ['proposals', 'policy', 'policyState', 'policies']);
+        invalidate(cache, accountEntities(cache), ['policies']);
       },
       removeMessage: (result: string, _args, cache) => {
         invalidate(cache, { __typename: 'Message', id: result });
@@ -74,7 +75,7 @@ export const CACHE_SCHEMA_CONFIG: Pick<
         cache,
       ) => {
         if (r.event === 'create' || r.event === 'delete') invalidate(cache, 'Query', ['proposals']);
-        if (r.event === 'executed') {
+        if (r.event === 'executed' || r.event === 'delete') {
           invalidate(cache, 'Query', ['policy', 'policyState', 'policies']);
           invalidate(cache, accountEntities(cache, r.account), ['policies']);
         }

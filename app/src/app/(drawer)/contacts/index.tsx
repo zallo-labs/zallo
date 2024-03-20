@@ -14,11 +14,11 @@ import { ContactItem } from '#/item/ContactItem';
 import { AppbarMenu } from '#/Appbar/AppbarMenu';
 import { withSuspense } from '#/skeleton/withSuspense';
 import { ScreenSkeleton } from '#/skeleton/ScreenSkeleton';
-import { ScrollableScreenSurface } from '#/layout/ScrollableScreenSurface';
 import { createStyles, useStyles } from '@theme/styles';
 import { z } from 'zod';
 import { zArray, zUAddress } from '~/lib/zod';
 import { useLocalParams } from '~/hooks/useLocalParams';
+import { ScreenSurface } from '#/layout/ScreenSurface';
 
 const Query = gql(/* GraphQL */ `
   query ContactsScreen($query: String) {
@@ -71,7 +71,7 @@ function ContactsScreen() {
         onChangeText={setQuery}
       />
 
-      <ScrollableScreenSurface>
+      <ScreenSurface>
         <FlashList
           data={contacts}
           ListHeaderComponent={<ListHeader>Contacts</ListHeader>}
@@ -100,7 +100,7 @@ function ContactsScreen() {
         />
 
         <Fab icon={AddContactIcon} label="Add" onPress={async () => router.push(`/contacts/add`)} />
-      </ScrollableScreenSurface>
+      </ScreenSurface>
     </>
   );
 }
@@ -115,4 +115,6 @@ const stylesheet = createStyles({
   },
 });
 
-export default withSuspense(ContactsScreen, ScreenSkeleton);
+export default withSuspense(ContactsScreen, <ScreenSkeleton />);
+
+export { ErrorBoundary } from '#/ErrorBoundary';

@@ -224,3 +224,5 @@ const styles = createStyles({
 });
 
 export default withSuspense(SwapScreen, null);
+
+export { ErrorBoundary } from '#/ErrorBoundary';

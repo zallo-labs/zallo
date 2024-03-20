@@ -116,6 +116,8 @@ export const GenericTokenIcon = materialIcon('monetization-on');
 export const CustomActionIcon = materialCommunityIcon('pentagon-outline');
 export const DataIcon = materialCommunityIcon('code-tags');
 export const DisconnectIcon = materialCommunityIcon('link-off');
+export const GroupIcon = materialCommunityIcon('account-supervisor-circle');
+export const RecoveryIcon = materialIcon('lock-reset');
 
 export const PolicyIcon = materialCommunityIcon('security');
 export const PolicyActiveIcon = materialCommunityIcon('shield');

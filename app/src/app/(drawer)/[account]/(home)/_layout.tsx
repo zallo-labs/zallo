@@ -29,8 +29,8 @@ export default function HomeLayout() {
   const setSelectedAccount = useSetSelectedAccont();
 
   useEffect(() => {
-    if (account !== lastSelected) setSelectedAccount(account);
-  }, [account, lastSelected, setSelectedAccount]);
+    if (account) setSelectedAccount(account);
+  }, [account, setSelectedAccount]);
 
   const query = useQuery(Query, { account }, { context });
 

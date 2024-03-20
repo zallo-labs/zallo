@@ -25,9 +25,7 @@ export function Modal({ close, children, ...props }: ModalProps) {
         exiting={FadeOut}
       />
 
-      <Animated.View {...props} style={[styles.container, props.style]}>
-        {children}
-      </Animated.View>
+      <Animated.View {...props}>{children}</Animated.View>
     </Portal>
   );
 }
@@ -36,8 +34,5 @@ const stylesheet = createStyleSheet(({ colors }) => ({
   backdrop: {
     ...StyleSheet.absoluteFillObject,
     backgroundColor: colors.backdrop,
-  },
-  container: {
-    pointerEvents: 'none',
   },
 }));

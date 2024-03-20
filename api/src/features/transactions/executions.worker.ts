@@ -27,7 +27,7 @@ import { QueueReturnType, TypedJob, Worker, createQueue } from '~/features/util/
 import { ETH } from 'lib/dapps';
 import { UnrecoverableError } from 'bullmq';
 
-export const ExecutionsQueue = createQueue<{ txProposal: UUID; ignoreSimulation?: boolean }>(
+export const ExecutionsQueue = createQueue<{ transaction: UUID; ignoreSimulation?: boolean }>(
   'Executions',
 );
 export type ExecutionsQueue = typeof ExecutionsQueue;
@@ -45,7 +45,7 @@ export class ExecutionsWorker extends Worker<ExecutionsQueue> {
   }
 
   async process(job: TypedJob<ExecutionsQueue>): Promise<QueueReturnType<ExecutionsQueue>> {
-    const { txProposal: id, ignoreSimulation } = job.data;
+    const { transaction: id, ignoreSimulation } = job.data;
     const proposal = await this.db.query(
       e.select(e.Transaction, () => ({
         filter_single: { id },

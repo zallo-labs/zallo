@@ -116,7 +116,7 @@ function TransferScreen() {
               });
               if (!proposal) return;
 
-              router.push({
+              router.replace({
                 pathname: `/(drawer)/transaction/[id]`,
                 params: { id: proposal },
               });
@@ -143,3 +143,5 @@ const styles = StyleSheet.create({
 });
 
 export default withSuspense(TransferScreen, ScreenSkeleton);
+
+export { ErrorBoundary } from '#/ErrorBoundary';

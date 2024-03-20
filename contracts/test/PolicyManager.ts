@@ -1,5 +1,16 @@
 import { expect } from 'chai';
-import { ACCOUNT_ABI, Address, asPolicy, encodePolicyStruct, hashPolicy } from 'lib';
+import {
+  ACCOUNT_ABI,
+  Address,
+  PLACEHOLDER_ACCOUNT_ADDRESS,
+  Policy,
+  asPolicy,
+  asPolicyKey,
+  asSelector,
+  encodePolicyStruct,
+  hashPolicy,
+  replaceSelfAddress,
+} from 'lib';
 import { deploy, gas, network, wallet } from './util';
 import TestPolicyManager, { abi } from './contracts/TestPolicyManager';
 import { zeroHash } from 'viem';
@@ -116,6 +127,77 @@ describe('PolicyManager', () => {
           gas,
         }),
       ).to.revert;
+    });
+  });
+
+  describe('initializeWithPolicies', () => {
+    it('adds policies', async () => {
+      await addPolicy();
+
+      const policy1 = { ...policy, key: asPolicyKey(0) };
+      const policy2 = { ...policy, key: asPolicyKey(1) };
+      await wallet.writeContract({
+        address,
+        abi,
+        functionName: 'testInitializeWithPolicies',
+        args: [[encodePolicyStruct(policy1), encodePolicyStruct(policy2)]],
+        gas,
+      });
+
+      expect(
+        await network.readContract({
+          address,
+          abi,
+          functionName: 'getPolicyHash',
+          args: [policy1.key],
+        }),
+      ).to.eq(hashPolicy(policy1));
+      expect(
+        await network.readContract({
+          address,
+          abi,
+          functionName: 'getPolicyHash',
+          args: [policy2.key],
+        }),
+      ).to.eq(hashPolicy(policy2));
+    });
+
+    it('replaces placeholder self address', async () => {
+      const policy1 = asPolicy({
+        key: asPolicyKey(0),
+        approvers: [],
+        threshold: 0,
+        permissions: {
+          transfers: { limits: {}, defaultAllow: false },
+          targets: {
+            contracts: {
+              [PLACEHOLDER_ACCOUNT_ADDRESS]: { functions: {}, defaultAllow: true },
+            },
+            default: {
+              functions: { [asSelector('0x6cbe96fa')]: true },
+              defaultAllow: false,
+            },
+          },
+          delay: 1,
+        },
+      });
+      await wallet.writeContract({
+        address,
+        abi,
+        functionName: 'testInitializeWithPolicies',
+        args: [[encodePolicyStruct(policy1)]],
+        gas,
+      });
+
+      const transformedPolicy1 = replaceSelfAddress({ policy: policy1, to: address });
+      expect(
+        await network.readContract({
+          address,
+          abi,
+          functionName: 'getPolicyHash',
+          args: [transformedPolicy1.key],
+        }),
+      ).to.eq(hashPolicy(transformedPolicy1));
     });
   });
 });

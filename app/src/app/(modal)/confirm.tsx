@@ -58,3 +58,5 @@ const stylesheet = createStyles(({ colors }) => ({
     color: colors.error,
   },
 }));
+
+export { ErrorBoundary } from '#/ErrorBoundary';
