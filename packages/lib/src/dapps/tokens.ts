@@ -45,7 +45,7 @@ export const WETH = {
   ],
   address: addressMap({
     zksync: '0xf00DAD97284D0c6F06dc4Db3c32454D4292c6813',
-    'zksync-sepolia': '0x0525ee59d397fC5B73cD930292c48FF98762719a',
+    'zksync-sepolia': '0x701f3B10b5Cc30CA731fb97459175f45E0ac1247',
     'zksync-goerli': '0x20b28B1e4665FFf290650586ad76E977EAb90c5D',
   }),
   ethereumAddress: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',

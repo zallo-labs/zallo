@@ -27,7 +27,7 @@ export const SYNCSWAP = {
     abi: poolMasterAbi,
     address: addressMap({
       zksync: '0xbB05918E9B4bA9Fe2c8384d223f0844867909Ffb',
-      'zksync-sepolia': '0xbB05918E9B4bA9Fe2c8384d223f0844867909Ffb',
+      'zksync-sepolia': '0x5b9f21d407F35b10CbfDDca17D5D84b129356ea3',
       'zksync-goerli': '0x22E50b84ec0C362427B617dB3e33914E91Bf865a',
     }),
   },
