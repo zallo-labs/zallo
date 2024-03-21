@@ -169,8 +169,20 @@ export class TransactionsService {
       paymaster: this.paymasters.for(chain),
       paymasterEthFee: totalPaymasterEthFees(maxPaymasterEthFees),
     } satisfies Tx;
-    console.log(tx);
     const { policy, validationErrors } = await this.policies.best(account, tx);
+
+    // Ordering operation ids ensures 
+    const operationIds = operations.map(() => uuid()).sort((a, b) => a.localeCompare(b));
+    const insertOperation = e.set(
+      ...operations.map((op, i) =>
+        e.insert(e.Operation, {
+          id: operationIds[i],
+          to: op.to,
+          value: op.value,
+          data: op.data,
+        }),
+      ),
+    );
 
     const id = asUUID(uuid());
     const insert = e.insert(e.Transaction, {
@@ -186,15 +198,7 @@ export class TransactionsService {
         url: dapp.url.href,
         icons: dapp.icons.map((i) => i.href),
       },
-      operations: e.set(
-        ...operations.map((op) =>
-          e.insert(e.Operation, {
-            to: op.to,
-            value: op.value,
-            data: op.data,
-          }),
-        ),
-      ),
+      operations: insertOperation,
       validFrom,
       gasLimit: gas,
       paymaster: tx.paymaster,
