@@ -155,7 +155,12 @@ export class TransactionsService {
 
     const chain = asChain(account);
     const network = this.networks.get(chain);
+    gas ??=
+      (
+        await estimateTransactionOperationsGas({ account: asAddress(account), network, operations })
+      ).unwrapOr(FALLBACK_OPERATIONS_GAS) + estimateTransactionVerificationGas(3);
     const maxPaymasterEthFees = await this.paymasters.paymasterEthFees({ account, use: false });
+
     const tx = {
       operations,
       nonce: BigInt(Math.floor(validFrom.getTime() / 1000)),
@@ -164,12 +169,8 @@ export class TransactionsService {
       paymaster: this.paymasters.for(chain),
       paymasterEthFee: totalPaymasterEthFees(maxPaymasterEthFees),
     } satisfies Tx;
+    console.log(tx);
     const { policy, validationErrors } = await this.policies.best(account, tx);
-
-    gas ??=
-      (
-        await estimateTransactionOperationsGas({ account: asAddress(account), tx, network })
-      ).unwrapOr(FALLBACK_OPERATIONS_GAS) + estimateTransactionVerificationGas(3);
 
     const id = asUUID(uuid());
     const insert = e.insert(e.Transaction, {

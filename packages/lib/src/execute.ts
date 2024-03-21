@@ -38,9 +38,11 @@ export async function encodeTransaction({
   const { maxFeePerGas, maxPriorityFeePerGas } = await network.estimateFeesPerGas();
   const gas =
     tx.gas ??
-    (await estimateTransactionOperationsGas({ network, account, tx }).unwrapOr(
-      FALLBACK_OPERATIONS_GAS,
-    )) + estimateTransactionVerificationGas(1);
+    (await estimateTransactionOperationsGas({
+      network,
+      account,
+      operations: tx.operations,
+    }).unwrapOr(FALLBACK_OPERATIONS_GAS)) + estimateTransactionVerificationGas(1);
 
   return {
     network,
