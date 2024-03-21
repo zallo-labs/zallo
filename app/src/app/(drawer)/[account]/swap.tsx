@@ -75,7 +75,7 @@ function SwapScreen() {
   const to = toAddress && tokens.find((t) => t.address === toAddress);
 
   const [input, setInput] = useState('');
-  const [type, setType] = useState(InputType.Fiat);
+  const [type, setType] = useState(InputType.Token);
   const fromAmount = useMemo(
     () =>
       type === InputType.Token
@@ -177,6 +177,7 @@ function SwapScreen() {
                     slippage: 0.01, // 1%
                     deadline: DateTime.now().plus({ months: 3 }),
                   });
+                  console.log(operations);
                   if (operations.isErr()) return showError('Something went wrong');
 
                   const proposal = await propose({
