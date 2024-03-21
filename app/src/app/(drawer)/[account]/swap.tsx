@@ -28,6 +28,7 @@ import Decimal from 'decimal.js';
 import { ampli } from '~/lib/ampli';
 import { SwapToTokenItem } from '#/swap/SwapToTokenItem';
 import { showError } from '#/provider/SnackbarProvider';
+import { estimateSwap } from '~/util/swap/syncswap/estimate';
 
 const DownArrow = materialCommunityIcon('arrow-down-thin');
 const ICON_BUTTON_SIZE = 24;
@@ -127,10 +128,10 @@ function SwapScreen() {
           {to && route ? (
             <>
               <SwapToTokenItem
+                account={account}
                 from={from}
                 fromAmount={fromAmount}
                 to={to}
-                chain={chain}
                 route={route}
                 selectTo={selectTo}
               />
@@ -169,29 +170,41 @@ function SwapScreen() {
           onPress={
             route
               ? async () => {
-                  const operations = await getSwapOperations({
+                  const fromAmountFp = asFp(fromAmount, from.decimals);
+                  const estimatedOut = await estimateSwap({
+                    account,
+                    route,
+                    fromAmount: fromAmountFp,
+                  });
+                  if (estimatedOut.isErr())
+                    return showError('Something went wrong estimating swap');
+                  const slippage = 0.05; /* percent [0, 1] */
+                  const maxSlip = (estimatedOut.value * BigInt(slippage * 100)) / 100n;
+
+                  const operations = getSwapOperations({
                     account,
                     route,
                     from: asAddress(fromAddress),
-                    fromAmount: asFp(fromAmount, from.decimals),
-                    slippage: 0.01, // 1%
+                    fromAmount: fromAmountFp,
+                    minimumToAmount: estimatedOut.value - maxSlip,
                     deadline: DateTime.now().plus({ months: 3 }),
                   });
-                  console.log(operations);
-                  if (operations.isErr()) return showError('Something went wrong');
+                  if (operations.isErr()) return showError('Something went wrong building swap');
 
                   const proposal = await propose({
                     account,
                     label: `Swap ${from.symbol} for ${to!.symbol}`,
                     operations: operations.value,
                   });
-                  if (!proposal) return;
-
-                  router.push({
-                    pathname: `/(drawer)/transaction/[id]`,
-                    params: { id: proposal },
-                  });
-                  ampli.swapProposal({ from: from.address, to: to!.address });
+                  if (proposal) {
+                    router.push({
+                      pathname: `/(drawer)/transaction/[id]`,
+                      params: { id: proposal },
+                    });
+                    ampli.swapProposal({ from: from.address, to: to!.address });
+                  } else {
+                    showError('Something went wrong proposing swap');
+                  }
                 }
               : undefined
           }

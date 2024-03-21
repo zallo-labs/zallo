@@ -4,39 +4,41 @@ import { DateTime } from 'luxon';
 import { err, ok } from 'neverthrow';
 import { encodeFunctionData } from 'viem';
 import { SwapRoute } from '~/hooks/swap/useSwapRoute';
-import { estimateSwap } from '~/util/swap/syncswap/estimate';
 
-const SLIPPAGE_FACTOR = 10 ** 5;
-const SLIPPAGE_FACTOR_BN = BigInt(SLIPPAGE_FACTOR);
+const NEVER_EXPIRE = 32531887598n;
 
 export interface GetSwapOperationsParams {
   account: UAddress;
   route: SwapRoute;
   from: Address;
   fromAmount: bigint;
-  slippage: number; // percent [0-1]
-  deadline: DateTime;
+  minimumToAmount?: bigint;
+  deadline?: DateTime;
 }
 
-export async function getSwapOperations({
+export interface EstimateMinSwapAmountParams {
+  estimatedAmount: bigint;
+  slippage: number; // percent [0-1]
+}
+
+export async function estimateMinSwapAmount({
+  estimatedAmount,
+  slippage,
+}: EstimateMinSwapAmountParams) {
+  const maxSlipped = (estimatedAmount * BigInt(slippage * 100)) / 100n;
+  return estimatedAmount - maxSlipped;
+}
+
+export function getSwapOperations({
   account,
   route,
   from,
   fromAmount,
-  slippage,
+  minimumToAmount = 0n,
   deadline,
 }: GetSwapOperationsParams) {
-  const chain = asChain(account);
-
-  const router = SYNCSWAP.router.address[chain];
+  const router = SYNCSWAP.router.address[asChain(account)];
   if (!router) return err('unsupported-network' as const);
-
-  const estimatedToAmount = await estimateSwap({ chain, route, fromAmount });
-  if (estimatedToAmount.isErr()) return estimatedToAmount;
-
-  const minimumToAmount =
-    (estimatedToAmount.value * (SLIPPAGE_FACTOR_BN - BigInt(slippage * SLIPPAGE_FACTOR))) /
-    SLIPPAGE_FACTOR_BN;
 
   const transferOp: Operation | undefined =
     from !== ETH_ADDRESS
@@ -57,9 +59,9 @@ export async function getSwapOperations({
       abi: SYNCSWAP.router.abi,
       functionName: 'swap',
       args: [
-        [{ ...route, amountIn: fromAmount }],
-        minimumToAmount,
-        BigInt(Math.round(deadline.toSeconds())),
+        [{ steps: route.steps, tokenIn: route.tokenIn, amountIn: fromAmount }],
+        minimumToAmount ?? 0n,
+        deadline ? BigInt(Math.round(deadline.toSeconds())) : NEVER_EXPIRE,
       ],
     }),
   };
