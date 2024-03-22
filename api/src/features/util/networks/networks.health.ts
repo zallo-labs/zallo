@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { HealthIndicator } from '@nestjs/terminus';
+import { HealthIndicator, HealthIndicatorResult } from '@nestjs/terminus';
 import { NetworksService } from './networks.service';
 
 @Injectable()
@@ -8,7 +8,7 @@ export class NetworksHealthIndicator extends HealthIndicator {
     super();
   }
 
-  async check(key: string) {
+  async check(key: string): Promise<HealthIndicatorResult> {
     const statuses = Object.fromEntries(
       await Promise.all(
         [...this.networks.all()]
@@ -22,8 +22,7 @@ export class NetworksHealthIndicator extends HealthIndicator {
                 ? { status: 'up' }
                 : {
                     status: 'down',
-                    error: status.name,
-                    message: status.message,
+                    error: { name: status.name, message: status.message },
                   },
             ] as const;
           }),
