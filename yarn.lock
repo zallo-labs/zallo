@@ -3373,51 +3373,51 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@bull-board/api@npm:5.14.2, @bull-board/api@npm:^5.14.2":
-  version: 5.14.2
-  resolution: "@bull-board/api@npm:5.14.2"
+"@bull-board/api@npm:5.15.1, @bull-board/api@npm:^5.15.1":
+  version: 5.15.1
+  resolution: "@bull-board/api@npm:5.15.1"
   dependencies:
     redis-info: "npm:^3.0.8"
   peerDependencies:
-    "@bull-board/ui": 5.14.2
-  checksum: 10/4446eab66d3f785b80dcf5a1b3a60f5a5baad205c2d1cd2b3dadc5e16218a1e7d6538dfd6321bcd769838019016cde50175ff1debb5ba37d0b9d5b1a5ed97cdf
+    "@bull-board/ui": 5.15.1
+  checksum: 10/1fe78d8fb06fd514334a11ed05e6aa84abc8c46bdcb8a3517437c33cf6fd921c3fc60bbf0d7e40b16b76445391736df48e169697e1c022f892b80cebc816efa1
   languageName: node
   linkType: hard
 
-"@bull-board/express@npm:^5.14.2":
-  version: 5.14.2
-  resolution: "@bull-board/express@npm:5.14.2"
+"@bull-board/express@npm:^5.15.1":
+  version: 5.15.1
+  resolution: "@bull-board/express@npm:5.15.1"
   dependencies:
-    "@bull-board/api": "npm:5.14.2"
-    "@bull-board/ui": "npm:5.14.2"
+    "@bull-board/api": "npm:5.15.1"
+    "@bull-board/ui": "npm:5.15.1"
     ejs: "npm:^3.1.7"
     express: "npm:^4.17.3"
-  checksum: 10/6f293778e1bd901498ddda1fa951b23a215692dab370031dff461f21bf679974620b5ca0796f9ea86cacc4cc227ee0c518d851e84348c4c7c1a9001dd9bff1dd
+  checksum: 10/d132e0d1e07608b14498b9582326b2b666cc114c2747e9cc0a24a94bd97e1fff24bf5e45a71676d1511ed2706dc60b111d5921af2b40a7bc9d06c13971801e07
   languageName: node
   linkType: hard
 
-"@bull-board/nestjs@npm:^5.14.2":
-  version: 5.14.2
-  resolution: "@bull-board/nestjs@npm:5.14.2"
+"@bull-board/nestjs@npm:^5.15.1":
+  version: 5.15.1
+  resolution: "@bull-board/nestjs@npm:5.15.1"
   dependencies:
     "@nestjs/bull-shared": "npm:^10.0.0"
   peerDependencies:
-    "@bull-board/api": ^5.14.2
-    "@bull-board/express": ^5.14.2
+    "@bull-board/api": ^5.15.1
+    "@bull-board/express": ^5.15.1
     "@nestjs/common": ^9.0.0 || ^10.0.0
     "@nestjs/core": ^9.0.0 || ^10.0.0
     reflect-metadata: ^0.1.13 || ^0.2.0
     rxjs: ^7.8.1
-  checksum: 10/00ed462b155b486b0e3762e4d91fb79f477f7873dc6050506b4cd0fc643649c0b3f63be60be23b41bb9b09825509ac25d5600059380547c8aed3894801488495
+  checksum: 10/64d1be91c6772ba6add7a66c3df91acdbe467ed8fe40ed3ca7d15eb9d05beaea5656b4b1ad4d8d93a9720a093ec2654d935da5ea4c86376e3386ef9381c923a7
   languageName: node
   linkType: hard
 
-"@bull-board/ui@npm:5.14.2, @bull-board/ui@npm:^5.14.2":
-  version: 5.14.2
-  resolution: "@bull-board/ui@npm:5.14.2"
+"@bull-board/ui@npm:5.15.1, @bull-board/ui@npm:^5.15.1":
+  version: 5.15.1
+  resolution: "@bull-board/ui@npm:5.15.1"
   dependencies:
-    "@bull-board/api": "npm:5.14.2"
-  checksum: 10/e6e5d0031741569ee5bda6367f1cc477f6824f5b1485602f95d0f53a6c3c3a394920031505559a21cba25eb38d79bf66bcb101d5ae5dee68234fa0313346ba82
+    "@bull-board/api": "npm:5.15.1"
+  checksum: 10/4acb4edd4b60717fcc786e72807ffd661ecb3653c5d2580eb35b169404dd5545a7ccbcede99a0a24d985b530d488f611b76782e6ce082d411b83589ec9e0d291
   languageName: node
   linkType: hard
 
@@ -7126,9 +7126,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nestjs/common@npm:^10.3.3":
-  version: 10.3.3
-  resolution: "@nestjs/common@npm:10.3.3"
+"@nestjs/common@npm:^10.3.4":
+  version: 10.3.4
+  resolution: "@nestjs/common@npm:10.3.4"
   dependencies:
     iterare: "npm:1.2.1"
     tslib: "npm:2.6.2"
@@ -7143,13 +7143,13 @@ __metadata:
       optional: true
     class-validator:
       optional: true
-  checksum: 10/a2e3abfa48cfe10c88044be8d98c2fa8dca3a11a7176fbf968252e5f4e30e55a511d4b02c9162e9366545c8953353e69d302d40b577e821700248f4af4896244
+  checksum: 10/a91058e2b65c30d0c1549a8b78c23afcd753e17906509faa5a6800488450cc04e66ea2ea1c67b21b5dad37f91a4dc186f43982d4ba12a18a0d39cffe5a15b5fb
   languageName: node
   linkType: hard
 
-"@nestjs/core@npm:^10.3.3":
-  version: 10.3.3
-  resolution: "@nestjs/core@npm:10.3.3"
+"@nestjs/core@npm:^10.3.4":
+  version: 10.3.4
+  resolution: "@nestjs/core@npm:10.3.4"
   dependencies:
     "@nuxtjs/opencollective": "npm:0.3.2"
     fast-safe-stringify: "npm:2.1.1"
@@ -7171,7 +7171,7 @@ __metadata:
       optional: true
     "@nestjs/websockets":
       optional: true
-  checksum: 10/6ef7c3695396d9178c5271168c0f14ab72d44304168c745fa26a6d476d46f890c6c0c71ca4fec47c8b6fcbcb7e8daec9b2cf3d87addfe51704d6e20246842b19
+  checksum: 10/ef219b8ff7b0aa0ab921db18f6dc7d97471c67ef845da61c67e3742eb860b369fe773fced2ae9c0e63fcda3e821e7894964e8bd5dee4371aafbf4c13061235ec
   languageName: node
   linkType: hard
 
@@ -7232,19 +7232,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nestjs/platform-express@npm:^10.3.3":
-  version: 10.3.3
-  resolution: "@nestjs/platform-express@npm:10.3.3"
+"@nestjs/platform-express@npm:^10.3.4":
+  version: 10.3.4
+  resolution: "@nestjs/platform-express@npm:10.3.4"
   dependencies:
     body-parser: "npm:1.20.2"
     cors: "npm:2.8.5"
-    express: "npm:4.18.2"
+    express: "npm:4.18.3"
     multer: "npm:1.4.4-lts.1"
     tslib: "npm:2.6.2"
   peerDependencies:
     "@nestjs/common": ^10.0.0
     "@nestjs/core": ^10.0.0
-  checksum: 10/004aabc89534bc429310edf94a0e48b5f90db5da83d25ad81946c7d34f378e48e08a8d05986e1674f0795bc3b8dbfb3a46643457ea1be9dd904778d23664d1f9
+  checksum: 10/0fa5aeb6b5aa096df4ae4ed854725f1ede98e4e56b07e5a892c97a54390be72cc75f3a42f30b4b024303c0f4022708082d8dfb8e37b8093bae7c28ad8784bfb0
   languageName: node
   linkType: hard
 
@@ -7333,9 +7333,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nestjs/testing@npm:^10.3.3":
-  version: 10.3.3
-  resolution: "@nestjs/testing@npm:10.3.3"
+"@nestjs/testing@npm:^10.3.4":
+  version: 10.3.4
+  resolution: "@nestjs/testing@npm:10.3.4"
   dependencies:
     tslib: "npm:2.6.2"
   peerDependencies:
@@ -7348,7 +7348,7 @@ __metadata:
       optional: true
     "@nestjs/platform-express":
       optional: true
-  checksum: 10/ae8176aeba18c13014f48f756e8ce1d69fb1f80cd15252877ac28c11e430c516d581230b2d21d55efb8d71f021eb276a8a0a35187815062b5bc514ea92cf6d0e
+  checksum: 10/849d69c2b36ae630a4dafc9dcf40a2ae7e0084fe349a86943c010922d2fe35a2e15ce773361b4bc65be27e1cecc0e1fc335f923bd3279665f00d06d6690f4618
   languageName: node
   linkType: hard
 
@@ -8139,13 +8139,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@pythnetwork/pyth-evm-js@npm:^1.33.0":
-  version: 1.33.0
-  resolution: "@pythnetwork/pyth-evm-js@npm:1.33.0"
+"@pythnetwork/pyth-evm-js@npm:^1.36.0":
+  version: 1.36.0
+  resolution: "@pythnetwork/pyth-evm-js@npm:1.36.0"
   dependencies:
     "@pythnetwork/price-service-client": "npm:*"
     buffer: "npm:^6.0.3"
-  checksum: 10/c2cbc8f5ea3a9f603eed74a8384a933989d7e1c71cafbd848b0bc83a3213d17c3a312697472f9efc8ed8c448dab94cae9bde93aaad0fdfe4c07b24a052f6e5a2
+  checksum: 10/bdbcdc3068c12ab60895e9903b4d9e90d746b5fab8979343780eecf6a7d32c4baa63d3edc1a3334fb24dca4ca3727b4a7b3ce975d5881e961eef7896fc1f9e08
   languageName: node
   linkType: hard
 
@@ -9110,14 +9110,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@sentry-internal/tracing@npm:7.105.0":
-  version: 7.105.0
-  resolution: "@sentry-internal/tracing@npm:7.105.0"
+"@sentry-internal/tracing@npm:7.107.0":
+  version: 7.107.0
+  resolution: "@sentry-internal/tracing@npm:7.107.0"
   dependencies:
-    "@sentry/core": "npm:7.105.0"
-    "@sentry/types": "npm:7.105.0"
-    "@sentry/utils": "npm:7.105.0"
-  checksum: 10/1455598ce0694be5cc03465b07f1340659c76ea9cb21cc25b69492ee8ea128ae4721359d4ec8825e20677d1d47c1b03642367b93381b202d1db5f09d4cfcf7e9
+    "@sentry/core": "npm:7.107.0"
+    "@sentry/types": "npm:7.107.0"
+    "@sentry/utils": "npm:7.107.0"
+  checksum: 10/c04eb7edf4a82650c728ac09d9b4e6673dbf914bf83953111bf1bc31225401381d959edabeb4a272d4b395247b0744e8460fd130bbbfae74120c43bcf74f00aa
   languageName: node
   linkType: hard
 
@@ -9245,13 +9245,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@sentry/core@npm:7.105.0":
-  version: 7.105.0
-  resolution: "@sentry/core@npm:7.105.0"
+"@sentry/core@npm:7.107.0":
+  version: 7.107.0
+  resolution: "@sentry/core@npm:7.107.0"
   dependencies:
-    "@sentry/types": "npm:7.105.0"
-    "@sentry/utils": "npm:7.105.0"
-  checksum: 10/5b782df776c45c4bfd7408dc3860a2fc947a84c92326005b9aab171e659bc86ccde7ba2885467823cc873afca346c8dbdf98f0de598979ea8cbe62296ff8616a
+    "@sentry/types": "npm:7.107.0"
+    "@sentry/utils": "npm:7.107.0"
+  checksum: 10/79465058a0bc45653bfbd319b9d28e55ee97adaaf1e240c4717ea5bfea37fe8d57affce89c2e2b3151d3a1894897833dcedb3d2685c059d5ca8b81f803ff6b4b
   languageName: node
   linkType: hard
 
@@ -9317,28 +9317,28 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@sentry/node@npm:^7.105.0":
-  version: 7.105.0
-  resolution: "@sentry/node@npm:7.105.0"
+"@sentry/node@npm:^7.107.0":
+  version: 7.107.0
+  resolution: "@sentry/node@npm:7.107.0"
   dependencies:
-    "@sentry-internal/tracing": "npm:7.105.0"
-    "@sentry/core": "npm:7.105.0"
-    "@sentry/types": "npm:7.105.0"
-    "@sentry/utils": "npm:7.105.0"
-  checksum: 10/39e72e07715b07990f09c24d94662b388d7d683ee100ce5140228205914171c333891e1ab947689d4be11ac6181a1286c28b2931611c21cb751329c607269066
+    "@sentry-internal/tracing": "npm:7.107.0"
+    "@sentry/core": "npm:7.107.0"
+    "@sentry/types": "npm:7.107.0"
+    "@sentry/utils": "npm:7.107.0"
+  checksum: 10/0ad83e6842122393bd874f8f99157c0d73ded9924f4ece358f176e6ed698eef0cbb4a3341052a96588c398398e158a05656a7d247c0c839a7d073f41b056455b
   languageName: node
   linkType: hard
 
-"@sentry/profiling-node@npm:^7.105.0":
-  version: 7.105.0
-  resolution: "@sentry/profiling-node@npm:7.105.0"
+"@sentry/profiling-node@npm:^7.107.0":
+  version: 7.107.0
+  resolution: "@sentry/profiling-node@npm:7.107.0"
   dependencies:
     detect-libc: "npm:^2.0.2"
     node-abi: "npm:^3.52.0"
     node-gyp: "npm:latest"
   bin:
     sentry-prune-profiler-binaries: scripts/prune-profiler-binaries.js
-  checksum: 10/8b55626eebe6e644230fa6d69284beffd3eb7c0e18e918e98661afc3fea76c03ad10c08b6a0028b6f7295729d0f11cdf5b1488466ce76069bb9869b3096666dc
+  checksum: 10/db66a08610d596bc78e5131d3e6f85d43f2caa6132087c2174e8a31cdb3a8af6b46bd39aa27395ea1f8dc6c7edf710b54814ae2009d682a9135b6d200ada1893
   languageName: node
   linkType: hard
 
@@ -9421,10 +9421,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@sentry/types@npm:7.105.0":
-  version: 7.105.0
-  resolution: "@sentry/types@npm:7.105.0"
-  checksum: 10/6c861a75bf0cac4d282e552a9415829670cc0b8d6b3474deb334a7d1092bf4765566d8a7bfd049be2b238473d1ea04e192cb9578f3a2acec18818bec590200df
+"@sentry/types@npm:7.107.0":
+  version: 7.107.0
+  resolution: "@sentry/types@npm:7.107.0"
+  checksum: 10/68b349006bce831fae40e29586e59f345148caa740318d6d6edc08abe15d933d290adf67354ed02027e966b6be2be408be9c341b77fdfd70b4196c765c7cd511
   languageName: node
   linkType: hard
 
@@ -9447,12 +9447,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@sentry/utils@npm:7.105.0":
-  version: 7.105.0
-  resolution: "@sentry/utils@npm:7.105.0"
+"@sentry/utils@npm:7.107.0":
+  version: 7.107.0
+  resolution: "@sentry/utils@npm:7.107.0"
   dependencies:
-    "@sentry/types": "npm:7.105.0"
-  checksum: 10/b869ada4f06c7aaebc64ce6ca98dab5918b52556406a0ff796d1f1169ef468f5faa08f409699c68f342154b1d24550d4efced9673adddcffbd02b522b2987217
+    "@sentry/types": "npm:7.107.0"
+  checksum: 10/ece92ba70575c3e4e15442739e49aedc667a812ebe8eb444a861605b4a6d297b0e939849e0bdb4fcdcd976f2bb9740698e01269f376c849f7d311c62000050c9
   languageName: node
   linkType: hard
 
@@ -12192,31 +12192,31 @@ __metadata:
   dependencies:
     "@amplitude/analytics-node": "npm:^1.3.5"
     "@apollo/server": "npm:^4.10.1"
-    "@bull-board/api": "npm:^5.14.2"
-    "@bull-board/express": "npm:^5.14.2"
-    "@bull-board/nestjs": "npm:^5.14.2"
-    "@bull-board/ui": "npm:^5.14.2"
+    "@bull-board/api": "npm:^5.15.1"
+    "@bull-board/express": "npm:^5.15.1"
+    "@bull-board/nestjs": "npm:^5.15.1"
+    "@bull-board/ui": "npm:^5.15.1"
     "@edgedb/generate": "npm:^0.4.1"
     "@golevelup/ts-jest": "npm:^0.4.0"
     "@nestjs/apollo": "npm:^12.1.0"
     "@nestjs/axios": "npm:^3.0.2"
     "@nestjs/bullmq": "npm:^10.1.0"
     "@nestjs/cli": "npm:^10.3.2"
-    "@nestjs/common": "npm:^10.3.3"
-    "@nestjs/core": "npm:^10.3.3"
+    "@nestjs/common": "npm:^10.3.4"
+    "@nestjs/core": "npm:^10.3.4"
     "@nestjs/graphql": "npm:^12.1.1"
-    "@nestjs/platform-express": "npm:^10.3.3"
+    "@nestjs/platform-express": "npm:^10.3.4"
     "@nestjs/schematics": "npm:^10.1.1"
     "@nestjs/terminus": "npm:^10.2.3"
-    "@nestjs/testing": "npm:^10.3.3"
-    "@pythnetwork/pyth-evm-js": "npm:^1.33.0"
-    "@sentry/node": "npm:^7.105.0"
-    "@sentry/profiling-node": "npm:^7.105.0"
+    "@nestjs/testing": "npm:^10.3.4"
+    "@pythnetwork/pyth-evm-js": "npm:^1.36.0"
+    "@sentry/node": "npm:^7.107.0"
+    "@sentry/profiling-node": "npm:^7.107.0"
     "@songkeys/nestjs-redis": "npm:^10.0.0"
     "@types/express": "npm:^4.17.21"
     "@types/express-session": "npm:^1.18.0"
     "@types/jest": "npm:^29.5.12"
-    "@types/lodash": "npm:^4.14.202"
+    "@types/lodash": "npm:^4.17.0"
     "@types/luxon": "npm:^3.4.2"
     "@types/supertest": "npm:^2.0.16"
     "@types/uuid": "npm:^9.0.8"
@@ -12230,11 +12230,11 @@ __metadata:
     dotenv: "npm:^16.4.5"
     edgedb: "npm:^1.4.1"
     ethers: "npm:^6.10.0"
-    expo-server-sdk: "npm:^3.7.0"
+    expo-server-sdk: "npm:^3.9.0"
     express-session: "npm:^1.18.0"
     graphql: "npm:^16.8.1"
     graphql-redis-subscriptions: "npm:^2.6.0"
-    graphql-scalars: "npm:^1.22.5"
+    graphql-scalars: "npm:^1.23.0"
     graphql-subscriptions: "npm:^2.0.0"
     graphql-ws: "npm:^5.15.0"
     ioredis: "npm:^5.3.2"
@@ -18049,14 +18049,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"expo-server-sdk@npm:^3.7.0":
-  version: 3.7.0
-  resolution: "expo-server-sdk@npm:3.7.0"
+"expo-server-sdk@npm:^3.9.0":
+  version: 3.9.0
+  resolution: "expo-server-sdk@npm:3.9.0"
   dependencies:
     node-fetch: "npm:^2.6.0"
     promise-limit: "npm:^2.7.0"
     promise-retry: "npm:^2.0.1"
-  checksum: 10/cb6290376979411fdbe5b5c4d244a1d565b21c2526e688f9bb6d623fd5b85f17adb899da72b98d9bb882e3dd6115451724d38dbf0629d55569f8fe5cabc1c0cb
+  checksum: 10/49fcabb8895387587fb9b5f48e036b7243d91e68a602d381cb009f79edbc9ac043227c4ec764cd0fed34594e9924641123f68deb6d7e37f3148c413a54d10b3b
   languageName: node
   linkType: hard
 
@@ -18158,7 +18158,46 @@ __metadata:
   languageName: node
   linkType: hard
 
-"express@npm:4.18.2, express@npm:^4.17.1, express@npm:^4.17.3":
+"express@npm:4.18.3":
+  version: 4.18.3
+  resolution: "express@npm:4.18.3"
+  dependencies:
+    accepts: "npm:~1.3.8"
+    array-flatten: "npm:1.1.1"
+    body-parser: "npm:1.20.2"
+    content-disposition: "npm:0.5.4"
+    content-type: "npm:~1.0.4"
+    cookie: "npm:0.5.0"
+    cookie-signature: "npm:1.0.6"
+    debug: "npm:2.6.9"
+    depd: "npm:2.0.0"
+    encodeurl: "npm:~1.0.2"
+    escape-html: "npm:~1.0.3"
+    etag: "npm:~1.8.1"
+    finalhandler: "npm:1.2.0"
+    fresh: "npm:0.5.2"
+    http-errors: "npm:2.0.0"
+    merge-descriptors: "npm:1.0.1"
+    methods: "npm:~1.1.2"
+    on-finished: "npm:2.4.1"
+    parseurl: "npm:~1.3.3"
+    path-to-regexp: "npm:0.1.7"
+    proxy-addr: "npm:~2.0.7"
+    qs: "npm:6.11.0"
+    range-parser: "npm:~1.2.1"
+    safe-buffer: "npm:5.2.1"
+    send: "npm:0.18.0"
+    serve-static: "npm:1.15.0"
+    setprototypeof: "npm:1.2.0"
+    statuses: "npm:2.0.1"
+    type-is: "npm:~1.6.18"
+    utils-merge: "npm:1.0.1"
+    vary: "npm:~1.1.2"
+  checksum: 10/0bf4656d0020cdc477aec884c6245dceea78992f6c747c899c87dbb0598474658d4130a29c80f02c99d1f0d6ebef706e7131c70c5454c3e07aba761c5bd3d627
+  languageName: node
+  linkType: hard
+
+"express@npm:^4.17.1, express@npm:^4.17.3":
   version: 4.18.2
   resolution: "express@npm:4.18.2"
   dependencies:
@@ -19591,14 +19630,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"graphql-scalars@npm:^1.22.5":
-  version: 1.22.5
-  resolution: "graphql-scalars@npm:1.22.5"
+"graphql-scalars@npm:^1.23.0":
+  version: 1.23.0
+  resolution: "graphql-scalars@npm:1.23.0"
   dependencies:
     tslib: "npm:^2.5.0"
   peerDependencies:
     graphql: ^0.8.0 || ^0.9.0 || ^0.10.0 || ^0.11.0 || ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0 || ^16.0.0
-  checksum: 10/19e5ad5149f116472d597ca0f19e428c90d7f0d1b6ebb0debb8a639eb983cce35bde833d4f554a00ec0eb51e3b3a1f28c1cbaed45e68cce49633a111bd5ac5ae
+  checksum: 10/6faa5dea621b708b485cb8c5047098c3daf7c092c8f1f53b87ff6999ef0b28553e5c904ddc01da54141685fcd5798672c4cf997d9738a04dd4e60529450ab707
   languageName: node
   linkType: hard
 
