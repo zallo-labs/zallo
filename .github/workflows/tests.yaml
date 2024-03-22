@@ -47,12 +47,15 @@ jobs:
 
       - name: 🚧 Start zkSync local testnet node
         uses: dutterbutter/era-test-node-action@latest
+        with:
+          releaseTag: 'v0.1.0-alpha.17'
+          target: 'x86_64-unknown-linux-gnu'
 
       - name: 📦 Install
         run: yarn
 
       - name: 🧪 Test
-        run: yarn contracts test
+        run: yarn turbo run -F contracts --force true test
 
   api:
     runs-on: ubuntu-latest
