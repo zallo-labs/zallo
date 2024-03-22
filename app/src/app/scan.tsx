@@ -83,7 +83,7 @@ export default function ScanScreen() {
 
   return permission?.granted || !permissionsRequested ? (
     <CameraView
-      barcodeScannerSettings={{ barCodeTypes: ['qr'] }}
+      barcodeScannerSettings={{ barcodeTypes: ['qr'] }}
       onBarcodeScanned={scan ? ({ data }) => tryHandle(data) : undefined}
       style={StyleSheet.absoluteFillObject}
     >
