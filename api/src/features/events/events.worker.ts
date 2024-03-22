@@ -100,7 +100,7 @@ export class EventsWorker extends Worker<EventsQueue> {
     const to = Math.min(job.data.to ?? from + this.targetBlocks(chain) - 1, latest);
 
     // Queue next job on the first attempt unless split job
-    const shouldQueue = job.attemptsMade === 1 && !job.data.split;
+    const shouldQueue = job.attemptsMade === 0 && !job.data.split;
     if (shouldQueue) {
       if (latest < from) {
         this.queue.add('Ahead', { chain, from }, { delay: network.blockTime() });

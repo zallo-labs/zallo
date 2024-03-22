@@ -42,7 +42,7 @@
     "@sentry/profiling-node": "^7.107.0",
     "@songkeys/nestjs-redis": "^10.0.0",
     "abitype": "^1.0.1",
-    "bullmq": "^4.17.0",
+    "bullmq": "^5.4.5",
     "chains": "workspace:*",
     "chardet": "^2.0.0",
     "connect-redis": "^7.1.1",
