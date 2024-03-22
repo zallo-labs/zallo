@@ -105,10 +105,9 @@ function blockNumberAndStatusActions(client: Client) {
   let blockTime = DEFAULT_BLOCK_TIME;
   let updated = Date.now();
 
-  const getBlockTime = () => {
-    const diff = Date.now() - updated;
-    return Math.ceil((1 - BLOCK_TIME_ALPHA) * blockTime + BLOCK_TIME_ALPHA * diff);
-  };
+  const sinceLastBlock = () => Date.now() - updated;
+  const getBlockTime = () =>
+    Math.ceil((1 - BLOCK_TIME_ALPHA) * blockTime + BLOCK_TIME_ALPHA * sinceLastBlock());
 
   client.watchBlockNumber({
     onBlockNumber: (newBlockNumber) => {
@@ -135,6 +134,9 @@ function blockNumberAndStatusActions(client: Client) {
     },
     blockTime() {
       return getBlockTime();
+    },
+    sinceLastBlock() {
+      return sinceLastBlock();
     },
   };
 }

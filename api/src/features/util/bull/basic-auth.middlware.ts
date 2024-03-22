@@ -5,6 +5,8 @@ import { BULL_BOARD_CREDS } from './bull.util';
 export class BasicAuthMiddleware implements NestMiddleware {
   private readonly encodedCreds =
     BULL_BOARD_CREDS &&
+    // Auth will not be required if username="" and password=""
+    (BULL_BOARD_CREDS.username || BULL_BOARD_CREDS.password) &&
     Buffer.from(BULL_BOARD_CREDS.username + ':' + BULL_BOARD_CREDS.password).toString('base64');
 
   use(req: Request, res: Response, next: NextFunction) {

@@ -69,7 +69,7 @@ describe(EventsWorker.name, () => {
 
     queue = module.get(getQueueToken(EventsQueue.name));
 
-    attemptsMade = 1;
+    attemptsMade = 0;
   });
 
   const process = (data: Omit<QueueData<EventsQueue>, 'chain'>) =>

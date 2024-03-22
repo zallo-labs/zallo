@@ -9,8 +9,7 @@ const item = getAbiItem({ abi: SYNCSWAP.router.abi, name: 'swap' });
 export type SwapRoute = Omit<
   AbiParameterToPrimitiveType<(typeof item)['inputs'][0]>[0],
   'amountIn'
->;
-type Steps = SwapRoute['steps'];
+> & { stepsTokenIn: Address[] };
 
 export interface GetRouteParams {
   account: UAddress;
@@ -22,21 +21,16 @@ export function useSwapRoute({ account, from, to }: GetRouteParams): SwapRoute |
   const pools = useAtomValue(SYNCSWAP_POOL_FAMILY(asChain(account)));
   if (!to) return undefined;
 
-  const steps = shortestSteps(pools, account, from, to);
-  if (!steps) return undefined;
+  const stepsResult = shortestSteps(pools, account, from, to);
+  if (!stepsResult) return undefined;
 
   return {
     tokenIn: from, // ETH must be used for ETH
-    steps,
+    ...stepsResult,
   };
 }
 
-function shortestSteps(
-  pools: SyncswapPool[],
-  account: UAddress,
-  from: Address,
-  to: Address,
-): Steps | undefined {
+function shortestSteps(pools: SyncswapPool[], account: UAddress, from: Address, to: Address) {
   const pool = pools.find((p) => p.pair.includes(from) && p.pair.includes(to));
   if (!pool) return undefined;
 
@@ -46,23 +40,24 @@ function shortestSteps(
   // 2 - withdraw and wrap to wETH
   const withdrawMode = from === ETH_ADDRESS ? 1 : 2;
 
-  return [
-    {
-      pool: pool.address,
-      data: encodeAbiParameters(
-        [
-          { name: 'tokenIn', type: 'address' }, // WETH must be used instead of ETH
-          { name: 'to', type: 'address' },
-          { name: 'withdrawMode', type: 'uint8' },
-        ],
-        [
-          from === ETH_ADDRESS ? WETH.address[asChain(account)] : from,
-          asAddress(account),
-          withdrawMode,
-        ],
-      ),
-      callback: ZERO_ADDR,
-      callbackData: '0x',
-    },
-  ];
+  // TODO: calculate shortest path
+  const step0TokenIn = from === ETH_ADDRESS ? WETH.address[asChain(account)] : from;
+  const step0 = {
+    pool: pool.address,
+    data: encodeAbiParameters(
+      [
+        { name: 'tokenIn', type: 'address' }, // WETH must be used instead of ETH
+        { name: 'to', type: 'address' },
+        { name: 'withdrawMode', type: 'uint8' },
+      ],
+      [step0TokenIn, asAddress(account), withdrawMode],
+    ),
+    callback: ZERO_ADDR,
+    callbackData: '0x',
+  } satisfies SwapRoute['steps'][0];
+
+  return {
+    steps: [step0],
+    stepsTokenIn: [step0TokenIn],
+  } satisfies Partial<SwapRoute>;
 }

@@ -1,7 +1,6 @@
 import { FragmentType, gql, useFragment } from '@api';
-import { Chain } from 'chains';
 import Decimal from 'decimal.js';
-import { asDecimal, asFp } from 'lib';
+import { UAddress, asDecimal, asFp } from 'lib';
 import { FormattedNumber } from '#/format/FormattedNumber';
 import { ListItem } from '#/list/ListItem';
 import { ListItemSkeleton } from '#/list/ListItemSkeleton';
@@ -29,26 +28,32 @@ const ToToken = gql(/* GraphQL */ `
 `);
 
 export interface SwapToTokenItemProps {
+  account: UAddress;
   from: FragmentType<typeof FromToken>;
   fromAmount: Decimal;
   to: FragmentType<typeof ToToken>;
-  chain: Chain;
   route: SwapRoute;
   selectTo: () => void;
 }
 
-function SwapToTokenItem_({ fromAmount, chain, route, selectTo, ...props }: SwapToTokenItemProps) {
+function SwapToTokenItem_({
+  account,
+  fromAmount,
+  route,
+  selectTo,
+  ...props
+}: SwapToTokenItemProps) {
   const from = useFragment(FromToken, props.from);
   const to = useFragment(ToToken, props.to);
 
   const amount = useEstimateSwap({
-    chain,
+    account,
     route,
     fromAmount: asFp(fromAmount, from.decimals),
   }).map((amount) => asDecimal(amount, to.decimals));
 
   const perFrom = useEstimateSwap({
-    chain,
+    account,
     route,
     fromAmount: asFp(new Decimal('1'), from.decimals),
   }).map((amount) => asDecimal(amount, to.decimals));

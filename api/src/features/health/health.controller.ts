@@ -8,7 +8,7 @@ import { InjectRedis } from '@songkeys/nestjs-redis';
 import Redis from 'ioredis';
 import { InjectRedisSubscriber } from '~/decorators/redis.decorator';
 
-@Controller('health')
+@Controller()
 export class HealthController {
   constructor(
     private health: HealthCheckService,
@@ -22,9 +22,16 @@ export class HealthController {
   ) {}
 
   @Public()
-  @Get()
+  @Get('live')
   @HealthCheck()
-  check() {
+  live() {
+    return 'OK';
+  }
+
+  @Public()
+  @Get('ready')
+  @HealthCheck()
+  ready() {
     return this.health.check([
       () => this.dbHealth.check('Database'),
       () => this.redisHealth.check('Redis::default', this.redis),

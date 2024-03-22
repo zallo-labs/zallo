@@ -13,7 +13,11 @@ it('gas estimation', async () => {
     nonce: 0n,
   });
 
-  const gas = await estimateTransactionOperationsGas({ network, account: asAddress(account), tx });
+  const gas = await estimateTransactionOperationsGas({
+    network,
+    account: asAddress(account),
+    operations: tx.operations,
+  });
   expect(gas.isOk()).to.be.true;
   expect(gas._unsafeUnwrap()).greaterThan(0n);
 });

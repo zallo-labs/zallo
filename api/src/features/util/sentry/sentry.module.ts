@@ -61,6 +61,7 @@ export class SentryModule implements OnApplicationShutdown {
         new Sentry.Integrations.Http({ tracing: true }),
         new Sentry.Integrations.GraphQL(),
         new Sentry.Integrations.Apollo({ useNestjs: true }),
+        /// @ts-expect-error type error only
         nodeProfilingIntegration(),
       ],
     });

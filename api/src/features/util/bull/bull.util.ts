@@ -7,7 +7,7 @@ import { Queue, Worker as BaseWorker, Job, JobType } from 'bullmq';
 import { OnModuleInit, OnModuleDestroy, Logger } from '@nestjs/common';
 
 export const BULL_BOARD_CREDS =
-  CONFIG.bullBoardUser && CONFIG.bullBoardPassword
+  CONFIG.bullBoardUser !== undefined && CONFIG.bullBoardPassword !== undefined
     ? {
         username: CONFIG.bullBoardUser,
         password: CONFIG.bullBoardPassword,

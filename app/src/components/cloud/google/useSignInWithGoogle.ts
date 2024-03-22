@@ -3,6 +3,7 @@ import {
   statusCodes as ErrorCode,
   isErrorWithCode,
   GoogleSignin,
+  NativeModuleError,
 } from '@react-native-google-signin/google-signin';
 import { CONFIG } from '~/util/config';
 import { errAsync, fromPromise, ok, safeTry } from 'neverthrow';
@@ -11,6 +12,7 @@ import { DateTime } from 'luxon';
 import { match } from 'ts-pattern';
 import { logError } from '~/util/analytics';
 import { useCallback } from 'react';
+import { Platform } from 'react-native';
 
 export function useSignInWithGoogle() {
   return useCallback(
@@ -19,7 +21,9 @@ export function useSignInWithGoogle() {
         const user = yield* signIn(subject).safeUnwrap();
 
         if (subject && user.id !== subject) return errAsync('wrong-account' as const);
-        if (!isCurrentToken(user.idToken)) return errAsync('expired' as const);
+        if (!isCurrentToken(user.idToken!)) return errAsync('expired' as const);
+
+        console.log({ user });
 
         const accessToken = yield* getAccessToken().safeUnwrap();
 
@@ -30,14 +34,32 @@ export function useSignInWithGoogle() {
 }
 
 function signIn(subject?: string) {
+  function oauthSignIn() {
+    if (subject && GoogleSignin.getCurrentUser()?.user.id === subject)
+      return GoogleSignin.signInSilently();
+
+    return GoogleSignin.signIn({ ...(subject && { loginHint: subject }) });
+  }
+
   return fromPromise(
     (async () => {
-      const details = await GoogleOneTapSignIn.signIn({
-        webClientId: CONFIG.googleOAuth.webClient,
-        iosClientId: CONFIG.googleOAuth.iosClient,
-        filterByAuthorizedAccounts: !!subject,
-        autoSignIn: true,
-      });
+      const details = await (Platform.OS === 'android'
+        ? (async () => {
+            // One-tap sign-in
+            const details = await GoogleOneTapSignIn.signIn({
+              webClientId: CONFIG.googleOAuth.webClient,
+              iosClientId: CONFIG.googleOAuth.iosClient,
+              filterByAuthorizedAccounts: !!subject,
+              autoSignIn: true,
+            });
+
+            // OAuth sign-in; required to get access token
+            // This occurs instantly due to the one-tap sign-in
+            await oauthSignIn();
+
+            return details;
+          })()
+        : oauthSignIn());
 
       return { ...details.user, idToken: details.idToken };
     })(),
@@ -66,7 +88,10 @@ function signIn(subject?: string) {
 function getAccessToken() {
   return fromPromise(
     GoogleSignin.getTokens().then((tokens) => tokens.accessToken),
-    () => 'failed-to-get-access-token' as const,
+    (e) => {
+      logError('Failed to get Google access token', { error: e });
+      return 'failed-to-get-access-token' as const;
+    },
   );
 }
 

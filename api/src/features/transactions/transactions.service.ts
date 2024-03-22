@@ -155,7 +155,12 @@ export class TransactionsService {
 
     const chain = asChain(account);
     const network = this.networks.get(chain);
+    gas ??=
+      (
+        await estimateTransactionOperationsGas({ account: asAddress(account), network, operations })
+      ).unwrapOr(FALLBACK_OPERATIONS_GAS) + estimateTransactionVerificationGas(3);
     const maxPaymasterEthFees = await this.paymasters.paymasterEthFees({ account, use: false });
+
     const tx = {
       operations,
       nonce: BigInt(Math.floor(validFrom.getTime() / 1000)),
@@ -166,10 +171,18 @@ export class TransactionsService {
     } satisfies Tx;
     const { policy, validationErrors } = await this.policies.best(account, tx);
 
-    gas ??=
-      (
-        await estimateTransactionOperationsGas({ account: asAddress(account), tx, network })
-      ).unwrapOr(FALLBACK_OPERATIONS_GAS) + estimateTransactionVerificationGas(3);
+    // Ordering operation ids ensures 
+    const operationIds = operations.map(() => uuid()).sort((a, b) => a.localeCompare(b));
+    const insertOperation = e.set(
+      ...operations.map((op, i) =>
+        e.insert(e.Operation, {
+          id: operationIds[i],
+          to: op.to,
+          value: op.value,
+          data: op.data,
+        }),
+      ),
+    );
 
     const id = asUUID(uuid());
     const insert = e.insert(e.Transaction, {
@@ -185,15 +198,7 @@ export class TransactionsService {
         url: dapp.url.href,
         icons: dapp.icons.map((i) => i.href),
       },
-      operations: e.set(
-        ...operations.map((op) =>
-          e.insert(e.Operation, {
-            to: op.to,
-            value: op.value,
-            data: op.data,
-          }),
-        ),
-      ),
+      operations: insertOperation,
       validFrom,
       gasLimit: gas,
       paymaster: tx.paymaster,
