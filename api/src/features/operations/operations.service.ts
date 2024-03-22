@@ -186,7 +186,9 @@ export class OperationsService {
           // ETH can be used as tokenIn, but uses the WETH pool
           const fromToken = path.tokenIn;
           const toToken =
-            (isEthToken(fromToken) ? WETH.address : fromToken) === pair[0] ? pair[1] : pair[0];
+            (isEthToken(fromToken) ? WETH.address[chain] : fromToken) === pair[0]
+              ? pair[1]
+              : pair[0];
 
           const [fromAmount, minimumToAmount] = await Promise.all([
             this.tokens.asDecimal(asUAddress(fromToken, chain), path.amountIn),
