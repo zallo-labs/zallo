@@ -26,15 +26,15 @@ export function DrawerItem<R>({ href, label, icon: Icon, disabled, ...props }: D
       label={label}
       icon={Icon ? (props) => <Icon {...props} /> : undefined}
       active={currentPath === hrefPath}
-      onPress={() => {
-        router.push(href);
-        close();
-      }}
       {...(disabled && {
         onPress: undefined,
         icon: Icon && ((props) => <Icon {...props} color={stateLayer(props.color, 'disabled')} />),
       })}
       {...props}
+      onPress={(e) => {
+        close();
+        props.onPress ? props.onPress(e) : router.push(href);
+      }}
     />
     // </Link>
   );
