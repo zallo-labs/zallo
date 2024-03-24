@@ -7,7 +7,7 @@ import { useConfirmRemoval } from '~/hooks/useConfirm';
 import { useSelectedAccount } from '~/hooks/useSelectedAccount';
 
 const Remove = gql(/* GraphQL */ `
-  mutation RemoveTransactionItem_Remove($proposal: UUID!) {
+  mutation RemoveTransactionItem_Remove($proposal: ID!) {
     removeTransaction(input: { id: $proposal })
   }
 `);

@@ -32,6 +32,7 @@ import { PricesModule } from './features/prices/prices.module';
 import { MessagesModule } from './features/messages/messages.module';
 import { ProposalsModule } from './features/proposals/proposals.module';
 import { BalancesModule } from '~/features/util/balances/balances.module';
+import { NodesModule } from './features/nodes/nodes.module';
 
 @Module({
   imports: [
@@ -55,6 +56,7 @@ import { BalancesModule } from '~/features/util/balances/balances.module';
     FaucetModule,
     HealthModule,
     MessagesModule,
+    NodesModule,
     OperationsModule,
     PaymastersModule,
     PoliciesModule,

@@ -13,7 +13,7 @@ import { useSideSheet } from '#/SideSheet/SideSheetLayout';
 
 const Transaction = gql(/* GraphQL */ `
   fragment TransactionActions_Transaction on Transaction
-  @argumentDefinitions(transaction: { type: "UUID!" }) {
+  @argumentDefinitions(transaction: { type: "ID!" }) {
     id
     status
     updatable

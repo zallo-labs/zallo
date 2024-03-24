@@ -9,7 +9,7 @@ import { PolicyItem } from '#/policy/PolicyItem';
 import { View } from 'react-native';
 
 const Proposal = gql(/* GraphQL */ `
-  fragment SelectedPolicy_Proposal on Proposal @argumentDefinitions(proposal: { type: "UUID!" }) {
+  fragment SelectedPolicy_Proposal on Proposal @argumentDefinitions(proposal: { type: "ID!" }) {
     id
     ... on Transaction {
       updatable

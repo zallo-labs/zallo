@@ -11,8 +11,7 @@ import { withSuspense } from '#/skeleton/withSuspense';
 import { ScreenSkeleton } from '#/skeleton/ScreenSkeleton';
 
 const Proposal = gql(/* GraphQL */ `
-  fragment ProposalApprovals_Proposal on Proposal
-  @argumentDefinitions(proposal: { type: "UUID!" }) {
+  fragment ProposalApprovals_Proposal on Proposal @argumentDefinitions(proposal: { type: "ID!" }) {
     id
     policy {
       id
@@ -50,7 +49,7 @@ const Proposal = gql(/* GraphQL */ `
 `);
 
 const Query = gql(/* GraphQL */ `
-  query ProposalApprovals($proposal: UUID!) {
+  query ProposalApprovals($proposal: ID!) {
     proposal(input: { id: $proposal }) {
       ...ProposalApprovals_Proposal @arguments(proposal: $proposal)
     }
@@ -64,7 +63,7 @@ const Query = gql(/* GraphQL */ `
 `);
 
 const Subscription = gql(/* GraphQL */ `
-  subscription ProposalApprovals_Subscription($proposal: UUID!) {
+  subscription ProposalApprovals_Subscription($proposal: ID!) {
     proposalUpdated(input: { proposals: [$proposal], events: [approval, rejection] }) {
       id
       proposal {

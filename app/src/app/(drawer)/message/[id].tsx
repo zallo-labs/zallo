@@ -23,7 +23,7 @@ import { DappHeader } from '#/walletconnect/DappHeader';
 import { AccountSection } from '#/proposal/AccountSection';
 
 const Query = gql(/* GraphQL */ `
-  query MessageScreen($proposal: UUID!) {
+  query MessageScreen($proposal: ID!) {
     message(input: { id: $proposal }) {
       id
       label
@@ -49,7 +49,7 @@ const Query = gql(/* GraphQL */ `
 `);
 
 const Remove = gql(/* GraphQL */ `
-  mutation MessageScreen_Remove($proposal: UUID!) {
+  mutation MessageScreen_Remove($proposal: ID!) {
     removeMessage(input: { id: $proposal })
   }
 `);

@@ -7,7 +7,6 @@ import { SelectorField } from '~/apollo/scalars/Bytes.scalar';
 import { AbiFunctionField } from '~/apollo/scalars/AbiFunction.scalar';
 import { AbiFunction } from 'abitype';
 import { UAddressField } from '~/apollo/scalars/UAddress.scalar';
-import { UUIDField } from '~/apollo/scalars/Uuid.scalar';
 import { IdField } from '~/apollo/scalars/Id.scalar';
 
 @InputType()
@@ -118,8 +117,8 @@ export class UpdatePolicyInput extends IntersectionType(
   PartialType(PolicyInput),
 ) {}
 
-@InputType()
-export class ValidationErrorsInput {
-  @UUIDField()
+@ArgsType()
+export class ValidationErrorsArgs {
+  @IdField()
   proposal: UUID;
 }

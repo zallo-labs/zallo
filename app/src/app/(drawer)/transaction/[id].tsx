@@ -25,7 +25,7 @@ import { ScheduleSection } from '#/transaction/ScheduleSection';
 
 const Transaction = gql(/* GraphQL */ `
   fragment TransactionScreen_Transaction on Transaction
-  @argumentDefinitions(transaction: { type: "UUID!" }) {
+  @argumentDefinitions(transaction: { type: "ID!" }) {
     id
     account {
       id
@@ -45,7 +45,7 @@ const Transaction = gql(/* GraphQL */ `
 `);
 
 const Query = gql(/* GraphQL */ `
-  query TransactionScreen($transaction: UUID!) {
+  query TransactionScreen($transaction: ID!) {
     transaction(input: { id: $transaction }) {
       ...TransactionScreen_Transaction @arguments(transaction: $transaction)
     }
@@ -58,7 +58,7 @@ const Query = gql(/* GraphQL */ `
 `);
 
 const Subscription = gql(/* GraphQL */ `
-  subscription TransactionScreen_Subscription($transaction: UUID!) {
+  subscription TransactionScreen_Subscription($transaction: ID!) {
     proposalUpdated(input: { proposals: [$transaction] }) {
       id
       event

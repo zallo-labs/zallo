@@ -61,6 +61,7 @@ export class AuthMiddleware implements NestMiddleware {
     const token = req.headers.authorization;
     if (!token) return ok(undefined);
 
+    // TODO: cache [token, headers.host]
     const cached = token && this.cache.get(token);
     if (cached) {
       if (cached.expirationTime > DateTime.now()) {

@@ -7,7 +7,7 @@ import { PolicyKeyField } from '~/apollo/scalars/PolicyKey.scalar';
 import { TransactionStatus } from './transactions.model';
 import { DappMetadataInput, UniqueProposalInput } from '../proposals/proposals.input';
 import { UAddressField, UAddressScalar } from '~/apollo/scalars/UAddress.scalar';
-import { UUIDField } from '~/apollo/scalars/Uuid.scalar';
+import { IdField } from '~/apollo/scalars/Id.scalar';
 
 @InputType()
 export class TransactionsInput {
@@ -64,7 +64,7 @@ export class ProposeTransactionInput {
 export class ProposeCancelScheduledTransactionInput extends OmitType(ProposeTransactionInput, [
   'operations',
 ]) {
-  @UUIDField()
+  @IdField()
   proposal: UUID;
 }
 

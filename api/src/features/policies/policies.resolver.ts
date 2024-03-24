@@ -3,7 +3,7 @@ import { GraphQLResolveInfo } from 'graphql';
 import {
   CreatePolicyInput,
   PoliciesInput,
-  ValidationErrorsInput,
+  ValidationErrorsArgs,
   UniquePolicyInput,
   UpdatePolicyInput,
   PolicyStateArgs,
@@ -45,7 +45,7 @@ export class PoliciesResolver {
 
   @ComputedField<typeof e.Policy>(() => [ValidationError], PolicyShape)
   async validationErrors(
-    @Input() { proposal }: ValidationErrorsInput,
+    @Args() { proposal }: ValidationErrorsArgs,
     @Parent() policy: PolicyShape,
   ): Promise<ValidationError[]> {
     return this.service.validateProposal(proposal, policy);

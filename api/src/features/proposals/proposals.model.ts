@@ -6,9 +6,9 @@ import { Approver } from '../approvers/approvers.model';
 import { Node, NodeInterface, NodeType } from '~/decorators/interface.decorator';
 import { GraphQLURL } from 'graphql-scalars';
 import { ProposalEvent } from './proposals.input';
-import { UUIDField } from '~/apollo/scalars/Uuid.scalar';
 import { UAddress, UUID } from 'lib';
 import { UAddressField } from '~/apollo/scalars/UAddress.scalar';
+import { IdField } from '~/apollo/scalars/Id.scalar';
 
 @ObjectType()
 export class DappMetadata {
@@ -101,7 +101,7 @@ export class Rejection extends ProposalResponse {}
 
 @ObjectType()
 export class ProposalUpdated {
-  @UUIDField()
+  @IdField()
   id: UUID;
 
   @Field(() => Proposal, { nullable: true })

@@ -1,4 +1,4 @@
-import { Field, InputType } from '@nestjs/graphql';
+import { Field, ID, InputType } from '@nestjs/graphql';
 import { Chain } from 'chains';
 import { GraphQLInt } from 'graphql';
 import { Hex, PolicyKey, UAddress, UUID } from 'lib';
@@ -6,7 +6,6 @@ import { Bytes32Field } from '~/apollo/scalars/Bytes.scalar';
 import { ChainField } from '~/apollo/scalars/Chain.scalar';
 import { PolicyKeyField } from '~/apollo/scalars/PolicyKey.scalar';
 import { UAddressField, UAddressScalar } from '~/apollo/scalars/UAddress.scalar';
-import { UUIDField } from '~/apollo/scalars/Uuid.scalar';
 
 @InputType()
 export class TokenInput {
@@ -67,7 +66,7 @@ export class BalanceInput {
   @UAddressField({ nullable: true })
   account?: UAddress;
 
-  @UUIDField({ nullable: true })
+  @Field(() => ID, { nullable: true })
   transaction?: UUID;
 }
 

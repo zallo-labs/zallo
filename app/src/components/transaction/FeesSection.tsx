@@ -16,7 +16,7 @@ import { getOptimizedDocument } from '~/gql';
 
 const Transaction = gql(/* GraphQL */ `
   fragment FeesSection_Transaction on Transaction
-  @argumentDefinitions(transaction: { type: "UUID!" }) {
+  @argumentDefinitions(transaction: { type: "ID!" }) {
     id
     status
     account {
@@ -63,7 +63,7 @@ const Transaction = gql(/* GraphQL */ `
 `);
 
 const Update = gql(/* GraphQL */ `
-  mutation FeeToken_Update($transaction: UUID!, $feeToken: Address!) {
+  mutation FeeToken_Update($transaction: ID!, $feeToken: Address!) {
     updateTransaction(input: { id: $transaction, feeToken: $feeToken }) {
       ...FeesSection_Transaction @arguments(transaction: $transaction)
     }
