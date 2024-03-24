@@ -6,9 +6,6 @@ import { NotFound } from '#/NotFound';
 import { useQuery } from '~/gql';
 import { AppbarMore } from '#/Appbar/AppbarMore';
 import { Divider, Menu } from 'react-native-paper';
-import { useMutation } from 'urql';
-import { useConfirmRemoval } from '~/hooks/useConfirm';
-import { useRouter } from 'expo-router';
 import { AppbarOptions } from '#/Appbar/AppbarOptions';
 import { ScrollableScreenSurface } from '#/layout/ScrollableScreenSurface';
 import { MessageStatus } from '#/message/MessageStatus';
@@ -21,6 +18,7 @@ import { ProposalApprovals } from '#/policy/ProposalApprovals';
 import { ListHeader } from '#/list/ListHeader';
 import { DappHeader } from '#/walletconnect/DappHeader';
 import { AccountSection } from '#/proposal/AccountSection';
+import { useRemoveMessage } from '#/message/useRemoveMessage';
 
 const Query = gql(/* GraphQL */ `
   query MessageScreen($proposal: ID!) {
@@ -37,6 +35,7 @@ const Query = gql(/* GraphQL */ `
       dapp {
         ...DappHeader_DappMetadata
       }
+      ...useRemoveMessage_Message
       ...MessageStatus_Message
       ...MessageActions_Message
     }
@@ -48,23 +47,15 @@ const Query = gql(/* GraphQL */ `
   }
 `);
 
-const Remove = gql(/* GraphQL */ `
-  mutation MessageScreen_Remove($proposal: ID!) {
-    removeMessage(input: { id: $proposal })
-  }
-`);
-
 const MessageScreenParams = z.object({ id: zUuid() });
 
 export default function MessageScreen() {
   const { id } = useLocalParams(MessageScreenParams);
-  const router = useRouter();
-  const remove = useMutation(Remove)[1];
-  const confirmRemoval = useConfirmRemoval({
-    message: 'Are you sure you want to remove this proposal?',
-  });
+
   const query = useQuery(Query, { proposal: id });
   const p = query.data?.message;
+
+  const remove = useRemoveMessage(p);
 
   if (!p) return query.stale ? null : <NotFound name="Message" />;
 
@@ -73,22 +64,13 @@ export default function MessageScreen() {
       <AppbarOptions
         headline={(props) => <MessageStatus proposal={p} {...props} />}
         mode="large"
-        trailing={(props) => (
-          <AppbarMore iconProps={props}>
-            {({ close }) => (
-              <Menu.Item
-                title="Remove proposal"
-                onPress={async () => {
-                  close();
-                  if (await confirmRemoval()) {
-                    await remove({ proposal: id });
-                    router.back();
-                  }
-                }}
-              />
-            )}
-          </AppbarMore>
-        )}
+        {...(remove && {
+          trailing: (props) => (
+            <AppbarMore iconProps={props}>
+              {({ handle }) => <Menu.Item title="Remove" onPress={handle(remove)} />}
+            </AppbarMore>
+          ),
+        })}
       />
 
       <ScrollableScreenSurface contentContainerStyle={styles.sheet}>
