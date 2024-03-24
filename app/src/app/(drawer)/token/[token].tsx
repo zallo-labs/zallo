@@ -142,20 +142,15 @@ function SharedTokenScreen_(props: TokenScreenProps) {
           query?.token?.userOwned
             ? (props) => (
                 <AppbarMore iconProps={props}>
-                  {({ close }) => (
+                  {({ handle }) => (
                     <Menu.Item
-                      title="Remove token"
-                      onPress={async () => {
-                        close();
-                        if (
-                          await confirmRemoval({
-                            message: 'Are you sure you want to remove this token?',
-                          })
-                        ) {
+                      title="Remove"
+                      onPress={handle(async () => {
+                        if (await confirmRemoval()) {
                           await remove({ token: query.token!.address });
                           router.back();
                         }
-                      }}
+                      })}
                     />
                   )}
                 </AppbarMore>

@@ -7,7 +7,6 @@ import { useLocalParams } from '~/hooks/useLocalParams';
 import { AppbarOptions } from '#/Appbar/AppbarOptions';
 import { ScrollableScreenSurface } from '#/layout/ScrollableScreenSurface';
 import { zUuid } from '~/lib/zod';
-import { RemoveTransactionItem } from '#/transaction/RemoveTransactionItem';
 import { TransactionStatus } from '#/transaction/TransactionStatus';
 import { useSubscription } from 'urql';
 import { createStyles, useStyles } from '@theme/styles';

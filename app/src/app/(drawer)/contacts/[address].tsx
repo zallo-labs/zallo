@@ -111,17 +111,16 @@ function ContactScreen_(props: ContactScreenProps) {
             (props) => <FormResetIcon control={control} reset={reset} {...props} />,
             (props) => (
               <AppbarMore iconProps={props}>
-                {({ close }) => (
+                {({ handle }) => (
                   <Menu.Item
                     leadingIcon={RemoveIcon}
                     title="Remove contact"
-                    onPress={async () => {
-                      close();
+                    onPress={handle(async () => {
                       if (await confirmRemove()) {
                         remove({ address: current.address });
                         router.back();
                       }
-                    }}
+                    })}
                   />
                 )}
               </AppbarMore>

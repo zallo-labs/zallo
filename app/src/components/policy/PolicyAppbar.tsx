@@ -77,16 +77,15 @@ export function PolicyAppbar({ reset, ...props }: PolicyAppbarProps) {
         (iconProps) =>
           policy?.proposal && (
             <AppbarMore iconProps={iconProps}>
-              {({ close }) => (
+              {({ handle }) => (
                 <Menu.Item
                   title="View proposal"
-                  onPress={() => {
-                    close();
+                  onPress={handle(() =>
                     router.push({
                       pathname: `/(drawer)/transaction/[id]`,
                       params: { id: policy.proposal!.id },
-                    });
-                  }}
+                    }),
+                  )}
                 />
               )}
             </AppbarMore>
