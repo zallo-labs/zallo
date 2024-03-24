@@ -1,8 +1,10 @@
-import { MaterialIcons } from '@expo/vector-icons';
 import { createStyles, useStyles } from '@theme/styles';
 import { Dispatch, memo, SetStateAction, useCallback } from 'react';
 import { View } from 'react-native';
 import { Button, type ButtonProps } from '../Button';
+import { materialIcon } from '@theme/icons';
+
+const BackspaceIcon = materialIcon('keyboard-backspace');
 
 const DECIMAL_SEPARATOR = Intl.NumberFormat().formatToParts(0.1)[1]?.value || '.';
 
@@ -92,7 +94,7 @@ export const NumericInput = ({ value, onChange, maxDecimals }: NumericInputProps
         </B>
 
         <B onPress={pop} onLongPress={clear} disabled={!value.length}>
-          {<MaterialIcons name="keyboard-backspace" size={styles.buttonLabel.fontSize} />}
+          {<BackspaceIcon size={styles.buttonLabel.fontSize} />}
         </B>
       </View>
     </View>

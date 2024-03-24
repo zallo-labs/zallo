@@ -1,6 +1,6 @@
 import { Image, ImageProps, ImageSource, ImageStyle } from 'expo-image';
 import { ComponentPropsWithoutRef, Ref, forwardRef } from 'react';
-import { ColorValue, StyleProp, TouchableOpacity, TouchableOpacityProps, ViewStyle } from 'react-native';
+import { ColorValue, StyleProp, TouchableOpacity, TouchableOpacityProps } from 'react-native';
 import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
 import { ICON_SIZE } from './paper';
 
@@ -22,10 +22,14 @@ export const icon =
     set: S,
   ) =>
   (name: NameProp<Props>) => {
-    return (props: Omit<Props, 'name'>) => {
+    return ({ onPress, ...props }: Omit<Props, 'name'>) => {
       const IconSet = iconSet[set];
 
-      return <IconSet size={ICON_SIZE.small} {...(props as any)} name={name} />;
+      return (
+        <TouchableOpacity onPress={onPress} disabled={!onPress}>
+          <IconSet size={ICON_SIZE.small} {...(props as any)} name={name} />
+        </TouchableOpacity>
+      );
     };
   };
 
@@ -118,6 +122,7 @@ export const DataIcon = materialCommunityIcon('code-tags');
 export const DisconnectIcon = materialCommunityIcon('link-off');
 export const GroupIcon = materialCommunityIcon('account-supervisor-circle');
 export const RecoveryIcon = materialIcon('lock-reset');
+export const SomethingWrongIcon = materialCommunityIcon('robot-dead-outline');
 
 export const PolicyIcon = materialCommunityIcon('security');
 export const PolicyActiveIcon = materialCommunityIcon('shield');
@@ -148,7 +153,6 @@ export const LedgerLogo = imageFromSource(require('assets/ledger-logo.svg'));
 export const AppleWhiteIcon = imageFromSource(require('assets/apple-white.svg'));
 export const AppleBlackIcon = imageFromSource(require('assets/apple-black.svg'));
 export const GoogleIcon = imageFromSource(require('assets/google.png'));
-// export const GenericTokenIcon = fromSource(require('assets/ethereum-light.svg'));
 
 export function imageFromSource(source: ImageSource) {
   return forwardRef(

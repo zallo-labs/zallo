@@ -1,10 +1,10 @@
 import { View } from 'react-native';
 import { createStyles, useStyles } from '@theme/styles';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { Text } from 'react-native-paper';
 import { Actions } from '#/layout/Actions';
 import { ICON_SIZE } from '@theme/paper';
 import { ReactNode } from 'react';
+import { SomethingWrongIcon } from '@theme/icons';
 
 export interface ErrorBoundaryDetailsProps {
   actions: ReactNode;
@@ -16,11 +16,7 @@ export function ErrorBoundaryDetails({ actions }: ErrorBoundaryDetailsProps) {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <MaterialCommunityIcons
-          name="robot-dead-outline"
-          size={ICON_SIZE.large}
-          style={styles.onSurface}
-        />
+        <SomethingWrongIcon size={ICON_SIZE.large} style={styles.onSurface} />
 
         <Text variant="headlineMedium" style={styles.onSurface}>
           Something went wrong
