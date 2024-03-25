@@ -62,7 +62,6 @@ module default {
   type Token {
     user: User { default := (<User>(global current_user).id); }
     required address: UAddress;
-    ethereumAddress: Address;
     required name: Label;
     required symbol: Label;
     required decimals: uint16;
