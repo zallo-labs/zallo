@@ -97,7 +97,7 @@ export const useSessionRequestListener = ({ proposals }: UseSessionRequestListen
             input: {
               account: asUAddress(r.account, chain),
               label: `${dapp.name} message`,
-              iconUri: dapp.icons[0],
+              icon: dapp.icons[0],
               ...(r.method === 'personal-sign'
                 ? { message: r.message }
                 : { typedData: r.typedData }),

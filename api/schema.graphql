@@ -24,7 +24,7 @@ type Account implements Node {
   label: String!
   messages: [Message!]!
   name: String!
-  photoUri: String
+  photo: URL
   policies: [Policy!]!
   proposals: [Proposal!]!
   salt: Bytes32!
@@ -324,7 +324,7 @@ type Message implements Node & Proposal {
   createdAt: DateTime!
   dapp: DappMetadata
   hash: Bytes32!
-  iconUri: String
+  icon: URL
   id: ID!
   label: String
   message: String!
@@ -469,7 +469,7 @@ interface Proposal implements Node {
   createdAt: DateTime!
   dapp: DappMetadata
   hash: Bytes32!
-  iconUri: String
+  icon: URL
   id: ID!
   label: String
   policy: Policy!
@@ -528,7 +528,7 @@ input ProposeCancelScheduledTransactionInput {
   dapp: DappMetadataInput
   feeToken: Address
   gas: Uint256
-  iconUri: String
+  icon: URL
   label: String
   proposal: ID!
 
@@ -540,7 +540,7 @@ input ProposeCancelScheduledTransactionInput {
 input ProposeMessageInput {
   account: UAddress!
   dapp: DappMetadataInput
-  iconUri: String
+  icon: URL
   label: String
 
   """Optional if typedData is provided"""
@@ -557,7 +557,7 @@ input ProposeTransactionInput {
   dapp: DappMetadataInput
   feeToken: Address
   gas: Uint256
-  iconUri: String
+  icon: URL
   label: String
   operations: [OperationInput!]!
 
@@ -586,7 +586,7 @@ type Query {
   proposals(input: ProposalsInput! = {}): [Proposal!]!
   requestableTokens(input: RequestTokensInput!): [Address!]!
   token(input: TokenInput!): Token
-  tokenMetadata(input: TokenInput!): TokenMetadata!
+  tokenMetadata(input: TokenInput!): TokenMetadata
   tokens(input: TokensInput! = {}): [Token!]!
   transaction(input: UniqueProposalInput!): Transaction
   transactions(input: TransactionsInput!): [Transaction!]!
@@ -734,7 +734,7 @@ type Token implements Node {
   balance(input: BalanceInput!): Decimal!
   decimals: Int!
   estimatedFeesPerGas: FeesPerGas
-  iconUri: String
+  icon: URL
   id: ID!
   isFeeToken: Boolean!
   name: String!
@@ -752,12 +752,12 @@ input TokenInput {
 }
 
 type TokenMetadata {
-  decimals: Int
-  iconUri: String
+  decimals: Int!
+  icon: URL
   id: ID!
-  name: String
+  name: String!
   pythUsdPriceId: Bytes32
-  symbol: String
+  symbol: String!
 }
 
 type TokenSpending {
@@ -795,7 +795,7 @@ type Transaction implements Node & Proposal {
   feeToken: Token!
   gasLimit: BigInt!
   hash: Bytes32!
-  iconUri: String
+  icon: URL
   id: ID!
   label: String
   maxPaymasterEthFees: PaymasterFees!
@@ -980,9 +980,9 @@ scalar TypedData
 scalar UAddress @specifiedBy(url: "https://eips.ethereum.org/EIPS/eip-3770")
 
 """
-A field whose value conforms to the standard URL format as specified in RFC3986: https://www.ietf.org/rfc/rfc3986.txt.
+A field whose value conforms to the standard URL format as specified in RFC3986
 """
-scalar URL
+scalar URL @specifiedBy(url: "https://www.ietf.org/rfc/rfc3986.txt")
 
 """256-bit unsigned integer"""
 scalar Uint256
@@ -999,7 +999,7 @@ input UniqueProposalInput {
 input UpdateAccountInput {
   account: UAddress!
   label: String!
-  photoUri: URL
+  photo: URL
 }
 
 input UpdateApproverInput {
@@ -1059,8 +1059,7 @@ input UpsertContactInput {
 
 input UpsertTokenInput {
   address: UAddress!
-  decimals: Int
-  iconUri: String
+  icon: URL
   name: String
   pythUsdPriceId: Bytes32
   symbol: String

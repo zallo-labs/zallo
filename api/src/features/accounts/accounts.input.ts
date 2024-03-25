@@ -2,10 +2,10 @@ import { Field, InputType, registerEnumType } from '@nestjs/graphql';
 import { UAddress } from 'lib';
 import { minLengthMiddleware } from '~/apollo/scalars/util';
 import { PolicyInput } from '../policies/policies.input';
-import { GraphQLURL } from 'graphql-scalars';
 import { UAddressField, UAddressScalar } from '~/apollo/scalars/UAddress.scalar';
 import { Chain } from 'chains';
 import { ChainField } from '~/apollo/scalars/Chain.scalar';
+import { UrlField } from '~/apollo/scalars/Url.scalar';
 
 @InputType()
 export class AccountInput {
@@ -63,6 +63,6 @@ export class UpdateAccountInput {
   @Field(() => String)
   label: string;
 
-  @Field(() => GraphQLURL, { nullable: true })
-  photoUri?: URL;
+  @UrlField({ nullable: true })
+  photo?: string;
 }

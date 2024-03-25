@@ -14,7 +14,7 @@ const Query = gql(/* GraphQL */ `
       id
       address
       name
-      photoUri
+      photo
     }
   }
 `);
@@ -28,8 +28,8 @@ function AccountDrawerHeader_() {
 
   return (
     <View style={styles.container}>
-      {account.photoUri ? (
-        <Image source={account.photoUri} style={styles.icon} />
+      {account.photo ? (
+        <Image source={account.photo} style={styles.icon} />
       ) : (
         <AddressIcon address={account.address} size={styles.icon.width} />
       )}

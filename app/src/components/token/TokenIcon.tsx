@@ -28,7 +28,7 @@ const Query = gql(/* GraphQL */ `
 const Token = gql(/* GraphQL */ `
   fragment TokenIcon_Token on Token {
     id
-    iconUri
+    icon
   }
 `);
 
@@ -64,7 +64,7 @@ function TokenIcon_({
   ).data;
 
   const iconUri =
-    getFragment(Token, !isUAddress(fragOrAddr) ? fragOrAddr : query?.token)?.iconUri ?? fallbackUri;
+    getFragment(Token, !isUAddress(fragOrAddr) ? fragOrAddr : query?.token)?.icon ?? fallbackUri;
 
   if (!iconUri)
     return <UnknownTokenIcon {...imageProps} size={size} style={[style, styles.icon(size)]} />;

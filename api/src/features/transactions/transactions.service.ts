@@ -145,7 +145,7 @@ export class TransactionsService {
     account,
     operations,
     label,
-    iconUri,
+    icon,
     dapp,
     validFrom = new Date(),
     gas,
@@ -171,7 +171,7 @@ export class TransactionsService {
     } satisfies Tx;
     const { policy, validationErrors } = await this.policies.best(account, tx);
 
-    // Ordering operation ids ensures 
+    // Ordering operation ids ensures
     const operationIds = operations.map(() => uuid()).sort((a, b) => a.localeCompare(b));
     const insertOperation = e.set(
       ...operations.map((op, i) =>
@@ -192,12 +192,8 @@ export class TransactionsService {
       policy,
       validationErrors,
       label,
-      iconUri,
-      dapp: dapp && {
-        name: dapp.name,
-        url: dapp.url.href,
-        icons: dapp.icons.map((i) => i.href),
-      },
+      icon,
+      dapp,
       operations: insertOperation,
       validFrom,
       gasLimit: gas,

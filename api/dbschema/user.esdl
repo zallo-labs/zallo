@@ -65,7 +65,7 @@ module default {
     required name: Label;
     required symbol: Label;
     required decimals: uint16;
-    iconUri: str;
+    icon: Url;
     units: array<tuple<symbol: Label, decimals: uint16>>;
     required isFeeToken: bool { default := false; };
     pythUsdPriceId: Bytes32;

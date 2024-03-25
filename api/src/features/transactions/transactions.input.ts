@@ -8,6 +8,7 @@ import { TransactionStatus } from './transactions.model';
 import { DappMetadataInput, UniqueProposalInput } from '../proposals/proposals.input';
 import { UAddressField, UAddressScalar } from '~/apollo/scalars/UAddress.scalar';
 import { IdField } from '~/apollo/scalars/Id.scalar';
+import { UrlField } from '~/apollo/scalars/Url.scalar';
 
 @InputType()
 export class TransactionsInput {
@@ -41,8 +42,8 @@ export class ProposeTransactionInput {
   @Field(() => String, { nullable: true })
   label?: string;
 
-  @Field(() => String, { nullable: true })
-  iconUri?: string;
+  @UrlField({ nullable: true })
+  icon?: string;
 
   @Field(() => DappMetadataInput, { nullable: true })
   dapp?: DappMetadataInput;

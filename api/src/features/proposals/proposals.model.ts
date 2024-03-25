@@ -4,22 +4,22 @@ import { Policy, ValidationError } from '../policies/policies.model';
 import { Bytes32Field } from '~/apollo/scalars/Bytes.scalar';
 import { Approver } from '../approvers/approvers.model';
 import { Node, NodeInterface, NodeType } from '~/decorators/interface.decorator';
-import { GraphQLURL } from 'graphql-scalars';
 import { ProposalEvent } from './proposals.input';
 import { UAddress, UUID } from 'lib';
 import { UAddressField } from '~/apollo/scalars/UAddress.scalar';
 import { IdField } from '~/apollo/scalars/Id.scalar';
+import { UrlField, UrlScalar } from '~/apollo/scalars/Url.scalar';
 
 @ObjectType()
 export class DappMetadata {
   @Field(() => String)
   name: string;
 
-  @Field(() => GraphQLURL)
-  url: URL;
+  @UrlField()
+  url: string;
 
-  @Field(() => [GraphQLURL])
-  icons: URL[];
+  @Field(() => [UrlScalar])
+  icons: string[];
 }
 
 @NodeInterface()
@@ -39,8 +39,8 @@ export class Proposal {
   @Field(() => String, { nullable: true })
   label?: string;
 
-  @Field(() => String, { nullable: true })
-  iconUri?: string;
+  @UrlField({ nullable: true })
+  icon?: string;
 
   @Field(() => Date)
   validFrom: Date;

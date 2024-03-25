@@ -1,11 +1,11 @@
 import { Field, ID, InputType, registerEnumType } from '@nestjs/graphql';
-import { GraphQLURL } from 'graphql-scalars';
 import { Address, Hex, PolicyKey, UAddress, UUID } from 'lib';
 import { AddressField } from '~/apollo/scalars/Address.scalar';
 import { Bytes32Field, BytesField } from '~/apollo/scalars/Bytes.scalar';
 import { IdField } from '~/apollo/scalars/Id.scalar';
 import { PolicyKeyField } from '~/apollo/scalars/PolicyKey.scalar';
 import { UAddressScalar } from '~/apollo/scalars/UAddress.scalar';
+import { UrlField, UrlScalar } from '~/apollo/scalars/Url.scalar';
 
 @InputType()
 export class UniqueProposalInput {
@@ -81,9 +81,9 @@ export class DappMetadataInput {
   @Field(() => String)
   name: string;
 
-  @Field(() => GraphQLURL)
-  url: URL;
+  @UrlField()
+  url: string;
 
-  @Field(() => [GraphQLURL])
-  icons: URL[];
+  @Field(() => [UrlScalar])
+  icons: string[];
 }

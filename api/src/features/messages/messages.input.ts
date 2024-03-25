@@ -5,6 +5,7 @@ import { UAddressField } from '~/apollo/scalars/UAddress.scalar';
 import { BytesScalar } from '~/apollo/scalars/Bytes.scalar';
 import { TypedDataField } from '~/apollo/scalars/TypedData.scalar';
 import { DappMetadataInput } from '../proposals/proposals.input';
+import { UrlField } from '~/apollo/scalars/Url.scalar';
 
 @InputType()
 export class ProposeMessageInput {
@@ -20,8 +21,8 @@ export class ProposeMessageInput {
   @Field(() => String, { nullable: true })
   label?: string;
 
-  @Field(() => String, { nullable: true })
-  iconUri?: string;
+  @UrlField({ nullable: true })
+  icon?: string;
 
   @Field(() => DappMetadataInput, { nullable: true })
   dapp?: DappMetadataInput;
