@@ -6,7 +6,6 @@ import { useForm } from 'react-hook-form';
 import { FormSubmitButton } from '#/fields/FormSubmitButton';
 import { FormTextField } from '#/fields/FormTextField';
 import { Actions } from '#/layout/Actions';
-import { UnknownTokenIcon } from '#/token/TokenIcon';
 import { AppbarMore } from '#/Appbar/AppbarMore';
 import { Menu } from 'react-native-paper';
 import { useQuery } from '~/gql';
@@ -25,7 +24,7 @@ import { CHAINS } from 'chains';
 import { View } from 'react-native';
 import { createStyles } from '@theme/styles';
 import { Button } from '#/Button';
-import { ExternalLinkIcon } from '@theme/icons';
+import { ExternalLinkIcon, GenericTokenIcon } from '@theme/icons';
 
 const PYTH_PRICE_FEEDS_URL = 'https://pyth.network/developers/price-feed-ids';
 
@@ -132,7 +131,7 @@ function TokenScreen_() {
               ? ({ size }) => (
                   <Image source={[{ uri: icon }]} style={{ width: size, height: size }} />
                 )
-              : UnknownTokenIcon
+              : GenericTokenIcon
           }
           leadingSize="medium"
           headline={`${name || 'Token'} (${symbol || 'TKN'})`}
