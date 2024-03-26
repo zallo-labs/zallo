@@ -25,7 +25,7 @@ describe('TokensService', () => {
     networks = module.get(NetworksService);
 
     networks.get.mockReturnValue({
-      multicall: async () => [{ result: undefined }, { result: undefined }, { result: undefined }],
+      multicall: async () => [{ result: undefined }, { result: undefined }],
     } satisfies DeepPartial<Network> as unknown as Network);
   });
 
@@ -40,7 +40,6 @@ describe('TokensService', () => {
       address: randomUAddress(),
       name: 'Test token',
       symbol: 'TEST',
-      decimals: 8,
       units: [],
       ...input,
     });

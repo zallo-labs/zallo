@@ -7,7 +7,7 @@ import { UseFormattedTokenAmount_TokenFragment } from '@api/generated/graphql';
 
 const Query = gql(/* GraphQL */ `
   query TokenAmount($token: UAddress!) {
-    token(input: { address: $token }) {
+    token(address: $token) {
       ...UseFormattedTokenAmount_token
     }
   }

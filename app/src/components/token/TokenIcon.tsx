@@ -19,7 +19,7 @@ export const UnknownTokenIcon = materialCommunityIcon('help-circle-outline');
 
 const Query = gql(/* GraphQL */ `
   query TokenIcon($token: UAddress!) {
-    token(input: { address: $token }) {
+    token(address: $token) {
       ...TokenIcon_Token
     }
   }
@@ -38,7 +38,7 @@ const Token = gql(/* GraphQL */ `
  * @returns Token fields required by TokenIcon
  */
 export function trimTokenIconTokenProp(token: any): any {
-  return _.pick(token, ['id', 'iconUri']);
+  return _.pick(token, ['id', 'icon']);
 }
 
 export interface TokenIconProps extends Omit<ImageProps, 'source' | 'style'> {
@@ -63,16 +63,16 @@ function TokenIcon_({
     { pause: !isUAddress(fragOrAddr) },
   ).data;
 
-  const iconUri =
+  const url =
     getFragment(Token, !isUAddress(fragOrAddr) ? fragOrAddr : query?.token)?.icon ?? fallbackUri;
 
-  if (!iconUri)
+  if (!url)
     return <UnknownTokenIcon {...imageProps} size={size} style={[style, styles.icon(size)]} />;
 
   return (
     <Image
       {...imageProps}
-      source={{ uri: iconUri }}
+      source={{ uri: url }}
       style={[style, styles.icon(size)]}
       cachePolicy="memory-disk"
     />

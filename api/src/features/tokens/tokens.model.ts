@@ -3,15 +3,13 @@ import { GraphQLInt } from 'graphql';
 import { Hex, UAddress } from 'lib';
 import { Bytes32Field } from '~/apollo/scalars/Bytes.scalar';
 import { UAddressField } from '~/apollo/scalars/UAddress.scalar';
+import { UrlField } from '~/apollo/scalars/Url.scalar';
 import { Node, NodeType } from '~/decorators/interface.decorator';
 
 @NodeType()
 export class Token extends Node {
   @UAddressField()
   address: UAddress;
-
-  @Bytes32Field({ nullable: true })
-  pythUsdPriceId?: Hex;
 
   @Field(() => String)
   name: string;
@@ -22,11 +20,14 @@ export class Token extends Node {
   @Field(() => GraphQLInt)
   decimals: number;
 
-  @Field(() => String, { nullable: true })
-  iconUri?: string;
+  @UrlField({ nullable: true })
+  icon?: string;
 
   @Field(() => [TokenUnit], { nullable: true })
   units?: TokenUnit[];
+
+  @Bytes32Field({ nullable: true })
+  pythUsdPriceId?: Hex;
 
   @Field(() => Boolean)
   isFeeToken: boolean;
@@ -49,17 +50,17 @@ export class TokenMetadata {
   @Field(() => ID)
   id: string;
 
-  @Field(() => String, { nullable: true })
-  name?: string;
+  @Field(() => String)
+  name: string;
 
-  @Field(() => String, { nullable: true })
-  symbol?: string;
+  @Field(() => String)
+  symbol: string;
 
-  @Field(() => GraphQLInt, { nullable: true })
-  decimals?: number;
+  @Field(() => GraphQLInt)
+  decimals: number;
 
-  @Field(() => String, { nullable: true })
-  iconUri?: string | null;
+  @UrlField({ nullable: true })
+  icon?: string | null;
 
   @Bytes32Field({ nullable: true })
   pythUsdPriceId?: Hex;

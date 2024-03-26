@@ -27,7 +27,7 @@ import { IncomingTransferItem } from '#/activity/IncomingTransferItem';
 
 const Query = gql(/* GraphQL */ `
   query TokenLimitScreen($token: UAddress!, $spending: SpendingInput!, $includeSpending: Boolean!) {
-    token(input: { address: $token }) {
+    token(address: $token) {
       id
       name
       decimals

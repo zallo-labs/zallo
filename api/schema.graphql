@@ -355,7 +355,7 @@ type Mutation {
   rejectProposal(input: UniqueProposalInput!): Proposal!
   removeMessage(input: UniqueProposalInput!): ID!
   removePolicy(input: UniquePolicyInput!): Policy!
-  removeToken(input: TokenInput!): ID
+  removeToken(address: UAddress!): ID
   removeTransaction(input: UniqueProposalInput!): ID
   requestTokens(input: RequestTokensInput!): [Address!]!
   updateAccount(input: UpdateAccountInput!): Account!
@@ -585,8 +585,8 @@ type Query {
   proposal(input: UniqueProposalInput!): Proposal
   proposals(input: ProposalsInput! = {}): [Proposal!]!
   requestableTokens(input: RequestTokensInput!): [Address!]!
-  token(input: TokenInput!): Token
-  tokenMetadata(input: TokenInput!): TokenMetadata
+  token(address: UAddress!): Token
+  tokenMetadata(address: UAddress!): TokenMetadata
   tokens(input: TokensInput! = {}): [Token!]!
   transaction(input: UniqueProposalInput!): Transaction
   transactions(input: TransactionsInput!): [Transaction!]!
@@ -745,10 +745,6 @@ type Token implements Node {
   symbol: String!
   units: [TokenUnit!]
   userOwned: Boolean!
-}
-
-input TokenInput {
-  address: UAddress!
 }
 
 type TokenMetadata {
@@ -1063,7 +1059,7 @@ input UpsertTokenInput {
   name: String
   pythUsdPriceId: Bytes32
   symbol: String
-  units: [TokenUnitInput!]! = []
+  units: [TokenUnitInput!]
 }
 
 type User implements Node {

@@ -79,7 +79,6 @@ export interface Account extends std.$Object {
   "implementation": string;
   "label": string;
   "paymasterEthCredit": string;
-  "photoUri"?: string | null;
   "salt": string;
   "policies": Policy[];
   "approvers": Approver[];
@@ -87,6 +86,7 @@ export interface Account extends std.$Object {
   "proposals": Proposal[];
   "transactions": Transaction[];
   "transfers": Transfer[];
+  "photo"?: string | null;
 }
 export interface Action extends std.$Object {
   "functions": ActionFunction[];
@@ -173,7 +173,6 @@ export interface Proposal extends std.$Object {
   "hash": string;
   "createdAt": Date;
   "dapp"?: {name: string, url: string, icons: string[]} | null;
-  "iconUri"?: string | null;
   "label"?: string | null;
   "validFrom": Date;
   "validationErrors": {reason: string, operation: number}[];
@@ -183,6 +182,7 @@ export interface Proposal extends std.$Object {
   "policy": Policy;
   "potentialApprovers": Approver[];
   "potentialRejectors": Approver[];
+  "icon"?: string | null;
 }
 export interface Message extends Proposal {
   "signature"?: string | null;
@@ -262,10 +262,9 @@ export interface Token extends std.$Object {
   "symbol": string;
   "isFeeToken": boolean;
   "decimals": number;
-  "ethereumAddress"?: string | null;
-  "iconUri"?: string | null;
   "pythUsdPriceId"?: string | null;
   "user"?: User | null;
+  "icon"?: string | null;
 }
 export interface Transaction extends Proposal {
   "gasLimit": bigint;
