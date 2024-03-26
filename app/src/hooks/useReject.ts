@@ -45,7 +45,7 @@ const Proposal = gql(/* GraphQL */ `
 `);
 
 const Reject = gql(/* GraphQL */ `
-  mutation useReject_Reject($proposal: UUID!) {
+  mutation useReject_Reject($proposal: ID!) {
     rejectProposal(input: { id: $proposal }) {
       id
       approvals {

@@ -46,10 +46,7 @@ export class AuthMiddleware implements NestMiddleware {
     (await this.tryAuthenticate(req)).match(
       async (address) => {
         if (address) {
-          req.user = {
-            approver: address,
-            accounts: await this.accountsCache.getApproverAccounts(address),
-          };
+          req.user = await this.accountsCache.getApproverCtx(address);
         }
         next();
       },
@@ -61,6 +58,7 @@ export class AuthMiddleware implements NestMiddleware {
     const token = req.headers.authorization;
     if (!token) return ok(undefined);
 
+    // TODO: cache [token, headers.host]
     const cached = token && this.cache.get(token);
     if (cached) {
       if (cached.expirationTime > DateTime.now()) {

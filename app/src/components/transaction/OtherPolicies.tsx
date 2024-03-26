@@ -9,7 +9,7 @@ import { createStyles, useStyles } from '@theme/styles';
 
 // TODO: replace query with @deferred fragment once supported (graphql-js 17)
 const Query = gql(/* GraphQL */ `
-  query OtherPolicies($proposal: UUID!) {
+  query OtherPolicies($proposal: ID!) {
     proposal(input: { id: $proposal }) {
       id
       account {
@@ -17,7 +17,7 @@ const Query = gql(/* GraphQL */ `
         policies {
           id
           key
-          validationErrors(input: { proposal: $proposal }) {
+          validationErrors(proposal: $proposal) {
             reason
           }
           ...PolicyItem_Policy
@@ -28,7 +28,7 @@ const Query = gql(/* GraphQL */ `
 `);
 
 const Update = gql(/* GraphQL */ `
-  mutation OtherPolicies_Update($proposal: UUID!, $policy: PolicyKey!) {
+  mutation OtherPolicies_Update($proposal: ID!, $policy: PolicyKey!) {
     updateProposal(input: { id: $proposal, policy: $policy }) {
       id
       policy {

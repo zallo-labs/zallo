@@ -7,7 +7,7 @@ import { UseFormattedTokenAmount_TokenFragment } from '@api/generated/graphql';
 
 const Query = gql(/* GraphQL */ `
   query TokenAmount($token: UAddress!) {
-    token(input: { address: $token }) {
+    token(address: $token) {
       ...UseFormattedTokenAmount_token
     }
   }
@@ -29,13 +29,11 @@ const Token = gql(/* GraphQL */ `
 export interface FormattedTokenAmountOptions extends Partial<FormattedNumberOptions> {
   token: FragmentType<typeof Token> | UAddress | null | undefined;
   amount: Decimallike | undefined;
-  trailing?: 'name' | 'symbol' | false;
 }
 
 export const useFormattedTokenAmount = ({
   token: tokenProp,
   amount: amountProp,
-  trailing = 'symbol',
   ...options
 }: FormattedTokenAmountOptions) => {
   const amount = amountProp ? new Decimal(amountProp) : new Decimal('0');
@@ -54,23 +52,24 @@ export const useFormattedTokenAmount = ({
       symbol: '???',
     } as UseFormattedTokenAmount_TokenFragment);
 
-  // TODO: Format with the closest unit
-  // const leadingZeroes = amount.toString().split('.')[1]?.match(/^(0+)/)?.[1]?.length ?? 0;
-  // const unit =
-  //   trailing !== 'symbol' || amount.eq(0)
-  //     ? token
-  //     : [token, ...(token.units ?? [])].reduce((closest, unit) => {
-  //         const diff = Math.abs(unit.decimals - leadingZeroes);
-  //         return diff > Math.abs(closest.decimals - leadingZeroes) ? unit : closest;
-  //       }, token);
+  const d = token.decimals - (amount.toFixed().match(/\.(0*)/)?.[1]?.length ?? 0);
+  const units = [token, ...(token.units ?? [])].sort((a, b) => b.decimals - a.decimals /* desc */);
+  const unit = amount.eq(0)
+    ? token
+    : units.reduce(
+        // Find the closest unit; bias the smaller unit (-1)
+        (closest, unit) =>
+          Math.abs(unit.decimals - d) - 1 <= Math.abs(closest.decimals - d) ? unit : closest,
+        units[0],
+      );
+
+  const unitAmount = amount.mul(new Decimal(10).pow(token.decimals - unit.decimals));
 
   return useFormattedNumber({
-    value: amount,
+    value: unitAmount,
     maximumFractionDigits: 3,
     minimumNumberFractionDigits: 5,
-    postFormat: trailing
-      ? (v) => `${v} ${trailing === 'name' ? token.name : token.symbol}`
-      : undefined,
+    postFormat: (v) => `${v} ${unit.symbol}`,
     ...options,
   });
 };

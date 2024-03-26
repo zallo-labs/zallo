@@ -19,7 +19,7 @@ const Transaction = gql(/* GraphQL */ `
     status
     createdAt
     updatable
-    iconUri
+    icon
     account {
       id
       chain
@@ -111,8 +111,8 @@ function TransactionItem_({
     <Link href={{ pathname: `/(drawer)/transaction/[id]`, params: { id: p.id } }} asChild>
       <ListItem
         leading={(props) =>
-          p.iconUri ? (
-            <Image source={{ uri: p.iconUri }} style={styles.icon} {...props} />
+          p.icon ? (
+            <Image source={{ uri: p.icon }} style={styles.icon} {...props} />
           ) : isMulti ? (
             <MultiOperationIcon {...props} style={styles.icon} />
           ) : (

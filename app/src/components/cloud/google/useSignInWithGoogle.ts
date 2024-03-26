@@ -3,7 +3,6 @@ import {
   statusCodes as ErrorCode,
   isErrorWithCode,
   GoogleSignin,
-  NativeModuleError,
 } from '@react-native-google-signin/google-signin';
 import { CONFIG } from '~/util/config';
 import { errAsync, fromPromise, ok, safeTry } from 'neverthrow';
@@ -22,8 +21,6 @@ export function useSignInWithGoogle() {
 
         if (subject && user.id !== subject) return errAsync('wrong-account' as const);
         if (!isCurrentToken(user.idToken!)) return errAsync('expired' as const);
-
-        console.log({ user });
 
         const accessToken = yield* getAccessToken().safeUnwrap();
 

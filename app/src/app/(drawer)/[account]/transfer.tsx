@@ -27,7 +27,7 @@ import { ampli } from '~/lib/ampli';
 
 const Query = gql(/* GraphQL */ `
   query TransferScreen($account: UAddress!, $token: UAddress!) {
-    token(input: { address: $token }) {
+    token(address: $token) {
       id
       address
       decimals

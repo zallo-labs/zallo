@@ -1,21 +1,21 @@
-import { Field, InputType, registerEnumType } from '@nestjs/graphql';
-import { GraphQLURL } from 'graphql-scalars';
+import { Field, ID, InputType, registerEnumType } from '@nestjs/graphql';
 import { Address, Hex, PolicyKey, UAddress, UUID } from 'lib';
 import { AddressField } from '~/apollo/scalars/Address.scalar';
 import { Bytes32Field, BytesField } from '~/apollo/scalars/Bytes.scalar';
+import { IdField } from '~/apollo/scalars/Id.scalar';
 import { PolicyKeyField } from '~/apollo/scalars/PolicyKey.scalar';
 import { UAddressScalar } from '~/apollo/scalars/UAddress.scalar';
-import { UUIDField, UUIDScalar } from '~/apollo/scalars/Uuid.scalar';
+import { UrlField, UrlScalar } from '~/apollo/scalars/Url.scalar';
 
 @InputType()
 export class UniqueProposalInput {
-  @UUIDField()
+  @IdField()
   id: UUID;
 }
 
 @InputType()
 export class ProposalInput {
-  @UUIDField({ nullable: true })
+  @Field(() => ID, { nullable: true })
   id?: UUID;
 
   @Bytes32Field({ nullable: true })
@@ -63,7 +63,7 @@ registerEnumType(ProposalEvent, { name: 'ProposalEvent' });
 
 @InputType()
 export class ProposalUpdatedInput {
-  @Field(() => [UUIDScalar], { nullable: true })
+  @Field(() => [ID], { nullable: true })
   proposals?: UUID[];
 
   @Field(() => [UAddressScalar], {
@@ -81,9 +81,9 @@ export class DappMetadataInput {
   @Field(() => String)
   name: string;
 
-  @Field(() => GraphQLURL)
-  url: URL;
+  @UrlField()
+  url: string;
 
-  @Field(() => [GraphQLURL])
-  icons: URL[];
+  @Field(() => [UrlScalar])
+  icons: string[];
 }

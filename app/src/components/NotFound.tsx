@@ -1,8 +1,7 @@
-import { BackIcon } from '@theme/icons';
+import { BackIcon, SomethingWrongIcon } from '@theme/icons';
 import { Button } from './Button';
 import { Actions } from './layout/Actions';
 import { View } from 'react-native';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { ICON_SIZE } from '@theme/paper';
 import { Text } from 'react-native-paper';
 import { Link } from 'expo-router';
@@ -18,7 +17,7 @@ export function NotFound({ name }: NotFoundProps) {
   return (
     <View style={styles.root}>
       <View style={styles.container}>
-        <MaterialCommunityIcons name="robot-dead-outline" size={ICON_SIZE.large} style={styles.error} />
+        <SomethingWrongIcon size={ICON_SIZE.large} style={styles.error} />
 
         <Text variant="headlineLarge" style={styles.error}>
           {name} not found

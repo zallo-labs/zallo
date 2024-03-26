@@ -62,11 +62,10 @@ module default {
   type Token {
     user: User { default := (<User>(global current_user).id); }
     required address: UAddress;
-    ethereumAddress: Address;
     required name: Label;
     required symbol: Label;
     required decimals: uint16;
-    iconUri: str;
+    icon: Url;
     units: array<tuple<symbol: Label, decimals: uint16>>;
     required isFeeToken: bool { default := false; };
     pythUsdPriceId: Bytes32;

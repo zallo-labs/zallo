@@ -29,46 +29,42 @@ export type NodeOptions = amplitude.Types.NodeOptions;
 export type Environment = 'zallo';
 
 export const ApiKey: Record<Environment, string> = {
-  zallo: '',
+  zallo: ''
 };
 
 /**
- * Default Amplitude configuration options. Contains tracking plan information.
- */
+* Default Amplitude configuration options. Contains tracking plan information.
+*/
 export const DefaultConfiguration: NodeOptions = {
   plan: {
     version: '1',
     branch: 'main',
     source: 'api',
-    versionId: 'c32a6255-e786-4628-acf8-49e4bcdc9835',
+    versionId: 'c32a6255-e786-4628-acf8-49e4bcdc9835'
   },
   ...{
     ingestionMetadata: {
       sourceName: 'node.js-typescript-ampli',
-      sourceVersion: '2.0.0',
-    },
-  },
+      sourceVersion: '2.0.0'
+    }
+  }
 };
 
-export interface LoadOptionsBase {
-  disabled?: boolean;
-}
+export interface LoadOptionsBase { disabled?: boolean }
 
-export type LoadOptionsWithEnvironment = LoadOptionsBase & {
-  environment: Environment;
-  client?: { configuration?: NodeOptions };
-};
-export type LoadOptionsWithApiKey = LoadOptionsBase & {
-  client: { apiKey: string; configuration?: NodeOptions };
-};
-export type LoadOptionsWithClientInstance = LoadOptionsBase & { client: { instance: NodeClient } };
+export type LoadOptionsWithEnvironment = LoadOptionsBase & { environment: Environment; client?: { configuration?: NodeOptions; }; };
+export type LoadOptionsWithApiKey = LoadOptionsBase & { client: { apiKey: string; configuration?: NodeOptions; } };
+export type LoadOptionsWithClientInstance = LoadOptionsBase & { client: { instance: NodeClient; } };
 
-export type LoadOptions =
-  | LoadOptionsWithEnvironment
-  | LoadOptionsWithApiKey
-  | LoadOptionsWithClientInstance;
+export type LoadOptions = LoadOptionsWithEnvironment | LoadOptionsWithApiKey | LoadOptionsWithClientInstance;
 
 export interface TransactionExecutedProperties {
+  /**
+   * | Rule | Value |
+   * |---|---|
+   * | Type | number |
+   */
+  $revenue?: number;
   success: boolean;
 }
 
@@ -84,7 +80,9 @@ export class AccountActivated implements BaseEvent {
 export class TransactionExecuted implements BaseEvent {
   event_type = 'Transaction Executed';
 
-  constructor(public event_properties: TransactionExecutedProperties) {
+  constructor(
+    public event_properties: TransactionExecutedProperties,
+  ) {
     this.event_properties = event_properties;
   }
 }
@@ -92,7 +90,9 @@ export class TransactionExecuted implements BaseEvent {
 export class Transfer implements BaseEvent {
   event_type = 'Transfer';
 
-  constructor(public event_properties: TransferProperties) {
+  constructor(
+    public event_properties: TransferProperties,
+  ) {
     this.event_properties = event_properties;
   }
 }
@@ -231,7 +231,7 @@ export class Ampli {
    * Event has no description in tracking plan.
    *
    * @param userId The user's ID.
-   * @param properties The event's properties (e.g. success)
+   * @param properties The event's properties (e.g. $revenue)
    * @param options Amplitude event options.
    */
   transactionExecuted(

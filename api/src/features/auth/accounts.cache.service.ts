@@ -1,5 +1,5 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
-import { Address, UAddress, asAddress, asUAddress, isPresent } from 'lib';
+import { Address, UAddress, UUID, asAddress, asUAddress, isPresent } from 'lib';
 import { InjectRedis } from '@songkeys/nestjs-redis';
 import Redis from 'ioredis';
 import { UserAccountContext, getUserCtx } from '~/request/ctx';
@@ -43,9 +43,17 @@ export class AccountsCacheService implements OnModuleInit {
     ) as T extends unknown[] ? boolean[] : boolean;
   }
 
-  async getApproverAccounts(approver: Address): Promise<UserAccountContext[]> {
-    const cachedAccounts = await this.redis.get(approverAccountsKey(approver));
-    if (cachedAccounts) return JSON.parse(cachedAccounts) as UserAccountContext[];
+  async getApproverCtx(approver: Address) {
+    const [cachedUserId, cachedAccounts] = await this.redis.mget(
+      approverUserKey(approver),
+      approverAccountsKey(approver),
+    );
+    if (cachedUserId && cachedAccounts)
+      return {
+        id: cachedUserId as UUID,
+        approver,
+        accounts: JSON.parse(cachedAccounts) as UserAccountContext[],
+      };
 
     const { user } = await this.db.query(
       e.select(
@@ -73,7 +81,11 @@ export class AccountsCacheService implements OnModuleInit {
       user.approvers.map((a) => asAddress(a.address)),
     );
 
-    return accounts;
+    return { id: user.id as UUID, approver, accounts };
+  }
+
+  async getApproverAccounts(approver: Address) {
+    return (await this.getApproverCtx(approver)).accounts;
   }
 
   async addCachedAccount({ approver, account }: AdApproverToAccountParams) {
@@ -98,9 +110,9 @@ export class AccountsCacheService implements OnModuleInit {
     }
   }
 
-  async removeUserAccountsCache(...users: uuid[]) {
+  async invalidateUsersCache(...users: uuid[]) {
     const userApprovers = await Promise.all(
-      users.map(async (user) => {
+      [...new Set(users)].map(async (user) => {
         const json = await this.redis.get(userApproversKey(user));
         return json ? (JSON.parse(json) as Address[]) : [];
       }),
@@ -110,10 +122,10 @@ export class AccountsCacheService implements OnModuleInit {
     );
   }
 
-  async invalidateApproverUserAccountsCache(...approvers: Address[]) {
+  async invalidateApproversCache(...approvers: Address[]) {
     if (!approvers.length) return;
     const users = (await this.redis.mget(...approvers.map(approverUserKey))).filter(isPresent);
-    await this.removeUserAccountsCache(...users);
+    await this.invalidateUsersCache(...users);
   }
 
   private async setCachedAccounts(

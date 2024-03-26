@@ -3,7 +3,7 @@ import { FC, useCallback, useState } from 'react';
 import { Menu } from 'react-native-paper';
 
 interface ChildProps {
-  close: () => void;
+  handle: <T>(f: (arg: T) => void) => (arg: T) => void;
 }
 
 export interface AppbarMoreProps {
@@ -13,16 +13,25 @@ export interface AppbarMoreProps {
 
 export function AppbarMore({ children: Child, iconProps }: AppbarMoreProps) {
   const [visible, setVisible] = useState(false);
-  const openMenu = useCallback(() => setVisible(true), []);
-  const closeMenu = useCallback(() => setVisible(false), []);
+  const open = useCallback(() => setVisible(true), []);
+  const close = useCallback(() => setVisible(false), []);
+
+  const handle = useCallback(
+    <T,>(f: (arg: T) => void) =>
+      (arg: T) => {
+        setVisible(false);
+        f(arg);
+      },
+    [],
+  );
 
   return (
     <Menu
-      anchor={<MoreVerticalIcon {...iconProps} onPress={openMenu} />}
+      anchor={<MoreVerticalIcon {...iconProps} onPress={open} />}
       visible={visible}
-      onDismiss={closeMenu}
+      onDismiss={close}
     >
-      <Child close={closeMenu} />
+      <Child handle={handle} />
     </Menu>
   );
 }

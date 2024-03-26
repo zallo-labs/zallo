@@ -18,7 +18,7 @@ module default {
     required paymasterEthCredit: decimal { constraint min_value(0); default := 0; }
     activationEthFee: decimal { constraint min_value(0); }
     upgradedAtBlock: bigint { constraint min_value(0); }
-    photoUri: str;
+    photo: Url;
     required property chain := as_chain(.address);
     required property active := exists .upgradedAtBlock;
     multi policies: Policy { on source delete delete target; on target delete allow; }
@@ -41,7 +41,7 @@ module default {
     required policy: Policy;
     required validationErrors: array<tuple<reason: str, operation: int32>>;
     label: Label;
-    iconUri: Url;
+    icon: Url;
     required validFrom: datetime;
     required createdAt: datetime { default := datetime_of_statement(); }
     required proposedBy: Approver { default := (<Approver>(global current_approver).id); }

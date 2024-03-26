@@ -3,6 +3,7 @@ import type { CodegenConfig } from '@graphql-codegen/cli';
 const schema = '../api/schema.graphql';
 const documents = 'src/**/*';
 const scalars = {
+  ID: 'lib#UUID',
   Address: 'lib#Address',
   UAddress: 'lib#UAddress',
   BigInt: 'bigint | string',

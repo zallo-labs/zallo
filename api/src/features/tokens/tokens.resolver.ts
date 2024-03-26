@@ -1,11 +1,11 @@
-import { ID, Info, Mutation, Parent, Query, Resolver } from '@nestjs/graphql';
+import { Args, ID, Info, Mutation, Parent, Query, Resolver } from '@nestjs/graphql';
 import { Token, TokenMetadata } from './tokens.model';
 import { TokenSpending } from './spending.model';
 import { Input } from '~/decorators/input.decorator';
 import {
   BalanceInput,
   SpendingInput,
-  TokenInput,
+  TokenArgs,
   TokensInput,
   UpsertTokenInput,
 } from './tokens.input';
@@ -32,8 +32,8 @@ export class TokensResolver {
   ) {}
 
   @Query(() => Token, { nullable: true })
-  async token(@Input() { address: testnetAddress }: TokenInput, @Info() info: GraphQLResolveInfo) {
-    return this.service.selectUnique(testnetAddress, getShape(info));
+  async token(@Args() { address }: TokenArgs, @Info() info: GraphQLResolveInfo) {
+    return this.service.selectUnique(address, getShape(info));
   }
 
   @Query(() => [Token])
@@ -41,9 +41,10 @@ export class TokensResolver {
     return this.service.select(input, getShape(info));
   }
 
-  @Query(() => TokenMetadata)
-  async tokenMetadata(@Input() { address }: TokenInput): Promise<TokenMetadata> {
-    return await this.service.getTokenMetadata(address);
+  @Query(() => TokenMetadata, { nullable: true })
+  async tokenMetadata(@Args() { address }: TokenArgs): Promise<TokenMetadata | null> {
+    const m = await this.service.getTokenMetadata(address);
+    return m ? { ...m, id: `TokenMetadata:${address}` } : null;
   }
 
   @ComputedField<typeof e.Token>(() => DecimalScalar, { address: true })
@@ -88,7 +89,7 @@ export class TokensResolver {
   }
 
   @Mutation(() => ID, { nullable: true })
-  async removeToken(@Input() { address: testnetAddress }: TokenInput): Promise<uuid | null> {
-    return this.service.remove(testnetAddress);
+  async removeToken(@Args() { address }: TokenArgs): Promise<uuid | null> {
+    return this.service.remove(address);
   }
 }

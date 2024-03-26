@@ -8,7 +8,7 @@ export const GenericMessageIcon = materialIcon('mail');
 const Message = gql(/* GraphQL */ `
   fragment MessageIcon_Message on Proposal {
     id
-    iconUri
+    icon
   }
 `);
 
@@ -20,8 +20,8 @@ export function MessageIcon({ proposal: proposalFragment, ...iconProps }: Messag
   const { styles } = useStyles(stylesheet);
   const p = useFragment(Message, proposalFragment);
 
-  return p.iconUri ? (
-    <Image source={{ uri: p.iconUri }} style={styles.icon} {...iconProps} />
+  return p.icon ? (
+    <Image source={{ uri: p.icon }} style={styles.icon} {...iconProps} />
   ) : (
     <GenericMessageIcon {...iconProps} />
   );

@@ -7,7 +7,6 @@ import {
   ObjectTypeOptions,
 } from '@nestjs/graphql';
 import { UUID } from 'lib';
-import { UUIDField } from '~/apollo/scalars/Uuid.scalar';
 import { makeUnionTypeResolver } from '~/features/database/database.util';
 
 const createObjectWithInterfaceDecorator =
@@ -51,9 +50,9 @@ export class CustomNode {
 
 export const CustomNodeType = createObjectWithInterfaceDecorator(CustomNode);
 
-@InterfaceType()
+@InterfaceType({ resolveType: makeUnionTypeResolver() })
 export class Node {
-  @UUIDField()
+  @Field(() => ID)
   id: UUID;
 }
 

@@ -143,16 +143,13 @@ export class AccountsService {
     return { id, address: account };
   }
 
-  async updateAccount({ account: address, label, photoUri }: UpdateAccountInput) {
-    const r = await e
-      .update(e.Account, () => ({
-        set: {
-          label,
-          photoUri: photoUri?.href,
-        },
+  async updateAccount({ account: address, label, photo }: UpdateAccountInput) {
+    const r = await this.db.query(
+      e.update(e.Account, () => ({
+        set: { label, photo },
         filter_single: { address },
-      }))
-      .run(this.db.client);
+      })),
+    );
 
     if (!r) throw new UserInputError(`Must be a member of the account to update it`);
 

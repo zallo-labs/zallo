@@ -7,11 +7,10 @@ import { useLocalParams } from '~/hooks/useLocalParams';
 import { AppbarOptions } from '#/Appbar/AppbarOptions';
 import { ScrollableScreenSurface } from '#/layout/ScrollableScreenSurface';
 import { zUuid } from '~/lib/zod';
-import { RemoveTransactionItem } from '#/transaction/RemoveTransactionItem';
 import { TransactionStatus } from '#/transaction/TransactionStatus';
 import { useSubscription } from 'urql';
 import { createStyles, useStyles } from '@theme/styles';
-import { Divider } from 'react-native-paper';
+import { Divider, Menu } from 'react-native-paper';
 import { FeesSection } from '#/transaction/FeesSection';
 import { OperationsSection } from '#/transaction/OperationsSection';
 import { TransactionActions } from '#/transaction/TransactionActions';
@@ -22,10 +21,11 @@ import { ProposalApprovals } from '#/policy/ProposalApprovals';
 import { AccountSection } from '#/proposal/AccountSection';
 import { DappHeader } from '#/walletconnect/DappHeader';
 import { ScheduleSection } from '#/transaction/ScheduleSection';
+import { useRemoveTransaction } from '#/transaction/useRemoveTransaction';
 
 const Transaction = gql(/* GraphQL */ `
   fragment TransactionScreen_Transaction on Transaction
-  @argumentDefinitions(transaction: { type: "UUID!" }) {
+  @argumentDefinitions(transaction: { type: "ID!" }) {
     id
     account {
       id
@@ -35,6 +35,7 @@ const Transaction = gql(/* GraphQL */ `
     dapp {
       ...DappHeader_DappMetadata
     }
+    ...useRemoveTransaction_Transaction
     ...TransactionStatus_Transaction
     ...OperationsSection_Transaction
     ...ScheduleSection_Transaction
@@ -45,7 +46,7 @@ const Transaction = gql(/* GraphQL */ `
 `);
 
 const Query = gql(/* GraphQL */ `
-  query TransactionScreen($transaction: UUID!) {
+  query TransactionScreen($transaction: ID!) {
     transaction(input: { id: $transaction }) {
       ...TransactionScreen_Transaction @arguments(transaction: $transaction)
     }
@@ -58,7 +59,7 @@ const Query = gql(/* GraphQL */ `
 `);
 
 const Subscription = gql(/* GraphQL */ `
-  subscription TransactionScreen_Subscription($transaction: UUID!) {
+  subscription TransactionScreen_Subscription($transaction: ID!) {
     proposalUpdated(input: { proposals: [$transaction] }) {
       id
       event
@@ -81,6 +82,7 @@ export default function TransactionScreen() {
   const query = useQuery(Query, variables);
   useSubscription({ query: getOptimizedDocument(Subscription), variables });
   const p = useFragment(Transaction, query.data?.transaction);
+  const remove = useRemoveTransaction(p);
 
   if (!p) return query.stale ? null : <NotFound name="Proposal" />;
 
@@ -88,11 +90,13 @@ export default function TransactionScreen() {
     <SideSheetLayout>
       <AppbarOptions
         headline={(props) => <TransactionStatus proposal={p} {...props} />}
-        trailing={(props) => (
-          <AppbarMore iconProps={props}>
-            {({ close }) => <RemoveTransactionItem proposal={id} close={close} />}
-          </AppbarMore>
-        )}
+        {...(remove && {
+          trailing: (props) => (
+            <AppbarMore iconProps={props}>
+              {({ handle }) => <Menu.Item title="Remove" onPress={handle(remove)} />}
+            </AppbarMore>
+          ),
+        })}
       />
 
       <ScrollableScreenSurface>

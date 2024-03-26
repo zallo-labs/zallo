@@ -1,5 +1,5 @@
 import { FragmentType, gql, useFragment as getFragment } from '@api/generated';
-import { materialCommunityIcon } from '@theme/icons';
+import { GenericTokenIcon } from '@theme/icons';
 import { createStyles, useStyles } from '@theme/styles';
 import { Image, ImageProps } from 'expo-image';
 import { UAddress, isUAddress } from 'lib';
@@ -11,15 +11,9 @@ import { memo } from 'react';
 import deepEqual from 'fast-deep-equal';
 import _ from 'lodash';
 
-export const ETH_ICON_URI =
-  'https://cloudfront-us-east-1.images.arcpublishing.com/coindesk/ZJZZK5B2ZNF25LYQHMUTBTOMLU.png';
-Image.prefetch(ETH_ICON_URI);
-
-export const UnknownTokenIcon = materialCommunityIcon('help-circle-outline');
-
 const Query = gql(/* GraphQL */ `
   query TokenIcon($token: UAddress!) {
-    token(input: { address: $token }) {
+    token(address: $token) {
       ...TokenIcon_Token
     }
   }
@@ -28,7 +22,7 @@ const Query = gql(/* GraphQL */ `
 const Token = gql(/* GraphQL */ `
   fragment TokenIcon_Token on Token {
     id
-    iconUri
+    icon
   }
 `);
 
@@ -38,7 +32,7 @@ const Token = gql(/* GraphQL */ `
  * @returns Token fields required by TokenIcon
  */
 export function trimTokenIconTokenProp(token: any): any {
-  return _.pick(token, ['id', 'iconUri']);
+  return _.pick(token, ['id', 'icon']);
 }
 
 export interface TokenIconProps extends Omit<ImageProps, 'source' | 'style'> {
@@ -63,16 +57,16 @@ function TokenIcon_({
     { pause: !isUAddress(fragOrAddr) },
   ).data;
 
-  const iconUri =
-    getFragment(Token, !isUAddress(fragOrAddr) ? fragOrAddr : query?.token)?.iconUri ?? fallbackUri;
+  const url =
+    getFragment(Token, !isUAddress(fragOrAddr) ? fragOrAddr : query?.token)?.icon ?? fallbackUri;
 
-  if (!iconUri)
-    return <UnknownTokenIcon {...imageProps} size={size} style={[style, styles.icon(size)]} />;
+  if (!url)
+    return <GenericTokenIcon {...imageProps} size={size} style={[style, styles.icon(size)]} />;
 
   return (
     <Image
       {...imageProps}
-      source={{ uri: iconUri }}
+      source={{ uri: url }}
       style={[style, styles.icon(size)]}
       cachePolicy="memory-disk"
     />

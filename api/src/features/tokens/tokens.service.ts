@@ -9,7 +9,6 @@ import { and, or } from '../database/database.util';
 import { NetworksService } from '../util/networks/networks.service';
 import { UserInputError } from '@nestjs/apollo';
 import { OrderByObjExpr } from '~/edgeql-js/select';
-import { TokenMetadata } from '~/features/tokens/tokens.model';
 import Decimal from 'decimal.js';
 import { selectAccount } from '../accounts/accounts.util';
 import { TokenSpending } from './spending.model';
@@ -71,32 +70,27 @@ export class TokensService {
     return tokens.filter((t, i) => i === 0 || t.address !== tokens[i - 1].address);
   }
 
-  async upsert(token: UpsertTokenInput) {
-    const metadata = await this.getTokenMetadata(token.address);
-
-    const c = {
-      name: metadata.name,
-      symbol: metadata.symbol,
-      decimals: metadata.decimals,
-      pythUsdPriceId: metadata.pythUsdPriceId,
-      ...token,
-    };
-    if (!c.name) throw new UserInputError('Name could not be detected so is required');
-    if (!c.symbol) throw new UserInputError('Symbol could not be detected so is required');
-    if (c.decimals === undefined)
-      throw new UserInputError('Symbol could not be detected so is required');
+  async upsert(input: UpsertTokenInput) {
+    const metadata = await this.getTokenMetadata(input.address);
+    if (!metadata) throw new UserInputError('Token must conform to ERC20 standard');
 
     return this.db.query(
       e
         .insert(e.Token, {
-          ...c,
-          name: c.name,
-          symbol: c.symbol,
-          decimals: c.decimals,
+          ...metadata,
+          ...input,
+          units: (input.units ?? metadata.units)?.sort((a, b) => a.decimals - b.decimals),
         })
         .unlessConflict((t) => ({
           on: e.tuple([t.user, t.address]),
-          else: e.update(t, () => ({ set: token })),
+          else: e.update(t, () => ({
+            set: {
+              ...input,
+              ...(input.units !== undefined && {
+                units: input.units ? input.units.sort((a, b) => a.decimals - b.decimals) : null,
+              }),
+            },
+          })),
         })),
     );
   }
@@ -109,30 +103,25 @@ export class TokensService {
     );
   }
 
-  async getTokenMetadata(address: UAddress): Promise<TokenMetadata> {
+  async getTokenMetadata(address: UAddress) {
     const t = await this.db.query(
       e.assert_single(
         e.select(e.Token, (t) => ({
           filter: e.op(e.op(t.address, '=', address), 'and', e.op('not', e.op('exists', t.user))),
           limit: 1,
-          ethereumAddress: true,
           name: true,
           symbol: true,
           decimals: true,
+          icon: true,
           isFeeToken: true,
-          iconUri: true,
           pythUsdPriceId: true,
+          units: true,
         })),
       ),
     );
-    if (t)
-      return {
-        id: `TokenMetadata:${address}`,
-        ...t,
-        pythUsdPriceId: asHex(t.pythUsdPriceId),
-      };
+    if (t) return { ...t, pythUsdPriceId: asHex(t.pythUsdPriceId) };
 
-    const [name, symbol, decimals] = await this.networks.get(address).multicall({
+    const [name, symbol] = await this.networks.get(address).multicall({
       contracts: [
         {
           abi: ERC20,
@@ -144,20 +133,17 @@ export class TokensService {
           address: asAddress(address),
           functionName: 'symbol',
         },
-        {
-          abi: ERC20,
-          address: asAddress(address),
-          functionName: 'decimals',
-        },
       ],
     });
 
+    if (!name.result || !symbol.result) return null;
+
     return {
-      id: `TokenMetadata:${address}`,
       name: name.result,
       symbol: symbol.result,
-      decimals: decimals.result,
-      iconUri: null,
+      decimals: await this.decimals(address),
+      icon: null,
+      units: [],
     };
   }
 

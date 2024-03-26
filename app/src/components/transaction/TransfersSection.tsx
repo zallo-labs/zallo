@@ -11,7 +11,7 @@ import { TokenItem } from '#/token/TokenItem';
 
 const Transaction = gql(/* GraphQL */ `
   fragment TransfersSection_Transaction on Transaction
-  @argumentDefinitions(transaction: { type: "UUID!" }) {
+  @argumentDefinitions(transaction: { type: "ID!" }) {
     id
     result {
       id

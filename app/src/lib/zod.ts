@@ -1,5 +1,6 @@
 import { CHAINS, Chain } from 'chains';
-import { tryAsAddress, tryAsUAddress, TryAsAddressParams, isUUID } from 'lib';
+import { tryAsAddress, tryAsUAddress, TryAsAddressParams, isUUID, isHex, Hex } from 'lib';
+import { size } from 'viem';
 import { ZodTypeAny, z } from 'zod';
 
 export interface ZAddressParams extends TryAsAddressParams {}
@@ -42,4 +43,10 @@ export function zArray<T extends ZodTypeAny, R extends ZodTypeAny = z.ZodArray<T
     (arg) => (Array.isArray(arg) ? arg : typeof arg === 'string' ? arg.split(',') : [arg]),
     withArray ? withArray(z.array(schema)) : z.array(schema),
   );
+}
+
+export function zHex(byteSize?: number) {
+  return z
+    .string()
+    .refine((v): v is Hex => isHex(v) && (byteSize === undefined || size(v) === byteSize));
 }

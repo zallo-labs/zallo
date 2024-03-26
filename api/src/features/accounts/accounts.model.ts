@@ -16,6 +16,7 @@ import { Address, Hex, UAddress } from 'lib';
 import { ChainField } from '~/apollo/scalars/Chain.scalar';
 import { Chain } from 'chains';
 import { GraphQLBigInt } from 'graphql-scalars';
+import { UrlField } from '~/apollo/scalars/Url.scalar';
 
 @NodeType()
 export class Account extends Node {
@@ -34,8 +35,8 @@ export class Account extends Node {
   @Field(() => GraphQLBigInt, { nullable: true })
   upgradedAtBlock?: bigint;
 
-  @Field(() => String, { nullable: true })
-  photoUri?: string;
+  @UrlField({ nullable: true })
+  photo?: string;
 
   @ChainField()
   chain: Chain;

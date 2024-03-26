@@ -10,7 +10,7 @@ import { Node, MutationCreatePolicyArgs, MutationRemovePolicyArgs } from '@api/g
 import { gql } from './generated';
 import { Arraylike, UAddress, toArray } from 'lib';
 import { WritableDeep } from 'ts-toolbelt/out/Object/Writable';
-import { ProposalUpdated } from './documents.generated';
+import { ProposalUpdated, TokenScreenUpsertMutation } from './documents.generated';
 
 export const CACHE_SCHEMA_CONFIG: Pick<
   CacheExchangeOpts,
@@ -57,8 +57,9 @@ export const CACHE_SCHEMA_CONFIG: Pick<
       proposeMessage: (_result, _args, cache) => {
         invalidate(cache, 'Query', ['proposals']);
       },
-      upsertToken: (_result, _args, cache) => {
-        invalidate(cache, 'Query', ['tokens']);
+      upsertToken: (result: TokenScreenUpsertMutation, _args, cache) => {
+        invalidate(cache, 'Query', ['token', 'tokens']);
+        invalidate(cache, { __typename: 'Token', id: result.upsertToken.id });
       },
       removeToken: (result: string, _args, cache) => {
         invalidate(cache, { __typename: 'Token', id: result });
