@@ -18,6 +18,7 @@ import { getUserCtx } from '~/request/ctx';
 import { BalancesService } from '../util/balances/balances.service';
 import { selectTransaction } from '../transactions/transactions.service';
 import { SelectedPolicies } from '../policies/policies.util';
+import _ from 'lodash';
 
 @Injectable()
 export class TokensService {
@@ -120,8 +121,7 @@ export class TokensService {
         })),
       ),
     );
-    const id = `TokenMetadata:${address}`;
-    if (t) return { id, ...t, pythUsdPriceId: asHex(t.pythUsdPriceId) };
+    if (t) return { ...t, pythUsdPriceId: asHex(t.pythUsdPriceId) };
 
     const [name, symbol] = await this.networks.get(address).multicall({
       contracts: [
@@ -141,7 +141,6 @@ export class TokensService {
     if (!name.result || !symbol.result) return null;
 
     return {
-      id,
       name: name.result,
       symbol: symbol.result,
       decimals: await this.decimals(address),
