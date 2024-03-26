@@ -12,29 +12,9 @@ export function ListItemSkeleton({ leading, supporting, trailing }: ListItemSkel
   return (
     <ListItem
       leading={leading ? (leading === true ? () => <CircleSkeleton /> : leading) : undefined}
-      headline={({ Text }) => (
-        <Text>
-          <LineSkeleton width={140} height={8} />
-        </Text>
-      )}
-      supporting={
-        supporting
-          ? ({ Text }) => (
-              <Text>
-                <LineSkeleton width={80} height={6} />
-              </Text>
-            )
-          : undefined
-      }
-      trailing={
-        trailing
-          ? ({ Text }) => (
-              <Text>
-                <LineSkeleton width={40} height={6} />
-              </Text>
-            )
-          : undefined
-      }
+      headline={<LineSkeleton width={140} height={8} />}
+      supporting={supporting ? <LineSkeleton width={80} height={6} /> : undefined}
+      trailing={trailing ? <LineSkeleton width={40} height={6} /> : undefined}
     />
   );
 }

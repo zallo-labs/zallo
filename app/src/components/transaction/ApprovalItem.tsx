@@ -50,16 +50,8 @@ export function ApprovalItem(props: ApprovalItemProps) {
   return (
     <ListItem
       leading={approver.address}
-      headline={({ Text }) => (
-        <Text>
-          <AddressLabel address={asUAddress(approver.address, proposal.account.chain)} />
-        </Text>
-      )}
-      supporting={({ Text }) => (
-        <Text>
-          <Timestamp timestamp={createdAt} />
-        </Text>
-      )}
+      headline={<AddressLabel address={asUAddress(approver.address, proposal.account.chain)} />}
+      supporting={<Timestamp timestamp={createdAt} />}
       {...(reject && {
         trailing: ({ size, disabled }) => (
           <IconButton

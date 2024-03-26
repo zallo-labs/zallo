@@ -46,11 +46,7 @@ export function OperationSection({
           <OperationIcon {...props} operation={op} chain={proposal.account.chain} />
         )}
         leadingSize="medium"
-        headline={({ Text }) => (
-          <Text>
-            <OperationLabel operation={op} chain={proposal.account.chain} />
-          </Text>
-        )}
+        headline={<OperationLabel operation={op} chain={proposal.account.chain} />}
         trailing={() => <Chevron expanded={expanded} />}
         onPress={toggleExpanded}
       />
