@@ -9,7 +9,6 @@ import { and, or } from '../database/database.util';
 import { NetworksService } from '../util/networks/networks.service';
 import { UserInputError } from '@nestjs/apollo';
 import { OrderByObjExpr } from '~/edgeql-js/select';
-import { TokenMetadata } from '~/features/tokens/tokens.model';
 import Decimal from 'decimal.js';
 import { selectAccount } from '../accounts/accounts.util';
 import { TokenSpending } from './spending.model';
@@ -18,7 +17,6 @@ import { getUserCtx } from '~/request/ctx';
 import { BalancesService } from '../util/balances/balances.service';
 import { selectTransaction } from '../transactions/transactions.service';
 import { SelectedPolicies } from '../policies/policies.util';
-import _ from 'lodash';
 
 @Injectable()
 export class TokensService {
