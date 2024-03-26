@@ -1,4 +1,4 @@
-import { useRouter } from 'expo-router';
+import { Link, useRouter } from 'expo-router';
 import { gql } from '@api/generated';
 import { Image } from 'expo-image';
 import { asAddress, asChain, tryOrIgnore } from 'lib';
@@ -24,6 +24,10 @@ import { ListItem } from '#/list/ListItem';
 import { CHAINS } from 'chains';
 import { View } from 'react-native';
 import { createStyles } from '@theme/styles';
+import { Button } from '#/Button';
+import { ExternalLinkIcon } from '@theme/icons';
+
+const PYTH_PRICE_FEEDS_URL = 'https://pyth.network/developers/price-feed-ids';
 
 const Query = gql(/* GraphQL */ `
   query TokenScreen($token: UAddress!) {
@@ -95,7 +99,7 @@ function TokenScreen_() {
       priceId: t?.pythUsdPriceId ?? undefined,
     },
   });
-  const [name, symbol, icon] = watch(['name', 'symbol', 'icon']);
+  const [name, symbol, icon, priceId] = watch(['name', 'symbol', 'icon', 'priceId']);
   const iconValid = !!tryOrIgnore(() => icon && new URL(icon));
 
   return (
@@ -149,6 +153,14 @@ function TokenScreen_() {
             placeholder="0x..."
             control={control}
           />
+
+          {!priceId && (
+            <Link asChild href={PYTH_PRICE_FEEDS_URL}>
+              <Button mode="outlined" icon={ExternalLinkIcon}>
+                Pyth price feeds
+              </Button>
+            </Link>
+          )}
         </View>
 
         <Actions>
