@@ -257,6 +257,8 @@ export class PoliciesService {
         ...PolicyShape,
       })),
     );
+    if (policies.length === 0)
+      throw new UserInputError('No policies for account. Account is bricked');
 
     const { approver } = getUserCtx();
     const sorted = (
