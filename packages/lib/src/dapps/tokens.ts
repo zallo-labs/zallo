@@ -128,6 +128,19 @@ export const CBETH = {
   pythUsdPriceId: '0x15ecddd26d49e1a8f1de9376ebebc03916ede873447c1255d2d5891b92ce5717',
 } satisfies Token;
 
+export const UNI = {
+  name: 'Uniswap',
+  symbol: 'UNI',
+  decimals: 18,
+  address: {
+    zksync: '0x1C6f53185061D7cC387E481c350aD00C2C876f3E',
+    'zksync-sepolia': '0xe1134444211593Cfda9fc9eCc7B43208615556E2',
+    'zksync-goerli': '0x88B75c4Bf1cd9d5B89D4E504324a901335d31357',
+  },
+  icon: icon('UNI.webp'),
+  pythUsdPriceId: '0x0bbf28e9a841a1cc788f6a361b17ca072d0ea3098a1e5df1c3922d06719579ff',
+} satisfies Token;
+
 export const SHIB = {
   name: 'SHIBA INU',
   symbol: 'SHIB',
@@ -140,7 +153,7 @@ export const SHIB = {
   pythUsdPriceId: '0xf0d57deca57b3da2fe63a493f4c25925fdfd8edf834b20f93e1f84dbd1504d4a',
 } satisfies Token;
 
-export const TOKENS = [ETH, WETH, USDC, USDT, DAI, WBTC, RETH, CBETH, SHIB] satisfies Token[];
+export const TOKENS = [ETH, WETH, USDC, USDT, DAI, WBTC, RETH, CBETH, UNI, SHIB] satisfies Token[];
 
 export function flattenToken(t: Token) {
   return Object.keys(t.address)
