@@ -97,7 +97,7 @@ export class UsersService {
     });
 
     // Remove approver -> user cache
-    await this.accountsCache.invalidateApproverUserAccountsCache(...(approvers as Address[]));
+    await this.accountsCache.invalidateApproversCache(...(approvers as Address[]));
     await Promise.all([
       this.pubsub.publish<UserSubscriptionPayload>(getUserTrigger(newId), {}),
       ...approvers.map((approver) =>
@@ -109,7 +109,7 @@ export class UsersService {
     ]);
 
     // Remove user -> accounts cache for both old & new user
-    await this.accountsCache.removeUserAccountsCache(oldId, newId);
+    await this.accountsCache.invalidateUsersCache(oldId, newId);
 
     // Remove token
     await this.redis.del(this.getLinkingTokenKey(oldId));

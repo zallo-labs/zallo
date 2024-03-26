@@ -113,7 +113,7 @@ export class PoliciesService {
       );
 
       this.db.afterTransaction(() =>
-        this.userAccounts.invalidateApproverUserAccountsCache(...policyInput.approvers),
+        this.userAccounts.invalidateApproversCache(...policyInput.approvers),
       );
 
       return { id, key };
@@ -176,7 +176,7 @@ export class PoliciesService {
         );
 
         this.db.afterTransaction(() =>
-          this.userAccounts.invalidateApproverUserAccountsCache(
+          this.userAccounts.invalidateApproversCache(
             ...newState.approvers.map((a) => asAddress(a.address)),
           ),
         );

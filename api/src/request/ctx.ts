@@ -1,7 +1,7 @@
 import { uuid } from 'edgedb/dist/codecs/ifaces';
 import { Request, Response } from 'express';
 import { Context as BaseWsContext } from 'graphql-ws';
-import { Address, UAddress } from 'lib';
+import { Address, UAddress, UUID } from 'lib';
 import { RequestContext } from 'nestjs-request-context';
 
 export interface IncomingHttpContext {
@@ -19,6 +19,7 @@ export type IncomingWsContext = Omit<BaseWsContext, 'extra'> & {
 export type IncomingContext = IncomingHttpContext | IncomingWsContext;
 
 export interface UserContext {
+  id: UUID;
   approver: Address;
   accounts: UserAccountContext[];
 }
