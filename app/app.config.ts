@@ -75,6 +75,9 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
             ],
           },
         },
+        ios: {
+          useFrameworks: 'static',
+        },
       } as BuildPropertiesConfig,
     ],
     ['expo-router', { origin: CONFIG.webAppUrl } as PluginConfig<typeof expoRouterPlugin>],
