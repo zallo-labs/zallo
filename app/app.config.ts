@@ -75,6 +75,9 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
             ],
           },
         },
+        ios: {
+          useFrameworks: 'static',
+        },
       } as BuildPropertiesConfig,
     ],
     ['expo-router', { origin: CONFIG.webAppUrl } as PluginConfig<typeof expoRouterPlugin>],
@@ -105,7 +108,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     ],
   ],
   orientation: 'portrait',
-  icon: './assets/icon@2x.png',
+  icon: './public/icon-1024s.png',
   splash: {
     image: './assets/splash.png',
     resizeMode: 'contain',
@@ -117,8 +120,8 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   android: {
     package: packageId,
     adaptiveIcon: {
-      foregroundImage: './assets/icon-adaptive.png',
-      backgroundColor: '#E8DEF8',
+      foregroundImage: './assets/icon-1024a.png',
+      backgroundColor: '#FEF7FF',
     },
     googleServicesFile:
       ENV[vary('GOOGLE_SERVICES_ANDROID_FILE', (v) => '_' + v.toUpperCase())] ||
@@ -149,7 +152,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   },
   web: {
     bundler: 'metro',
-    favicon: './assets/favicon.png',
+    favicon: './public/favicon.png',
   },
   experiments: {
     typedRoutes: true,
