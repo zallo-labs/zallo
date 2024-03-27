@@ -9,10 +9,14 @@
   "orientation": "portrait",
   "icons": [
     {
-      "src": "./assets/icon@2x.png",
+      "src": "favicon.ico",
+      "type": "image/x-icon",
+      "sizes": "64x64 32x32 24x24 16x16"
+    },
+    {
+      "src": "icon-1024s.png",
       "sizes": "1024x1024",
-      "type": "image/png",
-      "purpose": "any maskable"
+      "type": "image/png"
     }
   ],
   "related_applications": [
