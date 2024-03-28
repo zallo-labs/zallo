@@ -53,7 +53,7 @@ export const AuthGate = ({ children }: AuthGateProps) => {
     <>
       {children}
 
-      {!state.success && <AuthenticateScreen onAuth={onAuth} container={Blur} />}
+      {!state.success && <AuthenticateScreen onAuth={onAuth} />}
     </>
   );
 };
