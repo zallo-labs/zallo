@@ -47,7 +47,7 @@ export const NotificationsRegistrar = () => {
   const channelEnabled = useNotificationSettings();
   const updatePushToken = useMutation(UpdatePushToken)[1];
 
-  const { approver, proposals } = useQuery(Query, {}, { requestPolicy: 'cache-first' }).data;
+  const { approver, proposals } = useQuery(Query, {}).data;
 
   const hasPermission = Notifications.usePermissions()[0]?.granted;
 

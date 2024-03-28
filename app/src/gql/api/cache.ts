@@ -34,6 +34,7 @@ export const CACHE_SCHEMA_CONFIG: Pick<
       },
       createPolicy: (_result, { input }: MutationCreatePolicyArgs, cache) => {
         invalidate(cache, accountEntities(cache, input.account), ['policies']);
+        invalidate(cache, 'Query', ['proposals']);
       },
       updatePolicy: (result: Node, _args, cache) => {
         invalidate(cache, { __typename: 'Policy', id: result.id }); // Required to update fields not fetched by mutation

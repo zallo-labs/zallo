@@ -15,6 +15,7 @@ import { useBiometrics } from '~/hooks/useBiometrics';
 import { useGetEvent } from '~/hooks/useGetEvent';
 import { verifyPassword } from '~/lib/crypto/password';
 import { secureStorageLocked } from '~/lib/secure-storage';
+import { Blur } from '#/Blur';
 
 export const UNLOCKED = new Subject<true>();
 const emitOnAuth = () => UNLOCKED.next(true);
@@ -37,13 +38,9 @@ interface Inputs {
 
 export interface AuthenticateScreenProps {
   onAuth?: (password?: string) => void;
-  container?: ComponentType<PropsWithChildren>;
 }
 
-function AuthenticateScreen({
-  onAuth = emitOnAuth,
-  container: Container = Fragment,
-}: AuthenticateScreenProps) {
+function AuthenticateScreen({ onAuth = emitOnAuth }: AuthenticateScreenProps) {
   const { styles } = useStyles(stylesheet);
   const biometrics = useBiometrics();
   const passwordHash = usePasswordHash();
@@ -71,10 +68,11 @@ function AuthenticateScreen({
     reset();
   });
 
-  if (!available || !show) return null;
+  if (!available) return null;
+  if (!show) return <Blur />;
 
   return (
-    <Container>
+    <Blur>
       <DialogModal dismissable={false}>
         <Text variant="titleMedium" style={styles.title}>
           Unlock to continue
@@ -120,7 +118,7 @@ function AuthenticateScreen({
           )}
         </Actions>
       </DialogModal>
-    </Container>
+    </Blur>
   );
 }
 
