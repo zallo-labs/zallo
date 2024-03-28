@@ -10,11 +10,11 @@ const BACKGROUND_COLOR = {
   transparent: 'transparent',
 };
 
-export interface BlurProps extends Omit<BlurViewProps, 'blurType'> {
+export interface BlurProps extends Partial<Omit<BlurViewProps, 'blurType'>> {
   blurType?: 'dark' | 'light';
 }
 
-export const Blur = ({ children, ...props }: Partial<BlurProps>) => {
+export const Blur = ({ children, ...props }: BlurProps) => {
   const styles = useMemoApply(getStyles, {
     blurType: useTheme().dark ? 'light' : 'dark',
     ...props,
