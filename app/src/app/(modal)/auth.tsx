@@ -1,6 +1,6 @@
 import { FingerprintIcon } from '@theme/icons';
 import { createStyles, useStyles } from '@theme/styles';
-import { ComponentType, Fragment, PropsWithChildren, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Text } from 'react-native-paper';
 import { Subject } from 'rxjs';
@@ -69,7 +69,7 @@ function AuthenticateScreen({ onAuth = emitOnAuth }: AuthenticateScreenProps) {
   });
 
   if (!available) return null;
-  if (!show) return <Blur />;
+  if (!show) return null; // <Blur />; TODO: re-enable once fixed - https://github.com/Kureev/react-native-blur/issues/595
 
   return (
     <Blur>

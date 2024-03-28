@@ -3,7 +3,6 @@ import { DateTime, Duration } from 'luxon';
 import { AppState } from 'react-native';
 import { lockSecureStorage, unlockSecureStorage } from '~/lib/secure-storage';
 import AuthenticateScreen from '~/app/(modal)/auth';
-import { Blur } from '#/Blur';
 import { useAuthRequiredOnOpen } from '#/shared/AuthSettings';
 
 const TIMEOUT_AFTER = Duration.fromObject({ minutes: 5 }).toMillis();
@@ -17,7 +16,7 @@ export interface AuthGateProps {
   children: ReactNode;
 }
 
-export const AuthGate = ({ children }: AuthGateProps) => {
+export function AuthGate({ children }: AuthGateProps) {
   const required = useAuthRequiredOnOpen();
 
   const [state, setState] = useState<AuthState>({ success: !required });
@@ -56,4 +55,4 @@ export const AuthGate = ({ children }: AuthGateProps) => {
       {!state.success && <AuthenticateScreen onAuth={onAuth} />}
     </>
   );
-};
+}
