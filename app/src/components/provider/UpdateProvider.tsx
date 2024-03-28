@@ -38,15 +38,20 @@ export function UpdateProvider() {
 
   // Fetch updates when available
   useEffect(() => {
-    if (isUpdateAvailable && !isDownloading) {
-      Updates.fetchUpdateAsync();
-      showInfo('Updating...', { autoHide: false });
-    }
+    if (isUpdateAvailable && !isDownloading) Updates.fetchUpdateAsync();
   }, [isDownloading, isUpdateAvailable]);
 
-  // Reload when update is pending
+  // Prompt user to reload when update is pending
   useEffect(() => {
-    if (isUpdatePending) Updates.reloadAsync();
+    if (isUpdatePending) {
+      showInfo('A new version is available', {
+        action: {
+          label: 'Reload',
+          onPress: Updates.reloadAsync,
+        },
+        autoHide: false,
+      });
+    }
   }, [isUpdatePending]);
 
   // Breadcrumb checkError
