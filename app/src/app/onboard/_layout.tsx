@@ -2,10 +2,10 @@ import { Drawer } from '#/drawer/Drawer';
 import { DrawerSurface } from '#/drawer/DrawerSurface';
 import { Drawer as RnpDrawer } from 'react-native-paper';
 import { DrawerItem } from '#/drawer/DrawerItem';
-import { StyleSheet } from 'react-native';
-import { FingerprintIcon, ZalloLogo, NotificationsIcon, AccountIcon } from '@theme/icons';
+import { FingerprintIcon, NotificationsIcon, AccountIcon } from '@theme/icons';
 import { Stack, usePathname } from 'expo-router';
 import { AppbarHeader } from '#/Appbar/AppbarHeader';
+import { DrawerLogo } from '#/drawer/DrawerLogo';
 
 export default function OnboardingDrawerLayout() {
   return (
@@ -26,8 +26,8 @@ function Content() {
   const position = ORDER[pathname as keyof typeof ORDER] ?? 0;
 
   return (
-    <DrawerSurface contentContainerStyle={styles.surface}>
-      <ZalloLogo style={styles.logo} contentFit="contain" />
+    <DrawerSurface>
+      <DrawerLogo />
 
       <RnpDrawer.Section title="Onboarding" showDivider={false}>
         <DrawerItem href="/onboard/account" icon={AccountIcon} label="Account" />
@@ -47,13 +47,3 @@ function Content() {
     </DrawerSurface>
   );
 }
-
-const styles = StyleSheet.create({
-  surface: {
-    paddingTop: 32,
-  },
-  logo: {
-    minHeight: 88,
-    marginBottom: 24,
-  },
-});

@@ -8,14 +8,7 @@ import { LinkGoogleButton } from '#/link/LinkGoogleButton';
 import { LinkZalloButton } from '#/link/LinkZalloButton';
 import { LinkLedgerButton } from '#/link/ledger/LinkLedgerButton';
 import { AppbarOptions } from '#/Appbar/AppbarOptions';
-import {
-  AppScreenshots,
-  AppStoreBadge,
-  GithubIcon,
-  GooglePlayBadge,
-  ZalloLogo,
-  TwitterIcon,
-} from '@theme/icons';
+import { AppStoreBadge, GithubIcon, GooglePlayBadge, ZalloLogo, TwitterIcon } from '@theme/icons';
 import { CONFIG } from '~/util/config';
 import { createStyles, useStyles } from '@theme/styles';
 import { gql } from '@api';
@@ -49,33 +42,25 @@ export default function LandingScreen() {
       />
 
       <View style={styles.content}>
-        <View style={[styles.spacer, styles.onlyExpanded]} />
+        <ZalloLogo style={styles.logo} contentFit="contain" />
 
-        <View style={styles.mainContent}>
-          <ZalloLogo style={styles.logo} contentFit="contain" />
+        <Text variant="headlineSmall" style={styles.text}>
+          Self-custodial onchain banking
+        </Text>
 
-          <Text variant="headlineSmall" style={styles.text}>
-            Self-custodial onchain banking
+        <View style={styles.companionContainer}>
+          <Text variant="titleMedium" style={styles.text}>
+            Get the companion app
           </Text>
 
-          <View style={styles.companionContainer}>
-            <Text variant="titleMedium" style={styles.text}>
-              Use your account across all devices
-            </Text>
-
-            <View style={styles.appStores}>
-              <Link href={CONFIG.metadata.appStore}>
-                <AppStoreBadge style={styles.appStoreBadge} />
-              </Link>
-              <Link href={CONFIG.metadata.playStore}>
-                <GooglePlayBadge style={styles.playStoreBadge} />
-              </Link>
-            </View>
+          <View style={styles.stores}>
+            <Link href={CONFIG.metadata.appStore}>
+              <AppStoreBadge style={styles.appStoreBadge} />
+            </Link>
+            <Link href={CONFIG.metadata.playStore}>
+              <GooglePlayBadge style={styles.playStoreBadge} />
+            </Link>
           </View>
-        </View>
-
-        <View style={[styles.screenshotsContainer, styles.onlyExpanded]}>
-          <AppScreenshots style={styles.screenshots} contentFit="contain" />
         </View>
       </View>
 
@@ -106,36 +91,29 @@ const stylesheet = createStyles({
   },
   content: {
     flex: 1,
-    flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
     marginHorizontal: 16,
     marginVertical: 32,
-    gap: 8,
-    flexWrap: 'wrap',
+    gap: 16,
   },
   spacer: {
     flex: 1,
   },
-  mainContent: {
-    flexGrow: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 16,
-  },
   logo: {
-    minWidth: 325,
-    minHeight: 104,
+    minWidth: 312,
+    minHeight: 120,
   },
   companionContainer: {
-    gap: 16,
+    gap: 8,
     marginVertical: 16,
-  },
-  appStores: {
-    flexDirection: 'row',
-    gap: 16,
   },
   text: {
     textAlign: 'center',
+  },
+  stores: {
+    flexDirection: 'row',
+    gap: 16,
   },
   appStoreBadge: {
     width: 143,

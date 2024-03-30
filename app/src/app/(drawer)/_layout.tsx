@@ -18,11 +18,12 @@ import {
 import { DrawerItem as Item } from '#/drawer/DrawerItem';
 import { useSelectedAccount } from '~/hooks/useSelectedAccount';
 import { CONFIG } from '~/util/config';
-import { AccountDrawerHeader } from '#/drawer/AccountDrawerHeader';
 import { useTransfer } from '~/hooks/useTransfer';
 import { DrawerSurface } from '#/drawer/DrawerSurface';
 import { Stack } from 'expo-router';
 import { AppbarHeader } from '#/Appbar/AppbarHeader';
+import { DrawerLogo } from '#/drawer/DrawerLogo';
+import { createStyles } from '@theme/styles';
 
 const Section = PaperDrawer.Section;
 
@@ -45,7 +46,7 @@ function Content() {
   return (
     <DrawerSurface>
       <Section>
-        <AccountDrawerHeader />
+        <DrawerLogo style={styles.logo} />
 
         {account ? (
           <Item
@@ -116,3 +117,9 @@ function Content() {
     </DrawerSurface>
   );
 }
+
+const styles = createStyles({
+  logo: {
+    marginBottom: 8,
+  },
+});

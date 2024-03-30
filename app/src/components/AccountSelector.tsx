@@ -4,6 +4,8 @@ import { Chevron } from './Chevron';
 import { FragmentType, gql, useFragment } from '@api/generated';
 import { useRouter } from 'expo-router';
 import { createStyles, useStyles } from '@theme/styles';
+import { AddressIcon } from './Identicon/AddressIcon';
+import { ICON_SIZE } from '@theme/paper';
 
 const FragmentDoc = gql(/* GraphQL */ `
   fragment AccountSelector_account on Account {
@@ -24,6 +26,8 @@ export const AccountSelector = (props: AccountSelectorParams) => {
 
   return (
     <TouchableOpacity style={styles.container} onPress={() => router.push(`/(sheet)/accounts`)}>
+      <AddressIcon address={account.address} size={ICON_SIZE.small} />
+
       <Text variant="titleLarge" numberOfLines={1} style={styles.text}>
         {account.name}
       </Text>
