@@ -10,6 +10,7 @@ import { useQuery } from '~/gql';
 import { memo } from 'react';
 import deepEqual from 'fast-deep-equal';
 import _ from 'lodash';
+import { ICON_SIZE } from '@theme/paper';
 
 const Query = gql(/* GraphQL */ `
   query TokenIcon($token: UAddress!) {
@@ -45,7 +46,7 @@ export interface TokenIconProps extends Omit<ImageProps, 'source' | 'style'> {
 function TokenIcon_({
   token: fragOrAddr,
   fallbackUri,
-  size,
+  size = ICON_SIZE.medium,
   style,
   ...imageProps
 }: TokenIconProps) {

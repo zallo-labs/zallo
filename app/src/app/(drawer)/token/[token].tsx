@@ -25,6 +25,7 @@ import { View } from 'react-native';
 import { createStyles } from '@theme/styles';
 import { Button } from '#/Button';
 import { ExternalLinkIcon, GenericTokenIcon } from '@theme/icons';
+import { ICON_SIZE } from '@theme/paper';
 
 const PYTH_PRICE_FEEDS_URL = 'https://pyth.network/developers/price-feed-ids';
 
@@ -127,13 +128,12 @@ function TokenScreen_() {
       <ScrollableScreenSurface contentContainerStyle={styles.sheet}>
         <ListItem
           leading={
-            icon && iconValid
-              ? ({ size }) => (
-                  <Image source={[{ uri: icon }]} style={{ width: size, height: size }} />
-                )
-              : GenericTokenIcon
+            icon && iconValid ? (
+              <Image source={[{ uri: icon }]} style={styles.icon} />
+            ) : (
+              GenericTokenIcon
+            )
           }
-          leadingSize="medium"
           headline={`${name || 'Token'} (${symbol || 'TKN'})`}
           supporting={asAddress(token)}
           trailing={CHAINS[asChain(token)].name}
@@ -197,6 +197,10 @@ const styles = createStyles({
     marginVertical: 16,
     marginHorizontal: 16,
     gap: 8,
+  },
+  icon: {
+    width: ICON_SIZE.medium,
+    height: ICON_SIZE.medium,
   },
 });
 

@@ -23,6 +23,7 @@ import { UnrecoverableError } from 'bullmq';
 const TARGET_LOGS_PER_JOB = 9_000; // Max 10k
 const DEFAULT_LOGS_PER_BLOCK = 200;
 const LPB_ALPHA = 0.2;
+const MAX_DELAY = 30_000; // ms
 const TOO_MANY_RESULTS_RE =
   /Query returned more than .+? results. Try with this block range \[(?:0x[0-9a-f]+), (0x[0-9a-f]+)\]/;
 
@@ -103,12 +104,16 @@ export class EventsWorker extends Worker<EventsQueue> {
     const shouldQueue = job.attemptsMade === 0 && !job.data.split;
     if (shouldQueue) {
       if (latest < from) {
-        this.queue.add('Ahead', { chain, from }, { delay: network.blockTime() });
+        this.queue.add(
+          'Ahead',
+          { chain, from },
+          { delay: Math.max(network.blockTime(), MAX_DELAY) },
+        );
       } else {
         this.queue.add(
           latest === from ? 'Tracking' : 'Behind',
           { chain, from: to + 1 },
-          { delay: latest === from ? network.blockTime() : undefined },
+          { delay: latest === from ? Math.max(network.blockTime(), MAX_DELAY) : undefined },
         );
       }
     }

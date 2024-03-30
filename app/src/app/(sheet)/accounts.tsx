@@ -63,11 +63,11 @@ export default function AccountsSheet() {
         ))}
 
         <ListItem
-          leading={(props) => (
+          leading={
             <View style={styles.addIconContainer}>
-              <AddIcon {...props} />
+              <AddIcon />
             </View>
-          )}
+          }
           headline="Account"
           onPress={() => {
             goBackOnClose.current = false;

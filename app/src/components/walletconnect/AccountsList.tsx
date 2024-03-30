@@ -56,7 +56,7 @@ export const AccountsList = ({ selected, updateSelected, ...props }: AccountsLis
       {accounts.map((account) => (
         <ListItem
           key={account.id}
-          leading={(props) => <AddressIcon address={account.address} {...props} />}
+          leading={<AddressIcon address={account.address} />}
           leadingSize="medium"
           headline={account.name}
           trailing={<Checkbox status={selected.has(account.address) ? 'checked' : 'unchecked'} />}

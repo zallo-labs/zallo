@@ -10,6 +10,7 @@ import { Chain } from 'chains';
 import { asUAddress } from 'lib';
 import { P, match } from 'ts-pattern';
 import { TokenIcon } from '#/token/TokenIcon';
+import { ICON_SIZE } from '@theme/paper';
 
 const Operation = gql(/* GraphQL */ `
   fragment OperationIcon_Operation on Operation {
@@ -27,7 +28,12 @@ export interface OperationIconProps extends IconProps {
   chain: Chain;
 }
 
-export function OperationIcon({ operation: opProp, chain, ...iconProps }: OperationIconProps) {
+export function OperationIcon({
+  operation: opProp,
+  chain,
+  size = ICON_SIZE.medium,
+  ...iconProps
+}: OperationIconProps) {
   const op = useFragment(Operation, opProp);
 
   const Icon = match(op.function)
@@ -44,5 +50,5 @@ export function OperationIcon({ operation: opProp, chain, ...iconProps }: Operat
     .with({ __typename: 'SwapOp' }, () => SwapIcon)
     .otherwise(() => DataIcon);
 
-  return <Icon {...iconProps} />;
+  return <Icon size={size} {...iconProps} />;
 }

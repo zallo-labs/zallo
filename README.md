@@ -1,6 +1,10 @@
 <div align="center" style="margin-bottom: 24px;">
-  <img src="./app/assets/logo.svg" alt="logo">
-  <p>Self-custody without compromise</p>
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="./app/assets/brand/logo-d.svg">
+    <img alt="logo" src="./app/assets/brand/logo-l.svg" style="height: 180px; margin-right: 120px;">
+  </picture>
+
+  <h3 style="margin-top: -20px; margin-bottom: 40px">Self-custodial onchain banking</h3>
 </div>
 
 <p align="center">

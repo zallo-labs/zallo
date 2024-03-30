@@ -60,8 +60,7 @@ function SwapToTokenItem_({
 
   return (
     <ListItem
-      leading={(props) => <TokenIcon {...props} token={to} />}
-      leadingSize="medium"
+      leading={<TokenIcon token={to} />}
       overline="To (estimated)"
       headline={({ Text }) => (
         <Text>

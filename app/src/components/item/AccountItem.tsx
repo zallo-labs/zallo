@@ -20,8 +20,7 @@ export function AccountItem(props: AccountItemProps) {
 
   return (
     <ListItem
-      leading={(props) => <AddressIcon address={a.address} {...props} />}
-      leadingSize="medium"
+      leading={<AddressIcon address={a.address} />}
       headline={a.name}
       supporting={truncateAddr(a.address)}
       {...props}

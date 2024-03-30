@@ -1,7 +1,6 @@
-import { FC, ReactNode, forwardRef } from 'react';
+import { FC, ReactNode, forwardRef, isValidElement } from 'react';
 import { IconProps } from '@theme/icons';
 import { Text, TouchableRipple, TouchableRippleProps } from 'react-native-paper';
-import { AddressOrLabelIcon } from '../Identicon/AddressOrLabelIcon';
 import { TextProps } from '@theme/types';
 import { StyleProp, TextStyle, View, ViewStyle } from 'react-native';
 import { O } from 'ts-toolbelt';
@@ -25,7 +24,7 @@ export interface ListItemTextProps {
 
 export type ListItemProps = Pick<TouchableRippleProps, 'onPress'> &
   O.Optional<StyleProps, 'lines' | 'leadingSize'> & {
-    leading?: FC<ListIconElementProps> | string;
+    leading?: ReactNode | FC<ListIconElementProps>;
     overline?: ReactNode | FC<ListItemTextProps>;
     headline: ReactNode | FC<ListItemTextProps>;
     supporting?: ReactNode | FC<ListItemTextProps>;
@@ -94,19 +93,14 @@ export const ListItem = forwardRef<View, ListItemProps>(
         <>
           {Leading && (
             <View style={styles.leadingContainer}>
-              {typeof Leading === 'string' ? (
-                <AddressOrLabelIcon
-                  label={Leading}
-                  size={styles.leadingIcon.fontSize}
-                  style={styles.leadingAvatarContainer}
-                  labelStyle={styles.leadingAvatarLabel}
-                />
-              ) : (
+              {isFunctionalComponent(Leading) ? (
                 <Leading
                   size={styles.leadingIcon.fontSize}
                   color={styles.leadingIcon.backgroundColor}
                   disabled={disabled}
                 />
+              ) : (
+                <>{Leading}</>
               )}
             </View>
           )}
@@ -228,3 +222,12 @@ const getStylesheet = ({ lines, selected, disabled, leadingSize }: StyleProps) =
       },
     };
   });
+
+function isFunctionalComponent(c: unknown): c is FC<any> {
+  return (
+    typeof c === 'function' ||
+    (typeof c === 'object' &&
+      c !== null &&
+      (c as any)?.$$typeof === Symbol.for('react.forward_ref'))
+  );
+}

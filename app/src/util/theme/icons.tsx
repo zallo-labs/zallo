@@ -83,8 +83,7 @@ export const PolicyIcon = materialCommunityIcon('security');
 export const PolicyEditOutlineIcon = materialCommunityIcon('shield-edit-outline');
 export const PolicyRemoveOutlineIcon = materialCommunityIcon('shield-remove-outline');
 
-export const ZalloLogo = imageFromSource(require('assets/logo.svg'));
-export const AppScreenshots = imageFromSource(require('assets/screenshots.png'));
+export const ZalloLogo = imageFromSource(require('assets/brand/logo-l.svg'));
 export const AppStoreBadge = imageFromSource(require('assets/app-store-badge.svg'));
 export const GooglePlayBadge = imageFromSource(require('assets/google-play-badge.png'));
 export const WalletConnectIcon = imageFromSource(require('assets/walletconnect-light.svg'));

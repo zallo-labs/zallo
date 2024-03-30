@@ -42,9 +42,7 @@ export function OperationSection({
   return (
     <>
       <ListItem
-        leading={(props) => (
-          <OperationIcon {...props} operation={op} chain={proposal.account.chain} />
-        )}
+        leading={<OperationIcon operation={op} chain={proposal.account.chain} />}
         leadingSize="medium"
         headline={<OperationLabel operation={op} chain={proposal.account.chain} />}
         trailing={() => <Chevron expanded={expanded} />}

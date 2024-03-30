@@ -51,13 +51,7 @@ export function TokenLimitItem({ address, ...props }: TokenSpendingProps) {
       asChild
     >
       <ListItem
-        leading={(props) =>
-          token ? (
-            <TokenIcon token={token} {...props} />
-          ) : (
-            <AddressIcon address={address} {...props} />
-          )
-        }
+        leading={token ? <TokenIcon token={token} /> : <AddressIcon address={address} />}
         headline={token?.name ?? truncateAddr(address)}
         trailing={(props) => (
           <ListItemHorizontalTrailing>

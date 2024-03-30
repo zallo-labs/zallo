@@ -7,6 +7,7 @@ import { slice } from 'viem';
 import { ListHeader } from '#/list/ListHeader';
 import { ListItem } from '#/list/ListItem';
 import { OperationSection } from '#/transaction/OperationSection';
+import { ICON_SIZE } from '@theme/paper';
 
 const AlertIcon = materialCommunityIcon('alert-circle-outline');
 
@@ -40,8 +41,7 @@ export function OperationsSection(props: OperationsSectionProps) {
 
   const expectedFailureItem = p.simulation?.success === false && (
     <ListItem
-      leading={(props) => <AlertIcon {...props} color={styles.error.color} />}
-      leadingSize="medium"
+      leading={<AlertIcon size={ICON_SIZE.medium} color={styles.error.color} />}
       headline={({ Text }) => <Text style={styles.error}>Expected to fail</Text>}
       supporting={
         simulatedErrorSelector

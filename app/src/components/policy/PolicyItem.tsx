@@ -3,6 +3,7 @@ import { ListItem, ListItemProps } from '#/list/ListItem';
 import { Blockie } from '#/Identicon/Blockie';
 import { truncateAddr } from '~/util/format';
 import { GroupIcon } from '@theme/icons';
+import { AddressIcon } from '#/Identicon/AddressIcon';
 
 const Policy = gql(/* GraphQL */ `
   fragment PolicyItem_Policy on Policy {
@@ -27,8 +28,7 @@ export function PolicyItem(props: PolicyItemProps) {
 
   return approver ? (
     <ListItem
-      leading={(props) => <Blockie seed={approver.address} {...props} />}
-      leadingSize="medium"
+      leading={<AddressIcon address={approver.address} />}
       headline={approver.label ?? truncateAddr(approver.address)}
       supporting={policy.name}
       {...props}
