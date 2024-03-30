@@ -66,8 +66,7 @@ export function OperationDetails({ account, ...props }: OperationDetailsProps) {
           headline={useAddressLabel(asUAddress(f.to, chain))}
         />
         <ListItem
-          leading={(props) => <TokenIcon {...props} token={asUAddress(f.token, chain)} />}
-          leadingSize="medium"
+          leading={<TokenIcon token={asUAddress(f.token, chain)} />}
           overline="Amount"
           headline={useFormattedTokenAmount({ ...f, token: asUAddress(f.token, chain) })}
         />
@@ -76,8 +75,7 @@ export function OperationDetails({ account, ...props }: OperationDetailsProps) {
     .with({ __typename: 'TransferFromOp' }, (f) => (
       <>
         <ListItem
-          leading={(props) => <TokenIcon {...props} token={asUAddress(f.token, chain)} />}
-          leadingSize="medium"
+          leading={<TokenIcon token={asUAddress(f.token, chain)} />}
           headline={useFormattedTokenAmount({ ...f, token: asUAddress(f.token, chain) })}
         />
         {account !== asUAddress(f.from, chain) && (
@@ -95,8 +93,7 @@ export function OperationDetails({ account, ...props }: OperationDetailsProps) {
           />
         )}
         <ListItem
-          leading={(props) => <TokenIcon {...props} token={asUAddress(f.token, chain)} />}
-          leadingSize="medium"
+          leading={<TokenIcon token={asUAddress(f.token, chain)} />}
           overline="Amount"
           headline={useFormattedTokenAmount({ ...f, token: asUAddress(f.token, chain) })}
         />
@@ -110,8 +107,7 @@ export function OperationDetails({ account, ...props }: OperationDetailsProps) {
           headline={useAddressLabel(asUAddress(f.spender, chain))}
         />
         <ListItem
-          leading={(props) => <TokenIcon {...props} token={asUAddress(f.token, chain)} />}
-          leadingSize="medium"
+          leading={<TokenIcon token={asUAddress(f.token, chain)} />}
           overline="Amount"
           headline={useFormattedTokenAmount({ ...f, token: asUAddress(f.token, chain) })}
         />
@@ -120,8 +116,7 @@ export function OperationDetails({ account, ...props }: OperationDetailsProps) {
     .with({ __typename: 'SwapOp' }, (f) => (
       <>
         <ListItem
-          leading={(props) => <TokenIcon {...props} token={asUAddress(f.fromToken, chain)} />}
-          leadingSize="medium"
+          leading={<TokenIcon token={asUAddress(f.fromToken, chain)} />}
           overline="From"
           headline={useFormattedTokenAmount({
             token: asUAddress(f.fromToken, chain),
@@ -129,8 +124,7 @@ export function OperationDetails({ account, ...props }: OperationDetailsProps) {
           })}
         />
         <ListItem
-          leading={(props) => <TokenIcon {...props} token={asUAddress(f.toToken, chain)} />}
-          leadingSize="medium"
+          leading={<TokenIcon token={asUAddress(f.toToken, chain)} />}
           overline="To (minimum)"
           headline={useFormattedTokenAmount({
             token: asUAddress(f.toToken, chain),

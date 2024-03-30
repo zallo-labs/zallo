@@ -53,8 +53,7 @@ export function MessageItem(props: MessageItemProps) {
   return (
     <Link href={{ pathname: `/(drawer)/message/[id]`, params: { id: p.id } }} asChild>
       <ListItem
-        leading={(props) => <MessageIcon proposal={p} {...props} />}
-        leadingSize="medium"
+        leading={<MessageIcon proposal={p} />}
         headline={p.label || 'Message'}
         supporting={supporting}
       />

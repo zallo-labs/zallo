@@ -45,8 +45,7 @@ export function ApproverItem({ address, remove }: ApproverItemProps) {
       }}
     >
       <ListItem
-        leading={(props) => <AddressIcon {...props} address={address} />}
-        leadingSize="medium"
+        leading={<AddressIcon address={address} />}
         headline={label}
         trailing={label !== truncated ? truncated : undefined}
         containerStyle={styles.itemContainer}

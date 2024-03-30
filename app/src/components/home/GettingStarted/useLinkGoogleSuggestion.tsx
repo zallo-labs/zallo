@@ -4,6 +4,7 @@ import { GoogleIcon } from '@theme/icons';
 import { Suggestion } from '#/home/GettingStarted/suggestions';
 import { ListItem } from '#/list/ListItem';
 import { useLinkGoogle } from '#/cloud/google/useLinkGoogle';
+import { useMemo } from 'react';
 
 const User = gql(/* GraphQL */ `
   fragment useLinkGoogleSuggestion_User on User {
@@ -30,14 +31,16 @@ export function useLinkGoogleSuggestion(
   const approver = useApproverAddress();
   const link = useLinkGoogle({ user });
 
-  if (!link) return undefined;
+  return useMemo(() => {
+    if (!link) return undefined;
 
-  return {
-    Item: (props) => (
-      <ListItem leading={GoogleIcon} headline="Link Google account" onPress={link} {...props} />
-    ),
-    complete: !!user.approvers.find(
-      (a) => a.address !== approver && a.cloud?.provider === 'Google',
-    ),
-  };
+    return {
+      Item: (props) => (
+        <ListItem leading={GoogleIcon} headline="Link Google account" onPress={link} {...props} />
+      ),
+      complete: !!user.approvers.find(
+        (a) => a.address !== approver && a.cloud?.provider === 'Google',
+      ),
+    };
+  }, [approver, link, user.approvers]);
 }

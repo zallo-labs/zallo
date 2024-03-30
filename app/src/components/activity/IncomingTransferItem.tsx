@@ -33,8 +33,7 @@ function IncomingTransferItem_(props: IncomingTransferItemProps) {
 
   return (
     <ListItem
-      leading={(props) => <TokenIcon token={transfer.token} {...props} />}
-      leadingSize="medium"
+      leading={<TokenIcon token={transfer.token} />}
       headline={`Transfer from ${useAddressLabel(
         asUAddress(transfer.from, transfer.account.chain),
       )}`}

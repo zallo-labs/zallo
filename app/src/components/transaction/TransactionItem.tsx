@@ -110,13 +110,13 @@ function TransactionItem_({
   return (
     <Link href={{ pathname: `/(drawer)/transaction/[id]`, params: { id: p.id } }} asChild>
       <ListItem
-        leading={(props) =>
+        leading={
           p.icon ? (
-            <Image source={{ uri: p.icon }} style={styles.icon} {...props} />
+            <Image source={{ uri: p.icon }} style={styles.icon} />
           ) : isMulti ? (
-            <MultiOperationIcon {...props} style={styles.icon} />
+            <MultiOperationIcon style={styles.icon} />
           ) : (
-            <OperationIcon operation={p.operations[0]} chain={p.account.chain} {...props} />
+            <OperationIcon operation={p.operations[0]} chain={p.account.chain} />
           )
         }
         leadingSize="medium"

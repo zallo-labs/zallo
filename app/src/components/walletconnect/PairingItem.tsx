@@ -18,9 +18,11 @@ export const PairingItem = ({ pairing: p }: PairingItemProps) => {
     <Link href={{ pathname: `/(sheet)/sessions/[topic]`, params: { topic: p.topic } }} asChild>
       <ListItem
         leading={
-          peer && peer.icons.length > 0
-            ? (props) => <Image source={peer.icons} style={styles.icon} {...props} />
-            : peer?.name || '?'
+          peer && peer.icons.length > 0 ? (
+            <Image source={peer.icons} style={styles.icon} />
+          ) : (
+            peer?.name || '?'
+          )
         }
         headline={peer?.name || 'Unnamed DApp'}
         supporting={match(p)

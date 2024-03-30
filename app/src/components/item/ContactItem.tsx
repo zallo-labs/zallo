@@ -21,7 +21,7 @@ export function ContactItem(props: ContactItemProps) {
 
   return (
     <ListItem
-      leading={(props) => <AddressIcon address={c.address} {...props} />}
+      leading={<AddressIcon address={c.address} />}
       leadingSize="medium"
       headline={c.label}
       supporting={truncateAddr(c.address)}

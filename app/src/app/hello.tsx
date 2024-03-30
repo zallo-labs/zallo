@@ -55,7 +55,7 @@ export default function LandingScreen() {
           <ZalloLogo style={styles.logo} contentFit="contain" />
 
           <Text variant="headlineSmall" style={styles.text}>
-            Self-custody without compromise
+            Self-custodial onchain banking
           </Text>
 
           <View style={styles.companionContainer}>

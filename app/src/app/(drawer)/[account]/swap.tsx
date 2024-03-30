@@ -114,8 +114,7 @@ function SwapScreen() {
 
         <View>
           <ListItem
-            leading={(props) => <TokenIcon {...props} token={from} />}
-            leadingSize="medium"
+            leading={<TokenIcon token={from} />}
             overline="From"
             headline={<TokenAmount token={from} amount={fromAmount} />}
             onPress={selectFrom}

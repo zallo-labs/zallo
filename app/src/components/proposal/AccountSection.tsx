@@ -21,11 +21,7 @@ export function AccountSection(props: AccountSectionProps) {
   return (
     <>
       <ListHeader>Account</ListHeader>
-      <ListItem
-        leading={(props) => <AddressIcon address={account.address} {...props} />}
-        leadingSize="medium"
-        headline={account.name}
-      />
+      <ListItem leading={<AddressIcon address={account.address} />} headline={account.name} />
     </>
   );
 }
