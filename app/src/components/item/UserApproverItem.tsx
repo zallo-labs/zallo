@@ -3,6 +3,7 @@ import { useApproverAddress } from '~/lib/network/useApprover';
 import { Link } from 'expo-router';
 import { ListItem, ListItemProps } from '#/list/ListItem';
 import { truncateAddr } from '~/util/format';
+import { AddressIcon } from '#/Identicon/AddressIcon';
 
 const UserApprover = gql(/* GraphQL */ `
   fragment UserApproverItem_UserApprover on UserApprover {
@@ -30,7 +31,7 @@ export function UserApproverItem(props: UserApproverItemProps) {
       asChild
     >
       <ListItem
-        leading={a.address}
+        leading={<AddressIcon address={a.address} />}
         headline={a.name}
         supporting={truncateAddr(a.address)}
         {...(selected && { trailing: 'This device' })}
