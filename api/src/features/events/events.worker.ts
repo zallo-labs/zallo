@@ -62,7 +62,7 @@ export type EventListener<TAbiEvent extends AbiEvent> = (
 ) => Promise<void>;
 
 @Injectable()
-@Processor(EventsQueue.name)
+@Processor(EventsQueue.name, { autorun: false })
 export class EventsWorker extends Worker<EventsQueue> {
   private listeners = new Map<Hex, EventListener<AbiEvent>[]>();
   private events: AbiEvent[] = [];
@@ -80,9 +80,10 @@ export class EventsWorker extends Worker<EventsQueue> {
     super();
   }
 
-  onModuleInit() {
+  async onModuleInit() {
     super.onModuleInit();
-    this.addMissingJob();
+    await this.addMissingJob();
+    super.worker.run();
   }
 
   on<TAbiEvent extends AbiEvent>(event: TAbiEvent, listener: EventListener<TAbiEvent>) {
