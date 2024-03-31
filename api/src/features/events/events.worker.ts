@@ -107,13 +107,13 @@ export class EventsWorker extends Worker<EventsQueue> {
         this.queue.add(
           'Ahead',
           { chain, from },
-          { delay: Math.max(network.blockTime(), MAX_DELAY) },
+          { delay: Math.min(network.blockTime(), MAX_DELAY) },
         );
       } else {
         this.queue.add(
           latest === from ? 'Tracking' : 'Behind',
           { chain, from: to + 1 },
-          { delay: latest === from ? Math.max(network.blockTime(), MAX_DELAY) : undefined },
+          { delay: latest === from ? Math.min(network.blockTime(), MAX_DELAY) : undefined },
         );
       }
     }
