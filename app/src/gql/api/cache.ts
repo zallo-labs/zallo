@@ -38,6 +38,7 @@ export const CACHE_SCHEMA_CONFIG: Pick<
       },
       updatePolicy: (result: Node, _args, cache) => {
         invalidate(cache, { __typename: 'Policy', id: result.id }); // Required to update fields not fetched by mutation
+        invalidate(cache, 'Query', ['proposals']);
       },
       removePolicy: (result: Node, { input }: MutationRemovePolicyArgs, cache) => {
         invalidate(cache, { __typename: 'Policy', id: result.id });
