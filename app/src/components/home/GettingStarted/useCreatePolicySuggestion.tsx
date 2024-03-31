@@ -17,11 +17,13 @@ const Account = gql(/* GraphQL */ `
 `);
 
 export interface UseCreatePolicySuggestionParams {
-  account: FragmentType<typeof Account>;
+  account: FragmentType<typeof Account> | null | undefined;
 }
 
-export function useCreatePolicySuggestion(props: UseCreatePolicySuggestionParams): Suggestion {
+export function useCreatePolicySuggestion(props: UseCreatePolicySuggestionParams): Suggestion | null {
   const account = useFragment(Account, props.account);
+
+  if (!account) return null;
 
   return {
     Item: (props) => (

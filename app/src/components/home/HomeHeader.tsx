@@ -16,16 +16,9 @@ const Query = gql(/* GraphQL */ `
       id
       address
       ...HomeAppbar_account
-      ...GettingStarted_Account
-    }
-
-    user {
-      id
-      ...GettingStarted_User
     }
 
     ...AccountValue_Query @arguments(account: $account)
-    ...GettingStarted_Query @arguments(account: $account)
   }
 `);
 
@@ -35,7 +28,7 @@ export interface HomeHeaderProps {
 
 function Header(props: HomeHeaderProps) {
   const { data: query, stale } = useQuery(Query, { account: props.account });
-  const { account, user } = query;
+  const { account } = query;
 
   if (!account) return stale ? null : <NotFound name="Account" />;
 
@@ -47,7 +40,7 @@ function Header(props: HomeHeaderProps) {
 
       <QuickActions account={account.address} />
 
-      <GettingStarted query={query} user={user} account={account} style={styles.gettingStarted} />
+      <GettingStarted account={account.address} style={styles.gettingStarted} />
     </View>
   );
 }

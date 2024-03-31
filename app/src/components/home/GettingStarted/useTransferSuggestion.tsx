@@ -22,13 +22,15 @@ const Account = gql(/* GraphQL */ `
 
 export interface useTransferSuggestionParams {
   query: FragmentType<typeof Query>;
-  account: FragmentType<typeof Account>;
+  account: FragmentType<typeof Account> | null | undefined;
 }
 
-export function useTransferSuggestion(params: useTransferSuggestionParams): Suggestion {
+export function useTransferSuggestion(params: useTransferSuggestionParams): Suggestion | null {
   const { transfers } = useFragment(Query, params.query);
   const account = useFragment(Account, params.account);
   const transfer = useTransfer();
+
+  if (!account) return null;
 
   return {
     Item: (props) => (

@@ -1,4 +1,4 @@
-import { FragmentType, gql, useFragment } from '@api';
+import { gql } from '@api';
 import { StyleProp, ViewStyle } from 'react-native';
 import { useLinkGoogleSuggestion } from './useLinkGoogleSuggestion';
 import { useLinkDeviceSuggestion } from './useLinkDeviceSuggestion';
@@ -8,7 +8,7 @@ import { useTransferSuggestion } from './useTransferSuggestion';
 import { useDepositSuggestion } from './useDepositSuggestion';
 import { useAtom } from 'jotai';
 import { persistedAtom } from '~/lib/persistedAtom';
-import { ReactNode } from 'react';
+import { ReactNode, memo } from 'react';
 import { useCreatePolicySuggestion } from '#/home/GettingStarted/useCreatePolicySuggestion';
 import { createStyles, useStyles } from '@theme/styles';
 import { View } from 'react-native';
@@ -18,28 +18,27 @@ import Animated, { FadeIn, SlideOutRight } from 'react-native-reanimated';
 import { Button } from '#/Button';
 import { Chevron } from '#/Chevron';
 import { FormattedNumber } from '#/format/FormattedNumber';
+import { UAddress } from 'lib';
+import { useQuery } from '~/gql';
+import { withSuspense } from '#/skeleton/withSuspense';
 
 const Query = gql(/* GraphQL */ `
-  fragment GettingStarted_Query on Query @argumentDefinitions(account: { type: "UAddress!" }) {
+  query GettingStarted($account: UAddress!) {
+    user {
+      id
+      ...useLinkDeviceSuggestion_User
+      ...useLinkGoogleSuggestion_User
+      ...useLinkAppleSuggestion_User
+    }
+
+    account(input: { account: $account }) {
+      id
+      ...useCreatePolicySuggestion_Account
+      ...useTransferSuggestion_Account
+    }
+
     ...useDepositSuggestion_Query @arguments(account: $account)
     ...useTransferSuggestion_Query @arguments(account: $account)
-  }
-`);
-
-const User = gql(/* GraphQL */ `
-  fragment GettingStarted_User on User {
-    id
-    ...useLinkDeviceSuggestion_User
-    ...useLinkGoogleSuggestion_User
-    ...useLinkAppleSuggestion_User
-  }
-`);
-
-const Account = gql(/* GraphQL */ `
-  fragment GettingStarted_Account on Account {
-    id
-    ...useCreatePolicySuggestion_Account
-    ...useTransferSuggestion_Account
   }
 `);
 
@@ -49,18 +48,16 @@ const dismissedAtom = persistedAtom<boolean>('getting-started.dismissed', false)
 const AnimatedSurface = Animated.createAnimatedComponent(Surface);
 
 export interface GettingStartedProps {
-  query: FragmentType<typeof Query>;
-  user: FragmentType<typeof User>;
-  account: FragmentType<typeof Account>;
+  account: UAddress;
   style?: StyleProp<ViewStyle>;
   then?: ReactNode;
 }
 
-export function GettingStarted({ style, then, ...props }: GettingStartedProps) {
+function GettingStarted_({ style, then, ...props }: GettingStartedProps) {
   const { styles } = useStyles(stylesheet);
-  const query = useFragment(Query, props.query);
-  const user = useFragment(User, props.user);
-  const account = useFragment(Account, props.account);
+
+  const query = useQuery(Query, { account: props.account }).data;
+  const { user, account } = query;
 
   const [expanded, setExpanded] = useAtom(expandedAtom);
   const [dismissed, setDismissed] = useAtom(dismissedAtom);
@@ -154,3 +151,5 @@ const stylesheet = createStyles(({ colors, corner }) => ({
     marginBottom: 8,
   },
 }));
+
+export const GettingStarted = withSuspense(memo(GettingStarted_));
