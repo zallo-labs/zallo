@@ -72,6 +72,7 @@ export type $AuthλShape = $.typeutil.flatten<$ConfigObjectλShape & {
   "<auth[is cfg::Config]": $.LinkDesc<$Config, $.Cardinality.Many, {}, false, false,  false, false>;
   "<auth[is cfg::InstanceConfig]": $.LinkDesc<$InstanceConfig, $.Cardinality.Many, {}, false, false,  false, false>;
   "<auth[is cfg::DatabaseConfig]": $.LinkDesc<$DatabaseConfig, $.Cardinality.Many, {}, false, false,  false, false>;
+  "<auth[is cfg::BranchConfig]": $.LinkDesc<$BranchConfig, $.Cardinality.Many, {}, false, false,  false, false>;
   "<auth": $.LinkDesc<$.ObjectType, $.Cardinality.Many, {}, false, false,  false, false>;
 }>;
 type $Auth = $.ObjectType<"cfg::Auth", $AuthλShape, null, [
@@ -95,15 +96,6 @@ const $AuthMethod = $.makeType<$AuthMethod>(_.spec, "128fcc80-bf32-5bdc-abac-09c
 
 const AuthMethod: $.$expr_PathNode<$.TypeSet<$AuthMethod, $.Cardinality.Many>, null> = _.syntax.$PathNode($.$toSet($AuthMethod, $.Cardinality.Many), null);
 
-export type $ConfigλShape = $.typeutil.flatten<$AbstractConfigλShape & {
-}>;
-type $Config = $.ObjectType<"cfg::Config", $ConfigλShape, null, [
-  ...$AbstractConfig['__exclusives__'],
-]>;
-const $Config = $.makeType<$Config>(_.spec, "363133b1-e993-50a0-94d3-aa0472b1a0a7", _.syntax.literal);
-
-const Config: $.$expr_PathNode<$.TypeSet<$Config, $.Cardinality.Many>, null> = _.syntax.$PathNode($.$toSet($Config, $.Cardinality.Many), null);
-
 export type $DatabaseConfigλShape = $.typeutil.flatten<$AbstractConfigλShape & {
 }>;
 type $DatabaseConfig = $.ObjectType<"cfg::DatabaseConfig", $DatabaseConfigλShape, null, [
@@ -113,12 +105,31 @@ const $DatabaseConfig = $.makeType<$DatabaseConfig>(_.spec, "c046988e-25f8-55b8-
 
 const DatabaseConfig: $.$expr_PathNode<$.TypeSet<$DatabaseConfig, $.Cardinality.Many>, null> = _.syntax.$PathNode($.$toSet($DatabaseConfig, $.Cardinality.Many), null);
 
+export type $BranchConfigλShape = $.typeutil.flatten<$DatabaseConfigλShape & {
+}>;
+type $BranchConfig = $.ObjectType<"cfg::BranchConfig", $BranchConfigλShape, null, [
+  ...$DatabaseConfig['__exclusives__'],
+]>;
+const $BranchConfig = $.makeType<$BranchConfig>(_.spec, "b8b6fefa-f0c7-5eea-9f2f-98a5222c7c5e", _.syntax.literal);
+
+const BranchConfig: $.$expr_PathNode<$.TypeSet<$BranchConfig, $.Cardinality.Many>, null> = _.syntax.$PathNode($.$toSet($BranchConfig, $.Cardinality.Many), null);
+
+export type $ConfigλShape = $.typeutil.flatten<$AbstractConfigλShape & {
+}>;
+type $Config = $.ObjectType<"cfg::Config", $ConfigλShape, null, [
+  ...$AbstractConfig['__exclusives__'],
+]>;
+const $Config = $.makeType<$Config>(_.spec, "363133b1-e993-50a0-94d3-aa0472b1a0a7", _.syntax.literal);
+
+const Config: $.$expr_PathNode<$.TypeSet<$Config, $.Cardinality.Many>, null> = _.syntax.$PathNode($.$toSet($Config, $.Cardinality.Many), null);
+
 export type $ExtensionConfigλShape = $.typeutil.flatten<$ConfigObjectλShape & {
   "cfg": $.LinkDesc<$AbstractConfig, $.Cardinality.One, {}, true, false,  false, false>;
   "<extensions[is cfg::AbstractConfig]": $.LinkDesc<$AbstractConfig, $.Cardinality.Many, {}, false, false,  false, false>;
   "<extensions[is cfg::Config]": $.LinkDesc<$Config, $.Cardinality.Many, {}, false, false,  false, false>;
   "<extensions[is cfg::InstanceConfig]": $.LinkDesc<$InstanceConfig, $.Cardinality.Many, {}, false, false,  false, false>;
   "<extensions[is cfg::DatabaseConfig]": $.LinkDesc<$DatabaseConfig, $.Cardinality.Many, {}, false, false,  false, false>;
+  "<extensions[is cfg::BranchConfig]": $.LinkDesc<$BranchConfig, $.Cardinality.Many, {}, false, false,  false, false>;
   "<extensions": $.LinkDesc<$.ObjectType, $.Cardinality.Many, {}, false, false,  false, false>;
 }>;
 type $ExtensionConfig = $.ObjectType<"cfg::ExtensionConfig", $ExtensionConfigλShape, null, [
@@ -219,7 +230,7 @@ function get_config_json(...args: any[]) {
 
 
 
-export { AllowBareDDL, ConnectionTransport, memory, $ConfigObject, ConfigObject, $AbstractConfig, AbstractConfig, $Auth, Auth, $AuthMethod, AuthMethod, $Config, Config, $DatabaseConfig, DatabaseConfig, $ExtensionConfig, ExtensionConfig, $InstanceConfig, InstanceConfig, $JWT, JWT, $Password, Password, $SCRAM, SCRAM, $Trust, Trust, $mTLS, mTLS };
+export { AllowBareDDL, ConnectionTransport, memory, $ConfigObject, ConfigObject, $AbstractConfig, AbstractConfig, $Auth, Auth, $AuthMethod, AuthMethod, $DatabaseConfig, DatabaseConfig, $BranchConfig, BranchConfig, $Config, Config, $ExtensionConfig, ExtensionConfig, $InstanceConfig, InstanceConfig, $JWT, JWT, $Password, Password, $SCRAM, SCRAM, $Trust, Trust, $mTLS, mTLS };
 
 type __defaultExports = {
   "AllowBareDDL": typeof AllowBareDDL;
@@ -229,8 +240,9 @@ type __defaultExports = {
   "AbstractConfig": typeof AbstractConfig;
   "Auth": typeof Auth;
   "AuthMethod": typeof AuthMethod;
-  "Config": typeof Config;
   "DatabaseConfig": typeof DatabaseConfig;
+  "BranchConfig": typeof BranchConfig;
+  "Config": typeof Config;
   "ExtensionConfig": typeof ExtensionConfig;
   "InstanceConfig": typeof InstanceConfig;
   "JWT": typeof JWT;
@@ -248,8 +260,9 @@ const __defaultExports: __defaultExports = {
   "AbstractConfig": AbstractConfig,
   "Auth": Auth,
   "AuthMethod": AuthMethod,
-  "Config": Config,
   "DatabaseConfig": DatabaseConfig,
+  "BranchConfig": BranchConfig,
+  "Config": Config,
   "ExtensionConfig": ExtensionConfig,
   "InstanceConfig": InstanceConfig,
   "JWT": JWT,

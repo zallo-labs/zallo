@@ -115,8 +115,8 @@ function blockNumberAndStatusActions(client: Client) {
 
       status.next('healthy');
       blockNumber = newBlockNumber;
-      updated = Date.now();
       blockTime = getBlockTime();
+      updated = Date.now();
     },
     onError: (error) => {
       status.next(error as WatchBlockNumberErrorType);

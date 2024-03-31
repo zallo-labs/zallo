@@ -40,7 +40,7 @@ export type EventsQueue = typeof EventsQueue;
 interface EventJobData {
   chain: Chain;
   from: number;
-  to?: number;
+  to: number;
   split?: boolean;
 }
 
@@ -99,21 +99,22 @@ export class EventsWorker extends Worker<EventsQueue> {
     const { chain, from } = job.data;
     const network = this.networks.get(chain);
     const latest = Number(network.blockNumber()); // Warning: bigint -> number
-    const to = Math.min(job.data.to ?? from + this.targetBlocks(chain) - 1, latest);
+    const firstAttempt = job.attemptsMade === 0 && !job.data.split;
+    const to = firstAttempt ? Math.min(job.data.to, latest) : job.data.to;
+    if (to !== job.data.to) job.updateData({ ...job.data, to }); // Ensures deterministic retries
 
-    // Queue next job on the first attempt unless split job
-    const shouldQueue = job.attemptsMade === 0 && !job.data.split;
-    if (shouldQueue) {
+    // Queue next job on the first attempt
+    if (firstAttempt) {
       if (latest < from) {
         this.queue.add(
           'Ahead',
-          { chain, from },
+          { chain, from, to },
           { delay: Math.min(network.blockTime(), MAX_DELAY) },
         );
       } else {
         this.queue.add(
           latest === from ? 'Tracking' : 'Behind',
-          { chain, from: to + 1 },
+          { chain, from: to + 1, to: to + this.targetBlocks(chain) },
           { delay: latest === from ? Math.min(network.blockTime(), MAX_DELAY) : undefined },
         );
       }
@@ -191,7 +192,8 @@ export class EventsWorker extends Worker<EventsQueue> {
             ? Number(lastProcessedBlock) + 1 // Warning: bigint -> number
             : Number(network.blockNumber()); // Warning: bigint -> number
 
-          this.queue.add(EventsQueue.name, { chain: network.chain.key, from });
+          const chain = network.chain.key;
+          this.queue.add(EventsQueue.name, { chain, from, to: from + this.targetBlocks(chain) });
 
           this.log.log(
             `${network.chain.key}: events starting from ${
