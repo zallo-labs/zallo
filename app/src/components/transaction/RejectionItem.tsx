@@ -6,6 +6,7 @@ import { AddressLabel } from '#/address/AddressLabel';
 import { Timestamp } from '#/format/Timestamp';
 import { ListItem } from '#/list/ListItem';
 import { useApprove } from '~/hooks/useApprove';
+import { AddressIcon } from '#/Identicon/AddressIcon';
 
 const User = gql(/* GraphQL */ `
   fragment RejectionItem_User on User {
@@ -49,7 +50,7 @@ export function RejectionItem(props: RejectionItemProps) {
 
   return (
     <ListItem
-      leading={approver.address}
+      leading={<AddressIcon address={approver.address} />}
       headline={<AddressLabel address={asUAddress(approver.address, proposal.account.chain)} />}
       supporting={<Timestamp timestamp={createdAt} />}
       {...(approve && {

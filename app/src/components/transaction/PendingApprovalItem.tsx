@@ -5,6 +5,7 @@ import { AddressLabel } from '#/address/AddressLabel';
 import { ListItem } from '#/list/ListItem';
 import { useApprove } from '~/hooks/useApprove';
 import { IconButton } from '#/IconButton';
+import { AddressIcon } from '#/Identicon/AddressIcon';
 
 const User = gql(/* GraphQL */ `
   fragment PendingApprovalItem_User on User {
@@ -45,7 +46,7 @@ export function PendingApprovalItem(props: PendingApprovalItemProps) {
 
   return (
     <ListItem
-      leading={approver.address}
+      leading={<AddressIcon address={approver.address} />}
       headline={
         approver.label || (
           <AddressLabel address={asUAddress(approver.address, proposal.account.chain)} />

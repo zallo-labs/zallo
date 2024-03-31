@@ -57,7 +57,6 @@ export const AccountsList = ({ selected, updateSelected, ...props }: AccountsLis
         <ListItem
           key={account.id}
           leading={<AddressIcon address={account.address} />}
-          leadingSize="medium"
           headline={account.name}
           trailing={<Checkbox status={selected.has(account.address) ? 'checked' : 'unchecked'} />}
           onPress={() =>
