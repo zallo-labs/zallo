@@ -76,7 +76,8 @@ export function deployAccountProxyRequest({
     address: factory,
     functionName: 'deploy' as const,
     args: [encodeProxyConstructorArgs(constructorArgs), salt] as const,
-  } satisfies ContractFunctionParameters;
+    gas: 3_000_000n * BigInt(constructorArgs.policies.length),  // ~1M per policy; gas estimation panics if not provided
+  } satisfies ContractFunctionParameters & { gas: bigint };
 }
 
 export interface SimulateDeployAccountProxyArgs extends DeployAccountProxyRequestParams {
