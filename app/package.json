@@ -47,9 +47,9 @@
     "@tanstack/react-query": "^5.28.6",
     "@urql/devtools": "^2.0.3",
     "@urql/exchange-auth": "^2.1.6",
-    "@urql/exchange-graphcache": "^6.4.0",
-    "@urql/exchange-persisted": "^4.1.1",
-    "@urql/exchange-request-policy": "^1.0.2",
+    "@urql/exchange-graphcache": "^6.5.1",
+    "@urql/exchange-persisted": "^4.2.0",
+    "@urql/exchange-request-policy": "^1.1.0",
     "@urql/exchange-retry": "^1.2.1",
     "@urql/storage-rn": "^1.1.0",
     "@walletconnect/react-native-compat": "^2.11.3",
@@ -138,6 +138,7 @@
     "use-async-effect": "^2.2.7",
     "use-immer": "^0.9.0",
     "viem": "^2.7.20",
+    "wonka": "^6.3.4",
     "zod": "^3.22.4"
   },
   "devDependencies": {

@@ -5991,7 +5991,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@graphql-typed-document-node/core@npm:3.2.0, @graphql-typed-document-node/core@npm:^3.1.0, @graphql-typed-document-node/core@npm:^3.2.0":
+"@graphql-typed-document-node/core@npm:3.2.0, @graphql-typed-document-node/core@npm:^3.2.0":
   version: 3.2.0
   resolution: "@graphql-typed-document-node/core@npm:3.2.0"
   peerDependencies:
@@ -10873,25 +10873,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@urql/core@npm:2.3.6":
-  version: 2.3.6
-  resolution: "@urql/core@npm:2.3.6"
-  dependencies:
-    "@graphql-typed-document-node/core": "npm:^3.1.0"
-    wonka: "npm:^4.0.14"
-  peerDependencies:
-    graphql: ^0.11.0 || ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0 || ^16.0.0
-  checksum: 10/83b239f5559f380fff8f88ddeac15977443d97b83c47b2066315194e37a5b27b1b1f777a588f8ecb3bb823f522755a20337d3437119721328fd53f08fa55b361
-  languageName: node
-  linkType: hard
-
-"@urql/core@npm:>=2.3.1, @urql/core@npm:>=4.0.0, @urql/core@npm:>=4.1.0, @urql/core@npm:>=4.2.0, @urql/core@npm:^4.2.0":
-  version: 4.2.3
-  resolution: "@urql/core@npm:4.2.3"
+"@urql/core@npm:^4.3.0":
+  version: 4.3.0
+  resolution: "@urql/core@npm:4.3.0"
   dependencies:
     "@0no-co/graphql.web": "npm:^1.0.1"
     wonka: "npm:^6.3.2"
-  checksum: 10/81cefc7f7af9df8cdc2df7b810ba770c75378050cbf6b53883edfc94a848f538e4aca6cc3e2cf422e10fb66d49c0f67b507b4e554874944bbc9086ae784f1ebf
+  checksum: 10/3c0d4266cdc74a46cce272e053761618d47008f0c726b6e3f7ffe07e885ca744a13751838f9e6b11cb88827657d03d0ee33ce89c0974aff12f5d0cf4dd058155
   languageName: node
   linkType: hard
 
@@ -10917,34 +10905,34 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@urql/exchange-graphcache@npm:^6.4.0":
-  version: 6.4.0
-  resolution: "@urql/exchange-graphcache@npm:6.4.0"
+"@urql/exchange-graphcache@npm:^6.5.1":
+  version: 6.5.1
+  resolution: "@urql/exchange-graphcache@npm:6.5.1"
   dependencies:
     "@0no-co/graphql.web": "npm:^1.0.1"
-    "@urql/core": "npm:>=4.2.0"
+    "@urql/core": "npm:>=4.3.0"
     wonka: "npm:^6.3.2"
-  checksum: 10/f5cbd92a5394f4e1fa8153041ba125994cc43cf163084a89763879ba3f89b25e5aa7ee9c79d8ac4f19723c048148ca67cd4101f7107af30300be92db4e056529
+  checksum: 10/029a4d995f8db52cd03970d23ca56f474ccce190c32dba8688b58196e6acc3f38cdbd271cb42fb01d5dbece8c0749306dd0f8677699b4f1b2bd5b50b6f7f1a0a
   languageName: node
   linkType: hard
 
-"@urql/exchange-persisted@npm:^4.1.1":
-  version: 4.1.1
-  resolution: "@urql/exchange-persisted@npm:4.1.1"
+"@urql/exchange-persisted@npm:^4.2.0":
+  version: 4.2.0
+  resolution: "@urql/exchange-persisted@npm:4.2.0"
   dependencies:
-    "@urql/core": "npm:>=4.2.0"
+    "@urql/core": "npm:>=4.3.0"
     wonka: "npm:^6.3.2"
-  checksum: 10/77602b9a4c075abd64ed4a160ce11669b8336e9e5f2bf314b35fd32aa78844539e59cfc3d99d6e748102ee8342b6e5c3e18ff1bceacd8e644e7474084049803e
+  checksum: 10/25f4364087275453293340a06c399f1753dad3056fbf19d73f03f4371c60c565a656e54a1d1ad10599ae1f614708fc708826c5e3ba32095dfe3460571e96c808
   languageName: node
   linkType: hard
 
-"@urql/exchange-request-policy@npm:^1.0.2":
-  version: 1.0.2
-  resolution: "@urql/exchange-request-policy@npm:1.0.2"
+"@urql/exchange-request-policy@npm:^1.1.0":
+  version: 1.1.0
+  resolution: "@urql/exchange-request-policy@npm:1.1.0"
   dependencies:
-    "@urql/core": "npm:>=4.0.0"
+    "@urql/core": "npm:>=4.3.0"
     wonka: "npm:^6.3.2"
-  checksum: 10/b7f6edcb67b95432623ba97b900a1028e205d6acc45381e8a25df1d927a8a2d4c10cc158a2a4c58291c5ea1ac0103ed34c16107fffe72e611be36d6cbe769711
+  checksum: 10/bf5a2c5e80fc59ee82aa8f20f1c90a8202ca48dd52ec07d3bbb07344b1ef203f337676674f8f131476c8186dad275b7a3ff40b76d4d60c72c5def7655099c912
   languageName: node
   linkType: hard
 
@@ -12319,9 +12307,9 @@ __metadata:
     "@types/ua-parser-js": "npm:^0.7.39"
     "@urql/devtools": "npm:^2.0.3"
     "@urql/exchange-auth": "npm:^2.1.6"
-    "@urql/exchange-graphcache": "npm:^6.4.0"
-    "@urql/exchange-persisted": "npm:^4.1.1"
-    "@urql/exchange-request-policy": "npm:^1.0.2"
+    "@urql/exchange-graphcache": "npm:^6.5.1"
+    "@urql/exchange-persisted": "npm:^4.2.0"
+    "@urql/exchange-request-policy": "npm:^1.1.0"
     "@urql/exchange-retry": "npm:^1.2.1"
     "@urql/storage-rn": "npm:^1.1.0"
     "@walletconnect/jsonrpc-types": "npm:^1.0.3"
@@ -12423,6 +12411,7 @@ __metadata:
     use-async-effect: "npm:^2.2.7"
     use-immer: "npm:^0.9.0"
     viem: "npm:^2.7.20"
+    wonka: "npm:^6.3.4"
     zod: "npm:^3.22.4"
   languageName: unknown
   linkType: soft
@@ -32093,7 +32082,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"wonka@npm:>= 4.0.9, wonka@npm:^6.3.2":
+"wonka@npm:>= 4.0.9, wonka@npm:^6.3.2, wonka@npm:^6.3.4":
   version: 6.3.4
   resolution: "wonka@npm:6.3.4"
   checksum: 10/0f102630182828268b57b54102003449b97abbc2483392239baf856a2fca7b72ae9be67c208415124a3d26a320674ed64387e9bf07a8d0badedb5f607d2ccfdc

@@ -45,6 +45,7 @@
   },
   "resolutions": {
     "graphql": "^16.8.1",
+    "@urql/core": "^4.3.0",
     "dotenv": "patch:dotenv@npm:16.4.5#.yarn/patches/dotenv-npm-16.4.5-bcb20eb95d.patch"
   }
 }
