@@ -40,7 +40,7 @@ export type EventsQueue = typeof EventsQueue;
 interface EventJobData {
   chain: Chain;
   from: number;
-  to?: number;
+  to: number;
   split?: boolean;
 }
 
@@ -62,7 +62,7 @@ export type EventListener<TAbiEvent extends AbiEvent> = (
 ) => Promise<void>;
 
 @Injectable()
-@Processor(EventsQueue.name)
+@Processor(EventsQueue.name, { autorun: false })
 export class EventsWorker extends Worker<EventsQueue> {
   private listeners = new Map<Hex, EventListener<AbiEvent>[]>();
   private events: AbiEvent[] = [];
@@ -80,9 +80,10 @@ export class EventsWorker extends Worker<EventsQueue> {
     super();
   }
 
-  onModuleInit() {
+  async onModuleInit() {
     super.onModuleInit();
-    this.addMissingJob();
+    await this.addMissingJob();
+    super.worker.run();
   }
 
   on<TAbiEvent extends AbiEvent>(event: TAbiEvent, listener: EventListener<TAbiEvent>) {
@@ -98,22 +99,23 @@ export class EventsWorker extends Worker<EventsQueue> {
     const { chain, from } = job.data;
     const network = this.networks.get(chain);
     const latest = Number(network.blockNumber()); // Warning: bigint -> number
-    const to = Math.min(job.data.to ?? from + this.targetBlocks(chain) - 1, latest);
+    const firstAttempt = job.attemptsMade === 0 && !job.data.split;
+    const to = firstAttempt ? Math.min(job.data.to, latest) : job.data.to;
+    if (to !== job.data.to) job.updateData({ ...job.data, to }); // Ensures deterministic retries
 
-    // Queue next job on the first attempt unless split job
-    const shouldQueue = job.attemptsMade === 0 && !job.data.split;
-    if (shouldQueue) {
+    // Queue next job on the first attempt
+    if (firstAttempt) {
       if (latest < from) {
         this.queue.add(
           'Ahead',
-          { chain, from },
-          { delay: Math.max(network.blockTime(), MAX_DELAY) },
+          { chain, from, to },
+          { delay: Math.min(network.blockTime(), MAX_DELAY) },
         );
       } else {
         this.queue.add(
           latest === from ? 'Tracking' : 'Behind',
-          { chain, from: to + 1 },
-          { delay: latest === from ? Math.max(network.blockTime(), MAX_DELAY) : undefined },
+          { chain, from: to + 1, to: to + this.targetBlocks(chain) },
+          { delay: latest === from ? Math.min(network.blockTime(), MAX_DELAY) : undefined },
         );
       }
     }
@@ -190,7 +192,8 @@ export class EventsWorker extends Worker<EventsQueue> {
             ? Number(lastProcessedBlock) + 1 // Warning: bigint -> number
             : Number(network.blockNumber()); // Warning: bigint -> number
 
-          this.queue.add(EventsQueue.name, { chain: network.chain.key, from });
+          const chain = network.chain.key;
+          this.queue.add(EventsQueue.name, { chain, from, to: from + this.targetBlocks(chain) });
 
           this.log.log(
             `${network.chain.key}: events starting from ${

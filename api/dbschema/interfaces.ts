@@ -48,9 +48,10 @@ export namespace cfg {
   export interface AuthMethod extends ConfigObject {
     "transports": ConnectionTransport[];
   }
+  export interface DatabaseConfig extends AbstractConfig {}
+  export interface BranchConfig extends DatabaseConfig {}
   export interface Config extends AbstractConfig {}
   export type ConnectionTransport = "TCP" | "TCP_PG" | "HTTP" | "SIMPLE_HTTP" | "HTTP_METRICS" | "HTTP_HEALTH";
-  export interface DatabaseConfig extends AbstractConfig {}
   export interface ExtensionConfig extends ConfigObject {
     "cfg": AbstractConfig;
   }
@@ -567,9 +568,10 @@ export interface types {
     "AllowBareDDL": cfg.AllowBareDDL;
     "Auth": cfg.Auth;
     "AuthMethod": cfg.AuthMethod;
+    "DatabaseConfig": cfg.DatabaseConfig;
+    "BranchConfig": cfg.BranchConfig;
     "Config": cfg.Config;
     "ConnectionTransport": cfg.ConnectionTransport;
-    "DatabaseConfig": cfg.DatabaseConfig;
     "ExtensionConfig": cfg.ExtensionConfig;
     "InstanceConfig": cfg.InstanceConfig;
     "JWT": cfg.JWT;

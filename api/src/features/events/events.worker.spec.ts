@@ -72,10 +72,11 @@ describe(EventsWorker.name, () => {
     attemptsMade = 0;
   });
 
-  const process = (data: Omit<QueueData<EventsQueue>, 'chain'>) =>
+  const process = (data: Omit<QueueData<EventsQueue>, 'chain' | 'to'> & { to?: number }) =>
     worker.process({
-      data: { ...data, chain: 'zksync-local' },
+      data: { to: data.from + 1, ...data, chain: 'zksync-local' },
       attemptsMade: attemptsMade++,
+      updateData: (async () => {}) as any,
     } as TypedJob<EventsQueue>);
 
   it('send relevant event to listeners', async () => {

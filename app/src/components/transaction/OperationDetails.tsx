@@ -8,6 +8,7 @@ import { useTimestamp } from '#/format/Timestamp';
 import { ListItem } from '#/list/ListItem';
 import { useFormattedTokenAmount } from '#/token/TokenAmount';
 import { TokenIcon } from '#/token/TokenIcon';
+import { AddressIcon } from '#/Identicon/AddressIcon';
 
 const FragmentDoc = gql(/* GraphQL */ `
   fragment OperationDetails_Operation on Operation {
@@ -61,7 +62,7 @@ export function OperationDetails({ account, ...props }: OperationDetailsProps) {
     .with({ __typename: 'TransferOp' }, (f) => (
       <>
         <ListItem
-          leading={f.to}
+          leading={<AddressIcon address={f.to} />}
           overline="To"
           headline={useAddressLabel(asUAddress(f.to, chain))}
         />
@@ -80,14 +81,14 @@ export function OperationDetails({ account, ...props }: OperationDetailsProps) {
         />
         {account !== asUAddress(f.from, chain) && (
           <ListItem
-            leading={f.from}
+            leading={<AddressIcon address={f.from} />}
             overline="From"
             headline={useAddressLabel(asUAddress(f.from, chain))}
           />
         )}
         {account !== asUAddress(f.to, chain) && (
           <ListItem
-            leading={f.to}
+            leading={<AddressIcon address={f.to} />}
             overline="To"
             headline={useAddressLabel(asUAddress(f.to, chain))}
           />
@@ -102,7 +103,7 @@ export function OperationDetails({ account, ...props }: OperationDetailsProps) {
     .with({ __typename: 'TransferApprovalOp' }, (f) => (
       <>
         <ListItem
-          leading={f.spender}
+          leading={<AddressIcon address={f.spender} />}
           overline="Spender"
           headline={useAddressLabel(asUAddress(f.spender, chain))}
         />
@@ -142,7 +143,7 @@ export function OperationDetails({ account, ...props }: OperationDetailsProps) {
     .otherwise(() => (
       <>
         <ListItem
-          leading={op.to}
+          leading={<AddressIcon address={op.to} />}
           overline={op.data ? 'Contract' : 'To'}
           headline={useAddressLabel(asUAddress(op.to, chain))}
         />

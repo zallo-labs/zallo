@@ -170,7 +170,7 @@ type get_current_databaseλFuncExpr = $.$expr_Function<
   _std.$str, $.Cardinality.One
 >;
 /**
- * Return the name of the current database as a string.
+ * Return the name of the current database branch as a string.
  */
 function get_current_database(): get_current_databaseλFuncExpr;
 function get_current_database(...args: any[]) {
@@ -182,6 +182,27 @@ function get_current_database(...args: any[]) {
     __element__: returnType,
     __cardinality__: cardinality,
     __name__: "sys::get_current_database",
+    __args__: positionalArgs,
+    __namedargs__: namedArgs,
+  }) as any;
+};
+
+type get_current_branchλFuncExpr = $.$expr_Function<
+  _std.$str, $.Cardinality.One
+>;
+/**
+ * Return the name of the current database branch as a string.
+ */
+function get_current_branch(): get_current_branchλFuncExpr;
+function get_current_branch(...args: any[]) {
+  const {returnType, cardinality, args: positionalArgs, namedArgs} = _.syntax.$resolveOverload('sys::get_current_branch', args, _.spec, [
+    {args: [], returnTypeId: "00000000-0000-0000-0000-000000000101"},
+  ]);
+  return _.syntax.$expressionify({
+    __kind__: $.ExpressionKind.Function,
+    __element__: returnType,
+    __cardinality__: cardinality,
+    __name__: "sys::get_current_branch",
     __args__: positionalArgs,
     __namedargs__: namedArgs,
   }) as any;
@@ -203,7 +224,8 @@ type __defaultExports = {
   "get_version_as_str": typeof get_version_as_str;
   "get_instance_name": typeof get_instance_name;
   "get_transaction_isolation": typeof get_transaction_isolation;
-  "get_current_database": typeof get_current_database
+  "get_current_database": typeof get_current_database;
+  "get_current_branch": typeof get_current_branch
 };
 const __defaultExports: __defaultExports = {
   "TransactionIsolation": TransactionIsolation,
@@ -217,6 +239,7 @@ const __defaultExports: __defaultExports = {
   "get_version_as_str": get_version_as_str,
   "get_instance_name": get_instance_name,
   "get_transaction_isolation": get_transaction_isolation,
-  "get_current_database": get_current_database
+  "get_current_database": get_current_database,
+  "get_current_branch": get_current_branch
 };
 export default __defaultExports;
