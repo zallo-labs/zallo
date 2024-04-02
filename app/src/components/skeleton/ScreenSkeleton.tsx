@@ -1,18 +1,5 @@
-import { StyleSheet, View } from 'react-native';
-import { ActivityIndicator } from 'react-native-paper';
+import { Splash } from '#/Splash';
 
 export function ScreenSkeleton() {
-  return (
-    <View style={styles.root}>
-      <ActivityIndicator />
-    </View>
-  );
+  return <Splash />;
 }
-
-const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-});

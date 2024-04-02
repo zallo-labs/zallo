@@ -80,6 +80,8 @@ export abstract class Worker<Q extends QueueDefintion>
       return;
     }
 
+    this.worker.concurrency = 5;
+
     this.worker.on('failed', (job, err) => {
       this.log.warn(`Job (${job?.id ?? '?'}) failed with ${err.name}: ${err.message}`);
     });

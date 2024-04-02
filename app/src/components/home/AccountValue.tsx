@@ -5,8 +5,9 @@ import { Text } from 'react-native-paper';
 import { FiatValue } from '#/FiatValue';
 
 const Query = gql(/* GraphQL */ `
-  fragment AccountValue_Query on Query @argumentDefinitions(account: { type: "UAddress!" }) {
-    tokens {
+  fragment AccountValue_Query on Query
+  @argumentDefinitions(account: { type: "UAddress!" }, chain: { type: "Chain!" }) {
+    tokens(input: { chain: $chain }) {
       id
       balance(input: { account: $account })
       price {
