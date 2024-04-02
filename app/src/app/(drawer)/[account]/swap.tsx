@@ -29,6 +29,7 @@ import { ampli } from '~/lib/ampli';
 import { SwapToTokenItem } from '#/swap/SwapToTokenItem';
 import { showError } from '#/provider/SnackbarProvider';
 import { estimateSwap } from '~/util/swap/syncswap/estimate';
+import { ScreenSkeleton } from '#/skeleton/ScreenSkeleton';
 
 const DownArrow = materialCommunityIcon('arrow-down-thin');
 const ICON_BUTTON_SIZE = 24;
@@ -232,6 +233,6 @@ const styles = createStyles({
   },
 });
 
-export default withSuspense(SwapScreen, null);
+export default withSuspense(SwapScreen, <ScreenSkeleton />);
 
 export { ErrorBoundary } from '#/ErrorBoundary';
