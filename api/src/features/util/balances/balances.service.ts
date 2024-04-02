@@ -1,21 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRedis } from '@songkeys/nestjs-redis';
 import Redis from 'ioredis';
-import {
-  Address,
-  UAddress,
-  asAddress,
-  asChain,
-  isEthToken,
-  isUAddress,
-  tryOrIgnoreAsync,
-} from 'lib';
+import { UAddress, asAddress, asChain, isEthToken, tryOrIgnoreAsync } from 'lib';
 import { ERC20 } from 'lib/dapps';
 import { NetworksService } from '~/features/util/networks/networks.service';
 
 export interface BalanceArgs {
   account: UAddress;
-  token: Address | UAddress;
+  token: UAddress;
 }
 
 @Injectable()
@@ -33,7 +25,7 @@ export class BalancesService {
     const { account } = args;
     const network = this.networks.get(account);
     const balance = await tryOrIgnoreAsync(async () => {
-      if (isUAddress(args.token) && asChain(args.token) !== asChain(account)) return 0n;
+      if (asChain(account) !== asChain(args.token)) return 0n;
 
       const token = asAddress(args.token);
       if (isEthToken(token)) return await network.getBalance({ address: asAddress(account) });
@@ -57,6 +49,6 @@ export class BalancesService {
   }
 
   private key(args: BalanceArgs) {
-    return `balance:${args.account}:${asAddress(args.token)}`;
+    return `balance:${args.account}:${args.token}`;
   }
 }

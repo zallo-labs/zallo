@@ -181,10 +181,7 @@ export class TokensService {
       );
     }
 
-    const balance = await this.asDecimal(
-      token,
-      await this.balances.balance({ account, token: asAddress(token) }),
-    );
+    const balance = await this.asDecimal(token, await this.balances.balance({ account, token }));
     if (balance.eq(0)) return balance;
 
     const limitRemaining =

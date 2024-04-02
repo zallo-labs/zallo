@@ -84,10 +84,10 @@ export class FaucetService implements OnModuleInit {
         if (asChain(token.address) !== network.chain.key) return false;
 
         const [recipientBalance, faucetBalance] = await Promise.all([
-          this.balances.balance({ account, token: asAddress(token.address) }),
+          this.balances.balance({ account, token: token.address }),
           this.balances.balance({
             account: network.walletAddress,
-            token: asAddress(token.address),
+            token: token.address,
           }),
         ]);
 

@@ -121,7 +121,7 @@ export class TransfersEvents {
           ),
         );
 
-        this.balances.invalidateBalance({ account, token: asAddress(token) });
+        this.balances.invalidateBalance({ account, token });
 
         this.pubsub.publish<TransferSubscriptionPayload>(getTransferTrigger(account), {
           transfer: transfer.id,
