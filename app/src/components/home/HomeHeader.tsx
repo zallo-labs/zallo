@@ -1,4 +1,4 @@
-import { UAddress } from 'lib';
+import { UAddress, asChain } from 'lib';
 import { NotFound } from '#/NotFound';
 import { gql } from '@api/generated';
 import { useQuery } from '~/gql';
@@ -11,14 +11,14 @@ import { GettingStarted } from '#/home/GettingStarted';
 import { createStyles } from '@theme/styles';
 
 const Query = gql(/* GraphQL */ `
-  query HomeHeader($account: UAddress!) {
+  query HomeHeader($account: UAddress!, $chain: Chain!) {
     account(input: { account: $account }) {
       id
       address
       ...HomeAppbar_account
     }
 
-    ...AccountValue_Query @arguments(account: $account)
+    ...AccountValue_Query @arguments(account: $account, chain: $chain)
   }
 `);
 
@@ -27,7 +27,10 @@ export interface HomeHeaderProps {
 }
 
 function Header(props: HomeHeaderProps) {
-  const { data: query, stale } = useQuery(Query, { account: props.account });
+  const { data: query, stale } = useQuery(Query, {
+    account: props.account,
+    chain: asChain(props.account),
+  });
   const { account } = query;
 
   if (!account) return stale ? null : <NotFound name="Account" />;
