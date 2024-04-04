@@ -8,9 +8,111 @@ import {
 import schema from './schema.generated';
 import { Node, MutationCreatePolicyArgs, MutationRemovePolicyArgs } from '@api/generated/graphql';
 import { gql } from './generated';
-import { Arraylike, UAddress, toArray } from 'lib';
+import { Arraylike, UAddress, asUUID, toArray } from 'lib';
 import { WritableDeep } from 'ts-toolbelt/out/Object/Writable';
-import { ProposalUpdated, TokenScreenUpsertMutation } from './documents.generated';
+import {
+  Message,
+  MutationApproveMessageArgs,
+  MutationApproveTransactionArgs,
+  MutationRejectProposalArgs,
+  Proposal,
+  ProposalUpdated,
+  TokenScreenUpsertMutation,
+  Transaction,
+} from './documents.generated';
+import type { O } from 'ts-toolbelt';
+
+const optimisticApproveTransactionQuery = gql(/* GraphQL */ `
+  query OptimisticApproveTransaction($id: ID!) {
+    transaction(input: { id: $id }) {
+      approvals {
+        id
+        approver {
+          id
+          address
+        }
+        createdAt
+      }
+      rejections {
+        approver {
+          id
+        }
+      }
+    }
+
+    approver {
+      id
+      address
+    }
+
+    user {
+      approvers {
+        id
+        address
+      }
+    }
+  }
+`);
+
+const optimisticApproveMessageQuery = gql(/* GraphQL */ `
+  query OptimisticApproveMessage($id: ID!) {
+    message(input: { id: $id }) {
+      approvals {
+        id
+        approver {
+          id
+          address
+        }
+        createdAt
+      }
+      rejections {
+        approver {
+          id
+        }
+      }
+    }
+
+    approver {
+      id
+      address
+    }
+
+    user {
+      approvers {
+        id
+        address
+      }
+    }
+  }
+`);
+
+const optimisticRejectProposalQuery = gql(/* GraphQL */ `
+  query OptimisticRejectProposal($id: ID!) {
+    node(id: $id) {
+      __typename
+      ... on Proposal {
+        approvals {
+          id
+          approver {
+            id
+            address
+          }
+          createdAt
+        }
+        rejections {
+          approver {
+            id
+          }
+        }
+      }
+    }
+
+    approver {
+      id
+      address
+    }
+  }
+`);
 
 export const CACHE_SCHEMA_CONFIG: Pick<
   CacheExchangeOpts,
@@ -88,7 +190,102 @@ export const CACHE_SCHEMA_CONFIG: Pick<
       },
     } satisfies Partial<Record<Subscription, UpdateResolver<unknown, unknown>>>,
   },
-  optimistic: {} satisfies Partial<Record<Mutation, OptimisticMutationResolver<unknown>>>,
+  optimistic: {
+    approveTransaction: (
+      { input }: MutationApproveTransactionArgs,
+      cache,
+    ): O.Partial<Transaction, 'deep'> | null => {
+      const data = cache.readQuery({
+        query: optimisticApproveTransactionQuery,
+        variables: { id: input.id },
+      });
+
+      if (!data?.transaction) return null;
+
+      const approver = input.approver
+        ? data.user.approvers.find((a) => a.address === input.approver)
+        : data.approver;
+      if (!approver) return {};
+
+      return {
+        approvals: [
+          ...data.transaction.approvals,
+          {
+            __typename: 'Approval',
+            id: asUUID(crypto.randomUUID()),
+            approver: {
+              ...approver,
+              __typename: 'Approver',
+            },
+            createdAt: new Date().toISOString(),
+            invalid: false,
+            issues: [],
+          },
+        ],
+        rejections: data.transaction.rejections.filter((r) => r.approver.id !== approver.id),
+      };
+    },
+    approveMessage: (
+      { input }: MutationApproveMessageArgs,
+      cache,
+    ): O.Partial<Message, 'deep'> | null => {
+      const data = cache.readQuery({
+        query: optimisticApproveMessageQuery,
+        variables: { id: input.id },
+      });
+
+      if (!data?.message) return null;
+
+      const approver = input.approver
+        ? data.user.approvers.find((a) => a.address === input.approver)
+        : data.approver;
+      if (!approver) return {};
+
+      return {
+        approvals: [
+          ...data.message.approvals,
+          {
+            __typename: 'Approval',
+            id: asUUID(crypto.randomUUID()),
+            approver: {
+              ...approver,
+              __typename: 'Approver',
+            },
+            createdAt: new Date().toISOString(),
+            invalid: false,
+            issues: [],
+          },
+        ],
+        rejections: data.message.rejections.filter((r) => r.approver.id !== approver.id),
+      };
+    },
+    rejectProposal: (
+      { input }: MutationRejectProposalArgs,
+      cache,
+    ): O.Partial<Proposal, 'deep'> | null => {
+      const data = cache.readQuery({
+        query: optimisticRejectProposalQuery,
+        variables: { id: input.id },
+      });
+
+      const n = data?.node;
+      if (!data) return null;
+      if (!n || (n.__typename !== 'Transaction' && n.__typename !== 'Message')) return {};
+
+      return {
+        approvals: n.approvals.filter((r) => r.approver.id !== data.approver.id),
+        rejections: [
+          ...n.rejections,
+          {
+            __typename: 'Rejection',
+            id: asUUID(crypto.randomUUID()),
+            approver: { ...data.approver, __typename: 'Approver' },
+            createdAt: new Date().toISOString(),
+          },
+        ],
+      };
+    },
+  } satisfies Partial<Record<Mutation, OptimisticMutationResolver<unknown>>>,
   keys: new Proxy<Partial<Record<Typename, KeyGenerator>>>(
     {
       // Explicit keys

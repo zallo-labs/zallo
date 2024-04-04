@@ -6,6 +6,7 @@ import { ListItemSkeleton } from '#/list/ListItemSkeleton';
 import { PolicyIcon } from '@theme/icons';
 import { PolicyItem } from '#/policy/PolicyItem';
 import { createStyles, useStyles } from '@theme/styles';
+import { memo } from 'react';
 
 // TODO: replace query with @deferred fragment once supported (graphql-js 17)
 const Query = gql(/* GraphQL */ `
@@ -85,7 +86,7 @@ const stylesheet = createStyles(({ colors }) => ({
   },
 }));
 
-export const OtherPolicies = withSuspense(OtherPolicies_, () => (
+export const OtherPolicies = withSuspense(memo(OtherPolicies_), () => (
   <>
     <ListItemSkeleton leading={PolicyIcon} supporting />
     <ListItemSkeleton leading={PolicyIcon} supporting />
