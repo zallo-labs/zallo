@@ -102,8 +102,14 @@ export class MessagesService {
               typedData,
               label,
               icon,
-              dapp,
               validFrom,
+              ...(dapp && {
+                dapp: {
+                  name: dapp.name,
+                  url: dapp.url,
+                  icons: dapp.icons,
+                },
+              }),
             }),
           ),
         ),

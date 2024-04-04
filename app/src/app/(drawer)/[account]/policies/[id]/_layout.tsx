@@ -1,4 +1,6 @@
 import { AppbarHeader } from '#/Appbar/AppbarHeader';
+import { ScreenSkeleton } from '#/skeleton/ScreenSkeleton';
+import { withSuspense } from '#/skeleton/withSuspense';
 import { gql } from '@api';
 import { Stack } from 'expo-router';
 import { atom } from 'jotai';
@@ -45,7 +47,7 @@ export const PolicyLayoutParams = z.object({
 });
 export type PolicyLayoutParams = z.infer<typeof PolicyLayoutParams>;
 
-export default function PolicyLayout() {
+function PolicyLayout() {
   const params = useLocalParams(PolicyLayoutParams);
   const id = params.id !== 'add' ? params.id : undefined;
 
@@ -70,12 +72,14 @@ export default function PolicyLayout() {
     };
   }, [account?.address, policy, presets.low]);
 
-  const draftAtom = useMemo(() => atom(initial), [initial]);
+  const ctx = useMemo(() => ({ id, draftAtom: atom(initial), initial }), [id, initial]);
 
   return (
-    <PolicyDraftContext.Provider value={{ id, draftAtom, initial }}>
+    <PolicyDraftContext.Provider value={ctx}>
       <Stack.Screen options={{ headerShown: false }} />
       <Stack screenOptions={{ header: AppbarHeader }} />
     </PolicyDraftContext.Provider>
   );
 }
+
+export default withSuspense(PolicyLayout, <ScreenSkeleton />);

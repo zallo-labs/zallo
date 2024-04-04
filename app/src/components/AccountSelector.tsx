@@ -6,6 +6,7 @@ import { useRouter } from 'expo-router';
 import { createStyles, useStyles } from '@theme/styles';
 import { AddressIcon } from './Identicon/AddressIcon';
 import { ICON_SIZE } from '@theme/paper';
+import { memo } from 'react';
 
 const FragmentDoc = gql(/* GraphQL */ `
   fragment AccountSelector_account on Account {
@@ -19,7 +20,7 @@ export interface AccountSelectorParams {
   account: FragmentType<typeof FragmentDoc>;
 }
 
-export const AccountSelector = (props: AccountSelectorParams) => {
+function AccountSelector_(props: AccountSelectorParams) {
   const account = useFragment(FragmentDoc, props.account);
   const { styles } = useStyles(stylesheet);
   const router = useRouter();
@@ -35,7 +36,7 @@ export const AccountSelector = (props: AccountSelectorParams) => {
       <Chevron style={styles.text} />
     </TouchableOpacity>
   );
-};
+}
 
 const stylesheet = createStyles(({ colors }) => ({
   container: {
@@ -48,3 +49,5 @@ const stylesheet = createStyles(({ colors }) => ({
     flexShrink: 1,
   },
 }));
+
+export const AccountSelector = memo(AccountSelector_);

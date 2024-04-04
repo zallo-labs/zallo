@@ -4,6 +4,7 @@ import { AccountSelector } from '#/AccountSelector';
 import { FragmentType, gql, useFragment } from '@api/generated';
 import { AppbarOptions } from '#/Appbar/AppbarOptions';
 import { useRouter } from 'expo-router';
+import { memo } from 'react';
 
 const FragmentDoc = gql(/* GraphQL */ `
   fragment HomeAppbar_account on Account {
@@ -17,7 +18,7 @@ export interface HomeAppbarProps {
   account: FragmentType<typeof FragmentDoc>;
 }
 
-export const HomeAppbar = (props: HomeAppbarProps) => {
+function HomeAppbar_(props: HomeAppbarProps) {
   const router = useRouter();
   const account = useFragment(FragmentDoc, props.account);
 
@@ -38,10 +39,12 @@ export const HomeAppbar = (props: HomeAppbarProps) => {
       )}
     />
   );
-};
+}
 
 const styles = StyleSheet.create({
   selectorContainer: {
     marginHorizontal: 16,
   },
 });
+
+export const HomeAppbar = memo(HomeAppbar_);

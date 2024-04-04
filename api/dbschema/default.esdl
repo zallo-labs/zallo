@@ -48,8 +48,6 @@ module default {
     dapp: tuple<name: str, url: Url, icons: array<Url>>;
     multi link approvals := .<proposal[is Approval];
     multi link rejections := .<proposal[is Rejection];
-    multi link potentialApprovers := (.policy.approvers except .approvals.approver);
-    multi link potentialRejectors := (.policy.approvers except .rejections.approver);
 
     access policy members_only
       allow all

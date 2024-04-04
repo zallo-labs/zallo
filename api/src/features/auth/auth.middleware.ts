@@ -58,13 +58,13 @@ export class AuthMiddleware implements NestMiddleware {
     const token = req.headers.authorization;
     if (!token) return ok(undefined);
 
-    // TODO: cache [token, headers.host]
-    const cached = token && this.cache.get(token);
+    const key = `[${token},${req.headers.host}]`;
+    const cached = this.cache.get(key);
     if (cached) {
       if (cached.expirationTime > DateTime.now()) {
         return ok(cached.address);
       } else {
-        this.cache.delete(token);
+        this.cache.delete(key);
       }
     }
 
@@ -81,7 +81,7 @@ export class AuthMiddleware implements NestMiddleware {
             await recoverMessageAddress({ message: GRAPH_REF_AUTH_MESSAGE, signature }),
           );
 
-          this.cache.set(token, {
+          this.cache.set(key, {
             address,
             expirationTime: DateTime.now().plus(DEFAULT_CACHE_EXPIRY),
           });
@@ -112,7 +112,7 @@ export class AuthMiddleware implements NestMiddleware {
         if (message.expirationTime) req.session.cookie.expires = new Date(message.expirationTime);
 
         const address = asAddress(message.address);
-        this.cache.set(token, {
+        this.cache.set(key, {
           address,
           expirationTime: message.expirationTime
             ? DateTime.fromISO(message.expirationTime)

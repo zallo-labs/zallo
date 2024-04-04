@@ -193,7 +193,13 @@ export class TransactionsService {
       validationErrors,
       label,
       icon,
-      dapp,
+      ...(dapp && {
+        dapp: {
+          name: dapp.name,
+          url: dapp.url,
+          icons: dapp.icons,
+        },
+      }),
       operations: insertOperation,
       validFrom,
       gasLimit: gas,

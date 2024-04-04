@@ -2,7 +2,7 @@ import { ICON_SIZE } from '@theme/paper';
 import { Address, UAddress, asAddress, asChain, isUAddress } from 'lib';
 import { ImageStyle, StyleProp, View } from 'react-native';
 import { Blockie } from './Blockie';
-import { useMemo } from 'react';
+import { memo, useMemo } from 'react';
 import { createStyles } from '@theme/styles';
 import { ChainIcon } from './ChainIcon';
 
@@ -12,7 +12,7 @@ export interface AddressIconProps {
   style?: StyleProp<ImageStyle>;
 }
 
-export function AddressIcon({ address, size = ICON_SIZE.medium, style }: AddressIconProps) {
+function AddressIcon_({ address, size = ICON_SIZE.medium, style }: AddressIconProps) {
   const chain = useMemo(() => (isUAddress(address) ? asChain(address) : undefined), [address]);
   const seed = useMemo(() => asAddress(address), [address]);
 
@@ -34,3 +34,5 @@ const styles = createStyles({
     height: (size * 10) / 24,
   }),
 });
+
+export const AddressIcon = memo(AddressIcon_);

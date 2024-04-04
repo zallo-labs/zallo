@@ -1,5 +1,6 @@
 import { ICON_SIZE } from '@theme/paper';
 import { createStyles } from '@theme/styles';
+import { memo } from 'react';
 import { View } from 'react-native';
 import Svg, { Rect, SvgProps } from 'react-native-svg';
 
@@ -76,7 +77,7 @@ export interface BlockieProps extends Omit<SvgProps, 'width' | 'height' | 'color
   nBlocks?: number;
 }
 
-export function Blockie({ size = ICON_SIZE.medium, nBlocks = 8, style, ...props }: BlockieProps) {
+function Blockie_({ size = ICON_SIZE.medium, nBlocks = 8, style, ...props }: BlockieProps) {
   const pxPerBlock = size / nBlocks;
   const seed = seedrand(props.seed || Math.floor(Math.random() * Math.pow(10, 16)).toString(16));
 
@@ -110,3 +111,5 @@ const styles = createStyles({
     overflow: 'hidden',
   }),
 });
+
+export const Blockie = memo(Blockie_);

@@ -1,4 +1,4 @@
-import { FC, ReactNode, forwardRef, isValidElement } from 'react';
+import { FC, ReactNode, forwardRef, isValidElement, memo } from 'react';
 import { IconProps } from '@theme/icons';
 import { Text, TouchableRipple, TouchableRippleProps } from 'react-native-paper';
 import { TextProps } from '@theme/types';
@@ -33,7 +33,7 @@ export type ListItemProps = Pick<TouchableRippleProps, 'onPress'> &
     textStyle?: StyleProp<TextStyle>;
   };
 
-export const ListItem = forwardRef<View, ListItemProps>(
+const ListItem_ = forwardRef<View, ListItemProps>(
   (
     {
       leading: Leading,
@@ -146,6 +146,8 @@ export const ListItem = forwardRef<View, ListItemProps>(
     );
   },
 );
+
+export const ListItem = memo(ListItem_);
 
 interface StyleProps {
   lines: Lines;

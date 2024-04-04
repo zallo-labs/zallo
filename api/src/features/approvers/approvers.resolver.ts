@@ -10,7 +10,7 @@ import { getShape } from '../database/database.select';
 export class ApproversResolver {
   constructor(private service: ApproversService) {}
 
-  @Query(() => UserApprover, { nullable: true })
+  @Query(() => UserApprover)
   async approver(
     @Input({ defaultValue: {} }) { address }: ApproverInput,
     @Info() info: GraphQLResolveInfo,

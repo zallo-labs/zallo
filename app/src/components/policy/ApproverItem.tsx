@@ -5,7 +5,7 @@ import { truncateAddr } from '~/util/format';
 import { I18nManager } from 'react-native';
 import { RectButton, Swipeable } from 'react-native-gesture-handler';
 import { DeleteIcon } from '@theme/icons';
-import { useRef } from 'react';
+import { memo, useRef } from 'react';
 import { ICON_SIZE } from '@theme/paper';
 import { createStyles, useStyles } from '@theme/styles';
 import { AddressIcon } from '#/Identicon/AddressIcon';
@@ -15,7 +15,7 @@ export interface ApproverItemProps {
   remove: () => void;
 }
 
-export function ApproverItem({ address, remove }: ApproverItemProps) {
+function ApproverItem_({ address, remove }: ApproverItemProps) {
   const { styles } = useStyles(stylesheet);
   const label = useAddressLabel(address);
   const truncated = truncateAddr(address);
@@ -53,6 +53,7 @@ export function ApproverItem({ address, remove }: ApproverItemProps) {
     </Swipeable>
   );
 }
+
 const stylesheet = createStyles(({ colors }) => ({
   itemContainer: {
     backgroundColor: colors.surface,
@@ -69,3 +70,5 @@ const stylesheet = createStyles(({ colors }) => ({
     marginRight: 16,
   },
 }));
+
+export const ApproverItem = memo(ApproverItem_);

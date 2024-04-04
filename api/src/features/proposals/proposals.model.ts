@@ -59,12 +59,6 @@ export class Proposal {
 
   @Field(() => [Rejection])
   rejections: Rejection[];
-
-  @Field(() => [Approver])
-  potentialApprovers: Approver[];
-
-  @Field(() => [Approver])
-  potentialRejectors: Approver[];
 }
 
 @NodeInterface()

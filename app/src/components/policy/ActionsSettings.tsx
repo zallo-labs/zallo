@@ -9,6 +9,7 @@ import { ListItemTrailingText } from '#/list/ListItemTrailingText';
 import { useToggle } from '~/hooks/useToggle';
 import { PolicyDraftAction, usePolicyDraft } from '~/lib/policy/draft';
 import { ACTION_PRESETS } from '~/lib/policy/usePolicyPresets';
+import { memo } from 'react';
 
 function isDefaultAllowAction(a: PolicyDraftAction) {
   return a.functions.some((f) => !f.contract && !f.selector);
@@ -18,7 +19,7 @@ export interface ActionsSettingsProps {
   initiallyExpanded: boolean;
 }
 
-export function ActionsSettings(props: ActionsSettingsProps) {
+function ActionsSettings_(props: ActionsSettingsProps) {
   const [{ actions }, update] = usePolicyDraft();
   const [expanded, toggleExpanded] = useToggle(props.initiallyExpanded);
 
@@ -75,3 +76,5 @@ const styles = createStyles({
     marginVertical: 8,
   },
 });
+
+export const ActionsSettings = memo(ActionsSettings_);

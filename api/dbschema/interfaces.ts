@@ -181,8 +181,6 @@ export interface Proposal extends std.$Object {
   "proposedBy": Approver;
   "rejections": Rejection[];
   "policy": Policy;
-  "potentialApprovers": Approver[];
-  "potentialRejectors": Approver[];
   "icon"?: string | null;
 }
 export interface Message extends Proposal {

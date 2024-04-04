@@ -148,9 +148,9 @@ export class EventsWorker extends Worker<EventsQueue> {
       if (!match) throw e;
 
       // Split the job into two smaller jobs
-      const mid = hexToNumber(asHex(match[1]));
-      if (to < mid || (typeof mid !== 'number' && !isNaN(mid)))
-        throw new UnrecoverableError(`Invalid split block range: [${from}), ${mid}] for split`);
+      const mid = Math.max(from, hexToNumber(asHex(match[1])));
+      if (to <= mid)
+        throw new UnrecoverableError(`Invalid split block range: [${from}, ${mid}] for split`);
 
       this.queue.addBulk([
         { name: 'Split (lower)', data: { chain, from, to: mid, split: true } },

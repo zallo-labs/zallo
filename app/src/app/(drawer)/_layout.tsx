@@ -24,6 +24,7 @@ import { Stack } from 'expo-router';
 import { AppbarHeader } from '#/Appbar/AppbarHeader';
 import { DrawerLogo } from '#/drawer/DrawerLogo';
 import { createStyles } from '@theme/styles';
+import { memo } from 'react';
 
 const Section = PaperDrawer.Section;
 
@@ -31,13 +32,15 @@ export const unstable_settings = {
   initialRouteName: `[account]/(home)`,
 };
 
-export default function DrawerLayout() {
+function DrawerLayout() {
   return (
     <Drawer drawerContent={Content}>
       <Stack screenOptions={{ header: AppbarHeader }} />
     </Drawer>
   );
 }
+
+export default memo(DrawerLayout);
 
 function Content() {
   const account = useSelectedAccount();

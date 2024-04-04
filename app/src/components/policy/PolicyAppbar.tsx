@@ -10,6 +10,7 @@ import { createStyles, useStyles } from '@theme/styles';
 import { useSideSheet } from '#/SideSheet/SideSheetLayout';
 import { useLocalParams } from '~/hooks/useLocalParams';
 import { PolicyScreenParams } from '~/app/(drawer)/[account]/policies/[id]';
+import { memo } from 'react';
 
 const Policy = gql(/* GraphQL */ `
   fragment PolicyAppbar_Policy on Policy {
@@ -33,7 +34,7 @@ export interface PolicyAppbarProps {
   reset?: () => void;
 }
 
-export function PolicyAppbar({ reset, ...props }: PolicyAppbarProps) {
+function PolicyAppbar_({ reset, ...props }: PolicyAppbarProps) {
   const { styles } = useStyles(stylesheet);
   const policy = useFragment(Policy, props.policy);
   const router = useRouter();
@@ -106,3 +107,5 @@ const stylesheet = createStyles(({ colors }) => ({
     color: colors.tertiary,
   },
 }));
+
+export const PolicyAppbar = memo(PolicyAppbar_);

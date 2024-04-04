@@ -28,12 +28,18 @@ const User = gql(/* GraphQL */ `
 const Proposal = gql(/* GraphQL */ `
   fragment UseReject_Proposal on Proposal {
     id
-    potentialRejectors {
-      id
-    }
     policy {
       id
       key
+      approvers {
+        id
+      }
+    }
+    rejections {
+      id
+      approver {
+        id
+      }
     }
     ... on Transaction {
       updatable
@@ -75,7 +81,10 @@ export function useReject(params: UseRejectParams) {
 
   const userApprover = user.approvers.find((a) => a.address === approver);
   const canReject =
-    p.updatable && !!userApprover && !!p.potentialRejectors.find((a) => a.id === userApprover.id);
+    p.updatable &&
+    !!userApprover &&
+    p.policy.approvers.some((a) => a.id === userApprover.id) &&
+    !p.rejections.some((a) => a.approver.id === userApprover.id);
 
   if (!p.updatable || !canReject) return undefined;
 
