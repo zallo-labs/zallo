@@ -9,6 +9,11 @@ import { gql } from '@api';
 import { useQuery } from '~/gql';
 import { Redirect } from 'expo-router';
 import { useEffect } from 'react';
+import {
+  ErrorBoundary as BaseErrorBoundary,
+  ErrorBoundaryProps,
+} from '#/ErrorBoundary/ErrorBoundary';
+import NotFound from '~/app/+not-found';
 
 const Query = gql(/* GraphQL */ `
   query HomeLayout($account: UAddress!) {
@@ -51,4 +56,10 @@ export default function HomeLayout() {
       </TopTabs>
     </ScrollableScreenSurface>
   );
+}
+
+export function ErrorBoundary(props: ErrorBoundaryProps) {
+  if (props.error instanceof z.ZodError) return <NotFound />;
+
+  return <BaseErrorBoundary {...props} />;
 }
