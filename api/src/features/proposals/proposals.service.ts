@@ -114,9 +114,9 @@ export class ProposalsService {
           signedHash: hash,
         })
         .run(db);
-    });
 
-    await this.publish(id, ProposalEvent.approval);
+      this.db.afterTransaction(() => this.publish(id, ProposalEvent.approval));
+    });
   }
 
   async reject(id: UUID) {

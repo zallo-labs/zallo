@@ -34,8 +34,17 @@ const Proposal = gql(/* GraphQL */ `
   fragment UseApprove_Proposal on Proposal {
     __typename
     id
-    potentialApprovers {
+    policy {
       id
+      approvers {
+        id
+      }
+    }
+    approvals {
+      id
+      approver {
+        id
+      }
     }
     ... on Transaction {
       updatable
@@ -104,7 +113,10 @@ export function useApprove(params: UseApproveParams) {
 
   const userApprover = user.approvers.find((a) => a.address === approver);
   const canApprove =
-    p.updatable && !!userApprover && !!p.potentialApprovers.find((a) => a.id === userApprover.id);
+    p.updatable &&
+    !!userApprover &&
+    p.policy.approvers.some((a) => a.id === userApprover.id) &&
+    !p.approvals.some((a) => a.approver.id === userApprover.id);
 
   const proposalData: TypedDataDefinition = useMemo(
     () =>

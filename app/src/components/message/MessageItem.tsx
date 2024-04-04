@@ -4,6 +4,9 @@ import { MessageIcon } from './MessageIcon';
 import { P, match } from 'ts-pattern';
 import { Link } from 'expo-router';
 import { createStyles, useStyles } from '@theme/styles';
+import { withSuspense } from '#/skeleton/withSuspense';
+import { memo } from 'react';
+import { ListItemSkeleton } from '#/list/ListItemSkeleton';
 
 const Message = gql(/* GraphQL */ `
   fragment MessageItem_Message on Message {
@@ -11,8 +14,17 @@ const Message = gql(/* GraphQL */ `
     label
     signature
     updatable
-    potentialApprovers {
+    approvals {
       id
+      approver {
+        id
+      }
+    }
+    policy {
+      id
+      approvers {
+        id
+      }
     }
     ...MessageIcon_Message
   }
@@ -32,13 +44,18 @@ export interface MessageItemProps {
   user: FragmentType<typeof User>;
 }
 
-export function MessageItem(props: MessageItemProps) {
+function MessageItem_(props: MessageItemProps) {
   const { styles } = useStyles(stylesheet);
   const p = useFragment(Message, props.message);
   const user = useFragment(User, props.user);
 
   const canApprove =
-    p.updatable && p.potentialApprovers.find((a) => user.approvers.find((ua) => a.id === ua.id));
+    p.updatable &&
+    user.approvers.some(
+      (ua) =>
+        p.policy.approvers.some((a) => a.id === ua.id) &&
+        !p.approvals.some((a) => a.approver.id === ua.id),
+    );
 
   const supporting = match(p)
     .returnType<ListItemProps['supporting']>()
@@ -66,3 +83,8 @@ const stylesheet = createStyles(({ colors }) => ({
     color: colors.primary,
   },
 }));
+
+export const MessageItem = withSuspense(
+  memo(MessageItem_),
+  <ListItemSkeleton leading supporting />,
+);

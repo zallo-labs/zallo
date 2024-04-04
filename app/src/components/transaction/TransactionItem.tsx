@@ -37,8 +37,17 @@ const Transaction = gql(/* GraphQL */ `
         scheduledFor
       }
     }
-    potentialApprovers {
+    approvals {
       id
+      approver {
+        id
+      }
+    }
+    policy {
+      id
+      approvers {
+        id
+      }
     }
     ...ProposalValue_Transaction
   }
@@ -71,7 +80,12 @@ function TransactionItem_({
 
   const isMulti = p.operations.length > 1;
   const canApprove =
-    p.updatable && p.potentialApprovers.find((a) => user.approvers.find((ua) => a.id === ua.id));
+    p.updatable &&
+    user.approvers.some(
+      (ua) =>
+        p.policy.approvers.some((a) => a.id === ua.id) &&
+        !p.approvals.some((a) => a.approver.id === ua.id),
+    );
 
   const supporting = match(p)
     .returnType<ListItemProps['supporting']>()

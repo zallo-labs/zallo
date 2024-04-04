@@ -329,8 +329,6 @@ type Message implements Node & Proposal {
   label: String
   message: String!
   policy: Policy!
-  potentialApprovers: [Approver!]!
-  potentialRejectors: [Approver!]!
   proposedBy: Approver!
   rejections: [Rejection!]!
   signature: Bytes32
@@ -473,8 +471,6 @@ interface Proposal implements Node {
   id: ID!
   label: String
   policy: Policy!
-  potentialApprovers: [Approver!]!
-  potentialRejectors: [Approver!]!
   proposedBy: Approver!
   rejections: [Rejection!]!
   validFrom: DateTime!
@@ -569,7 +565,7 @@ input ProposeTransactionInput {
 type Query {
   account(input: AccountInput! = {}): Account
   accounts(input: AccountsInput! = {}): [Account!]!
-  approver(input: ApproverInput! = {}): UserApprover
+  approver(input: ApproverInput! = {}): UserApprover!
   contact(input: ContactInput!): Contact
   contacts(input: ContactsInput! = {}): [Contact!]!
   contract(input: ContractInput!): Contract
@@ -799,8 +795,6 @@ type Transaction implements Node & Proposal {
   operations: [Operation!]!
   paymaster: Address!
   policy: Policy!
-  potentialApprovers: [Approver!]!
-  potentialRejectors: [Approver!]!
   proposedBy: Approver!
   rejections: [Rejection!]!
   result: Result
