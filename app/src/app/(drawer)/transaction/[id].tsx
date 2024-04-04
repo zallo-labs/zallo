@@ -22,6 +22,8 @@ import { AccountSection } from '#/proposal/AccountSection';
 import { DappHeader } from '#/walletconnect/DappHeader';
 import { ScheduleSection } from '#/transaction/ScheduleSection';
 import { useRemoveTransaction } from '#/transaction/useRemoveTransaction';
+import { withSuspense } from '#/skeleton/withSuspense';
+import { ScreenSkeleton } from '#/skeleton/ScreenSkeleton';
 
 const Transaction = gql(/* GraphQL */ `
   fragment TransactionScreen_Transaction on Transaction
@@ -72,7 +74,7 @@ const Subscription = gql(/* GraphQL */ `
 
 const TransactionScreenParams = z.object({ id: zUuid() });
 
-export default function TransactionScreen() {
+function TransactionScreen() {
   const { styles } = useStyles(stylesheet);
   const { id } = useLocalParams(TransactionScreenParams);
 
@@ -137,5 +139,7 @@ const stylesheet = createStyles({
     marginVertical: 8,
   },
 });
+
+export default withSuspense(TransactionScreen, <ScreenSkeleton />);
 
 export { ErrorBoundary } from '#/ErrorBoundary';

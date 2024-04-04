@@ -2,6 +2,7 @@ import { FragmentType, gql, useFragment } from '@api';
 import { PolicyIcon } from '@theme/icons';
 import { createStyles } from '@theme/styles';
 import { useAtomValue, useSetAtom } from 'jotai';
+import { memo } from 'react';
 import { ScrollView, View } from 'react-native';
 import { Chip, Text } from 'react-native-paper';
 import { usePolicyDraftAtom } from '~/lib/policy/draft';
@@ -27,7 +28,7 @@ export interface PolicyPresetsProps {
   user: FragmentType<typeof User>;
 }
 
-export function PolicyPresets(props: PolicyPresetsProps) {
+function PolicyPresets_(props: PolicyPresetsProps) {
   const account = useFragment(Account, props.account);
   const user = useFragment(User, props.user);
   const presets = usePolicyPresets({ account, user, chain: account.chain });
@@ -78,3 +79,5 @@ const styles = createStyles({
     marginHorizontal: 16,
   },
 });
+
+export const PolicyPresets = memo(PolicyPresets_);

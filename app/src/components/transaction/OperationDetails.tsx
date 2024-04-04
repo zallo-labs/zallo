@@ -9,6 +9,7 @@ import { ListItem } from '#/list/ListItem';
 import { useFormattedTokenAmount } from '#/token/TokenAmount';
 import { TokenIcon } from '#/token/TokenIcon';
 import { AddressIcon } from '#/Identicon/AddressIcon';
+import { memo } from 'react';
 
 const FragmentDoc = gql(/* GraphQL */ `
   fragment OperationDetails_Operation on Operation {
@@ -54,7 +55,7 @@ export interface OperationDetailsProps {
 
 // FIXME: terrible abuse of hoooks...
 /* eslint-disable react-hooks/rules-of-hooks */
-export function OperationDetails({ account, ...props }: OperationDetailsProps) {
+function OperationDetails_({ account, ...props }: OperationDetailsProps) {
   const op = useFragment(FragmentDoc, props.operation);
   const chain = asChain(account);
 
@@ -151,3 +152,5 @@ export function OperationDetails({ account, ...props }: OperationDetailsProps) {
     ));
 }
 /* eslint-enable react-hooks/rules-of-hooks */
+
+export const OperationDetails = memo(OperationDetails_);

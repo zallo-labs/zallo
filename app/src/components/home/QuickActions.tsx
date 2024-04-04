@@ -4,12 +4,13 @@ import { UAddress } from 'lib';
 import { useRouter } from 'expo-router';
 import { useTransfer } from '~/hooks/useTransfer';
 import { Button } from '../Button';
+import { memo } from 'react';
 
 export interface QuickActionsProps {
   account: UAddress;
 }
 
-export function QuickActions({ account }: QuickActionsProps) {
+function QuickActions_({ account }: QuickActionsProps) {
   const { push } = useRouter();
   const transfer = useTransfer();
 
@@ -58,3 +59,5 @@ const styles = StyleSheet.create({
     flex: 1,
   },
 });
+
+export const QuickActions = memo(QuickActions_);

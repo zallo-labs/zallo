@@ -15,12 +15,13 @@ import { showInfo } from '#/provider/SnackbarProvider';
 import { useSelectAddress } from '~/hooks/useSelectAddress';
 import { useToggle } from '~/hooks/useToggle';
 import { usePolicyDraft } from '~/lib/policy/draft';
+import { memo } from 'react';
 
 export interface ApprovalSettingsProps {
   initiallyExpanded: boolean;
 }
 
-export function ApprovalSettings(props: ApprovalSettingsProps) {
+function ApprovalSettings_(props: ApprovalSettingsProps) {
   const { styles } = useStyles(stylesheet);
   const selectAddress = useSelectAddress();
 
@@ -119,3 +120,5 @@ const stylesheet = createStyles(({ colors }) => ({
     marginVertical: 8,
   },
 }));
+
+export const ApprovalSettings = memo(ApprovalSettings_);

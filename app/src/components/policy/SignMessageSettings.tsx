@@ -1,12 +1,13 @@
 import { ListItem } from '#/list/ListItem';
 import { GenericMessageIcon } from '#/message/MessageIcon';
 import { createStyles } from '@theme/styles';
+import { memo } from 'react';
 import { Divider, Switch } from 'react-native-paper';
 import { usePolicyDraft } from '~/lib/policy/draft';
 
 export interface SignMessageSettingsProps {}
 
-export function SignMessageSettings(_props: SignMessageSettingsProps) {
+function SignMessageSettings_(_props: SignMessageSettingsProps) {
   const [{ allowMessages }, update] = usePolicyDraft();
 
   return (
@@ -35,3 +36,5 @@ const styles = createStyles({
     marginVertical: 8,
   },
 });
+
+export const SignMessageSettings = memo(SignMessageSettings_);

@@ -3,6 +3,7 @@ import { ListItem } from '#/list/ListItem';
 import { materialCommunityIcon } from '@theme/icons';
 import { createStyles } from '@theme/styles';
 import { Duration } from 'luxon';
+import { memo } from 'react';
 import { Divider } from 'react-native-paper';
 import { usePolicyDraft } from '~/lib/policy/draft';
 
@@ -19,7 +20,7 @@ export const DELAY_ENTRIES = [
 
 const TimerIcon = materialCommunityIcon('timer-outline');
 
-export function DelaySettings() {
+function DelaySettings_() {
   const [{ delay }, update] = usePolicyDraft();
 
   return (
@@ -49,3 +50,5 @@ const styles = createStyles({
     marginVertical: 8,
   },
 });
+
+export const DelaySettings = memo(DelaySettings_);

@@ -3,7 +3,7 @@ import { AddIcon, GenericTokenIcon, TransferIcon } from '@theme/icons';
 import { createStyles } from '@theme/styles';
 import { useRouter } from 'expo-router';
 import { asAddress, asChain, asUAddress } from 'lib';
-import { useMemo } from 'react';
+import { memo, useMemo } from 'react';
 import Collapsible from 'react-native-collapsible';
 import { Divider, Switch } from 'react-native-paper';
 import { Chevron } from '#/Chevron';
@@ -118,6 +118,6 @@ const styles = createStyles({
 });
 
 export const SpendingSettings = withSuspense(
-  SpendingSettings_,
+  memo(SpendingSettings_),
   <ListItemSkeleton leading supporting />,
 );

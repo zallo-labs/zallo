@@ -9,6 +9,7 @@ import { PendingApprovalItem } from '#/transaction/PendingApprovalItem';
 import { RejectionItem } from '#/transaction/RejectionItem';
 import { withSuspense } from '#/skeleton/withSuspense';
 import { ScreenSkeleton } from '#/skeleton/ScreenSkeleton';
+import { memo } from 'react';
 
 const Proposal = gql(/* GraphQL */ `
   fragment ProposalApprovals_Proposal on Proposal @argumentDefinitions(proposal: { type: "ID!" }) {
@@ -127,4 +128,4 @@ function ProposalApprovals_({ proposal: id }: PolicyTabProps) {
   );
 }
 
-export const ProposalApprovals = withSuspense(ProposalApprovals_, <ScreenSkeleton />);
+export const ProposalApprovals = withSuspense(memo(ProposalApprovals_), <ScreenSkeleton />);

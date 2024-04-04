@@ -25,6 +25,7 @@ import { PolicySideSheet } from '#/policy/PolicySideSheet';
 import { SignMessageSettings } from '#/policy/SignMessageSettings';
 import { DelaySettings } from '#/policy/DelaySettings';
 import { PolicyLayoutParams, ZERO_UUID } from './_layout';
+import { useMemo } from 'react';
 
 const Query = gql(/* GraphQL */ `
   query PolicyScreen($account: UAddress!, $policy: ID!, $includePolicy: Boolean!) {
@@ -121,12 +122,16 @@ function PolicyScreen() {
   const isModified = !_.isEqual(init, draft);
   const showSubmit = draft.key === undefined || isModified;
   const initiallyExpanded = useLayout().layout === 'expanded';
+  const reset = useMemo(
+    () => (isModified ? () => setDraft(init) : undefined),
+    [init, isModified, setDraft],
+  );
 
   if (!account) return null;
 
   return (
     <SideSheetLayout>
-      <PolicyAppbar policy={policy} reset={isModified ? () => setDraft(init) : undefined} />
+      <PolicyAppbar policy={policy} reset={reset} />
 
       <ScrollableScreenSurface contentContainerStyle={styles.container}>
         <PolicyPresets account={account} user={user} />
