@@ -56,9 +56,6 @@ export class Account extends Node {
   @Field(() => [Message])
   messages: Message[];
 
-  @Field(() => [Transfer])
-  transfers: Transfer[];
-
   @Field(() => [Approver])
   approvers: Approver[];
 }

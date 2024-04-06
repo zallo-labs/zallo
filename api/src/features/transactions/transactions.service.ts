@@ -22,7 +22,6 @@ import { NetworksService } from '~/features/util/networks/networks.service';
 import {
   ProposeCancelScheduledTransactionInput,
   ProposeTransactionInput,
-  TransactionsInput,
   UpdateTransactionInput,
 } from './transactions.input';
 import { DatabaseService } from '../database/database.service';
@@ -86,22 +85,6 @@ export class TransactionsService {
       e.select(e.Transaction, (t) => ({
         ...shape?.(t),
         filter_single: { id },
-      })),
-    );
-  }
-
-  async select(
-    { accounts, statuses }: TransactionsInput = {},
-    shape?: ShapeFunc<typeof e.Transaction>,
-  ) {
-    return this.db.query(
-      e.select(e.Transaction, (p) => ({
-        ...shape?.(p),
-        filter: and(
-          accounts && e.op(p.account, 'in', e.set(...accounts.map((a) => selectAccount(a)))),
-          statuses &&
-            e.op(p.status, 'in', e.set(...statuses.map((s) => e.cast(e.TransactionStatus, s)))),
-        ),
       })),
     );
   }

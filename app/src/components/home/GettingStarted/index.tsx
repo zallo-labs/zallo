@@ -33,12 +33,10 @@ const Query = gql(/* GraphQL */ `
 
     account(input: { account: $account }) {
       id
+      ...useDepositSuggestion_Account
       ...useCreatePolicySuggestion_Account
       ...useTransferSuggestion_Account
     }
-
-    ...useDepositSuggestion_Query @arguments(account: $account)
-    ...useTransferSuggestion_Query @arguments(account: $account)
   }
 `);
 
@@ -66,9 +64,9 @@ function GettingStarted_({ style, then, ...props }: GettingStartedProps) {
     useLinkGoogleSuggestion({ user }),
     useLinkAppleSuggestion({ user }),
     useLinkDeviceSuggestion({ user }),
-    useDepositSuggestion({ query }),
+    useDepositSuggestion({ account }),
     useCreatePolicySuggestion({ account }),
-    useTransferSuggestion({ query, account }),
+    useTransferSuggestion({ account }),
   ].filter(Boolean);
 
   const complete = suggestions.filter((s) => s.complete);

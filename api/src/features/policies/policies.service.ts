@@ -16,12 +16,7 @@ import {
   UUID,
 } from 'lib';
 import { TransactionsService } from '../transactions/transactions.service';
-import {
-  CreatePolicyInput,
-  PoliciesInput,
-  UniquePolicyInput,
-  UpdatePolicyInput,
-} from './policies.input';
+import { CreatePolicyInput, UniquePolicyInput, UpdatePolicyInput } from './policies.input';
 import { UserInputError } from '@nestjs/apollo';
 import { AccountsCacheService } from '../auth/accounts.cache.service';
 import { DatabaseService } from '../database/database.service';
@@ -57,28 +52,10 @@ export class PoliciesService {
     private userAccounts: AccountsCacheService,
   ) {}
 
-  async unique(id: UUID, shape: ShapeFunc<typeof e.Policy>) {
-    return this.db.query(
-      e.select(e.Policy, (p) => ({
-        filter_single: { id },
-        ...shape(p),
-      })),
-    );
-  }
-
   async latest(unique: UniquePolicy, shape?: ShapeFunc<typeof e.Policy>) {
     return this.db.query(
       e.assert_single(e.select(selectPolicy(unique), (p) => ({ ...(shape?.(p as any) as any) }))),
     ) as unknown as PolicyModel | null;
-  }
-
-  async select({ active }: PoliciesInput, shape: ShapeFunc<typeof e.Policy>) {
-    return this.db.query(
-      e.select(e.Policy, (p) => ({
-        ...(active !== undefined && { active: e.op(p.active, '=', active) }),
-        ...shape?.(p),
-      })),
-    );
   }
 
   async create({ account, name, key: keyArg, initState, ...policyInput }: CreatePolicyParams) {

@@ -20,5 +20,6 @@ import { TokensModule } from '~/features/tokens/tokens.module';
     TokensModule,
   ],
   providers: [TransfersService, TransfersResolver, TransfersEvents],
+  exports: [TransfersService],
 })
 export class TransfersModule {}

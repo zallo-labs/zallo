@@ -10,9 +10,6 @@ registerEnumType(TransferDirection, { name: 'TransferDirection' });
 
 @InputType()
 export class TransfersInput {
-  @Field(() => [UAddressScalar], { nullable: true })
-  accounts?: UAddress[];
-
   @Field(() => TransferDirection, { nullable: true })
   direction?: TransferDirection;
 

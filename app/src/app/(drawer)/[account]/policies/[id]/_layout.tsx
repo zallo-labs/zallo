@@ -15,11 +15,14 @@ import { zUAddress, zUuid } from '~/lib/zod';
 
 const Query = gql(/* GraphQL */ `
   query PolicyLayout($account: UAddress!, $policy: ID!, $includePolicy: Boolean!) {
-    policy: policyState(id: $policy) @include(if: $includePolicy) {
-      id
-      key
-      name
-      ...policyAsDraft_Policy
+    policy: node(id: $policy) @include(if: $includePolicy) {
+      __typename
+      ... on Policy {
+        id
+        key
+        name
+        ...policyAsDraft_Policy
+      }
     }
 
     account(input: { account: $account }) {
@@ -64,11 +67,12 @@ function PolicyLayout() {
   });
 
   const initial = useMemo((): PolicyDraft => {
+    const p = policy?.__typename === 'Policy' ? policy : undefined;
     return {
       account: account?.address ?? `zksync:${ZERO_ADDR}`, // Should only occur whilst loading
-      key: policy?.key,
-      name: policy?.name || '',
-      ...((policy && policyAsDraft(policy)) || presets.low),
+      key: p?.key,
+      name: p?.name || '',
+      ...((p && policyAsDraft(p)) || presets.low),
     };
   }, [account?.address, policy, presets.low]);
 

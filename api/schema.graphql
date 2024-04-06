@@ -29,7 +29,7 @@ type Account implements Node {
   proposals: [Proposal!]!
   salt: Bytes32!
   transactions: [Transaction!]!
-  transfers: [Transfer!]!
+  transfers(input: TransfersInput! = {}): [Transfer!]!
   upgradedAtBlock: BigInt
 }
 
@@ -394,10 +394,6 @@ type PaymasterFees {
   total: Decimal!
 }
 
-input PoliciesInput {
-  active: Boolean
-}
-
 type Policy implements Node & PolicyState {
   account: Account!
   actions: [Action!]!
@@ -575,9 +571,7 @@ type Query {
   labelAvailable(input: LabelAvailableInput!): Boolean!
   message(input: UniqueProposalInput!): Message
   node(id: ID!): Node
-  policies(input: PoliciesInput! = {}): [Policy!]!
   policy(input: UniquePolicyInput!): Policy
-  policyState(id: ID!): Policy
   proposal(input: UniqueProposalInput!): Proposal
   proposals(input: ProposalsInput! = {}): [Proposal!]!
   requestableTokens(input: RequestTokensInput!): [Address!]!
@@ -585,8 +579,6 @@ type Query {
   tokenMetadata(address: UAddress!): TokenMetadata
   tokens(input: TokensInput! = {}): [Token!]!
   transaction(input: UniqueProposalInput!): Transaction
-  transactions(input: TransactionsInput!): [Transaction!]!
-  transfers(input: TransfersInput! = {}): [Transfer!]!
   user: User!
 }
 
@@ -817,11 +809,6 @@ enum TransactionStatus {
   Successful
 }
 
-input TransactionsInput {
-  accounts: [UAddress!]
-  statuses: [TransactionStatus!]
-}
-
 type Transfer implements Event & Node & TransferDetails & Transferlike {
   account: Account!
   amount: Decimal!
@@ -956,7 +943,6 @@ input TransfersConfigInput {
 }
 
 input TransfersInput {
-  accounts: [UAddress!]
   direction: TransferDirection
 
   """Originating from an account transaction"""

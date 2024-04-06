@@ -6,10 +6,12 @@ import { UserContext, asUser, getUserCtx } from '~/request/ctx';
 import {
   ETH_ADDRESS,
   UAddress,
+  UUID,
   ZERO_ADDR,
   asAddress,
   asChain,
   asUAddress,
+  asUUID,
   randomDeploySalt,
 } from 'lib';
 import { randomAddress, randomLabel, randomUAddress, randomUser } from '~/util/test';
@@ -50,31 +52,31 @@ describe(TransfersService.name, () => {
       .unlessConflict()
       .id.run(db.client);
 
-    return { id, address };
+    return { id: asUUID(id), address };
   };
 
   let user1: UserContext;
-  let account1: UAddress;
+  let account1: { id: UUID; address: UAddress };
 
   beforeEach(async () => {
     user1 = randomUser();
-    account1 = (await asUser(user1, createAccount)).address;
+    account1 = await asUser(user1, createAccount);
   });
 
   const insert = (account = account1, params?: Partial<InsertShape<$Transfer>>) =>
     db.query(
       e.insert(e.Transfer, {
-        account: e.select(e.Account, () => ({ filter_single: { address: account } })),
+        account: e.select(e.Account, () => ({ filter_single: { id: account.id } })),
         systxHash: zeroHash,
         logIndex: 0,
         block: BigInt(Math.floor(Math.random() * 1000)),
         from: ZERO_ADDR,
-        to: asAddress(account),
-        tokenAddress: asUAddress(ETH_ADDRESS, asChain(account)),
+        to: asAddress(account.address),
+        tokenAddress: asUAddress(ETH_ADDRESS, asChain(account.address)),
         amount: e.decimal('1'),
         direction: [
-          asAddress(account) === (params?.to ?? asAddress(account)) && 'In',
-          asAddress(account) === (params?.from ?? ZERO_ADDR) && 'Out',
+          asAddress(account.address) === (params?.to ?? asAddress(account.address)) && 'In',
+          asAddress(account.address) === (params?.from ?? ZERO_ADDR) && 'Out',
         ].filter(Boolean) as ['Out'],
         ...params,
       }).id,
@@ -102,59 +104,52 @@ describe(TransfersService.name, () => {
       asUser(user1, async () => {
         const transfers = await Promise.all([insert(), insert()]);
 
-        expect((await service.select({})).map((t) => t.id)).toEqual(transfers);
+        expect((await service.select(account1.id, {})).map((t) => t.id)).toEqual(transfers);
       }));
 
     it("exclude transfers from accounts the user isn't a member of", async () => {
       await asUser(user1, () => insert(account1));
 
       await asUser(randomUser(), async () => {
-        const account2 = (await createAccount()).address;
+        const account2 = await createAccount();
         const transfers = await Promise.all([insert(account2), insert(account2)]);
 
-        expect((await service.select({})).map((t) => t.id)).toEqual(transfers);
+        expect((await service.select(account1.id, {})).map((t) => t.id)).toEqual(transfers);
       });
     });
 
     describe('filters', () => {
-      it('accounts', () =>
-        asUser(user1, async () => {
-          const account2 = (await createAccount()).address;
-
-          const [a1Transfer, a2Transfer] = await Promise.all([insert(account1), insert(account2)]);
-
-          expect((await service.select({ accounts: [account1] })).map((t) => t.id)).toEqual([
-            a1Transfer,
-          ]);
-
-          expect(
-            (await service.select({ accounts: [account1, account2] })).map((t) => t.id),
-          ).toEqual([a1Transfer, a2Transfer]);
-        }));
-
       it('direction', () =>
         asUser(user1, async () => {
-          const inTransfer = await insert(account1, { from: ZERO_ADDR, to: asAddress(account1) });
-          const outTransfer = await insert(account1, { from: asAddress(account1), to: ZERO_ADDR });
+          const inTransfer = await insert(account1, {
+            from: ZERO_ADDR,
+            to: asAddress(account1.address),
+          });
+          const outTransfer = await insert(account1, {
+            from: asAddress(account1.address),
+            to: ZERO_ADDR,
+          });
 
-          expect((await service.select({ direction: 'In' as any })).map((t) => t.id)).toEqual([
-            inTransfer,
-          ]);
+          expect(
+            (await service.select(account1.id, { direction: 'In' as any })).map((t) => t.id),
+          ).toEqual([inTransfer]);
 
-          expect((await service.select({ direction: 'Out' as any })).map((t) => t.id)).toEqual([
-            outTransfer,
-          ]);
+          expect(
+            (await service.select(account1.id, { direction: 'Out' as any })).map((t) => t.id),
+          ).toEqual([outTransfer]);
         }));
 
       it('internal', () =>
         asUser(user1, async () => {
           const externalTransfer = await insert();
 
-          expect((await service.select({ internal: false })).map((t) => t.id)).toEqual([
-            externalTransfer,
-          ]);
+          expect((await service.select(account1.id, { internal: false })).map((t) => t.id)).toEqual(
+            [externalTransfer],
+          );
 
-          expect((await service.select({ internal: true })).map((t) => t.id)).toEqual([]);
+          expect((await service.select(account1.id, { internal: true })).map((t) => t.id)).toEqual(
+            [],
+          );
         }));
     });
   });
