@@ -49,11 +49,14 @@ export class MessagesService {
   ) {}
 
   async selectUnique(id: UniqueProposal, shape?: ShapeFunc<typeof e.Message>) {
-    return this.db.query(
-      e.select(e.Message, (p) => ({
-        ...shape?.(p),
-        filter_single: { id },
-      })),
+    return this.db.queryWith(
+      { id: e.uuid },
+      ({ id }) =>
+        e.select(e.Message, (p) => ({
+          ...shape?.(p),
+          filter_single: { id },
+        })),
+      { id },
     );
   }
 

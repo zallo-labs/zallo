@@ -51,29 +51,32 @@ export class AccountsService {
     private accountsCache: AccountsCacheService,
   ) {}
 
-  unique = (address: UAddress) =>
-    e.shape(e.Account, () => ({
-      filter_single: { address },
-    }));
+  selectUnique(
+    address: UAddress = getUserCtx().accounts[0]?.address,
+    shape?: ShapeFunc<typeof e.Account>,
+  ) {
+    if (!address) return null;
 
-  selectUnique(address: UAddress | undefined, shape?: ShapeFunc<typeof e.Account>) {
-    const accounts = getUserCtx().accounts;
-    if (accounts.length === 0) return null;
-
-    return this.db.query(
-      e.select(e.Account, (a) => ({
-        filter_single: address ? { address } : { id: accounts[0].id },
-        ...shape?.(a),
-      })),
+    return this.db.queryWith(
+      { address: e.UAddress },
+      ({ address }) =>
+        e.select(e.Account, (a) => ({
+          filter_single: { address },
+          ...shape?.(a),
+        })),
+      { address },
     );
   }
 
   select({ chain }: AccountsInput, shape?: ShapeFunc<typeof e.Account>) {
-    return this.db.query(
-      e.select(e.Account, (a) => ({
-        ...shape?.(a),
-        filter: and(chain && e.op(a.chain, '=', chain)),
-      })),
+    return this.db.queryWith(
+      { chain: e.optional(e.str) },
+      ({ chain }) =>
+        e.select(e.Account, (a) => ({
+          ...shape?.(a),
+          filter: e.op(e.op(a.chain, '=', chain), '??', true),
+        })),
+      { chain },
     );
   }
 
@@ -81,11 +84,12 @@ export class AccountsService {
   async labelAvailable(label: string): Promise<boolean> {
     if (!this.labelPattern.exec(label)) return false;
 
-    const selectedAccount = e.select(e.Account, () => ({ filter_single: { label } }));
-
     return e
-      .select(e.op('not', e.op('exists', selectedAccount)))
-      .run(this.db.DANGEROUS_superuserClient);
+      .params({ label: e.str }, ({ label }) => {
+        const account = e.select(e.Account, () => ({ filter_single: { label } }));
+        return e.select(e.op('not', e.op('exists', account)));
+      })
+      .run(this.db.DANGEROUS_superuserClient, { label });
   }
 
   async createAccount({ chain, label, policies: policyInputs }: CreateAccountInput) {

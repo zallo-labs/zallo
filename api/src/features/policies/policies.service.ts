@@ -28,6 +28,7 @@ import {
   PolicyShape,
   policyInputAsStateShape,
   selectPolicy,
+  latestPolicy2,
 } from './policies.util';
 import { NameTaken, Policy as PolicyModel, ValidationError } from './policies.model';
 import { TX_SHAPE, transactionAsTx, ProposalTxShape } from '../transactions/transactions.util';
@@ -52,10 +53,12 @@ export class PoliciesService {
     private userAccounts: AccountsCacheService,
   ) {}
 
-  async latest(unique: UniquePolicy, shape?: ShapeFunc<typeof e.Policy>) {
-    return this.db.query(
-      e.assert_single(e.select(selectPolicy(unique), (p) => ({ ...(shape?.(p as any) as any) }))),
-    ) as unknown as PolicyModel | null;
+  async latest(unique: { account: UAddress; key: number }, shape?: ShapeFunc) {
+    return (await this.db.queryWith(
+      { account: e.UAddress, key: e.int64 },
+      ({ account, key }) => e.select(latestPolicy2(account, key), (p) => ({ ...shape?.(p) })),
+      { account: unique.account, key: unique.key },
+    )) as unknown as PolicyModel | null;
   }
 
   async create({ account, name, key: keyArg, initState, ...policyInput }: CreatePolicyParams) {
@@ -93,7 +96,7 @@ export class PoliciesService {
         this.userAccounts.invalidateApproversCache(...policyInput.approvers),
       );
 
-      return { id, key };
+      return { id, account, key };
     });
 
     try {

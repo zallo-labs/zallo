@@ -42,7 +42,7 @@ export class PoliciesResolver {
     @Info() info: GraphQLResolveInfo,
   ): Promise<typeof CreatePolicyResponse> {
     const r = await this.service.create(input);
-    return r.isOk() ? (await this.service.latest(r.value.id, getShape(info)))! : r.error;
+    return r.isOk() ? (await this.service.latest(r.value, getShape(info)))! : r.error;
   }
 
   @Mutation(() => UpdatePolicyResponse)

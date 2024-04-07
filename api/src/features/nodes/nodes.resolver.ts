@@ -15,11 +15,14 @@ export class NodesResolver {
   async node(@Args() { id }: NodesArgs, @Info() info: GraphQLResolveInfo) {
     if (!uuid.validate(id)) throw new Error('Invalid ID');
 
-    return this.db.query(
-      e.select(e.Object, (n) => ({
-        filter_single: { id },
-        ...getShape(info)(n),
-      })),
+    return this.db.queryWith(
+      { id: e.uuid },
+      ({ id }) =>
+        e.select(e.Object, (n) => ({
+          filter_single: { id },
+          ...getShape(info)(n),
+        })),
+      { id },
     );
   }
 }

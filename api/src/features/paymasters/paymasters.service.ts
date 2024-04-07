@@ -127,17 +127,20 @@ export class PaymastersService {
   }
 
   async estimateFeePerGas(feeToken: UAddress, tokenPriceParam?: Price): Promise<FeesPerGas | null> {
-    const metadata = await this.db.query(
-      e.assert_single(
-        e.select(e.Token, (t) => ({
-          filter: e.op(t.address, '=', feeToken),
-          limit: 1,
-          order_by: preferUserToken(t),
-          decimals: true,
-          pythUsdPriceId: true,
-          isFeeToken: true,
-        })),
-      ),
+    const metadata = await this.db.queryWith(
+      { token: e.UAddress },
+      ({ token }) =>
+        e.assert_single(
+          e.select(e.Token, (t) => ({
+            filter: e.op(t.address, '=', token),
+            limit: 1,
+            order_by: preferUserToken(t),
+            decimals: true,
+            pythUsdPriceId: true,
+            isFeeToken: true,
+          })),
+        ),
+      { token: feeToken },
     );
     if (!metadata || !metadata.isFeeToken || !metadata.pythUsdPriceId) return null;
 
