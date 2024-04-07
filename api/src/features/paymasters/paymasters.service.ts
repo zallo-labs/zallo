@@ -31,6 +31,8 @@ import { Price } from '~/features/prices/prices.model';
 import { ActivationsService } from '../activations/activations.service';
 import { totalPaymasterEthFees } from './paymasters.util';
 import { PaymasterFeeParts } from './paymasters.model';
+import { Redis } from 'ioredis';
+import { InjectRedis } from '@songkeys/nestjs-redis';
 
 interface UsePaymasterParams {
   account: UAddress;
@@ -61,6 +63,7 @@ export class PaymastersService {
     private prices: PricesService,
     private tokens: TokensService,
     private activations: ActivationsService,
+    @InjectRedis() private redis: Redis,
   ) {}
 
   for(chain: Chain) {
@@ -122,7 +125,7 @@ export class PaymastersService {
   }
 
   async estimateMaxEthFeePerGas(chain: Chain): Promise<Decimal> {
-    const estimates = await this.networks.get(chain).estimateFeesPerGas();
+    const estimates = await this.networks.get(chain).estimatedFeesPerGas();
     return asDecimal(estimates.maxFeePerGas!, ETH).mul('1.001'); // 0.1% to account for changes between submissing and executing the transaction
   }
 
@@ -145,7 +148,7 @@ export class PaymastersService {
     if (!metadata || !metadata.isFeeToken || !metadata.pythUsdPriceId) return null;
 
     try {
-      const ethPerGas = await this.networks.get(feeToken).estimateFeesPerGas();
+      const ethPerGas = await this.networks.get(feeToken).estimatedFeesPerGas();
       const tokenPrice =
         tokenPriceParam ?? (await this.prices.price(asHex(metadata.pythUsdPriceId)));
 

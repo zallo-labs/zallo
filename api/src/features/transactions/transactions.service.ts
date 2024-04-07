@@ -81,8 +81,7 @@ export class TransactionsService {
   ) {}
 
   async selectUnique(id: UniqueProposal, shape?: ShapeFunc<typeof e.Transaction>) {
-    const s = performance.now();
-    const r = await this.db.queryWith(
+    return this.db.queryWith(
       { id: e.uuid },
       ({ id }) =>
         e.select(e.Transaction, (t) => ({
@@ -91,9 +90,6 @@ export class TransactionsService {
         })),
       { id },
     );
-    console.log(`${performance.now() - s}ms`);
-
-    return r;
   }
 
   async tryExecute(transaction: UUID, ignoreSimulation?: boolean) {

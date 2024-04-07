@@ -123,7 +123,7 @@ describe(PaymastersService.name, () => {
         usd: new Decimal(0),
         usdEma: new Decimal(0),
       }));
-      network.estimateFeesPerGas.mockImplementation(async () => ({
+      network.estimatedFeesPerGas.mockImplementation(async () => ({
         maxFeePerGas: 125_000_000_000n,
         maxPriorityFeePerGas: 125_000_000_000n,
       }));
