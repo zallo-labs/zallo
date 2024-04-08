@@ -151,7 +151,7 @@ export const CACHE_SCHEMA_CONFIG: Pick<
       },
       removeTransaction: (result: string, _args, cache) => {
         invalidate(cache, { __typename: 'Transaction', id: result });
-        invalidate(cache, 'Query', ['proposals', 'policy', 'policyState', 'policies']);
+        invalidate(cache, 'Query', ['node', 'proposals', 'policy']);
         invalidate(cache, accountEntities(cache), ['policies']);
       },
       removeMessage: (result: string, _args, cache) => {
@@ -181,12 +181,13 @@ export const CACHE_SCHEMA_CONFIG: Pick<
       ) => {
         if (r.event === 'create' || r.event === 'delete') invalidate(cache, 'Query', ['proposals']);
         if (r.event === 'executed' || r.event === 'delete') {
-          invalidate(cache, 'Query', ['policy', 'policyState', 'policies']);
+          invalidate(cache, 'Query', ['node', 'policy']);
           invalidate(cache, accountEntities(cache, r.account), ['policies']);
         }
       },
       transfer: (_result, _args, cache) => {
-        invalidate(cache, 'Query', ['transfers', 'tokens']);
+        invalidate(cache, 'Query', ['tokens']);
+        invalidate(cache, accountEntities(cache), ['transfers']);
       },
     } satisfies Partial<Record<Subscription, UpdateResolver<unknown, unknown>>>,
   },

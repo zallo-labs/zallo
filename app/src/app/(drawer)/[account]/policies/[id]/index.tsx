@@ -29,16 +29,19 @@ import { useMemo } from 'react';
 
 const Query = gql(/* GraphQL */ `
   query PolicyScreen($account: UAddress!, $policy: ID!, $includePolicy: Boolean!) {
-    policy: policyState(id: $policy) @include(if: $includePolicy) {
-      id
-      draft {
+    policy: node(id: $policy) @include(if: $includePolicy) {
+      __typename
+      ... on Policy {
         id
+        draft {
+          id
+        }
+        proposal {
+          id
+        }
+        ...PolicyAppbar_Policy
+        ...PolicySideSheet_Policy
       }
-      proposal {
-        id
-      }
-      ...PolicyAppbar_Policy
-      ...PolicySideSheet_Policy
     }
 
     account(input: { account: $account }) {
@@ -127,7 +130,7 @@ function PolicyScreen() {
     [init, isModified, setDraft],
   );
 
-  if (!account) return null;
+  if (!account || policy?.__typename !== 'Policy') return null;
 
   return (
     <SideSheetLayout>

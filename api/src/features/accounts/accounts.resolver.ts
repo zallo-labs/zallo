@@ -23,6 +23,9 @@ import { AccountsCacheService } from '../auth/accounts.cache.service';
 import { ComputedField } from '~/decorators/computed.decorator';
 import e from '~/edgeql-js';
 import { CONFIG } from '~/config';
+import { Transfer } from '../transfers/transfers.model';
+import { TransfersInput } from '../transfers/transfers.input';
+import { TransfersService } from '../transfers/transfers.service';
 
 @Resolver(() => Account)
 export class AccountsResolver {
@@ -30,12 +33,8 @@ export class AccountsResolver {
     private service: AccountsService,
     private pubsub: PubsubService,
     private accountsCache: AccountsCacheService,
+    private transfersService: TransfersService,
   ) {}
-
-  @ComputedField<typeof e.Account>(() => String, { label: true })
-  name(@Parent() { label }: Account): string {
-    return label + CONFIG.ensSuffix;
-  }
 
   @Query(() => Account, { nullable: true })
   async account(
@@ -68,6 +67,20 @@ export class AccountsResolver {
   async updateAccount(@Input() input: UpdateAccountInput, @Info() info: GraphQLResolveInfo) {
     await this.service.updateAccount(input);
     return this.service.selectUnique(input.account, getShape(info));
+  }
+
+  @ComputedField<typeof e.Account>(() => String, { label: true })
+  name(@Parent() { label }: Account): string {
+    return label + CONFIG.ensSuffix;
+  }
+
+  @ComputedField<typeof e.Account>(() => [Transfer], { id: true })
+  transfers(
+    @Parent() { id }: Account,
+    @Input({ defaultValue: {} }) input: TransfersInput,
+    @Info() info: GraphQLResolveInfo,
+  ) {
+    return this.transfersService.select(id, input, getShape(info));
   }
 
   @Subscription(() => Account, {

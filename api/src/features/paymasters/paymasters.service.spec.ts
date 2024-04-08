@@ -49,7 +49,7 @@ describe(PaymastersService.name, () => {
       async () =>
         '0x6e100a352ec6ad1b70802290e18aeed190704973570f3b8ed42cb9808e2ea6bf4a90a229a244495b41890987806fcbd2d5d23fc0dbe5f5256c2613c039d76db81c',
     );
-    network.estimateFeesPerGas.mockImplementation(async () => ({
+    network.estimatedFeesPerGas.mockImplementation(async () => ({
       maxFeePerGas: 1n,
       maxPriorityFeePerGas: 1n,
     }));
@@ -123,7 +123,7 @@ describe(PaymastersService.name, () => {
         usd: new Decimal(0),
         usdEma: new Decimal(0),
       }));
-      network.estimateFeesPerGas.mockImplementation(async () => ({
+      network.estimatedFeesPerGas.mockImplementation(async () => ({
         maxFeePerGas: 125_000_000_000n,
         maxPriorityFeePerGas: 125_000_000_000n,
       }));

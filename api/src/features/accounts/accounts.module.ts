@@ -7,6 +7,7 @@ import { PoliciesModule } from '../policies/policies.module';
 import { UpgradeEvents } from '~/features/accounts/upgrades.events';
 import { EventsModule } from '~/features/events/events.module';
 import { SystemTxsModule } from '~/features/system-txs/system-txs.module';
+import { TransfersModule } from '../transfers/transfers.module';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { SystemTxsModule } from '~/features/system-txs/system-txs.module';
     forwardRef(() => PoliciesModule),
     EventsModule,
     SystemTxsModule,
+    TransfersModule,
   ],
   exports: [AccountsService],
   providers: [AccountsResolver, AccountsService, UpgradeEvents],

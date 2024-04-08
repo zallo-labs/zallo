@@ -8,13 +8,15 @@ import {
   UAddress,
 } from 'lib';
 import { uuid } from 'edgedb/dist/codecs/ifaces';
-import e, { $infer } from '~/edgeql-js';
+import e, { $infer, Set } from '~/edgeql-js';
 import { Shape } from '../database/database.select';
 import { PolicyInput, TransfersConfigInput } from './policies.input';
 import { selectAccount } from '~/features/accounts/accounts.util';
 import { merge } from 'ts-deepmerge';
 import { match, P } from 'ts-pattern';
 import { getUserCtx } from '~/request/ctx';
+import { $UAddress, $uint16 } from '~/edgeql-js/modules/default';
+import { $ } from 'edgedb';
 
 export type UniquePolicy = uuid | { account: UAddress; key: PolicyKey | number };
 
@@ -24,6 +26,17 @@ export const selectPolicy = (id: UniquePolicy) =>
     : e.assert_single(
         e.select(selectAccount(id.account).policies, (p) => ({ filter: e.op(p.key, '=', id.key) })),
       );
+
+export const latestPolicy2 = (
+  account: Set<$UAddress, $.Cardinality.One>,
+  key: Set<$uint16, $.Cardinality.One>,
+) =>
+  e.assert_single(
+    e.select(
+      e.select(e.Account, () => ({ filter_single: { address: account } })).policies,
+      (p) => ({ filter: e.op(p.key, '=', key) }),
+    ),
+  );
 
 const s_ = (id: uuid) => e.select(e.Policy, () => ({ filter_single: { id } }));
 export type SelectedPolicy = ReturnType<typeof s_>;

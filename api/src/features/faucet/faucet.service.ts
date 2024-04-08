@@ -1,7 +1,6 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { Address, UAddress, asAddress, asChain, asUAddress, filterAsync, isEthToken } from 'lib';
 import { NetworksService } from '~/features/util/networks/networks.service';
-import { selectAccount } from '../accounts/accounts.util';
 import { DatabaseService } from '../database/database.service';
 import e from '~/edgeql-js';
 import { parseUnits } from 'viem';
@@ -9,6 +8,7 @@ import { ERC20 } from 'lib/dapps';
 import { BalancesService } from '~/features/util/balances/balances.service';
 import { and } from '~/features/database/database.util';
 import { CHAINS } from 'chains';
+import { getUserCtx } from '~/request/ctx';
 
 @Injectable()
 export class FaucetService implements OnModuleInit {
@@ -74,7 +74,7 @@ export class FaucetService implements OnModuleInit {
   }
 
   private async getTokensToSend(account: UAddress) {
-    if (!(await this.db.query(selectAccount(account)))) return [];
+    if (!getUserCtx().accounts.some((a) => a.address === account)) return [];
 
     const network = this.networks.get(account);
     if (!network.chain.testnet) return [];

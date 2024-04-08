@@ -3,24 +3,23 @@ import { QrCodeIcon } from '@theme/icons';
 import { Suggestion } from '#/home/GettingStarted/suggestions';
 import { ListItem } from '#/list/ListItem';
 
-const Query = gql(/* GraphQL */ `
-  fragment useDepositSuggestion_Query on Query
-  @argumentDefinitions(account: { type: "UAddress!" }) {
-    incomingTransfers: transfers(input: { accounts: [$account], direction: In }) {
+const Account = gql(/* GraphQL */ `
+  fragment useDepositSuggestion_Account on Account {
+    incomingTransfers: transfers(input: { direction: In }) {
       id
     }
   }
 `);
 
 export interface UseDepositSuggestionParams {
-  query: FragmentType<typeof Query>;
+  account: FragmentType<typeof Account> | null | undefined;
 }
 
-export function useDepositSuggestion(params: UseDepositSuggestionParams): Suggestion {
-  const { incomingTransfers } = useFragment(Query, params.query);
+export function useDepositSuggestion(params: UseDepositSuggestionParams): Suggestion | null {
+  const incomingTransfers = useFragment(Account, params.account)?.incomingTransfers;
 
   return {
     Item: (props) => <ListItem leading={QrCodeIcon} headline="Deposit tokens" {...props} />,
-    complete: incomingTransfers.length > 0,
+    complete: !!incomingTransfers?.length,
   };
 }

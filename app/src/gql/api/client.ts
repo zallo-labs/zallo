@@ -98,10 +98,6 @@ const client = atom(async (get) => {
         }),
         ...CACHE_SCHEMA_CONFIG,
       }),
-      persistedExchange({
-        generateHash: async (query, _document) =>
-          crypto.createHash('sha256').update(query).digest('hex'),
-      }),
       authExchange(async (utils) => ({
         addAuthToOperation(operation) {
           if (operation.context.skipAddAuthToOperation) return operation;
@@ -117,6 +113,10 @@ const client = atom(async (get) => {
         refreshAuth,
         willAuthError,
       })),
+      persistedExchange({
+        generateHash: async (query, _document) =>
+          crypto.createHash('sha256').update(query).digest('hex'),
+      }),
       retryExchange({ maxNumberAttempts: 5, maxDelayMs: 30000 }),
       fetchExchange,
       subscriptionExchange({

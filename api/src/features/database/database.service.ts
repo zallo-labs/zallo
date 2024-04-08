@@ -1,12 +1,24 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import e, { createClient, $infer } from '~/edgeql-js';
-import { Expression } from '~/edgeql-js/typesystem';
+import {
+  BaseTypeToTsType,
+  Expression,
+  ParamType,
+  TypeSet,
+  setToTsType,
+} from '~/edgeql-js/typesystem';
 import { getRequestContext } from '~/request/ctx';
 import { AsyncLocalStorage } from 'async_hooks';
 import { EdgeDBError, type Client } from 'edgedb';
 import { Transaction } from 'edgedb/dist/transaction';
 import { MaybePromise } from 'lib';
 import * as Sentry from '@sentry/node';
+import {
+  $expr_OptionalParam,
+  $expr_Param,
+  $expr_WithParams,
+  QueryableWithParamsExpression,
+} from '~/edgeql-js/params';
 
 type Hook = () => MaybePromise<void>;
 type Globals = Partial<Record<keyof typeof e.global, unknown>>;
@@ -49,13 +61,29 @@ export class DatabaseService implements OnModuleInit {
     } satisfies Globals);
   }
 
-  async query<Expr extends Expression>(expression: Expr): Promise<$infer<Expr>> {
+  private async run<R>(p: Promise<R>): Promise<R> {
     try {
-      return await expression.run(this.client);
+      return await p;
     } catch (e) {
       if (e instanceof EdgeDBError && e['_query']) Sentry.setExtra('EdgeQL', e['_query']);
       throw e;
     }
+  }
+
+  async query<Expr extends Expression>(expression: Expr): Promise<$infer<Expr>> {
+    return this.run(expression.run(this.client));
+  }
+
+  async queryWith<
+    Params extends { [key: string]: ParamType | $expr_OptionalParam },
+    Expr extends Expression,
+  >(
+    paramsDef: Params,
+    getExpr: (params: paramsToParamExprs<Params>) => Expr,
+    params: paramsToParamArgs<Params>,
+  ) {
+    const expression = e.params(paramsDef, getExpr as any);
+    return this.run(expression.run(this.client, params as any)) as Promise<$infer<Expr>>;
   }
 
   async transaction<T>(action: (transaction: Transaction) => Promise<T>): Promise<T> {
@@ -89,3 +117,41 @@ export class DatabaseService implements OnModuleInit {
     }
   }
 }
+
+type GetQueryParams<T> =
+  T extends QueryableWithParamsExpression<infer Set, infer Params>
+    ? Parameters<T['run']>[1]
+    : never;
+
+type ParamsQueryReturnType<T> =
+  T extends QueryableWithParamsExpression<infer Set, infer Params>
+    ? Awaited<ReturnType<T['run']>>
+    : never;
+
+type paramsToParamArgs<
+  Params extends {
+    [key: string]: ParamType | $expr_OptionalParam;
+  },
+> = {
+  [key in keyof Params as Params[key] extends ParamType
+    ? key
+    : never]: Params[key] extends ParamType ? Readonly<BaseTypeToTsType<Params[key], true>> : never;
+} & {
+  [key in keyof Params as Params[key] extends $expr_OptionalParam
+    ? key
+    : never]?: Params[key] extends $expr_OptionalParam
+    ? Readonly<BaseTypeToTsType<Params[key]['__type__'], true> | null>
+    : never;
+};
+
+type paramsToParamExprs<
+  Params extends {
+    [key: string]: ParamType | $expr_OptionalParam;
+  },
+> = {
+  [key in keyof Params]: Params[key] extends $expr_OptionalParam
+    ? $expr_Param<key, Params[key]['__type__'], true>
+    : Params[key] extends ParamType
+      ? $expr_Param<key, Params[key], false>
+      : never;
+};

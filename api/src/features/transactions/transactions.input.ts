@@ -4,20 +4,10 @@ import { AddressField } from '~/apollo/scalars/Address.scalar';
 import { Uint256Field } from '~/apollo/scalars/BigInt.scalar';
 import { BytesField, BytesScalar } from '~/apollo/scalars/Bytes.scalar';
 import { PolicyKeyField } from '~/apollo/scalars/PolicyKey.scalar';
-import { TransactionStatus } from './transactions.model';
 import { DappMetadataInput, UniqueProposalInput } from '../proposals/proposals.input';
-import { UAddressField, UAddressScalar } from '~/apollo/scalars/UAddress.scalar';
+import { UAddressField } from '~/apollo/scalars/UAddress.scalar';
 import { IdField } from '~/apollo/scalars/Id.scalar';
 import { UrlField } from '~/apollo/scalars/Url.scalar';
-
-@InputType()
-export class TransactionsInput {
-  @Field(() => [UAddressScalar], { nullable: true })
-  accounts?: UAddress[];
-
-  @Field(() => [TransactionStatus], { nullable: true })
-  statuses?: TransactionStatus[];
-}
 
 @InputType()
 export class OperationInput {

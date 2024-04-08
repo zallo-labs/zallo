@@ -3,6 +3,7 @@ import { CONFIG } from '~/config';
 import { asChain, asUAddress, UAddress } from 'lib';
 import { ChainConfig, Chain, CHAINS, NetworkWallet, isChain } from 'chains';
 import {
+  EstimateFeesPerGasReturnType,
   PublicClient,
   Transport,
   WatchBlockNumberErrorType,
@@ -71,6 +72,7 @@ function create({ chainKey, redis }: CreateParams) {
   }).extend((client) => ({
     ...walletActions(client, transport, redis),
     ...blockNumberAndStatusActions(client),
+    ...estimatedFeesPerGas(client, redis),
   }));
 }
 
@@ -137,6 +139,22 @@ function blockNumberAndStatusActions(client: Client) {
     },
     sinceLastBlock() {
       return sinceLastBlock();
+    },
+  };
+}
+
+export function estimatedFeesPerGasKey(chain: Chain) {
+  return `estimatedFeesPerGasKey:${chain}`;
+}
+
+function estimatedFeesPerGas(client: Client, redis: Redis) {
+  return {
+    estimatedFeesPerGas: async (): Promise<EstimateFeesPerGasReturnType> => {
+      const key = estimatedFeesPerGasKey(client.chain.key);
+      const cached = await redis.get(key);
+      if (cached) return JSON.parse(cached) as EstimateFeesPerGasReturnType;
+
+      return client.estimateFeesPerGas();
     },
   };
 }

@@ -4,7 +4,6 @@ import {
   ExecuteTransactionInput,
   ProposeCancelScheduledTransactionInput,
   ProposeTransactionInput,
-  TransactionsInput,
   UpdateTransactionInput,
 } from './transactions.input';
 import { EstimatedTransactionFees, Transaction, TransactionStatus } from './transactions.model';
@@ -23,11 +22,6 @@ export class TransactionsResolver {
   @Query(() => Transaction, { nullable: true })
   async transaction(@Input() { id }: UniqueProposalInput, @Info() info: GraphQLResolveInfo) {
     return this.service.selectUnique(id, getShape(info));
-  }
-
-  @Query(() => [Transaction])
-  async transactions(@Input() input: TransactionsInput, @Info() info: GraphQLResolveInfo) {
-    return this.service.select(input, getShape(info));
   }
 
   @ComputedField<typeof e.Transaction>(() => Boolean, { status: true })

@@ -25,12 +25,6 @@ export class PolicyStateArgs {
 }
 
 @InputType()
-export class PoliciesInput {
-  @Field(() => Boolean, { nullable: true })
-  active?: boolean;
-}
-
-@InputType()
 export class ActionFunctionInput {
   @AddressField({ nullable: true, description: 'Default: apply to all contracts' })
   contract?: Address;

@@ -23,14 +23,6 @@ export class TransfersResolver {
     private pubsub: PubsubService,
   ) {}
 
-  @Query(() => [Transfer])
-  async transfers(
-    @Input({ defaultValue: {} }) input: TransfersInput,
-    @Info() info: GraphQLResolveInfo,
-  ) {
-    return this.service.select(input, getShape(info));
-  }
-
   @Subscription(() => Transfer, {
     name: 'transfer',
     filter: (

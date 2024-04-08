@@ -20,24 +20,32 @@ export class ContactsService {
   constructor(private db: DatabaseService) {}
 
   async selectUnique(id: UniqueContact, shape?: ShapeFunc<typeof e.Contact>) {
-    return this.db.query(
-      e.select(e.Contact, (c) => ({
-        filter_single: isUAddress(id) ? { user: e.global.current_user, address: id } : { id },
-        ...shape?.(c),
-      })),
+    return this.db.queryWith(
+      { id: e.str },
+      (p) =>
+        e.select(e.Contact, (c) => ({
+          filter_single: isUAddress(id)
+            ? { user: e.global.current_user, address: p.id }
+            : { id: e.cast(e.uuid, p.id) },
+          ...shape?.(c),
+        })),
+      { id },
     );
   }
 
   async select({ query, chain }: ContactsInput, shape?: ShapeFunc<typeof e.Contact>) {
-    return e
-      .select(e.Contact, (c) => ({
-        ...shape?.(c),
-        filter: and(
-          query && or(e.op(c.address, 'ilike', query), e.op(c.label, 'ilike', query)),
-          chain && e.op(c.chain, '=', chain),
-        ),
-      }))
-      .run(this.db.client);
+    return this.db.queryWith(
+      { query: e.optional(e.str), chain: e.optional(e.str) },
+      ({ query, chain }) =>
+        e.select(e.Contact, (c) => ({
+          ...shape?.(c),
+          filter: and(
+            e.op(or(e.op(c.address, 'ilike', query), e.op(c.label, 'ilike', query)), '??', true),
+            e.op(c.chain, '?!=', chain),
+          ),
+        })),
+      { query: query || null, chain },
+    );
   }
 
   async upsert({ previousAddress, address, label }: UpsertContactInput) {
@@ -73,6 +81,12 @@ export class ContactsService {
   }
 
   async label(address: UAddress) {
-    return (await this.db.query(e.select(e.label(address)))) || null;
+    const r = await this.db.queryWith(
+      { address: e.UAddress },
+      ({ address }) => e.select(e.label(address)),
+      { address },
+    );
+
+    return r || null;
   }
 }

@@ -2,11 +2,9 @@ import { Args, Info, Mutation, Parent, Query, Resolver } from '@nestjs/graphql';
 import { GraphQLResolveInfo } from 'graphql';
 import {
   CreatePolicyInput,
-  PoliciesInput,
   ValidationErrorsArgs,
   UniquePolicyInput,
   UpdatePolicyInput,
-  PolicyStateArgs,
 } from './policies.input';
 import { PoliciesService } from './policies.service';
 import {
@@ -30,19 +28,6 @@ export class PoliciesResolver {
     return this.service.latest(policy, getShape(info));
   }
 
-  @Query(() => Policy, { nullable: true })
-  async policyState(@Args() { id }: PolicyStateArgs, @Info() info: GraphQLResolveInfo) {
-    return this.service.unique(id, getShape(info));
-  }
-
-  @Query(() => [Policy])
-  async policies(
-    @Input({ defaultValue: {} }) input: PoliciesInput,
-    @Info() info: GraphQLResolveInfo,
-  ) {
-    return this.service.select(input, getShape(info));
-  }
-
   @ComputedField<typeof e.Policy>(() => [ValidationError], PolicyShape)
   async validationErrors(
     @Args() { proposal }: ValidationErrorsArgs,
@@ -57,7 +42,7 @@ export class PoliciesResolver {
     @Info() info: GraphQLResolveInfo,
   ): Promise<typeof CreatePolicyResponse> {
     const r = await this.service.create(input);
-    return r.isOk() ? (await this.service.latest(r.value.id, getShape(info)))! : r.error;
+    return r.isOk() ? (await this.service.latest(r.value, getShape(info)))! : r.error;
   }
 
   @Mutation(() => UpdatePolicyResponse)

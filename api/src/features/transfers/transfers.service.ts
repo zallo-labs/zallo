@@ -8,7 +8,7 @@ import { selectAccount } from '../accounts/accounts.util';
 import { uuid } from 'edgedb/dist/codecs/ifaces';
 import { Shape } from '../database/database.select';
 import { PricesService } from '../prices/prices.service';
-import { asHex, asDecimal } from 'lib';
+import { UUID, asHex } from 'lib';
 import Decimal from 'decimal.js';
 
 export const TRANSFER_VALUE_FIELDS_SHAPE = {
@@ -35,14 +35,15 @@ export class TransfersService {
   }
 
   async select(
-    { accounts, direction, internal }: TransfersInput,
+    account: UUID,
+    { direction, internal }: TransfersInput,
     shape?: ShapeFunc<typeof e.Transfer>,
   ) {
     return this.db.query(
       e.select(e.Transfer, (t) => ({
         ...shape?.(t),
         filter: and(
-          accounts && e.op(t.account, 'in', e.set(...accounts.map((a) => selectAccount(a)))),
+          e.op(t.account, '=', selectAccount(account)),
           internal !== undefined && e.op(t.internal, '=', internal),
           direction && e.op(e.cast(e.TransferDirection, direction), 'in', t.direction),
         ),

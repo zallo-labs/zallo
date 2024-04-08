@@ -16,8 +16,8 @@ import { AccountParams } from '~/app/(drawer)/[account]/(home)/_layout';
 import { useLocalParams } from '~/hooks/useLocalParams';
 
 const Query = gql(/* GraphQL */ `
-  query ActivityTab($accounts: [UAddress!]!) {
-    proposals(input: { accounts: $accounts }) {
+  query ActivityTab($account: UAddress!) {
+    proposals(input: { accounts: [$account] }) {
       __typename
       id
       timestamp: createdAt
@@ -25,17 +25,20 @@ const Query = gql(/* GraphQL */ `
       ...MessageItem_Message
     }
 
+    account(input: { account: $account }) {
+      id
+      transfers(input: { direction: In, internal: false }) {
+        __typename
+        id
+        timestamp
+        ...IncomingTransferItem_Transfer
+      }
+    }
+
     user {
       id
       ...TransactionItem_User
       ...MessageItem_User
-    }
-
-    transfers(input: { accounts: $accounts, direction: In, internal: false }) {
-      __typename
-      id
-      timestamp
-      ...IncomingTransferItem_Transfer
     }
   }
 `);
@@ -72,15 +75,11 @@ function ActivityTab() {
   const { account } = useLocalParams(ActivityTabParams);
 
   // When proposals are invalidated (on proposal sub) and the user is on a different screen this screen remains mounted but suspense doesn't occur
-  const {
-    proposals = [],
-    transfers = [],
-    user,
-  } = useQuery(Query, { accounts: [account] }).data ?? {};
+  const { account: a, proposals = [], user } = useQuery(Query, { account }).data ?? {};
   useSubscription({ query: ProposalSubscription, variables: { accounts: [account] } });
   useSubscription({ query: TransferSubscription, variables: { accounts: [account] } });
 
-  const items = [...proposals, ...transfers].sort(
+  const items = [...proposals, ...(a?.transfers ?? [])].sort(
     (a, b) => asDateTime(b.timestamp).toMillis() - asDateTime(a.timestamp).toMillis(),
   );
 
