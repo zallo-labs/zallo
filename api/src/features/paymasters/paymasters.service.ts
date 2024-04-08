@@ -31,8 +31,6 @@ import { Price } from '~/features/prices/prices.model';
 import { ActivationsService } from '../activations/activations.service';
 import { totalPaymasterEthFees } from './paymasters.util';
 import { PaymasterFeeParts } from './paymasters.model';
-import { Redis } from 'ioredis';
-import { InjectRedis } from '@songkeys/nestjs-redis';
 
 interface UsePaymasterParams {
   account: UAddress;
@@ -63,7 +61,6 @@ export class PaymastersService {
     private prices: PricesService,
     private tokens: TokensService,
     private activations: ActivationsService,
-    @InjectRedis() private redis: Redis,
   ) {}
 
   for(chain: Chain) {

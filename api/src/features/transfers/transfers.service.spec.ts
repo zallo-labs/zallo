@@ -114,7 +114,7 @@ describe(TransfersService.name, () => {
         const account2 = await createAccount();
         const transfers = await Promise.all([insert(account2), insert(account2)]);
 
-        expect((await service.select(account1.id, {})).map((t) => t.id)).toEqual(transfers);
+        expect((await service.select(account2.id, {})).map((t) => t.id)).toEqual(transfers);
       });
     });
 
