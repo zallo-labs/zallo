@@ -31,7 +31,16 @@ export function registerBullQueue(...queues: (RegisterQueueOptions & { name: str
   ].filter(isTruthy);
 }
 
-export const RUNNING_JOB_STATUSES = ['waiting', 'active', 'delayed', 'paused'] satisfies JobType[];
+export const RUNNING_JOB_STATUSES = [
+  'paused',
+  'delayed',
+  'waiting-children',
+  'wait',
+  'waiting',
+  'active',
+  'prioritized',
+  'repeat',
+] satisfies JobType[];
 
 export const FLOW_PRODUCER = 'Flows' as const;
 export const registerFlowsProducer = () => BullModule.registerFlowProducer({ name: FLOW_PRODUCER });
