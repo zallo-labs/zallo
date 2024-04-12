@@ -5,7 +5,6 @@ import { memo } from 'react';
 const icons = {
   zksync: imageFromSource(require('assets/zksync.svg')),
   'zksync-sepolia': imageFromSource(require('assets/zksync-sepolia.svg')),
-  'zksync-goerli': imageFromSource(require('assets/zksync-goerli.svg')),
   'zksync-local': UnknownOutlineIcon,
 } satisfies Record<Chain, unknown>;
 

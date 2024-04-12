@@ -159,15 +159,24 @@ export class TransactionsService {
 
     // Ordering operation ids ensures
     const operationIds = operations.map(() => uuid()).sort((a, b) => a.localeCompare(b));
-    const insertOperation = e.set(
-      ...operations.map((op, i) =>
-        e.insert(e.Operation, {
-          id: operationIds[i],
-          to: op.to,
-          value: op.value,
-          data: op.data,
-        }),
+    const insertOperation = e.for(
+      e.set(
+        ...operations.map((op, i) =>
+          e.json({
+            id: operationIds[i],
+            to: op.to,
+            value: op.value,
+            data: op.data,
+          }),
+        ),
       ),
+      (op) =>
+        e.insert(e.Operation, {
+          id: e.cast(e.uuid, op.id),
+          to: e.cast(e.Address, op.to),
+          value: e.cast(e.uint256, e.cast(e.str, e.json_get(op, 'value'))),
+          data: e.cast(e.Bytes, e.json_get(op, 'data')),
+        }),
     );
 
     const id = asUUID(uuid());
@@ -194,11 +203,8 @@ export class TransactionsService {
         activation: maxPaymasterEthFees.activation.toString(),
       }),
       feeToken: e.assert_single(
-        e.select(e.Token, (t) => ({
-          filter: and(
-            e.op(t.address, '=', e.op(asChain(account), '++', e.op(':', '++', feeToken))),
-            e.op(t.isFeeToken, '=', true),
-          ),
+        e.select(e.token(asUAddress(feeToken, asChain(account))), (t) => ({
+          filter: t.isFeeToken,
           limit: 1,
         })),
       ),
@@ -213,8 +219,8 @@ export class TransactionsService {
   }
 
   async propose({ signature, ...args }: ProposeTransactionInput) {
-    const id = await this.db.transaction(async (db) =>
-      asUUID((await (await this.getInsertProposal(args)).run(db)).id),
+    const id = await this.db.transaction(async () =>
+      asUUID((await this.db.query(await this.getInsertProposal(args))).id),
     );
 
     if (signature) {

@@ -142,7 +142,7 @@ scalar Bytes
 """32-byte hex string"""
 scalar Bytes32
 
-"""zksync | zksync-sepolia | zksync-goerli | zksync-local"""
+"""zksync | zksync-sepolia | zksync-local"""
 scalar Chain
 
 type Cloud {

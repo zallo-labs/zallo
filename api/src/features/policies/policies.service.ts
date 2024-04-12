@@ -266,6 +266,17 @@ export class PoliciesService {
   }
 
   private insertStateShape(p: NonNullable<PolicyShape>, initState?: { account: Address }) {
+    if (initState) {
+      p.actions = p.actions.map((a) => {
+        const functions = a.functions.map((f) => ({
+          ...f,
+          contract: f.contract === PLACEHOLDER_ACCOUNT_ADDRESS ? initState.account : f.contract,
+        }));
+
+        return { ...a, functions: functions as [(typeof functions)[0], ...typeof functions] };
+      });
+    }
+
     return {
       ...(initState && { activationBlock: 0n }),
       approvers: e.for(e.cast(e.str, e.set(...p.approvers.map((a) => a.address))), (approver) =>
@@ -275,32 +286,30 @@ export class PoliciesService {
         })),
       ),
       threshold: p.threshold || p.approvers.length,
-      actions: e.set(
-        ...p.actions.map((a) =>
-          e.insert(e.Action, {
-            label: a.label,
-            functions: e.set(
-              ...a.functions.map((f) =>
-                e.insert(e.ActionFunction, {
-                  contract:
-                    initState && f.contract === PLACEHOLDER_ACCOUNT_ADDRESS
-                      ? initState.account
-                      : f.contract,
-                  selector: f.selector,
-                }),
-              ),
-            ),
-            allow: a.allow,
-            description: a.description,
-          }),
-        ),
+      actions: e.for(e.cast(e.json, e.set(...p.actions.map((a) => e.json(a)))), (a) =>
+        e.insert(e.Action, {
+          label: e.cast(e.Label, a.label),
+          functions: e.for(e.json_array_unpack(a.functions), (f) =>
+            e.insert(e.ActionFunction, {
+              contract: e.cast(e.Address, e.json_get(f, 'contract')),
+              selector: e.cast(e.Bytes4, e.json_get(f, 'selector')),
+              abi: e.cast(e.json, e.json_get(f, 'abi')),
+            }),
+          ),
+          allow: e.cast(e.bool, a.allow),
+          description: e.cast(e.str, e.json_get(a, 'description')),
+        }),
       ),
       transfers: e.insert(e.TransfersConfig, {
         defaultAllow: p.transfers.defaultAllow,
         budget: p.transfers.budget,
-        ...(p.transfers.limits.length && {
-          limits: e.set(...p.transfers.limits.map((limit) => e.insert(e.TransferLimit, limit))),
-        }),
+        limits: e.for(e.cast(e.json, e.set(...p.transfers.limits.map((l) => e.json(l)))), (limit) =>
+          e.insert(e.TransferLimit, {
+            token: e.cast(e.Address, limit.token),
+            amount: e.cast(e.uint224, e.cast(e.str, limit.amount)),
+            duration: e.cast(e.uint32, limit.duration),
+          }),
+        ),
       }),
       allowMessages: p.allowMessages,
       delay: p.delay,

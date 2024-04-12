@@ -77,38 +77,4 @@ export class ContractsService {
       }),
     );
   }
-
-  // private async tryFetchEtherscanAbi(contract: Address) {
-  //   const resp: EtherscanResp | undefined = await fetchJsonWithRetry(
-  //     getEtherscanUrl(`module=contract&action=getabi&address=${contract}`),
-  //   );
-
-  //   return resp?.message === 'OK'
-  //     ? ([Contract.getInterface(JSON.parse(resp.result)), AbiSource.VERIFIED] as const)
-  //     : undefined;
-  // }
-
-  // private async tryFetchDecompiledAbi(contract: Address) {
-  //   const resp = await fetchJsonWithRetry(`https://eveem.org/code/${contract}.json`);
-
-  //   const iface =
-  //     resp?.functions?.length &&
-  //     Contract.getInterface(
-  //       resp.functions.map((frag: { name: string }) => FunctionFragment.from(frag.name)),
-  //     );
-
-  //   return iface ? ([iface, AbiSource.DECOMPILED] as const) : undefined;
-  // }
 }
-
-// const ETHERSCAN_API_URL = `https://api${
-//   CONFIG.chain.name === 'testnet' ? '-goerli' : ''
-// }.etherscan.io/api`;
-
-// const getEtherscanUrl = (args: string) =>
-//   `${ETHERSCAN_API_URL}?apikey=${CONFIG.etherscanApiKey}&${args}`;
-
-// interface EtherscanResp {
-//   message: 'OK' | 'NOTOK';
-//   result: string;
-// }

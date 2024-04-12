@@ -5,7 +5,6 @@ export function addressMap<M extends Partial<Record<Chain, Address>>>(m: M) {
   return {
     zksync: asAddress(m.zksync),
     'zksync-sepolia': asAddress(m['zksync-sepolia']),
-    'zksync-goerli': asAddress(m['zksync-goerli']),
     'zksync-local': asAddress(m['zksync-local']) ?? asAddress(m['zksync-sepolia']), // Expects a zksync-local to be a fork
   } as M &
     Partial<Record<Chain, Address>> &

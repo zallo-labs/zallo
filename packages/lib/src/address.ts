@@ -67,9 +67,6 @@ export function isEthToken(address: Address) {
 
 export type UAddress = `${Chain}:${Address}`;
 
-// let fallbackChain: Chain = 'zksync-goerli';
-// export const setFallbackChain = (c: Chain) => (fallbackChain = c);
-
 export const tryAsUAddress = (v: string | undefined, chain?: Chain): UAddress | undefined => {
   if (!v || v.length < 42) return undefined;
 
