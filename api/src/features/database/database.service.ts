@@ -1,3 +1,4 @@
+import '~/util/patches'; // Required due to jest BigInt serialization error
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import e, { createClient, $infer } from '~/edgeql-js';
 import { BaseTypeToTsType, Expression, ParamType } from '~/edgeql-js/typesystem';
