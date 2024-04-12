@@ -645,6 +645,5 @@ export const PYTH = {
   address: addressMap({
     zksync: '0xf087c864AEccFb6A2Bf1Af6A0382B0d0f6c5D834',
     'zksync-sepolia': '0x056f829183Ec806A78c26C98961678c24faB71af',
-    'zksync-goerli': '0x8739d5024B5143278E2b15Bd9e7C26f6CEc658F1',
   }),
 };

@@ -22,14 +22,6 @@ export const CHAINS = {
     layer1: viemChain.sepolia,
     verifyUrl: 'https://explorer.sepolia.era.zksync.dev/contract_verification',
   } as const,
-  /** @deprecated use zksync-sepolia */
-  'zksync-goerli': {
-    ...viemChain.zkSyncTestnet,
-    key: 'zksync-goerli',
-    name: 'zkSync Goerli testnet',
-    layer1: viemChain.goerli,
-    verifyUrl: 'https://zksync2-testnet-explorer.zksync.dev/contract_verification',
-  } as const,
   'zksync-local': {
     ...viemChain.zkSyncSepoliaTestnet,
     key: 'zksync-local',

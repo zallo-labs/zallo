@@ -26,7 +26,6 @@ export const ETH = {
   address: addressMap({
     zksync: ETH_ADDRESS,
     'zksync-sepolia': ETH_ADDRESS,
-    'zksync-goerli': ETH_ADDRESS,
   }),
   icon: icon('ETH.webp'),
   isFeeToken: true,
@@ -44,7 +43,6 @@ export const WETH = {
   address: addressMap({
     zksync: '0xf00DAD97284D0c6F06dc4Db3c32454D4292c6813',
     'zksync-sepolia': '0x701f3B10b5Cc30CA731fb97459175f45E0ac1247',
-    'zksync-goerli': '0x20b28B1e4665FFf290650586ad76E977EAb90c5D',
   }),
   icon: icon('WETH.webp'),
   isFeeToken: true,
@@ -56,9 +54,8 @@ export const USDC = {
   symbol: 'USDC',
   decimals: 6,
   address: addressMap({
-    zksync: '0x3355df6D4c9C3035724Fd0e3914dE96A5a83aaf4',
-    'zksync-sepolia': '0xd45ab0E1dc7F503Eb177949c2Fb2Ab772B4B6CFC',
-    'zksync-goerli': '0x0faF6df7054946141266420b43783387A78d82A9',
+    zksync: '0x1d17CBcF0D6D143135aE902365D2E5e2A16538D4',
+    'zksync-sepolia': '0xd45ab0E1dc7F503Eb177949c2Fb2Ab772B4B6CFC', // New address is 0xAe045DE5638162fa134807Cb558E15A3F5A7F853 but not used by syncswap yet
   }),
   icon: icon(`USDC.svg`),
   isFeeToken: true,
@@ -72,7 +69,6 @@ export const USDT = {
   address: addressMap({
     zksync: '0x493257fD37EDB34451f62EDf8D2a0C418852bA4C',
     'zksync-sepolia': '0x8C9d66bA3E1D7681cfFFfa3C7d9807adae368E74',
-    'zksync-goerli': '0xfcEd12dEbc831D3a84931c63687C395837D42c2B',
   }),
   icon: icon(`USDT.svg`),
   pythUsdPriceId: '0x2b89b9dc8fdf9f34709a5b106b472f0f39bb6ca9ce04b0fd7f2e971688e2e53b',
@@ -84,7 +80,6 @@ export const DAI = {
   decimals: 18,
   address: addressMap({
     zksync: '0x4B9eb6c0b6ea15176BBF62841C6B2A8a398cb656',
-    'zksync-goerli': '0x3e7676937A7E96CFB7616f255b9AD9FF47363D4b',
   }),
   icon: icon(`DAI.svg`),
   isFeeToken: true,
@@ -98,7 +93,6 @@ export const WBTC = {
   address: addressMap({
     zksync: '0xBBeB516fb02a01611cBBE0453Fe3c580D7281011',
     'zksync-sepolia': '0xBD1AAA3058613dDA84Ca2BC590f39d85aD7AdB48',
-    'zksync-goerli': '0x0BfcE1D53451B4a8175DD94e6e029F7d8a701e9c',
   }),
   icon: icon(`WBTC.svg`),
   pythUsdPriceId: '0xc9d8b075a5c69303365ae23633d4e085199bf5c520a3b90fed1322a0342ffc33',
@@ -135,7 +129,6 @@ export const UNI = {
   address: {
     zksync: '0x1C6f53185061D7cC387E481c350aD00C2C876f3E',
     'zksync-sepolia': '0xe1134444211593Cfda9fc9eCc7B43208615556E2',
-    'zksync-goerli': '0x88B75c4Bf1cd9d5B89D4E504324a901335d31357',
   },
   icon: icon('UNI.webp'),
   pythUsdPriceId: '0x0bbf28e9a841a1cc788f6a361b17ca072d0ea3098a1e5df1c3922d06719579ff',
