@@ -1,24 +1,13 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import e, { createClient, $infer } from '~/edgeql-js';
-import {
-  BaseTypeToTsType,
-  Expression,
-  ParamType,
-  TypeSet,
-  setToTsType,
-} from '~/edgeql-js/typesystem';
+import { BaseTypeToTsType, Expression, ParamType } from '~/edgeql-js/typesystem';
 import { getRequestContext } from '~/request/ctx';
 import { AsyncLocalStorage } from 'async_hooks';
 import { EdgeDBError, type Client } from 'edgedb';
 import { Transaction } from 'edgedb/dist/transaction';
 import { MaybePromise } from 'lib';
 import * as Sentry from '@sentry/node';
-import {
-  $expr_OptionalParam,
-  $expr_Param,
-  $expr_WithParams,
-  QueryableWithParamsExpression,
-} from '~/edgeql-js/params';
+import { $expr_OptionalParam, $expr_Param } from '~/edgeql-js/params';
 
 type Hook = () => MaybePromise<void>;
 type Globals = Partial<Record<keyof typeof e.global, unknown>>;
@@ -117,16 +106,6 @@ export class DatabaseService implements OnModuleInit {
     }
   }
 }
-
-type GetQueryParams<T> =
-  T extends QueryableWithParamsExpression<infer Set, infer Params>
-    ? Parameters<T['run']>[1]
-    : never;
-
-type ParamsQueryReturnType<T> =
-  T extends QueryableWithParamsExpression<infer Set, infer Params>
-    ? Awaited<ReturnType<T['run']>>
-    : never;
 
 type paramsToParamArgs<
   Params extends {

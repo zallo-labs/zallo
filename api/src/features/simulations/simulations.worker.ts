@@ -11,7 +11,6 @@ import {
   asUAddress,
   asUUID,
   decodeTransfer,
-  encodeTransaction,
   isHex,
   isTruthy,
   simulate,
@@ -127,11 +126,10 @@ export class SimulationsWorker extends Worker<SimulationsQueue> {
       )
       .filter(isTruthy);
 
-    const transfers: TransferDetails[] = [];
+    const transfers: Omit<TransferDetails, 'account'>[] = [];
     for (const op of p.operations) {
       if (op.value) {
         transfers.push({
-          account: selectedAccount,
           from: localAccount,
           to: op.to,
           tokenAddress: asUAddress(ETH_ADDRESS, chain),
@@ -150,7 +148,6 @@ export class SimulationsWorker extends Worker<SimulationsQueue> {
       );
       if (f instanceof TransferOp && f.token !== ETH_ADDRESS) {
         transfers.push({
-          account: selectedAccount,
           from: localAccount,
           to: f.to,
           tokenAddress: asUAddress(f.token, chain),
@@ -159,7 +156,6 @@ export class SimulationsWorker extends Worker<SimulationsQueue> {
         });
       } else if (f instanceof TransferFromOp) {
         transfers.push({
-          account: selectedAccount,
           from: f.from,
           to: f.to,
           tokenAddress: asUAddress(f.token, chain),
@@ -168,7 +164,6 @@ export class SimulationsWorker extends Worker<SimulationsQueue> {
         });
       } else if (f instanceof SwapOp) {
         transfers.push({
-          account: selectedAccount,
           from: op.to,
           to: localAccount,
           tokenAddress: asUAddress(f.toToken, chain),
@@ -189,7 +184,19 @@ export class SimulationsWorker extends Worker<SimulationsQueue> {
               success,
               responses,
               ...(transfers.length && {
-                transfers: e.set(...transfers.map((t) => e.insert(e.TransferDetails, t))),
+                transfers: e.with(
+                  [selectedAccount],
+                  e.for(e.set(...transfers.map((t) => e.json(t))), (t) =>
+                    e.insert(e.TransferDetails, {
+                      account: selectedAccount,
+                      from: e.cast(e.Address, t.from),
+                      to: e.cast(e.Address, t.to),
+                      tokenAddress: e.cast(e.UAddress, t.tokenAddress),
+                      amount: e.cast(e.decimal, e.cast(e.str, t.amount)),
+                      direction: e.cast(e.TransferDirection, e.json_array_unpack(t.direction)),
+                    }),
+                  ),
+                ),
               }),
             }),
           },
