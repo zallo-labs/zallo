@@ -1,7 +1,7 @@
 app = "zallo-production-edgedb"
 primary_region = "lax"  # Los Angeles
 
-swap_size_mb = 1024
+swap_size_mb = 4096
 
 [build]
   image = "edgedb/edgedb:5.0-beta.2"
