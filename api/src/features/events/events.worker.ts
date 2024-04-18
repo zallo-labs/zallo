@@ -22,7 +22,6 @@ import { UnrecoverableError } from 'bullmq';
 const TARGET_LOGS_PER_JOB = 9_000; // Max 10k
 const DEFAULT_LOGS_PER_BLOCK = 200;
 const LPB_ALPHA = 0.2;
-const MAX_DELAY = 30_000; // ms
 const TOO_MANY_RESULTS_RE =
   /Query returned more than .+? results. Try with this block range \[(?:0x[0-9a-f]+), (0x[0-9a-f]+)\]/;
 
@@ -98,16 +97,12 @@ export class EventsWorker extends Worker<EventsQueue> {
     // Queue next job on the first attempt
     if (firstAttempt) {
       if (latest < from) {
-        this.queue.add(
-          'Ahead',
-          { chain, from, to },
-          { delay: Math.min(network.blockTime(), MAX_DELAY) },
-        );
+        this.queue.add('Ahead', { chain, from, to }, { delay: delay(network.blockTime()) });
       } else {
         this.queue.add(
           latest === from ? 'Tracking' : 'Behind',
           { chain, from: to + 1, to: to + this.targetBlocks(chain) },
-          { delay: latest === from ? Math.min(network.blockTime(), MAX_DELAY) : undefined },
+          { delay: latest === from ? delay(network.blockTime()) : undefined },
         );
       }
     }
@@ -200,4 +195,8 @@ export class EventsWorker extends Worker<EventsQueue> {
       },
     );
   }
+}
+
+function delay(blockTime: number) {
+  return Math.max(50 /* min */, Math.min(blockTime - 100, 30_000 /* max */));
 }
