@@ -7,7 +7,7 @@ import type { BlurProps } from './index';
 export function Blur({ children, ...props }: BlurProps) {
   return (
     <>
-      <StatusBar style="light" />
+      <StatusBar style="light" animated />
       <BlurView
         blurAmount={16}
         blurType={useTheme().dark ? 'light' : 'dark'}
