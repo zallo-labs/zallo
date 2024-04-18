@@ -14,7 +14,6 @@ import {
   createQueue,
   TypedQueue,
 } from '../util/bull/bull.util';
-import { DEFAULT_JOB_OPTIONS } from '../util/bull/bull.module';
 import { AbiEvent } from 'abitype';
 import { Log as ViemLog, encodeEventTopics, hexToNumber } from 'viem';
 import { runOnce } from '~/util/mutex';
@@ -27,14 +26,7 @@ const MAX_DELAY = 30_000; // ms
 const TOO_MANY_RESULTS_RE =
   /Query returned more than .+? results. Try with this block range \[(?:0x[0-9a-f]+), (0x[0-9a-f]+)\]/;
 
-export const EventsQueue = createQueue<EventJobData>('Events', {
-  defaultJobOptions: {
-    ...DEFAULT_JOB_OPTIONS,
-    // LIFO ensures that the oldest blocks are processed first, without the overhead of prioritized jobs
-    // This is due to the next block being added prior to (potential) block splits
-    lifo: true,
-  },
-});
+export const EventsQueue = createQueue<EventJobData>('Events');
 export type EventsQueue = typeof EventsQueue;
 
 interface EventJobData {
