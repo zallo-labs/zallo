@@ -130,7 +130,7 @@ function PolicyScreen() {
     [init, isModified, setDraft],
   );
 
-  if (!account || policy?.__typename !== 'Policy') return null;
+  if (!account || (policy && policy.__typename !== 'Policy')) return null;
 
   return (
     <SideSheetLayout>
