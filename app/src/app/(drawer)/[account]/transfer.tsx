@@ -7,7 +7,11 @@ import { Divider } from 'react-native-paper';
 import { useAddressLabel } from '#/address/AddressLabel';
 import { NumericInput } from '#/fields/NumericInput';
 import { TokenItem } from '#/token/TokenItem';
-import { useSelectedToken, useSetSelectedToken } from '~/hooks/useSelectedToken';
+import {
+  defaultSelectedToken,
+  useSelectedToken,
+  useSetSelectedToken,
+} from '~/hooks/useSelectedToken';
 import { InputsView, InputType } from '../../../components/InputsView';
 import { Button } from '#/Button';
 import { gql } from '@api/generated';
@@ -66,7 +70,10 @@ function TransferScreen() {
   const [input, setInput] = useState('');
   const [type, setType] = useState(InputType.Token);
 
-  if (!token) return null; // TODO: handle
+  if (!token) {
+    setToken(defaultSelectedToken(chain));
+    return null;
+  }
 
   const inputAmount = input || '0';
   const amount =

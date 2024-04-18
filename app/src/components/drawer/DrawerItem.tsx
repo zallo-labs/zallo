@@ -33,7 +33,7 @@ export function DrawerItem<R>({ href, label, icon: Icon, disabled, ...props }: D
       {...props}
       onPress={(e) => {
         close();
-        props.onPress ? props.onPress(e) : router.push(href);
+        props.onPress ? props.onPress(e) : router.navigate(href);
       }}
     />
     // </Link>

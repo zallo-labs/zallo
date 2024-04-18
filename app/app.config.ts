@@ -122,6 +122,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     adaptiveIcon: {
       foregroundImage: './assets/brand/icon-1024a.png',
       backgroundColor: '#FEF7FF',
+      monochromeImage: './assets/brand/icon-1024a-mono.png',
     },
     googleServicesFile:
       ENV[vary('GOOGLE_SERVICES_ANDROID_FILE', (v) => '_' + v.toUpperCase())] ||
@@ -153,6 +154,10 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   web: {
     bundler: 'metro',
     favicon: './public/favicon.png',
+  },
+  notification: {
+    androidMode: 'collapse',
+    icon: './assets/brand/icon-96m-mono.png',
   },
   experiments: {
     typedRoutes: true,

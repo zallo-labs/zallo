@@ -20,7 +20,7 @@ export const Background = ({ children }: BackgroundProps) => {
 
   return (
     <View style={styles.background}>
-      <StatusBar backgroundColor="transparent" />
+      <StatusBar backgroundColor="transparent" animated />
       {children}
     </View>
   );
