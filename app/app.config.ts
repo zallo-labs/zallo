@@ -154,6 +154,10 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     bundler: 'metro',
     favicon: './public/favicon.png',
   },
+  notification: {
+    androidMode: 'collapse',
+    icon: './assets/brand/icon-96m-mono.png',
+  },
   experiments: {
     typedRoutes: true,
   },
