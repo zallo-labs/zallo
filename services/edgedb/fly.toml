@@ -9,6 +9,7 @@ swap_size_mb = 4096
 [env]
   EDGEDB_SERVER_PORT = 10700 # default
   EDGEDB_SERVER_TLS_CERT_MODE = "generate_self_signed"
+  EDGEDB_SERVER_EXTRA_ARGS = "--max-backend-connections 15" # Default: RAM/100MB
 
 
   # Secrets
