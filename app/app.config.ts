@@ -122,6 +122,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     adaptiveIcon: {
       foregroundImage: './assets/brand/icon-1024a.png',
       backgroundColor: '#FEF7FF',
+      monochromeImage: './assets/brand/icon-1024a-mono.png',
     },
     googleServicesFile:
       ENV[vary('GOOGLE_SERVICES_ANDROID_FILE', (v) => '_' + v.toUpperCase())] ||
