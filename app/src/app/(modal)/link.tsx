@@ -2,7 +2,7 @@ import QRCode from 'react-native-qrcode-svg';
 import { IconButton, Surface, Text } from 'react-native-paper';
 import { CloseIcon, PasteIcon, ScanIcon, ShareIcon } from '@theme/icons';
 import { Actions } from '#/layout/Actions';
-import { ScaledSize, View, useWindowDimensions } from 'react-native';
+import { View, useWindowDimensions } from 'react-native';
 import { Blur } from '#/Blur';
 import { Button } from '#/Button';
 import { gql } from '@api/generated';
@@ -15,7 +15,6 @@ import { Link } from 'expo-router';
 import { appLink } from '~/lib/appLink';
 import { share } from '~/lib/share';
 import { createStyles, useStyles } from '@theme/styles';
-import { EdgeInsets, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export const LINKINGS_FROM_TOKEN = new Subject<LinkingTokenModal_SubscriptionSubscription>();
 
@@ -49,7 +48,7 @@ export default function LinkingModal() {
 
   return (
     <Blur>
-      <View style={styles.container(useSafeAreaInsets())}>
+      <View style={styles.container}>
         <Link href=".." asChild>
           <IconButton mode="contained-tonal" icon={CloseIcon} style={styles.close} />
         </Link>
@@ -59,7 +58,7 @@ export default function LinkingModal() {
             <QRCode
               value={link}
               color={styles.qr.color}
-              size={styles.qrSize(useWindowDimensions()).fontSize}
+              size={styles.qrSize.fontSize}
               backgroundColor="transparent"
               ecl="M"
               enableLinearGradient
@@ -98,11 +97,11 @@ export default function LinkingModal() {
   );
 }
 
-const stylesheet = createStyles(({ colors }) => ({
-  container: (insets: EdgeInsets) => ({
+const stylesheet = createStyles(({ colors }, { insets, screen }) => ({
+  container: {
     flex: 1,
     marginTop: insets.top,
-  }),
+  },
   close: {
     marginHorizontal: 16,
   },
@@ -126,13 +125,13 @@ const stylesheet = createStyles(({ colors }) => ({
     padding: 16,
     borderRadius: 16,
   },
-  qrSize: (window: ScaledSize) => ({
+  qrSize: {
     fontSize: {
-      compact: Math.min(window.width * 0.8, window.height * 0.8),
-      medium: Math.min(window.width * 0.7, window.height * 0.7),
-      expanded: Math.min(window.width * 0.5, window.height * 0.5),
+      compact: Math.min(screen.width * 0.8, screen.height * 0.8),
+      medium: Math.min(screen.width * 0.7, screen.height * 0.7),
+      expanded: Math.min(screen.width * 0.5, screen.height * 0.5),
     },
-  }),
+  },
   qr: {
     color: colors.onSurface,
   },

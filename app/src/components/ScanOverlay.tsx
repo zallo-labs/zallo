@@ -4,24 +4,15 @@ import { StyleSheet, View } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
 import { showWarning } from '#/provider/SnackbarProvider';
 import { useSelectAddress } from '~/hooks/useSelectAddress';
-import {
-  EdgeInsets,
-  Rect,
-  useSafeAreaFrame,
-  useSafeAreaInsets,
-} from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { createStyles, useStyles } from '@theme/styles';
-import { useMemoApply } from '~/hooks/useMemoized';
 
 export interface OverlayProps {
   onData: (data: string) => Promise<boolean>;
 }
 
 export function ScanOverlay({ onData }: OverlayProps) {
-  const { styles } = useStyles(
-    useMemoApply(getStylesheet, { area: useSafeAreaFrame(), insets: useSafeAreaInsets() }),
-  );
+  const { styles } = useStyles(stylesheet);
   const selectAddress = useSelectAddress();
 
   return (
@@ -63,77 +54,71 @@ export function ScanOverlay({ onData }: OverlayProps) {
   );
 }
 
-interface StyleProps {
-  area: Rect;
-  insets: EdgeInsets;
-}
+const stylesheet = createStyles(({ colors }, { insets, screen }) => {
+  const size = Math.min(screen.width / 1.5, screen.height / 1.5, 600);
+  const finderWidth = 8;
+  const finderRadius = size * 0.08;
 
-const getStylesheet = ({ area, insets }: StyleProps) =>
-  createStyles(({ colors }) => {
-    const size = Math.min(area.width / 1.5, area.height / 1.5, 600);
-    const finderWidth = 8;
-    const finderRadius = size * 0.08;
+  const finderBorder = {
+    position: 'absolute',
+    width: size * 0.15,
+    height: size * 0.15,
+    borderColor: colors.primaryContainer,
+  } as const;
 
-    const finderBorder = {
-      position: 'absolute',
-      width: size * 0.15,
-      height: size * 0.15,
-      borderColor: colors.primaryContainer,
-    } as const;
-
-    return {
-      container: {
-        flex: 1,
-        marginTop: insets.top + 8,
-      },
-      actions: {
-        flexDirection: 'row',
-        marginHorizontal: 16,
-        gap: 16,
-      },
-      spacer: {
-        flex: 1,
-      },
-      finderContainer: {
-        alignItems: 'center',
-        justifyContent: 'center',
-        ...StyleSheet.absoluteFillObject,
-      },
-      finder: {
-        width: size,
-        height: size,
-      },
-      finderTopLeft: {
-        ...finderBorder,
-        top: 0,
-        left: 0,
-        borderLeftWidth: finderWidth,
-        borderTopWidth: finderWidth,
-        borderTopLeftRadius: finderRadius,
-      },
-      finderTopRight: {
-        ...finderBorder,
-        top: 0,
-        right: 0,
-        borderRightWidth: finderWidth,
-        borderTopWidth: finderWidth,
-        borderTopRightRadius: finderRadius,
-      },
-      finderBottomLeft: {
-        ...finderBorder,
-        bottom: 0,
-        left: 0,
-        borderLeftWidth: finderWidth,
-        borderBottomWidth: finderWidth,
-        borderBottomLeftRadius: finderRadius,
-      },
-      finderBottomRight: {
-        ...finderBorder,
-        bottom: 0,
-        right: 0,
-        borderRightWidth: finderWidth,
-        borderBottomWidth: finderWidth,
-        borderBottomRightRadius: finderRadius,
-      },
-    };
-  });
+  return {
+    container: {
+      flex: 1,
+      marginTop: insets.top + 8,
+    },
+    actions: {
+      flexDirection: 'row',
+      marginHorizontal: 16,
+      gap: 16,
+    },
+    spacer: {
+      flex: 1,
+    },
+    finderContainer: {
+      alignItems: 'center',
+      justifyContent: 'center',
+      ...StyleSheet.absoluteFillObject,
+    },
+    finder: {
+      width: size,
+      height: size,
+    },
+    finderTopLeft: {
+      ...finderBorder,
+      top: 0,
+      left: 0,
+      borderLeftWidth: finderWidth,
+      borderTopWidth: finderWidth,
+      borderTopLeftRadius: finderRadius,
+    },
+    finderTopRight: {
+      ...finderBorder,
+      top: 0,
+      right: 0,
+      borderRightWidth: finderWidth,
+      borderTopWidth: finderWidth,
+      borderTopRightRadius: finderRadius,
+    },
+    finderBottomLeft: {
+      ...finderBorder,
+      bottom: 0,
+      left: 0,
+      borderLeftWidth: finderWidth,
+      borderBottomWidth: finderWidth,
+      borderBottomLeftRadius: finderRadius,
+    },
+    finderBottomRight: {
+      ...finderBorder,
+      bottom: 0,
+      right: 0,
+      borderRightWidth: finderWidth,
+      borderBottomWidth: finderWidth,
+      borderBottomRightRadius: finderRadius,
+    },
+  };
+});
