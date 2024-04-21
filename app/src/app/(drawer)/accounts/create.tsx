@@ -20,7 +20,7 @@ import { CHAINS, Chain } from 'chains';
 import { FormSelectChip } from '#/fields/FormSelectChip';
 import { CHAIN_ENTRIES } from '@network/chains';
 import { useQuery } from '~/gql';
-import { useMemo } from 'react';
+import { ReactNode, useMemo } from 'react';
 
 const Query = gql(/* GraphQL */ `
   query CreateAccountScreen {
@@ -51,9 +51,10 @@ interface Inputs {
 
 export interface CreateAccountScreenProps {
   onCreate?: (account: UAddress) => void;
+  actions?: ReactNode;
 }
 
-function CreateAccountScreen({ onCreate }: CreateAccountScreenProps) {
+function CreateAccountScreen({ onCreate, actions }: CreateAccountScreenProps) {
   const { styles } = useStyles(stylesheet);
   const router = useRouter();
   const create = useMutation(Create)[1];
@@ -117,6 +118,8 @@ function CreateAccountScreen({ onCreate }: CreateAccountScreenProps) {
         </View>
 
         <Actions>
+          {actions}
+
           <FormSubmitButton
             mode="contained"
             style={styles.button}

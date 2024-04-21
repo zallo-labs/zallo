@@ -37,8 +37,7 @@ function Layout() {
       <Stack.Screen name={`onboard`} options={{ headerShown: false }} />
       <Stack.Screen name={`_sitemap`} />
       <Stack.Screen name={`+not-found`} />
-      <Stack.Screen name={`hello`} />
-      <Stack.Screen name={`index`} />
+      <Stack.Screen name={`index`} options={{ headerShown: false }} />
       <Stack.Screen name={`scan`} options={{ headerShown: false }} />
     </Stack>
   );
