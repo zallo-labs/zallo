@@ -1,4 +1,4 @@
-import { View } from 'react-native';
+import { ScrollView, View } from 'react-native';
 import { createStyles, useStyles } from '@theme/styles';
 import { LandingHeader } from '#/landing/LandingHeader';
 import { PrimarySection } from '#/landing/PrimarySection';
@@ -44,7 +44,7 @@ export default function LandingScreen() {
     return <Redirect href={{ pathname: `/(drawer)/[account]/(home)/`, params: { account } }} />;
 
   return (
-    <View style={styles.root}>
+    <ScrollView contentContainerStyle={styles.root} stickyHeaderIndices={[0]}>
       <LandingHeader />
 
       <LinearGradient
@@ -56,13 +56,13 @@ export default function LandingScreen() {
           <PrimarySection account={account} />
         </View>
       </LinearGradient>
-    </View>
+    </ScrollView>
   );
 }
 
 const stylesheet = createStyles((_theme, { screen }) => ({
   root: {
-    flex: 1,
+    flexGrow: 1,
   },
   gradient: {
     flex: 1,
