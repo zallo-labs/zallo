@@ -3,8 +3,8 @@ import { ComponentPropsWithoutRef } from 'react';
 import { Keyboard } from 'react-native';
 import { FAB as PaperFAB } from 'react-native-paper';
 import { IconSource } from 'react-native-paper/lib/typescript/components/Icon';
+import { createStyles, useStyles } from '@theme/styles';
 import { EdgeInsets, useSafeAreaInsets } from 'react-native-safe-area-context';
-import { createStyles } from '@theme/styles';
 
 type BaseProps = ComponentPropsWithoutRef<typeof PaperFAB>;
 
@@ -15,6 +15,7 @@ export type FabProps = Omit<BaseProps, 'icon'> &
   };
 
 export const Fab = ({ appbar, position = 'absolute', style, ...props }: FabProps) => {
+  const { styles } = useStyles(stylesheet);
   const [loading, onPress] = useWithLoading(props.onPress);
   const insets = useSafeAreaInsets();
 
@@ -36,10 +37,10 @@ export const Fab = ({ appbar, position = 'absolute', style, ...props }: FabProps
   );
 };
 
-const styles = createStyles({
+const stylesheet = createStyles(() => ({
   absolute: (insets: EdgeInsets) => ({
     position: 'absolute',
     bottom: 16 + insets.bottom,
     right: 16,
   }),
-});
+}));

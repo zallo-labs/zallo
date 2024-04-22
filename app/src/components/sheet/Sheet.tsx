@@ -1,11 +1,11 @@
 import { forwardRef } from 'react';
 import BottomSheet, { BottomSheetProps, BottomSheetView } from '@gorhom/bottom-sheet';
 import { StyleProp, View, ViewStyle } from 'react-native';
-import { EdgeInsets, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { SheetBackground } from '#/sheet/SheetBackground';
 import { SheetBackdrop } from '#/sheet/SheetBackdrop';
 import { createStyles, useStyles } from '@theme/styles';
+import { EdgeInsets, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export interface SheetProps extends Omit<BottomSheetProps, 'ref'> {
   initialSnapPoints?: (string | number)[];
@@ -17,6 +17,7 @@ export const Sheet = forwardRef<BottomSheet, SheetProps>(
   ({ children, handle = true, contentContainerStyle, ...props }, ref) => {
     const { styles } = useStyles(stylesheet);
     const router = useRouter();
+    const insets = useSafeAreaInsets();
 
     return (
       <BottomSheet
@@ -32,9 +33,7 @@ export const Sheet = forwardRef<BottomSheet, SheetProps>(
         handleStyle={[styles.handle, props.handleStyle]}
         handleIndicatorStyle={[styles.handleIndicator, props.handleIndicatorStyle]}
       >
-        <BottomSheetView
-          style={[styles.contentContainer(useSafeAreaInsets()), contentContainerStyle]}
-        >
+        <BottomSheetView style={[styles.contentContainer(insets), contentContainerStyle]}>
           {children}
         </BottomSheetView>
       </BottomSheet>
@@ -62,7 +61,7 @@ const stylesheet = createStyles(({ colors }) => ({
   },
   contentContainer: (insets: EdgeInsets) => ({
     paddingTop: 8,
-    paddingBottom: insets?.bottom,
+    paddingBottom: insets.bottom,
     marginHorizontal: {
       expanded: 56,
     },

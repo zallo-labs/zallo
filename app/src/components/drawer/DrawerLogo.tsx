@@ -12,8 +12,8 @@ export function DrawerLogo({ style }: DrawerLogoProps) {
 
 const styles = createStyles({
   logo: {
-    minWidth: 146,
     minHeight: 56,
+    minWidth: 146,
     marginHorizontal: 16,
     alignSelf: 'flex-start',
   },

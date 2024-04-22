@@ -41,7 +41,7 @@ const stylesheet = createStyleSheet(({ corner }) => ({
   },
   modalSurface: (insets: EdgeInsets) => ({
     flex: 1,
-    width: 400,   // minWidth is always used in modal on android
+    width: 400, // minWidth is always used in modal on android
     borderTopLeftRadius: corner.l,
     borderBottomLeftRadius: corner.l,
     paddingTop: insets.top,

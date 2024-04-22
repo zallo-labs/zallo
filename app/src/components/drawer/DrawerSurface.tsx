@@ -14,13 +14,14 @@ export interface DrawerSurfaceProps extends ScrollViewProps {}
 export function DrawerSurface(props: DrawerSurfaceProps) {
   const { styles } = useStyles(stylesheet);
   const { type } = useDrawerContext();
+  const insets = useSafeAreaInsets();
 
   return (
     <Surface {...surfaceTypeProps[type]} style={styles.surface}>
       <ScrollView
         showsVerticalScrollIndicator={false}
         {...props}
-        contentContainerStyle={[styles.container(useSafeAreaInsets()), props.contentContainerStyle]}
+        contentContainerStyle={[styles.container(insets), props.contentContainerStyle]}
       />
     </Surface>
   );

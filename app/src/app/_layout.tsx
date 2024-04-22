@@ -37,8 +37,7 @@ function Layout() {
       <Stack.Screen name={`onboard`} options={{ headerShown: false }} />
       <Stack.Screen name={`_sitemap`} />
       <Stack.Screen name={`+not-found`} />
-      <Stack.Screen name={`hello`} />
-      <Stack.Screen name={`index`} />
+      <Stack.Screen name={`index`} options={{ headerShown: false }} />
       <Stack.Screen name={`scan`} options={{ headerShown: false }} />
     </Stack>
   );
@@ -46,12 +45,12 @@ function Layout() {
 
 function RootLayout() {
   return (
-    <ThemeProvider>
-      <Fonts />
-      <SentryProvider />
-      <Try catch={RootErrorBoundary}>
-        <IntlProvider locale={getLocales()?.[0]?.languageTag ?? 'en-US'} defaultLocale="en-US">
-          <SafeAreaProvider>
+    <SafeAreaProvider>
+      <ThemeProvider>
+        <Fonts />
+        <SentryProvider />
+        <Try catch={RootErrorBoundary}>
+          <IntlProvider locale={getLocales()?.[0]?.languageTag ?? 'en-US'} defaultLocale="en-US">
             <GestureHandlerRootView style={styles.flex}>
               <Background>
                 <Suspense fallback={<Splash />}>
@@ -83,10 +82,10 @@ function RootLayout() {
               <SnackbarProvider />
               <UpdateProvider />
             </GestureHandlerRootView>
-          </SafeAreaProvider>
-        </IntlProvider>
-      </Try>
-    </ThemeProvider>
+          </IntlProvider>
+        </Try>
+      </ThemeProvider>
+    </SafeAreaProvider>
   );
 }
 
