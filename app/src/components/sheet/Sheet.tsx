@@ -5,6 +5,7 @@ import { useRouter } from 'expo-router';
 import { SheetBackground } from '#/sheet/SheetBackground';
 import { SheetBackdrop } from '#/sheet/SheetBackdrop';
 import { createStyles, useStyles } from '@theme/styles';
+import { EdgeInsets, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export interface SheetProps extends Omit<BottomSheetProps, 'ref'> {
   initialSnapPoints?: (string | number)[];
@@ -16,6 +17,7 @@ export const Sheet = forwardRef<BottomSheet, SheetProps>(
   ({ children, handle = true, contentContainerStyle, ...props }, ref) => {
     const { styles } = useStyles(stylesheet);
     const router = useRouter();
+    const insets = useSafeAreaInsets();
 
     return (
       <BottomSheet
@@ -31,7 +33,7 @@ export const Sheet = forwardRef<BottomSheet, SheetProps>(
         handleStyle={[styles.handle, props.handleStyle]}
         handleIndicatorStyle={[styles.handleIndicator, props.handleIndicatorStyle]}
       >
-        <BottomSheetView style={[styles.contentContainer, contentContainerStyle]}>
+        <BottomSheetView style={[styles.contentContainer(insets), contentContainerStyle]}>
           {children}
         </BottomSheetView>
       </BottomSheet>
@@ -39,7 +41,7 @@ export const Sheet = forwardRef<BottomSheet, SheetProps>(
   },
 );
 
-const stylesheet = createStyles(({ colors }, { insets }) => ({
+const stylesheet = createStyles(({ colors }) => ({
   background: {
     marginHorizontal: {
       expanded: 56,
@@ -57,11 +59,11 @@ const stylesheet = createStyles(({ colors }, { insets }) => ({
     height: 4,
     opacity: 0.4,
   },
-  contentContainer: {
+  contentContainer: (insets: EdgeInsets) => ({
     paddingTop: 8,
     paddingBottom: insets.bottom,
     marginHorizontal: {
       expanded: 56,
     },
-  },
+  }),
 }));

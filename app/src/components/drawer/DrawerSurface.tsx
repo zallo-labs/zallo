@@ -2,6 +2,7 @@ import { Surface, SurfaceProps } from 'react-native-paper';
 import { ScrollView, ScrollViewProps } from 'react-native';
 import { DrawerType, useDrawerContext } from './DrawerContextProvider';
 import { createStyles, useStyles } from '@theme/styles';
+import { EdgeInsets, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const surfaceTypeProps: Record<DrawerType, Partial<SurfaceProps>> = {
   standard: { mode: 'flat', elevation: 0 },
@@ -13,26 +14,27 @@ export interface DrawerSurfaceProps extends ScrollViewProps {}
 export function DrawerSurface(props: DrawerSurfaceProps) {
   const { styles } = useStyles(stylesheet);
   const { type } = useDrawerContext();
+  const insets = useSafeAreaInsets();
 
   return (
     <Surface {...surfaceTypeProps[type]} style={styles.surface}>
       <ScrollView
         showsVerticalScrollIndicator={false}
         {...props}
-        contentContainerStyle={[styles.container, props.contentContainerStyle]}
+        contentContainerStyle={[styles.container(insets), props.contentContainerStyle]}
       />
     </Surface>
   );
 }
 
-const stylesheet = createStyles(({ corner }, { insets }) => ({
+const stylesheet = createStyles(({ corner }) => ({
   surface: {
     flex: 1,
     borderTopRightRadius: corner.l,
     borderBottomRightRadius: corner.l,
   },
-  container: {
+  container: (insets: EdgeInsets) => ({
     paddingTop: insets.top + 12,
     paddingBottom: insets.bottom,
-  },
+  }),
 }));
