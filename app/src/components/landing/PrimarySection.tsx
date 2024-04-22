@@ -2,45 +2,19 @@ import { View } from 'react-native';
 import { createStyles, useStyles } from '@theme/styles';
 import { Text } from 'react-native-paper';
 import { Button } from '#/Button';
-import Animated, { FadeIn } from 'react-native-reanimated';
-import { useEffect, useState } from 'react';
 import { Link } from 'expo-router';
+import { TypewriterText } from './TypewriterText';
 
-const DEFAULT_DELAY = 3000;
-const VALUES = [
+const SELLING_POINTS = [
   { text: 'self-custody' },
   { text: 'security that scales' },
-  { text: 'fast & low-cost transactions' },
-  // 'access across devices',
+  { text: 'fast & low-cost actions' },
   { text: 'onchain banking' },
-  { text: 'Zallo', delay: 6000 },
+  { text: 'Zallo.', completeDelay: 5000 },
 ];
 
 export function PrimarySection() {
   const { styles } = useStyles(stylesheet);
-
-  const [index, setIndex] = useState(0);
-
-  useEffect(() => {
-    let timer: NodeJS.Timeout | undefined;
-
-    const setTimer = (i: number) => {
-      timer = setTimeout(() => {
-        setIndex((i) => {
-          const next = i < VALUES.length - 1 ? i + 1 : 0;
-          setTimer(next);
-
-          return next;
-        });
-      }, VALUES[i].delay ?? DEFAULT_DELAY);
-    };
-
-    setTimer(0);
-
-    return () => {
-      clearTimeout(timer);
-    };
-  }, []);
 
   return (
     <View style={styles.section}>
@@ -48,9 +22,14 @@ export function PrimarySection() {
 
       <Text variant="displayLarge" style={styles.text}>
         Secure your digital assets {'\n'}with{' '}
-        <Animated.Text key={index} style={styles.animatedText} entering={FadeIn}>
-          {VALUES[index].text}
-        </Animated.Text>
+        <TypewriterText
+          values={SELLING_POINTS}
+          loop
+          minDelay={50}
+          maxDelay={200}
+          completeDelay={2000}
+          style={styles.animatedText}
+        />
       </Text>
 
       <Text variant="headlineSmall" style={styles.text}>
@@ -99,8 +78,6 @@ const stylesheet = createStyles(({ colors, fonts }) => ({
       compact: 'column',
       medium: 'row',
     },
-    // flexDirection: 'row',
-    // flexWrap: 'wrap-reverse',
     marginVertical: 8,
     columnGap: 16,
     rowGap: 8,

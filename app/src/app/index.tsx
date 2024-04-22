@@ -51,7 +51,7 @@ export default function LandingScreen() {
   );
 }
 
-const stylesheet = createStyles(({ colors }, { screen }) => ({
+const stylesheet = createStyles((_theme, { screen }) => ({
   root: {
     flex: 1,
   },
@@ -62,7 +62,7 @@ const stylesheet = createStyles(({ colors }, { screen }) => ({
   container: {
     flex: 1,
     alignSelf: 'center',
-    width: '80%',
+    paddingHorizontal: 16,
     maxWidth: 864,
   },
 }));
