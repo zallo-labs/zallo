@@ -12,6 +12,7 @@ import { z } from 'zod';
 import { useLocalParams } from '~/hooks/useLocalParams';
 import { zBool } from '~/lib/zod';
 import { useMemo } from 'react';
+import { EdgeInsets, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const Query = gql(/* GraphQL */ `
   query HelloScreen {
@@ -30,27 +31,28 @@ export default function LandingScreen() {
   const { styles, theme } = useStyles(stylesheet);
   const { redirect } = useLocalParams(LandingScreenParams);
   const selectedAccount = useSelectedAccount();
+  const insets = useSafeAreaInsets();
 
   const query = useQuery(Query, undefined, { context });
 
   const account = useMemo(() => {
-    const accounts = query.data.accounts;
+    const accounts = query.data?.accounts ?? [];
     if (!(selectedAccount || (accounts.length && !query.stale))) return undefined;
 
-    return accounts.find((a) => a.address === selectedAccount)?.address ?? accounts[0].address;
-  }, [query.data.accounts, query.stale, selectedAccount]);
+    return accounts.find((a) => a.address === selectedAccount)?.address ?? accounts[0]?.address;
+  }, [query.data?.accounts, query.stale, selectedAccount]);
 
   if (redirect && account)
     return <Redirect href={{ pathname: `/(drawer)/[account]/(home)/`, params: { account } }} />;
 
   return (
-    <ScrollView contentContainerStyle={styles.root} stickyHeaderIndices={[0]}>
+    <ScrollView contentContainerStyle={styles.root(insets)} stickyHeaderIndices={[0]}>
       <LandingHeader />
 
       <LinearGradient
         colors={[theme.colors.primaryContainer, theme.colors.surface]}
         style={styles.gradient}
-        locations={[0.6]}
+        locations={[0.6, 1]}
       >
         <View style={styles.container}>
           <PrimarySection account={account} />
@@ -61,9 +63,10 @@ export default function LandingScreen() {
 }
 
 const stylesheet = createStyles((_theme, { screen }) => ({
-  root: {
+  root: (insets: EdgeInsets) => ({
     flexGrow: 1,
-  },
+    paddingBottom: insets.bottom,
+  }),
   gradient: {
     flex: 1,
     maxHeight: screen.height,
@@ -72,7 +75,8 @@ const stylesheet = createStyles((_theme, { screen }) => ({
     flex: 1,
     alignSelf: 'center',
     paddingHorizontal: 16,
-    maxWidth: 864,
+    maxWidth: 1280,
+    width: '100%',
   },
 }));
 
