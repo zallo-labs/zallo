@@ -35,8 +35,8 @@ const stylesheet = createStyles(({ colors, iconSize }, { insets }) => ({
     backgroundColor: colors.primaryContainer,
   },
   logo: {
-    height: 60,
-    width: 156,
+    minHeight: 60,
+    minWidth: 156,
   },
   trailing: {
     flex: 1,

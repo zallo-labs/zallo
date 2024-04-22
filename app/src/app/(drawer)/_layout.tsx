@@ -20,11 +20,12 @@ import { useSelectedAccount } from '~/hooks/useSelectedAccount';
 import { CONFIG } from '~/util/config';
 import { useTransfer } from '~/hooks/useTransfer';
 import { DrawerSurface } from '#/drawer/DrawerSurface';
-import { Stack } from 'expo-router';
+import { Link, Stack, useRouter } from 'expo-router';
 import { AppbarHeader } from '#/Appbar/AppbarHeader';
 import { DrawerLogo } from '#/drawer/DrawerLogo';
 import { createStyles } from '@theme/styles';
 import { memo } from 'react';
+import { TouchableOpacity } from 'react-native';
 
 const Section = PaperDrawer.Section;
 
@@ -45,11 +46,16 @@ export default memo(DrawerLayout);
 function Content() {
   const account = useSelectedAccount();
   const transfer = useTransfer();
+  const router = useRouter();
 
   return (
     <DrawerSurface>
       <Section>
-        <DrawerLogo style={styles.logo} />
+        <Link href={{ pathname: '/', params: { redirect: 'false' } }} asChild>
+          <TouchableOpacity>
+            <DrawerLogo style={styles.logo} />
+          </TouchableOpacity>
+        </Link>
 
         {account ? (
           <Item

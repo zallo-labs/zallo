@@ -50,3 +50,7 @@ export function zHex(byteSize?: number) {
     .string()
     .refine((v): v is Hex => isHex(v) && (byteSize === undefined || size(v) === byteSize));
 }
+
+export function zBool() {
+  return z.enum(['true', 'false']).transform((value) => value === 'true');
+}

@@ -4,6 +4,7 @@ import { Text } from 'react-native-paper';
 import { Button } from '#/Button';
 import { Link } from 'expo-router';
 import { TypewriterText } from './TypewriterText';
+import { UAddress } from 'lib';
 
 const SELLING_POINTS = [
   { text: 'self-custody' },
@@ -13,7 +14,11 @@ const SELLING_POINTS = [
   { text: 'Zallo.', completeDelay: 5000 },
 ];
 
-export function PrimarySection() {
+export interface PrimarySectionProps {
+  account?: UAddress;
+}
+
+export function PrimarySection({ account }: PrimarySectionProps) {
   const { styles } = useStyles(stylesheet);
 
   return (
@@ -39,11 +44,19 @@ export function PrimarySection() {
 
       <View style={styles.actionsContainer}>
         <View style={styles.actions}>
-          <Link href="/onboard/account" asChild>
-            <Button mode="contained" style={styles.action}>
-              Get started
-            </Button>
-          </Link>
+          {account ? (
+            <Link href={{ pathname: `/(drawer)/[account]/(home)/`, params: { account } }} asChild>
+              <Button mode="contained" style={styles.action}>
+                View account
+              </Button>
+            </Link>
+          ) : (
+            <Link href="/onboard/account" asChild>
+              <Button mode="contained" style={styles.action}>
+                Get started
+              </Button>
+            </Link>
+          )}
 
           <Button mode="text">Learn more</Button>
         </View>
