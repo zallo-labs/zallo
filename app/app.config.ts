@@ -3,6 +3,7 @@ import { ConfigPlugin } from 'expo/config-plugins';
 import { PluginConfigType as BuildPropertiesConfig } from 'expo-build-properties/build/pluginConfig';
 import expoRouterPlugin from 'expo-router/plugin';
 import path from 'path';
+import '@sentry/react-native/expo';
 
 // Absolute path resolution is required for EAS builds (during gradlew autolinking), but not available for dev client
 require('dotenv').config({ path: path.resolve(process.env.EAS_BUILD ? __dirname : '', '../.env') });
@@ -87,6 +88,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     [
       '@sentry/react-native/expo',
       {
+        url: 'https://sentry.io/',
         organization: ENV.SENTRY_ORG,
         project: ENV.APP_SENTRY_PROJECT,
         deployEnv: ENV.env,
