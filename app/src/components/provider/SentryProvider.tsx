@@ -9,7 +9,9 @@ const metadata = 'metadata' in manifest ? manifest.metadata : undefined;
 const extra = 'extra' in manifest ? manifest.extra : undefined;
 const updateGroup = metadata && 'updateGroup' in metadata ? metadata.updateGroup : undefined;
 
-const routingInstrumentation = new Sentry.ReactNavigationInstrumentation();
+const routingInstrumentation = new Sentry.ReactNavigationInstrumentation({
+  enableTimeToInitialDisplay: true,
+});
 
 Sentry.init({
   enabled: !__DEV__,
