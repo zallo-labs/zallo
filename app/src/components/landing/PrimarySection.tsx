@@ -5,7 +5,7 @@ import { Button } from '#/Button';
 import { Link } from 'expo-router';
 import { TypewriterText, TypewriterValue } from './TypewriterText';
 import { UAddress } from 'lib';
-import { CONFIG } from 'app.config';
+import { CONFIG } from '~/util/config';
 
 const SELLING_POINTS = [
   { text: 'self-custody' },
