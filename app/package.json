@@ -42,7 +42,7 @@
     "@react-navigation/native": "^6.1.8",
     "@react-navigation/native-stack": "^6.9.14",
     "@react-oauth/google": "^0.12.1",
-    "@sentry/react-native": "~5.20.0",
+    "@sentry/react-native": "5.19.1",
     "@shopify/flash-list": "1.6.3",
     "@tanstack/react-query": "^5.29.2",
     "@urql/devtools": "^2.0.3",
