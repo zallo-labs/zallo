@@ -13,6 +13,8 @@ import { useLocalParams } from '~/hooks/useLocalParams';
 import { zBool } from '~/lib/zod';
 import { useMemo } from 'react';
 import { EdgeInsets, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { withSuspense } from '#/skeleton/withSuspense';
+import { ScreenSkeleton } from '#/skeleton/ScreenSkeleton';
 
 const Query = gql(/* GraphQL */ `
   query HelloScreen {
@@ -27,7 +29,7 @@ const context = { suspense: false } satisfies Partial<OperationContext>;
 
 const LandingScreenParams = z.object({ redirect: zBool().default('true') });
 
-export default function LandingScreen() {
+function LandingScreen() {
   const { styles, theme } = useStyles(stylesheet);
   const { redirect } = useLocalParams(LandingScreenParams);
   const selectedAccount = useSelectedAccount();
@@ -37,7 +39,7 @@ export default function LandingScreen() {
 
   const account = useMemo(() => {
     const accounts = query.data?.accounts ?? [];
-    if (!(selectedAccount || (accounts.length && !query.stale))) return undefined;
+    if (!selectedAccount && (!accounts.length || query.stale)) return undefined;
 
     return accounts.find((a) => a.address === selectedAccount)?.address ?? accounts[0]?.address;
   }, [query.data?.accounts, query.stale, selectedAccount]);
@@ -79,5 +81,7 @@ const stylesheet = createStyles((_theme, { screen }) => ({
     width: '100%',
   },
 }));
+
+export default withSuspense(LandingScreen, <ScreenSkeleton />);
 
 export { ErrorBoundary } from '#/ErrorBoundary';
