@@ -1,9 +1,9 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { persistedAtom } from '~/lib/persistedAtom';
 import { useImmerAtom } from 'jotai-immer';
 import * as Notifications from 'expo-notifications';
 import type { NotificationChannelInput } from 'expo-notifications';
-import { Switch } from 'react-native-paper';
+import { Divider, Switch, Text } from 'react-native-paper';
 import { Actions } from '#/layout/Actions';
 import { Button } from '#/Button';
 import { ListItem } from '#/list/ListItem';
@@ -16,6 +16,7 @@ import { ScrollableScreenSurface } from '#/layout/ScrollableScreenSurface';
 import { IconProps, TransferIcon, UpdateIcon, materialCommunityIcon } from '@theme/icons';
 import { FC } from 'react';
 import { AppbarMenu } from '#/Appbar/AppbarMenu';
+import { createStyles } from '@theme/styles';
 
 export type NotificationChannel = 'product' | 'activity' | 'transfers';
 export const NotificationChannelConfig: Record<
@@ -66,10 +67,9 @@ export const useNotificationSettings = () => ({
 
 export interface NotificationSettingsProps {
   next?: () => void;
-  appbarMenu?: boolean;
 }
 
-function NotificationSettings({ next, appbarMenu }: NotificationSettingsProps) {
+export function NotificationSettings({ next }: NotificationSettingsProps) {
   const [settings, update] = useImmerAtom(NOTIFICATIONS_ATOM);
 
   const [perm, requestPerm] = Notifications.usePermissions({
@@ -84,18 +84,13 @@ function NotificationSettings({ next, appbarMenu }: NotificationSettingsProps) {
 
   return (
     <>
-      <AppbarOptions
-        mode="large"
-        {...(appbarMenu && { leading: AppbarMenu })}
-        headline="Notifications"
-      />
+      <Text variant="bodyLarge" style={styles.description}>
+        Which notifications do you want to receive?
+      </Text>
 
-      <ScrollableScreenSurface style={styles.surface}>
-        <ListHeader>Receive</ListHeader>
-
-        {Object.entries(NotificationChannelConfig).map(([channel, config]) => (
+      {Object.entries(NotificationChannelConfig).map(([channel, config], i, channels) => (
+        <View key={channel}>
           <ListItem
-            key={channel}
             leading={config.icon}
             headline={config.name}
             supporting={config.description}
@@ -110,32 +105,33 @@ function NotificationSettings({ next, appbarMenu }: NotificationSettingsProps) {
               />
             }
           />
-        ))}
+          {i < channels.length - 1 && <Divider />}
+        </View>
+      ))}
 
-        <Actions>
-          {!perm?.granted && next && <Button onPress={next}>Skip</Button>}
+      <Actions>
+        {!perm?.granted && next && <Button onPress={next}>Skip</Button>}
 
-          {(!perm?.granted || next) && (
-            <Button
-              mode="contained"
-              onPress={async () => {
-                await requestPerm();
-                next?.();
-              }}
-            >
-              {perm?.granted ? 'Continue' : 'Enable'}
-            </Button>
-          )}
-        </Actions>
-      </ScrollableScreenSurface>
+        {(!perm?.granted || next) && (
+          <Button
+            mode="contained"
+            onPress={async () => {
+              await requestPerm();
+              next?.();
+            }}
+          >
+            {perm?.granted ? 'Continue' : 'Enable'}
+          </Button>
+        )}
+      </Actions>
     </>
   );
 }
 
-const styles = StyleSheet.create({
-  surface: {
-    paddingTop: 8,
+const styles = createStyles({
+  description: {
+    marginTop: 8,
+    marginBottom: 8,
+    marginHorizontal: 16,
   },
 });
-
-export default withSuspense(NotificationSettings, <ScreenSkeleton />);
