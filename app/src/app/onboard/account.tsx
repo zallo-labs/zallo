@@ -2,26 +2,22 @@ import { gql } from '@api';
 import { useRouter } from 'expo-router';
 import { UAddress } from 'lib';
 import { useCallback } from 'react';
-import CreateAccountScreen from '~/app/(drawer)/accounts/create';
 import { useQuery } from '~/gql';
 import { useSetSelectedAccont } from '~/hooks/useSelectedAccount';
 import { useFocusEffect } from 'expo-router';
-import { LinkZalloButton } from '#/link/LinkZalloButton';
-import { LinkLedgerButton } from '#/link/ledger/LinkLedgerButton';
-import { LinkGoogleButton } from '#/link/LinkGoogleButton';
-import { LinkAppleButton } from '#/link/LinkAppleButton';
+import { ScreenSkeleton } from '#/skeleton/ScreenSkeleton';
+import { createStyles } from '@theme/styles';
+import { ScrollView, View } from 'react-native';
+import { OnboardProgress } from '#/onboard/OnboardProgress';
+import { Appbar } from '#/Appbar/Appbar';
+import { CreateAccount } from '#/CreateAccount';
+import { withSuspense } from '#/skeleton/withSuspense';
 
 const Query = gql(/* GraphQL */ `
   query AccountOnboarding {
     accounts {
       id
       address
-    }
-
-    user {
-      id
-      ...LinkAppleButton_User
-      ...LinkGoogleButton_User
     }
   }
 `);
@@ -30,12 +26,13 @@ function AccountOnboardingScreen() {
   const router = useRouter();
   const setSelected = useSetSelectedAccont();
 
-  const { accounts, user } = useQuery(Query).data;
+  const { accounts } = useQuery(Query).data;
 
   const next = useCallback(
     (account: UAddress) => {
       setSelected(account);
-      router.push(`/onboard/auth`);
+      console.log(account);
+      router.push({ pathname: '/(drawer)/[account]/(home)/', params: { account } });
     },
     [router, setSelected],
   );
@@ -47,20 +44,24 @@ function AccountOnboardingScreen() {
   if (accounts.length) return null;
 
   return (
-    <CreateAccountScreen
-      onCreate={next}
-      actions={
-        <>
-          <LinkZalloButton />
-          <LinkLedgerButton />
-          <LinkGoogleButton user={user} />
-          <LinkAppleButton user={user} />
-        </>
-      }
-    />
+    <ScrollView contentContainerStyle={styles.pane} stickyHeaderIndices={[0]}>
+      <View>
+        <OnboardProgress progress={0.8} />
+        <Appbar mode="large" headline="Let's setup your account" inset={false} />
+      </View>
+
+      <CreateAccount onCreate={next} />
+    </ScrollView>
   );
 }
 
-export default AccountOnboardingScreen;
+const styles = createStyles({
+  pane: {
+    flexGrow: 1,
+    gap: 8,
+  },
+});
+
+export default withSuspense(AccountOnboardingScreen, <ScreenSkeleton />);
 
 export { ErrorBoundary } from '#/ErrorBoundary';
