@@ -1,49 +1,25 @@
-import { Drawer } from '#/drawer/Drawer';
-import { DrawerSurface } from '#/drawer/DrawerSurface';
-import { Drawer as RnpDrawer } from 'react-native-paper';
-import { DrawerItem } from '#/drawer/DrawerItem';
-import { FingerprintIcon, NotificationsIcon, AccountIcon } from '@theme/icons';
-import { Stack, usePathname } from 'expo-router';
-import { AppbarHeader } from '#/Appbar/AppbarHeader';
-import { DrawerLogo } from '#/drawer/DrawerLogo';
+import { createStyles } from '@theme/styles';
+import { Stack } from 'expo-router';
+import { View } from 'react-native';
 
-export default function OnboardingDrawerLayout() {
+export default function OnboardingLayout() {
   return (
-    <Drawer drawerContent={Content}>
-      <Stack screenOptions={{ header: AppbarHeader }} />
-    </Drawer>
+    <View style={styles.root}>
+      <View style={styles.pane}>
+        <Stack screenOptions={{ headerShown: false }} />
+      </View>
+    </View>
   );
 }
 
-enum ORDER {
-  '/onboard/account' = 1,
-  '/onboard/auth',
-  '/onboard/notifications',
-}
-
-function Content() {
-  const pathname = usePathname();
-  const position = ORDER[pathname as keyof typeof ORDER] ?? 0;
-
-  return (
-    <DrawerSurface>
-      <DrawerLogo />
-
-      <RnpDrawer.Section title="Onboarding" showDivider={false}>
-        <DrawerItem href="/onboard/account" icon={AccountIcon} label="Account" />
-        <DrawerItem
-          href="/onboard/auth"
-          icon={FingerprintIcon}
-          label="Authentication"
-          disabled={position < ORDER['/onboard/auth']}
-        />
-        <DrawerItem
-          href="/onboard/notifications"
-          icon={NotificationsIcon}
-          label="Notifications"
-          disabled={position < ORDER['/onboard/notifications']}
-        />
-      </RnpDrawer.Section>
-    </DrawerSurface>
-  );
-}
+const styles = createStyles({
+  root: {
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'center',
+  },
+  pane: {
+    flex: 1,
+    maxWidth: 600,
+  },
+});

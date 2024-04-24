@@ -22,7 +22,7 @@ export function DataView({ children, chain, style }: DataViewProps) {
 
 const stylesheet = createStyles(({ colors, corner }) => ({
   container: {
-    backgroundColor: colors.surfaceContainer.medium,
+    backgroundColor: colors.surfaceContainer.mid,
     borderRadius: corner.l,
     padding: 16,
   },

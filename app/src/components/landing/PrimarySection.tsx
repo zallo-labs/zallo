@@ -52,7 +52,7 @@ export function PrimarySection({ account }: PrimarySectionProps) {
               </Button>
             </Link>
           ) : (
-            <Link href="/onboard/account" asChild>
+            <Link href="/onboard/user" asChild>
               <Button mode="contained" style={styles.primaryAction}>
                 Get started
               </Button>

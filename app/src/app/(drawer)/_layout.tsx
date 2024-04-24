@@ -20,7 +20,7 @@ import { useSelectedAccount } from '~/hooks/useSelectedAccount';
 import { CONFIG } from '~/util/config';
 import { useTransfer } from '~/hooks/useTransfer';
 import { DrawerSurface } from '#/drawer/DrawerSurface';
-import { Link, Stack, useRouter } from 'expo-router';
+import { Link, Stack } from 'expo-router';
 import { AppbarHeader } from '#/Appbar/AppbarHeader';
 import { DrawerLogo } from '#/drawer/DrawerLogo';
 import { createStyles } from '@theme/styles';
@@ -46,7 +46,6 @@ export default memo(DrawerLayout);
 function Content() {
   const account = useSelectedAccount();
   const transfer = useTransfer();
-  const router = useRouter();
 
   return (
     <DrawerSurface>
