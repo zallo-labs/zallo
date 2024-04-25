@@ -3,7 +3,7 @@ import { Address, UAddress, asAddress, asChain, isUAddress } from 'lib';
 import { IconButton, Surface, Text } from 'react-native-paper';
 import { CloseIcon, DownArrowIcon, ShareIcon, materialCommunityIcon } from '@theme/icons';
 import { Actions } from '#/layout/Actions';
-import { ScaledSize, View, useWindowDimensions } from 'react-native';
+import { View } from 'react-native';
 import { AddressLabel } from '#/address/AddressLabel';
 import { Blur } from '#/Blur';
 import { Button } from '#/Button';
@@ -78,7 +78,7 @@ export function QrModal({ address, actions }: QrModalProps) {
             <QRCode
               value={displayed}
               color={styles.qr.color}
-              size={styles.qrSize(useWindowDimensions()).fontSize}
+              size={styles.qr.fontSize}
               backgroundColor="transparent"
               ecl="M"
               enableLinearGradient
@@ -99,7 +99,7 @@ export function QrModal({ address, actions }: QrModalProps) {
   );
 }
 
-const stylesheet = createStyles(({ colors, iconSize }) => ({
+const stylesheet = createStyles(({ colors, iconSize }, { screen }) => ({
   container: (insets: EdgeInsets) => ({
     flex: 1,
     marginTop: insets.top,
@@ -140,14 +140,8 @@ const stylesheet = createStyles(({ colors, iconSize }) => ({
     padding: 16,
     borderRadius: 16,
   },
-  qrSize: (window: ScaledSize) => ({
-    fontSize: {
-      compact: Math.min(window.width * 0.8, window.height * 0.8),
-      medium: Math.min(window.width * 0.7, window.height * 0.7),
-      expanded: Math.min(window.width * 0.5, window.height * 0.5),
-    },
-  }),
   qr: {
+    fontSize: Math.min(screen.width * 0.8, screen.height * 0.6, 1024 - 64),
     color: colors.onSurface,
   },
   primary: {

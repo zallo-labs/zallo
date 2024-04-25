@@ -1,8 +1,8 @@
 import QRCode from 'react-native-qrcode-svg';
-import { IconButton, Surface, Text } from 'react-native-paper';
-import { CloseIcon, PasteIcon, ScanIcon, ShareIcon } from '@theme/icons';
+import { IconButton, Surface } from 'react-native-paper';
+import { CloseIcon, ScanIcon, ShareIcon } from '@theme/icons';
 import { Actions } from '#/layout/Actions';
-import { View, useWindowDimensions } from 'react-native';
+import { View } from 'react-native';
 import { Blur } from '#/Blur';
 import { Button } from '#/Button';
 import { gql } from '@api/generated';
@@ -58,30 +58,16 @@ export default function LinkingModal() {
             <QRCode
               value={link}
               color={styles.qr.color}
-              size={styles.qrSize.fontSize}
+              size={styles.qr.fontSize}
               backgroundColor="transparent"
               ecl="M"
               enableLinearGradient
               linearGradient={[styles.primary.color, styles.tertiary.color]}
             />
           </Surface>
-
-          <View style={styles.textContainer}>
-            <Text variant="headlineMedium" style={styles.text}>
-              Linking a device
-            </Text>
-
-            <Text variant="bodyLarge" style={styles.text}>
-              1. Open Zallo on your existing device{'\n'}
-              2. Tap scan <ScanIcon size={styles.textIcon.fontSize} style={styles.text} />
-              {'\n'}
-              3. Scan the token on this screen, or share & paste{' '}
-              <PasteIcon size={styles.textIcon.fontSize} style={styles.text} /> the linking token
-            </Text>
-          </View>
         </View>
 
-        <Actions flex={false}>
+        <Actions flex={false} style={styles.actions}>
           <Button mode="contained-tonal" icon={ShareIcon} onPress={() => share({ url: link })}>
             Share token
           </Button>
@@ -116,23 +102,16 @@ const stylesheet = createStyles(({ colors }, { insets, screen }) => ({
     fontSize: 14,
   },
   qrContainer: {
-    flex: 4,
+    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    gap: 32,
   },
   qrSurface: {
     padding: 16,
     borderRadius: 16,
   },
-  qrSize: {
-    fontSize: {
-      compact: Math.min(screen.width * 0.8, screen.height * 0.8),
-      medium: Math.min(screen.width * 0.7, screen.height * 0.7),
-      expanded: Math.min(screen.width * 0.5, screen.height * 0.5),
-    },
-  },
   qr: {
+    fontSize: Math.min(screen.width * 0.8, screen.height * 0.7, 1024 - 64),
     color: colors.onSurface,
   },
   primary: {
@@ -141,8 +120,10 @@ const stylesheet = createStyles(({ colors }, { insets, screen }) => ({
   tertiary: {
     color: colors.tertiary,
   },
-  requestButton: {
-    color: colors.inverseOnSurface,
+  actions: {
+    width: '100%',
+    maxWidth: 1024,
+    alignSelf: 'center',
   },
 }));
 
