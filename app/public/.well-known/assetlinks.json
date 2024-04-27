@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "io.zall",
+      "sha256_cert_fingerprints": [
+        "80:97:59:D1:B3:1A:5C:EE:09:9C:D5:C2:5D:0B:FA:68:04:5C:80:6E:CC:2A:93:54:59:48:6A:A1:BC:99:EF:1B"
+      ]
+    }
+  }
+]
