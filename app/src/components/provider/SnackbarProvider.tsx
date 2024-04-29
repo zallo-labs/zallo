@@ -47,7 +47,7 @@ const Snack = ({
       onDismiss={hide}
       duration={Infinity} // Duration is handled by RnToast, mutating isVisible on hide
       theme={theme}
-      style={[styles.snackbar, style]}
+      style={[styles.snackbarBase, styles.snackbar, style]}
       {...(action && {
         action: {
           ...action,
@@ -85,6 +85,9 @@ const getStylesheet = ({ variant }: { variant: SnackVariant }) =>
     return {
       actionLabel: {
         color: colors.primary,
+      },
+      snackbarBase: {
+        maxWidth: 600,
       },
       ...s,
     };
@@ -129,5 +132,5 @@ export const hideSnackbar = RnToast.hide;
 const CONFIGS: ToastConfig = { [Snack.name]: Snack };
 
 export const SnackbarProvider = () => (
-  <RnToast position="bottom" bottomOffset={10} config={CONFIGS} />
+  <RnToast position="bottom" bottomOffset={0} config={CONFIGS} />
 );
