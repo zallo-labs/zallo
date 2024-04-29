@@ -28,7 +28,7 @@
     "update-env": "npx dotenv-vault@latest push production"
   },
   "engines": {
-    "node": "20.9.0",
+    "node": "20.12.2",
     "yarn": "4.x"
   },
   "devDependencies": {
