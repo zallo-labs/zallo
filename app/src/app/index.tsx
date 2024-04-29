@@ -76,7 +76,7 @@ const stylesheet = createStyles((_theme, { screen }) => ({
   container: {
     flex: 1,
     alignSelf: 'center',
-    marginHorizontal: 16,
+    paddingHorizontal: 16,
     maxWidth: 1280,
     width: '100%',
   },
