@@ -3,7 +3,7 @@ import { Address, UAddress, asAddress, asChain, isUAddress } from 'lib';
 import { IconButton, Surface, Text } from 'react-native-paper';
 import { CloseIcon, DownArrowIcon, ShareIcon, materialCommunityIcon } from '@theme/icons';
 import { Actions } from '#/layout/Actions';
-import { ScaledSize, View, useWindowDimensions } from 'react-native';
+import { View } from 'react-native';
 import { AddressLabel } from '#/address/AddressLabel';
 import { Blur } from '#/Blur';
 import { Button } from '#/Button';
@@ -78,16 +78,14 @@ export function QrModal({ address, actions }: QrModalProps) {
             <QRCode
               value={displayed}
               color={styles.qr.color}
-              size={styles.qrSize(useWindowDimensions()).fontSize}
+              size={styles.qr.fontSize}
               backgroundColor="transparent"
-              ecl="M"
-              enableLinearGradient
-              linearGradient={[styles.primary.color, styles.tertiary.color]}
+              ecl="L"
             />
           </Surface>
         </View>
 
-        <Actions flex={false}>
+        <Actions flex={false} style={styles.actions}>
           {actions}
 
           <Button mode="contained" icon={ShareIcon} onPress={() => share({ url: address })}>
@@ -99,7 +97,7 @@ export function QrModal({ address, actions }: QrModalProps) {
   );
 }
 
-const stylesheet = createStyles(({ colors, iconSize }) => ({
+const stylesheet = createStyles(({ colors, iconSize, corner }, { screen }) => ({
   container: (insets: EdgeInsets) => ({
     flex: 1,
     marginTop: insets.top,
@@ -137,26 +135,17 @@ const stylesheet = createStyles(({ colors, iconSize }) => ({
     marginHorizontal: 32,
   },
   qrSurface: {
-    padding: 16,
-    borderRadius: 16,
+    padding: 32,
+    borderRadius: corner.m,
+    backgroundColor: colors.primaryContainer,
   },
-  qrSize: (window: ScaledSize) => ({
-    fontSize: {
-      compact: Math.min(window.width * 0.8, window.height * 0.8),
-      medium: Math.min(window.width * 0.7, window.height * 0.7),
-      expanded: Math.min(window.width * 0.5, window.height * 0.5),
-    },
-  }),
   qr: {
-    color: colors.onSurface,
+    fontSize: Math.min(screen.width * 0.8, screen.height * 0.6, 1024 - 96),
+    color: colors.onPrimaryContainer,
   },
-  primary: {
-    color: colors.primary,
-  },
-  tertiary: {
-    color: colors.tertiary,
-  },
-  requestButton: {
-    color: colors.inverseOnSurface,
+  actions: {
+    width: '100%',
+    maxWidth: 1024,
+    alignSelf: 'center',
   },
 }));

@@ -171,7 +171,7 @@ const getStylesheet = ({ lines, selected, disabled, leadingSize }: StyleProps) =
     return {
       container: {
         flexDirection: 'row',
-        ...(selected && { backgroundColor: stateLayer(colors.onSurface, 'focus') }),
+        ...(selected && { backgroundColor: colors.secondaryContainer }),
         height: [
           ListItemHeight.SINGLE_LINE,
           ListItemHeight.DOUBLE_LINE,
@@ -180,6 +180,7 @@ const getStylesheet = ({ lines, selected, disabled, leadingSize }: StyleProps) =
         paddingLeft: 16,
         paddingRight: 24,
         paddingVertical: lines === 3 ? 12 : 8,
+        borderRadius: corner.m,
       },
       leadingContainer: {
         justifyContent,

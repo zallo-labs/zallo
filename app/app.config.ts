@@ -129,6 +129,19 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       ENV[vary('GOOGLE_SERVICES_ANDROID_FILE', (v) => '_' + v.toUpperCase())] ||
       vary('./google-services-android.secret.json'),
     playStoreUrl: ENV.PLAY_STORE_URL,
+    intentFilters: [
+      {
+        action: 'VIEW',
+        category: ['BROWSABLE', 'DEFAULT'],
+        autoVerify: true,
+        data: [
+          {
+            scheme: CONFIG.webAppUrl ? new URL(CONFIG.webAppUrl).protocol.slice(0, -1) : undefined,
+            host: CONFIG.webAppUrl ? new URL(CONFIG.webAppUrl).host : undefined,
+          },
+        ],
+      },
+    ],
   },
   androidStatusBar: {
     backgroundColor: '#00000000', // Transparent

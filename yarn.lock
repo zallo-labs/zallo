@@ -9223,66 +9223,66 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@sentry/cli-darwin@npm:2.30.0":
-  version: 2.30.0
-  resolution: "@sentry/cli-darwin@npm:2.30.0"
+"@sentry/cli-darwin@npm:2.25.2":
+  version: 2.25.2
+  resolution: "@sentry/cli-darwin@npm:2.25.2"
   conditions: os=darwin
   languageName: node
   linkType: hard
 
-"@sentry/cli-linux-arm64@npm:2.30.0":
-  version: 2.30.0
-  resolution: "@sentry/cli-linux-arm64@npm:2.30.0"
+"@sentry/cli-linux-arm64@npm:2.25.2":
+  version: 2.25.2
+  resolution: "@sentry/cli-linux-arm64@npm:2.25.2"
   conditions: (os=linux | os=freebsd) & cpu=arm64
   languageName: node
   linkType: hard
 
-"@sentry/cli-linux-arm@npm:2.30.0":
-  version: 2.30.0
-  resolution: "@sentry/cli-linux-arm@npm:2.30.0"
+"@sentry/cli-linux-arm@npm:2.25.2":
+  version: 2.25.2
+  resolution: "@sentry/cli-linux-arm@npm:2.25.2"
   conditions: (os=linux | os=freebsd) & cpu=arm
   languageName: node
   linkType: hard
 
-"@sentry/cli-linux-i686@npm:2.30.0":
-  version: 2.30.0
-  resolution: "@sentry/cli-linux-i686@npm:2.30.0"
+"@sentry/cli-linux-i686@npm:2.25.2":
+  version: 2.25.2
+  resolution: "@sentry/cli-linux-i686@npm:2.25.2"
   conditions: (os=linux | os=freebsd) & (cpu=x86 | cpu=ia32)
   languageName: node
   linkType: hard
 
-"@sentry/cli-linux-x64@npm:2.30.0":
-  version: 2.30.0
-  resolution: "@sentry/cli-linux-x64@npm:2.30.0"
+"@sentry/cli-linux-x64@npm:2.25.2":
+  version: 2.25.2
+  resolution: "@sentry/cli-linux-x64@npm:2.25.2"
   conditions: (os=linux | os=freebsd) & cpu=x64
   languageName: node
   linkType: hard
 
-"@sentry/cli-win32-i686@npm:2.30.0":
-  version: 2.30.0
-  resolution: "@sentry/cli-win32-i686@npm:2.30.0"
+"@sentry/cli-win32-i686@npm:2.25.2":
+  version: 2.25.2
+  resolution: "@sentry/cli-win32-i686@npm:2.25.2"
   conditions: os=win32 & (cpu=x86 | cpu=ia32)
   languageName: node
   linkType: hard
 
-"@sentry/cli-win32-x64@npm:2.30.0":
-  version: 2.30.0
-  resolution: "@sentry/cli-win32-x64@npm:2.30.0"
+"@sentry/cli-win32-x64@npm:2.25.2":
+  version: 2.25.2
+  resolution: "@sentry/cli-win32-x64@npm:2.25.2"
   conditions: os=win32 & cpu=x64
   languageName: node
   linkType: hard
 
-"@sentry/cli@npm:2.30.0":
-  version: 2.30.0
-  resolution: "@sentry/cli@npm:2.30.0"
+"@sentry/cli@npm:2.25.2":
+  version: 2.25.2
+  resolution: "@sentry/cli@npm:2.25.2"
   dependencies:
-    "@sentry/cli-darwin": "npm:2.30.0"
-    "@sentry/cli-linux-arm": "npm:2.30.0"
-    "@sentry/cli-linux-arm64": "npm:2.30.0"
-    "@sentry/cli-linux-i686": "npm:2.30.0"
-    "@sentry/cli-linux-x64": "npm:2.30.0"
-    "@sentry/cli-win32-i686": "npm:2.30.0"
-    "@sentry/cli-win32-x64": "npm:2.30.0"
+    "@sentry/cli-darwin": "npm:2.25.2"
+    "@sentry/cli-linux-arm": "npm:2.25.2"
+    "@sentry/cli-linux-arm64": "npm:2.25.2"
+    "@sentry/cli-linux-i686": "npm:2.25.2"
+    "@sentry/cli-linux-x64": "npm:2.25.2"
+    "@sentry/cli-win32-i686": "npm:2.25.2"
+    "@sentry/cli-win32-x64": "npm:2.25.2"
     https-proxy-agent: "npm:^5.0.0"
     node-fetch: "npm:^2.6.7"
     progress: "npm:^2.0.3"
@@ -9305,7 +9305,7 @@ __metadata:
       optional: true
   bin:
     sentry-cli: bin/sentry-cli
-  checksum: 10/8f29cb0d7afef286b9bf10999d53cf56d9ca7a0da4bce8ec1ebe1379a70b3f7144c5d0e047cf5e243578a4a8af8f33f4a9521c9f14ce30aea641657c85878896
+  checksum: 10/72572039702207ebec7ee5a7f279ad7e34b643396ed8d0f1af77395263f0a3093e0037bcee3de29bd4fd42e660331f8ad51a12fd5f75a1e95fffad1114b8cc2c
   languageName: node
   linkType: hard
 
@@ -9429,12 +9429,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@sentry/react-native@npm:~5.20.0":
-  version: 5.20.0
-  resolution: "@sentry/react-native@npm:5.20.0"
+"@sentry/react-native@npm:5.19.1":
+  version: 5.19.1
+  resolution: "@sentry/react-native@npm:5.19.1"
   dependencies:
     "@sentry/browser": "npm:7.100.1"
-    "@sentry/cli": "npm:2.30.0"
+    "@sentry/cli": "npm:2.25.2"
     "@sentry/core": "npm:7.100.1"
     "@sentry/hub": "npm:7.100.1"
     "@sentry/integrations": "npm:7.100.1"
@@ -9450,7 +9450,7 @@ __metadata:
       optional: true
   bin:
     sentry-expo-upload-sourcemaps: scripts/expo-upload-sourcemaps.js
-  checksum: 10/b94276c02f76825fcc0c38f3f91428dc8a0fd910eccc50ae14bfcdb7e8e3115e4a325efa9667ab1a8feb8dd00c1e6951a3d5e7deb3325f69cdff881d6973f10d
+  checksum: 10/4451a81be65c8837fe53e7993df4b585f866da97f29f556261d70f828a5500bd50b03d8e1976864abee5f8809d0d42d747c94d288969498fbaec1a3b3be19e0f
   languageName: node
   linkType: hard
 
@@ -12389,7 +12389,7 @@ __metadata:
     "@react-navigation/native": "npm:^6.1.8"
     "@react-navigation/native-stack": "npm:^6.9.14"
     "@react-oauth/google": "npm:^0.12.1"
-    "@sentry/react-native": "npm:~5.20.0"
+    "@sentry/react-native": "npm:5.19.1"
     "@shopify/flash-list": "npm:1.6.3"
     "@tanstack/eslint-plugin-query": "npm:^5.28.11"
     "@tanstack/react-query": "npm:^5.29.2"

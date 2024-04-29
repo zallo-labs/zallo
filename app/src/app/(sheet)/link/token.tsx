@@ -7,13 +7,9 @@ import { Button } from '#/Button';
 import { gql } from '@api/generated';
 import { showSuccess } from '#/provider/SnackbarProvider';
 import { useMutation } from 'urql';
-import { Subject } from 'rxjs';
-import { ConfirmLinkSheet_LinkMutation } from '@api/generated/graphql';
 import { z } from 'zod';
 import { useLocalParams } from '~/hooks/useLocalParams';
 import { createStyles, useStyles } from '@theme/styles';
-
-export const LINKINGS_FROM_DEVICE = new Subject<ConfirmLinkSheet_LinkMutation>();
 
 const Link = gql(/* GraphQL */ `
   mutation ConfirmLinkSheet_Link($token: String!) {
@@ -63,7 +59,7 @@ export default function LinkWithTokenSheet() {
           style={styles.button}
           onPress={async () => {
             const r = await link({ token });
-            if (r.data) LINKINGS_FROM_DEVICE.next(r.data);
+            if (!r.data) return;
             showSuccess('Linked');
             back();
           }}

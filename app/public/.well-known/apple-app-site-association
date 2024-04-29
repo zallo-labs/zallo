@@ -1,0 +1,17 @@
+{
+  "applinks": {
+    "apps": [],
+    "details": [
+      {
+        "appID": "85865HZGPB.io.zallo",
+        "paths": ["*"]
+      }
+    ]
+  },
+  "activitycontinuation": {
+    "apps": ["85865HZGPB.io.zallo"]
+  },
+  "webcredentials": {
+    "apps": ["85865HZGPB.io.zallo"]
+  }
+}

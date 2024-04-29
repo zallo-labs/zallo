@@ -17,7 +17,6 @@ import { UpdateProvider } from '#/provider/UpdateProvider';
 import { ThemeProvider } from '~/util/theme/ThemeProvider';
 import { AppbarHeader } from '#/Appbar/AppbarHeader';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { ApproverNameUpdater } from '#/ApproverNameUpdater';
 import { Portal } from 'react-native-paper';
 import { TQueryProvider } from '#/provider/TQueryProvider';
 import { StyleSheet } from 'react-native';
@@ -67,10 +66,10 @@ function RootLayout() {
                           </Try>
                           <Try catch={IgnoredErrorBoundary}>
                             <Suspense fallback={null}>
+                              <UpdateProvider />
                               <Analytics />
                               <WalletConnectListeners />
                               <NotificationsProvider />
-                              <ApproverNameUpdater />
                             </Suspense>
                           </Try>
                         </GoogleAuthProvider>
@@ -80,7 +79,6 @@ function RootLayout() {
                 </Suspense>
               </Background>
               <SnackbarProvider />
-              <UpdateProvider />
             </GestureHandlerRootView>
           </IntlProvider>
         </Try>

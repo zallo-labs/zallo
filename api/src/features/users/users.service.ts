@@ -13,6 +13,7 @@ import { Address, UUID } from 'lib';
 import { PubsubService } from '../util/pubsub/pubsub.service';
 import { getUserCtx } from '~/request/ctx';
 import { selectAccount } from '~/features/accounts/accounts.util';
+import { and } from '../database/database.util';
 
 export interface UserSubscriptionPayload {}
 const getUserTrigger = (user: uuid) => `user.${user}`;
@@ -73,34 +74,44 @@ export class UsersService {
       throw new UserInputError(`Invalid linking token; token may have expired (1h)`);
 
     const newId = await this.db.query(e.assert_exists(e.select(e.global.current_user.id)));
-    if (oldId === newId) return;
 
-    const approvers = await this.db.DANGEROUS_superuserClient.transaction(async (db) => {
-      const oldUser = e.select(e.User, () => ({ filter_single: { id: oldId } }));
-      const newUser = e.select(e.User, () => ({ filter_single: { id: newId } }));
-
-      // Merge old user into new user (avoiding exclusivity constraint violations)
-      const { approvers } = await e
-        .select({
-          approvers: e.update(oldUser.approvers, () => ({ set: { user: newUser } })).address,
-          contacts: e.update(oldUser.contacts, (c) => ({
-            filter: e.op(c.label, 'not in', newUser.contacts.label),
-            set: { user: newUser },
+    const { oldUserApprovers, allApprovers } = await this.db.DANGEROUS_superuserClient.transaction(
+      async (db) => {
+        const newUser = e.select(e.User, () => ({ filter_single: { id: newId } }));
+        const oldUser = e.assert_single(
+          e.select(e.User, (u) => ({
+            filter: and(e.op(u.id, '=', e.uuid(oldId)), e.op(oldId, '!=', newId)),
           })),
-        })
-        .run(db);
+        );
 
-      // Delete old user
-      await e.delete(oldUser).run(db);
+        // Merge old user into new user (avoiding exclusivity constraint violations)
+        const r = await e
+          .select({
+            oldUserApprovers: e.update(oldUser.approvers, () => ({ set: { user: newUser } }))
+              .address,
+            contacts: e.update(oldUser.contacts, (c) => ({
+              filter: e.op(c.label, 'not in', newUser.contacts.label),
+              set: { user: newUser },
+            })),
+            allApprovers: e.select(
+              e.op('distinct', e.op(oldUser.approvers, 'union', newUser.approvers)),
+            ).address,
+          })
+          .run(db);
 
-      return approvers;
-    });
+        // Delete old user
+        await e.delete(oldUser).run(db);
+
+        return r;
+      },
+    );
 
     // Remove approver -> user cache
-    await this.accountsCache.invalidateApproversCache(...(approvers as Address[]));
+    await this.accountsCache.invalidateApproversCache(...(oldUserApprovers as Address[]));
+
     await Promise.all([
       this.pubsub.publish<UserSubscriptionPayload>(getUserTrigger(newId), {}),
-      ...approvers.map((approver) =>
+      ...allApprovers.map((approver) =>
         this.pubsub.publish<UserSubscriptionPayload>(
           getUserApproverTrigger(approver as Address),
           {},

@@ -3,7 +3,7 @@ import { ok, err } from 'neverthrow';
 import { useMemo } from 'react';
 import { useAuthenticate } from '~/app/(modal)/auth';
 import { showError } from '#/provider/SnackbarProvider';
-import { useAuthRequiredOnApproval } from '#/shared/AuthSettings';
+import { useAuthRequiredOnApproval } from '#/auth/AuthSettings';
 
 export function useSignWithApprover() {
   const approver = useApproverWallet();

@@ -44,7 +44,7 @@ const colors = {
   surfaceContainer: {
     lowest: palette.neutral[100],
     low: palette.neutral[96],
-    medium: palette.neutral[94],
+    mid: palette.neutral[94],
     high: palette.neutral[92],
     highest: palette.neutral[90],
   },
