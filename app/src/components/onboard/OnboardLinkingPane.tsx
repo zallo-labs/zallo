@@ -39,7 +39,7 @@ export function OnboardLinkingPane() {
         color={styles.onPane.color}
         size={qrSize}
         backgroundColor="transparent"
-        ecl="M"
+        ecl="L"
       />
 
       <Text variant="headlineMedium">Continue with Zallo</Text>

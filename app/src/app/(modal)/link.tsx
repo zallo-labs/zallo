@@ -60,9 +60,7 @@ export default function LinkingModal() {
               color={styles.qr.color}
               size={styles.qr.fontSize}
               backgroundColor="transparent"
-              ecl="M"
-              enableLinearGradient
-              linearGradient={[styles.primary.color, styles.tertiary.color]}
+              ecl="L"
             />
           </Surface>
         </View>
@@ -83,7 +81,7 @@ export default function LinkingModal() {
   );
 }
 
-const stylesheet = createStyles(({ colors }, { insets, screen }) => ({
+const stylesheet = createStyles(({ colors, corner }, { insets, screen }) => ({
   container: {
     flex: 1,
     marginTop: insets.top,
@@ -107,12 +105,13 @@ const stylesheet = createStyles(({ colors }, { insets, screen }) => ({
     alignItems: 'center',
   },
   qrSurface: {
-    padding: 16,
-    borderRadius: 16,
+    padding: 32,
+    borderRadius: corner.m,
+    backgroundColor: colors.primaryContainer,
   },
   qr: {
-    fontSize: Math.min(screen.width * 0.8, screen.height * 0.7, 1024 - 64),
-    color: colors.onSurface,
+    fontSize: Math.min(screen.width * 0.8, screen.height * 0.7, 1024 - 96),
+    color: colors.onPrimaryContainer,
   },
   primary: {
     color: colors.primary,
