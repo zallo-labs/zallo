@@ -1,3 +1,4 @@
+import { useLinkingTokenUrl } from '#/link/useLinkingTokenUrl';
 import { gql } from '@api';
 import { AppStoreBadge, GooglePlayBadge } from '@theme/icons';
 import { createStyles, useStyles } from '@theme/styles';
@@ -14,7 +15,7 @@ const Query = gql(/* GraphQL */ `
   query OnboardLinkingPane {
     user {
       id
-      linkingToken
+      ...useLinkingTokenUrl_User
     }
   }
 `);
@@ -25,6 +26,7 @@ export function OnboardLinkingPane() {
   const [qrSize, setQrSize] = useState(0);
 
   const { user } = useQuery(Query).data;
+  const link = useLinkingTokenUrl({ user });
 
   return (
     <View
@@ -35,7 +37,7 @@ export function OnboardLinkingPane() {
       }}
     >
       <QRCode
-        value={user.linkingToken}
+        value={link}
         color={styles.onPane.color}
         size={qrSize}
         backgroundColor="transparent"
