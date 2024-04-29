@@ -66,6 +66,7 @@ function RootLayout() {
                           </Try>
                           <Try catch={IgnoredErrorBoundary}>
                             <Suspense fallback={null}>
+                              <UpdateProvider />
                               <Analytics />
                               <WalletConnectListeners />
                               <NotificationsProvider />
@@ -78,7 +79,6 @@ function RootLayout() {
                 </Suspense>
               </Background>
               <SnackbarProvider />
-              <UpdateProvider />
             </GestureHandlerRootView>
           </IntlProvider>
         </Try>
