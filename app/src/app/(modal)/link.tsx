@@ -9,20 +9,17 @@ import { gql } from '@api/generated';
 import { useQuery } from '~/gql';
 import { useSubscription } from 'urql';
 import { useEffect } from 'react';
-import { Subject } from 'rxjs';
-import { LinkingTokenModal_SubscriptionSubscription } from '@api/generated/graphql';
-import { Link } from 'expo-router';
-import { appLink } from '~/lib/appLink';
+import { Link, useRouter } from 'expo-router';
 import { share } from '~/lib/share';
 import { createStyles, useStyles } from '@theme/styles';
-
-export const LINKINGS_FROM_TOKEN = new Subject<LinkingTokenModal_SubscriptionSubscription>();
+import { showSuccess } from '#/provider/SnackbarProvider';
+import { useLinkingTokenUrl } from '#/link/useLinkingTokenUrl';
 
 const Query = gql(/* GraphQL */ `
   query LinkingTokenModal {
     user {
       id
-      linkingToken
+      ...useLinkingTokenUrl_User
     }
   }
 `);
@@ -37,14 +34,18 @@ const Subscription = gql(/* GraphQL */ `
 
 export default function LinkingModal() {
   const { styles } = useStyles(stylesheet);
+  const router = useRouter();
 
   const { user } = useQuery(Query).data;
-  const link = appLink({ pathname: `/link/token`, params: { token: user.linkingToken } });
+  const link = useLinkingTokenUrl({ user });
 
   const [subscription] = useSubscription({ query: Subscription });
   useEffect(() => {
-    if (!subscription.stale && subscription.data) LINKINGS_FROM_TOKEN.next(subscription.data);
-  }, [subscription.data, subscription.stale]);
+    if (!subscription.stale && subscription.data) {
+      showSuccess('Linked');
+      router.back();
+    }
+  }, [router, subscription.data, subscription.stale]);
 
   return (
     <Blur>

@@ -5,7 +5,6 @@ import { Actions } from '#/layout/Actions';
 import { LinkAppleButton } from '#/link/LinkAppleButton';
 import { LinkGoogleButton } from '#/link/LinkGoogleButton';
 import { LinkZalloButton } from '#/link/LinkZalloButton';
-import { LinkLedgerButton } from '#/link/ledger/LinkLedgerButton';
 import { OnboardLinkingPane } from '#/onboard/OnboardLinkingPane';
 import { OnboardMainPane } from '#/onboard/OnboardMainPane';
 import { OnboardProgress } from '#/onboard/OnboardProgress';
@@ -14,10 +13,11 @@ import { withSuspense } from '#/skeleton/withSuspense';
 import { gql } from '@api';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { createStyles, useStyles } from '@theme/styles';
-import { useRouter } from 'expo-router';
+import { useFocusEffect, useRouter } from 'expo-router';
+import { useCallback, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
-import { ScrollView, View } from 'react-native';
-import { useMutation } from 'urql';
+import { View } from 'react-native';
+import { useMutation, useSubscription } from 'urql';
 import { z } from 'zod';
 import { useQuery } from '~/gql';
 import { getDeviceModel } from '~/lib/device';
@@ -46,6 +46,14 @@ const Update = gql(/* GraphQL */ `
   }
 `);
 
+const Subscription = gql(/* GraphQL */ `
+  subscription UserOnboarding_Subscription {
+    user {
+      id
+    }
+  }
+`);
+
 const schema = z.object({ name: z.string().min(1) });
 
 function UserOnboarding() {
@@ -60,12 +68,23 @@ function UserOnboarding() {
     defaultValues: { name: approver.name || getDeviceModel() },
   });
 
-  const next = handleSubmit((input) => {
-    update({ name: input.name });
-    reset(input);
+  const next = useMemo(
+    () =>
+      handleSubmit((input) => {
+        update({ name: input.name });
+        reset(input);
 
-    router.push('/onboard/auth');
-  });
+        router.push('/onboard/auth');
+      }),
+    [handleSubmit, reset, router, update],
+  );
+
+  const pairedUser = useSubscription({ query: Subscription })[0].data?.user.id;
+  useFocusEffect(
+    useCallback(() => {
+      if (pairedUser) next();
+    }, [next, pairedUser]),
+  );
 
   return (
     <View style={styles.screen}>
@@ -85,18 +104,15 @@ function UserOnboarding() {
         />
 
         <Actions>
+          <LinkZalloButton />
           <LinkGoogleButton user={user} onLink={next} />
           <LinkAppleButton user={user} onLink={next} />
-          <LinkZalloButton
-            onLink={() => {
-              console.log('LINKED');
-            }}
-          />
           <FormSubmitButton mode="outlined" control={control} onPress={next}>
             Continue
           </FormSubmitButton>
         </Actions>
       </OnboardMainPane>
+
       <OnboardLinkingPane />
     </View>
   );
