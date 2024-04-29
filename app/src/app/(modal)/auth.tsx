@@ -5,7 +5,7 @@ import { useForm } from 'react-hook-form';
 import { Text } from 'react-native-paper';
 import { Subject } from 'rxjs';
 import useAsyncEffect from 'use-async-effect';
-import { usePasswordHash } from '~/app/(drawer)/settings/password';
+import { usePasswordHash } from '#/auth/PasswordSettingsCard';
 import { Button } from '#/Button';
 import { DialogModal } from '#/Dialog/DialogModal';
 import { FormTextField } from '#/fields/FormTextField';

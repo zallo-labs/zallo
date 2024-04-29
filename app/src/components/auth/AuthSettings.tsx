@@ -1,5 +1,5 @@
 import { useImmerAtom } from 'jotai-immer';
-import { Divider, Switch, Text } from 'react-native-paper';
+import { Switch, Text } from 'react-native-paper';
 import { ListItem } from '#/list/ListItem';
 import { FingerprintIcon, LockOpenIcon, TransferIcon } from '@theme/icons';
 import { useEffect } from 'react';

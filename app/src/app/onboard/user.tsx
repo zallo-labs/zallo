@@ -6,6 +6,8 @@ import { LinkAppleButton } from '#/link/LinkAppleButton';
 import { LinkGoogleButton } from '#/link/LinkGoogleButton';
 import { LinkZalloButton } from '#/link/LinkZalloButton';
 import { LinkLedgerButton } from '#/link/ledger/LinkLedgerButton';
+import { OnboardLinkingPane } from '#/onboard/OnboardLinkingPane';
+import { OnboardMainPane } from '#/onboard/OnboardMainPane';
 import { OnboardProgress } from '#/onboard/OnboardProgress';
 import { ScreenSkeleton } from '#/skeleton/ScreenSkeleton';
 import { withSuspense } from '#/skeleton/withSuspense';
@@ -58,48 +60,55 @@ function UserOnboarding() {
     defaultValues: { name: approver.name || getDeviceModel() },
   });
 
+  const next = handleSubmit((input) => {
+    update({ name: input.name });
+    reset(input);
+
+    router.push('/onboard/auth');
+  });
+
   return (
-    <ScrollView contentContainerStyle={styles.pane} stickyHeaderIndices={[0]}>
-      <View>
-        <OnboardProgress progress={0.2} />
-        <Appbar mode="large" headline="Let's get you started" inset={false} />
-      </View>
+    <View style={styles.screen}>
+      <OnboardMainPane contentContainerStyle={styles.pane} stickyHeaderIndices={[0]}>
+        <View>
+          <OnboardProgress progress={0.2} />
+          <Appbar mode="large" headline="Let's get you started" inset={false} />
+        </View>
 
-      <FormTextField
-        label="Device name"
-        supporting="Used by account members to identify this device"
-        name="name"
-        control={control}
-        required
-        containerStyle={styles.input}
-      />
-
-      <Actions>
-        <LinkZalloButton />
-        <LinkLedgerButton />
-        <LinkGoogleButton user={user} />
-        <LinkAppleButton user={user} />
-
-        <FormSubmitButton
-          mode="contained"
+        <FormTextField
+          label="Device name"
+          supporting="Used by account members to identify this device"
+          name="name"
           control={control}
-          onPress={handleSubmit((input) => {
-            update({ name: input.name });
-            reset(input);
+          required
+          containerStyle={styles.input}
+        />
 
-            router.push('/onboard/auth');
-          })}
-        >
-          Continue
-        </FormSubmitButton>
-      </Actions>
-    </ScrollView>
+        <Actions>
+          <LinkGoogleButton user={user} onLink={next} />
+          <LinkAppleButton user={user} onLink={next} />
+          <LinkZalloButton
+            onLink={() => {
+              console.log('LINKED');
+            }}
+          />
+          <FormSubmitButton mode="outlined" control={control} onPress={next}>
+            Continue
+          </FormSubmitButton>
+        </Actions>
+      </OnboardMainPane>
+      <OnboardLinkingPane />
+    </View>
   );
 }
 
 const stylesheet = createStyles(() => ({
+  screen: {
+    flex: 1,
+    flexDirection: 'row',
+    gap: 24,
+  },
   pane: {
-    flexGrow: 1,
     gap: 8,
   },
   container: {
