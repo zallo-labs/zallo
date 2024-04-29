@@ -6,6 +6,7 @@ import { Link } from 'expo-router';
 import { TypewriterText, TypewriterValue } from './TypewriterText';
 import { UAddress } from 'lib';
 import { CONFIG } from '~/util/config';
+import { mq } from 'react-native-unistyles';
 
 const SELLING_POINTS = [
   { text: 'self-custody' },
@@ -73,12 +74,10 @@ export function PrimarySection({ account }: PrimarySectionProps) {
 const stylesheet = createStyles(({ colors, fonts }) => {
   const action = {
     flexGrow: {
-      compact: 1,
-      medium: undefined,
+      [mq.only.width(0, 'medium')]: 1,
     },
     flexBasis: {
-      compact: '100%',
-      medium: undefined,
+      [mq.only.width(0, 'medium')]: '100%',
     },
   } as const;
 
@@ -98,8 +97,7 @@ const stylesheet = createStyles(({ colors, fonts }) => {
     },
     actionsContainer: {
       flexGrow: {
-        compact: 1,
-        medium: undefined,
+        [mq.only.width(0, 'medium')]: 1,
       },
       justifyContent: 'flex-end',
     },
@@ -117,8 +115,7 @@ const stylesheet = createStyles(({ colors, fonts }) => {
     action,
     spacer: {
       flex: {
-        compact: 1,
-        medium: undefined,
+        [mq.only.width(0, 'medium')]: 1,
       },
     },
   };
