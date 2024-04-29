@@ -17,7 +17,7 @@ import { withSuspense } from '#/skeleton/withSuspense';
 import { ScreenSkeleton } from '#/skeleton/ScreenSkeleton';
 
 const Query = gql(/* GraphQL */ `
-  query HelloScreen {
+  query LandingScreen {
     accounts {
       id
       address
@@ -35,14 +35,12 @@ function LandingScreen() {
   const selectedAccount = useSelectedAccount();
   const insets = useSafeAreaInsets();
 
-  const query = useQuery(Query, undefined, { context });
+  const query = useQuery(Query, {}, { context });
 
-  const account = useMemo(() => {
-    const accounts = query.data?.accounts ?? [];
-    if (!selectedAccount && (!accounts.length || query.stale)) return undefined;
-
-    return accounts.find((a) => a.address === selectedAccount)?.address ?? accounts[0]?.address;
-  }, [query.data?.accounts, query.stale, selectedAccount]);
+  const account = useMemo(
+    () => selectedAccount ?? (!query.stale ? query.data?.accounts?.[0].address : undefined),
+    [query.data?.accounts, query.stale, selectedAccount],
+  );
 
   if (redirect && account)
     return <Redirect href={{ pathname: `/(drawer)/[account]/(home)/`, params: { account } }} />;
