@@ -1,11 +1,11 @@
 # https://github.com/foundry-rs/foundry/blob/master/crates/config/README.md#all-options
 [profile.default]
 solc = "0.8.25"
-src = "contracts"
+src = "src"
 libs = ["node_modules"]
 out = "out"
 test = 'test'
-cache_path  = 'cache_forge'
+cache_path  = 'cache-forge'
 # Compiler options
 via_ir = true
 # zkSync options

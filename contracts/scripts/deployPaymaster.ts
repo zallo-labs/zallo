@@ -28,7 +28,7 @@ async function main() {
   await displayTx(address, deployTx);
 
   await verify({
-    contract: 'contracts/paymaster/Paymaster.sol:Paymaster',
+    contract: 'src/paymaster/Paymaster.sol:Paymaster',
     address,
     constructorArguments: constructorArgs,
   });

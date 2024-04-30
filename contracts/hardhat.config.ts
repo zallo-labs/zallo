@@ -69,12 +69,12 @@ export default {
   export: [
     {
       path: 'test/contracts',
-      contracts: ['^contracts\\/.+', '^@pythnetwork/.*/MockPyth.*'],
+      contracts: ['^src\\/.+', '^@pythnetwork/.*/MockPyth.*'],
       include: ['abi', 'contractName'],
     },
     {
       path: '../packages/lib/src/generated',
-      contracts: ['^contracts\\/.+'],
+      contracts: ['^src\\/.+'],
       include: ['abi', 'bytecode', 'factoryDeps'],
     },
   ],
