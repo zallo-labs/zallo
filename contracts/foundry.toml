@@ -1,0 +1,15 @@
+# https://github.com/foundry-rs/foundry/blob/master/crates/config/README.md#all-options
+[profile.default]
+solc = "0.8.25"
+src = "contracts"
+libs = ["node_modules"]
+out = "out"
+test = 'test'
+cache_path  = 'cache_forge'
+# Compiler options
+via_ir = true
+# zkSync options
+zksync = true
+mode = "3"
+# is_system = true
+# detect_missing_libraries = true

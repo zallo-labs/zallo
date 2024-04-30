@@ -7010,6 +7010,12 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@matterlabs/zksync-contracts@link:./packages::locator=zallo%40workspace%3A.":
+  version: 0.0.0-use.local
+  resolution: "@matterlabs/zksync-contracts@link:./packages::locator=zallo%40workspace%3A."
+  languageName: node
+  linkType: soft
+
 "@matterlabs/zksync-contracts@npm:^0.6.2":
   version: 0.6.2
   resolution: "@matterlabs/zksync-contracts@npm:0.6.2"
@@ -7786,6 +7792,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@nomicfoundation/hardhat-foundry@npm:^1.1.1":
+  version: 1.1.1
+  resolution: "@nomicfoundation/hardhat-foundry@npm:1.1.1"
+  dependencies:
+    chalk: "npm:^2.4.2"
+  peerDependencies:
+    hardhat: ^2.17.2
+  checksum: 10/98e77640fc32a21ada887a6d53825c2407c0b142a36552d792f0b12a75cdb2fd4210801d31c50fea3f49b9dd4c419eace8ed0b483fb677dcb69c0e3c410f0ced
+  languageName: node
+  linkType: hard
+
 "@nomicfoundation/hardhat-verify@npm:^2.0.0":
   version: 2.0.1
   resolution: "@nomicfoundation/hardhat-verify@npm:2.0.1"
@@ -8012,6 +8029,12 @@ __metadata:
   checksum: 10/0512871f424a2eae41e9385671ac840f28e8508a209df68c363cc97e009b95a6fd4bdfa2a34c9df78a74fa36d7e171e28792cd11da0b2be28c20ee1806b3ea5e
   languageName: node
   linkType: hard
+
+"@openzeppelin/contracts@link:./packages::locator=zallo%40workspace%3A.":
+  version: 0.0.0-use.local
+  resolution: "@openzeppelin/contracts@link:./packages::locator=zallo%40workspace%3A."
+  languageName: node
+  linkType: soft
 
 "@openzeppelin/contracts@npm:^4.9.2":
   version: 4.9.5
@@ -8343,6 +8366,12 @@ __metadata:
   checksum: 10/bdbcdc3068c12ab60895e9903b4d9e90d746b5fab8979343780eecf6a7d32c4baa63d3edc1a3334fb24dca4ca3727b4a7b3ce975d5881e961eef7896fc1f9e08
   languageName: node
   linkType: hard
+
+"@pythnetwork/pyth-sdk-solidity@link:./packages::locator=zallo%40workspace%3A.":
+  version: 0.0.0-use.local
+  resolution: "@pythnetwork/pyth-sdk-solidity@link:./packages::locator=zallo%40workspace%3A."
+  languageName: node
+  linkType: soft
 
 "@pythnetwork/pyth-sdk-solidity@npm:^2.4.0":
   version: 2.4.0
@@ -15249,6 +15278,7 @@ __metadata:
     "@matterlabs/hardhat-zksync-verify": "npm:^1.4.2"
     "@matterlabs/zksync-contracts": "npm:^0.6.2"
     "@nomicfoundation/hardhat-chai-matchers": "npm:^2.0.6"
+    "@nomicfoundation/hardhat-foundry": "npm:^1.1.1"
     "@nomicfoundation/hardhat-viem": "npm:^1.0.3"
     "@nomiclabs/hardhat-ethers": "npm:^2.2.3"
     "@nomiclabs/hardhat-solhint": "npm:3.0.1"
@@ -15266,6 +15296,7 @@ __metadata:
     dotenv: "npm:^16.4.5"
     ethers: "npm:^6.12.0"
     fast-deep-equal: "npm:^3.1.3"
+    forge-std: "github:foundry-rs/forge-std#v1.8.1"
     hardhat: "npm:^2.22.3"
     hardhat-abi-exporter: "npm:^2.10.1"
     hardhat-contract-sizer: "npm:^2.10.0"
@@ -18982,6 +19013,19 @@ __metadata:
   checksum: 10/c1e1644d5e074ac063ecbc3fb8582013ef91fff0e3fa41e76db23d2f62bc6d9677aac86db950917deed4fe1fdd772df780cfaa352075f23deec9c015313afb97
   languageName: node
   linkType: hard
+
+"forge-std@github:foundry-rs/forge-std#v1.8.1":
+  version: 1.7.6
+  resolution: "forge-std@https://github.com/foundry-rs/forge-std.git#commit=bb4ceea94d6f10eeb5b41dc2391c6c8bf8e734ef"
+  checksum: 10/5a4c4e231bf32aaa1913decff972ede30654aeb03504613c55bb06bd96c29b254a86d3220b9ab94a52de314034432e936a64ae967f60cc214ccdb25a94685900
+  languageName: node
+  linkType: hard
+
+"forge-std@link:./packages::locator=zallo%40workspace%3A.":
+  version: 0.0.0-use.local
+  resolution: "forge-std@link:./packages::locator=zallo%40workspace%3A."
+  languageName: node
+  linkType: soft
 
 "fork-ts-checker-webpack-plugin@npm:9.0.2":
   version: 9.0.2
@@ -32921,12 +32965,16 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "zallo@workspace:."
   dependencies:
+    "@matterlabs/zksync-contracts": "link:./packages"
+    "@openzeppelin/contracts": "link:./packages"
+    "@pythnetwork/pyth-sdk-solidity": "link:./packages"
     "@typescript-eslint/eslint-plugin": "npm:^7.2.0"
     "@typescript-eslint/parser": "npm:^7.2.0"
     eslint: "npm:^8.57.0"
     eslint-config-prettier: "npm:^9.1.0"
     eslint-plugin-eslint-comments: "npm:^3.2.0"
     eslint-plugin-neverthrow: "npm:^1.1.4"
+    forge-std: "link:./packages"
     husky: "npm:^9.0.11"
     lint-staged: "npm:^15.2.2"
     prettier: "npm:^3.2.5"

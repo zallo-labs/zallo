@@ -13,6 +13,7 @@
     "@matterlabs/hardhat-zksync-verify": "^1.4.2",
     "@matterlabs/zksync-contracts": "^0.6.2",
     "@nomicfoundation/hardhat-chai-matchers": "^2.0.6",
+    "@nomicfoundation/hardhat-foundry": "^1.1.1",
     "@nomicfoundation/hardhat-viem": "^1.0.3",
     "@nomiclabs/hardhat-ethers": "^2.2.3",
     "@nomiclabs/hardhat-solhint": "3.0.1",

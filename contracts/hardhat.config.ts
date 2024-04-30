@@ -5,13 +5,14 @@ import { CHAINS } from 'chains';
 import '@nomiclabs/hardhat-ethers';
 import '@nomicfoundation/hardhat-viem';
 import '@nomiclabs/hardhat-solhint'; // https://github.com/protofire/solhint/blob/master/docs/rules.md
+import "@nomicfoundation/hardhat-foundry";
 import '@matterlabs/hardhat-zksync-chai-matchers';
 import '@matterlabs/hardhat-zksync-solc';
 import '@matterlabs/hardhat-zksync-verify';
 import 'hardhat-gas-reporter';
 import 'hardhat-abi-exporter';
-import 'hardhat-tracer';
 import 'hardhat-contract-sizer';
+// import 'hardhat-tracer';
 // import 'solidity-coverage';
 // import './test/util/matchers';
 import '@solidstate/hardhat-4byte-uploader';
@@ -23,10 +24,10 @@ import './tasks/upload-openchain';
 // https://hardhat.org/config/
 export default {
   solidity: {
-    version: '0.8.23',
+    version: '0.8.25',
   },
   zksolc: {
-    version: '1.3.23', // https://github.com/matter-labs/zksolc-bin/tree/main/linux-amd64
+    version: '1.4.1', // https://github.com/matter-labs/zksolc-bin/tree/main/linux-amd64
     settings: {
       isSystem: true, // Required to deploy AA contracts
       optimizer: {
