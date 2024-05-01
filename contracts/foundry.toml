@@ -4,7 +4,7 @@ solc = "0.8.25"
 src = "src"
 libs = ["node_modules"]
 out = "out"
-test = 'test'
+test = 'test-forge'
 cache_path  = 'cache-forge'
 # Compiler options
 via_ir = true
