@@ -13,19 +13,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: 🚧 Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 2
-
-      - name: 🚧 Setup Node
-        uses: actions/setup-node@v4
-        with:
-          cache: 'yarn'
-          node-version-file: '.nvmrc'
-
-      - name: 📦 Install
-        run: yarn
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
 
       - name: 🧪 Test
         run: yarn lib test
@@ -57,20 +46,41 @@ jobs:
   #     - name: 🧪 Test
   #       run: yarn contracts test
 
+  contracts-foundry:
+    runs-on: ubuntu-latest
+
+    env:
+      FOUNDRY_PROFILE: ci
+
+    strategy:
+      fail-fast: true
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
+
+      - name: 🚧 Checkout foundry-zksync
+        uses: actions/checkout@v4
+        with:
+          repository: matter-labs/foundry-zksync
+          ref: 'v0.0.2-alpha.4'
+          path: 'foundry-zksync'
+
+      - name: 🚧 Add foundry-zksync to PATH
+        run: echo "$XDG_CONFIG_HOME/.foundry-zksync/bin" >> $GITHUB_PATH
+
+      - name: 📦 Install foundry-zksync
+        run: (cd foundry-zksync && ./install-foundry-zksync)
+
+      - name: 🧪 Test
+        run: yarn contracts test
+
   api:
     runs-on: ubuntu-latest
 
     steps:
-      - name: 🚧 Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 2
-
-      - name: 🚧 Setup Node
-        uses: actions/setup-node@v4
-        with:
-          cache: 'yarn'
-          node-version-file: '.nvmrc'
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
 
       - name: 💾 Setup EdgeDB
         uses: edgedb/setup-edgedb@v1
@@ -90,10 +100,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: 🚧 Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 2
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
 
       - name: 🏗️ Build
         run: >
@@ -119,19 +127,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: 🚧 Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 2
-
-      - name: 🚧 Setup Node
-        uses: actions/setup-node@v4
-        with:
-          cache: 'yarn'
-          node-version-file: '.nvmrc'
-
-      - name: 📦 Install
-        run: yarn
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
 
       - name: 👕 Lint
         run: yarn app lint
@@ -143,19 +140,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: 🚧 Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 2
-
-      - name: 🚧 Setup Node
-        uses: actions/setup-node@v4
-        with:
-          cache: 'yarn'
-          node-version-file: '.nvmrc'
-
-      - name: 📦 Install
-        run: yarn
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
 
       - name: 🏗️ Build
         run: yarn app build:web

@@ -5,7 +5,7 @@ import { CHAINS } from 'chains';
 import '@nomiclabs/hardhat-ethers';
 import '@nomicfoundation/hardhat-viem';
 import '@nomiclabs/hardhat-solhint'; // https://github.com/protofire/solhint/blob/master/docs/rules.md
-import "@nomicfoundation/hardhat-foundry";
+import '@nomicfoundation/hardhat-foundry';
 import '@matterlabs/hardhat-zksync-chai-matchers';
 import '@matterlabs/hardhat-zksync-solc';
 import '@matterlabs/hardhat-zksync-verify';
@@ -73,8 +73,10 @@ export default {
       include: ['abi', 'contractName'],
     },
     {
-      path: '../packages/lib/src/generated',
-      contracts: ['^src\\/.+'],
+      path: '../packages/lib/src/abi',
+      contracts: [
+        '^src\\/.*:((Account)|(AccountProxy)|(Factory)|(TestVerifier)|(Paymaster)|(IPaymasterFlow)|(TestPaymasterUtil))$',
+      ],
       include: ['abi', 'bytecode', 'factoryDeps'],
     },
   ],

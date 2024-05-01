@@ -1,7 +1,7 @@
 import { Address, asAddress } from './address';
 import { Hex } from './bytes';
 import { tryOrIgnoreAsync } from './util';
-import { ERC1271_ABI } from './abi/erc1271';
+import { ERC1271_ABI } from './dapps/erc1271';
 import { Network } from 'chains';
 import {
   getAbiItem,
