@@ -24,13 +24,13 @@
     "abitype": "^1.0.1",
     "chains": "workspace:*",
     "decimal.js": "^10.4.3",
-    "ethers": "^6.10.0",
+    "ethers": "^6.12.0",
     "lodash": "^4.17.21",
     "neverthrow": "^6.1.0",
     "ts-pattern": "^5.1.1",
     "ts-toolbelt": "^9.6.0",
     "viem": "^2.7.20",
-    "zksync-ethers": "^6.1.0"
+    "zksync-ethers": "^6.7.0"
   },
   "devDependencies": {
     "@types/jest": "^29.5.12",

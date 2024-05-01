@@ -13,7 +13,7 @@ const main = async () => {
   await displayTx(address, deployTx);
 
   await verify({
-    contract: 'contracts/Factory.sol:Factory',
+    contract: 'src/Factory.sol:Factory',
     address,
     constructorArguments: constructorArgs,
   });

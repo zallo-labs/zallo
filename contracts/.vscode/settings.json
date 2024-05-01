@@ -3,9 +3,10 @@
     ".turbo": true,
     ".vscode": true,
     "abi": true,
-    "artifacts-zk": true,
-    "cache": true,
-    "cache-zk": true,
+    "artifacts*": true,
+    "cache*": true,
+    "out": true,
+    "zkout": true,
     "node_modules": true
   },
   "mochaExplorer.cwd": ".",

@@ -12,7 +12,7 @@ const main = async () => {
   const { address, deployTx } = await deploy(Account, []);
   await displayTx(address, deployTx);
 
-  await verify({ contract: 'contracts/Account.sol:Account', address });
+  await verify({ contract: 'src/Account.sol:Account', address });
 };
 
 main()

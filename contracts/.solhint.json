@@ -1,4 +1,6 @@
 {
   "extends": "solhint:recommended",
-  "rules": {}
+  "rules": {
+    "quotes": ["error","single"]
+  }
 }

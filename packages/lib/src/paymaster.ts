@@ -6,8 +6,8 @@ import {
   getAbiItem,
   isHex,
 } from 'viem';
-import { abi as flowAbi } from './generated/IPaymasterFlow';
-import { abi as paymasterUtilAbi } from './generated/TestPaymasterUtil';
+import { abi as flowAbi } from './abi/IPaymasterFlow';
+import { abi as paymasterUtilAbi } from './abi/TestPaymasterUtil';
 import { AbiParameterToPrimitiveType, TypedData, parseAbiParameters } from 'abitype';
 import { Hex } from './bytes';
 import { Address, UAddress } from './address';
