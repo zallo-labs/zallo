@@ -19,7 +19,8 @@ export function useSignInWithGoogle() {
       onAccessToken.current?.(err(null));
     },
     onNonOAuthError: (e) => {
-      logError('Non-OAuth error getting Google access token (web)', e);
+      if (e.type !== 'popup_closed')
+        logError('Non-OAuth error getting Google access token (web)', e);
       onAccessToken.current?.(err(null));
     },
   });
