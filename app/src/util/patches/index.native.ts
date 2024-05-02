@@ -15,7 +15,7 @@ import '@walletconnect/react-native-compat';
 import './intl';
 
 // Core JS
-import 'core-js/features/async-iterator'; // Required by urql
+import 'core-js/features/symbol/async-iterator'; // Required by urql
 import 'core-js/features/promise';  // Promise.allSettled required by viem client.multicall
 
 export default {};
