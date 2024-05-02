@@ -38,7 +38,7 @@ function LandingScreen() {
   const query = useQuery(Query, {}, { context });
 
   const account = useMemo(
-    () => selectedAccount ?? (!query.stale ? query.data?.accounts?.[0].address : undefined),
+    () => selectedAccount ?? (!query.stale ? query.data?.accounts?.[0]?.address : undefined),
     [query.data?.accounts, query.stale, selectedAccount],
   );
 
