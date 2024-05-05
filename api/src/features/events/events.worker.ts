@@ -71,10 +71,11 @@ export class EventsWorker extends Worker<EventsQueue> {
     super();
   }
 
-  async onModuleInit() {
+  onModuleInit() {
     super.onModuleInit();
-    await this.addMissingJob();
-    super.worker.run();
+    this.addMissingJob().then(() => {
+      super.worker.run();
+    });
   }
 
   on<TAbiEvent extends AbiEvent>(event: TAbiEvent, listener: EventListener<TAbiEvent>) {
