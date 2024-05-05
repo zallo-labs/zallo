@@ -45,7 +45,6 @@ const useMiddleware = async (req: Request, ...middleware: NestMiddleware[]) => {
           introspection: true,
           path: GQL_ENDPOINT,
           cache: 'bounded',
-          cors: false, // Configured in main.ts; omitting reconfigures CORS
           bodyParserConfig: {
             limit: '1mb',
           },
