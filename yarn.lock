@@ -5,15 +5,15 @@ __metadata:
   version: 8
   cacheKey: 10
 
-"@0no-co/graphql.web@npm:^1.0.1":
-  version: 1.0.4
-  resolution: "@0no-co/graphql.web@npm:1.0.4"
+"@0no-co/graphql.web@npm:^1.0.5":
+  version: 1.0.7
+  resolution: "@0no-co/graphql.web@npm:1.0.7"
   peerDependencies:
     graphql: ^14.0.0 || ^15.0.0 || ^16.0.0
   peerDependenciesMeta:
     graphql:
       optional: true
-  checksum: 10/cec66187831da456a423727aa791a9411098657d85262425ec0e84fab3dab13c848bd74986ab29a3f19bc24458f344d17a3c37a9d36ae3c2bc2d896d1727a89c
+  checksum: 10/8be5d80ba57df759a11f905ba7ac4bc6e9bc75034804bb679db4fa4eed3396f97b0191421031ba2d94af259fa7d55042a152e3f94294eba62ae81591d41bad87
   languageName: node
   linkType: hard
 
@@ -6058,7 +6058,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@graphql-typed-document-node/core@npm:3.2.0, @graphql-typed-document-node/core@npm:^3.2.0":
+"@graphql-typed-document-node/core@npm:3.2.0, @graphql-typed-document-node/core@npm:^3.1.0, @graphql-typed-document-node/core@npm:^3.2.0":
   version: 3.2.0
   resolution: "@graphql-typed-document-node/core@npm:3.2.0"
   peerDependencies:
@@ -11107,13 +11107,25 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@urql/core@npm:^4.3.0":
-  version: 4.3.0
-  resolution: "@urql/core@npm:4.3.0"
+"@urql/core@npm:2.3.6":
+  version: 2.3.6
+  resolution: "@urql/core@npm:2.3.6"
   dependencies:
-    "@0no-co/graphql.web": "npm:^1.0.1"
+    "@graphql-typed-document-node/core": "npm:^3.1.0"
+    wonka: "npm:^4.0.14"
+  peerDependencies:
+    graphql: ^0.11.0 || ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0 || ^16.0.0
+  checksum: 10/83b239f5559f380fff8f88ddeac15977443d97b83c47b2066315194e37a5b27b1b1f777a588f8ecb3bb823f522755a20337d3437119721328fd53f08fa55b361
+  languageName: node
+  linkType: hard
+
+"@urql/core@npm:>=2.3.1, @urql/core@npm:>=4.1.0, @urql/core@npm:>=4.2.0, @urql/core@npm:>=4.3.0, @urql/core@npm:>=5.0.0, @urql/core@npm:^5.0.0, @urql/core@npm:^5.0.3":
+  version: 5.0.3
+  resolution: "@urql/core@npm:5.0.3"
+  dependencies:
+    "@0no-co/graphql.web": "npm:^1.0.5"
     wonka: "npm:^6.3.2"
-  checksum: 10/3c0d4266cdc74a46cce272e053761618d47008f0c726b6e3f7ffe07e885ca744a13751838f9e6b11cb88827657d03d0ee33ce89c0974aff12f5d0cf4dd058155
+  checksum: 10/f6cd3db1a9272aba1cf09397d9fc8f81b64ad155d0a63c42bcfe0d06fd733407534ca9dca786be5568b086544c8f80d799ecdffc693123cef03fc12ab961ce27
   languageName: node
   linkType: hard
 
@@ -11139,14 +11151,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@urql/exchange-graphcache@npm:^6.5.1":
-  version: 6.5.1
-  resolution: "@urql/exchange-graphcache@npm:6.5.1"
+"@urql/exchange-graphcache@npm:^7.0.2":
+  version: 7.0.2
+  resolution: "@urql/exchange-graphcache@npm:7.0.2"
   dependencies:
-    "@0no-co/graphql.web": "npm:^1.0.1"
-    "@urql/core": "npm:>=4.3.0"
+    "@0no-co/graphql.web": "npm:^1.0.5"
+    "@urql/core": "npm:>=5.0.0"
     wonka: "npm:^6.3.2"
-  checksum: 10/029a4d995f8db52cd03970d23ca56f474ccce190c32dba8688b58196e6acc3f38cdbd271cb42fb01d5dbece8c0749306dd0f8677699b4f1b2bd5b50b6f7f1a0a
+  checksum: 10/c9ea968d2df0cad3b8c75055f738247c81ee39813a5d77dcda6e68c7a52e3a1eb383ca19c2e2b928c4f4021513bf197b54b598db5a58a983bca014f021acd56d
   languageName: node
   linkType: hard
 
@@ -12540,9 +12552,10 @@ __metadata:
     "@types/react-native-typewriter": "npm:^0.7.4"
     "@types/react-test-renderer": "npm:^18.0.7"
     "@types/ua-parser-js": "npm:^0.7.39"
+    "@urql/core": "npm:^5.0.3"
     "@urql/devtools": "npm:^2.0.3"
     "@urql/exchange-auth": "npm:^2.1.6"
-    "@urql/exchange-graphcache": "npm:^6.5.1"
+    "@urql/exchange-graphcache": "npm:^7.0.2"
     "@urql/exchange-persisted": "npm:^4.2.0"
     "@urql/exchange-request-policy": "npm:^1.1.0"
     "@urql/exchange-retry": "npm:^1.2.1"
@@ -12644,7 +12657,7 @@ __metadata:
     ts-toolbelt: "npm:^9.6.0"
     typescript: "npm:^5.3.3"
     ua-parser-js: "npm:^1.0.37"
-    urql: "npm:^4.0.6"
+    urql: "npm:^4.0.7"
     use-async-effect: "npm:^2.2.7"
     use-immer: "npm:^0.9.0"
     viem: "npm:^2.7.20"
@@ -31775,15 +31788,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"urql@npm:^4.0.6":
-  version: 4.0.6
-  resolution: "urql@npm:4.0.6"
+"urql@npm:^4.0.7":
+  version: 4.0.7
+  resolution: "urql@npm:4.0.7"
   dependencies:
-    "@urql/core": "npm:^4.2.0"
+    "@urql/core": "npm:^5.0.0"
     wonka: "npm:^6.3.2"
   peerDependencies:
     react: ">= 16.8.0"
-  checksum: 10/e2afc255cfab1bf5b358fcc3ce0600d37b68f7d5d5f333974c6e0d42abde68d1fb9f16bec09283b3d0838c0e8e8b3f8cf40c5645f6f26353a86a9ab1f899dcba
+  checksum: 10/e86a5924e827740c9d2116742097c74f01731b4357aff5b9f50496f56cbc9f405fe1b09645547d7ef85c76a995ba9869f0d55f33829b0872c51b99061f5476d8
   languageName: node
   linkType: hard
 
