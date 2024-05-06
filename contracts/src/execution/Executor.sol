@@ -1,15 +1,16 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 pragma solidity 0.8.25;
 
-import {Transaction} from '@matterlabs/zksync-contracts/l2/system-contracts/libraries/TransactionHelper.sol';
 import {DEPLOYER_SYSTEM_CONTRACT} from '@matterlabs/zksync-contracts/l2/system-contracts/Constants.sol';
 import {SystemContractsCaller} from '@matterlabs/zksync-contracts/l2/system-contracts/libraries/SystemContractsCaller.sol';
 
-import {TransactionUtil, Operation} from './TransactionUtil.sol';
+import {TransactionUtil, SystemTransaction, Tx, Operation, TxType} from './TransactionUtil.sol';
+import {Scheduler} from './Scheduler.sol';
 import {Hook, Hooks} from 'src/validation/hooks/Hooks.sol';
 
 library Executor {
-  using TransactionUtil for Transaction;
+  using TransactionUtil for Tx;
+  using TransactionUtil for SystemTransaction;
   using Hooks for Hook[];
 
   /*//////////////////////////////////////////////////////////////
@@ -18,13 +19,36 @@ library Executor {
 
   event OperationExecuted(bytes32 proposal, bytes response);
   event OperationsExecuted(bytes32 proposal, bytes[] responses);
-
   error OperationReverted(uint256 operationIndex, bytes reason);
   error TransactionAlreadyExecuted(bytes32 proposal);
 
   /*//////////////////////////////////////////////////////////////
                                 EXECUTION
   //////////////////////////////////////////////////////////////*/
+
+  function executeValidatedSystemTransaction(SystemTransaction calldata systx) internal {
+    TxType txType = systx.transactionType();
+    if (txType == TxType.Standard) {
+      _executeTransaction(systx);
+    } else if (txType == TxType.Scheduled) {
+      _executeScheduledTransaction(systx);
+    } else {
+      revert TransactionUtil.UnexpectedTransactionType(txType);
+    }
+  }
+
+  function _executeTransaction(SystemTransaction calldata systx) private {
+    Tx memory transaction = systx.transaction();
+    executeOperations(transaction.hash(), transaction.operations, systx.policy().hooks);
+  }
+
+  function _executeScheduledTransaction(SystemTransaction calldata systx) private {
+    Tx memory transaction = abi.decode(systx.data, (Tx));
+    bytes32 proposal = transaction.hash();
+
+    Scheduler.requireReady(proposal);
+    executeOperations(proposal, transaction.operations, new Hook[](0));
+  }
 
   /// @dev **Only to be called post validation**
   function executeOperations(

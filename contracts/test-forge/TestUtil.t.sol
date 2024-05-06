@@ -2,7 +2,7 @@
 pragma solidity 0.8.25;
 
 import 'forge-std/Test.sol'; // solhint-disable-line no-global-import
-import {Secp256k1} from 'src/libraries/Secp256k1.sol';
+import {Secp256k1} from 'src/validation/signature/Secp256k1.sol';
 
 abstract contract TestUtil is Test {
   function sign(

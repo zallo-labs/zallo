@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 pragma solidity 0.8.25;
 
-import {Operation} from '../../libraries/TransactionUtil.sol';
 import {TargetHook} from './TargetHook.sol';
 import {TransferHook} from './TransferHook.sol';
 import {DelayHook} from './DelayHook.sol';
 import {OtherMessageHook} from './OtherMessageHook.sol';
+import {Operation} from 'src/execution/TransactionUtil.sol';
 
 struct Hook {
   uint8 selector;

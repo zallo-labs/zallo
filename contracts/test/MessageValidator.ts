@@ -7,19 +7,19 @@ import {
   encodePolicyStruct,
 } from 'lib';
 import { deploy, network, wallet } from './util';
-import TestSignatureValidator, { abi } from './contracts/TestSignatureValidator';
+import TestMessageValidator, { abi } from './contracts/TestMessageValidator';
 import { TypedDataDefinition, hashMessage, hashTypedData } from 'viem';
 import { CONFIG } from '../config';
 import { expect } from 'chai';
 
 const EIP1271_SUCCESS = '0x1626ba7e';
 
-describe('SignatureValidator', () => {
+describe('MessageValidator', () => {
   const policy = asPolicy({ key: 1, approvers: [wallet.account.address] });
   let address: Address;
 
   before(async () => {
-    address = (await deploy(TestSignatureValidator)).address;
+    address = (await deploy(TestMessageValidator)).address;
     await wallet.writeContract({
       address,
       abi,

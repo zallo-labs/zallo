@@ -2,10 +2,11 @@
 pragma solidity 0.8.25;
 
 import '../Account.sol';
+import {Executor} from 'src/execution/Executor.sol';
 
 contract TestAccount is Account {
-  function testExecuteTransaction(SystemTransaction calldata transaction) external {
-    _executeSystemTransaction(transaction);
+  function testExecuteTransaction(SystemTransaction calldata systx) external {
+    Executor.executeValidatedSystemTransaction(systx);
   }
 
   function getSchedule(bytes32 proposal) external view returns (uint32) {

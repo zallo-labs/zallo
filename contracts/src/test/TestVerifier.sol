@@ -10,9 +10,8 @@ import {TargetHook, TargetsConfig} from 'src/validation/hooks/TargetHook.sol';
 import {TransferHook, TransfersConfig} from 'src/validation/hooks/TransferHook.sol';
 import {DelayHook, DelayConfig} from 'src/validation/hooks/DelayHook.sol';
 import {OtherMessageHook, OtherMessageConfig} from 'src/validation/hooks/OtherMessageHook.sol';
-import {TransactionUtil, Operation} from 'src/libraries/TransactionUtil.sol';
-import {Scheduler} from 'src/libraries/Scheduler.sol';
-import {Tx} from 'src/libraries/TransactionUtil.sol';
+import {Tx, TransactionUtil, Operation} from 'src/execution/TransactionUtil.sol';
+import {Scheduler} from 'src/execution/Scheduler.sol';
 
 contract TestVerifier {
   using TransactionUtil for Transaction;

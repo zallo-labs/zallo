@@ -8,7 +8,7 @@ import {Approvals, ApprovalsVerifier} from './ApprovalsVerifier.sol';
 import {Hooks, Hook} from './hooks/Hooks.sol';
 import {TypedData} from 'src/libraries/TypedData.sol';
 
-abstract contract SignatureValidator is IERC1271 {
+abstract contract MessageValidator is IERC1271 {
   using Hooks for Hook[];
 
   error WrongMessageInSignature();

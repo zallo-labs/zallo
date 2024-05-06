@@ -3,9 +3,9 @@ pragma solidity 0.8.25;
 
 import {Transaction as SystemTransaction} from '@matterlabs/zksync-contracts/l2/system-contracts/libraries/TransactionHelper.sol';
 
-import {Cast} from './Cast.sol';
-import {TypedData} from './TypedData.sol';
-import {Policy, PolicyKey, PolicyLib} from 'src/validation/Policy.sol';
+import {Cast} from 'src/libraries/Cast.sol';
+import {TypedData} from 'src/libraries/TypedData.sol';
+import {Policy, PolicyLib} from 'src/validation/Policy.sol';
 import {Approvals} from 'src/validation/ApprovalsVerifier.sol';
 import {Hook} from 'src/validation/hooks/Hooks.sol';
 import {PaymasterUtil} from 'src/paymaster/PaymasterUtil.sol';
@@ -31,6 +31,8 @@ struct Operation {
 /// @dev https://github.com/ethereum/EIPs/blob/master/EIPS/eip-712.md
 library TransactionUtil {
   using Cast for uint256;
+
+  error UnexpectedTransactionType(TxType txType);
 
   /*//////////////////////////////////////////////////////////////
                                    TX

@@ -3,7 +3,7 @@ pragma solidity 0.8.25;
 
 import {IERC1271} from '@openzeppelin/contracts/interfaces/IERC1271.sol';
 
-contract MockSignatureValidator is IERC1271 {
+contract MockMessageValidator is IERC1271 {
   bytes4 private constant EIP1271_SUCCESS = IERC1271.isValidSignature.selector;
 
   bool private _validSignature;
