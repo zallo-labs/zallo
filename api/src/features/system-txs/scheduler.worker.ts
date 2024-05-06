@@ -28,19 +28,18 @@ export class SchedulerWorker extends Worker<SchedulerQueue> {
   async process(job: TypedJob<SchedulerQueue>) {
     const selectedProposal = selectTransaction(job.data.transaction);
     const proposal = await this.db.query(
-      e.select(selectedProposal, (p) => ({
+      e.select(selectedProposal, () => ({
         account: { address: true },
+        status: true,
         simulation: { success: true },
-        transaction: { receipt: true },
-        isScheduled: p.result.is(e.Scheduled),
         ...TX_SHAPE,
-        maxPaymasterEthFees: { activation: true, total: true },
+        maxPaymasterEthFees: { activation: true, ...TX_SHAPE.maxPaymasterEthFees },
       })),
     );
     if (!proposal) return 'Proposal not found';
+    if (proposal.status !== 'Scheduled') return 'Not scheduled';
     if (!proposal.simulation) return 'Not simulated';
     if (!proposal.simulation.success) return 'Simulation failed';
-    if (!proposal.isScheduled) return 'Not scheduled';
 
     const account = asUAddress(proposal.account.address);
     const network = this.networks.get(account);
