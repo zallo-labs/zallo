@@ -2,13 +2,9 @@
   "files.exclude": {
     ".turbo": true,
     ".vscode": true,
-    "abi": true,
-    "artifacts*": true,
-    "cache*": true,
-    "out": true,
-    "zkout": true,
-    "node_modules": true
   },
+  "explorer.excludeGitIgnore": true,
+  "search.useIgnoreFiles": true,
   "mochaExplorer.cwd": ".",
   "mochaExplorer.files": "test/**/*.{t,j}s",
   "jest.autoRun": "off"

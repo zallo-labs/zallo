@@ -3,5 +3,7 @@
     ".turbo": true,
     ".vscode": true
   },
+  "explorer.excludeGitIgnore": true,
+  "search.useIgnoreFiles": true,
   "jest.jestCommandLine": "yarn test"
 }
