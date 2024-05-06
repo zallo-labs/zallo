@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-pragma solidity ^0.8.20;
+pragma solidity 0.8.25;
 
 import {Transaction as SystemTransaction} from '@matterlabs/zksync-contracts/l2/system-contracts/libraries/TransactionHelper.sol';
 
-import {Policy, PolicyKey, PolicyLib} from '../policy/Policy.sol';
-import {Approvals} from '../policy/ApprovalsVerifier.sol';
-import {Hook} from '../policy/hooks/Hooks.sol';
 import {Cast} from './Cast.sol';
 import {TypedData} from './TypedData.sol';
-import {PaymasterUtil} from '../paymaster/PaymasterUtil.sol';
+import {Policy, PolicyKey, PolicyLib} from 'src/validation/Policy.sol';
+import {Approvals} from 'src/validation/ApprovalsVerifier.sol';
+import {Hook} from 'src/validation/hooks/Hooks.sol';
+import {PaymasterUtil} from 'src/paymaster/PaymasterUtil.sol';
 
 enum TxType {
   Standard,

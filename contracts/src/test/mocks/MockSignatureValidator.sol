@@ -1,14 +1,12 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-pragma solidity ^0.8.20;
+pragma solidity 0.8.25;
 
 import {IERC1271} from '@openzeppelin/contracts/interfaces/IERC1271.sol';
 
-import {ISignatureValidator} from '../../base/ISignatureValidator.sol';
-
-contract MockSignatureValidator is ISignatureValidator {
+contract MockSignatureValidator is IERC1271 {
   bytes4 private constant EIP1271_SUCCESS = IERC1271.isValidSignature.selector;
 
-  bool _validSignature;
+  bool private _validSignature;
 
   function setValidSignature(bool validSignature) external {
     _validSignature = validSignature;

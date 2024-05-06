@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-pragma solidity ^0.8.20;
+pragma solidity 0.8.25;
 
 struct Schedule {
   uint32 timestamp; /// @dev Overlfows on 2106/02/07
@@ -49,7 +49,7 @@ library Scheduler {
   //////////////////////////////////////////////////////////////*/
 
   function _scheduled() private pure returns (mapping(bytes32 => Schedule) storage s) {
-    assembly {
+    assembly ('memory-safe') {
       // keccack256('Scheduler.scheduled')
       s.slot := 0x7a81838ee1d2d55d040ef92fa46a2bc4f9afa4c0e8adae71b5b797e5dab5146f
     }

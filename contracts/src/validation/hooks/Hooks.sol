@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-pragma solidity ^0.8.20;
+pragma solidity 0.8.25;
 
 import {Operation} from '../../libraries/TransactionUtil.sol';
 import {TargetHook} from './TargetHook.sol';
@@ -92,7 +92,7 @@ library Hooks {
                                 MESSAGE
   //////////////////////////////////////////////////////////////*/
 
-  function validateMessage(Hook[] memory hooks, bytes memory message) internal pure {
+  function validateMessage(Hook[] memory hooks, bytes memory /* message */) internal pure {
     bool handled /* = false */;
     uint8 selector;
     for (uint256 i; i < hooks.length; ++i) {

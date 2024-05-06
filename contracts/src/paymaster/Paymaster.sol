@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-pragma solidity ^0.8.20;
+pragma solidity 0.8.25;
 
 import {IPaymaster, ExecutionResult, PAYMASTER_VALIDATION_SUCCESS_MAGIC} from '@matterlabs/zksync-contracts/l2/system-contracts/interfaces/IPaymaster.sol';
 import {BOOTLOADER_FORMAL_ADDRESS} from '@matterlabs/zksync-contracts/l2/system-contracts/Constants.sol';
@@ -11,8 +11,8 @@ import {PaymasterManager} from './PaymasterManager.sol';
 import {PriceOracle, PriceOracleConfig} from './PriceOracle.sol';
 import {PaymasterUtil} from './PaymasterUtil.sol';
 import {PaymasterParser} from './PaymasterParser.sol';
-import {Cast} from '../libraries/Cast.sol';
-import {Secp256k1} from '../libraries/Secp256k1.sol';
+import {Cast} from 'src/libraries/Cast.sol';
+import {Secp256k1} from 'src/validation/signature/Secp256k1.sol';
 
 contract Paymaster is IPaymaster, PaymasterManager, PaymasterParser, PriceOracle {
   /*//////////////////////////////////////////////////////////////
@@ -65,8 +65,9 @@ contract Paymaster is IPaymaster, PaymasterManager, PaymasterParser, PriceOracle
     bytes32 /* txHash */,
     bytes32 /* txDataHash */,
     Transaction calldata transaction
-  ) external payable onlyBootloader returns (bytes4 magic, bytes memory /* context */) {
+  ) external payable onlyBootloader returns (bytes4 magic, bytes memory context) {
     magic = _unsafeValidateAndPayForPaymasterTransaction(transaction);
+    context = new bytes(0);
   }
 
   function _unsafeValidateAndPayForPaymasterTransaction(
@@ -143,7 +144,7 @@ contract Paymaster is IPaymaster, PaymasterManager, PaymasterParser, PriceOracle
   //////////////////////////////////////////////////////////////*/
 
   function _ethAllowance() private pure returns (mapping(address => uint256) storage s) {
-    assembly {
+    assembly ('memory-safe') {
       // keccack256('Paymaster.ethAllowance')
       s.slot := 0x83f39f26ea023df7a049022a2132e47c1b07e9e164eab419384e126f5ce28735
     }

@@ -1,11 +1,9 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-pragma solidity ^0.8.20;
+pragma solidity 0.8.25;
 
-import {ECDSA} from '@openzeppelin/contracts/utils/cryptography/ECDSA.sol';
-import {IERC1271} from '@openzeppelin/contracts/interfaces/IERC1271.sol';
 import {Policy} from './Policy.sol';
-import {Secp256k1} from '../libraries/Secp256k1.sol';
-import {ERC1271} from '../libraries/ERC1271.sol';
+import {ERC1271} from './signature/ERC1271.sol';
+import {Secp256k1} from './signature/Secp256k1.sol';
 
 struct Approvals {
   uint256 approversSigned;
@@ -25,7 +23,7 @@ library ApprovalsVerifier {
   error InvalidSignature(address approver);
 
   /// @notice Constainted by Approvals.approverSigned - a uint256 of bit-packed bools
-  uint256 constant MAX_APPROVERS = 256;
+  uint256 internal constant MAX_APPROVERS = 256;
 
   function verify(
     Approvals memory a,

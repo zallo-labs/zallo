@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-pragma solidity ^0.8.20;
+pragma solidity 0.8.25;
 
 import 'forge-std/Test.sol'; // solhint-disable-line no-global-import
 import {Secp256k1} from 'src/libraries/Secp256k1.sol';

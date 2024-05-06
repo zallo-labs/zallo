@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-pragma solidity ^0.8.20;
+pragma solidity 0.8.25;
 
 /// @notice Track whether the contract has been initialized
 /// Heavily inspired by OZ's Initializable contract
@@ -44,7 +44,7 @@ abstract contract Initializable {
   }
 
   function _initialized() private pure returns (Initialized storage initialized) {
-    assembly {
+    assembly ('memory-safe') {
       // keccak256('Initializable.initialized')
       initialized.slot := 0x69f4cfcde55304a353bee9f8f2bbfc2fcb65cf3f3ca694d821cc348abe696c33
     }

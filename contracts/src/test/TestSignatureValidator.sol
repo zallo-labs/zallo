@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-pragma solidity ^0.8.20;
+pragma solidity 0.8.25;
 
-import {SignatureValidator} from '../base/SignatureValidator.sol';
-import {Policy, PolicyKey} from '../policy/Policy.sol';
-import {PolicyManager} from '../policy/PolicyManager.sol';
+import {SignatureValidator} from 'src/validation/SignatureValidator.sol';
+import {Policy} from 'src/validation/Policy.sol';
+import {PolicyManager} from 'src/validation/PolicyManager.sol';
 
 contract TestSignatureValidator is SignatureValidator, PolicyManager {
   function testAddPolicy(Policy calldata policy) external {

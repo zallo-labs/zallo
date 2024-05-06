@@ -1,8 +1,9 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-pragma solidity ^0.8.20;
+pragma solidity 0.8.25;
 
-import {PaymasterParser} from '../../paymaster/PaymasterParser.sol';
-import {PaymasterUtil, PaymasterSignedData, Transaction} from '../../paymaster/PaymasterUtil.sol';
+import {PaymasterParser} from 'src/paymaster/PaymasterParser.sol';
+import {PaymasterUtil, Transaction} from 'src/paymaster/PaymasterUtil.sol';
+import {PaymasterSignedData} from 'src/paymaster/IPaymasterFlow.sol';
 
 contract TestPaymasterUtil is PaymasterParser {
   /*//////////////////////////////////////////////////////////////
@@ -36,7 +37,7 @@ contract TestPaymasterUtil is PaymasterParser {
 
   function signedInput(
     bytes calldata paymasterInput
-  ) external pure returns (bytes memory signedInput) {
+  ) external pure returns (bytes memory signedInput_) {
     return PaymasterUtil.signedInput(paymasterInput);
   }
 

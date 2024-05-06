@@ -1,11 +1,10 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-pragma solidity ^0.8.20;
+pragma solidity 0.8.25;
 
 import {ERC20} from '@openzeppelin/contracts/token/ERC20/ERC20.sol';
 
-import {PolicyKey} from '../Policy.sol';
-import {Operation} from '../../libraries/TransactionUtil.sol';
-import {Cast} from '../../libraries/Cast.sol';
+import {Operation} from 'src/libraries/TransactionUtil.sol';
+import {Cast} from 'src/libraries/Cast.sol';
 
 struct TransfersConfig {
   TransferLimit[] limits; /// @dev sorted by `token` ascending
@@ -41,7 +40,7 @@ library TransferHook {
   function beforeExecute(Operation[] memory operations, bytes memory configData) internal {
     TransfersConfig memory config = abi.decode(configData, (TransfersConfig));
 
-    for (uint i; i < operations.length; ++i) {
+    for (uint256 i; i < operations.length; ++i) {
       beforeExecuteOp(operations[i], config);
     }
   }
@@ -50,7 +49,7 @@ library TransferHook {
     TransferDetails memory transfer = _getTransfer(op);
     if (transfer.amount == 0) return;
 
-    for (uint i; i < c.limits.length && c.limits[i].token <= op.to; ++i) {
+    for (uint256 i; i < c.limits.length && c.limits[i].token <= op.to; ++i) {
       if (c.limits[i].token == transfer.token)
         return _handleSpend(c.budget, c.limits[i], transfer.amount.toU224());
     }
@@ -86,7 +85,7 @@ library TransferHook {
                                 UTILITY
   //////////////////////////////////////////////////////////////*/
 
-  bytes4 constant ERC20_INCREASE_ALLOWANCE_SELECTOR = 0x39509351; // Not officially part of ERC20, but common due to being part of OZ's ERC20 implementation (< v5)
+  bytes4 private constant ERC20_INCREASE_ALLOWANCE_SELECTOR = 0x39509351; // Not officially part of ERC20, but common due to being part of OZ's ERC20 implementation (< v5)
 
   function _getTransfer(
     Operation memory op
@@ -102,7 +101,7 @@ library TransferHook {
 
       bytes memory data = op.data;
       uint256 amount;
-      assembly {
+      assembly ('memory-safe') {
         amount := mload(add(data, 68)) // op.data[36:68]
       }
 
@@ -124,7 +123,7 @@ library TransferHook {
   }
 
   function _spendingStorage() private pure returns (mapping(bytes32 => TokenSpending) storage s) {
-    assembly {
+    assembly ('memory-safe') {
       // keccack256('TransferHook.spending')
       s.slot := 0xa95c61bf38dc80453e6eb862bd094d5e38b4cd94622f936a28f2a09f6ce0d0b4
     }

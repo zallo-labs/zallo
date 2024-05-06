@@ -1,7 +1,7 @@
 // // SPDX-License-Identifier: AGPL-3.0-or-later
-pragma solidity ^0.8.20;
+pragma solidity 0.8.25;
 
-import {PolicyManager, Policy, PolicyKey} from '../policy/PolicyManager.sol';
+import {PolicyManager, Policy, PolicyKey} from 'src/validation/PolicyManager.sol';
 
 contract TestPolicyManager is PolicyManager {
   function testAddPolicy(Policy calldata policy) external {

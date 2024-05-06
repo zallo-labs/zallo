@@ -1,9 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-pragma solidity ^0.8.20;
+pragma solidity 0.8.25;
 
-import {SelfOwned} from '../SelfOwned.sol';
-import {Approvals, ApprovalsVerifier} from './ApprovalsVerifier.sol';
-import {Hooks, Hook} from '../policy/hooks/Hooks.sol';
+import {Hook} from 'src/validation/hooks/Hooks.sol';
 
 type PolicyKey is uint32;
 
@@ -32,7 +30,7 @@ library PolicyLib {
   //////////////////////////////////////////////////////////////*/
 
   function hashes() internal pure returns (mapping(PolicyKey => bytes32 policyHash) storage s) {
-    assembly {
+    assembly ('memory-safe') {
       // keccack256('Policy.hashes')
       s.slot := 0x02dd6fa66df9c158ef0a4ac91dfd1b56e357dd9272f44b3635916cd0448b8d01
     }

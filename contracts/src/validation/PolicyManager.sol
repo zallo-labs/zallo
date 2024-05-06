@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-pragma solidity ^0.8.20;
+pragma solidity 0.8.25;
 
-import {SelfOwned} from '../SelfOwned.sol';
 import {Policy, PolicyKey, PolicyLib} from './Policy.sol';
-import {Approvals, ApprovalsVerifier} from './ApprovalsVerifier.sol';
-import {Hooks, Hook} from '../policy/hooks/Hooks.sol';
+import {ApprovalsVerifier} from './ApprovalsVerifier.sol';
+import {SelfOwned} from 'src/helpers/SelfOwned.sol';
+import {Hooks, Hook} from 'src/validation/hooks/Hooks.sol';
 
 abstract contract PolicyManager is SelfOwned {
   using PolicyLib for Policy;

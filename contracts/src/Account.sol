@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-pragma solidity ^0.8.20;
+pragma solidity 0.8.25;
 
 import {IAccount} from '@matterlabs/zksync-contracts/l2/system-contracts/interfaces/IAccount.sol';
 import {Transaction as SystemTransaction, TransactionHelper as SystemTransactionHelper} from '@matterlabs/zksync-contracts/l2/system-contracts/libraries/TransactionHelper.sol';
@@ -7,28 +7,26 @@ import {ACCOUNT_VALIDATION_SUCCESS_MAGIC} from '@matterlabs/zksync-contracts/l2/
 import {INonceHolder, BOOTLOADER_FORMAL_ADDRESS, NONCE_HOLDER_SYSTEM_CONTRACT} from '@matterlabs/zksync-contracts/l2/system-contracts/Constants.sol';
 import {SystemContractsCaller} from '@matterlabs/zksync-contracts/l2/system-contracts/libraries/SystemContractsCaller.sol';
 
-import {Initializable} from './Initializable.sol';
-import {Upgradeable} from './Upgradeable.sol';
-import {Policy, PolicyKey} from './policy/Policy.sol';
-import {PolicyManager} from './policy/PolicyManager.sol';
-import {Approvals, ApprovalsVerifier} from './policy/ApprovalsVerifier.sol';
-import {Hook, Hooks} from './policy/hooks/Hooks.sol';
+import {Initializable} from './core/Initializable.sol';
+import {Upgradeable} from './core/Upgradeable.sol';
+import {Policy} from './validation/Policy.sol';
+import {PolicyManager} from './validation/PolicyManager.sol';
+import {Approvals, ApprovalsVerifier} from './validation/ApprovalsVerifier.sol';
+import {Hook, Hooks} from './validation/hooks/Hooks.sol';
 import {Executor} from './libraries/Executor.sol';
-import {ERC165} from './standards/ERC165.sol';
-import {ERC721Receiver} from './standards/ERC721Receiver.sol';
-import {SignatureValidator} from './base/SignatureValidator.sol';
+import {SignatureValidator} from './validation/SignatureValidator.sol';
 import {TransactionUtil, Tx, TxType} from './libraries/TransactionUtil.sol';
 import {PaymasterUtil} from './paymaster/PaymasterUtil.sol';
 import {Scheduler} from './libraries/Scheduler.sol';
+import {TokenReceiver} from './core/TokenReceiver.sol';
 
 contract Account is
   IAccount,
   Initializable,
   Upgradeable,
   PolicyManager,
-  ERC165,
-  ERC721Receiver,
-  SignatureValidator
+  SignatureValidator,
+  TokenReceiver
 {
   using SystemTransactionHelper for SystemTransaction;
   using TransactionUtil for SystemTransaction;

@@ -1,16 +1,14 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-pragma solidity ^0.8.20;
+pragma solidity 0.8.25;
 
 import {Transaction} from '@matterlabs/zksync-contracts/l2/system-contracts/libraries/TransactionHelper.sol';
 import {DEPLOYER_SYSTEM_CONTRACT} from '@matterlabs/zksync-contracts/l2/system-contracts/Constants.sol';
 import {SystemContractsCaller} from '@matterlabs/zksync-contracts/l2/system-contracts/libraries/SystemContractsCaller.sol';
 
-import {Cast} from './Cast.sol';
-import {TransactionUtil, Tx, Operation} from './TransactionUtil.sol';
-import {Hook, Hooks} from '../policy/hooks/Hooks.sol';
+import {TransactionUtil, Operation} from './TransactionUtil.sol';
+import {Hook, Hooks} from 'src/validation/hooks/Hooks.sol';
 
 library Executor {
-  using Cast for uint256;
   using TransactionUtil for Transaction;
   using Hooks for Hook[];
 
@@ -68,7 +66,7 @@ library Executor {
   //////////////////////////////////////////////////////////////*/
 
   function _executedTransactions() private pure returns (mapping(uint256 => uint256) storage s) {
-    assembly {
+    assembly ('memory-safe') {
       // keccack256('Executor.executedTransactions')
       s.slot := 0x471df6250cbf7b0cf3c66793e0bf1c0e5b4836f3a593130285b5e9f28489db7c
     }

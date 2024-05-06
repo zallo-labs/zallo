@@ -1,25 +1,25 @@
 // // SPDX-License-Identifier: AGPL-3.0-or-later
-pragma solidity ^0.8.20;
+pragma solidity 0.8.25;
 
 import {Transaction} from '@matterlabs/zksync-contracts/l2/system-contracts/libraries/TransactionHelper.sol';
 
-import {Policy, PolicyKey} from '../policy/Policy.sol';
-import {Hook, Hooks} from '../policy/hooks/Hooks.sol';
-import {Approvals, ApprovalsVerifier} from '../policy/ApprovalsVerifier.sol';
-import {TransactionUtil, Operation} from '../libraries/TransactionUtil.sol';
-import {TargetHook, TargetsConfig} from '../policy/hooks/TargetHook.sol';
-import {TransferHook, TransfersConfig} from '../policy/hooks/TransferHook.sol';
-import {DelayHook, DelayConfig} from '../policy/hooks/DelayHook.sol';
-import {OtherMessageHook, OtherMessageConfig} from '../policy/hooks/OtherMessageHook.sol';
-import {Scheduler} from '../libraries/Scheduler.sol';
-import {Tx} from '../libraries/TransactionUtil.sol';
+import {Hook, Hooks} from 'src/validation/hooks/Hooks.sol';
+import {Policy} from 'src/validation/Policy.sol';
+import {Approvals, ApprovalsVerifier} from 'src/validation/ApprovalsVerifier.sol';
+import {TargetHook, TargetsConfig} from 'src/validation/hooks/TargetHook.sol';
+import {TransferHook, TransfersConfig} from 'src/validation/hooks/TransferHook.sol';
+import {DelayHook, DelayConfig} from 'src/validation/hooks/DelayHook.sol';
+import {OtherMessageHook, OtherMessageConfig} from 'src/validation/hooks/OtherMessageHook.sol';
+import {TransactionUtil, Operation} from 'src/libraries/TransactionUtil.sol';
+import {Scheduler} from 'src/libraries/Scheduler.sol';
+import {Tx} from 'src/libraries/TransactionUtil.sol';
 
 contract TestVerifier {
   using TransactionUtil for Transaction;
   using ApprovalsVerifier for Approvals;
   using Hooks for Hook[];
 
-  function transaction(Tx calldata tx) external pure {}
+  function transaction(Tx calldata tx_) external pure {}
 
   function validateOperations(Hook[] memory hooks, Operation[] calldata operations) external pure {
     hooks.validateOperations(operations);
