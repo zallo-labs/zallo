@@ -13,3 +13,13 @@ zksync = true
 mode = "3"
 # is_system = true
 # detect_missing_libraries = true
+
+[profile.default.fuzz]
+runs = 32
+
+
+[profile.ci]
+verbosity = 3
+
+[profile.ci.fuzz]
+runs = 256

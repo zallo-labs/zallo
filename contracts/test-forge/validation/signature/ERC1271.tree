@@ -1,0 +1,7 @@
+.
+├── when hash signed
+│   └── it should succeed
+├── when verification fails
+│   └── it should fail
+├── when verification reverts
+│   └── it should fail
