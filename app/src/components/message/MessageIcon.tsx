@@ -1,7 +1,7 @@
 import { FragmentType, gql, useFragment } from '@api/generated';
 import { IconProps, materialIcon } from '@theme/icons';
 import { createStyles, useStyles } from '@theme/styles';
-import { Image } from 'expo-image';
+import { Image } from '#/Image';
 
 export const GenericMessageIcon = materialIcon('mail');
 

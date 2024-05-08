@@ -1,4 +1,4 @@
-import { Image } from 'expo-image';
+import { Image } from '#/Image';
 import { View } from 'react-native';
 import { Text } from 'react-native-paper';
 import { CoreTypes } from '@walletconnect/types';

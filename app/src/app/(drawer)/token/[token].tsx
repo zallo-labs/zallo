@@ -1,6 +1,6 @@
 import { Link, useRouter } from 'expo-router';
 import { gql } from '@api/generated';
-import { Image } from 'expo-image';
+import { Image } from '#/Image';
 import { asAddress, asChain, tryOrIgnore } from 'lib';
 import { useForm } from 'react-hook-form';
 import { FormSubmitButton } from '#/fields/FormSubmitButton';

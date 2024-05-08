@@ -1,4 +1,4 @@
-import { Image, ImageProps, ImageSource, ImageStyle } from 'expo-image';
+import { Image, ImageProps, ImageSource, ImageStyle } from '#/Image';
 import { ComponentPropsWithoutRef, Ref, forwardRef } from 'react';
 import { ColorValue, StyleProp, TouchableOpacity, TouchableOpacityProps } from 'react-native';
 import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
