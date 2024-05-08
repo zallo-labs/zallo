@@ -3,7 +3,7 @@ pragma solidity 0.8.25;
 
 import {IPaymasterFlow, PaymasterSignedData} from './IPaymasterFlow.sol';
 import {PaymasterUtil} from './PaymasterUtil.sol';
-import {Secp256k1} from 'src/validation/signature/Secp256k1.sol';
+import {K256} from 'src/validation/signature/K256.sol';
 
 abstract contract PaymasterParser {
   /*//////////////////////////////////////////////////////////////
@@ -45,17 +45,17 @@ abstract contract PaymasterParser {
       revert UnsupportedPaymasterFlow();
 
     PaymasterSignedData memory signedData;
-    Secp256k1.Signature memory paymasterSignature;
+    K256.Signature memory paymasterSignature;
     (token, allowance, signedData, paymasterSignature) = abi.decode(
       paymasterInput[4:],
-      (address, uint256, PaymasterSignedData, Secp256k1.Signature)
+      (address, uint256, PaymasterSignedData, K256.Signature)
     );
     paymasterFee = signedData.paymasterFee;
     discount = signedData.discount;
 
     // Verify paymaster signed data
     bytes32 signedDataHash = _hashSignedData(account, nonce, signedData);
-    if (!Secp256k1.verify(paymasterSigner, signedDataHash, paymasterSignature))
+    if (!K256.verify(paymasterSigner, signedDataHash, paymasterSignature))
       revert WrongPaymasterSigner(paymasterSigner);
   }
 

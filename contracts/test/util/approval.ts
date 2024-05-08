@@ -9,7 +9,7 @@ export const getApprovals = async (
   const typedData = asTypedData(account, tx);
 
   return mapAsync([...approvers], async (approver) => ({
-    type: 'secp256k1',
+    type: 'k256',
     approver,
     signature: await wallets.find((w) => w.address === approver)!.signTypedData(typedData),
   }));

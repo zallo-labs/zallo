@@ -2,7 +2,7 @@
 pragma solidity 0.8.25;
 
 import 'forge-std/Test.sol'; // solhint-disable-line no-global-import
-import {Secp256k1} from 'src/validation/signature/Secp256k1.sol';
+import {K256} from 'src/validation/signature/K256.sol';
 
 abstract contract UnitTest is Test {
   function assumePk(uint256 pk) internal pure {
@@ -13,17 +13,17 @@ abstract contract UnitTest is Test {
   function sign(
     bytes32 hash,
     uint256 privateKey
-  ) internal pure returns (Secp256k1.Signature memory signature) {
+  ) internal pure returns (K256.Signature memory signature) {
     (uint8 v, bytes32 r, bytes32 s) = vm.sign(privateKey, hash);
 
-    return Secp256k1.Signature({r: r, yParityAndS: (v == 27) ? s : s | bytes32(uint256(1) << 255)});
+    return K256.Signature({r: r, yParityAndS: (v == 27) ? s : s | bytes32(uint256(1) << 255)});
   }
 
   function sign(
     bytes32 hash,
     uint256[] memory privateKeys
-  ) internal pure returns (Secp256k1.Signature[] memory signatures) {
-    signatures = new Secp256k1.Signature[](privateKeys.length);
+  ) internal pure returns (K256.Signature[] memory signatures) {
+    signatures = new K256.Signature[](privateKeys.length);
     for (uint256 i = 0; i < privateKeys.length; ++i) {
       signatures[i] = sign(hash, privateKeys[i]);
     }

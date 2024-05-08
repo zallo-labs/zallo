@@ -3,10 +3,10 @@ pragma solidity 0.8.25;
 
 import {Policy} from './Policy.sol';
 import {ERC1271} from './signature/ERC1271.sol';
-import {Secp256k1} from './signature/Secp256k1.sol';
+import {K256} from './signature/K256.sol';
 
 struct Approvals {
-  Secp256k1.Signature[] secp256k1;
+  K256.Signature[] k256;
   ERC1271Approval[] erc1271;
 }
 
@@ -24,27 +24,27 @@ library ApprovalsLib {
     bytes32 hash,
     Policy memory p
   ) internal view returns (bool success) {
-    uint256 approvals = a.secp256k1.length + a.erc1271.length;
+    uint256 approvals = a.k256.length + a.erc1271.length;
     if (approvals < p.threshold) return false;
 
-    verifySecp256k1(hash, p.approvers, a.secp256k1);
+    verifyK256(hash, p.approvers, a.k256);
     verifyErc1271(hash, p.approvers, a.erc1271);
 
     return true;
   }
 
-  function verifySecp256k1(
+  function verifyK256(
     bytes32 hash,
     address[] memory approvers,
-    Secp256k1.Signature[] memory signatures
+    K256.Signature[] memory signatures
   ) internal pure {
     uint256 approverIndex /* = 0 */;
     address approver;
     bool found;
     for (uint256 i; i < signatures.length; ++i) {
-      approver = Secp256k1.recover(hash, signatures[i]);
+      approver = K256.recover(hash, signatures[i]);
 
-      // Ensures secp256k1 signatures are ascending (thus unique) and part of the approver set
+      // Ensures k256 signatures are ascending (thus unique) and part of the approver set
       for (found = false; !found && approverIndex < approvers.length; ++approverIndex) {
         if (approvers[approverIndex] == approver) found = true;
       }

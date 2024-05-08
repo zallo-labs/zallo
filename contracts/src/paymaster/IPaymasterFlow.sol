@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 pragma solidity 0.8.25;
 
-import {Secp256k1} from 'src/validation/signature/Secp256k1.sol';
+import {K256} from 'src/validation/signature/K256.sol';
 
 /// @notice Data signed by paymaster signer
 struct PaymasterSignedData {
@@ -14,6 +14,6 @@ interface IPaymasterFlow {
     address token,
     uint256 allowance,
     PaymasterSignedData calldata paymasterData,
-    Secp256k1.Signature calldata paymasterSignature
+    K256.Signature calldata paymasterSignature
   ) external;
 }

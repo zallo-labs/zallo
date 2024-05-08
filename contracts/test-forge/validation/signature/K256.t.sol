@@ -2,14 +2,14 @@
 pragma solidity 0.8.25;
 
 import {UnitTest} from 'test/UnitTest.sol';
-import {Secp256k1} from 'src/validation/signature/Secp256k1.sol';
+import {K256} from 'src/validation/signature/K256.sol';
 
-contract Secp256k1Test is UnitTest {
+contract K256Test is UnitTest {
   function testFuzz_verify_HashSigned(uint256 signerKey, bytes32 hash) public pure {
     assumePk(signerKey);
-    Secp256k1.Signature memory signature = sign(hash, signerKey);
+    K256.Signature memory signature = sign(hash, signerKey);
 
-    assertTrue(Secp256k1.verify(vm.addr(signerKey), hash, signature));
+    assertTrue(K256.verify(vm.addr(signerKey), hash, signature));
   }
 
   function testFuzz_verify_FailWhen_DifferentHash(bytes32 differentHash) public {
@@ -17,9 +17,9 @@ contract Secp256k1Test is UnitTest {
     vm.assume(differentHash != signedHash);
 
     (address signer, uint256 signerKey) = makeAddrAndKey('signer');
-    Secp256k1.Signature memory signature = sign(signedHash, signerKey);
+    K256.Signature memory signature = sign(signedHash, signerKey);
 
-    assertFalse(Secp256k1.verify(signer, differentHash, signature));
+    assertFalse(K256.verify(signer, differentHash, signature));
   }
 
   function testFuzz_verify_FailWhen_DifferentSigner(uint256 differentSignerKey) public {
@@ -28,8 +28,8 @@ contract Secp256k1Test is UnitTest {
     vm.assume(differentSignerKey != signerKey);
 
     bytes32 hash = bytes32(uint256(1));
-    Secp256k1.Signature memory signature = sign(hash, signerKey);
+    K256.Signature memory signature = sign(hash, signerKey);
 
-    assertFalse(Secp256k1.verify(vm.addr(differentSignerKey), hash, signature));
+    assertFalse(K256.verify(vm.addr(differentSignerKey), hash, signature));
   }
 }

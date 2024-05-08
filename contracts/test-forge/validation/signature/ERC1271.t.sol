@@ -30,7 +30,7 @@ contract ERC1271Test is UnitTest {
     assertFalse(ERC1271.verify(signer, hash, signature));
   }
 
-  // FIXME: test is not using fixture ??
+  // TODO: enable fixture when zksync-foundry updates
   bytes[] public fixtureRevertReason = [
     bytes(''),
     abi.encode(true),

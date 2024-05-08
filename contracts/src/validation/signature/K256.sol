@@ -3,10 +3,10 @@ pragma solidity 0.8.25;
 
 import {ECDSA} from '@openzeppelin/contracts/utils/cryptography/ECDSA.sol';
 
-library Secp256k1 {
+library K256 {
   error FailedToRecoverSigner(ECDSA.RecoverError error);
 
-  /// @notice Compact secp256k1 (aka K-256) signature (https://eips.ethereum.org/EIPS/eip-2098)
+  /// @notice Compact k256 (aka K-256) signature (https://eips.ethereum.org/EIPS/eip-2098)
   struct Signature {
     bytes32 r;
     bytes32 yParityAndS;

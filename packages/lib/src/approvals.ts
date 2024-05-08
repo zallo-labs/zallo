@@ -14,7 +14,7 @@ import {
 import { AbiParameterToPrimitiveType } from 'abitype';
 import { TEST_VERIFIER_ABI } from './contract';
 
-export type SignatureType = 'secp256k1' | 'erc1271';
+export type SignatureType = 'k256' | 'erc1271';
 
 export interface Approval {
   type: SignatureType;
@@ -36,8 +36,8 @@ export function encodeApprovalsStruct({ approvals, approvers }: ApprovalsParams)
   const sortedApprovers = [...approvers].sort((a, b) => hexToNumber(a) - hexToNumber(b));
 
   return {
-    secp256k1: approvals
-      .filter((a) => a.type === 'secp256k1')
+    k256: approvals
+      .filter((a) => a.type === 'k256')
       .map((a) => signatureToCompactSignature(hexToSignature(a.signature))),
     erc1271: approvals
       .filter((a) => a.type === 'erc1271')
@@ -72,7 +72,7 @@ export const asApproval = async ({
       async () => asAddress(await recoverAddress({ hash: hash, signature })) === approver,
     ))
   )
-    return as('secp256k1');
+    return as('k256');
 
   // Note. even EOAs have contract code on zkSync
   const isValidErc1271 = await tryOrIgnoreAsync(async () => {

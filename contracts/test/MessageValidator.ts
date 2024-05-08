@@ -37,7 +37,7 @@ describe('MessageValidator', () => {
       policy,
       approvals: [
         {
-          type: 'secp256k1',
+          type: 'k256',
           approver: wallet.account.address,
           signature: await wallet.signTypedData(messageTypedData),
         },
@@ -69,7 +69,7 @@ describe('MessageValidator', () => {
       policy,
       approvals: [
         {
-          type: 'secp256k1',
+          type: 'k256',
           approver: wallet.account.address,
           signature: await wallet.signTypedData(messageTypedData),
         },

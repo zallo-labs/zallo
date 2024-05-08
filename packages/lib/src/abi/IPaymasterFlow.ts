@@ -41,7 +41,7 @@ export const abi = [
             "type": "bytes32"
           }
         ],
-        "internalType": "struct Secp256k1.Signature",
+        "internalType": "struct K256.Signature",
         "name": "paymasterSignature",
         "type": "tuple"
       }
