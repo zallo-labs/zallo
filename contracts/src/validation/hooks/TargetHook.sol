@@ -2,7 +2,7 @@
 pragma solidity 0.8.25;
 
 import {PLACEHOLDER_SELF_ADDRESS} from './SelfAddress.sol';
-import {Operation} from 'src/execution/Transaction.sol';
+import {Operation} from '~/execution/Transaction.sol';
 
 struct TargetsConfig {
   ContractTarget[] contracts; /// @dev unique and sorted by `addr` ascending
@@ -65,7 +65,7 @@ library TargetHook {
     if (!target.defaultAllow) revert TargetDenied(op.to, selector);
   }
 
-  /// @notice Ensures all invariants are followed
+  /// @notice Ensures all invariants are followed (see config structs)
   function checkConfig(bytes memory configData) internal pure {
     TargetsConfig memory config = abi.decode(configData, (TargetsConfig));
 

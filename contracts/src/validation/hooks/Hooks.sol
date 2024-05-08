@@ -5,7 +5,7 @@ import {TargetHook} from './TargetHook.sol';
 import {TransferHook} from './TransferHook.sol';
 import {DelayHook} from './DelayHook.sol';
 import {OtherMessageHook} from './OtherMessageHook.sol';
-import {Operation} from 'src/execution/Transaction.sol';
+import {Operation} from '~/execution/Transaction.sol';
 
 struct Hook {
   uint8 selector;

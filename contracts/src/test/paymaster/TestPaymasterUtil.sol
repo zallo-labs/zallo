@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 pragma solidity 0.8.25;
 
-import {PaymasterParser} from 'src/paymaster/PaymasterParser.sol';
-import {PaymasterUtil, Transaction} from 'src/paymaster/PaymasterUtil.sol';
-import {PaymasterSignedData} from 'src/paymaster/IPaymasterFlow.sol';
+import {PaymasterParser} from '~/paymaster/PaymasterParser.sol';
+import {PaymasterUtil, Transaction} from '~/paymaster/PaymasterUtil.sol';
+import {PaymasterSignedData} from '~/paymaster/IPaymasterFlow.sol';
 
 contract TestPaymasterUtil is PaymasterParser {
   /*//////////////////////////////////////////////////////////////

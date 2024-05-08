@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 pragma solidity 0.8.25;
 
-import {Hook} from 'src/validation/hooks/Hooks.sol';
+import {Hook} from '~/validation/hooks/Hooks.sol';
 
 type PolicyKey is uint32;
 

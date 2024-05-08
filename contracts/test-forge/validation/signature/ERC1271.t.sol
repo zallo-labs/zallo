@@ -4,7 +4,7 @@ pragma solidity 0.8.25;
 import {IERC1271} from '@openzeppelin/contracts/interfaces/IERC1271.sol';
 
 import {UnitTest} from 'test/UnitTest.sol';
-import {ERC1271} from 'src/validation/signature/ERC1271.sol';
+import {ERC1271} from '~/validation/signature/ERC1271.sol';
 
 contract ERC1271Test is UnitTest {
   function test_verify_HashSigned() public {

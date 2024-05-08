@@ -2,18 +2,18 @@
 pragma solidity 0.8.25;
 
 struct Schedule {
-  uint32 timestamp; /// @dev Overlfows on 2106/02/07
+  uint64 timestamp; /// @dev Overlfows on 21/7/2554
   bool executed;
 }
 
 library Scheduler {
-  event Scheduled(bytes32 proposal, uint32 timestamp);
+  event Scheduled(bytes32 proposal, uint64 timestamp);
   event ScheduleCancelled(bytes32 proposal);
 
   error NotScheduled(bytes32 proposal);
-  error NotScheduledYet(bytes32 proposal, uint32 timestamp);
+  error NotScheduledYet(bytes32 proposal, uint64 timestamp);
 
-  function schedule(bytes32 proposal, uint32 timestamp) internal {
+  function schedule(bytes32 proposal, uint64 timestamp) internal {
     _scheduled()[proposal] = Schedule({timestamp: timestamp, executed: false});
     emit Scheduled(proposal, timestamp);
   }
@@ -30,7 +30,7 @@ library Scheduler {
   }
 
   function requireReady(bytes32 proposal) internal {
-    uint32 timestamp = _scheduled()[proposal].timestamp;
+    uint64 timestamp = _scheduled()[proposal].timestamp;
     if (block.timestamp < timestamp) revert NotScheduledYet(proposal, timestamp);
     delete _scheduled()[proposal];
   }
@@ -40,7 +40,7 @@ library Scheduler {
     emit ScheduleCancelled(proposal);
   }
 
-  function getSchedule(bytes32 proposal) internal view returns (uint32) {
+  function getSchedule(bytes32 proposal) internal view returns (uint64) {
     return _scheduled()[proposal].timestamp;
   }
 

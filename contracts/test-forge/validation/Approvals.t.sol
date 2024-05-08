@@ -4,9 +4,9 @@ pragma solidity 0.8.25;
 import {IERC1271} from '@openzeppelin/contracts/interfaces/IERC1271.sol';
 
 import {UnitTest} from 'test/UnitTest.sol';
-import {Approvals, ApprovalsLib, ERC1271Approval} from 'src/validation/Approvals.sol';
-import {K256} from 'src/validation/signature/K256.sol';
-import {Policy} from 'src/validation/Policy.sol';
+import {Approvals, ApprovalsLib, ERC1271Approval} from '~/validation/Approvals.sol';
+import {K256} from '~/validation/signature/K256.sol';
+import {Policy} from '~/validation/Policy.sol';
 
 contract TestApprovalsVerify is UnitTest {
   function testFuzz_verify_SufficientApprovals(bytes32 hash, uint8 n, uint8 threshold) public {
@@ -24,7 +24,7 @@ contract TestApprovalsVerify is UnitTest {
     vm.assertTrue(ApprovalsLib.verify(approvals, hash, policy));
   }
 
-  function testFuzz_verify_FailWhen_SufficientApprovals(
+  function testFuzz_verify_FailWhen_InsufficientApprovals(
     bytes32 hash,
     uint8 n,
     uint8 threshold

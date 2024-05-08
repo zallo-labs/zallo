@@ -7,9 +7,9 @@ import {INonceHolder, NONCE_HOLDER_SYSTEM_CONTRACT} from '@matterlabs/zksync-con
 import {Policy} from './Policy.sol';
 import {Approvals, ApprovalsLib} from './Approvals.sol';
 import {Hook, Hooks} from './hooks/Hooks.sol';
-import {SystemTransaction, TransactionUtil, Tx, TxType} from 'src/execution/Transaction.sol';
-import {Executor} from 'src/execution/Executor.sol';
-import {Scheduler} from 'src/execution/Scheduler.sol';
+import {SystemTransaction, TransactionUtil, Tx, TxType} from '~/execution/Transaction.sol';
+import {Executor} from '~/execution/Executor.sol';
+import {Scheduler} from '~/execution/Scheduler.sol';
 
 library Validator {
   using TransactionUtil for SystemTransaction;

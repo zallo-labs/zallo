@@ -2,12 +2,17 @@
 pragma solidity 0.8.25;
 
 import 'forge-std/Test.sol'; // solhint-disable-line no-global-import
-import {K256} from 'src/validation/signature/K256.sol';
+import {K256} from '~/validation/signature/K256.sol';
 
 abstract contract UnitTest is Test {
+  uint256 internal constant JAN_1_2024 = 1704067200;
+
+  function setUp() public virtual {
+    vm.warp(JAN_1_2024); // Realistic timestamp
+  }
+
   function assumePk(uint256 pk) internal pure {
-    vm.assume(0 < pk);
-    vm.assume(pk < 115792089237316195423570985008687907852837564279074904382605163141518161494337);
+    vm.assume(0 < pk && pk < SECP256K1_ORDER);
   }
 
   function sign(

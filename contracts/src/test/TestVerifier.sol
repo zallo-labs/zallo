@@ -3,15 +3,15 @@ pragma solidity 0.8.25;
 
 import {Transaction} from '@matterlabs/zksync-contracts/l2/system-contracts/libraries/TransactionHelper.sol';
 
-import {Hook, Hooks} from 'src/validation/hooks/Hooks.sol';
-import {Policy} from 'src/validation/Policy.sol';
-import {Approvals, ApprovalsLib} from 'src/validation/Approvals.sol';
-import {TargetHook, TargetsConfig} from 'src/validation/hooks/TargetHook.sol';
-import {TransferHook, TransfersConfig} from 'src/validation/hooks/TransferHook.sol';
-import {DelayHook, DelayConfig} from 'src/validation/hooks/DelayHook.sol';
-import {OtherMessageHook, OtherMessageConfig} from 'src/validation/hooks/OtherMessageHook.sol';
-import {Tx, TransactionUtil, Operation} from 'src/execution/Transaction.sol';
-import {Scheduler} from 'src/execution/Scheduler.sol';
+import {Hook, Hooks} from '~/validation/hooks/Hooks.sol';
+import {Policy} from '~/validation/Policy.sol';
+import {Approvals, ApprovalsLib} from '~/validation/Approvals.sol';
+import {TargetHook, TargetsConfig} from '~/validation/hooks/TargetHook.sol';
+import {TransferHook, TransfersConfig} from '~/validation/hooks/TransferHook.sol';
+import {DelayHook, DelayConfig} from '~/validation/hooks/DelayHook.sol';
+import {OtherMessageHook, OtherMessageConfig} from '~/validation/hooks/OtherMessageHook.sol';
+import {Tx, TransactionUtil, Operation} from '~/execution/Transaction.sol';
+import {Scheduler} from '~/execution/Scheduler.sol';
 
 contract TestVerifier {
   using ApprovalsLib for Approvals;
