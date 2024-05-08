@@ -2,24 +2,21 @@
 pragma solidity 0.8.25;
 
 import {IAccount} from '@matterlabs/zksync-contracts/l2/system-contracts/interfaces/IAccount.sol';
-import {Transaction as SystemTransaction, TransactionHelper as SystemTransactionHelper} from '@matterlabs/zksync-contracts/l2/system-contracts/libraries/TransactionHelper.sol';
+import {TransactionHelper as SystemTransactionHelper} from '@matterlabs/zksync-contracts/l2/system-contracts/libraries/TransactionHelper.sol';
 import {ACCOUNT_VALIDATION_SUCCESS_MAGIC} from '@matterlabs/zksync-contracts/l2/system-contracts/interfaces/IAccount.sol';
-import {INonceHolder, BOOTLOADER_FORMAL_ADDRESS, NONCE_HOLDER_SYSTEM_CONTRACT} from '@matterlabs/zksync-contracts/l2/system-contracts/Constants.sol';
-import {SystemContractsCaller} from '@matterlabs/zksync-contracts/l2/system-contracts/libraries/SystemContractsCaller.sol';
+import {BOOTLOADER_FORMAL_ADDRESS} from '@matterlabs/zksync-contracts/l2/system-contracts/Constants.sol';
 
 import {Initializable} from './core/Initializable.sol';
 import {Upgradeable} from './core/Upgradeable.sol';
+import {TokenReceiver} from './core/TokenReceiver.sol';
 import {Validator} from './validation/Validator.sol';
 import {Policy} from './validation/Policy.sol';
 import {PolicyManager} from './validation/PolicyManager.sol';
-import {Approvals, ApprovalsVerifier} from './validation/ApprovalsVerifier.sol';
-import {Hook, Hooks} from './validation/hooks/Hooks.sol';
 import {MessageValidator} from './validation/MessageValidator.sol';
-import {TransactionUtil, Tx, TxType} from './execution/TransactionUtil.sol';
+import {SystemTransaction} from './execution/Transaction.sol';
 import {Executor} from './execution/Executor.sol';
 import {Scheduler} from './execution/Scheduler.sol';
 import {PaymasterUtil} from './paymaster/PaymasterUtil.sol';
-import {TokenReceiver} from './core/TokenReceiver.sol';
 
 contract Account is
   IAccount,
@@ -29,12 +26,6 @@ contract Account is
   MessageValidator,
   TokenReceiver
 {
-  using SystemTransactionHelper for SystemTransaction;
-  using TransactionUtil for SystemTransaction;
-  using TransactionUtil for Tx;
-  using Hooks for Hook[];
-  using ApprovalsVerifier for Approvals;
-
   /*//////////////////////////////////////////////////////////////
                                  ERRORS
   //////////////////////////////////////////////////////////////*/

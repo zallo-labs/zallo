@@ -7,9 +7,9 @@ library ERC1271 {
   bytes32 private constant ERC1271_MAGICVALUE = IERC1271.isValidSignature.selector;
 
   function verify(
-    bytes memory signature,
+    address signer,
     bytes32 hash,
-    address signer
+    bytes memory signature
   ) internal view returns (bool success) {
     (bool callSuccess, bytes memory result) = signer.staticcall(
       abi.encodeWithSelector(IERC1271.isValidSignature.selector, hash, signature)

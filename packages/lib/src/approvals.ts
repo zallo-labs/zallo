@@ -35,19 +35,16 @@ export function encodeApprovalsStruct({ approvals, approvers }: ApprovalsParams)
   approvals = approvals.sort((a, b) => hexToNumber(a.approver) - hexToNumber(b.approver));
   const sortedApprovers = [...approvers].sort((a, b) => hexToNumber(a) - hexToNumber(b));
 
-  // Approvers are encoded as a bitfield, where each bit represents whether the approver has signed
-  let approversSigned = 0n;
-  for (let i = 0; i < sortedApprovers.length; i++) {
-    const approved = approvals.find((a) => a.approver === sortedApprovers[i]!);
-    if (approved) approversSigned |= 1n << BigInt(i);
-  }
-
   return {
-    approversSigned,
     secp256k1: approvals
       .filter((a) => a.type === 'secp256k1')
       .map((a) => signatureToCompactSignature(hexToSignature(a.signature))),
-    erc1271: approvals.filter((a) => a.type === 'erc1271').map((a) => a.signature),
+    erc1271: approvals
+      .filter((a) => a.type === 'erc1271')
+      .map((a) => ({
+        approverIndex: sortedApprovers.findIndex((approver) => approver === a.approver),
+        signature: a.signature,
+      })),
   };
 }
 

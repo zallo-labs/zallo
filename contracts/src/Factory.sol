@@ -22,7 +22,7 @@ contract Factory {
     bytes32 salt
   ) public payable returns (address account) {
     (bool success, bytes memory data) = SystemContractsCaller.systemCallWithReturndata(
-      uint32(gasleft()), // truncation ok
+      uint32(gasleft()), // safe truncation
       address(DEPLOYER_SYSTEM_CONTRACT),
       0,
       abi.encodeCall(

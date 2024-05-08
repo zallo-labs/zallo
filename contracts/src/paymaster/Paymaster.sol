@@ -3,16 +3,12 @@ pragma solidity 0.8.25;
 
 import {IPaymaster, ExecutionResult, PAYMASTER_VALIDATION_SUCCESS_MAGIC} from '@matterlabs/zksync-contracts/l2/system-contracts/interfaces/IPaymaster.sol';
 import {BOOTLOADER_FORMAL_ADDRESS} from '@matterlabs/zksync-contracts/l2/system-contracts/Constants.sol';
-import {IPaymasterFlow} from '@matterlabs/zksync-contracts/l2/system-contracts/interfaces/IPaymasterFlow.sol';
-import {TransactionHelper, Transaction} from '@matterlabs/zksync-contracts/l2/system-contracts/libraries/TransactionHelper.sol';
+import {Transaction as SystemTransaction} from '@matterlabs/zksync-contracts/l2/system-contracts/libraries/TransactionHelper.sol';
 import {IERC20} from '@openzeppelin/contracts/token/ERC20/IERC20.sol';
 
 import {PaymasterManager} from './PaymasterManager.sol';
-import {PriceOracle, PriceOracleConfig} from './PriceOracle.sol';
-import {PaymasterUtil} from './PaymasterUtil.sol';
 import {PaymasterParser} from './PaymasterParser.sol';
-import {Cast} from 'src/libraries/Cast.sol';
-import {Secp256k1} from 'src/validation/signature/Secp256k1.sol';
+import {PriceOracle, PriceOracleConfig} from './PriceOracle.sol';
 
 contract Paymaster is IPaymaster, PaymasterManager, PaymasterParser, PriceOracle {
   /*//////////////////////////////////////////////////////////////
@@ -33,9 +29,8 @@ contract Paymaster is IPaymaster, PaymasterManager, PaymasterParser, PriceOracle
                                CONSTANTS
   //////////////////////////////////////////////////////////////*/
 
-  uint256 constant POST_TRANSACTION_GAS_COST = 833;
-
-  address public immutable _signer;
+  uint256 internal constant POST_TRANSACTION_GAS_COST = 833;
+  address public immutable SIGNER;
 
   /*//////////////////////////////////////////////////////////////
                              INITIALIZATION
@@ -46,7 +41,7 @@ contract Paymaster is IPaymaster, PaymasterManager, PaymasterParser, PriceOracle
     address signer,
     PriceOracleConfig memory oracleConfig
   ) PaymasterManager(owner) PriceOracle(oracleConfig) {
-    _signer = signer;
+    SIGNER = signer;
   }
 
   /*//////////////////////////////////////////////////////////////
@@ -64,14 +59,14 @@ contract Paymaster is IPaymaster, PaymasterManager, PaymasterParser, PriceOracle
   function validateAndPayForPaymasterTransaction(
     bytes32 /* txHash */,
     bytes32 /* txDataHash */,
-    Transaction calldata transaction
+    SystemTransaction calldata transaction
   ) external payable onlyBootloader returns (bytes4 magic, bytes memory context) {
     magic = _unsafeValidateAndPayForPaymasterTransaction(transaction);
     context = new bytes(0);
   }
 
   function _unsafeValidateAndPayForPaymasterTransaction(
-    Transaction calldata transaction
+    SystemTransaction calldata transaction
   ) internal returns (bytes4 magic) {
     address from = address(uint160(transaction.from));
     (
@@ -79,7 +74,7 @@ contract Paymaster is IPaymaster, PaymasterManager, PaymasterParser, PriceOracle
       uint256 allowance,
       uint256 paymasterFee,
       uint256 discount
-    ) = _parsePaymasterInput(transaction.paymasterInput, _signer, from, transaction.nonce);
+    ) = _parsePaymasterInput(transaction.paymasterInput, SIGNER, from, transaction.nonce);
 
     uint256 bootloaderFee = transaction.gasLimit * transaction.maxFeePerGas;
     uint256 totalFeePreDiscount = bootloaderFee + paymasterFee;
@@ -101,7 +96,7 @@ contract Paymaster is IPaymaster, PaymasterManager, PaymasterParser, PriceOracle
 
   function postTransaction(
     bytes calldata /* context */,
-    Transaction calldata transaction,
+    SystemTransaction calldata transaction,
     bytes32 /* txHash */,
     bytes32 /* txDataHash */,
     ExecutionResult /* txResult */,
@@ -111,7 +106,7 @@ contract Paymaster is IPaymaster, PaymasterManager, PaymasterParser, PriceOracle
   }
 
   function _unsafePostTransaction(
-    Transaction calldata transaction,
+    SystemTransaction calldata transaction,
     uint256 maxRefundedGas /* gasLeft() before calling postTransaction() */
   ) internal {
     if (maxRefundedGas > POST_TRANSACTION_GAS_COST) {

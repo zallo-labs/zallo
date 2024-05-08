@@ -4,7 +4,7 @@ pragma solidity 0.8.25;
 import {ERC20} from '@openzeppelin/contracts/token/ERC20/ERC20.sol';
 
 import {Cast} from 'src/libraries/Cast.sol';
-import {Operation} from 'src/execution/TransactionUtil.sol';
+import {Operation} from 'src/execution/Transaction.sol';
 
 struct TransfersConfig {
   TransferLimit[] limits; /// @dev sorted by `token` ascending
@@ -65,7 +65,7 @@ library TransferHook {
       spending.spent += amount;
     } else {
       spending.spent = amount;
-      spending.timestamp = uint32(block.timestamp); // truncation ok
+      spending.timestamp = uint32(block.timestamp); // safe truncation
     }
 
     if (spending.spent > limit.amount)

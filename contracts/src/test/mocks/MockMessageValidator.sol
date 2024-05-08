@@ -13,8 +13,8 @@ contract MockMessageValidator is IERC1271 {
   }
 
   function isValidSignature(
-    bytes32 hash,
-    bytes calldata signature
+    bytes32 /* hash */,
+    bytes calldata /* signature */
   ) external view returns (bytes4 magicValue) {
     if (_validSignature) magicValue = EIP1271_SUCCESS;
   }

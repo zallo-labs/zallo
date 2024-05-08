@@ -2,7 +2,7 @@
 pragma solidity 0.8.25;
 
 import {PLACEHOLDER_SELF_ADDRESS} from './SelfAddress.sol';
-import {Operation} from 'src/execution/TransactionUtil.sol';
+import {Operation} from 'src/execution/Transaction.sol';
 
 struct TargetsConfig {
   ContractTarget[] contracts; /// @dev unique and sorted by `addr` ascending

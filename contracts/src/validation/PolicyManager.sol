@@ -2,7 +2,6 @@
 pragma solidity 0.8.25;
 
 import {Policy, PolicyKey, PolicyLib} from './Policy.sol';
-import {ApprovalsVerifier} from './ApprovalsVerifier.sol';
 import {SelfOwned} from 'src/helpers/SelfOwned.sol';
 import {Hooks, Hook} from 'src/validation/hooks/Hooks.sol';
 
@@ -13,7 +12,6 @@ abstract contract PolicyManager is SelfOwned {
   event PolicyAdded(PolicyKey key, bytes32 hash);
   event PolicyRemoved(PolicyKey key);
 
-  error TooManyApprovers(uint256 max, uint256 nApprovers);
   error ThresholdTooLow(uint8 threshold, uint256 nApprovers);
   error ThresholdTooHigh(uint8 threshold, uint256 nApprovers);
 
@@ -24,9 +22,6 @@ abstract contract PolicyManager is SelfOwned {
   function _addPolicy(Policy memory policy) internal {
     // Validate approvers and threshold
     uint256 nApprovers = policy.approvers.length;
-    if (nApprovers > ApprovalsVerifier.MAX_APPROVERS)
-      revert TooManyApprovers(ApprovalsVerifier.MAX_APPROVERS, nApprovers);
-
     if (policy.threshold == 0 && nApprovers > 0)
       revert ThresholdTooLow(policy.threshold, nApprovers);
 

@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 pragma solidity 0.8.25;
 
-import {Paymaster, PriceOracleConfig, Transaction} from '../../paymaster/Paymaster.sol';
+import {Transaction as SystemTransaction} from '@matterlabs/zksync-contracts/l2/system-contracts/libraries/TransactionHelper.sol';
+import {Paymaster, PriceOracleConfig} from 'src/paymaster/Paymaster.sol';
 
 contract TestPaymaster is Paymaster {
   constructor(
@@ -11,17 +12,20 @@ contract TestPaymaster is Paymaster {
   ) Paymaster(owner, signer, oracleConfig) {}
 
   function testValidateAndPayForPaymasterTransaction(
-    Transaction calldata transaction
+    SystemTransaction calldata transaction
   ) external returns (bytes4 magic) {
     return _unsafeValidateAndPayForPaymasterTransaction(transaction);
   }
 
-  function testPostTransaction(Transaction calldata transaction, uint256 maxRefundedGas) external {
+  function testPostTransaction(
+    SystemTransaction calldata transaction,
+    uint256 maxRefundedGas
+  ) external {
     _unsafePostTransaction(transaction, maxRefundedGas);
   }
 
   function testPostTransactionGasUsed(
-    Transaction calldata transaction,
+    SystemTransaction calldata transaction,
     uint256 maxRefundedGas
   ) external returns (uint256 gasUsed) {
     uint256 initialGasLeft = gasleft();

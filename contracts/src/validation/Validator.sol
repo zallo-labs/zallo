@@ -5,9 +5,9 @@ import {SystemContractsCaller} from '@matterlabs/zksync-contracts/l2/system-cont
 import {INonceHolder, NONCE_HOLDER_SYSTEM_CONTRACT} from '@matterlabs/zksync-contracts/l2/system-contracts/Constants.sol';
 
 import {Policy} from './Policy.sol';
-import {Approvals, ApprovalsVerifier} from './ApprovalsVerifier.sol';
+import {Approvals, ApprovalsLib} from './Approvals.sol';
 import {Hook, Hooks} from './hooks/Hooks.sol';
-import {SystemTransaction, TransactionUtil, Tx, TxType} from 'src/execution/TransactionUtil.sol';
+import {SystemTransaction, TransactionUtil, Tx, TxType} from 'src/execution/Transaction.sol';
 import {Executor} from 'src/execution/Executor.sol';
 import {Scheduler} from 'src/execution/Scheduler.sol';
 
@@ -15,7 +15,7 @@ library Validator {
   using TransactionUtil for SystemTransaction;
   using TransactionUtil for Tx;
   using Hooks for Hook[];
-  using ApprovalsVerifier for Approvals;
+  using ApprovalsLib for Approvals;
 
   function validateSystemTransaction(
     SystemTransaction calldata systx
@@ -56,7 +56,7 @@ library Validator {
 
   function _incrementNonceIfEquals(SystemTransaction calldata systx) private {
     SystemContractsCaller.systemCallWithPropagatedRevert(
-      uint32(gasleft()), // truncation ok
+      uint32(gasleft()), // safe truncation
       address(NONCE_HOLDER_SYSTEM_CONTRACT),
       0,
       abi.encodeCall(INonceHolder.incrementMinNonceIfEquals, (systx.nonce))

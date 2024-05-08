@@ -1,9 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 pragma solidity 0.8.25;
 
-import {Transaction, TransactionHelper} from '@matterlabs/zksync-contracts/l2/system-contracts/libraries/TransactionHelper.sol';
-import {IERC20} from '@openzeppelin/contracts/token/ERC20/IERC20.sol';
-
 import {IPaymasterFlow, PaymasterSignedData} from './IPaymasterFlow.sol';
 import {PaymasterUtil} from './PaymasterUtil.sol';
 import {Secp256k1} from 'src/validation/signature/Secp256k1.sol';
@@ -58,7 +55,7 @@ abstract contract PaymasterParser {
 
     // Verify paymaster signed data
     bytes32 signedDataHash = _hashSignedData(account, nonce, signedData);
-    if (!Secp256k1.verify(paymasterSignature, signedDataHash, paymasterSigner))
+    if (!Secp256k1.verify(paymasterSigner, signedDataHash, paymasterSignature))
       revert WrongPaymasterSigner(paymasterSigner);
   }
 

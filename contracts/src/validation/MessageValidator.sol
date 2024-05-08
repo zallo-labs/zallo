@@ -4,7 +4,7 @@ pragma solidity 0.8.25;
 import {IERC1271} from '@openzeppelin/contracts/interfaces/IERC1271.sol';
 
 import {Policy, PolicyLib} from './Policy.sol';
-import {Approvals, ApprovalsVerifier} from './ApprovalsVerifier.sol';
+import {Approvals, ApprovalsLib} from './Approvals.sol';
 import {Hooks, Hook} from './hooks/Hooks.sol';
 import {TypedData} from 'src/libraries/TypedData.sol';
 
@@ -27,7 +27,7 @@ abstract contract MessageValidator is IERC1271 {
 
     policy.hooks.validateMessage(message);
 
-    if (ApprovalsVerifier.verify(approvals, _hash(message), policy)) magicValue = EIP1271_SUCCESS;
+    if (ApprovalsLib.verify(approvals, _hash(message), policy)) magicValue = EIP1271_SUCCESS;
   }
 
   function _decodeSignature(

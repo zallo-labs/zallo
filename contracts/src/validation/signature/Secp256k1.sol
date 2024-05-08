@@ -4,23 +4,29 @@ pragma solidity 0.8.25;
 import {ECDSA} from '@openzeppelin/contracts/utils/cryptography/ECDSA.sol';
 
 library Secp256k1 {
-  /// @notice Compact secp256k1 signature (https://eips.ethereum.org/EIPS/eip-2098)
+  error FailedToRecoverSigner(ECDSA.RecoverError error);
+
+  /// @notice Compact secp256k1 (aka K-256) signature (https://eips.ethereum.org/EIPS/eip-2098)
   struct Signature {
     bytes32 r;
     bytes32 yParityAndS;
   }
 
   function verify(
-    Signature memory signature,
+    address signer,
     bytes32 hash,
-    address signer
+    Signature memory signature
   ) internal pure returns (bool success) {
-    (address recovered, ECDSA.RecoverError err, ) = ECDSA.tryRecover(
-      hash,
-      signature.r,
-      signature.yParityAndS
-    );
+    return recover(hash, signature) == signer;
+  }
 
-    return (err == ECDSA.RecoverError.NoError && recovered == signer);
+  function recover(
+    bytes32 hash,
+    Signature memory signature
+  ) internal pure returns (address signer) {
+    ECDSA.RecoverError err;
+    (signer, err, ) = ECDSA.tryRecover(hash, signature.r, signature.yParityAndS);
+
+    if (err != ECDSA.RecoverError.NoError) revert FailedToRecoverSigner(err);
   }
 }

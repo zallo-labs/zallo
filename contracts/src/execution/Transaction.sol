@@ -6,8 +6,7 @@ import {Transaction as SystemTransaction} from '@matterlabs/zksync-contracts/l2/
 import {Cast} from 'src/libraries/Cast.sol';
 import {TypedData} from 'src/libraries/TypedData.sol';
 import {Policy, PolicyLib} from 'src/validation/Policy.sol';
-import {Approvals} from 'src/validation/ApprovalsVerifier.sol';
-import {Hook} from 'src/validation/hooks/Hooks.sol';
+import {Approvals} from 'src/validation/Approvals.sol';
 import {PaymasterUtil} from 'src/paymaster/PaymasterUtil.sol';
 
 enum TxType {
@@ -55,7 +54,7 @@ library TransactionUtil {
       Tx({
         operations: _operations(systx),
         validFrom: _validFrom(systx),
-        paymaster: systx.paymaster.toAddressUnsafe(), // won'systx truncate
+        paymaster: systx.paymaster.toAddressUnsafe(), // safe truncation
         paymasterSignedInput: PaymasterUtil.signedInput(systx.paymasterInput)
       });
   }

@@ -5,17 +5,16 @@ import {Transaction} from '@matterlabs/zksync-contracts/l2/system-contracts/libr
 
 import {Hook, Hooks} from 'src/validation/hooks/Hooks.sol';
 import {Policy} from 'src/validation/Policy.sol';
-import {Approvals, ApprovalsVerifier} from 'src/validation/ApprovalsVerifier.sol';
+import {Approvals, ApprovalsLib} from 'src/validation/Approvals.sol';
 import {TargetHook, TargetsConfig} from 'src/validation/hooks/TargetHook.sol';
 import {TransferHook, TransfersConfig} from 'src/validation/hooks/TransferHook.sol';
 import {DelayHook, DelayConfig} from 'src/validation/hooks/DelayHook.sol';
 import {OtherMessageHook, OtherMessageConfig} from 'src/validation/hooks/OtherMessageHook.sol';
-import {Tx, TransactionUtil, Operation} from 'src/execution/TransactionUtil.sol';
+import {Tx, TransactionUtil, Operation} from 'src/execution/Transaction.sol';
 import {Scheduler} from 'src/execution/Scheduler.sol';
 
 contract TestVerifier {
-  using TransactionUtil for Transaction;
-  using ApprovalsVerifier for Approvals;
+  using ApprovalsLib for Approvals;
   using Hooks for Hook[];
 
   function transaction(Tx calldata tx_) external pure {}

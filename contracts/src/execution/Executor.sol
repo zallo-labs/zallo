@@ -4,7 +4,7 @@ pragma solidity 0.8.25;
 import {DEPLOYER_SYSTEM_CONTRACT} from '@matterlabs/zksync-contracts/l2/system-contracts/Constants.sol';
 import {SystemContractsCaller} from '@matterlabs/zksync-contracts/l2/system-contracts/libraries/SystemContractsCaller.sol';
 
-import {TransactionUtil, SystemTransaction, Tx, Operation, TxType} from './TransactionUtil.sol';
+import {TransactionUtil, SystemTransaction, Tx, Operation, TxType} from './Transaction.sol';
 import {Scheduler} from './Scheduler.sol';
 import {Hook, Hooks} from 'src/validation/hooks/Hooks.sol';
 
@@ -74,7 +74,7 @@ library Executor {
   }
 
   function _executeOperation(Operation memory op, uint256 opIndex) private returns (bytes memory) {
-    uint32 gas = uint32(gasleft()) - 2000; // truncation ok
+    uint32 gas = uint32(gasleft()) - 2000; // safe truncation
 
     (bool success, bytes memory response) = (op.to == address(DEPLOYER_SYSTEM_CONTRACT))
       ? SystemContractsCaller.systemCallWithReturndata(gas, op.to, op.value, op.data)
