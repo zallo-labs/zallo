@@ -29,7 +29,7 @@ abstract contract UnitTest is Test {
     uint256[] memory privateKeys
   ) internal pure returns (K256.Signature[] memory signatures) {
     signatures = new K256.Signature[](privateKeys.length);
-    for (uint256 i = 0; i < privateKeys.length; ++i) {
+    for (uint256 i; i < privateKeys.length; ++i) {
       signatures[i] = sign(hash, privateKeys[i]);
     }
   }
@@ -39,7 +39,7 @@ abstract contract UnitTest is Test {
   ) internal returns (address[] memory signers, uint256[] memory signerKeys) {
     signers = new address[](n);
     signerKeys = new uint256[](n);
-    for (uint256 i = 0; i < n; ++i) {
+    for (uint256 i; i < n; ++i) {
       (address signer, uint256 signerKey) = makeAddrAndKey(
         string(abi.encodePacked('signer ', vm.toString(i)))
       );
@@ -48,11 +48,11 @@ abstract contract UnitTest is Test {
     }
 
     // Sort asc by address
-    for (uint256 i = 0; n > 0 && i < n - 1; i++) {
-      for (uint256 j = i + 1; j < n; j++) {
-        if (signers[i] > signers[j]) {
-          (signers[i], signers[j]) = (signers[j], signers[i]);
-          (signerKeys[i], signerKeys[j]) = (signerKeys[j], signerKeys[i]);
+    for (uint256 i = 1; i < n; i++) {
+      for (uint256 j = i; j > 0; --j) {
+        if (signers[j] < signers[j - 1]) {
+          (signers[j], signers[j - 1]) = (signers[j - 1], signers[j]);
+          (signerKeys[j], signerKeys[j - 1]) = (signerKeys[j - 1], signerKeys[j]);
         }
       }
     }

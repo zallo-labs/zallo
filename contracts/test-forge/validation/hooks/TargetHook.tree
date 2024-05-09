@@ -1,0 +1,50 @@
+.
+├── validateOperations
+│   ├── when all operations is allowed
+│   │   └── should succeed
+│   └── when any operation denied
+│       └── should revert
+├── validateOperation
+│   ├── when target exists
+│   │   ├── target allowed
+│   │   │   ├── selector excluded
+│   │   │   │   └── should revert
+│   │   │   └── selector not excluded
+│   │   │       └── should succeed
+│   │   └── target denied
+│   │       ├── selector excluded
+│   │       │   └── should succeed
+│   │       └── select not excluded
+│   │           └── should revert
+│   └── when target doesn't exist
+│       ├── default allow
+│       │   ├── selector excluded
+│       │   │   └── should revert
+│       │   └── selector not excluded
+│       │       └── should succeed
+│       └── default denied
+│           ├── selector excluded
+│           │   └── should succeed
+│           └── select not excluded
+│               └── should revert
+├── checkConfig
+│   ├── when contracts and selectors are sorted
+│   │   └── should succeed
+│   ├── when default excluded selectors are not unique
+│   │   └── should revert
+│   ├── when default excluded selectors are not asc
+│   │   └── should revert
+│   ├── when contracts are not unique
+│   │   └── should revert
+│   ├── when contracts are not sorted asc
+│   │   └── should revert
+│   ├── when excluded selectors are not unique
+│   │   └── should revert
+│   └── when excluded selectors are not sorted asc
+│       └── should revert
+└── replaceSelfAddress
+    ├── when placeholder self address exists
+    │   ├── should replace with self address
+    │   └── should keep contracts sorted asc
+    └── when no self address exists
+        └── should return same config

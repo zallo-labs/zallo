@@ -67,7 +67,7 @@ contract TestApprovalsVerify is UnitTest {
     (address[] memory approvers, K256.Signature[] memory approvals) = _k256Approve(hash, 2);
 
     address[] memory partialApprovers = new address[](approvers.length - 1);
-    for (uint256 i = 0; i < approvers.length - 1; ++i) {
+    for (uint256 i; i < approvers.length - 1; ++i) {
       partialApprovers[i] = approvers[i];
     }
 

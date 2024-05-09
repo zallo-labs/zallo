@@ -1,0 +1,7 @@
+.
+└── beforeExecute
+    ├── when delay is positive
+    │   ├── should not execute
+    │   └── should schedule proposal after delay
+    ├── when delay is zero
+    │   └── should execute
