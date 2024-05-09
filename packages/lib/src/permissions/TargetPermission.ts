@@ -34,27 +34,27 @@ export function encodeTargetsConfigStruct(c: TargetsConfig): TargetsConfigStruct
     contracts: Object.entries(c.contracts)
       .map(([address, target]) => ({
         addr: asAddress(address),
-        target: {
-          functions: Object.entries(target.functions)
-            .map(([selector, allow]) => ({
-              selector: asSelector(selector),
-              allow,
-            }))
-            .sort((a, b) => hexToNumber(a.selector) - hexToNumber(b.selector)),
-          defaultAllow: !!target.defaultAllow,
-        },
+        allow: !!target.defaultAllow,
+        excludedSelectors: getExcludedSelectors(target.defaultAllow, target.functions),
       }))
       .sort((a, b) => hexToNumber(a.addr) - hexToNumber(b.addr)),
-    defaultTarget: {
-      functions: Object.entries(c.default.functions)
-        .map(([selector, allow]) => ({
-          selector: asSelector(selector),
-          allow,
-        }))
-        .sort((a, b) => hexToNumber(a.selector) - hexToNumber(b.selector)),
-      defaultAllow: !!c.default.defaultAllow,
-    },
+    defaultAllow: !!c.default.defaultAllow,
+    defaultExcludedSelectors: getExcludedSelectors(c.default.defaultAllow, c.default.functions),
   };
+}
+
+function getExcludedSelectors(
+  allow: boolean | undefined,
+  functions: Record<Selector, boolean>,
+): Selector[] {
+  return Object.entries(functions)
+    .map(([selector, allow]) => ({
+      selector: asSelector(selector),
+      allow,
+    }))
+    .filter((v) => v.allow !== !!allow)
+    .map((v) => v.selector)
+    .sort((a, b) => hexToNumber(a) - hexToNumber(b));
 }
 
 export function decodeTargetsConfigStruct(s: TargetsConfigStruct): TargetsConfig {
@@ -63,14 +63,18 @@ export function decodeTargetsConfigStruct(s: TargetsConfigStruct): TargetsConfig
       s.contracts.map((t) => [
         t.addr,
         {
-          functions: Object.fromEntries(t.target.functions.map((s) => [s.selector, s.allow])),
-          defaultAllow: t.target.defaultAllow,
+          functions: Object.fromEntries(
+            t.excludedSelectors.map((selector) => [selector, !t.allow]),
+          ),
+          defaultAllow: t.allow,
         } satisfies Target,
       ]),
     ),
     default: {
-      functions: Object.fromEntries(s.defaultTarget.functions.map((s) => [s.selector, s.allow])),
-      defaultAllow: s.defaultTarget.defaultAllow,
+      functions: Object.fromEntries(
+        s.defaultExcludedSelectors.map((selector) => [selector, !s.defaultAllow]),
+      ),
+      defaultAllow: s.defaultAllow,
     },
   };
 }
