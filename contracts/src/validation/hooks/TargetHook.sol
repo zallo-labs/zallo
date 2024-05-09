@@ -5,28 +5,21 @@ import {PLACEHOLDER_SELF_ADDRESS} from './SelfAddress.sol';
 import {Operation} from '~/execution/Transaction.sol';
 
 struct TargetsConfig {
-  ContractTarget[] contracts; /// @dev unique and sorted by `addr` ascending
-  Target defaultTarget;
-}
-
-struct ContractTarget {
-  address addr;
-  Target target;
-}
-
-struct Target {
-  Function[] functions; /// @dev unique and sorted by `selector` ascending
+  ContractConfig[] contracts; /// @dev unique and sorted by `addr` ascending
   bool defaultAllow;
+  bytes4[] defaultExcludedSelectors; /// @dev unique and sorted ascending
 }
 
-struct Function {
-  bytes4 selector;
+struct ContractConfig {
+  address addr;
   bool allow;
+  bytes4[] excludedSelectors; /// @dev unique and sorted ascending
 }
 
 library TargetHook {
   error TargetDenied(address to, bytes4 selector);
-  error TargetsConfigInvalid();
+  error ContractsNotAsc();
+  error SelectorsNotAsc();
 
   function validateOperations(
     Operation[] memory operations,
@@ -41,43 +34,55 @@ library TargetHook {
 
   function validateOperation(Operation memory op, TargetsConfig memory c) internal pure {
     for (uint256 i; i < c.contracts.length && op.to >= c.contracts[i].addr; ++i) {
-      if (op.to == c.contracts[i].addr) return _validateTarget(op, c.contracts[i].target);
-    }
-
-    // Fallback to default
-    _validateTarget(op, c.defaultTarget);
-  }
-
-  function _validateTarget(Operation memory op, Target memory target) private pure {
-    bytes4 selector = bytes4(op.data);
-
-    for (uint256 i; i < target.functions.length && selector >= target.functions[i].selector; ++i) {
-      if (selector != target.functions[i].selector) continue;
-
-      if (target.functions[i].allow) {
-        return;
-      } else {
-        revert TargetDenied(op.to, selector);
+      if (op.to == c.contracts[i].addr) {
+        return _validateTarget(op, c.contracts[i].allow, c.contracts[i].excludedSelectors);
       }
     }
 
     // Fallback to default
-    if (!target.defaultAllow) revert TargetDenied(op.to, selector);
+    _validateTarget(op, c.defaultAllow, c.defaultExcludedSelectors);
+  }
+
+  function _validateTarget(
+    Operation memory op,
+    bool allow,
+    bytes4[] memory excludedSelectors
+  ) private pure {
+    bytes4 selector = bytes4(op.data);
+
+    for (uint256 i; i < excludedSelectors.length && excludedSelectors[i] <= selector; ++i) {
+      if (selector != excludedSelectors[i]) continue;
+
+      bool allowExcluded = !allow;
+      if (allowExcluded) return;
+
+      revert TargetDenied(op.to, selector);
+    }
+
+    // Fallback to default
+    if (!allow) revert TargetDenied(op.to, selector);
   }
 
   /// @notice Ensures all invariants are followed (see config structs)
   function checkConfig(bytes memory configData) internal pure {
     TargetsConfig memory config = abi.decode(configData, (TargetsConfig));
 
-    ContractTarget memory c;
-    for (uint256 ti; ti < config.contracts.length; ++ti) {
-      c = config.contracts[ti];
+    // Check defaultEcludedSelectors: unique and sorted ascending
+    for (uint256 j = 1; j < config.defaultExcludedSelectors.length; ++j) {
+      if (config.defaultExcludedSelectors[j] <= config.defaultExcludedSelectors[j - 1])
+        revert SelectorsNotAsc();
+    }
 
-      if (ti > 0 && c.addr <= config.contracts[ti - 1].addr) revert TargetsConfigInvalid();
+    ContractConfig memory c;
+    for (uint256 i; i < config.contracts.length; ++i) {
+      c = config.contracts[i];
 
-      for (uint256 fi = 1; fi < c.target.functions.length; ++fi) {
-        if (c.target.functions[fi].selector <= c.target.functions[fi - 1].selector)
-          revert TargetsConfigInvalid();
+      // Check contracts: unique and sorted by `addr` ascending
+      if (i > 0 && c.addr <= config.contracts[i - 1].addr) revert ContractsNotAsc();
+
+      // Check contract excludedSelectors: unique and sorted ascending
+      for (uint256 j = 1; j < c.excludedSelectors.length; ++j) {
+        if (c.excludedSelectors[j] <= c.excludedSelectors[j - 1]) revert SelectorsNotAsc();
       }
     }
   }
@@ -102,11 +107,11 @@ library TargetHook {
 
   /// @notice Resorts a sorted array with one out of place element
   function _resortContract(
-    ContractTarget[] memory contracts,
+    ContractConfig[] memory contracts,
     uint256 outOfPlaceElement
   ) private pure {
+    // `outOfPlaceElement` was address(1) and is now the account address so must be moved right (if at all)
     // Swap the element with the next one (to the right) until it's in the right place
-    // `outOfPlaceContract` is address(1) so will always be at the start of the array
     for (
       uint256 i = outOfPlaceElement;
       i < contracts.length - 1 && contracts[i].addr > contracts[i + 1].addr;

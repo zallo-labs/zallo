@@ -90,7 +90,7 @@ library TransactionUtil {
 
   function _encodeTx(Tx memory t) private pure returns (bytes memory) {
     bytes32[] memory hashedOps = new bytes32[](t.operations.length);
-    for (uint256 i = 0; i < t.operations.length; i++) {
+    for (uint256 i; i < t.operations.length; i++) {
       hashedOps[i] = keccak256(_encodeOp(t.operations[i]));
     }
 

@@ -60,7 +60,7 @@ library ApprovalsLib {
   ) internal view {
     address approver;
     address lastApprover /* = 0 */;
-    for (uint256 i = 0; i < approvals.length; ++i) {
+    for (uint256 i; i < approvals.length; ++i) {
       if (approvals[i].approverIndex >= approvers.length)
         revert ApproverNotFound(approvals[i].approverIndex);
 
