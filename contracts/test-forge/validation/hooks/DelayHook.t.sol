@@ -2,8 +2,8 @@
 pragma solidity 0.8.25;
 
 import {UnitTest} from 'test/UnitTest.sol';
-import {DelayHook, DelayConfig} from '~/validation/hooks/DelayHook.sol';
-import {Scheduler} from '~/execution/Scheduler.sol';
+import {DelayHook, DelayConfig} from 'src/validation/hooks/DelayHook.sol';
+import {Scheduler} from 'src/execution/Scheduler.sol';
 
 contract DelayHookTest is UnitTest {
   bytes32 internal constant PROPOSAL = bytes32(uint256(1));

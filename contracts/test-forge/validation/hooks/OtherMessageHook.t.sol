@@ -2,7 +2,7 @@
 pragma solidity 0.8.25;
 
 import {UnitTest} from 'test/UnitTest.sol';
-import {OtherMessageHook, OtherMessageConfig} from '~/validation/hooks/OtherMessageHook.sol';
+import {OtherMessageHook, OtherMessageConfig} from 'src/validation/hooks/OtherMessageHook.sol';
 
 contract OtherMessageHookTest is UnitTest {
   function testFuzz_validateMessage_PreviouslyHandled_NotHandle(bool allow) public pure {

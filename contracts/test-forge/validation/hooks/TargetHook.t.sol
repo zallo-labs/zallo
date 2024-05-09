@@ -2,9 +2,9 @@
 pragma solidity 0.8.25;
 
 import {UnitTest} from 'test/UnitTest.sol';
-import {TargetHook, TargetsConfig, ContractConfig} from '~/validation/hooks/TargetHook.sol';
-import {PLACEHOLDER_SELF_ADDRESS} from '~/validation/hooks/SelfAddress.sol';
-import {Operation} from '~/execution/Transaction.sol';
+import {TargetHook, TargetsConfig, ContractConfig} from 'src/validation/hooks/TargetHook.sol';
+import {PLACEHOLDER_SELF_ADDRESS} from 'src/validation/hooks/SelfAddress.sol';
+import {Operation} from 'src/execution/Transaction.sol';
 
 contract TargetHookTest is UnitTest {
   /* validateOperations */

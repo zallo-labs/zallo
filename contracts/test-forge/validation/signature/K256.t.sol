@@ -2,7 +2,7 @@
 pragma solidity 0.8.25;
 
 import {UnitTest} from 'test/UnitTest.sol';
-import {K256} from '~/validation/signature/K256.sol';
+import {K256} from 'src/validation/signature/K256.sol';
 
 contract K256Test is UnitTest {
   function testFuzz_verify_HashSigned(uint256 signerKey, bytes32 hash) public pure {

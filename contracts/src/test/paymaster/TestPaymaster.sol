@@ -2,7 +2,7 @@
 pragma solidity 0.8.25;
 
 import {Transaction as SystemTransaction} from '@matterlabs/zksync-contracts/l2/system-contracts/libraries/TransactionHelper.sol';
-import {Paymaster, PriceOracleConfig} from '~/paymaster/Paymaster.sol';
+import {Paymaster, PriceOracleConfig} from 'src/paymaster/Paymaster.sol';
 
 contract TestPaymaster is Paymaster {
   constructor(

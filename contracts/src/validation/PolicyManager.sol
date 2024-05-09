@@ -2,8 +2,8 @@
 pragma solidity 0.8.25;
 
 import {Policy, PolicyKey, PolicyLib} from './Policy.sol';
-import {SelfOwned} from '~/helpers/SelfOwned.sol';
-import {Hooks, Hook} from '~/validation/hooks/Hooks.sol';
+import {SelfOwned} from 'src/helpers/SelfOwned.sol';
+import {Hooks, Hook} from 'src/validation/hooks/Hooks.sol';
 
 abstract contract PolicyManager is SelfOwned {
   using PolicyLib for Policy;

@@ -2,7 +2,7 @@
 pragma solidity 0.8.25;
 
 import '../Account.sol';
-import {Executor} from '~/execution/Executor.sol';
+import {Executor} from 'src/execution/Executor.sol';
 
 contract TestAccount is Account {
   function testExecuteTransaction(SystemTransaction calldata systx) external {

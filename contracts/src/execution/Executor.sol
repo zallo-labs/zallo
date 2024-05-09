@@ -6,7 +6,7 @@ import {SystemContractsCaller} from '@matterlabs/zksync-contracts/l2/system-cont
 
 import {TransactionUtil, SystemTransaction, Tx, Operation, TxType} from './Transaction.sol';
 import {Scheduler} from './Scheduler.sol';
-import {Hook, Hooks} from '~/validation/hooks/Hooks.sol';
+import {Hook, Hooks} from 'src/validation/hooks/Hooks.sol';
 
 library Executor {
   using TransactionUtil for Tx;

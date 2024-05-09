@@ -3,11 +3,11 @@ pragma solidity 0.8.25;
 
 import {Transaction as SystemTransaction} from '@matterlabs/zksync-contracts/l2/system-contracts/libraries/TransactionHelper.sol';
 
-import {Cast} from '~/libraries/Cast.sol';
-import {TypedData} from '~/libraries/TypedData.sol';
-import {Policy, PolicyLib} from '~/validation/Policy.sol';
-import {Approvals} from '~/validation/Approvals.sol';
-import {PaymasterUtil} from '~/paymaster/PaymasterUtil.sol';
+import {Cast} from 'src/libraries/Cast.sol';
+import {TypedData} from 'src/libraries/TypedData.sol';
+import {Policy, PolicyLib} from 'src/validation/Policy.sol';
+import {Approvals} from 'src/validation/Approvals.sol';
+import {PaymasterUtil} from 'src/paymaster/PaymasterUtil.sol';
 
 enum TxType {
   Standard,

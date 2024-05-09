@@ -6,7 +6,7 @@ import {IERC1271} from '@openzeppelin/contracts/interfaces/IERC1271.sol';
 import {Policy, PolicyLib} from './Policy.sol';
 import {Approvals, ApprovalsLib} from './Approvals.sol';
 import {Hooks, Hook} from './hooks/Hooks.sol';
-import {TypedData} from '~/libraries/TypedData.sol';
+import {TypedData} from 'src/libraries/TypedData.sol';
 
 abstract contract MessageValidator is IERC1271 {
   using Hooks for Hook[];

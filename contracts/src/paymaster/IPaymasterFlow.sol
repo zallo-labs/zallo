@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 pragma solidity 0.8.25;
 
-import {K256} from '~/validation/signature/K256.sol';
+import {K256} from 'src/validation/signature/K256.sol';
 
 /// @notice Data signed by paymaster signer
 struct PaymasterSignedData {

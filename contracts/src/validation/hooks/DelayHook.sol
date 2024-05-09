@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 pragma solidity 0.8.25;
 
-import {Scheduler} from '~/execution/Scheduler.sol';
+import {Scheduler} from 'src/execution/Scheduler.sol';
 
 struct DelayConfig {
   uint32 delay /* seconds */;

@@ -3,8 +3,8 @@ pragma solidity 0.8.25;
 
 import {ERC20} from '@openzeppelin/contracts/token/ERC20/ERC20.sol';
 
-import {Cast} from '~/libraries/Cast.sol';
-import {Operation} from '~/execution/Transaction.sol';
+import {Cast} from 'src/libraries/Cast.sol';
+import {Operation} from 'src/execution/Transaction.sol';
 
 struct TransfersConfig {
   TransferLimit[] limits; /// @dev sorted by `token` ascending

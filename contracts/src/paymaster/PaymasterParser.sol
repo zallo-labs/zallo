@@ -3,7 +3,7 @@ pragma solidity 0.8.25;
 
 import {IPaymasterFlow, PaymasterSignedData} from './IPaymasterFlow.sol';
 import {PaymasterUtil} from './PaymasterUtil.sol';
-import {K256} from '~/validation/signature/K256.sol';
+import {K256} from 'src/validation/signature/K256.sol';
 
 abstract contract PaymasterParser {
   /*//////////////////////////////////////////////////////////////
