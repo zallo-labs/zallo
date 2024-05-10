@@ -8,7 +8,7 @@ import {Approvals, ApprovalsLib, ERC1271Approval} from 'src/validation/Approvals
 import {K256} from 'src/validation/signature/K256.sol';
 import {Policy} from 'src/validation/Policy.sol';
 
-contract TestApprovalsVerify is UnitTest {
+contract ApprovalsVerifyTest is UnitTest {
   function testFuzz_verify_SufficientApprovals(bytes32 hash, uint8 n, uint8 threshold) public {
     vm.assume(n >= threshold);
 

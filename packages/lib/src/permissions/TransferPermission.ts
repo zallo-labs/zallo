@@ -106,6 +106,7 @@ export function decodeTransfer(op: Operation) {
 
 export const TRANSFER_SELECTORS = [
   asSelector(toFunctionSelector(getAbiItem({ abi: ERC20, name: 'transfer' }))),
+  asSelector(toFunctionSelector(getAbiItem({ abi: ERC20, name: 'transferFrom' }))),
   asSelector(toFunctionSelector(getAbiItem({ abi: ERC20, name: 'approve' }))),
   asSelector(toFunctionSelector(getAbiItem({ abi: ERC20, name: 'increaseAllowance' }))),
 ] satisfies Selector[];

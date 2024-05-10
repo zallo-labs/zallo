@@ -10,12 +10,12 @@ contract PaymasterManager is Ownable {
 
   error FailedToSendEth();
 
-  address private constant ETH = address(0);
+  address private constant NATIVE_TOKEN = address(0);
 
   constructor(address owner) Ownable(owner) {}
 
   function withdraw(address token, uint256 amount) external onlyOwner {
-    if (token == ETH) {
+    if (token == NATIVE_TOKEN) {
       (bool success, ) = payable(msg.sender).call{value: amount}('');
       if (!success) revert FailedToSendEth();
     } else {

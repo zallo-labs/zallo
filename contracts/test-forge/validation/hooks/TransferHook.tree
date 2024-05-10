@@ -1,0 +1,44 @@
+.
+├── beforeExecute
+│   ├── when all operations are allowed
+│   │   └── should succeed
+│   └── when any operation is denied
+│       └── should revert
+├── beforeExecuteTransfer
+│   ├── when a zero transfer
+│   │   └── should succeed
+│   ├── when spending in new epoch
+│   │   ├── when new <= limit
+│   │   │   └── should set spending
+│   │   └── when new > limit
+│   │       └── should revert
+│   └── when spending in existing epoch
+│       ├── when prev + new <= limit
+│       │   └── should add to spending
+│       └── when prev + new > limit
+│           └── should revert
+├── getTransfers
+│   ├── when not a transfer
+│   │   └── should return empty
+│   ├── when native transfer
+│   │   └── should return single
+│   ├── when ERC20 transfer
+│   │   └── should return single
+│   ├── when ERC20 transferFrom
+│   │   ├── when to account
+│   │   │   └── should return empty
+│   │   └── when to another address
+│   │       └── should return single
+│   ├── when ERC20 approve
+│   │   └── should return single
+│   ├── when ERC20 increaseAllowance
+│   │   └── should return single
+│   └── when native + ERC20 transfer
+│       └── should return double
+└── checkConfig
+    ├── when limits are uniquely sorted asc
+    │   └── should succeed
+    ├── when limits are not unique
+    │   └── should revert
+    └── when limits are not sorted asc
+        └── should revert

@@ -24,6 +24,8 @@ library PaymasterUtil {
 
   error MissingPaymasterSelector();
 
+  address private constant NATIVE_TOKEN = address(0);
+
   /*//////////////////////////////////////////////////////////////
                                FUNCTIONS
   //////////////////////////////////////////////////////////////*/
@@ -54,8 +56,8 @@ library PaymasterUtil {
 
     if (allowance == 0) return;
 
-    if (token == address(0)) {
-      // ETH
+    if (token == NATIVE_TOKEN) {
+      // Native token
       (bool success, ) = paymaster.call{value: allowance}('');
       require(success);
     } else {

@@ -1,16 +1,14 @@
 // // SPDX-License-Identifier: AGPL-3.0-or-later
 pragma solidity 0.8.25;
 
-import {Transaction} from '@matterlabs/zksync-contracts/l2/system-contracts/libraries/TransactionHelper.sol';
-
 import {Hook, Hooks} from 'src/validation/hooks/Hooks.sol';
 import {Policy} from 'src/validation/Policy.sol';
 import {Approvals, ApprovalsLib} from 'src/validation/Approvals.sol';
 import {TargetHook, TargetsConfig} from 'src/validation/hooks/TargetHook.sol';
-import {TransferHook, TransfersConfig} from 'src/validation/hooks/TransferHook.sol';
+import {TransferHook, TransfersConfig, TokenTransfer} from 'src/validation/hooks/TransferHook.sol';
 import {DelayHook, DelayConfig} from 'src/validation/hooks/DelayHook.sol';
 import {OtherMessageHook, OtherMessageConfig} from 'src/validation/hooks/OtherMessageHook.sol';
-import {Tx, TransactionUtil, Operation} from 'src/execution/Transaction.sol';
+import {Tx, Operation} from 'src/execution/Transaction.sol';
 import {Scheduler} from 'src/execution/Scheduler.sol';
 
 contract TestVerifier {
@@ -39,8 +37,11 @@ contract TestVerifier {
     TargetHook.validateOperation(op, config);
   }
 
-  function beforeExecuteTransfer(Operation calldata op, TransfersConfig calldata config) external {
-    TransferHook.beforeExecuteOp(op, config);
+  function beforeExecuteTransfer(
+    TokenTransfer memory transfer,
+    TransfersConfig calldata config
+  ) external {
+    TransferHook.beforeExecuteTransfer(transfer, config);
   }
 
   function validateOtherMessage(
