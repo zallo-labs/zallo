@@ -66,7 +66,7 @@ contract Account is
     bytes32 /* suggestedSignedHash */,
     SystemTransaction calldata systx
   ) external payable override onlyBootloader returns (bytes4 magic) {
-    if (Validator.validateSystemTransaction(systx)) magic = ACCOUNT_VALIDATION_SUCCESS_MAGIC;
+    if (Validator.validate(systx)) magic = ACCOUNT_VALIDATION_SUCCESS_MAGIC;
   }
 
   /// @inheritdoc IAccount
@@ -82,7 +82,7 @@ contract Account is
   function executeTransactionFromOutside(
     SystemTransaction calldata systx
   ) external payable override {
-    if (!Validator.validateSystemTransaction(systx)) revert FailedToValidate();
+    if (!Validator.validate(systx)) revert FailedToValidate();
 
     Executor.executeValidatedSystemTransaction(systx);
   }

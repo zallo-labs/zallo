@@ -1,0 +1,30 @@
+.
+└── validateSystemTransaction
+    ├── when standard transaction
+    │   ├── when nonce is not equal
+    │   │   └── should revert
+    │   └── when nonce is equal
+    │       ├── should increment nonce
+    │       ├── when never executed
+    │       │   ├── when approved
+    │       │   │   ├── when not simulation
+    │       │   │   │   └── should succeed
+    │       │   │   └── when simulation
+    │       │   │       └── should fail
+    │       │   └── when insufficient approval
+    │       │       └── should fail
+    │       └── when already executed
+    │           └── should revert
+    ├── when scheduled transaction
+    │   ├── when nonce is not equal
+    │   │   └── should revert
+    │   └── when nonce is equal
+    │       ├── should increment nonce
+    │       ├── when scheduled
+    │       │   └── should succeed
+    │       ├── when not scheduled
+    │       │   └── should revert
+    │       └── when already executed
+    │           └── should revert
+    └── when invalid transaction type
+        └── should revert

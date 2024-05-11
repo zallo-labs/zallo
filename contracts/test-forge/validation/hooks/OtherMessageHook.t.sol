@@ -5,6 +5,10 @@ import {UnitTest} from 'test/UnitTest.sol';
 import {OtherMessageHook, OtherMessageConfig} from 'src/validation/hooks/OtherMessageHook.sol';
 
 contract OtherMessageHookTest is UnitTest {
+  /*//////////////////////////////////////////////////////////////
+                            VALIDATE MESSAGE
+  //////////////////////////////////////////////////////////////*/
+
   function testFuzz_validateMessage_PreviouslyHandled_NotHandle(bool allow) public pure {
     assertFalse(OtherMessageHook.validateMessage(_config(allow), true));
   }

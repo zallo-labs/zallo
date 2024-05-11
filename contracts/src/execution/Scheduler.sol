@@ -11,20 +11,22 @@ library Scheduler {
   event ScheduleCancelled(bytes32 proposal);
 
   error NotScheduled(bytes32 proposal);
+  error AlreadyExecuted(bytes32 proposal);
   error NotScheduledYet(bytes32 proposal, uint64 timestamp);
 
   function schedule(bytes32 proposal, uint64 timestamp) internal {
-    _scheduled()[proposal] = Schedule({timestamp: timestamp, executed: false});
+    _scheduled()[proposal].timestamp = timestamp;
     emit Scheduled(proposal, timestamp);
   }
 
   function consume(bytes32 proposal) internal {
     Schedule storage s = _scheduled()[proposal];
 
-    if (s.timestamp == 0 || s.executed) revert NotScheduled(proposal);
-
     // block.timestamp isn't available during verification, see https://docs.zksync.io/build/developer-reference/account-abstraction.html#what-could-be-allowed-in-the-future
     // if (block.timestamp < timestamp) revert NotScheduledYet(proposal, timestamp);
+
+    if (s.timestamp == 0) revert NotScheduled(proposal);
+    if (s.executed) revert AlreadyExecuted(proposal);
 
     s.executed = true;
   }

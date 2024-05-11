@@ -12,20 +12,15 @@ abstract contract PolicyManager is SelfOwned {
   event PolicyAdded(PolicyKey key, bytes32 hash);
   event PolicyRemoved(PolicyKey key);
 
-  error ThresholdTooLow(uint8 threshold, uint256 nApprovers);
-  error ThresholdTooHigh(uint8 threshold, uint256 nApprovers);
+  error ThresholdTooHigh(uint256 maxThreshold);
 
   function addPolicy(Policy calldata policy) external payable onlySelf {
     _addPolicy(policy);
   }
 
   function _addPolicy(Policy memory policy) internal {
-    // Validate approvers and threshold
-    uint256 nApprovers = policy.approvers.length;
-    if (policy.threshold == 0 && nApprovers > 0)
-      revert ThresholdTooLow(policy.threshold, nApprovers);
-
-    if (policy.threshold > nApprovers) revert ThresholdTooHigh(policy.threshold, nApprovers);
+    if (policy.threshold > policy.approvers.length)
+      revert ThresholdTooHigh(policy.approvers.length);
 
     // Validate hooks
     policy.hooks.checkConfigs();

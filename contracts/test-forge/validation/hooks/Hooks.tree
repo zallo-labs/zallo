@@ -1,0 +1,8 @@
+.
+└── checkConfigs
+    ├── when hooks are uniquely asc
+    │   └── should succeed
+    ├── when hooks are not unique
+    │   └── should revert
+    └── when hooks are not asc
+        └── should revert

@@ -38,8 +38,8 @@ library TransactionUtil {
   //////////////////////////////////////////////////////////////*/
 
   uint256 private constant TX_TYPE_OFFSET = 0x10000; // 2^16, above zkSync's MAX_SYSTEM_CONTRACT_ADDRESS
-  uint256 private constant MULTI_OP_TX = TX_TYPE_OFFSET + (1 << 0);
-  uint256 private constant SCHEDULED_TX = TX_TYPE_OFFSET + (1 << 1);
+  uint256 internal constant MULTI_OP_TX = TX_TYPE_OFFSET + (1 << 0);
+  uint256 internal constant SCHEDULED_TX = TX_TYPE_OFFSET + (1 << 1);
 
   function transactionType(SystemTransaction calldata systx) internal pure returns (TxType) {
     if (systx.to == SCHEDULED_TX) {

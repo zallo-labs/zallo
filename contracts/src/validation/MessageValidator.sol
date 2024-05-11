@@ -21,23 +21,28 @@ abstract contract MessageValidator is IERC1271 {
     bytes calldata signature
   ) external view returns (bytes4 magicValue) {
     (bytes memory message, Policy memory policy, Approvals memory approvals) = _decodeSignature(
+      hash,
       signature
     );
-    if (hash != keccak256(message)) revert WrongMessageInSignature();
 
     policy.hooks.validateMessage(message);
 
-    if (ApprovalsLib.verify(approvals, _hash(message), policy)) magicValue = EIP1271_SUCCESS;
+    if (ApprovalsLib.verify(approvals, _signedMessageHash(message), policy))
+      magicValue = EIP1271_SUCCESS;
   }
 
   function _decodeSignature(
+    bytes32 hash,
     bytes calldata signature
   ) private view returns (bytes memory message, Policy memory policy, Approvals memory approvals) {
     (message, policy, approvals) = abi.decode(signature, (bytes, Policy, Approvals));
+
+    if (hash != keccak256(message)) revert WrongMessageInSignature();
+
     PolicyLib.verify(policy);
   }
 
-  function _hash(bytes memory message) private view returns (bytes32) {
+  function _signedMessageHash(bytes memory message) internal view returns (bytes32) {
     bytes32 structHash = keccak256(abi.encode(MESSAGE_TYPE_HASH, keccak256(message)));
     return TypedData.hashTypedData(structHash);
   }

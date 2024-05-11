@@ -7,7 +7,9 @@ import {PLACEHOLDER_SELF_ADDRESS} from 'src/validation/hooks/SelfAddress.sol';
 import {Operation} from 'src/execution/Transaction.sol';
 
 contract TargetHookTest is UnitTest {
-  /* validateOperations */
+  /*//////////////////////////////////////////////////////////////
+                          VALIDATE OPERATIONS
+  //////////////////////////////////////////////////////////////*/
 
   function testFuzz_validateOperations_AllAllowed(Operation[] memory ops) public pure {
     TargetsConfig memory c;
@@ -42,7 +44,9 @@ contract TargetHookTest is UnitTest {
     TargetHook.validateOperations(ops, abi.encode(c));
   }
 
-  /* validateOperation */
+  /*//////////////////////////////////////////////////////////////
+                           VALIDATE OPERATION
+  //////////////////////////////////////////////////////////////*/
 
   function testFuzz_validateOperation_TargetExists_TargetAllowed_RevertWhen_SelectorExcluded(
     address to,
@@ -160,7 +164,9 @@ contract TargetHookTest is UnitTest {
     TargetHook.validateOperation(_op(to, selector), c);
   }
 
-  /* Check config */
+  /*//////////////////////////////////////////////////////////////
+                              CHECK CONFIG
+  //////////////////////////////////////////////////////////////*/
 
   function test_checkConfig_ContractsSelectorsSorted() public pure {
     TargetsConfig memory c;
@@ -242,7 +248,10 @@ contract TargetHookTest is UnitTest {
     TargetHook.checkConfig(abi.encode(c));
   }
 
-  /* replaceSelfAddress */
+  /*//////////////////////////////////////////////////////////////
+                          REPLACE SELF ADDRESS
+  //////////////////////////////////////////////////////////////*/
+
   function test_replaceSelfAddress_PlaceholderExists_ReplaceWithSelf() public view {
     TargetsConfig memory c;
     c.contracts = new ContractConfig[](1);
@@ -275,7 +284,10 @@ contract TargetHookTest is UnitTest {
     assertEq(c.contracts[0].addr, addr);
   }
 
-  /* Utils */
+  /*//////////////////////////////////////////////////////////////
+                                 UTILS
+  //////////////////////////////////////////////////////////////*/
+
   function _op(address to) internal pure returns (Operation memory op) {
     op.to = to;
   }

@@ -19,11 +19,11 @@ library Executor {
 
   event OperationExecuted(bytes32 proposal, bytes response);
   event OperationsExecuted(bytes32 proposal, bytes[] responses);
+
   error OperationReverted(uint256 operationIndex, bytes reason);
-  error TransactionAlreadyExecuted(bytes32 proposal);
 
   /*//////////////////////////////////////////////////////////////
-                                EXECUTION
+                         TRANSACTION EXECUTION
   //////////////////////////////////////////////////////////////*/
 
   function executeValidatedSystemTransaction(SystemTransaction calldata systx) internal {
@@ -39,7 +39,7 @@ library Executor {
 
   function _executeTransaction(SystemTransaction calldata systx) private {
     Tx memory transaction = systx.transaction();
-    executeOperations(transaction.hash(), transaction.operations, systx.policy().hooks);
+    _executeOperations(transaction.hash(), transaction.operations, systx.policy().hooks);
   }
 
   function _executeScheduledTransaction(SystemTransaction calldata systx) private {
@@ -47,15 +47,18 @@ library Executor {
     bytes32 proposal = transaction.hash();
 
     Scheduler.requireReady(proposal);
-    executeOperations(proposal, transaction.operations, new Hook[](0));
+    _executeOperations(proposal, transaction.operations, new Hook[](0));
   }
 
-  /// @dev **Only to be called post validation**
-  function executeOperations(
+  /*//////////////////////////////////////////////////////////////
+                          OPERATION EXECUTION
+  //////////////////////////////////////////////////////////////*/
+
+  function _executeOperations(
     bytes32 proposal,
     Operation[] memory operations,
     Hook[] memory hooks
-  ) internal {
+  ) private {
     bool execute = hooks.beforeExecute(proposal, operations);
     if (!execute) return;
 
@@ -83,26 +86,5 @@ library Executor {
     if (!success) revert OperationReverted(opIndex, response);
 
     return response;
-  }
-
-  /*//////////////////////////////////////////////////////////////
-                         EXECUTED TRANSACTIONS
-  //////////////////////////////////////////////////////////////*/
-
-  function _executedTransactions() private pure returns (mapping(uint256 => uint256) storage s) {
-    assembly ('memory-safe') {
-      // keccack256('Executor.executedTransactions')
-      s.slot := 0x471df6250cbf7b0cf3c66793e0bf1c0e5b4836f3a593130285b5e9f28489db7c
-    }
-  }
-
-  function consume(bytes32 proposal) internal {
-    uint256 word = uint256(proposal) / 256;
-    uint256 bit = uint256(proposal) % 256;
-    uint256 mask = 1 << bit;
-
-    if (_executedTransactions()[word] & mask == mask) revert TransactionAlreadyExecuted(proposal);
-
-    _executedTransactions()[word] |= mask;
   }
 }

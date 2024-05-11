@@ -7,7 +7,7 @@ type PolicyKey is uint32;
 
 struct Policy {
   PolicyKey key;
-  uint8 threshold; /// @dev Each policy may only have up to 256 approvals; constrained by ApprovalsVerifier.MAX_APPROVALS
+  uint32 threshold;
   address[] approvers;
   Hook[] hooks;
 }
@@ -27,7 +27,8 @@ library PolicyLib {
 
   /*//////////////////////////////////////////////////////////////
                                 STORAGE
-  //////////////////////////////////////////////////////////////*/
+  //////////////////////////////////////////////////////////////*/    // Throws `InvalidOperandOOG` when tested
+
 
   function hashes() internal pure returns (mapping(PolicyKey => bytes32 policyHash) storage s) {
     assembly ('memory-safe') {

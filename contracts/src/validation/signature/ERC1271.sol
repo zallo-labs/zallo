@@ -12,7 +12,7 @@ library ERC1271 {
     bytes memory signature
   ) internal view returns (bool success) {
     (bool callSuccess, bytes memory result) = signer.staticcall(
-      abi.encodeWithSelector(IERC1271.isValidSignature.selector, hash, signature)
+      abi.encodeCall(IERC1271.isValidSignature, (hash, signature))
     );
 
     return (callSuccess &&

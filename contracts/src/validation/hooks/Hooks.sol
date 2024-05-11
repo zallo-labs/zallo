@@ -12,7 +12,14 @@ struct Hook {
   bytes config;
 }
 
-// Transaction hooks [0x00, 0x7f]
+/*//////////////////////////////////////////////////////////////
+                               SELECTORS
+//////////////////////////////////////////////////////////////*/
+
+// Reserved
+// 0x00     (lastSelector)
+
+// Transaction hooks [0x01, 0x7f]
 uint8 constant TARGET_HOOK = 0x10;
 uint8 constant TRANSFER_HOOK = 0x11;
 uint8 constant DELAY_HOOK = 0x7f;
@@ -21,7 +28,7 @@ uint8 constant DELAY_HOOK = 0x7f;
 uint8 constant OTHER_MESSAGE_HOOK = 0xff;
 
 library Hooks {
-  error HooksOutOfOrder();
+  error HooksNotUniquelyAsc();
 
   function checkConfigs(Hook[] memory hooks) internal pure {
     uint8 lastSelector /* = 0 */;
@@ -29,8 +36,8 @@ library Hooks {
     for (uint256 i; i < hooks.length; ++i) {
       selector = hooks[i].selector;
 
-      // Hooks must be sorted ascending by selector, ensuring order of execution
-      if (selector < lastSelector) revert HooksOutOfOrder();
+      // Hooks must be uniquely asc by `selector`, ensuring order of execution
+      if (selector <= lastSelector) revert HooksNotUniquelyAsc();
       lastSelector = selector;
 
       if (selector == TARGET_HOOK) {

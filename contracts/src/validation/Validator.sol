@@ -8,7 +8,6 @@ import {Policy} from './Policy.sol';
 import {Approvals, ApprovalsLib} from './Approvals.sol';
 import {Hook, Hooks} from './hooks/Hooks.sol';
 import {SystemTransaction, TransactionUtil, Tx, TxType} from 'src/execution/Transaction.sol';
-import {Executor} from 'src/execution/Executor.sol';
 import {Scheduler} from 'src/execution/Scheduler.sol';
 
 library Validator {
@@ -17,11 +16,18 @@ library Validator {
   using Hooks for Hook[];
   using ApprovalsLib for Approvals;
 
-  function validateSystemTransaction(
-    SystemTransaction calldata systx
-  ) internal returns (bool success) {
+  error AlreadyExecuted(bytes32 proposal);
+
+  /// @dev Separate from validateAfterIncrementingNonce as incrementing nonce throws `InvalidOperandOOG` when tested
+  function validate(SystemTransaction calldata systx) internal returns (bool success) {
     _incrementNonceIfEquals(systx);
 
+    return validateAfterIncrementingNonce(systx);
+  }
+
+  function validateAfterIncrementingNonce(
+    SystemTransaction calldata systx
+  ) internal returns (bool success) {
     bool valid;
     TxType txType = systx.transactionType();
     if (txType == TxType.Standard) {
@@ -40,7 +46,7 @@ library Validator {
     bytes32 proposal = transaction.hash();
     (Policy memory policy, Approvals memory approvals) = systx.policyAndApprovals();
 
-    Executor.consume(proposal);
+    _consumeTransaction(proposal);
     policy.hooks.validateOperations(transaction.operations);
 
     success = approvals.verify(proposal, policy);
@@ -50,7 +56,10 @@ library Validator {
     SystemTransaction calldata systx
   ) private returns (bool success) {
     Tx memory transaction = abi.decode(systx.data, (Tx));
+
+    // Note. a transaction is only scheduled by executing (thereby consuming) a standard transaction
     Scheduler.consume(transaction.hash());
+
     success = true;
   }
 
@@ -61,5 +70,26 @@ library Validator {
       0,
       abi.encodeCall(INonceHolder.incrementMinNonceIfEquals, (systx.nonce))
     );
+  }
+
+  /*//////////////////////////////////////////////////////////////
+                         EXECUTED TRANSACTIONS
+  //////////////////////////////////////////////////////////////*/
+
+  function _executedTransactions() private pure returns (mapping(uint256 => uint256) storage s) {
+    assembly ('memory-safe') {
+      // keccack256('Validator.executedTransactions')
+      s.slot := 0x23d07622c9c4a8f93e2379f065adecb064982810ba92f0c43553e32204698aff
+    }
+  }
+
+  function _consumeTransaction(bytes32 proposal) internal {
+    uint256 word = uint256(proposal) / 256;
+    uint256 bit = uint256(proposal) % 256;
+    uint256 mask = 1 << bit;
+
+    if (_executedTransactions()[word] & mask == mask) revert AlreadyExecuted(proposal);
+
+    _executedTransactions()[word] |= mask;
   }
 }

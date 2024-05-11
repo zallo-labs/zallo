@@ -1,0 +1,12 @@
+.
+└── isValidSignature
+    ├── when hash & signature matches
+    │   └── should succeed
+    ├── when policy is not verified
+    │   └── should revert
+    ├── when message doesn't match hash
+    │   └── should revert
+    ├── when approvers do not sign signed message hash
+    │   └── should revert
+    └── when message hash signed directly
+        └── should revert

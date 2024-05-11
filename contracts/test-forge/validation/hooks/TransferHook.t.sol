@@ -8,7 +8,9 @@ import {TransferHook, TransfersConfig, TransferLimit, TokenTransfer, TokenSpendi
 import {Operation} from 'src/execution/Transaction.sol';
 
 contract TransferHookTest is UnitTest {
-  /* beforeExecute */
+  /*//////////////////////////////////////////////////////////////
+                             BEFORE EXECUTE
+  //////////////////////////////////////////////////////////////*/
 
   function test_beforeExecute_AllAllowed() public {
     Operation[] memory ops = new Operation[](2);
@@ -47,7 +49,9 @@ contract TransferHookTest is UnitTest {
     TransferHook.beforeExecute(ops, abi.encode(config));
   }
 
-  /* beforeExecuteTransfer */
+  /*//////////////////////////////////////////////////////////////
+                        BEFORE EXECUTE TRANSFER
+  //////////////////////////////////////////////////////////////*/
 
   function testFuzz_beforeExecuteTransfer_ZeroTransfer(
     address token,
@@ -154,7 +158,9 @@ contract TransferHookTest is UnitTest {
     TransferHook.beforeExecuteTransfer(transfer, config);
   }
 
-  /* getTransfers */
+  /*//////////////////////////////////////////////////////////////
+                             GET TRANSFERS
+  //////////////////////////////////////////////////////////////*/
 
   function testFuzz_getTransfers_NotTransfer(bytes memory data) public view {
     bytes4 s = bytes4(data);
@@ -186,7 +192,7 @@ contract TransferHookTest is UnitTest {
   function testFuzz_getTransfers_Erc20Transfer(address token, uint224 amount) public view {
     Operation memory op;
     op.to = token;
-    op.data = abi.encodeWithSelector(IERC20.transfer.selector, address(0), amount);
+    op.data = abi.encodeCall(IERC20.transfer, (address(0), amount));
     TokenTransfer[2] memory transfers = TransferHook.getTransfers(op);
 
     _assertEmpty(transfers[0]);
@@ -201,7 +207,7 @@ contract TransferHookTest is UnitTest {
   ) public view {
     Operation memory op;
     op.to = token;
-    op.data = abi.encodeWithSelector(IERC20.transferFrom.selector, from, address(this), amount);
+    op.data = abi.encodeCall(IERC20.transferFrom, (from, address(this), amount));
     TokenTransfer[2] memory transfers = TransferHook.getTransfers(op);
 
     _assertEmpty(transfers[0]);
@@ -218,7 +224,7 @@ contract TransferHookTest is UnitTest {
 
     Operation memory op;
     op.to = token;
-    op.data = abi.encodeWithSelector(IERC20.transferFrom.selector, from, to, amount);
+    op.data = abi.encodeCall(IERC20.transferFrom, (from, to, amount));
     TokenTransfer[2] memory transfers = TransferHook.getTransfers(op);
 
     _assertEmpty(transfers[0]);
@@ -229,7 +235,7 @@ contract TransferHookTest is UnitTest {
   function testFuzz_getTransfers_Erc20Approve(address token, uint224 amount) public view {
     Operation memory op;
     op.to = token;
-    op.data = abi.encodeWithSelector(IERC20.approve.selector, address(0), amount);
+    op.data = abi.encodeCall(IERC20.approve, (address(0), amount));
     TokenTransfer[2] memory transfers = TransferHook.getTransfers(op);
 
     _assertEmpty(transfers[0]);
@@ -256,7 +262,7 @@ contract TransferHookTest is UnitTest {
     Operation memory op;
     op.value = nativeAmount;
     op.to = token;
-    op.data = abi.encodeWithSelector(0x39509351, address(0), erc20Amount);
+    op.data = abi.encodeCall(IERC20.transfer, (address(0), erc20Amount));
     TokenTransfer[2] memory transfers = TransferHook.getTransfers(op);
 
     assertEq(transfers[0].token, address(0));
@@ -265,7 +271,9 @@ contract TransferHookTest is UnitTest {
     assertEq(transfers[1].amount, erc20Amount);
   }
 
-  /* checkConfig */
+  /*//////////////////////////////////////////////////////////////
+                              CHECK CONFIG
+  //////////////////////////////////////////////////////////////*/
 
   function test_checkConfig_LimitsUniquelySortedAsc() public pure {
     TransfersConfig memory c;
@@ -298,7 +306,9 @@ contract TransferHookTest is UnitTest {
     TransferHook.checkConfig(abi.encode(c));
   }
 
-  /* Utils */
+  /*//////////////////////////////////////////////////////////////
+                                 UTILS
+  //////////////////////////////////////////////////////////////*/
 
   function _assertEmpty(TokenTransfer memory transfer) internal pure {
     TokenTransfer memory emptyTransfer;

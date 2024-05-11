@@ -6,6 +6,10 @@ import {DelayHook, DelayConfig} from 'src/validation/hooks/DelayHook.sol';
 import {Scheduler} from 'src/execution/Scheduler.sol';
 
 contract DelayHookTest is UnitTest {
+  /*//////////////////////////////////////////////////////////////
+                             BEFORE EXECUTE
+  //////////////////////////////////////////////////////////////*/
+
   bytes32 internal constant PROPOSAL = bytes32(uint256(1));
 
   function testFuzz_beforeExecute_DelayPositive_NotExecute(uint32 delay) public {
