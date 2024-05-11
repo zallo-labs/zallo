@@ -10,6 +10,6 @@ contract TestAccount is Account {
   }
 
   function getSchedule(bytes32 proposal) external view returns (uint64) {
-    return Scheduler.getSchedule(proposal);
+    return Scheduler.getSchedule(proposal).timestamp;
   }
 }

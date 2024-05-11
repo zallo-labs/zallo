@@ -63,6 +63,6 @@ contract TestVerifier {
   }
 
   function getSchedule(bytes32 proposal) external view returns (uint256 timestamp) {
-    return Scheduler.getSchedule(proposal);
+    return Scheduler.getSchedule(proposal).timestamp;
   }
 }

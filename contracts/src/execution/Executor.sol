@@ -46,7 +46,7 @@ library Executor {
     Tx memory transaction = abi.decode(systx.data, (Tx));
     bytes32 proposal = transaction.hash();
 
-    Scheduler.requireReady(proposal);
+    Scheduler.setExecuted(proposal);
     _executeOperations(proposal, transaction.operations, new Hook[](0));
   }
 

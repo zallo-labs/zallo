@@ -1,5 +1,6 @@
-# verify
-## when policy added
-### should succeed
-## when policy has not been added
-### should revert
+.
+└── verify
+    ├── when policy added
+    │   └── should succeed
+    └── when policy has not been added
+        └── should revert

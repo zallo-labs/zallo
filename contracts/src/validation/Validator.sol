@@ -57,8 +57,7 @@ library Validator {
   ) private returns (bool success) {
     Tx memory transaction = abi.decode(systx.data, (Tx));
 
-    // Note. a transaction is only scheduled by executing (thereby consuming) a standard transaction
-    Scheduler.consume(transaction.hash());
+    Scheduler.validate(transaction.hash());
 
     success = true;
   }

@@ -23,7 +23,7 @@ contract DelayHookTest is UnitTest {
 
     DelayHook.beforeExecute(PROPOSAL, _config(delay));
 
-    assertEq(Scheduler.getSchedule(PROPOSAL), uint64(block.timestamp) + delay);
+    assertEq(Scheduler.getSchedule(PROPOSAL).timestamp, uint64(block.timestamp) + delay);
   }
 
   function test_beforeExecute_DelayZero_Execute() public {
