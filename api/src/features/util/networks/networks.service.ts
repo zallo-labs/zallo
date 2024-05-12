@@ -9,6 +9,7 @@ import {
   WatchBlockNumberErrorType,
   createPublicClient,
   createWalletClient,
+  fallback,
   http,
   webSocket,
 } from 'viem';
@@ -52,15 +53,19 @@ interface CreateParams {
 
 function create({ chainKey, redis }: CreateParams) {
   const chain = CHAINS[chainKey];
-  const transport = http();
-  // const transport = chain.rpcUrls.default.webSocket.length
-  //   ? webSocket(undefined, { retryCount: 10 })
-  //   : http();
-  // TODO: use fallback transport when eth_subscribe works with websockets - https://github.com/wevm/viem/issues/776
-  // const transport = fallback([
-  //   ...chain.rpcUrls.default.webSocket.map((url) => webSocket(url, { retryCount: 10 })),
-  //   ...chain.rpcUrls.default.http.map((url) => http(url, { retryCount: 10, batch: true })),
-  // ]);
+
+  const rpcUrls = CONFIG.rpcUrls[chainKey] ?? [];
+  const transport = fallback(
+    [
+      ...[...chain.rpcUrls.default.http, ...rpcUrls.filter((url) => url.startsWith('http'))].map(
+        (url) => http(url),
+      ),
+      ...[...chain.rpcUrls.default.http, ...rpcUrls.filter((url) => url.startsWith('ws'))].map(
+        (url) => webSocket(url),
+      ),
+    ],
+    { retryCount: 3, rank: true },
+  );
 
   return createPublicClient<Transport, ChainConfig>({
     chain,

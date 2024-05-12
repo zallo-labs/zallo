@@ -26,6 +26,7 @@ export const CONFIG = {
   redisUrl: required`REDIS_URL`,
   redisFamily: optional`REDIS_FAMILY` === '6' ? 6 : undefined,
   sessionSecret: required`SESSION_SECRET`,
+  rpcUrls: JSON.parse(optional`RPC_URLS` || '{}') as Record<Chain, string[]>,
   graphRef: optional`APOLLO_GRAPH_REF`,
   etherscanApiKey: required`ETHERSCAN_API_KEY`,
   walletPrivateKeys: JSON.parse(optional`WALLET_PRIVATE_KEYS` || '{}') as Record<Chain, Hex>,
