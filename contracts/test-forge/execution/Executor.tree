@@ -1,0 +1,12 @@
+# execute
+
+## when standard transaction
+### when all operations succeed
+##### when not system contract -- can this even be tested??
+###### should call contract
+###### should send value
+
+### when an operation reverts
+#### should propagate revert
+
+## when scheduled transaction

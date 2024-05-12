@@ -6,7 +6,7 @@ import {Executor} from 'src/execution/Executor.sol';
 
 contract TestAccount is Account {
   function testExecuteTransaction(SystemTransaction calldata systx) external {
-    Executor.executeValidatedSystemTransaction(systx);
+    Executor.execute(systx);
   }
 
   function getSchedule(bytes32 proposal) external view returns (uint64) {

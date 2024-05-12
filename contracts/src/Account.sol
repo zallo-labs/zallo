@@ -75,7 +75,7 @@ contract Account is
     bytes32 /* suggestedSignedHash */,
     SystemTransaction calldata systx
   ) external payable override onlyBootloader {
-    Executor.executeValidatedSystemTransaction(systx);
+    Executor.execute(systx);
   }
 
   /// @inheritdoc IAccount
@@ -84,7 +84,7 @@ contract Account is
   ) external payable override {
     if (!Validator.validate(systx)) revert FailedToValidate();
 
-    Executor.executeValidatedSystemTransaction(systx);
+    Executor.execute(systx);
   }
 
   function cancelScheduledTransaction(bytes32 proposal) external payable onlySelf {

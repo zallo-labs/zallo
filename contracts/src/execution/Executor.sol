@@ -14,19 +14,10 @@ library Executor {
   using Hooks for Hook[];
 
   /*//////////////////////////////////////////////////////////////
-                             EVENTS / ERRORS
-  //////////////////////////////////////////////////////////////*/
-
-  event OperationExecuted(bytes32 proposal, bytes response);
-  event OperationsExecuted(bytes32 proposal, bytes[] responses);
-
-  error OperationReverted(uint256 operationIndex, bytes reason);
-
-  /*//////////////////////////////////////////////////////////////
                          TRANSACTION EXECUTION
   //////////////////////////////////////////////////////////////*/
 
-  function executeValidatedSystemTransaction(SystemTransaction calldata systx) internal {
+  function execute(SystemTransaction calldata systx) internal {
     TxType txType = systx.transactionType();
     if (txType == TxType.Standard) {
       _executeTransaction(systx);
@@ -59,32 +50,28 @@ library Executor {
     Operation[] memory operations,
     Hook[] memory hooks
   ) private {
-    bool execute = hooks.beforeExecute(proposal, operations);
-    if (!execute) return;
+    bool shouldExecute = hooks.beforeExecute(proposal, operations);
+    if (!shouldExecute) return;
 
-    if (operations.length == 1) {
-      bytes memory response = _executeOperation(operations[0], 0);
-
-      emit OperationExecuted(proposal, response);
-    } else {
-      bytes[] memory responses = new bytes[](operations.length);
-      for (uint256 i; i < operations.length; ++i) {
-        responses[i] = _executeOperation(operations[i], i);
-      }
-
-      emit OperationsExecuted(proposal, responses);
+    for (uint256 i; i < operations.length; ++i) {
+      _callWithPropagatedRevert(operations[i]);
     }
   }
 
-  function _executeOperation(Operation memory op, uint256 opIndex) private returns (bytes memory) {
-    uint32 gas = uint32(gasleft()) - 2000; // safe truncation
+  function _callWithPropagatedRevert(Operation memory op) private returns (bytes memory result) {
+    uint32 gas = uint32(gasleft()); // safe truncation
 
-    (bool success, bytes memory response) = (op.to == address(DEPLOYER_SYSTEM_CONTRACT))
+    bool success;
+    (success, result) = (op.to == address(DEPLOYER_SYSTEM_CONTRACT))
       ? SystemContractsCaller.systemCallWithReturndata(gas, op.to, op.value, op.data)
       : op.to.call{value: op.value, gas: gas}(op.data);
 
-    if (!success) revert OperationReverted(opIndex, response);
-
-    return response;
+    if (!success) {
+      // Propagate revert
+      assembly {
+        let size := mload(result)
+        revert(add(result, 0x20), size)
+      }
+    }
   }
 }

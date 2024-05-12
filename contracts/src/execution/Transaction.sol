@@ -2,6 +2,7 @@
 pragma solidity 0.8.25;
 
 import {Transaction as SystemTransaction} from '@matterlabs/zksync-contracts/l2/system-contracts/libraries/TransactionHelper.sol';
+import {MAX_SYSTEM_CONTRACT_ADDRESS} from '@matterlabs/zksync-contracts/l2/system-contracts/Constants.sol';
 
 import {Cast} from 'src/libraries/Cast.sol';
 import {TypedData} from 'src/libraries/TypedData.sol';
@@ -23,7 +24,7 @@ struct Tx {
 
 struct Operation {
   address to;
-  uint96 value; /// @dev uint96 (instead of uint128 max) to allow packing
+  uint96 value;
   bytes data;
 }
 
@@ -37,7 +38,7 @@ library TransactionUtil {
                                    TX
   //////////////////////////////////////////////////////////////*/
 
-  uint256 private constant TX_TYPE_OFFSET = 0x10000; // 2^16, above zkSync's MAX_SYSTEM_CONTRACT_ADDRESS
+  uint256 private constant TX_TYPE_OFFSET = MAX_SYSTEM_CONTRACT_ADDRESS + 1; // 0x10000 (2^16)
   uint256 internal constant MULTI_OP_TX = TX_TYPE_OFFSET + (1 << 0);
   uint256 internal constant SCHEDULED_TX = TX_TYPE_OFFSET + (1 << 1);
 
