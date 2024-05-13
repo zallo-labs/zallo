@@ -96,8 +96,8 @@ contract ValidatorTest is UnitTest {
     Policy memory policy,
     Approvals memory approvals
   ) internal returns (SystemTransaction memory systx) {
-    uint32 validFrom;
-    systx.signature = abi.encode(validFrom, policy, approvals);
+    uint32 timestamp;
+    systx.signature = abi.encode(timestamp, policy, approvals);
 
     PolicyLib.hashes()[policy.key] = PolicyLib.hash(policy);
   }

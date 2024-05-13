@@ -130,7 +130,7 @@ contract ExecutorTest is UnitTest {
     Policy memory policy,
     Approvals memory approvals
   ) internal returns (SystemTransaction memory systx) {
-    systx.signature = abi.encode(transaction.validFrom, policy, approvals);
+    systx.signature = abi.encode(transaction.timestamp, policy, approvals);
 
     if (transaction.operations.length == 1) {
       systx.to = uint160(transaction.operations[0].to);

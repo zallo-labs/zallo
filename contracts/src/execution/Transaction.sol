@@ -17,7 +17,7 @@ enum TxType {
 
 struct Tx {
   Operation[] operations;
-  uint256 validFrom;
+  uint256 timestamp;
   address paymaster;
   bytes paymasterSignedInput;
 }
@@ -52,7 +52,7 @@ library TransactionLib {
     return
       Tx({
         operations: _operations(systx),
-        validFrom: _validFrom(systx),
+        timestamp: _timestamp(systx),
         paymaster: systx.paymaster.toAddressUnsafe(), // safe truncation
         paymasterSignedInput: PaymasterUtil.signedInput(systx.paymasterInput)
       });
@@ -79,7 +79,7 @@ library TransactionLib {
 
   string private constant OP_TYPE = 'Operation(address to,uint256 value,bytes data)';
   string private constant TX_TYPE =
-    'Tx(Operation[] operations,uint256 validFrom,address paymaster,bytes paymasterSignedInput)';
+    'Tx(Operation[] operations,uint256 timestamp,address paymaster,bytes paymasterSignedInput)';
   bytes32 private constant OP_TYPE_HASH = keccak256(abi.encodePacked(OP_TYPE));
   bytes32 private constant TX_TYPE_HASH = keccak256(abi.encodePacked(TX_TYPE, OP_TYPE));
 
@@ -97,7 +97,7 @@ library TransactionLib {
       abi.encode(
         TX_TYPE_HASH,
         keccak256(abi.encodePacked(hashedOps)),
-        t.validFrom,
+        t.timestamp,
         t.paymaster,
         keccak256(t.paymasterSignedInput)
       );
@@ -111,13 +111,14 @@ library TransactionLib {
                                SIGNATURE
   //////////////////////////////////////////////////////////////*/
 
+
   /// @dev estimateGas always calls with a 65 byte signature - https://github.com/zkSync-Community-Hub/zksync-developers/discussions/81#discussioncomment-7861481
   function isGasEstimation(SystemTransaction calldata systx) internal pure returns (bool) {
     return systx.signature.length == 65;
   }
 
-  function _validFrom(SystemTransaction calldata systx) private pure returns (uint256 validFrom) {
-    validFrom = abi.decode(systx.signature, (uint32 /*, Policy, Approvals */));
+  function _timestamp(SystemTransaction calldata systx) private pure returns (uint256 timestamp) {
+    timestamp = abi.decode(systx.signature, (uint32 /*, Policy, Approvals */));
   }
 
   function policy(SystemTransaction calldata systx) internal view returns (Policy memory policy_) {
