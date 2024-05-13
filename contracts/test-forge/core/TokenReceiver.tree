@@ -1,0 +1,15 @@
+.
+├── ERC165
+│   └── should support interface
+├── Native token
+│   ├── should receive
+│   └── should emit event
+├── ERC721
+│   ├── should support interface
+│   └── should receive
+└── ERC1155
+    ├── should support interface
+    ├── when single transfer
+    │   └── should receive
+    └── when batch transfer
+        └── should receive

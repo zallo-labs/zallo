@@ -6,6 +6,7 @@ import {TransactionHelper as SystemTransactionHelper} from '@matterlabs/zksync-c
 import {ACCOUNT_VALIDATION_SUCCESS_MAGIC} from '@matterlabs/zksync-contracts/l2/system-contracts/interfaces/IAccount.sol';
 import {BOOTLOADER_FORMAL_ADDRESS} from '@matterlabs/zksync-contracts/l2/system-contracts/Constants.sol';
 
+import {SelfOwned} from './core/SelfOwned.sol';
 import {Initializable} from './core/Initializable.sol';
 import {Upgradeable} from './core/Upgradeable.sol';
 import {TokenReceiver} from './core/TokenReceiver.sol';
@@ -20,6 +21,7 @@ import {PaymasterUtil} from './paymaster/PaymasterUtil.sol';
 
 contract Account is
   IAccount,
+  SelfOwned,
   Initializable,
   Upgradeable,
   PolicyManager,
@@ -51,8 +53,6 @@ contract Account is
   /*//////////////////////////////////////////////////////////////
                                 FALLBACK
   //////////////////////////////////////////////////////////////*/
-
-  receive() external payable {}
 
   fallback() external payable {}
 

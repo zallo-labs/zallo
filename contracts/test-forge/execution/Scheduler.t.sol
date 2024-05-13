@@ -2,7 +2,7 @@
 pragma solidity 0.8.25;
 
 import {UnitTest} from 'test/UnitTest.sol';
-import {Scheduler, Schedule} from 'src/execution/Scheduler.sol';
+import {Scheduler} from 'src/execution/Scheduler.sol';
 
 contract SchedulerTest is UnitTest {
   /*//////////////////////////////////////////////////////////////
