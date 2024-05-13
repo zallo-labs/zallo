@@ -5,7 +5,7 @@ import {MAX_SYSTEM_CONTRACT_ADDRESS} from '@matterlabs/zksync-contracts/l2/syste
 
 import {UnitTest, console2} from 'test/UnitTest.sol';
 import {Executor} from 'src/execution/Executor.sol';
-import {SystemTransaction, TransactionUtil, Tx, Operation} from 'src/execution/Transaction.sol';
+import {SystemTransaction, TransactionLib, Tx, Operation} from 'src/execution/Transaction.sol';
 import {Policy, PolicyLib} from 'src/validation/Policy.sol';
 import {Approvals} from 'src/validation/Approvals.sol';
 import {Scheduler} from 'src/execution/Scheduler.sol';
@@ -60,7 +60,7 @@ contract ExecutorTest is UnitTest {
 
     Tx memory t;
     t.operations = ops;
-    Scheduler.schedule(TransactionUtil.hash(t), uint64(block.timestamp));
+    Scheduler.schedule(TransactionLib.hash(t), uint64(block.timestamp));
 
     this.execute(_scheduledTx(t));
   }
@@ -78,7 +78,7 @@ contract ExecutorTest is UnitTest {
 
     Tx memory t;
     t.operations = ops;
-    Scheduler.schedule(TransactionUtil.hash(t), uint64(block.timestamp));
+    Scheduler.schedule(TransactionLib.hash(t), uint64(block.timestamp));
 
     vm.expectRevert(revertData);
 
@@ -92,7 +92,7 @@ contract ExecutorTest is UnitTest {
     t.operations = ops;
 
     vm.expectRevert(
-      abi.encodeWithSelector(Scheduler.NotScheduled.selector, TransactionUtil.hash(t))
+      abi.encodeWithSelector(Scheduler.NotScheduled.selector, TransactionLib.hash(t))
     );
 
     this.execute(_scheduledTx(t));
@@ -137,7 +137,7 @@ contract ExecutorTest is UnitTest {
       systx.value = transaction.operations[0].value;
       systx.data = transaction.operations[0].data;
     } else {
-      systx.to = TransactionUtil.MULTI_OP_TX;
+      systx.to = TransactionLib.MULTI_OP_TX;
       systx.data = abi.encode(transaction.operations);
     }
 
@@ -145,7 +145,7 @@ contract ExecutorTest is UnitTest {
   }
 
   function _scheduledTx(Tx memory t) internal pure returns (SystemTransaction memory systx) {
-    systx.to = TransactionUtil.SCHEDULED_TX;
+    systx.to = TransactionLib.SCHEDULED_TX;
     systx.data = abi.encode(t);
   }
 }

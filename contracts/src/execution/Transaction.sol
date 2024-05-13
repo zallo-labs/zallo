@@ -29,10 +29,8 @@ struct Operation {
 }
 
 /// @dev https://github.com/ethereum/EIPs/blob/master/EIPS/eip-712.md
-library TransactionUtil {
+library TransactionLib {
   using Cast for uint256;
-
-  error UnexpectedTransactionType(TxType txType);
 
   /*//////////////////////////////////////////////////////////////
                                    TX

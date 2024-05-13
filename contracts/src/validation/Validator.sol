@@ -7,15 +7,16 @@ import {INonceHolder, NONCE_HOLDER_SYSTEM_CONTRACT} from '@matterlabs/zksync-con
 import {Policy} from './Policy.sol';
 import {Approvals, ApprovalsLib} from './Approvals.sol';
 import {Hook, Hooks} from './hooks/Hooks.sol';
-import {SystemTransaction, TransactionUtil, Tx, TxType} from 'src/execution/Transaction.sol';
+import {SystemTransaction, TransactionLib, Tx, TxType} from 'src/execution/Transaction.sol';
 import {Scheduler} from 'src/execution/Scheduler.sol';
 
 library Validator {
-  using TransactionUtil for SystemTransaction;
-  using TransactionUtil for Tx;
+  using TransactionLib for SystemTransaction;
+  using TransactionLib for Tx;
   using Hooks for Hook[];
   using ApprovalsLib for Approvals;
 
+  error UnexpectedTransactionType(TxType txType);
   error AlreadyExecuted(bytes32 proposal);
 
   /// @dev Separate from validateAfterIncrementingNonce as incrementing nonce throws `InvalidOperandOOG` when tested
@@ -35,7 +36,7 @@ library Validator {
     } else if (txType == TxType.Scheduled) {
       valid = _validateScheduledTransaction(systx);
     } else {
-      revert TransactionUtil.UnexpectedTransactionType(txType);
+      revert UnexpectedTransactionType(txType);
     }
 
     return valid && !systx.isGasEstimation();

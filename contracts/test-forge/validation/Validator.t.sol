@@ -3,14 +3,14 @@ pragma solidity 0.8.25;
 
 import {UnitTest} from 'test/UnitTest.sol';
 import {Validator} from 'src/validation/Validator.sol';
-import {SystemTransaction, TransactionUtil, Tx} from 'src/execution/Transaction.sol';
+import {SystemTransaction, TransactionLib, Tx} from 'src/execution/Transaction.sol';
 import {Policy, PolicyLib} from 'src/validation/Policy.sol';
 import {Approvals} from 'src/validation/Approvals.sol';
 import {Scheduler} from 'src/execution/Scheduler.sol';
 
 contract ValidatorTest is UnitTest {
-  using TransactionUtil for SystemTransaction;
-  using TransactionUtil for Tx;
+  using TransactionLib for SystemTransaction;
+  using TransactionLib for Tx;
 
   /*//////////////////////////////////////////////////////////////
                     VALIDATE TRANSACTION - STANDARD
@@ -105,7 +105,7 @@ contract ValidatorTest is UnitTest {
   function _scheduledTx(
     Tx memory transaction
   ) internal pure returns (SystemTransaction memory systx) {
-    systx.to = TransactionUtil.SCHEDULED_TX;
+    systx.to = TransactionLib.SCHEDULED_TX;
     systx.data = abi.encode(transaction);
   }
 

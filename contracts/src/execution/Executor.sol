@@ -4,14 +4,16 @@ pragma solidity 0.8.25;
 import {DEPLOYER_SYSTEM_CONTRACT} from '@matterlabs/zksync-contracts/l2/system-contracts/Constants.sol';
 import {SystemContractsCaller} from '@matterlabs/zksync-contracts/l2/system-contracts/libraries/SystemContractsCaller.sol';
 
-import {TransactionUtil, SystemTransaction, Tx, Operation, TxType} from './Transaction.sol';
+import {TransactionLib, SystemTransaction, Tx, Operation, TxType} from './Transaction.sol';
 import {Scheduler} from './Scheduler.sol';
 import {Hook, Hooks} from 'src/validation/hooks/Hooks.sol';
 
 library Executor {
-  using TransactionUtil for Tx;
-  using TransactionUtil for SystemTransaction;
+  using TransactionLib for Tx;
+  using TransactionLib for SystemTransaction;
   using Hooks for Hook[];
+
+  error UnexpectedTransactionType(TxType txType);
 
   /*//////////////////////////////////////////////////////////////
                          TRANSACTION EXECUTION
@@ -24,7 +26,7 @@ library Executor {
     } else if (txType == TxType.Scheduled) {
       _executeScheduledTransaction(systx);
     } else {
-      revert TransactionUtil.UnexpectedTransactionType(txType);
+      revert UnexpectedTransactionType(txType);
     }
   }
 
