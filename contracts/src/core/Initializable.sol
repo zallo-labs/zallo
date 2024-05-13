@@ -9,7 +9,7 @@ abstract contract Initializable {
                                  ERRORS
   //////////////////////////////////////////////////////////////*/
 
-  error InitializedFailed(uint64 current, uint64 requested);
+  error AlreadyInitialized();
 
   /*//////////////////////////////////////////////////////////////
                              INITIALIZATION
@@ -17,15 +17,8 @@ abstract contract Initializable {
 
   modifier initializer() {
     Initialized storage initialized = _initialized();
-    if (initialized.version != 0) revert InitializedFailed(initialized.version, 1);
+    if (initialized.version != 0) revert AlreadyInitialized();
     initialized.version = 1;
-    _;
-  }
-
-  modifier reinitializer(uint64 version) {
-    Initialized storage initialized = _initialized();
-    if (initialized.version >= version) revert InitializedFailed(initialized.version, version);
-    initialized.version = version;
     _;
   }
 

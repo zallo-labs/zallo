@@ -6,5 +6,5 @@ import {UUPSUpgradeable} from '@openzeppelin/contracts/proxy/utils/UUPSUpgradeab
 import {SelfOwned} from 'src/helpers/SelfOwned.sol';
 
 abstract contract Upgradeable is UUPSUpgradeable, SelfOwned {
-  function _authorizeUpgrade(address newImplementation) internal virtual override onlySelf {} // solhint-disable-lint no-empty-blocks
+  function _authorizeUpgrade(address newImplementation) internal virtual override onlySelf {} // solhint-disable-line no-empty-blocks
 }

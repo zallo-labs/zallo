@@ -39,16 +39,16 @@ contract ValidatorTest is UnitTest {
   }
 
   function test_validate_Tx_RevertWhen_AlreadyExecuted() public {
-    SystemTransaction memory systx;
     Policy memory policy;
     Approvals memory approvals;
+    SystemTransaction memory systx = _tx(policy, approvals);
 
-    this.validate(_tx(policy, approvals)); // First
+    this.validate(systx); // First
 
     bytes32 hash = this.hashTransaction(systx);
     vm.expectRevert(abi.encodeWithSelector(Validator.AlreadyExecuted.selector, hash));
 
-    this.validate(_tx(policy, approvals)); // Second - reverts
+    this.validate(systx); // Second - reverts
   }
 
   /*//////////////////////////////////////////////////////////////

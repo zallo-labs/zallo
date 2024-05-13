@@ -11,7 +11,7 @@ contract HooksTest is UnitTest {
 
   function test_checkConfigs_UniqueAsc() public pure {
     Hook[] memory hooks = new Hook[](3);
-    hooks[0].selector = 0x00;
+    hooks[0].selector = 0x40;
     hooks[1].selector = 0xf0;
     hooks[2].selector = 0xf1;
 
@@ -20,8 +20,8 @@ contract HooksTest is UnitTest {
 
   function test_checkConfigs_RevertWhen_NotUnique() public {
     Hook[] memory hooks = new Hook[](2);
-    hooks[0].selector = 0x00;
-    hooks[1].selector = 0x00;
+    hooks[0].selector = 0x40;
+    hooks[1].selector = 0x40;
 
     vm.expectRevert(Hooks.HooksNotUniquelyAsc.selector);
     Hooks.checkConfigs(hooks);
