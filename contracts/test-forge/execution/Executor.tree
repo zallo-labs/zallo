@@ -2,11 +2,15 @@
 
 ## when standard transaction
 ### when all operations succeed
-##### when not system contract -- can this even be tested??
-###### should call contract
-###### should send value
-
+#### should call contracts
 ### when an operation reverts
 #### should propagate revert
 
 ## when scheduled transaction
+### when scheduled
+#### when all operations succeed
+##### should call contracts
+#### when an operation reverts
+##### should propagate revert
+### when not scheduled
+#### should revert

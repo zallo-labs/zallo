@@ -68,7 +68,7 @@ library TransactionUtil {
     } else {
       ops = new Operation[](1);
       ops[0] = Operation({
-        to: systx.to.toAddressUnsafe(), // Never truncates
+        to: systx.to.toAddressUnsafe(), // safe truncation
         value: systx.value.toU96(),
         data: systx.data
       });
