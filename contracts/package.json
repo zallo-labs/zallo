@@ -4,7 +4,7 @@
   "scripts": {
     "build": "hardhat compile",
     "build-forge": "forge build --zksync",
-    "test": "forge test --zksync --match-path 'test-forge/**/*'",
+    "test": "forge test --zksync",
     "test-hh": "hardhat test",
     "typecheck": "tsc --noEmit"
   },
