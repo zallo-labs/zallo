@@ -17,7 +17,25 @@ import {MessageValidator} from './validation/MessageValidator.sol';
 import {SystemTransaction} from './execution/Transaction.sol';
 import {Executor} from './execution/Executor.sol';
 import {Scheduler} from './execution/Scheduler.sol';
-import {PaymasterUtil} from './paymaster/PaymasterUtil.sol';
+import {PaymasterFlow} from './paymaster/PaymasterFlow.sol';
+
+/*
+
+ ███████╗ █████╗ ██╗     ██╗      ██████╗                     
+ ╚══███╔╝██╔══██╗██║     ██║     ██╔═══██╗                    
+   ███╔╝ ███████║██║     ██║     ██║   ██║                    
+  ███╔╝  ██╔══██║██║     ██║     ██║   ██║                    
+ ███████╗██║  ██║███████╗███████╗╚██████╔╝                    
+ ╚══════╝╚═╝  ╚═╝╚══════╝╚══════╝ ╚═════╝                     
+                                                              
+  █████╗  ██████╗ ██████╗ ██████╗ ██╗   ██╗███╗   ██╗████████╗
+ ██╔══██╗██╔════╝██╔════╝██╔═══██╗██║   ██║████╗  ██║╚══██╔══╝
+ ███████║██║     ██║     ██║   ██║██║   ██║██╔██╗ ██║   ██║   
+ ██╔══██║██║     ██║     ██║   ██║██║   ██║██║╚██╗██║   ██║   
+ ██║  ██║╚██████╗╚██████╗╚██████╔╝╚██████╔╝██║ ╚████║   ██║   
+ ╚═╝  ╚═╝ ╚═════╝ ╚═════╝ ╚═════╝  ╚═════╝ ╚═╝  ╚═══╝   ╚═╝   
+ 
+*/
 
 contract Account is
   IAccount,
@@ -33,7 +51,6 @@ contract Account is
   //////////////////////////////////////////////////////////////*/
 
   error FailedToValidate();
-  error InsufficientBalance();
   error FailedToPayBootloader();
   error OnlyCallableByBootloader();
 
@@ -109,7 +126,7 @@ contract Account is
     bytes32 /* txDataHash */,
     SystemTransaction calldata systx
   ) external payable override onlyBootloader {
-    PaymasterUtil.processPaymasterInput(systx);
+    PaymasterFlow.payPaymaster(systx);
   }
 
   /*//////////////////////////////////////////////////////////////

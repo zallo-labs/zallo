@@ -8,7 +8,7 @@ import {Cast} from 'src/libraries/Cast.sol';
 import {TypedData} from 'src/libraries/TypedData.sol';
 import {Policy, PolicyLib} from 'src/validation/Policy.sol';
 import {Approvals} from 'src/validation/Approvals.sol';
-import {PaymasterUtil} from 'src/paymaster/PaymasterUtil.sol';
+import {PaymasterFlow} from 'src/paymaster/PaymasterFlow.sol';
 
 enum TxType {
   Standard,
@@ -54,7 +54,7 @@ library TransactionLib {
         operations: _operations(systx),
         timestamp: _timestamp(systx),
         paymaster: systx.paymaster.toAddressUnsafe(), // safe truncation
-        paymasterSignedInput: PaymasterUtil.signedInput(systx.paymasterInput)
+        paymasterSignedInput: PaymasterFlow.signedPaymasterInput(systx)
       });
   }
 
@@ -110,7 +110,6 @@ library TransactionLib {
   /*//////////////////////////////////////////////////////////////
                                SIGNATURE
   //////////////////////////////////////////////////////////////*/
-
 
   /// @dev estimateGas always calls with a 65 byte signature - https://github.com/zkSync-Community-Hub/zksync-developers/discussions/81#discussioncomment-7861481
   function isGasEstimation(SystemTransaction calldata systx) internal pure returns (bool) {

@@ -61,17 +61,21 @@ abstract contract PriceOracle {
   }
 
   function _convert(
-    uint256 amount,
+    uint256 fromAmount,
     address fromToken,
     address toToken
-  ) internal view returns (uint256 converted) {
-    if (fromToken == toToken) return amount;
+  ) internal view returns (uint256 toAmount) {
+    if (fromToken == toToken) return fromAmount;
 
-    uint256 normalizedAmount = _normalize(amount, _decimals(fromToken), _decimals(toToken));
-    return (normalizedAmount * _usd(fromToken)) / _usd(toToken);
+    uint256 normalizedFromAmount = _normalize(fromAmount, _decimals(fromToken), _decimals(toToken));
+    return (normalizedFromAmount * _usd(fromToken)) / _usd(toToken);
   }
 
-  function _usd(address token) private view returns (uint256 usd) {
+  function _price(address fromToken, address toToken) internal view returns (uint256 fromPerTo) {
+    return _usd(fromToken) / _usd(toToken);
+  }
+
+  function _usd(address token) internal view returns (uint256 usd) {
     if (token == ETH) return _price(ETH_USD_PRICE_ID);
     if (token == DAI) return _price(DAI_USD_PRICE_ID);
     if (token == USDC) return _price(USDC_USD_PRICE_ID);
