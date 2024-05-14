@@ -1,0 +1,15 @@
+.
+└── withdraw
+    ├── when called by owner
+    │   ├── when native token
+    │   │   ├── when amount <= balance
+    │   │   │   └── should transfer
+    │   │   └── when amount > balance
+    │   │       └── should revert
+    │   └── when ERC20 token
+    │       ├── when amount <= balance
+    │       │   └── should transfer
+    │       └── when amount > balance
+    │           └── should revert
+    └── when called by another
+        └── should revert

@@ -3,7 +3,7 @@ pragma solidity 0.8.25;
 
 import {Transaction as SystemTransaction} from '@matterlabs/zksync-contracts/l2/system-contracts/libraries/TransactionHelper.sol';
 
-import {UnitTest, console} from 'test/UnitTest.sol';
+import {UnitTest} from 'test/UnitTest.sol';
 import {PaymasterFlow, PaymasterFlows} from 'src/paymaster/PaymasterFlow.sol';
 import {Token20} from 'test/mock/Token20.sol';
 
