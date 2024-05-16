@@ -1,0 +1,41 @@
+.
+├── receive
+│   └── should increase balance of sender
+├── validate
+│   ├── when called by bootloader
+│   │   ├── when approvalBasedWithMax flow
+│   │   │   ├── when amount >= min
+│   │   │   │   ├── when paymaster can pay bootloader
+│   │   │   │   │   ├── when native token
+│   │   │   │   │   │   ├── when user has balance >= amount
+│   │   │   │   │   │   │   ├── should succeed
+│   │   │   │   │   │   │   └── should decrease balance
+│   │   │   │   │   │   └── when balance < amount
+│   │   │   │   │   │       └── should fail
+│   │   │   │   │   └── when ERC20 token
+│   │   │   │   │       ├── when user has allowance >= amount
+│   │   │   │   │       │   ├── should succeed
+│   │   │   │   │       │   └── should increase balance
+│   │   │   │   │       └── when user has allowance < amount
+│   │   │   │   │           └── should fail
+│   │   │   │   └── when paymaster can not pay bootloader
+│   │   │   │       └── should revert
+│   │   │   └── when amount < min
+│   │   │       └── should revert
+│   │   └── when other flow
+│   │       └── should revert
+│   └── when called by other
+│       └── should revert
+└── postTransaction
+    ├── when called by bootloader
+    │   ├── when max refunded gas >= offset
+    │   │   ├── when native token
+    │   │   │   ├── should refund account
+    │   │   │   └── should use gas <= offset
+    │   │   └── when ERC20 token
+    │   │       ├── should refund account
+    │   │       └── should use less gas than offset
+    │   └── when max refunded gas < offset
+    │       └── should succeed
+    └── when called by other
+        └── should revert

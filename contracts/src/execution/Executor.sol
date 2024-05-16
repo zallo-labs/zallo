@@ -19,6 +19,7 @@ library Executor {
                          TRANSACTION EXECUTION
   //////////////////////////////////////////////////////////////*/
 
+  /// @dev Called only after validation
   function execute(SystemTransaction calldata systx) internal {
     TxType txType = systx.transactionType();
     if (txType == TxType.Standard) {
@@ -30,11 +31,15 @@ library Executor {
     }
   }
 
+  // TODO: transaction.hashLoad() instead when cancun is supported
   function _executeTransaction(SystemTransaction calldata systx) private {
     Tx memory transaction = systx.transaction();
-    _executeOperations(transaction.hash(), transaction.operations, systx.policy().hooks);
+    Hook[] memory hooks = systx.unverifiedPolicy().hooks;
+
+    _executeOperations(transaction.hash(), transaction.operations, hooks);
   }
 
+  // TODO: transaction.hashLoad() instead when cancun is supported
   function _executeScheduledTransaction(SystemTransaction calldata systx) private {
     Tx memory transaction = abi.decode(systx.data, (Tx));
     bytes32 proposal = transaction.hash();

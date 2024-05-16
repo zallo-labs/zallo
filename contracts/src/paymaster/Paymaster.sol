@@ -7,11 +7,12 @@ import {Transaction as SystemTransaction} from '@matterlabs/zksync-contracts/l2/
 import {IERC20} from '@openzeppelin/contracts/token/ERC20/IERC20.sol';
 
 import {Withdrawable} from './Withdrawable.sol';
-import {PriceOracle, PriceOracleConfig} from './PriceOracle.sol';
+import {ImmutablePriceOracle} from './ImmutablePriceOracle.sol';
+import {Rate} from './PriceOracle.sol';
 import {PaymasterFlows} from './PaymasterFlow.sol';
 import {SafeERC20} from 'src/libraries/SafeERC20.sol';
 
-contract Paymaster is IPaymaster, Withdrawable, PriceOracle {
+contract Paymaster is IPaymaster, Withdrawable, ImmutablePriceOracle {
   using SafeERC20 for IERC20;
 
   /*//////////////////////////////////////////////////////////////
@@ -21,13 +22,14 @@ contract Paymaster is IPaymaster, Withdrawable, PriceOracle {
   error OnlyCallableByBootloader();
   error InvalidPaymasterInput();
   error PaymasterAmountBelowMin(address token, uint256 amount, uint256 minAmount);
-  error FailedToPayBootloader(uint256 bootloaderFee);
+  error FailedToPayBootloader(uint256 networkFee);
+  error RefundFailed(bytes32 txHash, uint256 maxRefundedGas);
 
   /*//////////////////////////////////////////////////////////////
                                CONSTANTS
   //////////////////////////////////////////////////////////////*/
 
-  uint256 internal constant POST_TRANSACTION_ESTIMATED_GAS_COST = 4000;
+  uint256 internal constant POST_TRANSACTION_GAS_OFFSET = 2675;
 
   /*//////////////////////////////////////////////////////////////
                              INITIALIZATION
@@ -35,15 +37,16 @@ contract Paymaster is IPaymaster, Withdrawable, PriceOracle {
 
   constructor(
     address owner,
-    PriceOracleConfig memory oracleConfig
-  ) Withdrawable(owner) PriceOracle(oracleConfig) {}
+    ImmutablePriceOracle.Config memory oracleConfig
+  ) Withdrawable(owner) ImmutablePriceOracle(oracleConfig) {}
 
   /*//////////////////////////////////////////////////////////////
                                 FALLBACK
   //////////////////////////////////////////////////////////////*/
 
   receive() external payable {
-    _ethAllowance()[msg.sender] += msg.value;
+    // TODO: replace with transient balance to behave like `msg.value` once cancun is supported
+    _balance()[msg.sender] += msg.value;
   }
 
   /*//////////////////////////////////////////////////////////////
@@ -52,15 +55,16 @@ contract Paymaster is IPaymaster, Withdrawable, PriceOracle {
 
   function validateAndPayForPaymasterTransaction(
     bytes32 /* txHash */,
-    bytes32 /* txDataHash */,
+    bytes32 /* suggestedSignedHash */,
     SystemTransaction calldata systx
   ) external payable onlyBootloader returns (bytes4 magic, bytes memory context) {
     if (!_isApprovalBasedWithMaxFlow(systx.paymasterInput)) revert InvalidPaymasterInput();
 
     (address token, uint256 amount) = abi.decode(systx.paymasterInput[4:68], (address, uint256));
     uint256 networkFee = systx.gasLimit * systx.maxFeePerGas;
-    uint256 ethPerToken = _price(ETH, token);
-    uint256 minAmount = networkFee * ethPerToken;
+
+    Rate memory nativePerToken = _rate(NATIVE, token);
+    uint256 minAmount = _convertUp(networkFee, nativePerToken);
     // paymasterFee = amount - minAmount;
 
     if (amount < minAmount) revert PaymasterAmountBelowMin(token, amount, minAmount);
@@ -74,25 +78,26 @@ contract Paymaster is IPaymaster, Withdrawable, PriceOracle {
     (bool bootloaderPaid, ) = payable(BOOTLOADER_FORMAL_ADDRESS).call{value: networkFee}('');
     if (!bootloaderPaid) revert FailedToPayBootloader(networkFee);
 
-    context = abi.encode(token, ethPerToken);
+    context = abi.encode(nativePerToken);
   }
 
+  /// @dev Bootloader refunds paymaster: `maxRefundedGas` - gas used during `postTransaction()`
   function postTransaction(
     bytes calldata context,
     SystemTransaction calldata systx,
-    bytes32 /* txHash */,
-    bytes32 /* txDataHash */,
+    bytes32 txHash,
+    bytes32 /* suggestedSignedHash */,
     ExecutionResult /* txResult */,
-    uint256 maxRefundedGas /* gasLeft() before calling postTransaction() */
+    uint256 maxRefundedGas
   ) external payable onlyBootloader {
-    if (maxRefundedGas < POST_TRANSACTION_ESTIMATED_GAS_COST) return;
+    if (maxRefundedGas <= POST_TRANSACTION_GAS_OFFSET) return;
 
-    (address token, uint256 ethPerToken) = abi.decode(context, (address, uint256));
-    uint256 refundEth = systx.maxFeePerGas * (maxRefundedGas - POST_TRANSACTION_ESTIMATED_GAS_COST);
-    uint256 refundAmount = refundEth * ethPerToken;
+    Rate memory nativePerToken = abi.decode(context, (Rate));
+    uint256 nativeRefund = systx.maxFeePerGas * (maxRefundedGas - POST_TRANSACTION_GAS_OFFSET);
+    uint256 tokenRefund = _convertDown(nativeRefund, nativePerToken);
 
-    address account = address(uint160(systx.from));
-    IERC20(token).safeTransfer(account, refundAmount); // No revert upon failure, though it should never happen
+    bool refunded = _transfer(nativePerToken.quote, address(uint160(systx.from)), tokenRefund);
+    if (!refunded) revert RefundFailed(txHash, maxRefundedGas);
   }
 
   /*//////////////////////////////////////////////////////////////
@@ -110,13 +115,23 @@ contract Paymaster is IPaymaster, Withdrawable, PriceOracle {
   ) private returns (bool success) {
     if (amount == 0) return true;
 
-    if (token == ETH) {
-      uint256 allowance = _ethAllowance()[from];
+    if (token == NATIVE) {
+      uint256 balance = _balance()[from];
 
-      success = allowance >= amount;
-      if (success) _ethAllowance()[from] = allowance - amount;
+      success = balance >= amount;
+      if (success) _balance()[from] = balance - amount;
     } else {
       success = IERC20(token).safeTransferFrom(from, address(this), amount);
+    }
+  }
+
+  function _transfer(address token, address to, uint256 amount) private returns (bool success) {
+    if (amount == 0) return true;
+
+    if (token == NATIVE) {
+      (success, ) = payable(to).call{value: amount}('');
+    } else {
+      success = IERC20(token).safeTransfer(to, amount);
     }
   }
 
@@ -124,15 +139,11 @@ contract Paymaster is IPaymaster, Withdrawable, PriceOracle {
                                 STORAGE
   //////////////////////////////////////////////////////////////*/
 
-  function _ethAllowance() private pure returns (mapping(address => uint256) storage s) {
+  function _balance() internal pure returns (mapping(address => uint256) storage s) {
     assembly ('memory-safe') {
-      // keccack256('Paymaster.ethAllowance')
-      s.slot := 0x83f39f26ea023df7a049022a2132e47c1b07e9e164eab419384e126f5ce28735
+      // keccack256('Paymaster.balance')
+      s.slot := 0x48c72df064a775c3eff33e1c7f42c80b407c2586e8f014260c01a06141e51a3a
     }
-  }
-
-  function ethAllowance(address account) external view returns (uint256 allowance) {
-    return _ethAllowance()[account];
   }
 
   /*//////////////////////////////////////////////////////////////

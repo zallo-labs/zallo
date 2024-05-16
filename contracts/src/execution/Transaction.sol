@@ -120,10 +120,11 @@ library TransactionLib {
     timestamp = abi.decode(systx.signature, (uint32 /*, Policy, Approvals */));
   }
 
-  function policy(SystemTransaction calldata systx) internal view returns (Policy memory policy_) {
+  function unverifiedPolicy(
+    SystemTransaction calldata systx
+  ) internal pure returns (Policy memory policy_) {
     if (!isGasEstimation(systx)) {
       (, policy_) = abi.decode(systx.signature, (uint32, Policy /*, Approvals */));
-      PolicyLib.verify(policy_);
     }
   }
 

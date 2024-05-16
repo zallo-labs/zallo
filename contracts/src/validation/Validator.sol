@@ -42,6 +42,7 @@ library Validator {
     return valid && !systx.isGasEstimation();
   }
 
+  // TODO: transaction.hashStore() instead when cancun is supported
   function _validateTransaction(SystemTransaction calldata systx) private returns (bool success) {
     Tx memory transaction = systx.transaction();
     bytes32 proposal = transaction.hash();
@@ -53,6 +54,7 @@ library Validator {
     success = approvals.verify(proposal, policy);
   }
 
+  // TODO: transaction.hashStore() instead when cancun is supported
   function _validateScheduledTransaction(
     SystemTransaction calldata systx
   ) private returns (bool success) {

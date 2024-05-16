@@ -6,10 +6,10 @@ import {IERC20} from '@openzeppelin/contracts/token/ERC20/IERC20.sol';
 
 import {SafeERC20} from 'src/libraries/SafeERC20.sol';
 
-contract Withdrawable is Ownable {
+abstract contract Withdrawable is Ownable {
   using SafeERC20 for IERC20;
 
-  error FailedToWithdraw();
+  error WithdrawlFailed();
 
   address private constant NATIVE_TOKEN = address(0);
 
@@ -22,6 +22,6 @@ contract Withdrawable is Ownable {
     } else {
       success = IERC20(token).safeTransfer(to, amount);
     }
-    if (!success) revert FailedToWithdraw();
+    if (!success) revert WithdrawlFailed();
   }
 }

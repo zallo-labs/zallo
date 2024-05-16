@@ -1,0 +1,25 @@
+.
+├── price
+│   ├── when valid price
+│   │   └── should return normalized price
+│   ├── when price not positive
+│   │   └── should revert
+│   ├── when exponent positive
+│   │   └── should revert
+│   └── when exponent too small
+│       └── should revert
+├── rate
+│   ├── when tokens differ
+│   │   └── should return rate
+│   └── when tokens same
+│       └── should return identity rate
+├── convertDown
+│   ├── when rate is natural
+│   │   └── should exactly equal
+│   └── when rate is rational
+│       └── should be less than or equal
+└── convertUp
+    ├── when rate is natural
+    │   └── should exactly equal
+    └── when rate is rational
+        └── should be greater than or equal

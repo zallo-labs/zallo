@@ -3,115 +3,76 @@ pragma solidity 0.8.25;
 
 import {IPyth} from '@pythnetwork/pyth-sdk-solidity/IPyth.sol';
 import {PythStructs} from '@pythnetwork/pyth-sdk-solidity/PythStructs.sol';
+import {FixedPointMathLib} from 'solady/src/utils/FixedPointMathLib.sol';
 
-struct TokenConfig {
-  address token;
-  bytes32 usdPriceId;
-}
+import {Cast} from 'src/libraries/Cast.sol';
 
-struct PriceOracleConfig {
-  address pyth;
-  bytes32 ethUsdPriceId;
-  TokenConfig dai;
-  TokenConfig usdc;
-  TokenConfig weth;
-  TokenConfig reth;
-  TokenConfig cbeth;
+struct Rate {
+  address base;
+  uint256 basePrice;
+  address quote;
+  uint256 quotePrice;
 }
 
 abstract contract PriceOracle {
-  error UnsupportedToken(address token);
-  error InvalidTokenPrice(PythStructs.Price price);
+  using Cast for uint256;
+  using FixedPointMathLib for uint256;
 
-  uint256 private constant PRICE_DECIMALS = 18;
+  error InvalidPrice(address token);
+
+  uint8 private constant WAD = 18; // 18 decimal precision
+  int8 private constant MIN_PRICE_EXPO = -1 * int8(WAD); // Constrainted by WAD, and the max price int64 (~1e19) decimals
+
   IPyth internal immutable PYTH;
 
-  address internal immutable ETH = address(0);
-  uint256 internal immutable ETH_DECIMALS = 18;
-  bytes32 internal immutable ETH_USD_PRICE_ID;
-  address internal immutable DAI;
-  uint256 internal immutable DAI_DECIMALS = 18;
-  bytes32 internal immutable DAI_USD_PRICE_ID;
-  address internal immutable USDC;
-  uint256 internal immutable USDC_DECIMALS = 6;
-  bytes32 internal immutable USDC_USD_PRICE_ID;
-  address internal immutable WETH;
-  uint256 internal immutable WETH_DECIMALS = 18;
-  bytes32 internal immutable WETH_USD_PRICE_ID;
-  address internal immutable RETH;
-  uint256 internal immutable RETH_DECIMALS = 18;
-  bytes32 internal immutable RETH_USD_PRICE_ID;
-  address internal immutable CBETH;
-  uint256 internal immutable CBETH_DECIMALS = 18;
-  bytes32 internal immutable CBETH_USD_PRICE_ID;
-
-  constructor(PriceOracleConfig memory p) {
-    PYTH = IPyth(p.pyth);
-    ETH_USD_PRICE_ID = p.ethUsdPriceId;
-    DAI = p.dai.token;
-    DAI_USD_PRICE_ID = p.dai.usdPriceId;
-    USDC = p.usdc.token;
-    USDC_USD_PRICE_ID = p.usdc.usdPriceId;
-    WETH = p.weth.token;
-    WETH_USD_PRICE_ID = p.weth.usdPriceId;
-    RETH = p.reth.token;
-    RETH_USD_PRICE_ID = p.reth.usdPriceId;
-    CBETH = p.cbeth.token;
-    CBETH_USD_PRICE_ID = p.cbeth.usdPriceId;
+  constructor(address pyth) {
+    PYTH = IPyth(pyth);
   }
 
-  function _convert(
-    uint256 fromAmount,
-    address fromToken,
-    address toToken
-  ) internal view returns (uint256 toAmount) {
-    if (fromToken == toToken) return fromAmount;
+  function _decimals(address token) internal view virtual returns (uint8 decimals);
+  function _priceId(address token) internal view virtual returns (bytes32 priceId);
 
-    uint256 normalizedFromAmount = _normalize(fromAmount, _decimals(fromToken), _decimals(toToken));
-    return (normalizedFromAmount * _usd(fromToken)) / _usd(toToken);
+  function _price(address token) internal view returns (uint256 usd) {
+    PythStructs.Price memory price = PYTH.getPriceNoOlderThan(_priceId(token), 60 minutes);
+
+    if (price.price <= 0 || price.expo > 0 || price.expo < MIN_PRICE_EXPO)
+      revert InvalidPrice(token);
+
+    uint8 curDecimals = uint8(uint32(-1 * price.expo));
+    return _toDecimals(uint128(uint64(price.price)), curDecimals, WAD);
   }
 
-  function _price(address fromToken, address toToken) internal view returns (uint256 fromPerTo) {
-    return _usd(fromToken) / _usd(toToken);
+  function _rate(address base, address quote) internal view returns (Rate memory rate) {
+    if (base == quote) return Rate({base: base, basePrice: 1, quote: quote, quotePrice: 1});
+
+    return Rate({base: base, basePrice: _price(base), quote: quote, quotePrice: _price(quote)});
   }
 
-  function _usd(address token) internal view returns (uint256 usd) {
-    if (token == ETH) return _price(ETH_USD_PRICE_ID);
-    if (token == DAI) return _price(DAI_USD_PRICE_ID);
-    if (token == USDC) return _price(USDC_USD_PRICE_ID);
-    if (token == WETH) return _price(WETH_USD_PRICE_ID);
-    if (token == RETH) return _price(RETH_USD_PRICE_ID);
-    if (token == CBETH) return _price(CBETH_USD_PRICE_ID);
-    revert UnsupportedToken(token);
+  function _convertDown(uint256 amount, Rate memory r) internal view returns (uint256 quoteAmount) {
+    uint256 normBaseAmount = _toDecimals(amount, _decimals(r.base), WAD);
+    uint256 converted = normBaseAmount.mulDiv(r.basePrice, r.quotePrice); // floor(normBaseAmount * r.basePrice / r.quotePrice)
+
+    return _toDecimals(converted, WAD, _decimals(r.quote));
   }
 
-  function _price(bytes32 priceId) private view returns (uint256 normalizedPrice) {
-    PythStructs.Price memory price = PYTH.getPriceNoOlderThan(priceId, 60 minutes);
+  function _convertUp(uint256 amount, Rate memory r) internal view returns (uint256 quoteAmount) {
+    uint256 normBaseAmount = _toDecimals(amount, _decimals(r.base), WAD);
+    uint256 converted = normBaseAmount.mulDivUp(r.basePrice, r.quotePrice); // ceil(normBaseAmount * r.basePrice / r.quotePrice)
 
-    if (price.price <= 0 || price.expo > 0 || price.expo < -255) revert InvalidTokenPrice(price);
-
-    return _normalize(uint256(uint64(price.price)), uint32(-1 * price.expo), PRICE_DECIMALS);
+    return _toDecimals(converted, WAD, _decimals(r.quote));
   }
 
-  function _normalize(
+  function _toDecimals(
     uint256 amount,
-    uint256 currentDecimals,
-    uint256 newDecimals
+    uint8 currentDecimals,
+    uint8 newDecimals
   ) private pure returns (uint256 normalized) {
+    if (currentDecimals == newDecimals) return amount;
+
     if (newDecimals >= currentDecimals) {
       return amount * 10 ** (newDecimals - currentDecimals);
     } else {
       return amount / 10 ** (currentDecimals - newDecimals);
     }
-  }
-
-  function _decimals(address token) private view returns (uint256 decimals) {
-    if (token == ETH) return ETH_DECIMALS;
-    if (token == DAI) return DAI_DECIMALS;
-    if (token == USDC) return USDC_DECIMALS;
-    if (token == WETH) return WETH_DECIMALS;
-    if (token == RETH) return RETH_DECIMALS;
-    if (token == CBETH) return CBETH_DECIMALS;
-    revert UnsupportedToken(token);
   }
 }
