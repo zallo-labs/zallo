@@ -11,8 +11,8 @@ export interface TypewriterValue {
 
 type TypeWriterProps = ComponentPropsWithoutRef<typeof TypeWriter>;
 export interface TypewriterTextProps
-  extends Omit<TextProps, 'children'>,
-    Pick<TypeWriterProps, 'initialDelay' | 'minDelay' | 'maxDelay'> {
+  extends Omit<TextProps, 'children' | 'style'>,
+    Pick<TypeWriterProps, 'initialDelay' | 'minDelay' | 'maxDelay' | 'style'> {
   values: TypewriterValue[];
   loop?: boolean;
   completeDelay?: number;
