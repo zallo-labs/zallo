@@ -39,7 +39,7 @@ export class BalancesService {
     });
 
     // Balance must be expired due to rebalancing tokens
-    if (balance !== undefined) this.redis.set(key, balance.toString(), 'EX', 3600 /* 1 hour */);
+    if (balance !== undefined) this.redis.set(key, balance.toString(), 'EX', 86400 /* 24 hours */);
 
     return balance ?? 0n;
   }

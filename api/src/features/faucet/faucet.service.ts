@@ -24,7 +24,7 @@ export class FaucetService implements OnModuleInit {
     const tokens = await this.db.query(
       e.select(e.Token, (t) => ({
         filter: and(
-          e.op('not', e.op('exists', t.user)),
+          t.isSystem,
           e.op(
             t.chain,
             'in',

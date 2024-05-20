@@ -27,7 +27,7 @@ import {
   RemovePolicyOp,
   SwapOp,
 } from './operations.model';
-import { ACCOUNT_IMPLEMENTATION } from 'lib';
+import { ACCOUNT_ABI } from 'lib';
 import { ERC20, ETH, SYNCSWAP, WETH } from 'lib/dapps';
 import { match } from 'ts-pattern';
 import { NetworksService } from '../util/networks/networks.service';
@@ -104,10 +104,7 @@ export class OperationsService {
       () =>
         data &&
         size(data) >= 4 &&
-        decodeFunctionData({
-          abi: [...ACCOUNT_IMPLEMENTATION.abi, ...ERC20, ...SYNCSWAP.router.abi],
-          data,
-        }),
+        decodeFunctionData({ abi: [...ACCOUNT_ABI, ...ERC20, ...SYNCSWAP.router.abi], data }),
     );
     if (!f) return undefined;
 

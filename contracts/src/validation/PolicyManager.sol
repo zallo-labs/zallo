@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-pragma solidity 0.8.25;
+pragma solidity ^0.8.25;
 
 import {Policy, PolicyKey, PolicyLib} from './Policy.sol';
 import {SelfOwned} from 'src/core/SelfOwned.sol';
@@ -42,10 +42,5 @@ abstract contract PolicyManager is SelfOwned {
   function removePolicy(PolicyKey key) external payable onlySelf {
     delete PolicyLib.hashes()[key];
     emit PolicyRemoved(key);
-  }
-
-  /// @dev Used for testing
-  function _getPolicyHash(PolicyKey key) internal view returns (bytes32) {
-    return PolicyLib.hashes()[key];
   }
 }

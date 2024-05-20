@@ -1,6 +1,6 @@
 import { FragmentType, gql, useFragment as getFragment } from '@api/generated';
 import Decimal from 'decimal.js';
-import { Operation, asAddress, asTypedData } from 'lib';
+import { Operation, asAddress, asFp, asTypedData } from 'lib';
 
 const Transaction = gql(/* GraphQL */ `
   fragment proposalAsTypedData_Transaction on Transaction {
@@ -14,16 +14,15 @@ const Transaction = gql(/* GraphQL */ `
       value
       data
     }
-    nonce
+    timestamp
     gasLimit
     feeToken {
       id
       address
+      decimals
     }
+    maxAmount
     paymaster
-    maxPaymasterEthFees {
-      total
-    }
   }
 `);
 
@@ -38,10 +37,10 @@ export function proposalAsTypedData(proposalFragment: FragmentType<typeof Transa
         data: op.data || undefined,
       }),
     ) as [Operation, ...Operation[]],
-    nonce: BigInt(p.nonce),
+    timestamp: BigInt(p.timestamp),
     gas: BigInt(p.gasLimit),
     feeToken: asAddress(p.feeToken.address),
+    maxAmount: asFp(new Decimal(p.maxAmount), p.feeToken.decimals),
     paymaster: asAddress(p.paymaster),
-    paymasterEthFee: new Decimal(p.maxPaymasterEthFees.total),
   });
 }

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-pragma solidity 0.8.25;
+pragma solidity ^0.8.25;
 
 import {IPyth} from '@pythnetwork/pyth-sdk-solidity/IPyth.sol';
 import {PythStructs} from '@pythnetwork/pyth-sdk-solidity/PythStructs.sol';

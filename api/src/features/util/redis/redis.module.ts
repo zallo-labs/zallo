@@ -3,31 +3,29 @@ import { CONFIG } from '~/config';
 import { RedisModule as BaseModule, DEFAULT_REDIS_NAMESPACE } from '@songkeys/nestjs-redis';
 import { REDIS_SUBSCRIBER } from '~/decorators/redis.decorator';
 import { RedisHealthIndicator } from './redis.indicator';
-import { RedisOptions } from 'ioredis';
+import { parseRedisUrl } from 'parse-redis-url-simple';
 
 export const REDIS_CONFIG = {
   family: CONFIG.redisFamily,
-  // tls: { rejectUnauthorized: false },  // Required for self-signed certs (i.e. Render)
-  // enableReadyCheck: false, // Required due to https://github.com/OptimalBits/bull/issues/1873
-  maxRetriesPerRequest: null, // ^^
-} satisfies RedisOptions;
+  ...parseRedisUrl(CONFIG.redisUrl)[0],
+};
 
 @Module({
   imports: [
     BaseModule.forRoot({
       config: [
         {
+          ...REDIS_CONFIG,
           namespace: DEFAULT_REDIS_NAMESPACE,
-          url: CONFIG.redisUrl,
           connectionName: `${CONFIG.serverId}:${DEFAULT_REDIS_NAMESPACE}`,
         },
         {
+          ...REDIS_CONFIG,
           namespace: REDIS_SUBSCRIBER,
           url: CONFIG.redisUrl,
           connectionName: `${CONFIG.serverId}:${REDIS_SUBSCRIBER}`,
         },
       ],
-      commonOptions: REDIS_CONFIG,
     }),
   ],
   exports: [RedisHealthIndicator],

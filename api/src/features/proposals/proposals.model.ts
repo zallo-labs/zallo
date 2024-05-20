@@ -43,7 +43,7 @@ export class Proposal {
   icon?: string;
 
   @Field(() => Date)
-  validFrom: Date;
+  timestamp: Date;
 
   @Field(() => Date)
   createdAt: Date;

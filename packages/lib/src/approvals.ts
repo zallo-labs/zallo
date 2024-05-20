@@ -6,13 +6,13 @@ import { Network } from 'chains';
 import {
   getAbiItem,
   hexToNumber,
-  hexToSignature,
+  parseSignature,
   recoverAddress,
   signatureToCompactSignature,
   size,
 } from 'viem';
 import { AbiParameterToPrimitiveType } from 'abitype';
-import { TEST_VERIFIER_ABI } from './contract';
+import { EXPOSED_ABI } from './contract';
 
 export type SignatureType = 'k256' | 'erc1271';
 
@@ -27,8 +27,7 @@ export interface ApprovalsParams {
   approvers: Set<Address>;
 }
 
-export const APPROVALS_ABI = getAbiItem({ abi: TEST_VERIFIER_ABI, name: 'verifyApprovals' })
-  .inputs[0];
+export const APPROVALS_ABI = getAbiItem({ abi: EXPOSED_ABI, name: 'Approvals_' }).inputs[0];
 export type ApprovalsStruct = AbiParameterToPrimitiveType<typeof APPROVALS_ABI>;
 
 export function encodeApprovalsStruct({ approvals, approvers }: ApprovalsParams): ApprovalsStruct {
@@ -38,7 +37,7 @@ export function encodeApprovalsStruct({ approvals, approvers }: ApprovalsParams)
   return {
     k256: approvals
       .filter((a) => a.type === 'k256')
-      .map((a) => signatureToCompactSignature(hexToSignature(a.signature))),
+      .map((a) => signatureToCompactSignature(parseSignature(a.signature))),
     erc1271: approvals
       .filter((a) => a.type === 'erc1271')
       .map((a) => ({

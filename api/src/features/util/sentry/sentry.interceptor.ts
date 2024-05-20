@@ -35,10 +35,10 @@ export class SentryInterceptor implements NestInterceptor {
         next.handle().pipe(
           tap({
             complete: () => {
-              span?.setStatus('ok');
+              span?.setStatus({ code: 1 /* ok */, message: 'ok' });
             },
             error: (exception) => {
-              span?.setStatus('unknown_error');
+              span?.setStatus({ code: 2 /* error */, message: 'unknown_error' });
               if (this.shouldReport(exception)) {
                 Sentry.withScope((scope) => {
                   const userCtx = getRequestContext().user;

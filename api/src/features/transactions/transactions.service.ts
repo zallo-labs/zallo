@@ -33,7 +33,6 @@ import { ProposalsService, UniqueProposal } from '../proposals/proposals.service
 import { ApproveInput, ProposalEvent } from '../proposals/proposals.input';
 import { PaymastersService } from '~/features/paymasters/paymasters.service';
 import { EstimatedTransactionFees } from '~/features/transactions/transactions.model';
-import Decimal from 'decimal.js';
 import { InjectFlowProducer, InjectQueue } from '@nestjs/bullmq';
 import { ExecutionsQueue } from '~/features/transactions/executions.worker';
 import { FLOW_PRODUCER } from '../util/bull/bull.util';
@@ -44,9 +43,12 @@ import { encodeFunctionData, hashTypedData } from 'viem';
 import { v4 as uuid } from 'uuid';
 import { FlowProducer } from 'bullmq';
 import { ActivationsService } from '../activations/activations.service';
-import { totalPaymasterEthFees } from '../paymasters/paymasters.util';
 import { ReceiptsQueue } from '../system-txs/receipts.queue';
 import { PoliciesService } from '../policies/policies.service';
+import { TokensService } from '#/tokens/tokens.service';
+import { PricesService } from '#/prices/prices.service';
+import { totalPaymasterEthFees } from '#/paymasters/paymasters.util';
+import Decimal from 'decimal.js';
 
 export const selectTransaction = (id: UUID | Hex) =>
   e.select(e.Transaction, () => ({
@@ -57,7 +59,8 @@ export const estimateFeesDeps = {
   id: true,
   account: { address: true },
   gasLimit: true,
-  maxPaymasterEthFees: {
+  paymasterEthFees: {
+    total: true,
     activation: true,
   },
 } satisfies Shape<typeof e.Transaction>;
@@ -78,6 +81,8 @@ export class TransactionsService {
     private activations: ActivationsService,
     @Inject(forwardRef(() => PoliciesService))
     private policies: PoliciesService,
+    private tokens: TokensService,
+    private prices: PricesService,
   ) {}
 
   async selectUnique(id: UniqueProposal, shape?: ShapeFunc<typeof e.Transaction>) {
@@ -133,7 +138,7 @@ export class TransactionsService {
     label,
     icon,
     dapp,
-    validFrom = new Date(),
+    timestamp = new Date(),
     gas,
     feeToken = ETH_ADDRESS,
   }: Omit<ProposeTransactionInput, 'signature'>) {
@@ -145,15 +150,24 @@ export class TransactionsService {
       (
         await estimateTransactionOperationsGas({ account: asAddress(account), network, operations })
       ).unwrapOr(FALLBACK_OPERATIONS_GAS) + estimateTransactionVerificationGas(3);
-    const maxPaymasterEthFees = await this.paymasters.paymasterEthFees({ account, use: false });
+
+    const [maxFeePerGas, paymasterFees, feeTokenPrice] = await Promise.all([
+      network.estimatedMaxFeePerGas(),
+      this.paymasters.paymasterFees({ account }),
+      this.prices.price(asUAddress(feeToken, chain)),
+    ]);
+    const totalEthFees = maxFeePerGas
+      .mul(gas.toString())
+      .plus(totalPaymasterEthFees(paymasterFees));
+    const maxAmount = totalEthFees.mul(feeTokenPrice.eth);
 
     const tx = {
       operations,
-      nonce: BigInt(Math.floor(validFrom.getTime() / 1000)),
+      timestamp: BigInt(Math.floor(timestamp.getTime() / 1000)),
       gas,
       feeToken,
       paymaster: this.paymasters.for(chain),
-      paymasterEthFee: totalPaymasterEthFees(maxPaymasterEthFees),
+      maxAmount: await this.tokens.asFp(asUAddress(feeToken, chain), maxAmount),
     } satisfies Tx;
     const { policy, validationErrors } = await this.policies.best(account, tx);
 
@@ -196,18 +210,19 @@ export class TransactionsService {
         },
       }),
       operations: insertOperation,
-      validFrom,
+      timestamp,
       gasLimit: gas,
-      paymaster: tx.paymaster,
-      maxPaymasterEthFees: e.insert(e.PaymasterFees, {
-        activation: maxPaymasterEthFees.activation.toString(),
-      }),
       feeToken: e.assert_single(
         e.select(e.token(asUAddress(feeToken, asChain(account))), (t) => ({
           filter: t.isFeeToken,
           limit: 1,
         })),
       ),
+      paymaster: tx.paymaster,
+      maxAmount: maxAmount.toString(),
+      paymasterEthFees: e.insert(e.PaymasterFees, {
+        activation: paymasterFees.activation.toString(),
+      }),
     });
 
     this.db.afterTransaction(() => {
@@ -343,16 +358,15 @@ export class TransactionsService {
 
   async estimateFees(d: EstimateFeesDeps): Promise<EstimatedTransactionFees> {
     const account = asUAddress(d.account.address);
-    const maxEthFeePerGas = await this.paymasters.estimateMaxEthFeePerGas(asChain(account));
-    const gasLimit = new Decimal(d.gasLimit.toString());
-    const maxNetworkEthFee = maxEthFeePerGas.mul(gasLimit);
+    const maxFeePerGas = await this.networks.get(account).estimatedMaxFeePerGas();
 
     return {
       id: `EstimatedTransactionFees:${d.id}`,
-      maxNetworkEthFee,
-      ...(await this.paymasters.estimateEthDiscount(account, maxNetworkEthFee, {
-        activation: new Decimal(d.maxPaymasterEthFees.activation),
-      })),
+      maxNetworkEthFee: maxFeePerGas.mul(d.gasLimit.toString()),
+      paymasterEthFees: {
+        total: new Decimal(d.paymasterEthFees.total),
+        activation: new Decimal(d.paymasterEthFees.activation),
+      },
     };
   }
 }

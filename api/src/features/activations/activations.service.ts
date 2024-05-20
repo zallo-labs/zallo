@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { ActivationsQueue } from './activations.queue';
 import { QueueData } from '../util/bull/bull.util';
 import {
-  ACCOUNT_PROXY_FACTORY,
+  DEPLOYER,
   UAddress,
   asAddress,
   asChain,
@@ -24,9 +24,8 @@ import Decimal from 'decimal.js';
 import { SimulationsQueue } from '../simulations/simulations.worker';
 
 interface FeeParams {
-  address: UAddress;
+  account: UAddress;
   feePerGas: Decimal;
-  use: boolean;
 }
 
 @Injectable()
@@ -69,29 +68,16 @@ export class ActivationsService {
     return (await simulateDeployAccountProxy({ network, ...params }))._unsafeUnwrap();
   }
 
-  async fee({ address, feePerGas, use }: FeeParams): Promise<Decimal | null> {
+  async fee({ account, feePerGas }: FeeParams): Promise<Decimal | null> {
     const a = await this.db.query(
       e.select(e.Account, () => ({
-        filter_single: { address },
+        filter_single: { address: account },
         activationEthFee: true,
       })),
     );
-    if (!a) return null;
+    if (a) return a.activationEthFee ? new Decimal(a.activationEthFee) : null;
 
-    if (a.activationEthFee) {
-      if (use) {
-        await this.db.query(
-          e.update(e.Account, () => ({
-            filter_single: { address },
-            set: { activationEthFee: null },
-          })),
-        );
-      }
-
-      return new Decimal(a.activationEthFee);
-    }
-
-    const gas = await this.estimateGas(address);
+    const gas = await this.estimateGas(account);
     return gas ? feePerGas.mul(gas.toString()) : null;
   }
 
@@ -113,7 +99,7 @@ export class ActivationsService {
     }
   }
 
-  async params(address: UAddress) {
+  private async params(address: UAddress) {
     const account = await this.db.query(
       e.select(e.Account, (a) => ({
         filter_single: { address },
@@ -130,7 +116,7 @@ export class ActivationsService {
     if (account.active) return null;
 
     return {
-      factory: ACCOUNT_PROXY_FACTORY.address[asChain(address)],
+      deployer: DEPLOYER.address[asChain(address)],
       salt: asHex(account.salt),
       implementation: asAddress(account.implementation),
       policies: account.initPolicies.map((p) =>

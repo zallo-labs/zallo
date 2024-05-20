@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-pragma solidity 0.8.25;
+pragma solidity ^0.8.25;
 
 struct Schedule {
   uint64 timestamp; /// @dev Overlfows on 21/7/2554
@@ -45,6 +45,7 @@ library Scheduler {
     emit ScheduleCancelled(proposal);
   }
 
+  /// @dev Used for testing
   function getSchedule(bytes32 proposal) internal view returns (Schedule storage) {
     return _scheduled()[proposal];
   }

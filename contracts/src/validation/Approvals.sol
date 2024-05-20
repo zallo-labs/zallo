@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-pragma solidity 0.8.25;
+pragma solidity ^0.8.25;
 
 import {Policy} from './Policy.sol';
 import {ERC1271} from './signature/ERC1271.sol';

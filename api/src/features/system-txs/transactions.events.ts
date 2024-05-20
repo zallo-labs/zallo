@@ -1,12 +1,11 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { ACCOUNT_IMPLEMENTATION, asChain, asDecimal, asHex, asUAddress, isHex } from 'lib';
-import { TransactionData, TransactionEventData, ReceiptsWorker } from './receipts.worker';
+import { TransactionData, TransactionEventData, ReceiptsWorker, Receipt } from './receipts.worker';
 import { InjectQueue } from '@nestjs/bullmq';
 import { ReceiptsQueue } from './receipts.queue';
 import e from '~/edgeql-js';
 import { DatabaseService } from '../database/database.service';
 import { and } from '../database/database.util';
-import { NetworksService } from '../util/networks/networks.service';
 import { CallParameters, getAbiItem } from 'viem';
 import { ProposalsService } from '../proposals/proposals.service';
 import { ProposalEvent } from '../proposals/proposals.input';
@@ -16,14 +15,8 @@ import { RUNNING_JOB_STATUSES, TypedQueue } from '../util/bull/bull.util';
 import { ETH } from 'lib/dapps';
 import { runOnce } from '~/util/mutex';
 import { ampli } from '~/util/ampli';
-import { selectTransaction } from '../transactions/transactions.service';
 import { selectSysTx } from './system-tx.util';
-
-const opExecutedEvent = getAbiItem({ abi: ACCOUNT_IMPLEMENTATION.abi, name: 'OperationExecuted' });
-const opsExecutedEvent = getAbiItem({
-  abi: ACCOUNT_IMPLEMENTATION.abi,
-  name: 'OperationsExecuted',
-});
+import { NetworksService, Network } from '#/util/networks/networks.service';
 
 @Injectable()
 export class TransactionsEvents implements OnModuleInit {
@@ -38,8 +31,7 @@ export class TransactionsEvents implements OnModuleInit {
     private receipts: ReceiptsWorker,
     private proposals: ProposalsService,
   ) {
-    this.receipts.onEvent(opExecutedEvent, (data) => this.executed(data));
-    this.receipts.onEvent(opsExecutedEvent, (data) => this.executed(data));
+    this.receipts.onTransaction((data) => this.executed(data));
     this.receipts.onTransaction((data) => this.reverted(data));
   }
 
@@ -47,22 +39,21 @@ export class TransactionsEvents implements OnModuleInit {
     this.addMissingJobs();
   }
 
-  private async executed({
-    log,
-    receipt,
-    block,
-  }: TransactionEventData<typeof opExecutedEvent> | TransactionEventData<typeof opsExecutedEvent>) {
-    const { args } = log;
+  private async executed({ chain, receipt, block }: TransactionData) {
+    if (receipt.status !== 'success') return;
 
+    const response = await this.getResponse(this.networks.get(chain), receipt);
+
+    const systx = selectSysTx(receipt.transactionHash);
     const insertResult = e
       .insert(e.Successful, {
-        transaction: selectTransaction(args.proposal),
-        systx: selectSysTx(receipt.transactionHash),
+        transaction: systx.proposal,
+        systx,
         timestamp: new Date(Number(block.timestamp) * 1000), // block.timestamp is in seconds
         block: BigInt(receipt.blockNumber),
         gasUsed: receipt.gasUsed,
         ethFeePerGas: asDecimal(receipt.effectiveGasPrice, ETH).toString(),
-        responses: 'responses' in args ? [...args.responses] : [args.response],
+        responses: response.data ? [response.data] : [],
       })
       .unlessConflict();
 
@@ -87,9 +78,7 @@ export class TransactionsEvents implements OnModuleInit {
   private async reverted({ chain, receipt, block }: TransactionData) {
     if (receipt.status !== 'reverted') return;
 
-    const network = this.networks.get(chain);
-    const { gasPrice: _, ...tx } = await network.getTransaction({ hash: receipt.transactionHash });
-    const callResponse = await network.call(tx as CallParameters);
+    const response = await this.getResponse(this.networks.get(chain), receipt);
 
     const systx = selectSysTx(receipt.transactionHash);
     const insertResult = e
@@ -100,7 +89,7 @@ export class TransactionsEvents implements OnModuleInit {
         block: BigInt(receipt.blockNumber),
         gasUsed: receipt.gasUsed,
         ethFeePerGas: asDecimal(receipt.effectiveGasPrice, ETH).toString(),
-        reason: callResponse.data,
+        reason: response.data,
       })
       .unlessConflict();
 
@@ -119,6 +108,22 @@ export class TransactionsEvents implements OnModuleInit {
     const revenue = 0; // new Decimal(0).mul(usdPerEth).toNumber();
     proposal.account.approvers.forEach(({ user }) => {
       ampli.transactionExecuted(user.id, { success: false }, { revenue });
+    });
+  }
+
+  private async getResponse(network: Network, receipt: Receipt) {
+    const tx = await network.getTransaction({ hash: receipt.transactionHash });
+
+    return /* may throw */ await network.call({
+      blockNumber: receipt.blockNumber,
+      account: receipt.from,
+      gas: tx.gas,
+      maxFeePerGas: tx.maxFeePerGas,
+      maxPriorityFeePerGas: tx.maxPriorityFeePerGas,
+      nonce: tx.nonce,
+      to: tx.to,
+      value: tx.value,
+      data: tx.input,
     });
   }
 

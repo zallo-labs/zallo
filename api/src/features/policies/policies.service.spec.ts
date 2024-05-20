@@ -71,7 +71,7 @@ describe(PoliciesService.name, () => {
         policy: selectPolicy(initPolicy.id),
         validationErrors: [],
         operations: e.insert(e.Operation, { to: ZERO_ADDR }),
-        validFrom: new Date(),
+        timestamp: new Date(),
         paymaster: ZERO_ADDR,
         feeToken: e.assert_single(
           e.select(e.Token, (t) => ({
@@ -79,6 +79,7 @@ describe(PoliciesService.name, () => {
             limit: 1,
           })),
         ),
+        maxAmount: '1',
       });
     });
 

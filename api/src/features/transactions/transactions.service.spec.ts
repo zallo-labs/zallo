@@ -64,7 +64,7 @@ describe(TransactionsService.name, () => {
       estimateGas: async () => 0n,
     } satisfies DeepPartial<Network> as unknown as Network);
 
-    paymasters.paymasterEthFees.mockImplementation(async () => ({
+    paymasters.paymasterFees.mockImplementation(async () => ({
       total: new Decimal(0),
       activation: new Decimal(0),
     }));

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-pragma solidity 0.8.25;
+pragma solidity ^0.8.25;
 
 import {ECDSA} from '@openzeppelin/contracts/utils/cryptography/ECDSA.sol';
 
@@ -10,14 +10,6 @@ library K256 {
   struct Signature {
     bytes32 r;
     bytes32 yParityAndS;
-  }
-
-  function verify(
-    address signer,
-    bytes32 hash,
-    Signature memory signature
-  ) internal pure returns (bool success) {
-    return recover(hash, signature) == signer;
   }
 
   function recover(

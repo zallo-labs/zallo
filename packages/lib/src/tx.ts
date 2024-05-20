@@ -1,20 +1,22 @@
 import { Address, ETH_ADDRESS, UAddress } from './address';
-import { Operation } from './operation';
+import { Operation, encodeOperations } from './operation';
 import _ from 'lodash';
-import { getAbiItem, hashTypedData, TypedData, TypedDataDefinition, zeroAddress } from 'viem';
+import { getAbiItem, hashTypedData, Hex, TypedData, TypedDataDefinition, zeroAddress } from 'viem';
 import { AbiParameterToPrimitiveType, TypedDataToPrimitiveTypes } from 'abitype';
-import { TEST_VERIFIER_ABI, asFp, paymasterSignedInput } from '.';
-import { ETH } from './dapps';
-import Decimal from 'decimal.js';
 import { getContractTypedDataDomain } from './util/typed-data';
+import { EXPOSED_ABI } from './contract';
+import { paymasterSignedInput } from './paymaster';
+import { AllOrNone } from './util';
+import { SendTransactionParameters } from 'viem/zksync';
+import { ChainConfig } from 'chains';
 
 export interface Tx {
   operations: [Operation, ...Operation[]];
-  nonce: bigint;
+  timestamp: bigint;
   gas?: bigint;
   paymaster?: Address;
   feeToken?: Address;
-  paymasterEthFee?: Decimal;
+  maxAmount?: bigint;
 }
 
 export type TxOptions = Omit<Tx, 'operations'> &
@@ -43,7 +45,7 @@ export const TX_EIP712_TYPES = {
   // reservedDynamic: ^
   Tx: [
     { name: 'operations', type: 'Operation[]' },
-    { name: 'validFrom', type: 'uint256' },
+    { name: 'timestamp', type: 'uint256' },
     { name: 'paymaster', type: 'address' },
     { name: 'paymasterSignedInput', type: 'bytes' },
   ] as const,
@@ -69,25 +71,40 @@ export function hashTx(...params: Parameters<typeof asTypedData>) {
   return hashTypedData(asTypedData(...params));
 }
 
-export const TX_ABI = getAbiItem({ abi: TEST_VERIFIER_ABI, name: 'transaction' }).inputs[0];
+export const TX_ABI = getAbiItem({ abi: EXPOSED_ABI, name: 'Tx_' }).inputs[0];
 export type TxStruct = AbiParameterToPrimitiveType<typeof TX_ABI>;
 
 export function encodeTxStruct(tx: Tx): TxStruct {
+  if (tx.paymaster && !tx.maxAmount)
+    throw new Error('Tx maxAmount is required when paymaster is provided');
+
   return {
     operations: tx.operations.map((op) => ({
       to: op.to,
       value: op.value ?? 0n,
       data: op.data ?? '0x',
     })),
-    validFrom: tx.nonce,
+    timestamp: tx.timestamp,
     paymaster: tx.paymaster ?? zeroAddress,
     paymasterSignedInput: paymasterSignedInput(
       tx.paymaster
         ? {
             token: tx.feeToken ?? ETH_ADDRESS,
-            paymasterFee: tx.paymasterEthFee ? asFp(tx.paymasterEthFee, ETH) : 0n,
+            maxAmount: tx.maxAmount!,
           }
         : '0x',
     ),
   };
+}
+
+export interface AsSystemTransactionParams {
+  tx: Tx;
+}
+
+export function asSystemTransaction({ tx }: AsSystemTransactionParams) {
+  return {
+    ...encodeOperations(tx.operations),
+    type: 'eip712',
+    gas: tx.gas,
+  } satisfies Partial<SendTransactionParameters<ChainConfig>>;
 }

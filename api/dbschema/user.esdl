@@ -70,6 +70,7 @@ module default {
     required isFeeToken: bool { default := false; };
     pythUsdPriceId: Bytes32;
     required property chain := as_chain(.address);
+    required property isSystem := (not exists .user);
 
     constraint exclusive on ((.user, .address));
     constraint exclusive on ((.user, .chain, .name));

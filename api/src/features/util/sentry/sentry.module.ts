@@ -4,7 +4,7 @@ import { CONFIG } from '~/config';
 import { SentryInterceptor } from './sentry.interceptor';
 import { nodeProfilingIntegration } from '@sentry/profiling-node';
 
-const SHUTDOWN_TIMEOUT = 3_000;
+const SHUTDOWN_TIMEOUT = 3_000; // ms
 
 @Global()
 @Module({})
@@ -41,28 +41,20 @@ export class SentryModule implements OnApplicationShutdown {
     SentryModule.initialized = true;
 
     Sentry.init({
-      enabled: CONFIG.env !== 'development',
+      enabled: !!CONFIG.sentryDsn,
       dsn: CONFIG.sentryDsn,
       environment: CONFIG.env,
       serverName: CONFIG.serverId,
       sampleRate: 1.0,
       tracesSampleRate: 1.0,
-      profilesSampleRate: 1.0,
+      profilesSampleRate: 1.0, // Relative to `tracesSampleRate`
       includeLocalVariables: true,
       attachStacktrace: true,
       integrations: [
-        new Sentry.Integrations.OnUncaughtException(),
-        new Sentry.Integrations.OnUnhandledRejection({ mode: 'warn' }),
-        new Sentry.Integrations.ContextLines(),
-        new Sentry.Integrations.LocalVariables(),
-        new Sentry.Integrations.Console(),
-        new Sentry.Integrations.RequestData(),
-        new Sentry.Integrations.Undici(),
-        new Sentry.Integrations.Http({ tracing: true }),
-        new Sentry.Integrations.GraphQL(),
-        new Sentry.Integrations.Apollo({ useNestjs: true }),
-        /// @ts-expect-error type error only
+        // Default integration included
+        // Performance tracing integrations included with `tracesSampleRate`
         nodeProfilingIntegration(),
+        Sentry.graphqlIntegration
       ],
     });
   }

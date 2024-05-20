@@ -2,7 +2,7 @@ import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { DatabaseService } from '../database/database.service';
 import { AccountsCacheService } from '../auth/accounts.cache.service';
 import { getAbiItem } from 'viem';
-import { ACCOUNT_IMPLEMENTATION, UUID, asChain, asUAddress, asUUID } from 'lib';
+import { ACCOUNT_ABI, UUID, asChain, asUAddress, asUUID } from 'lib';
 import e from '~/edgeql-js';
 import { TransactionEventData, ReceiptsWorker } from './receipts.worker';
 import { InjectFlowProducer, InjectQueue } from '@nestjs/bullmq';
@@ -21,11 +21,8 @@ import { ProposalEvent } from '../proposals/proposals.input';
 import { selectSysTx } from './system-tx.util';
 import { selectTransaction } from '../transactions/transactions.service';
 
-const scheduledEvent = getAbiItem({ abi: ACCOUNT_IMPLEMENTATION.abi, name: 'Scheduled' });
-const scheduleCancelledEvent = getAbiItem({
-  abi: ACCOUNT_IMPLEMENTATION.abi,
-  name: 'ScheduleCancelled',
-});
+const scheduledEvent = getAbiItem({ abi: ACCOUNT_ABI, name: 'Scheduled' });
+const scheduleCancelledEvent = getAbiItem({ abi: ACCOUNT_ABI, name: 'ScheduleCancelled' });
 
 @Injectable()
 export class SchedulerEvents implements OnModuleInit {
@@ -53,7 +50,7 @@ export class SchedulerEvents implements OnModuleInit {
     const account = asUAddress(event.log.address, event.chain);
     if (!(await this.accountsCache.isAccount(account))) return;
 
-    const scheduledFor = new Date(event.log.args.timestamp * 1000);
+    const scheduledFor = new Date(Number(event.log.args.timestamp) * 1000);
     const proposalId = await this.db.query(
       e.insert(e.Scheduled, {
         transaction: selectTransaction(event.log.args.proposal),

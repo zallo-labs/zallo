@@ -1,81 +1,33 @@
-import {
-  CompactSignature,
-  TypedDataDefinition,
-  encodeAbiParameters,
-  encodeFunctionData,
-  getAbiItem,
-  isHex,
-} from 'viem';
-import { abi as flowAbi } from './abi/IPaymasterFlow';
-import { abi as paymasterUtilAbi } from './abi/TestPaymasterUtil';
-import { AbiParameterToPrimitiveType, TypedData, parseAbiParameters } from 'abitype';
+import { encodeAbiParameters, encodeFunctionData, isHex } from 'viem';
+import { abi as flowAbi } from './abi/PaymasterFlows';
+import { parseAbiParameters } from 'abitype';
 import { Hex } from './bytes';
-import { Address, UAddress } from './address';
-import { getContractTypedDataDomain } from './util/typed-data';
+import { Address } from './address';
 
-export interface PayForTransactionParams extends PaymasterSignedData {
+export interface PayForTransactionParams {
   token: Address;
   amount: bigint;
-  paymasterSignature: CompactSignature;
+  maxAmount: bigint;
 }
 
 export function encodePaymasterInput(params: PayForTransactionParams): Hex {
   return encodeFunctionData({
     abi: flowAbi,
-    functionName: 'payForTransaction',
-    args: [
-      params.token,
-      params.amount,
-      { paymasterFee: params.paymasterFee, discount: params.discount },
-      params.paymasterSignature,
-    ],
+    functionName: 'approvalBasedWithMax',
+    args: [params.token, params.amount, params.maxAmount],
   });
-}
-
-const hashSignedDataAbi = getAbiItem({ abi: paymasterUtilAbi, name: 'hashSignedData' }).inputs;
-
-export type PaymasterSignedData = AbiParameterToPrimitiveType<(typeof hashSignedDataAbi)[2]>;
-
-const SIGNED_DATA_TYPES = {
-  SignedData: [
-    { name: 'account', type: 'address' },
-    { name: 'nonce', type: 'uint256' },
-    { name: 'paymasterFee', type: 'uint256' },
-    { name: 'discount', type: 'uint256' },
-  ],
-} satisfies TypedData;
-
-interface SignedDataMessage extends PaymasterSignedData {
-  account: Address;
-  nonce: bigint;
-}
-
-export interface HashPaymasterSignedDataParams extends SignedDataMessage {
-  paymaster: UAddress;
-}
-
-export function paymasterSignedDataAsTypedData({
-  paymaster,
-  ...message
-}: HashPaymasterSignedDataParams) {
-  return {
-    domain: getContractTypedDataDomain(paymaster),
-    types: SIGNED_DATA_TYPES,
-    primaryType: 'SignedData' as const,
-    message,
-  } satisfies TypedDataDefinition;
 }
 
 export interface PaymasterSignedInputParams {
   token: Address;
-  paymasterFee: bigint;
+  maxAmount: bigint;
 }
 
 export function paymasterSignedInput(params: PaymasterSignedInputParams | Hex): Hex {
   if (isHex(params)) return params;
 
-  return encodeAbiParameters(parseAbiParameters('address token, uint256 paymasterFee'), [
+  return encodeAbiParameters(parseAbiParameters('address token, uint256 maxAmount'), [
     params.token,
-    params.paymasterFee,
+    params.maxAmount,
   ]);
 }

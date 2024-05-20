@@ -19,19 +19,19 @@ export class Transaction extends Proposal {
   operations: Operation[];
 
   @Field(() => GraphQLBigInt)
-  nonce: bigint;
-
-  @Field(() => GraphQLBigInt)
   gasLimit: bigint;
 
   @Field(() => Token)
   feeToken: Token;
 
+  @DecimalField()
+  maxAmount: Decimal;
+
   @AddressField()
   paymaster: Address;
 
   @Field(() => PaymasterFees)
-  maxPaymasterEthFees: PaymasterFees;
+  paymasterEthFees: PaymasterFees;
 
   @Field(() => Simulation, { nullable: true })
   simulation?: Simulation;
@@ -69,12 +69,6 @@ registerEnumType(TransactionStatus, { name: 'TransactionStatus' });
 export class EstimatedTransactionFees extends CustomNode {
   @DecimalField()
   maxNetworkEthFee: Decimal;
-
-  // @DecimalField()
-  // ethDiscount: Decimal;
-
-  @DecimalField()
-  ethCreditUsed: Decimal;
 
   @Field(() => PaymasterFees)
   paymasterEthFees: PaymasterFees;

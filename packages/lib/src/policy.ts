@@ -19,7 +19,7 @@ import {
 import { Hex } from './bytes';
 import { Arraylike, isPresent, toSet } from './util';
 import { decodeAbiParameters, encodeAbiParameters, getAbiItem, hexToNumber, keccak256 } from 'viem';
-import { ACCOUNT_IMPLEMENTATION } from './contract';
+import { ACCOUNT_ABI } from './contract';
 import { AbiParametersToPrimitiveTypes } from 'abitype';
 import {
   ALLOW_OTHER_MESSAGES_CONFIG,
@@ -51,8 +51,7 @@ export interface Policy {
   threshold: number;
 }
 
-export const POLICY_STRUCT_ABI = getAbiItem({ abi: ACCOUNT_IMPLEMENTATION.abi, name: 'addPolicy' })
-  .inputs[0];
+export const POLICY_STRUCT_ABI = getAbiItem({ abi: ACCOUNT_ABI, name: 'addPolicy' }).inputs[0];
 export type PolicyStruct = AbiParametersToPrimitiveTypes<[typeof POLICY_STRUCT_ABI]>[0];
 
 export function encodePolicyStruct(p: Policy): PolicyStruct {

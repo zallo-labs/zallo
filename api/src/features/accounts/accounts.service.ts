@@ -9,7 +9,7 @@ import {
   UAddress,
   asAddress,
   ACCOUNT_IMPLEMENTATION,
-  ACCOUNT_PROXY_FACTORY,
+  DEPLOYER,
 } from 'lib';
 import { ShapeFunc } from '../database/database.select';
 import {
@@ -105,7 +105,7 @@ export class AccountsService {
 
     const account = await getProxyAddress({
       network,
-      factory: ACCOUNT_PROXY_FACTORY.address[chain],
+      factory: DEPLOYER.address[chain],
       implementation: implementation,
       salt,
       policies,

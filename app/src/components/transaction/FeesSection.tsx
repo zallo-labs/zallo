@@ -36,28 +36,26 @@ const Transaction = gql(/* GraphQL */ `
     }
     updatable
     gasLimit
-    maxPaymasterEthFees {
+    maxAmount
+    paymasterEthFees {
+      total
       activation
     }
     estimatedFees {
       id
       maxNetworkEthFee
-      ethCreditUsed
-      paymasterEthFees {
-        total
-        activation
-      }
     }
     systx {
       id
       maxNetworkEthFee
-      ethCreditUsed
-      paymasterEthFees {
-        total
-        activation
-      }
       ethPerFeeToken
       usdPerFeeToken
+    }
+    result {
+      id
+      ... on ReceiptResult {
+        networkEthFee
+      }
     }
   }
 `);
@@ -84,20 +82,21 @@ export function FeesSection(props: FeeTokenProps) {
   const [expanded, toggleExpanded] = useToggle(false);
 
   const networkEthFee = new Decimal(
-    p.systx?.maxNetworkEthFee ?? p.estimatedFees.maxNetworkEthFee,
+    (((p.result?.__typename === 'Successful' || p.result?.__typename === 'Failed') &&
+      p.result.networkEthFee) ||
+      p.systx?.maxNetworkEthFee) ??
+      p.estimatedFees.maxNetworkEthFee,
   ).neg();
-  const paymasterEthFees = p.systx?.paymasterEthFees ?? p.estimatedFees.paymasterEthFees;
-  const ethCreditUsed = new Decimal(p.systx?.ethCreditUsed ?? p.estimatedFees.ethCreditUsed);
-  const ethFees = Decimal.min(networkEthFee.sub(paymasterEthFees.total).add(ethCreditUsed), 0);
-  const paymasterFeesEstimatedLabel = !p.systx ? ' (estimate)' : '';
-  const networkFeeEstimatedLabel = !p.systx ? ' (max)' : '';
-  const activationFee = new Decimal(paymasterEthFees.activation).neg();
-  const maxActivationFee = new Decimal(p.maxPaymasterEthFees.activation).neg();
+  const activationFee = new Decimal(p.paymasterEthFees.activation).neg();
+  const totalEthFee = networkEthFee.sub(p.paymasterEthFees.total);
 
   const ethPerFeeToken = new Decimal(p.systx?.ethPerFeeToken ?? p.feeToken.price?.eth ?? 0);
-  const amount = ethFees.div(ethPerFeeToken);
+  const amount = totalEthFee.div(ethPerFeeToken);
   const insufficient =
     p.status === 'Pending' && p.feeToken.balance && amount.plus(p.feeToken.balance).isNeg();
+
+  const paymasterFeesEstimatedLabel = !p.systx ? ' (estimate)' : '';
+  const networkFeeEstimatedLabel = !p.systx ? ' (max)' : '';
 
   return (
     <>
@@ -128,15 +127,6 @@ export function FeesSection(props: FeeTokenProps) {
           </Text>
         </View>
 
-        {!maxActivationFee.eq(0) && (
-          <View style={styles.row}>
-            <Text variant="labelLarge">Activation fee (max)</Text>
-            <Text variant="bodySmall">
-              <TokenAmount token={p.feeToken} amount={maxActivationFee.div(ethPerFeeToken)} />
-            </Text>
-          </View>
-        )}
-
         {!activationFee.eq(0) && (
           <View style={styles.row}>
             <Text variant="labelLarge">Activation fee{paymasterFeesEstimatedLabel}</Text>
@@ -146,14 +136,12 @@ export function FeesSection(props: FeeTokenProps) {
           </View>
         )}
 
-        {!ethCreditUsed.eq(0) && (
-          <View style={styles.row}>
-            <Text variant="labelLarge">Credit{paymasterFeesEstimatedLabel}</Text>
-            <Text variant="bodySmall">
-              <TokenAmount token={p.feeToken} amount={ethCreditUsed.div(ethPerFeeToken)} />
-            </Text>
-          </View>
-        )}
+        <View style={styles.row}>
+          <Text variant="labelLarge">{'Max total fee' + networkFeeEstimatedLabel}</Text>
+          <Text variant="bodySmall">
+            <TokenAmount token={p.feeToken} amount={p.maxAmount} />
+          </Text>
+        </View>
       </Collapsible>
 
       {p.updatable && (

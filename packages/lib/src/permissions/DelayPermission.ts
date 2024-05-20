@@ -1,5 +1,5 @@
 import { decodeAbiParameters, encodeAbiParameters, getAbiItem } from 'viem';
-import { TEST_VERIFIER_ABI } from '../contract';
+import { EXPOSED_ABI } from '../contract';
 import { HookSelector } from './util';
 import { HookStruct } from './permissions';
 
@@ -7,7 +7,7 @@ export type DelayConfig = number; /* seconds */
 
 export const NO_DELAY_CONFIG: DelayConfig = 0;
 
-const configAbi = getAbiItem({ abi: TEST_VERIFIER_ABI, name: 'beforeExecuteDelay' }).inputs[1];
+const configAbi = getAbiItem({ abi: EXPOSED_ABI, name: 'DelayHook' }).inputs[0];
 
 export function encodeDelayHook(delay: DelayConfig): HookStruct | undefined {
   if (delay === 0) return undefined;

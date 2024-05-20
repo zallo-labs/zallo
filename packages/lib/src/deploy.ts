@@ -2,8 +2,14 @@ import { Address, asAddress, asUAddress } from './address';
 import { utils as zkUtils } from 'zksync-ethers';
 import { Policy, encodePolicyStruct } from './policy';
 import { Network, NetworkWallet } from 'chains';
-import { ACCOUNT_IMPLEMENTATION, ACCOUNT_PROXY, ACCOUNT_PROXY_FACTORY } from './contract';
-import { Hex, encodeAbiParameters, encodeFunctionData, ContractFunctionParameters } from 'viem';
+import { ACCOUNT_ABI, ACCOUNT_PROXY, DEPLOYER } from './contract';
+import {
+  Hex,
+  encodeAbiParameters,
+  encodeFunctionData,
+  ContractFunctionParameters,
+  toHex,
+} from 'viem';
 import { err, ok } from 'neverthrow';
 import { randomHex } from './bytes';
 
@@ -24,7 +30,7 @@ const accountProxyConstructorParamsAbi = ACCOUNT_PROXY.abi.find(
 
 export const encodeProxyConstructorArgs = ({ policies, implementation }: ProxyConstructorArgs) => {
   const encodedInitializeCall = encodeFunctionData({
-    abi: ACCOUNT_IMPLEMENTATION.abi,
+    abi: ACCOUNT_ABI,
     functionName: 'initialize',
     args: [policies.map(encodePolicyStruct)],
   });
@@ -37,23 +43,19 @@ export const encodeProxyConstructorArgs = ({ policies, implementation }: ProxyCo
 
 export interface GetProxyAddressArgs extends ProxyConstructorArgs {
   network: Network;
-  factory: Address;
+  deployer: Address;
   salt: Hex;
 }
 
 export async function getProxyAddress({
   network,
-  factory,
+  deployer,
   salt,
   ...constructorArgs
 }: GetProxyAddressArgs) {
   const address = zkUtils.create2Address(
-    factory,
-    await network.readContract({
-      abi: ACCOUNT_PROXY_FACTORY.abi,
-      address: factory,
-      functionName: '_BYTECODE_HASH',
-    }),
+    deployer,
+    toHex(zkUtils.hashBytecode(ACCOUNT_PROXY.bytecode)),
     salt,
     encodeProxyConstructorArgs(constructorArgs),
   );
@@ -62,21 +64,26 @@ export async function getProxyAddress({
 }
 
 export interface DeployAccountProxyRequestParams extends ProxyConstructorArgs {
-  factory: Address;
+  deployer: Address;
   salt: Hex;
 }
 
 export function deployAccountProxyRequest({
-  factory,
+  deployer,
   salt,
   ...constructorArgs
 }: DeployAccountProxyRequestParams) {
   return {
-    abi: ACCOUNT_PROXY_FACTORY.abi,
-    address: factory,
-    functionName: 'deploy' as const,
-    args: [encodeProxyConstructorArgs(constructorArgs), salt] as const,
-    gas: 3_000_000n * BigInt(constructorArgs.policies.length),  // ~1M per policy; gas estimation panics if not provided
+    abi: DEPLOYER.abi,
+    address: deployer,
+    functionName: 'create2Account' as const,
+    args: [
+      salt,
+      toHex(zkUtils.hashBytecode(ACCOUNT_PROXY.bytecode)),
+      encodeProxyConstructorArgs(constructorArgs),
+      1, // AccountAbstractionVersion.Version1
+    ] as const,
+    gas: 3_000_000n * BigInt(constructorArgs.policies.length), // ~1M per policy; gas estimation panics if not provided
   } satisfies ContractFunctionParameters & { gas: bigint };
 }
 
@@ -86,13 +93,13 @@ export interface SimulateDeployAccountProxyArgs extends DeployAccountProxyReques
 
 export async function simulateDeployAccountProxy({
   network,
-  factory,
+  deployer,
   salt,
   ...constructorArgs
 }: SimulateDeployAccountProxyArgs) {
-  const proxy = await getProxyAddress({ network, factory, salt, ...constructorArgs });
+  const proxy = await getProxyAddress({ network, deployer, salt, ...constructorArgs });
 
-  const params = deployAccountProxyRequest({ factory, salt, ...constructorArgs });
+  const params = deployAccountProxyRequest({ deployer, salt, ...constructorArgs });
   const sim = await network.simulateContract(params);
   const expected = asAddress(proxy);
   if (sim.result !== expected) return err({ expected, simulated: sim.result });

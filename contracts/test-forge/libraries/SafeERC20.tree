@@ -1,0 +1,41 @@
+# safeTransfer
+## when success returned
+### should succeed
+### should transfer
+## when failure returned
+### should fail
+## when nothing returned
+### should succeed
+### should transfer
+## when revert returned
+### should fail
+## when not a token
+### should fail
+
+# safeTransferFrom
+## when success returned
+### should succeed
+### should transfer
+## when failure returned
+### should fail
+## when nothing returned
+### should succeed
+### should transfer
+## when revert returned
+### should fail
+## when not a token
+### should fail
+
+# safeApprove
+## when success returned
+### should succeed
+### should transfer
+## when failure returned
+### should fail
+## when nothing returned
+### should succeed
+### should transfer
+## when revert returned
+### should fail
+## when not a token
+### should fail

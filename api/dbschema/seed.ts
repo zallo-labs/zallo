@@ -65,7 +65,7 @@ async function upsertTokens() {
       filter: e.op(
         e.op(t.address, 'in', e.set(...tokens.map((t) => t.address))),
         'and',
-        e.op('not', e.op('exists', t.user)),
+        t.isSystem,
       ),
       id: true,
       address: true,
@@ -113,7 +113,7 @@ async function upsertTokens() {
         filter: e.op(
           e.op(t.address, 'not in', e.set(...tokens.map((t) => t.address))),
           'and',
-          e.op('not', e.op('exists', t.user)),
+          t.isSystem,
         ),
       })),
     })

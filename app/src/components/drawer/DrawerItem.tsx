@@ -41,7 +41,7 @@ export function DrawerItem<R>({ href, label, icon: Icon, disabled, ...props }: D
 }
 
 function getHrefPath<R>(href: Href<R>) {
-  let p = typeof href === 'string' ? href : href.pathname;
+  let p: string = typeof href === 'string' ? href : href.pathname;
   if (p.endsWith('/')) p = p.slice(0, p.length - 1);
   return p;
 }

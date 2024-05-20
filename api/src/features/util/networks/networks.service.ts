@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { CONFIG } from '~/config';
-import { asChain, asUAddress, UAddress } from 'lib';
+import { asChain, asDecimal, asUAddress, UAddress } from 'lib';
 import { ChainConfig, Chain, CHAINS, NetworkWallet, isChain } from 'chains';
 import {
   EstimateFeesPerGasReturnType,
@@ -13,11 +13,13 @@ import {
   http,
   webSocket,
 } from 'viem';
+import { eip712WalletActions } from 'viem/zksync';
 import { privateKeyToAccount } from 'viem/accounts';
 import Redis from 'ioredis';
 import { InjectRedis } from '@songkeys/nestjs-redis';
 import { firstValueFrom, ReplaySubject } from 'rxjs';
 import { runExclusively } from '~/util/mutex';
+import { ETH } from 'lib/dapps';
 
 export type Network = ReturnType<typeof create>;
 
@@ -27,7 +29,7 @@ export class NetworksService implements AsyncIterable<Network> {
 
   constructor(@InjectRedis() private redis: Redis) {}
 
-  get(p: Chain | ChainConfig | UAddress) {
+  get(p: Chain | ChainConfig | UAddress): Network {
     const chain = typeof p === 'string' ? (isChain(p) ? p : asChain(p)) : p.key;
 
     return (this.clients[chain] ??= create({ chainKey: chain, redis: this.redis }));
@@ -75,6 +77,7 @@ function create({ chainKey, redis }: CreateParams) {
     batch: { multicall: true },
     pollingInterval: 500 /* ms */, // Used when websocket is unavailable
   }).extend((client) => ({
+    ...eip712WalletActions()(client),
     ...walletActions(client, transport, redis),
     ...blockNumberAndStatusActions(client),
     ...estimatedFeesPerGas(client, redis),
@@ -153,13 +156,21 @@ export function estimatedFeesPerGasKey(chain: Chain) {
 }
 
 function estimatedFeesPerGas(client: Client, redis: Redis) {
-  return {
-    estimatedFeesPerGas: async (): Promise<EstimateFeesPerGasReturnType> => {
-      const key = estimatedFeesPerGasKey(client.chain.key);
-      const cached = await redis.get(key);
-      if (cached) return JSON.parse(cached) as EstimateFeesPerGasReturnType;
+  const estimatedFeesPerGas = async () => {
+    const key = estimatedFeesPerGasKey(client.chain.key);
+    const cached = await redis.get(key);
+    const parsedCached = cached && (JSON.parse(cached) as EstimateFeesPerGasReturnType);
 
-      return client.estimateFeesPerGas();
-    },
+    const v = parsedCached || (await client.estimateFeesPerGas());
+
+    return {
+      maxFeePerGas: asDecimal(v.maxFeePerGas!, ETH),
+      maxPriorityFeePerGas: asDecimal(v.maxPriorityFeePerGas!, ETH),
+    };
+  };
+
+  return {
+    estimatedFeesPerGas,
+    estimatedMaxFeePerGas: async () => (await estimatedFeesPerGas()).maxFeePerGas,
   };
 }

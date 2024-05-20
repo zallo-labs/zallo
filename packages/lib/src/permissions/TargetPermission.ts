@@ -7,7 +7,7 @@ import { Operation } from '../operation';
 import { PermissionValidation } from '../validation';
 import { getAbiItem, encodeAbiParameters, decodeAbiParameters, hexToNumber } from 'viem';
 import { AbiParameterToPrimitiveType } from 'abitype';
-import { TEST_VERIFIER_ABI } from '../contract';
+import { EXPOSED_ABI } from '../contract';
 
 export interface TargetsConfig {
   contracts: Record<Address, Target>;
@@ -24,7 +24,7 @@ export const ALLOW_ALL_TARGETS = {
   default: { functions: {}, defaultAllow: true },
 } satisfies TargetsConfig;
 
-const configAbi = getAbiItem({ abi: TEST_VERIFIER_ABI, name: 'validateTarget' }).inputs[1];
+const configAbi = getAbiItem({ abi: EXPOSED_ABI, name: 'TargetHook' }).inputs[0];
 export type TargetsConfigStruct = AbiParameterToPrimitiveType<typeof configAbi>;
 
 export function encodeTargetsConfigStruct(c: TargetsConfig): TargetsConfigStruct {

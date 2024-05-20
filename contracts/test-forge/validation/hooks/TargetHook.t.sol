@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-pragma solidity 0.8.25;
+pragma solidity ^0.8.25;
 
 import {UnitTest} from 'test/UnitTest.sol';
 import {TargetHook, TargetsConfig, ContractConfig} from 'src/validation/hooks/TargetHook.sol';

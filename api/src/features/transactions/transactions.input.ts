@@ -39,7 +39,7 @@ export class ProposeTransactionInput {
   dapp?: DappMetadataInput;
 
   @Field(() => Date, { nullable: true })
-  validFrom?: Date;
+  timestamp?: Date;
 
   @Uint256Field({ nullable: true })
   gas?: bigint;

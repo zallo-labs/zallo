@@ -4,28 +4,30 @@ import {
   UUID,
   asAddress,
   asApproval,
-  asDecimal,
   asHex,
+  asSystemTransaction,
   asUAddress,
-  encodeTransaction,
+  encodePaymasterInput,
   encodeTransactionSignature,
-  execute,
   isPresent,
   mapAsync,
 } from 'lib';
 import { DatabaseService } from '~/features/database/database.service';
-import { PaymastersService } from '~/features/paymasters/paymasters.service';
 import { ProposalsService } from '~/features/proposals/proposals.service';
 import { NetworksService } from '~/features/util/networks/networks.service';
 import e from '~/edgeql-js';
-import { policyStateAsPolicy, PolicyShape, selectPolicy } from '~/features/policies/policies.util';
+import { policyStateAsPolicy, PolicyShape } from '~/features/policies/policies.util';
 import { TX_SHAPE, transactionAsTx } from './transactions.util';
-import Decimal from 'decimal.js';
 import { ProposalEvent } from '~/features/proposals/proposals.input';
 import { selectTransaction } from '~/features/transactions/transactions.service';
 import { QueueReturnType, TypedJob, Worker, createQueue } from '~/features/util/bull/bull.util';
-import { ETH } from 'lib/dapps';
 import { UnrecoverableError } from 'bullmq';
+import { fromPromise } from 'neverthrow';
+import { TransactionExecutionErrorType } from 'viem';
+import { utils as zkUtils } from 'zksync-ethers';
+import { TokensService } from '#/tokens/tokens.service';
+import { PricesService } from '#/prices/prices.service';
+import Decimal from 'decimal.js';
 
 export const ExecutionsQueue = createQueue<{ transaction: UUID; ignoreSimulation?: boolean }>(
   'Executions',
@@ -39,7 +41,8 @@ export class ExecutionsWorker extends Worker<ExecutionsQueue> {
     private networks: NetworksService,
     private db: DatabaseService,
     private proposals: ProposalsService,
-    private paymaster: PaymastersService,
+    private tokens: TokensService,
+    private prices: PricesService,
   ) {
     super();
   }
@@ -56,10 +59,9 @@ export class ExecutionsWorker extends Worker<ExecutionsQueue> {
         status: true,
         executable: true,
         feeToken: { address: true },
-        maxPaymasterEthFees: {
-          total: true,
-          activation: true,
-        },
+        paymaster: true,
+        maxAmount: true,
+        paymasterEthFees: { total: true },
         approvals: (a) => ({
           filter: e.op('not', a.invalid),
           approver: { address: true },
@@ -95,78 +97,69 @@ export class ExecutionsWorker extends Worker<ExecutionsQueue> {
     if (approvals.length !== proposal.approvals.length)
       throw new UnrecoverableError('Approval expired'); // TODO: handle expiring approvals
 
+    const feeToken = asUAddress(proposal.feeToken.address);
+    const [maxFeePerGas, feeTokenPrice] = await Promise.all([
+      network.estimatedMaxFeePerGas(),
+      this.prices.price(asUAddress(feeToken, network.chain.key)),
+    ]);
+    const totalEthFees = maxFeePerGas
+      .mul(proposal.gasLimit.toString())
+      .plus(proposal.paymasterEthFees.total);
+    const amount = await this.tokens.asFp(feeToken, totalEthFees.mul(feeTokenPrice.eth));
+    const maxAmount = await this.tokens.asFp(feeToken, new Decimal(proposal.maxAmount));
+    if (amount > maxAmount) throw new Error('Amount > maxAmount'); // TODO: handle
+
     const tx = transactionAsTx(proposal);
-    const policy = policyStateAsPolicy(proposal.policy);
-    if (!policy) return fail('policy not active');
-
-    return await this.db.transaction(async () => {
-      const { paymaster, paymasterInput, ...feeData } = await this.paymaster.usePaymaster({
-        account,
-        gasLimit: tx.gas!,
-        feeToken: asAddress(proposal.feeToken.address),
-        maxPaymasterEthFees: {
-          activation: new Decimal(proposal.maxPaymasterEthFees.activation),
-        },
-      });
-
-      const execution = await execute(
-        await encodeTransaction({
-          network,
-          account: asAddress(account),
+    const execution = await fromPromise(
+      network.sendTransaction({
+        ...asSystemTransaction({ tx }),
+        account: asAddress(account),
+        customSignature: encodeTransactionSignature({
           tx,
-          paymaster,
-          paymasterInput,
-          customSignature: encodeTransactionSignature({ tx, policy, approvals }),
+          policy: policyStateAsPolicy(proposal.policy),
+          approvals,
         }),
-      );
+        gasPerPubdata: BigInt(zkUtils.DEFAULT_GAS_PER_PUBDATA_LIMIT),
+        paymaster: asAddress(proposal.paymaster),
+        paymasterInput: encodePaymasterInput({
+          token: asAddress(feeToken),
+          amount,
+          maxAmount,
+        }),
+      }),
+      (e) => e as TransactionExecutionErrorType,
+    );
 
-      this.db.afterTransaction(() =>
-        this.proposals.publish({ id, account }, ProposalEvent.submitted),
-      );
+    this.db.afterTransaction(() =>
+      this.proposals.publish({ id, account }, ProposalEvent.submitted),
+    );
 
-      if (execution.isErr()) {
-        await this.db.query(
-          e.insert(e.Failed, {
-            transaction: selectTransaction(id),
-            block: network.blockNumber(),
-            gasUsed: 0n,
-            ethFeePerGas: asDecimal(await network.getGasPrice(), ETH).toString(),
-            reason: execution.error.message,
-          }),
-        );
-
-        return execution.error;
-      }
-
-      const hash = execution.value.transactionHash;
-
-      // Set executing policy if not already set; the insert trigger breaks if this is done in the same query as the insert
-      if (!proposal.policy) {
-        await this.db.query(
-          e.update(e.Transaction, () => ({
-            filter_single: { id: proposal.id },
-            set: {
-              policy: selectPolicy({ account, key: policy.key }),
-            },
-          })),
-        );
-      }
-
+    if (execution.isOk()) {
+      const hash = execution.value;
       await this.db.query(
         e.insert(e.SystemTx, {
           hash,
           proposal: selectTransaction(id),
-          maxEthFeePerGas: feeData.maxEthFeePerGas.toString(),
-          paymasterEthFees: e.insert(e.PaymasterFees, {
-            activation: feeData.paymasterEthFees.activation.toString(),
-          }),
-          ethCreditUsed: feeData.ethCreditUsed.toString(),
-          ethPerFeeToken: feeData.tokenPrice.eth.toString(),
-          usdPerFeeToken: feeData.tokenPrice.usd.toString(),
+          maxEthFeePerGas: maxFeePerGas.toString(),
+          ethPerFeeToken: feeTokenPrice.eth.toString(),
+          usdPerFeeToken: feeTokenPrice.usd.toString(),
         }),
       );
 
       return hash;
-    });
+    } /* execution isErr */ else {
+      // Validation failed
+      await this.db.query(
+        e.insert(e.Failed, {
+          transaction: selectTransaction(id),
+          block: network.blockNumber(),
+          gasUsed: 0n,
+          ethFeePerGas: maxFeePerGas.toString(),
+          reason: execution.error.message,
+        }),
+      );
+
+      return execution.error;
+    }
   }
 }

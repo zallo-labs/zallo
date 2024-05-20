@@ -7,6 +7,7 @@ import { BasicAuthMiddleware } from './basic-auth.middlware';
 import { BULL_BOARD_ENABLED } from './bull.util';
 import { isTruthy } from 'lib';
 import { DefaultJobOptions } from 'bullmq';
+import { REDIS_CONFIG } from '../redis/redis.module';
 
 export const DEFAULT_JOB_OPTIONS = {
   removeOnComplete: 1000,
@@ -19,8 +20,11 @@ export const DEFAULT_JOB_OPTIONS = {
   imports: [
     BaseModule.forRootAsync({
       inject: [RedisService],
+
       useFactory: (redisService: RedisService) => ({
-        connection: redisService.getClient(DEFAULT_REDIS_NAMESPACE),
+        // TODO: re-enable shared client once graphql-redis-subscriptions is updated (it doesn't support latest ioredis which bullmq requires)
+        // connection: redisService.getClient(DEFAULT_REDIS_NAMESPACE),
+        connection: REDIS_CONFIG,
         defaultJobOptions: DEFAULT_JOB_OPTIONS,
       }),
     }),

@@ -72,10 +72,10 @@ import { NodesModule } from './features/nodes/nodes.module';
   ],
   providers: [
     { provide: APP_GUARD, useClass: AuthGuard },
-    {
-      provide: APP_INTERCEPTOR,
-      useClass: SentryInterceptor,
-    },
+    // {
+    //   provide: APP_INTERCEPTOR,
+    //   useClass: SentryInterceptor,
+    // },
   ],
 })
 export class AppModule {}

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-pragma solidity 0.8.25;
+pragma solidity ^0.8.25;
 
 import {SystemContractsCaller} from '@matterlabs/zksync-contracts/l2/system-contracts/libraries/SystemContractsCaller.sol';
 import {INonceHolder, NONCE_HOLDER_SYSTEM_CONTRACT} from '@matterlabs/zksync-contracts/l2/system-contracts/Constants.sol';
@@ -29,7 +29,7 @@ library Validator {
   function validateAfterIncrementingNonce(
     SystemTransaction calldata systx
   ) internal returns (bool success) {
-    bool valid;
+    bool valid /* = false */;
     TxType txType = systx.transactionType();
     if (txType == TxType.Standard) {
       valid = _validateTransaction(systx);

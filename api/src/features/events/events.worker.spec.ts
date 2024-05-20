@@ -5,7 +5,7 @@ import { Network, NetworksService } from '../util/networks/networks.service';
 import { BullModule, getQueueToken } from '@nestjs/bullmq';
 import { DEFAULT_REDIS_NAMESPACE, getRedisToken } from '@songkeys/nestjs-redis';
 import { DeepPartial, randomAddress } from '~/util/test';
-import { ACCOUNT_IMPLEMENTATION, Address } from 'lib';
+import { ACCOUNT_ABI, Address } from 'lib';
 import { encodeEventTopics, getAbiItem } from 'viem';
 import { QueueData, TypedJob, TypedQueue } from '~/features/util/bull/bull.util';
 import { AbiEvent } from 'abitype';
@@ -21,7 +21,7 @@ describe(EventsWorker.name, () => {
     {
       logIndex: 0,
       topics: encodeEventTopics({
-        abi: ACCOUNT_IMPLEMENTATION.abi,
+        abi: ACCOUNT_ABI,
         eventName: 'Upgraded',
         args: { implementation: randomAddress() },
       }) as [Address, ...Address[]],
@@ -29,7 +29,7 @@ describe(EventsWorker.name, () => {
     {
       logIndex: 1,
       topics: encodeEventTopics({
-        abi: ACCOUNT_IMPLEMENTATION.abi,
+        abi: ACCOUNT_ABI,
         eventName: 'Upgraded',
         args: { implementation: randomAddress() },
       }) as [Address, ...Address[]],
@@ -37,7 +37,7 @@ describe(EventsWorker.name, () => {
     {
       logIndex: 2,
       topics: encodeEventTopics({
-        abi: ACCOUNT_IMPLEMENTATION.abi,
+        abi: ACCOUNT_ABI,
         eventName: 'PolicyRemoved',
       }) as [Address, ...Address[]],
     } satisfies Partial<Log<AbiEvent>> as Log<AbiEvent>,
@@ -58,7 +58,7 @@ describe(EventsWorker.name, () => {
 
     worker = module.get(EventsWorker);
     topic1Listener = jest.fn();
-    worker.on(getAbiItem({ abi: ACCOUNT_IMPLEMENTATION.abi, name: 'Upgraded' }), topic1Listener);
+    worker.on(getAbiItem({ abi: ACCOUNT_ABI, name: 'Upgraded' }), topic1Listener);
 
     networks = module.get(NetworksService);
     networks.get.mockReturnValue({

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-pragma solidity 0.8.25;
+pragma solidity ^0.8.25;
 
 import {Hook} from 'src/validation/hooks/Hooks.sol';
 
@@ -27,8 +27,7 @@ library PolicyLib {
 
   /*//////////////////////////////////////////////////////////////
                                 STORAGE
-  //////////////////////////////////////////////////////////////*/    // Throws `InvalidOperandOOG` when tested
-
+  //////////////////////////////////////////////////////////////*/ // Throws `InvalidOperandOOG` when tested
 
   function hashes() internal pure returns (mapping(PolicyKey => bytes32 policyHash) storage s) {
     assembly ('memory-safe') {

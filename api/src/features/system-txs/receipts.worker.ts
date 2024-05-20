@@ -15,11 +15,10 @@ import { Log } from '~/features/events/events.worker';
 import { TypedJob, Worker } from '~/features/util/bull/bull.util';
 import { isHex, isPresent } from 'lib';
 
-export const REQUIRED_CONFIRMATIONS = 1;
-
+export type Receipt = FormattedTransactionReceipt<ChainConfig>;
 export interface TransactionData {
   chain: Chain;
-  receipt: FormattedTransactionReceipt<ChainConfig>;
+  receipt: Receipt;
   block: FormattedBlock<ChainConfig, false>;
 }
 
@@ -76,7 +75,6 @@ export class ReceiptsWorker extends Worker<ReceiptsQueue> {
     const network = this.networks.get(chain);
     const receipt = await network.waitForTransactionReceipt({
       hash: transaction,
-      confirmations: REQUIRED_CONFIRMATIONS,
       timeout: 60_000,
       pollingInterval: 1_000,
     });

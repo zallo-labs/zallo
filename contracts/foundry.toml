@@ -4,8 +4,8 @@ solc = "0.8.25"
 src = "src"
 libs = ["node_modules"]
 out = "out"
-test = 'test-forge'
-cache_path  = 'cache-forge'
+test = 'test'
+cache_path = 'cache-forge'
 # Compiler options
 via_ir = true
 # zkSync options
@@ -16,6 +16,10 @@ mode = "3"
 
 [profile.default.fuzz]
 runs = 32
+
+[rpc_endpoints]
+zksync_mainnet = "${RPC_ZKSYNC_MAINNET}"
+zksync_sepolia = "${RPC_ZKSYNC_SEPOLIA}"
 
 
 [profile.ci]
