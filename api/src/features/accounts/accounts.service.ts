@@ -105,7 +105,7 @@ export class AccountsService {
 
     const account = await getProxyAddress({
       network,
-      factory: DEPLOYER.address[chain],
+      deployer: DEPLOYER.address[chain],
       implementation: implementation,
       salt,
       policies,
