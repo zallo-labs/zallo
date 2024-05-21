@@ -52,12 +52,14 @@ export class DatabaseService implements OnModuleInit {
   }
 
   private async run<R>(p: Promise<R>): Promise<R> {
-    try {
-      return await p;
-    } catch (e) {
-      if (e instanceof EdgeDBError && e['_query']) Sentry.setExtra('EdgeQL', e['_query']);
-      throw e;
-    }
+    return Sentry.startSpan({ op: 'db.query', name: 'db.query' }, async () => {
+      try {
+        return await p;
+      } catch (e) {
+        if (e instanceof EdgeDBError && e['_query']) Sentry.setExtra('EdgeQL', e['_query']);
+        throw e;
+      }
+    });
   }
 
   async query<Expr extends Expression>(expression: Expr): Promise<$infer<Expr>> {
@@ -80,15 +82,17 @@ export class DatabaseService implements OnModuleInit {
     const transaction = this.context.getStore()?.transaction;
     if (transaction) return action(transaction);
 
-    const afterTransactionHooks: Hook[] = [];
+    return await Sentry.startSpan({ op: 'db.transaction', name: 'db.transaction' }, async () => {
+      const afterTransactionHooks: Hook[] = [];
 
-    const result = await this._client.transaction((transaction) =>
-      this.context.run({ transaction, afterTransactionHooks }, () => action(transaction)),
-    );
+      const result = await this._client.transaction((transaction) =>
+        this.context.run({ transaction, afterTransactionHooks }, () => action(transaction)),
+      );
 
-    this.processHooks(afterTransactionHooks);
+      this.processHooks(afterTransactionHooks);
 
-    return result;
+      return result;
+    });
   }
 
   async afterTransaction(hook: Hook) {

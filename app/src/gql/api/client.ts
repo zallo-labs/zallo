@@ -79,7 +79,6 @@ const client = atom(async (get) => {
 
   return new Client({
     url: `${CONFIG.apiUrl}/graphql`,
-    fetchOptions: { credentials: 'include' },
     suspense: true,
     exchanges: [
       __DEV__ && devtoolsExchange,

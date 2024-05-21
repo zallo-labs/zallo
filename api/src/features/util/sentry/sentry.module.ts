@@ -46,7 +46,7 @@ export class SentryModule implements OnApplicationShutdown {
       environment: CONFIG.env,
       serverName: CONFIG.serverId,
       sampleRate: 1.0,
-      tracesSampleRate: 1.0,
+      tracesSampleRate: CONFIG.env === 'production' ? 0.2 : 1.0,
       profilesSampleRate: 1.0, // Relative to `tracesSampleRate`
       includeLocalVariables: true,
       attachStacktrace: true,
@@ -54,7 +54,6 @@ export class SentryModule implements OnApplicationShutdown {
         // Default integration included
         // Performance tracing integrations included with `tracesSampleRate`
         nodeProfilingIntegration(),
-        Sentry.graphqlIntegration
       ],
     });
   }
