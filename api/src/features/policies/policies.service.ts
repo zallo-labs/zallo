@@ -210,6 +210,7 @@ export class PoliciesService {
         filter_single: { id: proposal },
         __type__: { name: true },
         ...e.is(e.Transaction, TX_SHAPE),
+        timestamp: true,
       })),
     );
     if (!p) return [{ reason: 'Proposal not found' }];
