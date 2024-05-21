@@ -37,7 +37,7 @@ export function proposalAsTypedData(proposalFragment: FragmentType<typeof Transa
         data: op.data || undefined,
       }),
     ) as [Operation, ...Operation[]],
-    timestamp: BigInt(p.timestamp),
+    timestamp: BigInt(Math.floor(new Date(p.timestamp).getTime() / 1000)),
     gas: BigInt(p.gasLimit),
     feeToken: asAddress(p.feeToken.address),
     maxAmount: asFp(new Decimal(p.maxAmount), p.feeToken.decimals),
