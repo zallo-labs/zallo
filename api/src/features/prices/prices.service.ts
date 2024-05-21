@@ -75,31 +75,31 @@ export class PricesService implements OnModuleInit {
     const [feed] = (await this.pyth.getLatestPriceFeeds([priceId])) ?? [];
     if (!feed) return null;
 
-    return this.getPriceDataFromFeed(priceId, feed);
+    const r = this.getPriceDataFromFeed(feed);
+    if (r) {
+      // Cache result and subscribe to keep cache fresh
+      this.usdPrices.set(priceId, r);
+
+      this.pyth.subscribePriceFeedUpdates([priceId], (feed) => {
+        const newPrice = this.getPriceDataFromFeed(feed);
+        if (newPrice) this.usdPrices.set(priceId, newPrice);
+      });
+    }
+
+    return r;
   }
 
-  private async getPriceDataFromFeed(priceId: Hex, feed: PriceFeed): Promise<PriceData | null> {
+  private getPriceDataFromFeed(feed: PriceFeed): PriceData | null {
     const expiryTimestamp = Math.ceil(this.expiry.toSeconds());
 
     const currentData = feed.getPriceNoOlderThan(expiryTimestamp);
     const emaData = feed.getEmaPriceNoOlderThan(expiryTimestamp);
     if (!currentData || !emaData) return null;
 
-    const current = new Decimal(currentData.price).mul(new Decimal(10).pow(currentData.expo));
-    const ema = new Decimal(emaData.price).mul(new Decimal(10).pow(emaData.expo));
-
-    const r = { current, ema };
-
-    // Cache price and subscribe to updates to ensure cache remains fresh
-    const firstTimeSet = !this.usdPrices.has(priceId);
-    this.usdPrices.set(priceId, r);
-    if (firstTimeSet) {
-      this.pyth.subscribePriceFeedUpdates([priceId], (feed) => {
-        this.getPriceDataFromFeed(priceId, feed);
-      });
-    }
-
-    return r;
+    return {
+      current: new Decimal(currentData.price).mul(new Decimal(10).pow(currentData.expo)),
+      ema: new Decimal(emaData.price).mul(new Decimal(10).pow(emaData.expo)),
+    };
   }
 
   private async getUsdPriceId(token: UAddress) {
