@@ -39,7 +39,7 @@ export class NetworkWorker extends Worker<NetworkQueue> {
   async process(job: TypedJob<NetworkQueue>) {
     const { chain } = job.data;
 
-    const newFees = await this.networks.get(chain).estimatedFeesPerGas();
+    const newFees = await this.networks.get(chain).estimateFeesPerGas();
     this.redis.set(estimatedFeesPerGasKey(chain), JSON.stringify(newFees), 'EX', 60);
   }
 
