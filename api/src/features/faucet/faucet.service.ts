@@ -8,7 +8,7 @@ import { ERC20 } from 'lib/dapps';
 import { BalancesService } from '~/features/util/balances/balances.service';
 import { and } from '~/features/database/database.util';
 import { CHAINS } from 'chains';
-import { getUserCtx } from '~/request/ctx';
+import { getUserCtx } from '#/util/context';
 
 @Injectable()
 export class FaucetService implements OnModuleInit {

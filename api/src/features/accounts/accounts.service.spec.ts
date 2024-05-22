@@ -1,7 +1,7 @@
 import { createMock, DeepMocked } from '@golevelup/ts-jest';
 import { Test } from '@nestjs/testing';
 import { Network, NetworksService } from '../util/networks/networks.service';
-import { asUser, getUserCtx, UserContext } from '~/request/ctx';
+import { UserContext, asUser, getUserCtx } from '#/util/context';
 import { DeepPartial, randomLabel, randomUAddress, randomUser } from '~/util/test';
 import { getProxyAddress, UAddress } from 'lib';
 import { PoliciesService } from '../policies/policies.service';

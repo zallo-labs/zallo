@@ -36,7 +36,7 @@ import { selectAccount } from '../accounts/accounts.util';
 import { err, ok } from 'neverthrow';
 import { encodeFunctionData } from 'viem';
 import { $Transaction } from '~/edgeql-js/modules/default';
-import { getUserCtx } from '~/request/ctx';
+import { getUserCtx } from '#/util/context';
 
 export interface CreatePolicyParams extends CreatePolicyInput {
   key?: PolicyKey;

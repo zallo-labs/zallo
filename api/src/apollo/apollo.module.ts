@@ -3,39 +3,24 @@ import { Logger, Module, NestMiddleware } from '@nestjs/common';
 import { GraphQLModule } from '@nestjs/graphql';
 import { ApolloServerPluginLandingPageLocalDefault } from '@apollo/server/plugin/landingPage/default';
 import { CONFIG, LogLevel } from '~/config';
-import { IncomingContext, GqlContext, IncomingWsContext } from '~/request/ctx';
+import { GqlContext, IncomingWsContext, IncomingHttpContext } from '~/request/ctx';
 import { AuthModule } from '~/features/auth/auth.module';
 import { SessionMiddleware } from '~/features/auth/session.middleware';
 import { AuthMiddleware } from '~/features/auth/auth.middleware';
 import { Request, Response } from 'express';
-import { RequestContextMiddleware } from 'nestjs-request-context';
 import { GraphQLError } from 'graphql';
 import _ from 'lodash';
+import { REQUEST_CONTEXT, getContext, getContextUnsafe, getDefaultContext } from '#/util/context';
 
 export const GQL_ENDPOINT = '/graphql';
-
-const useMiddleware = async (req: Request, ...middleware: NestMiddleware[]) => {
-  const chain = (req: Request, resolve: () => void, middlewares: NestMiddleware[]) => {
-    if (!middlewares.length) return () => resolve();
-    const [middleware, ...rest] = middlewares;
-
-    return () => middleware!.use(req, {} as Response, chain(req, resolve, rest));
-  };
-
-  return new Promise<void>((resolve) => chain(req, resolve, middleware)());
-};
 
 @Module({
   imports: [
     AuthModule,
     GraphQLModule.forRootAsync<ApolloDriverConfig>({
       driver: ApolloDriver,
-      inject: [SessionMiddleware, AuthMiddleware, RequestContextMiddleware],
-      useFactory: (
-        sessionMiddleware: SessionMiddleware,
-        authMiddleware: AuthMiddleware,
-        requestContextMiddleware: RequestContextMiddleware,
-      ) => {
+      inject: [SessionMiddleware, AuthMiddleware],
+      useFactory: (sessionMiddleware: SessionMiddleware, authMiddleware: AuthMiddleware) => {
         const log = new Logger('Apollo');
 
         return {
@@ -66,12 +51,11 @@ const useMiddleware = async (req: Request, ...middleware: NestMiddleware[]) => {
                 };
 
                 try {
-                  await useMiddleware(
-                    req,
-                    sessionMiddleware,
-                    authMiddleware,
-                    requestContextMiddleware, // RequestContext does *NOT* pass through to subscription resolvers, remove?
-                  );
+                  await REQUEST_CONTEXT.run(getDefaultContext(), async () => {
+                    await useMiddleware(req, sessionMiddleware, authMiddleware);
+                    const reqCtx = getContextUnsafe();
+                    if (reqCtx) (ctx as IncomingWsContext).extra.context = reqCtx;
+                  });
                 } catch (e) {
                   log.debug('onSubscription error', e);
                   return [new GraphQLError((e as Error).message, { originalError: e as Error })];
@@ -79,8 +63,11 @@ const useMiddleware = async (req: Request, ...middleware: NestMiddleware[]) => {
               },
             },
           },
-          context: (ctx: IncomingContext): GqlContext =>
-            'req' in ctx ? { req: ctx.req } : { req: ctx.extra.request },
+          context: (ctx: IncomingHttpContext | IncomingWsContext): GqlContext => {
+            return 'req' in ctx
+              ? { ...getContext(), req: ctx.req } // HTTP
+              : { ...ctx.extra.context, req: ctx.extra.request }; // WS
+          },
           playground: false,
           plugins: [ApolloServerPluginLandingPageLocalDefault({ includeCookies: true })],
         };
@@ -89,3 +76,14 @@ const useMiddleware = async (req: Request, ...middleware: NestMiddleware[]) => {
   ],
 })
 export class ApolloModule {}
+
+async function useMiddleware(req: Request, ...middleware: NestMiddleware[]) {
+  const chain = (req: Request, resolve: () => void, middlewares: NestMiddleware[]) => {
+    if (!middlewares.length) return () => resolve();
+    const [middleware, ...rest] = middlewares;
+
+    return () => middleware!.use(req, {} as Response, chain(req, resolve, rest));
+  };
+
+  return new Promise<void>((resolve) => chain(req, resolve, middleware)());
+}

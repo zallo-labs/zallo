@@ -14,7 +14,7 @@ import { PolicyInput, TransfersConfigInput } from './policies.input';
 import { selectAccount } from '~/features/accounts/accounts.util';
 import { merge } from 'ts-deepmerge';
 import { match, P } from 'ts-pattern';
-import { getUserCtx } from '~/request/ctx';
+import { getUserCtx } from '#/util/context';
 import { $UAddress, $uint16 } from '~/edgeql-js/modules/default';
 import { $ } from 'edgedb';
 

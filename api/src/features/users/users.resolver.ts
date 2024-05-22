@@ -7,7 +7,8 @@ import { getShape } from '../database/database.select';
 import { Input } from '~/decorators/input.decorator';
 import { ComputedField } from '~/decorators/computed.decorator';
 import e from '~/edgeql-js';
-import { GqlContext, asUser } from '~/request/ctx';
+import { GqlContext } from '~/request/ctx';
+import { asUser } from '#/util/context';
 
 @Resolver(() => User)
 export class UsersResolver {

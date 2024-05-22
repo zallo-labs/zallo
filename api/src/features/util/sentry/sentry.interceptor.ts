@@ -11,7 +11,8 @@ import * as Sentry from '@sentry/node';
 import { Request } from 'express';
 import { tap } from 'rxjs/operators';
 import { match } from 'ts-pattern';
-import { GqlContext, getRequestContext } from '~/request/ctx';
+import { GqlContext } from '~/request/ctx';
+import { getContextUnsafe } from '../context';
 import { SpanStatus } from '@sentry/tracing';
 import { execute } from 'graphql';
 
@@ -50,7 +51,7 @@ export class SentryInterceptor implements NestInterceptor {
                 if (!this.shouldReport(exception)) return;
 
                 Sentry.withScope((scope) => {
-                  const userCtx = getRequestContext().user;
+                  const userCtx = getContextUnsafe()?.user;
                   if (userCtx) scope.setUser({ id: userCtx.approver });
                   scope.setExtra('exceptionData', JSON.stringify(exception, null, 2));
 
@@ -73,7 +74,7 @@ export class SentryInterceptor implements NestInterceptor {
       .with('graphql', () => {
         const gqlHost = GqlArgumentsHost.create(context);
         const ctx = gqlHost.getContext<GqlContext>();
-        scope.setExtra('request', Sentry.addRequestDataToEvent({}, ctx?.req || ctx));
+        scope.setExtra('request', Sentry.addRequestDataToEvent({}, ctx.req));
 
         scope.setExtra('fieldName', gqlHost.getInfo().fieldName);
         scope.setExtra('args', JSON.stringify(gqlHost.getArgs(), null, 2));

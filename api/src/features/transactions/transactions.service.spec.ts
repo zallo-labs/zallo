@@ -1,6 +1,6 @@
 import { Test } from '@nestjs/testing';
 import { createMock, DeepMocked } from '@golevelup/ts-jest';
-import { asUser, getApprover, getUserCtx, UserContext } from '~/request/ctx';
+import { asUser, getApprover, getUserCtx, UserContext } from '#/util/context';
 import {
   DeepPartial,
   randomAddress,

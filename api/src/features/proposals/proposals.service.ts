@@ -2,7 +2,7 @@ import { UserInputError } from '@nestjs/apollo';
 import { Injectable } from '@nestjs/common';
 import e from '~/edgeql-js';
 import { UAddress, asApproval, asHex, asUAddress, UUID, asUUID } from 'lib';
-import { getUserCtx } from '~/request/ctx';
+import { getUserCtx } from '#/util/context';
 import { ShapeFunc } from '../database/database.select';
 import { DatabaseService } from '../database/database.service';
 import { NetworksService } from '~/features/util/networks/networks.service';

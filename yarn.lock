@@ -12741,7 +12741,6 @@ __metadata:
     lib: "workspace:*"
     lodash: "npm:^4.17.21"
     luxon: "npm:^3.4.4"
-    nestjs-request-context: "npm:^3.0.0"
     neverthrow: "npm:^6.2.1"
     parse-redis-url-simple: "npm:^1.0.2"
     redis-semaphore: "npm:^5.5.1"
@@ -24762,15 +24761,6 @@ __metadata:
   version: 2.0.1
   resolution: "nested-error-stacks@npm:2.0.1"
   checksum: 10/8430d7d80ad69b1add2992ee2992a363db6c1a26a54740963bc99a004c5acb1d2a67049397062eab2caa3a312b4da89a0b85de3bdf82d7d472a6baa166311fe6
-  languageName: node
-  linkType: hard
-
-"nestjs-request-context@npm:^3.0.0":
-  version: 3.0.0
-  resolution: "nestjs-request-context@npm:3.0.0"
-  peerDependencies:
-    "@nestjs/common": ^10.0.0
-  checksum: 10/f3ea8aced62de7a14081852ec2b11f70fdf2f8d9742ea516da0c5dc82a0a2026841c5073e8fe427a25b73d597e38cfb09524f30af3857db44210140afa7ac439
   languageName: node
   linkType: hard
 

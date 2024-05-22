@@ -11,7 +11,7 @@ import { UserInputError } from '@nestjs/apollo';
 import { AccountsCacheService } from '../auth/accounts.cache.service';
 import { Address, UUID } from 'lib';
 import { PubsubService } from '../util/pubsub/pubsub.service';
-import { getUserCtx } from '~/request/ctx';
+import { getUserCtx } from '#/util/context';
 import { selectAccount } from '~/features/accounts/accounts.util';
 import { and } from '../database/database.util';
 

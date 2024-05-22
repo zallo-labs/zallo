@@ -3,7 +3,7 @@ import { Address } from 'lib';
 import { DatabaseService } from '../database/database.service';
 import { ShapeFunc } from '../database/database.select';
 import e from '~/edgeql-js';
-import { getUserCtx } from '~/request/ctx';
+import { getUserCtx } from '#/util/context';
 import { UpdateApproverInput } from './approvers.input';
 import { and } from '../database/database.util';
 

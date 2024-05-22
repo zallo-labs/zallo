@@ -13,7 +13,7 @@ import Decimal from 'decimal.js';
 import { selectAccount } from '../accounts/accounts.util';
 import { TokenSpending } from './spending.model';
 import { Transferlike } from '../transfers/transfers.model';
-import { getUserCtx } from '~/request/ctx';
+import { getUserCtx } from '#/util/context';
 import { BalancesService } from '../util/balances/balances.service';
 import { selectTransaction } from '../transactions/transactions.service';
 import { SelectedPolicies } from '../policies/policies.util';

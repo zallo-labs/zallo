@@ -64,7 +64,6 @@
     "lib": "workspace:*",
     "lodash": "^4.17.21",
     "luxon": "^3.4.4",
-    "nestjs-request-context": "^3.0.0",
     "neverthrow": "^6.2.1",
     "parse-redis-url-simple": "^1.0.2",
     "redis-semaphore": "^5.5.1",

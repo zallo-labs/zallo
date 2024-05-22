@@ -2,7 +2,7 @@ import '~/util/patches'; // Required due to jest BigInt serialization error
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import e, { createClient, $infer } from '~/edgeql-js';
 import { BaseTypeToTsType, Expression, ParamType } from '~/edgeql-js/typesystem';
-import { getRequestContext } from '~/request/ctx';
+import { getContextUnsafe } from '#/util/context';
 import { AsyncLocalStorage } from 'async_hooks';
 import { EdgeDBError, type Client } from 'edgedb';
 import { Transaction } from 'edgedb/dist/transaction';
@@ -42,12 +42,12 @@ export class DatabaseService implements OnModuleInit {
   }
 
   protected get _client() {
-    const ctx = getRequestContext()?.user;
-    if (!ctx) return this.DANGEROUS_superuserClient;
+    const user = getContextUnsafe()?.user;
+    if (!user) return this.DANGEROUS_superuserClient;
 
     return this.__client.withGlobals({
-      current_approver_address: ctx.approver,
-      current_accounts_array: ctx.accounts.map((a) => a.id),
+      current_approver_address: user.approver,
+      current_accounts_array: user.accounts.map((a) => a.id),
     } satisfies Globals);
   }
 

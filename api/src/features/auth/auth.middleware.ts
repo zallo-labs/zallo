@@ -9,6 +9,7 @@ import { recoverMessageAddress } from 'viem';
 import { z } from 'zod';
 import { P, match } from 'ts-pattern';
 import { DateTime, DurationLike } from 'luxon';
+import { getContext } from '#/util/context';
 
 const GRAPH_REF_AUTH_MESSAGE = CONFIG.graphRef && `AUTH ${CONFIG.graphRef}`;
 const DEFAULT_CACHE_EXPIRY: DurationLike = { minutes: 30 };
@@ -46,7 +47,7 @@ export class AuthMiddleware implements NestMiddleware {
     (await this.tryAuthenticate(req)).match(
       async (address) => {
         if (address) {
-          req.user = await this.accountsCache.getApproverCtx(address);
+          getContext().user = await this.accountsCache.getApproverCtx(address);
         }
         next();
       },

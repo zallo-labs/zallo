@@ -18,7 +18,7 @@ import {
   CreateAccountInput,
   UpdateAccountInput,
 } from './accounts.input';
-import { getApprover, getUserCtx } from '~/request/ctx';
+import { getApprover, getUserCtx } from '#/util/context';
 import { UserInputError } from '@nestjs/apollo';
 import { NetworksService } from '../util/networks/networks.service';
 import { PubsubService } from '../util/pubsub/pubsub.service';
