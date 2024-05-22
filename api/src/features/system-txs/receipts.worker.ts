@@ -1,6 +1,6 @@
 import { Processor } from '@nestjs/bullmq';
 import { Injectable } from '@nestjs/common';
-import { ReceiptsQueue } from './receipts.queue';
+import { ReceiptEventType, ReceiptsQueue } from './receipts.queue';
 import { NetworksService } from '../util/networks/networks.service';
 import { Chain, ChainConfig } from 'chains';
 import {
@@ -20,6 +20,7 @@ export interface TransactionData {
   chain: Chain;
   receipt: Receipt;
   block: FormattedBlock<ChainConfig, false>;
+  type: ReceiptEventType;
 }
 
 export type TransactionListener = (data: TransactionData) => Promise<unknown>;
@@ -60,7 +61,7 @@ export class ReceiptsWorker extends Worker<ReceiptsQueue> {
   }
 
   async process(job: TypedJob<ReceiptsQueue>) {
-    const { chain } = job.data;
+    const { chain, type } = job.data;
     const transaction = isHex(job.data.transaction)
       ? job.data.transaction
       : await (async () => {
@@ -81,7 +82,7 @@ export class ReceiptsWorker extends Worker<ReceiptsQueue> {
     const block = await network.getBlock({ blockNumber: receipt.blockNumber });
 
     await Promise.all([
-      ...this.listeners.map((listener) => listener({ chain, receipt, block })),
+      ...this.listeners.map((listener) => listener({ chain, receipt, block, type })),
       ...receipt.logs
         .filter((log) => log.topics.length && this.eventListeners.has(log.topics[0]!))
         .map((log) => {
@@ -101,7 +102,7 @@ export class ReceiptsWorker extends Worker<ReceiptsQueue> {
         .flatMap((log) =>
           this.eventListeners
             .get(log.topics[0]!)
-            ?.map((listener) => listener({ chain, log, receipt, block })),
+            ?.map((listener) => listener({ chain, log, receipt, block, type })),
         ),
     ]);
   }

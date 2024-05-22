@@ -6,5 +6,5 @@ export type ActivationsQueue = typeof ActivationsQueue;
 
 export interface ActivationEvent {
   account: UAddress;
-  sponsoringTransaction?: UUID;
+  sponsoringTransaction: UUID;
 }

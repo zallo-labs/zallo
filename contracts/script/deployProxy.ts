@@ -1,7 +1,7 @@
 import hre from 'hardhat';
 import { exit } from 'process';
 import { TASK_COMPILE } from 'hardhat/builtin-tasks/task-names';
-import Account from './contracts/AccountProxy';
+import AccountProxy from './contracts/AccountProxy';
 import { deploy } from './util/deploy';
 
 const ACCOUNT = '0xc0c1c0692F1aCd4FA91ccc73fB9aCFCd60Dd571a';
@@ -10,7 +10,7 @@ const ACCOUNT = '0xc0c1c0692F1aCd4FA91ccc73fB9aCFCd60Dd571a';
 // Used for first-time proxy bytecode deployment
 const main = async () => {
   await hre.run(TASK_COMPILE);
-  await deploy(Account, [ACCOUNT, '0x']);
+  await deploy(AccountProxy, [ACCOUNT, '0x']);
 };
 
 main()

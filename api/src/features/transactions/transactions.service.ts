@@ -49,6 +49,7 @@ import { TokensService } from '#/tokens/tokens.service';
 import { PricesService } from '#/prices/prices.service';
 import { totalPaymasterEthFees } from '#/paymasters/paymasters.util';
 import Decimal from 'decimal.js';
+import { afterRequest } from '#/util/context';
 
 export const selectTransaction = (id: UUID | Hex) =>
   e.select(e.Transaction, () => ({
@@ -112,7 +113,11 @@ export class TransactionsService {
     this.flows.add({
       queueName: ReceiptsQueue.name,
       name: 'Transaction proposal',
-      data: { chain, transaction: { child: 0 } } satisfies QueueData<ReceiptsQueue>,
+      data: {
+        chain,
+        transaction: { child: 0 },
+        type: 'transaction',
+      } satisfies QueueData<ReceiptsQueue>,
       children: [
         {
           queueName: ExecutionsQueue.name,
@@ -126,7 +131,7 @@ export class TransactionsService {
                   data: { transaction } satisfies QueueData<SimulationsQueue>,
                 },
               ]
-            : [this.activations.activationFlow(account, transaction) /* Includes simulation */],
+            : [this.activations.flow(account, transaction) /* Includes simulation */],
         },
       ],
     });
@@ -156,9 +161,8 @@ export class TransactionsService {
       this.paymasters.paymasterFees({ account }),
       this.prices.price(asUAddress(feeToken, chain)),
     ]);
-    const totalEthFees = maxFeePerGas
-      .mul(gas.toString())
-      .plus(totalPaymasterEthFees(paymasterFees));
+    const maxNetworkFee = maxFeePerGas.mul(gas.toString()).mul(5); // Allow for far higher network fees
+    const totalEthFees = maxNetworkFee.plus(totalPaymasterEthFees(paymasterFees));
     const maxAmount = totalEthFees.mul(feeTokenPrice.eth);
 
     const tx = {
@@ -225,18 +229,13 @@ export class TransactionsService {
       }),
     });
 
-    this.db.afterTransaction(() => {
-      this.simulations.add(SimulationsQueue.name, { transaction: id });
-      this.proposals.publish({ id, account }, ProposalEvent.create);
-    });
+    afterRequest(() => this.simulations.add(SimulationsQueue.name, { transaction: id }));
 
     return insert;
   }
 
   async propose({ signature, ...args }: ProposeTransactionInput) {
-    const id = await this.db.transaction(async () =>
-      asUUID((await this.db.query(await this.getInsertProposal(args))).id),
-    );
+    const id = asUUID((await this.db.query(await this.getInsertProposal(args))).id);
 
     if (signature) {
       await this.approve({ id, signature });
@@ -275,6 +274,8 @@ export class TransactionsService {
   }
 
   async update({ id, policy, feeToken }: UpdateTransactionInput) {
+    // TODO: update maxAmount when feeToken is changed
+
     const updatedProposal = e.assert_single(
       e.update(e.Transaction, (p) => ({
         filter: and(
@@ -299,37 +300,34 @@ export class TransactionsService {
       })),
     );
 
-    const p = await this.db.transaction(async (tx) => {
-      const p = await e
-        .select(updatedProposal, () => ({
-          id: true,
-          hash: true,
-          account: { address: true },
-          ...TX_SHAPE,
-        }))
-        .run(tx);
-      if (!p) return;
-
-      const hash = hashTypedData(asTypedData(asUAddress(p.account.address), transactionAsTx(p)));
-      if (hash !== p.hash) {
-        // Approvals are marked as invalid when the signed hash differs from the proposal hash
-        await e
-          .update(e.Transaction, (proposal) => ({
-            filter: e.op(proposal.id, '=', e.uuid(id)),
-            set: { hash },
-          }))
-          .run(tx);
-      }
-
-      return { ...p, hash };
-    });
+    const p = await this.db.query(
+      e.select(updatedProposal, () => ({
+        id: true,
+        hash: true,
+        account: { address: true },
+        ...TX_SHAPE,
+      })),
+    );
     if (!p) return;
+
+    const hash = hashTypedData(asTypedData(asUAddress(p.account.address), transactionAsTx(p)));
+    if (hash !== p.hash) {
+      // Approvals are marked as invalid when the signed hash differs from the proposal hash
+      await this.db.query(
+        e.update(e.Transaction, (proposal) => ({
+          filter: e.op(proposal.id, '=', e.uuid(id)),
+          set: { hash },
+        })),
+      );
+    }
+
+    const proposal = { ...p, hash };
 
     if (policy !== undefined) await this.tryExecute(id);
 
-    this.proposals.publish(p, ProposalEvent.update);
+    this.proposals.publish(proposal, ProposalEvent.update);
 
-    return p;
+    return proposal;
   }
 
   async delete(id: UniqueProposal) {
@@ -350,7 +348,7 @@ export class TransactionsService {
         }),
       );
 
-      this.db.afterTransaction(() => this.proposals.publish(t, ProposalEvent.delete));
+      afterRequest(() => this.proposals.publish(t, ProposalEvent.delete));
 
       return t?.id ?? null;
     });

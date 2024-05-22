@@ -7,12 +7,11 @@ import {
   asAddress,
   asChain,
   asHex,
-  deployAccountProxyRequest,
-  simulateDeployAccountProxy,
-  DeployAccountProxyRequestParams,
   replaceSelfAddress,
   PLACEHOLDER_ACCOUNT_ADDRESS,
   UUID,
+  ACCOUNT_PROXY,
+  encodeProxyConstructorArgs,
 } from 'lib';
 import { NetworksService } from '../util/networks/networks.service';
 import e from '~/edgeql-js';
@@ -22,6 +21,8 @@ import { FlowJob } from 'bullmq';
 import { ReceiptsQueue } from '../system-txs/receipts.queue';
 import Decimal from 'decimal.js';
 import { SimulationsQueue } from '../simulations/simulations.worker';
+import { toHex } from 'viem';
+import { utils as zkUtils } from 'zksync-ethers';
 
 interface FeeParams {
   account: UAddress;
@@ -35,13 +36,14 @@ export class ActivationsService {
     private networks: NetworksService,
   ) {}
 
-  activationFlow(account: UAddress, sponsoringTransaction: UUID) {
+  flow(account: UAddress, sponsoringTransaction: UUID) {
     return {
       queueName: ReceiptsQueue.name,
       name: 'Activation transaction',
       data: {
         chain: asChain(account),
         transaction: { child: 0 },
+        type: 'other',
       } satisfies QueueData<ReceiptsQueue>,
       children: [
         {
@@ -60,14 +62,6 @@ export class ActivationsService {
     } satisfies FlowJob;
   }
 
-  async simulate(address: UAddress) {
-    const params = await this.params(address);
-    if (!params) return null;
-
-    const network = this.networks.get(address);
-    return (await simulateDeployAccountProxy({ network, ...params }))._unsafeUnwrap();
-  }
-
   async fee({ account, feePerGas }: FeeParams): Promise<Decimal | null> {
     const a = await this.db.query(
       e.select(e.Account, () => ({
@@ -75,31 +69,25 @@ export class ActivationsService {
         activationEthFee: true,
       })),
     );
-    if (a) return a.activationEthFee ? new Decimal(a.activationEthFee) : null;
+    if (!a) return null;
+    if (a.activationEthFee) return new Decimal(a.activationEthFee);
 
-    const gas = await this.estimateGas(account);
-    return gas ? feePerGas.mul(gas.toString()) : null;
-  }
+    const request = await this.request(account);
+    if (!request) return null;
 
-  private async estimateGas(address: UAddress): Promise<bigint | null> {
-    const params = await this.params(address);
-    if (!params) return null;
-
-    const network = this.networks.get(address);
+    const network = this.networks.get(account);
     try {
-      return await network.estimateContractGas({
-        account: asAddress(network.walletAddress),
-        ...deployAccountProxyRequest(params),
-      });
+      const gas = await network.estimateContractGas(request);
+      return feePerGas.mul(gas.toString());
     } catch (e) {
-      const isDeployed = !!(await network.getBytecode({ address: asAddress(address) }))?.length;
-      if (isDeployed) return 0n;
+      const isDeployed = !!(await network.getBytecode({ address: asAddress(account) }))?.length;
+      if (isDeployed) return null;
 
       throw e;
     }
   }
 
-  private async params(address: UAddress) {
+  async request(address: UAddress) {
     const account = await this.db.query(
       e.select(e.Account, (a) => ({
         filter_single: { address },
@@ -115,9 +103,7 @@ export class ActivationsService {
     if (!account) throw new Error(`Account ${address} not found`);
     if (account.active) return null;
 
-    return {
-      deployer: DEPLOYER.address[asChain(address)],
-      salt: asHex(account.salt),
+    const constructorArgs = encodeProxyConstructorArgs({
       implementation: asAddress(account.implementation),
       policies: account.initPolicies.map((p) =>
         replaceSelfAddress({
@@ -126,6 +112,22 @@ export class ActivationsService {
           to: PLACEHOLDER_ACCOUNT_ADDRESS,
         }),
       ),
-    } satisfies DeployAccountProxyRequestParams;
+    });
+
+    const network = this.networks.get(address);
+    return {
+      account: asAddress(network.walletAddress),
+      abi: DEPLOYER.abi,
+      address: DEPLOYER.address[asChain(address)],
+      functionName: 'create2Account' as const,
+      args: [
+        asHex(account.salt),
+        toHex(zkUtils.hashBytecode(ACCOUNT_PROXY.bytecode)),
+        constructorArgs,
+        1, // AccountAbstractionVersion.Version1
+      ] as const,
+      // factoryDeps: [ACCOUNT_PROXY.bytecode], // Throws "rpc method is not whitelisted" if provided; bytecode must be deployed using SystemContractDeployer first
+      // gas: 3_000_000n * BigInt(params.policies.length), // ~1M per policy; gas estimation panics if not provided
+    } satisfies Parameters<typeof network.simulateContract>[0];
   }
 }

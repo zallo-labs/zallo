@@ -93,7 +93,11 @@ export class SchedulerEvents implements OnModuleInit {
     return {
       queueName: ReceiptsQueue.name,
       name: 'Scheduled transaction',
-      data: { chain, transaction: { child: 0 } } satisfies QueueData<ReceiptsQueue>,
+      data: {
+        chain,
+        transaction: { child: 0 },
+        type: 'transaction',
+      } satisfies QueueData<ReceiptsQueue>,
       children: [
         {
           queueName: SchedulerQueue.name,

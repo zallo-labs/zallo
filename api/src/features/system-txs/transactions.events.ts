@@ -1,12 +1,11 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
-import { ACCOUNT_IMPLEMENTATION, asChain, asDecimal, asHex, asUAddress, isHex } from 'lib';
-import { TransactionData, TransactionEventData, ReceiptsWorker, Receipt } from './receipts.worker';
+import { asChain, asDecimal, asHex, asUAddress, isHex } from 'lib';
+import { TransactionData, ReceiptsWorker, Receipt } from './receipts.worker';
 import { InjectQueue } from '@nestjs/bullmq';
 import { ReceiptsQueue } from './receipts.queue';
 import e from '~/edgeql-js';
 import { DatabaseService } from '../database/database.service';
 import { and } from '../database/database.util';
-import { CallParameters, getAbiItem } from 'viem';
 import { ProposalsService } from '../proposals/proposals.service';
 import { ProposalEvent } from '../proposals/proposals.input';
 import { InjectRedis } from '@songkeys/nestjs-redis';
@@ -39,8 +38,8 @@ export class TransactionsEvents implements OnModuleInit {
     this.addMissingJobs();
   }
 
-  private async executed({ chain, receipt, block }: TransactionData) {
-    if (receipt.status !== 'success') return;
+  private async executed({ chain, receipt, block, type }: TransactionData) {
+    if (type !== 'transaction' && receipt.status !== 'success') return;
 
     const response = await this.getResponse(this.networks.get(chain), receipt);
 
@@ -75,8 +74,8 @@ export class TransactionsEvents implements OnModuleInit {
     });
   }
 
-  private async reverted({ chain, receipt, block }: TransactionData) {
-    if (receipt.status !== 'reverted') return;
+  private async reverted({ chain, receipt, block, type }: TransactionData) {
+    if (type !== 'transaction' && receipt.status !== 'reverted') return;
 
     const response = await this.getResponse(this.networks.get(chain), receipt);
 
@@ -154,7 +153,8 @@ export class TransactionsEvents implements OnModuleInit {
               data: {
                 chain: asChain(asUAddress(t.proposal.account.address)),
                 transaction: asHex(t.hash),
-              },
+                type: 'transaction',
+              } as const,
             })),
           );
         }
