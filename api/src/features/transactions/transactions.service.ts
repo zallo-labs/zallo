@@ -50,6 +50,7 @@ import { PricesService } from '#/prices/prices.service';
 import { totalPaymasterEthFees } from '#/paymasters/paymasters.util';
 import Decimal from 'decimal.js';
 import { afterRequest } from '#/util/context';
+import { DEFAULT_FLOW_OPTIONS } from '#/util/bull/bull.module';
 
 export const selectTransaction = (id: UUID | Hex) =>
   e.select(e.Transaction, () => ({
@@ -110,35 +111,38 @@ export class TransactionsService {
     const chain = asChain(account);
 
     // simulate -> (activate -> activation-receipt)? -> execute -> receipt
-    this.flows.add({
-      queueName: ReceiptsQueue.name,
-      name: 'Transaction proposal',
-      data: {
-        chain,
-        transaction: { child: 0 },
-        type: 'transaction',
-      } satisfies QueueData<ReceiptsQueue>,
-      children: [
-        {
-          queueName: ExecutionsQueue.name,
-          name: 'Standard transaction',
-          data: {
-            transaction,
-            ignoreSimulation,
-            type: 'standard',
-          } satisfies QueueData<ExecutionsQueue>,
-          children: t.account.active
-            ? [
-                {
-                  queueName: SimulationsQueue.name,
-                  name: 'Simulate transaction',
-                  data: { transaction } satisfies QueueData<SimulationsQueue>,
-                },
-              ]
-            : [this.activations.flow(account, transaction) /* Includes simulation */],
-        },
-      ],
-    });
+    this.flows.add(
+      {
+        queueName: ReceiptsQueue.name,
+        name: 'Transaction proposal',
+        data: {
+          chain,
+          transaction: { child: 0 },
+          type: 'transaction',
+        } satisfies QueueData<ReceiptsQueue>,
+        children: [
+          {
+            queueName: ExecutionsQueue.name,
+            name: 'Standard transaction',
+            data: {
+              transaction,
+              ignoreSimulation,
+              type: 'standard',
+            } satisfies QueueData<ExecutionsQueue>,
+            children: t.account.active
+              ? [
+                  {
+                    queueName: SimulationsQueue.name,
+                    name: 'Simulate transaction',
+                    data: { transaction } satisfies QueueData<SimulationsQueue>,
+                  },
+                ]
+              : [this.activations.flow(account, transaction) /* Includes simulation */],
+          },
+        ],
+      },
+      DEFAULT_FLOW_OPTIONS,
+    );
   }
 
   async getInsertProposal({

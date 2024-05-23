@@ -6,7 +6,7 @@ import { ExpressAdapter } from '@bull-board/express';
 import { BasicAuthMiddleware } from './basic-auth.middlware';
 import { BULL_BOARD_ENABLED } from './bull.util';
 import { isTruthy } from 'lib';
-import { DefaultJobOptions } from 'bullmq';
+import { DefaultJobOptions, FlowOpts, QueueOptions } from 'bullmq';
 import { REDIS_CONFIG } from '../redis/redis.module';
 
 export const DEFAULT_JOB_OPTIONS = {
@@ -15,6 +15,12 @@ export const DEFAULT_JOB_OPTIONS = {
   attempts: 18, // 2^18 * 200ms = ~14.5h
   backoff: { type: 'exponential', delay: 200 },
 } satisfies DefaultJobOptions;
+
+const flowQueueOpts: Partial<QueueOptions> = { defaultJobOptions: DEFAULT_JOB_OPTIONS };
+export const DEFAULT_FLOW_OPTIONS: FlowOpts = {
+  // Return default job options for all queues
+  queuesOptions: new Proxy({}, { get: () => flowQueueOpts }),
+};
 
 @Module({
   imports: [

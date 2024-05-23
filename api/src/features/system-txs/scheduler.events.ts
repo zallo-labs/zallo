@@ -20,6 +20,7 @@ import { ProposalEvent } from '../proposals/proposals.input';
 import { selectSysTx } from './system-tx.util';
 import { selectTransaction } from '../transactions/transactions.service';
 import { ExecutionsQueue } from '#/transactions/executions.worker';
+import { DEFAULT_FLOW_OPTIONS } from '#/util/bull/bull.module';
 
 const scheduledEvent = getAbiItem({ abi: ACCOUNT_ABI, name: 'Scheduled' });
 const scheduleCancelledEvent = getAbiItem({ abi: ACCOUNT_ABI, name: 'ScheduleCancelled' });
@@ -143,12 +144,15 @@ export class SchedulerEvents implements OnModuleInit {
         );
 
         if (orphanedProposals.length)
-          await this.flows.addBulk(
+          await Promise.all(
             orphanedProposals.map((t) =>
-              this.getJob(
-                asUUID(t.transaction.id),
-                asChain(asUAddress(t.transaction.account.address)),
-                new Date(t.scheduledFor!),
+              this.flows.add(
+                this.getJob(
+                  asUUID(t.transaction.id),
+                  asChain(asUAddress(t.transaction.account.address)),
+                  new Date(t.scheduledFor!),
+                ),
+                DEFAULT_FLOW_OPTIONS,
               ),
             ),
           );

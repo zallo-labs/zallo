@@ -5,14 +5,9 @@ import { Chain } from 'chains';
 import { InjectRedis } from '@songkeys/nestjs-redis';
 import Redis from 'ioredis';
 import { RUNNING_JOB_STATUSES, Worker, TypedJob, createQueue, TypedQueue } from '../bull/bull.util';
-import { DEFAULT_JOB_OPTIONS } from '../bull/bull.module';
 import { runOnce } from '~/util/mutex';
 
-export const NetworkQueue = createQueue<EventJobData>('Network', {
-  defaultJobOptions: {
-    ...DEFAULT_JOB_OPTIONS,
-  },
-});
+export const NetworkQueue = createQueue<EventJobData>('Network');
 export type NetworkQueue = typeof NetworkQueue;
 
 interface EventJobData {
