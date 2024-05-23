@@ -14,7 +14,7 @@
     "dev": "tsup --watch"
   },
   "dependencies": {
-    "viem": "^2.11.0"
+    "viem": "^2.12.0"
   },
   "devDependencies": {
     "tsup": "^8.0.2",
