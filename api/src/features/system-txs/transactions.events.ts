@@ -39,7 +39,7 @@ export class TransactionsEvents implements OnModuleInit {
   }
 
   private async executed({ chain, receipt, block, type }: TransactionData) {
-    if (type !== 'transaction' && receipt.status !== 'success') return;
+    if (type !== 'transaction' || receipt.status !== 'success') return;
 
     const response = await this.getResponse(this.networks.get(chain), receipt);
 
@@ -75,7 +75,7 @@ export class TransactionsEvents implements OnModuleInit {
   }
 
   private async reverted({ chain, receipt, block, type }: TransactionData) {
-    if (type !== 'transaction' && receipt.status !== 'reverted') return;
+    if (type !== 'transaction' || receipt.status !== 'reverted') return;
 
     const response = await this.getResponse(this.networks.get(chain), receipt);
 

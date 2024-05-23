@@ -121,8 +121,12 @@ export class TransactionsService {
       children: [
         {
           queueName: ExecutionsQueue.name,
-          name: 'Execute transaction',
-          data: { transaction, ignoreSimulation } satisfies QueueData<ExecutionsQueue>,
+          name: 'Standard transaction',
+          data: {
+            transaction,
+            ignoreSimulation,
+            type: 'standard',
+          } satisfies QueueData<ExecutionsQueue>,
           children: t.account.active
             ? [
                 {
@@ -331,27 +335,25 @@ export class TransactionsService {
   }
 
   async delete(id: UniqueProposal) {
-    return this.db.transaction(async () => {
-      // 1. Policies the proposal was going to create
-      // Delete policies the proposal was going to activate
-      const selectedTransaction = selectTransaction(id);
-      const { transaction: t } = await this.db.query(
-        e.select({
-          transaction: e.select(selectedTransaction, () => ({
-            id: true,
-            account: { address: true },
-          })),
-          deletedPolicies: e.assert_distinct(
-            e.for(selectedTransaction['<proposal[is PolicyState]'], (p) => e.delete(p)),
-          ),
-          deletedTransaction: e.delete(selectedTransaction),
-        }),
-      );
+    // 1. Policies the proposal was going to create
+    // Delete policies the proposal was going to activate
+    const selectedTransaction = selectTransaction(id);
+    const { transaction: t } = await this.db.query(
+      e.select({
+        transaction: e.select(selectedTransaction, () => ({
+          id: true,
+          account: { address: true },
+        })),
+        deletedPolicies: e.assert_distinct(
+          e.for(selectedTransaction['<proposal[is PolicyState]'], (p) => e.delete(p)),
+        ),
+        deletedTransaction: e.delete(selectedTransaction),
+      }),
+    );
 
-      afterRequest(() => this.proposals.publish(t, ProposalEvent.delete));
+    this.proposals.publish(t, ProposalEvent.delete);
 
-      return t?.id ?? null;
-    });
+    return t?.id ?? null;
   }
 
   async estimateFees(d: EstimateFeesDeps): Promise<EstimatedTransactionFees> {

@@ -5,8 +5,10 @@ import {
   asAddress,
   asApproval,
   asHex,
+  asScheduledSystemTransaction,
   asSystemTransaction,
   asUAddress,
+  asUUID,
   encodePaymasterInput,
   encodeTransactionSignature,
   isPresent,
@@ -14,25 +16,34 @@ import {
 } from 'lib';
 import { DatabaseService } from '~/features/database/database.service';
 import { ProposalsService } from '~/features/proposals/proposals.service';
-import { NetworksService } from '~/features/util/networks/networks.service';
-import e from '~/edgeql-js';
+import {
+  NetworksService,
+  SendAccountTransactionParams,
+} from '~/features/util/networks/networks.service';
+import e, { $infer } from '~/edgeql-js';
 import { policyStateAsPolicy, PolicyShape } from '~/features/policies/policies.util';
 import { TX_SHAPE, transactionAsTx } from './transactions.util';
 import { ProposalEvent } from '~/features/proposals/proposals.input';
 import { selectTransaction } from '~/features/transactions/transactions.service';
 import { QueueReturnType, TypedJob, Worker, createQueue } from '~/features/util/bull/bull.util';
 import { UnrecoverableError } from 'bullmq';
-import { fromPromise } from 'neverthrow';
-import { TransactionExecutionErrorType } from 'viem';
 import { utils as zkUtils } from 'zksync-ethers';
 import { TokensService } from '#/tokens/tokens.service';
 import { PricesService } from '#/prices/prices.service';
 import Decimal from 'decimal.js';
+import { ETH } from 'lib/dapps';
+import { Shape } from '#/database/database.select';
+import { match } from 'ts-pattern';
 
-export const ExecutionsQueue = createQueue<{ transaction: UUID; ignoreSimulation?: boolean }>(
-  'Executions',
-);
+export const ExecutionsQueue = createQueue<ExecutionJob>('Executions');
 export type ExecutionsQueue = typeof ExecutionsQueue;
+interface ExecutionJob {
+  type: 'standard' | 'scheduled';
+  transaction: UUID;
+  ignoreSimulation?: boolean;
+}
+
+const PRICE_DRIFT_MULTIPLIER = new Decimal('1.001'); // 0.1%
 
 @Injectable()
 @Processor(ExecutionsQueue.name)
@@ -48,38 +59,32 @@ export class ExecutionsWorker extends Worker<ExecutionsQueue> {
   }
 
   async process(job: TypedJob<ExecutionsQueue>): Promise<QueueReturnType<ExecutionsQueue>> {
-    const { transaction: id, ignoreSimulation } = job.data;
+    return await match(job.data)
+      .with({ type: 'standard' }, (data) => this.processStandard(data))
+      .with({ type: 'scheduled' }, (data) => this.processScheduled(data))
+      .exhaustive();
+  }
+
+  private async processStandard({ transaction: id, ignoreSimulation }: ExecutionJob) {
     const proposal = await this.db.query(
       e.select(e.Transaction, () => ({
         filter_single: { id },
-        id: true,
-        account: { address: true },
         hash: true,
-        ...TX_SHAPE,
         status: true,
-        executable: true,
-        feeToken: { address: true },
-        paymaster: true,
-        maxAmount: true,
-        paymasterEthFees: { total: true },
         approvals: (a) => ({
           filter: e.op('not', a.invalid),
           approver: { address: true },
           signature: true,
         }),
         policy: PolicyShape,
-        simulation: {
-          success: true,
-          timestamp: true,
-        },
+        paymasterEthFees: { total: true },
+        ...TX_SHAPE,
+        ...EXECUTE_TX_SHAPE,
       })),
     );
-    if (!proposal) return 'proposal not found';
+    if (!proposal) return 'Not found';
     if (proposal.status !== 'Pending' && proposal.status !== 'Executing')
       return `Can't execute transaction with status ${proposal.status}`;
-
-    if (!ignoreSimulation && !proposal.simulation?.success) return 'simulation failed';
-    if (!proposal.executable) return 'not executable';
 
     const account = asUAddress(proposal.account.address);
     const network = this.networks.get(account);
@@ -97,69 +102,142 @@ export class ExecutionsWorker extends Worker<ExecutionsQueue> {
     if (approvals.length !== proposal.approvals.length)
       throw new UnrecoverableError('Approval expired'); // TODO: handle expiring approvals
 
-    const feeToken = asUAddress(proposal.feeToken.address);
-    const [maxFeePerGas, feeTokenPrice] = await Promise.all([
-      network.estimatedMaxFeePerGas(),
-      this.prices.price(asUAddress(feeToken, network.chain.key)),
-    ]);
-    const totalEthFees = maxFeePerGas
-      .mul(proposal.gasLimit.toString())
-      .plus(proposal.paymasterEthFees.total);
-    const amount = await this.tokens.asFp(feeToken, totalEthFees.mul(feeTokenPrice.eth));
-    const maxAmount = await this.tokens.asFp(feeToken, new Decimal(proposal.maxAmount));
-    if (amount > maxAmount) throw new Error('Amount > maxAmount'); // TODO: handle
-
     const tx = transactionAsTx(proposal);
-    const execution = await fromPromise(
-      network.sendTransaction({
+    return await this.execute({
+      proposal,
+      paymasterEthFees: new Decimal(proposal.paymasterEthFees.total),
+      ignoreSimulation,
+      executeParams: {
         ...asSystemTransaction({ tx }),
-        account: asAddress(account),
         customSignature: encodeTransactionSignature({
           tx,
           policy: policyStateAsPolicy(proposal.policy),
           approvals,
         }),
-        gasPerPubdata: BigInt(zkUtils.DEFAULT_GAS_PER_PUBDATA_LIMIT),
-        paymaster: asAddress(proposal.paymaster),
-        paymasterInput: encodePaymasterInput({
-          token: asAddress(feeToken),
-          amount,
-          maxAmount,
-        }),
-      }),
-      (e) => e as TransactionExecutionErrorType,
-    );
-
-    this.db.afterTransaction(() =>
-      this.proposals.publish({ id, account }, ProposalEvent.submitted),
-    );
-
-    if (execution.isOk()) {
-      const hash = execution.value;
-      await this.db.query(
-        e.insert(e.SystemTx, {
-          hash,
-          proposal: selectTransaction(id),
-          maxEthFeePerGas: maxFeePerGas.toString(),
-          ethPerFeeToken: feeTokenPrice.eth.toString(),
-          usdPerFeeToken: feeTokenPrice.usd.toString(),
-        }),
-      );
-
-      return hash;
-    } /* execution isErr */ else {
-      // Validation failed
-      await this.db.query(
-        e.insert(e.Failed, {
-          transaction: selectTransaction(id),
-          block: network.blockNumber(),
-          gasUsed: 0n,
-          ethFeePerGas: maxFeePerGas.toString(),
-          reason: execution.error.message,
-        }),
-      );
-
-      return execution.error;
-    }
+      },
+    });
   }
+
+  private async processScheduled({ transaction: id, ignoreSimulation }: ExecutionJob) {
+    const proposal = await this.db.query(
+      e.select(e.Transaction, () => ({
+        filter_single: { id },
+        hash: true,
+        status: true,
+        ...TX_SHAPE,
+        ...EXECUTE_TX_SHAPE,
+      })),
+    );
+    if (!proposal) return 'Not found';
+    if (proposal.status !== 'Scheduled') return 'Not scheduled';
+
+    return await this.execute({
+      proposal,
+      paymasterEthFees: undefined,
+      ignoreSimulation,
+      executeParams: {
+        ...asScheduledSystemTransaction({ tx: transactionAsTx(proposal) }),
+      },
+    });
+  }
+
+  private async execute({
+    proposal,
+    executeParams,
+    paymasterEthFees,
+    ignoreSimulation,
+  }: ExecuteParams) {
+    if (!proposal.simulation?.success && !ignoreSimulation) return 'Simulation failed';
+    if (!proposal.executable) return 'Not executable';
+
+    const account = asUAddress(proposal.account.address);
+    const network = this.networks.get(account);
+
+    const feeToken = asUAddress(proposal.feeToken.address);
+    const [maxFeePerGas, feeTokenPrice] = await Promise.all([
+      network.estimatedMaxFeePerGas(),
+      this.prices.price(asUAddress(feeToken, network.chain.key)),
+    ]);
+    const feeTokenPerGas = maxFeePerGas.mul(feeTokenPrice.eth).mul(PRICE_DRIFT_MULTIPLIER);
+    const totalFeeTokenFees = feeTokenPerGas
+      .mul(proposal.gasLimit.toString())
+      .plus(paymasterEthFees ?? '0');
+    const amount = await this.tokens.asFp(feeToken, totalFeeTokenFees);
+    const maxAmount = await this.tokens.asFp(feeToken, new Decimal(proposal.maxAmount));
+    if (amount > maxAmount) throw new Error('Amount > maxAmount'); // TODO: handle
+
+    await this.prices.updatePriceFeedsIfNecessary(network.chain.key, [
+      ETH.pythUsdPriceId,
+      asHex(proposal.feeToken.pythUsdPriceId!),
+    ]);
+
+    const execution = await network.sendAccountTransaction({
+      from: asAddress(account),
+      paymaster: asAddress(proposal.paymaster),
+      paymasterInput: encodePaymasterInput({
+        token: asAddress(feeToken),
+        amount,
+        maxAmount,
+      }),
+      gasPerPubdata: BigInt(zkUtils.DEFAULT_GAS_PER_PUBDATA_LIMIT),
+      ...executeParams,
+    });
+
+    if (1 + 1 === 2 && execution.isErr()) throw execution.error;
+
+    const id = asUUID(proposal.id);
+    const r = await (async () => {
+      if (execution.isOk()) {
+        const hash = execution.value;
+        await this.db.query(
+          e.insert(e.SystemTx, {
+            hash,
+            proposal: selectTransaction(id),
+            maxEthFeePerGas: maxFeePerGas.toString(),
+            ethPerFeeToken: feeTokenPrice.eth.toString(),
+            usdPerFeeToken: feeTokenPrice.usd.toString(),
+          }),
+        );
+
+        return hash;
+      } /* execution isErr */ else {
+        // Validation failed
+        const err = execution.error;
+        await this.db.query(
+          e.insert(e.Failed, {
+            transaction: selectTransaction(id),
+            block: network.blockNumber(),
+            gasUsed: 0n,
+            ethFeePerGas: maxFeePerGas.toString(),
+            reason: err.message,
+          }),
+        );
+
+        return err;
+      }
+    })();
+
+    this.proposals.publish({ id, account }, ProposalEvent.submitted);
+
+    return r;
+  }
+}
+
+const EXECUTE_TX_SHAPE = {
+  id: true,
+  account: { address: true },
+  executable: true,
+  simulation: { success: true },
+  gasLimit: true,
+  feeToken: { address: true, pythUsdPriceId: true },
+  paymaster: true,
+  maxAmount: true,
+} satisfies Shape<typeof e.Transaction>;
+const s = e.select(e.Transaction, () => EXECUTE_TX_SHAPE);
+
+interface ExecuteParams {
+  proposal: NonNullable<$infer<typeof s>>[0];
+  executeParams: Partial<SendAccountTransactionParams>;
+  paymasterEthFees: Decimal | undefined;
+  ignoreSimulation?: boolean;
 }

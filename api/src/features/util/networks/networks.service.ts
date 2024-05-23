@@ -4,7 +4,9 @@ import { asChain, asDecimal, asUAddress, UAddress } from 'lib';
 import { ChainConfig, Chain, CHAINS, NetworkWallet, isChain } from 'chains';
 import {
   EstimateFeesPerGasReturnType,
+  FeeValuesEIP1559,
   PublicClient,
+  SendRawTransactionErrorType,
   Transport,
   WatchBlockNumberErrorType,
   createPublicClient,
@@ -13,13 +15,15 @@ import {
   http,
   webSocket,
 } from 'viem';
-import { eip712WalletActions } from 'viem/zksync';
+import { eip712WalletActions, ZkSyncTransactionSerializableEIP712 } from 'viem/zksync';
 import { privateKeyToAccount } from 'viem/accounts';
 import Redis from 'ioredis';
 import { InjectRedis } from '@songkeys/nestjs-redis';
 import { firstValueFrom, ReplaySubject } from 'rxjs';
 import { runExclusively } from '~/util/mutex';
 import { ETH } from 'lib/dapps';
+import { fromPromise } from 'neverthrow';
+import { PartialK } from '~/util/types';
 
 export type Network = ReturnType<typeof create>;
 
@@ -81,6 +85,7 @@ function create({ chainKey, redis }: CreateParams) {
     ...walletActions(client, transport, redis),
     ...blockNumberAndStatusActions(client),
     ...estimatedFeesPerGas(client, redis),
+    sendAccountTransaction: sendAccountTransaction(client, redis),
   }));
 }
 
@@ -155,13 +160,26 @@ export function estimatedFeesPerGasKey(chain: Chain) {
   return `estimatedFeesPerGasKey:${chain}`;
 }
 
+async function getEstimatedFeesPerGas(client: Client, redis: Redis): Promise<FeeValuesEIP1559> {
+  const cached = await redis.get(estimatedFeesPerGasKey(client.chain.key));
+  if (cached) {
+    const p = JSON.parse(cached);
+    return {
+      maxFeePerGas: BigInt(p.maxFeePerGas),
+      maxPriorityFeePerGas: BigInt(p.maxPriorityFeePerGas),
+    } satisfies FeeValuesEIP1559;
+  }
+
+  const r = await client.estimateFeesPerGas();
+  if (r.maxFeePerGas === undefined || r.maxPriorityFeePerGas === undefined)
+    throw new Error('Gas price estimates non EIP-1559');
+
+  return r;
+}
+
 function estimatedFeesPerGas(client: Client, redis: Redis) {
   const estimatedFeesPerGas = async () => {
-    const key = estimatedFeesPerGasKey(client.chain.key);
-    const cached = await redis.get(key);
-    const parsedCached = cached && (JSON.parse(cached) as EstimateFeesPerGasReturnType);
-
-    const v = parsedCached || (await client.estimateFeesPerGas());
+    const v = await getEstimatedFeesPerGas(client, redis);
 
     return {
       maxFeePerGas: asDecimal(v.maxFeePerGas!, ETH),
@@ -172,5 +190,33 @@ function estimatedFeesPerGas(client: Client, redis: Redis) {
   return {
     estimatedFeesPerGas,
     estimatedMaxFeePerGas: async () => (await estimatedFeesPerGas()).maxFeePerGas,
+  };
+}
+
+export type SendAccountTransactionParams = PartialK<ZkSyncTransactionSerializableEIP712, 'chainId'>;
+export type SendAccountTransactionReturn = ReturnType<ReturnType<typeof sendAccountTransaction>>;
+
+function sendAccountTransaction(client: Client, redis: Redis) {
+  // Transactions must be submitted sequentially due to requirement for incrementing nonces
+  return async (tx: SendAccountTransactionParams) => {
+    const feesPerGas = await getEstimatedFeesPerGas(client, redis);
+
+    return await runExclusively(
+      async () => {
+        const serialized = client.chain.serializers.transaction({
+          chainId: client.chain.id,
+          maxFeePerGas: feesPerGas.maxFeePerGas!,
+          maxPriorityFeePerGas: feesPerGas.maxPriorityFeePerGas!,
+          nonce: await client.getTransactionCount({ address: tx.from }),
+          ...tx,
+        });
+
+        return fromPromise(
+          client.sendRawTransaction({ serializedTransaction: serialized }),
+          (e) => e as SendRawTransactionErrorType,
+        );
+      },
+      { redis, key: `send-transaction:${asUAddress(tx.from, client.chain.key)}` },
+    );
   };
 }

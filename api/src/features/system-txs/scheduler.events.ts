@@ -6,7 +6,6 @@ import { ACCOUNT_ABI, UUID, asChain, asUAddress, asUUID } from 'lib';
 import e from '~/edgeql-js';
 import { TransactionEventData, ReceiptsWorker } from './receipts.worker';
 import { InjectFlowProducer, InjectQueue } from '@nestjs/bullmq';
-import { SchedulerQueue } from './scheduler.worker';
 import { FLOW_PRODUCER, QueueData, RUNNING_JOB_STATUSES, TypedQueue } from '../util/bull/bull.util';
 import { runOnce } from '~/util/mutex';
 import { InjectRedis } from '@songkeys/nestjs-redis';
@@ -20,6 +19,7 @@ import { ProposalsService } from '../proposals/proposals.service';
 import { ProposalEvent } from '../proposals/proposals.input';
 import { selectSysTx } from './system-tx.util';
 import { selectTransaction } from '../transactions/transactions.service';
+import { ExecutionsQueue } from '#/transactions/executions.worker';
 
 const scheduledEvent = getAbiItem({ abi: ACCOUNT_ABI, name: 'Scheduled' });
 const scheduleCancelledEvent = getAbiItem({ abi: ACCOUNT_ABI, name: 'ScheduleCancelled' });
@@ -32,7 +32,7 @@ export class SchedulerEvents implements OnModuleInit {
     private db: DatabaseService,
     private receipts: ReceiptsWorker,
     private accountsCache: AccountsCacheService,
-    @InjectQueue(SchedulerQueue.name) private queue: TypedQueue<SchedulerQueue>,
+    @InjectQueue(ExecutionsQueue.name) private queue: TypedQueue<ExecutionsQueue>,
     @InjectRedis() private redis: Redis,
     @InjectFlowProducer(FLOW_PRODUCER)
     private flows: FlowProducer,
@@ -100,9 +100,9 @@ export class SchedulerEvents implements OnModuleInit {
       } satisfies QueueData<ReceiptsQueue>,
       children: [
         {
-          queueName: SchedulerQueue.name,
-          name: 'Schedule transaction',
-          data: { transaction: txProposal } satisfies QueueData<SchedulerQueue>,
+          queueName: ExecutionsQueue.name,
+          name: 'Scheduled transaction',
+          data: { transaction: txProposal, type: 'scheduled' } satisfies QueueData<ExecutionsQueue>,
           opts: { jobId: txProposal },
           children: [
             {
