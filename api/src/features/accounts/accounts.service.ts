@@ -118,16 +118,16 @@ export class AccountsService {
       account: { id: id, address: account },
     });
 
-    await this.db.transaction(async (db) => {
-      await e
-        .insert(e.Account, {
+    await this.db.transaction(async () => {
+      await this.db.query(
+        e.insert(e.Account, {
           id,
           address: account,
           label,
           implementation,
           salt,
-        })
-        .run(db);
+        }),
+      );
 
       for (const [i, policy] of policyInputs.entries()) {
         await this.policies.create({

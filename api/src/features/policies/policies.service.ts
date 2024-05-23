@@ -91,9 +91,7 @@ export class PoliciesService {
         }),
       );
 
-      this.db.afterTransaction(() =>
-        this.userAccounts.invalidateApproversCache(...policyInput.approvers),
-      );
+      this.userAccounts.invalidateApproversCache(...policyInput.approvers);
 
       return ok({ id, account, key });
     } catch (e) {
@@ -150,10 +148,8 @@ export class PoliciesService {
         }),
       );
 
-      this.db.afterTransaction(() =>
-        this.userAccounts.invalidateApproversCache(
-          ...newState.approvers.map((a) => asAddress(a.address)),
-        ),
+      this.userAccounts.invalidateApproversCache(
+        ...newState.approvers.map((a) => asAddress(a.address)),
       );
     }
   }

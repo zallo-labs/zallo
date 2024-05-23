@@ -6,22 +6,19 @@ import { getContextUnsafe } from '#/util/context';
 import { AsyncLocalStorage } from 'async_hooks';
 import { EdgeDBError, type Client } from 'edgedb';
 import { Transaction } from 'edgedb/dist/transaction';
-import { MaybePromise } from 'lib';
 import * as Sentry from '@sentry/node';
 import { $expr_OptionalParam, $expr_Param } from '~/edgeql-js/params';
 
-type Hook = () => MaybePromise<void>;
 type Globals = Partial<Record<keyof typeof e.global, unknown>>;
 
-interface Context {
+interface DatabaseContext {
   transaction: Transaction;
-  afterTransactionHooks: Hook[];
 }
 
 @Injectable()
 export class DatabaseService implements OnModuleInit {
   protected __client: Client;
-  protected context = new AsyncLocalStorage<Context>();
+  protected context = new AsyncLocalStorage<DatabaseContext>();
   readonly DANGEROUS_superuserClient: Client;
 
   constructor() {
@@ -42,13 +39,15 @@ export class DatabaseService implements OnModuleInit {
   }
 
   protected get _client() {
-    const user = getContextUnsafe()?.user;
-    if (!user) return this.DANGEROUS_superuserClient;
+    const reqCtx = getContextUnsafe();
+    if (!reqCtx?.user) return this.DANGEROUS_superuserClient;
 
-    return this.__client.withGlobals({
-      current_approver_address: user.approver,
-      current_accounts_array: user.accounts.map((a) => a.id),
+    reqCtx.db ??= this.__client.withGlobals({
+      current_approver_address: reqCtx.user.approver,
+      current_accounts_array: reqCtx.user.accounts.map((a) => a.id),
     } satisfies Globals);
+
+    return reqCtx.db;
   }
 
   private async run<R>(p: Promise<R>): Promise<R> {
@@ -83,32 +82,10 @@ export class DatabaseService implements OnModuleInit {
     if (transaction) return action(transaction);
 
     return await Sentry.startSpan({ op: 'db.transaction', name: 'db.transaction' }, async () => {
-      const afterTransactionHooks: Hook[] = [];
-
-      const result = await this._client.transaction((transaction) =>
-        this.context.run({ transaction, afterTransactionHooks }, () => action(transaction)),
+      return await this._client.transaction((transaction) =>
+        this.context.run({ transaction }, () => action(transaction)),
       );
-
-      this.processHooks(afterTransactionHooks);
-
-      return result;
     });
-  }
-
-  async afterTransaction(hook: Hook) {
-    const store = this.context.getStore();
-    if (store) {
-      store.afterTransactionHooks.push(hook);
-    } else {
-      await hook();
-    }
-  }
-
-  async processHooks(hooks: Hook[]) {
-    // Executed serially
-    for (const hook of hooks) {
-      await hook();
-    }
   }
 }
 

@@ -2,10 +2,12 @@ import { AsyncLocalStorage } from 'async_hooks';
 import { uuid } from 'edgedb/dist/codecs/ifaces';
 import { Address, UAddress, UUID } from 'lib';
 import { GqlContext } from '~/request/ctx';
+import { type Client as DatabaseClient } from 'edgedb';
 
 export interface Context {
-  user?: UserContext;
   afterRequestHooks: AfterRequestHook[];
+  user?: UserContext;
+  db?: DatabaseClient;
 }
 
 export interface UserContext {
