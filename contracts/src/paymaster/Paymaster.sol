@@ -21,7 +21,7 @@ contract Paymaster is IPaymaster, Withdrawable, ImmutablePriceOracle {
 
   error OnlyCallableByBootloader();
   error InvalidPaymasterInput();
-  error PaymasterAmountBelowMin(address token, uint256 amount, uint256 minAmount);
+  error InsufficientAmount(uint256 amount, uint256 minAmount, Rate nativePerToken);
   error FailedToPayBootloader(uint256 networkFee);
   error RefundFailed(bytes32 txHash, uint256 maxRefundedGas);
 
@@ -67,7 +67,7 @@ contract Paymaster is IPaymaster, Withdrawable, ImmutablePriceOracle {
     uint256 minAmount = _convertUp(networkFee, nativePerToken);
     // paymasterFee = amount - minAmount;
 
-    if (amount < minAmount) revert PaymasterAmountBelowMin(token, amount, minAmount);
+    if (amount < minAmount) revert InsufficientAmount(amount, minAmount, nativePerToken);
 
     address from = address(uint160(systx.from));
     if (_transferFrom(from, token, amount)) {

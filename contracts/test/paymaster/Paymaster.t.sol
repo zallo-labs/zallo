@@ -7,7 +7,7 @@ import {BOOTLOADER_FORMAL_ADDRESS as BOOTLOADER} from '@matterlabs/zksync-contra
 import {IPyth} from '@pythnetwork/pyth-sdk-solidity/IPyth.sol';
 import {PythStructs} from '@pythnetwork/pyth-sdk-solidity/PythStructs.sol';
 
-import {UnitTest, console2} from 'test/UnitTest.sol';
+import {UnitTest} from 'test/UnitTest.sol';
 import {Paymaster, Rate} from 'src/paymaster/Paymaster.sol';
 import {PaymasterFlows} from 'src/paymaster/PaymasterFlow.sol';
 import {ImmutablePriceOracle} from 'src/paymaster/ImmutablePriceOracle.sol';
@@ -159,8 +159,14 @@ contract PaymasterTest is UnitTest {
   ) public asBootloader {
     vm.assume(amount < networkFee);
 
+    Rate memory nativePerToken = Rate({base: NATIVE, basePrice: 1, quote: NATIVE, quotePrice: 1});
     vm.expectRevert(
-      abi.encodeWithSelector(Paymaster.PaymasterAmountBelowMin.selector, NATIVE, amount, networkFee)
+      abi.encodeWithSelector(
+        Paymaster.InsufficientAmount.selector,
+        amount,
+        networkFee,
+        nativePerToken
+      )
     );
     validate(_systx(NATIVE, amount, networkFee));
   }
