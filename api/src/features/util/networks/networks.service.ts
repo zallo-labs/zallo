@@ -70,7 +70,7 @@ function create({ chainKey, redis }: CreateParams) {
         (url) => webSocket(url),
       ),
     ],
-    { retryCount: 3, rank: true },
+    { retryCount: 3, rank: { interval: 30_000, sampleCount: 20 } },
   );
 
   return createPublicClient<Transport, ChainConfig>({
