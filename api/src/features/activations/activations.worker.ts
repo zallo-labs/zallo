@@ -8,7 +8,7 @@ import { DatabaseService } from '../database/database.service';
 import e from '~/edgeql-js';
 
 @Injectable()
-@Processor(ActivationsQueue.name)
+@Processor(ActivationsQueue.name, { autorun: false })
 export class ActivationsWorker extends Worker<ActivationsQueue> {
   constructor(
     private db: DatabaseService,

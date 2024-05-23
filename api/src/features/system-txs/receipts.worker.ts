@@ -34,7 +34,7 @@ export type TransactionEventListener<TAbiEvent extends AbiEvent> = (
 ) => Promise<unknown>;
 
 @Injectable()
-@Processor(ReceiptsQueue.name)
+@Processor(ReceiptsQueue.name, { autorun: false })
 export class ReceiptsWorker extends Worker<ReceiptsQueue> {
   private listeners: TransactionListener[] = [];
   private events: AbiEvent[] = [];

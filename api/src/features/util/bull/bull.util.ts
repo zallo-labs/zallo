@@ -76,6 +76,7 @@ export abstract class Worker<Q extends QueueDefintion>
   implements OnModuleInit, OnModuleDestroy
 {
   protected log = new Logger(this.constructor.name);
+  protected queue: TypedQueue<Q>;
 
   constructor() {
     super();
@@ -83,20 +84,33 @@ export abstract class Worker<Q extends QueueDefintion>
 
   abstract process(job: TypedJob<Q>, token?: string): Promise<QueueReturnType<Q>>;
 
-  onModuleInit() {
+  async onModuleInit() {
     if (!CONFIG.processEvents) {
       this.worker.close();
       return;
     }
+
+    this.queue = new Queue(this.worker.name, { connection: await this.worker.client });
 
     this.worker.concurrency = 5;
 
     this.worker.on('failed', (job, err) => {
       this.log.warn(`Job (${job?.id ?? '?'}) failed with ${err.name}: ${err.message}`);
     });
+
+    this.bootstrapAndResume();
   }
 
   async onModuleDestroy() {
     await this.worker.close();
   }
+
+  private async bootstrapAndResume() {
+    const isOnlyWorker = (await this.queue.getWorkersCount()) === 1;
+    if (isOnlyWorker) await this.bootstrap();
+
+    this.worker.run();
+  }
+
+  async bootstrap() {}
 }

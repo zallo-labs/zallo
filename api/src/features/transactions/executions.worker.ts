@@ -46,7 +46,7 @@ interface ExecutionJob {
 const PRICE_DRIFT_MULTIPLIER = new Decimal('1.001'); // 0.1%
 
 @Injectable()
-@Processor(ExecutionsQueue.name)
+@Processor(ExecutionsQueue.name, { autorun: false })
 export class ExecutionsWorker extends Worker<ExecutionsQueue> {
   constructor(
     private networks: NetworksService,
