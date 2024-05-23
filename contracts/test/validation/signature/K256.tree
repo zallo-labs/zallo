@@ -1,8 +1,5 @@
+# TODO: test for invalid signatures
+
 .
-└── verify
-    ├── when hash signed
-    │   └── it should be successful
-    ├── when different hash
-    │   └── it should fail
-    └── when different signer
-        └── it should fail
+└── recover
+    └── should recover signer
