@@ -158,7 +158,7 @@ export class ExecutionsWorker extends Worker<ExecutionsQueue> {
       network.estimatedMaxFeePerGas(),
       this.prices.price(asUAddress(feeToken, network.chain.key)),
     ]);
-    const feeTokenPerGas = maxFeePerGas.mul(feeTokenPrice.eth).mul(PRICE_DRIFT_MULTIPLIER);
+    const feeTokenPerGas = maxFeePerGas.div(feeTokenPrice.eth).mul(PRICE_DRIFT_MULTIPLIER);
     const totalFeeTokenFees = feeTokenPerGas
       .mul(proposal.gasLimit.toString())
       .plus(paymasterEthFees ?? '0');
