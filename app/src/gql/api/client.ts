@@ -8,7 +8,6 @@ import { CONFIG } from '~/util/config';
 import { authExchange } from '@urql/exchange-auth';
 import { Address, Hex } from 'lib';
 import { DateTime } from 'luxon';
-import { SiweMessage } from 'siwe';
 import { atom, useAtomValue } from 'jotai';
 import { DANGEROUS_approverAtom } from '~/lib/network/useApprover';
 import { createClient as createWsClient } from 'graphql-ws';
@@ -19,18 +18,20 @@ import { E_ALREADY_LOCKED, Mutex, tryAcquire } from 'async-mutex';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createJSONStorage } from 'jotai/utils';
 import { requestPolicyExchange } from '@urql/exchange-request-policy';
+import { createSiweMessage, SiweMessage } from 'viem/siwe';
 
 const TOKEN_KEY = 'api-token';
 const storage = createJSONStorage<Token | null>(() => AsyncStorage);
 
 interface Token {
-  message: Partial<SiweMessage>;
+  message: string;
   signature: Hex;
+  expiration: number;
 }
 
 interface State {
   token: Token;
-  headers: ReturnType<typeof getHeaders>;
+  headers: ReturnType<typeof getAuthHeaders>;
 }
 
 const client = atom(async (get) => {
@@ -53,7 +54,7 @@ const client = atom(async (get) => {
           token = await createToken(await approver);
           storage.setItem(TOKEN_KEY, token);
         }
-        state = { token, headers: getHeaders(token) };
+        state = { token, headers: getAuthHeaders(token) };
       });
     } catch (e) {
       if (e === E_ALREADY_LOCKED) {
@@ -145,43 +146,40 @@ async function createToken(approver: CreateTokenApprover): Promise<Token> {
   // const nonce = await (await fetch(`${CONFIG.apiUrl}/auth/nonce`, { credentials: 'include' })).text();
   const nonce = 'nonceless';
 
-  const message = new SiweMessage({
-    version: '1',
-    domain: new URL(CONFIG.apiUrl).host,
+  const fields = {
     address: approver.address,
-    nonce,
-    expirationTime: DateTime.now().plus({ days: 2 }).toString(),
-    uri: CONFIG.webAppUrl, // Required but unused by api
     chainId: 0,
-  });
+    domain: new URL(CONFIG.apiUrl).hostname, // TODO: replace with .host once viem domain port issue is resolved
+    nonce,
+    uri: CONFIG.webAppUrl, // Required but unused by api
+    version: '1',
+    expirationTime: DateTime.now().plus({ days: 2 }).toJSDate(),
+  } satisfies SiweMessage;
 
-  return {
-    message,
-    signature: await approver.signMessage({ message: message.prepareMessage() }),
-  };
+  const message = createSiweMessage(fields);
+  const signature = await approver.signMessage({ message });
+  const expiration = fields.expirationTime.getTime();
+  return { message, signature, expiration };
 }
 
-function getHeaders(token: Token): { Authorization: string } {
+function getAuthHeaders(token: Token): { Authorization: string } {
   return {
     Authorization: JSON.stringify({
-      message: new SiweMessage(token.message).prepareMessage(),
+      message: token.message,
       signature: token.signature,
     }),
   };
 }
 
 function isInvalidToken(token: Token) {
-  return (
-    !!token.message.expirationTime &&
-    DateTime.fromISO(token.message.expirationTime) <= DateTime.now()
-  );
+  return token.expiration <= Date.now();
 }
 
 export async function authContext(
   options: CreateTokenApprover,
 ): Promise<Partial<OperationContext>> {
   return {
-    fetchOptions: { headers: getHeaders(await createToken(options)) },
+    fetchOptions: { headers: getAuthHeaders(await createToken(options)) },
     skipAddAuthToOperation: true,
   };
 }

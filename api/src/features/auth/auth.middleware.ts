@@ -1,18 +1,18 @@
 import { Injectable, NestMiddleware, UnauthorizedException } from '@nestjs/common';
 import { Request, Response, NextFunction } from 'express';
-import { Address, Hex, asAddress, isHex } from 'lib';
-import { SiweMessage } from 'siwe';
+import { Address, asAddress, isHex } from 'lib';
 import { CONFIG } from '~/config';
 import { AccountsCacheService } from './accounts.cache.service';
 import { Result, err, ok } from 'neverthrow';
 import { recoverMessageAddress } from 'viem';
 import { z } from 'zod';
 import { P, match } from 'ts-pattern';
-import { DateTime, DurationLike } from 'luxon';
+import { DateTime } from 'luxon';
 import { getContext } from '#/util/context';
+import { parseSiweMessage, validateSiweMessage } from 'viem/siwe';
+import TTLCache from '@isaacs/ttlcache';
 
 const GRAPH_REF_AUTH_MESSAGE = CONFIG.graphRef && `AUTH ${CONFIG.graphRef}`;
-const DEFAULT_CACHE_EXPIRY: DurationLike = { minutes: 30 };
 
 const bearerString = z.string().transform((v) => {
   if (v.startsWith('Bearer ')) v = v.slice(7);
@@ -29,7 +29,7 @@ const tokenScheme = z.union([
         return z.NEVER;
       }
 
-      return { message: new SiweMessage(message), signature: signature as Hex };
+      return { message: message as string, fields: parseSiweMessage(message), signature };
     } catch (e) {
       ctx.addIssue({ code: 'custom', message: 'Invalid SIWE message; see https://login.xyz/' });
       return z.NEVER;
@@ -39,7 +39,10 @@ const tokenScheme = z.union([
 
 @Injectable()
 export class AuthMiddleware implements NestMiddleware {
-  private cache: Map<string, { address: Address; expirationTime: DateTime }> = new Map();
+  private cache = new TTLCache<string, Address>({
+    ttl: 3600 /* 1 hour */,
+    max: 10_000,
+  });
 
   constructor(private accountsCache: AccountsCacheService) {}
 
@@ -61,13 +64,7 @@ export class AuthMiddleware implements NestMiddleware {
 
     const key = `[${token},${req.headers.host}]`;
     const cached = this.cache.get(key);
-    if (cached) {
-      if (cached.expirationTime > DateTime.now()) {
-        return ok(cached.address);
-      } else {
-        this.cache.delete(key);
-      }
-    }
+    if (cached) return ok(cached);
 
     const result = tokenScheme.safeParse(token);
     if (!result.success) return ok(undefined);
@@ -82,10 +79,7 @@ export class AuthMiddleware implements NestMiddleware {
             await recoverMessageAddress({ message: GRAPH_REF_AUTH_MESSAGE, signature }),
           );
 
-          this.cache.set(key, {
-            address,
-            expirationTime: DateTime.now().plus(DEFAULT_CACHE_EXPIRY),
-          });
+          this.cache.set(key, address);
 
           return ok(address);
         } catch {
@@ -94,30 +88,23 @@ export class AuthMiddleware implements NestMiddleware {
           );
         }
       })
-      .otherwise(async ({ message, signature }) => {
-        const r = await message.verify(
-          {
-            signature,
-            domain: req.headers.host,
-            nonce: req.session?.nonce ?? 'nonceless',
-          },
-          { suppressExceptions: true },
-        );
-
-        if (r.error) return err(r.error.type);
-
-        if (r.data.nonce === 'nonceless' && !r.data.expirationTime)
-          return err('Nonce may only be omitted if expiration time is set');
-
-        // Use the session expiry time if provided
-        if (message.expirationTime) req.session.cookie.expires = new Date(message.expirationTime);
-
-        const address = asAddress(message.address);
-        this.cache.set(key, {
+      .otherwise(async ({ message, fields, signature }) => {
+        const address = asAddress(await recoverMessageAddress({ message, signature }));
+        const success = validateSiweMessage({
           address,
-          expirationTime: message.expirationTime
-            ? DateTime.fromISO(message.expirationTime)
-            : DateTime.now().plus(DEFAULT_CACHE_EXPIRY),
+          message: fields,
+          domain: new URL(`http://${req.headers.host}`).hostname, // TODO: replace with .host once viem domain port issue is resolved
+          nonce: req.session?.nonce ?? 'nonceless',
+        });
+        if (!success) return err('SIWE message verification failed');
+
+        if (fields.nonce === 'nonceless' && !fields.expirationTime)
+          return err('Nonceless may only be omitted if `expirationTime` is set');
+
+        this.cache.set(key, address, {
+          ttl: fields.expirationTime
+            ? DateTime.fromJSDate(fields.expirationTime).diffNow().toMillis()
+            : undefined,
         });
 
         return ok(address);
