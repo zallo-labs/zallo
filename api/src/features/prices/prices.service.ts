@@ -45,7 +45,7 @@ export class PricesService implements OnModuleInit {
   }
 
   onModuleInit() {
-    this.initSystemTokenPriceIds();
+    this.initSystemToken();
   }
 
   async price(tokenOrUsdPriceId: Hex | UAddress): Promise<Price> {
@@ -222,7 +222,7 @@ export class PricesService implements OnModuleInit {
     return DateTime.now().minus({ minutes: 59 });
   }
 
-  private async initSystemTokenPriceIds() {
+  private async initSystemToken() {
     const r = await this.db.query(
       e.select(e.Token, (t) => ({
         filter: and(t.isSystem, e.op('exists', t.pythUsdPriceId)),
@@ -234,5 +234,7 @@ export class PricesService implements OnModuleInit {
     this.systemTokenPriceIds = new Map(
       r.map((v) => [asUAddress(v.address), asHex(v.pythUsdPriceId!)] as const),
     );
+
+    this.systemTokenPriceIds.forEach((priceId) => this.usd(priceId));
   }
 }
