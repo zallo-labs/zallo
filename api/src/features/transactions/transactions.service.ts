@@ -45,12 +45,14 @@ import { FlowProducer } from 'bullmq';
 import { ActivationsService } from '../activations/activations.service';
 import { ReceiptsQueue } from '../system-txs/receipts.queue';
 import { PoliciesService } from '../policies/policies.service';
-import { TokensService } from '#/tokens/tokens.service';
+import { TokensService, preferUserToken } from '#/tokens/tokens.service';
 import { PricesService } from '#/prices/prices.service';
 import { totalPaymasterEthFees } from '#/paymasters/paymasters.util';
 import Decimal from 'decimal.js';
 import { afterRequest } from '#/util/context';
 import { DEFAULT_FLOW_OPTIONS } from '#/util/bull/bull.module';
+
+const MAX_NETWORK_FEE_MULTIPLIER = new Decimal(5); // Allow for a higher network fee
 
 export const selectTransaction = (id: UUID | Hex) =>
   e.select(e.Transaction, () => ({
@@ -169,9 +171,9 @@ export class TransactionsService {
       this.paymasters.paymasterFees({ account }),
       this.prices.price(asUAddress(feeToken, chain)),
     ]);
-    const maxNetworkFee = maxFeePerGas.mul(gas.toString()).mul(5); // Allow for far higher network fees
+    const maxNetworkFee = maxFeePerGas.mul(gas.toString()).mul(MAX_NETWORK_FEE_MULTIPLIER);
     const totalEthFees = maxNetworkFee.plus(totalPaymasterEthFees(paymasterFees));
-    const maxAmount = totalEthFees.mul(feeTokenPrice.eth);
+    const maxAmount = totalEthFees.div(feeTokenPrice.eth);
 
     const tx = {
       operations,
@@ -282,60 +284,70 @@ export class TransactionsService {
   }
 
   async update({ id, policy, feeToken }: UpdateTransactionInput) {
-    // TODO: update maxAmount when feeToken is changed
+    const p = await this.db.query(
+      e.assert_single(
+        e.select(e.Transaction, (p) => ({
+          filter: and(
+            e.op(p.id, '=', e.uuid(id)),
+            e.op(p.status, 'in', e.set(e.TransactionStatus.Pending, e.TransactionStatus.Failed)),
+          ),
+          hash: true,
+          account: { address: true },
+          paymasterEthFees: { total: true },
+          maxAmount: true,
+          ...TX_SHAPE,
+        })),
+      ),
+    );
+    if (!p) return;
 
-    const updatedProposal = e.assert_single(
+    const account = asUAddress(p.account.address);
+
+    let maxAmount = new Decimal(p.maxAmount);
+    if (feeToken) {
+      const network = this.networks.get(account);
+      const [maxFeePerGas, feeTokenPrice] = await Promise.all([
+        network.estimatedMaxFeePerGas(),
+        this.prices.price(asUAddress(feeToken, network.chain.key)),
+      ]);
+      const newTotalEthFee = maxFeePerGas
+        .mul(p.gasLimit.toString())
+        .mul(MAX_NETWORK_FEE_MULTIPLIER)
+        .plus(p.paymasterEthFees.total);
+      maxAmount = newTotalEthFee.div(feeTokenPrice.eth);
+    }
+
+    const uFeeToken = asUAddress(feeToken ?? asAddress(p.feeToken.address), asChain(account));
+    const tx: Tx = {
+      ...transactionAsTx(p),
+      feeToken,
+      maxAmount: await this.tokens.asFp(uFeeToken, maxAmount),
+    };
+
+    await this.db.query(
       e.update(e.Transaction, (p) => ({
-        filter: and(
-          e.op(p.id, '=', e.uuid(id)),
-          // Require proposal to be pending or failed
-          e.op(p.status, 'in', e.set(e.TransactionStatus.Pending, e.TransactionStatus.Failed)),
-        ),
+        filter_single: { id },
         set: {
           ...(policy && { policy: e.latestPolicy(p.account, policy) }),
-          feeToken:
-            feeToken &&
-            e.assert_single(
+          ...(feeToken && {
+            hash: hashTypedData(asTypedData(account, tx)),
+            feeToken: e.assert_single(
               e.select(e.Token, (t) => ({
-                filter: and(
-                  e.op(t.address, '=', e.op(p.account.chain, '++', e.op(':', '++', feeToken))),
-                  e.op(t.isFeeToken, '=', true),
-                ),
+                filter: and(e.op(t.address, '=', uFeeToken), e.op(t.isFeeToken, '=', true)),
                 limit: 1,
               })),
             ),
+            maxAmount: maxAmount.toString(),
+          }),
         },
       })),
     );
 
-    const p = await this.db.query(
-      e.select(updatedProposal, () => ({
-        id: true,
-        hash: true,
-        account: { address: true },
-        ...TX_SHAPE,
-      })),
-    );
-    if (!p) return;
-
-    const hash = hashTypedData(asTypedData(asUAddress(p.account.address), transactionAsTx(p)));
-    if (hash !== p.hash) {
-      // Approvals are marked as invalid when the signed hash differs from the proposal hash
-      await this.db.query(
-        e.update(e.Transaction, (proposal) => ({
-          filter: e.op(proposal.id, '=', e.uuid(id)),
-          set: { hash },
-        })),
-      );
-    }
-
-    const proposal = { ...p, hash };
-
     if (policy !== undefined) await this.tryExecute(id);
 
-    this.proposals.publish(proposal, ProposalEvent.update);
+    this.proposals.publish({ id, account: p.account }, ProposalEvent.update);
 
-    return proposal;
+    return { id };
   }
 
   async delete(id: UniqueProposal) {
