@@ -49,7 +49,6 @@ const Transaction = gql(/* GraphQL */ `
       id
       maxNetworkEthFee
       ethPerFeeToken
-      usdPerFeeToken
     }
     result {
       id
@@ -81,67 +80,73 @@ export function FeesSection(props: FeeTokenProps) {
 
   const [expanded, toggleExpanded] = useToggle(false);
 
-  const networkEthFee = new Decimal(
-    (((p.result?.__typename === 'Successful' || p.result?.__typename === 'Failed') &&
-      p.result.networkEthFee) ||
-      p.systx?.maxNetworkEthFee) ??
-      p.estimatedFees.maxNetworkEthFee,
-  ).neg();
-  const activationFee = new Decimal(p.paymasterEthFees.activation).neg();
-  const totalEthFee = networkEthFee.sub(p.paymasterEthFees.total);
-
   const ethPerFeeToken = new Decimal(p.systx?.ethPerFeeToken ?? p.feeToken.price?.eth ?? 0);
-  const amount = totalEthFee.div(ethPerFeeToken);
-  const insufficient =
-    p.status === 'Pending' && p.feeToken.balance && amount.plus(p.feeToken.balance).isNeg();
+  const estNetworkEthFee = new Decimal(p.estimatedFees.maxNetworkEthFee);
+  const actNetworkEthFee =
+    p.result?.__typename === 'Successful' || p.result?.__typename === 'Failed'
+      ? new Decimal(p.result.networkEthFee)
+      : undefined;
+  const activationFee = new Decimal(p.paymasterEthFees.activation).neg();
 
-  const paymasterFeesEstimatedLabel = !p.systx ? ' (estimate)' : '';
-  const networkFeeEstimatedLabel = !p.systx ? ' (max)' : '';
+  const totalFeeAmount = (actNetworkEthFee ?? estNetworkEthFee)
+    .plus(p.paymasterEthFees.total)
+    .div(ethPerFeeToken);
 
   return (
     <>
       <TokenItem
         token={p.feeToken}
-        amount={amount}
-        overline={'Fees' + networkFeeEstimatedLabel}
+        amount={(actNetworkEthFee ?? estNetworkEthFee)
+          .plus(p.paymasterEthFees.total)
+          .div(ethPerFeeToken)}
+        overline={actNetworkEthFee ? 'Fees' : 'Estimated fees'}
         onPress={toggleExpanded}
         trailing={({ Trailing }) => (
           <View style={styles.totalTrailingContainer}>
             <Trailing />
 
-            {insufficient && p.feeToken.balance && (
-              <Text style={styles.insufficient}>
-                <TokenAmount token={p.feeToken} amount={p.feeToken.balance} />
-                {' available'}
-              </Text>
-            )}
+            {p.status === 'Pending' &&
+              p.feeToken.balance &&
+              totalFeeAmount.gt(p.feeToken.balance) && (
+                <Text style={styles.insufficient}>
+                  <TokenAmount token={p.feeToken} amount={p.feeToken.balance} />
+                  {' available'}
+                </Text>
+              )}
           </View>
         )}
       />
 
       <Collapsible collapsed={!expanded} style={styles.detailsContainer}>
         <View style={styles.row}>
-          <Text variant="labelLarge">{'Network fee' + networkFeeEstimatedLabel}</Text>
+          <Text variant="labelLarge">
+            {actNetworkEthFee ? 'Network fee' : 'Network fee (estimated)'}
+          </Text>
           <Text variant="bodySmall">
-            <TokenAmount token={p.feeToken} amount={networkEthFee.div(ethPerFeeToken)} />
+            <TokenAmount
+              token={p.feeToken}
+              amount={(actNetworkEthFee ?? estNetworkEthFee).div(ethPerFeeToken)}
+            />
           </Text>
         </View>
 
         {!activationFee.eq(0) && (
           <View style={styles.row}>
-            <Text variant="labelLarge">Activation fee{paymasterFeesEstimatedLabel}</Text>
+            <Text variant="labelLarge">Activation fee</Text>
             <Text variant="bodySmall">
               <TokenAmount token={p.feeToken} amount={activationFee.div(ethPerFeeToken)} />
             </Text>
           </View>
         )}
 
-        <View style={styles.row}>
-          <Text variant="labelLarge">{'Max total fee' + networkFeeEstimatedLabel}</Text>
-          <Text variant="bodySmall">
-            <TokenAmount token={p.feeToken} amount={p.maxAmount} />
-          </Text>
-        </View>
+        {!actNetworkEthFee && (
+          <View style={styles.row}>
+            <Text variant="labelLarge">{'(Max total fee)'}</Text>
+            <Text variant="bodySmall">
+              <TokenAmount token={p.feeToken} amount={p.maxAmount} />
+            </Text>
+          </View>
+        )}
       </Collapsible>
 
       {p.updatable && (
