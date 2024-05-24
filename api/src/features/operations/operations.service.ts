@@ -121,7 +121,7 @@ export class OperationsService {
             key: f.args[0].key as PolicyKey,
             threshold: f.args[0].threshold,
             approvers: f.args[0].approvers,
-          } satisfies UpdatePolicyOp),
+          } /* satisfies UpdatePolicyOp */),
         )
         .with({ functionName: 'removePolicy' }, (f) =>
           Object.assign(new RemovePolicyOp(), {
