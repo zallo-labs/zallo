@@ -3,7 +3,6 @@ import { CONFIG } from '~/config';
 import { asChain, asDecimal, asUAddress, UAddress } from 'lib';
 import { ChainConfig, Chain, CHAINS, NetworkWallet, isChain } from 'chains';
 import {
-  EstimateFeesPerGasReturnType,
   FeeValuesEIP1559,
   PublicClient,
   SendRawTransactionErrorType,
@@ -60,15 +59,15 @@ interface CreateParams {
 function create({ chainKey, redis }: CreateParams) {
   const chain = CHAINS[chainKey];
 
-  const rpcUrls = CONFIG.rpcUrls[chainKey] ?? [];
+  const rpcUrls = [
+    ...chain.rpcUrls.default.http,
+    ...chain.rpcUrls.default.webSocket,
+    ...(CONFIG.rpcUrls[chainKey] ?? []),
+  ];
   const transport = fallback(
     [
-      ...[...chain.rpcUrls.default.http, ...rpcUrls.filter((url) => url.startsWith('http'))].map(
-        (url) => http(url),
-      ),
-      ...[...chain.rpcUrls.default.http, ...rpcUrls.filter((url) => url.startsWith('ws'))].map(
-        (url) => webSocket(url),
-      ),
+      ...rpcUrls.filter((url) => url.startsWith('http')).map((url) => http(url)),
+      ...rpcUrls.filter((url) => url.startsWith('ws')).map((url) => webSocket(url)),
     ],
     { retryCount: 3, rank: { interval: 30_000, sampleCount: 20 } },
   );
@@ -137,7 +136,6 @@ function blockNumberAndStatusActions(client: Client) {
       status.next(error as WatchBlockNumberErrorType);
     },
     emitOnBegin: true,
-    poll: true, // TODO: remove when fixed websocket watchX auto reconnect is supported - https://github.com/wevm/viem/issues/877
   });
 
   return {
