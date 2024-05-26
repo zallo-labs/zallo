@@ -3,11 +3,13 @@
     "target": "ES2022",
     "module": "commonjs",
     "moduleResolution": "Node10",
+    "sourceRoot": "/",
     "baseUrl": "./",
     "outDir": "./dist",
     "lib": ["ESNext"],
     "incremental": true,
     "declaration": true,
+    "inlineSources": true,
     "sourceMap": true,
     "removeComments": true,
     "emitDecoratorMetadata": true,
@@ -20,7 +22,6 @@
     "strictPropertyInitialization": false,
     "noImplicitAny": false,
     "allowSyntheticDefaultImports": true,
-
     "paths": {
       "~/edgeql-js": ["./dbschema/edgeql-js"],
       "~/edgeql-js/*": ["./dbschema/edgeql-js/*"],
@@ -28,14 +29,7 @@
       "#/*": ["./src/features/*"],
       "~/*": ["./src/*"],
       "@gen/*": ["./generated/*"]
-    },
-
-    "inlineSources": true,
-
-    // Set `sourceRoot` to  "/" to strip the build path prefix
-    // from generated source code references.
-    // This improves issue grouping in Sentry.
-    "sourceRoot": "/"
+    }
   },
   "include": ["src/**/*", "generated/**/*", "dbschema/**/*"]
 }
