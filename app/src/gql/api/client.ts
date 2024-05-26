@@ -149,7 +149,7 @@ async function createToken(approver: CreateTokenApprover): Promise<Token> {
   const fields = {
     address: approver.address,
     chainId: 0,
-    domain: new URL(CONFIG.apiUrl).hostname, // TODO: replace with .host once viem domain port issue is resolved
+    domain: new URL(CONFIG.apiUrl).host,
     nonce,
     uri: CONFIG.webAppUrl, // Required but unused by api
     version: '1',

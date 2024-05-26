@@ -12669,7 +12669,7 @@ __metadata:
     tsconfig-paths: "npm:^4.2.0"
     typescript: "npm:^5.4.5"
     uuid: "npm:^9.0.1"
-    viem: "npm:^2.12.1"
+    viem: "npm:^2.12.3"
     zod: "npm:^3.23.8"
   languageName: unknown
   linkType: soft
@@ -12829,7 +12829,7 @@ __metadata:
     urql: "npm:^4.1.0"
     use-async-effect: "npm:^2.2.7"
     use-immer: "npm:^0.9.0"
-    viem: "npm:^2.12.1"
+    viem: "npm:^2.12.3"
     wonka: "npm:^6.3.4"
     zod: "npm:^3.23.8"
   languageName: unknown
@@ -14465,7 +14465,7 @@ __metadata:
   dependencies:
     tsup: "npm:^8.0.2"
     typescript: "npm:^5.4.5"
-    viem: "npm:^2.12.1"
+    viem: "npm:^2.12.3"
   languageName: unknown
   linkType: soft
 
@@ -15328,7 +15328,7 @@ __metadata:
     solidity-coverage: "npm:^0.8.12"
     ts-node: "npm:^10.9.2"
     typescript: "npm:^5.4.5"
-    viem: "npm:^2.12.1"
+    viem: "npm:^2.12.3"
     zksync-ethers: "npm:^6.7.1"
   languageName: unknown
   linkType: soft
@@ -22956,7 +22956,7 @@ __metadata:
     ts-toolbelt: "npm:^9.6.0"
     tsup: "npm:8.0.2"
     typescript: "npm:^5.4.5"
-    viem: "npm:^2.12.1"
+    viem: "npm:^2.12.3"
     zksync-ethers: "npm:^6.7.1"
   languageName: unknown
   linkType: soft
@@ -31570,9 +31570,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"viem@npm:^2.12.1":
-  version: 2.12.1
-  resolution: "viem@npm:2.12.1"
+"viem@npm:^2.12.3":
+  version: 2.12.3
+  resolution: "viem@npm:2.12.3"
   dependencies:
     "@adraffy/ens-normalize": "npm:1.10.0"
     "@noble/curves": "npm:1.2.0"
@@ -31587,7 +31587,7 @@ __metadata:
   peerDependenciesMeta:
     typescript:
       optional: true
-  checksum: 10/cb19e2206ce483589d20e038476d38e8d30f016474ff5e791024466e1f248df0fe4eb34acdd1dd96527b37c74a83601df1dcb0cfb26bdad28d9904b6abc4c3cd
+  checksum: 10/80feb0b8bf85e554387cf89bcfb472c56f9028a749bb348d963ee3e9bd5f36ef8bc71f7ec577d8b52aadd899562bd671a8ed870ed934645e2c8b8216013ad8d6
   languageName: node
   linkType: hard
 

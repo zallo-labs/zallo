@@ -93,7 +93,7 @@ export class AuthMiddleware implements NestMiddleware {
         const success = validateSiweMessage({
           address,
           message: fields,
-          domain: new URL(`http://${req.headers.host}`).hostname, // TODO: replace with .host once viem domain port issue is resolved
+          domain: new URL(`http://${req.headers.host}`).host,
           nonce: req.session?.nonce ?? 'nonceless',
         });
         if (!success) return err('SIWE message verification failed');
