@@ -1,4 +1,4 @@
-CREATE MIGRATION m14lv5vjowcyubjify4c76tjxpa37sbrnlegg47vvwwanoq7p6r5ua
+CREATE MIGRATION m1rt7uqfmhqom26b7qf4xqdpbhui4e7mj4iw5bpohms72ltmmxtqra
     ONTO initial
 {
   CREATE SCALAR TYPE default::ApprovalIssue EXTENDING enum<HashMismatch, Expired>;
@@ -615,6 +615,7 @@ CREATE MIGRATION m14lv5vjowcyubjify4c76tjxpa37sbrnlegg47vvwwanoq7p6r5ua
           SET default := (INSERT
               default::PaymasterFees
           );
+          ON SOURCE DELETE DELETE TARGET;
           CREATE CONSTRAINT std::exclusive;
       };
   };
@@ -623,11 +624,17 @@ CREATE MIGRATION m14lv5vjowcyubjify4c76tjxpa37sbrnlegg47vvwwanoq7p6r5ua
       CREATE TRIGGER update_activation_fee
           AFTER INSERT 
           FOR EACH 
-              WHEN (((__new__.proposal.paymasterEthFees.activation > 0) AND (__new__.proposal.account.activationEthFee > 0)))
-          DO (UPDATE
-              __new__.proposal.account
+              WHEN ((__new__.proposal.account.activationEthFee > 0))
+          DO (WITH
+              account := 
+                  __new__.proposal.account
+              ,
+              paymasterEthFees := 
+                  __new__.proposal.paymasterEthFees
+          UPDATE
+              account
           SET {
-              activationEthFee := std::max({0, (.activationEthFee - __new__.proposal.paymasterEthFees.activation)})
+              activationEthFee := std::max({0, (account.activationEthFee - paymasterEthFees.activation)})
           });
   };
   ALTER TYPE default::Proposal {
@@ -738,14 +745,6 @@ CREATE MIGRATION m14lv5vjowcyubjify4c76tjxpa37sbrnlegg47vvwwanoq7p6r5ua
       CREATE MULTI LINK functions: default::Function;
       CREATE REQUIRED PROPERTY address: default::Address {
           CREATE CONSTRAINT std::exclusive;
-      };
-  };
-  CREATE TYPE default::Refund {
-      CREATE REQUIRED LINK systx: default::SystemTx {
-          CREATE CONSTRAINT std::exclusive;
-      };
-      CREATE REQUIRED PROPERTY ethAmount: std::decimal {
-          CREATE CONSTRAINT std::min_value(0);
       };
   };
   ALTER TYPE default::Simulation {

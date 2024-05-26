@@ -29,6 +29,7 @@ export namespace cfg {
     "allow_user_specified_id"?: boolean | null;
     "cors_allow_origins": string[];
     "auto_rebuild_query_cache"?: boolean | null;
+    "query_cache_mode"?: QueryCacheMode | null;
     "shared_buffers"?: edgedb.ConfigMemory | null;
     "query_work_mem"?: edgedb.ConfigMemory | null;
     "maintenance_work_mem"?: edgedb.ConfigMemory | null;
@@ -62,6 +63,7 @@ export namespace cfg {
   export interface Password extends AuthMethod {
     "transports": ConnectionTransport[];
   }
+  export type QueryCacheMode = "InMemory" | "RegInline" | "PgFunc" | "Default";
   export interface SCRAM extends AuthMethod {
     "transports": ConnectionTransport[];
   }
@@ -80,6 +82,7 @@ export namespace $default {
     "chain": string;
     "implementation": string;
     "label": string;
+    "photo"?: string | null;
     "salt": string;
     "policies": Policy[];
     "approvers": Approver[];
@@ -87,7 +90,6 @@ export namespace $default {
     "proposals": Proposal[];
     "transactions": Transaction[];
     "transfers": Transfer[];
-    "photo"?: string | null;
   }
   export interface Action extends std.$Object {
     "functions": ActionFunction[];
@@ -175,14 +177,14 @@ export namespace $default {
     "hash": string;
     "createdAt": Date;
     "dapp"?: {name: string, url: string, icons: string[]} | null;
+    "icon"?: string | null;
     "label"?: string | null;
+    "timestamp": Date;
     "validationErrors": {reason: string, operation: number}[];
     "approvals": Approval[];
     "proposedBy": Approver;
     "rejections": Rejection[];
     "policy": Policy;
-    "icon"?: string | null;
-    "timestamp": Date;
   }
   export interface Message extends Proposal {
     "signature"?: string | null;
@@ -220,10 +222,6 @@ export namespace $default {
     "name": string;
     "threshold": number;
   }
-  export interface Refund extends std.$Object {
-    "systx": SystemTx;
-    "ethAmount": string;
-  }
   export interface Rejection extends ProposalResponse {}
   export interface RemovedPolicy extends PolicyState {}
   export interface Scheduled extends Result {
@@ -248,8 +246,8 @@ export namespace $default {
     "timestamp": Date;
     "usdPerFeeToken": string;
     "events": Event[];
-    "result"?: Result | null;
     "maxEthFees": string;
+    "result"?: Result | null;
   }
   export interface Token extends std.$Object {
     "units"?: {symbol: string, decimals: number}[] | null;
@@ -257,28 +255,28 @@ export namespace $default {
     "name": string;
     "chain": string;
     "symbol": string;
-    "isFeeToken": boolean;
     "decimals": number;
+    "isFeeToken": boolean;
+    "icon"?: string | null;
     "pythUsdPriceId"?: string | null;
     "user"?: User | null;
-    "icon"?: string | null;
     "isSystem": boolean;
   }
   export interface Transaction extends Proposal {
+    "maxAmount": string;
     "gasLimit": bigint;
     "result"?: Result | null;
     "executable": boolean;
     "operations": Operation[];
     "simulation"?: Simulation | null;
     "paymaster": string;
+    "feeToken": Token;
+    "maxAmountFp": bigint;
+    "paymasterEthFees": PaymasterFees;
     "status": TransactionStatus;
     "systx"?: SystemTx | null;
     "results": Result[];
     "systxs": SystemTx[];
-    "feeToken": Token;
-    "paymasterEthFees": PaymasterFees;
-    "maxAmount": string;
-    "maxAmountFp": bigint;
   }
   export type TransactionStatus = "Pending" | "Scheduled" | "Executing" | "Successful" | "Failed" | "Cancelled";
   export interface TransferDetails extends std.$Object {
@@ -343,7 +341,6 @@ import Operation = $default.Operation;
 import PaymasterFees = $default.PaymasterFees;
 import PolicyState = $default.PolicyState;
 import Policy = $default.Policy;
-import Refund = $default.Refund;
 import Rejection = $default.Rejection;
 import RemovedPolicy = $default.RemovedPolicy;
 import Scheduled = $default.Scheduled;
@@ -388,7 +385,6 @@ export type {
   PaymasterFees,
   PolicyState,
   Policy,
-  Refund,
   Rejection,
   RemovedPolicy,
   Scheduled,
@@ -665,6 +661,7 @@ export interface types {
     "InstanceConfig": cfg.InstanceConfig;
     "JWT": cfg.JWT;
     "Password": cfg.Password;
+    "QueryCacheMode": cfg.QueryCacheMode;
     "SCRAM": cfg.SCRAM;
     "Trust": cfg.Trust;
     "mTLS": cfg.mTLS;
@@ -693,7 +690,6 @@ export interface types {
     "PaymasterFees": $default.PaymasterFees;
     "PolicyState": $default.PolicyState;
     "Policy": $default.Policy;
-    "Refund": $default.Refund;
     "Rejection": $default.Rejection;
     "RemovedPolicy": $default.RemovedPolicy;
     "Scheduled": $default.Scheduled;

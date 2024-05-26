@@ -22,7 +22,11 @@ module default {
     required maxAmount: decimal;
     required property maxAmountFp := as_fixed(.maxAmount, .feeToken.decimals);
     required paymaster: Address;
-    required paymasterEthFees: PaymasterFees { constraint exclusive; default := (insert PaymasterFees {}); }
+    required paymasterEthFees: PaymasterFees { 
+      constraint exclusive;
+      on source delete delete target; 
+      default := (insert PaymasterFees {}); 
+    }
     simulation: Simulation { constraint exclusive; on target delete deferred restrict; }
     required executable: bool { default := false; }
     multi link systxs := .<proposal[is SystemTx];
@@ -72,11 +76,13 @@ module default {
     );
 
     trigger update_activation_fee after insert for each
-    when (__new__.proposal.paymasterEthFees.activation > 0 and __new__.proposal.account.activationEthFee > 0) do (
-      update __new__.proposal.account set {
-        activationEthFee := max({ 0, .activationEthFee - __new__.proposal.paymasterEthFees.activation }) 
+    when (__new__.proposal.account.activationEthFee > 0) do (
+      with account := __new__.proposal.account,
+           paymasterEthFees := __new__.proposal.paymasterEthFees
+      update account set {
+        activationEthFee := max({ 0, account.activationEthFee - paymasterEthFees.activation }) 
       } 
-    )
+    );
   }
 
   abstract type Result {
@@ -110,10 +116,5 @@ module default {
   type Scheduled extending Result {
     required scheduledFor: datetime;
     required cancelled: bool { default := false; }
-  }
-
-  type Refund {
-    required link systx: SystemTx { constraint exclusive; }
-    required ethAmount: decimal { constraint min_value(0); }
   }
 }
