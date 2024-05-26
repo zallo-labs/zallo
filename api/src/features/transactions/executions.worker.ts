@@ -1,6 +1,7 @@
 import { Processor } from '@nestjs/bullmq';
 import { Injectable } from '@nestjs/common';
 import {
+  UAddress,
   UUID,
   asAddress,
   asApproval,
@@ -34,6 +35,13 @@ import Decimal from 'decimal.js';
 import { ETH } from 'lib/dapps';
 import { Shape } from '#/database/database.select';
 import { match } from 'ts-pattern';
+import { PaymasterFeeParts } from '#/paymasters/paymasters.model';
+import { PaymastersService } from '#/paymasters/paymasters.service';
+import {
+  lowerOfPaymasterFees,
+  paymasterFeesEq,
+  totalPaymasterEthFees,
+} from '#/paymasters/paymasters.util';
 
 export const ExecutionsQueue = createQueue<ExecutionJob>('Executions');
 export type ExecutionsQueue = typeof ExecutionsQueue;
@@ -54,6 +62,7 @@ export class ExecutionsWorker extends Worker<ExecutionsQueue> {
     private proposals: ProposalsService,
     private tokens: TokensService,
     private prices: PricesService,
+    private paymasters: PaymastersService,
   ) {
     super();
   }
@@ -77,7 +86,7 @@ export class ExecutionsWorker extends Worker<ExecutionsQueue> {
           signature: true,
         }),
         policy: PolicyShape,
-        paymasterEthFees: { total: true },
+        paymasterEthFees: { activation: true },
         ...TX_SHAPE,
         ...EXECUTE_TX_SHAPE,
       })),
@@ -102,10 +111,14 @@ export class ExecutionsWorker extends Worker<ExecutionsQueue> {
     if (approvals.length !== proposal.approvals.length)
       throw new UnrecoverableError('Approval expired'); // TODO: handle expiring approvals
 
+    const newPaymasterFees = await this.getAndUpdateNewPaymasterFees(id, account, {
+      activation: new Decimal(proposal.paymasterEthFees.activation),
+    });
+
     const tx = transactionAsTx(proposal);
     return await this.execute({
       proposal,
-      paymasterEthFees: new Decimal(proposal.paymasterEthFees.total),
+      paymasterEthFees: totalPaymasterEthFees(newPaymasterFees),
       ignoreSimulation,
       executeParams: {
         ...asSystemTransaction({ tx }),
@@ -183,7 +196,7 @@ export class ExecutionsWorker extends Worker<ExecutionsQueue> {
       ...executeParams,
     });
 
-    if (1 + 1 === 2 && execution.isErr()) throw execution.error;
+    if (execution.isErr()) throw execution.error; // Transactions with validation errors should not be marked as executable
 
     const id = asUUID(proposal.id);
     const r = await (async () => {
@@ -202,24 +215,46 @@ export class ExecutionsWorker extends Worker<ExecutionsQueue> {
         return hash;
       } /* execution isErr */ else {
         // Validation failed
-        const err = execution.error;
-        await this.db.query(
-          e.insert(e.Failed, {
-            transaction: selectTransaction(id),
-            block: network.blockNumber(),
-            gasUsed: 0n,
-            ethFeePerGas: maxFeePerGas.toString(),
-            reason: err.message,
-          }),
-        );
-
-        return err;
+        // const err = execution.error;
+        // await this.db.query(
+        //   e.insert(e.Failed, {
+        //     transaction: selectTransaction(id),
+        //     block: network.blockNumber(),
+        //     gasUsed: 0n,
+        //     ethFeePerGas: maxFeePerGas.toString(),
+        //     reason: err.message,
+        //   }),
+        // );
+        // return err;
       }
     })();
 
     this.proposals.publish({ id, account }, ProposalEvent.submitted);
 
     return r;
+  }
+
+  private async getAndUpdateNewPaymasterFees(
+    transaction: UUID,
+    account: UAddress,
+    existing: PaymasterFeeParts,
+  ) {
+    const current = await this.paymasters.paymasterFees({ account });
+    const lowest = lowerOfPaymasterFees(existing, current);
+    if (!paymasterFeesEq(existing, lowest)) {
+      this.db.query(
+        e.update(e.Transaction, () => ({
+          filter_single: { id: transaction },
+          set: {
+            paymasterEthFees: e.insert(e.PaymasterFees, {
+              activation: lowest.activation.toString(),
+            }),
+          },
+        })),
+      );
+    }
+
+    return lowest;
   }
 }
 

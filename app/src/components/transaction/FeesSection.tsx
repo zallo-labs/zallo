@@ -44,6 +44,10 @@ const Transaction = gql(/* GraphQL */ `
     estimatedFees {
       id
       maxNetworkEthFee
+      paymasterEthFees {
+        total
+        activation
+      }
     }
     systx {
       id
@@ -86,10 +90,12 @@ export function FeesSection(props: FeeTokenProps) {
     p.result?.__typename === 'Successful' || p.result?.__typename === 'Failed'
       ? new Decimal(p.result.networkEthFee)
       : undefined;
-  const activationFee = new Decimal(p.paymasterEthFees.activation).neg();
+
+  const paymasterEthFees = actNetworkEthFee ? p.paymasterEthFees : p.estimatedFees.paymasterEthFees;
+  const activationFee = new Decimal(paymasterEthFees.activation);
 
   const totalFeeAmount = (actNetworkEthFee ?? estNetworkEthFee)
-    .plus(p.paymasterEthFees.total)
+    .plus(paymasterEthFees.total)
     .div(ethPerFeeToken);
 
   return (
@@ -97,8 +103,9 @@ export function FeesSection(props: FeeTokenProps) {
       <TokenItem
         token={p.feeToken}
         amount={(actNetworkEthFee ?? estNetworkEthFee)
-          .plus(p.paymasterEthFees.total)
-          .div(ethPerFeeToken)}
+          .plus(paymasterEthFees.total)
+          .div(ethPerFeeToken)
+          .neg()}
         overline={actNetworkEthFee ? 'Fees' : 'Estimated fees'}
         onPress={toggleExpanded}
         trailing={({ Trailing }) => (

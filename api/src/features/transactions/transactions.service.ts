@@ -45,26 +45,24 @@ import { FlowProducer } from 'bullmq';
 import { ActivationsService } from '../activations/activations.service';
 import { ReceiptsQueue } from '../system-txs/receipts.queue';
 import { PoliciesService } from '../policies/policies.service';
-import { TokensService, preferUserToken } from '#/tokens/tokens.service';
+import { TokensService } from '#/tokens/tokens.service';
 import { PricesService } from '#/prices/prices.service';
-import { totalPaymasterEthFees } from '#/paymasters/paymasters.util';
+import { lowerOfPaymasterFees, totalPaymasterEthFees } from '#/paymasters/paymasters.util';
 import Decimal from 'decimal.js';
 import { afterRequest } from '#/util/context';
 import { DEFAULT_FLOW_OPTIONS } from '#/util/bull/bull.module';
+import { PaymasterFeeParts } from '#/paymasters/paymasters.model';
 
 const MAX_NETWORK_FEE_MULTIPLIER = new Decimal(5); // Allow for a higher network fee
 
 export const selectTransaction = (id: UUID | Hex) =>
-  e.select(e.Transaction, () => ({
-    filter_single: isHex(id) ? { hash: id } : { id },
-  }));
+  e.select(e.Transaction, () => ({ filter_single: isHex(id) ? { hash: id } : { id } }));
 
 export const estimateFeesDeps = {
   id: true,
   account: { address: true },
   gasLimit: true,
   paymasterEthFees: {
-    total: true,
     activation: true,
   },
 } satisfies Shape<typeof e.Transaction>;
@@ -374,15 +372,20 @@ export class TransactionsService {
 
   async estimateFees(d: EstimateFeesDeps): Promise<EstimatedTransactionFees> {
     const account = asUAddress(d.account.address);
-    const maxFeePerGas = await this.networks.get(account).estimatedMaxFeePerGas();
+    const [maxFeePerGas, curPaymasterFees] = await Promise.all([
+      this.networks.get(account).estimatedMaxFeePerGas(),
+      this.paymasters.paymasterFees({ account }),
+    ]);
+
+    const existingPaymasterFees: PaymasterFeeParts = {
+      activation: new Decimal(d.paymasterEthFees.activation),
+    };
+    const estPaymasterFees = lowerOfPaymasterFees(existingPaymasterFees, curPaymasterFees);
 
     return {
       id: `EstimatedTransactionFees:${d.id}`,
       maxNetworkEthFee: maxFeePerGas.mul(d.gasLimit.toString()),
-      paymasterEthFees: {
-        total: new Decimal(d.paymasterEthFees.total),
-        activation: new Decimal(d.paymasterEthFees.activation),
-      },
+      paymasterEthFees: { total: totalPaymasterEthFees(estPaymasterFees), ...estPaymasterFees },
     };
   }
 }
