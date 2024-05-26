@@ -110,98 +110,89 @@ export class OperationsService {
 
     const base: GenericOp = { _name: f.functionName, _args: f.args ?? [] };
 
-    return (
-      match(f)
-        /* Account */
-        .with({ functionName: 'addPolicy' }, async (f) =>
-          Object.assign(new UpdatePolicyOp(), {
-            // TODO: include policy object and policyState object (the actual one being added)
-            ...base,
-            account: to,
-            key: f.args[0].key as PolicyKey,
-            threshold: f.args[0].threshold,
-            approvers: f.args[0].approvers,
-          } /* satisfies UpdatePolicyOp */),
-        )
-        .with({ functionName: 'removePolicy' }, (f) =>
-          Object.assign(new RemovePolicyOp(), {
-            ...base,
-            account: to,
-            key: f.args[0] as PolicyKey,
-          } satisfies RemovePolicyOp),
-        )
-        /* ERC20 */
-        .with({ functionName: 'transfer' }, async (f) =>
-          Object.assign(new TransferOp(), {
-            ...base,
-            token: to,
-            to: f.args[0],
-            amount: await this.tokens.asDecimal(asUAddress(to, chain), f.args[1]),
-          } satisfies TransferOp),
-        )
-        .with({ functionName: 'transferFrom' }, async (f) =>
-          Object.assign(new TransferFromOp(), {
-            ...base,
-            token: to,
-            from: f.args[0],
-            to: f.args[1],
-            amount: await this.tokens.asDecimal(asUAddress(to, chain), f.args[2]),
-          } satisfies TransferFromOp),
-        )
-        .with({ functionName: 'approve' }, async (f) =>
-          Object.assign(new TransferApprovalOp(), {
-            ...base,
-            token: to,
-            spender: f.args[0],
-            amount: await this.tokens.asDecimal(asUAddress(to, chain), f.args[1]),
-          } satisfies TransferApprovalOp),
-        )
-        /* SyncSwap */
-        .with({ functionName: 'swap' }, async (f) => {
-          const path = f.args[0][0];
+    switch (f.functionName) {
+      case 'addPolicy':
+        return Object.assign(new UpdatePolicyOp(), {
+          // TODO: include policy object and policyState object (the actual one being added)
+          ...base,
+          account: to,
+          key: f.args[0].key as PolicyKey,
+          threshold: f.args[0].threshold,
+          approvers: f.args[0].approvers,
+        } satisfies UpdatePolicyOp);
+      case 'removePolicy':
+        return Object.assign(new RemovePolicyOp(), {
+          ...base,
+          account: to,
+          key: f.args[0] as PolicyKey,
+        } satisfies RemovePolicyOp);
+      /* ERC20 */
+      case 'transfer':
+        return Object.assign(new TransferOp(), {
+          ...base,
+          token: to,
+          to: f.args[0],
+          amount: await this.tokens.asDecimal(asUAddress(to, chain), f.args[1]),
+        } satisfies TransferOp);
+      case 'transferFrom':
+        return Object.assign(new TransferFromOp(), {
+          ...base,
+          token: to,
+          from: f.args[0],
+          to: f.args[1],
+          amount: await this.tokens.asDecimal(asUAddress(to, chain), f.args[2]),
+        } satisfies TransferFromOp);
+      case 'approve':
+        return Object.assign(new TransferApprovalOp(), {
+          ...base,
+          token: to,
+          spender: f.args[0],
+          amount: await this.tokens.asDecimal(asUAddress(to, chain), f.args[1]),
+        } satisfies TransferApprovalOp);
+      /* SyncSwap */
+      case 'swap':
+        const path = f.args[0][0];
 
-          // Figure out the toToken by querying the pool
-          // TODO: find a better way to do this
-          const tokenCalls = await this.networks.get(chain).multicall({
-            contracts: [
-              {
-                address: path.steps[0].pool,
-                abi: SYNCSWAP.poolAbi,
-                functionName: 'token0',
-              },
-              {
-                address: path.steps[0].pool,
-                abi: SYNCSWAP.poolAbi,
-                functionName: 'token1',
-              },
-            ],
-          });
+        // Figure out the toToken by querying the pool
+        // TODO: find a better way to do this
+        const tokenCalls = await this.networks.get(chain).multicall({
+          contracts: [
+            {
+              address: path.steps[0].pool,
+              abi: SYNCSWAP.poolAbi,
+              functionName: 'token0',
+            },
+            {
+              address: path.steps[0].pool,
+              abi: SYNCSWAP.poolAbi,
+              functionName: 'token1',
+            },
+          ],
+        });
 
-          const pair = tokenCalls.map((c) => c.result).filter(isPresent);
-          if (pair.length !== 2) return Object.assign(new GenericOp(), base);
+        const pair = tokenCalls.map((c) => c.result).filter(isPresent);
+        if (pair.length !== 2) return Object.assign(new GenericOp(), base);
 
-          // ETH can be used as tokenIn, but uses the WETH pool
-          const fromToken = path.tokenIn;
-          const toToken =
-            (isEthToken(fromToken) ? WETH.address[chain] : fromToken) === pair[0]
-              ? pair[1]
-              : pair[0];
+        // ETH can be used as tokenIn, but uses the WETH pool
+        const fromToken = path.tokenIn;
+        const toToken =
+          (isEthToken(fromToken) ? WETH.address[chain] : fromToken) === pair[0] ? pair[1] : pair[0];
 
-          const [fromAmount, minimumToAmount] = await Promise.all([
-            this.tokens.asDecimal(asUAddress(fromToken, chain), path.amountIn),
-            this.tokens.asDecimal(asUAddress(toToken, chain), f.args[1]),
-          ]);
+        const [fromAmount, minimumToAmount] = await Promise.all([
+          this.tokens.asDecimal(asUAddress(fromToken, chain), path.amountIn),
+          this.tokens.asDecimal(asUAddress(toToken, chain), f.args[1]),
+        ]);
 
-          return Object.assign(new SwapOp(), {
-            ...base,
-            fromToken,
-            fromAmount,
-            toToken,
-            minimumToAmount,
-            deadline: new Date(Number(f.args[2]) * 1000),
-          } satisfies SwapOp);
-        })
-        .otherwise(() => Object.assign(new GenericOp(), base))
-    );
+        return Object.assign(new SwapOp(), {
+          ...base,
+          fromToken,
+          fromAmount,
+          toToken,
+          minimumToAmount,
+          deadline: new Date(Number(f.args[2]) * 1000),
+        } satisfies SwapOp);
+      default:
+        return Object.assign(new GenericOp(), base);
+    }
   }
 }
