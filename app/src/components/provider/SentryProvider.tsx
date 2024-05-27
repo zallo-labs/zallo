@@ -12,8 +12,7 @@ const updateGroup = metadata && 'updateGroup' in metadata ? metadata.updateGroup
 const routingInstrumentation = new Sentry.ReactNavigationInstrumentation();
 
 Sentry.init({
-  // enabled: !!CONFIG.sentryDsn,
-  enabled: true,
+  enabled: !!CONFIG.sentryDsn,
   debug: __DEV__,
   dsn: CONFIG.sentryDsn,
   environment: CONFIG.env,
