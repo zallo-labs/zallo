@@ -3,7 +3,7 @@
   "pipeline": {
     "build": {
       "dependsOn": ["^build"],
-      "inputs": ["contracts/**", "config.ts", "foundry.toml", "hardhat.config.ts", "package.json"],
+      "inputs": ["contracts/**", "config.ts", "foundry.toml", "remappings.txt", "hardhat.config.ts", "package.json"],
       "outputs": [
         "abi/**",
         "artifacts-zk/**",
@@ -17,7 +17,8 @@
       "dependsOn": ["build"]
     },
     "test": {
-      "inputs": ["test/**"]
+      "dependsOn": [],
+      "inputs": ["contracts/**", "test/**", "foundry.toml", "remappings.txt"]
     }
   }
 }
