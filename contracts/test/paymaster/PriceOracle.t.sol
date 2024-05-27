@@ -3,7 +3,7 @@ pragma solidity ^0.8.25;
 
 import {PythStructs} from '@pythnetwork/pyth-sdk-solidity/PythStructs.sol';
 
-import {UnitTest, console2} from 'test/UnitTest.sol';
+import {UnitTest} from 'test/UnitTest.sol';
 import {PriceOracle, Rate} from 'src/paymaster/PriceOracle.sol';
 
 contract PriceOracleTest is UnitTest, PriceOracle {

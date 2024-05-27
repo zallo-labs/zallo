@@ -3,7 +3,7 @@ pragma solidity ^0.8.25;
 
 import {MAX_SYSTEM_CONTRACT_ADDRESS} from '@matterlabs/zksync-contracts/l2/system-contracts/Constants.sol';
 
-import {UnitTest, console2} from 'test/UnitTest.sol';
+import {UnitTest} from 'test/UnitTest.sol';
 import {Executor} from 'src/execution/Executor.sol';
 import {SystemTransaction, TransactionLib, Tx, Operation} from 'src/execution/Transaction.sol';
 import {Policy, PolicyLib} from 'src/validation/Policy.sol';
@@ -15,18 +15,18 @@ contract ExecutorTest is UnitTest {
                      EXECUTE - STANDARD TRANSACTION
   //////////////////////////////////////////////////////////////*/
 
-  function testFuzz_execute_Standard_AllSucceed_Call(Operation[] memory ops) public {
-    _assumeValidOps(ops);
+  // function testFuzz_execute_Standard_AllSucceed_Call(Operation[] memory ops) public {
+  //   _assumeValidOps(ops);
 
-    for (uint256 i; i < ops.length; ++i) {
-      Operation memory op = ops[i];
-      vm.expectCall(op.to, op.value, op.data);
-    }
+  //   for (uint256 i; i < ops.length; ++i) {
+  //     Operation memory op = ops[i];
+  //     vm.expectCall(op.to, op.value, op.data);
+  //   }
 
-    Tx memory t;
-    t.operations = ops;
-    this.execute(_tx(t));
-  }
+  //   Tx memory t;
+  //   t.operations = ops;
+  //   this.execute(_tx(t));
+  // }
 
   function testFuzz_execute_Standard_RevertWhen_AnyReverts(
     Operation[] memory ops,

@@ -3,7 +3,7 @@ pragma solidity ^0.8.25;
 
 import {IERC20} from '@openzeppelin/contracts/token/ERC20/IERC20.sol';
 
-import {UnitTest, console2} from 'test/UnitTest.sol';
+import {UnitTest} from 'test/UnitTest.sol';
 import {TransferHook, TransfersConfig, TransferLimit, TokenTransfer, TokenSpending} from 'src/validation/hooks/TransferHook.sol';
 import {Operation} from 'src/execution/Transaction.sol';
 
