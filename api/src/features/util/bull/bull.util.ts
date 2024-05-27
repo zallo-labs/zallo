@@ -76,7 +76,7 @@ export abstract class Worker<Q extends QueueDefintion>
   implements OnModuleInit, OnModuleDestroy
 {
   protected log = new Logger(this.constructor.name);
-  protected queue: TypedQueue<Q>;
+  queue: TypedQueue<Q>;
 
   constructor() {
     super();
@@ -91,6 +91,7 @@ export abstract class Worker<Q extends QueueDefintion>
     }
 
     this.queue = new Queue(this.worker.name, { connection: await this.worker.client });
+    console.log('init queue');
 
     this.worker.concurrency = 5;
 

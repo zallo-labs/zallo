@@ -155,37 +155,35 @@ export class PoliciesService {
   }
 
   async remove({ account, key }: UniquePolicyInput) {
-    const proposal = await this.transactions.getInsertProposal({
-      account,
-      operations: [
-        {
-          to: asAddress(account),
-          data: encodeFunctionData({
-            abi: ACCOUNT_ABI,
-            functionName: 'removePolicy',
-            args: [key],
+    const policy = await this.db.query(
+      e.select(selectPolicy({ account, key }), (p) => ({
+        active: true,
+        removalDrafted: e.op('exists', p.draft.is(e.RemovedPolicy)),
+      })),
+    );
+    if (!policy || policy.removalDrafted) return;
+
+    await this.db.query(
+      e.insert(e.RemovedPolicy, {
+        account: selectAccount(account),
+        key,
+        ...(policy.active && {
+          proposal: await this.transactions.getInsertProposal({
+            account,
+            operations: [
+              {
+                to: asAddress(account),
+                data: encodeFunctionData({
+                  abi: ACCOUNT_ABI,
+                  functionName: 'removePolicy',
+                  args: [key],
+                }),
+              },
+            ],
           }),
-        },
-      ],
-    });
-
-    await this.db.transaction(async () => {
-      const policy = await this.db.query(
-        e.select(selectPolicy({ account, key }), (p) => ({
-          active: true,
-          removalDrafted: e.op('exists', p.draft.is(e.RemovedPolicy)),
-        })),
-      );
-      if (!policy || policy.removalDrafted) return;
-
-      await this.db.query(
-        e.insert(e.RemovedPolicy, {
-          account: selectAccount(account),
-          key,
-          ...(policy.active && { proposal }),
         }),
-      );
-    });
+      }),
+    );
   }
 
   validate(proposal: Tx | 'message' | null, policy: Policy | null) {

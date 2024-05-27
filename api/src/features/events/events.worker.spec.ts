@@ -2,7 +2,7 @@ import { Test } from '@nestjs/testing';
 import { EventsQueue, EventsWorker, EventData, Log } from './events.worker';
 import { DeepMocked, createMock } from '@golevelup/ts-jest';
 import { Network, NetworksService } from '../util/networks/networks.service';
-import { BullModule, getQueueToken } from '@nestjs/bullmq';
+import { BullModule } from '@nestjs/bullmq';
 import { DEFAULT_REDIS_NAMESPACE, getRedisToken } from '@songkeys/nestjs-redis';
 import { DeepPartial, randomAddress } from '~/util/test';
 import { ACCOUNT_ABI, Address } from 'lib';
@@ -51,8 +51,6 @@ describe(EventsWorker.name, () => {
         { provide: getRedisToken(DEFAULT_REDIS_NAMESPACE), useValue: createMock() },
       ],
     })
-      .overrideProvider(getQueueToken(EventsQueue.name))
-      .useValue(createMock())
       .useMocker(createMock)
       .compile();
 
@@ -67,7 +65,9 @@ describe(EventsWorker.name, () => {
       getLogs: async () => logs,
     } satisfies DeepPartial<Network> as unknown as Network);
 
-    queue = module.get(getQueueToken(EventsQueue.name));
+    queue = createMock();
+    worker.queue = queue;
+    queue.add.mockImplementation(async () => ({}) as any);
 
     attemptsMade = 0;
   });
