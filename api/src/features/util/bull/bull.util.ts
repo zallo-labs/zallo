@@ -91,7 +91,6 @@ export abstract class Worker<Q extends QueueDefintion>
     }
 
     this.queue = new Queue(this.worker.name, { connection: await this.worker.client });
-    console.log('init queue');
 
     this.worker.concurrency = 5;
 
