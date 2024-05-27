@@ -1,8 +1,8 @@
 import { createMock, DeepMocked } from '@golevelup/ts-jest';
 import { Test } from '@nestjs/testing';
-import { Network, NetworksService } from '../util/networks/networks.service';
+import { NetworksService } from '../util/networks/networks.service';
 import { UserContext, asUser, getUserCtx } from '#/util/context';
-import { DeepPartial, randomLabel, randomUAddress, randomUser } from '~/util/test';
+import { randomLabel, randomAddress, randomUAddress, randomUser } from '~/util/test';
 import { getProxyAddress, UAddress } from 'lib';
 import { PoliciesService } from '../policies/policies.service';
 import { BullModule, getQueueToken } from '@nestjs/bullmq';
@@ -54,10 +54,7 @@ describe(AccountsService.name, () => {
   const createAccount = async () => {
     const userCtx = getUserCtx();
 
-    const account = randomUAddress();
-    // networks.get.mockReturnValue({} satisfies DeepPartial<Network> as unknown as Network);
-
-    getProxyAddressMock.mockReturnValue((async () => account)());
+    getProxyAddressMock.mockReturnValue(randomAddress());
 
     return service.createAccount({
       chain: 'zksync-local',

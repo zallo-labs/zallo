@@ -1,4 +1,4 @@
-import { Address, asAddress, asUAddress } from './address';
+import { Address, asAddress } from './address';
 import { utils as zkUtils } from 'zksync-ethers';
 import { Policy, encodePolicyStruct } from './policy';
 import { Network, NetworkWallet } from 'chains';
@@ -42,17 +42,11 @@ export const encodeProxyConstructorArgs = ({ policies, implementation }: ProxyCo
 };
 
 export interface GetProxyAddressArgs extends ProxyConstructorArgs {
-  network: Network;
   deployer: Address;
   salt: Hex;
 }
 
-export async function getProxyAddress({
-  network,
-  deployer,
-  salt,
-  ...constructorArgs
-}: GetProxyAddressArgs) {
+export function getProxyAddress({ deployer, salt, ...constructorArgs }: GetProxyAddressArgs) {
   const address = zkUtils.create2Address(
     deployer,
     toHex(zkUtils.hashBytecode(ACCOUNT_PROXY.bytecode)),
@@ -60,7 +54,7 @@ export async function getProxyAddress({
     encodeProxyConstructorArgs(constructorArgs),
   );
 
-  return asUAddress(address, network.chain.key);
+  return asAddress(address);
 }
 
 export interface DeployAccountProxyRequestParams extends ProxyConstructorArgs {
@@ -97,12 +91,11 @@ export async function simulateDeployAccountProxy({
   salt,
   ...constructorArgs
 }: SimulateDeployAccountProxyArgs) {
-  const proxy = await getProxyAddress({ network, deployer, salt, ...constructorArgs });
+  const proxy = getProxyAddress({ deployer, salt, ...constructorArgs });
 
   const params = deployAccountProxyRequest({ deployer, salt, ...constructorArgs });
   const sim = await network.simulateContract(params);
-  const expected = asAddress(proxy);
-  if (sim.result !== expected) return err({ expected, simulated: sim.result });
+  if (sim.result !== proxy) return err({ proxy, simulated: sim.result });
 
   return ok({ proxy, params, ...sim });
 }
