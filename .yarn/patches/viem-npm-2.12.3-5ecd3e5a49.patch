@@ -1,236 +1,39 @@
+diff --git a/_cjs/utils/siwe/createSiweMessage.js b/_cjs/utils/siwe/createSiweMessage.js
+index 514170903a43c22087fa91aa5f6f904d4aaacc49..61e6e3d736ab56d0c60b60aa2c26999f12a8816c 100644
+--- a/_cjs/utils/siwe/createSiweMessage.js
++++ b/_cjs/utils/siwe/createSiweMessage.js
+@@ -118,7 +118,7 @@ function createSiweMessage(parameters) {
+     return `${prefix}\n${suffix}`;
+ }
+ exports.createSiweMessage = createSiweMessage;
+-const domainRegex = /^([a-zA-Z0-9][-a-zA-Z0-9]{0,61}[a-zA-Z0-9])\.[a-zA-Z]{2,}(:[0-9]{1,5})?$/;
++const domainRegex = /^([a-zA-Z0-9][-a-zA-Z0-9]{0,61}[a-zA-Z0-9]\.)+[a-zA-Z]{2,}(:[0-9]{1,5})?$/;
+ const ipRegex = /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(:[0-9]{1,5})?$/;
+ const localhostRegex = /^localhost(:[0-9]{1,5})?$/;
+ const nonceRegex = /^[a-zA-Z0-9]{8,}$/;
+diff --git a/_esm/utils/siwe/createSiweMessage.js b/_esm/utils/siwe/createSiweMessage.js
+index 62c50244c6ee635eef3a9f9b89a0754117235a36..2bd6b0ba7483b90ead4d57de61b6b478c4a7d4f5 100644
+--- a/_esm/utils/siwe/createSiweMessage.js
++++ b/_esm/utils/siwe/createSiweMessage.js
+@@ -133,7 +133,7 @@ export function createSiweMessage(parameters) {
+     }
+     return `${prefix}\n${suffix}`;
+ }
+-const domainRegex = /^([a-zA-Z0-9][-a-zA-Z0-9]{0,61}[a-zA-Z0-9])\.[a-zA-Z]{2,}(:[0-9]{1,5})?$/;
++const domainRegex = /^([a-zA-Z0-9][-a-zA-Z0-9]{0,61}[a-zA-Z0-9]\.)+[a-zA-Z]{2,}(:[0-9]{1,5})?$/;
+ const ipRegex = /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(:[0-9]{1,5})?$/;
+ const localhostRegex = /^localhost(:[0-9]{1,5})?$/;
+ const nonceRegex = /^[a-zA-Z0-9]{8,}$/;
 diff --git a/utils/siwe/createSiweMessage.ts b/utils/siwe/createSiweMessage.ts
-index 103d71c29505bdb118edd551b932587d498d8501..8d75f5ddd6347a4975276e4ae348d0d83443a65d 100644
+index 103d71c29505bdb118edd551b932587d498d8501..95e1e8fa030ea23beac4eee826bbe3bb1e66e58e 100644
 --- a/utils/siwe/createSiweMessage.ts
 +++ b/utils/siwe/createSiweMessage.ts
-@@ -1,20 +1,20 @@
- import {
-   SiweInvalidMessageFieldError,
-   type SiweInvalidMessageFieldErrorType,
--} from '../../errors/siwe.js'
--import type { ErrorType } from '../../errors/utils.js'
--import { type GetAddressErrorType, getAddress } from '../address/getAddress.js'
--import type { SiweMessage } from './types.js'
--import { isUri } from './utils.js'
-+} from "../../errors/siwe.js";
-+import type { ErrorType } from "../../errors/utils.js";
-+import { type GetAddressErrorType, getAddress } from "../address/getAddress.js";
-+import type { SiweMessage } from "./types.js";
-+import { isUri } from "./utils.js";
- 
--export type CreateSiweMessageParameters = SiweMessage
-+export type CreateSiweMessageParameters = SiweMessage;
- 
--export type CreateSiweMessageReturnType = string
-+export type CreateSiweMessageReturnType = string;
- 
- export type CreateSiweMessageErrorType =
-   | GetAddressErrorType
-   | SiweInvalidMessageFieldErrorType
--  | ErrorType
-+  | ErrorType;
- 
- /**
-  * @description Creates EIP-4361 formatted message.
-@@ -32,7 +32,7 @@ export type CreateSiweMessageErrorType =
-  * @see https://eips.ethereum.org/EIPS/eip-4361
-  */
- export function createSiweMessage(
--  parameters: CreateSiweMessageParameters,
-+  parameters: CreateSiweMessageParameters
- ): CreateSiweMessageReturnType {
-   const {
-     chainId,
-@@ -46,21 +46,21 @@ export function createSiweMessage(
-     scheme,
-     uri,
-     version,
--  } = parameters
-+  } = parameters;
- 
-   // Validate fields
-   {
-     // Required fields
-     if (chainId !== Math.floor(chainId))
-       throw new SiweInvalidMessageFieldError({
--        field: 'chainId',
-+        field: "chainId",
-         metaMessages: [
--          '- Chain ID must be a EIP-155 chain ID.',
--          '- See https://eips.ethereum.org/EIPS/eip-155',
--          '',
-+          "- Chain ID must be a EIP-155 chain ID.",
-+          "- See https://eips.ethereum.org/EIPS/eip-155",
-+          "",
-           `Provided value: ${chainId}`,
-         ],
--      })
-+      });
-     if (
-       !(
-         domainRegex.test(domain) ||
-@@ -69,110 +69,110 @@ export function createSiweMessage(
-       )
-     )
-       throw new SiweInvalidMessageFieldError({
--        field: 'domain',
-+        field: "domain",
-         metaMessages: [
--          '- Domain must be an RFC 3986 authority.',
--          '- See https://www.rfc-editor.org/rfc/rfc3986',
--          '',
-+          "- Domain must be an RFC 3986 authority.",
-+          "- See https://www.rfc-editor.org/rfc/rfc3986",
-+          "",
-           `Provided value: ${domain}`,
-         ],
--      })
-+      });
-     if (!nonceRegex.test(nonce))
-       throw new SiweInvalidMessageFieldError({
--        field: 'nonce',
-+        field: "nonce",
-         metaMessages: [
--          '- Nonce must be at least 8 characters.',
--          '- Nonce must be alphanumeric.',
--          '',
-+          "- Nonce must be at least 8 characters.",
-+          "- Nonce must be alphanumeric.",
-+          "",
-           `Provided value: ${nonce}`,
-         ],
--      })
-+      });
-     if (!isUri(uri))
-       throw new SiweInvalidMessageFieldError({
--        field: 'uri',
-+        field: "uri",
-         metaMessages: [
--          '- URI must be a RFC 3986 URI referring to the resource that is the subject of the signing.',
--          '- See https://www.rfc-editor.org/rfc/rfc3986',
--          '',
-+          "- URI must be a RFC 3986 URI referring to the resource that is the subject of the signing.",
-+          "- See https://www.rfc-editor.org/rfc/rfc3986",
-+          "",
-           `Provided value: ${uri}`,
-         ],
--      })
--    if (version !== '1')
-+      });
-+    if (version !== "1")
-       throw new SiweInvalidMessageFieldError({
--        field: 'version',
-+        field: "version",
-         metaMessages: [
-           "- Version must be '1'.",
--          '',
-+          "",
-           `Provided value: ${version}`,
-         ],
--      })
-+      });
- 
-     // Optional fields
-     if (scheme && !schemeRegex.test(scheme))
-       throw new SiweInvalidMessageFieldError({
--        field: 'scheme',
-+        field: "scheme",
-         metaMessages: [
--          '- Scheme must be an RFC 3986 URI scheme.',
--          '- See https://www.rfc-editor.org/rfc/rfc3986#section-3.1',
--          '',
-+          "- Scheme must be an RFC 3986 URI scheme.",
-+          "- See https://www.rfc-editor.org/rfc/rfc3986#section-3.1",
-+          "",
-           `Provided value: ${scheme}`,
-         ],
--      })
--    const statement = parameters.statement
--    if (statement?.includes('\n'))
-+      });
-+    const statement = parameters.statement;
-+    if (statement?.includes("\n"))
-       throw new SiweInvalidMessageFieldError({
--        field: 'statement',
-+        field: "statement",
-         metaMessages: [
-           "- Statement must not include '\\n'.",
--          '',
-+          "",
-           `Provided value: ${statement}`,
-         ],
--      })
-+      });
-   }
- 
-   // Construct message
--  const address = getAddress(parameters.address)
-+  const address = getAddress(parameters.address);
-   const origin = (() => {
--    if (scheme) return `${scheme}://${domain}`
--    return domain
--  })()
-+    if (scheme) return `${scheme}://${domain}`;
-+    return domain;
-+  })();
-   const statement = (() => {
--    if (!parameters.statement) return ''
--    return `\n${parameters.statement}\n`
--  })()
--  const prefix = `${origin} wants you to sign in with your Ethereum account:\n${address}\n${statement}`
-+    if (!parameters.statement) return "";
-+    return `\n${parameters.statement}\n`;
-+  })();
-+  const prefix = `${origin} wants you to sign in with your Ethereum account:\n${address}\n${statement}`;
- 
--  let suffix = `URI: ${uri}\nVersion: ${version}\nChain ID: ${chainId}\nNonce: ${nonce}\nIssued At: ${issuedAt.toISOString()}`
-+  let suffix = `URI: ${uri}\nVersion: ${version}\nChain ID: ${chainId}\nNonce: ${nonce}\nIssued At: ${issuedAt.toISOString()}`;
- 
-   if (expirationTime)
--    suffix += `\nExpiration Time: ${expirationTime.toISOString()}`
--  if (notBefore) suffix += `\nNot Before: ${notBefore.toISOString()}`
--  if (requestId) suffix += `\nRequest ID: ${requestId}`
-+    suffix += `\nExpiration Time: ${expirationTime.toISOString()}`;
-+  if (notBefore) suffix += `\nNot Before: ${notBefore.toISOString()}`;
-+  if (requestId) suffix += `\nRequest ID: ${requestId}`;
-   if (resources) {
--    let content = '\nResources:'
-+    let content = "\nResources:";
-     for (const resource of resources) {
-       if (!isUri(resource))
-         throw new SiweInvalidMessageFieldError({
--          field: 'resources',
-+          field: "resources",
-           metaMessages: [
--            '- Every resource must be a RFC 3986 URI.',
--            '- See https://www.rfc-editor.org/rfc/rfc3986',
--            '',
-+            "- Every resource must be a RFC 3986 URI.",
-+            "- See https://www.rfc-editor.org/rfc/rfc3986",
-+            "",
-             `Provided value: ${resource}`,
-           ],
--        })
--      content += `\n- ${resource}`
-+        });
-+      content += `\n- ${resource}`;
-     }
--    suffix += content
-+    suffix += content;
-   }
- 
--  return `${prefix}\n${suffix}`
-+  return `${prefix}\n${suffix}`;
+@@ -170,7 +170,7 @@ export function createSiweMessage(
  }
  
  const domainRegex =
 -  /^([a-zA-Z0-9][-a-zA-Z0-9]{0,61}[a-zA-Z0-9])\.[a-zA-Z]{2,}(:[0-9]{1,5})?$/
-+  /^(?:[a-zA-Z0-9][-a-zA-Z0-9]{0,61}[a-zA-Z0-9]\.)+[a-zA-Z]{2,}(?::[0-9]{1,5})?$/;
++  /^([a-zA-Z0-9][-a-zA-Z0-9]{0,61}[a-zA-Z0-9]\.)+[a-zA-Z]{2,}(:[0-9]{1,5})?$/
  const ipRegex =
--  /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(:[0-9]{1,5})?$/
--const localhostRegex = /^localhost(:[0-9]{1,5})?$/
--const nonceRegex = /^[a-zA-Z0-9]{8,}$/
--const schemeRegex = /^([a-zA-Z][a-zA-Z0-9+-.]*)$/
-+  /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(:[0-9]{1,5})?$/;
-+const localhostRegex = /^localhost(:[0-9]{1,5})?$/;
-+const nonceRegex = /^[a-zA-Z0-9]{8,}$/;
-+const schemeRegex = /^([a-zA-Z][a-zA-Z0-9+-.]*)$/;
+   /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(:[0-9]{1,5})?$/
+ const localhostRegex = /^localhost(:[0-9]{1,5})?$/
