@@ -29,7 +29,7 @@
     "neverthrow": "^6.2.1",
     "ts-pattern": "^5.1.2",
     "ts-toolbelt": "^9.6.0",
-    "viem": "^2.12.3",
+    "viem": "patch:viem@npm:2.12.3#~/.yarn/patches/viem-npm-2.12.3-5ecd3e5a49.patch",
     "zksync-ethers": "^6.7.1"
   },
   "devDependencies": {
