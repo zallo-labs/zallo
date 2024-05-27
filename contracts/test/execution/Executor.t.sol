@@ -33,8 +33,9 @@ contract ExecutorTest is UnitTest {
     uint8 revertingOpIndex,
     bytes memory revertData
   ) public {
+    vm.assume(ops.length > 0);
     _assumeValidOps(ops);
-    vm.assume(revertingOpIndex < ops.length);
+    revertingOpIndex = uint8(bound(revertingOpIndex, 0, ops.length - 1));
 
     Operation memory op = ops[revertingOpIndex];
     vm.mockCallRevert(op.to, op.value, op.data, revertData);
@@ -70,8 +71,9 @@ contract ExecutorTest is UnitTest {
     uint8 revertingOpIndex,
     bytes memory revertData
   ) public {
+    vm.assume(ops.length > 0);
     _assumeValidOps(ops);
-    vm.assume(revertingOpIndex < ops.length);
+    revertingOpIndex = uint8(bound(revertingOpIndex, 0, ops.length - 1));
 
     Operation memory op = ops[revertingOpIndex];
     vm.mockCallRevert(op.to, op.value, op.data, revertData);
@@ -109,8 +111,9 @@ contract ExecutorTest is UnitTest {
     for (uint256 i; i < ops.length; ++i) {
       Operation memory op = ops[i];
       total += op.value;
-
-      vm.assume(op.to > address(MAX_SYSTEM_CONTRACT_ADDRESS));
+      op.to = address(
+        uint160(bound(uint160(op.to), MAX_SYSTEM_CONTRACT_ADDRESS + 1, type(uint160).max))
+      );
     }
     vm.assume(total < (address(this).balance - 1 ether));
   }

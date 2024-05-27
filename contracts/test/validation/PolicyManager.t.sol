@@ -4,6 +4,7 @@ pragma solidity ^0.8.25;
 import {UnitTest} from 'test/UnitTest.sol';
 import {PolicyManager} from 'src/validation/PolicyManager.sol';
 import {Policy, PolicyLib, PolicyKey} from 'src/validation/Policy.sol';
+import {Hook} from 'src/validation/hooks/Hooks.sol';
 import {SelfOwned} from 'src/core/SelfOwned.sol';
 
 contract PolicyManagerTest is UnitTest, PolicyManager {
@@ -14,16 +15,18 @@ contract PolicyManagerTest is UnitTest, PolicyManager {
   function testFuzz_addPolicy_SelfCalled_ThresholdLteApprovers_SetPolicyHash(
     Policy memory p
   ) public {
-    vm.assume(p.threshold <= p.approvers.length);
-    vm.assume(p.hooks.length == 0);
+    vm.assume(p.approvers.length < type(uint32).max);
+    p.threshold = uint32(bound(p.threshold, 0, p.approvers.length));
+    p.hooks = new Hook[](0);
 
     this.addPolicy(p);
     assertEq(PolicyLib.hashes()[p.key], PolicyLib.hash(p));
   }
 
   function testFuzz_addPolicy_SelfCalled_ThresholdLteApprovers_EmitEvent(Policy memory p) public {
-    vm.assume(p.threshold <= p.approvers.length);
-    vm.assume(p.hooks.length == 0);
+    vm.assume(p.approvers.length < type(uint32).max);
+    p.threshold = uint32(bound(p.threshold, 0, p.approvers.length));
+    p.hooks = new Hook[](0);
 
     vm.expectEmit(true, true, true, true);
     emit PolicyManager.PolicyAdded(p.key, PolicyLib.hash(p));
@@ -33,7 +36,7 @@ contract PolicyManagerTest is UnitTest, PolicyManager {
 
   function testFuzz_addPolicy_SelfCalled_RevertWhen_ThresholdGtApprovers(Policy memory p) public {
     vm.assume(p.threshold > p.approvers.length);
-    vm.assume(p.hooks.length == 0);
+    p.hooks = new Hook[](0);
 
     vm.expectRevert(
       abi.encodeWithSelector(PolicyManager.ThresholdTooHigh.selector, p.approvers.length)
@@ -43,7 +46,7 @@ contract PolicyManagerTest is UnitTest, PolicyManager {
 
   function testFuzz_addPolicy_RevertWhen_CalledByOther(address caller, Policy memory p) public {
     vm.assume(caller != address(this));
-    vm.assume(p.hooks.length == 0);
+    p.hooks = new Hook[](0);
     vm.startPrank(caller);
 
     vm.expectRevert(SelfOwned.OnlyCallableBySelf.selector);
@@ -72,7 +75,7 @@ contract PolicyManagerTest is UnitTest, PolicyManager {
 
   function testFuzz_removePolicy_RevertWhen_CalledByOther(address caller, Policy memory p) public {
     vm.assume(caller != address(this));
-    vm.assume(p.hooks.length == 0);
+    p.hooks = new Hook[](0);
     vm.startPrank(caller);
 
     vm.expectRevert(SelfOwned.OnlyCallableBySelf.selector);
