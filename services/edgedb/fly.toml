@@ -1,10 +1,10 @@
 app = "zallo-production-edgedb"
-primary_region = "lax"  # Los Angeles
+primary_region = "iad" # Ashburn, Virginia
 
 swap_size_mb = 4096
 
 [build]
-  image = "edgedb/edgedb:5.0-beta.2"
+  image = "edgedb/edgedb:5.4"
 
 [env]
   EDGEDB_SERVER_PORT = 10700 # default

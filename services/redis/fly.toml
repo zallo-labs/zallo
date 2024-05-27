@@ -1,5 +1,5 @@
 app = "zallo-production-redis"
-primary_region = "lax"  # Los Angeles
+primary_region = "iad" # Ashburn, Virginia
 
 [build]
   dockerfile = "Dockerfile"

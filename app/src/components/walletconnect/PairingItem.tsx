@@ -1,4 +1,4 @@
-import { Image } from 'expo-image';
+import { Image } from '#/Image';
 import { ListItem } from '#/list/ListItem';
 import { SessionTypes, PairingTypes } from '@walletconnect/types';
 import { ICON_SIZE } from '@theme/paper';

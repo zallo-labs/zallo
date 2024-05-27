@@ -6,15 +6,15 @@ import { Network } from 'chains';
 import {
   getAbiItem,
   hexToNumber,
-  hexToSignature,
+  parseSignature,
   recoverAddress,
   signatureToCompactSignature,
   size,
 } from 'viem';
 import { AbiParameterToPrimitiveType } from 'abitype';
-import { TEST_VERIFIER_ABI } from './contract';
+import { EXPOSED_ABI } from './contract';
 
-export type SignatureType = 'secp256k1' | 'erc1271';
+export type SignatureType = 'k256' | 'erc1271';
 
 export interface Approval {
   type: SignatureType;
@@ -27,27 +27,23 @@ export interface ApprovalsParams {
   approvers: Set<Address>;
 }
 
-export const APPROVALS_ABI = getAbiItem({ abi: TEST_VERIFIER_ABI, name: 'verifyApprovals' })
-  .inputs[0];
+export const APPROVALS_ABI = getAbiItem({ abi: EXPOSED_ABI, name: 'Approvals_' }).inputs[0];
 export type ApprovalsStruct = AbiParameterToPrimitiveType<typeof APPROVALS_ABI>;
 
 export function encodeApprovalsStruct({ approvals, approvers }: ApprovalsParams): ApprovalsStruct {
   approvals = approvals.sort((a, b) => hexToNumber(a.approver) - hexToNumber(b.approver));
   const sortedApprovers = [...approvers].sort((a, b) => hexToNumber(a) - hexToNumber(b));
 
-  // Approvers are encoded as a bitfield, where each bit represents whether the approver has signed
-  let approversSigned = 0n;
-  for (let i = 0; i < sortedApprovers.length; i++) {
-    const approved = approvals.find((a) => a.approver === sortedApprovers[i]!);
-    if (approved) approversSigned |= 1n << BigInt(i);
-  }
-
   return {
-    approversSigned,
-    secp256k1: approvals
-      .filter((a) => a.type === 'secp256k1')
-      .map((a) => signatureToCompactSignature(hexToSignature(a.signature))),
-    erc1271: approvals.filter((a) => a.type === 'erc1271').map((a) => a.signature),
+    k256: approvals
+      .filter((a) => a.type === 'k256')
+      .map((a) => signatureToCompactSignature(parseSignature(a.signature))),
+    erc1271: approvals
+      .filter((a) => a.type === 'erc1271')
+      .map((a) => ({
+        approverIndex: sortedApprovers.findIndex((approver) => approver === a.approver),
+        signature: a.signature,
+      })),
   };
 }
 
@@ -75,7 +71,7 @@ export const asApproval = async ({
       async () => asAddress(await recoverAddress({ hash: hash, signature })) === approver,
     ))
   )
-    return as('secp256k1');
+    return as('k256');
 
   // Note. even EOAs have contract code on zkSync
   const isValidErc1271 = await tryOrIgnoreAsync(async () => {

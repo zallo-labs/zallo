@@ -3,6 +3,8 @@
     ".tsup": true,
     ".turbo": true
   },
+  "explorer.excludeGitIgnore": true,
+  "search.useIgnoreFiles": true,
   "jest.jestCommandLine": "yarn test",
   "prettier.configPath": "../../.config/.prettierrc",
   "prettier.ignorePath": "../../.prettierignore"

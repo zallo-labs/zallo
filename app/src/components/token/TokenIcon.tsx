@@ -1,7 +1,7 @@
 import { FragmentType, gql, useFragment as getFragment } from '@api/generated';
 import { GenericTokenIcon } from '@theme/icons';
 import { createStyles, useStyles } from '@theme/styles';
-import { Image, ImageProps } from 'expo-image';
+import { Image, ImageProps } from '#/Image';
 import { UAddress, isUAddress } from 'lib';
 import { ImageStyle, StyleProp } from 'react-native';
 import { CircleSkeleton } from '#/skeleton/CircleSkeleton';

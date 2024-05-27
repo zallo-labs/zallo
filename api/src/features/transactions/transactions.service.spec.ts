@@ -1,6 +1,6 @@
 import { Test } from '@nestjs/testing';
 import { createMock, DeepMocked } from '@golevelup/ts-jest';
-import { asUser, getApprover, getUserCtx, UserContext } from '~/request/ctx';
+import { asUser, getApprover, getUserCtx, UserContext } from '#/util/context';
 import {
   DeepPartial,
   randomAddress,
@@ -26,6 +26,8 @@ import { CHAINS } from 'chains';
 import { PaymastersService } from '~/features/paymasters/paymasters.service';
 import Decimal from 'decimal.js';
 import { PoliciesService } from '../policies/policies.service';
+import { PricesService } from '#/prices/prices.service';
+import { TokensService } from '#/tokens/tokens.service';
 
 const signature = '0x1234' as Hex;
 
@@ -35,6 +37,8 @@ describe(TransactionsService.name, () => {
   let networks: DeepMocked<NetworksService>;
   let paymasters: DeepMocked<PaymastersService>;
   let policies: DeepMocked<PoliciesService>;
+  let tokens: DeepMocked<TokensService>;
+  let prices: DeepMocked<PricesService>;
 
   beforeEach(async () => {
     const module = await Test.createTestingModule({
@@ -58,17 +62,29 @@ describe(TransactionsService.name, () => {
     networks = module.get(NetworksService);
     paymasters = module.get(PaymastersService);
     policies = module.get(PoliciesService);
+    tokens = module.get(TokensService);
+    prices = module.get(PricesService);
 
     networks.get.mockReturnValue({
       chain: CHAINS['zksync-local'],
-      estimateGas: async () => 0n,
+      estimatedMaxFeePerGas: async () => new Decimal('.00000001'),
     } satisfies DeepPartial<Network> as unknown as Network);
 
-    paymasters.paymasterEthFees.mockImplementation(async () => ({
+    paymasters.paymasterFees.mockImplementation(async () => ({
       total: new Decimal(0),
       activation: new Decimal(0),
     }));
     paymasters.for.mockReturnValue(ZERO_ADDR);
+
+    tokens.asFp.mockImplementation(async () => 1n);
+
+    prices.price.mockImplementation(async () => ({
+      id: '0x12',
+      usd: new Decimal(1),
+      usdEma: new Decimal(1),
+      eth: new Decimal('0.1'),
+      ethEma: new Decimal('0.1'),
+    }));
   });
 
   let user1: UserContext;

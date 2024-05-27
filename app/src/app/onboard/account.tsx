@@ -7,11 +7,12 @@ import { useSetSelectedAccont } from '~/hooks/useSelectedAccount';
 import { useFocusEffect } from 'expo-router';
 import { ScreenSkeleton } from '#/skeleton/ScreenSkeleton';
 import { createStyles } from '@theme/styles';
-import { ScrollView, View } from 'react-native';
+import { View } from 'react-native';
 import { OnboardProgress } from '#/onboard/OnboardProgress';
 import { Appbar } from '#/Appbar/Appbar';
 import { CreateAccount } from '#/CreateAccount';
 import { withSuspense } from '#/skeleton/withSuspense';
+import { OnboardMainPane } from '#/onboard/OnboardMainPane';
 
 const Query = gql(/* GraphQL */ `
   query AccountOnboarding {
@@ -44,14 +45,14 @@ function AccountOnboardingScreen() {
   if (accounts.length) return null;
 
   return (
-    <ScrollView contentContainerStyle={styles.pane} stickyHeaderIndices={[0]}>
+    <OnboardMainPane contentContainerStyle={styles.pane} stickyHeaderIndices={[0]}>
       <View>
         <OnboardProgress progress={0.8} />
         <Appbar mode="large" headline="Let's setup your account" inset={false} />
       </View>
 
       <CreateAccount onCreate={next} />
-    </ScrollView>
+    </OnboardMainPane>
   );
 }
 

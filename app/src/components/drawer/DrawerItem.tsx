@@ -1,19 +1,20 @@
 import { IconProps } from '@theme/icons';
 import { useStyles } from '@theme/styles';
-import { Href, Link, useRouter, useSegments } from 'expo-router';
+import { useRouter, useSegments } from 'expo-router';
+import type { ExpoRouter } from 'expo-router/types/expo-router';
 import { ComponentPropsWithoutRef, FC } from 'react';
 import { Drawer } from 'react-native-paper';
 import { useDrawerActions } from '#/drawer/DrawerContextProvider';
 
-export interface DrawerItemProps<R>
+export interface DrawerItemProps
   extends Pick<ComponentPropsWithoutRef<typeof Drawer.Item>, 'onPress'> {
-  href: Href<R>;
+  href: ExpoRouter.Href;
   label: string;
   icon?: FC<IconProps>;
   disabled?: boolean;
 }
 
-export function DrawerItem<R>({ href, label, icon: Icon, disabled, ...props }: DrawerItemProps<R>) {
+export function DrawerItem({ href, label, icon: Icon, disabled, ...props }: DrawerItemProps) {
   const currentPath = `/${useSegments().join('/')}`;
   const hrefPath = getHrefPath(href);
   const router = useRouter();
@@ -40,8 +41,8 @@ export function DrawerItem<R>({ href, label, icon: Icon, disabled, ...props }: D
   );
 }
 
-function getHrefPath<R>(href: Href<R>) {
-  let p = typeof href === 'string' ? href : href.pathname;
+function getHrefPath(href: ExpoRouter.Href) {
+  let p: string = typeof href === 'string' ? href : href.pathname;
   if (p.endsWith('/')) p = p.slice(0, p.length - 1);
   return p;
 }

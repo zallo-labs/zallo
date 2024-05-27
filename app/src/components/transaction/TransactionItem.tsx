@@ -10,7 +10,7 @@ import { ProposalValue } from './ProposalValue';
 import { Link } from 'expo-router';
 import { createStyles, useStyles } from '@theme/styles';
 import { OperationIcon } from '#/transaction/OperationIcon';
-import { Image } from 'expo-image';
+import { Image } from '#/Image';
 
 const Transaction = gql(/* GraphQL */ `
   fragment TransactionItem_Transaction on Transaction {

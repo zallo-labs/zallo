@@ -17,11 +17,16 @@ module default {
       constraint exclusive;
       on source delete delete target;
     }
-    required property nonce := <bigint>math::floor(datetime_get(.validFrom, 'epochseconds'));
     required gasLimit: uint256 { default := 0; }
     required feeToken: Token;
+    required maxAmount: decimal;
+    required property maxAmountFp := as_fixed(.maxAmount, .feeToken.decimals);
     required paymaster: Address;
-    required maxPaymasterEthFees: PaymasterFees { constraint exclusive; default := (insert PaymasterFees {}); }
+    required paymasterEthFees: PaymasterFees { 
+      constraint exclusive;
+      on source delete delete target; 
+      default := (insert PaymasterFees {}); 
+    }
     simulation: Simulation { constraint exclusive; on target delete deferred restrict; }
     required executable: bool { default := false; }
     multi link systxs := .<proposal[is SystemTx];
@@ -54,13 +59,10 @@ module default {
     required hash: Bytes32 { constraint exclusive; }
     required proposal: Transaction;
     required maxEthFeePerGas: decimal { constraint min_value(0); }
-    required paymasterEthFees: PaymasterFees { constraint exclusive; default := (insert PaymasterFees {}); }
-    required ethCreditUsed: decimal { constraint min_value(0); default := 0; }
-    required property ethDiscount := .ethCreditUsed + (.proposal.maxPaymasterEthFees.total - .paymasterEthFees.total);
     required ethPerFeeToken: decimal { constraint min_value(0); }
     required usdPerFeeToken: decimal { constraint min_value(0); }
     required property maxNetworkEthFee := .maxEthFeePerGas * .proposal.gasLimit;
-    required property maxEthFees := .maxNetworkEthFee + .paymasterEthFees.total - .ethDiscount;
+    required property maxEthFees := .maxNetworkEthFee + .proposal.paymasterEthFees.total;
     required timestamp: datetime { default := datetime_of_statement(); }
     result := .<systx[is Result];
     events := .<systx[is Event];
@@ -71,6 +73,15 @@ module default {
 
     trigger update_tx_systx after insert for each do (
       update __new__.proposal set { systx := __new__ } 
+    );
+
+    trigger update_activation_fee after insert for each
+    when (__new__.proposal.account.activationEthFee > 0) do (
+      with account := __new__.proposal.account,
+           paymasterEthFees := __new__.proposal.paymasterEthFees
+      update account set {
+        activationEthFee := max({ 0, account.activationEthFee - paymasterEthFees.activation }) 
+      } 
     );
   }
 
@@ -91,6 +102,7 @@ module default {
     required block: bigint { constraint min_value(0); }
     required gasUsed: bigint { constraint min_value(0); }
     required ethFeePerGas: decimal { constraint min_value(0); }
+    required property networkEthFee := .ethFeePerGas * .gasUsed;
   }
 
   type Successful extending ReceiptResult {
@@ -104,10 +116,5 @@ module default {
   type Scheduled extending Result {
     required scheduledFor: datetime;
     required cancelled: bool { default := false; }
-  }
-
-  type Refund {
-    required link systx: SystemTx { constraint exclusive; }
-    required ethAmount: decimal { constraint min_value(0); }
   }
 }

@@ -8,7 +8,7 @@ import { StyleSheet } from 'react-native';
 import { asChain } from 'lib';
 import { useMemo } from 'react';
 import { gql } from '@api/generated';
-import { useQuery, usePollQuery } from '~/gql';
+import { useQuery } from '~/gql';
 import { AccountParams } from '~/app/(drawer)/[account]/(home)/_layout';
 import { useLocalParams } from '~/hooks/useLocalParams';
 import Decimal from 'decimal.js';
@@ -32,8 +32,7 @@ const TokensTabParams = AccountParams;
 
 function TokensTab() {
   const { account } = useLocalParams(TokensTabParams);
-  const { data, reexecute } = useQuery(Query, { account, chain: asChain(account) });
-  // usePollQuery(reexecute, 30000);
+  const { data } = useQuery(Query, { account, chain: asChain(account) });
 
   const tokens = useMemo(
     () =>

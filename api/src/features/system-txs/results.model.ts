@@ -3,7 +3,7 @@ import { BytesField, BytesScalar } from '~/apollo/scalars/Bytes.scalar';
 import { GraphQLBigInt } from 'graphql-scalars';
 import { Event } from '../events/events.model';
 import { Transfer, TransferApproval } from '../transfers/transfers.model';
-import { DecimalScalar } from '~/apollo/scalars/Decimal.scalar';
+import { DecimalField } from '~/apollo/scalars/Decimal.scalar';
 import Decimal from 'decimal.js';
 import { Node, NodeInterface, NodeType } from '~/decorators/interface.decorator';
 import { Hex } from 'lib';
@@ -31,8 +31,11 @@ export class ReceiptResult extends Result {
   @Field(() => GraphQLBigInt)
   gasUsed: bigint;
 
-  @Field(() => DecimalScalar)
+  @DecimalField()
   ethFeePerGas: Decimal;
+
+  @DecimalField()
+  networkEthFee: Decimal;
 }
 
 @NodeType({ implements: [Result, ReceiptResult] })

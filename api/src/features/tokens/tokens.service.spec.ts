@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { TokensService } from './tokens.service';
 import { DatabaseService } from '../database/database.service';
 import { DeepMocked, createMock } from '@golevelup/ts-jest';
-import { UserContext, asUser } from '~/request/ctx';
+import { UserContext, asUser } from '#/util/context';
 import { randomUser, DeepPartial, randomUAddress } from '~/util/test';
 import e from '~/edgeql-js';
 import { UpsertTokenInput } from './tokens.input';

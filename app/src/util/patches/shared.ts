@@ -1,8 +1,3 @@
-// Base64 (atob, btoa)
-import { atob, btoa } from 'react-native-quick-base64';
-global.atob = atob;
-global.btoa = btoa;
-
 // Buffer; depends on react-native-quick-base64
 import { Buffer } from '@craftzdog/react-native-buffer';
 global.Buffer = Buffer as unknown as typeof global.Buffer;

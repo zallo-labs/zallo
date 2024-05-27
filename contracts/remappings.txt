@@ -1,2 +1,3 @@
 src/=src/
+test/=test/
 forge-std/=node_modules/forge-std/src/

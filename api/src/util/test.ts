@@ -1,5 +1,5 @@
 import { asAddress, asHex, asUAddress, asUUID } from 'lib';
-import { UserContext } from '~/request/ctx';
+import { UserContext } from '#/util/context';
 import { randomBytes } from 'crypto';
 import { v4 as uuid, v4 } from 'uuid';
 
@@ -13,7 +13,11 @@ export const randomHash = () => asHex(randomHex(32));
 
 export const randomLabel = () => randomHex(19);
 
-export const randomUser = (): UserContext => ({ id: asUUID(uuid()), approver: randomAddress(), accounts: [] });
+export const randomUser = (): UserContext => ({
+  id: asUUID(uuid()),
+  approver: randomAddress(),
+  accounts: [],
+});
 
 export type DeepPartial<T> = T extends object
   ? {

@@ -1,5 +1,5 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { Hex, UAddress, asHex, filterAsync, decodeRevertError, isUAddress } from 'lib';
+import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
+import { Hex, UAddress, asHex, filterAsync, decodeRevertError, isUAddress, asUAddress } from 'lib';
 import { Price } from './prices.model';
 import e from '~/edgeql-js';
 import { preferUserToken } from '~/features/tokens/tokens.service';
@@ -14,6 +14,7 @@ import { NetworksService } from '~/features/util/networks/networks.service';
 import Redis from 'ioredis';
 import { InjectRedis } from '@songkeys/nestjs-redis';
 import { runExclusively } from '~/util/mutex';
+import { and } from '#/database/database.util';
 
 interface PriceData {
   current: Decimal;
@@ -21,7 +22,7 @@ interface PriceData {
 }
 
 @Injectable()
-export class PricesService {
+export class PricesService implements OnModuleInit {
   private log = new Logger(this.constructor.name);
   private pyth: EvmPriceServiceConnection;
   private usdPrices = new Map<Hex, PriceData>();
@@ -32,6 +33,7 @@ export class PricesService {
     }),
     {} as Record<Chain, Map<Hex, DateTime>>,
   );
+  private systemTokenPriceIds = new Map<UAddress, Hex>();
 
   constructor(
     private db: DatabaseService,
@@ -40,6 +42,10 @@ export class PricesService {
   ) {
     this.pyth = new EvmPriceServiceConnection(CONFIG.pythHermesUrl);
     this.pyth.onWsError = (e) => this.handlePythWsError(e);
+  }
+
+  onModuleInit() {
+    this.initSystemToken();
   }
 
   async price(tokenOrUsdPriceId: Hex | UAddress): Promise<Price> {
@@ -69,34 +75,37 @@ export class PricesService {
     const [feed] = (await this.pyth.getLatestPriceFeeds([priceId])) ?? [];
     if (!feed) return null;
 
-    return this.getPriceDataFromFeed(priceId, feed);
-  }
+    const r = this.getPriceDataFromFeed(feed);
+    if (r) {
+      // Cache result and subscribe to keep cache fresh
+      this.usdPrices.set(priceId, r);
 
-  private async getPriceDataFromFeed(priceId: Hex, feed: PriceFeed): Promise<PriceData | null> {
-    const expiryTimestamp = Math.ceil(this.expiry.toSeconds());
-
-    const currentData = feed.getPriceNoOlderThan(expiryTimestamp);
-    const emaData = feed.getEmaPriceNoOlderThan(expiryTimestamp);
-    if (!currentData || !emaData) return null;
-
-    const current = new Decimal(currentData.price).mul(new Decimal(10).pow(currentData.expo));
-    const ema = new Decimal(emaData.price).mul(new Decimal(10).pow(emaData.expo));
-
-    const r = { current, ema };
-
-    // Cache price and subscribe to updates to ensure cache remains fresh
-    const firstTimeSet = !this.usdPrices.has(priceId);
-    this.usdPrices.set(priceId, r);
-    if (firstTimeSet) {
       this.pyth.subscribePriceFeedUpdates([priceId], (feed) => {
-        this.getPriceDataFromFeed(priceId, feed);
+        const newPrice = this.getPriceDataFromFeed(feed);
+        if (newPrice) this.usdPrices.set(priceId, newPrice);
       });
     }
 
     return r;
   }
 
+  private getPriceDataFromFeed(feed: PriceFeed): PriceData | null {
+    const expiryTimestamp = Math.ceil(this.expiry.toSeconds());
+
+    const currentData = feed.getPriceNoOlderThan(expiryTimestamp);
+    const emaData = feed.getEmaPriceNoOlderThan(expiryTimestamp);
+    if (!currentData || !emaData) return null;
+
+    return {
+      current: new Decimal(currentData.price).mul(new Decimal(10).pow(currentData.expo)),
+      ema: new Decimal(emaData.price).mul(new Decimal(10).pow(emaData.expo)),
+    };
+  }
+
   private async getUsdPriceId(token: UAddress) {
+    const cached = this.systemTokenPriceIds.get(token);
+    if (cached) return cached;
+
     const usdPriceId = await this.db.query(
       e.assert_single(
         e.select(e.Token, (t) => ({
@@ -200,6 +209,9 @@ export class PricesService {
   private handlePythWsError(error: Error) {
     this.log.error(error);
 
+    // Force disconnect
+    this.pyth.closeWebSocket();
+
     // Reconnect
     this.pyth.startWebSocket();
     this.usdPrices.clear(); // Clear cache in order to re-establish subscriptions
@@ -208,5 +220,21 @@ export class PricesService {
   private get expiry() {
     // Paymaster allows prices no older than *60 minutes*
     return DateTime.now().minus({ minutes: 59 });
+  }
+
+  private async initSystemToken() {
+    const r = await this.db.query(
+      e.select(e.Token, (t) => ({
+        filter: and(t.isSystem, e.op('exists', t.pythUsdPriceId)),
+        address: true,
+        pythUsdPriceId: true,
+      })),
+    );
+
+    this.systemTokenPriceIds = new Map(
+      r.map((v) => [asUAddress(v.address), asHex(v.pythUsdPriceId!)] as const),
+    );
+
+    this.systemTokenPriceIds.forEach((priceId) => this.usd(priceId));
   }
 }

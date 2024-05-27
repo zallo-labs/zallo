@@ -2,7 +2,7 @@ import { UserInputError } from '@nestjs/apollo';
 import { Injectable } from '@nestjs/common';
 import e from '~/edgeql-js';
 import { UAddress, asApproval, asHex, asUAddress, UUID, asUUID } from 'lib';
-import { getUserCtx } from '~/request/ctx';
+import { getUserCtx } from '#/util/context';
 import { ShapeFunc } from '../database/database.select';
 import { DatabaseService } from '../database/database.service';
 import { NetworksService } from '~/features/util/networks/networks.service';
@@ -93,47 +93,47 @@ export class ProposalsService {
     if (!(await asApproval({ hash, approver, signature, network })))
       throw new UserInputError('Invalid signature');
 
-    await this.db.transaction(async (db) => {
+    await this.db.transaction(async () => {
       const selectApprover = e.select(e.Approver, () => ({ filter_single: { address: approver } }));
 
-      // Remove prior response (if any)
-      await e
-        .delete(e.ProposalResponse, () => ({
+      // Remove prior response (if any); this may be a prior approval that could now be invalid
+      await this.db.query(
+        e.delete(e.ProposalResponse, () => ({
           filter_single: {
             proposal: selectedProposal,
             approver: selectApprover,
           },
-        }))
-        .run(db);
+        })),
+      );
 
-      await e
-        .insert(e.Approval, {
+      await this.db.query(
+        e.insert(e.Approval, {
           proposal: selectedProposal,
           approver: selectApprover,
           signature,
           signedHash: hash,
-        })
-        .run(db);
-
-      this.db.afterTransaction(() => this.publish(id, ProposalEvent.approval));
+        }),
+      );
     });
+
+    this.publish(id, ProposalEvent.approval);
   }
 
   async reject(id: UUID) {
-    await this.db.transaction(async (db) => {
+    await this.db.transaction(async () => {
       const proposal = selectProposal(id);
 
-      // Remove prior response (if any)
-      await e
-        .delete(e.ProposalResponse, () => ({
+      // Remove prior approval (if any)
+      await this.db.query(
+        e.delete(e.Approval, () => ({
           filter_single: { proposal, approver: e.global.current_approver },
-        }))
-        .run(db);
+        })),
+      );
 
-      await e.insert(e.Rejection, { proposal }).run(db);
+      await this.db.query(e.insert(e.Rejection, { proposal }));
     });
 
-    await this.publish(id, ProposalEvent.rejection);
+    this.publish(id, ProposalEvent.rejection);
   }
 
   async update({ id, policy }: UpdateProposalInput) {

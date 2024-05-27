@@ -2,7 +2,8 @@ import { Test } from '@nestjs/testing';
 import { createMock, DeepMocked } from '@golevelup/ts-jest';
 import { CreatePolicyParams, PoliciesService } from './policies.service';
 import { asPolicyKey, asSelector, randomDeploySalt, randomHex, UAddress, ZERO_ADDR } from 'lib';
-import { asUser, getUserCtx, UserContext } from '~/request/ctx';
+import { UserContext } from '#/util/context';
+import { asUser, getUserCtx } from '#/util/context';
 import { randomAddress, randomLabel, randomUAddress, randomUser } from '~/util/test';
 import { TransactionsService } from '../transactions/transactions.service';
 import { DatabaseService } from '../database/database.service';
@@ -71,7 +72,7 @@ describe(PoliciesService.name, () => {
         policy: selectPolicy(initPolicy.id),
         validationErrors: [],
         operations: e.insert(e.Operation, { to: ZERO_ADDR }),
-        validFrom: new Date(),
+        timestamp: new Date(),
         paymaster: ZERO_ADDR,
         feeToken: e.assert_single(
           e.select(e.Token, (t) => ({
@@ -79,6 +80,7 @@ describe(PoliciesService.name, () => {
             limit: 1,
           })),
         ),
+        maxAmount: '1',
       });
     });
 

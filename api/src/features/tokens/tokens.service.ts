@@ -13,7 +13,7 @@ import Decimal from 'decimal.js';
 import { selectAccount } from '../accounts/accounts.util';
 import { TokenSpending } from './spending.model';
 import { Transferlike } from '../transfers/transfers.model';
-import { getUserCtx } from '~/request/ctx';
+import { getUserCtx } from '#/util/context';
 import { BalancesService } from '../util/balances/balances.service';
 import { selectTransaction } from '../transactions/transactions.service';
 import { SelectedPolicies } from '../policies/policies.util';
@@ -107,7 +107,7 @@ export class TokensService {
     const t = await this.db.query(
       e.assert_single(
         e.select(e.Token, (t) => ({
-          filter: e.op(e.op(t.address, '=', address), 'and', e.op('not', e.op('exists', t.user))),
+          filter: e.op(e.op(t.address, '=', address), 'and', t.isSystem),
           limit: 1,
           name: true,
           symbol: true,
@@ -274,7 +274,7 @@ export function preferUserToken(t: Scope<typeof e.Token>): OrderByObjExpr {
       'if',
       e.op('exists', e.global.current_user),
       'else',
-      e.op('not', e.op('exists', t.user)),
+      t.isSystem,
     ),
     direction: e.DESC,
   };

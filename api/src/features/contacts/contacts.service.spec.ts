@@ -1,7 +1,8 @@
 import { createMock } from '@golevelup/ts-jest';
 import { Test, TestingModule } from '@nestjs/testing';
 import { UAddress } from 'lib';
-import { asUser, UserContext } from '~/request/ctx';
+import { UserContext } from '#/util/context';
+import { asUser } from '#/util/context';
 import { randomUAddress, randomUser } from '~/util/test';
 import { DatabaseService } from '../database/database.service';
 import { ContactsService, selectContact } from './contacts.service';

@@ -2,7 +2,7 @@ import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { Address, UAddress, UUID, asAddress, asUAddress, isPresent } from 'lib';
 import { InjectRedis } from '@songkeys/nestjs-redis';
 import Redis from 'ioredis';
-import { UserAccountContext, getUserCtx } from '~/request/ctx';
+import { getUserCtx, UserAccountContext } from '#/util/context';
 import { DatabaseService } from '../database/database.service';
 import { uuid } from 'edgedb/dist/codecs/ifaces';
 import e from '~/edgeql-js';

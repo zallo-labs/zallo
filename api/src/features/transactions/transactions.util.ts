@@ -1,4 +1,3 @@
-import Decimal from 'decimal.js';
 import { Operation, asAddress, asHex, asTx } from 'lib';
 import e, { $infer } from '~/edgeql-js';
 import { Shape } from '../database/database.select';
@@ -9,11 +8,11 @@ export const TX_SHAPE = {
     value: true,
     data: true,
   },
-  nonce: true,
+  timestamp: true,
   gasLimit: true,
   paymaster: true,
-  maxPaymasterEthFees: { total: true },
   feeToken: { address: true },
+  maxAmountFp: true,
 } satisfies Shape<typeof e.Transaction>;
 
 const s = e.select(e.Transaction, () => TX_SHAPE);
@@ -28,9 +27,9 @@ export const transactionAsTx = (p: ProposalTxShape) =>
         data: asHex(op.data),
       }),
     ) as [Operation, ...Operation[]],
-    nonce: p.nonce,
+    timestamp: BigInt(Math.floor(p.timestamp.getTime() / 1000)),
     gas: p.gasLimit,
     paymaster: asAddress(p.paymaster),
-    paymasterEthFee: new Decimal(p.maxPaymasterEthFees.total),
     feeToken: asAddress(p.feeToken.address),
+    maxAmount: p.maxAmountFp,
   });

@@ -1,0 +1,24 @@
+.
+├── schedule
+│   ├── when timestamp > 0
+│   │   ├── should set scheduled timestamp
+│   │   └── should emit event
+│   └── when timestamp == 0
+│       └── should revert
+├── validate
+│   ├── when scheduled
+│   │   └── should set as used
+│   ├── when not scheduled
+│   │   └── should revert
+│   └── when already executed
+│       └── should revert
+├── setExecuted
+│   ├── when at or past scheduled time
+│   │   └── should delete schedule
+│   ├── when not yet sheduled
+│   │   └── should revert
+│   └── when not scheduled
+│       └── should revert
+└── cancel
+    ├── should delete schedule
+    └── should emit event

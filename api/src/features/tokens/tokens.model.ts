@@ -26,11 +26,11 @@ export class Token extends Node {
   @Field(() => [TokenUnit], { nullable: true })
   units?: TokenUnit[];
 
-  @Bytes32Field({ nullable: true })
-  pythUsdPriceId?: Hex;
-
   @Field(() => Boolean)
   isFeeToken: boolean;
+
+  @Bytes32Field({ nullable: true })
+  pythUsdPriceId?: Hex;
 
   @Field(() => Boolean)
   removable: boolean;

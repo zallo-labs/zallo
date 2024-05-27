@@ -2,11 +2,10 @@ import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { DatabaseService } from '../database/database.service';
 import { AccountsCacheService } from '../auth/accounts.cache.service';
 import { getAbiItem } from 'viem';
-import { ACCOUNT_IMPLEMENTATION, UUID, asChain, asUAddress, asUUID } from 'lib';
+import { ACCOUNT_ABI, UUID, asChain, asUAddress, asUUID } from 'lib';
 import e from '~/edgeql-js';
 import { TransactionEventData, ReceiptsWorker } from './receipts.worker';
 import { InjectFlowProducer, InjectQueue } from '@nestjs/bullmq';
-import { SchedulerQueue } from './scheduler.worker';
 import { FLOW_PRODUCER, QueueData, RUNNING_JOB_STATUSES, TypedQueue } from '../util/bull/bull.util';
 import { runOnce } from '~/util/mutex';
 import { InjectRedis } from '@songkeys/nestjs-redis';
@@ -20,12 +19,11 @@ import { ProposalsService } from '../proposals/proposals.service';
 import { ProposalEvent } from '../proposals/proposals.input';
 import { selectSysTx } from './system-tx.util';
 import { selectTransaction } from '../transactions/transactions.service';
+import { ExecutionsQueue } from '#/transactions/executions.worker';
+import { DEFAULT_FLOW_OPTIONS } from '#/util/bull/bull.module';
 
-const scheduledEvent = getAbiItem({ abi: ACCOUNT_IMPLEMENTATION.abi, name: 'Scheduled' });
-const scheduleCancelledEvent = getAbiItem({
-  abi: ACCOUNT_IMPLEMENTATION.abi,
-  name: 'ScheduleCancelled',
-});
+const scheduledEvent = getAbiItem({ abi: ACCOUNT_ABI, name: 'Scheduled' });
+const scheduleCancelledEvent = getAbiItem({ abi: ACCOUNT_ABI, name: 'ScheduleCancelled' });
 
 @Injectable()
 export class SchedulerEvents implements OnModuleInit {
@@ -35,7 +33,7 @@ export class SchedulerEvents implements OnModuleInit {
     private db: DatabaseService,
     private receipts: ReceiptsWorker,
     private accountsCache: AccountsCacheService,
-    @InjectQueue(SchedulerQueue.name) private queue: TypedQueue<SchedulerQueue>,
+    @InjectQueue(ExecutionsQueue.name) private queue: TypedQueue<ExecutionsQueue>,
     @InjectRedis() private redis: Redis,
     @InjectFlowProducer(FLOW_PRODUCER)
     private flows: FlowProducer,
@@ -53,7 +51,7 @@ export class SchedulerEvents implements OnModuleInit {
     const account = asUAddress(event.log.address, event.chain);
     if (!(await this.accountsCache.isAccount(account))) return;
 
-    const scheduledFor = new Date(event.log.args.timestamp * 1000);
+    const scheduledFor = new Date(Number(event.log.args.timestamp) * 1000);
     const proposalId = await this.db.query(
       e.insert(e.Scheduled, {
         transaction: selectTransaction(event.log.args.proposal),
@@ -96,12 +94,16 @@ export class SchedulerEvents implements OnModuleInit {
     return {
       queueName: ReceiptsQueue.name,
       name: 'Scheduled transaction',
-      data: { chain, transaction: { child: 0 } } satisfies QueueData<ReceiptsQueue>,
+      data: {
+        chain,
+        transaction: { child: 0 },
+        type: 'transaction',
+      } satisfies QueueData<ReceiptsQueue>,
       children: [
         {
-          queueName: SchedulerQueue.name,
-          name: 'Schedule transaction',
-          data: { transaction: txProposal } satisfies QueueData<SchedulerQueue>,
+          queueName: ExecutionsQueue.name,
+          name: 'Scheduled transaction',
+          data: { transaction: txProposal, type: 'scheduled' } satisfies QueueData<ExecutionsQueue>,
           opts: { jobId: txProposal },
           children: [
             {
@@ -142,12 +144,15 @@ export class SchedulerEvents implements OnModuleInit {
         );
 
         if (orphanedProposals.length)
-          await this.flows.addBulk(
+          await Promise.all(
             orphanedProposals.map((t) =>
-              this.getJob(
-                asUUID(t.transaction.id),
-                asChain(asUAddress(t.transaction.account.address)),
-                new Date(t.scheduledFor!),
+              this.flows.add(
+                this.getJob(
+                  asUUID(t.transaction.id),
+                  asChain(asUAddress(t.transaction.account.address)),
+                  new Date(t.scheduledFor!),
+                ),
+                DEFAULT_FLOW_OPTIONS,
               ),
             ),
           );

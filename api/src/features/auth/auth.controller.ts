@@ -1,6 +1,6 @@
 import { Controller, Get, Request as RequestDec } from '@nestjs/common';
 import { Request } from 'express';
-import { generateNonce } from 'siwe';
+import { generateSiweNonce } from 'viem/siwe';
 
 import { Public } from '~/decorators/public.decorator';
 
@@ -13,7 +13,7 @@ export class AuthController {
       !req.session.nonce ||
       (req.session.cookie.expires && req.session.cookie.expires <= new Date())
     ) {
-      req.session.nonce = generateNonce();
+      req.session.nonce = generateSiweNonce();
     }
 
     return req.session.nonce;

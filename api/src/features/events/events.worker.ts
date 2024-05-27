@@ -1,22 +1,13 @@
-import { InjectQueue, Processor } from '@nestjs/bullmq';
+import { Processor } from '@nestjs/bullmq';
 import { Injectable } from '@nestjs/common';
 import { NetworksService } from '../util/networks/networks.service';
 import { DatabaseService } from '../database/database.service';
 import e from '~/edgeql-js';
 import { Hex, asHex } from 'lib';
 import { CHAINS, Chain } from 'chains';
-import { InjectRedis } from '@songkeys/nestjs-redis';
-import Redis from 'ioredis';
-import {
-  RUNNING_JOB_STATUSES,
-  Worker,
-  TypedJob,
-  createQueue,
-  TypedQueue,
-} from '../util/bull/bull.util';
+import { RUNNING_JOB_STATUSES, Worker, TypedJob, createQueue } from '../util/bull/bull.util';
 import { AbiEvent } from 'abitype';
 import { Log as ViemLog, encodeEventTopics, hexToNumber } from 'viem';
-import { runOnce } from '~/util/mutex';
 import { UnrecoverableError } from 'bullmq';
 
 const TARGET_LOGS_PER_JOB = 9_000; // Max 10k
@@ -62,20 +53,10 @@ export class EventsWorker extends Worker<EventsQueue> {
   ) as Record<Chain, number | undefined>;
 
   constructor(
-    @InjectQueue(EventsQueue.name)
-    private queue: TypedQueue<EventsQueue>,
     private db: DatabaseService,
     private networks: NetworksService,
-    @InjectRedis() private redis: Redis,
   ) {
     super();
-  }
-
-  onModuleInit() {
-    super.onModuleInit();
-    this.addMissingJob().then(() => {
-      super.worker.run();
-    });
   }
 
   on<TAbiEvent extends AbiEvent>(event: TAbiEvent, listener: EventListener<TAbiEvent>) {
@@ -159,42 +140,34 @@ export class EventsWorker extends Worker<EventsQueue> {
       : logs / blocks;
   }
 
-  private async addMissingJob() {
-    await runOnce(
-      async () => {
-        const runningJobs = await this.queue.getJobs(RUNNING_JOB_STATUSES);
+  async bootstrap() {
+    const runningJobs = await this.queue.getJobs(RUNNING_JOB_STATUSES);
 
-        for await (const network of this.networks) {
-          if (runningJobs.find((j) => j.data.chain === network.chain.key)) continue;
+    for await (const network of this.networks) {
+      if (runningJobs.find((j) => j.data.chain === network.chain.key)) continue;
 
-          const lastProcessedBlock = (await e
-            .max(
-              e.select(e.Transfer, (t) => ({
-                filter: e.op(t.account.chain, '=', network.chain.key),
-                block: true,
-              })).block,
-            )
-            .run(this.db.client)) as bigint | null; // Return type is overly broad - https://github.com/edgedb/edgedb-js/issues/594
+      const lastProcessedBlock = (await e
+        .max(
+          e.select(e.Transfer, (t) => ({
+            filter: e.op(t.account.chain, '=', network.chain.key),
+            block: true,
+          })).block,
+        )
+        .run(this.db.client)) as bigint | null; // Return type is overly broad - https://github.com/edgedb/edgedb-js/issues/594
 
-          const from = lastProcessedBlock
-            ? Number(lastProcessedBlock) + 1 // Warning: bigint -> number
-            : Number(network.blockNumber()); // Warning: bigint -> number
+      const from = lastProcessedBlock
+        ? Number(lastProcessedBlock) + 1 // Warning: bigint -> number
+        : Number(network.blockNumber()); // Warning: bigint -> number
 
-          const chain = network.chain.key;
-          this.queue.add(EventsQueue.name, { chain, from, to: from + this.targetBlocks(chain) });
+      const chain = network.chain.key;
+      this.queue.add(EventsQueue.name, { chain, from, to: from + this.targetBlocks(chain) });
 
-          this.log.log(
-            `${network.chain.key}: events starting from ${
-              lastProcessedBlock ? `last processed (${from})` : `latest (${from})`
-            }`,
-          );
-        }
-      },
-      {
-        redis: this.redis,
-        key: 'events-missing-job',
-      },
-    );
+      this.log.log(
+        `${network.chain.key}: events starting from ${
+          lastProcessedBlock ? `last processed (${from})` : `latest (${from})`
+        }`,
+      );
+    }
   }
 }
 

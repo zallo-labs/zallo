@@ -2,7 +2,8 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { TransfersService } from './transfers.service';
 import { createMock } from '@golevelup/ts-jest';
 import { DatabaseService } from '../database/database.service';
-import { UserContext, asUser, getUserCtx } from '~/request/ctx';
+import { UserContext } from '#/util/context';
+import { asUser, getUserCtx } from '#/util/context';
 import {
   ETH_ADDRESS,
   UAddress,

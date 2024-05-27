@@ -36,13 +36,14 @@ const Transaction = gql(/* GraphQL */ `
     }
     updatable
     gasLimit
-    maxPaymasterEthFees {
+    maxAmount
+    paymasterEthFees {
+      total
       activation
     }
     estimatedFees {
       id
       maxNetworkEthFee
-      ethCreditUsed
       paymasterEthFees {
         total
         activation
@@ -51,13 +52,13 @@ const Transaction = gql(/* GraphQL */ `
     systx {
       id
       maxNetworkEthFee
-      ethCreditUsed
-      paymasterEthFees {
-        total
-        activation
-      }
       ethPerFeeToken
-      usdPerFeeToken
+    }
+    result {
+      id
+      ... on ReceiptResult {
+        networkEthFee
+      }
     }
   }
 `);
@@ -83,74 +84,73 @@ export function FeesSection(props: FeeTokenProps) {
 
   const [expanded, toggleExpanded] = useToggle(false);
 
-  const networkEthFee = new Decimal(
-    p.systx?.maxNetworkEthFee ?? p.estimatedFees.maxNetworkEthFee,
-  ).neg();
-  const paymasterEthFees = p.systx?.paymasterEthFees ?? p.estimatedFees.paymasterEthFees;
-  const ethCreditUsed = new Decimal(p.systx?.ethCreditUsed ?? p.estimatedFees.ethCreditUsed);
-  const ethFees = Decimal.min(networkEthFee.sub(paymasterEthFees.total).add(ethCreditUsed), 0);
-  const paymasterFeesEstimatedLabel = !p.systx ? ' (estimate)' : '';
-  const networkFeeEstimatedLabel = !p.systx ? ' (max)' : '';
-  const activationFee = new Decimal(paymasterEthFees.activation).neg();
-  const maxActivationFee = new Decimal(p.maxPaymasterEthFees.activation).neg();
-
   const ethPerFeeToken = new Decimal(p.systx?.ethPerFeeToken ?? p.feeToken.price?.eth ?? 0);
-  const amount = ethFees.div(ethPerFeeToken);
-  const insufficient =
-    p.status === 'Pending' && p.feeToken.balance && amount.plus(p.feeToken.balance).isNeg();
+  const estNetworkEthFee = new Decimal(p.estimatedFees.maxNetworkEthFee);
+  const actNetworkEthFee =
+    p.result?.__typename === 'Successful' || p.result?.__typename === 'Failed'
+      ? new Decimal(p.result.networkEthFee)
+      : undefined;
+
+  const paymasterEthFees = actNetworkEthFee ? p.paymasterEthFees : p.estimatedFees.paymasterEthFees;
+  const activationFee = new Decimal(paymasterEthFees.activation);
+
+  const totalFeeAmount = (actNetworkEthFee ?? estNetworkEthFee)
+    .plus(paymasterEthFees.total)
+    .div(ethPerFeeToken);
 
   return (
     <>
       <TokenItem
         token={p.feeToken}
-        amount={amount}
-        overline={'Fees' + networkFeeEstimatedLabel}
+        amount={(actNetworkEthFee ?? estNetworkEthFee)
+          .plus(paymasterEthFees.total)
+          .div(ethPerFeeToken)
+          .neg()}
+        overline={actNetworkEthFee ? 'Fees' : 'Estimated fees'}
         onPress={toggleExpanded}
         trailing={({ Trailing }) => (
           <View style={styles.totalTrailingContainer}>
             <Trailing />
 
-            {insufficient && p.feeToken.balance && (
-              <Text style={styles.insufficient}>
-                <TokenAmount token={p.feeToken} amount={p.feeToken.balance} />
-                {' available'}
-              </Text>
-            )}
+            {p.status === 'Pending' &&
+              p.feeToken.balance &&
+              totalFeeAmount.gt(p.feeToken.balance) && (
+                <Text style={styles.insufficient}>
+                  <TokenAmount token={p.feeToken} amount={p.feeToken.balance} />
+                  {' available'}
+                </Text>
+              )}
           </View>
         )}
       />
 
       <Collapsible collapsed={!expanded} style={styles.detailsContainer}>
         <View style={styles.row}>
-          <Text variant="labelLarge">{'Network fee' + networkFeeEstimatedLabel}</Text>
+          <Text variant="labelLarge">
+            {actNetworkEthFee ? 'Network fee' : 'Network fee (estimated)'}
+          </Text>
           <Text variant="bodySmall">
-            <TokenAmount token={p.feeToken} amount={networkEthFee.div(ethPerFeeToken)} />
+            <TokenAmount
+              token={p.feeToken}
+              amount={(actNetworkEthFee ?? estNetworkEthFee).div(ethPerFeeToken)}
+            />
           </Text>
         </View>
 
-        {!maxActivationFee.eq(0) && (
-          <View style={styles.row}>
-            <Text variant="labelLarge">Activation fee (max)</Text>
-            <Text variant="bodySmall">
-              <TokenAmount token={p.feeToken} amount={maxActivationFee.div(ethPerFeeToken)} />
-            </Text>
-          </View>
-        )}
-
         {!activationFee.eq(0) && (
           <View style={styles.row}>
-            <Text variant="labelLarge">Activation fee{paymasterFeesEstimatedLabel}</Text>
+            <Text variant="labelLarge">Activation fee</Text>
             <Text variant="bodySmall">
               <TokenAmount token={p.feeToken} amount={activationFee.div(ethPerFeeToken)} />
             </Text>
           </View>
         )}
 
-        {!ethCreditUsed.eq(0) && (
+        {!actNetworkEthFee && (
           <View style={styles.row}>
-            <Text variant="labelLarge">Credit{paymasterFeesEstimatedLabel}</Text>
+            <Text variant="labelLarge">{'(Max total fee)'}</Text>
             <Text variant="bodySmall">
-              <TokenAmount token={p.feeToken} amount={ethCreditUsed.div(ethPerFeeToken)} />
+              <TokenAmount token={p.feeToken} amount={p.maxAmount} />
             </Text>
           </View>
         )}

@@ -14,7 +14,7 @@ import {
 import { ERC20 } from '../dapps';
 import { PermissionValidation } from '../validation';
 import { AbiParameterToPrimitiveType } from 'abitype';
-import { TEST_VERIFIER_ABI } from '../contract';
+import { EXPOSED_ABI } from '../contract';
 import { Selector, asSelector } from '../bytes';
 
 export interface TransferLimit {
@@ -35,7 +35,7 @@ export const ALLOW_ALL_TRANSFERS_CONFIG = {
   defaultAllow: true,
 } satisfies TransfersConfig;
 
-const configAbi = getAbiItem({ abi: TEST_VERIFIER_ABI, name: 'beforeExecuteTransfer' }).inputs[1];
+const configAbi = getAbiItem({ abi: EXPOSED_ABI, name: 'TransferHook' }).inputs[0];
 export type TransfersConfigStruct = AbiParameterToPrimitiveType<typeof configAbi>;
 
 export function encodeTransfersConfigStruct(c: TransfersConfig): TransfersConfigStruct {
@@ -106,6 +106,7 @@ export function decodeTransfer(op: Operation) {
 
 export const TRANSFER_SELECTORS = [
   asSelector(toFunctionSelector(getAbiItem({ abi: ERC20, name: 'transfer' }))),
+  asSelector(toFunctionSelector(getAbiItem({ abi: ERC20, name: 'transferFrom' }))),
   asSelector(toFunctionSelector(getAbiItem({ abi: ERC20, name: 'approve' }))),
   asSelector(toFunctionSelector(getAbiItem({ abi: ERC20, name: 'increaseAllowance' }))),
 ] satisfies Selector[];

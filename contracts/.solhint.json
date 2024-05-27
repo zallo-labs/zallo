@@ -1,6 +1,8 @@
 {
   "extends": "solhint:recommended",
   "rules": {
-    "quotes": ["error","single"]
+    "quotes": ["error", "single"],
+    "no-inline-assembly": "off",
+    "func-name-mixedcase": "off"
   }
 }

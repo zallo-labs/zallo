@@ -1,6 +1,5 @@
 import { FragmentType, gql, useFragment } from '@api/generated';
 import { ListItem, ListItemProps } from '#/list/ListItem';
-import { Blockie } from '#/Identicon/Blockie';
 import { truncateAddr } from '~/util/format';
 import { GroupIcon } from '@theme/icons';
 import { AddressIcon } from '#/Identicon/AddressIcon';

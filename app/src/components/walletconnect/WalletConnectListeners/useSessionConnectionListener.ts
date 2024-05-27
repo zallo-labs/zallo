@@ -2,7 +2,8 @@ import { getSdkError } from '@walletconnect/utils';
 import { useEffect, useRef } from 'react';
 import { showError } from '#/provider/SnackbarProvider';
 import { useWalletConnectWithoutWatching, sessionChains } from '~/lib/wc';
-import { useRouter, usePathname, Route } from 'expo-router';
+import { useRouter, usePathname } from 'expo-router';
+import type { ExpoRouter } from 'expo-router/types/expo-router';
 import { Web3WalletTypes } from '@walletconnect/web3wallet';
 import { useVerifyDapp } from '../DappVerification';
 
@@ -31,7 +32,7 @@ export const useSessionConnectionListener = () => {
       }
 
       const href = { pathname: `/(sheet)/sessions/connect/[id]`, params: { id } } as const;
-      pathname.current === ('/wc' satisfies Route<''>) ? router.replace(href) : router.push(href);
+      pathname.current === ('/wc' satisfies ExpoRouter.Href) ? router.replace(href) : router.push(href);
     };
 
     client.on('session_proposal', handler);

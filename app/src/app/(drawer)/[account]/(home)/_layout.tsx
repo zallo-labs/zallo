@@ -39,11 +39,13 @@ export default function HomeLayout() {
 
   const query = useQuery(Query, { account }, { context });
 
+  const accountFound = query.data?.account || query.fetching || query.stale;
+  useEffect(() => {
+    if (!accountFound) setSelectedAccount(null);
+  }, [accountFound, setSelectedAccount]);
+
   // Redirect to the home page if account isn't found
-  if (!query.data?.account && !query.fetching && !query.stale) {
-    setSelectedAccount(null);
-    return <Redirect href="/" />;
-  }
+  if (!accountFound) return <Redirect href="/" />;
 
   return (
     <ScrollableScreenSurface>

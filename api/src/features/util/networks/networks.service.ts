@@ -1,10 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { CONFIG } from '~/config';
-import { asChain, asUAddress, UAddress } from 'lib';
+import { asChain, asDecimal, asUAddress, UAddress } from 'lib';
 import { ChainConfig, Chain, CHAINS, NetworkWallet, isChain } from 'chains';
 import {
-  EstimateFeesPerGasReturnType,
+  FeeValuesEIP1559,
   PublicClient,
+  SendRawTransactionErrorType,
   Transport,
   WatchBlockNumberErrorType,
   createPublicClient,
@@ -13,11 +14,15 @@ import {
   http,
   webSocket,
 } from 'viem';
+import { eip712WalletActions, ZkSyncTransactionSerializableEIP712 } from 'viem/zksync';
 import { privateKeyToAccount } from 'viem/accounts';
 import Redis from 'ioredis';
 import { InjectRedis } from '@songkeys/nestjs-redis';
 import { firstValueFrom, ReplaySubject } from 'rxjs';
 import { runExclusively } from '~/util/mutex';
+import { ETH } from 'lib/dapps';
+import { fromPromise } from 'neverthrow';
+import { PartialK } from '~/util/types';
 
 export type Network = ReturnType<typeof create>;
 
@@ -27,7 +32,7 @@ export class NetworksService implements AsyncIterable<Network> {
 
   constructor(@InjectRedis() private redis: Redis) {}
 
-  get(p: Chain | ChainConfig | UAddress) {
+  get(p: Chain | ChainConfig | UAddress): Network {
     const chain = typeof p === 'string' ? (isChain(p) ? p : asChain(p)) : p.key;
 
     return (this.clients[chain] ??= create({ chainKey: chain, redis: this.redis }));
@@ -54,17 +59,17 @@ interface CreateParams {
 function create({ chainKey, redis }: CreateParams) {
   const chain = CHAINS[chainKey];
 
-  const rpcUrls = CONFIG.rpcUrls[chainKey] ?? [];
+  const rpcUrls = [
+    ...chain.rpcUrls.default.http,
+    ...chain.rpcUrls.default.webSocket,
+    ...(CONFIG.rpcUrls[chainKey] ?? []),
+  ];
   const transport = fallback(
     [
-      ...[...chain.rpcUrls.default.http, ...rpcUrls.filter((url) => url.startsWith('http'))].map(
-        (url) => http(url),
-      ),
-      ...[...chain.rpcUrls.default.http, ...rpcUrls.filter((url) => url.startsWith('ws'))].map(
-        (url) => webSocket(url),
-      ),
+      ...rpcUrls.filter((url) => url.startsWith('http')).map((url) => http(url)),
+      ...rpcUrls.filter((url) => url.startsWith('ws')).map((url) => webSocket(url)),
     ],
-    { retryCount: 3, rank: true },
+    { retryCount: 3, rank: { interval: 30_000, sampleCount: 20 } },
   );
 
   return createPublicClient<Transport, ChainConfig>({
@@ -75,9 +80,11 @@ function create({ chainKey, redis }: CreateParams) {
     batch: { multicall: true },
     pollingInterval: 500 /* ms */, // Used when websocket is unavailable
   }).extend((client) => ({
+    ...eip712WalletActions()(client),
     ...walletActions(client, transport, redis),
     ...blockNumberAndStatusActions(client),
     ...estimatedFeesPerGas(client, redis),
+    sendAccountTransaction: sendAccountTransaction(client, redis),
   }));
 }
 
@@ -129,7 +136,6 @@ function blockNumberAndStatusActions(client: Client) {
       status.next(error as WatchBlockNumberErrorType);
     },
     emitOnBegin: true,
-    poll: true, // TODO: remove when fixed websocket watchX auto reconnect is supported - https://github.com/wevm/viem/issues/877
   });
 
   return {
@@ -152,14 +158,63 @@ export function estimatedFeesPerGasKey(chain: Chain) {
   return `estimatedFeesPerGasKey:${chain}`;
 }
 
-function estimatedFeesPerGas(client: Client, redis: Redis) {
-  return {
-    estimatedFeesPerGas: async (): Promise<EstimateFeesPerGasReturnType> => {
-      const key = estimatedFeesPerGasKey(client.chain.key);
-      const cached = await redis.get(key);
-      if (cached) return JSON.parse(cached) as EstimateFeesPerGasReturnType;
+async function getEstimatedFeesPerGas(client: Client, redis: Redis): Promise<FeeValuesEIP1559> {
+  const cached = await redis.get(estimatedFeesPerGasKey(client.chain.key));
+  if (cached) {
+    const p = JSON.parse(cached);
+    return {
+      maxFeePerGas: BigInt(p.maxFeePerGas),
+      maxPriorityFeePerGas: BigInt(p.maxPriorityFeePerGas),
+    } satisfies FeeValuesEIP1559;
+  }
 
-      return client.estimateFeesPerGas();
-    },
+  const r = await client.estimateFeesPerGas();
+  if (r.maxFeePerGas === undefined || r.maxPriorityFeePerGas === undefined)
+    throw new Error('Gas price estimates non EIP-1559');
+
+  return r;
+}
+
+function estimatedFeesPerGas(client: Client, redis: Redis) {
+  const estimatedFeesPerGas = async () => {
+    const v = await getEstimatedFeesPerGas(client, redis);
+
+    return {
+      maxFeePerGas: asDecimal(v.maxFeePerGas!, ETH),
+      maxPriorityFeePerGas: asDecimal(v.maxPriorityFeePerGas!, ETH),
+    };
+  };
+
+  return {
+    estimatedFeesPerGas,
+    estimatedMaxFeePerGas: async () => (await estimatedFeesPerGas()).maxFeePerGas,
+  };
+}
+
+export type SendAccountTransactionParams = PartialK<ZkSyncTransactionSerializableEIP712, 'chainId'>;
+export type SendAccountTransactionReturn = ReturnType<ReturnType<typeof sendAccountTransaction>>;
+
+function sendAccountTransaction(client: Client, redis: Redis) {
+  // Transactions must be submitted sequentially due to requirement for incrementing nonces
+  return async (tx: SendAccountTransactionParams) => {
+    const feesPerGas = await getEstimatedFeesPerGas(client, redis);
+
+    return await runExclusively(
+      async () => {
+        const serialized = client.chain.serializers.transaction({
+          chainId: client.chain.id,
+          maxFeePerGas: feesPerGas.maxFeePerGas!,
+          maxPriorityFeePerGas: feesPerGas.maxPriorityFeePerGas!,
+          nonce: await client.getTransactionCount({ address: tx.from }),
+          ...tx,
+        });
+
+        return fromPromise(
+          client.sendRawTransaction({ serializedTransaction: serialized }),
+          (e) => e as SendRawTransactionErrorType,
+        );
+      },
+      { redis, key: `send-transaction:${asUAddress(tx.from, client.chain.key)}` },
+    );
   };
 }

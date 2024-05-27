@@ -78,7 +78,7 @@ export function getOptimizedDocument<Data, Variables>(
 }
 
 export type DocumentVariables<T extends TypedDocumentNode<any, any>> = T extends TypedDocumentNode<
-  infer Result,
+  infer _Result,
   infer Variables
 >
   ? Variables

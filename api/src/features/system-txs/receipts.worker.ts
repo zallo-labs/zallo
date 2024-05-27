@@ -1,6 +1,6 @@
 import { Processor } from '@nestjs/bullmq';
 import { Injectable } from '@nestjs/common';
-import { ReceiptsQueue } from './receipts.queue';
+import { ReceiptEventType, ReceiptsQueue } from './receipts.queue';
 import { NetworksService } from '../util/networks/networks.service';
 import { Chain, ChainConfig } from 'chains';
 import {
@@ -15,12 +15,12 @@ import { Log } from '~/features/events/events.worker';
 import { TypedJob, Worker } from '~/features/util/bull/bull.util';
 import { isHex, isPresent } from 'lib';
 
-export const REQUIRED_CONFIRMATIONS = 1;
-
+export type Receipt = FormattedTransactionReceipt<ChainConfig>;
 export interface TransactionData {
   chain: Chain;
-  receipt: FormattedTransactionReceipt<ChainConfig>;
+  receipt: Receipt;
   block: FormattedBlock<ChainConfig, false>;
+  type: ReceiptEventType;
 }
 
 export type TransactionListener = (data: TransactionData) => Promise<unknown>;
@@ -34,7 +34,7 @@ export type TransactionEventListener<TAbiEvent extends AbiEvent> = (
 ) => Promise<unknown>;
 
 @Injectable()
-@Processor(ReceiptsQueue.name)
+@Processor(ReceiptsQueue.name, { autorun: false })
 export class ReceiptsWorker extends Worker<ReceiptsQueue> {
   private listeners: TransactionListener[] = [];
   private events: AbiEvent[] = [];
@@ -61,7 +61,7 @@ export class ReceiptsWorker extends Worker<ReceiptsQueue> {
   }
 
   async process(job: TypedJob<ReceiptsQueue>) {
-    const { chain } = job.data;
+    const { chain, type } = job.data;
     const transaction = isHex(job.data.transaction)
       ? job.data.transaction
       : await (async () => {
@@ -76,14 +76,13 @@ export class ReceiptsWorker extends Worker<ReceiptsQueue> {
     const network = this.networks.get(chain);
     const receipt = await network.waitForTransactionReceipt({
       hash: transaction,
-      confirmations: REQUIRED_CONFIRMATIONS,
       timeout: 60_000,
       pollingInterval: 1_000,
     });
     const block = await network.getBlock({ blockNumber: receipt.blockNumber });
 
     await Promise.all([
-      ...this.listeners.map((listener) => listener({ chain, receipt, block })),
+      ...this.listeners.map((listener) => listener({ chain, receipt, block, type })),
       ...receipt.logs
         .filter((log) => log.topics.length && this.eventListeners.has(log.topics[0]!))
         .map((log) => {
@@ -103,7 +102,7 @@ export class ReceiptsWorker extends Worker<ReceiptsQueue> {
         .flatMap((log) =>
           this.eventListeners
             .get(log.topics[0]!)
-            ?.map((listener) => listener({ chain, log, receipt, block })),
+            ?.map((listener) => listener({ chain, log, receipt, block, type })),
         ),
     ]);
   }

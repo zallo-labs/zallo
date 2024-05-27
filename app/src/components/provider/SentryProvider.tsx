@@ -12,13 +12,18 @@ const updateGroup = metadata && 'updateGroup' in metadata ? metadata.updateGroup
 const routingInstrumentation = new Sentry.ReactNavigationInstrumentation();
 
 Sentry.init({
-  enabled: !__DEV__,
+  enabled: !!CONFIG.sentryDsn,
+  debug: __DEV__,
   dsn: CONFIG.sentryDsn,
   environment: CONFIG.env,
-  sampleRate: 1.0, // Error sampling
-  tracesSampleRate: 0.5, // Performance sampling
+  sampleRate: 1.0,
+  tracesSampleRate: CONFIG.env === 'production' ? 0.2 : 1.0,
+  _experiments: {
+    profilesSampleRate: 1.0, // Relative to `tracesSampleRate`
+  },
   attachStacktrace: true,
   integrations: [new Sentry.ReactNativeTracing({ routingInstrumentation })],
+  tracePropagationTargets: [new URL(CONFIG.apiUrl).hostname], // FIXME: doesn't attach to GQL requests
 });
 
 Sentry.configureScope((scope) => {

@@ -12,6 +12,7 @@ import { ReceiptsQueue } from '~/features/system-txs/receipts.queue';
 import { SimulationsQueue } from '~/features/simulations/simulations.worker';
 import { ActivationsModule } from '../activations/activations.module';
 import { PoliciesModule } from '../policies/policies.module';
+import { TokensModule } from '#/tokens/tokens.module';
 
 @Module({
   imports: [
@@ -23,7 +24,8 @@ import { PoliciesModule } from '../policies/policies.module';
     PricesModule,
     PaymastersModule,
     ActivationsModule,
-    forwardRef(() => PoliciesModule)
+    forwardRef(() => PoliciesModule),
+    TokensModule,
   ],
   exports: [TransactionsService],
   providers: [TransactionsResolver, TransactionsService, ExecutionsWorker],

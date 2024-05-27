@@ -1,1 +1,4 @@
 *.cpuprofile
+
+# Sentry Config File
+.sentryclirc

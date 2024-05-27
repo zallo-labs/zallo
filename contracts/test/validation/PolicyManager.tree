@@ -1,0 +1,16 @@
+.
+├── addPolicy
+│   ├── when called by self
+│   │   ├── when threshold <= approvers
+│   │   │   ├── should set policy hash
+│   │   │   └── should emit event
+│   │   └── when threshold is > approvers
+│   │       └── should revert
+│   └── when called by other address
+│       └── should revert
+└── removePolicy
+    ├── when called by self
+    │   ├── should zero hash
+    │   └── should emit event
+    └── when called by other address
+        └── should revert

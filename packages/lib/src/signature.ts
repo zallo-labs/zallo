@@ -18,7 +18,7 @@ export interface EncodeTransactionSignature {
 
 export function encodeTransactionSignature({ tx, policy, approvals }: EncodeTransactionSignature) {
   return encodeAbiParameters(TRANSACTION_SIGNATURE_ABI, [
-    Number(tx.nonce),
+    Number(tx.timestamp),
     encodePolicyStruct(policy),
     encodeApprovalsStruct({ approvals, approvers: policy.approvers }),
   ]);

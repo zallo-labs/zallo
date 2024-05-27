@@ -2,10 +2,10 @@ import { Test } from '@nestjs/testing';
 import { EventsQueue, EventsWorker, EventData, Log } from './events.worker';
 import { DeepMocked, createMock } from '@golevelup/ts-jest';
 import { Network, NetworksService } from '../util/networks/networks.service';
-import { BullModule, getQueueToken } from '@nestjs/bullmq';
+import { BullModule } from '@nestjs/bullmq';
 import { DEFAULT_REDIS_NAMESPACE, getRedisToken } from '@songkeys/nestjs-redis';
 import { DeepPartial, randomAddress } from '~/util/test';
-import { ACCOUNT_IMPLEMENTATION, Address } from 'lib';
+import { ACCOUNT_ABI, Address } from 'lib';
 import { encodeEventTopics, getAbiItem } from 'viem';
 import { QueueData, TypedJob, TypedQueue } from '~/features/util/bull/bull.util';
 import { AbiEvent } from 'abitype';
@@ -21,7 +21,7 @@ describe(EventsWorker.name, () => {
     {
       logIndex: 0,
       topics: encodeEventTopics({
-        abi: ACCOUNT_IMPLEMENTATION.abi,
+        abi: ACCOUNT_ABI,
         eventName: 'Upgraded',
         args: { implementation: randomAddress() },
       }) as [Address, ...Address[]],
@@ -29,7 +29,7 @@ describe(EventsWorker.name, () => {
     {
       logIndex: 1,
       topics: encodeEventTopics({
-        abi: ACCOUNT_IMPLEMENTATION.abi,
+        abi: ACCOUNT_ABI,
         eventName: 'Upgraded',
         args: { implementation: randomAddress() },
       }) as [Address, ...Address[]],
@@ -37,7 +37,7 @@ describe(EventsWorker.name, () => {
     {
       logIndex: 2,
       topics: encodeEventTopics({
-        abi: ACCOUNT_IMPLEMENTATION.abi,
+        abi: ACCOUNT_ABI,
         eventName: 'PolicyRemoved',
       }) as [Address, ...Address[]],
     } satisfies Partial<Log<AbiEvent>> as Log<AbiEvent>,
@@ -51,14 +51,12 @@ describe(EventsWorker.name, () => {
         { provide: getRedisToken(DEFAULT_REDIS_NAMESPACE), useValue: createMock() },
       ],
     })
-      .overrideProvider(getQueueToken(EventsQueue.name))
-      .useValue(createMock())
       .useMocker(createMock)
       .compile();
 
     worker = module.get(EventsWorker);
     topic1Listener = jest.fn();
-    worker.on(getAbiItem({ abi: ACCOUNT_IMPLEMENTATION.abi, name: 'Upgraded' }), topic1Listener);
+    worker.on(getAbiItem({ abi: ACCOUNT_ABI, name: 'Upgraded' }), topic1Listener);
 
     networks = module.get(NetworksService);
     networks.get.mockReturnValue({
@@ -67,7 +65,9 @@ describe(EventsWorker.name, () => {
       getLogs: async () => logs,
     } satisfies DeepPartial<Network> as unknown as Network);
 
-    queue = module.get(getQueueToken(EventsQueue.name));
+    queue = createMock();
+    worker.queue = queue;
+    queue.add.mockImplementation(async () => ({}) as any);
 
     attemptsMade = 0;
   });

@@ -1,5 +1,5 @@
-const { babelOptimizerPlugin: gqlBabelOptimizer } = require('@graphql-codegen/client-preset');
 const path = require('path');
+// const { babelOptimizerPlugin: gqlBabelOptimizer } = require('@graphql-codegen/client-preset');
 
 const projectRoot = __dirname;
 

@@ -253,7 +253,6 @@ input EstimateFeesPerGasInput {
 }
 
 type EstimatedTransactionFees implements CustomNode {
-  ethCreditUsed: Decimal!
   id: ID!
   maxNetworkEthFee: Decimal!
   paymasterEthFees: PaymasterFees!
@@ -278,6 +277,7 @@ type Failed implements Node & ReceiptResult & Result {
   events: [Event!]!
   gasUsed: BigInt!
   id: ID!
+  networkEthFee: Decimal!
   reason: Bytes!
   timestamp: DateTime!
   transferApprovals: [TransferApproval!]!
@@ -333,9 +333,9 @@ type Message implements Node & Proposal {
   rejections: [Rejection!]!
   signature: Bytes32
   signedHash: Bytes32!
+  timestamp: DateTime!
   typedData: TypedData
   updatable: Boolean!
-  validFrom: DateTime!
   validationErrors: [ValidationError!]!
 }
 
@@ -469,7 +469,7 @@ interface Proposal implements Node {
   policy: Policy!
   proposedBy: Approver!
   rejections: [Rejection!]!
-  validFrom: DateTime!
+  timestamp: DateTime!
   validationErrors: [ValidationError!]!
 }
 
@@ -526,7 +526,7 @@ input ProposeCancelScheduledTransactionInput {
 
   """Approve the proposal"""
   signature: Bytes
-  validFrom: DateTime
+  timestamp: DateTime
 }
 
 input ProposeMessageInput {
@@ -540,8 +540,8 @@ input ProposeMessageInput {
 
   """Approve the proposal"""
   signature: Bytes
+  timestamp: DateTime
   typedData: TypedData
-  validFrom: DateTime
 }
 
 input ProposeTransactionInput {
@@ -555,7 +555,7 @@ input ProposeTransactionInput {
 
   """Approve the proposal"""
   signature: Bytes
-  validFrom: DateTime
+  timestamp: DateTime
 }
 
 type Query {
@@ -588,6 +588,7 @@ interface ReceiptResult implements Node & Result {
   events: [Event!]!
   gasUsed: BigInt!
   id: ID!
+  networkEthFee: Decimal!
   timestamp: DateTime!
   transferApprovals: [TransferApproval!]!
   transfers: [Transfer!]!
@@ -686,6 +687,7 @@ type Successful implements Node & ReceiptResult & Result {
   events: [Event!]!
   gasUsed: BigInt!
   id: ID!
+  networkEthFee: Decimal!
   responses: [Bytes!]!
   timestamp: DateTime!
   transferApprovals: [TransferApproval!]!
@@ -782,10 +784,10 @@ type Transaction implements Node & Proposal {
   icon: URL
   id: ID!
   label: String
-  maxPaymasterEthFees: PaymasterFees!
-  nonce: BigInt!
+  maxAmount: Decimal!
   operations: [Operation!]!
   paymaster: Address!
+  paymasterEthFees: PaymasterFees!
   policy: Policy!
   proposedBy: Approver!
   rejections: [Rejection!]!
@@ -795,8 +797,8 @@ type Transaction implements Node & Proposal {
   status: TransactionStatus!
   systx: SystemTx
   systxs: [SystemTx!]!
+  timestamp: DateTime!
   updatable: Boolean!
-  validFrom: DateTime!
   validationErrors: [ValidationError!]!
 }
 

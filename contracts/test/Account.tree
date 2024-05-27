@@ -1,0 +1,15 @@
+# constructor
+## should succeed
+## when initialize called
+### should revert
+
+# initialize
+## when called once
+### should add policies
+## when called twice
+### should initialize
+
+# validateTransaction
+## when called by bootloader
+## when called by other address
+### should revert

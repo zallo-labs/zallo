@@ -63,11 +63,11 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: matter-labs/foundry-zksync
-          ref: 'v0.0.2-alpha.4'
+          ref: 'dev'
           path: 'foundry-zksync'
 
       - name: 🚧 Add foundry-zksync to PATH
-        run: echo "$XDG_CONFIG_HOME/.foundry-zksync/bin" >> $GITHUB_PATH
+        run: echo "$XDG_CONFIG_HOME/.foundry/bin" >> $GITHUB_PATH
 
       - name: 📦 Install foundry-zksync
         run: (cd foundry-zksync && ./install-foundry-zksync)

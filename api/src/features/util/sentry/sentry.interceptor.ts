@@ -11,8 +11,10 @@ import * as Sentry from '@sentry/node';
 import { Request } from 'express';
 import { tap } from 'rxjs/operators';
 import { match } from 'ts-pattern';
-import { getRequestContext } from '~/request/ctx';
-// import { SpanStatus } from '@sentry/tracing';
+import { GqlContext } from '~/request/ctx';
+import { getContextUnsafe } from '../context';
+import { SpanStatus } from '@sentry/tracing';
+import { execute } from 'graphql';
 
 type Filter<E = unknown> = [
   type: new (...args: any[]) => E,
@@ -26,22 +28,30 @@ export class SentryInterceptor implements NestInterceptor {
   ];
 
   intercept(context: ExecutionContext, next: CallHandler) {
-    return Sentry.startSpanManual(
-      {
-        op: 'request',
-        name: `${context.getClass().name}.${context.getHandler().name}`,
-      },
-      (span) =>
-        next.handle().pipe(
-          tap({
-            complete: () => {
-              span?.setStatus('ok');
-            },
-            error: (exception) => {
-              span?.setStatus('unknown_error');
-              if (this.shouldReport(exception)) {
+    return Sentry.continueTrace(this.extractTrace(context), () =>
+      Sentry.startSpanManual(
+        {
+          op: `${context.getType()}.request`,
+          name: `${context.getClass().name}.${context.getHandler().name}`,
+        },
+        (span, finishSpan) =>
+          next.handle().pipe(
+            tap({
+              complete: () => {
+                span?.setStatus({ code: 1 /* ok */, message: SpanStatus.Ok });
+              },
+              error: (exception) => {
+                span?.setStatus({
+                  code: 2 /* error */,
+                  message:
+                    execute instanceof UnauthorizedException
+                      ? SpanStatus.Unauthenticated
+                      : SpanStatus.UnknownError,
+                });
+                if (!this.shouldReport(exception)) return;
+
                 Sentry.withScope((scope) => {
-                  const userCtx = getRequestContext().user;
+                  const userCtx = getContextUnsafe()?.user;
                   if (userCtx) scope.setUser({ id: userCtx.approver });
                   scope.setExtra('exceptionData', JSON.stringify(exception, null, 2));
 
@@ -49,13 +59,13 @@ export class SentryInterceptor implements NestInterceptor {
 
                   return Sentry.captureException(exception);
                 });
-              }
-            },
-            finalize: () => {
-              span?.end();
-            },
-          }),
-        ),
+              },
+              finalize: () => {
+                finishSpan();
+              },
+            }),
+          ),
+      ),
     );
   }
 
@@ -63,17 +73,15 @@ export class SentryInterceptor implements NestInterceptor {
     match(context.getType<GqlContextType>())
       .with('graphql', () => {
         const gqlHost = GqlArgumentsHost.create(context);
-        const ctx = gqlHost.getContext();
-        this.addRequestToScope(scope, ctx?.req || ctx);
+        const ctx = gqlHost.getContext<GqlContext>();
+        scope.setExtra('request', Sentry.addRequestDataToEvent({}, ctx.req));
 
-        const info = gqlHost.getInfo();
-        scope.setExtra('fieldName', info.fieldName);
-        const args = gqlHost.getArgs();
-        scope.setExtra('args', JSON.stringify(args, null, 2));
+        scope.setExtra('fieldName', gqlHost.getInfo().fieldName);
+        scope.setExtra('args', JSON.stringify(gqlHost.getArgs(), null, 2));
       })
       .with('http', () => {
         const http = context.switchToHttp();
-        this.addRequestToScope(scope, http.getRequest());
+        scope.setExtra('request', Sentry.addRequestDataToEvent({}, http.getRequest()));
       })
       .with('ws', () => {
         const ws = context.switchToWs();
@@ -87,8 +95,28 @@ export class SentryInterceptor implements NestInterceptor {
       .exhaustive();
   }
 
-  private addRequestToScope(scope: Sentry.Scope, req: Request) {
-    scope.setExtra('request', Sentry.addRequestDataToEvent({}, req));
+  private extractTrace(context: ExecutionContext) {
+    return (
+      match(context.getType<GqlContextType>())
+        .with('graphql', () => {
+          const gqlHost = GqlArgumentsHost.create(context);
+          return this.traceRequest(gqlHost.getContext<GqlContext>().req);
+        })
+        .with('http', () => {
+          const http = context.switchToHttp();
+          return this.traceRequest(http.getRequest());
+        })
+        // TODO: ws
+        .otherwise(() => ({ sentryTrace: undefined, baggage: undefined }))
+    );
+  }
+
+  private traceRequest(request: Request) {
+    const st = request.headers['sentry-trace'];
+    const sentryTrace = Array.isArray(st) ? st.join(',') : st;
+    const baggage = request.headers['baggage'];
+
+    return { sentryTrace, baggage };
   }
 
   private shouldReport(exception: unknown): boolean {

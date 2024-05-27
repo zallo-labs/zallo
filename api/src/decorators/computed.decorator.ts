@@ -7,7 +7,8 @@ import {
 } from '@nestjs/graphql';
 import { ObjectTypeSet } from '~/edgeql-js/reflection';
 import { Shape } from '~/features/database/database.select';
-import { GqlContext, asUser } from '~/request/ctx';
+import { GqlContext } from '~/request/ctx';
+import { asUser } from '#/util/context';
 
 const asUserMiddleware: FieldMiddleware<unknown, GqlContext> = async ({ context }, next) =>
   asUser(context, next);

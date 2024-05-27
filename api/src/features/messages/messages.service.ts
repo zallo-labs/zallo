@@ -67,7 +67,7 @@ export class MessagesService {
     label,
     icon,
     dapp,
-    validFrom = new Date(),
+    timestamp = new Date(),
     signature,
   }: ProposeMessageInput) {
     if (!messageInput && !typedData)
@@ -105,7 +105,7 @@ export class MessagesService {
               typedData,
               label,
               icon,
-              validFrom,
+              timestamp,
               ...(dapp && {
                 dapp: {
                   name: dapp.name,

@@ -1,7 +1,8 @@
 import { Context, Info, Mutation, Query, Resolver, Subscription } from '@nestjs/graphql';
 import { GraphQLResolveInfo } from 'graphql';
 import { InputArgs, Input } from '~/decorators/input.decorator';
-import { GqlContext, asUser, getUserCtx } from '~/request/ctx';
+import { GqlContext } from '~/request/ctx';
+import { asUser, getUserCtx } from '#/util/context';
 import { getShape } from '../database/database.select';
 import {
   UniqueProposalInput,

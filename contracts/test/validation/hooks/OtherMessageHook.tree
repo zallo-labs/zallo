@@ -1,0 +1,8 @@
+.
+└── validateMessage
+    ├── when previously handled
+    │   └── should not handled
+    ├── when allowed
+    │   └── should handled
+    └── when not allowed
+        └── should revert

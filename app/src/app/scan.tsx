@@ -1,7 +1,7 @@
 import { Stack } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { Platform, StyleSheet, View } from 'react-native';
-import { CameraView, useCameraPermissions } from 'expo-camera/next';
+import { CameraView, useCameraPermissions } from 'expo-camera';
 import { Text } from 'react-native-paper';
 import { Actions } from '#/layout/Actions';
 import { Address, UAddress, tryAsAddress } from 'lib';

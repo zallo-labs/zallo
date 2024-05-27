@@ -1,0 +1,22 @@
+.
+├── payPaymaster
+│   ├── when approvalBasedWithMax flow
+│   │   ├── when amount <= max
+│   │   │   ├── when native token
+│   │   │   │   └── should set allowance
+│   │   │   └── when ERC20 token
+│   │   │       └── should set allowance
+│   │   └── when amount > max
+│   │       └── should revert
+│   ├── when approvalBased flow
+│   │   ├── when native token
+│   │   │   └── should set allowance
+│   │   └── when ERC20 token
+│   │       └── should set allowance
+│   └── when other flow
+│       └── should succeed
+└── signedPaymasterInput
+    ├── when approvalBasedWithMax flow
+    │   └── should return token and maxAmount
+    └── when other flow
+        └── should return paymaster input

@@ -1,0 +1,24 @@
+.
+├── verify
+│   ├── when sufficient approvals provided
+│   │   └── should succeed
+│   └── when insufficient approvals provided
+│       └── should fail
+├── verifyK256
+│   ├── when approvals are valid
+│   │   └── should succeed
+│   ├── when an approval doesn't match hash
+│   │   └── should revert
+│   ├── when an approval isn't from an approver
+│   │   └── should revert
+│   └── when approvals are duplicated
+│       └── should revert
+└── verifyErc1271
+    ├── when approvals are valid
+    │   └── should succeed
+    ├── when an approval doesn't verify
+    │   └── should revert
+    ├── when an approval isn't from an approver
+    │   └── should revert
+    └── when approvals are duplicated
+        └── should revert

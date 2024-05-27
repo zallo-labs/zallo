@@ -1,4 +1,4 @@
-CREATE MIGRATION m1gjmxehn4f6y7yqblohu4yaipqgb3urzmivadpg354vid7wanzv4q
+CREATE MIGRATION m1rt7uqfmhqom26b7qf4xqdpbhui4e7mj4iw5bpohms72ltmmxtqra
     ONTO initial
 {
   CREATE SCALAR TYPE default::ApprovalIssue EXTENDING enum<HashMismatch, Expired>;
@@ -15,8 +15,16 @@ CREATE MIGRATION m1gjmxehn4f6y7yqblohu4yaipqgb3urzmivadpg354vid7wanzv4q
       CREATE CONSTRAINT std::regexp('^0x[0-9a-fA-F]{40}$');
   };
   CREATE GLOBAL default::current_approver_address -> default::Address;
+  CREATE SCALAR TYPE default::uint16 EXTENDING std::int32 {
+      CREATE CONSTRAINT std::max_value(((2 ^ 16) - 1));
+      CREATE CONSTRAINT std::min_value(0);
+  };
+  CREATE FUNCTION default::as_fixed(value: std::decimal, decimals: default::uint16) ->  std::bigint USING (<std::bigint>std::round((value * (10n ^ decimals))));
   CREATE SCALAR TYPE default::Bytes32 EXTENDING std::str {
       CREATE CONSTRAINT std::regexp('^0x[0-9a-fA-F]{64}$');
+  };
+  CREATE SCALAR TYPE default::Url EXTENDING std::str {
+      CREATE CONSTRAINT std::regexp('^https?://');
   };
   CREATE TYPE default::Account {
       CREATE PROPERTY activationEthFee: std::decimal {
@@ -35,11 +43,7 @@ CREATE MIGRATION m1gjmxehn4f6y7yqblohu4yaipqgb3urzmivadpg354vid7wanzv4q
           CREATE CONSTRAINT std::exclusive;
           CREATE CONSTRAINT std::regexp('^[0-9a-zA-Z$-]{4,40}$');
       };
-      CREATE REQUIRED PROPERTY paymasterEthCredit: std::decimal {
-          SET default := 0;
-          CREATE CONSTRAINT std::min_value(0);
-      };
-      CREATE PROPERTY photoUri: std::str;
+      CREATE PROPERTY photo: default::Url;
       CREATE REQUIRED PROPERTY salt: default::Bytes32;
       CREATE ACCESS POLICY members_select_insert_update
           ALLOW SELECT, UPDATE, INSERT USING ((.id IN GLOBAL default::current_accounts_set));
@@ -63,9 +67,6 @@ CREATE MIGRATION m1gjmxehn4f6y7yqblohu4yaipqgb3urzmivadpg354vid7wanzv4q
       CREATE CONSTRAINT std::max_len_value(50);
       CREATE CONSTRAINT std::min_len_value(1);
   };
-  CREATE SCALAR TYPE default::Url EXTENDING std::str {
-      CREATE CONSTRAINT std::regexp('^https?://');
-  };
   CREATE ABSTRACT TYPE default::Proposal {
       CREATE REQUIRED LINK account: default::Account;
       CREATE REQUIRED PROPERTY hash: default::Bytes32 {
@@ -75,9 +76,9 @@ CREATE MIGRATION m1gjmxehn4f6y7yqblohu4yaipqgb3urzmivadpg354vid7wanzv4q
           SET default := (std::datetime_of_statement());
       };
       CREATE PROPERTY dapp: tuple<name: std::str, url: default::Url, icons: array<default::Url>>;
-      CREATE PROPERTY iconUri: default::Url;
+      CREATE PROPERTY icon: default::Url;
       CREATE PROPERTY label: default::Label;
-      CREATE REQUIRED PROPERTY validFrom: std::datetime;
+      CREATE REQUIRED PROPERTY timestamp: std::datetime;
       CREATE REQUIRED PROPERTY validationErrors: array<tuple<reason: std::str, operation: std::int32>>;
       CREATE ACCESS POLICY members_only
           ALLOW ALL USING ((.account IN GLOBAL default::current_accounts));
@@ -112,6 +113,7 @@ CREATE MIGRATION m1gjmxehn4f6y7yqblohu4yaipqgb3urzmivadpg354vid7wanzv4q
       CREATE REQUIRED PROPERTY gasUsed: std::bigint {
           CREATE CONSTRAINT std::min_value(0);
       };
+      CREATE REQUIRED PROPERTY networkEthFee := ((.ethFeePerGas * .gasUsed));
   };
   CREATE TYPE default::Successful EXTENDING default::ReceiptResult {
       CREATE REQUIRED PROPERTY responses: array<default::Bytes>;
@@ -134,21 +136,18 @@ CREATE MIGRATION m1gjmxehn4f6y7yqblohu4yaipqgb3urzmivadpg354vid7wanzv4q
   FILTER
       (.address = GLOBAL default::current_approver_address)
   )));
+  ALTER TYPE default::Proposal {
+      CREATE MULTI LINK approvals := (.<proposal[IS default::Approval]);
+      CREATE REQUIRED LINK proposedBy: default::Approver {
+          SET default := (<default::Approver>(GLOBAL default::current_approver).id);
+      };
+  };
   ALTER TYPE default::ProposalResponse {
       CREATE REQUIRED LINK approver: default::Approver {
           SET default := (<default::Approver>(GLOBAL default::current_approver).id);
       };
       CREATE ACCESS POLICY members_can_select
           ALLOW SELECT USING ((.proposal.account IN GLOBAL default::current_accounts));
-  };
-  ALTER TYPE default::Approval {
-      CREATE REQUIRED PROPERTY invalid := ((std::len(.issues) > 0));
-  };
-  ALTER TYPE default::Proposal {
-      CREATE MULTI LINK approvals := (.<proposal[IS default::Approval]);
-      CREATE REQUIRED LINK proposedBy: default::Approver {
-          SET default := (<default::Approver>(GLOBAL default::current_approver).id);
-      };
   };
   CREATE TYPE default::Rejection EXTENDING default::ProposalResponse;
   ALTER TYPE default::Proposal {
@@ -169,12 +168,9 @@ CREATE MIGRATION m1gjmxehn4f6y7yqblohu4yaipqgb3urzmivadpg354vid7wanzv4q
       CREATE REQUIRED PROPERTY to: default::Address;
       CREATE PROPERTY value: default::uint256;
   };
-  CREATE SCALAR TYPE default::uint16 EXTENDING std::int32 {
-      CREATE CONSTRAINT std::max_value(((2 ^ 16) - 1));
-      CREATE CONSTRAINT std::min_value(0);
-  };
   CREATE SCALAR TYPE default::TransactionStatus EXTENDING enum<Pending, Scheduled, Executing, Successful, Failed, Cancelled>;
   CREATE TYPE default::Transaction EXTENDING default::Proposal {
+      CREATE REQUIRED PROPERTY maxAmount: std::decimal;
       CREATE REQUIRED PROPERTY gasLimit: default::uint256 {
           SET default := 0;
       };
@@ -192,7 +188,6 @@ CREATE MIGRATION m1gjmxehn4f6y7yqblohu4yaipqgb3urzmivadpg354vid7wanzv4q
           ON TARGET DELETE DEFERRED RESTRICT;
           CREATE CONSTRAINT std::exclusive;
       };
-      CREATE REQUIRED PROPERTY nonce := (<std::bigint>math::floor(std::datetime_get(.validFrom, 'epochseconds')));
       CREATE REQUIRED PROPERTY paymaster: default::Address;
   };
   CREATE TYPE default::Token {
@@ -201,14 +196,13 @@ CREATE MIGRATION m1gjmxehn4f6y7yqblohu4yaipqgb3urzmivadpg354vid7wanzv4q
       CREATE REQUIRED PROPERTY name: default::Label;
       CREATE REQUIRED PROPERTY chain := (default::as_chain(.address));
       CREATE REQUIRED PROPERTY symbol: default::Label;
+      CREATE REQUIRED PROPERTY decimals: default::uint16;
       CREATE REQUIRED PROPERTY isFeeToken: std::bool {
           SET default := false;
       };
       CREATE INDEX ON ((.address, .isFeeToken));
       CREATE INDEX ON (.address);
-      CREATE REQUIRED PROPERTY decimals: default::uint16;
-      CREATE PROPERTY ethereumAddress: default::Address;
-      CREATE PROPERTY iconUri: std::str;
+      CREATE PROPERTY icon: default::Url;
       CREATE PROPERTY pythUsdPriceId: default::Bytes32;
   };
   CREATE FUNCTION default::as_address(address: default::UAddress) ->  default::Address USING ((std::str_split(address, ':'))[1]);
@@ -257,6 +251,7 @@ CREATE MIGRATION m1gjmxehn4f6y7yqblohu4yaipqgb3urzmivadpg354vid7wanzv4q
           ALLOW ALL USING ((.user ?= GLOBAL default::current_user));
       CREATE ACCESS POLICY anyone_select_allowlisted
           ALLOW SELECT USING (NOT (EXISTS (.user)));
+      CREATE REQUIRED PROPERTY isSystem := (NOT (EXISTS (.user)));
   };
   CREATE FUNCTION default::labelForUser(addressParam: std::str, user: default::User) -> OPTIONAL std::str USING (WITH
       address := 
@@ -288,6 +283,11 @@ CREATE MIGRATION m1gjmxehn4f6y7yqblohu4yaipqgb3urzmivadpg354vid7wanzv4q
           (.address = address)
       )).label))))))
   );
+  CREATE FUNCTION default::as_decimal(value: std::bigint, decimals: default::uint16) ->  std::decimal USING ((<std::decimal>value / (<std::decimal>10 ^ decimals)));
+  ALTER TYPE default::Transaction {
+      CREATE REQUIRED LINK feeToken: default::Token;
+      CREATE REQUIRED PROPERTY maxAmountFp := (default::as_fixed(.maxAmount, .feeToken.decimals));
+  };
   CREATE FUNCTION default::label(address: std::str) -> OPTIONAL std::str USING (SELECT
       default::labelForUser(address, GLOBAL default::current_user)
   );
@@ -402,6 +402,26 @@ CREATE MIGRATION m1gjmxehn4f6y7yqblohu4yaipqgb3urzmivadpg354vid7wanzv4q
       CREATE LINK latest := (default::latestPolicy(.account, .key));
       CREATE REQUIRED PROPERTY active := ((.hasBeenActive AND (.latest ?= __source__)));
   };
+  ALTER TYPE default::Policy {
+      CREATE TRIGGER link_insert
+          AFTER UPDATE, INSERT 
+          FOR EACH 
+              WHEN (((__new__.activationBlock ?? 0) > (((SELECT
+                  __new__.account.policies FILTER
+                      (.key = __new__.key)
+              LIMIT
+                  1
+              )).activationBlock ?? -1)))
+          DO (UPDATE
+              __new__.account
+          SET {
+              policies := std::assert_distinct(((SELECT
+                  __new__.account.policies
+              FILTER
+                  (.key != __new__.key)
+              ) UNION __new__))
+          });
+  };
   CREATE TYPE default::RemovedPolicy EXTENDING default::PolicyState {
       CREATE TRIGGER rm_policy_draft_link
           AFTER UPDATE, INSERT 
@@ -441,6 +461,9 @@ CREATE MIGRATION m1gjmxehn4f6y7yqblohu4yaipqgb3urzmivadpg354vid7wanzv4q
   CREATE FUNCTION default::token(address: std::str) -> OPTIONAL default::Token USING (SELECT
       default::tokenForUser(address, GLOBAL default::current_user)
   );
+  ALTER TYPE default::Approval {
+      CREATE REQUIRED PROPERTY invalid := ((std::len(.issues) > 0));
+  };
   CREATE TYPE default::Event {
       CREATE REQUIRED LINK account: default::Account;
       CREATE ACCESS POLICY members_can_select
@@ -503,10 +526,6 @@ CREATE MIGRATION m1gjmxehn4f6y7yqblohu4yaipqgb3urzmivadpg354vid7wanzv4q
       CREATE REQUIRED LINK proposal: default::Transaction;
       CREATE ACCESS POLICY members_can_select_insert
           ALLOW SELECT, INSERT USING ((.proposal.account IN GLOBAL default::current_accounts));
-      CREATE REQUIRED PROPERTY ethCreditUsed: std::decimal {
-          SET default := 0;
-          CREATE CONSTRAINT std::min_value(0);
-      };
       CREATE REQUIRED PROPERTY maxEthFeePerGas: std::decimal {
           CREATE CONSTRAINT std::min_value(0);
       };
@@ -591,30 +610,35 @@ CREATE MIGRATION m1gjmxehn4f6y7yqblohu4yaipqgb3urzmivadpg354vid7wanzv4q
       };
       CREATE REQUIRED PROPERTY total := (.activation);
   };
-  ALTER TYPE default::SystemTx {
+  ALTER TYPE default::Transaction {
       CREATE REQUIRED LINK paymasterEthFees: default::PaymasterFees {
           SET default := (INSERT
               default::PaymasterFees
           );
-          CREATE CONSTRAINT std::exclusive;
-      };
-  };
-  ALTER TYPE default::Transaction {
-      CREATE REQUIRED LINK maxPaymasterEthFees: default::PaymasterFees {
-          SET default := (INSERT
-              default::PaymasterFees
-          );
+          ON SOURCE DELETE DELETE TARGET;
           CREATE CONSTRAINT std::exclusive;
       };
   };
   ALTER TYPE default::SystemTx {
-      CREATE REQUIRED PROPERTY ethDiscount := ((.ethCreditUsed + (.proposal.maxPaymasterEthFees.total - .paymasterEthFees.total)));
-      CREATE REQUIRED PROPERTY maxEthFees := (((.maxNetworkEthFee + .paymasterEthFees.total) - .ethDiscount));
+      CREATE REQUIRED PROPERTY maxEthFees := ((.maxNetworkEthFee + .proposal.paymasterEthFees.total));
+      CREATE TRIGGER update_activation_fee
+          AFTER INSERT 
+          FOR EACH 
+              WHEN ((__new__.proposal.account.activationEthFee > 0))
+          DO (WITH
+              account := 
+                  __new__.proposal.account
+              ,
+              paymasterEthFees := 
+                  __new__.proposal.paymasterEthFees
+          UPDATE
+              account
+          SET {
+              activationEthFee := std::max({0, (account.activationEthFee - paymasterEthFees.activation)})
+          });
   };
   ALTER TYPE default::Proposal {
       CREATE REQUIRED LINK policy: default::Policy;
-      CREATE MULTI LINK potentialApprovers := ((.policy.approvers EXCEPT .approvals.approver));
-      CREATE MULTI LINK potentialRejectors := ((.policy.approvers EXCEPT .rejections.approver));
   };
   ALTER TYPE default::Transaction {
       CREATE REQUIRED PROPERTY status := (SELECT
@@ -625,7 +649,6 @@ CREATE MIGRATION m1gjmxehn4f6y7yqblohu4yaipqgb3urzmivadpg354vid7wanzv4q
       };
       CREATE MULTI LINK results := (.<transaction[IS default::Result]);
       CREATE MULTI LINK systxs := (.<proposal[IS default::SystemTx]);
-      CREATE REQUIRED LINK feeToken: default::Token;
   };
   ALTER TYPE default::Transferlike {
       ALTER LINK spentBy {
@@ -666,24 +689,6 @@ CREATE MIGRATION m1gjmxehn4f6y7yqblohu4yaipqgb3urzmivadpg354vid7wanzv4q
               LIMIT
                   1
               )
-          });
-      CREATE TRIGGER link_insert
-          AFTER UPDATE, INSERT 
-          FOR EACH 
-              WHEN (((__new__.activationBlock ?? 0) > (((SELECT
-                  __new__.account.policies FILTER
-                      (.key = __new__.key)
-              LIMIT
-                  1
-              )).activationBlock ?? -1)))
-          DO (UPDATE
-              __new__.account
-          SET {
-              policies := std::assert_distinct(((SELECT
-                  __new__.account.policies
-              FILTER
-                  (.key != __new__.key)
-              ) UNION __new__))
           });
   };
   ALTER TYPE default::RemovedPolicy {
@@ -740,14 +745,6 @@ CREATE MIGRATION m1gjmxehn4f6y7yqblohu4yaipqgb3urzmivadpg354vid7wanzv4q
       CREATE MULTI LINK functions: default::Function;
       CREATE REQUIRED PROPERTY address: default::Address {
           CREATE CONSTRAINT std::exclusive;
-      };
-  };
-  CREATE TYPE default::Refund {
-      CREATE REQUIRED LINK systx: default::SystemTx {
-          CREATE CONSTRAINT std::exclusive;
-      };
-      CREATE REQUIRED PROPERTY ethAmount: std::decimal {
-          CREATE CONSTRAINT std::min_value(0);
       };
   };
   ALTER TYPE default::Simulation {

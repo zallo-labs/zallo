@@ -2,41 +2,41 @@ import { Address } from './address';
 import { Chain } from 'chains';
 import * as accountArtifact from './abi/Account';
 import * as accountProxyArtifact from './abi/AccountProxy';
-import * as accountProxyFactoryArtifact from './abi/Factory';
-import * as testVerifierArtifact from './abi/TestVerifier';
+import * as deployerArtifact from './abi/Deployer';
 import * as paymasterArtifact from './abi/Paymaster';
+import * as exposedArtifact from './abi/Expose';
 
-export const TEST_VERIFIER_ABI = testVerifierArtifact.abi;
+export const EXPOSED_ABI = exposedArtifact.abi;
 
 export const ACCOUNT_IMPLEMENTATION = {
-  ...accountArtifact,
   address: addresses({
-    'zksync-sepolia': '0x92812ac3287B14CdcF8D03C6138d77F61472503d',
+    'zksync-sepolia': '0x1422336652eDFD915237bC6F40160FAccA993FEA',
   }),
 } as const;
 
 export const ACCOUNT_PROXY = {
   abi: accountProxyArtifact.abi,
   bytecode: accountProxyArtifact.bytecode,
-};
-
-export const ACCOUNT_PROXY_FACTORY = {
-  abi: accountProxyFactoryArtifact.abi,
-  address: addresses({
-    'zksync-sepolia': '0xF4e2526Be59C3095A8300494CdDE8349Ae019469',
-  }),
+  factoryDeps: accountProxyArtifact.factoryDeps,
 };
 
 export const ACCOUNT_ABI = [
-  ...ACCOUNT_IMPLEMENTATION.abi.filter((v) => v.type !== 'constructor'),
+  ...accountArtifact.abi.filter((v) => v.type !== 'constructor'),
   ...ACCOUNT_PROXY.abi,
 ] as const;
 
 export const PAYMASTER = {
   abi: paymasterArtifact.abi,
   address: addresses({
-    // Addresses differ due to token addresses differing on networks
-    'zksync-sepolia': '0x2E4971D7a2f2b9D90497a21ffE308cE5AbeCb137',
+    // Addresses may differ due to different chain configurations
+    'zksync-sepolia': '0xAf722c55dE9c3C1933631d73A8D2801f79C2Fe26',
+  }),
+};
+
+export const DEPLOYER = {
+  abi: deployerArtifact.abi,
+  address: addresses({
+    'zksync-sepolia': '0x51ed28f82dD91CcaC612C7402672Bf9F0EB16444',
   }),
 };
 

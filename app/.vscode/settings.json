@@ -1,10 +1,10 @@
 {
   "files.exclude": {
-    ".expo": true,
     ".expo-shared": true,
     ".turbo": true,
     ".vscode": true,
-    "*.secret.*": true
   },
+  "explorer.excludeGitIgnore": true,
+  "search.useIgnoreFiles": true,
   "jest.jestCommandLine": "yarn test"
 }

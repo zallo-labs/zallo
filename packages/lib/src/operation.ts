@@ -2,7 +2,7 @@ import { Address } from './address';
 import { Hex } from './bytes';
 import { AbiParameterToPrimitiveType } from 'abitype';
 import { encodeAbiParameters, getAbiItem } from 'viem';
-import { TEST_VERIFIER_ABI } from '.';
+import { EXPOSED_ABI } from './contract';
 import { MULTI_OP_TX } from './constants';
 
 export interface Operation {
@@ -17,10 +17,10 @@ export interface EncodedOperations {
   data: Hex;
 }
 
-const operationAbi = getAbiItem({ abi: TEST_VERIFIER_ABI, name: 'validateTarget' }).inputs[0];
+const operationAbi = getAbiItem({ abi: EXPOSED_ABI, name: 'Operation_' }).inputs[0];
 type OperationStruct = AbiParameterToPrimitiveType<typeof operationAbi>;
 
-const operationsAbi = getAbiItem({ abi: TEST_VERIFIER_ABI, name: 'validateOperations' }).inputs[1];
+const operationsAbi = getAbiItem({ abi: EXPOSED_ABI, name: 'Operations' }).inputs[0];
 
 export function encodeOperations(opsParam: [Operation, ...Operation[]]): EncodedOperations {
   const ops = opsParam.map(

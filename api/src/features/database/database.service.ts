@@ -2,26 +2,23 @@ import '~/util/patches'; // Required due to jest BigInt serialization error
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import e, { createClient, $infer } from '~/edgeql-js';
 import { BaseTypeToTsType, Expression, ParamType } from '~/edgeql-js/typesystem';
-import { getRequestContext } from '~/request/ctx';
+import { getContextUnsafe } from '#/util/context';
 import { AsyncLocalStorage } from 'async_hooks';
 import { EdgeDBError, type Client } from 'edgedb';
 import { Transaction } from 'edgedb/dist/transaction';
-import { MaybePromise } from 'lib';
 import * as Sentry from '@sentry/node';
 import { $expr_OptionalParam, $expr_Param } from '~/edgeql-js/params';
 
-type Hook = () => MaybePromise<void>;
 type Globals = Partial<Record<keyof typeof e.global, unknown>>;
 
-interface Context {
+interface DatabaseContext {
   transaction: Transaction;
-  afterTransactionHooks: Hook[];
 }
 
 @Injectable()
 export class DatabaseService implements OnModuleInit {
   protected __client: Client;
-  protected context = new AsyncLocalStorage<Context>();
+  protected context = new AsyncLocalStorage<DatabaseContext>();
   readonly DANGEROUS_superuserClient: Client;
 
   constructor() {
@@ -42,22 +39,26 @@ export class DatabaseService implements OnModuleInit {
   }
 
   protected get _client() {
-    const ctx = getRequestContext()?.user;
-    if (!ctx) return this.DANGEROUS_superuserClient;
+    const reqCtx = getContextUnsafe();
+    if (!reqCtx?.user) return this.DANGEROUS_superuserClient;
 
-    return this.__client.withGlobals({
-      current_approver_address: ctx.approver,
-      current_accounts_array: ctx.accounts.map((a) => a.id),
+    reqCtx.db ??= this.__client.withGlobals({
+      current_approver_address: reqCtx.user.approver,
+      current_accounts_array: reqCtx.user.accounts.map((a) => a.id),
     } satisfies Globals);
+
+    return reqCtx.db;
   }
 
   private async run<R>(p: Promise<R>): Promise<R> {
-    try {
-      return await p;
-    } catch (e) {
-      if (e instanceof EdgeDBError && e['_query']) Sentry.setExtra('EdgeQL', e['_query']);
-      throw e;
-    }
+    return Sentry.startSpan({ op: 'db.query', name: 'db.query' }, async () => {
+      try {
+        return await p;
+      } catch (e) {
+        if (e instanceof EdgeDBError && e['_query']) Sentry.setExtra('EdgeQL', e['_query']);
+        throw e;
+      }
+    });
   }
 
   async query<Expr extends Expression>(expression: Expr): Promise<$infer<Expr>> {
@@ -80,31 +81,11 @@ export class DatabaseService implements OnModuleInit {
     const transaction = this.context.getStore()?.transaction;
     if (transaction) return action(transaction);
 
-    const afterTransactionHooks: Hook[] = [];
-
-    const result = await this._client.transaction((transaction) =>
-      this.context.run({ transaction, afterTransactionHooks }, () => action(transaction)),
-    );
-
-    this.processHooks(afterTransactionHooks);
-
-    return result;
-  }
-
-  async afterTransaction(hook: Hook) {
-    const store = this.context.getStore();
-    if (store) {
-      store.afterTransactionHooks.push(hook);
-    } else {
-      await hook();
-    }
-  }
-
-  async processHooks(hooks: Hook[]) {
-    // Executed serially
-    for (const hook of hooks) {
-      await hook();
-    }
+    return await Sentry.startSpan({ op: 'db.transaction', name: 'db.transaction' }, async () => {
+      return await this._client.transaction((transaction) =>
+        this.context.run({ transaction }, () => action(transaction)),
+      );
+    });
   }
 }
 

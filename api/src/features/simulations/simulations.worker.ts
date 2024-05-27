@@ -1,4 +1,4 @@
-import { InjectQueue, Processor } from '@nestjs/bullmq';
+import { Processor } from '@nestjs/bullmq';
 import { Injectable } from '@nestjs/common';
 import {
   Address,
@@ -21,19 +21,10 @@ import { and } from '../database/database.util';
 import { OperationsService } from '../operations/operations.service';
 import { selectAccount } from '../accounts/accounts.util';
 import { SwapOp, TransferFromOp, TransferOp } from '../operations/operations.model';
-import { InjectRedis } from '@songkeys/nestjs-redis';
-import Redis from 'ioredis';
-import {
-  RUNNING_JOB_STATUSES,
-  TypedJob,
-  TypedQueue,
-  Worker,
-  createQueue,
-} from '../util/bull/bull.util';
+import { RUNNING_JOB_STATUSES, TypedJob, Worker, createQueue } from '../util/bull/bull.util';
 import { ETH } from 'lib/dapps';
 import { NetworksService } from '~/features/util/networks/networks.service';
 import { TX_SHAPE, transactionAsTx } from '~/features/transactions/transactions.util';
-import { runOnce } from '~/util/mutex';
 import { Shape } from '../database/database.select';
 import { TokensService } from '../tokens/tokens.service';
 import { selectTransaction } from '../transactions/transactions.service';
@@ -59,24 +50,16 @@ const s_ = e.assert_exists(
 type TransactionExecutableShape = $infer<typeof s_>;
 
 @Injectable()
-@Processor(SimulationsQueue.name)
+@Processor(SimulationsQueue.name, { autorun: false })
 export class SimulationsWorker extends Worker<SimulationsQueue> {
   constructor(
-    @InjectQueue(SimulationsQueue.name)
-    private queue: TypedQueue<SimulationsQueue>,
     private db: DatabaseService,
-    @InjectRedis() private redis: Redis,
     private networks: NetworksService,
     private operations: OperationsService,
     private tokens: TokensService,
     private proposals: ProposalsService,
   ) {
     super();
-  }
-
-  onModuleInit() {
-    super.onModuleInit();
-    this.addMissingJobs();
   }
 
   async process(job: TypedJob<SimulationsQueue>) {
@@ -242,39 +225,31 @@ export class SimulationsWorker extends Worker<SimulationsQueue> {
     return limitResults.every((r) => r);
   }
 
-  private async addMissingJobs() {
-    await runOnce(
-      async () => {
-        const jobs = await this.queue.getJobs(RUNNING_JOB_STATUSES);
+  async bootstrap() {
+    const jobs = await this.queue.getJobs(RUNNING_JOB_STATUSES);
 
-        const orphanedTransactions = await this.db.query(
-          e.select(e.Transaction, (p) => ({
-            filter: and(
-              e.op('not', e.op('exists', p.simulation)),
-              jobs.length
-                ? e.op(
-                    p.id,
-                    'not in',
-                    e.cast(e.uuid, e.set(...jobs.map((job) => job.data.transaction))),
-                  )
-                : undefined,
-            ),
-          })).id,
-        );
-
-        if (orphanedTransactions.length) {
-          await this.queue.addBulk(
-            orphanedTransactions.map((id) => ({
-              name: SimulationsQueue.name,
-              data: { transaction: asUUID(id) },
-            })),
-          );
-        }
-      },
-      {
-        redis: this.redis,
-        key: 'simulations-missing-jobs',
-      },
+    const orphanedTransactions = await this.db.query(
+      e.select(e.Transaction, (p) => ({
+        filter: and(
+          e.op('not', e.op('exists', p.simulation)),
+          jobs.length
+            ? e.op(
+                p.id,
+                'not in',
+                e.cast(e.uuid, e.set(...jobs.map((job) => job.data.transaction))),
+              )
+            : undefined,
+        ),
+      })).id,
     );
+
+    if (orphanedTransactions.length) {
+      await this.queue.addBulk(
+        orphanedTransactions.map((id) => ({
+          name: SimulationsQueue.name,
+          data: { transaction: asUUID(id) },
+        })),
+      );
+    }
   }
 }

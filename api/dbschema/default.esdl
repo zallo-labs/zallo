@@ -15,7 +15,6 @@ module default {
     }
     required implementation: Address;
     required salt: Bytes32;
-    required paymasterEthCredit: decimal { constraint min_value(0); default := 0; }
     activationEthFee: decimal { constraint min_value(0); }
     upgradedAtBlock: bigint { constraint min_value(0); }
     photo: Url;
@@ -42,7 +41,7 @@ module default {
     required validationErrors: array<tuple<reason: str, operation: int32>>;
     label: Label;
     icon: Url;
-    required validFrom: datetime;
+    required timestamp: datetime;
     required createdAt: datetime { default := datetime_of_statement(); }
     required proposedBy: Approver { default := (<Approver>(global current_approver).id); }
     dapp: tuple<name: str, url: Url, icons: array<Url>>;

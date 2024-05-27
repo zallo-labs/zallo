@@ -2,7 +2,7 @@ import { HookStruct } from './permissions';
 import { HookSelector } from './util';
 import { decodeAbiParameters, encodeAbiParameters, getAbiItem } from 'viem';
 import { MessagePermissionVerifier } from '../validation';
-import { TEST_VERIFIER_ABI } from '../contract';
+import { EXPOSED_ABI } from '../contract';
 
 export interface OtherMessageConfig {
   allow: boolean;
@@ -12,7 +12,7 @@ export const ALLOW_OTHER_MESSAGES_CONFIG = {
   allow: true,
 } satisfies OtherMessageConfig;
 
-const configAbi = getAbiItem({ abi: TEST_VERIFIER_ABI, name: 'validateOtherMessage' }).inputs[1];
+const configAbi = getAbiItem({ abi: EXPOSED_ABI, name: 'OtherMessageHook' }).inputs[0];
 
 export function encodeOtherMessageHook(c: OtherMessageConfig): HookStruct | undefined {
   if (c.allow) return undefined;

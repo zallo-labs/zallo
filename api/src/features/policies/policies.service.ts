@@ -23,7 +23,6 @@ import { DatabaseService } from '../database/database.service';
 import e from '~/edgeql-js';
 import { ShapeFunc } from '../database/database.select';
 import {
-  UniquePolicy,
   policyStateAsPolicy,
   PolicyShape,
   policyInputAsStateShape,
@@ -37,7 +36,7 @@ import { selectAccount } from '../accounts/accounts.util';
 import { err, ok } from 'neverthrow';
 import { encodeFunctionData } from 'viem';
 import { $Transaction } from '~/edgeql-js/modules/default';
-import { getUserCtx } from '~/request/ctx';
+import { getUserCtx } from '#/util/context';
 
 export interface CreatePolicyParams extends CreatePolicyInput {
   key?: PolicyKey;
@@ -64,23 +63,23 @@ export class PoliciesService {
   async create({ account, name, key: keyArg, initState, ...policyInput }: CreatePolicyParams) {
     const selectedAccount = selectAccount(account);
 
-    const r = this.db.transaction(async (db) => {
-      const key =
-        keyArg ??
-        (await (async () => {
-          const maxKey = (await e
-            .select(
-              e.max(e.select(selectedAccount['<account[is Policy]'], () => ({ key: true })).key),
-            )
-            .run(db)) as number | null;
+    const key =
+      keyArg ??
+      (await (async () => {
+        const maxKey = (await this.db.query(
+          e.select(
+            e.max(e.select(selectedAccount['<account[is Policy]'], () => ({ key: true })).key),
+          ),
+        )) as number | null;
 
-          return asPolicyKey(maxKey !== null ? maxKey + 1 : 0);
-        })());
+        return asPolicyKey(maxKey !== null ? maxKey + 1 : 0);
+      })());
 
-      const state = policyInputAsStateShape(key, policyInput);
-      const proposal =
-        !initState && (await this.getStateProposal(account, policyStateAsPolicy(state)));
+    const state = policyInputAsStateShape(key, policyInput);
+    const proposal =
+      !initState && (await this.getStateProposal(account, policyStateAsPolicy(state)));
 
+    try {
       // with proposal required - https://github.com/edgedb/edgedb/issues/6305
       const { id } = await this.db.query(
         e.insert(e.Policy, {
@@ -92,112 +91,99 @@ export class PoliciesService {
         }),
       );
 
-      this.db.afterTransaction(() =>
-        this.userAccounts.invalidateApproversCache(...policyInput.approvers),
-      );
+      this.userAccounts.invalidateApproversCache(...policyInput.approvers);
 
-      return { id, account, key };
-    });
-
-    try {
-      return ok(await r);
+      return ok({ id, account, key });
     } catch (e) {
       // May occur due to key or name uniqueness; key however is only accepted internally so it must be by name
       if (isExclusivityConstraintViolation(e))
         return err(new NameTaken('A policy with this name already exists'));
+
       throw e;
     }
   }
 
   async update({ account, key, name, ...policyInput }: UpdatePolicyInput) {
-    return this.db.transaction(async () => {
-      // Metadata
-      if (name !== undefined) {
-        const updatedPolicies = await this.db.query(
-          e.update(e.Policy, (p) => ({
-            filter: and(e.op(p.account, '=', selectAccount(account)), e.op(p.key, '=', key)),
-            set: { name },
-          })),
-        );
+    // Metadata
+    if (name !== undefined) {
+      const updatedPolicies = await this.db.query(
+        e.update(e.Policy, (p) => ({
+          filter: and(e.op(p.account, '=', selectAccount(account)), e.op(p.key, '=', key)),
+          set: { name },
+        })),
+      );
 
-        if (!updatedPolicies.length) throw new UserInputError("Policy doesn't exist");
-      }
+      if (!updatedPolicies.length) throw new UserInputError("Policy doesn't exist");
+    }
 
-      // State
-      if (Object.values(policyInput).some((v) => v !== undefined)) {
-        // Get existing policy state
-        // If approvers, threshold, or permissions are undefined then modify the policy accordingly
-        // Propose new state
-        const selectedExisting = selectPolicy({ account, key });
-        const existing = await this.db.query(
-          e.select(selectedExisting, (p) => ({
-            draft: e.select(p.draft.is(e.Policy), () => PolicyShape),
-            ...PolicyShape,
-          })),
-        );
-        if (!existing) throw new UserInputError("Policy doesn't exist");
+    // State
+    if (Object.values(policyInput).some((v) => v !== undefined)) {
+      // Get existing policy state
+      // If approvers, threshold, or permissions are undefined then modify the policy accordingly
+      // Propose new state
+      const selectedExisting = selectPolicy({ account, key });
+      const existing = await this.db.query(
+        e.select(selectedExisting, (p) => ({
+          draft: e.select(p.draft.is(e.Policy), () => PolicyShape),
+          ...PolicyShape,
+        })),
+      );
+      if (!existing) throw new UserInputError("Policy doesn't exist");
 
-        const currentState = existing.draft ?? existing;
-        const currentPolicy = policyStateAsPolicy(currentState);
+      const currentState = existing.draft ?? existing;
+      const currentPolicy = policyStateAsPolicy(currentState);
 
-        const newState = policyInputAsStateShape(key, policyInput, currentState);
-        const newPolicy = policyStateAsPolicy(newState);
-        // TODO: update existing Policy object directly if equivalent
-        if (encodePolicy(currentPolicy) === encodePolicy(newPolicy)) return ok(undefined); // Only update if policy would actually change
+      const newState = policyInputAsStateShape(key, policyInput, currentState);
+      const newPolicy = policyStateAsPolicy(newState);
+      // TODO: update existing Policy object directly if equivalent
+      if (encodePolicy(currentPolicy) === encodePolicy(newPolicy)) return ok(undefined); // Only update if policy would actually change
 
-        await this.db.query(
-          e.insert(e.Policy, {
-            account: selectAccount(account),
-            key,
-            name: name || selectedExisting.name,
-            proposal: await this.getStateProposal(account, newPolicy),
-            ...this.insertStateShape(newState),
-          }),
-        );
+      await this.db.query(
+        e.insert(e.Policy, {
+          account: selectAccount(account),
+          key,
+          name: name || selectedExisting.name,
+          proposal: await this.getStateProposal(account, newPolicy),
+          ...this.insertStateShape(newState),
+        }),
+      );
 
-        this.db.afterTransaction(() =>
-          this.userAccounts.invalidateApproversCache(
-            ...newState.approvers.map((a) => asAddress(a.address)),
-          ),
-        );
-      }
-    });
+      this.userAccounts.invalidateApproversCache(
+        ...newState.approvers.map((a) => asAddress(a.address)),
+      );
+    }
   }
 
   async remove({ account, key }: UniquePolicyInput) {
-    await this.db.transaction(async () => {
-      const policy = await this.db.query(
-        e.select(selectPolicy({ account, key }), (p) => ({
-          active: true,
-          removalDrafted: e.op('exists', p.draft.is(e.RemovedPolicy)),
-        })),
-      );
-      if (!policy || policy.removalDrafted) return;
+    const policy = await this.db.query(
+      e.select(selectPolicy({ account, key }), (p) => ({
+        active: true,
+        removalDrafted: e.op('exists', p.draft.is(e.RemovedPolicy)),
+      })),
+    );
+    if (!policy || policy.removalDrafted) return;
 
-      const proposal =
-        policy.active &&
-        (await this.transactions.getInsertProposal({
-          account,
-          operations: [
-            {
-              to: asAddress(account),
-              data: encodeFunctionData({
-                abi: ACCOUNT_ABI,
-                functionName: 'removePolicy',
-                args: [key],
-              }),
-            },
-          ],
-        }));
-
-      await this.db.query(
-        e.insert(e.RemovedPolicy, {
-          account: selectAccount(account),
-          key,
-          ...(proposal && { proposal }),
+    await this.db.query(
+      e.insert(e.RemovedPolicy, {
+        account: selectAccount(account),
+        key,
+        ...(policy.active && {
+          proposal: await this.transactions.getInsertProposal({
+            account,
+            operations: [
+              {
+                to: asAddress(account),
+                data: encodeFunctionData({
+                  abi: ACCOUNT_ABI,
+                  functionName: 'removePolicy',
+                  args: [key],
+                }),
+              },
+            ],
+          }),
         }),
-      );
-    });
+      }),
+    );
   }
 
   validate(proposal: Tx | 'message' | null, policy: Policy | null) {
@@ -218,6 +204,7 @@ export class PoliciesService {
         filter_single: { id: proposal },
         __type__: { name: true },
         ...e.is(e.Transaction, TX_SHAPE),
+        timestamp: true,
       })),
     );
     if (!p) return [{ reason: 'Proposal not found' }];

@@ -1,5 +1,4 @@
 import { Card } from '#/layout/Card';
-import { createStyles } from '@theme/styles';
 import { CHAINS, Chain } from 'chains';
 import { ListItem } from '../list/ListItem';
 import { ChainIcon } from '../Identicon/ChainIcon';
@@ -60,7 +59,3 @@ export function ChainSelector({
     </Card>
   );
 }
-
-const stylesheet = createStyles(({ colors }) => ({
-  card: {},
-}));

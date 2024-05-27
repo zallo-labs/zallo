@@ -2,17 +2,16 @@ import { Injectable } from '@nestjs/common';
 import { ActivationsQueue } from './activations.queue';
 import { QueueData } from '../util/bull/bull.util';
 import {
-  ACCOUNT_PROXY_FACTORY,
+  DEPLOYER,
   UAddress,
   asAddress,
   asChain,
   asHex,
-  deployAccountProxyRequest,
-  simulateDeployAccountProxy,
-  DeployAccountProxyRequestParams,
   replaceSelfAddress,
   PLACEHOLDER_ACCOUNT_ADDRESS,
   UUID,
+  ACCOUNT_PROXY,
+  encodeProxyConstructorArgs,
 } from 'lib';
 import { NetworksService } from '../util/networks/networks.service';
 import e from '~/edgeql-js';
@@ -22,11 +21,12 @@ import { FlowJob } from 'bullmq';
 import { ReceiptsQueue } from '../system-txs/receipts.queue';
 import Decimal from 'decimal.js';
 import { SimulationsQueue } from '../simulations/simulations.worker';
+import { toHex } from 'viem';
+import { utils as zkUtils } from 'zksync-ethers';
 
 interface FeeParams {
-  address: UAddress;
+  account: UAddress;
   feePerGas: Decimal;
-  use: boolean;
 }
 
 @Injectable()
@@ -36,13 +36,14 @@ export class ActivationsService {
     private networks: NetworksService,
   ) {}
 
-  activationFlow(account: UAddress, sponsoringTransaction: UUID) {
+  flow(account: UAddress, sponsoringTransaction: UUID) {
     return {
       queueName: ReceiptsQueue.name,
       name: 'Activation transaction',
       data: {
         chain: asChain(account),
         transaction: { child: 0 },
+        type: 'other',
       } satisfies QueueData<ReceiptsQueue>,
       children: [
         {
@@ -61,59 +62,32 @@ export class ActivationsService {
     } satisfies FlowJob;
   }
 
-  async simulate(address: UAddress) {
-    const params = await this.params(address);
-    if (!params) return null;
-
-    const network = this.networks.get(address);
-    return (await simulateDeployAccountProxy({ network, ...params }))._unsafeUnwrap();
-  }
-
-  async fee({ address, feePerGas, use }: FeeParams): Promise<Decimal | null> {
+  async fee({ account, feePerGas }: FeeParams): Promise<Decimal | null> {
     const a = await this.db.query(
       e.select(e.Account, () => ({
-        filter_single: { address },
+        filter_single: { address: account },
         activationEthFee: true,
       })),
     );
     if (!a) return null;
+    if (a.activationEthFee) return new Decimal(a.activationEthFee);
 
-    if (a.activationEthFee) {
-      if (use) {
-        await this.db.query(
-          e.update(e.Account, () => ({
-            filter_single: { address },
-            set: { activationEthFee: null },
-          })),
-        );
-      }
+    const request = await this.request(account);
+    if (!request) return null;
 
-      return new Decimal(a.activationEthFee);
-    }
-
-    const gas = await this.estimateGas(address);
-    return gas ? feePerGas.mul(gas.toString()) : null;
-  }
-
-  private async estimateGas(address: UAddress): Promise<bigint | null> {
-    const params = await this.params(address);
-    if (!params) return null;
-
-    const network = this.networks.get(address);
+    const network = this.networks.get(account);
     try {
-      return await network.estimateContractGas({
-        account: asAddress(network.walletAddress),
-        ...deployAccountProxyRequest(params),
-      });
+      const gas = await network.estimateContractGas(request);
+      return feePerGas.mul(gas.toString());
     } catch (e) {
-      const isDeployed = !!(await network.getBytecode({ address: asAddress(address) }))?.length;
-      if (isDeployed) return 0n;
+      const isDeployed = !!(await network.getBytecode({ address: asAddress(account) }))?.length;
+      if (isDeployed) return null;
 
       throw e;
     }
   }
 
-  async params(address: UAddress) {
+  async request(address: UAddress) {
     const account = await this.db.query(
       e.select(e.Account, (a) => ({
         filter_single: { address },
@@ -129,9 +103,7 @@ export class ActivationsService {
     if (!account) throw new Error(`Account ${address} not found`);
     if (account.active) return null;
 
-    return {
-      factory: ACCOUNT_PROXY_FACTORY.address[asChain(address)],
-      salt: asHex(account.salt),
+    const constructorArgs = encodeProxyConstructorArgs({
       implementation: asAddress(account.implementation),
       policies: account.initPolicies.map((p) =>
         replaceSelfAddress({
@@ -140,6 +112,22 @@ export class ActivationsService {
           to: PLACEHOLDER_ACCOUNT_ADDRESS,
         }),
       ),
-    } satisfies DeployAccountProxyRequestParams;
+    });
+
+    const network = this.networks.get(address);
+    return {
+      account: asAddress(network.walletAddress),
+      abi: DEPLOYER.abi,
+      address: DEPLOYER.address[asChain(address)],
+      functionName: 'create2Account' as const,
+      args: [
+        asHex(account.salt),
+        toHex(zkUtils.hashBytecode(ACCOUNT_PROXY.bytecode)),
+        constructorArgs,
+        1, // AccountAbstractionVersion.Version1
+      ] as const,
+      // factoryDeps: [ACCOUNT_PROXY.bytecode], // Throws "rpc method is not whitelisted" if provided; bytecode must be deployed using SystemContractDeployer first
+      // gas: 3_000_000n * BigInt(params.policies.length), // ~1M per policy; gas estimation panics if not provided
+    } satisfies Parameters<typeof network.simulateContract>[0];
   }
 }

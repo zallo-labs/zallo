@@ -10,7 +10,6 @@ export * from './contract';
 export * from './convert';
 export * from './decimals';
 export * from './deploy';
-export * from './execute';
 export * from './gas';
 export * from './id';
 export * from './message';

@@ -2,24 +2,19 @@ import type { HardhatUserConfig } from 'hardhat/config';
 import { CONFIG } from './config';
 import { CHAINS } from 'chains';
 
+import '@nomicfoundation/hardhat-foundry';
 import '@nomiclabs/hardhat-ethers';
 import '@nomicfoundation/hardhat-viem';
 import '@nomiclabs/hardhat-solhint'; // https://github.com/protofire/solhint/blob/master/docs/rules.md
-import '@nomicfoundation/hardhat-foundry';
 import '@matterlabs/hardhat-zksync-chai-matchers';
 import '@matterlabs/hardhat-zksync-solc';
 import '@matterlabs/hardhat-zksync-verify';
-import 'hardhat-gas-reporter';
 import 'hardhat-abi-exporter';
-import 'hardhat-contract-sizer';
-// import 'hardhat-tracer';
-// import 'solidity-coverage';
-// import './test/util/matchers';
 import '@solidstate/hardhat-4byte-uploader';
 
 // Tasks
-import './tasks/export';
-import './tasks/upload-openchain';
+import './task/export';
+import './task/upload-openchain';
 
 // https://hardhat.org/config/
 export default {
@@ -60,23 +55,15 @@ export default {
     runOnCompile: false,
     clear: true,
   },
-  gasReporter: {
-    // https://github.com/cgewecke/eth-gas-reporter#options
-    enabled: true,
-    currency: 'USD',
-    coinmarketcap: CONFIG.coinmarketcapApiKey,
-  },
   export: [
     {
-      path: 'test/contracts',
-      contracts: ['^src\\/.+', '^@pythnetwork/.*/MockPyth.*'],
-      include: ['abi', 'contractName'],
+      path: 'script/contracts',
+      contracts: ['^src\\/.*:((Account.*)|(Deployer)|(Paymaster))$'],
+      include: ['abi', 'contractName', 'bytecode', 'factoryDeps'],
     },
     {
       path: '../packages/lib/src/abi',
-      contracts: [
-        '^src\\/.*:((Account)|(AccountProxy)|(Factory)|(TestVerifier)|(Paymaster)|(IPaymasterFlow)|(TestPaymasterUtil))$',
-      ],
+      contracts: ['^src\\/.*:((Account.*)|(Deployer)|(Paymaster)|(PaymasterFlows)|(Expose))$'],
       include: ['abi', 'bytecode', 'factoryDeps'],
     },
   ],

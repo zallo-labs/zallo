@@ -1,0 +1,15 @@
+.
+└── execute
+    ├── when standard transaction
+    │   ├── when all operations succeed
+    │   │   └── should call contracts
+    │   └── when an operation reverts
+    │       └── should propagate revert
+    └── when scheduled transaction
+        ├── when scheduled
+        │   ├── when all operations succeed
+        │   │   └── should call contracts
+        │   └── when an operation reverts
+        │       └── should propagate revert
+        └── when not scheduled
+            └── should revert

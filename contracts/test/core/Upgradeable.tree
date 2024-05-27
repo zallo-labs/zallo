@@ -1,0 +1,6 @@
+.
+└── authorizeUpgrade
+    ├── when called by self
+    │   └── should succeed
+    └── when called by another address
+        └── should revert

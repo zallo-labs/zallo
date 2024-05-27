@@ -8,7 +8,7 @@ import { ERC20 } from 'lib/dapps';
 import { BalancesService } from '~/features/util/balances/balances.service';
 import { and } from '~/features/database/database.util';
 import { CHAINS } from 'chains';
-import { getUserCtx } from '~/request/ctx';
+import { getUserCtx } from '#/util/context';
 
 @Injectable()
 export class FaucetService implements OnModuleInit {
@@ -24,7 +24,7 @@ export class FaucetService implements OnModuleInit {
     const tokens = await this.db.query(
       e.select(e.Token, (t) => ({
         filter: and(
-          e.op('not', e.op('exists', t.user)),
+          t.isSystem,
           e.op(
             t.chain,
             'in',
@@ -52,23 +52,27 @@ export class FaucetService implements OnModuleInit {
 
   async requestTokens(account: UAddress): Promise<Address[]> {
     const tokensToSend = await this.getTokensToSend(account);
-    const network = this.networks.get(account);
 
-    for (const token of tokensToSend) {
-      await network.useWallet(async (wallet) =>
-        isEthToken(token.address)
-          ? wallet.sendTransaction({
-              to: asAddress(account),
-              value: token.amount,
-            })
-          : wallet.writeContract({
-              address: token.address,
-              abi: ERC20,
-              functionName: 'transfer',
-              args: [asAddress(account), token.amount],
-            }),
-      );
-    }
+    (async () => {
+      const network = this.networks.get(account);
+
+      for (const token of tokensToSend) {
+        await network.useWallet(async (wallet) => {
+          const hash = await (isEthToken(token.address)
+            ? wallet.sendTransaction({
+                to: asAddress(account),
+                value: token.amount,
+              })
+            : wallet.writeContract({
+                address: token.address,
+                abi: ERC20,
+                functionName: 'transfer',
+                args: [asAddress(account), token.amount],
+              }));
+          await network.waitForTransactionReceipt({ hash });
+        });
+      }
+    })();
 
     return tokensToSend.map((t) => t.address);
   }

@@ -52,9 +52,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   owner: 'zallo',
   githubUrl: CONFIG.metadata.github,
   version: '0.1.0',
-  runtimeVersion: {
-    policy: 'sdkVersion',
-  },
+  runtimeVersion: { policy: 'fingerprint' },
   extra: {
     ...CONFIG,
     eas: { projectId: PROJECT_ID },

@@ -9,7 +9,8 @@ import {
   UAddress,
   asAddress,
   ACCOUNT_IMPLEMENTATION,
-  ACCOUNT_PROXY_FACTORY,
+  DEPLOYER,
+  asUAddress,
 } from 'lib';
 import { ShapeFunc } from '../database/database.select';
 import {
@@ -18,7 +19,7 @@ import {
   CreateAccountInput,
   UpdateAccountInput,
 } from './accounts.input';
-import { getApprover, getUserCtx } from '~/request/ctx';
+import { getApprover, getUserCtx } from '#/util/context';
 import { UserInputError } from '@nestjs/apollo';
 import { NetworksService } from '../util/networks/networks.service';
 import { PubsubService } from '../util/pubsub/pubsub.service';
@@ -93,9 +94,7 @@ export class AccountsService {
   }
 
   async createAccount({ chain, label, policies: policyInputs }: CreateAccountInput) {
-    const network = this.networks.get(chain);
     const approver = getApprover();
-
     if (!policyInputs.find((p) => p.approvers.includes(approver)))
       throw new UserInputError('User must be included in at least one policy');
 
@@ -103,31 +102,30 @@ export class AccountsService {
     const salt = randomDeploySalt();
     const policies = policyInputs.map((p, i) => inputAsPolicy(asPolicyKey(i), p));
 
-    const account = await getProxyAddress({
-      network,
-      factory: ACCOUNT_PROXY_FACTORY.address[chain],
-      implementation: implementation,
-      salt,
-      policies,
-    });
+    const account = asUAddress(
+      getProxyAddress({
+        deployer: DEPLOYER.address[chain],
+        implementation,
+        salt,
+        policies,
+      }),
+      chain,
+    );
 
     // The account id must be in the user's list of accounts prior to starting the transaction for the globals to be set correctly
     const id = uuid();
-    await this.accountsCache.addCachedAccount({
-      approver,
-      account: { id: id, address: account },
-    });
+    await this.accountsCache.addCachedAccount({ approver, account: { id, address: account } });
 
-    await this.db.transaction(async (db) => {
-      await e
-        .insert(e.Account, {
+    await this.db.transaction(async () => {
+      await this.db.query(
+        e.insert(e.Account, {
           id,
           address: account,
           label,
           implementation,
           salt,
-        })
-        .run(db);
+        }),
+      );
 
       for (const [i, policy] of policyInputs.entries()) {
         await this.policies.create({

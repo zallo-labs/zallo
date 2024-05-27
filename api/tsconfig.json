@@ -3,11 +3,13 @@
     "target": "ES2022",
     "module": "commonjs",
     "moduleResolution": "Node10",
+    "sourceRoot": "/",
     "baseUrl": "./",
     "outDir": "./dist",
     "lib": ["ESNext"],
     "incremental": true,
     "declaration": true,
+    "inlineSources": true,
     "sourceMap": true,
     "removeComments": true,
     "emitDecoratorMetadata": true,
@@ -24,6 +26,7 @@
       "~/edgeql-js": ["./dbschema/edgeql-js"],
       "~/edgeql-js/*": ["./dbschema/edgeql-js/*"],
       "~/edgeql-interfaces": ["./dbschema/interfaces"],
+      "#/*": ["./src/features/*"],
       "~/*": ["./src/*"],
       "@gen/*": ["./generated/*"]
     }

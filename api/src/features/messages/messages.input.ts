@@ -28,7 +28,7 @@ export class ProposeMessageInput {
   dapp?: DappMetadataInput;
 
   @Field(() => Date, { nullable: true })
-  validFrom?: Date;
+  timestamp?: Date;
 
   @Field(() => BytesScalar, { nullable: true, description: 'Approve the proposal' })
   signature?: Hex;
