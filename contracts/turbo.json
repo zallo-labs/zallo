@@ -2,7 +2,7 @@
   "extends": ["//"],
   "pipeline": {
     "build": {
-      "dependsOn": ["chains#build"],
+      "dependsOn": ["^build"],
       "inputs": ["contracts/**", "config.ts", "foundry.toml", "hardhat.config.ts", "package.json"],
       "outputs": [
         "abi/**",
@@ -14,17 +14,10 @@
       ]
     },
     "typecheck": {
-      "dependsOn": ["build", "lib#build"]
+      "dependsOn": ["build"]
     },
     "test": {
-      "dependsOn": ["build", "lib#build"],
       "inputs": ["test/**"]
-    },
-    "deploy:account-implementation": {
-      "dependsOn": ["build"]
-    },
-    "deploy:proxy-factory": {
-      "dependsOn": ["build"]
     }
   }
 }
