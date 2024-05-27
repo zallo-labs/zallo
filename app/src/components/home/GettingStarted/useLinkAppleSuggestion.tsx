@@ -1,6 +1,6 @@
 import { FragmentType, gql, useFragment } from '@api';
 import { useApproverAddress } from '~/lib/network/useApprover';
-import { AppleBlackIcon, AppleWhiteIcon } from '@theme/icons';
+import { AppleBlackIcon } from '@theme/icons';
 import { Suggestion } from '#/home/GettingStarted/suggestions';
 import { ListItem } from '#/list/ListItem';
 import { useLinkApple } from '#/cloud/useLinkApple';

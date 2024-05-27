@@ -1,4 +1,4 @@
-import { FC, ReactNode, forwardRef, isValidElement, memo } from 'react';
+import { FC, ReactNode, forwardRef, memo } from 'react';
 import { IconProps } from '@theme/icons';
 import { Text, TouchableRipple, TouchableRippleProps } from 'react-native-paper';
 import { TextProps } from '@theme/types';
