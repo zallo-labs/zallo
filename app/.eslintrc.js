@@ -1,7 +1,7 @@
 module.exports = {
-  ignorePatterns: ['src/lib/ampli'],
+  ignorePatterns: ['src/lib/ampli/', 'src/util/patches/react-compiler-runtime/'],
+  plugins: ['@typescript-eslint', 'react', 'react-hooks', 'eslint-plugin-react-compiler'],
   extends: [
-    
     'eslint:recommended',
     'plugin:@typescript-eslint/recommended',
     'plugin:react/recommended',
@@ -9,7 +9,6 @@ module.exports = {
     'plugin:react-hooks/recommended',
     'plugin:@tanstack/eslint-plugin-query/recommended',
   ],
-  plugins: ['@typescript-eslint', 'react', 'react-hooks'],
   rules: {
     'no-redeclare': 'off', // Handled by TS
     'no-unused-vars': 'off', // Handled by TS
@@ -27,10 +26,8 @@ module.exports = {
     'react/react-in-jsx-scope': 'off',
     'react/prop-types': ['error', { skipUndeclared: true }],
     'react-hooks/rules-of-hooks': 'error',
-    'react-hooks/exhaustive-deps': [
-      'error',
-      { additionalHooks: '(useDeepMemo|useMyOtherCustomHook)' },
-    ],
+    'react-hooks/exhaustive-deps': 'error',
+    'react-compiler/react-compiler': 'error',
   },
   env: {
     es2021: true,

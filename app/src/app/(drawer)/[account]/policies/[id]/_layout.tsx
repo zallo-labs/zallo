@@ -81,7 +81,7 @@ function PolicyLayout() {
   return (
     <PolicyDraftContext.Provider value={ctx}>
       <Stack.Screen options={{ headerShown: false }} />
-      <Stack screenOptions={{ header: AppbarHeader }} />
+      <Stack screenOptions={{ header: (props) => <AppbarHeader {...props} /> }} />
     </PolicyDraftContext.Provider>
   );
 }

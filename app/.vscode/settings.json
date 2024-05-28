@@ -3,6 +3,7 @@
     ".expo-shared": true,
     ".turbo": true,
     ".vscode": true,
+    "*secret*": true
   },
   "explorer.excludeGitIgnore": true,
   "search.useIgnoreFiles": true,

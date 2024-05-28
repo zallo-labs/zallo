@@ -43,7 +43,7 @@ export abstract class Worker<Q extends QueueDefintion>
   }
 
   private async bootstrapAndResume() {
-    const isOnlyWorker = (await this.queue.getWorkers()).length === 1;
+    const isOnlyWorker = (await this.queue.getWorkersCount()) === 1;
     if (isOnlyWorker) await this.bootstrap();
 
     this.worker.run();

@@ -24,6 +24,9 @@ import { Fonts } from '#/Fonts';
 import { SentryProvider } from '#/provider/SentryProvider';
 import { GoogleAuthProvider } from '#/cloud/google/GoogleAuthProvider';
 import { Try } from 'expo-router/build/views/Try';
+import { enableFreeze } from 'react-native-screens';
+
+enableFreeze();
 
 export const unstable_settings = {
   initialRouteName: `index`,
@@ -31,7 +34,7 @@ export const unstable_settings = {
 
 function Layout() {
   return (
-    <Stack screenOptions={{ header: AppbarHeader }}>
+    <Stack screenOptions={{ header: (props) => <AppbarHeader {...props} /> }}>
       <Stack.Screen name={`(drawer)`} options={{ headerShown: false }} />
       <Stack.Screen name={`onboard`} options={{ headerShown: false }} />
       <Stack.Screen name={`_sitemap`} />

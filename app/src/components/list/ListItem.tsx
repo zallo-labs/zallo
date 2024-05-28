@@ -6,7 +6,6 @@ import { StyleProp, TextStyle, View, ViewStyle } from 'react-native';
 import { O } from 'ts-toolbelt';
 import { ICON_SIZE } from '@theme/paper';
 import { createStyles, useStyles } from '@theme/styles';
-import { useMemoApply } from '~/hooks/useMemoized';
 
 /*
  * https://m3.material.io/components/lists/specs
@@ -51,9 +50,7 @@ const ListItem_ = forwardRef<View, ListItemProps>(
     },
     ref,
   ) => {
-    const { styles } = useStyles(
-      useMemoApply(getStylesheet, { lines, leadingSize, selected, disabled }),
-    );
+    const { styles } = useStyles(getStylesheet({ lines, leadingSize, selected, disabled }));
 
     const OverlineText = ({ style, ...props }: TextProps) => (
       <Text

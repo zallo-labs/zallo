@@ -5,11 +5,10 @@ import { match } from 'ts-pattern';
 import { useEffect } from 'react';
 import { usePolicyDraft } from '~/lib/policy/draft';
 import { createStyles, useStyles } from '@theme/styles';
-import { useMemoApply } from '~/hooks/useMemoized';
 
 export function ThresholdChip() {
   const [{ threshold, approvers }, updateDraft] = usePolicyDraft();
-  const { styles } = useStyles(useMemoApply(getStylesheet, { threshold }));
+  const { styles } = useStyles(getStylesheet({ threshold }));
 
   const validThresholds = _.range(Math.min(approvers.size, 1), approvers.size + 1);
   const entries = validThresholds.map(

@@ -24,7 +24,6 @@ import { Link, Stack } from 'expo-router';
 import { AppbarHeader } from '#/Appbar/AppbarHeader';
 import { DrawerLogo } from '#/drawer/DrawerLogo';
 import { createStyles } from '@theme/styles';
-import { memo } from 'react';
 import { TouchableOpacity } from 'react-native';
 
 const Section = PaperDrawer.Section;
@@ -33,15 +32,13 @@ export const unstable_settings = {
   initialRouteName: `[account]/(home)`,
 };
 
-function DrawerLayout() {
+export default function DrawerLayout() {
   return (
-    <Drawer drawerContent={Content}>
-      <Stack screenOptions={{ header: AppbarHeader }} />
+    <Drawer drawerContent={() => <Content />}>
+      <Stack screenOptions={{ header: (props) => <AppbarHeader {...props} /> }} />
     </Drawer>
   );
 }
-
-export default memo(DrawerLayout);
 
 function Content() {
   const account = useSelectedAccount();

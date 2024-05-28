@@ -13,7 +13,6 @@ const routingInstrumentation = new Sentry.ReactNavigationInstrumentation();
 
 Sentry.init({
   enabled: !!CONFIG.sentryDsn,
-  debug: __DEV__,
   dsn: CONFIG.sentryDsn,
   environment: CONFIG.env,
   sampleRate: 1.0,

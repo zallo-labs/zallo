@@ -29,6 +29,7 @@ module.exports = function (api) {
           },
         },
       ],
+      ['babel-plugin-react-compiler', { runtimeModule: 'react-compiler-runtime' }],
       'formatjs',
       'lodash',
       // reanimated
