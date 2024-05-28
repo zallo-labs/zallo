@@ -27,15 +27,6 @@ const Token = gql(/* GraphQL */ `
   }
 `);
 
-/**
- * @summary Trims the token to only the fragment fields to avoid unnecessary re-renders\\n
- * @see https://github.com/urql-graphql/urql/issues/1408
- * @returns Token fields required by TokenIcon
- */
-export function trimTokenIconTokenProp(token: any): any {
-  return _.pick(token, ['id', 'icon']);
-}
-
 export interface TokenIconProps extends Omit<ImageProps, 'source' | 'style'> {
   token: FragmentType<typeof Token> | UAddress | null | undefined;
   fallbackUri?: string;
@@ -82,7 +73,6 @@ const stylesheet = createStyles(({ iconSize }) => ({
   }),
 }));
 
-// export const TokenIcon = TokenIcon_;
 export const TokenIcon = withSuspense(
   memo(TokenIcon_, (prev, next) => deepEqual(normalizeProps(prev), normalizeProps(next))),
   ({ size }) => <CircleSkeleton size={size} />,
@@ -93,6 +83,6 @@ function normalizeProps(props: any) {
 
   return {
     ...props,
-    token: trimTokenIconTokenProp(props.token),
+    token: _.pick(props.token, ['id', 'icon']),
   };
 }
