@@ -9,7 +9,6 @@ import { TextProps } from '@theme/types';
 import { P, match } from 'ts-pattern';
 import { AppbarMenu } from '#/Appbar/AppbarMenu';
 import { createStyles, useStyles } from '@theme/styles';
-import { useMemoApply } from '~/hooks/useMemoized';
 
 const LEADING_COMPONENT = {
   back: AppbarBack,
@@ -35,7 +34,7 @@ export function Appbar({
   elevated,
   inset = true,
 }: AppbarProps) {
-  const { styles } = useStyles(useMemoApply(stylesheet, { mode, center, inset }));
+  const { styles } = useStyles(stylesheet({ mode, center, inset }));
 
   const Leading = typeof leading === 'string' ? LEADING_COMPONENT[leading] : leading;
 

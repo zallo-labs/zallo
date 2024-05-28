@@ -2,7 +2,6 @@ import { useTheme } from 'react-native-paper';
 import { StyleSheet, View } from 'react-native';
 import type { BlurViewProps } from '@react-native-community/blur';
 import { createStyles } from '@theme/styles';
-import { useMemoApply } from '~/hooks/useMemoized';
 
 const BACKGROUND_COLOR = {
   light: 'rgba(255,255,255,0.5)',
@@ -15,7 +14,7 @@ export interface BlurProps extends Partial<Omit<BlurViewProps, 'blurType'>> {
 }
 
 export const Blur = ({ children, ...props }: BlurProps) => {
-  const styles = useMemoApply(getStyles, {
+  const styles = getStyles({
     blurType: useTheme().dark ? 'light' : 'dark',
     ...props,
   });

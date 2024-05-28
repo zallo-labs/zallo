@@ -9,7 +9,6 @@ import {
   useWindowDimensions,
 } from 'react-native';
 import { Text } from 'react-native-paper';
-import { useMemoApply } from '~/hooks/useMemoized';
 
 export interface LabelIconProps extends Omit<ViewProps, 'style'> {
   label: string;
@@ -21,7 +20,7 @@ export interface LabelIconProps extends Omit<ViewProps, 'style'> {
 export const LabelIcon = memo(
   ({ label: l, size, containerStyle, labelStyle, ...viewProps }: LabelIconProps) => {
     const { styles } = useStyles(
-      useMemoApply(getStylesheet, { size, fontScale: useWindowDimensions().fontScale }),
+      getStylesheet({ size, fontScale: useWindowDimensions().fontScale }),
     );
 
     const label = l.slice(0, Math.min(l?.length, 1)).toUpperCase();
