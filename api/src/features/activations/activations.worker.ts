@@ -1,6 +1,7 @@
 import { Processor } from '@nestjs/bullmq';
 import { Injectable } from '@nestjs/common';
-import { Worker, TypedJob, QueueReturnType } from '~/features/util/bull/bull.util';
+import { TypedJob, QueueReturnType } from '~/features/util/bull/bull.util';
+import { Worker } from '#/util/bull/Worker';
 import { NetworksService } from '~/features/util/networks/networks.service';
 import { ActivationsService } from './activations.service';
 import { ActivationsQueue } from './activations.queue';

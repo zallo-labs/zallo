@@ -50,7 +50,7 @@ import { PricesService } from '#/prices/prices.service';
 import { lowerOfPaymasterFees, totalPaymasterEthFees } from '#/paymasters/paymasters.util';
 import Decimal from 'decimal.js';
 import { afterRequest } from '#/util/context';
-import { DEFAULT_FLOW_OPTIONS } from '#/util/bull/bull.module';
+import { DEFAULT_FLOW } from '#/util/bull/bull.module';
 import { PaymasterFeeParts } from '#/paymasters/paymasters.model';
 
 const MAX_NETWORK_FEE_MULTIPLIER = new Decimal(5); // Allow for a higher network fee
@@ -141,7 +141,7 @@ export class TransactionsService {
           },
         ],
       },
-      DEFAULT_FLOW_OPTIONS,
+      DEFAULT_FLOW,
     );
   }
 

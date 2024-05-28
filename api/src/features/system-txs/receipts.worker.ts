@@ -12,7 +12,8 @@ import {
 } from 'viem';
 import { AbiEvent } from 'abitype';
 import { Log } from '~/features/events/events.worker';
-import { TypedJob, Worker } from '~/features/util/bull/bull.util';
+import { TypedJob } from '~/features/util/bull/bull.util';
+import { Worker } from '#/util/bull/Worker';
 import { isHex, isPresent } from 'lib';
 
 export type Receipt = FormattedTransactionReceipt<ChainConfig>;

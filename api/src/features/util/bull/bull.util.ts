@@ -1,10 +1,9 @@
-import { BullModule, RegisterQueueOptions, WorkerHost } from '@nestjs/bullmq';
+import { BullModule, RegisterQueueOptions } from '@nestjs/bullmq';
 import { BullBoardModule, BullBoardQueueOptions } from '@bull-board/nestjs';
 import { BullMQAdapter } from '@bull-board/api/bullMQAdapter';
 import { CONFIG } from '~/config';
 import { isTruthy } from 'lib';
 import { Queue, Worker as BaseWorker, Job, JobType } from 'bullmq';
-import { OnModuleInit, OnModuleDestroy, Logger } from '@nestjs/common';
 
 export const BULL_BOARD_CREDS =
   CONFIG.bullBoardUser !== undefined && CONFIG.bullBoardPassword !== undefined
@@ -70,47 +69,3 @@ export type QueueData<Q extends QueueDefintion<unknown, unknown>> =
 
 export type QueueReturnType<Q extends QueueDefintion<unknown, unknown>> =
   Q extends QueueDefintion<unknown, infer ReturnType> ? ReturnType : never;
-
-export abstract class Worker<Q extends QueueDefintion>
-  extends WorkerHost<TypedWorker<Q>>
-  implements OnModuleInit, OnModuleDestroy
-{
-  protected log = new Logger(this.constructor.name);
-  queue: TypedQueue<Q>;
-
-  constructor() {
-    super();
-  }
-
-  abstract process(job: TypedJob<Q>, token?: string): Promise<QueueReturnType<Q>>;
-
-  async onModuleInit() {
-    if (!CONFIG.processEvents) {
-      this.worker.close();
-      return;
-    }
-
-    this.queue = new Queue(this.worker.name, { connection: await this.worker.client });
-
-    this.worker.concurrency = 5;
-
-    this.worker.on('failed', (job, err) => {
-      this.log.warn(`Job (${job?.id ?? '?'}) failed with ${err.name}: ${err.message}`);
-    });
-
-    this.bootstrapAndResume();
-  }
-
-  async onModuleDestroy() {
-    await this.worker.close();
-  }
-
-  private async bootstrapAndResume() {
-    const isOnlyWorker = (await this.queue.getWorkersCount()) === 1;
-    if (isOnlyWorker) await this.bootstrap();
-
-    this.worker.run();
-  }
-
-  async bootstrap() {}
-}

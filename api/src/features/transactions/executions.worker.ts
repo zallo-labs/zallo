@@ -26,7 +26,8 @@ import { policyStateAsPolicy, PolicyShape } from '~/features/policies/policies.u
 import { TX_SHAPE, transactionAsTx } from './transactions.util';
 import { ProposalEvent } from '~/features/proposals/proposals.input';
 import { selectTransaction } from '~/features/transactions/transactions.service';
-import { QueueReturnType, TypedJob, Worker, createQueue } from '~/features/util/bull/bull.util';
+import { QueueReturnType, TypedJob, createQueue } from '~/features/util/bull/bull.util';
+import { Worker } from '#/util/bull/Worker';
 import { UnrecoverableError } from 'bullmq';
 import { utils as zkUtils } from 'zksync-ethers';
 import { TokensService } from '#/tokens/tokens.service';

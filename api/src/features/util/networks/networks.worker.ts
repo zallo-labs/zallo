@@ -4,7 +4,9 @@ import { NetworksService, estimatedFeesPerGasKey } from './networks.service';
 import { Chain } from 'chains';
 import { InjectRedis } from '@songkeys/nestjs-redis';
 import Redis from 'ioredis';
-import { RUNNING_JOB_STATUSES, Worker, TypedJob, createQueue } from '../bull/bull.util';
+import { RUNNING_JOB_STATUSES, TypedJob, createQueue } from '../bull/bull.util';
+import { Worker } from '../bull/Worker';
+import { NON_RETRYING_JOB } from '../bull/bull.module';
 
 export const NetworkQueue = createQueue<EventJobData>('Network');
 export type NetworkQueue = typeof NetworkQueue;
@@ -37,7 +39,7 @@ export class NetworkWorker extends Worker<NetworkQueue> {
       if (runningJobs.find((j) => j.data.chain === network.chain.key)) continue;
 
       const chain = network.chain.key;
-      this.queue.add(chain, { chain }, { repeat: { every: 30_000 /* ms */ } });
+      this.queue.add(chain, { chain }, { repeat: { every: 30_000 /* ms */ }, ...NON_RETRYING_JOB });
     }
   }
 }
