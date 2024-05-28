@@ -2,8 +2,8 @@
   "extends": ["//"],
   "pipeline": {
     "build": {
-      "dependsOn": ["chains#build"],
-      "inputs": ["contracts/**", "config.ts", "foundry.toml", "hardhat.config.ts", "package.json"],
+      "dependsOn": ["^build"],
+      "inputs": ["contracts/**", "config.ts", "foundry.toml", "remappings.txt", "hardhat.config.ts", "package.json"],
       "outputs": [
         "abi/**",
         "artifacts-zk/**",
@@ -14,17 +14,11 @@
       ]
     },
     "typecheck": {
-      "dependsOn": ["build", "lib#build"]
+      "dependsOn": ["build"]
     },
     "test": {
-      "dependsOn": ["build", "lib#build"],
-      "inputs": ["test/**"]
-    },
-    "deploy:account-implementation": {
-      "dependsOn": ["build"]
-    },
-    "deploy:proxy-factory": {
-      "dependsOn": ["build"]
+      "dependsOn": [],
+      "inputs": ["contracts/**", "test/**", "foundry.toml", "remappings.txt"]
     }
   }
 }

@@ -1,5 +1,5 @@
 import hre from 'hardhat';
-import { Address, Hex } from 'lib';
+import { Address, Hex } from 'viem';
 import { CONFIG } from '../../config';
 import chalk from 'chalk';
 

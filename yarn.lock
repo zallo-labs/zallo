@@ -15419,7 +15419,6 @@ __metadata:
     forge-std: "github:foundry-rs/forge-std#v1.8.1"
     hardhat: "npm:^2.22.4"
     hardhat-abi-exporter: "npm:^2.10.1"
-    lib: "workspace:*"
     prettier-plugin-solidity: "npm:^1.3.1"
     solady: "npm:^0.0.201"
     solhint: "npm:^4.5.4"
@@ -31578,7 +31577,7 @@ __metadata:
 
 "viem@patch:viem@npm:2.12.3#~/.yarn/patches/viem-npm-2.12.3-5ecd3e5a49.patch":
   version: 2.12.3
-  resolution: "viem@patch:viem@npm%3A2.12.3#~/.yarn/patches/viem-npm-2.12.3-5ecd3e5a49.patch::version=2.12.3&hash=196144"
+  resolution: "viem@patch:viem@npm%3A2.12.3#~/.yarn/patches/viem-npm-2.12.3-5ecd3e5a49.patch::version=2.12.3&hash=afb804"
   dependencies:
     "@adraffy/ens-normalize": "npm:1.10.0"
     "@noble/curves": "npm:1.2.0"
@@ -31593,7 +31592,7 @@ __metadata:
   peerDependenciesMeta:
     typescript:
       optional: true
-  checksum: 10/33d690cab1acfde66049a9f943b21e76136228326908ad600346dbe7830c2de57035edf1a36197c11b9b44688861ee18be3110d477df8043bca8210029d155d6
+  checksum: 10/3cb402e1ea31e011d7f187c629e7f2e639607f3013375526893c7bc5cb81051ff951ac33c7789f8080cd7975b5762c0679840d6d1009ec7dac5d510bc69faf25
   languageName: node
   linkType: hard
 
