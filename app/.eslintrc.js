@@ -1,5 +1,5 @@
 module.exports = {
-  ignorePatterns: ['src/lib/ampli'],
+  ignorePatterns: ['src/lib/ampli/', 'src/util/patches/react-compiler-runtime/'],
   plugins: ['@typescript-eslint', 'react', 'react-hooks', 'eslint-plugin-react-compiler'],
   extends: [
     'eslint:recommended',
