@@ -25,7 +25,9 @@ import type { O } from 'ts-toolbelt';
 const optimisticApproveTransactionQuery = gql(/* GraphQL */ `
   query OptimisticApproveTransaction($id: ID!) {
     transaction(input: { id: $id }) {
+      id
       approvals {
+        __typename
         id
         approver {
           id
@@ -34,6 +36,7 @@ const optimisticApproveTransactionQuery = gql(/* GraphQL */ `
         createdAt
       }
       rejections {
+        __typename
         approver {
           id
         }
@@ -209,6 +212,8 @@ export const CACHE_SCHEMA_CONFIG: Pick<
       if (!approver) return {};
 
       return {
+        __typename: 'Transaction',
+        id: input.id,
         approvals: [
           ...data.transaction.approvals,
           {
