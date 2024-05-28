@@ -26,10 +26,7 @@ module.exports = {
     'react/react-in-jsx-scope': 'off',
     'react/prop-types': ['error', { skipUndeclared: true }],
     'react-hooks/rules-of-hooks': 'error',
-    'react-hooks/exhaustive-deps': [
-      'error',
-      { additionalHooks: '(useDeepMemo|useMyOtherCustomHook)' },
-    ],
+    'react-hooks/exhaustive-deps': 'error',
     'react-compiler/react-compiler': 'error',
   },
   env: {
