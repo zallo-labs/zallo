@@ -9,15 +9,19 @@ import { isTruthy } from 'lib';
 import { DefaultJobOptions, FlowOpts, QueueOptions } from 'bullmq';
 import { REDIS_CONFIG } from '../redis/redis.module';
 
-export const DEFAULT_JOB_OPTIONS = {
+export const NON_RETRYING_JOB = {
   removeOnComplete: 1000,
-  removeOnFail: 1000, // Prevents OOM
-  attempts: 18, // 2^18 * 200ms = ~14.5h
-  backoff: { type: 'exponential', delay: 200 },
+  removeOnFail: 10_000, // Prevents OOM
 } satisfies DefaultJobOptions;
 
-const flowQueueOpts: Partial<QueueOptions> = { defaultJobOptions: DEFAULT_JOB_OPTIONS };
-export const DEFAULT_FLOW_OPTIONS: FlowOpts = {
+export const DEFAULT_JOB = {
+  attempts: 16, // 2^18 * 200ms = ~14.5h
+  backoff: { type: 'exponential', delay: 200 },
+  ...NON_RETRYING_JOB,
+} satisfies DefaultJobOptions;
+
+const flowQueueOpts: Partial<QueueOptions> = { defaultJobOptions: DEFAULT_JOB };
+export const DEFAULT_FLOW: FlowOpts = {
   // Return default job options for all queues
   queuesOptions: new Proxy({}, { get: () => flowQueueOpts }),
 };
@@ -31,7 +35,7 @@ export const DEFAULT_FLOW_OPTIONS: FlowOpts = {
         // TODO: re-enable shared client once graphql-redis-subscriptions is updated (it doesn't support latest ioredis which bullmq requires)
         // connection: redisService.getClient(DEFAULT_REDIS_NAMESPACE),
         connection: REDIS_CONFIG,
-        defaultJobOptions: DEFAULT_JOB_OPTIONS,
+        defaultJobOptions: DEFAULT_JOB,
       }),
     }),
     BULL_BOARD_ENABLED &&

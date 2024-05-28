@@ -9593,13 +9593,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@sentry/core@npm:8.4.0":
-  version: 8.4.0
-  resolution: "@sentry/core@npm:8.4.0"
+"@sentry/core@npm:8.5.0":
+  version: 8.5.0
+  resolution: "@sentry/core@npm:8.5.0"
   dependencies:
-    "@sentry/types": "npm:8.4.0"
-    "@sentry/utils": "npm:8.4.0"
-  checksum: 10/968d05db8a70d348bb9b6eddceef7c9c62695db0df0f501cfb936ccddd74c36aafc9169b5b09527973b78171e393935bbb449f9978b6530170285d8128179362
+    "@sentry/types": "npm:8.5.0"
+    "@sentry/utils": "npm:8.5.0"
+  checksum: 10/f446af5a1de58acc3f03643cb69e76220f45537b4fb661c438488edb2b07c54a125d79c9ccb341f54ac49b56af6ebe440dcb77a95e08daf78f95fea4f6cc5f14
   languageName: node
   linkType: hard
 
@@ -9648,9 +9648,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@sentry/node@npm:8.4.0, @sentry/node@npm:^8.4.0":
-  version: 8.4.0
-  resolution: "@sentry/node@npm:8.4.0"
+"@sentry/node@npm:8.5.0, @sentry/node@npm:^8.5.0":
+  version: 8.5.0
+  resolution: "@sentry/node@npm:8.5.0"
   dependencies:
     "@opentelemetry/api": "npm:^1.8.0"
     "@opentelemetry/context-async-hooks": "npm:^1.23.0"
@@ -9674,15 +9674,15 @@ __metadata:
     "@opentelemetry/sdk-trace-base": "npm:^1.23.0"
     "@opentelemetry/semantic-conventions": "npm:^1.23.0"
     "@prisma/instrumentation": "npm:5.14.0"
-    "@sentry/core": "npm:8.4.0"
-    "@sentry/opentelemetry": "npm:8.4.0"
-    "@sentry/types": "npm:8.4.0"
-    "@sentry/utils": "npm:8.4.0"
+    "@sentry/core": "npm:8.5.0"
+    "@sentry/opentelemetry": "npm:8.5.0"
+    "@sentry/types": "npm:8.5.0"
+    "@sentry/utils": "npm:8.5.0"
     opentelemetry-instrumentation-fetch-node: "npm:1.2.0"
   dependenciesMeta:
     opentelemetry-instrumentation-fetch-node:
       optional: true
-  checksum: 10/6d141627ab83998663e67d95934441991c490a9cb584a667400003ba0ac3dfa5d344fd13306613af9c11e800a05defcdde6dbf31cc561b06bc7c77f74a78b1b1
+  checksum: 10/3c22fa472dea70521e362ce53277cd751eb84f35aa316433ebfcadff269959e8d979c9ff03ab681156c0a61f6d988d6c369c1c6bacb0368d748de81752c55449
   languageName: node
   linkType: hard
 
@@ -9703,37 +9703,37 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@sentry/opentelemetry@npm:8.4.0":
-  version: 8.4.0
-  resolution: "@sentry/opentelemetry@npm:8.4.0"
+"@sentry/opentelemetry@npm:8.5.0":
+  version: 8.5.0
+  resolution: "@sentry/opentelemetry@npm:8.5.0"
   dependencies:
-    "@sentry/core": "npm:8.4.0"
-    "@sentry/types": "npm:8.4.0"
-    "@sentry/utils": "npm:8.4.0"
+    "@sentry/core": "npm:8.5.0"
+    "@sentry/types": "npm:8.5.0"
+    "@sentry/utils": "npm:8.5.0"
   peerDependencies:
     "@opentelemetry/api": ^1.8.0
     "@opentelemetry/core": ^1.24.1
     "@opentelemetry/instrumentation": ^0.51.1
     "@opentelemetry/sdk-trace-base": ^1.23.0
     "@opentelemetry/semantic-conventions": ^1.23.0
-  checksum: 10/4fc727818cae1de44c5823ba013cfb74d4576a45034ffe6b4304c8fd94aea74747269d6cfaf116dab336e12ee7256ed7e9f350efd03bdc2a6795d17591c73f08
+  checksum: 10/fac0d122df897698a66248964846d0c2ed3f5cd4e9fe18213c063b795e1fe9ee2ee2225d0f1eb27f62a3552120da99a5993d4b819e715ec5866e17d297a75891
   languageName: node
   linkType: hard
 
-"@sentry/profiling-node@npm:^8.4.0":
-  version: 8.4.0
-  resolution: "@sentry/profiling-node@npm:8.4.0"
+"@sentry/profiling-node@npm:^8.5.0":
+  version: 8.5.0
+  resolution: "@sentry/profiling-node@npm:8.5.0"
   dependencies:
-    "@sentry/core": "npm:8.4.0"
-    "@sentry/node": "npm:8.4.0"
-    "@sentry/types": "npm:8.4.0"
-    "@sentry/utils": "npm:8.4.0"
+    "@sentry/core": "npm:8.5.0"
+    "@sentry/node": "npm:8.5.0"
+    "@sentry/types": "npm:8.5.0"
+    "@sentry/utils": "npm:8.5.0"
     detect-libc: "npm:^2.0.2"
     node-abi: "npm:^3.61.0"
     node-gyp: "npm:latest"
   bin:
     sentry-prune-profiler-binaries: scripts/prune-profiler-binaries.js
-  checksum: 10/99bdc858053644742f5591d116dd1d7a03a852865fbb52fed85754912818fb19ed8dcf6fa53045884ca1e109595fab6cd3d5b747f5ed7cd1154acd88988d81b4
+  checksum: 10/5a21ac79b78ba8c358e1e39c6003631dbe3ac893d7b75e67c8996b41a75414a7d4a3a5e44dc5871433905389632988bd340ad3bf4ebc5c9586696168b7bb2433
   languageName: node
   linkType: hard
 
@@ -9816,10 +9816,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@sentry/types@npm:8.4.0":
-  version: 8.4.0
-  resolution: "@sentry/types@npm:8.4.0"
-  checksum: 10/6e3fb76d1398ee18103946052711c9f6c1dae919723853895e7752b848e9fa3c91adb4f1c5a483e28812d3fae015fadd54cd1948db6d36af0533e50b13a5e27e
+"@sentry/types@npm:8.5.0":
+  version: 8.5.0
+  resolution: "@sentry/types@npm:8.5.0"
+  checksum: 10/763e33d4cfd88720994575ac354be5827c8c939b70521e2edf3ad7e6d92b19b49b7a62abe5d6307cdb8e31a20c8238e3bf08e821e925f7a3fc7669830e4635a0
   languageName: node
   linkType: hard
 
@@ -9842,12 +9842,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@sentry/utils@npm:8.4.0":
-  version: 8.4.0
-  resolution: "@sentry/utils@npm:8.4.0"
+"@sentry/utils@npm:8.5.0":
+  version: 8.5.0
+  resolution: "@sentry/utils@npm:8.5.0"
   dependencies:
-    "@sentry/types": "npm:8.4.0"
-  checksum: 10/6826d03aec0d48712c817665e4b6d39970ff932787d044ab7284aaf20f58d2607add146b0ed1f33ee9d89d4dd07d9fd45395c43b2358462742a7b6c1d2a5f9ee
+    "@sentry/types": "npm:8.5.0"
+  checksum: 10/851b178b69d2e944e7fee0bc421d6ee1f8235ac702ac2145a2eabdb9e058d1480fab0c7b635a8228ee7d54ca054aed79bda369ac96bac3a594332393785702e7
   languageName: node
   linkType: hard
 
@@ -12735,8 +12735,8 @@ __metadata:
     "@nestjs/testing": "npm:^10.3.8"
     "@pythnetwork/pyth-evm-js": "npm:^1.47.0"
     "@sentry/cli": "npm:^2.31.2"
-    "@sentry/node": "npm:^8.4.0"
-    "@sentry/profiling-node": "npm:^8.4.0"
+    "@sentry/node": "npm:^8.5.0"
+    "@sentry/profiling-node": "npm:^8.5.0"
     "@songkeys/nestjs-redis": "npm:^10.0.0"
     "@types/express": "npm:^4.17.21"
     "@types/express-session": "npm:^1.18.0"
@@ -12745,7 +12745,7 @@ __metadata:
     "@types/luxon": "npm:^3.4.2"
     "@types/uuid": "npm:^9.0.8"
     abitype: "npm:^1.0.2"
-    bullmq: "npm:^5.7.11"
+    bullmq: "npm:^5.7.12"
     chains: "workspace:*"
     chardet: "npm:^2.0.0"
     connect-redis: "npm:^7.1.1"
@@ -12770,7 +12770,7 @@ __metadata:
     luxon: "npm:^3.4.4"
     neverthrow: "npm:^6.2.1"
     parse-redis-url-simple: "npm:^1.0.2"
-    redis-semaphore: "npm:^5.5.1"
+    redis-semaphore: "npm:^5.6.0"
     reflect-metadata: "npm:^0.2.2"
     rxjs: "npm:^7.8.1"
     source-map-support: "npm:^0.5.21"
@@ -14273,9 +14273,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"bullmq@npm:^5.7.11":
-  version: 5.7.11
-  resolution: "bullmq@npm:5.7.11"
+"bullmq@npm:^5.7.12":
+  version: 5.7.12
+  resolution: "bullmq@npm:5.7.12"
   dependencies:
     cron-parser: "npm:^4.6.0"
     ioredis: "npm:^5.4.1"
@@ -14284,7 +14284,7 @@ __metadata:
     semver: "npm:^7.5.4"
     tslib: "npm:^2.0.0"
     uuid: "npm:^9.0.0"
-  checksum: 10/a4d46329c1ed337dfd9fb373e3075d5b6097126692e277470b80e2a5e72aebc15c076bbbd2514282a81fefae78c9080147505eb20911cd641b70fe19a0f33ef4
+  checksum: 10/7822046ab3093c63b9f68f0fd373b900faf103a7bf1a20e9014d2c4d10630851525379aa7096148e5f3b8518afa1bf5e82dc6fe69a3a984d7d177a505f47f8c4
   languageName: node
   linkType: hard
 
@@ -24456,14 +24456,14 @@ __metadata:
   linkType: hard
 
 "msgpackr@npm:^1.10.1":
-  version: 1.10.1
-  resolution: "msgpackr@npm:1.10.1"
+  version: 1.10.2
+  resolution: "msgpackr@npm:1.10.2"
   dependencies:
     msgpackr-extract: "npm:^3.0.2"
   dependenciesMeta:
     msgpackr-extract:
       optional: true
-  checksum: 10/9fc78c78435a773ed919720ab4f276f6781c6feac0e88233783d00deb64ef1c1caf75781f4a5c675bb535292bb9a67f2262ffc15b64cdc16b176b5220997d564
+  checksum: 10/c422bed19f70d23b5f8945cb8e334cb9e773350b422d606794397c22260ef64a42a17284c5e14c2693203f871ecb18157dc47e2b8bd2e66d7764fcde3442a5c1
   languageName: node
   linkType: hard
 
@@ -27410,14 +27410,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"redis-semaphore@npm:^5.5.1":
-  version: 5.5.1
-  resolution: "redis-semaphore@npm:5.5.1"
+"redis-semaphore@npm:^5.6.0":
+  version: 5.6.0
+  resolution: "redis-semaphore@npm:5.6.0"
   dependencies:
     debug: "npm:^4.3.4"
   peerDependencies:
     ioredis: ^4.1.0 || ^5
-  checksum: 10/fd2622317c7bd0ecae120e59b34cf34f90c60b90b03e67ca7aef46ffa3653ee1514647c3bfe1abf7617fd06b151143ed9bd9b94ca1fb320c47036ffe4a0fb489
+  peerDependenciesMeta:
+    ioredis:
+      optional: true
+  checksum: 10/aece133aecef82bd3279d674a038c1d0d608372f2097a96c1bf321471e9bf0edbac83351db61169a7c6f80bae735ca7cdae21c4288c09c733b4c940d507ab022
   languageName: node
   linkType: hard
 

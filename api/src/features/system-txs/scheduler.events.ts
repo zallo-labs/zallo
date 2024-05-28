@@ -20,7 +20,7 @@ import { ProposalEvent } from '../proposals/proposals.input';
 import { selectSysTx } from './system-tx.util';
 import { selectTransaction } from '../transactions/transactions.service';
 import { ExecutionsQueue } from '#/transactions/executions.worker';
-import { DEFAULT_FLOW_OPTIONS } from '#/util/bull/bull.module';
+import { DEFAULT_FLOW } from '#/util/bull/bull.module';
 
 const scheduledEvent = getAbiItem({ abi: ACCOUNT_ABI, name: 'Scheduled' });
 const scheduleCancelledEvent = getAbiItem({ abi: ACCOUNT_ABI, name: 'ScheduleCancelled' });
@@ -152,7 +152,7 @@ export class SchedulerEvents implements OnModuleInit {
                   asChain(asUAddress(t.transaction.account.address)),
                   new Date(t.scheduledFor!),
                 ),
-                DEFAULT_FLOW_OPTIONS,
+                DEFAULT_FLOW,
               ),
             ),
           );
