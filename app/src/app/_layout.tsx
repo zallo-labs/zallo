@@ -31,7 +31,7 @@ export const unstable_settings = {
 
 function Layout() {
   return (
-    <Stack screenOptions={{ header: AppbarHeader }}>
+    <Stack screenOptions={{ header: (props) => <AppbarHeader {...props} /> }}>
       <Stack.Screen name={`(drawer)`} options={{ headerShown: false }} />
       <Stack.Screen name={`onboard`} options={{ headerShown: false }} />
       <Stack.Screen name={`_sitemap`} />
