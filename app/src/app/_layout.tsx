@@ -24,6 +24,9 @@ import { Fonts } from '#/Fonts';
 import { SentryProvider } from '#/provider/SentryProvider';
 import { GoogleAuthProvider } from '#/cloud/google/GoogleAuthProvider';
 import { Try } from 'expo-router/build/views/Try';
+import { enableFreeze } from 'react-native-screens';
+
+enableFreeze();
 
 export const unstable_settings = {
   initialRouteName: `index`,
