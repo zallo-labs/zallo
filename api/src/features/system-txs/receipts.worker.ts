@@ -14,7 +14,7 @@ import { AbiEvent } from 'abitype';
 import { Log } from '~/features/events/events.worker';
 import { TypedJob } from '~/features/util/bull/bull.util';
 import { Worker } from '#/util/bull/Worker';
-import { isHex, isPresent } from 'lib';
+import { isHex } from 'lib';
 
 export type Receipt = FormattedTransactionReceipt<ChainConfig>;
 export interface TransactionData {
@@ -99,7 +99,7 @@ export class ReceiptsWorker extends Worker<ReceiptsQueue> {
             return null;
           }
         })
-        .filter(isPresent)
+        .filter(Boolean)
         .flatMap((log) =>
           this.eventListeners
             .get(log.topics[0]!)

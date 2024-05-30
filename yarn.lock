@@ -12943,6 +12943,7 @@ __metadata:
     "@sentry/node": "npm:^8.5.0"
     "@sentry/profiling-node": "npm:^8.5.0"
     "@songkeys/nestjs-redis": "npm:^10.0.0"
+    "@total-typescript/ts-reset": "npm:^0.5.1"
     "@types/express": "npm:^4.17.21"
     "@types/express-session": "npm:^1.18.0"
     "@types/jest": "npm:^29.5.12"

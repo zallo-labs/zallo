@@ -5,7 +5,6 @@ import {
   PolicyKey,
   Selector,
   asSelector,
-  isPresent,
   tryOrIgnore,
   ETH_ADDRESS,
   asUAddress,
@@ -150,7 +149,7 @@ export class OperationsService {
           amount: await this.tokens.asDecimal(asUAddress(to, chain), f.args[1]),
         } satisfies TransferApprovalOp);
       /* SyncSwap */
-      case 'swap':
+      case 'swap': {
         const path = f.args[0][0];
 
         // Figure out the toToken by querying the pool
@@ -170,7 +169,7 @@ export class OperationsService {
           ],
         });
 
-        const pair = tokenCalls.map((c) => c.result).filter(isPresent);
+        const pair = tokenCalls.map((c) => c.result).filter(Boolean);
         if (pair.length !== 2) return Object.assign(new GenericOp(), base);
 
         // ETH can be used as tokenIn, but uses the WETH pool
@@ -191,6 +190,7 @@ export class OperationsService {
           minimumToAmount,
           deadline: new Date(Number(f.args[2]) * 1000),
         } satisfies SwapOp);
+      }
       default:
         return Object.assign(new GenericOp(), base);
     }

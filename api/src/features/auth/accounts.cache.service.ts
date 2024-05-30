@@ -1,5 +1,5 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
-import { Address, UAddress, UUID, asAddress, asUAddress, isPresent } from 'lib';
+import { Address, UAddress, UUID, asAddress, asUAddress } from 'lib';
 import { InjectRedis } from '@songkeys/nestjs-redis';
 import Redis from 'ioredis';
 import { getUserCtx, UserAccountContext } from '#/util/context';
@@ -124,7 +124,8 @@ export class AccountsCacheService implements OnModuleInit {
 
   async invalidateApproversCache(...approvers: Address[]) {
     if (!approvers.length) return;
-    const users = (await this.redis.mget(...approvers.map(approverUserKey))).filter(isPresent);
+
+    const users = (await this.redis.mget(...new Set(approvers.map(approverUserKey)))).filter(Boolean);
     await this.invalidateUsersCache(...users);
   }
 

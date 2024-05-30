@@ -1,4 +1,3 @@
-import { isPresent } from 'lib';
 import { memo } from 'react';
 import { StyleProp, StyleSheet, TranslateXTransform, ViewStyle } from 'react-native';
 import { Badge } from 'react-native-paper';
@@ -31,7 +30,7 @@ export const TabBadge = memo(({ style, ...props }: TabBadgeProps) => {
   const transform = [
     translateX ? { translateX: translateX.translateX } : undefined,
     { translateY: 8 },
-  ].filter(isPresent);
+  ].filter(Boolean);
 
   return (
     <Badge
