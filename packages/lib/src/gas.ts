@@ -13,7 +13,7 @@ export const FALLBACK_OPERATIONS_GAS = 3_000_000n;
 export interface EstimateOperationGasParams {
   network: Network;
   account: Address;
-  operations: [Operation, ...Operation[]];
+  operations: Operation[];
 }
 
 export function estimateTransactionOperationsGas({

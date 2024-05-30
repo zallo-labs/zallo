@@ -22,7 +22,7 @@ type OperationStruct = AbiParameterToPrimitiveType<typeof operationAbi>;
 
 const operationsAbi = getAbiItem({ abi: EXPOSED_ABI, name: 'Operations' }).inputs[0];
 
-export function encodeOperations(opsParam: [Operation, ...Operation[]]): EncodedOperations {
+export function encodeOperations(opsParam: Operation[]): EncodedOperations {
   const ops = opsParam.map(
     (op): OperationStruct => ({
       to: op.to,
