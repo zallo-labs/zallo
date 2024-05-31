@@ -1,10 +1,11 @@
 import { IconProps } from '@theme/icons';
 import { useStyles } from '@theme/styles';
-import { useRouter, useSegments } from 'expo-router';
+import { useRouter } from 'expo-router';
 import type { ExpoRouter } from 'expo-router/types/expo-router';
 import { ComponentPropsWithoutRef, FC } from 'react';
 import { Drawer } from 'react-native-paper';
 import { useDrawerActions } from '#/drawer/DrawerContextProvider';
+import { usePath } from '#/usePath';
 
 export interface DrawerItemProps
   extends Pick<ComponentPropsWithoutRef<typeof Drawer.Item>, 'onPress'> {
@@ -15,11 +16,11 @@ export interface DrawerItemProps
 }
 
 export function DrawerItem({ href, label, icon: Icon, disabled, ...props }: DrawerItemProps) {
-  const currentPath = `/${useSegments().join('/')}`;
-  const hrefPath = getHrefPath(href);
+  const { stateLayer } = useStyles().theme;
   const router = useRouter();
   const { close } = useDrawerActions();
-  const { stateLayer } = useStyles().theme;
+  const currentPath = usePath();
+  const hrefPath = getHrefPath(href);
 
   return (
     // <Link href={href} asChild>

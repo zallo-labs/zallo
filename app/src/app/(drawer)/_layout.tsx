@@ -106,6 +106,13 @@ function Content() {
             label="Account"
           />
         )}
+        {account && (
+          <Item
+            href={{ pathname: `/(drawer)/[account]/(settings)/details`, params: { account } }}
+            icon={AccountIcon}
+            label="Account"
+          />
+        )}
         <Item href={`/(drawer)/approvers`} icon={DevicesIcon} label="My approvers" />
         <Item href={`/(drawer)/settings/auth`} icon={FingerprintIcon} label="Auth" />
         <Item

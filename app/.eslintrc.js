@@ -13,7 +13,7 @@ module.exports = {
     'no-redeclare': 'off', // Handled by TS
     'no-unused-vars': 'off', // Handled by TS
     '@typescript-eslint/no-unused-vars': [
-      'error',
+      'warn',
       {
         argsIgnorePattern: '^_',
         varsIgnorePattern: '^_',

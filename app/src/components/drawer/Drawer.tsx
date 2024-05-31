@@ -12,7 +12,7 @@ export interface DrawerProps extends Omit<Partial<DrawerLayoutProps>, 'renderDra
 
 export function Drawer({ children, drawerContent, ...props }: DrawerProps) {
   const { styles, breakpoint } = useStyles(stylesheet);
-  const type: DrawerType = BREAKPOINTS[breakpoint] >= BREAKPOINTS.expanded ? 'standard' : 'modal';
+  const type: DrawerType = BREAKPOINTS[breakpoint] >= BREAKPOINTS.large ? 'standard' : 'modal';
   const [open, setOpen] = useState(false);
 
   return (
