@@ -21,7 +21,7 @@ module default {
     index on ((.account, .key));
 
     access policy members_select_insert_update allow select, insert, update
-      using (.account in global current_accounts);
+      using (is_member(.account));
 
     access policy can_be_deleted_when_never_activated allow delete
       using (not .hasBeenActive);

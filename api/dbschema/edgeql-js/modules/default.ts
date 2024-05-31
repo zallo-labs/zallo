@@ -6,40 +6,40 @@ import type * as _std from "./std";
 export type $AbiSource = {
   "Verified": $.$expr_Literal<$AbiSource>;
 } & $.EnumType<"default::AbiSource", ["Verified"]>;
-const AbiSource: $AbiSource = $.makeType<$AbiSource>(_.spec, "77a80408-1b25-11ef-afb1-fb2c0f0b2fa0", _.syntax.literal);
+const AbiSource: $AbiSource = $.makeType<$AbiSource>(_.spec, "67220c84-1eed-11ef-b592-1d76e67ce831", _.syntax.literal);
 
 export type $Address = $.ScalarType<"std::str", string>;
-const Address: $.scalarTypeWithConstructor<_std.$str, never> = $.makeType<$.scalarTypeWithConstructor<_std.$str, never>>(_.spec, "6da48e73-1b25-11ef-990e-736de960e785", _.syntax.literal);
+const Address: $.scalarTypeWithConstructor<_std.$str, never> = $.makeType<$.scalarTypeWithConstructor<_std.$str, never>>(_.spec, "5c5c604a-1eed-11ef-a456-e73ae3d82eb0", _.syntax.literal);
 
 export type $Amount = $.ScalarType<"std::decimal", string>;
-const Amount: $.scalarTypeWithConstructor<_std.$decimal, never> = $.makeType<$.scalarTypeWithConstructor<_std.$decimal, never>>(_.spec, "77afeb1b-1b25-11ef-9c2a-b94c674a17ed", _.syntax.literal);
+const Amount: $.scalarTypeWithConstructor<_std.$decimal, never> = $.makeType<$.scalarTypeWithConstructor<_std.$decimal, never>>(_.spec, "672bc8f7-1eed-11ef-abae-af6d857c6768", _.syntax.literal);
 
 export type $ApprovalIssue = {
   "HashMismatch": $.$expr_Literal<$ApprovalIssue>;
   "Expired": $.$expr_Literal<$ApprovalIssue>;
 } & $.EnumType<"default::ApprovalIssue", ["HashMismatch", "Expired"]>;
-const ApprovalIssue: $ApprovalIssue = $.makeType<$ApprovalIssue>(_.spec, "6da24e3f-1b25-11ef-b93c-0376f40e4eaf", _.syntax.literal);
+const ApprovalIssue: $ApprovalIssue = $.makeType<$ApprovalIssue>(_.spec, "5c570a02-1eed-11ef-8fde-5d78051fe940", _.syntax.literal);
 
 export type $Bytes = $.ScalarType<"std::str", string>;
-const Bytes: $.scalarTypeWithConstructor<_std.$str, never> = $.makeType<$.scalarTypeWithConstructor<_std.$str, never>>(_.spec, "6dbc576c-1b25-11ef-8f0d-83d807a48623", _.syntax.literal);
+const Bytes: $.scalarTypeWithConstructor<_std.$str, never> = $.makeType<$.scalarTypeWithConstructor<_std.$str, never>>(_.spec, "5c77a34a-1eed-11ef-992c-dd91c0ca2f2a", _.syntax.literal);
 
 export type $Bytes32 = $.ScalarType<"std::str", string>;
-const Bytes32: $.scalarTypeWithConstructor<_std.$str, never> = $.makeType<$.scalarTypeWithConstructor<_std.$str, never>>(_.spec, "6da903a9-1b25-11ef-b195-9516abf09364", _.syntax.literal);
+const Bytes32: $.scalarTypeWithConstructor<_std.$str, never> = $.makeType<$.scalarTypeWithConstructor<_std.$str, never>>(_.spec, "5c611c0f-1eed-11ef-9c75-c3d8be2cea16", _.syntax.literal);
 
 export type $Bytes4 = $.ScalarType<"std::str", string>;
-const Bytes4: $.scalarTypeWithConstructor<_std.$str, never> = $.makeType<$.scalarTypeWithConstructor<_std.$str, never>>(_.spec, "6f61a56f-1b25-11ef-b385-876e08f254cc", _.syntax.literal);
+const Bytes4: $.scalarTypeWithConstructor<_std.$str, never> = $.makeType<$.scalarTypeWithConstructor<_std.$str, never>>(_.spec, "5ea88265-1eed-11ef-a53f-a791e251d88c", _.syntax.literal);
 
 export type $CloudProvider = {
   "Apple": $.$expr_Literal<$CloudProvider>;
   "Google": $.$expr_Literal<$CloudProvider>;
 } & $.EnumType<"default::CloudProvider", ["Apple", "Google"]>;
-const CloudProvider: $CloudProvider = $.makeType<$CloudProvider>(_.spec, "6df1a13d-1b25-11ef-9eb0-a503b87f43ac", _.syntax.literal);
+const CloudProvider: $CloudProvider = $.makeType<$CloudProvider>(_.spec, "5cba76d1-1eed-11ef-91f0-69cccc642d5a", _.syntax.literal);
 
 export type $Label = $.ScalarType<"std::str", string>;
-const Label: $.scalarTypeWithConstructor<_std.$str, never> = $.makeType<$.scalarTypeWithConstructor<_std.$str, never>>(_.spec, "6dc1da9d-1b25-11ef-8060-731dcc543afd", _.syntax.literal);
+const Label: $.scalarTypeWithConstructor<_std.$str, never> = $.makeType<$.scalarTypeWithConstructor<_std.$str, never>>(_.spec, "5c7d53ac-1eed-11ef-8f6a-cdf2e54aa8ce", _.syntax.literal);
 
 export type $MAC = $.ScalarType<"std::str", string>;
-const MAC: $.scalarTypeWithConstructor<_std.$str, never> = $.makeType<$.scalarTypeWithConstructor<_std.$str, never>>(_.spec, "6da40510-1b25-11ef-a571-d983613dbec1", _.syntax.literal);
+const MAC: $.scalarTypeWithConstructor<_std.$str, never> = $.makeType<$.scalarTypeWithConstructor<_std.$str, never>>(_.spec, "5c5bcbef-1eed-11ef-8db1-f76804360541", _.syntax.literal);
 
 export type $TransactionStatus = {
   "Pending": $.$expr_Literal<$TransactionStatus>;
@@ -49,46 +49,43 @@ export type $TransactionStatus = {
   "Failed": $.$expr_Literal<$TransactionStatus>;
   "Cancelled": $.$expr_Literal<$TransactionStatus>;
 } & $.EnumType<"default::TransactionStatus", ["Pending", "Scheduled", "Executing", "Successful", "Failed", "Cancelled"]>;
-const TransactionStatus: $TransactionStatus = $.makeType<$TransactionStatus>(_.spec, "6ec893e0-1b25-11ef-a697-197ba63bf239", _.syntax.literal);
+const TransactionStatus: $TransactionStatus = $.makeType<$TransactionStatus>(_.spec, "5d1b19ad-1eed-11ef-a216-d73c39607a71", _.syntax.literal);
 
 export type $TransferDirection = {
   "In": $.$expr_Literal<$TransferDirection>;
   "Out": $.$expr_Literal<$TransferDirection>;
 } & $.EnumType<"default::TransferDirection", ["In", "Out"]>;
-const TransferDirection: $TransferDirection = $.makeType<$TransferDirection>(_.spec, "715a4849-1b25-11ef-9187-096d3446fd7a", _.syntax.literal);
+const TransferDirection: $TransferDirection = $.makeType<$TransferDirection>(_.spec, "5e184463-1eed-11ef-8e2c-a5ff3969c580", _.syntax.literal);
 
 export type $UAddress = $.ScalarType<"std::str", string>;
-const UAddress: $.scalarTypeWithConstructor<_std.$str, never> = $.makeType<$.scalarTypeWithConstructor<_std.$str, never>>(_.spec, "6da2fbbd-1b25-11ef-a8a9-157f969e7f69", _.syntax.literal);
+const UAddress: $.scalarTypeWithConstructor<_std.$str, never> = $.makeType<$.scalarTypeWithConstructor<_std.$str, never>>(_.spec, "5c5abc59-1eed-11ef-9a5b-bdb8477d8d69", _.syntax.literal);
 
 export type $Url = $.ScalarType<"std::str", string>;
-const Url: $.scalarTypeWithConstructor<_std.$str, never> = $.makeType<$.scalarTypeWithConstructor<_std.$str, never>>(_.spec, "6da98910-1b25-11ef-a689-757ad3ffbc68", _.syntax.literal);
-
-export type $current_accounts_set = $.ScalarType<"std::uuid", string>;
-const current_accounts_set: $.scalarTypeWithConstructor<_std.$uuid, never> = $.makeType<$.scalarTypeWithConstructor<_std.$uuid, never>>(_.spec, "6da2e5ff-1b25-11ef-baa8-4fc789c6e539", _.syntax.literal);
+const Url: $.scalarTypeWithConstructor<_std.$str, never> = $.makeType<$.scalarTypeWithConstructor<_std.$str, never>>(_.spec, "5c61b43f-1eed-11ef-b3b5-591233e1ea79", _.syntax.literal);
 
 export type $uint16 = $.ScalarType<"std::number", number>;
-const uint16: $.scalarTypeWithConstructor<_std.$number, string> = $.makeType<$.scalarTypeWithConstructor<_std.$number, string>>(_.spec, "6da549c4-1b25-11ef-940b-6922f313cbb2", _.syntax.literal);
+const uint16: $.scalarTypeWithConstructor<_std.$number, string> = $.makeType<$.scalarTypeWithConstructor<_std.$number, string>>(_.spec, "5c5d00f5-1eed-11ef-9ea4-abc5b7d02bba", _.syntax.literal);
 
 export type $uint224 = $.ScalarType<"std::bigint", bigint>;
-const uint224: $.scalarTypeWithConstructor<_std.$bigint, never> = $.makeType<$.scalarTypeWithConstructor<_std.$bigint, never>>(_.spec, "6f663619-1b25-11ef-97e2-a9f509678dbc", _.syntax.literal);
+const uint224: $.scalarTypeWithConstructor<_std.$bigint, never> = $.makeType<$.scalarTypeWithConstructor<_std.$bigint, never>>(_.spec, "5eae05de-1eed-11ef-a84f-edd9396cbe5e", _.syntax.literal);
 
 export type $uint256 = $.ScalarType<"std::bigint", bigint>;
-const uint256: $.scalarTypeWithConstructor<_std.$bigint, never> = $.makeType<$.scalarTypeWithConstructor<_std.$bigint, never>>(_.spec, "6ec33e0d-1b25-11ef-b16d-55544ab67866", _.syntax.literal);
+const uint256: $.scalarTypeWithConstructor<_std.$bigint, never> = $.makeType<$.scalarTypeWithConstructor<_std.$bigint, never>>(_.spec, "5d15c629-1eed-11ef-aba7-012051bc50f4", _.syntax.literal);
 
 export type $uint32 = $.ScalarType<"std::number", number>;
-const uint32: $.scalarTypeWithConstructor<_std.$number, string> = $.makeType<$.scalarTypeWithConstructor<_std.$number, string>>(_.spec, "6f68ac24-1b25-11ef-814c-7fb9a2aed2c4", _.syntax.literal);
+const uint32: $.scalarTypeWithConstructor<_std.$number, string> = $.makeType<$.scalarTypeWithConstructor<_std.$number, string>>(_.spec, "5e005ce1-1eed-11ef-afd9-871e6ec92750", _.syntax.literal);
 
 export type $uint64 = $.ScalarType<"std::bigint", bigint>;
-const uint64: $.scalarTypeWithConstructor<_std.$bigint, never> = $.makeType<$.scalarTypeWithConstructor<_std.$bigint, never>>(_.spec, "77b128be-1b25-11ef-be54-53b8a1bcaf11", _.syntax.literal);
+const uint64: $.scalarTypeWithConstructor<_std.$bigint, never> = $.makeType<$.scalarTypeWithConstructor<_std.$bigint, never>>(_.spec, "672d2cf4-1eed-11ef-b118-f73a94676621", _.syntax.literal);
 
 export type $AccountλShape = $.typeutil.flatten<_std.$Object_8ce8c71ee4fa5f73840c22d7eaa58588λShape & {
+  "address": $.PropertyDesc<$UAddress, $.Cardinality.One, true, false, false, false>;
+  "label": $.PropertyDesc<_std.$str, $.Cardinality.One, true, false, false, false>;
+  "chain": $.PropertyDesc<_std.$str, $.Cardinality.One, false, true, false, false>;
   "activationEthFee": $.PropertyDesc<_std.$decimal, $.Cardinality.AtMostOne, false, false, false, false>;
   "upgradedAtBlock": $.PropertyDesc<_std.$bigint, $.Cardinality.AtMostOne, false, false, false, false>;
   "active": $.PropertyDesc<_std.$bool, $.Cardinality.One, false, true, false, false>;
-  "address": $.PropertyDesc<$UAddress, $.Cardinality.One, true, false, false, false>;
-  "chain": $.PropertyDesc<_std.$str, $.Cardinality.One, false, true, false, false>;
   "implementation": $.PropertyDesc<$Address, $.Cardinality.One, false, false, false, false>;
-  "label": $.PropertyDesc<_std.$str, $.Cardinality.One, true, false, false, false>;
   "photo": $.PropertyDesc<$Url, $.Cardinality.AtMostOne, false, false, false, false>;
   "salt": $.PropertyDesc<$Bytes32, $.Cardinality.One, false, false, false, false>;
   "policies": $.LinkDesc<$Policy, $.Cardinality.Many, {}, false, false,  false, false>;
@@ -99,17 +96,17 @@ export type $AccountλShape = $.typeutil.flatten<_std.$Object_8ce8c71ee4fa5f7384
   "transfers": $.LinkDesc<$Transfer, $.Cardinality.Many, {}, false, true,  false, false>;
   "<account[is Proposal]": $.LinkDesc<$Proposal, $.Cardinality.Many, {}, false, false,  false, false>;
   "<account[is Message]": $.LinkDesc<$Message, $.Cardinality.Many, {}, false, false,  false, false>;
+  "<account[is PolicyState]": $.LinkDesc<$PolicyState, $.Cardinality.Many, {}, false, false,  false, false>;
   "<account[is Transaction]": $.LinkDesc<$Transaction, $.Cardinality.Many, {}, false, false,  false, false>;
   "<primaryAccount[is User]": $.LinkDesc<$User, $.Cardinality.Many, {}, false, false,  false, false>;
   "<primaryAccount[is current_user]": $.LinkDesc<$current_user, $.Cardinality.Many, {}, false, false,  false, false>;
-  "<account[is PolicyState]": $.LinkDesc<$PolicyState, $.Cardinality.Many, {}, false, false,  false, false>;
-  "<account[is Policy]": $.LinkDesc<$Policy, $.Cardinality.Many, {}, false, false,  false, false>;
-  "<account[is RemovedPolicy]": $.LinkDesc<$RemovedPolicy, $.Cardinality.Many, {}, false, false,  false, false>;
   "<account[is Event]": $.LinkDesc<$Event, $.Cardinality.Many, {}, false, false,  false, false>;
   "<account[is TransferDetails]": $.LinkDesc<$TransferDetails, $.Cardinality.Many, {}, false, false,  false, false>;
   "<account[is Transferlike]": $.LinkDesc<$Transferlike, $.Cardinality.Many, {}, false, false,  false, false>;
   "<account[is Transfer]": $.LinkDesc<$Transfer, $.Cardinality.Many, {}, false, false,  false, false>;
   "<account[is TransferApproval]": $.LinkDesc<$TransferApproval, $.Cardinality.Many, {}, false, false,  false, false>;
+  "<account[is Policy]": $.LinkDesc<$Policy, $.Cardinality.Many, {}, false, false,  false, false>;
+  "<account[is RemovedPolicy]": $.LinkDesc<$RemovedPolicy, $.Cardinality.Many, {}, false, false,  false, false>;
   "<accounts[is Approver]": $.LinkDesc<$Approver, $.Cardinality.Many, {}, false, false,  false, false>;
   "<accounts[is current_approver]": $.LinkDesc<$current_approver, $.Cardinality.Many, {}, false, false,  false, false>;
   "<accounts[is User]": $.LinkDesc<$User, $.Cardinality.Many, {}, false, false,  false, false>;
@@ -123,7 +120,7 @@ type $Account = $.ObjectType<"default::Account", $AccountλShape, null, [
   {address: {__element__: $UAddress, __cardinality__: $.Cardinality.One | $.Cardinality.AtMostOne },},
   {label: {__element__: _std.$str, __cardinality__: $.Cardinality.One | $.Cardinality.AtMostOne },},
 ]>;
-const $Account = $.makeType<$Account>(_.spec, "6daa163b-1b25-11ef-ab69-3d926cea9a31", _.syntax.literal);
+const $Account = $.makeType<$Account>(_.spec, "5c624faa-1eed-11ef-9e57-e366ae0099c9", _.syntax.literal);
 
 const Account: $.$expr_PathNode<$.TypeSet<$Account, $.Cardinality.Many>, null> = _.syntax.$PathNode($.$toSet($Account, $.Cardinality.Many), null);
 
@@ -138,7 +135,7 @@ export type $ActionλShape = $.typeutil.flatten<_std.$Object_8ce8c71ee4fa5f73840
 type $Action = $.ObjectType<"default::Action", $ActionλShape, null, [
   ..._std.$Object_8ce8c71ee4fa5f73840c22d7eaa58588['__exclusives__'],
 ]>;
-const $Action = $.makeType<$Action>(_.spec, "6f63fd56-1b25-11ef-b9e4-3b119281b98f", _.syntax.literal);
+const $Action = $.makeType<$Action>(_.spec, "5eab3f18-1eed-11ef-aba8-21faee4c34e2", _.syntax.literal);
 
 const Action: $.$expr_PathNode<$.TypeSet<$Action, $.Cardinality.Many>, null> = _.syntax.$PathNode($.$toSet($Action, $.Cardinality.Many), null);
 
@@ -152,7 +149,7 @@ export type $ActionFunctionλShape = $.typeutil.flatten<_std.$Object_8ce8c71ee4f
 type $ActionFunction = $.ObjectType<"default::ActionFunction", $ActionFunctionλShape, null, [
   ..._std.$Object_8ce8c71ee4fa5f73840c22d7eaa58588['__exclusives__'],
 ]>;
-const $ActionFunction = $.makeType<$ActionFunction>(_.spec, "6f623d4f-1b25-11ef-b3dd-ad7332dc3d93", _.syntax.literal);
+const $ActionFunction = $.makeType<$ActionFunction>(_.spec, "5ea92ff2-1eed-11ef-87e8-fbb7850fe7f8", _.syntax.literal);
 
 const ActionFunction: $.$expr_PathNode<$.TypeSet<$ActionFunction, $.Cardinality.Many>, null> = _.syntax.$PathNode($.$toSet($ActionFunction, $.Cardinality.Many), null);
 
@@ -165,7 +162,7 @@ type $ProposalResponse = $.ObjectType<"default::ProposalResponse", $ProposalResp
   ..._std.$Object_8ce8c71ee4fa5f73840c22d7eaa58588['__exclusives__'],
   {proposal: {__element__: $Proposal, __cardinality__: $.Cardinality.One | $.Cardinality.AtMostOne },approver: {__element__: $Approver, __cardinality__: $.Cardinality.One | $.Cardinality.AtMostOne },},
 ]>;
-const $ProposalResponse = $.makeType<$ProposalResponse>(_.spec, "6dbcf55b-1b25-11ef-a159-d741f9d98953", _.syntax.literal);
+const $ProposalResponse = $.makeType<$ProposalResponse>(_.spec, "5c78583f-1eed-11ef-a379-314630f830dd", _.syntax.literal);
 
 const ProposalResponse: $.$expr_PathNode<$.TypeSet<$ProposalResponse, $.Cardinality.Many>, null> = _.syntax.$PathNode($.$toSet($ProposalResponse, $.Cardinality.Many), null);
 
@@ -182,7 +179,7 @@ export type $ApprovalλShape = $.typeutil.flatten<$ProposalResponseλShape & {
 type $Approval = $.ObjectType<"default::Approval", $ApprovalλShape, null, [
   ...$ProposalResponse['__exclusives__'],
 ]>;
-const $Approval = $.makeType<$Approval>(_.spec, "6dbee2c0-1b25-11ef-8111-ed4385638c19", _.syntax.literal);
+const $Approval = $.makeType<$Approval>(_.spec, "5c7ade04-1eed-11ef-b729-33f1a99f15ef", _.syntax.literal);
 
 const Approval: $.$expr_PathNode<$.TypeSet<$Approval, $.Cardinality.Many>, null> = _.syntax.$PathNode($.$toSet($Approval, $.Cardinality.Many), null);
 
@@ -206,7 +203,6 @@ export type $ApproverλShape = $.typeutil.flatten<_std.$Object_8ce8c71ee4fa5f738
   "<approvers[is current_user]": $.LinkDesc<$current_user, $.Cardinality.Many, {}, false, false,  false, false>;
   "<approvers[is Policy]": $.LinkDesc<$Policy, $.Cardinality.Many, {}, false, false,  false, false>;
   "<approvers[is Account]": $.LinkDesc<$Account, $.Cardinality.Many, {}, false, false,  false, false>;
-  "<approvers[is current_accounts]": $.LinkDesc<$current_accounts, $.Cardinality.Many, {}, false, false,  false, false>;
   "<approver": $.LinkDesc<$.ObjectType, $.Cardinality.Many, {}, false, false,  false, false>;
   "<approvers": $.LinkDesc<$.ObjectType, $.Cardinality.Many, {}, false, false,  false, false>;
   "<proposedBy": $.LinkDesc<$.ObjectType, $.Cardinality.Many, {}, false, false,  false, false>;
@@ -216,7 +212,7 @@ type $Approver = $.ObjectType<"default::Approver", $ApproverλShape, null, [
   {user: {__element__: $User, __cardinality__: $.Cardinality.One | $.Cardinality.AtMostOne },address: {__element__: $Address, __cardinality__: $.Cardinality.One | $.Cardinality.AtMostOne },},
   {address: {__element__: $Address, __cardinality__: $.Cardinality.One | $.Cardinality.AtMostOne },},
 ]>;
-const $Approver = $.makeType<$Approver>(_.spec, "6df1b46c-1b25-11ef-a222-cfc2adf589b2", _.syntax.literal);
+const $Approver = $.makeType<$Approver>(_.spec, "5cba8df4-1eed-11ef-9afe-6f3e96e6e271", _.syntax.literal);
 
 const Approver: $.$expr_PathNode<$.TypeSet<$Approver, $.Cardinality.Many>, null> = _.syntax.$PathNode($.$toSet($Approver, $.Cardinality.Many), null);
 
@@ -237,7 +233,7 @@ type $Contact = $.ObjectType<"default::Contact", $ContactλShape, null, [
   {user: {__element__: $User, __cardinality__: $.Cardinality.One | $.Cardinality.AtMostOne },address: {__element__: $UAddress, __cardinality__: $.Cardinality.One | $.Cardinality.AtMostOne },},
   {user: {__element__: $User, __cardinality__: $.Cardinality.One | $.Cardinality.AtMostOne },label: {__element__: $Label, __cardinality__: $.Cardinality.One | $.Cardinality.AtMostOne },},
 ]>;
-const $Contact = $.makeType<$Contact>(_.spec, "6efc983b-1b25-11ef-b303-ad7088d732a7", _.syntax.literal);
+const $Contact = $.makeType<$Contact>(_.spec, "5d936dec-1eed-11ef-8086-afe03fe9ad8b", _.syntax.literal);
 
 const Contact: $.$expr_PathNode<$.TypeSet<$Contact, $.Cardinality.Many>, null> = _.syntax.$PathNode($.$toSet($Contact, $.Cardinality.Many), null);
 
@@ -249,7 +245,7 @@ type $Contract = $.ObjectType<"default::Contract", $ContractλShape, null, [
   ..._std.$Object_8ce8c71ee4fa5f73840c22d7eaa58588['__exclusives__'],
   {address: {__element__: $Address, __cardinality__: $.Cardinality.One | $.Cardinality.AtMostOne },},
 ]>;
-const $Contract = $.makeType<$Contract>(_.spec, "77ab977d-1b25-11ef-92eb-e310ae07a8a1", _.syntax.literal);
+const $Contract = $.makeType<$Contract>(_.spec, "67263615-1eed-11ef-8672-750d2635d19b", _.syntax.literal);
 
 const Contract: $.$expr_PathNode<$.TypeSet<$Contract, $.Cardinality.Many>, null> = _.syntax.$PathNode($.$toSet($Contract, $.Cardinality.Many), null);
 
@@ -261,9 +257,9 @@ export type $EventλShape = $.typeutil.flatten<_std.$Object_8ce8c71ee4fa5f73840c
   "timestamp": $.PropertyDesc<_std.$datetime, $.Cardinality.One, false, false, false, true>;
   "systx": $.LinkDesc<$SystemTx, $.Cardinality.AtMostOne, {}, false, false,  false, false>;
   "internal": $.PropertyDesc<_std.$bool, $.Cardinality.One, false, true, false, false>;
+  "<events[is ReceiptResult]": $.LinkDesc<$ReceiptResult, $.Cardinality.Many, {}, false, false,  false, false>;
   "<events[is SystemTx]": $.LinkDesc<$SystemTx, $.Cardinality.Many, {}, false, false,  false, false>;
   "<events[is Result]": $.LinkDesc<$Result, $.Cardinality.Many, {}, false, false,  false, false>;
-  "<events[is ReceiptResult]": $.LinkDesc<$ReceiptResult, $.Cardinality.Many, {}, false, false,  false, false>;
   "<events[is Successful]": $.LinkDesc<$Successful, $.Cardinality.Many, {}, false, false,  false, false>;
   "<events[is Failed]": $.LinkDesc<$Failed, $.Cardinality.Many, {}, false, false,  false, false>;
   "<events[is Scheduled]": $.LinkDesc<$Scheduled, $.Cardinality.Many, {}, false, false,  false, false>;
@@ -272,7 +268,7 @@ export type $EventλShape = $.typeutil.flatten<_std.$Object_8ce8c71ee4fa5f73840c
 type $Event = $.ObjectType<"default::Event", $EventλShape, null, [
   ..._std.$Object_8ce8c71ee4fa5f73840c22d7eaa58588['__exclusives__'],
 ]>;
-const $Event = $.makeType<$Event>(_.spec, "7145d808-1b25-11ef-a979-cd4f97f2623a", _.syntax.literal);
+const $Event = $.makeType<$Event>(_.spec, "5e034113-1eed-11ef-863f-355881b5d3b2", _.syntax.literal);
 
 const Event: $.$expr_PathNode<$.TypeSet<$Event, $.Cardinality.Many>, null> = _.syntax.$PathNode($.$toSet($Event, $.Cardinality.Many), null);
 
@@ -293,7 +289,7 @@ type $Result = $.ObjectType<"default::Result", $ResultλShape, null, [
   ..._std.$Object_8ce8c71ee4fa5f73840c22d7eaa58588['__exclusives__'],
   {systx: {__element__: $SystemTx, __cardinality__: $.Cardinality.One | $.Cardinality.AtMostOne },},
 ]>;
-const $Result = $.makeType<$Result>(_.spec, "6de295da-1b25-11ef-b224-dd9a328d069e", _.syntax.literal);
+const $Result = $.makeType<$Result>(_.spec, "5ca964b0-1eed-11ef-a72f-ab59cd4e3fb7", _.syntax.literal);
 
 const Result: $.$expr_PathNode<$.TypeSet<$Result, $.Cardinality.Many>, null> = _.syntax.$PathNode($.$toSet($Result, $.Cardinality.Many), null);
 
@@ -306,7 +302,7 @@ export type $ReceiptResultλShape = $.typeutil.flatten<$ResultλShape & {
 type $ReceiptResult = $.ObjectType<"default::ReceiptResult", $ReceiptResultλShape, null, [
   ...$Result['__exclusives__'],
 ]>;
-const $ReceiptResult = $.makeType<$ReceiptResult>(_.spec, "6de487b3-1b25-11ef-81a8-79f4c6e4a34d", _.syntax.literal);
+const $ReceiptResult = $.makeType<$ReceiptResult>(_.spec, "5cabf928-1eed-11ef-a9bf-91d8f69e345d", _.syntax.literal);
 
 const ReceiptResult: $.$expr_PathNode<$.TypeSet<$ReceiptResult, $.Cardinality.Many>, null> = _.syntax.$PathNode($.$toSet($ReceiptResult, $.Cardinality.Many), null);
 
@@ -316,7 +312,7 @@ export type $FailedλShape = $.typeutil.flatten<$ReceiptResultλShape & {
 type $Failed = $.ObjectType<"default::Failed", $FailedλShape, null, [
   ...$ReceiptResult['__exclusives__'],
 ]>;
-const $Failed = $.makeType<$Failed>(_.spec, "74ad0d9b-1b25-11ef-80c5-9b4e8c1a6a51", _.syntax.literal);
+const $Failed = $.makeType<$Failed>(_.spec, "629b7189-1eed-11ef-b0a2-6567e6dffa6f", _.syntax.literal);
 
 const Failed: $.$expr_PathNode<$.TypeSet<$Failed, $.Cardinality.Many>, null> = _.syntax.$PathNode($.$toSet($Failed, $.Cardinality.Many), null);
 
@@ -332,7 +328,7 @@ type $Function = $.ObjectType<"default::Function", $FunctionλShape, null, [
   ..._std.$Object_8ce8c71ee4fa5f73840c22d7eaa58588['__exclusives__'],
   {abiMd5: {__element__: _std.$str, __cardinality__: $.Cardinality.One | $.Cardinality.AtMostOne },},
 ]>;
-const $Function = $.makeType<$Function>(_.spec, "77a817fb-1b25-11ef-a96d-6f995bfd650b", _.syntax.literal);
+const $Function = $.makeType<$Function>(_.spec, "672226a4-1eed-11ef-87ee-d9d7b4a21350", _.syntax.literal);
 
 const Function: $.$expr_PathNode<$.TypeSet<$Function, $.Cardinality.Many>, null> = _.syntax.$PathNode($.$toSet($Function, $.Cardinality.Many), null);
 
@@ -344,7 +340,7 @@ type $GlobalLabel = $.ObjectType<"default::GlobalLabel", $GlobalLabelλShape, nu
   ..._std.$Object_8ce8c71ee4fa5f73840c22d7eaa58588['__exclusives__'],
   {address: {__element__: $UAddress, __cardinality__: $.Cardinality.One | $.Cardinality.AtMostOne },},
 ]>;
-const $GlobalLabel = $.makeType<$GlobalLabel>(_.spec, "6f18e166-1b25-11ef-b9f0-87a9dfc13133", _.syntax.literal);
+const $GlobalLabel = $.makeType<$GlobalLabel>(_.spec, "5db4300b-1eed-11ef-9ecd-55b79dfed821", _.syntax.literal);
 
 const GlobalLabel: $.$expr_PathNode<$.TypeSet<$GlobalLabel, $.Cardinality.Many>, null> = _.syntax.$PathNode($.$toSet($GlobalLabel, $.Cardinality.Many), null);
 
@@ -365,7 +361,6 @@ export type $ProposalλShape = $.typeutil.flatten<_std.$Object_8ce8c71ee4fa5f738
   "<proposal[is Approval]": $.LinkDesc<$Approval, $.Cardinality.Many, {}, false, false,  false, false>;
   "<proposal[is Rejection]": $.LinkDesc<$Rejection, $.Cardinality.Many, {}, false, false,  false, false>;
   "<proposals[is Account]": $.LinkDesc<$Account, $.Cardinality.Many, {}, false, false,  false, false>;
-  "<proposals[is current_accounts]": $.LinkDesc<$current_accounts, $.Cardinality.Many, {}, false, false,  false, false>;
   "<proposal": $.LinkDesc<$.ObjectType, $.Cardinality.Many, {}, false, false,  false, false>;
   "<proposals": $.LinkDesc<$.ObjectType, $.Cardinality.Many, {}, false, false,  false, false>;
 }>;
@@ -373,7 +368,7 @@ type $Proposal = $.ObjectType<"default::Proposal", $ProposalλShape, null, [
   ..._std.$Object_8ce8c71ee4fa5f73840c22d7eaa58588['__exclusives__'],
   {hash: {__element__: $Bytes32, __cardinality__: $.Cardinality.One | $.Cardinality.AtMostOne },},
 ]>;
-const $Proposal = $.makeType<$Proposal>(_.spec, "6dc5a7b7-1b25-11ef-8f69-27111f16d242", _.syntax.literal);
+const $Proposal = $.makeType<$Proposal>(_.spec, "5c8164d1-1eed-11ef-a622-6d5ca4469498", _.syntax.literal);
 
 const Proposal: $.$expr_PathNode<$.TypeSet<$Proposal, $.Cardinality.Many>, null> = _.syntax.$PathNode($.$toSet($Proposal, $.Cardinality.Many), null);
 
@@ -383,13 +378,12 @@ export type $MessageλShape = $.typeutil.flatten<$ProposalλShape & {
   "messageHash": $.PropertyDesc<$Bytes32, $.Cardinality.One, false, false, false, false>;
   "typedData": $.PropertyDesc<_std.$json, $.Cardinality.AtMostOne, false, false, false, false>;
   "<messages[is Account]": $.LinkDesc<$Account, $.Cardinality.Many, {}, false, false,  false, false>;
-  "<messages[is current_accounts]": $.LinkDesc<$current_accounts, $.Cardinality.Many, {}, false, false,  false, false>;
   "<messages": $.LinkDesc<$.ObjectType, $.Cardinality.Many, {}, false, false,  false, false>;
 }>;
 type $Message = $.ObjectType<"default::Message", $MessageλShape, null, [
   ...$Proposal['__exclusives__'],
 ]>;
-const $Message = $.makeType<$Message>(_.spec, "6e5fd415-1b25-11ef-9b42-ab8b5a71195c", _.syntax.literal);
+const $Message = $.makeType<$Message>(_.spec, "5cf90874-1eed-11ef-972b-b5167162bdd1", _.syntax.literal);
 
 const Message: $.$expr_PathNode<$.TypeSet<$Message, $.Cardinality.Many>, null> = _.syntax.$PathNode($.$toSet($Message, $.Cardinality.Many), null);
 
@@ -403,7 +397,7 @@ export type $OperationλShape = $.typeutil.flatten<_std.$Object_8ce8c71ee4fa5f73
 type $Operation = $.ObjectType<"default::Operation", $OperationλShape, null, [
   ..._std.$Object_8ce8c71ee4fa5f73840c22d7eaa58588['__exclusives__'],
 ]>;
-const $Operation = $.makeType<$Operation>(_.spec, "6ec698e1-1b25-11ef-b846-0b256de1d1bc", _.syntax.literal);
+const $Operation = $.makeType<$Operation>(_.spec, "5d18b415-1eed-11ef-955b-1d6c8c87ff41", _.syntax.literal);
 
 const Operation: $.$expr_PathNode<$.TypeSet<$Operation, $.Cardinality.Many>, null> = _.syntax.$PathNode($.$toSet($Operation, $.Cardinality.Many), null);
 
@@ -416,7 +410,7 @@ export type $PaymasterFeesλShape = $.typeutil.flatten<_std.$Object_8ce8c71ee4fa
 type $PaymasterFees = $.ObjectType<"default::PaymasterFees", $PaymasterFeesλShape, null, [
   ..._std.$Object_8ce8c71ee4fa5f73840c22d7eaa58588['__exclusives__'],
 ]>;
-const $PaymasterFees = $.makeType<$PaymasterFees>(_.spec, "7539f853-1b25-11ef-9649-870d675a37f0", _.syntax.literal);
+const $PaymasterFees = $.makeType<$PaymasterFees>(_.spec, "638982f3-1eed-11ef-be49-e9fe7454e4bd", _.syntax.literal);
 
 const PaymasterFees: $.$expr_PathNode<$.TypeSet<$PaymasterFees, $.Cardinality.Many>, null> = _.syntax.$PathNode($.$toSet($PaymasterFees, $.Cardinality.Many), null);
 
@@ -439,7 +433,7 @@ export type $PolicyStateλShape = $.typeutil.flatten<_std.$Object_8ce8c71ee4fa5f
 type $PolicyState = $.ObjectType<"default::PolicyState", $PolicyStateλShape, null, [
   ..._std.$Object_8ce8c71ee4fa5f73840c22d7eaa58588['__exclusives__'],
 ]>;
-const $PolicyState = $.makeType<$PolicyState>(_.spec, "6f6fc901-1b25-11ef-9b17-53005a168398", _.syntax.literal);
+const $PolicyState = $.makeType<$PolicyState>(_.spec, "5eb68fa0-1eed-11ef-a048-1be2cbc5efd7", _.syntax.literal);
 
 const PolicyState: $.$expr_PathNode<$.TypeSet<$PolicyState, $.Cardinality.Many>, null> = _.syntax.$PathNode($.$toSet($PolicyState, $.Cardinality.Many), null);
 
@@ -452,16 +446,15 @@ export type $PolicyλShape = $.typeutil.flatten<$PolicyStateλShape & {
   "name": $.PropertyDesc<$Label, $.Cardinality.One, false, false, false, false>;
   "threshold": $.PropertyDesc<$uint16, $.Cardinality.One, false, false, false, false>;
   "<policies[is Account]": $.LinkDesc<$Account, $.Cardinality.Many, {}, false, false,  false, false>;
-  "<policies[is current_accounts]": $.LinkDesc<$current_accounts, $.Cardinality.Many, {}, false, false,  false, false>;
   "<latest[is PolicyState]": $.LinkDesc<$PolicyState, $.Cardinality.Many, {}, false, false,  false, false>;
   "<latest[is Policy]": $.LinkDesc<$Policy, $.Cardinality.Many, {}, false, false,  false, false>;
   "<latest[is RemovedPolicy]": $.LinkDesc<$RemovedPolicy, $.Cardinality.Many, {}, false, false,  false, false>;
-  "<spentBy[is Transferlike]": $.LinkDesc<$Transferlike, $.Cardinality.Many, {}, false, false,  false, false>;
-  "<spentBy[is Transfer]": $.LinkDesc<$Transfer, $.Cardinality.Many, {}, false, false,  false, false>;
-  "<spentBy[is TransferApproval]": $.LinkDesc<$TransferApproval, $.Cardinality.Many, {}, false, false,  false, false>;
   "<policy[is Proposal]": $.LinkDesc<$Proposal, $.Cardinality.Many, {}, false, false,  false, false>;
   "<policy[is Transaction]": $.LinkDesc<$Transaction, $.Cardinality.Many, {}, false, false,  false, false>;
   "<policy[is Message]": $.LinkDesc<$Message, $.Cardinality.Many, {}, false, false,  false, false>;
+  "<spentBy[is Transferlike]": $.LinkDesc<$Transferlike, $.Cardinality.Many, {}, false, false,  false, false>;
+  "<spentBy[is TransferApproval]": $.LinkDesc<$TransferApproval, $.Cardinality.Many, {}, false, false,  false, false>;
+  "<spentBy[is Transfer]": $.LinkDesc<$Transfer, $.Cardinality.Many, {}, false, false,  false, false>;
   "<latest": $.LinkDesc<$.ObjectType, $.Cardinality.Many, {}, false, false,  false, false>;
   "<policies": $.LinkDesc<$.ObjectType, $.Cardinality.Many, {}, false, false,  false, false>;
   "<policy": $.LinkDesc<$.ObjectType, $.Cardinality.Many, {}, false, false,  false, false>;
@@ -470,7 +463,7 @@ export type $PolicyλShape = $.typeutil.flatten<$PolicyStateλShape & {
 type $Policy = $.ObjectType<"default::Policy", $PolicyλShape, null, [
   ...$PolicyState['__exclusives__'],
 ]>;
-const $Policy = $.makeType<$Policy>(_.spec, "6f8cc334-1b25-11ef-b5d4-53f1cfe4e59a", _.syntax.literal);
+const $Policy = $.makeType<$Policy>(_.spec, "5edb2524-1eed-11ef-8e17-052ad4bd285a", _.syntax.literal);
 
 const Policy: $.$expr_PathNode<$.TypeSet<$Policy, $.Cardinality.Many>, null> = _.syntax.$PathNode($.$toSet($Policy, $.Cardinality.Many), null);
 
@@ -483,7 +476,7 @@ export type $RejectionλShape = $.typeutil.flatten<$ProposalResponseλShape & {
 type $Rejection = $.ObjectType<"default::Rejection", $RejectionλShape, null, [
   ...$ProposalResponse['__exclusives__'],
 ]>;
-const $Rejection = $.makeType<$Rejection>(_.spec, "6e42fafe-1b25-11ef-b00f-99da85bdb3a4", _.syntax.literal);
+const $Rejection = $.makeType<$Rejection>(_.spec, "5cea5526-1eed-11ef-a15b-8790b72fb2a4", _.syntax.literal);
 
 const Rejection: $.$expr_PathNode<$.TypeSet<$Rejection, $.Cardinality.Many>, null> = _.syntax.$PathNode($.$toSet($Rejection, $.Cardinality.Many), null);
 
@@ -492,7 +485,7 @@ export type $RemovedPolicyλShape = $.typeutil.flatten<$PolicyStateλShape & {
 type $RemovedPolicy = $.ObjectType<"default::RemovedPolicy", $RemovedPolicyλShape, null, [
   ...$PolicyState['__exclusives__'],
 ]>;
-const $RemovedPolicy = $.makeType<$RemovedPolicy>(_.spec, "70ae7742-1b25-11ef-98ff-59447846804a", _.syntax.literal);
+const $RemovedPolicy = $.makeType<$RemovedPolicy>(_.spec, "5f74f917-1eed-11ef-aab9-050c094471c1", _.syntax.literal);
 
 const RemovedPolicy: $.$expr_PathNode<$.TypeSet<$RemovedPolicy, $.Cardinality.Many>, null> = _.syntax.$PathNode($.$toSet($RemovedPolicy, $.Cardinality.Many), null);
 
@@ -503,7 +496,7 @@ export type $ScheduledλShape = $.typeutil.flatten<$ResultλShape & {
 type $Scheduled = $.ObjectType<"default::Scheduled", $ScheduledλShape, null, [
   ...$Result['__exclusives__'],
 ]>;
-const $Scheduled = $.makeType<$Scheduled>(_.spec, "74f6e44c-1b25-11ef-bb97-eb990861e7f7", _.syntax.literal);
+const $Scheduled = $.makeType<$Scheduled>(_.spec, "6332d520-1eed-11ef-871a-edb5f94dbe46", _.syntax.literal);
 
 const Scheduled: $.$expr_PathNode<$.TypeSet<$Scheduled, $.Cardinality.Many>, null> = _.syntax.$PathNode($.$toSet($Scheduled, $.Cardinality.Many), null);
 
@@ -519,7 +512,7 @@ type $Simulation = $.ObjectType<"default::Simulation", $SimulationλShape, null,
   ..._std.$Object_8ce8c71ee4fa5f73840c22d7eaa58588['__exclusives__'],
   {transfers: {__element__: $TransferDetails, __cardinality__: $.Cardinality.One | $.Cardinality.AtMostOne },},
 ]>;
-const $Simulation = $.makeType<$Simulation>(_.spec, "6de061a2-1b25-11ef-ae2e-fb8656941882", _.syntax.literal);
+const $Simulation = $.makeType<$Simulation>(_.spec, "5ca6d362-1eed-11ef-ae4d-612663c24d6f", _.syntax.literal);
 
 const Simulation: $.$expr_PathNode<$.TypeSet<$Simulation, $.Cardinality.Many>, null> = _.syntax.$PathNode($.$toSet($Simulation, $.Cardinality.Many), null);
 
@@ -529,7 +522,7 @@ export type $SuccessfulλShape = $.typeutil.flatten<$ReceiptResultλShape & {
 type $Successful = $.ObjectType<"default::Successful", $SuccessfulλShape, null, [
   ...$ReceiptResult['__exclusives__'],
 ]>;
-const $Successful = $.makeType<$Successful>(_.spec, "6dea8b8f-1b25-11ef-ad10-fd46e6ca9173", _.syntax.literal);
+const $Successful = $.makeType<$Successful>(_.spec, "5cb2a503-1eed-11ef-8565-17f4abfa9129", _.syntax.literal);
 
 const Successful: $.$expr_PathNode<$.TypeSet<$Successful, $.Cardinality.Many>, null> = _.syntax.$PathNode($.$toSet($Successful, $.Cardinality.Many), null);
 
@@ -544,14 +537,14 @@ export type $SystemTxλShape = $.typeutil.flatten<_std.$Object_8ce8c71ee4fa5f738
   "events": $.LinkDesc<$Event, $.Cardinality.Many, {}, false, true,  false, false>;
   "maxEthFees": $.PropertyDesc<_std.$decimal, $.Cardinality.One, false, true, false, false>;
   "result": $.LinkDesc<$Result, $.Cardinality.AtMostOne, {}, false, true,  false, false>;
-  "<systx[is Failed]": $.LinkDesc<$Failed, $.Cardinality.AtMostOne, {}, true, false,  false, false>;
   "<systx[is Event]": $.LinkDesc<$Event, $.Cardinality.Many, {}, false, false,  false, false>;
   "<systx[is Transferlike]": $.LinkDesc<$Transferlike, $.Cardinality.Many, {}, false, false,  false, false>;
-  "<systx[is Transfer]": $.LinkDesc<$Transfer, $.Cardinality.Many, {}, false, false,  false, false>;
   "<systx[is TransferApproval]": $.LinkDesc<$TransferApproval, $.Cardinality.Many, {}, false, false,  false, false>;
+  "<systx[is Transfer]": $.LinkDesc<$Transfer, $.Cardinality.Many, {}, false, false,  false, false>;
   "<systx[is Result]": $.LinkDesc<$Result, $.Cardinality.AtMostOne, {}, true, false,  false, false>;
   "<systx[is ReceiptResult]": $.LinkDesc<$ReceiptResult, $.Cardinality.AtMostOne, {}, true, false,  false, false>;
   "<systx[is Successful]": $.LinkDesc<$Successful, $.Cardinality.AtMostOne, {}, true, false,  false, false>;
+  "<systx[is Failed]": $.LinkDesc<$Failed, $.Cardinality.AtMostOne, {}, true, false,  false, false>;
   "<systx[is Scheduled]": $.LinkDesc<$Scheduled, $.Cardinality.AtMostOne, {}, true, false,  false, false>;
   "<systx[is Transaction]": $.LinkDesc<$Transaction, $.Cardinality.AtMostOne, {}, true, false,  false, false>;
   "<systxs[is Transaction]": $.LinkDesc<$Transaction, $.Cardinality.Many, {}, false, false,  false, false>;
@@ -562,7 +555,7 @@ type $SystemTx = $.ObjectType<"default::SystemTx", $SystemTxλShape, null, [
   ..._std.$Object_8ce8c71ee4fa5f73840c22d7eaa58588['__exclusives__'],
   {hash: {__element__: $Bytes32, __cardinality__: $.Cardinality.One | $.Cardinality.AtMostOne },},
 ]>;
-const $SystemTx = $.makeType<$SystemTx>(_.spec, "71ecdf0a-1b25-11ef-ba0a-3d56289d5b8a", _.syntax.literal);
+const $SystemTx = $.makeType<$SystemTx>(_.spec, "61558206-1eed-11ef-8bfa-bbfb06695170", _.syntax.literal);
 
 const SystemTx: $.$expr_PathNode<$.TypeSet<$SystemTx, $.Cardinality.Many>, null> = _.syntax.$PathNode($.$toSet($SystemTx, $.Cardinality.Many), null);
 
@@ -592,7 +585,7 @@ type $Token = $.ObjectType<"default::Token", $TokenλShape, null, [
   {user: {__element__: $User, __cardinality__: $.Cardinality.One | $.Cardinality.AtMostOne },chain: {__element__: _std.$str, __cardinality__: $.Cardinality.One | $.Cardinality.AtMostOne },symbol: {__element__: $Label, __cardinality__: $.Cardinality.One | $.Cardinality.AtMostOne },},
   {user: {__element__: $User, __cardinality__: $.Cardinality.One | $.Cardinality.AtMostOne },chain: {__element__: _std.$str, __cardinality__: $.Cardinality.One | $.Cardinality.AtMostOne },name: {__element__: $Label, __cardinality__: $.Cardinality.One | $.Cardinality.AtMostOne },},
 ]>;
-const $Token = $.makeType<$Token>(_.spec, "6eeb7977-1b25-11ef-a8eb-93c0c2865091", _.syntax.literal);
+const $Token = $.makeType<$Token>(_.spec, "5d3c3d9f-1eed-11ef-9f6c-8fa95def2e75", _.syntax.literal);
 
 const Token: $.$expr_PathNode<$.TypeSet<$Token, $.Cardinality.Many>, null> = _.syntax.$PathNode($.$toSet($Token, $.Cardinality.Many), null);
 
@@ -611,16 +604,15 @@ export type $TransactionλShape = $.typeutil.flatten<Omit<$ProposalλShape, "<pr
   "systx": $.LinkDesc<$SystemTx, $.Cardinality.AtMostOne, {}, true, false,  false, false>;
   "results": $.LinkDesc<$Result, $.Cardinality.Many, {}, false, true,  false, false>;
   "systxs": $.LinkDesc<$SystemTx, $.Cardinality.Many, {}, false, true,  false, false>;
-  "<transaction[is Failed]": $.LinkDesc<$Failed, $.Cardinality.Many, {}, false, false,  false, false>;
   "<proposal[is PolicyState]": $.LinkDesc<$PolicyState, $.Cardinality.Many, {}, false, false,  false, false>;
   "<proposal[is Policy]": $.LinkDesc<$Policy, $.Cardinality.Many, {}, false, false,  false, false>;
   "<transactions[is Account]": $.LinkDesc<$Account, $.Cardinality.Many, {}, false, false,  false, false>;
-  "<transactions[is current_accounts]": $.LinkDesc<$current_accounts, $.Cardinality.Many, {}, false, false,  false, false>;
   "<proposal[is RemovedPolicy]": $.LinkDesc<$RemovedPolicy, $.Cardinality.Many, {}, false, false,  false, false>;
   "<proposal[is SystemTx]": $.LinkDesc<$SystemTx, $.Cardinality.Many, {}, false, false,  false, false>;
   "<transaction[is Result]": $.LinkDesc<$Result, $.Cardinality.Many, {}, false, false,  false, false>;
   "<transaction[is ReceiptResult]": $.LinkDesc<$ReceiptResult, $.Cardinality.Many, {}, false, false,  false, false>;
   "<transaction[is Successful]": $.LinkDesc<$Successful, $.Cardinality.Many, {}, false, false,  false, false>;
+  "<transaction[is Failed]": $.LinkDesc<$Failed, $.Cardinality.Many, {}, false, false,  false, false>;
   "<transaction[is Scheduled]": $.LinkDesc<$Scheduled, $.Cardinality.Many, {}, false, false,  false, false>;
   "<proposal": $.LinkDesc<$.ObjectType, $.Cardinality.Many, {}, false, false,  false, false>;
   "<transaction": $.LinkDesc<$.ObjectType, $.Cardinality.Many, {}, false, false,  false, false>;
@@ -634,7 +626,7 @@ type $Transaction = $.ObjectType<"default::Transaction", $TransactionλShape, nu
   {paymasterEthFees: {__element__: $PaymasterFees, __cardinality__: $.Cardinality.One | $.Cardinality.AtMostOne },},
   {systx: {__element__: $SystemTx, __cardinality__: $.Cardinality.One | $.Cardinality.AtMostOne },},
 ]>;
-const $Transaction = $.makeType<$Transaction>(_.spec, "6ec8af57-1b25-11ef-b4b5-f1b54574df23", _.syntax.literal);
+const $Transaction = $.makeType<$Transaction>(_.spec, "5d1b2f9b-1eed-11ef-b387-bf9cc67fd87e", _.syntax.literal);
 
 const Transaction: $.$expr_PathNode<$.TypeSet<$Transaction, $.Cardinality.Many>, null> = _.syntax.$PathNode($.$toSet($Transaction, $.Cardinality.Many), null);
 
@@ -653,7 +645,7 @@ export type $TransferDetailsλShape = $.typeutil.flatten<_std.$Object_8ce8c71ee4
 type $TransferDetails = $.ObjectType<"default::TransferDetails", $TransferDetailsλShape, null, [
   ..._std.$Object_8ce8c71ee4fa5f73840c22d7eaa58588['__exclusives__'],
 ]>;
-const $TransferDetails = $.makeType<$TransferDetails>(_.spec, "715a5e08-1b25-11ef-baa3-076f96ea81ee", _.syntax.literal);
+const $TransferDetails = $.makeType<$TransferDetails>(_.spec, "5e185a43-1eed-11ef-922f-492c5bc8dfc1", _.syntax.literal);
 
 const TransferDetails: $.$expr_PathNode<$.TypeSet<$TransferDetails, $.Cardinality.Many>, null> = _.syntax.$PathNode($.$toSet($TransferDetails, $.Cardinality.Many), null);
 
@@ -664,24 +656,23 @@ type $Transferlike = $.ObjectType<"default::Transferlike", $TransferlikeλShape,
   ...$Event['__exclusives__'],
   ...$TransferDetails['__exclusives__'],
 ]>;
-const $Transferlike = $.makeType<$Transferlike>(_.spec, "7179616e-1b25-11ef-8a53-c7bb57eba03a", _.syntax.literal);
+const $Transferlike = $.makeType<$Transferlike>(_.spec, "5e36223d-1eed-11ef-b3bf-a58ec4ff0ce6", _.syntax.literal);
 
 const Transferlike: $.$expr_PathNode<$.TypeSet<$Transferlike, $.Cardinality.Many>, null> = _.syntax.$PathNode($.$toSet($Transferlike, $.Cardinality.Many), null);
 
 export type $TransferλShape = $.typeutil.flatten<$TransferlikeλShape & {
+  "<transfers[is Account]": $.LinkDesc<$Account, $.Cardinality.Many, {}, false, false,  false, false>;
   "<transfers[is Result]": $.LinkDesc<$Result, $.Cardinality.Many, {}, false, false,  false, false>;
   "<transfers[is ReceiptResult]": $.LinkDesc<$ReceiptResult, $.Cardinality.Many, {}, false, false,  false, false>;
   "<transfers[is Successful]": $.LinkDesc<$Successful, $.Cardinality.Many, {}, false, false,  false, false>;
   "<transfers[is Failed]": $.LinkDesc<$Failed, $.Cardinality.Many, {}, false, false,  false, false>;
   "<transfers[is Scheduled]": $.LinkDesc<$Scheduled, $.Cardinality.Many, {}, false, false,  false, false>;
-  "<transfers[is Account]": $.LinkDesc<$Account, $.Cardinality.Many, {}, false, false,  false, false>;
-  "<transfers[is current_accounts]": $.LinkDesc<$current_accounts, $.Cardinality.Many, {}, false, false,  false, false>;
   "<transfers": $.LinkDesc<$.ObjectType, $.Cardinality.Many, {}, false, false,  false, false>;
 }>;
 type $Transfer = $.ObjectType<"default::Transfer", $TransferλShape, null, [
   ...$Transferlike['__exclusives__'],
 ]>;
-const $Transfer = $.makeType<$Transfer>(_.spec, "719c837a-1b25-11ef-8781-e7e6c8c666b9", _.syntax.literal);
+const $Transfer = $.makeType<$Transfer>(_.spec, "5e577a5b-1eed-11ef-8ce5-83180f12d133", _.syntax.literal);
 
 const Transfer: $.$expr_PathNode<$.TypeSet<$Transfer, $.Cardinality.Many>, null> = _.syntax.$PathNode($.$toSet($Transfer, $.Cardinality.Many), null);
 
@@ -700,7 +691,7 @@ export type $TransferApprovalλShape = $.typeutil.flatten<$TransferlikeλShape &
 type $TransferApproval = $.ObjectType<"default::TransferApproval", $TransferApprovalλShape, null, [
   ...$Transferlike['__exclusives__'],
 ]>;
-const $TransferApproval = $.makeType<$TransferApproval>(_.spec, "71c08dbf-1b25-11ef-9737-3582510e7ce6", _.syntax.literal);
+const $TransferApproval = $.makeType<$TransferApproval>(_.spec, "5e7b1508-1eed-11ef-a2ec-6d74c0b8bacd", _.syntax.literal);
 
 const TransferApproval: $.$expr_PathNode<$.TypeSet<$TransferApproval, $.Cardinality.Many>, null> = _.syntax.$PathNode($.$toSet($TransferApproval, $.Cardinality.Many), null);
 
@@ -714,7 +705,7 @@ export type $TransferLimitλShape = $.typeutil.flatten<_std.$Object_8ce8c71ee4fa
 type $TransferLimit = $.ObjectType<"default::TransferLimit", $TransferLimitλShape, null, [
   ..._std.$Object_8ce8c71ee4fa5f73840c22d7eaa58588['__exclusives__'],
 ]>;
-const $TransferLimit = $.makeType<$TransferLimit>(_.spec, "6f6b0dca-1b25-11ef-8fb2-ad5532a3910e", _.syntax.literal);
+const $TransferLimit = $.makeType<$TransferLimit>(_.spec, "5eb0f10a-1eed-11ef-b963-97b8d7d7ca54", _.syntax.literal);
 
 const TransferLimit: $.$expr_PathNode<$.TypeSet<$TransferLimit, $.Cardinality.Many>, null> = _.syntax.$PathNode($.$toSet($TransferLimit, $.Cardinality.Many), null);
 
@@ -729,7 +720,7 @@ type $TransfersConfig = $.ObjectType<"default::TransfersConfig", $TransfersConfi
   ..._std.$Object_8ce8c71ee4fa5f73840c22d7eaa58588['__exclusives__'],
   {limits: {__element__: $TransferLimit, __cardinality__: $.Cardinality.One | $.Cardinality.AtMostOne },},
 ]>;
-const $TransfersConfig = $.makeType<$TransfersConfig>(_.spec, "6f6cdc2a-1b25-11ef-a0ad-7fbd451d9511", _.syntax.literal);
+const $TransfersConfig = $.makeType<$TransfersConfig>(_.spec, "5eb3015f-1eed-11ef-865b-b1fc6cd8cd8f", _.syntax.literal);
 
 const TransfersConfig: $.$expr_PathNode<$.TypeSet<$TransfersConfig, $.Cardinality.Many>, null> = _.syntax.$PathNode($.$toSet($TransfersConfig, $.Cardinality.Many), null);
 
@@ -747,25 +738,16 @@ export type $UserλShape = $.typeutil.flatten<_std.$Object_8ce8c71ee4fa5f73840c2
 type $User = $.ObjectType<"default::User", $UserλShape, null, [
   ..._std.$Object_8ce8c71ee4fa5f73840c22d7eaa58588['__exclusives__'],
 ]>;
-const $User = $.makeType<$User>(_.spec, "6eefe020-1b25-11ef-830f-db21cb03721b", _.syntax.literal);
+const $User = $.makeType<$User>(_.spec, "5d4188ef-1eed-11ef-97bf-3d9791c58229", _.syntax.literal);
 
 const User: $.$expr_PathNode<$.TypeSet<$User, $.Cardinality.Many>, null> = _.syntax.$PathNode($.$toSet($User, $.Cardinality.Many), null);
-
-export type $current_accountsλShape = $.typeutil.flatten<$AccountλShape & {
-}>;
-type $current_accounts = $.ObjectType<"default::current_accounts", $current_accountsλShape, null, [
-  ...$Account['__exclusives__'],
-]>;
-const $current_accounts = $.makeType<$current_accounts>(_.spec, "6dbbaff7-1b25-11ef-9a56-6dcb8d819ede", _.syntax.literal);
-
-const current_accounts: $.$expr_PathNode<$.TypeSet<$current_accounts, $.Cardinality.Many>, null> = _.syntax.$PathNode($.$toSet($current_accounts, $.Cardinality.Many), null);
 
 export type $current_approverλShape = $.typeutil.flatten<$ApproverλShape & {
 }>;
 type $current_approver = $.ObjectType<"default::current_approver", $current_approverλShape, null, [
   ...$Approver['__exclusives__'],
 ]>;
-const $current_approver = $.makeType<$current_approver>(_.spec, "6df8e193-1b25-11ef-8fbe-d3b15702c799", _.syntax.literal);
+const $current_approver = $.makeType<$current_approver>(_.spec, "5cc1c3ed-1eed-11ef-82b4-21ddb5a1f26e", _.syntax.literal);
 
 const current_approver: $.$expr_PathNode<$.TypeSet<$current_approver, $.Cardinality.Many>, null> = _.syntax.$PathNode($.$toSet($current_approver, $.Cardinality.Many), null);
 
@@ -774,165 +756,9 @@ export type $current_userλShape = $.typeutil.flatten<$UserλShape & {
 type $current_user = $.ObjectType<"default::current_user", $current_userλShape, null, [
   ...$User['__exclusives__'],
 ]>;
-const $current_user = $.makeType<$current_user>(_.spec, "6efc1708-1b25-11ef-9068-8b30e22ae1e1", _.syntax.literal);
+const $current_user = $.makeType<$current_user>(_.spec, "5d92dd34-1eed-11ef-8c3c-cbff2cdef7b0", _.syntax.literal);
 
 const current_user: $.$expr_PathNode<$.TypeSet<$current_user, $.Cardinality.Many>, null> = _.syntax.$PathNode($.$toSet($current_user, $.Cardinality.Many), null);
-
-type as_chainλFuncExpr<
-  P1 extends _.castMaps.orScalarLiteral<$.TypeSet<$UAddress>>,
-> = $.$expr_Function<
-  _std.$str, $.cardutil.paramCardinality<P1>
->;
-function as_chain<
-  P1 extends _.castMaps.orScalarLiteral<$.TypeSet<$UAddress>>,
->(
-  address: P1,
-): as_chainλFuncExpr<P1>;
-function as_chain(...args: any[]) {
-  const {returnType, cardinality, args: positionalArgs, namedArgs} = _.syntax.$resolveOverload('default::as_chain', args, _.spec, [
-    {args: [{typeId: "6da2fbbd-1b25-11ef-a8a9-157f969e7f69", optional: false, setoftype: false, variadic: false}], returnTypeId: "00000000-0000-0000-0000-000000000101"},
-  ]);
-  return _.syntax.$expressionify({
-    __kind__: $.ExpressionKind.Function,
-    __element__: returnType,
-    __cardinality__: cardinality,
-    __name__: "default::as_chain",
-    __args__: positionalArgs,
-    __namedargs__: namedArgs,
-  }) as any;
-};
-
-type as_fixedλFuncExpr<
-  P1 extends _.castMaps.orScalarLiteral<$.TypeSet<_std.$decimalλICastableTo>>,
-  P2 extends _.castMaps.orScalarLiteral<$.TypeSet<$uint16>>,
-> = $.$expr_Function<
-  _std.$bigint, $.cardutil.multiplyCardinalities<$.cardutil.paramCardinality<P1>, $.cardutil.paramCardinality<P2>>
->;
-function as_fixed<
-  P1 extends _.castMaps.orScalarLiteral<$.TypeSet<_std.$decimalλICastableTo>>,
-  P2 extends _.castMaps.orScalarLiteral<$.TypeSet<$uint16>>,
->(
-  value: P1,
-  decimals: P2,
-): as_fixedλFuncExpr<P1, P2>;
-function as_fixed(...args: any[]) {
-  const {returnType, cardinality, args: positionalArgs, namedArgs} = _.syntax.$resolveOverload('default::as_fixed', args, _.spec, [
-    {args: [{typeId: "00000000-0000-0000-0000-000000000108", optional: false, setoftype: false, variadic: false}, {typeId: "6da549c4-1b25-11ef-940b-6922f313cbb2", optional: false, setoftype: false, variadic: false}], returnTypeId: "00000000-0000-0000-0000-000000000110"},
-  ]);
-  return _.syntax.$expressionify({
-    __kind__: $.ExpressionKind.Function,
-    __element__: returnType,
-    __cardinality__: cardinality,
-    __name__: "default::as_fixed",
-    __args__: positionalArgs,
-    __namedargs__: namedArgs,
-  }) as any;
-};
-
-type as_addressλFuncExpr<
-  P1 extends _.castMaps.orScalarLiteral<$.TypeSet<$UAddress>>,
-> = $.$expr_Function<
-  $Address, $.cardutil.paramCardinality<P1>
->;
-function as_address<
-  P1 extends _.castMaps.orScalarLiteral<$.TypeSet<$UAddress>>,
->(
-  address: P1,
-): as_addressλFuncExpr<P1>;
-function as_address(...args: any[]) {
-  const {returnType, cardinality, args: positionalArgs, namedArgs} = _.syntax.$resolveOverload('default::as_address', args, _.spec, [
-    {args: [{typeId: "6da2fbbd-1b25-11ef-a8a9-157f969e7f69", optional: false, setoftype: false, variadic: false}], returnTypeId: "6da48e73-1b25-11ef-990e-736de960e785"},
-  ]);
-  return _.syntax.$expressionify({
-    __kind__: $.ExpressionKind.Function,
-    __element__: returnType,
-    __cardinality__: cardinality,
-    __name__: "default::as_address",
-    __args__: positionalArgs,
-    __namedargs__: namedArgs,
-  }) as any;
-};
-
-type as_decimalλFuncExpr<
-  P1 extends _.castMaps.orScalarLiteral<$.TypeSet<_std.$bigint>>,
-  P2 extends _.castMaps.orScalarLiteral<$.TypeSet<$uint16>>,
-> = $.$expr_Function<
-  _std.$decimal, $.cardutil.multiplyCardinalities<$.cardutil.paramCardinality<P1>, $.cardutil.paramCardinality<P2>>
->;
-function as_decimal<
-  P1 extends _.castMaps.orScalarLiteral<$.TypeSet<_std.$bigint>>,
-  P2 extends _.castMaps.orScalarLiteral<$.TypeSet<$uint16>>,
->(
-  value: P1,
-  decimals: P2,
-): as_decimalλFuncExpr<P1, P2>;
-function as_decimal(...args: any[]) {
-  const {returnType, cardinality, args: positionalArgs, namedArgs} = _.syntax.$resolveOverload('default::as_decimal', args, _.spec, [
-    {args: [{typeId: "00000000-0000-0000-0000-000000000110", optional: false, setoftype: false, variadic: false}, {typeId: "6da549c4-1b25-11ef-940b-6922f313cbb2", optional: false, setoftype: false, variadic: false}], returnTypeId: "00000000-0000-0000-0000-000000000108"},
-  ]);
-  return _.syntax.$expressionify({
-    __kind__: $.ExpressionKind.Function,
-    __element__: returnType,
-    __cardinality__: cardinality,
-    __name__: "default::as_decimal",
-    __args__: positionalArgs,
-    __namedargs__: namedArgs,
-  }) as any;
-};
-
-type latestPolicyλFuncExpr<
-  P1 extends $.TypeSet<$Account>,
-  P2 extends _.castMaps.orScalarLiteral<$.TypeSet<_std.$number>>,
-> = $.$expr_Function<
-  $Policy, $.cardutil.overrideLowerBound<$.cardutil.multiplyCardinalities<$.cardutil.paramCardinality<P1>, $.cardutil.paramCardinality<P2>>, 'Zero'>
->;
-function latestPolicy<
-  P1 extends $.TypeSet<$Account>,
-  P2 extends _.castMaps.orScalarLiteral<$.TypeSet<_std.$number>>,
->(
-  account: P1,
-  key: P2,
-): latestPolicyλFuncExpr<P1, P2>;
-function latestPolicy(...args: any[]) {
-  const {returnType, cardinality, args: positionalArgs, namedArgs} = _.syntax.$resolveOverload('default::latestPolicy', args, _.spec, [
-    {args: [{typeId: "6daa163b-1b25-11ef-ab69-3d926cea9a31", optional: false, setoftype: false, variadic: false}, {typeId: "00000000-0000-0000-0000-0000000001ff", optional: false, setoftype: false, variadic: false}], returnTypeId: "6f8cc334-1b25-11ef-b5d4-53f1cfe4e59a", returnTypemod: "OptionalType"},
-  ]);
-  return _.syntax.$expressionify({
-    __kind__: $.ExpressionKind.Function,
-    __element__: returnType,
-    __cardinality__: cardinality,
-    __name__: "default::latestPolicy",
-    __args__: positionalArgs,
-    __namedargs__: namedArgs,
-  }) as any;
-};
-
-type labelForUserλFuncExpr<
-  P1 extends _.castMaps.orScalarLiteral<$.TypeSet<_std.$str>>,
-  P2 extends $.TypeSet<$User>,
-> = $.$expr_Function<
-  _std.$str, $.cardutil.overrideLowerBound<$.cardutil.multiplyCardinalities<$.cardutil.paramCardinality<P1>, $.cardutil.paramCardinality<P2>>, 'Zero'>
->;
-function labelForUser<
-  P1 extends _.castMaps.orScalarLiteral<$.TypeSet<_std.$str>>,
-  P2 extends $.TypeSet<$User>,
->(
-  addressParam: P1,
-  user: P2,
-): labelForUserλFuncExpr<P1, P2>;
-function labelForUser(...args: any[]) {
-  const {returnType, cardinality, args: positionalArgs, namedArgs} = _.syntax.$resolveOverload('default::labelForUser', args, _.spec, [
-    {args: [{typeId: "00000000-0000-0000-0000-000000000101", optional: false, setoftype: false, variadic: false}, {typeId: "6eefe020-1b25-11ef-830f-db21cb03721b", optional: false, setoftype: false, variadic: false}], returnTypeId: "00000000-0000-0000-0000-000000000101", returnTypemod: "OptionalType"},
-  ]);
-  return _.syntax.$expressionify({
-    __kind__: $.ExpressionKind.Function,
-    __element__: returnType,
-    __cardinality__: cardinality,
-    __name__: "default::labelForUser",
-    __args__: positionalArgs,
-    __namedargs__: namedArgs,
-  }) as any;
-};
 
 type tokenForUserλFuncExpr<
   P1 extends _.castMaps.orScalarLiteral<$.TypeSet<_std.$str>>,
@@ -949,37 +775,13 @@ function tokenForUser<
 ): tokenForUserλFuncExpr<P1, P2>;
 function tokenForUser(...args: any[]) {
   const {returnType, cardinality, args: positionalArgs, namedArgs} = _.syntax.$resolveOverload('default::tokenForUser', args, _.spec, [
-    {args: [{typeId: "00000000-0000-0000-0000-000000000101", optional: false, setoftype: false, variadic: false}, {typeId: "6eefe020-1b25-11ef-830f-db21cb03721b", optional: false, setoftype: false, variadic: false}], returnTypeId: "6eeb7977-1b25-11ef-a8eb-93c0c2865091", returnTypemod: "OptionalType"},
+    {args: [{typeId: "00000000-0000-0000-0000-000000000101", optional: false, setoftype: false, variadic: false}, {typeId: "5d4188ef-1eed-11ef-97bf-3d9791c58229", optional: false, setoftype: false, variadic: false}], returnTypeId: "5d3c3d9f-1eed-11ef-9f6c-8fa95def2e75", returnTypemod: "OptionalType"},
   ]);
   return _.syntax.$expressionify({
     __kind__: $.ExpressionKind.Function,
     __element__: returnType,
     __cardinality__: cardinality,
     __name__: "default::tokenForUser",
-    __args__: positionalArgs,
-    __namedargs__: namedArgs,
-  }) as any;
-};
-
-type tokenλFuncExpr<
-  P1 extends _.castMaps.orScalarLiteral<$.TypeSet<_std.$str>>,
-> = $.$expr_Function<
-  $Token, $.cardutil.overrideLowerBound<$.cardutil.paramCardinality<P1>, 'Zero'>
->;
-function token<
-  P1 extends _.castMaps.orScalarLiteral<$.TypeSet<_std.$str>>,
->(
-  address: P1,
-): tokenλFuncExpr<P1>;
-function token(...args: any[]) {
-  const {returnType, cardinality, args: positionalArgs, namedArgs} = _.syntax.$resolveOverload('default::token', args, _.spec, [
-    {args: [{typeId: "00000000-0000-0000-0000-000000000101", optional: false, setoftype: false, variadic: false}], returnTypeId: "6eeb7977-1b25-11ef-a8eb-93c0c2865091", returnTypemod: "OptionalType"},
-  ]);
-  return _.syntax.$expressionify({
-    __kind__: $.ExpressionKind.Function,
-    __element__: returnType,
-    __cardinality__: cardinality,
-    __name__: "default::token",
     __args__: positionalArgs,
     __namedargs__: namedArgs,
   }) as any;
@@ -1009,18 +811,238 @@ function label(...args: any[]) {
   }) as any;
 };
 
+type tokenλFuncExpr<
+  P1 extends _.castMaps.orScalarLiteral<$.TypeSet<_std.$str>>,
+> = $.$expr_Function<
+  $Token, $.cardutil.overrideLowerBound<$.cardutil.paramCardinality<P1>, 'Zero'>
+>;
+function token<
+  P1 extends _.castMaps.orScalarLiteral<$.TypeSet<_std.$str>>,
+>(
+  address: P1,
+): tokenλFuncExpr<P1>;
+function token(...args: any[]) {
+  const {returnType, cardinality, args: positionalArgs, namedArgs} = _.syntax.$resolveOverload('default::token', args, _.spec, [
+    {args: [{typeId: "00000000-0000-0000-0000-000000000101", optional: false, setoftype: false, variadic: false}], returnTypeId: "5d3c3d9f-1eed-11ef-9f6c-8fa95def2e75", returnTypemod: "OptionalType"},
+  ]);
+  return _.syntax.$expressionify({
+    __kind__: $.ExpressionKind.Function,
+    __element__: returnType,
+    __cardinality__: cardinality,
+    __name__: "default::token",
+    __args__: positionalArgs,
+    __namedargs__: namedArgs,
+  }) as any;
+};
+
+type is_memberλFuncExpr<
+  P1 extends $.TypeSet<$Account>,
+> = $.$expr_Function<
+  _std.$bool, $.cardutil.paramCardinality<P1>
+>;
+function is_member<
+  P1 extends $.TypeSet<$Account>,
+>(
+  account: P1,
+): is_memberλFuncExpr<P1>;
+function is_member(...args: any[]) {
+  const {returnType, cardinality, args: positionalArgs, namedArgs} = _.syntax.$resolveOverload('default::is_member', args, _.spec, [
+    {args: [{typeId: "5c624faa-1eed-11ef-9e57-e366ae0099c9", optional: false, setoftype: false, variadic: false}], returnTypeId: "00000000-0000-0000-0000-000000000109"},
+  ]);
+  return _.syntax.$expressionify({
+    __kind__: $.ExpressionKind.Function,
+    __element__: returnType,
+    __cardinality__: cardinality,
+    __name__: "default::is_member",
+    __args__: positionalArgs,
+    __namedargs__: namedArgs,
+  }) as any;
+};
+
+type as_addressλFuncExpr<
+  P1 extends _.castMaps.orScalarLiteral<$.TypeSet<$UAddress>>,
+> = $.$expr_Function<
+  $Address, $.cardutil.paramCardinality<P1>
+>;
+function as_address<
+  P1 extends _.castMaps.orScalarLiteral<$.TypeSet<$UAddress>>,
+>(
+  address: P1,
+): as_addressλFuncExpr<P1>;
+function as_address(...args: any[]) {
+  const {returnType, cardinality, args: positionalArgs, namedArgs} = _.syntax.$resolveOverload('default::as_address', args, _.spec, [
+    {args: [{typeId: "5c5abc59-1eed-11ef-9a5b-bdb8477d8d69", optional: false, setoftype: false, variadic: false}], returnTypeId: "5c5c604a-1eed-11ef-a456-e73ae3d82eb0"},
+  ]);
+  return _.syntax.$expressionify({
+    __kind__: $.ExpressionKind.Function,
+    __element__: returnType,
+    __cardinality__: cardinality,
+    __name__: "default::as_address",
+    __args__: positionalArgs,
+    __namedargs__: namedArgs,
+  }) as any;
+};
+
+type is_member_by_idλFuncExpr<
+  P1 extends _.castMaps.orScalarLiteral<$.TypeSet<_std.$uuid>>,
+> = $.$expr_Function<
+  _std.$bool, $.cardutil.paramCardinality<P1>
+>;
+function is_member_by_id<
+  P1 extends _.castMaps.orScalarLiteral<$.TypeSet<_std.$uuid>>,
+>(
+  account: P1,
+): is_member_by_idλFuncExpr<P1>;
+function is_member_by_id(...args: any[]) {
+  const {returnType, cardinality, args: positionalArgs, namedArgs} = _.syntax.$resolveOverload('default::is_member_by_id', args, _.spec, [
+    {args: [{typeId: "00000000-0000-0000-0000-000000000100", optional: false, setoftype: false, variadic: false}], returnTypeId: "00000000-0000-0000-0000-000000000109"},
+  ]);
+  return _.syntax.$expressionify({
+    __kind__: $.ExpressionKind.Function,
+    __element__: returnType,
+    __cardinality__: cardinality,
+    __name__: "default::is_member_by_id",
+    __args__: positionalArgs,
+    __namedargs__: namedArgs,
+  }) as any;
+};
+
+type as_chainλFuncExpr<
+  P1 extends _.castMaps.orScalarLiteral<$.TypeSet<$UAddress>>,
+> = $.$expr_Function<
+  _std.$str, $.cardutil.paramCardinality<P1>
+>;
+function as_chain<
+  P1 extends _.castMaps.orScalarLiteral<$.TypeSet<$UAddress>>,
+>(
+  address: P1,
+): as_chainλFuncExpr<P1>;
+function as_chain(...args: any[]) {
+  const {returnType, cardinality, args: positionalArgs, namedArgs} = _.syntax.$resolveOverload('default::as_chain', args, _.spec, [
+    {args: [{typeId: "5c5abc59-1eed-11ef-9a5b-bdb8477d8d69", optional: false, setoftype: false, variadic: false}], returnTypeId: "00000000-0000-0000-0000-000000000101"},
+  ]);
+  return _.syntax.$expressionify({
+    __kind__: $.ExpressionKind.Function,
+    __element__: returnType,
+    __cardinality__: cardinality,
+    __name__: "default::as_chain",
+    __args__: positionalArgs,
+    __namedargs__: namedArgs,
+  }) as any;
+};
+
+type as_fixedλFuncExpr<
+  P1 extends _.castMaps.orScalarLiteral<$.TypeSet<_std.$decimalλICastableTo>>,
+  P2 extends _.castMaps.orScalarLiteral<$.TypeSet<$uint16>>,
+> = $.$expr_Function<
+  _std.$bigint, $.cardutil.multiplyCardinalities<$.cardutil.paramCardinality<P1>, $.cardutil.paramCardinality<P2>>
+>;
+function as_fixed<
+  P1 extends _.castMaps.orScalarLiteral<$.TypeSet<_std.$decimalλICastableTo>>,
+  P2 extends _.castMaps.orScalarLiteral<$.TypeSet<$uint16>>,
+>(
+  value: P1,
+  decimals: P2,
+): as_fixedλFuncExpr<P1, P2>;
+function as_fixed(...args: any[]) {
+  const {returnType, cardinality, args: positionalArgs, namedArgs} = _.syntax.$resolveOverload('default::as_fixed', args, _.spec, [
+    {args: [{typeId: "00000000-0000-0000-0000-000000000108", optional: false, setoftype: false, variadic: false}, {typeId: "5c5d00f5-1eed-11ef-9ea4-abc5b7d02bba", optional: false, setoftype: false, variadic: false}], returnTypeId: "00000000-0000-0000-0000-000000000110"},
+  ]);
+  return _.syntax.$expressionify({
+    __kind__: $.ExpressionKind.Function,
+    __element__: returnType,
+    __cardinality__: cardinality,
+    __name__: "default::as_fixed",
+    __args__: positionalArgs,
+    __namedargs__: namedArgs,
+  }) as any;
+};
+
+type as_decimalλFuncExpr<
+  P1 extends _.castMaps.orScalarLiteral<$.TypeSet<_std.$bigint>>,
+  P2 extends _.castMaps.orScalarLiteral<$.TypeSet<$uint16>>,
+> = $.$expr_Function<
+  _std.$decimal, $.cardutil.multiplyCardinalities<$.cardutil.paramCardinality<P1>, $.cardutil.paramCardinality<P2>>
+>;
+function as_decimal<
+  P1 extends _.castMaps.orScalarLiteral<$.TypeSet<_std.$bigint>>,
+  P2 extends _.castMaps.orScalarLiteral<$.TypeSet<$uint16>>,
+>(
+  value: P1,
+  decimals: P2,
+): as_decimalλFuncExpr<P1, P2>;
+function as_decimal(...args: any[]) {
+  const {returnType, cardinality, args: positionalArgs, namedArgs} = _.syntax.$resolveOverload('default::as_decimal', args, _.spec, [
+    {args: [{typeId: "00000000-0000-0000-0000-000000000110", optional: false, setoftype: false, variadic: false}, {typeId: "5c5d00f5-1eed-11ef-9ea4-abc5b7d02bba", optional: false, setoftype: false, variadic: false}], returnTypeId: "00000000-0000-0000-0000-000000000108"},
+  ]);
+  return _.syntax.$expressionify({
+    __kind__: $.ExpressionKind.Function,
+    __element__: returnType,
+    __cardinality__: cardinality,
+    __name__: "default::as_decimal",
+    __args__: positionalArgs,
+    __namedargs__: namedArgs,
+  }) as any;
+};
+
+type latestPolicyλFuncExpr<
+  P1 extends $.TypeSet<$Account>,
+  P2 extends _.castMaps.orScalarLiteral<$.TypeSet<_std.$number>>,
+> = $.$expr_Function<
+  $Policy, $.cardutil.overrideLowerBound<$.cardutil.multiplyCardinalities<$.cardutil.paramCardinality<P1>, $.cardutil.paramCardinality<P2>>, 'Zero'>
+>;
+function latestPolicy<
+  P1 extends $.TypeSet<$Account>,
+  P2 extends _.castMaps.orScalarLiteral<$.TypeSet<_std.$number>>,
+>(
+  account: P1,
+  key: P2,
+): latestPolicyλFuncExpr<P1, P2>;
+function latestPolicy(...args: any[]) {
+  const {returnType, cardinality, args: positionalArgs, namedArgs} = _.syntax.$resolveOverload('default::latestPolicy', args, _.spec, [
+    {args: [{typeId: "5c624faa-1eed-11ef-9e57-e366ae0099c9", optional: false, setoftype: false, variadic: false}, {typeId: "00000000-0000-0000-0000-0000000001ff", optional: false, setoftype: false, variadic: false}], returnTypeId: "5edb2524-1eed-11ef-8e17-052ad4bd285a", returnTypemod: "OptionalType"},
+  ]);
+  return _.syntax.$expressionify({
+    __kind__: $.ExpressionKind.Function,
+    __element__: returnType,
+    __cardinality__: cardinality,
+    __name__: "default::latestPolicy",
+    __args__: positionalArgs,
+    __namedargs__: namedArgs,
+  }) as any;
+};
+
+type labelForUserλFuncExpr<
+  P1 extends _.castMaps.orScalarLiteral<$.TypeSet<_std.$str>>,
+  P2 extends $.TypeSet<$User>,
+> = $.$expr_Function<
+  _std.$str, $.cardutil.overrideLowerBound<$.cardutil.multiplyCardinalities<$.cardutil.paramCardinality<P1>, $.cardutil.paramCardinality<P2>>, 'Zero'>
+>;
+function labelForUser<
+  P1 extends _.castMaps.orScalarLiteral<$.TypeSet<_std.$str>>,
+  P2 extends $.TypeSet<$User>,
+>(
+  addressParam: P1,
+  user: P2,
+): labelForUserλFuncExpr<P1, P2>;
+function labelForUser(...args: any[]) {
+  const {returnType, cardinality, args: positionalArgs, namedArgs} = _.syntax.$resolveOverload('default::labelForUser', args, _.spec, [
+    {args: [{typeId: "00000000-0000-0000-0000-000000000101", optional: false, setoftype: false, variadic: false}, {typeId: "5d4188ef-1eed-11ef-97bf-3d9791c58229", optional: false, setoftype: false, variadic: false}], returnTypeId: "00000000-0000-0000-0000-000000000101", returnTypemod: "OptionalType"},
+  ]);
+  return _.syntax.$expressionify({
+    __kind__: $.ExpressionKind.Function,
+    __element__: returnType,
+    __cardinality__: cardinality,
+    __name__: "default::labelForUser",
+    __args__: positionalArgs,
+    __namedargs__: namedArgs,
+  }) as any;
+};
+
 const $default__globals: {  current_accounts: _.syntax.$expr_Global<
               // "default::current_accounts",
-              $current_accounts,
-              $.Cardinality.Many
-              >,  current_accounts_array: _.syntax.$expr_Global<
-              // "default::current_accounts_array",
               $.ArrayType<_std.$uuid>,
               $.Cardinality.AtMostOne
-              >,  current_accounts_set: _.syntax.$expr_Global<
-              // "default::current_accounts_set",
-              $current_accounts_set,
-              $.Cardinality.Many
               >,  current_approver: _.syntax.$expr_Global<
               // "default::current_approver",
               $current_approver,
@@ -1035,27 +1057,21 @@ const $default__globals: {  current_accounts: _.syntax.$expr_Global<
               $.Cardinality.AtMostOne
               >} = {  current_accounts: _.syntax.makeGlobal(
               "default::current_accounts",
-              $.makeType(_.spec, "6dbbaff7-1b25-11ef-9a56-6dcb8d819ede", _.syntax.literal),
-              $.Cardinality.Many) as any,  current_accounts_array: _.syntax.makeGlobal(
-              "default::current_accounts_array",
               $.makeType(_.spec, "1378c9c3-b11a-5a95-bdac-066a4143094d", _.syntax.literal),
-              $.Cardinality.AtMostOne) as any,  current_accounts_set: _.syntax.makeGlobal(
-              "default::current_accounts_set",
-              $.makeType(_.spec, "6da2e5ff-1b25-11ef-baa8-4fc789c6e539", _.syntax.literal),
-              $.Cardinality.Many) as any,  current_approver: _.syntax.makeGlobal(
+              $.Cardinality.AtMostOne) as any,  current_approver: _.syntax.makeGlobal(
               "default::current_approver",
-              $.makeType(_.spec, "6df8e193-1b25-11ef-8fbe-d3b15702c799", _.syntax.literal),
+              $.makeType(_.spec, "5cc1c3ed-1eed-11ef-82b4-21ddb5a1f26e", _.syntax.literal),
               $.Cardinality.AtMostOne) as any,  current_approver_address: _.syntax.makeGlobal(
               "default::current_approver_address",
-              $.makeType(_.spec, "6da48e73-1b25-11ef-990e-736de960e785", _.syntax.literal),
+              $.makeType(_.spec, "5c5c604a-1eed-11ef-a456-e73ae3d82eb0", _.syntax.literal),
               $.Cardinality.AtMostOne) as any,  current_user: _.syntax.makeGlobal(
               "default::current_user",
-              $.makeType(_.spec, "6efc1708-1b25-11ef-9068-8b30e22ae1e1", _.syntax.literal),
+              $.makeType(_.spec, "5d92dd34-1eed-11ef-8c3c-cbff2cdef7b0", _.syntax.literal),
               $.Cardinality.AtMostOne) as any};
 
 
 
-export { AbiSource, Address, Amount, ApprovalIssue, Bytes, Bytes32, Bytes4, CloudProvider, Label, MAC, TransactionStatus, TransferDirection, UAddress, Url, current_accounts_set, uint16, uint224, uint256, uint32, uint64, $Account, Account, $Action, Action, $ActionFunction, ActionFunction, $ProposalResponse, ProposalResponse, $Approval, Approval, $Approver, Approver, $Contact, Contact, $Contract, Contract, $Event, Event, $Result, Result, $ReceiptResult, ReceiptResult, $Failed, Failed, $Function, Function, $GlobalLabel, GlobalLabel, $Proposal, Proposal, $Message, Message, $Operation, Operation, $PaymasterFees, PaymasterFees, $PolicyState, PolicyState, $Policy, Policy, $Rejection, Rejection, $RemovedPolicy, RemovedPolicy, $Scheduled, Scheduled, $Simulation, Simulation, $Successful, Successful, $SystemTx, SystemTx, $Token, Token, $Transaction, Transaction, $TransferDetails, TransferDetails, $Transferlike, Transferlike, $Transfer, Transfer, $TransferApproval, TransferApproval, $TransferLimit, TransferLimit, $TransfersConfig, TransfersConfig, $User, User, $current_accounts, current_accounts, $current_approver, current_approver, $current_user, current_user };
+export { AbiSource, Address, Amount, ApprovalIssue, Bytes, Bytes32, Bytes4, CloudProvider, Label, MAC, TransactionStatus, TransferDirection, UAddress, Url, uint16, uint224, uint256, uint32, uint64, $Account, Account, $Action, Action, $ActionFunction, ActionFunction, $ProposalResponse, ProposalResponse, $Approval, Approval, $Approver, Approver, $Contact, Contact, $Contract, Contract, $Event, Event, $Result, Result, $ReceiptResult, ReceiptResult, $Failed, Failed, $Function, Function, $GlobalLabel, GlobalLabel, $Proposal, Proposal, $Message, Message, $Operation, Operation, $PaymasterFees, PaymasterFees, $PolicyState, PolicyState, $Policy, Policy, $Rejection, Rejection, $RemovedPolicy, RemovedPolicy, $Scheduled, Scheduled, $Simulation, Simulation, $Successful, Successful, $SystemTx, SystemTx, $Token, Token, $Transaction, Transaction, $TransferDetails, TransferDetails, $Transferlike, Transferlike, $Transfer, Transfer, $TransferApproval, TransferApproval, $TransferLimit, TransferLimit, $TransfersConfig, TransfersConfig, $User, User, $current_approver, current_approver, $current_user, current_user };
 
 type __defaultExports = {
   "AbiSource": typeof AbiSource;
@@ -1072,7 +1088,6 @@ type __defaultExports = {
   "TransferDirection": typeof TransferDirection;
   "UAddress": typeof UAddress;
   "Url": typeof Url;
-  "current_accounts_set": typeof current_accounts_set;
   "uint16": typeof uint16;
   "uint224": typeof uint224;
   "uint256": typeof uint256;
@@ -1113,18 +1128,19 @@ type __defaultExports = {
   "TransferLimit": typeof TransferLimit;
   "TransfersConfig": typeof TransfersConfig;
   "User": typeof User;
-  "current_accounts": typeof current_accounts;
   "current_approver": typeof current_approver;
   "current_user": typeof current_user;
+  "tokenForUser": typeof tokenForUser;
+  "label": typeof label;
+  "token": typeof token;
+  "is_member": typeof is_member;
+  "as_address": typeof as_address;
+  "is_member_by_id": typeof is_member_by_id;
   "as_chain": typeof as_chain;
   "as_fixed": typeof as_fixed;
-  "as_address": typeof as_address;
   "as_decimal": typeof as_decimal;
   "latestPolicy": typeof latestPolicy;
   "labelForUser": typeof labelForUser;
-  "tokenForUser": typeof tokenForUser;
-  "token": typeof token;
-  "label": typeof label;
   "global": typeof $default__globals
 };
 const __defaultExports: __defaultExports = {
@@ -1142,7 +1158,6 @@ const __defaultExports: __defaultExports = {
   "TransferDirection": TransferDirection,
   "UAddress": UAddress,
   "Url": Url,
-  "current_accounts_set": current_accounts_set,
   "uint16": uint16,
   "uint224": uint224,
   "uint256": uint256,
@@ -1183,18 +1198,19 @@ const __defaultExports: __defaultExports = {
   "TransferLimit": TransferLimit,
   "TransfersConfig": TransfersConfig,
   "User": User,
-  "current_accounts": current_accounts,
   "current_approver": current_approver,
   "current_user": current_user,
+  "tokenForUser": tokenForUser,
+  "label": label,
+  "token": token,
+  "is_member": is_member,
+  "as_address": as_address,
+  "is_member_by_id": is_member_by_id,
   "as_chain": as_chain,
   "as_fixed": as_fixed,
-  "as_address": as_address,
   "as_decimal": as_decimal,
   "latestPolicy": latestPolicy,
   "labelForUser": labelForUser,
-  "tokenForUser": tokenForUser,
-  "token": token,
-  "label": label,
   "global": $default__globals
 };
 export default __defaultExports;

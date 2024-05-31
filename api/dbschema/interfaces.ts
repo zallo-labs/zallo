@@ -75,13 +75,13 @@ export namespace cfg {
 export namespace $default {
   export type AbiSource = "Verified";
   export interface Account extends std.$Object {
+    "address": string;
+    "label": string;
+    "chain": string;
     "activationEthFee"?: string | null;
     "upgradedAtBlock"?: bigint | null;
     "active": boolean;
-    "address": string;
-    "chain": string;
     "implementation": string;
-    "label": string;
     "photo"?: string | null;
     "salt": string;
     "policies": Policy[];
@@ -314,7 +314,6 @@ export namespace $default {
     "accounts": Account[];
     "contacts": Contact[];
   }
-  export interface current_accounts extends Account {}
   export interface current_approver extends Approver {}
   export interface current_user extends User {}
 }
@@ -358,7 +357,6 @@ import TransferDirection = $default.TransferDirection;
 import TransferLimit = $default.TransferLimit;
 import TransfersConfig = $default.TransfersConfig;
 import User = $default.User;
-import current_accounts = $default.current_accounts;
 import current_approver = $default.current_approver;
 import current_user = $default.current_user;
 export type {
@@ -402,7 +400,6 @@ export type {
   TransferLimit,
   TransfersConfig,
   User,
-  current_accounts,
   current_approver,
   current_user
 };
@@ -707,7 +704,6 @@ export interface types {
     "TransferLimit": $default.TransferLimit;
     "TransfersConfig": $default.TransfersConfig;
     "User": $default.User;
-    "current_accounts": $default.current_accounts;
     "current_approver": $default.current_approver;
     "current_user": $default.current_user;
   };

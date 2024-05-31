@@ -66,11 +66,7 @@ module default {
     required timestamp: datetime { default := datetime_of_statement(); }
     result := .<systx[is Result];
     events := .<systx[is Event];
-
-    access policy members_can_select_insert
-      allow select, insert
-      using (.proposal.account in global current_accounts);
-
+    
     trigger update_tx_systx after insert for each do (
       update __new__.proposal set { systx := __new__ } 
     );

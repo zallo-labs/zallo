@@ -12,7 +12,7 @@ module default {
 
     access policy members_can_select
       allow select
-      using (.account in global current_accounts);
+      using (is_member(.account));
   }
 
   scalar type TransferDirection extending enum<`In`, `Out`>;
@@ -34,7 +34,7 @@ module default {
 
     access policy members_can_select_insert
       allow select, insert
-      using (.account in global current_accounts);
+      using (is_member(.account));
   }
 
   abstract type Transferlike extending Event, TransferDetails {

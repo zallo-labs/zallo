@@ -44,7 +44,7 @@ export class DatabaseService implements OnModuleInit {
 
     reqCtx.db ??= this.__client.withGlobals({
       current_approver_address: reqCtx.user.approver,
-      current_accounts_array: reqCtx.user.accounts.map((a) => a.id),
+      current_accounts: reqCtx.user.accounts.map((a) => a.id),
     } satisfies Globals);
 
     return reqCtx.db;
