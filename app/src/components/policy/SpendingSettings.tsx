@@ -1,11 +1,9 @@
 import { gql } from '@api';
 import { AddIcon, GenericTokenIcon, TransferIcon } from '@theme/icons';
-import { createStyles } from '@theme/styles';
-import { useRouter } from 'expo-router';
+import { createStyles, useStyles } from '@theme/styles';
 import { asAddress, asChain, asUAddress } from 'lib';
-import { memo, useMemo } from 'react';
-import Collapsible from 'react-native-collapsible';
-import { Divider, Switch } from 'react-native-paper';
+import { useMemo } from 'react';
+import { Switch } from 'react-native-paper';
 import { Chevron } from '#/Chevron';
 import { ListItem } from '#/list/ListItem';
 import { ListItemHorizontalTrailing } from '#/list/ListItemHorizontalTrailing';
@@ -17,8 +15,8 @@ import { useQuery } from '~/gql';
 import { useSelectAddress } from '~/hooks/useSelectAddress';
 import { useToggle } from '~/hooks/useToggle';
 import { usePolicyDraft } from '~/lib/policy/draft';
-import { useLocalParams } from '~/hooks/useLocalParams';
-import { PolicyScreenParams } from '~/app/(drawer)/[account]/policies/[id]';
+import { CollapsibleItemList } from '#/layout/CollapsibleItemList';
+import { DEFAULT_LIMIT } from './TokenSpending';
 
 const Query = gql(/* GraphQL */ `
   query SpendingSettings($input: TokensInput!) {
@@ -30,17 +28,12 @@ const Query = gql(/* GraphQL */ `
   }
 `);
 
-export interface SpendingSettingsProps {
-  initiallyExpanded: boolean;
-}
-
-function SpendingSettings_(props: SpendingSettingsProps) {
-  const router = useRouter();
-  const params = useLocalParams(PolicyScreenParams);
+function SpendingSettings_() {
+  const { styles } = useStyles(stylesheet);
   const selectAddress = useSelectAddress();
 
   const [policy, update] = usePolicyDraft();
-  const [expanded, toggleExpanded] = useToggle(props.initiallyExpanded);
+  const [expanded, toggleExpanded] = useToggle(false);
 
   const { transfers } = policy;
   const chain = asChain(policy.account);
@@ -57,11 +50,12 @@ function SpendingSettings_(props: SpendingSettingsProps) {
   );
 
   return (
-    <>
+    <CollapsibleItemList expanded={expanded}>
       <ListItem
         leading={GenericTokenIcon}
         headline="Spending"
-        trailing={(props) => (
+        supporting="Tokens that can be spent"
+        trailing={
           <ListItemHorizontalTrailing>
             <ListItemTrailingText>
               {tokens.length
@@ -70,54 +64,58 @@ function SpendingSettings_(props: SpendingSettingsProps) {
                   ? 'Allowed'
                   : 'Not allowed'}
             </ListItemTrailingText>
-            <Chevron {...props} expanded={expanded} />
+            <Chevron expanded={expanded} />
           </ListItemHorizontalTrailing>
-        )}
+        }
         onPress={toggleExpanded}
+        containerStyle={styles.item}
       />
-      <Collapsible collapsed={!expanded}>
-        <ListItem
-          leading={TransferIcon}
-          headline="Allow spending"
-          trailing={() => (
-            <Switch
-              value={transfers.defaultAllow ?? false}
-              onValueChange={(v) =>
-                update((draft) => {
-                  draft.transfers.defaultAllow = v;
-                })
-              }
-            />
-          )}
-        />
-        {tokens.map((t) => (
-          <TokenLimitItem key={t.address} address={asAddress(t.address)} token={t.token} />
-        ))}
-        <ListItem
-          leading={AddIcon}
-          headline="Add token"
-          onPress={async () => {
-            const token = asUAddress(await selectAddress({ chain, include: ['tokens'] }), chain);
-            if (token)
-              router.push({
-                pathname: `/(drawer)/[account]/policies/[id]/spending/[token]`,
-                params: { ...params, token },
-              });
-          }}
-        />
-      </Collapsible>
-      <Divider leftInset style={styles.divider} />
-    </>
+
+      <ListItem
+        leading={TransferIcon}
+        headline="Allow other spending"
+        supporting="Applies to tokens without limits"
+        trailing={
+          <Switch
+            value={transfers.defaultAllow ?? false}
+            onValueChange={(v) =>
+              update((draft) => {
+                draft.transfers.defaultAllow = v;
+              })
+            }
+          />
+        }
+        containerStyle={styles.item}
+      />
+
+      {tokens.map((t) => (
+        <TokenLimitItem key={t.address} address={asAddress(t.address)} token={t.token} />
+      ))}
+
+      <ListItem
+        lines={2}
+        leading={AddIcon}
+        headline="Add token"
+        containerStyle={styles.item}
+        onPress={async () => {
+          const token = asUAddress(await selectAddress({ chain, include: ['tokens'] }), chain);
+          if (token)
+            update(({ transfers }) => {
+              transfers.limits[asAddress(token)] ??= DEFAULT_LIMIT;
+            });
+        }}
+      />
+    </CollapsibleItemList>
   );
 }
 
-const styles = createStyles({
-  divider: {
-    marginVertical: 8,
+const stylesheet = createStyles(({ colors }) => ({
+  item: {
+    backgroundColor: colors.surface,
   },
-});
+}));
 
 export const SpendingSettings = withSuspense(
-  memo(SpendingSettings_),
+  SpendingSettings_,
   <ListItemSkeleton leading supporting />,
 );

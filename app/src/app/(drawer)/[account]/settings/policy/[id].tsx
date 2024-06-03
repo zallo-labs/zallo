@@ -1,20 +1,27 @@
-import { AppbarHeader } from '#/Appbar/AppbarHeader';
 import { ScreenSkeleton } from '#/skeleton/ScreenSkeleton';
 import { withSuspense } from '#/skeleton/withSuspense';
 import { gql } from '@api';
-import { Stack } from 'expo-router';
-import { atom } from 'jotai';
-import { ZERO_ADDR, asChain, asUUID } from 'lib';
-import { useMemo } from 'react';
 import { z } from 'zod';
 import { useQuery } from '~/gql';
-import { useLocalParams } from '~/hooks/useLocalParams';
-import { PolicyDraft, PolicyDraftContext, policyAsDraft } from '~/lib/policy/draft';
-import { usePolicyPresets } from '~/lib/policy/usePolicyPresets';
 import { zUAddress, zUuid } from '~/lib/zod';
+import { useLocalParams } from '~/hooks/useLocalParams';
+import { usePolicyPresets } from '~/lib/policy/usePolicyPresets';
+import { ZERO_ADDR, asChain, asUUID } from 'lib';
+import { useMemo } from 'react';
+import { PolicyDraft, PolicyDraftContext, policyAsDraft } from '~/lib/policy/draft';
+import { atom } from 'jotai';
+import { PolicyPane } from '#/policy/PolicyPane';
+import { NotFound } from '#/NotFound';
 
 const Query = gql(/* GraphQL */ `
-  query PolicyLayout($account: UAddress!, $policy: ID!, $includePolicy: Boolean!) {
+  query Policy($account: UAddress!, $policy: ID!, $includePolicy: Boolean!) {
+    account(input: { account: $account }) {
+      id
+      address
+      ...UsePolicyPresets_Account
+      ...PolicyPane_Account
+    }
+
     policy: node(id: $policy) @include(if: $includePolicy) {
       __typename
       ... on Policy {
@@ -23,38 +30,29 @@ const Query = gql(/* GraphQL */ `
         name
         ...policyAsDraft_Policy
       }
-    }
-
-    account(input: { account: $account }) {
-      id
-      address
-      ...UsePolicyPresets_Account
+      ...PolicyPane_Policy
     }
 
     user {
       id
       ...UsePolicyPresets_User
+      ...PolicyPane_User
     }
   }
 `);
 
 export const ZERO_UUID = asUUID('00000000-0000-0000-0000-000000000000');
 
-export const unstable_settings = {
-  initialRouteName: `index`,
-};
-
-export const PolicyLayoutParams = z.object({
+export const PolicyScreenParams = z.object({
   account: zUAddress(),
   id: z.union([zUuid(), z.literal('add')]),
 });
-export type PolicyLayoutParams = z.infer<typeof PolicyLayoutParams>;
 
-function PolicyLayout() {
-  const params = useLocalParams(PolicyLayoutParams);
+function PolicyScreen() {
+  const params = useLocalParams(PolicyScreenParams);
   const id = params.id !== 'add' ? params.id : undefined;
 
-  const { policy, account, user } = useQuery(Query, {
+  const { account, policy, user } = useQuery(Query, {
     account: params.account,
     policy: id ?? ZERO_UUID,
     includePolicy: !!id,
@@ -76,14 +74,18 @@ function PolicyLayout() {
     };
   }, [account?.address, policy, presets.low]);
 
-  const ctx = useMemo(() => ({ id, draftAtom: atom(initial), initial }), [id, initial]);
+  const draftAtom = useMemo(() => atom(initial), [initial]);
+
+  if (!account) return <NotFound name="Account" />;
+  if (policy && policy.__typename !== 'Policy') return null;
 
   return (
-    <PolicyDraftContext.Provider value={ctx}>
-      <Stack.Screen options={{ headerShown: false }} />
-      <Stack screenOptions={{ header: (props) => <AppbarHeader {...props} /> }} />
+    <PolicyDraftContext.Provider value={draftAtom}>
+      <PolicyPane initial={initial} account={account} policy={policy} user={user} />
     </PolicyDraftContext.Provider>
   );
 }
 
-export default withSuspense(PolicyLayout, <ScreenSkeleton />);
+export default withSuspense(PolicyScreen, <ScreenSkeleton />);
+
+export { ErrorBoundary } from '#/ErrorBoundary';

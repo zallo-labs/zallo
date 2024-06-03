@@ -28,6 +28,7 @@
     "@formatjs/intl-numberformat": "^8.10.3",
     "@formatjs/intl-pluralrules": "^5.2.14",
     "@gorhom/bottom-sheet": "^5.0.0-alpha.10",
+    "@gorhom/portal": "^1.0.14",
     "@hookform/resolvers": "^3.4.2",
     "@ledgerhq/hw-app-eth": "^6.34.0",
     "@ledgerhq/hw-transport-web-ble": "6.27.17",

@@ -1,33 +1,42 @@
 import { createStyles, useStyles } from '@theme/styles';
-import { Dispatch, ReactNode, SetStateAction, createContext, useContext, useState } from 'react';
+import { ReactNode } from 'react';
 import { View } from 'react-native';
 import { useSideSheetType } from './SideSheetSurface';
+import { PortalHost } from '@gorhom/portal';
+import { Provider, atom } from 'jotai';
+import { AtomsHydrator } from '#/AtomsHydrator';
 
-const context = createContext<{ visible: boolean; show: Dispatch<SetStateAction<boolean>> } | null>(
-  null,
-);
+export const SIDE_SHEET = atom(false);
 
-export const useSideSheet = () => {
-  const c = useContext(context);
-  if (!c)
-    throw new Error("Attempting to use 'useSideSheet' outside of a 'SideSheetLayout' context");
+export interface SideSheetProviderProps {
+  children: ReactNode;
+  defaultVisible?: boolean;
+}
 
-  return c;
-};
+export function SideSheetProvider({ children, defaultVisible = true }: SideSheetProviderProps) {
+  const type = useSideSheetType();
 
-export interface SideSheetLayoutProps {
+  return (
+    <Provider>
+      <AtomsHydrator atomValues={[[SIDE_SHEET, defaultVisible && type === 'standard']]}>
+        {children}
+      </AtomsHydrator>
+    </Provider>
+  );
+}
+
+export interface SideSheetLayoutWithoutProvderProps {
   children: ReactNode;
 }
 
-export function SideSheetLayout({ children }: SideSheetLayoutProps) {
+export function SideSheetLayoutWithoutProvder({ children }: SideSheetLayoutProps) {
   const { styles } = useStyles(stylesheet);
-  const type = useSideSheetType();
-  const [visible, show] = useState(type === 'standard');
 
   return (
-    <context.Provider value={{ visible, show }}>
-      <View style={styles.container}>{children}</View>
-    </context.Provider>
+    <View style={styles.container}>
+      <>{children}</>
+      <PortalHost name={SideSheetLayout.name} />
+    </View>
   );
 }
 
@@ -35,5 +44,19 @@ const stylesheet = createStyles({
   container: {
     flex: 1,
     flexDirection: 'row',
+    gap: 24,
   },
 });
+
+export interface SideSheetLayoutProps {
+  children: ReactNode;
+  defaultVisible?: boolean;
+}
+
+export function SideSheetLayout({ children, defaultVisible }: SideSheetLayoutProps) {
+  return (
+    <SideSheetProvider defaultVisible={defaultVisible}>
+      <SideSheetLayoutWithoutProvder>{children}</SideSheetLayoutWithoutProvder>
+    </SideSheetProvider>
+  );
+}

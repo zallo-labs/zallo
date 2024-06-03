@@ -1,7 +1,5 @@
-import { PolicyScreenParams } from '~/app/(drawer)/[account]/policies/[id]';
-import { useLocalParams } from '~/hooks/useLocalParams';
-import { zAddress } from '~/lib/zod';
-import { TransferLimit, asChain, asUAddress } from 'lib';
+import { useEffect } from 'react';
+import { Address, TransferLimit, asChain, asUAddress } from 'lib';
 import { DateTime, Duration } from 'luxon';
 import { View } from 'react-native';
 import { BasicTextField } from '#/fields/BasicTextField';
@@ -19,14 +17,15 @@ import { ProgressBar, Text } from 'react-native-paper';
 import { Actions } from '#/layout/Actions';
 import { Button } from '#/Button';
 import { useRouter } from 'expo-router';
-import { useEffect } from 'react';
 import { createStyles, useStyles } from '@theme/styles';
 import { Timestamp } from '#/format/Timestamp';
 import Decimal from 'decimal.js';
 import { IncomingTransferItem } from '#/activity/IncomingTransferItem';
+import { withSuspense } from '#/skeleton/withSuspense';
+import { RectSkeleton } from '#/skeleton/RectSkeleton';
 
 const Query = gql(/* GraphQL */ `
-  query TokenLimitScreen($token: UAddress!, $spending: SpendingInput!, $includeSpending: Boolean!) {
+  query TokenSpending($token: UAddress!, $spending: SpendingInput!, $includeSpending: Boolean!) {
     token(address: $token) {
       id
       name
@@ -47,7 +46,7 @@ const Query = gql(/* GraphQL */ `
 
 const DEFAULT_DURATION = Duration.fromObject({ day: 1 });
 
-const DEFAULT_LIMIT: TransferLimit = { amount: 0n, duration: DEFAULT_DURATION.as('seconds') };
+export const DEFAULT_LIMIT: TransferLimit = { amount: 0n, duration: DEFAULT_DURATION.as('seconds') };
 
 export const SPENDING_LIMIT_DURATIONS = [
   { title: 'Hour', value: Duration.fromObject({ hours: 1 }) },
@@ -58,14 +57,15 @@ export const SPENDING_LIMIT_DURATIONS = [
   { title: 'Year (52 weeks)', value: Duration.fromObject({ days: 364 }) },
 ] as const;
 
-export const TokenLimitScreenParams = PolicyScreenParams.extend({ token: zAddress() });
+export interface TokenSpendingProps {
+  token: Address;
+}
 
-export default function TokenLimitScreen() {
-  const { token: address, account } = useLocalParams(TokenLimitScreenParams);
+function TokenSpending_({ token: address }: TokenSpendingProps) {
   const { styles } = useStyles(stylesheet);
-  const router = useRouter();
 
   const [policy, update] = usePolicyDraft();
+  const { account } = policy;
 
   const { token: t } = useQuery(Query, {
     token: asUAddress(address, asChain(account)),
@@ -91,12 +91,6 @@ export default function TokenLimitScreen() {
         }
       }),
   });
-
-  useEffect(() => {
-    update(({ transfers }) => {
-      transfers.limits[address] ??= DEFAULT_LIMIT;
-    });
-  }, [address, update]);
 
   return (
     <>
@@ -162,7 +156,7 @@ export default function TokenLimitScreen() {
           </View>
         )}
 
-        <Actions>
+        <Actions style={styles.actions}>
           <Button
             mode="contained"
             contentStyle={styles.removeContainer}
@@ -171,7 +165,6 @@ export default function TokenLimitScreen() {
               update(({ transfers }) => {
                 delete transfers.limits[address];
               });
-              router.back();
             }}
           >
             Remove
@@ -209,6 +202,9 @@ const stylesheet = createStyles(({ colors, fonts }) => ({
     marginVertical: 8,
     marginHorizontal: 16,
   },
+  actions: {
+    alignItems: 'flex-end',
+  },
   removeContainer: {
     backgroundColor: colors.errorContainer,
   },
@@ -217,4 +213,4 @@ const stylesheet = createStyles(({ colors, fonts }) => ({
   },
 }));
 
-export { ErrorBoundary } from '#/ErrorBoundary';
+export const TokenSpending = withSuspense(TokenSpending_, <RectSkeleton height={200} />);

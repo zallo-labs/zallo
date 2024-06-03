@@ -9,7 +9,8 @@ import { createStyles, useStyles } from '@theme/styles';
 import { CHAINS } from 'chains';
 import { useConfirm } from '~/hooks/useConfirm';
 import { Button } from '../Button';
-import { useSideSheet } from '#/SideSheet/SideSheetLayout';
+import { SIDE_SHEET } from '#/SideSheet/SideSheetLayout';
+import { useAtom } from 'jotai';
 
 const Transaction = gql(/* GraphQL */ `
   fragment TransactionActions_Transaction on Transaction
@@ -65,7 +66,7 @@ export const TransactionActions = (props: ProposalActionsProps) => {
   const approve = useApprove({ proposal: p, user });
   const reject = useReject({ proposal: p, user });
   const execute = useMutation(Execute)[1];
-  const sheet = useSideSheet();
+  const [sheetVisible, showSheet] = useAtom(SIDE_SHEET);
   const confirmExecute = useConfirm({
     title: 'Force execute?',
     message: 'This transaction is expected to fail.\nAre you sure you want to execute it anyway?',
@@ -90,8 +91,8 @@ export const TransactionActions = (props: ProposalActionsProps) => {
 
       {reject && <Button onPress={reject}>Reject</Button>}
 
-      {!sheet.visible && (
-        <Button mode="contained-tonal" icon="menu-open" onPress={() => sheet.show(true)}>
+      {!sheetVisible && (
+        <Button mode="contained-tonal" icon="menu-open" onPress={() => showSheet(true)}>
           View approvals
         </Button>
       )}

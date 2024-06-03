@@ -42,7 +42,7 @@ const stylesheet = createStyles(({ colors }) => {
 
   return {
     drawer: {
-      backgroundColor,
+      backgroundColor: colors.surfaceContainer.low,
       width: {
         // Modal type
         compact: 360,
@@ -57,7 +57,7 @@ const stylesheet = createStyles(({ colors }) => {
       backgroundColor: colors.scrim,
     },
     sceneContainer: {
-      backgroundColor,
+      backgroundColor: colors.surfaceContainer.low,
     },
   };
 });

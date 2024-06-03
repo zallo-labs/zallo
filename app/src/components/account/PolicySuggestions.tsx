@@ -147,7 +147,7 @@ export function PolicySuggestions(props: PolicySuggestionsProps) {
 
     if (r?.__typename === 'Policy' && r.draft?.id) {
       router.push({
-        pathname: '/(drawer)/[account]/policies/[id]/',
+        pathname: '/(drawer)/[account]/settings/policy/[id]/',
         params: { account: account.address, id: r.draft.id },
       });
     } else {
@@ -170,7 +170,7 @@ export function PolicySuggestions(props: PolicySuggestionsProps) {
 
     if (r?.__typename === 'Policy') {
       router.push({
-        pathname: '/(drawer)/[account]/policies/[id]/',
+        pathname: '/(drawer)/[account]/settings/policy/[id]/',
         params: { account: account.address, id: r.id },
       });
     } else {
@@ -187,7 +187,7 @@ export function PolicySuggestions(props: PolicySuggestionsProps) {
 
     if (r?.__typename === 'Policy') {
       router.push({
-        pathname: '/(drawer)/[account]/policies/[id]/',
+        pathname: '/(drawer)/[account]/settings/policy/[id]/',
         params: { account: account.address, id: r.id },
       });
     } else {

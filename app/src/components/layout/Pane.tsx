@@ -16,8 +16,8 @@ const stylesheet = createStyles(() => ({
   },
   fixed: {
     maxWidth: {
-      medium: 360,
-      large: 412, // TODO: check
+      expanded: 360,
+      large: 412,
     },
   },
 }));

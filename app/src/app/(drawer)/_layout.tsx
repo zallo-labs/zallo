@@ -101,14 +101,7 @@ function Content() {
       <Section title="Settings">
         {account && (
           <Item
-            href={{ pathname: `/(drawer)/[account]/settings`, params: { account } }}
-            icon={AccountIcon}
-            label="Account"
-          />
-        )}
-        {account && (
-          <Item
-            href={{ pathname: `/(drawer)/[account]/(settings)/details`, params: { account } }}
+            href={{ pathname: `/(drawer)/[account]/settings/`, params: { account } }}
             icon={AccountIcon}
             label="Account"
           />

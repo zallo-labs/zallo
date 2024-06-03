@@ -29,7 +29,7 @@ export function useCreatePolicySuggestion(props: UseCreatePolicySuggestionParams
     Item: (props) => (
       <Link
         href={{
-          pathname: `/(drawer)/[account]/policies/[id]/`,
+          pathname: `/(drawer)/[account]/settings/policy/[id]/`,
           params: { account: account.address, id: 'add' },
         }}
         asChild

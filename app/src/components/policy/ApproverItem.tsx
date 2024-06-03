@@ -1,21 +1,21 @@
 import { UAddress } from 'lib';
 import { useAddressLabel } from '#/address/AddressLabel';
-import { ListItem } from '#/list/ListItem';
+import { ListItem, ListItemProps } from '#/list/ListItem';
 import { truncateAddr } from '~/util/format';
 import { I18nManager } from 'react-native';
 import { RectButton, Swipeable } from 'react-native-gesture-handler';
-import { DeleteIcon } from '@theme/icons';
-import { memo, useRef } from 'react';
+import { CloseIcon, DeleteIcon } from '@theme/icons';
+import { useRef } from 'react';
 import { ICON_SIZE } from '@theme/paper';
 import { createStyles, useStyles } from '@theme/styles';
 import { AddressIcon } from '#/Identicon/AddressIcon';
 
-export interface ApproverItemProps {
+export interface ApproverItemProps extends Partial<ListItemProps> {
   address: UAddress;
   remove: () => void;
 }
 
-function ApproverItem_({ address, remove }: ApproverItemProps) {
+export function ApproverItem({ address, remove, ...props }: ApproverItemProps) {
   const { styles } = useStyles(stylesheet);
   const label = useAddressLabel(address);
   const truncated = truncateAddr(address);
@@ -47,8 +47,10 @@ function ApproverItem_({ address, remove }: ApproverItemProps) {
       <ListItem
         leading={<AddressIcon address={address} />}
         headline={label}
-        trailing={label !== truncated ? truncated : undefined}
+        supporting={label !== truncated ? truncated : undefined}
+        trailing={<CloseIcon onPress={remove} />}
         containerStyle={styles.itemContainer}
+        {...props}
       />
     </Swipeable>
   );
@@ -70,5 +72,3 @@ const stylesheet = createStyles(({ colors }) => ({
     marginRight: 16,
   },
 }));
-
-export const ApproverItem = memo(ApproverItem_);

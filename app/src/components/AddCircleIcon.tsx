@@ -3,9 +3,7 @@ import { ICON_SIZE } from '@theme/paper';
 import { createStyles, useStyles } from '@theme/styles';
 import { View } from 'react-native';
 
-export interface AddCircleIconProps {}
-
-export function AddCircleIcon(props: AddCircleIconProps) {
+export function AddCircleIcon() {
   const { styles } = useStyles(stylesheet);
 
   return (

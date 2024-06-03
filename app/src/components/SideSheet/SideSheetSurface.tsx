@@ -1,12 +1,13 @@
 import { createStyleSheet, useStyles } from 'react-native-unistyles';
-import { ScreenSurface } from '../layout/ScreenSurface';
 import { ReactNode } from 'react';
 import { StyleProp, ViewStyle, useWindowDimensions } from 'react-native';
-import { Surface } from 'react-native-paper';
 import { SlideInRight, SlideOutRight } from 'react-native-reanimated';
 import { BREAKPOINTS } from '@theme/styles';
 import { Modal } from '../Modal';
 import { EdgeInsets, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Surface } from '#/layout/Surface';
+import { Portal } from '@gorhom/portal';
+import { SideSheetLayout } from './SideSheetLayout';
 
 export interface SideSheetSurfaceProps {
   children: ReactNode;
@@ -21,7 +22,9 @@ export function SideSheetSurface({ children, close, contentStyle }: SideSheetSur
   const insets = useSafeAreaInsets();
 
   return type === 'standard' ? (
-    <ScreenSurface style={[styles.standardSurface, contentStyle]}>{children}</ScreenSurface>
+    <Portal hostName={SideSheetLayout.name}>
+      <Surface style={[styles.standardSurface(insets), contentStyle]}>{children}</Surface>
+    </Portal>
   ) : (
     <Modal close={close} entering={SlideInRight} exiting={SlideOutRight} style={styles.modal}>
       <Surface style={[styles.modalSurface(insets), contentStyle]}>{children}</Surface>
@@ -30,11 +33,12 @@ export function SideSheetSurface({ children, close, contentStyle }: SideSheetSur
 }
 
 const stylesheet = createStyleSheet(({ corner }) => ({
-  standardSurface: {
-    flex: 1,
+  standardSurface: (insets: EdgeInsets) => ({
+    width: '100%',
     minWidth: 256,
     maxWidth: 400,
-  },
+    marginBottom: insets.bottom + 16,
+  }),
   modal: {
     flex: 1,
     marginLeft: 'auto',
@@ -54,5 +58,5 @@ const stylesheet = createStyleSheet(({ corner }) => ({
 export type SideSheetType = 'standard' | 'modal';
 
 export function useSideSheetType(): SideSheetType {
-  return useWindowDimensions().width >= BREAKPOINTS.large ? 'standard' : 'modal';
+  return useWindowDimensions().width >= BREAKPOINTS.extraLarge ? 'standard' : 'modal';
 }

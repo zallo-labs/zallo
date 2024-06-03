@@ -27,7 +27,7 @@ export function DrawerItem({ href, label, icon: Icon, disabled, ...props }: Draw
     <Drawer.Item
       label={label}
       icon={Icon ? (props) => <Icon {...props} /> : undefined}
-      active={currentPath === hrefPath}
+      active={currentPath.includes(hrefPath)}
       {...(disabled && {
         onPress: undefined,
         icon: Icon && ((props) => <Icon {...props} color={stateLayer(props.color, 'disabled')} />),

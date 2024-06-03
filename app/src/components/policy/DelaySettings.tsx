@@ -1,10 +1,9 @@
 import { SelectChip } from '#/fields/SelectChip';
 import { ListItem } from '#/list/ListItem';
 import { materialCommunityIcon } from '@theme/icons';
-import { createStyles } from '@theme/styles';
+import { CORNER } from '@theme/paper';
+import { createStyles, useStyles } from '@theme/styles';
 import { Duration } from 'luxon';
-import { memo } from 'react';
-import { Divider } from 'react-native-paper';
 import { usePolicyDraft } from '~/lib/policy/draft';
 
 export const DELAY_ENTRIES = [
@@ -20,35 +19,34 @@ export const DELAY_ENTRIES = [
 
 const TimerIcon = materialCommunityIcon('timer-outline');
 
-function DelaySettings_() {
+export function DelaySettings() {
+  const { styles } = useStyles(stylesheet);
   const [{ delay }, update] = usePolicyDraft();
 
   return (
-    <>
-      <ListItem
-        leading={TimerIcon}
-        headline="Delay"
-        trailing={
-          <SelectChip
-            entries={DELAY_ENTRIES}
-            value={delay}
-            onChange={(delay) =>
-              update((draft) => {
-                draft.delay = delay;
-              })
-            }
-          />
-        }
-      />
-      <Divider leftInset style={styles.divider} />
-    </>
+    <ListItem
+      leading={TimerIcon}
+      headline="Delay"
+      supporting="Actions will be delayed before execution, and may be cancelled"
+      trailing={
+        <SelectChip
+          entries={DELAY_ENTRIES}
+          value={delay}
+          onChange={(delay) =>
+            update((draft) => {
+              draft.delay = delay;
+            })
+          }
+        />
+      }
+      containerStyle={styles.item}
+    />
   );
 }
 
-const styles = createStyles({
-  divider: {
-    marginVertical: 8,
+const stylesheet = createStyles(({ colors }) => ({
+  item: {
+    backgroundColor: colors.surface,
+    borderRadius: CORNER.l,
   },
-});
-
-export const DelaySettings = memo(DelaySettings_);
+}));

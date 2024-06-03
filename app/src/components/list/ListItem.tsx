@@ -1,4 +1,4 @@
-import { FC, ReactNode, forwardRef, memo } from 'react';
+import { FC, ReactNode, forwardRef } from 'react';
 import { IconProps } from '@theme/icons';
 import { Text } from 'react-native-paper';
 import { TextProps } from '@theme/types';

@@ -4801,7 +4801,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@gorhom/portal@npm:1.0.14":
+"@gorhom/portal@npm:1.0.14, @gorhom/portal@npm:^1.0.14":
   version: 1.0.14
   resolution: "@gorhom/portal@npm:1.0.14"
   dependencies:
@@ -13009,6 +13009,7 @@ __metadata:
     "@formatjs/intl-numberformat": "npm:^8.10.3"
     "@formatjs/intl-pluralrules": "npm:^5.2.14"
     "@gorhom/bottom-sheet": "npm:^5.0.0-alpha.10"
+    "@gorhom/portal": "npm:^1.0.14"
     "@graphql-codegen/cli": "npm:^5.0.2"
     "@graphql-codegen/client-preset": "npm:^4.2.6"
     "@graphql-codegen/typed-document-node": "npm:^5.0.7"

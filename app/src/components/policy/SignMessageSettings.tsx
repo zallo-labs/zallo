@@ -1,40 +1,37 @@
 import { ListItem } from '#/list/ListItem';
 import { GenericMessageIcon } from '#/message/MessageIcon';
-import { createStyles } from '@theme/styles';
-import { memo } from 'react';
-import { Divider, Switch } from 'react-native-paper';
+import { CORNER } from '@theme/paper';
+import { createStyles, useStyles } from '@theme/styles';
+import { Switch } from 'react-native-paper';
 import { usePolicyDraft } from '~/lib/policy/draft';
 
-export interface SignMessageSettingsProps {}
-
-function SignMessageSettings_(_props: SignMessageSettingsProps) {
+export function SignMessageSettings() {
+  const { styles } = useStyles(stylesheet);
   const [{ allowMessages }, update] = usePolicyDraft();
 
   return (
-    <>
-      <ListItem
-        leading={GenericMessageIcon}
-        headline="Sign message"
-        trailing={
-          <Switch
-            value={allowMessages}
-            onValueChange={(allow) =>
-              update((draft) => {
-                draft.allowMessages = allow;
-              })
-            }
-          />
-        }
-      />
-      <Divider leftInset style={styles.divider} />
-    </>
+    <ListItem
+      leading={GenericMessageIcon}
+      headline="Sign message"
+      supporting="Sign on behalf of the account, such as Sign in with Ethereum"
+      trailing={
+        <Switch
+          value={allowMessages}
+          onValueChange={(allow) =>
+            update((draft) => {
+              draft.allowMessages = allow;
+            })
+          }
+        />
+      }
+      containerStyle={styles.item}
+    />
   );
 }
 
-const styles = createStyles({
-  divider: {
-    marginVertical: 8,
+const stylesheet = createStyles(({ colors }) => ({
+  item: {
+    backgroundColor: colors.surface,
+    borderRadius: CORNER.l,
   },
-});
-
-export const SignMessageSettings = memo(SignMessageSettings_);
+}));
