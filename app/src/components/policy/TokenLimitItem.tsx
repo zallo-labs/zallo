@@ -8,10 +8,11 @@ import { useFormattedTokenAmount } from '#/token/TokenAmount';
 import { TokenIcon } from '#/token/TokenIcon';
 import { usePolicyDraft } from '~/lib/policy/draft';
 import { truncateAddr } from '~/util/format';
-import { Surface } from '#/layout/Surface';
 import { Chevron } from '#/Chevron';
 import { useState } from 'react';
 import { TokenSpending } from './TokenSpending';
+import { createStyles, useStyles } from '@theme/styles';
+import { View } from 'react-native';
 
 const Token = gql(/* GraphQL */ `
   fragment TokenLimitItem_Token on Token {
@@ -28,6 +29,7 @@ export interface TokenLimitItemProps {
 }
 
 export function TokenLimitItem({ address, ...props }: TokenLimitItemProps) {
+  const { styles } = useStyles(stylesheet);
   const token = getFragment(Token, props.token);
   const [policy] = usePolicyDraft();
 
@@ -42,7 +44,7 @@ export function TokenLimitItem({ address, ...props }: TokenLimitItemProps) {
   const duration = Duration.fromObject({ seconds: limit?.duration ?? 0 });
 
   return (
-    <Surface>
+    <View style={styles.surface}>
       <ListItem
         leading={token ? <TokenIcon token={token} /> : <AddressIcon address={address} />}
         headline={token?.name ?? truncateAddr(address)}
@@ -54,9 +56,15 @@ export function TokenLimitItem({ address, ...props }: TokenLimitItemProps) {
       />
 
       {expanded && <TokenSpending token={address} />}
-    </Surface>
+    </View>
   );
 }
+
+const stylesheet = createStyles(({ colors }) => ({
+  surface: {
+    backgroundColor: colors.surface,
+  },
+}));
 
 function prettyDuration(duration: Duration) {
   const normalized = Duration.fromDurationLike(duration)
