@@ -89,7 +89,7 @@ function TransactionScreen() {
   if (!p) return query.stale ? null : <NotFound name="Proposal" />;
 
   return (
-    <SideSheetLayout>
+    <SideSheetLayout defaultVisible>
       <AppbarOptions
         headline={(props) => <TransactionStatus proposal={p} {...props} />}
         {...(remove && {

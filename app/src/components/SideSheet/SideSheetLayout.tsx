@@ -1,36 +1,27 @@
 import { createStyles, useStyles } from '@theme/styles';
-import { ReactNode } from 'react';
+import { ReactNode, useLayoutEffect } from 'react';
 import { View } from 'react-native';
 import { useSideSheetType } from './SideSheetSurface';
 import { PortalHost } from '@gorhom/portal';
-import { Provider, atom } from 'jotai';
-import { AtomsHydrator } from '#/AtomsHydrator';
+import { atom, useSetAtom } from 'jotai';
+import { useHydrateAtoms } from 'jotai/utils';
 
 export const SIDE_SHEET = atom(false);
 
-export interface SideSheetProviderProps {
+export interface SideSheetLayoutProps {
   children: ReactNode;
   defaultVisible?: boolean;
 }
 
-export function SideSheetProvider({ children, defaultVisible = true }: SideSheetProviderProps) {
-  const type = useSideSheetType();
-
-  return (
-    <Provider>
-      <AtomsHydrator atomValues={[[SIDE_SHEET, defaultVisible && type === 'standard']]}>
-        {children}
-      </AtomsHydrator>
-    </Provider>
-  );
-}
-
-export interface SideSheetLayoutWithoutProvderProps {
-  children: ReactNode;
-}
-
-export function SideSheetLayoutWithoutProvder({ children }: SideSheetLayoutProps) {
+export function SideSheetLayout({ children, defaultVisible = false }: SideSheetLayoutProps) {
   const { styles } = useStyles(stylesheet);
+  const showSheet = useSetAtom(SIDE_SHEET);
+
+  const showByDefault = useSideSheetType() === 'standard' && defaultVisible;
+  useHydrateAtoms(new Map([[SIDE_SHEET, showByDefault]]));
+  useLayoutEffect(() => {
+    showSheet(showByDefault);
+  }, [showSheet, showByDefault]);
 
   return (
     <View style={styles.container}>
@@ -47,16 +38,3 @@ const stylesheet = createStyles({
     gap: 24,
   },
 });
-
-export interface SideSheetLayoutProps {
-  children: ReactNode;
-  defaultVisible?: boolean;
-}
-
-export function SideSheetLayout({ children, defaultVisible }: SideSheetLayoutProps) {
-  return (
-    <SideSheetProvider defaultVisible={defaultVisible}>
-      <SideSheetLayoutWithoutProvder>{children}</SideSheetLayoutWithoutProvder>
-    </SideSheetProvider>
-  );
-}
