@@ -16,6 +16,8 @@ import { InjectRedis } from '@songkeys/nestjs-redis';
 import { runExclusively } from '~/util/mutex';
 import { and } from '#/database/database.util';
 
+const TEN = new Decimal(10);
+
 interface PriceData {
   current: Decimal;
   ema: Decimal;
@@ -72,33 +74,40 @@ export class PricesService implements OnModuleInit {
     const cached = this.usdPrices.get(priceId);
     if (cached) return cached;
 
-    const [feed] = (await this.pyth.getLatestPriceFeeds([priceId])) ?? [];
-    if (!feed) return null;
+    const r = await runExclusively(
+      async () => {
+        const cached2 = this.usdPrices.get(priceId);
+        if (cached2) return cached;
 
-    const r = this.getPriceDataFromFeed(feed);
-    if (r) {
-      // Cache result and subscribe to keep cache fresh
-      this.usdPrices.set(priceId, r);
+        const [feed] = (await this.pyth.getLatestPriceFeeds([priceId])) ?? [];
+        if (!feed) return null;
 
-      this.pyth.subscribePriceFeedUpdates([priceId], (feed) => {
-        const newPrice = this.getPriceDataFromFeed(feed);
-        if (newPrice) this.usdPrices.set(priceId, newPrice);
-      });
-    }
+        const r = this.getPriceDataFromFeed(feed);
+        if (r) this.usdPrices.set(priceId, r);
 
-    return r;
+        this.pyth.subscribePriceFeedUpdates([priceId], (feed) => {
+          const newPrice = this.getPriceDataFromFeed(feed);
+          if (newPrice) this.usdPrices.set(priceId, newPrice);
+        });
+
+        return r;
+      },
+      { redis: this.redis, key: `prices:subscribing:${priceId}` },
+    );
+
+    return r || null;
   }
 
   private getPriceDataFromFeed(feed: PriceFeed): PriceData | null {
     const expiryTimestamp = Math.ceil(this.expiry.toSeconds());
 
-    const currentData = feed.getPriceNoOlderThan(expiryTimestamp);
-    const emaData = feed.getEmaPriceNoOlderThan(expiryTimestamp);
-    if (!currentData || !emaData) return null;
+    const current = feed.getPriceNoOlderThan(expiryTimestamp);
+    const ema = feed.getEmaPriceNoOlderThan(expiryTimestamp);
+    if (!current || !ema) return null;
 
     return {
-      current: new Decimal(currentData.price).mul(new Decimal(10).pow(currentData.expo)),
-      ema: new Decimal(emaData.price).mul(new Decimal(10).pow(emaData.expo)),
+      current: new Decimal(current.price).mul(TEN.pow(current.expo)),
+      ema: new Decimal(ema.price).mul(TEN.pow(ema.expo)),
     };
   }
 
