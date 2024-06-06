@@ -1,6 +1,6 @@
 import { Surface, SurfaceProps } from 'react-native-paper';
 import { ScrollView, ScrollViewProps } from 'react-native';
-import { DrawerType, useDrawerContext } from './DrawerContextProvider';
+import { DrawerType, useDrawerType } from './DrawerContextProvider';
 import { createStyles, useStyles } from '@theme/styles';
 import { EdgeInsets, useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -13,7 +13,7 @@ export interface DrawerSurfaceProps extends ScrollViewProps {}
 
 export function DrawerSurface(props: DrawerSurfaceProps) {
   const { styles } = useStyles(stylesheet);
-  const { type } = useDrawerContext();
+  const type = useDrawerType();
   const insets = useSafeAreaInsets();
 
   return (

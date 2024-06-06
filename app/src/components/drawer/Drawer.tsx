@@ -1,28 +1,31 @@
-import { ComponentPropsWithoutRef, useState } from 'react';
+import { ComponentPropsWithoutRef, FC, useState } from 'react';
 // import { Drawer as DrawerLayout } from 'expo-router/drawer';      // Navigator
 import { Drawer as DrawerLayout } from 'react-native-drawer-layout'; // Not navigator
-import { DrawerContextProvider, useExpectedDrawerTpe } from './DrawerContextProvider';
+import { DrawerContextProvider, useDrawerType, useNavType } from './DrawerContextProvider';
 import { createStyles, useStyles } from '@theme/styles';
+import { RailLayout } from './RailLayout';
 
 type DrawerLayoutProps = ComponentPropsWithoutRef<typeof DrawerLayout>;
 
 export interface DrawerProps extends Omit<Partial<DrawerLayoutProps>, 'renderDrawerContent'> {
-  drawerContent: DrawerLayoutProps['renderDrawerContent'];
+  DrawerContent: FC;
+  RailContent: FC;
 }
 
-export function Drawer({ children, drawerContent, ...props }: DrawerProps) {
+export function Drawer({ children, DrawerContent, RailContent, ...props }: DrawerProps) {
   const { styles } = useStyles(stylesheet);
-  const type = useExpectedDrawerTpe();
+  const navType = useNavType();
+  const drawerType = useDrawerType();
 
   const [open, setOpen] = useState(false);
 
   return (
-    <DrawerContextProvider type={type} setOpen={setOpen}>
+    <DrawerContextProvider setOpen={setOpen}>
       <DrawerLayout
         {...props}
-        renderDrawerContent={drawerContent}
+        renderDrawerContent={() => <DrawerContent />}
         drawerPosition="left"
-        drawerType={type === 'standard' ? 'permanent' : 'front'}
+        drawerType={drawerType === 'standard' ? 'permanent' : 'front'}
         drawerStyle={styles.drawer}
         overlayStyle={styles.overlay}
         style={styles.sceneContainer}
@@ -30,7 +33,7 @@ export function Drawer({ children, drawerContent, ...props }: DrawerProps) {
         onOpen={() => setOpen(true)}
         onClose={() => setOpen(false)}
       >
-        {children}
+        {navType === 'rail' ? <RailLayout Rail={RailContent}>{children}</RailLayout> : children}
       </DrawerLayout>
     </DrawerContextProvider>
   );

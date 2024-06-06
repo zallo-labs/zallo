@@ -1,10 +1,9 @@
 import { materialCommunityIcon } from '@theme/icons';
 import { ComponentPropsWithoutRef, FC } from 'react';
-import { P, match } from 'ts-pattern';
-import { useDrawerActions, useMaybeDrawerContext } from '#/drawer/DrawerContextProvider';
+import { useDrawerActions, useNavType } from '#/drawer/DrawerContextProvider';
 import { ICON_SIZE } from '@theme/paper';
 
-const MenuIcon = materialCommunityIcon('menu');
+export const MenuIcon = materialCommunityIcon('menu');
 
 type BaseProps = Omit<ComponentPropsWithoutRef<typeof MenuIcon>, 'onPress'>;
 
@@ -13,10 +12,12 @@ export interface AppbarMenuProps extends BaseProps {
 }
 
 export function AppbarMenu({ fallback: Fallback, ...props }: AppbarMenuProps) {
-  const type = useMaybeDrawerContext()?.type;
+  const type = useNavType();
   const { toggle } = useDrawerActions();
 
-  return match(type)
-    .with(P.union('standard', P.nullish), () => (Fallback ? <Fallback {...props} /> : null))
-    .otherwise(() => <MenuIcon onPress={toggle} size={ICON_SIZE.medium} {...props} />);
+  return type === 'modal' ? (
+    <MenuIcon onPress={toggle} size={ICON_SIZE.medium} {...props} />
+  ) : Fallback ? (
+    <Fallback {...props} />
+  ) : null;
 }
