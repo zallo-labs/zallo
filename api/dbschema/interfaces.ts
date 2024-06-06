@@ -173,6 +173,7 @@ export namespace $default {
     "label": string;
   }
   export interface Proposal extends std.$Object {
+    "policy": Policy;
     "account": Account;
     "hash": string;
     "createdAt": Date;
@@ -184,7 +185,6 @@ export namespace $default {
     "approvals": Approval[];
     "proposedBy": Approver;
     "rejections": Rejection[];
-    "policy": Policy;
   }
   export interface Message extends Proposal {
     "signature"?: string | null;
@@ -202,6 +202,8 @@ export namespace $default {
     "total": string;
   }
   export interface PolicyState extends std.$Object {
+    "isActive": boolean;
+    "isDraft": boolean;
     "account": Account;
     "key": number;
     "activationBlock"?: bigint | null;
@@ -211,7 +213,6 @@ export namespace $default {
     "proposal"?: Transaction | null;
     "initState": boolean;
     "latest"?: Policy | null;
-    "active": boolean;
   }
   export interface Policy extends PolicyState {
     "approvers": Approver[];
@@ -229,15 +230,17 @@ export namespace $default {
     "scheduledFor": Date;
   }
   export interface Simulation extends std.$Object {
+    "transfers": TransferDetails[];
     "responses": string[];
     "success": boolean;
     "timestamp": Date;
-    "transfers": TransferDetails[];
   }
   export interface Successful extends ReceiptResult {
     "responses": string[];
   }
   export interface SystemTx extends std.$Object {
+    "maxEthFees": string;
+    "result"?: Result | null;
     "proposal": Transaction;
     "maxEthFeePerGas": string;
     "maxNetworkEthFee": string;
@@ -246,8 +249,6 @@ export namespace $default {
     "timestamp": Date;
     "usdPerFeeToken": string;
     "events": Event[];
-    "maxEthFees": string;
-    "result"?: Result | null;
   }
   export interface Token extends std.$Object {
     "units"?: {symbol: string, decimals: number}[] | null;
@@ -263,6 +264,11 @@ export namespace $default {
     "isSystem": boolean;
   }
   export interface Transaction extends Proposal {
+    "paymasterEthFees": PaymasterFees;
+    "status": TransactionStatus;
+    "systx"?: SystemTx | null;
+    "results": Result[];
+    "systxs": SystemTx[];
     "maxAmount": string;
     "gasLimit": bigint;
     "result"?: Result | null;
@@ -272,11 +278,6 @@ export namespace $default {
     "paymaster": string;
     "feeToken": Token;
     "maxAmountFp": bigint;
-    "paymasterEthFees": PaymasterFees;
-    "status": TransactionStatus;
-    "systx"?: SystemTx | null;
-    "results": Result[];
-    "systxs": SystemTx[];
   }
   export type TransactionStatus = "Pending" | "Scheduled" | "Executing" | "Successful" | "Failed" | "Cancelled";
   export interface TransferDetails extends std.$Object {

@@ -89,7 +89,10 @@ export class PolicyState extends Node {
   hasBeenActive: boolean;
 
   @Field(() => Boolean)
-  active: boolean;
+  isActive: boolean;
+
+  @Field(() => Boolean)
+  isDraft: boolean;
 
   @Field(() => Policy, { nullable: true })
   latest?: Policy | null;

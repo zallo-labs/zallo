@@ -150,24 +150,28 @@ export const policyInputAsStateShape = (
     allowMessages: false,
     delay: 0,
   },
-): NonNullable<PolicyShape> => ({
-  ...defaults,
-  key,
-  threshold: p.threshold ?? p.approvers?.length ?? defaults.approvers.length,
-  ...(p.approvers && { approvers: p.approvers.map((a) => ({ address: a })) }),
-  ...(p.threshold !== undefined && { threshold: p.threshold }),
-  ...(p.actions?.length && {
-    actions: p.actions as unknown as NonNullable<PolicyShape>['actions'],
-  }),
-  ...(p.transfers && {
-    transfers: {
-      ...p.transfers,
-      budget: p.transfers.budget ?? key,
-    },
-  }),
-  allowMessages: p.allowMessages ?? defaults.allowMessages,
-  delay: p.delay ?? defaults.delay,
-});
+): NonNullable<PolicyShape> => {
+  const approvers = p.approvers?.map((a) => ({ address: a })) ?? defaults.approvers;
+
+  return {
+    ...defaults,
+    key,
+    approvers,
+    threshold: Math.min(p.threshold ?? p.approvers?.length ?? defaults.threshold, approvers.length),
+    ...(p.approvers && { approvers: p.approvers.map((a) => ({ address: a })) }),
+    ...(p.actions?.length && {
+      actions: p.actions as unknown as NonNullable<PolicyShape>['actions'],
+    }),
+    ...(p.transfers && {
+      transfers: {
+        ...p.transfers,
+        budget: p.transfers.budget ?? key,
+      },
+    }),
+    allowMessages: p.allowMessages ?? defaults.allowMessages,
+    delay: p.delay ?? defaults.delay,
+  };
+};
 
 export const inputAsPolicy = (key: PolicyKey, p: PolicyInput) =>
   policyStateAsPolicy(policyInputAsStateShape(key, p));

@@ -111,6 +111,15 @@ export class UpdatePolicyInput extends IntersectionType(
   PartialType(PolicyInput),
 ) {}
 
+@InputType()
+export class UpdatePoliciesInput {
+  @UAddressField()
+  account: UAddress;
+
+  @Field(() => [UpdatePolicyInput])
+  policies: UpdatePolicyInput[];
+}
+
 @ArgsType()
 export class ValidationErrorsArgs {
   @IdField()

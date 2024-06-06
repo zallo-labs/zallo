@@ -358,6 +358,7 @@ type Mutation {
   requestTokens(input: RequestTokensInput!): [Address!]!
   updateAccount(input: UpdateAccountInput!): Account!
   updateApprover(input: UpdateApproverInput!): UserApprover!
+  updatePolicies(input: UpdatePoliciesInput!): [Policy!]!
   updatePolicy(input: UpdatePolicyInput!): UpdatePolicyResponse!
   updateProposal(input: UpdateProposalInput!): Proposal!
   updateTransaction(input: UpdateTransactionInput!): Transaction!
@@ -398,7 +399,6 @@ type Policy implements Node & PolicyState {
   account: Account!
   actions: [Action!]!
   activationBlock: BigInt
-  active: Boolean!
   allowMessages: Boolean!
   approvers: [Approver!]!
   createdAt: DateTime!
@@ -409,6 +409,8 @@ type Policy implements Node & PolicyState {
   hasBeenActive: Boolean!
   id: ID!
   initState: Boolean!
+  isActive: Boolean!
+  isDraft: Boolean!
   key: PolicyKey!
   latest: Policy
   name: String!
@@ -436,12 +438,13 @@ scalar PolicyKey
 interface PolicyState implements Node {
   account: Account!
   activationBlock: BigInt
-  active: Boolean!
   createdAt: DateTime!
   draft: PolicyState
   hasBeenActive: Boolean!
   id: ID!
   initState: Boolean!
+  isActive: Boolean!
+  isDraft: Boolean!
   key: PolicyKey!
   latest: Policy
   proposal: Transaction
@@ -611,12 +614,13 @@ type RemovePolicyOp {
 type RemovedPolicy implements Node & PolicyState {
   account: Account!
   activationBlock: BigInt
-  active: Boolean!
   createdAt: DateTime!
   draft: PolicyState
   hasBeenActive: Boolean!
   id: ID!
   initState: Boolean!
+  isActive: Boolean!
+  isDraft: Boolean!
   key: PolicyKey!
   latest: Policy
   proposal: Transaction
@@ -987,6 +991,11 @@ input UpdateApproverInput {
   cloud: CloudInput
   name: String
   pushToken: String
+}
+
+input UpdatePoliciesInput {
+  account: UAddress!
+  policies: [UpdatePolicyInput!]!
 }
 
 input UpdatePolicyInput {

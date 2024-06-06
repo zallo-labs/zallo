@@ -41,7 +41,7 @@ type TransferDetails = Parameters<typeof e.insert<typeof e.TransferDetails>>[1];
 const TransactionExecutableShape = {
   account: { address: true },
   approvals: { approver: { address: true } },
-  policy: { id: true, active: true, threshold: true },
+  policy: { id: true, isActive: true, threshold: true },
   validationErrors: true,
   ...TX_SHAPE,
 } satisfies Shape<typeof e.Transaction>;
@@ -194,7 +194,7 @@ export class SimulationsWorker extends Worker<SimulationsQueue> {
   }
 
   private async isExecutable(t: TransactionExecutableShape) {
-    if (!t.policy.active) return false;
+    if (!t.policy.isActive) return false;
     if (t.validationErrors.length) return false;
 
     const approved = t.policy.threshold <= t.approvals.length;
