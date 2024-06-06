@@ -42,7 +42,7 @@ export function AccountSettingsSideSheet(props: AccountSettingsSideSheetProps) {
   });
 
   return (
-    <SideSheet headline="Details" style={styles.sheet}>
+    <SideSheet headline="Details">
       <View style={styles.fields}>
         <AccountNameFormField name="label" control={control} required />
       </View>
@@ -65,9 +65,6 @@ export function AccountSettingsSideSheet(props: AccountSettingsSideSheetProps) {
 }
 
 const styles = StyleSheet.create({
-  sheet: {
-    flex: 1,
-  },
   fields: {
     margin: 16,
   },

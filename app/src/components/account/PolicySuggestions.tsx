@@ -1,35 +1,20 @@
 import { Chip } from '#/Chip';
-import { AddressIcon } from '#/Identicon/AddressIcon';
-import { ListHeader } from '#/list/ListHeader';
 import { showError } from '#/provider/SnackbarProvider';
 import { FragmentType, gql, useFragment } from '@api';
-import { GroupIcon, RecoveryIcon } from '@theme/icons';
-import { createStyles } from '@theme/styles';
+import { PolicyIcon } from '@theme/icons';
+import { createStyles, useStyles } from '@theme/styles';
 import { useRouter } from 'expo-router';
 import { asAddress, asChain } from 'lib';
+import _ from 'lodash';
 import { View } from 'react-native';
+import { Text } from 'react-native-paper';
 import { useMutation } from 'urql';
 import { asPolicyInput } from '~/lib/policy/draft';
-import { usePolicyPresets } from '~/lib/policy/usePolicyPresets';
-import { truncateAddr } from '~/util/format';
+import { ACTION_PRESETS, usePolicyPresets } from '~/lib/policy/usePolicyPresets';
 
 const Create = gql(/* GraphQL */ `
   mutation PolicySuggestions_Create($input: CreatePolicyInput!) {
     createPolicy(input: $input) {
-      __typename
-      ... on Policy {
-        id
-        draft {
-          id
-        }
-      }
-    }
-  }
-`);
-
-const Update = gql(/* GraphQL */ `
-  mutation PolicySuggestions_Update($input: UpdatePolicyInput!) {
-    updatePolicy(input: $input) {
       __typename
       ... on Policy {
         id
@@ -89,27 +74,35 @@ export interface PolicySuggestionsProps {
 }
 
 export function PolicySuggestions(props: PolicySuggestionsProps) {
+  const { styles } = useStyles(stylesheet);
   const account = useFragment(Account, props.account);
   const user = useFragment(User, props.user);
   const router = useRouter();
   const create = useMutation(Create)[1];
-  const update = useMutation(Update)[1];
   const presets = usePolicyPresets({ account, user, chain: asChain(account.address) });
-
-  const groupPoliciesMissingApprovers = account.policies.filter(
-    (p) =>
-      p.approvers.length > 1 &&
-      !user.approvers.every(({ id }) => p.approvers.find((a) => a.id === id)),
-  );
-
-  const approverPolicies = user.approvers.filter(
-    ({ id }) => !account.policies.find((p) => p.approvers.length === 1 && p.approvers[0].id === id),
-  );
 
   const potentialApprovers = new Set([
     ...account.approvers.map((a) => a.id),
     ...user.approvers.map((a) => a.id),
   ]);
+
+  const suggestLowRisk = !account.policies.some((p) => p.approvers.length === 1);
+
+  const suggestMediumRisk =
+    presets.low.threshold < presets.medium.threshold &&
+    presets.medium.threshold < presets.high.threshold &&
+    !account.policies.some(
+      (p) =>
+        p.actions.some((a) => _.isEqual(a.functions, ACTION_PRESETS.all.functions) && !a.allow) &&
+        p.actions.some(
+          (a) =>
+            _.isEqual(
+              a.functions,
+              ACTION_PRESETS.manageAccount.functions(asAddress(account.address)),
+            ) && a.allow,
+        ),
+    );
+
   const suggestRecovery =
     potentialApprovers.size > 1 &&
     !account.policies.some(
@@ -125,115 +118,61 @@ export function PolicySuggestions(props: PolicySuggestionsProps) {
         ),
     );
 
-  const hasSuggestions =
-    groupPoliciesMissingApprovers.length || approverPolicies.length || suggestRecovery;
-  if (!hasSuggestions) return null;
+  const suggestions = [
+    suggestLowRisk && presets.low,
+    suggestMediumRisk && presets.medium,
+    suggestRecovery && presets.recovery,
+  ].filter(Boolean);
 
-  const addMissingApprovers = async (p: (typeof groupPoliciesMissingApprovers)[0]) => {
-    const r = (
-      await update({
-        input: {
-          account: account.address,
-          key: p.key,
-          approvers: [
-            ...new Set([
-              ...p.approvers.map((a) => a.address),
-              ...user.approvers.map((a) => a.address),
-            ]),
-          ],
-        },
-      })
-    ).data?.updatePolicy;
+  const createPolicy = async (preset: (typeof presets)[keyof typeof presets]) => {
+    const r = await create({
+      input: {
+        account: account.address,
+        ...asPolicyInput(preset),
+      },
+    });
+    if (r.error)
+      return showError('Something went wrong creating policy', { event: { error: r.error } });
+    if (!r.data) return showError('Something went wrong creating policy');
 
-    if (r?.__typename === 'Policy' && r.draft?.id) {
-      router.push({
-        pathname: '/(drawer)/[account]/settings/policy/[id]/',
-        params: { account: account.address, id: r.draft.id },
-      });
-    } else {
-      showError('Something went wrong adding approvers to policy', {
-        event: { policy: p.id },
-      });
-    }
+    const p = r.data.createPolicy;
+    if (p?.__typename === 'NameTaken')
+      return showError(`A policy with the name "${preset.name}" already exists`);
+
+    router.push({
+      pathname: '/(drawer)/[account]/settings/policy/[id]/',
+      params: { account: account.address, id: p.id },
+    });
   };
 
-  const addApproverPolicy = async (approver: (typeof approverPolicies)[0]) => {
-    const r = (
-      await create({
-        input: {
-          account: account.address,
-          ...asPolicyInput(presets.low),
-          approvers: [approver.address],
-        },
-      })
-    ).data?.createPolicy;
-
-    if (r?.__typename === 'Policy') {
-      router.push({
-        pathname: '/(drawer)/[account]/settings/policy/[id]/',
-        params: { account: account.address, id: r.id },
-      });
-    } else {
-      showError('Something went wrong creating policy', {
-        event: { approver: approver.id },
-      });
-    }
-  };
-
-  const addRecoveryPolicy = async () => {
-    const r = (
-      await create({ input: { account: account.address, ...asPolicyInput(presets.recovery) } })
-    ).data?.createPolicy;
-
-    if (r?.__typename === 'Policy') {
-      router.push({
-        pathname: '/(drawer)/[account]/settings/policy/[id]/',
-        params: { account: account.address, id: r.id },
-      });
-    } else {
-      showError('Something went wrong creating recovery policy');
-    }
-  };
+  if (!suggestions.length) return null;
 
   return (
     <>
-      <ListHeader>Suggestions</ListHeader>
+      <Text variant="labelLarge">New policy suggestions</Text>
 
       <View style={styles.container}>
-        {suggestRecovery && (
-          <Chip mode="outlined" icon={RecoveryIcon} onPress={addRecoveryPolicy}>
-            Recovery policy
+        {suggestions.map((s) => (
+          <Chip key={s.name} mode="outlined" style={styles.chip} onPress={() => createPolicy(s)}>
+            {s.name}
           </Chip>
-        )}
-
-        {groupPoliciesMissingApprovers.map((p) => (
-          <Chip
-            key={p.id}
-            mode="outlined"
-            icon={GroupIcon}
-            onPress={() => addMissingApprovers(p)}
-          >{`Add approvers to ${p.name}`}</Chip>
-        ))}
-
-        {approverPolicies.map((approver) => (
-          <Chip
-            key={approver.id}
-            mode="outlined"
-            icon={(props) => <AddressIcon address={approver.address} {...props} />}
-            onPress={() => addApproverPolicy(approver)}
-          >{`Low risk for ${approver.label || truncateAddr(approver.address)}`}</Chip>
         ))}
       </View>
     </>
   );
 }
 
-const styles = createStyles({
+const stylesheet = createStyles(({ colors }) => ({
+  label: {
+    color: colors.onSurfaceVariant,
+  },
   container: {
     flexDirection: 'row',
     gap: 8,
     flexWrap: 'wrap',
-    marginHorizontal: 16,
-    marginVertical: 8,
+    marginBottom: 8,
   },
-});
+  chip: {
+    backgroundColor: 'transparent',
+  },
+}));

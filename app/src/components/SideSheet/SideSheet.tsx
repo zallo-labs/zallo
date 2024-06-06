@@ -32,7 +32,10 @@ export function SideSheet({ children, headline, style }: SideSheetProps) {
         <CloseIcon style={styles.close} onPress={close} />
       </View>
 
-      <ScrollView contentContainerStyle={style} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        contentContainerStyle={[styles.content, style]}
+        showsVerticalScrollIndicator={false}
+      >
         {children}
       </ScrollView>
     </SideSheetSurface>
@@ -63,5 +66,8 @@ const stylesheet = createStyleSheet(({ colors }) => ({
   close: {
     marginLeft: 12,
     color: colors.onSurfaceVariant,
+  },
+  content: {
+    flex: 1,
   },
 }));

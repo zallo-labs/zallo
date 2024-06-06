@@ -89,7 +89,7 @@ function TransactionScreen() {
   if (!p) return query.stale ? null : <NotFound name="Proposal" />;
 
   return (
-    <SideSheetLayout defaultVisible>
+    <>
       <AppbarOptions
         headline={(props) => <TransactionStatus proposal={p} {...props} />}
         {...(remove && {
@@ -101,32 +101,34 @@ function TransactionScreen() {
         })}
       />
 
-      <ScrollableScreenSurface>
-        {p.dapp && <DappHeader dapp={p.dapp} action="wants you to execute" />}
+      <SideSheetLayout defaultVisible>
+        <ScrollableScreenSurface>
+          {p.dapp && <DappHeader dapp={p.dapp} action="wants you to execute" />}
 
-        <AccountSection account={p.account} />
-        <Divider horizontalInset style={styles.divider} />
-
-        <ScheduleSection proposal={p}>
+          <AccountSection account={p.account} />
           <Divider horizontalInset style={styles.divider} />
-        </ScheduleSection>
 
-        <OperationsSection proposal={p} />
-        <Divider horizontalInset style={styles.divider} />
+          <ScheduleSection proposal={p}>
+            <Divider horizontalInset style={styles.divider} />
+          </ScheduleSection>
 
-        <TransfersSection proposal={p}>
+          <OperationsSection proposal={p} />
           <Divider horizontalInset style={styles.divider} />
-        </TransfersSection>
 
-        <FeesSection proposal={p} />
+          <TransfersSection proposal={p}>
+            <Divider horizontalInset style={styles.divider} />
+          </TransfersSection>
 
-        <TransactionActions proposal={p} user={query.data.user} />
-      </ScrollableScreenSurface>
+          <FeesSection proposal={p} />
 
-      <SideSheet headline="Approvals">
-        <ProposalApprovals proposal={id} />
-      </SideSheet>
-    </SideSheetLayout>
+          <TransactionActions proposal={p} user={query.data.user} />
+        </ScrollableScreenSurface>
+
+        <SideSheet headline="Approvals">
+          <ProposalApprovals proposal={id} />
+        </SideSheet>
+      </SideSheetLayout>
+    </>
   );
 }
 

@@ -3,10 +3,10 @@ import { withSuspense } from '#/skeleton/withSuspense';
 import { gql } from '@api';
 import { z } from 'zod';
 import { useQuery } from '~/gql';
-import { zUAddress, zUuid } from '~/lib/zod';
+import { ZERO_UUID, zUAddress, zUuid } from '~/lib/zod';
 import { useLocalParams } from '~/hooks/useLocalParams';
 import { usePolicyPresets } from '~/lib/policy/usePolicyPresets';
-import { ZERO_ADDR, asChain, asUUID } from 'lib';
+import { ZERO_ADDR, asChain } from 'lib';
 import { useMemo } from 'react';
 import { PolicyDraft, PolicyDraftContext, policyAsDraft } from '~/lib/policy/draft';
 import { atom } from 'jotai';
@@ -40,8 +40,6 @@ const Query = gql(/* GraphQL */ `
     }
   }
 `);
-
-export const ZERO_UUID = asUUID('00000000-0000-0000-0000-000000000000');
 
 export const PolicyScreenParams = z.object({
   account: zUAddress(),

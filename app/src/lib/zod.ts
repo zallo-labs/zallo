@@ -1,5 +1,5 @@
 import { CHAINS, Chain } from 'chains';
-import { tryAsAddress, tryAsUAddress, TryAsAddressParams, isUUID, isHex, Hex } from 'lib';
+import { tryAsAddress, tryAsUAddress, TryAsAddressParams, isUUID, isHex, Hex, asUUID } from 'lib';
 import { size } from 'viem';
 import { ZodTypeAny, z } from 'zod';
 
@@ -30,6 +30,8 @@ export function zUAddress() {
 export function zChain() {
   return z.enum(Object.values(CHAINS).map((c) => c.key) as unknown as [Chain, ...Chain[]]);
 }
+
+export const ZERO_UUID = asUUID('00000000-0000-0000-0000-000000000000');
 
 export function zUuid() {
   return z.string().uuid().refine(isUUID);

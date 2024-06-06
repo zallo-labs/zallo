@@ -2,7 +2,6 @@ import { createStyles, useStyles } from '@theme/styles';
 import { ReactNode, useLayoutEffect } from 'react';
 import { View } from 'react-native';
 import { useSideSheetType } from './SideSheetSurface';
-import { PortalHost } from '@gorhom/portal';
 import { atom, useSetAtom } from 'jotai';
 import { useHydrateAtoms } from 'jotai/utils';
 
@@ -23,12 +22,7 @@ export function SideSheetLayout({ children, defaultVisible = false }: SideSheetL
     showSheet(showByDefault);
   }, [showSheet, showByDefault]);
 
-  return (
-    <View style={styles.container}>
-      <>{children}</>
-      <PortalHost name={SideSheetLayout.name} />
-    </View>
-  );
+  return <View style={styles.container}>{children}</View>;
 }
 
 const stylesheet = createStyles({

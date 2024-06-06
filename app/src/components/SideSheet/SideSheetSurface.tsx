@@ -6,8 +6,6 @@ import { BREAKPOINTS } from '@theme/styles';
 import { Modal } from '../Modal';
 import { EdgeInsets, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Surface } from '#/layout/Surface';
-import { Portal } from '@gorhom/portal';
-import { SideSheetLayout } from './SideSheetLayout';
 
 export interface SideSheetSurfaceProps {
   children: ReactNode;
@@ -22,9 +20,7 @@ export function SideSheetSurface({ children, close, contentStyle }: SideSheetSur
   const insets = useSafeAreaInsets();
 
   return type === 'standard' ? (
-    <Portal hostName={SideSheetLayout.name}>
-      <Surface style={[styles.standardSurface(insets), contentStyle]}>{children}</Surface>
-    </Portal>
+    <Surface style={[styles.standardSurface(insets), contentStyle]}>{children}</Surface>
   ) : (
     <Modal close={close} entering={SlideInRight} exiting={SlideOutRight} style={styles.modal}>
       <Surface style={[styles.modalSurface(insets), contentStyle]}>{children}</Surface>

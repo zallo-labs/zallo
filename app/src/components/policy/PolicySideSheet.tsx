@@ -93,7 +93,7 @@ export function PolicySideSheet(props: PolicySideSheetProps) {
   }, [draft.name, reset]);
 
   return (
-    <SideSheet headline="Settings" style={styles.sheet}>
+    <SideSheet headline="Settings">
       <FormTextField
         label="Name"
         control={control}
@@ -160,9 +160,6 @@ export function PolicySideSheet(props: PolicySideSheetProps) {
 }
 
 const stylesheet = createStyles(({ colors }) => ({
-  sheet: {
-    flex: 1,
-  },
   field: {
     margin: 16,
   },

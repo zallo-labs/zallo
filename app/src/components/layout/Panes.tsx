@@ -1,31 +1,19 @@
 import { ReactNode } from 'react';
-import { createStyles, useStyles } from '@theme/styles';
+import { createStyles } from '@theme/styles';
 import { View } from 'react-native';
-import { DrawerType, useMaybeDrawerContext } from '#/drawer/DrawerContextProvider';
 
 export interface PanesProps {
   children: ReactNode;
 }
 
 export function Panes({ children }: PanesProps) {
-  const { styles } = useStyles(stylesheet);
-  const drawerType = useMaybeDrawerContext()?.type;
-
-  return <View style={styles.container(drawerType)}>{children}</View>;
+  return <View style={styles.container}>{children}</View>;
 }
 
-const stylesheet = createStyles(() => ({
-  container: (drawerType?: DrawerType) => ({
+const styles = createStyles({
+  container: {
     flex: 1,
     flexDirection: 'row',
     gap: 24,
-    marginLeft: {
-      compact: drawerType === 'modal' ? 16 : 0,
-      medium: drawerType === 'modal' ? 24 : 0,
-    },
-    marginRight: {
-      compact: 16,
-      medium: 24,
-    },
-  }),
-}));
+  },
+});

@@ -16,7 +16,7 @@ import { PasswordIcon } from '@theme/icons';
 import { ICON_SIZE } from '@theme/paper';
 import { Button } from '#/Button';
 import Collapsible from 'react-native-collapsible';
-import { Actions2 } from '#/layout/Actions2';
+import { Actions } from '#/layout/Actions';
 import { Card } from '#/layout/Card';
 
 const PASSWORD_HASH = persistedAtom<string | null>('passwordHash', null);
@@ -129,7 +129,7 @@ export function PasswordSettingsCard({ style }: PasswordSettingsCardProps) {
           />
         </View>
 
-        <Actions2 horizontal>
+        <Actions horizontal>
           {newPassword || !passwordHash ? (
             <FormSubmitButton
               mode="contained"
@@ -161,7 +161,7 @@ export function PasswordSettingsCard({ style }: PasswordSettingsCardProps) {
               Remove
             </FormSubmitButton>
           )}
-        </Actions2>
+        </Actions>
       </Collapsible>
     </Card>
   );

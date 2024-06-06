@@ -23,8 +23,9 @@ import { DrawerSurface } from '#/drawer/DrawerSurface';
 import { Link, Stack } from 'expo-router';
 import { AppbarHeader } from '#/Appbar/AppbarHeader';
 import { DrawerLogo } from '#/drawer/DrawerLogo';
-import { createStyles } from '@theme/styles';
+import { createStyles, useStyles } from '@theme/styles';
 import { TouchableOpacity } from 'react-native';
+import { useExpectedDrawerTpe } from '#/drawer/DrawerContextProvider';
 
 const Section = PaperDrawer.Section;
 
@@ -33,12 +34,37 @@ export const unstable_settings = {
 };
 
 export default function DrawerLayout() {
+  const { styles } = useStyles(stylesheet);
+  const type = useExpectedDrawerTpe();
+
   return (
     <Drawer drawerContent={() => <Content />}>
-      <Stack screenOptions={{ header: (props) => <AppbarHeader {...props} /> }} />
+      <Stack
+        screenOptions={{
+          header: (props) => <AppbarHeader {...props} />,
+          contentStyle: [styles.content, type === 'modal' && styles.modalContent],
+        }}
+      />
     </Drawer>
   );
 }
+
+const stylesheet = createStyles(({ colors }) => ({
+  content: {
+    backgroundColor: colors.surfaceContainer.low,
+    paddingRight: {
+      compact: 16,
+      medium: 24,
+    },
+  },
+  // No left padding for standard drawer
+  modalContent: {
+    paddingLeft: {
+      compact: 16,
+      medium: 24,
+    },
+  },
+}));
 
 function Content() {
   const account = useSelectedAccount();
@@ -49,7 +75,7 @@ function Content() {
       <Section>
         <Link href={{ pathname: '/', params: { redirect: 'false' } }} asChild>
           <TouchableOpacity>
-            <DrawerLogo style={styles.logo} />
+            <DrawerLogo style={contentStyles.logo} />
           </TouchableOpacity>
         </Link>
 
@@ -123,7 +149,7 @@ function Content() {
   );
 }
 
-const styles = createStyles({
+const contentStyles = createStyles({
   logo: {
     marginBottom: 8,
   },

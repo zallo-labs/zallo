@@ -15,7 +15,7 @@ const Policy = gql(/* GraphQL */ `
   fragment PolicyAppbar_Policy on Policy {
     id
     key
-    active
+    isActive
     latest {
       id
     }
@@ -42,8 +42,8 @@ export function PolicyAppbar({ reset, ...props }: PolicyAppbarProps) {
 
   const { name } = useAtomValue(usePolicyDraftAtom());
 
-  const stateLabel =
-    (policy?.active && 'Active') ||
+  const state =
+    (policy?.isActive && 'Active') ||
     ((!policy || policy.id === policy.draft?.id) && 'Draft') ||
     'Historic';
 
@@ -57,20 +57,24 @@ export function PolicyAppbar({ reset, ...props }: PolicyAppbarProps) {
       headline={name}
       trailing={[
         (props) => (reset ? <UndoIcon {...props} onPress={reset} /> : null),
-        () =>
+        (iconProps) =>
           switchState ? (
             <Chip
               mode="flat"
               onPress={() => router.setParams({ ...params, id: switchState })}
-              icon={(props) => <SwapIcon {...props} style={styles.pressableStateChipLabel} />}
+              icon={() => <SwapIcon {...iconProps} style={styles.pressableStateChipLabel} />}
               style={styles.pressableStateChipContainer}
               textStyle={styles.pressableStateChipLabel}
             >
-              {stateLabel}
+              {state}
             </Chip>
           ) : (
-            <Chip mode="outlined" textStyle={styles.unpressableStateChipLabel}>
-              {stateLabel}
+            <Chip
+              mode="outlined"
+              style={styles.unpressableStateContainer}
+              textStyle={styles.unpressableStateChipLabel}
+            >
+              {state}
             </Chip>
           ),
         (props) => <SettingsOutlineIcon {...props} onPress={() => showSheet((s) => !s)} />,
@@ -102,7 +106,10 @@ const stylesheet = createStyles(({ colors }) => ({
   pressableStateChipLabel: {
     color: colors.onTertiary,
   },
+  unpressableStateContainer: {
+    backgroundColor: 'transparent',
+  },
   unpressableStateChipLabel: {
-    color: colors.tertiary,
+    color: colors.onSurface,
   },
 }));

@@ -1,8 +1,8 @@
 import { ComponentPropsWithoutRef, useState } from 'react';
 // import { Drawer as DrawerLayout } from 'expo-router/drawer';      // Navigator
 import { Drawer as DrawerLayout } from 'react-native-drawer-layout'; // Not navigator
-import { DrawerContextProvider, DrawerType } from './DrawerContextProvider';
-import { BREAKPOINTS, createStyles, useStyles } from '@theme/styles';
+import { DrawerContextProvider, useExpectedDrawerTpe } from './DrawerContextProvider';
+import { createStyles, useStyles } from '@theme/styles';
 
 type DrawerLayoutProps = ComponentPropsWithoutRef<typeof DrawerLayout>;
 
@@ -11,8 +11,9 @@ export interface DrawerProps extends Omit<Partial<DrawerLayoutProps>, 'renderDra
 }
 
 export function Drawer({ children, drawerContent, ...props }: DrawerProps) {
-  const { styles, breakpoint } = useStyles(stylesheet);
-  const type: DrawerType = BREAKPOINTS[breakpoint] >= BREAKPOINTS.large ? 'standard' : 'modal';
+  const { styles } = useStyles(stylesheet);
+  const type = useExpectedDrawerTpe();
+
   const [open, setOpen] = useState(false);
 
   return (
@@ -35,29 +36,23 @@ export function Drawer({ children, drawerContent, ...props }: DrawerProps) {
   );
 }
 
-const stylesheet = createStyles(({ colors }) => {
-  const backgroundColor = {
-    expanded: colors.surfaceContainer.low, // standard type
-  };
-
-  return {
-    drawer: {
-      backgroundColor: colors.surfaceContainer.low,
-      width: {
-        // Modal type
-        compact: 360,
-        // Standard type
-        large: 360,
-      },
-      //  Unset borders
-      borderLeftWidth: undefined,
-      borderRightWidth: undefined,
+const stylesheet = createStyles(({ colors }) => ({
+  drawer: {
+    backgroundColor: colors.surfaceContainer.low,
+    width: {
+      // Modal type
+      compact: 360,
+      // Standard type
+      large: 360,
     },
-    overlay: {
-      backgroundColor: colors.scrim,
-    },
-    sceneContainer: {
-      backgroundColor: colors.surfaceContainer.low,
-    },
-  };
-});
+    //  Unset borders
+    borderLeftWidth: undefined,
+    borderRightWidth: undefined,
+  },
+  overlay: {
+    backgroundColor: colors.scrim,
+  },
+  sceneContainer: {
+    backgroundColor: colors.surfaceContainer.low,
+  },
+}));

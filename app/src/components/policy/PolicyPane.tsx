@@ -167,16 +167,16 @@ export function PolicyPane({ initial, ...props }: PolicyPaneProps) {
             />
           ) : (
             policy?.proposal &&
-            policy?.id === policy?.draft?.id && (
-              <Link
-                href={{
-                  pathname: '/(drawer)/transaction/[id]',
-                  params: { id: policy.proposal.id },
-                }}
-                asChild
-              >
-                <Fab label="View proposal" />
-              </Link>
+            policy.id === policy.draft?.id && (
+              <Fab
+                label="View proposal"
+                onPress={() =>
+                  router.push({
+                    pathname: '/(drawer)/transaction/[id]',
+                    params: { id: policy.proposal!.id },
+                  })
+                }
+              />
             )
           )}
         </ScrollView>

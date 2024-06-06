@@ -1,3 +1,4 @@
+import { BREAKPOINTS, useStyles } from '@theme/styles';
 import { Dispatch, ReactNode, SetStateAction, createContext, useContext, useMemo } from 'react';
 
 const CONTEXT = createContext<DrawerContext | undefined>(undefined);
@@ -13,6 +14,11 @@ export function useDrawerContext() {
 }
 
 export type DrawerType = 'standard' | 'modal';
+
+export function useExpectedDrawerTpe(): DrawerType {
+  const { breakpoint } = useStyles();
+  return BREAKPOINTS[breakpoint] >= BREAKPOINTS.large ? 'standard' : 'modal';
+}
 
 export interface DrawerContext {
   type: DrawerType;

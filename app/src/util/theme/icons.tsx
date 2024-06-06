@@ -43,6 +43,7 @@ export const ContactsIcon = materialIcon('people');
 export const AddIcon = materialCommunityIcon('plus');
 export const DeleteIcon = materialCommunityIcon('delete');
 export const EditIcon = materialCommunityIcon('pencil');
+export const EditOutlineIcon = materialCommunityIcon('pencil-outline');
 export const ScanIcon = materialCommunityIcon('line-scan');
 export const ShareIcon = materialCommunityIcon('share-variant');
 export const CheckIcon = materialCommunityIcon('check');

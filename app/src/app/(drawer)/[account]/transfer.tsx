@@ -1,7 +1,7 @@
 import { useRouter } from 'expo-router';
 import { usePropose } from '@api/usePropose';
 import { FIAT_DECIMALS, asAddress, asChain, asFp, asUAddress } from 'lib';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Divider } from 'react-native-paper';
 import { useAddressLabel } from '#/address/AddressLabel';
@@ -70,10 +70,11 @@ function TransferScreen() {
   const [input, setInput] = useState('');
   const [type, setType] = useState(InputType.Token);
 
-  if (!token) {
-    setToken(defaultSelectedToken(chain));
-    return null;
-  }
+  useEffect(() => {
+    if (!token) setToken(defaultSelectedToken(chain));
+  }, [chain, setToken, token]);
+
+  if (!token) return null;
 
   const inputAmount = input || '0';
   const amount =

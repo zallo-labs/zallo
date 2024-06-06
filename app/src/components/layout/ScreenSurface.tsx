@@ -17,7 +17,6 @@ const stylesheet = createStyles(({ colors, corner }) => ({
     flex: 1,
     marginTop: 8,
     marginBottom: 16,
-    marginRight: 16,
     borderRadius: corner.l,
     backgroundColor: colors.surface,
   },
