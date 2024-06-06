@@ -5,7 +5,7 @@
   "scripts": {
     "build": "nest build",
     "dev": "nest start --debug --watch --preserveWatchOutput",
-    "start": "node dist/src/main.js",
+    "start": "node --heapsnapshot-signal=SIGUSR2 dist/src/main.js",
     "start:web": "PROCESS_EVENTS=false yarn start",
     "start:worker": "PROCESS_EVENTS=true yarn start",
     "test": "yarn with-env -- jest",
