@@ -1,32 +1,28 @@
-import { FlashList } from '@shopify/flash-list';
-import { AddIcon, ContactsIcon } from '@theme/icons';
+import { ContactsIcon } from '@theme/icons';
 import { createStyles, useStyles } from '@theme/styles';
 import { Address, asAddress, asChain, asUAddress } from 'lib';
 import { View } from 'react-native';
 import Collapsible from 'react-native-collapsible';
-import { Divider, Text } from 'react-native-paper';
 import { Chevron } from '#/Chevron';
-import { ListItem, ListItemHeight } from '#/list/ListItem';
+import { ListItem } from '#/list/ListItem';
 import { ListItemHorizontalTrailing } from '#/list/ListItemHorizontalTrailing';
 import { ListItemTrailingText } from '#/list/ListItemTrailingText';
 import { ApproverItem } from '#/policy/ApproverItem';
-import { ThresholdChip } from '#/policy/ThresholdChip';
+import { ThresholdChip } from './ThresholdChip';
 import { showInfo } from '#/provider/SnackbarProvider';
 import { useSelectAddress } from '~/hooks/useSelectAddress';
 import { useToggle } from '~/hooks/useToggle';
 import { usePolicyDraft } from '~/lib/policy/draft';
-import { memo } from 'react';
+import { CORNER } from '@theme/paper';
+import { AddCircleIcon } from '#/AddCircleIcon';
+import { CollapsibleItemList } from '#/layout/CollapsibleItemList';
 
-export interface ApprovalSettingsProps {
-  initiallyExpanded: boolean;
-}
-
-function ApprovalSettings_(props: ApprovalSettingsProps) {
+export function ApprovalSettings() {
   const { styles } = useStyles(stylesheet);
   const selectAddress = useSelectAddress();
 
   const [policy, update] = usePolicyDraft();
-  const [expanded, toggleExpanded] = useToggle(props.initiallyExpanded);
+  const [expanded, toggleExpanded] = useToggle(false);
 
   const addApprover = async () => {
     const address = await selectAddress({
@@ -62,63 +58,60 @@ function ApprovalSettings_(props: ApprovalSettingsProps) {
   };
 
   return (
-    <>
-      <ListItem
-        leading={ContactsIcon}
-        headline="Approvals"
-        trailing={(props) => (
-          <ListItemHorizontalTrailing>
-            <ListItemTrailingText>{`${policy.threshold}/${policy.approvers.size} required`}</ListItemTrailingText>
-            <Chevron expanded={expanded} {...props} />
-          </ListItemHorizontalTrailing>
-        )}
-        onPress={toggleExpanded}
-      />
-      <Collapsible collapsed={!expanded}>
-        <View style={styles.thresholdContainer}>
-          <ThresholdChip />
-        </View>
-
-        <FlashList
-          data={[...policy.approvers]}
-          renderItem={({ item }) => (
-            <ApproverItem
-              address={asUAddress(item, asChain(policy.account))}
-              remove={() => remove(item)}
-            />
+    <CollapsibleItemList expanded={expanded}>
+      <View style={styles.surface}>
+        <ListItem
+          leading={ContactsIcon}
+          headline="Approvals"
+          supporting="Who can approve an action and how many are required"
+          trailing={(props) => (
+            <ListItemHorizontalTrailing>
+              <ListItemTrailingText>{`${policy.threshold}/${policy.approvers.size} required`}</ListItemTrailingText>
+              <Chevron expanded={expanded} {...props} />
+            </ListItemHorizontalTrailing>
           )}
-          ListEmptyComponent={
-            <Text variant="titleMedium" style={styles.noApproversText}>
-              No approvals are required - literally anyone may execute a transaction using this
-              policy. Make sure this is intended!
-            </Text>
-          }
-          keyExtractor={(item) => item}
-          estimatedItemSize={ListItemHeight.SINGLE_LINE}
+          onPress={toggleExpanded}
+          containerStyle={styles.header}
         />
-        <ListItem leading={AddIcon} headline="Add approver" onPress={addApprover} />
-      </Collapsible>
-      <Divider leftInset style={styles.divider} />
-    </>
+
+        <Collapsible collapsed={!expanded}>
+          <View style={styles.headerExtras}>
+            <ThresholdChip />
+          </View>
+        </Collapsible>
+      </View>
+
+      {[...policy.approvers].map((item) => (
+        <ApproverItem
+          key={item}
+          address={asUAddress(item, asChain(policy.account))}
+          remove={() => remove(item)}
+        />
+      ))}
+
+      <ListItem
+        lines={2}
+        leading={AddCircleIcon}
+        headline="Add approver"
+        onPress={addApprover}
+        containerStyle={styles.surface}
+      />
+    </CollapsibleItemList>
   );
 }
 
 const stylesheet = createStyles(({ colors }) => ({
-  thresholdContainer: {
+  surface: {
+    backgroundColor: colors.surface,
+  },
+  header: {
+    borderRadius: CORNER.l,
+  },
+  headerExtras: {
     flexDirection: 'row',
+    gap: 8,
+    marginVertical: 8,
     marginLeft: 16,
     marginRight: 24,
-    marginBottom: 8,
-  },
-  noApproversText: {
-    textAlign: 'center',
-    marginVertical: 8,
-    marginHorizontal: 16,
-    color: colors.warning,
-  },
-  divider: {
-    marginVertical: 8,
   },
 }));
-
-export const ApprovalSettings = memo(ApprovalSettings_);

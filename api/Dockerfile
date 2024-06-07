@@ -45,7 +45,7 @@ COPY --from=builder --chown=node:node /build/api/edgedb.toml ./api/edgedb.toml
 COPY --from=builder --chown=node:node /build/api/package.json ./api/package.json
 
 # Copy `edgedb` binary - required for migrations
-COPY --from=edgedb/edgedb-cli:4.1.0 --chown=node:node /usr/bin/edgedb /usr/bin/edgedb
+COPY --from=edgedb/edgedb-cli:5.1.0 --chown=node:node /usr/bin/edgedb /usr/bin/edgedb
 
 WORKDIR /build/api
 CMD ["yarn", "start"]

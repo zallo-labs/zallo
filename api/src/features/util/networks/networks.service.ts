@@ -142,7 +142,8 @@ function blockNumberAndStatusActions(client: Client) {
     status() {
       return firstValueFrom(status);
     },
-    blockNumber() {
+    async blockNumber() {
+      await firstValueFrom(status); // Wait for initialization
       return blockNumber;
     },
     blockTime() {
@@ -161,7 +162,7 @@ export function estimatedFeesPerGasKey(chain: Chain) {
 async function getEstimatedFeesPerGas(client: Client, redis: Redis): Promise<FeeValuesEIP1559> {
   const cached = await redis.get(estimatedFeesPerGasKey(client.chain.key));
   if (cached) {
-    const p = JSON.parse(cached);
+    const p = JSON.parse(cached) as any;
     return {
       maxFeePerGas: BigInt(p.maxFeePerGas),
       maxPriorityFeePerGas: BigInt(p.maxPriorityFeePerGas),

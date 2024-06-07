@@ -1,11 +1,8 @@
 module default {
+  global current_accounts: array<uuid>;
   global current_approver_address: Address;
   global current_approver := assert_single((select Approver filter .address = global current_approver_address));
-
   global current_user := global current_approver.user;
-  global current_accounts_array: array<uuid>;
-  global current_accounts_set := array_unpack(global current_accounts_array);
-  global current_accounts := <Account>(global current_accounts_set);
 
   type Account {
     required address: UAddress { constraint exclusive; }
@@ -28,7 +25,7 @@ module default {
     multi link approvers := (distinct (.policies.approvers union .policies.draft[is Policy].approvers));
 
     access policy members_select_insert_update allow select, insert, update
-      using (.id in global current_accounts_set);
+      using (is_member_by_id(.id));
 
     access policy can_be_deleted_when_inactive allow delete
       using (not .active);
@@ -48,9 +45,8 @@ module default {
     multi link approvals := .<proposal[is Approval];
     multi link rejections := .<proposal[is Rejection];
 
-    access policy members_only
-      allow all
-      using (.account in global current_accounts);
+    access policy members_all allow all
+      using (is_member(.account));
   }
 
   type Message extending Proposal {
@@ -71,13 +67,11 @@ module default {
 
     constraint exclusive on ((.proposal, .approver));
 
-    access policy user_all
-      allow all
-      using (.approver.user ?= global current_user);
+    access policy anyone_select allow select
+      using (true);
 
-    access policy members_can_select
-      allow select
-      using (.proposal.account in global current_accounts);
+    access policy user_all allow all
+      using (.approver ?= global current_approver or .approver.user ?= global current_user);
   }
 
   scalar type ApprovalIssue extending enum<'HashMismatch', 'Expired'>;

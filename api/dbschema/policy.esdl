@@ -10,18 +10,19 @@ module default {
     activationBlock: bigint { constraint min_value(0n); }
     required property initState := (.activationBlock ?= 0);
     required property hasBeenActive := exists .activationBlock;
-    required property active := (.hasBeenActive and .latest ?= __source__);
     latest := latestPolicy(.account, .key);
     draft := assert_single((
       with account := __source__.account, key := __source__.key
       select detached PolicyState filter .account = account and .key = key and not .hasBeenActive
       order by .createdAt desc limit 1
     ));
+    required property isActive := (.hasBeenActive and .latest ?= __source__);
+    required property isDraft := exists .draft;
 
     index on ((.account, .key));
 
     access policy members_select_insert_update allow select, insert, update
-      using (.account in global current_accounts);
+      using (is_member(.account));
 
     access policy can_be_deleted_when_never_activated allow delete
       using (not .hasBeenActive);

@@ -129,6 +129,26 @@ function limit(chain: Chain, token: Token, amount: Decimal, duration: DurationLi
   };
 }
 
+export const getPolicyPresetDetails = (n: number) =>
+  ({
+    low: {
+      name: 'Low risk',
+      threshold: 1,
+    },
+    medium: {
+      name: 'Medium risk',
+      threshold: Math.max(Math.round(n * 0.4), 1),
+    },
+    recovery: {
+      name: 'Recovery',
+      threshold: Math.max(Math.round(n * 0.63), 1),
+    },
+    high: {
+      name: 'High risk',
+      threshold: Math.max(Math.round(n * 0.85), 1),
+    },
+  }) as const;
+
 export interface UsePolicyPresetsParams {
   account: FragmentType<typeof Account> | null | undefined;
   user: FragmentType<typeof User>;
@@ -146,12 +166,12 @@ export function usePolicyPresets({ chain, ...params }: UsePolicyPresetsParams) {
       ...user.approvers.map((a) => a.address),
     ]);
     const n = approvers.size;
+    const details = getPolicyPresetDetails(n);
 
     return {
       low: {
-        name: 'Low risk',
+        ...details.low,
         approvers,
-        threshold: 1,
         transfers: {
           defaultAllow: false,
           limits: {
@@ -187,9 +207,8 @@ export function usePolicyPresets({ chain, ...params }: UsePolicyPresetsParams) {
         delay: 0,
       },
       medium: {
-        name: 'Medium risk',
+        ...details.medium,
         approvers,
-        threshold: Math.max(Math.round(n * 0.4), 1),
         transfers: {
           defaultAllow: false,
           limits: {
@@ -225,9 +244,8 @@ export function usePolicyPresets({ chain, ...params }: UsePolicyPresetsParams) {
         delay: 0,
       },
       recovery: {
-        name: 'Recovery',
+        ...details.recovery,
         approvers,
-        threshold: Math.max(Math.round(n * 0.63), 1),
         transfers: { defaultAllow: false, limits: {} },
         actions: [
           {
@@ -241,9 +259,8 @@ export function usePolicyPresets({ chain, ...params }: UsePolicyPresetsParams) {
         delay: Duration.fromObject({ week: 1 }).as('seconds'),
       },
       high: {
-        name: 'High risk',
+        ...details.high,
         approvers,
-        threshold: Math.max(Math.round(n * 0.85), 1),
         transfers: { defaultAllow: true, limits: {} },
         actions: [
           {

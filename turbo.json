@@ -1,9 +1,8 @@
 {
   "$schema": "https://turbo.build/schema.json",
   "globalEnv": ["DOTENV_KEY", "NODE_ENV"],
-  "globalDotEnv": [".env"],
-  "globalDependencies": [".env.vault", "tsconfig.base.json"],
-  "pipeline": {
+  "globalDependencies": [".env", ".env.vault", "tsconfig.base.json"],
+  "tasks": {
     "build": {
       "dependsOn": ["^build"]
     },

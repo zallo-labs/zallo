@@ -6,7 +6,7 @@
     },
     "generate:docs": {
       "inputs": ["../api/schema.graphql"],
-      "outputs": ["docs/reference/schema/**"]
+      "outputs": ["docs/reference/schema/"]
     },
     "generate:gql": {
       "inputs": ["../api/schema.graphql", "codgen.ts", "blog", "docs", "src"],
@@ -15,7 +15,7 @@
     "build": {
       "dependsOn": ["prepare"],
       "inputs": ["blog", "docs", "src", "static"],
-      "outputs": ["dist/**"]
+      "outputs": ["dist/"]
     },
     "dev__disabled__": {
       "dependsOn": ["prepare"],

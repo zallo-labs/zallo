@@ -26,9 +26,6 @@ const decimal: $.scalarTypeWithConstructor<$decimal, never> = $.makeType<$.scala
 export type $decimalλICastableTo = $decimal | $bigint;
 export type $decimalλIAssignableBy = $decimal | $bigint;
 
-export type $uuid = $.ScalarType<"std::uuid", string>;
-const uuid: $.scalarTypeWithConstructor<$uuid, never> = $.makeType<$.scalarTypeWithConstructor<$uuid, never>>(_.spec, "00000000-0000-0000-0000-000000000100", _.syntax.literal);
-
 type $anyint = $number | $bigint;
 
 export type $int32 = $.ScalarType<"std::number", number>;
@@ -83,6 +80,9 @@ const json: $.scalarTypeWithConstructor<$json, never> = $.makeType<$.scalarTypeW
 
 interface $sequence extends $int64 {}
 const $sequence: $sequence = $.makeType<$sequence>(_.spec, "fd1c52ea-74a9-541b-88e2-378d1edb02fd", _.syntax.literal);
+
+export type $uuid = $.ScalarType<"std::uuid", string>;
+const uuid: $.scalarTypeWithConstructor<$uuid, never> = $.makeType<$.scalarTypeWithConstructor<$uuid, never>>(_.spec, "00000000-0000-0000-0000-000000000100", _.syntax.literal);
 
 export type $number = $.ScalarType<"std::number", number>;
 const number: $.scalarTypeWithConstructor<$number, string> = $.makeType<$.scalarTypeWithConstructor<$number, string>>(_.spec, "00000000-0000-0000-0000-0000000001ff", _.syntax.literal);
@@ -4919,14 +4919,13 @@ function sequence_next(...args: any[]) {
 
 
 
-export { str, decimal, uuid, int32, bigint, int64, Endian, JsonEmpty, bool, bytes, datetime, duration, float32, float64, int16, json, $sequence, number, $BaseObject, BaseObject, $Object_8ce8c71ee4fa5f73840c22d7eaa58588, Object_8ce8c71ee4fa5f73840c22d7eaa58588, $FreeObject, FreeObject };
+export { str, decimal, int32, bigint, int64, Endian, JsonEmpty, bool, bytes, datetime, duration, float32, float64, int16, json, $sequence, uuid, number, $BaseObject, BaseObject, $Object_8ce8c71ee4fa5f73840c22d7eaa58588, Object_8ce8c71ee4fa5f73840c22d7eaa58588, $FreeObject, FreeObject };
 
 export type { $anyscalar, $anypoint, $anydiscrete, $anycontiguous, $anyreal, $anynumeric, $anyint, $anyfloat };
 
 type __defaultExports = {
   "str": typeof str;
   "decimal": typeof decimal;
-  "uuid": typeof uuid;
   "int32": typeof int32;
   "bigint": typeof bigint;
   "int64": typeof int64;
@@ -4940,6 +4939,7 @@ type __defaultExports = {
   "float64": typeof float64;
   "int16": typeof int16;
   "json": typeof json;
+  "uuid": typeof uuid;
   "BaseObject": typeof BaseObject;
   "Object": typeof Object_8ce8c71ee4fa5f73840c22d7eaa58588;
   "FreeObject": typeof FreeObject;
@@ -5043,7 +5043,6 @@ type __defaultExports = {
 const __defaultExports: __defaultExports = {
   "str": str,
   "decimal": decimal,
-  "uuid": uuid,
   "int32": int32,
   "bigint": bigint,
   "int64": int64,
@@ -5057,6 +5056,7 @@ const __defaultExports: __defaultExports = {
   "float64": float64,
   "int16": int16,
   "json": json,
+  "uuid": uuid,
   "BaseObject": BaseObject,
   "Object": Object_8ce8c71ee4fa5f73840c22d7eaa58588,
   "FreeObject": FreeObject,

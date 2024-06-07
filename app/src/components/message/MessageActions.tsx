@@ -3,7 +3,8 @@ import { Actions } from '#/layout/Actions';
 import { useApprove } from '~/hooks/useApprove';
 import { useReject } from '~/hooks/useReject';
 import { Button } from '../Button';
-import { useSideSheet } from '#/SideSheet/SideSheetLayout';
+import { useAtom } from 'jotai';
+import { SIDE_SHEET } from '#/SideSheet/SideSheetLayout';
 
 const Message = gql(/* GraphQL */ `
   fragment MessageActions_Message on Message {
@@ -29,14 +30,14 @@ export function MessageActions(props: MessageActionsProps) {
   const user = useFragment(User, props.user);
   const approve = useApprove({ proposal: p, user });
   const reject = useReject({ proposal: p, user });
-  const sheet = useSideSheet();
+  const [sheetVisible, showSheet] = useAtom(SIDE_SHEET);
 
   return (
     <Actions>
       {reject && <Button onPress={reject}>Reject</Button>}
 
-      {!sheet.visible && (
-        <Button mode="contained-tonal" icon="menu-open" onPress={() => sheet.show(true)}>
+      {!sheetVisible && (
+        <Button mode="contained-tonal" icon="menu-open" onPress={() => showSheet(true)}>
           View approvals
         </Button>
       )}

@@ -90,6 +90,7 @@ export function TokenAmount(props: TokenAmountProps) {
       {useFormattedTokenAmount({
         ...props,
         token:
+          // eslint-disable-next-line react-compiler/react-compiler   -- useFragment is not an actual hook
           (isUAddress(props.token) && props.token) || getFragment(ComponentFragment, props.token),
       })}
     </>

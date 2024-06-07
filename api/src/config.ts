@@ -1,4 +1,4 @@
-import { Hex, isPresent, makeRequiredEnv, optionalEnv as optional } from 'lib';
+import { Hex, makeRequiredEnv, optionalEnv as optional } from 'lib';
 import { Chain } from 'chains';
 import os from 'os';
 require('dotenv').config({ path: '../.env' });
@@ -39,7 +39,7 @@ export const CONFIG = {
       optional`GOOGLE_OAUTH_WEB_CLIENT`,
       optional`GOOGLE_OAUTH_IOS_CLIENT`,
       ...(JSON.parse(optional`APPLE_OAUTH_CLIENTS` || '[]') as string[]),
-    ].filter(isPresent),
+    ].filter(Boolean),
   ),
   pythHermesUrl: required`PYTH_HERMES_URL`,
   amplitudeKey: required`AMPLITUDE_KEY`,

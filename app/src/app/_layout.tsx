@@ -17,7 +17,7 @@ import { UpdateProvider } from '#/provider/UpdateProvider';
 import { ThemeProvider } from '~/util/theme/ThemeProvider';
 import { AppbarHeader } from '#/Appbar/AppbarHeader';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { Portal } from 'react-native-paper';
+import { Portal as RnpPortal } from 'react-native-paper';
 import { TQueryProvider } from '#/provider/TQueryProvider';
 import { StyleSheet } from 'react-native';
 import { Fonts } from '#/Fonts';
@@ -25,6 +25,7 @@ import { SentryProvider } from '#/provider/SentryProvider';
 import { GoogleAuthProvider } from '#/cloud/google/GoogleAuthProvider';
 import { Try } from 'expo-router/build/views/Try';
 import { enableFreeze } from 'react-native-screens';
+import { PortalProvider } from '@gorhom/portal';
 
 enableFreeze();
 
@@ -62,9 +63,11 @@ function RootLayout() {
                         <GoogleAuthProvider>
                           <Try catch={RootErrorBoundary}>
                             <Suspense fallback={<Splash />}>
-                              <Portal.Host>
-                                <Layout />
-                              </Portal.Host>
+                              <RnpPortal.Host>
+                                <PortalProvider>
+                                  <Layout />
+                                </PortalProvider>
+                              </RnpPortal.Host>
                             </Suspense>
                           </Try>
                           <Try catch={IgnoredErrorBoundary}>

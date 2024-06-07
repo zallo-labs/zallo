@@ -68,18 +68,12 @@ export function CreateAccount({ onCreate }: CreateAccountScreenProps) {
       user.approvers.length === 1
         ? [presets.high]
         : [presets.high, presets.low, presets.medium, presets.recovery];
-    return all
-      .filter(
-        (p, i) =>
-          // Filter out redundant policies
-          all.findIndex((p2) => p.threshold === p2.threshold && p.delay === p2.delay) === i,
-      )
-      .flatMap((p) =>
-        // Low risk policy for each user approver
-        p.name === presets.low.name
-          ? user.approvers.map((a) => ({ ...p, approvers: new Set([a.address]) }))
-          : [p],
-      );
+
+    return all.filter(
+      (p, i) =>
+        // Filter out redundant policies
+        all.findIndex((p2) => p.threshold === p2.threshold && p.delay === p2.delay) === i,
+    );
   }, [presets.high, presets.low, presets.medium, presets.recovery, user.approvers]);
 
   return (

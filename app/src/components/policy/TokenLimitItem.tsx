@@ -1,19 +1,18 @@
 import { FragmentType, gql, useFragment as getFragment } from '@api';
-import { NavigateNextIcon } from '@theme/icons';
-import { Link } from 'expo-router';
 import { Address, TransferLimit, asDecimal } from 'lib';
 import _ from 'lodash';
 import { Duration } from 'luxon';
 import { AddressIcon } from '#/Identicon/AddressIcon';
 import { ListItem } from '#/list/ListItem';
-import { ListItemHorizontalTrailing } from '#/list/ListItemHorizontalTrailing';
-import { ListItemTrailingText } from '#/list/ListItemTrailingText';
 import { useFormattedTokenAmount } from '#/token/TokenAmount';
 import { TokenIcon } from '#/token/TokenIcon';
 import { usePolicyDraft } from '~/lib/policy/draft';
 import { truncateAddr } from '~/util/format';
-import { useLocalParams } from '~/hooks/useLocalParams';
-import { PolicyScreenParams } from '~/app/(drawer)/[account]/policies/[id]';
+import { Chevron } from '#/Chevron';
+import { useState } from 'react';
+import { TokenSpending } from './TokenSpending';
+import { createStyles, useStyles } from '@theme/styles';
+import { View } from 'react-native';
 
 const Token = gql(/* GraphQL */ `
   fragment TokenLimitItem_Token on Token {
@@ -24,15 +23,17 @@ const Token = gql(/* GraphQL */ `
   }
 `);
 
-export interface TokenSpendingProps {
+export interface TokenLimitItemProps {
   address: Address;
   token: FragmentType<typeof Token> | null | undefined;
 }
 
-export function TokenLimitItem({ address, ...props }: TokenSpendingProps) {
+export function TokenLimitItem({ address, ...props }: TokenLimitItemProps) {
+  const { styles } = useStyles(stylesheet);
   const token = getFragment(Token, props.token);
-  const params = useLocalParams(PolicyScreenParams);
   const [policy] = usePolicyDraft();
+
+  const [expanded, setExpanded] = useState(false);
 
   const limit: TransferLimit | undefined = policy.transfers.limits[address];
   // TODO: make limit.amount a decimal
@@ -43,30 +44,27 @@ export function TokenLimitItem({ address, ...props }: TokenSpendingProps) {
   const duration = Duration.fromObject({ seconds: limit?.duration ?? 0 });
 
   return (
-    <Link
-      href={{
-        pathname: `/(drawer)/[account]/policies/[id]/spending/[token]`,
-        params: { ...params, token: address },
-      }}
-      asChild
-    >
+    <View style={styles.surface}>
       <ListItem
         leading={token ? <TokenIcon token={token} /> : <AddressIcon address={address} />}
         headline={token?.name ?? truncateAddr(address)}
-        trailing={(props) => (
-          <ListItemHorizontalTrailing>
-            <ListItemTrailingText>
-              {!limit?.amount
-                ? 'Not allowed'
-                : `${formattedAmount} per ${prettyDuration(duration)}`}
-            </ListItemTrailingText>
-            <NavigateNextIcon {...props} />
-          </ListItemHorizontalTrailing>
-        )}
+        supporting={
+          limit?.amount ? `${formattedAmount} per ${prettyDuration(duration)}` : 'Not allowed'
+        }
+        trailing={<Chevron expanded={expanded} />}
+        onPress={() => setExpanded(!expanded)}
       />
-    </Link>
+
+      {expanded && <TokenSpending token={address} />}
+    </View>
   );
 }
+
+const stylesheet = createStyles(({ colors }) => ({
+  surface: {
+    backgroundColor: colors.surface,
+  },
+}));
 
 function prettyDuration(duration: Duration) {
   const normalized = Duration.fromDurationLike(duration)

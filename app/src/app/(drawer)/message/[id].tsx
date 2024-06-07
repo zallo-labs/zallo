@@ -60,7 +60,7 @@ export default function MessageScreen() {
   if (!p) return query.stale ? null : <NotFound name="Message" />;
 
   return (
-    <SideSheetLayout>
+    <SideSheetLayout defaultVisible>
       <AppbarOptions
         headline={(props) => <MessageStatus proposal={p} {...props} />}
         mode="large"

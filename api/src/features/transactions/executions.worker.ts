@@ -12,7 +12,6 @@ import {
   asUUID,
   encodePaymasterInput,
   encodeTransactionSignature,
-  isPresent,
   mapAsync,
 } from 'lib';
 import { DatabaseService } from '~/features/database/database.service';
@@ -108,7 +107,7 @@ export class ExecutionsWorker extends Worker<ExecutionsQueue> {
           signature: asHex(a.signature),
         }),
       )
-    ).filter(isPresent);
+    ).filter(Boolean);
     if (approvals.length !== proposal.approvals.length)
       throw new UnrecoverableError('Approval expired'); // TODO: handle expiring approvals
 

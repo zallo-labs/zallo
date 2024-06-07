@@ -1,6 +1,6 @@
 import { useWithLoading } from '~/hooks/useWithLoading';
-import { ComponentPropsWithoutRef } from 'react';
-import { Keyboard } from 'react-native';
+import { ComponentPropsWithoutRef, forwardRef } from 'react';
+import { Keyboard, View } from 'react-native';
 import { FAB as PaperFAB } from 'react-native-paper';
 import { IconSource } from 'react-native-paper/lib/typescript/components/Icon';
 import { createStyles, useStyles } from '@theme/styles';
@@ -14,28 +14,31 @@ export type FabProps = Omit<BaseProps, 'icon'> &
     position?: 'absolute' | 'relative';
   };
 
-export const Fab = ({ appbar, position = 'absolute', style, ...props }: FabProps) => {
-  const { styles } = useStyles(stylesheet);
-  const [loading, onPress] = useWithLoading(props.onPress);
-  const insets = useSafeAreaInsets();
+export const Fab = forwardRef<View, FabProps>(
+  ({ appbar, position = 'absolute', style, ...props }, ref) => {
+    const { styles } = useStyles(stylesheet);
+    const [loading, onPress] = useWithLoading(props.onPress);
+    const insets = useSafeAreaInsets();
 
-  return (
-    <PaperFAB
-      icon={undefined as unknown as IconSource} // https://github.com/callstack/react-native-paper/issues/3594
-      size={appbar ? 'small' : 'medium'}
-      mode={appbar ? 'flat' : 'elevated'}
-      style={[position === 'absolute' && styles.absolute(insets), style]}
-      {...props}
-      loading={props.loading || (props.loading !== false && loading)}
-      {...(onPress && {
-        onPress: (e) => {
-          Keyboard.dismiss();
-          onPress(e);
-        },
-      })}
-    />
-  );
-};
+    return (
+      <PaperFAB
+        ref={ref}
+        icon={undefined as unknown as IconSource} // https://github.com/callstack/react-native-paper/issues/3594
+        size={appbar ? 'small' : 'medium'}
+        mode={appbar ? 'flat' : 'elevated'}
+        style={[position === 'absolute' && styles.absolute(insets), style]}
+        {...props}
+        loading={props.loading || (props.loading !== false && loading)}
+        {...(onPress && {
+          onPress: (e) => {
+            Keyboard.dismiss();
+            onPress(e);
+          },
+        })}
+      />
+    );
+  },
+);
 
 const stylesheet = createStyles(() => ({
   absolute: (insets: EdgeInsets) => ({

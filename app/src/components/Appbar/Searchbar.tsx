@@ -22,7 +22,7 @@ export function Searchbar({
   const { styles } = useStyles(stylesheet);
 
   return (
-    <Surface elevation={3} style={styles.container(inset)}>
+    <Surface elevation={0} style={styles.container(inset)}>
       <View style={styles.leadingContainer}>
         {Leading && <Leading size={styles.leadingIcon.fontSize} color={styles.leadingIcon.color} />}
       </View>
@@ -48,9 +48,10 @@ const stylesheet = createStyles(({ colors, corner, fonts }, { insets }) => ({
     maxWidth: 720,
     borderRadius: corner.full,
     paddingHorizontal: 16,
-    marginHorizontal: 16,
+    // marginHorizontal: 16,
     marginTop: 16 + (inset ? insets.top : 0),
     marginBottom: 8,
+    backgroundColor: colors.surfaceContainer.high,
   }),
   leadingContainer: {
     paddingRight: 16,

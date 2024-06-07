@@ -1,17 +1,16 @@
 import { Address, ETH_ADDRESS, UAddress } from './address';
 import { Operation, encodeOperations } from './operation';
 import _ from 'lodash';
-import { getAbiItem, hashTypedData, Hex, TypedData, TypedDataDefinition, zeroAddress } from 'viem';
+import { getAbiItem, hashTypedData, TypedData, TypedDataDefinition, zeroAddress } from 'viem';
 import { AbiParameterToPrimitiveType, TypedDataToPrimitiveTypes } from 'abitype';
 import { getContractTypedDataDomain } from './util/typed-data';
 import { EXPOSED_ABI } from './contract';
 import { paymasterSignedInput } from './paymaster';
-import { AllOrNone } from './util';
 import { SendTransactionParameters } from 'viem/zksync';
 import { ChainConfig } from 'chains';
 
 export interface Tx {
-  operations: [Operation, ...Operation[]];
+  operations: Operation[];
   timestamp: bigint;
   gas?: bigint;
   paymaster?: Address;

@@ -23,7 +23,7 @@ const tokenScheme = z.union([
   bearerString.refine(isHex),
   bearerString.transform((v, ctx) => {
     try {
-      const { message, signature } = JSON.parse(v);
+      const { message, signature } = JSON.parse(v) as any;
       if (!isHex(signature)) {
         ctx.addIssue({ code: 'custom', message: 'Signature must be a hex string' });
         return z.NEVER;

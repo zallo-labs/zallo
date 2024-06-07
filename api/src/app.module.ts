@@ -35,6 +35,7 @@ import { MessagesModule } from '#//messages/messages.module';
 import { ProposalsModule } from '#//proposals/proposals.module';
 import { BalancesModule } from '#/util/balances/balances.module';
 import { NodesModule } from '#//nodes/nodes.module';
+import { CONFIG } from './config';
 
 @Module({
   imports: [
@@ -74,9 +75,9 @@ import { NodesModule } from '#//nodes/nodes.module';
     ExpoModule,
   ],
   providers: [
-    { provide: APP_INTERCEPTOR, useClass: SentryInterceptor },
+    !!CONFIG.sentryDsn && { provide: APP_INTERCEPTOR, useClass: SentryInterceptor },
     { provide: APP_INTERCEPTOR, useClass: ContextInterceptor },
     { provide: APP_GUARD, useClass: AuthGuard },
-  ],
+  ].filter(Boolean),
 })
 export class AppModule {}

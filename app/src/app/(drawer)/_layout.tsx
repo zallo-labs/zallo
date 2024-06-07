@@ -23,8 +23,12 @@ import { DrawerSurface } from '#/drawer/DrawerSurface';
 import { Link, Stack } from 'expo-router';
 import { AppbarHeader } from '#/Appbar/AppbarHeader';
 import { DrawerLogo } from '#/drawer/DrawerLogo';
-import { createStyles } from '@theme/styles';
+import { createStyles, useStyles } from '@theme/styles';
 import { TouchableOpacity } from 'react-native';
+import { useNavType } from '#/drawer/DrawerContextProvider';
+import { Fab } from '#/Fab';
+import { RailSurface } from '#/drawer/RailSurface';
+import { RailItem } from '#/drawer/RailItem';
 
 const Section = PaperDrawer.Section;
 
@@ -33,14 +37,104 @@ export const unstable_settings = {
 };
 
 export default function DrawerLayout() {
+  const { styles } = useStyles(stylesheet);
+  const type = useNavType();
+
   return (
-    <Drawer drawerContent={() => <Content />}>
-      <Stack screenOptions={{ header: (props) => <AppbarHeader {...props} /> }} />
+    <Drawer DrawerContent={DrawerContent} RailContent={RailContent}>
+      <Stack
+        screenOptions={{
+          header: (props) => <AppbarHeader {...props} />,
+          contentStyle: [styles.content, type === 'modal' && styles.modalPadding],
+        }}
+      />
     </Drawer>
   );
 }
 
-function Content() {
+const stylesheet = createStyles(({ colors }) => ({
+  content: {
+    backgroundColor: colors.surfaceContainer.low,
+    paddingRight: {
+      compact: 16,
+      medium: 24,
+    },
+  },
+  modalPadding: {
+    paddingLeft: {
+      compact: 16,
+      medium: 24,
+    },
+  },
+}));
+
+function RailContent() {
+  const { styles } = useStyles(railStylesheet);
+  const account = useSelectedAccount();
+  const transfer = useTransfer();
+
+  return (
+    <RailSurface
+      fab={
+        account && (
+          <Fab
+            mode="flat"
+            position="relative"
+            icon={() => <TransferIcon color={styles.fabIcon.color} />}
+            style={styles.fabContainer}
+            loading={false}
+            onPress={() => transfer({ account })}
+          />
+        )
+      }
+    >
+      {account ? (
+        <RailItem
+          href={{ pathname: `/(drawer)/[account]/(home)/`, params: { account } }}
+          icon={HomeIcon}
+          label="Home"
+        />
+      ) : (
+        <RailItem href={`/`} icon={HomeIcon} label="Home" />
+      )}
+
+      {account && (
+        <RailItem
+          href={{ pathname: `/(drawer)/[account]/swap`, params: { account } }}
+          icon={SwapIcon}
+          label="Swap"
+        />
+      )}
+
+      {account && (
+        <RailItem
+          href={{ pathname: `/(modal)/[account]/receive`, params: { account } }}
+          icon={QrCodeIcon}
+          label="Receive"
+        />
+      )}
+
+      {account && (
+        <RailItem
+          href={{ pathname: `/(drawer)/[account]/settings/`, params: { account } }}
+          icon={AccountIcon}
+          label="Account"
+        />
+      )}
+    </RailSurface>
+  );
+}
+
+const railStylesheet = createStyles(({ colors }) => ({
+  fabContainer: {
+    backgroundColor: colors.tertiary,
+  },
+  fabIcon: {
+    color: colors.onTertiary,
+  },
+}));
+
+function DrawerContent() {
   const account = useSelectedAccount();
   const transfer = useTransfer();
 
@@ -49,7 +143,7 @@ function Content() {
       <Section>
         <Link href={{ pathname: '/', params: { redirect: 'false' } }} asChild>
           <TouchableOpacity>
-            <DrawerLogo style={styles.logo} />
+            <DrawerLogo style={contentStyles.logo} />
           </TouchableOpacity>
         </Link>
 
@@ -63,9 +157,43 @@ function Content() {
           <Item href={`/`} icon={HomeIcon} label="Home" />
         )}
 
-        <Item href={`/(drawer)/contacts/`} icon={ContactsIcon} label="Contacts" />
-        <Item href={`/(drawer)/sessions/`} icon={WalletConnectIcon} label="Sessions" />
+        {account && (
+          <Item
+            href={{ pathname: `/(drawer)/[account]/transfer`, params: { account } }}
+            icon={TransferIcon}
+            label="Transfer"
+            onPress={() => transfer({ account })}
+          />
+        )}
 
+        {account && (
+          <Item
+            href={{ pathname: `/(drawer)/[account]/swap`, params: { account } }}
+            icon={SwapIcon}
+            label="Swap"
+          />
+        )}
+
+        {account && (
+          <Item
+            href={{ pathname: `/(modal)/[account]/receive`, params: { account } }}
+            icon={QrCodeIcon}
+            label="Receive"
+          />
+        )}
+
+        {account && (
+          <Item
+            href={{ pathname: `/(drawer)/[account]/settings/`, params: { account } }}
+            icon={AccountIcon}
+            label="Account"
+          />
+        )}
+      </Section>
+
+      <Section>
+        <Item href={`/(drawer)/approvers`} icon={DevicesIcon} label="My approvers" />
+        <Item href={`/(drawer)/contacts/`} icon={ContactsIcon} label="Contacts" />
         {account && (
           <Item
             href={{ pathname: `/(drawer)/[account]/tokens`, params: { account } }}
@@ -73,40 +201,8 @@ function Content() {
             label="Tokens"
           />
         )}
-      </Section>
+        <Item href={`/(drawer)/sessions/`} icon={WalletConnectIcon} label="Sessions" />
 
-      {account && (
-        <Section title="Actions">
-          <Item
-            href={{ pathname: `/(drawer)/[account]/transfer`, params: { account } }}
-            icon={TransferIcon}
-            label="Transfer"
-            onPress={() => transfer({ account })}
-          />
-
-          <Item
-            href={{ pathname: `/(modal)/[account]/receive`, params: { account } }}
-            icon={QrCodeIcon}
-            label="Receive"
-          />
-
-          <Item
-            href={{ pathname: `/(drawer)/[account]/swap`, params: { account } }}
-            icon={SwapIcon}
-            label="Swap"
-          />
-        </Section>
-      )}
-
-      <Section title="Settings">
-        {account && (
-          <Item
-            href={{ pathname: `/(drawer)/[account]/settings`, params: { account } }}
-            icon={AccountIcon}
-            label="Account"
-          />
-        )}
-        <Item href={`/(drawer)/approvers`} icon={DevicesIcon} label="My approvers" />
         <Item href={`/(drawer)/settings/auth`} icon={FingerprintIcon} label="Auth" />
         <Item
           href={`/(drawer)/settings/notifications`}
@@ -123,7 +219,7 @@ function Content() {
   );
 }
 
-const styles = createStyles({
+const contentStyles = createStyles({
   logo: {
     marginBottom: 8,
   },

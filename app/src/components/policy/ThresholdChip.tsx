@@ -15,7 +15,7 @@ export function ThresholdChip() {
     (n) =>
       ({
         title: match(n)
-          .with(0, () => 'No approvals required')
+          .with(0, () => 'No approval required - executable by anyone')
           .with(1, () => '1 approval required')
           .otherwise((n) => `${n} approvals required`),
         value: n,

@@ -15,7 +15,7 @@ export function Skeleton({ children, width, height, ...props }: SkeletonProps) {
 
   return (
     <ContentLoader
-      speed={2}
+      speed={1.8}
       width={width}
       height={height}
       viewBox={`0 0 ${width} ${height}`}
@@ -30,7 +30,7 @@ export function Skeleton({ children, width, height, ...props }: SkeletonProps) {
 
 const stylesheet = createStyles(({ colors }) => ({
   loader: {
-    color: colors.surface,
+    color: colors.primaryContainer,
     backgroundColor: colors.surfaceContainer.highest,
   },
 }));

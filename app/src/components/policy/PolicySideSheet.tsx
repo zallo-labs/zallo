@@ -11,7 +11,7 @@ import { SideSheet } from '../SideSheet/SideSheet';
 import { useConfirmRemoval } from '~/hooks/useConfirm';
 import { Button } from '../Button';
 import { createStyles, useStyles } from '@theme/styles';
-import { memo, useEffect } from 'react';
+import { useEffect } from 'react';
 
 const trimmed = (v: string) => v.trim();
 
@@ -71,7 +71,7 @@ export interface PolicySideSheetProps {
   policy?: FragmentType<typeof Policy> | null;
 }
 
-function PolicySideSheet_(props: PolicySideSheetProps) {
+export function PolicySideSheet(props: PolicySideSheetProps) {
   const { styles } = useStyles(stylesheet);
   const account = useFragment(Account, props.account);
   const policy = useFragment(Policy, props.policy);
@@ -93,7 +93,7 @@ function PolicySideSheet_(props: PolicySideSheetProps) {
   }, [draft.name, reset]);
 
   return (
-    <SideSheet headline="Settings" style={styles.sheet}>
+    <SideSheet headline="Settings">
       <FormTextField
         label="Name"
         control={control}
@@ -160,9 +160,6 @@ function PolicySideSheet_(props: PolicySideSheetProps) {
 }
 
 const stylesheet = createStyles(({ colors }) => ({
-  sheet: {
-    flex: 1,
-  },
   field: {
     margin: 16,
   },
@@ -173,5 +170,3 @@ const stylesheet = createStyles(({ colors }) => ({
     color: colors.onErrorContainer,
   },
 }));
-
-export const PolicySideSheet = memo(PolicySideSheet_);

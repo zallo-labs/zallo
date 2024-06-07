@@ -27,7 +27,7 @@ export class ProposeTransactionInput {
   account: UAddress;
 
   @Field(() => [OperationInput])
-  operations: [OperationInput, ...OperationInput[]];
+  operations: OperationInput[];
 
   @Field(() => String, { nullable: true })
   label?: string;

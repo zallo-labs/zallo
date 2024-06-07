@@ -23,6 +23,7 @@ export const Chevron = ({ expanded, style, ...iconProps }: ChevronProps) => {
   }));
 
   useEffect(() => {
+    // eslint-disable-next-line react-compiler/react-compiler
     rotation.value = withTiming(getRotation(expanded));
   }, [expanded, rotation]);
 

@@ -10,7 +10,7 @@ sysctl vm.overcommit_memory=1 || true
 : ${MAXMEMORY:=$(($FLY_VM_MEMORY_MB*90/100))}  # 90% of available memory
 : ${MAXMEMORY_POLICY:="noeviction"}
 : ${APPENDONLY:="yes"}
-: ${SAVE:="3600 1 300 100 60 10000"}
+: ${SAVE:="900 1 300 10 60 10000"}
 
 PW_ARG=""
 if [[ ! -z "${REDIS_PASSWORD}" ]]; then

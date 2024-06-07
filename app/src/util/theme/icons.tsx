@@ -43,6 +43,7 @@ export const ContactsIcon = materialIcon('people');
 export const AddIcon = materialCommunityIcon('plus');
 export const DeleteIcon = materialCommunityIcon('delete');
 export const EditIcon = materialCommunityIcon('pencil');
+export const EditOutlineIcon = materialCommunityIcon('pencil-outline');
 export const ScanIcon = materialCommunityIcon('line-scan');
 export const ShareIcon = materialCommunityIcon('share-variant');
 export const CheckIcon = materialCommunityIcon('check');
@@ -82,6 +83,7 @@ export const SomethingWrongIcon = materialCommunityIcon('robot-dead-outline');
 export const PolicyIcon = materialCommunityIcon('security');
 export const PolicyEditOutlineIcon = materialCommunityIcon('shield-edit-outline');
 export const PolicyRemoveOutlineIcon = materialCommunityIcon('shield-remove-outline');
+export const TextIcon = materialCommunityIcon('text');
 
 export const ZalloLogo = imageFromSource(require('assets/brand/logo-l.svg'));
 export const AppStoreBadge = imageFromSource(require('assets/app-store-badge.svg'));

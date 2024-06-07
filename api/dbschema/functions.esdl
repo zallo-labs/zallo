@@ -14,4 +14,12 @@ module default {
   function as_fixed(value: decimal, decimals: uint16) -> bigint using (
     <bigint>round(value * (10n ^ decimals))
   );
+
+  function is_member_by_id(account: uuid) -> bool using (
+    contains(global current_accounts, account) ?? false
+  );
+
+  function is_member(account: Account) -> bool using (
+    contains(global current_accounts, account.id) ?? false
+  );
 }

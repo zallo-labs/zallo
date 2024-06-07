@@ -1,8 +1,8 @@
-import { FC, ReactNode, forwardRef, memo } from 'react';
+import { FC, ReactNode, forwardRef } from 'react';
 import { IconProps } from '@theme/icons';
-import { Text, TouchableRipple, TouchableRippleProps } from 'react-native-paper';
+import { Text } from 'react-native-paper';
 import { TextProps } from '@theme/types';
-import { StyleProp, TextStyle, View, ViewStyle } from 'react-native';
+import { Pressable, PressableProps, StyleProp, TextStyle, View, ViewStyle } from 'react-native';
 import { O } from 'ts-toolbelt';
 import { ICON_SIZE } from '@theme/paper';
 import { createStyles, useStyles } from '@theme/styles';
@@ -21,7 +21,7 @@ export interface ListItemTextProps {
   Text: FC<TextProps>;
 }
 
-export type ListItemProps = Pick<TouchableRippleProps, 'onPress'> &
+export type ListItemProps = Pick<PressableProps, 'onPress' | 'onLongPress'> &
   O.Optional<StyleProps, 'lines' | 'leadingSize'> & {
     leading?: ReactNode | FC<ListIconElementProps>;
     overline?: ReactNode | FC<ListItemTextProps>;
@@ -30,9 +30,10 @@ export type ListItemProps = Pick<TouchableRippleProps, 'onPress'> &
     trailing?: FC<ListIconElementProps & ListItemTextProps> | ReactNode;
     containerStyle?: StyleProp<ViewStyle>;
     textStyle?: StyleProp<TextStyle>;
+    selected?: boolean;
   };
 
-const ListItem_ = forwardRef<View, ListItemProps>(
+export const ListItem = forwardRef<View, ListItemProps>(
   (
     {
       leading: Leading,
@@ -50,7 +51,8 @@ const ListItem_ = forwardRef<View, ListItemProps>(
     },
     ref,
   ) => {
-    const { styles } = useStyles(getStylesheet({ lines, leadingSize, selected, disabled }));
+    const { styles } = useStyles(getStylesheet({ lines, leadingSize, disabled }));
+    const pressable = !!(touchableProps.onPress || touchableProps.onLongPress);
 
     const OverlineText = ({ style, ...props }: TextProps) => (
       <Text
@@ -81,10 +83,16 @@ const ListItem_ = forwardRef<View, ListItemProps>(
     );
 
     return (
-      <TouchableRipple
+      <Pressable
         ref={ref}
         {...touchableProps}
-        style={[styles.container, containerStyle]}
+        style={(state) => [
+          styles.container,
+          containerStyle,
+          selected && styles.selected,
+          pressable && (state as { hovered?: boolean }).hovered && styles.hovered, // state.hovered exists on web
+          pressable && state.pressed && styles.pressed,
+        ]}
         disabled={disabled}
       >
         <>
@@ -139,16 +147,13 @@ const ListItem_ = forwardRef<View, ListItemProps>(
             </View>
           )}
         </>
-      </TouchableRipple>
+      </Pressable>
     );
   },
 );
 
-export const ListItem = memo(ListItem_);
-
 interface StyleProps {
   lines: Lines;
-  selected?: boolean;
   disabled?: boolean;
   leadingSize: 'small' | 'medium';
 }
@@ -159,7 +164,7 @@ export enum ListItemHeight {
   TRIPLE_LINE = 88,
 }
 
-const getStylesheet = ({ lines, selected, disabled, leadingSize }: StyleProps) =>
+const getStylesheet = ({ lines, disabled, leadingSize }: StyleProps) =>
   createStyles(({ colors, corner, stateLayer }) => {
     const justifyContent = lines === 3 ? 'flex-start' : 'center';
 
@@ -168,8 +173,7 @@ const getStylesheet = ({ lines, selected, disabled, leadingSize }: StyleProps) =
     return {
       container: {
         flexDirection: 'row',
-        ...(selected && { backgroundColor: colors.secondaryContainer }),
-        height: [
+        minHeight: [
           ListItemHeight.SINGLE_LINE,
           ListItemHeight.DOUBLE_LINE,
           ListItemHeight.TRIPLE_LINE,
@@ -177,7 +181,17 @@ const getStylesheet = ({ lines, selected, disabled, leadingSize }: StyleProps) =
         paddingLeft: 16,
         paddingRight: 24,
         paddingVertical: lines === 3 ? 12 : 8,
-        borderRadius: corner.m,
+        // Ideally 'box-none' but this breaks pressable children without pointerEvents: 'auto'
+        // ...(!pressable && { pointerEvents: 'box-none' }),
+      },
+      selected: {
+        backgroundColor: colors.secondaryContainer,
+      },
+      hovered: {
+        backgroundColor: colors.surfaceContainer.high,
+      },
+      pressed: {
+        backgroundColor: colors.surfaceContainer.highest,
       },
       leadingContainer: {
         justifyContent,

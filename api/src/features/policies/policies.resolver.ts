@@ -5,6 +5,7 @@ import {
   ValidationErrorsArgs,
   UniquePolicyInput,
   UpdatePolicyInput,
+  UpdatePoliciesInput,
 } from './policies.input';
 import { PoliciesService } from './policies.service';
 import {
@@ -49,6 +50,12 @@ export class PoliciesResolver {
   async updatePolicy(@Input() input: UpdatePolicyInput, @Info() info: GraphQLResolveInfo) {
     await this.service.update(input);
     return (await this.service.latest({ account: input.account, key: input.key }, getShape(info)))!;
+  }
+
+  @Mutation(() => [Policy])
+  async updatePolicies(@Input() input: UpdatePoliciesInput, @Info() info: GraphQLResolveInfo) {
+    const policies = await this.service.updatePolicies(input);
+    return policies ? this.service.policies(policies, getShape(info)) : [];
   }
 
   @Mutation(() => Policy)

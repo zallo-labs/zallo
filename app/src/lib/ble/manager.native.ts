@@ -84,11 +84,11 @@ class SharedBleManager extends InternalBleManager {
     });
   }
 
-  startDeviceScan(
+  async startDeviceScan(
     _UUIDs: string[] | null,
     _options: ScanOptions | null,
     listener: ScanListener,
-  ): void {
+  ): Promise<void> {
     this.addScanListener(listener);
   }
 
@@ -113,7 +113,7 @@ class SharedBleManager extends InternalBleManager {
     };
   }
 
-  stopDeviceScan(): void {
+  async stopDeviceScan(): Promise<void> {
     if (this._scanListeners.size === 0) {
       super.stopDeviceScan();
     }

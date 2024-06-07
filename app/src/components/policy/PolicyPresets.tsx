@@ -1,10 +1,8 @@
 import { FragmentType, gql, useFragment } from '@api';
-import { PolicyIcon } from '@theme/icons';
-import { createStyles } from '@theme/styles';
+import { createStyles, useStyles } from '@theme/styles';
 import { useAtomValue, useSetAtom } from 'jotai';
-import { memo } from 'react';
 import { ScrollView, View } from 'react-native';
-import { Chip, Text } from 'react-native-paper';
+import { Chip } from 'react-native-paper';
 import { usePolicyDraftAtom } from '~/lib/policy/draft';
 import { usePolicyPresets } from '~/lib/policy/usePolicyPresets';
 
@@ -28,7 +26,8 @@ export interface PolicyPresetsProps {
   user: FragmentType<typeof User>;
 }
 
-function PolicyPresets_(props: PolicyPresetsProps) {
+export function PolicyPresets(props: PolicyPresetsProps) {
+  const { styles } = useStyles(stylesheet);
   const account = useFragment(Account, props.account);
   const user = useFragment(User, props.user);
   const presets = usePolicyPresets({ account, user, chain: account.chain });
@@ -40,44 +39,42 @@ function PolicyPresets_(props: PolicyPresetsProps) {
   if (policy.key !== undefined) return null;
 
   return (
-    <View style={styles.container}>
-      <Text variant="labelLarge" style={styles.title}>
-        Use preset
-      </Text>
-
+    <View>
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.suggestions}
+        contentContainerStyle={styles.container}
       >
-        {Object.values(presets).map((preset) => (
-          <Chip
-            key={preset.name}
-            mode="outlined"
-            icon={PolicyIcon}
-            onPress={() => setDraft((d) => ({ ...d, ...preset }))}
-          >
-            {preset.name}
-          </Chip>
-        ))}
+        {Object.values(presets).map((preset) => {
+          const selected = policy.name === preset.name;
+          return (
+            <Chip
+              key={preset.name}
+              mode={selected ? 'flat' : 'outlined'}
+              onPress={() => setDraft((d) => ({ ...d, ...preset }))}
+              style={styles.chip(selected)}
+              textStyle={styles.chipText(selected)}
+            >
+              {preset.name}
+            </Chip>
+          );
+        })}
       </ScrollView>
     </View>
   );
 }
 
-const styles = createStyles({
+const stylesheet = createStyles(({ colors }) => ({
   container: {
-    marginVertical: 8,
-    gap: 8,
-  },
-  title: {
-    marginHorizontal: 16,
-  },
-  suggestions: {
     flexDirection: 'row',
     gap: 8,
     marginHorizontal: 16,
+    marginBottom: 8,
   },
-});
-
-export const PolicyPresets = memo(PolicyPresets_);
+  chip: (selected: boolean) => ({
+    backgroundColor: selected ? colors.secondaryContainer : 'transparent',
+  }),
+  chipText: (selected: boolean) => ({
+    color: selected ? colors.onSecondaryContainer : colors.onSurface,
+  }),
+}));

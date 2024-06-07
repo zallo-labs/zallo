@@ -10,7 +10,7 @@ const Account = gql(/* GraphQL */ `
     address
     policies {
       id
-      active
+      isActive
       initState
     }
   }
@@ -29,7 +29,7 @@ export function useCreatePolicySuggestion(props: UseCreatePolicySuggestionParams
     Item: (props) => (
       <Link
         href={{
-          pathname: `/(drawer)/[account]/policies/[id]/`,
+          pathname: `/(drawer)/[account]/settings/policy/[id]/`,
           params: { account: account.address, id: 'add' },
         }}
         asChild
@@ -37,6 +37,6 @@ export function useCreatePolicySuggestion(props: UseCreatePolicySuggestionParams
         <ListItem leading={PolicyIcon} headline="Create a policy" {...props} />
       </Link>
     ),
-    complete: account.policies.some((p) => p.active && !p.initState),
+    complete: account.policies.some((p) => p.isActive && !p.initState),
   };
 }

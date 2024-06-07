@@ -1,27 +1,31 @@
-import { ComponentPropsWithoutRef, useState } from 'react';
+import { ComponentPropsWithoutRef, FC, useState } from 'react';
 // import { Drawer as DrawerLayout } from 'expo-router/drawer';      // Navigator
 import { Drawer as DrawerLayout } from 'react-native-drawer-layout'; // Not navigator
-import { DrawerContextProvider, DrawerType } from './DrawerContextProvider';
-import { BREAKPOINTS, createStyles, useStyles } from '@theme/styles';
+import { DrawerContextProvider, useDrawerType, useNavType } from './DrawerContextProvider';
+import { createStyles, useStyles } from '@theme/styles';
+import { RailLayout } from './RailLayout';
 
 type DrawerLayoutProps = ComponentPropsWithoutRef<typeof DrawerLayout>;
 
 export interface DrawerProps extends Omit<Partial<DrawerLayoutProps>, 'renderDrawerContent'> {
-  drawerContent: DrawerLayoutProps['renderDrawerContent'];
+  DrawerContent: FC;
+  RailContent: FC;
 }
 
-export function Drawer({ children, drawerContent, ...props }: DrawerProps) {
-  const { styles, breakpoint } = useStyles(stylesheet);
-  const type: DrawerType = BREAKPOINTS[breakpoint] >= BREAKPOINTS.expanded ? 'standard' : 'modal';
+export function Drawer({ children, DrawerContent, RailContent, ...props }: DrawerProps) {
+  const { styles } = useStyles(stylesheet);
+  const navType = useNavType();
+  const drawerType = useDrawerType();
+
   const [open, setOpen] = useState(false);
 
   return (
-    <DrawerContextProvider type={type} setOpen={setOpen}>
+    <DrawerContextProvider setOpen={setOpen}>
       <DrawerLayout
         {...props}
-        renderDrawerContent={drawerContent}
+        renderDrawerContent={() => <DrawerContent />}
         drawerPosition="left"
-        drawerType={type === 'standard' ? 'permanent' : 'front'}
+        drawerType={drawerType === 'standard' ? 'permanent' : 'front'}
         drawerStyle={styles.drawer}
         overlayStyle={styles.overlay}
         style={styles.sceneContainer}
@@ -29,35 +33,29 @@ export function Drawer({ children, drawerContent, ...props }: DrawerProps) {
         onOpen={() => setOpen(true)}
         onClose={() => setOpen(false)}
       >
-        {children}
+        {navType === 'rail' ? <RailLayout Rail={RailContent}>{children}</RailLayout> : children}
       </DrawerLayout>
     </DrawerContextProvider>
   );
 }
 
-const stylesheet = createStyles(({ colors }) => {
-  const backgroundColor = {
-    expanded: colors.surfaceContainer.low, // standard type
-  };
-
-  return {
-    drawer: {
-      backgroundColor,
-      width: {
-        // Modal type
-        compact: 360,
-        // Standard type
-        large: 360,
-      },
-      //  Unset borders
-      borderLeftWidth: undefined,
-      borderRightWidth: undefined,
+const stylesheet = createStyles(({ colors }) => ({
+  drawer: {
+    backgroundColor: colors.surfaceContainer.low,
+    width: {
+      // Modal type
+      compact: 360,
+      // Standard type
+      large: 360,
     },
-    overlay: {
-      backgroundColor: colors.scrim,
-    },
-    sceneContainer: {
-      backgroundColor,
-    },
-  };
-});
+    //  Unset borders
+    borderLeftWidth: undefined,
+    borderRightWidth: undefined,
+  },
+  overlay: {
+    backgroundColor: colors.scrim,
+  },
+  sceneContainer: {
+    backgroundColor: colors.surfaceContainer.low,
+  },
+}));

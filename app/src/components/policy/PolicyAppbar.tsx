@@ -1,22 +1,21 @@
 import { SettingsOutlineIcon, SwapIcon, UndoIcon } from '@theme/icons';
 import { Chip, Menu } from 'react-native-paper';
 import { AppbarMore } from '#/Appbar/AppbarMore';
-import { useAtomValue } from 'jotai';
+import { useAtomValue, useSetAtom } from 'jotai';
 import { FragmentType, gql, useFragment } from '@api/generated';
 import { usePolicyDraftAtom } from '~/lib/policy/draft';
-import { AppbarOptions } from '#/Appbar/AppbarOptions';
 import { useRouter } from 'expo-router';
 import { createStyles, useStyles } from '@theme/styles';
-import { useSideSheet } from '#/SideSheet/SideSheetLayout';
 import { useLocalParams } from '~/hooks/useLocalParams';
-import { PolicyScreenParams } from '~/app/(drawer)/[account]/policies/[id]';
-import { memo } from 'react';
+import { PolicyScreenParams } from '~/app/(drawer)/[account]/settings/policy/[id]';
+import { Appbar } from '#/Appbar/Appbar';
+import { SIDE_SHEET } from '#/SideSheet/SideSheetLayout';
 
 const Policy = gql(/* GraphQL */ `
   fragment PolicyAppbar_Policy on Policy {
     id
     key
-    active
+    isActive
     latest {
       id
     }
@@ -34,17 +33,17 @@ export interface PolicyAppbarProps {
   reset?: () => void;
 }
 
-function PolicyAppbar_({ reset, ...props }: PolicyAppbarProps) {
+export function PolicyAppbar({ reset, ...props }: PolicyAppbarProps) {
   const { styles } = useStyles(stylesheet);
   const policy = useFragment(Policy, props.policy);
   const router = useRouter();
   const params = useLocalParams(PolicyScreenParams);
-  const sheet = useSideSheet();
+  const showSheet = useSetAtom(SIDE_SHEET);
 
   const { name } = useAtomValue(usePolicyDraftAtom());
 
-  const stateLabel =
-    (policy?.active && 'Active') ||
+  const state =
+    (policy?.isActive && 'Active') ||
     ((!policy || policy.id === policy.draft?.id) && 'Draft') ||
     'Historic';
 
@@ -53,28 +52,32 @@ function PolicyAppbar_({ reset, ...props }: PolicyAppbarProps) {
     (policy?.id !== policy?.draft?.id && policy?.draft?.id);
 
   return (
-    <AppbarOptions
+    <Appbar
       mode="large"
       headline={name}
       trailing={[
         (props) => (reset ? <UndoIcon {...props} onPress={reset} /> : null),
-        () =>
+        (iconProps) =>
           switchState ? (
             <Chip
               mode="flat"
               onPress={() => router.setParams({ ...params, id: switchState })}
-              icon={(props) => <SwapIcon {...props} style={styles.pressableStateChipLabel} />}
+              icon={() => <SwapIcon {...iconProps} style={styles.pressableStateChipLabel} />}
               style={styles.pressableStateChipContainer}
               textStyle={styles.pressableStateChipLabel}
             >
-              {stateLabel}
+              {state}
             </Chip>
           ) : (
-            <Chip mode="outlined" textStyle={styles.unpressableStateChipLabel}>
-              {stateLabel}
+            <Chip
+              mode="outlined"
+              style={styles.unpressableStateContainer}
+              textStyle={styles.unpressableStateChipLabel}
+            >
+              {state}
             </Chip>
           ),
-        (props) => <SettingsOutlineIcon {...props} onPress={() => sheet.show(true)} />,
+        (props) => <SettingsOutlineIcon {...props} onPress={() => showSheet((s) => !s)} />,
         (iconProps) =>
           policy?.proposal && (
             <AppbarMore iconProps={iconProps}>
@@ -103,9 +106,10 @@ const stylesheet = createStyles(({ colors }) => ({
   pressableStateChipLabel: {
     color: colors.onTertiary,
   },
+  unpressableStateContainer: {
+    backgroundColor: 'transparent',
+  },
   unpressableStateChipLabel: {
-    color: colors.tertiary,
+    color: colors.onSurface,
   },
 }));
-
-export const PolicyAppbar = memo(PolicyAppbar_);

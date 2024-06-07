@@ -24,7 +24,6 @@ import {
   asUUID,
   encodeMessageSignature,
   isHex,
-  isPresent,
   mapAsync,
 } from 'lib';
 import { ShapeFunc } from '../database/database.select';
@@ -186,7 +185,7 @@ export class MessagesService {
           network,
         }),
       )
-    ).filter(isPresent);
+    ).filter(Boolean);
 
     const signature = encodeMessageSignature({
       message: (proposal.typedData as TypedDataDefinition | null) ?? proposal.message,
@@ -217,7 +216,7 @@ export class MessagesService {
               _.omit(typedData.types as WritableDeep<typeof typedData.types>, 'EIP712Domain'),
             ).hash(typedData.message),
           ] as Hex[]
-        ).filter(isPresent),
+        ).filter(Boolean),
       ),
     );
   }
