@@ -142,7 +142,8 @@ function blockNumberAndStatusActions(client: Client) {
     status() {
       return firstValueFrom(status);
     },
-    blockNumber() {
+    async blockNumber() {
+      await firstValueFrom(status); // Wait for initialization
       return blockNumber;
     },
     blockTime() {

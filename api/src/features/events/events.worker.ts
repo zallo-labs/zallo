@@ -9,7 +9,7 @@ import { RUNNING_JOB_STATUSES, TypedJob, createQueue } from '../util/bull/bull.u
 import { Worker } from '#/util/bull/Worker';
 import { AbiEvent } from 'abitype';
 import { Log as ViemLog, encodeEventTopics, hexToNumber } from 'viem';
-import { JobsOptions, UnrecoverableError } from 'bullmq';
+import { UnrecoverableError } from 'bullmq';
 
 const TARGET_LOGS_PER_JOB = 9_000; // Max 10k
 const DEFAULT_LOGS_PER_BLOCK = 200;
@@ -72,25 +72,34 @@ export class EventsWorker extends Worker<EventsQueue> {
   async process(job: TypedJob<EventsQueue>) {
     const { chain, from } = job.data;
     const network = this.networks.get(chain);
-    const latest = Number(network.blockNumber()); // Warning: bigint -> number
+    const latest = Number(await network.blockNumber()); // Warning: bigint -> number
+
+    if (latest < from) {
+      this.queue.add(
+        'Ahead',
+        { chain, from, to: job.data.to },
+        { delay: delay(network.blockTime()) },
+      );
+      return;
+    }
+
+    // Only process up to latest block
     const firstAttempt = job.attemptsMade === 0 && !job.data.split;
     const to = firstAttempt ? Math.min(job.data.to, latest) : job.data.to;
-    if (to !== job.data.to) job.updateData({ ...job.data, to }); // Ensures deterministic retries
+    if (to !== job.data.to) await job.updateData({ ...job.data, to }); // Ensures deterministic retries
 
-    // Queue next job on the first attempt
+    // Queue following job
     if (firstAttempt) {
-      if (latest < from) {
-        this.add('Ahead', { chain, from, to }, { delay: delay(network.blockTime()) }, true);
+      if (to < latest) {
+        this.queue.add('Behind', { chain, from: to + 1, to: to + this.targetBlocks(chain) });
       } else {
-        this.add(
-          latest === from ? 'Tracking' : 'Behind',
+        this.queue.add(
+          'Tracking',
           { chain, from: to + 1, to: to + this.targetBlocks(chain) },
-          { delay: latest === from ? delay(network.blockTime()) : undefined },
+          { delay: delay(network.blockTime()) },
         );
       }
     }
-
-    if (to < from) return;
 
     try {
       const logs = await network.getLogs({
@@ -122,11 +131,9 @@ export class EventsWorker extends Worker<EventsQueue> {
       if (to <= mid)
         throw new UnrecoverableError(`Invalid split block range: [${from}, ${mid}] for split`);
 
-      const lower: EventJobData = { chain, from, to: mid, split: true };
-      const upper: EventJobData = { chain, from: mid + 1, to, split: true };
       this.queue.addBulk([
-        { name: 'Split (lower)', data: lower, opts: { jobId: jobId(lower) } },
-        { name: 'Split (upper)', data: upper, opts: { jobId: jobId(upper) } },
+        { name: 'Split (lower)', data: { chain, from, to: mid, split: true } },
+        { name: 'Split (upper)', data: { chain, from: mid + 1, to, split: true } },
       ]);
     }
   }
@@ -160,10 +167,10 @@ export class EventsWorker extends Worker<EventsQueue> {
 
       const from = lastProcessedBlock
         ? Number(lastProcessedBlock) + 1 // Warning: bigint -> number
-        : Number(network.blockNumber()); // Warning: bigint -> number
+        : Number(await network.blockNumber()); // Warning: bigint -> number
 
       const chain = network.chain.key;
-      this.add(EventsQueue.name, { chain, from, to: from + this.targetBlocks(chain) });
+      this.queue.add(EventsQueue.name, { chain, from, to: from + this.targetBlocks(chain) });
 
       this.log.log(
         `${network.chain.key}: events starting from ${
@@ -172,14 +179,6 @@ export class EventsWorker extends Worker<EventsQueue> {
       );
     }
   }
-
-  add(name: string, data: EventJobData, opts?: JobsOptions, ahead?: boolean) {
-    return this.queue.add(name, data, { jobId: jobId(data, ahead), ...opts });
-  }
-}
-
-function jobId(data: EventJobData, ahead?: boolean) {
-  return `${data.chain}:${data.from}-${data.to}` + (ahead ? `_${performance.now()}` : ''); 
 }
 
 function delay(blockTime: number) {
