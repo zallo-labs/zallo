@@ -117,6 +117,7 @@ describe(EventsWorker.name, () => {
   it('split into 2 jobs if too many results', async () => {
     networks.get.mockReturnValue({
       blockNumber: async () => 10n,
+      blockTime: () => 1,
       getLogs: async () => {
         throw new Error(
           'Query returned more than 10000 results. Try with this block range [0x01, 0x03]',
