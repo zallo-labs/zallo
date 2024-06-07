@@ -9,7 +9,7 @@ import { RUNNING_JOB_STATUSES, TypedJob, createQueue } from '../util/bull/bull.u
 import { Worker } from '#/util/bull/Worker';
 import { AbiEvent } from 'abitype';
 import { Log as ViemLog, encodeEventTopics, hexToNumber } from 'viem';
-import { UnrecoverableError } from 'bullmq';
+import { JobsOptions, UnrecoverableError } from 'bullmq';
 
 const TARGET_LOGS_PER_JOB = 9_000; // Max 10k
 const DEFAULT_LOGS_PER_BLOCK = 200;
@@ -80,9 +80,9 @@ export class EventsWorker extends Worker<EventsQueue> {
     // Queue next job on the first attempt
     if (firstAttempt) {
       if (latest < from) {
-        this.queue.add('Ahead', { chain, from, to }, { delay: delay(network.blockTime()) });
+        this.add('Ahead', { chain, from, to }, { delay: delay(network.blockTime()) }, true);
       } else {
-        this.queue.add(
+        this.add(
           latest === from ? 'Tracking' : 'Behind',
           { chain, from: to + 1, to: to + this.targetBlocks(chain) },
           { delay: latest === from ? delay(network.blockTime()) : undefined },
@@ -122,9 +122,11 @@ export class EventsWorker extends Worker<EventsQueue> {
       if (to <= mid)
         throw new UnrecoverableError(`Invalid split block range: [${from}, ${mid}] for split`);
 
+      const lower: EventJobData = { chain, from, to: mid, split: true };
+      const upper: EventJobData = { chain, from: mid + 1, to, split: true };
       this.queue.addBulk([
-        { name: 'Split (lower)', data: { chain, from, to: mid, split: true } },
-        { name: 'Split (upper)', data: { chain, from: mid + 1, to, split: true } },
+        { name: 'Split (lower)', data: lower, opts: { jobId: jobId(lower) } },
+        { name: 'Split (upper)', data: upper, opts: { jobId: jobId(upper) } },
       ]);
     }
   }
@@ -161,7 +163,7 @@ export class EventsWorker extends Worker<EventsQueue> {
         : Number(network.blockNumber()); // Warning: bigint -> number
 
       const chain = network.chain.key;
-      this.queue.add(EventsQueue.name, { chain, from, to: from + this.targetBlocks(chain) });
+      this.add(EventsQueue.name, { chain, from, to: from + this.targetBlocks(chain) });
 
       this.log.log(
         `${network.chain.key}: events starting from ${
@@ -170,6 +172,14 @@ export class EventsWorker extends Worker<EventsQueue> {
       );
     }
   }
+
+  add(name: string, data: EventJobData, opts?: JobsOptions, ahead?: boolean) {
+    return this.queue.add(name, data, { jobId: jobId(data, ahead), ...opts });
+  }
+}
+
+function jobId(data: EventJobData, ahead?: boolean) {
+  return `${data.chain}:${data.from}-${data.to}` + (ahead ? `_${performance.now()}` : ''); 
 }
 
 function delay(blockTime: number) {
