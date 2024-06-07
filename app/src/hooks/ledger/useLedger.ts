@@ -22,6 +22,7 @@ export const APPROVER_BLE_IDS = persistedAtom<Record<Address, DeviceId[]>>('appr
 export function useLedger(device: DeviceId | FragmentType<typeof UserApprover>) {
   const [hasPermission, requestPermissions] = useBluetoothPermissions();
 
+  // eslint-disable-next-line react-compiler/react-compiler   -- useFragment is not an actual hook
   const approver = typeof device !== 'string' ? getFragment(UserApprover, device) : undefined;
   const approverBleIds = useAtomValue(APPROVER_BLE_IDS);
 

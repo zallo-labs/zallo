@@ -18,6 +18,7 @@ export function TypewriterCursor({ blinkDelay = 500, ...props }: TypewriterCurso
   const style = useAnimatedStyle(() => ({ opacity: opacity.value }));
 
   useEffect(() => {
+    // eslint-disable-next-line react-compiler/react-compiler
     opacity.value = withRepeat(
       withSequence(
         withDelay(blinkDelay, withTiming(1, { duration: 0 })),

@@ -1,16 +1,23 @@
 {
   "extends": ["//"],
-  "pipeline": {
+  "tasks": {
     "build": {
       "dependsOn": ["^build"],
-      "inputs": ["contracts/**", "config.ts", "foundry.toml", "remappings.txt", "hardhat.config.ts", "package.json"],
+      "inputs": [
+        "contracts/",
+        "config.ts",
+        "foundry.toml",
+        "remappings.txt",
+        "hardhat.config.ts",
+        "package.json"
+      ],
       "outputs": [
-        "abi/**",
-        "artifacts-zk/**",
-        "cache/**",
-        "cache-zk/**",
-        "script/contracts/**",
-        "../packages/lib/src/generated/**"
+        "abi/",
+        "artifacts-zk/",
+        "cache/",
+        "cache-zk/",
+        "script/contracts/",
+        "../packages/lib/src/generated/"
       ]
     },
     "typecheck": {
@@ -18,7 +25,7 @@
     },
     "test": {
       "dependsOn": [],
-      "inputs": ["contracts/**", "test/**", "foundry.toml", "remappings.txt"]
+      "inputs": ["contracts/", "test/", "package.json", "foundry.toml", "remappings.txt"]
     }
   }
 }

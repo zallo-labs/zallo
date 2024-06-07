@@ -1,19 +1,19 @@
 {
   "extends": ["//"],
-  "pipeline": {
+  "tasks": {
     "build": {
       "dependsOn": ["^build"],
-      "inputs": ["src/**", "package.json"],
-      "outputs": ["dist/**"]
+      "inputs": ["src/", "package.json"],
+      "outputs": ["dist/"]
     },
     "dev": {
-      "dependsOn": ["build"],
+      "dependsOn": ["^build"],
       "cache": false,
       "persistent": true
     },
     "test": {
       "dependsOn": ["build"],
-      "inputs": ["src/**"]
+      "inputs": ["src/"]
     }
   }
 }

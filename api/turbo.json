@@ -1,20 +1,17 @@
 {
   "extends": ["//"],
-  "pipeline": {
-    "prepare": {
-      "dependsOn": ["^build"]
-    },
+  "tasks": {
     "generate:gql": {
-      "inputs": ["codegen.ts", "src/features/prices/**/*.ts"],
-      "outputs": ["src/features/prices/__generated__/**"]
+      "inputs": ["codegen.ts", "src/features/prices//*.ts"],
+      "outputs": ["src/features/prices/__generated__/"]
     },
     "build": {
-      "dependsOn": ["prepare"],
-      "inputs": ["dbschema/**", "src/**", "package.json"],
-      "outputs": ["dist/**"]
+      "dependsOn": ["^build"],
+      "inputs": ["dbschema/", "src/", "package.json"],
+      "outputs": ["dist/"]
     },
     "dev": {
-      "dependsOn": ["prepare"],
+      "dependsOn": ["^build"],
       "cache": false,
       "persistent": true
     },
@@ -22,12 +19,12 @@
       "dependsOn": ["build"]
     },
     "test": {
-      "dependsOn": ["prepare"],
-      "inputs": ["dbschema/**/*", "src/**", "jest.config.ts"]
+      "dependsOn": ["^build"],
+      "inputs": ["dbschema//*", "src/", "jest.config.ts"]
     },
     "db:prepare": {
       "dependsOn": ["prepare"],
-      "inputs": ["dbschema/**/*", "src/**", "jest.config.ts"]
+      "inputs": ["dbschema//*", "src/", "jest.config.ts"]
     }
   }
 }

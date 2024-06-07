@@ -25,6 +25,7 @@ export interface DappHeaderProps {
 export function DappHeader({ action, request, ...props }: DappHeaderProps) {
   const { styles } = useStyles(stylesheet);
   const dapp =
+    // eslint-disable-next-line react-compiler/react-compiler   -- useFragment is not an actual hook
     props.dapp && isFragment(props.dapp) ? getFragment(DappMetadata, props.dapp) : props.dapp;
 
   return (

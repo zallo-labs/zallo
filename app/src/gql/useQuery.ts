@@ -43,10 +43,10 @@ export function useQuery<Data, Variables extends AnyVariables>(
     variables: variables!,
   });
 
-  const r = response as QueryResponse<Data, Variables>;
-  r.reexecute = reexecute;
-
-  return r;
+  return {
+    ...response,
+    reexecute,
+  } as QueryResponse<Data, Variables>;
 }
 
 const CACHED_REPLACEMENTS = new Map<DocumentInput<unknown, unknown>, DocumentNode | null>();
@@ -77,9 +77,5 @@ export function getOptimizedDocument<Data, Variables>(
   return doc;
 }
 
-export type DocumentVariables<T extends TypedDocumentNode<any, any>> = T extends TypedDocumentNode<
-  infer _Result,
-  infer Variables
->
-  ? Variables
-  : never;
+export type DocumentVariables<T extends TypedDocumentNode<any, any>> =
+  T extends TypedDocumentNode<infer _Result, infer Variables> ? Variables : never;
