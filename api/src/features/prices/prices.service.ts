@@ -4,30 +4,23 @@ import { Price } from './prices.model';
 import e from '~/edgeql-js';
 import { preferUserToken } from '~/features/tokens/tokens.service';
 import { DatabaseService } from '~/features/database/database.service';
-import { EvmPriceServiceConnection, PriceFeed } from '@pythnetwork/pyth-evm-js';
+import { EvmPriceServiceConnection } from '@pythnetwork/pyth-evm-js';
 import { CONFIG } from '~/config';
 import { DateTime } from 'luxon';
 import { ETH, PYTH } from 'lib/dapps';
 import { CHAINS, Chain } from 'chains';
-import Decimal from 'decimal.js';
 import { NetworksService } from '~/features/util/networks/networks.service';
 import Redis from 'ioredis';
 import { InjectRedis } from '@songkeys/nestjs-redis';
 import { runExclusively } from '~/util/mutex';
 import { and } from '#/database/database.util';
-
-const TEN = new Decimal(10);
-
-interface PriceData {
-  current: Decimal;
-  ema: Decimal;
-}
+import { PricesWatcher } from './prices.watcher';
+import { PriceData, extractFeedPrice } from './prices.util';
 
 @Injectable()
 export class PricesService implements OnModuleInit {
   private log = new Logger(this.constructor.name);
   private pyth: EvmPriceServiceConnection;
-  private usdPrices = new Map<Hex, PriceData>();
   private lastOnchainPublishTime = Object.keys(CHAINS).reduce(
     (acc, chain) => ({
       ...acc,
@@ -41,9 +34,9 @@ export class PricesService implements OnModuleInit {
     private db: DatabaseService,
     private networks: NetworksService,
     @InjectRedis() private redis: Redis,
+    private watcher: PricesWatcher,
   ) {
     this.pyth = new EvmPriceServiceConnection(CONFIG.pythHermesUrl);
-    this.pyth.onWsError = (e) => this.handlePythWsError(e);
   }
 
   onModuleInit() {
@@ -71,44 +64,13 @@ export class PricesService implements OnModuleInit {
   }
 
   async usd(priceId: Hex): Promise<PriceData | null> {
-    const cached = this.usdPrices.get(priceId);
+    const cached = await this.watcher.getPrice(priceId);
     if (cached) return cached;
 
-    const r = await runExclusively(
-      async () => {
-        const cached2 = this.usdPrices.get(priceId);
-        if (cached2) return cached;
+    const [feed] = (await this.pyth.getLatestPriceFeeds([priceId])) ?? [];
+    if (!feed) return null;
 
-        const [feed] = (await this.pyth.getLatestPriceFeeds([priceId])) ?? [];
-        if (!feed) return null;
-
-        const r = this.getPriceDataFromFeed(feed);
-        if (r) this.usdPrices.set(priceId, r);
-
-        this.pyth.subscribePriceFeedUpdates([priceId], (feed) => {
-          const newPrice = this.getPriceDataFromFeed(feed);
-          if (newPrice) this.usdPrices.set(priceId, newPrice);
-        });
-
-        return r;
-      },
-      { redis: this.redis, key: `prices:subscribing:${priceId}` },
-    );
-
-    return r || null;
-  }
-
-  private getPriceDataFromFeed(feed: PriceFeed): PriceData | null {
-    const expiryTimestamp = Math.ceil(this.expiry.toSeconds());
-
-    const current = feed.getPriceNoOlderThan(expiryTimestamp);
-    const ema = feed.getEmaPriceNoOlderThan(expiryTimestamp);
-    if (!current || !ema) return null;
-
-    return {
-      current: new Decimal(current.price).mul(TEN.pow(current.expo)),
-      ema: new Decimal(ema.price).mul(TEN.pow(ema.expo)),
-    };
+    return extractFeedPrice(feed);
   }
 
   private async getUsdPriceId(token: UAddress) {
@@ -131,7 +93,7 @@ export class PricesService implements OnModuleInit {
   }
 
   async updatePriceFeedsIfNecessary(chain: Chain, priceIds: Hex[]) {
-    priceIds = [...new Set(priceIds)];
+    priceIds = [...new Set(priceIds)].sort();
 
     // No need to update ETH/USD if it's the only required pricefeed; all fees are priced in ETH, so ETH/USD is only used when converting from token -> ETH
     if (priceIds.length === 1 && priceIds[0] === ETH.pythUsdPriceId) return;
@@ -215,17 +177,6 @@ export class PricesService implements OnModuleInit {
     }
   }
 
-  private handlePythWsError(error: Error) {
-    this.log.error(error);
-
-    // Force disconnect
-    this.pyth.closeWebSocket();
-
-    // Reconnect
-    this.pyth.startWebSocket();
-    this.usdPrices.clear(); // Clear cache in order to re-establish subscriptions
-  }
-
   private get expiry() {
     // Paymaster allows prices no older than *60 minutes*
     return DateTime.now().minus({ minutes: 59 });
@@ -244,6 +195,6 @@ export class PricesService implements OnModuleInit {
       r.map((v) => [asUAddress(v.address), asHex(v.pythUsdPriceId!)] as const),
     );
 
-    this.systemTokenPriceIds.forEach((priceId) => this.usd(priceId));
+    this.watcher.subscribe([...this.systemTokenPriceIds.values()]);
   }
 }
