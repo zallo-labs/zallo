@@ -19,7 +19,7 @@ export abstract class Worker<Q extends QueueDefintion>
   abstract process(job: TypedJob<Q>, token?: string): Promise<QueueReturnType<Q>>;
 
   async onModuleInit() {
-    if (!CONFIG.processEvents) {
+    if (!CONFIG.backgroundJobs) {
       this.worker.close();
       return;
     }
