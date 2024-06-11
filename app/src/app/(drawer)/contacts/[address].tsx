@@ -12,22 +12,20 @@ import { AppbarMore } from '#/Appbar/AppbarMore';
 import { FormSubmitButton } from '#/fields/FormSubmitButton';
 import { FormTextField } from '#/fields/FormTextField';
 import { Actions } from '#/layout/Actions';
-import { UserOutlineIcon } from '~/util/theme/icons';
-import { ICON_SIZE } from '@theme/paper';
 import { FormResetIcon } from '#/fields/ResetFormIcon';
 import { gql, useFragment } from '@api/generated';
 import { useQuery } from '~/gql';
 import { useMutation } from 'urql';
 import { useConfirmRemoval } from '~/hooks/useConfirm';
-import { AppbarOptions } from '#/Appbar/AppbarOptions';
 import { withSuspense } from '#/skeleton/withSuspense';
-import { ScreenSkeleton } from '#/skeleton/ScreenSkeleton';
 import { ScrollableScreenSurface } from '#/layout/ScrollableScreenSurface';
 import { Chain } from 'chains';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useSelectedChain } from '~/hooks/useSelectedAccount';
-import { FormSelectChip } from '#/fields/FormSelectChip';
-import { CHAIN_ENTRIES } from '@network/chains';
+import { Appbar } from '#/Appbar/Appbar';
+import { Pane } from '#/layout/Pane';
+import { FormChainSelector } from '#/fields/FormChainSelector';
+import { PaneSkeleton } from '#/skeleton/PaneSkeleton';
 
 const Contact = gql(/* GraphQL */ `
   fragment ContactScreen_Contact on Contact {
@@ -102,9 +100,9 @@ function ContactScreen_(props: ContactScreenProps) {
   });
 
   return (
-    <>
-      <AppbarOptions
-        mode="large"
+    <Pane flex>
+      <Appbar
+        mode="small"
         headline="Contact"
         {...(current && {
           trailing: [
@@ -131,33 +129,18 @@ function ContactScreen_(props: ContactScreenProps) {
 
       <ScrollableScreenSurface>
         <View style={styles.fields}>
-          <View style={styles.fieldContainer}>
-            <UserOutlineIcon style={styles.fieldIcon} size={styles.fieldIcon.width} />
-            <FormTextField
-              label="Label"
-              name="label"
-              control={control}
-              required
-              containerStyle={styles.fieldInput}
-            />
-          </View>
+          <FormTextField label="Label" name="label" control={control} required />
 
-          <View style={styles.fieldContainer}>
-            <View style={styles.fieldIcon} />
-            <FormTextField
-              label="Address"
-              placeholder="0x"
-              wrap
-              name="address"
-              control={control}
-              required
-              containerStyle={styles.fieldInput}
-            />
-          </View>
+          <FormTextField
+            label="Address"
+            placeholder="0x"
+            wrap
+            name="address"
+            control={control}
+            required
+          />
 
-          <View style={[styles.fieldContainer, styles.networkFieldContainer]}>
-            <FormSelectChip name="chain" control={control} entries={CHAIN_ENTRIES} />
-          </View>
+          <FormChainSelector name="chain" control={control} />
         </View>
 
         <Actions>
@@ -166,13 +149,12 @@ function ContactScreen_(props: ContactScreenProps) {
             onPress={submit}
             requireChanges={!!current}
             control={control}
-            style={styles.action}
           >
             {current ? 'Update' : 'Add'}
           </FormSubmitButton>
         </Actions>
       </ScrollableScreenSurface>
-    </>
+    </Pane>
   );
 }
 
@@ -181,26 +163,9 @@ const styles = StyleSheet.create({
     gap: 16,
     margin: 16,
   },
-  fieldContainer: {
-    flexDirection: 'row',
-    gap: 8,
-  },
-  fieldIcon: {
-    marginTop: 16,
-    width: ICON_SIZE.small,
-  },
-  fieldInput: {
-    flex: 1,
-  },
-  networkFieldContainer: {
-    justifyContent: 'flex-end',
-  },
-  action: {
-    alignSelf: 'stretch',
-  },
 });
 
-export const SharedContactScreen = withSuspense(ContactScreen_, ScreenSkeleton);
+export const SharedContactScreen = withSuspense(ContactScreen_, PaneSkeleton);
 
 const ContactScreenParams = z.object({ address: zUAddress() });
 
