@@ -113,7 +113,7 @@ describe(TransfersService.name, () => {
 
       await asUser(randomUser(), async () => {
         const account2 = await createAccount();
-        const transfers = await Promise.all([insert(account2), insert(account2)]);
+        const transfers = (await Promise.all([insert(account2), insert(account2)])).sort();
 
         expect((await service.select(account2.id, {})).map((t) => t.id)).toEqual(transfers);
       });
