@@ -1,7 +1,7 @@
 import { FragmentType, gql, useFragment } from '@api/generated';
 import { useMutation } from 'urql';
 import { TokenItem } from '#/token/TokenItem';
-import { useSelectToken } from '~/app/(drawer)/[account]/tokens';
+import { useSelectToken } from '~/hooks/useSelectToken';
 import { createStyles, useStyles } from '@theme/styles';
 import { asAddress } from 'lib';
 import Decimal from 'decimal.js';

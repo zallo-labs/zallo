@@ -7,16 +7,11 @@ import { Divider } from 'react-native-paper';
 import { useAddressLabel } from '#/address/AddressLabel';
 import { NumericInput } from '#/fields/NumericInput';
 import { TokenItem } from '#/token/TokenItem';
-import {
-  defaultSelectedToken,
-  useSelectedToken,
-  useSetSelectedToken,
-} from '~/hooks/useSelectedToken';
 import { InputsView, InputType } from '../../../components/InputsView';
 import { Button } from '#/Button';
 import { gql } from '@api/generated';
 import { useQuery } from '~/gql';
-import { useSelectToken } from '~/app/(drawer)/[account]/tokens';
+import { useInvalidateRecentToken, useSelectToken, useSelectedToken } from '~/hooks/useSelectToken';
 import { createTransferOp } from '~/lib/transfer';
 import { AppbarOptions } from '#/Appbar/AppbarOptions';
 import { z } from 'zod';
@@ -58,21 +53,18 @@ function TransferScreen() {
   const router = useRouter();
   const propose = usePropose();
   const toLabel = useAddressLabel(asUAddress(to, chain));
-
-  const { token } = useQuery(Query, {
-    account,
-    token: useSelectedToken(chain),
-  }).data;
-
+  const invalidateRecent = useInvalidateRecentToken(chain);
   const selectToken = useSelectToken();
-  const setToken = useSetSelectedToken(chain);
+  const selectedToken = useSelectedToken(chain);
+
+  const { token } = useQuery(Query, { account, token: selectedToken }).data;
 
   const [input, setInput] = useState('');
   const [type, setType] = useState(InputType.Token);
 
   useEffect(() => {
-    if (!token) setToken(defaultSelectedToken(chain));
-  }, [chain, setToken, token]);
+    if (!token) invalidateRecent(selectedToken);
+  }, [chain, invalidateRecent, selectedToken, token]);
 
   if (!token) return null;
 
@@ -91,14 +83,7 @@ function TransferScreen() {
 
         <View style={styles.spacer} />
 
-        <TokenItem
-          token={token}
-          amount={token.balance}
-          onPress={async () => {
-            const token = await selectToken({ account });
-            if (token) setToken(token);
-          }}
-        />
+        <TokenItem token={token} amount={token.balance} onPress={() => selectToken({ account })} />
         <Divider horizontalInset />
 
         <NumericInput

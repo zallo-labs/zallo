@@ -1,4 +1,3 @@
-import { TouchableOpacity } from 'react-native';
 import { Text } from 'react-native-paper';
 import { Chevron } from './Chevron';
 import { FragmentType, gql, useFragment } from '@api/generated';
@@ -7,6 +6,7 @@ import { createStyles, useStyles } from '@theme/styles';
 import { AddressIcon } from './Identicon/AddressIcon';
 import { ICON_SIZE } from '@theme/paper';
 import { memo } from 'react';
+import { PressableOpacity } from './PressableOpacity';
 
 const FragmentDoc = gql(/* GraphQL */ `
   fragment AccountSelector_account on Account {
@@ -26,7 +26,7 @@ function AccountSelector_(props: AccountSelectorParams) {
   const router = useRouter();
 
   return (
-    <TouchableOpacity style={styles.container} onPress={() => router.push(`/(sheet)/accounts`)}>
+    <PressableOpacity style={styles.container} onPress={() => router.push(`/(sheet)/accounts`)}>
       <AddressIcon address={account.address} size={ICON_SIZE.small} />
 
       <Text variant="titleLarge" numberOfLines={1} style={styles.text}>
@@ -34,7 +34,7 @@ function AccountSelector_(props: AccountSelectorParams) {
       </Text>
 
       <Chevron style={styles.text} />
-    </TouchableOpacity>
+    </PressableOpacity>
   );
 }
 

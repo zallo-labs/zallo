@@ -20,6 +20,7 @@ function QuickActions_({ account }: QuickActionsProps) {
         icon={TransferIcon}
         mode="contained-tonal"
         style={styles.button}
+        loading={false}
         onPress={() => transfer({ account })}
       >
         Transfer
@@ -29,6 +30,7 @@ function QuickActions_({ account }: QuickActionsProps) {
         icon={QrCodeIcon}
         mode="contained-tonal"
         style={styles.button}
+        loading={false}
         onPress={() => push({ pathname: `/(modal)/[account]/receive`, params: { account } })}
       >
         Receive
@@ -38,6 +40,7 @@ function QuickActions_({ account }: QuickActionsProps) {
         icon={SwapIcon}
         mode="contained-tonal"
         style={styles.button}
+        loading={false}
         onPress={() => push({ pathname: `/(drawer)/[account]/swap`, params: { account } })}
       >
         Swap

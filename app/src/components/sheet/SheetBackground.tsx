@@ -10,14 +10,15 @@ export function SheetBackground({
   const { styles } = useStyles(stylesheet);
 
   return (
-    <Surface elevation={2} style={[styles.background, style]}>
+    <Surface elevation={1} style={[styles.background, style]}>
       {children}
     </Surface>
   );
 }
 
-const stylesheet = createStyles(({ corner }) => ({
+const stylesheet = createStyles(({ colors, corner }) => ({
   background: {
+    backgroundColor: colors.surfaceContainer.low,
     borderTopLeftRadius: corner.xl,
     borderTopRightRadius: corner.xl,
   },

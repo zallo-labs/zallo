@@ -1,18 +1,16 @@
 import { useRouter } from 'expo-router';
 import { FlatList, StyleSheet } from 'react-native';
-import { UAddress, asChain } from 'lib';
+import { asChain } from 'lib';
 import { AddIcon, SearchIcon } from '@theme/icons';
 import { ListHeader } from '#/list/ListHeader';
 import { TokenItem } from '#/token/TokenItem';
 import { useState } from 'react';
 import { gql } from '@api/generated';
 import { useQuery } from '~/gql';
-import { Subject } from 'rxjs';
-import { useGetEvent } from '~/hooks/useGetEvent';
 import { OperationContext } from 'urql';
 import { AppbarMenu } from '#/Appbar/AppbarMenu';
 import { z } from 'zod';
-import { zArray, zUAddress } from '~/lib/zod';
+import { zUAddress } from '~/lib/zod';
 import { useLocalParams } from '~/hooks/useLocalParams';
 import { withSuspense } from '#/skeleton/withSuspense';
 import { ScreenSkeleton } from '#/skeleton/ScreenSkeleton';
@@ -20,8 +18,8 @@ import { SearchbarOptions } from '#/Appbar/SearchbarOptions';
 import { ScreenSurface } from '#/layout/ScreenSurface';
 
 const Query = gql(/* GraphQL */ `
-  query TokensScreen($account: UAddress!, $query: String, $feeToken: Boolean, $chain: Chain) {
-    tokens(input: { query: $query, feeToken: $feeToken, chain: $chain }) {
+  query TokensScreen($account: UAddress!, $chain: Chain, $query: String) {
+    tokens(input: { chain: $chain, query: $query }) {
       id
       address
       balance(input: { account: $account })
@@ -30,47 +28,18 @@ const Query = gql(/* GraphQL */ `
   }
 `);
 
-const TOKEN_SELECTED = new Subject<UAddress>();
-export const useSelectToken = () => {
-  const getEvent = useGetEvent();
+const TokensScreenParams = z.object({ account: zUAddress() });
 
-  return (params: TokensScreenParams) => {
-    return getEvent(
-      { pathname: `/(drawer)/[account]/tokens`, params: params as any },
-      TOKEN_SELECTED,
-    );
-  };
-};
-
-export const TokensScreenParams = z.object({
-  account: zUAddress(),
-  disabled: zArray(zUAddress()).optional(),
-  enabled: zArray(zUAddress()).optional(),
-  feeToken: z.coerce.boolean().optional(),
-});
-export type TokensScreenParams = z.infer<typeof TokensScreenParams>;
-
-const queryContext: Partial<OperationContext> = { suspense: false };
+const noSuspense: Partial<OperationContext> = { suspense: false };
 
 function TokensScreen() {
-  const params = useLocalParams(TokensScreenParams);
+  const { account } = useLocalParams(TokensScreenParams);
   const router = useRouter();
-  const disabled = new Set(params.disabled);
-  const enabled = params.enabled && new Set(params.enabled);
 
   const [query, setQuery] = useState('');
 
   const tokens =
-    useQuery(
-      Query,
-      {
-        account: params.account,
-        query,
-        feeToken: params.feeToken,
-        chain: asChain(params.account),
-      },
-      queryContext,
-    ).data.tokens ?? [];
+    useQuery(Query, { account, chain: asChain(account), query }, noSuspense).data.tokens ?? [];
 
   return (
     <>
@@ -90,17 +59,12 @@ function TokensScreen() {
             <TokenItem
               token={token}
               amount={token.balance}
-              onPress={() => {
-                if (TOKEN_SELECTED.observed) {
-                  TOKEN_SELECTED.next(token.address);
-                } else {
-                  router.push({
-                    pathname: `/(drawer)/token/[token]`,
-                    params: { token: token.address },
-                  });
-                }
-              }}
-              disabled={disabled?.has(token.address) || (enabled && !enabled.has(token.address))}
+              onPress={() =>
+                router.push({
+                  pathname: `/(drawer)/token/[token]`,
+                  params: { token: token.address },
+                })
+              }
             />
           )}
           contentContainerStyle={styles.container}

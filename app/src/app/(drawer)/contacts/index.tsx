@@ -1,27 +1,25 @@
-import { Stack, useRouter } from 'expo-router';
 import { useState } from 'react';
-import { NavigateNextIcon, ScanIcon, SearchIcon, materialCommunityIcon } from '~/util/theme/icons';
+import { Link, useRouter } from 'expo-router';
+import { AddIcon, ContactsIcon, NavigateNextIcon, ScanIcon, SearchIcon } from '~/util/theme/icons';
 import { Searchbar } from '#/Appbar/Searchbar';
-import { ListHeader } from '#/list/ListHeader';
-import { ListItemHeight } from '#/list/ListItem';
 import { gql } from '@api/generated';
-import { FlashList } from '@shopify/flash-list';
-import { Text } from 'react-native-paper';
 import { Fab } from '#/Fab';
 import { useQuery } from '~/gql';
 import { useScanAddress } from '~/app/scan';
 import { ContactItem } from '#/item/ContactItem';
 import { AppbarMenu } from '#/Appbar/AppbarMenu';
 import { withSuspense } from '#/skeleton/withSuspense';
-import { ScreenSkeleton } from '#/skeleton/ScreenSkeleton';
 import { createStyles, useStyles } from '@theme/styles';
-import { z } from 'zod';
-import { zArray, zUAddress } from '~/lib/zod';
-import { useLocalParams } from '~/hooks/useLocalParams';
-import { ScreenSurface } from '#/layout/ScreenSurface';
+import { PaneSkeleton } from '#/skeleton/PaneSkeleton';
+import { ItemList } from '#/layout/ItemList';
+import { usePath } from '#/usePath';
+import { useRouteInfo } from 'expo-router/build/hooks';
+import { View } from 'react-native';
+import { Text } from 'react-native-paper';
+import { ICON_SIZE } from '@theme/paper';
 
 const Query = gql(/* GraphQL */ `
-  query ContactsScreen($query: String) {
+  query ContactsPane($query: String) {
     contacts(input: { query: $query }) {
       id
       address
@@ -30,17 +28,11 @@ const Query = gql(/* GraphQL */ `
   }
 `);
 
-const AddContactIcon = materialCommunityIcon('account-plus-outline');
-
-const ContractsScreenParams = z.object({
-  disabled: zArray(zUAddress()).optional(),
-});
-
-function ContactsScreen() {
-  const params = useLocalParams(ContractsScreenParams);
+function ContactsPane_() {
   const { styles } = useStyles(stylesheet);
-  const disabled = params.disabled && new Set(params.disabled);
   const router = useRouter();
+  const contactSelected = usePath().includes('/(drawer)/contacts/[address]');
+  const currentRouteParams = useRouteInfo().params;
   const scanAddress = useScanAddress();
 
   const [query, setQuery] = useState('');
@@ -49,7 +41,6 @@ function ContactsScreen() {
 
   return (
     <>
-      <Stack.Screen options={{ headerShown: false }} />
       <Searchbar
         leading={(props) => <AppbarMenu fallback={SearchIcon} {...props} />}
         placeholder="Search contacts"
@@ -71,50 +62,62 @@ function ContactsScreen() {
         onChangeText={setQuery}
       />
 
-      <ScreenSurface>
-        <FlashList
-          data={contacts}
-          ListHeaderComponent={<ListHeader>Contacts</ListHeader>}
-          renderItem={({ item }) => (
+      <ItemList style={styles.list}>
+        {contacts.map((c) => (
+          <Link
+            key={c.id}
+            href={{ pathname: `/(drawer)/contacts/[address]`, params: { address: c.address } }}
+            asChild
+          >
             <ContactItem
-              contact={item}
+              contact={c}
               trailing={NavigateNextIcon}
-              disabled={disabled?.has(item.address)}
-              onPress={() =>
-                router.push({
-                  pathname: `/(drawer)/contacts/[address]`,
-                  params: { address: item.address },
-                })
-              }
+              containerStyle={styles.item}
+              selected={contactSelected && currentRouteParams.address === c.address}
             />
-          )}
-          ListEmptyComponent={
-            <Text variant="titleLarge" style={styles.emptyText}>
-              Add a friend or trusted address to get started
-            </Text>
-          }
-          extraData={[disabled, router.push]}
-          contentContainerStyle={styles.contentContainer}
-          showsVerticalScrollIndicator={false}
-          estimatedItemSize={ListItemHeight.DOUBLE_LINE}
-        />
+          </Link>
+        ))}
+      </ItemList>
 
-        <Fab icon={AddContactIcon} label="Add" onPress={async () => router.push(`/contacts/add`)} />
-      </ScreenSurface>
+      {!contacts.length && (
+        <View style={styles.emptyContainer}>
+          <ContactsIcon size={ICON_SIZE.extraLarge} style={styles.emptyIcon} />
+          <Text variant="headlineSmall" style={styles.emptyText}>
+            Add a contact to get started
+          </Text>
+        </View>
+      )}
+
+      <Fab icon={AddIcon} label="Add contact" onPress={async () => router.push(`/contacts/add`)} />
     </>
   );
 }
 
-const stylesheet = createStyles({
-  contentContainer: {
-    paddingVertical: 8,
+const stylesheet = createStyles(({ colors }) => ({
+  list: {
+    marginTop: 8,
+  },
+  item: {
+    backgroundColor: colors.surface,
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 8,
+  },
+  emptyIcon: {
+    color: colors.onSurfaceVariant,
   },
   emptyText: {
-    marginHorizontal: 16,
-    marginVertical: 8,
+    color: colors.onSurface,
   },
-});
+}));
 
-export default withSuspense(ContactsScreen, <ScreenSkeleton />);
+export const ContactsPane = withSuspense(ContactsPane_, <PaneSkeleton />);
+
+export default function ContactsScreen() {
+  return null;
+}
 
 export { ErrorBoundary } from '#/ErrorBoundary';

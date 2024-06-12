@@ -12,11 +12,11 @@ import { ListItemTrailingText } from '#/list/ListItemTrailingText';
 import { TokenLimitItem } from '#/policy/TokenLimitItem';
 import { withSuspense } from '#/skeleton/withSuspense';
 import { useQuery } from '~/gql';
-import { useSelectAddress } from '~/hooks/useSelectAddress';
 import { useToggle } from '~/hooks/useToggle';
 import { usePolicyDraft } from '~/lib/policy/draft';
 import { CollapsibleItemList } from '#/layout/CollapsibleItemList';
 import { DEFAULT_LIMIT } from './TokenSpending';
+import { useSelectToken } from '~/hooks/useSelectToken';
 
 const Query = gql(/* GraphQL */ `
   query SpendingSettings($input: TokensInput!) {
@@ -30,7 +30,7 @@ const Query = gql(/* GraphQL */ `
 
 function SpendingSettings_() {
   const { styles } = useStyles(stylesheet);
-  const selectAddress = useSelectAddress();
+  const selectToken = useSelectToken();
 
   const [policy, update] = usePolicyDraft();
   const [expanded, toggleExpanded] = useToggle(false);
@@ -98,7 +98,7 @@ function SpendingSettings_() {
         headline="Add token"
         containerStyle={styles.item}
         onPress={async () => {
-          const token = asUAddress(await selectAddress({ chain, include: ['tokens'] }), chain);
+          const token = await selectToken({ account: policy.account, disabled: tokenAddresses });
           if (token)
             update(({ transfers }) => {
               transfers.limits[asAddress(token)] ??= DEFAULT_LIMIT;

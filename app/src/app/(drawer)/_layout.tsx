@@ -24,7 +24,7 @@ import { Link, Stack } from 'expo-router';
 import { AppbarHeader } from '#/Appbar/AppbarHeader';
 import { DrawerLogo } from '#/drawer/DrawerLogo';
 import { createStyles, useStyles } from '@theme/styles';
-import { TouchableOpacity } from 'react-native';
+import { PressableOpacity } from '#/PressableOpacity';
 import { useNavType } from '#/drawer/DrawerContextProvider';
 import { Fab } from '#/Fab';
 import { RailSurface } from '#/drawer/RailSurface';
@@ -84,6 +84,7 @@ function RailContent() {
             style={styles.fabContainer}
             loading={false}
             onPress={() => transfer({ account })}
+            animated={false}
           />
         )
       }
@@ -142,9 +143,9 @@ function DrawerContent() {
     <DrawerSurface>
       <Section>
         <Link href={{ pathname: '/', params: { redirect: 'false' } }} asChild>
-          <TouchableOpacity>
+          <PressableOpacity>
             <DrawerLogo style={contentStyles.logo} />
-          </TouchableOpacity>
+          </PressableOpacity>
         </Link>
 
         {account ? (

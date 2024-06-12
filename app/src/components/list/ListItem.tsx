@@ -6,6 +6,7 @@ import { Pressable, PressableProps, StyleProp, TextStyle, View, ViewStyle } from
 import { O } from 'ts-toolbelt';
 import { ICON_SIZE } from '@theme/paper';
 import { createStyles, useStyles } from '@theme/styles';
+import { PressableOpacity } from '#/PressableOpacity';
 
 /*
  * https://m3.material.io/components/lists/specs
@@ -83,16 +84,10 @@ export const ListItem = forwardRef<View, ListItemProps>(
     );
 
     return (
-      <Pressable
+      <PressableOpacity
         ref={ref}
         {...touchableProps}
-        style={(state) => [
-          styles.container,
-          containerStyle,
-          selected && styles.selected,
-          pressable && (state as { hovered?: boolean }).hovered && styles.hovered, // state.hovered exists on web
-          pressable && state.pressed && styles.pressed,
-        ]}
+        style={[styles.container, containerStyle, selected && styles.selected]}
         disabled={disabled}
       >
         <>
@@ -147,7 +142,7 @@ export const ListItem = forwardRef<View, ListItemProps>(
             </View>
           )}
         </>
-      </Pressable>
+      </PressableOpacity>
     );
   },
 );
@@ -186,12 +181,6 @@ const getStylesheet = ({ lines, disabled, leadingSize }: StyleProps) =>
       },
       selected: {
         backgroundColor: colors.secondaryContainer,
-      },
-      hovered: {
-        backgroundColor: colors.surfaceContainer.high,
-      },
-      pressed: {
-        backgroundColor: colors.surfaceContainer.highest,
       },
       leadingContainer: {
         justifyContent,
