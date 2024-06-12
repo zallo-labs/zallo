@@ -21,7 +21,7 @@ import { ListItem, ListItemHeight } from '#/list/ListItem';
 import { TokenIcon } from '#/token/TokenIcon';
 import { useSwappableTokens } from '~/hooks/swap/useSwappableTokens';
 import { TokenAmount } from '#/token/TokenAmount';
-import { useSelectToken } from '~/app/(drawer)/[account]/tokens';
+import { useSelectToken } from '~/hooks/useSelectToken';
 import { useSwapRoute } from '~/hooks/swap/useSwapRoute';
 import { getSwapOperations } from '~/util/swap/syncswap/swap';
 import Decimal from 'decimal.js';

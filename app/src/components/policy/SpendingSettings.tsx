@@ -16,7 +16,7 @@ import { useToggle } from '~/hooks/useToggle';
 import { usePolicyDraft } from '~/lib/policy/draft';
 import { CollapsibleItemList } from '#/layout/CollapsibleItemList';
 import { DEFAULT_LIMIT } from './TokenSpending';
-import { useSelectToken } from '~/app/(drawer)/[account]/tokens';
+import { useSelectToken } from '~/hooks/useSelectToken';
 
 const Query = gql(/* GraphQL */ `
   query SpendingSettings($input: TokensInput!) {

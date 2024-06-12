@@ -34,7 +34,7 @@ export default function LinkWithTokenSheet() {
   const link = useMutation(Link)[1];
 
   return (
-    <Sheet onClose={back} handle={false}>
+    <Sheet handle={false}>
       <View style={styles.infoContainer}>
         <LinkIcon style={styles.icon} />
 
