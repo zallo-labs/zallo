@@ -139,7 +139,7 @@
     "urql": "^4.1.0",
     "use-async-effect": "^2.2.7",
     "use-immer": "^0.9.0",
-    "viem": "^2.13.7",
+    "viem": "^2.13.8",
     "wonka": "^6.3.4",
     "zod": "^3.23.8"
   },
@@ -159,7 +159,7 @@
     "@total-typescript/ts-reset": "^0.5.1",
     "@types/color": "^3.0.6",
     "@types/google-one-tap": "^1.2.6",
-    "@types/lodash": "^4.17.4",
+    "@types/lodash": "^4.17.5",
     "@types/luxon": "^3.4.2",
     "@types/react-native-typewriter": "^0.7.4",
     "@types/react-test-renderer": "^18.3.0",
