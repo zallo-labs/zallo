@@ -1,8 +1,9 @@
 import { Image, ImageProps, ImageSource, ImageStyle } from '#/Image';
 import { ComponentPropsWithoutRef, Ref, forwardRef } from 'react';
-import { ColorValue, StyleProp, TouchableOpacity, TouchableOpacityProps } from 'react-native';
+import { ColorValue, StyleProp, View } from 'react-native';
 import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
 import { ICON_SIZE } from './paper';
+import { PressableOpacity, PressableOpacityProps } from '#/PressableOpacity';
 
 export interface IconProps {
   size?: number;
@@ -26,9 +27,9 @@ export const icon =
       const IconSet = iconSet[set];
 
       return (
-        <TouchableOpacity onPress={onPress} disabled={!onPress}>
+        <PressableOpacity onPress={onPress} disabled={!onPress}>
           <IconSet size={ICON_SIZE.small} {...(props as any)} name={name} />
-        </TouchableOpacity>
+        </PressableOpacity>
       );
     };
   };
@@ -99,22 +100,15 @@ export const AppleBlackIcon = imageFromSource(require('assets/apple-black.svg'))
 export const GoogleIcon = imageFromSource(require('assets/google.png'));
 
 export function imageFromSource(source: ImageSource) {
-  return forwardRef(
-    (
-      {
-        onPress,
-        testID: _,
-        ...props
-      }: ImageProps & { size?: number } & Pick<TouchableOpacityProps, 'onPress'>,
-      ref: Ref<TouchableOpacity>,
-    ) => (
-      <TouchableOpacity ref={ref} onPress={onPress} disabled={!onPress}>
+  return forwardRef<View, ImageProps & { size?: number } & Pick<PressableOpacityProps, 'onPress'>>(
+    ({ onPress, testID: _, ...props }, ref) => (
+      <PressableOpacity ref={ref} onPress={onPress} disabled={!onPress}>
         <Image
           {...props}
           source={source}
           style={[{ ...(props.size && { width: props.size, height: props.size }) }, props.style]}
         />
-      </TouchableOpacity>
+      </PressableOpacity>
     ),
   );
 }
