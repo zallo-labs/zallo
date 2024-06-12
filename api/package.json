@@ -19,7 +19,7 @@
     "generate:ampli": "ampli pull -p ./src/util/ampli --omit-api-keys",
     "generate:gql": "graphql-codegen --config codegen.ts",
     "db:prepare": "yarn db:migrate && yarn db:seed",
-    "db:seed": "npx tsx@4.12.1 ./dbschema/seed.ts",
+    "db:seed": "npx tsx ./dbschema/seed.ts",
     "db:migrate": "yarn with-env -- edgedb migrate"
   },
   "dependencies": {
