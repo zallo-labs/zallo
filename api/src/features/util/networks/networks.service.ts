@@ -59,10 +59,9 @@ interface CreateParams {
 function create({ chainKey, redis }: CreateParams) {
   const chain = CHAINS[chainKey];
 
-  const rpcUrls = [
+  const rpcUrls = CONFIG.rpcUrls[chainKey] ?? [
     ...chain.rpcUrls.default.http,
     ...chain.rpcUrls.default.webSocket,
-    ...(CONFIG.rpcUrls[chainKey] ?? []),
   ];
   const transport = fallback(
     [
