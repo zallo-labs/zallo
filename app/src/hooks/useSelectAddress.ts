@@ -1,12 +1,12 @@
 import { Address, UAddress } from 'lib';
 import { Subject } from 'rxjs';
-import { AddressesModalParams } from '~/app/(drawer)/addresses';
+import { SelectAddressSheetParams } from '~/app/(sheet)/select/address';
 import { useGetEvent } from '~/hooks/useGetEvent';
 
 export const ADDRESS_SELECTED = new Subject<Address | UAddress>();
-export const useSelectAddress = () => {
+export function useSelectAddress() {
   const getEvent = useGetEvent();
 
-  return (params: AddressesModalParams = {}) =>
-    getEvent({ pathname: `/(drawer)/addresses`, params }, ADDRESS_SELECTED);
-};
+  return (params: SelectAddressSheetParams) =>
+    getEvent({ pathname: `/(sheet)/select/address`, params }, ADDRESS_SELECTED);
+}

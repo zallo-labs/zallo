@@ -11,6 +11,7 @@ export function useTransfer() {
   return async (params: O.Optional<TransferScreenParams, 'to'>) => {
     params.to ??= asAddress(
       await selectAddress({
+        headline: 'Transfer to',
         include: ['accounts', 'contacts'],
         disabled: [params.account],
       }),

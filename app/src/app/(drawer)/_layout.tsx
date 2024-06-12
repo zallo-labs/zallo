@@ -84,6 +84,7 @@ function RailContent() {
             style={styles.fabContainer}
             loading={false}
             onPress={() => transfer({ account })}
+            animated={false}
           />
         )
       }

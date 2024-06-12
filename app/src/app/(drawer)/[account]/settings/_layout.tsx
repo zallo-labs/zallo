@@ -124,6 +124,7 @@ function AccountSettingsPane() {
           containerStyle={styles.item}
           onPress={async () => {
             const approver = await selectAddress({
+              headline: 'Add approver',
               include: ['approvers', 'contacts'],
               disabled: [...a.approvers.map((a) => a.address)],
             });

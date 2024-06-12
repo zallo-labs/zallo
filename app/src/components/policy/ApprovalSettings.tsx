@@ -26,6 +26,7 @@ export function ApprovalSettings() {
 
   const addApprover = async () => {
     const address = await selectAddress({
+      headline: 'Add approver',
       include: ['approvers', 'contacts'],
       disabled: [...policy.approvers],
     });
