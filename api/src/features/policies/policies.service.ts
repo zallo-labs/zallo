@@ -325,6 +325,7 @@ export class PoliciesService {
     const policies = await this.db.query(
       e.select(selectAccount(account).policies, () => ({
         id: true,
+        isActive: true,
         ...PolicyShape,
       })),
     );
@@ -339,12 +340,13 @@ export class PoliciesService {
           const validationErrors = this.validate(proposal, policy);
           const threshold = policy.threshold - Number(policy.approvers.has(approver)); // Expect the proposer to approve
 
-          return { id: p.id, validationErrors, ...policy, threshold };
+          return { id: p.id, validationErrors, ...policy, threshold, isActive: p.isActive };
         }),
       )
     ).sort(
       (a, b) =>
         Number(a.validationErrors.length) - Number(b.validationErrors.length) ||
+        Number(b.isActive) - Number(a.isActive) ||
         a.permissions.delay - b.permissions.delay ||
         a.threshold - b.threshold,
     );
