@@ -143,7 +143,7 @@ function DrawerContent() {
     <DrawerSurface>
       <Section>
         <Link href={{ pathname: '/', params: { redirect: 'false' } }} asChild>
-          <PressableOpacity>
+          <PressableOpacity noHover>
             <DrawerLogo style={contentStyles.logo} />
           </PressableOpacity>
         </Link>

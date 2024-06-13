@@ -1,6 +1,6 @@
 import { Image, ImageProps, ImageSource, ImageStyle } from '#/Image';
-import { ComponentPropsWithoutRef, Ref, forwardRef } from 'react';
-import { ColorValue, StyleProp, View } from 'react-native';
+import { ComponentPropsWithoutRef, forwardRef } from 'react';
+import { ColorValue, Pressable, StyleProp, View } from 'react-native';
 import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
 import { ICON_SIZE } from './paper';
 import { PressableOpacity, PressableOpacityProps } from '#/PressableOpacity';
@@ -27,9 +27,9 @@ export const icon =
       const IconSet = iconSet[set];
 
       return (
-        <PressableOpacity onPress={onPress} disabled={!onPress}>
+        <Pressable onPress={onPress} disabled={!onPress}>
           <IconSet size={ICON_SIZE.small} {...(props as any)} name={name} />
-        </PressableOpacity>
+        </Pressable>
       );
     };
   };
