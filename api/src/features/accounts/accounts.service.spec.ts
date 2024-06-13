@@ -1,6 +1,5 @@
 import { createMock, DeepMocked } from '@golevelup/ts-jest';
 import { Test } from '@nestjs/testing';
-import { NetworksService } from '../util/networks/networks.service';
 import { UserContext, asUser, getUserCtx } from '#/util/context';
 import { randomLabel, randomAddress, randomUAddress, randomUser } from '~/util/test';
 import { getProxyAddress, UAddress } from 'lib';
@@ -24,7 +23,6 @@ const getProxyAddressMock = jest.mocked(getProxyAddress);
 describe(AccountsService.name, () => {
   let service: AccountsService;
   let db: DatabaseService;
-  let networks: DeepMocked<NetworksService>;
   let policies: DeepMocked<PoliciesService>;
   let activationsQueue: DeepMocked<TypedQueue<typeof ActivationsQueue>>;
   let accountsCache: DeepMocked<AccountsCacheService>;
@@ -40,7 +38,6 @@ describe(AccountsService.name, () => {
       .compile();
     service = module.get(AccountsService);
     db = module.get(DatabaseService);
-    networks = module.get(NetworksService);
     policies = module.get(PoliciesService);
     activationsQueue = module.get(getQueueToken(ActivationsQueue.name));
     accountsCache = module.get(AccountsCacheService);
