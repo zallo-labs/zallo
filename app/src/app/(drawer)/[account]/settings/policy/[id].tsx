@@ -68,7 +68,13 @@ function PolicyScreen() {
       account: account?.address ?? `zksync:${ZERO_ADDR}`, // Should only occur whilst loading
       key: p?.key,
       name: p?.name || '',
-      ...((p && policyAsDraft(p)) || presets.low),
+      ...(p
+        ? policyAsDraft(p)
+        : {
+            ...presets.low,
+            key: undefined,
+            name: 'New policy',
+          }),
     };
   }, [account?.address, policy, presets.low]);
 

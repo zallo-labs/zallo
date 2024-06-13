@@ -66,12 +66,10 @@ const PolicyState = gql(/* GraphQL */ `
 
 export function policyAsDraft(
   stateFragment: FragmentType<typeof PolicyState>,
-):
-  | Pick<
-      PolicyDraft,
-      'approvers' | 'threshold' | 'actions' | 'transfers' | 'allowMessages' | 'delay'
-    >
-  | undefined {
+): Pick<
+  PolicyDraft,
+  'approvers' | 'threshold' | 'actions' | 'transfers' | 'allowMessages' | 'delay'
+> {
   const s = getFragment(PolicyState, stateFragment);
 
   return {
