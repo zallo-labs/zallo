@@ -4,10 +4,8 @@ import { AppbarMore } from '#/Appbar/AppbarMore';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { FragmentType, gql, useFragment } from '@api/generated';
 import { usePolicyDraftAtom } from '~/lib/policy/draft';
-import { useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { createStyles, useStyles } from '@theme/styles';
-import { useLocalParams } from '~/hooks/useLocalParams';
-import { PolicyScreenParams } from '~/app/(drawer)/[account]/settings/policy/[id]';
 import { Appbar } from '#/Appbar/Appbar';
 import { SIDE_SHEET } from '#/SideSheet/SideSheetLayout';
 
@@ -37,7 +35,7 @@ export function PolicyAppbar({ reset, ...props }: PolicyAppbarProps) {
   const { styles } = useStyles(stylesheet);
   const policy = useFragment(Policy, props.policy);
   const router = useRouter();
-  const params = useLocalParams(PolicyScreenParams);
+  const params = useLocalSearchParams();
   const showSheet = useSetAtom(SIDE_SHEET);
 
   const { name } = useAtomValue(usePolicyDraftAtom());
