@@ -24,7 +24,7 @@ import { UserInputError } from '@nestjs/apollo';
 import { PubsubService } from '../util/pubsub/pubsub.service';
 import { ContractsService } from '../contracts/contracts.service';
 import { FaucetService } from '../faucet/faucet.service';
-import { PoliciesService } from '../policies/policies.service';
+import { MIN_AUTO_POLICY_KEY, PoliciesService } from '../policies/policies.service';
 import { inputAsPolicy } from '../policies/policies.util';
 import { AccountsCacheService } from '../auth/accounts.cache.service';
 import { v4 as uuid } from 'uuid';
@@ -92,9 +92,11 @@ export class AccountsService {
   }
 
   async createAccount({ chain, label, policies: policyInputs }: CreateAccountInput) {
-    // Fill keys
-    const maxKey = Math.max(...policyInputs.map((p) => p.key ?? 0));
-    const policies = policyInputs.map((p, i) => ({ ...p, key: p.key ?? asPolicyKey(i + maxKey) }));
+    const baseAutoKey = Math.max(MIN_AUTO_POLICY_KEY, ...policyInputs.map((p) => p.key ?? 0));
+    const policies = policyInputs.map((p, i) => ({
+      ...p,
+      key: p.key ?? asPolicyKey(i + baseAutoKey),
+    }));
     if (new Set(policies.map((p) => p.key)).size !== policies.length)
       throw new UserInputError('Duplicate policy keys');
 

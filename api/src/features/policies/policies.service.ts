@@ -43,6 +43,8 @@ import { encodeFunctionData } from 'viem';
 import { $Transaction } from '~/edgeql-js/modules/default';
 import { getUserCtx } from '#/util/context';
 
+export const MIN_AUTO_POLICY_KEY = 32; // 2^5; keys [0, 31] are reserved for manual keys
+
 export interface CreatePolicyParams extends CreatePolicyInput {
   initState?: boolean;
 }
@@ -425,6 +427,7 @@ export class PoliciesService {
     const maxKey = (await this.db.query(e.select(e.max(selectAccount(account).policies.key)))) as
       | number
       | null;
-    return asPolicyKey(maxKey !== null ? maxKey + 1 : 0);
+
+    return asPolicyKey(Math.max(MIN_AUTO_POLICY_KEY, maxKey !== null ? maxKey + 1 : 0));
   }
 }
