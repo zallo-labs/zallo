@@ -1,8 +1,6 @@
 import { FragmentType, gql, useFragment } from '@api/generated';
 import { ListItem, ListItemProps } from '#/list/ListItem';
-import { truncateAddr } from '~/util/format';
-import { GroupIcon } from '@theme/icons';
-import { AddressIcon } from '#/Identicon/AddressIcon';
+import { PolicyIcon } from '@theme/icons';
 import { forwardRef } from 'react';
 import { View } from 'react-native';
 
@@ -13,8 +11,6 @@ const Policy = gql(/* GraphQL */ `
     threshold
     approvers {
       id
-      address
-      label
     }
   }
 `);
@@ -24,22 +20,14 @@ export interface PolicyItemProps extends Partial<ListItemProps> {
 }
 
 export const PolicyItem = forwardRef<View, PolicyItemProps>((props, ref) => {
-  const policy = useFragment(Policy, props.policy);
-  const approver = policy.approvers.length === 1 ? policy.approvers[0] : null;
+  const p = useFragment(Policy, props.policy);
 
-  return approver ? (
+  return (
     <ListItem
-      leading={<AddressIcon address={approver.address} />}
-      headline={approver.label ?? truncateAddr(approver.address)}
-      supporting={policy.name}
-      {...props}
-    />
-  ) : (
-    <ListItem
-      leading={GroupIcon}
-      leadingSize="medium"
-      headline={policy.name}
-      supporting={`${policy.threshold}/${policy.approvers.length} approvals`}
+      ref={ref}
+      leading={PolicyIcon}
+      headline={p.name}
+      supporting={`${p.threshold}/${p.approvers.length} approvals`}
       {...props}
     />
   );

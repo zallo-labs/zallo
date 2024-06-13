@@ -8,7 +8,7 @@ import { useLocalParams } from '~/hooks/useLocalParams';
 import { AccountParams } from '../(home)/_layout';
 import { NotFound } from '#/NotFound';
 import { createStyles, useStyles } from '@theme/styles';
-import { EditOutlineIcon, NavigateNextIcon, SearchIcon } from '@theme/icons';
+import { AddIcon, EditOutlineIcon, NavigateNextIcon, SearchIcon } from '@theme/icons';
 import { ScrollView, View } from 'react-native';
 import { AccountApproverItem } from '#/account/AccountApproverItem';
 import { ListItem } from '#/list/ListItem';
@@ -179,7 +179,7 @@ function AccountSettingsPane() {
           asChild
         >
           <ListItem
-            leading={AddCircleIcon}
+            leading={AddIcon}
             headline="Add policy"
             lines={2}
             containerStyle={styles.item}
