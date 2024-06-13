@@ -8,7 +8,6 @@ import {
   validateMessage,
   validateTransaction,
   Policy,
-  PolicyKey,
   Address,
   UAddress,
   PLACEHOLDER_ACCOUNT_ADDRESS,
@@ -45,7 +44,6 @@ import { $Transaction } from '~/edgeql-js/modules/default';
 import { getUserCtx } from '#/util/context';
 
 export interface CreatePolicyParams extends CreatePolicyInput {
-  key?: PolicyKey;
   initState?: boolean;
 }
 
@@ -80,20 +78,8 @@ export class PoliciesService {
     );
   }
 
-  async create({ account, name, key: keyArg, initState, ...policyInput }: CreatePolicyParams) {
-    const selectedAccount = selectAccount(account);
-
-    const key =
-      keyArg ??
-      (await (async () => {
-        const maxKey = (await this.db.query(
-          e.select(
-            e.max(e.select(selectedAccount['<account[is Policy]'], () => ({ key: true })).key),
-          ),
-        )) as number | null;
-
-        return asPolicyKey(maxKey !== null ? maxKey + 1 : 0);
-      })());
+  async create({ account, name, key, initState, ...policyInput }: CreatePolicyParams) {
+    key ??= await this.getNextKey(account);
 
     const state = policyInputAsStateShape(key, policyInput);
     const proposal =
@@ -103,7 +89,7 @@ export class PoliciesService {
       // with proposal required - https://github.com/edgedb/edgedb/issues/6305
       const { id } = await this.db.query(
         e.insert(e.Policy, {
-          account: selectedAccount,
+          account: selectAccount(account),
           key,
           name: name || `Policy ${key}`,
           ...(proposal && { proposal }),
@@ -433,5 +419,12 @@ export class PoliciesService {
         },
       ],
     });
+  }
+
+  private async getNextKey(account: UAddress) {
+    const maxKey = (await this.db.query(e.select(e.max(selectAccount(account).policies.key)))) as
+      | number
+      | null;
+    return asPolicyKey(maxKey !== null ? maxKey + 1 : 0);
   }
 }

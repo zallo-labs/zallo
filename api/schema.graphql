@@ -213,6 +213,7 @@ input CreatePolicyInput {
 
   """seconds"""
   delay: Float
+  key: PolicyKey
   name: String
   threshold: Float
   transfers: TransfersConfigInput
@@ -427,6 +428,7 @@ input PolicyInput {
 
   """seconds"""
   delay: Float
+  key: PolicyKey
   name: String
   threshold: Float
   transfers: TransfersConfigInput
@@ -1006,7 +1008,7 @@ input UpdatePolicyInput {
 
   """seconds"""
   delay: Float
-  key: PolicyKey!
+  key: PolicyKey
   name: String
   threshold: Float
   transfers: TransfersConfigInput

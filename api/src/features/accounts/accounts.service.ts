@@ -21,7 +21,6 @@ import {
 } from './accounts.input';
 import { getApprover, getUserCtx } from '#/util/context';
 import { UserInputError } from '@nestjs/apollo';
-import { NetworksService } from '../util/networks/networks.service';
 import { PubsubService } from '../util/pubsub/pubsub.service';
 import { ContractsService } from '../contracts/contracts.service';
 import { FaucetService } from '../faucet/faucet.service';
@@ -43,7 +42,6 @@ export interface AccountSubscriptionPayload {
 export class AccountsService {
   constructor(
     private db: DatabaseService,
-    private networks: NetworksService,
     private pubsub: PubsubService,
     private contracts: ContractsService,
     private faucet: FaucetService,
@@ -94,27 +92,30 @@ export class AccountsService {
   }
 
   async createAccount({ chain, label, policies: policyInputs }: CreateAccountInput) {
-    const approver = getApprover();
-    if (!policyInputs.find((p) => p.approvers.includes(approver)))
-      throw new UserInputError('User must be included in at least one policy');
+    // Fill keys
+    const maxKey = Math.max(...policyInputs.map((p) => p.key ?? 0));
+    const policies = policyInputs.map((p, i) => ({ ...p, key: p.key ?? asPolicyKey(i + maxKey) }));
+    if (new Set(policies.map((p) => p.key)).size !== policies.length)
+      throw new UserInputError('Duplicate policy keys');
 
     const implementation = ACCOUNT_IMPLEMENTATION.address[chain];
     const salt = randomDeploySalt();
-    const policies = policyInputs.map((p, i) => inputAsPolicy(asPolicyKey(i), p));
-
     const account = asUAddress(
       getProxyAddress({
         deployer: DEPLOYER.address[chain],
         implementation,
         salt,
-        policies,
+        policies: policies.map((p) => inputAsPolicy(p.key, p)),
       }),
       chain,
     );
 
     // The account id must be in the user's list of accounts prior to starting the transaction for the globals to be set correctly
     const id = uuid();
-    await this.accountsCache.addCachedAccount({ approver, account: { id, address: account } });
+    await this.accountsCache.addCachedAccount({
+      approver: getApprover(),
+      account: { id, address: account },
+    });
 
     await this.db.transaction(async () => {
       await this.db.query(
@@ -127,12 +128,11 @@ export class AccountsService {
         }),
       );
 
-      for (const [i, policy] of policyInputs.entries()) {
+      for (const policy of policyInputs) {
         await this.policies.create({
-          ...policy,
           account,
-          key: asPolicyKey(i),
           initState: true,
+          ...policy,
         });
       }
     });
