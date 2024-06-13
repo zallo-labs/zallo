@@ -14,6 +14,7 @@ import {
   PLACEHOLDER_ACCOUNT_ADDRESS,
   asAddress,
   asFp,
+  asPolicyKey,
   asSelector,
 } from 'lib';
 import { FC, useMemo } from 'react';
@@ -171,6 +172,7 @@ export function usePolicyPresets({ chain, ...params }: UsePolicyPresetsParams) {
     return {
       low: {
         ...details.low,
+        key: asPolicyKey(2),
         approvers,
         transfers: {
           defaultAllow: false,
@@ -208,6 +210,7 @@ export function usePolicyPresets({ chain, ...params }: UsePolicyPresetsParams) {
       },
       medium: {
         ...details.medium,
+        key: asPolicyKey(3),
         approvers,
         transfers: {
           defaultAllow: false,
@@ -245,6 +248,7 @@ export function usePolicyPresets({ chain, ...params }: UsePolicyPresetsParams) {
       },
       recovery: {
         ...details.recovery,
+        key: asPolicyKey(4),
         approvers,
         transfers: { defaultAllow: false, limits: {} },
         actions: [
@@ -260,6 +264,7 @@ export function usePolicyPresets({ chain, ...params }: UsePolicyPresetsParams) {
       },
       high: {
         ...details.high,
+        key: asPolicyKey(1),
         approvers,
         transfers: { defaultAllow: true, limits: {} },
         actions: [
@@ -288,6 +293,6 @@ export function usePolicyPresets({ chain, ...params }: UsePolicyPresetsParams) {
         allowMessages: true,
         delay: 0,
       },
-    } satisfies Record<string, Omit<PolicyDraft, 'account' | 'key'>>;
+    } satisfies Record<string, Omit<PolicyDraft, 'account'>>;
   }, [account?.address, account?.approvers, user.approvers, chain]);
 }

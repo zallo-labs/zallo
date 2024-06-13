@@ -1,5 +1,5 @@
 import { FragmentType, gql, useFragment } from '@api';
-import { Link, useLocalSearchParams, useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useAtom } from 'jotai';
 import _ from 'lodash';
 import { useMutation } from 'urql';
@@ -143,11 +143,7 @@ export function PolicyPane({ initial, ...props }: PolicyPaneProps) {
               icon={draft.key === undefined ? AddIcon : UpdateIcon}
               label={draft.key === undefined ? 'Create policy' : 'Update policy'}
               onPress={async () => {
-                const input = {
-                  ...asPolicyInput(draft),
-                  account: draft.account,
-                  key: draft?.key,
-                };
+                const input = { account: draft.account, ...asPolicyInput(draft) };
                 const r =
                   input.key !== undefined
                     ? (await update({ input: { ...input, key: input.key! } })).data?.updatePolicy
