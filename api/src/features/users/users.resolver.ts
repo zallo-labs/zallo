@@ -1,8 +1,8 @@
-import { Context, Info, Mutation, Parent, Query, Resolver, Subscription } from '@nestjs/graphql';
+import { Context, Info, Mutation, Query, Resolver, Subscription } from '@nestjs/graphql';
 import { GraphQLResolveInfo } from 'graphql';
 import { LinkInput, UpdateUserInput } from './users.input';
-import { User } from './users.model';
-import { UsersService, UserSubscriptionPayload } from './users.service';
+import { User, UserLinked } from './users.model';
+import { UsersService, UserLinkedPayload } from './users.service';
 import { getShape } from '../database/database.select';
 import { Input } from '~/decorators/input.decorator';
 import { ComputedField } from '~/decorators/computed.decorator';
@@ -19,21 +19,26 @@ export class UsersResolver {
     return this.service.selectUnique(getShape(info));
   }
 
-  @ComputedField<typeof e.User>(() => String, { id: true })
-  async linkingToken(@Parent() { id }: User): Promise<string> {
-    return this.service.getLinkingToken(id);
+  @ComputedField<typeof e.User>(() => String, {})
+  async linkingToken(): Promise<string> {
+    return this.service.generateLinkingToken();
   }
 
-  @Subscription(() => User, {
-    name: 'user',
+  @Subscription(() => UserLinked, {
+    name: 'userLinked',
     resolve(
       this: UsersResolver,
-      _payload: UserSubscriptionPayload,
+      { issuer, linker }: UserLinkedPayload,
       _input,
       ctx: GqlContext,
       info: GraphQLResolveInfo,
     ) {
-      return asUser(ctx, () => this.service.selectUnique(getShape(info)));
+      return {
+        id: `${issuer}:${linker}`,
+        user: asUser(ctx, () => this.service.selectUnique(getShape(info))),
+        issuer,
+        linker,
+      };
     },
   })
   async subscribeToUser(@Context() ctx: GqlContext) {

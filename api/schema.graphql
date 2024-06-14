@@ -684,7 +684,7 @@ type Subscription {
   account(input: AccountSubscriptionInput! = {}): Account!
   proposalUpdated(input: ProposalUpdatedInput! = {}): ProposalUpdated!
   transfer(input: TransferSubscriptionInput! = {}): Transfer!
-  user: User!
+  userLinked: UserLinked!
 }
 
 type Successful implements Node & ReceiptResult & Result {
@@ -1071,6 +1071,13 @@ type UserApprover implements Node {
   label: String
   name: String
   pushToken: String
+}
+
+type UserLinked implements CustomNode {
+  id: ID!
+  issuer: Address!
+  linker: Address!
+  user: User!
 }
 
 type ValidationError {
