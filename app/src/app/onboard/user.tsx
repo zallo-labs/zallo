@@ -48,7 +48,7 @@ const Update = gql(/* GraphQL */ `
 
 const Subscription = gql(/* GraphQL */ `
   subscription UserOnboarding_Subscription {
-    user {
+    userLinked {
       id
     }
   }
@@ -79,11 +79,11 @@ function UserOnboarding() {
     [handleSubmit, reset, router, update],
   );
 
-  const pairedUser = useSubscription({ query: Subscription })[0].data?.user.id;
+  const userLinked = useSubscription({ query: Subscription })[0].data;
   useFocusEffect(
     useCallback(() => {
-      if (pairedUser) next();
-    }, [next, pairedUser]),
+      if (userLinked) next();
+    }, [next, userLinked]),
   );
 
   return (

@@ -87,6 +87,7 @@ export const PolicyRemoveOutlineIcon = materialCommunityIcon('shield-remove-outl
 export const TextIcon = materialCommunityIcon('text');
 
 export const ZalloLogo = imageFromSource(require('assets/brand/logo-l.svg'));
+export const ZalloIconMinimal = imageFromSource(require('assets/brand/icon-m.svg'));
 export const AppStoreBadge = imageFromSource(require('assets/app-store-badge.svg'));
 export const GooglePlayBadge = imageFromSource(require('assets/google-play-badge.png'));
 export const WalletConnectIcon = imageFromSource(require('assets/walletconnect-light.svg'));

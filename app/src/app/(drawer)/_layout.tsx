@@ -12,7 +12,6 @@ import {
   GithubIcon,
   QrCodeIcon,
   GenericTokenIcon,
-  DevicesIcon,
   AccountIcon,
 } from '@theme/icons';
 import { DrawerItem as Item } from '#/drawer/DrawerItem';
@@ -193,7 +192,6 @@ function DrawerContent() {
       </Section>
 
       <Section>
-        <Item href={`/(drawer)/approvers`} icon={DevicesIcon} label="My approvers" />
         <Item href={`/(drawer)/contacts/`} icon={ContactsIcon} label="Contacts" />
         {account && (
           <Item

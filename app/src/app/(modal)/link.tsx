@@ -12,8 +12,11 @@ import { useEffect } from 'react';
 import { Link, useRouter } from 'expo-router';
 import { share } from '~/lib/share';
 import { createStyles, useStyles } from '@theme/styles';
-import { showSuccess } from '#/provider/SnackbarProvider';
 import { useLinkingTokenUrl } from '#/link/useLinkingTokenUrl';
+import { Subject } from 'rxjs';
+import { Address } from 'lib';
+import { useGetEvent } from '~/hooks/useGetEvent';
+import { useApproverAddress } from '@network/useApprover';
 
 const Query = gql(/* GraphQL */ `
   query LinkingTokenModal {
@@ -25,27 +28,39 @@ const Query = gql(/* GraphQL */ `
 `);
 
 const Subscription = gql(/* GraphQL */ `
-  subscription LinkingTokenModal_Subscription {
-    user {
+  subscription LinkingModal_Subscription {
+    userLinked {
       id
+      user {
+        id
+      }
+      issuer
+      linker
     }
   }
 `);
 
+const APPROVER_LINKED = new Subject<Address>();
+export function useLinkZallo() {
+  const getEvent = useGetEvent();
+  return () => getEvent({ pathname: `/(modal)/link` }, APPROVER_LINKED);
+}
+
 export default function LinkingModal() {
   const { styles } = useStyles(stylesheet);
   const router = useRouter();
+  const approver = useApproverAddress();
 
   const { user } = useQuery(Query).data;
   const link = useLinkingTokenUrl({ user });
 
-  const [subscription] = useSubscription({ query: Subscription });
+  const userLinked = useSubscription({ query: Subscription })[0];
   useEffect(() => {
-    if (!subscription.stale && subscription.data) {
-      showSuccess('Linked');
-      router.back();
+    if (!userLinked.stale && userLinked.data) {
+      const { issuer, linker } = userLinked.data.userLinked;
+      APPROVER_LINKED.next(issuer === approver ? linker : issuer);
     }
-  }, [router, subscription.data, subscription.stale]);
+  }, [approver, router, userLinked.data, userLinked.stale]);
 
   return (
     <Blur>

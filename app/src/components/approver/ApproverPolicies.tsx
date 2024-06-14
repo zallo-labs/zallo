@@ -6,7 +6,7 @@ import { ListHeader } from '#/list/ListHeader';
 import { ListItem } from '#/list/ListItem';
 import { showError } from '#/provider/SnackbarProvider';
 import { FragmentType, gql, useFragment } from '@api';
-import { AddIcon, CloseIcon, GroupIcon, UndoIcon, UpdateIcon } from '@theme/icons';
+import { AddIcon, CloseIcon, GroupIcon, PolicyIcon, UndoIcon, UpdateIcon } from '@theme/icons';
 import { createStyles, useStyles } from '@theme/styles';
 import { useRouter } from 'expo-router';
 import { Address } from 'lib';
@@ -121,8 +121,7 @@ export function ApproverPolicies({ approver, ...props }: ApproverPoliciesProps) 
             <ListItem
               key={p.id}
               lines={3}
-              leading={GroupIcon}
-              leadingSize="medium"
+              leading={PolicyIcon}
               headline={p.name}
               supporting={
                 <View style={styles.approvalsContainer}>

@@ -41,13 +41,13 @@ export function useLinkGoogle(props: UseLinkGoogleProps) {
         showError('Something went wrong, failed to sign into Google', {
           event: { error: r.error },
         });
-      return false;
+      return null;
     }
 
     const approver = r.value;
     await link({ token: user.linkingToken }, await authContext(approver));
     ampli.socialLinked({ cloud: 'Google' });
 
-    return true;
+    return approver.address;
   };
 }

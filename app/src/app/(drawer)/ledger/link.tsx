@@ -4,9 +4,7 @@ import { ActivityIndicator, Text } from 'react-native-paper';
 import { ListHeader } from '#/list/ListHeader';
 import { Actions } from '#/layout/Actions';
 import { Button } from '#/Button';
-import { gql } from '@api/generated';
 import { match } from 'ts-pattern';
-import { useQuery } from '~/gql';
 import { LedgerItem } from '#/link/ledger/LedgerItem';
 import { AppbarOptions } from '#/Appbar/AppbarOptions';
 import { useObservable } from '~/hooks/useObservable';
@@ -18,21 +16,11 @@ import { withSuspense } from '#/skeleton/withSuspense';
 import { ScreenSkeleton } from '#/skeleton/ScreenSkeleton';
 import { ScreenSurface } from '#/layout/ScreenSurface';
 
-const Query = gql(/* GraphQL */ `
-  query LinkLedgerScreen {
-    user {
-      ...LedgerItem_user
-    }
-  }
-`);
-
 function LinkLedgerScreen() {
   const [hasPermission, requestPermissions] = useBluetoothPermissions();
 
   const devices =
     useObservable(useMemo(() => (hasPermission ? bleDevices() : null), [hasPermission])) ?? ok([]);
-
-  const { user } = useQuery(Query).data;
 
   return (
     <>
@@ -55,8 +43,7 @@ function LinkLedgerScreen() {
                 Available devices
               </ListHeader>
             }
-            renderItem={({ item }) => <LedgerItem user={user} device={item} />}
-            extraData={[user]}
+            renderItem={({ item }) => <LedgerItem device={item} />}
             contentContainerStyle={styles.listContainer}
             keyExtractor={(d) => d.id}
           />

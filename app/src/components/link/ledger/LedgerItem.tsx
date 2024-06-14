@@ -1,26 +1,30 @@
 import { authContext, useUrqlApiClient } from '@api/client';
-import { FragmentType, gql, useFragment } from '@api/generated';
+import { gql } from '@api/generated';
 import { BluetoothIcon } from '@theme/icons';
 import { useCallback } from 'react';
 import { useMutation } from 'urql';
 import { ListItem } from '#/list/ListItem';
 import { useGetLedgerApprover } from '~/app/(sheet)/ledger/approve';
 import { APPROVER_BLE_IDS } from '~/hooks/ledger/useLedger';
-import { showError, showInfo } from '#/provider/SnackbarProvider';
+import { showError } from '#/provider/SnackbarProvider';
 import { useImmerAtom } from 'jotai-immer';
 import { getLedgerDeviceModel } from '~/hooks/ledger/connectLedger';
 import { elipseTruncate } from '~/util/format';
-import { useRouter } from 'expo-router';
 import { BleDevice, isUniqueBleDeviceId } from '~/lib/ble/util';
-import { LinkWithTokenSheetParams } from '~/app/(sheet)/link/token';
-import { tryOrIgnoreAsync } from 'lib';
+import { Address, tryOrIgnoreAsync } from 'lib';
 import { ampli } from '~/lib/ampli';
+import { Subject } from 'rxjs';
+import { useGetEvent } from '~/hooks/useGetEvent';
+import { Platform } from 'react-native';
 
-const User = gql(/* GraphQL */ `
-  fragment LedgerItem_user on User {
-    id
-  }
-`);
+const LEDGER_LINKED = new Subject<Address>();
+export function useLinkLedger() {
+  const getEvent = useGetEvent();
+
+  if (Platform.OS === 'web') return null;
+
+  return () => getEvent({ pathname: `/(drawer)/ledger/link` }, LEDGER_LINKED);
+}
 
 const Query = gql(/* GraphQL */ `
   query LedgerItem {
@@ -47,23 +51,28 @@ const Update = gql(/* GraphQL */ `
   }
 `);
 
+const Link = gql(/* GraphQL */ `
+  mutation LedgerItem_Link($token: String!) {
+    link(input: { token: $token }) {
+      id
+    }
+  }
+`);
+
 export interface LedgerItemProps {
-  user: FragmentType<typeof User>;
   device: BleDevice;
 }
 
-export function LedgerItem({ device: d, ...props }: LedgerItemProps) {
-  const user = useFragment(User, props.user);
-  const router = useRouter();
+export function LedgerItem({ device: d }: LedgerItemProps) {
   const api = useUrqlApiClient();
   const update = useMutation(Update)[1];
+  const link = useMutation(Link)[1];
   const setApproverBleIds = useImmerAtom(APPROVER_BLE_IDS)[1];
   const getSign = useGetLedgerApprover();
-
-  const productName = getLedgerDeviceModel(d)?.productName;
+  const model = getLedgerDeviceModel(d)?.productName || 'Unknown model';
 
   const connect = useCallback(async () => {
-    const name = d.name || productName || d.id;
+    const name = d.name || model || d.id;
 
     const { address, signMessage } = await getSign({ device: d.id, name });
 
@@ -111,22 +120,18 @@ export function LedgerItem({ device: d, ...props }: LedgerItemProps) {
       });
     }
 
-    // Check if already link
-    if (data.user.id === user.id) return showInfo('Already linked');
+    await link({ token: linkingToken });
+    LEDGER_LINKED.next(address);
 
-    const params: LinkWithTokenSheetParams = { token: linkingToken };
-    router.push({ pathname: `/link/token`, params });
-
-    ampli.ledgerLinked({ productName });
-  }, [d.name, d.id, productName, getSign, api, update, user.id, router, setApproverBleIds]);
+    ampli.ledgerLinked({ model });
+  }, [d.name, d.id, model, getSign, api, update, link, setApproverBleIds]);
 
   return (
     <ListItem
       leading={BluetoothIcon}
       headline={d.name || d.id}
-      supporting={productName}
+      supporting={model}
       trailing={elipseTruncate(d.id, 9)}
-      lines={2}
       onPress={connect}
     />
   );

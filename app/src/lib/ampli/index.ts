@@ -75,7 +75,7 @@ export interface ApprovalProperties {
 }
 
 export interface LedgerLinkedProperties {
-  productName?: string;
+  model: string;
 }
 
 export interface ModifyPolicyProperties {
@@ -140,7 +140,7 @@ export class LedgerLinked implements BaseEvent {
   event_type = 'Ledger Linked';
 
   constructor(
-    public event_properties?: LedgerLinkedProperties,
+    public event_properties: LedgerLinkedProperties,
   ) {
     this.event_properties = event_properties;
   }
@@ -347,11 +347,11 @@ export class Ampli {
    *
    * Event has no description in tracking plan.
    *
-   * @param properties The event's properties (e.g. productName)
+   * @param properties The event's properties (e.g. model)
    * @param options Amplitude event options.
    */
   ledgerLinked(
-    properties?: LedgerLinkedProperties,
+    properties: LedgerLinkedProperties,
     options?: EventOptions,
   ) {
     return this.track(new LedgerLinked(properties), options);

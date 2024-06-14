@@ -20,10 +20,13 @@ export function CollapsibleItemList({
 
   const items = React.Children.toArray(children);
 
-  const headerStyle = useAnimatedStyle(() => ({
-    borderBottomLeftRadius: withTiming(expanded ? 0 : CORNER.l, { duration }),
-    borderBottomRightRadius: withTiming(expanded ? 0 : CORNER.l, { duration }),
-  }));
+  const headerStyle = useAnimatedStyle(() => {
+    'worklet';
+    return {
+      borderBottomLeftRadius: withTiming(expanded ? 0 : CORNER.l, { duration }),
+      borderBottomRightRadius: withTiming(expanded ? 0 : CORNER.l, { duration }),
+    };
+  });
 
   if (!items.length) return null;
 
