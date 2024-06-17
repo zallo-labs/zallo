@@ -19,7 +19,7 @@ import { createStyles } from '@theme/styles';
 import { Divider, Text } from 'react-native-paper';
 import { useQuery } from '~/gql';
 import { Address, asAddress, asChain } from 'lib';
-import { useLinkZallo } from '../../../(modal)/link';
+import { useLinkZallo } from '~/app/(modal)/accounts/join';
 import { AccountParams } from '~/app/(drawer)/[account]/(home)/_layout';
 import { useLocalParams } from '~/hooks/useLocalParams';
 import { useRouter } from 'expo-router';

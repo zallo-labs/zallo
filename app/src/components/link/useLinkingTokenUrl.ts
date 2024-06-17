@@ -16,7 +16,7 @@ export function useLinkingTokenUrl(params: useLinkingTokenUrlParams) {
   const user = useFragment(User, params.user);
 
   return useMemo(
-    () => appLink({ pathname: `/link/token`, params: { token: user.linkingToken } }),
+    () => appLink({ pathname: `/link`, params: { token: user.linkingToken } }),
     [user.linkingToken],
   );
 }

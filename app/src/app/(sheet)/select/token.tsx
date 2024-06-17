@@ -14,7 +14,7 @@ import { P, match } from 'ts-pattern';
 import { z } from 'zod';
 import { useQuery } from '~/gql';
 import { useLocalParams } from '~/hooks/useLocalParams';
-import { zArray, zUAddress } from '~/lib/zod';
+import { zArray, zBool, zUAddress } from '~/lib/zod';
 import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import { EdgeInsets, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { TokenItem } from '#/token/TokenItem';
@@ -41,7 +41,7 @@ export const SelectTokenSheetParams = z.object({
   account: zUAddress(),
   enabled: zArray(zUAddress()).optional(),
   disabled: zArray(zUAddress()).optional(),
-  feeToken: z.coerce.boolean().optional(),
+  feeToken: zBool().optional(),
 });
 export type SelectTokenSheetParams = z.infer<typeof SelectTokenSheetParams>;
 

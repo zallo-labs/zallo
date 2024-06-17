@@ -1,10 +1,10 @@
 import { Appbar } from '#/Appbar/Appbar';
+import { Button } from '#/Button';
 import { FormSubmitButton } from '#/fields/FormSubmitButton';
 import { FormTextField } from '#/fields/FormTextField';
 import { Actions } from '#/layout/Actions';
 import { LinkAppleButton } from '#/link/LinkAppleButton';
 import { LinkGoogleButton } from '#/link/LinkGoogleButton';
-import { LinkZalloButton } from '#/link/LinkZalloButton';
 import { OnboardLinkingPane } from '#/onboard/OnboardLinkingPane';
 import { OnboardMainPane } from '#/onboard/OnboardMainPane';
 import { OnboardProgress } from '#/onboard/OnboardProgress';
@@ -12,8 +12,9 @@ import { ScreenSkeleton } from '#/skeleton/ScreenSkeleton';
 import { withSuspense } from '#/skeleton/withSuspense';
 import { gql } from '@api';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { QrCodeIcon } from '@theme/icons';
 import { createStyles, useStyles } from '@theme/styles';
-import { useFocusEffect, useRouter } from 'expo-router';
+import { Link, useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { View } from 'react-native';
@@ -104,9 +105,15 @@ function UserOnboarding() {
         />
 
         <Actions>
-          <LinkZalloButton />
+          <Link href="/accounts/join" asChild>
+            <Button mode="contained-tonal" icon={QrCodeIcon}>
+              Continue with Zallo
+            </Button>
+          </Link>
+
           <LinkGoogleButton user={user} onLink={next} />
           <LinkAppleButton user={user} onLink={next} />
+
           <FormSubmitButton mode="outlined" control={control} onPress={next}>
             Continue
           </FormSubmitButton>
