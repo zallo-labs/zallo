@@ -110,13 +110,13 @@ export class UsersService {
       },
     );
 
+    const payload: UserLinkedPayload = { issuer, linker: getUserCtx().approver };
+    this.pubsub.publish<UserLinkedPayload>(getUserLinkedTrigger(linkerUserId), payload);
     if (issuerUser) {
+      this.pubsub.publish<UserLinkedPayload>(getUserLinkedTrigger(issuerUser), payload);
+
       this.accountsCache.invalidateApproversCache(...(issuerApprovers as Address[]));
       this.accountsCache.invalidateUsersCache(issuerUser, linkerUserId);
-
-      const payload: UserLinkedPayload = { issuer, linker: getUserCtx().approver };
-      this.pubsub.publish<UserLinkedPayload>(getUserLinkedTrigger(issuerUser), payload);
-      this.pubsub.publish<UserLinkedPayload>(getUserLinkedTrigger(linkerUserId), payload);
     }
 
     await this.redis.del(this.getLinkingTokenKey(issuer));
