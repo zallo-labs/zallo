@@ -123,7 +123,7 @@ function SelectTokenSheet() {
 
 const stylesheet = createStyles(() => ({
   container: (insets: EdgeInsets) => ({
-    paddingBottom: insets.bottom,
+    paddingBottom: insets.bottom + 12,
   }),
   headline: {
     marginHorizontal: 16,
