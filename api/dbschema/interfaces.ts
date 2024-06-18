@@ -191,6 +191,7 @@ export namespace $default {
     "typedData"?: unknown | null;
   }
   export interface Operation extends std.$Object {
+    "position": number;
     "data"?: string | null;
     "to": string;
     "value"?: bigint | null;
@@ -264,6 +265,7 @@ export namespace $default {
     "gasLimit": bigint;
     "result"?: Result | null;
     "executable": boolean;
+    "unorderedOperations": Operation[];
     "operations": Operation[];
     "simulation"?: Simulation | null;
     "paymaster": string;

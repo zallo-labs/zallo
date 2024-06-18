@@ -2,8 +2,6 @@ module default {
   global current_accounts: array<uuid>;
   global current_approver_address: Address;
   global current_approver := assert_single((select Approver filter .address = global current_approver_address));
-  global current_user_id: uuid;
-  # global current_user := (select User filter .id = global current_user_id);
   global current_user := (global current_approver).user;
 
   type Account extending Labelled {

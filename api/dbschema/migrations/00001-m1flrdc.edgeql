@@ -1,4 +1,4 @@
-CREATE MIGRATION m1mygpbohjm4i5azcv6gj26ghfj2wlkzvpry6jd2los4ed5xm5yc7a
+CREATE MIGRATION m1flrdckmwin6sg42mvtplf7qh2l6z2kv3bkmutql23bffpz3zdlgq
     ONTO initial
 {
   CREATE SCALAR TYPE default::ApprovalIssue EXTENDING enum<HashMismatch, Expired>;
@@ -99,7 +99,6 @@ CREATE MIGRATION m1mygpbohjm4i5azcv6gj26ghfj2wlkzvpry6jd2los4ed5xm5yc7a
       CREATE REQUIRED PROPERTY issues := (<array<default::ApprovalIssue>>std::array_agg(({default::ApprovalIssue.HashMismatch} IF (.signedHash != .proposal.hash) ELSE <default::ApprovalIssue>{})));
       CREATE REQUIRED PROPERTY invalid := ((std::len(.issues) > 0));
   };
-  CREATE GLOBAL default::current_user_id -> std::uuid;
   CREATE TYPE default::Simulation {
       CREATE REQUIRED PROPERTY responses: array<default::Bytes>;
       CREATE REQUIRED PROPERTY success: std::bool;
@@ -170,6 +169,9 @@ CREATE MIGRATION m1mygpbohjm4i5azcv6gj26ghfj2wlkzvpry6jd2los4ed5xm5yc7a
       CREATE CONSTRAINT std::min_value(0);
   };
   CREATE TYPE default::Operation {
+      CREATE REQUIRED PROPERTY position: default::uint16 {
+          SET default := 0;
+      };
       CREATE PROPERTY data: default::Bytes;
       CREATE REQUIRED PROPERTY to: default::Address;
       CREATE PROPERTY value: default::uint256;
@@ -186,10 +188,15 @@ CREATE MIGRATION m1mygpbohjm4i5azcv6gj26ghfj2wlkzvpry6jd2los4ed5xm5yc7a
       CREATE REQUIRED PROPERTY executable: std::bool {
           SET default := false;
       };
-      CREATE REQUIRED MULTI LINK operations: default::Operation {
+      CREATE REQUIRED MULTI LINK unorderedOperations: default::Operation {
           ON SOURCE DELETE DELETE TARGET;
           CREATE CONSTRAINT std::exclusive;
       };
+      CREATE REQUIRED MULTI LINK operations := (SELECT
+          .unorderedOperations
+      ORDER BY
+          .position ASC
+      );
       CREATE LINK simulation: default::Simulation {
           ON TARGET DELETE DEFERRED RESTRICT;
           CREATE CONSTRAINT std::exclusive;
@@ -240,11 +247,7 @@ CREATE MIGRATION m1mygpbohjm4i5azcv6gj26ghfj2wlkzvpry6jd2los4ed5xm5yc7a
   ALTER TYPE default::User {
       CREATE MULTI LINK approvers := (.<user[IS default::Approver]);
   };
-  CREATE GLOBAL default::current_user := (SELECT
-      default::User
-  FILTER
-      (.id = GLOBAL default::current_user_id)
-  );
+  CREATE GLOBAL default::current_user := ((GLOBAL default::current_approver).user);
   CREATE TYPE default::Contact EXTENDING default::UserLabelled {
       CREATE LINK user: default::User {
           SET default := (<default::User>(GLOBAL default::current_user).id);
@@ -489,6 +492,22 @@ CREATE MIGRATION m1mygpbohjm4i5azcv6gj26ghfj2wlkzvpry6jd2los4ed5xm5yc7a
               ))
           });
   };
+  ALTER TYPE default::Approver {
+      CREATE LINK accounts := (SELECT
+          default::Account
+      FILTER
+          (__source__ IN .approvers)
+      );
+      CREATE ACCESS POLICY user_select_update
+          ALLOW SELECT, UPDATE USING ((.user ?= GLOBAL default::current_user));
+      CREATE CONSTRAINT std::exclusive ON ((.user, .address));
+  };
+  ALTER TYPE default::User {
+      CREATE MULTI LINK accounts := (SELECT
+          DISTINCT (.approvers.accounts)
+      );
+      CREATE MULTI LINK contacts := (.<user[IS default::Contact]);
+  };
   CREATE TYPE default::SystemTx {
       CREATE REQUIRED LINK proposal: default::Transaction;
       CREATE REQUIRED PROPERTY maxEthFeePerGas: std::decimal {
@@ -706,22 +725,6 @@ CREATE MIGRATION m1mygpbohjm4i5azcv6gj26ghfj2wlkzvpry6jd2los4ed5xm5yc7a
       CREATE ACCESS POLICY user_all
           ALLOW ALL USING (((.approver ?= GLOBAL default::current_approver) OR (.approver.user ?= GLOBAL default::current_user)));
       CREATE CONSTRAINT std::exclusive ON ((.proposal, .approver));
-  };
-  ALTER TYPE default::Approver {
-      CREATE ACCESS POLICY user_select_update
-          ALLOW SELECT, UPDATE USING ((.user ?= GLOBAL default::current_user));
-      CREATE LINK accounts := (SELECT
-          default::Account
-      FILTER
-          (__source__ IN .approvers)
-      );
-      CREATE CONSTRAINT std::exclusive ON ((.user, .address));
-  };
-  ALTER TYPE default::User {
-      CREATE MULTI LINK accounts := (SELECT
-          DISTINCT (.approvers.accounts)
-      );
-      CREATE MULTI LINK contacts := (.<user[IS default::Contact]);
   };
   CREATE SCALAR TYPE default::AbiSource EXTENDING enum<Verified>;
   CREATE TYPE default::Function {
