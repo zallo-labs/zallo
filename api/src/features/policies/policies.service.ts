@@ -37,7 +37,7 @@ import {
 import { NameTaken, Policy as PolicyModel, ValidationError } from './policies.model';
 import { TX_SHAPE, transactionAsTx, ProposalTxShape } from '../transactions/transactions.util';
 import { and, isExclusivityConstraintViolation } from '../database/database.util';
-import { selectAccount } from '../accounts/accounts.util';
+import { selectAccount, selectAccount2 } from '../accounts/accounts.util';
 import { err, ok } from 'neverthrow';
 import { encodeFunctionData } from 'viem';
 import { $Transaction } from '~/edgeql-js/modules/default';
@@ -322,34 +322,35 @@ export class PoliciesService {
   }
 
   async best(account: UAddress, proposal: Tx | 'message') {
-    const policies = await this.db.query(
-      e.select(selectAccount(account).policies, () => ({
-        id: true,
-        isActive: true,
-        ...PolicyShape,
-      })),
+    const policies = await this.db.queryWith(
+      { account: e.UAddress },
+      ({ account }) =>
+        e.select(selectAccount2(account).policies, () => ({
+          id: true,
+          isActive: true,
+          ...PolicyShape,
+        })),
+      { account },
     );
     if (policies.length === 0)
       throw new UserInputError('No policies for account. Account is bricked');
 
     const { approver } = getUserCtx();
-    const sorted = (
-      await Promise.all(
-        policies.map(async (p) => {
-          const policy = policyStateAsPolicy(p);
-          const validationErrors = this.validate(proposal, policy);
-          const threshold = policy.threshold - Number(policy.approvers.has(approver)); // Expect the proposer to approve
+    const sorted = policies
+      .map((p) => {
+        const policy = policyStateAsPolicy(p);
+        const validationErrors = this.validate(proposal, policy);
+        const threshold = policy.threshold - Number(policy.approvers.has(approver)); // Expect the proposer to approve
 
-          return { id: p.id, validationErrors, ...policy, threshold, isActive: p.isActive };
-        }),
-      )
-    ).sort(
-      (a, b) =>
-        Number(a.validationErrors.length) - Number(b.validationErrors.length) ||
-        Number(b.isActive) - Number(a.isActive) ||
-        a.permissions.delay - b.permissions.delay ||
-        a.threshold - b.threshold,
-    );
+        return { id: p.id, validationErrors, ...policy, threshold, isActive: p.isActive };
+      })
+      .sort(
+        (a, b) =>
+          Number(a.validationErrors.length) - Number(b.validationErrors.length) ||
+          Number(b.isActive) - Number(a.isActive) ||
+          a.permissions.delay - b.permissions.delay ||
+          a.threshold - b.threshold,
+      );
 
     const p = sorted[0];
     return {
