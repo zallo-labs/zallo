@@ -52,8 +52,8 @@ describe(ContactsService.name, () => {
 
     it('updates a contact if it already existed', () =>
       asUser(user1, async () => {
-        const newLabel = 'b';
-        await upsertContact(user1Contact, 'a');
+        const newLabel = 'b1234';
+        await upsertContact(user1Contact, 'a1234');
         await upsertContact(user1Contact, newLabel);
 
         expect(await db.query(selectContact(user1Contact).name)).toEqual(newLabel);
@@ -61,7 +61,7 @@ describe(ContactsService.name, () => {
 
     it('only allow unique names (within the scope of a user)', () =>
       asUser(user1, async () => {
-        const name = 'a';
+        const name = 'a1234';
         await upsertContact(user1Contact, name);
         await expect(upsertContact(randomUAddress(), name)).rejects.toThrow();
       }));
