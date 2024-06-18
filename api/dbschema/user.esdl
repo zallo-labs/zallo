@@ -71,6 +71,8 @@ module default {
 
   function tokenForUser(addressParam: str, user: User) -> optional Token using (
     with address := <UAddress>addressParam
-    select assert_single((select Token filter .address = address order by (exists .user) limit 1))
+    select assert_single((
+      select Token filter .address = address and (.isSystem or .user ?= user) order by .isSystem asc limit 1 
+    ))
   );
 }

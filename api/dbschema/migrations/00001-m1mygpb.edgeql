@@ -1,4 +1,4 @@
-CREATE MIGRATION m1vezvjjwui3fmf3vkc6gn24f62isylgvdf5gyy7ndlypzrofdhdvq
+CREATE MIGRATION m1mygpbohjm4i5azcv6gj26ghfj2wlkzvpry6jd2los4ed5xm5yc7a
     ONTO initial
 {
   CREATE SCALAR TYPE default::ApprovalIssue EXTENDING enum<HashMismatch, Expired>;
@@ -262,12 +262,12 @@ CREATE MIGRATION m1vezvjjwui3fmf3vkc6gn24f62isylgvdf5gyy7ndlypzrofdhdvq
       };
       CREATE CONSTRAINT std::exclusive ON ((.user, .chain, .symbol));
       CREATE CONSTRAINT std::exclusive ON ((.user, .chain, .name));
+      CREATE REQUIRED PROPERTY isSystem := (NOT (EXISTS (.user)));
       CREATE ACCESS POLICY user_all
           ALLOW ALL USING ((.user ?= GLOBAL default::current_user));
       CREATE ACCESS POLICY anyone_select_allowlisted
           ALLOW SELECT USING (NOT (EXISTS (.user)));
       CREATE CONSTRAINT std::exclusive ON ((.user, .address));
-      CREATE REQUIRED PROPERTY isSystem := (NOT (EXISTS (.user)));
   };
   CREATE FUNCTION default::labelForUser(addressParam: std::str, user: default::User) -> OPTIONAL std::str USING (WITH
       address := 
@@ -692,9 +692,9 @@ CREATE MIGRATION m1vezvjjwui3fmf3vkc6gn24f62isylgvdf5gyy7ndlypzrofdhdvq
   SELECT
       std::assert_single((SELECT
           default::Token FILTER
-              (.address = address)
+              ((.address = address) AND (.isSystem OR (.user ?= user)))
           ORDER BY
-              EXISTS (.user) ASC
+              .isSystem ASC
       LIMIT
           1
       ))
