@@ -71,7 +71,7 @@ describe(PoliciesService.name, () => {
         account: selectAccount(account),
         policy: selectPolicy(initPolicy.id),
         validationErrors: [],
-        operations: e.insert(e.Operation, { to: ZERO_ADDR }),
+        unorderedOperations: e.insert(e.Operation, { to: ZERO_ADDR }),
         timestamp: new Date(),
         paymaster: ZERO_ADDR,
         feeToken: e.assert_single(
