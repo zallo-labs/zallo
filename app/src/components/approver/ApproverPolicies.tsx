@@ -6,7 +6,7 @@ import { ListHeader } from '#/list/ListHeader';
 import { ListItem } from '#/list/ListItem';
 import { showError } from '#/provider/SnackbarProvider';
 import { FragmentType, gql, useFragment } from '@api';
-import { AddIcon, CloseIcon, GroupIcon, PolicyIcon, UndoIcon, UpdateIcon } from '@theme/icons';
+import { AddIcon, CloseIcon, PolicyIcon, UndoIcon, UpdateIcon } from '@theme/icons';
 import { createStyles, useStyles } from '@theme/styles';
 import { useRouter } from 'expo-router';
 import { Address } from 'lib';
@@ -123,7 +123,7 @@ export function ApproverPolicies({ approver, ...props }: ApproverPoliciesProps) 
               lines={3}
               leading={PolicyIcon}
               headline={p.name}
-              supporting={
+              supporting={() => (
                 <View style={styles.approvalsContainer}>
                   <Chip
                     mode={pols[p.id].threshold === p.threshold ? 'flat' : 'outlined'}
@@ -147,7 +147,7 @@ export function ApproverPolicies({ approver, ...props }: ApproverPoliciesProps) 
                     >{`${p.threshold + 1}/${n} approvals`}</Chip>
                   )}
                 </View>
-              }
+              )}
               containerStyle={styles.item}
               trailing={
                 <Switch
@@ -207,7 +207,8 @@ const stylesheet = createStyles(({ colors }) => ({
   approvalsContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 8,
+    columnGap: 8,
+    rowGap: 4,
     marginTop: 4,
   },
   resetLabel: {
