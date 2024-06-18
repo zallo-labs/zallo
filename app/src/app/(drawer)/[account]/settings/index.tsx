@@ -62,8 +62,9 @@ function AccountSettingsPane_() {
   const path = usePath();
   const currentRouteParams = useRouteInfo().params;
 
-  const { account: a, user } = useQuery(Query, { account }).data;
-  if (!a) return <NotFound name="Account" />;
+  const query = useQuery(Query, { account });
+  const { account: a, user } = query.data;
+  if (!a) return query.stale ? null : <NotFound name="Account" />;
 
   const policies = a.policies.sort((a, b) => a.key - b.key);
 
