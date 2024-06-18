@@ -17,14 +17,15 @@ import { ChainField } from '~/apollo/scalars/Chain.scalar';
 import { Chain } from 'chains';
 import { GraphQLBigInt } from 'graphql-scalars';
 import { UrlField } from '~/apollo/scalars/Url.scalar';
+import { Labelled } from '#/contacts/contacts.model';
 
-@NodeType()
+@NodeType({ implements: Labelled })
 export class Account extends Node {
   @UAddressField()
   address: UAddress;
 
   @Field(() => String)
-  label: string;
+  name: string;
 
   @AddressField()
   implementation: Address;

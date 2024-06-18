@@ -22,7 +22,6 @@ export const CONFIG = {
   apiPort: optional`API_PORT` || 3000,
   backgroundJobs: optional`BACKGROUND_JOBS` === 'false' ? false : true,
   expoToken: required`EXPO_TOKEN`,
-  ensSuffix: required`ENS_SUFFIX`,
   redisUrl: required`REDIS_URL`,
   redisFamily: optional`REDIS_FAMILY` === '6' ? 6 : undefined,
   sessionSecret: required`SESSION_SECRET`,

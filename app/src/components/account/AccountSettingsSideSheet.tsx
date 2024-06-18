@@ -11,22 +11,21 @@ const Account = gql(/* GraphQL */ `
   fragment AccountSettingsSideSheet_Account on Account {
     id
     address
-    label
+    name
   }
 `);
 
 const Update = gql(/* GraphQL */ `
-  mutation AccountSettingsSideSheet_Update($account: UAddress!, $label: String!) {
-    updateAccount(input: { account: $account, label: $label }) {
+  mutation AccountSettingsSideSheet_Update($account: UAddress!, $name: String!) {
+    updateAccount(input: { account: $account, name: $name }) {
       id
-      label
       name
     }
   }
 `);
 
 interface Inputs {
-  label: string;
+  name: string;
 }
 
 export interface AccountSettingsSideSheetProps {
@@ -38,13 +37,13 @@ export function AccountSettingsSideSheet(props: AccountSettingsSideSheetProps) {
   const update = useMutation(Update)[1];
 
   const { control, handleSubmit, reset } = useForm<Inputs>({
-    defaultValues: { label: account?.label },
+    defaultValues: { name: account?.name },
   });
 
   return (
     <SideSheet headline="Details">
       <View style={styles.fields}>
-        <AccountNameFormField name="label" control={control} required />
+        <AccountNameFormField name="name" control={control} required />
       </View>
 
       <Actions>
@@ -53,7 +52,7 @@ export function AccountSettingsSideSheet(props: AccountSettingsSideSheetProps) {
           requireChanges
           control={control}
           onPress={handleSubmit(async (input) => {
-            await update({ account: account.address, label: input.label });
+            await update({ account: account.address, name: input.name });
             reset(input);
           })}
         >

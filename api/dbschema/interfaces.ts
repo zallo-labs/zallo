@@ -74,10 +74,13 @@ export namespace cfg {
 }
 export namespace $default {
   export type AbiSource = "Verified";
-  export interface Account extends std.$Object {
+  export interface Labelled extends std.$Object {
     "address": string;
-    "label": string;
+    "name": string;
     "chain": string;
+  }
+  export interface Account extends Labelled {
+    "address": string;
     "activationEthFee"?: string | null;
     "upgradedAtBlock"?: bigint | null;
     "active": boolean;
@@ -121,16 +124,14 @@ export namespace $default {
     "name"?: string | null;
     "pushToken"?: string | null;
     "user": User;
-    "accounts": Account[];
-    "contact"?: Contact | null;
+    "labelled"?: Labelled | null;
     "label"?: string | null;
+    "accounts": Account[];
   }
   export type CloudProvider = "Apple" | "Google";
-  export interface Contact extends std.$Object {
-    "user": User;
-    "address": string;
-    "label": string;
-    "chain": string;
+  export interface UserLabelled extends Labelled {}
+  export interface Contact extends UserLabelled {
+    "user"?: User | null;
   }
   export interface Contract extends std.$Object {
     "functions": Function[];
@@ -168,12 +169,8 @@ export namespace $default {
     "abiMd5": string;
     "source": AbiSource;
   }
-  export interface GlobalLabel extends std.$Object {
-    "address": string;
-    "label": string;
-  }
+  export interface GlobalLabel extends Labelled {}
   export interface Proposal extends std.$Object {
-    "policy": Policy;
     "account": Account;
     "hash": string;
     "createdAt": Date;
@@ -185,6 +182,7 @@ export namespace $default {
     "approvals": Approval[];
     "proposedBy": Approver;
     "rejections": Rejection[];
+    "policy": Policy;
   }
   export interface Message extends Proposal {
     "signature"?: string | null;
@@ -202,8 +200,6 @@ export namespace $default {
     "total": string;
   }
   export interface PolicyState extends std.$Object {
-    "isActive": boolean;
-    "isDraft": boolean;
     "account": Account;
     "key": number;
     "activationBlock"?: bigint | null;
@@ -212,7 +208,9 @@ export namespace $default {
     "draft"?: PolicyState | null;
     "proposal"?: Transaction | null;
     "initState": boolean;
+    "isDraft": boolean;
     "latest"?: Policy | null;
+    "isActive": boolean;
   }
   export interface Policy extends PolicyState {
     "approvers": Approver[];
@@ -230,17 +228,15 @@ export namespace $default {
     "scheduledFor": Date;
   }
   export interface Simulation extends std.$Object {
-    "transfers": TransferDetails[];
     "responses": string[];
     "success": boolean;
     "timestamp": Date;
+    "transfers": TransferDetails[];
   }
   export interface Successful extends ReceiptResult {
     "responses": string[];
   }
   export interface SystemTx extends std.$Object {
-    "maxEthFees": string;
-    "result"?: Result | null;
     "proposal": Transaction;
     "maxEthFeePerGas": string;
     "maxNetworkEthFee": string;
@@ -249,12 +245,12 @@ export namespace $default {
     "timestamp": Date;
     "usdPerFeeToken": string;
     "events": Event[];
+    "maxEthFees": string;
+    "result"?: Result | null;
   }
-  export interface Token extends std.$Object {
+  export interface Token extends UserLabelled {
     "units"?: {symbol: string, decimals: number}[] | null;
     "address": string;
-    "name": string;
-    "chain": string;
     "symbol": string;
     "decimals": number;
     "isFeeToken": boolean;
@@ -264,11 +260,6 @@ export namespace $default {
     "isSystem": boolean;
   }
   export interface Transaction extends Proposal {
-    "paymasterEthFees": PaymasterFees;
-    "status": TransactionStatus;
-    "systx"?: SystemTx | null;
-    "results": Result[];
-    "systxs": SystemTx[];
     "maxAmount": string;
     "gasLimit": bigint;
     "result"?: Result | null;
@@ -278,6 +269,11 @@ export namespace $default {
     "paymaster": string;
     "feeToken": Token;
     "maxAmountFp": bigint;
+    "paymasterEthFees": PaymasterFees;
+    "status": TransactionStatus;
+    "systx"?: SystemTx | null;
+    "results": Result[];
+    "systxs": SystemTx[];
   }
   export type TransactionStatus = "Pending" | "Scheduled" | "Executing" | "Successful" | "Failed" | "Cancelled";
   export interface TransferDetails extends std.$Object {
@@ -319,6 +315,7 @@ export namespace $default {
   export interface current_user extends User {}
 }
 import AbiSource = $default.AbiSource;
+import Labelled = $default.Labelled;
 import Account = $default.Account;
 import Action = $default.Action;
 import ActionFunction = $default.ActionFunction;
@@ -327,6 +324,7 @@ import Approval = $default.Approval;
 import ApprovalIssue = $default.ApprovalIssue;
 import Approver = $default.Approver;
 import CloudProvider = $default.CloudProvider;
+import UserLabelled = $default.UserLabelled;
 import Contact = $default.Contact;
 import Contract = $default.Contract;
 import Event = $default.Event;
@@ -362,6 +360,7 @@ import current_approver = $default.current_approver;
 import current_user = $default.current_user;
 export type {
   AbiSource,
+  Labelled,
   Account,
   Action,
   ActionFunction,
@@ -370,6 +369,7 @@ export type {
   ApprovalIssue,
   Approver,
   CloudProvider,
+  UserLabelled,
   Contact,
   Contract,
   Event,
@@ -666,6 +666,7 @@ export interface types {
   };
   "default": {
     "AbiSource": $default.AbiSource;
+    "Labelled": $default.Labelled;
     "Account": $default.Account;
     "Action": $default.Action;
     "ActionFunction": $default.ActionFunction;
@@ -674,6 +675,7 @@ export interface types {
     "ApprovalIssue": $default.ApprovalIssue;
     "Approver": $default.Approver;
     "CloudProvider": $default.CloudProvider;
+    "UserLabelled": $default.UserLabelled;
     "Contact": $default.Contact;
     "Contract": $default.Contract;
     "Event": $default.Event;

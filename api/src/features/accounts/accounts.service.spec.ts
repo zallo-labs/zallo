@@ -55,7 +55,7 @@ describe(AccountsService.name, () => {
 
     return service.createAccount({
       chain: 'zksync-local',
-      label: randomLabel(),
+      name: randomLabel(),
       policies: [{ approvers: [userCtx.approver] }],
     });
   };
@@ -129,10 +129,10 @@ describe(AccountsService.name, () => {
   describe('updateAccountMetadata', () => {
     it('updates metadata', () =>
       asUser(user1, async () => {
-        const newLabel = randomLabel();
-        await service.updateAccount({ account: user1Account, label: newLabel });
-        expect((await service.selectUnique(user1Account, () => ({ label: true })))?.label).toEqual(
-          newLabel,
+        const newName = randomLabel();
+        await service.updateAccount({ account: user1Account, name: newName });
+        expect((await service.selectUnique(user1Account, () => ({ name: true })))?.name).toEqual(
+          newName,
         );
       }));
 
@@ -140,7 +140,7 @@ describe(AccountsService.name, () => {
       asUser(user1, async () => {
         const newLabel = randomLabel();
         service.publishAccount = jest.fn();
-        await service.updateAccount({ account: user1Account, label: newLabel });
+        await service.updateAccount({ account: user1Account, name: newLabel });
         expect(service.publishAccount).toBeCalledTimes(1);
       }));
 
@@ -148,7 +148,7 @@ describe(AccountsService.name, () => {
       asUser(randomUser(), async () => {
         const newLabel = randomLabel();
         await expect(
-          service.updateAccount({ account: user1Account, label: newLabel }),
+          service.updateAccount({ account: user1Account, name: newLabel }),
         ).rejects.toThrow();
       }));
   });

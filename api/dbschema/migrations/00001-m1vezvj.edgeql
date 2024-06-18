@@ -1,4 +1,4 @@
-CREATE MIGRATION m17zysktd275lmeyaal7evvoerfedmpq7tmjiip5r2jdrben4el2rq
+CREATE MIGRATION m1vezvjjwui3fmf3vkc6gn24f62isylgvdf5gyy7ndlypzrofdhdvq
     ONTO initial
 {
   CREATE SCALAR TYPE default::ApprovalIssue EXTENDING enum<HashMismatch, Expired>;
@@ -14,27 +14,36 @@ CREATE MIGRATION m17zysktd275lmeyaal7evvoerfedmpq7tmjiip5r2jdrben4el2rq
   CREATE SCALAR TYPE default::Address EXTENDING std::str {
       CREATE CONSTRAINT std::regexp('^0x[0-9a-fA-F]{40}$');
   };
+  CREATE FUNCTION default::as_address(address: default::UAddress) ->  default::Address USING ((std::str_split(address, ':'))[1]);
   CREATE GLOBAL default::current_approver_address -> default::Address;
   CREATE SCALAR TYPE default::uint16 EXTENDING std::int32 {
       CREATE CONSTRAINT std::max_value(((2 ^ 16) - 1));
       CREATE CONSTRAINT std::min_value(0);
   };
   CREATE FUNCTION default::as_fixed(value: std::decimal, decimals: default::uint16) ->  std::bigint USING (<std::bigint>std::round((value * (10n ^ decimals))));
+  CREATE SCALAR TYPE default::BoundedStr EXTENDING std::str {
+      CREATE CONSTRAINT std::regexp(r'^(?![0O][xX])[^\n]{3,50}$');
+  };
   CREATE SCALAR TYPE default::Bytes32 EXTENDING std::str {
       CREATE CONSTRAINT std::regexp('^0x[0-9a-fA-F]{64}$');
   };
   CREATE SCALAR TYPE default::Url EXTENDING std::str {
       CREATE CONSTRAINT std::regexp('^https?://');
   };
-  CREATE TYPE default::Account {
-      CREATE REQUIRED PROPERTY address: default::UAddress {
-          CREATE CONSTRAINT std::exclusive;
-      };
-      CREATE REQUIRED PROPERTY label: std::str {
-          CREATE CONSTRAINT std::exclusive;
-          CREATE CONSTRAINT std::regexp('^[0-9a-zA-Z$-]{4,40}$');
-      };
+  CREATE ABSTRACT TYPE default::Labelled {
+      CREATE REQUIRED PROPERTY address: default::UAddress;
+      CREATE REQUIRED PROPERTY name: default::BoundedStr;
       CREATE REQUIRED PROPERTY chain := (default::as_chain(.address));
+      CREATE INDEX ON (default::as_address(.address));
+      CREATE INDEX ON (.address);
+  };
+  CREATE TYPE default::Account EXTENDING default::Labelled {
+      ALTER PROPERTY address {
+          SET OWNED;
+          SET REQUIRED;
+          SET TYPE default::UAddress;
+          CREATE CONSTRAINT std::exclusive;
+      };
       CREATE PROPERTY activationEthFee: std::decimal {
           CREATE CONSTRAINT std::min_value(0);
       };
@@ -65,10 +74,6 @@ CREATE MIGRATION m17zysktd275lmeyaal7evvoerfedmpq7tmjiip5r2jdrben4el2rq
       CREATE REQUIRED PROPERTY signedHash: default::Bytes32;
       CREATE REQUIRED PROPERTY signature: default::Bytes;
   };
-  CREATE SCALAR TYPE default::Label EXTENDING std::str {
-      CREATE CONSTRAINT std::max_len_value(50);
-      CREATE CONSTRAINT std::min_len_value(1);
-  };
   CREATE ABSTRACT TYPE default::Proposal {
       CREATE REQUIRED LINK account: default::Account;
       CREATE REQUIRED PROPERTY hash: default::Bytes32 {
@@ -79,7 +84,7 @@ CREATE MIGRATION m17zysktd275lmeyaal7evvoerfedmpq7tmjiip5r2jdrben4el2rq
       };
       CREATE PROPERTY dapp: tuple<name: std::str, url: default::Url, icons: array<default::Url>>;
       CREATE PROPERTY icon: default::Url;
-      CREATE PROPERTY label: default::Label;
+      CREATE PROPERTY label: default::BoundedStr;
       CREATE REQUIRED PROPERTY timestamp: std::datetime;
       CREATE REQUIRED PROPERTY validationErrors: array<tuple<reason: std::str, operation: std::int32>>;
       CREATE ACCESS POLICY members_all
@@ -94,6 +99,7 @@ CREATE MIGRATION m17zysktd275lmeyaal7evvoerfedmpq7tmjiip5r2jdrben4el2rq
       CREATE REQUIRED PROPERTY issues := (<array<default::ApprovalIssue>>std::array_agg(({default::ApprovalIssue.HashMismatch} IF (.signedHash != .proposal.hash) ELSE <default::ApprovalIssue>{})));
       CREATE REQUIRED PROPERTY invalid := ((std::len(.issues) > 0));
   };
+  CREATE GLOBAL default::current_user_id -> std::uuid;
   CREATE TYPE default::Simulation {
       CREATE REQUIRED PROPERTY responses: array<default::Bytes>;
       CREATE REQUIRED PROPERTY success: std::bool;
@@ -125,11 +131,10 @@ CREATE MIGRATION m17zysktd275lmeyaal7evvoerfedmpq7tmjiip5r2jdrben4el2rq
   CREATE TYPE default::Approver {
       CREATE PROPERTY bluetoothDevices: array<default::MAC>;
       CREATE REQUIRED PROPERTY address: default::Address {
-          SET readonly := true;
           CREATE CONSTRAINT std::exclusive;
       };
       CREATE PROPERTY cloud: tuple<provider: default::CloudProvider, subject: std::str>;
-      CREATE PROPERTY name: default::Label;
+      CREATE PROPERTY name: default::BoundedStr;
       CREATE PROPERTY pushToken: std::str;
       CREATE ACCESS POLICY anyone_select_insert
           ALLOW SELECT, INSERT ;
@@ -191,22 +196,24 @@ CREATE MIGRATION m17zysktd275lmeyaal7evvoerfedmpq7tmjiip5r2jdrben4el2rq
       };
       CREATE REQUIRED PROPERTY paymaster: default::Address;
   };
-  CREATE TYPE default::Token {
-      CREATE PROPERTY units: array<tuple<symbol: default::Label, decimals: default::uint16>>;
-      CREATE REQUIRED PROPERTY address: default::UAddress;
-      CREATE REQUIRED PROPERTY name: default::Label;
-      CREATE REQUIRED PROPERTY chain := (default::as_chain(.address));
-      CREATE REQUIRED PROPERTY symbol: default::Label;
+  CREATE ABSTRACT TYPE default::UserLabelled EXTENDING default::Labelled;
+  CREATE TYPE default::Token EXTENDING default::UserLabelled {
+      CREATE PROPERTY units: array<tuple<symbol: default::BoundedStr, decimals: default::uint16>>;
+      ALTER PROPERTY address {
+          SET OWNED;
+          SET REQUIRED;
+          SET TYPE default::UAddress;
+      };
+      CREATE REQUIRED PROPERTY symbol: default::BoundedStr;
       CREATE REQUIRED PROPERTY decimals: default::uint16;
+      ALTER INDEX ON (.address) SET OWNED;
       CREATE REQUIRED PROPERTY isFeeToken: std::bool {
           SET default := false;
       };
       CREATE INDEX ON ((.address, .isFeeToken));
-      CREATE INDEX ON (.address);
       CREATE PROPERTY icon: default::Url;
       CREATE PROPERTY pythUsdPriceId: default::Bytes32;
   };
-  CREATE FUNCTION default::as_address(address: default::UAddress) ->  default::Address USING ((std::str_split(address, ':'))[1]);
   CREATE TYPE default::User {
       CREATE LINK primaryAccount: default::Account;
   };
@@ -217,73 +224,78 @@ CREATE MIGRATION m17zysktd275lmeyaal7evvoerfedmpq7tmjiip5r2jdrben4el2rq
           );
           ON SOURCE DELETE DELETE TARGET IF ORPHAN;
       };
+      CREATE LINK labelled := (std::assert_single((WITH
+          addr := 
+              .address
+      SELECT
+          default::Labelled FILTER
+              (default::as_address(.address) = addr)
+          ORDER BY
+              [IS default::UserLabelled] ASC
+      LIMIT
+          1
+      )));
+      CREATE PROPERTY label := ((.name ?? .labelled.name));
   };
   ALTER TYPE default::User {
       CREATE MULTI LINK approvers := (.<user[IS default::Approver]);
   };
-  CREATE GLOBAL default::current_user := ((GLOBAL default::current_approver).user);
-  CREATE TYPE default::Contact {
-      CREATE REQUIRED LINK user: default::User {
+  CREATE GLOBAL default::current_user := (SELECT
+      default::User
+  FILTER
+      (.id = GLOBAL default::current_user_id)
+  );
+  CREATE TYPE default::Contact EXTENDING default::UserLabelled {
+      CREATE LINK user: default::User {
           SET default := (<default::User>(GLOBAL default::current_user).id);
           ON TARGET DELETE DELETE SOURCE;
       };
-      CREATE REQUIRED PROPERTY address: default::UAddress;
-      CREATE CONSTRAINT std::exclusive ON ((.user, .address));
-      CREATE REQUIRED PROPERTY label: default::Label;
-      CREATE REQUIRED PROPERTY chain := (default::as_chain(.address));
       CREATE ACCESS POLICY user_all
           ALLOW ALL USING ((.user ?= GLOBAL default::current_user));
-      CREATE CONSTRAINT std::exclusive ON ((.user, .label));
-  };
-  CREATE TYPE default::GlobalLabel {
-      CREATE REQUIRED PROPERTY address: default::UAddress {
-          CREATE CONSTRAINT std::exclusive;
-      };
-      CREATE REQUIRED PROPERTY label: default::Label;
+      CREATE CONSTRAINT std::exclusive ON ((.user, .name));
+      CREATE CONSTRAINT std::exclusive ON ((.user, .address));
   };
   ALTER TYPE default::Token {
       CREATE LINK user: default::User {
           SET default := (<default::User>(GLOBAL default::current_user).id);
+          ON TARGET DELETE DELETE SOURCE;
       };
-      CREATE CONSTRAINT std::exclusive ON ((.user, .address));
       CREATE CONSTRAINT std::exclusive ON ((.user, .chain, .symbol));
       CREATE CONSTRAINT std::exclusive ON ((.user, .chain, .name));
       CREATE ACCESS POLICY user_all
           ALLOW ALL USING ((.user ?= GLOBAL default::current_user));
       CREATE ACCESS POLICY anyone_select_allowlisted
           ALLOW SELECT USING (NOT (EXISTS (.user)));
+      CREATE CONSTRAINT std::exclusive ON ((.user, .address));
       CREATE REQUIRED PROPERTY isSystem := (NOT (EXISTS (.user)));
   };
   CREATE FUNCTION default::labelForUser(addressParam: std::str, user: default::User) -> OPTIONAL std::str USING (WITH
       address := 
           <default::UAddress>addressParam
+      ,
+      label := 
+          (std::assert_single((SELECT
+              default::Labelled FILTER
+                  (.address = address)
+              ORDER BY
+                  [IS default::UserLabelled] ASC
+          LIMIT
+              1
+          ))).name
+      ,
+      approverLabel := 
+          ((SELECT
+              default::Approver
+          FILTER
+              (.address = default::as_address(address))
+          )).name
   SELECT
-      std::assert_single((((SELECT
-          default::Contact
-      FILTER
-          ((.address = address) AND (.user = user))
-      )).label ?? (((SELECT
-          default::Account
-      FILTER
-          (.address = address)
-      )).label ?? (((SELECT
-          default::Token
-      FILTER
-          ((.address = address) AND (.user = user))
-      )).name ?? (((SELECT
-          default::Token
-      FILTER
-          (.address = address)
-      )).name ?? (((SELECT
-          default::Approver
-      FILTER
-          (.address = default::as_address(address))
-      )).name ?? ((SELECT
-          default::GlobalLabel
-      FILTER
-          (.address = address)
-      )).label))))))
+      (label ?? approverLabel)
   );
+  CREATE TYPE default::GlobalLabel EXTENDING default::Labelled {
+      CREATE CONSTRAINT std::exclusive ON (.address);
+      CREATE INDEX ON (.name);
+  };
   CREATE FUNCTION default::as_decimal(value: std::bigint, decimals: default::uint16) ->  std::decimal USING ((<std::decimal>value / (<std::decimal>10 ^ decimals)));
   ALTER TYPE default::Transaction {
       CREATE REQUIRED LINK feeToken: default::Token;
@@ -360,7 +372,7 @@ CREATE MIGRATION m17zysktd275lmeyaal7evvoerfedmpq7tmjiip5r2jdrben4el2rq
       CREATE REQUIRED MULTI LINK functions: default::ActionFunction;
       CREATE REQUIRED PROPERTY allow: std::bool;
       CREATE PROPERTY description: std::str;
-      CREATE REQUIRED PROPERTY label: default::Label;
+      CREATE REQUIRED PROPERTY label: default::BoundedStr;
   };
   CREATE SCALAR TYPE default::uint224 EXTENDING std::bigint {
       CREATE CONSTRAINT std::max_value(((2n ^ 224n) - 1n));
@@ -413,6 +425,7 @@ CREATE MIGRATION m17zysktd275lmeyaal7evvoerfedmpq7tmjiip5r2jdrben4el2rq
           ON TARGET DELETE DELETE SOURCE;
       };
       CREATE REQUIRED PROPERTY initState := ((.activationBlock ?= 0));
+      CREATE REQUIRED PROPERTY isDraft := (EXISTS (.draft));
       CREATE INDEX ON ((.account, .key));
       CREATE ACCESS POLICY can_be_deleted_when_never_activated
           ALLOW DELETE USING (NOT (.hasBeenActive));
@@ -433,7 +446,7 @@ CREATE MIGRATION m17zysktd275lmeyaal7evvoerfedmpq7tmjiip5r2jdrben4el2rq
       CREATE REQUIRED PROPERTY delay: default::uint32 {
           SET default := 0;
       };
-      CREATE REQUIRED PROPERTY name: default::Label;
+      CREATE REQUIRED PROPERTY name: default::BoundedStr;
       CREATE REQUIRED PROPERTY threshold: default::uint16;
   };
   ALTER TYPE default::Account {
@@ -454,7 +467,7 @@ CREATE MIGRATION m17zysktd275lmeyaal7evvoerfedmpq7tmjiip5r2jdrben4el2rq
   )));
   ALTER TYPE default::PolicyState {
       CREATE LINK latest := (default::latestPolicy(.account, .key));
-      CREATE REQUIRED PROPERTY active := ((.hasBeenActive AND (.latest ?= __source__)));
+      CREATE REQUIRED PROPERTY isActive := ((.hasBeenActive AND (.latest ?= __source__)));
   };
   CREATE TYPE default::RemovedPolicy EXTENDING default::PolicyState {
       CREATE TRIGGER rm_policy_draft_link
@@ -475,31 +488,6 @@ CREATE MIGRATION m17zysktd275lmeyaal7evvoerfedmpq7tmjiip5r2jdrben4el2rq
                   (.key != __new__.key)
               ))
           });
-  };
-  ALTER TYPE default::Approver {
-      CREATE LINK accounts := (SELECT
-          default::Account
-      FILTER
-          (__source__ IN .approvers)
-      );
-      CREATE ACCESS POLICY user_select_update
-          ALLOW SELECT, UPDATE USING ((.user ?= GLOBAL default::current_user));
-      CREATE CONSTRAINT std::exclusive ON ((.user, .address));
-      CREATE LINK contact := (std::assert_single((WITH
-          address := 
-              .address
-      SELECT
-          default::Contact
-      FILTER
-          (.address = address)
-      )));
-      CREATE PROPERTY label := ((.contact.label ?? .name));
-  };
-  ALTER TYPE default::User {
-      CREATE MULTI LINK accounts := (SELECT
-          DISTINCT (.approvers.accounts)
-      );
-      CREATE MULTI LINK contacts := (.<user[IS default::Contact]);
   };
   CREATE TYPE default::SystemTx {
       CREATE REQUIRED LINK proposal: default::Transaction;
@@ -702,17 +690,14 @@ CREATE MIGRATION m17zysktd275lmeyaal7evvoerfedmpq7tmjiip5r2jdrben4el2rq
       address := 
           <default::UAddress>addressParam
   SELECT
-      std::assert_single(((SELECT
-          default::Token FILTER
-              ((.address = address) AND (.user = user))
-      LIMIT
-          1
-      ) ?? (SELECT
+      std::assert_single((SELECT
           default::Token FILTER
               (.address = address)
+          ORDER BY
+              EXISTS (.user) ASC
       LIMIT
           1
-      )))
+      ))
   );
   CREATE FUNCTION default::token(address: std::str) -> OPTIONAL default::Token USING (SELECT
       default::tokenForUser(address, GLOBAL default::current_user)
@@ -721,6 +706,22 @@ CREATE MIGRATION m17zysktd275lmeyaal7evvoerfedmpq7tmjiip5r2jdrben4el2rq
       CREATE ACCESS POLICY user_all
           ALLOW ALL USING (((.approver ?= GLOBAL default::current_approver) OR (.approver.user ?= GLOBAL default::current_user)));
       CREATE CONSTRAINT std::exclusive ON ((.proposal, .approver));
+  };
+  ALTER TYPE default::Approver {
+      CREATE ACCESS POLICY user_select_update
+          ALLOW SELECT, UPDATE USING ((.user ?= GLOBAL default::current_user));
+      CREATE LINK accounts := (SELECT
+          default::Account
+      FILTER
+          (__source__ IN .approvers)
+      );
+      CREATE CONSTRAINT std::exclusive ON ((.user, .address));
+  };
+  ALTER TYPE default::User {
+      CREATE MULTI LINK accounts := (SELECT
+          DISTINCT (.approvers.accounts)
+      );
+      CREATE MULTI LINK contacts := (.<user[IS default::Contact]);
   };
   CREATE SCALAR TYPE default::AbiSource EXTENDING enum<Verified>;
   CREATE TYPE default::Function {

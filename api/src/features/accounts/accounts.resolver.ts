@@ -5,7 +5,7 @@ import {
   UpdateAccountInput,
   CreateAccountInput,
   AccountSubscriptionInput,
-  LabelAvailableInput,
+  NameAvailableInput,
   AccountsInput,
 } from './accounts.input';
 import { PubsubService } from '../util/pubsub/pubsub.service';
@@ -23,7 +23,6 @@ import { Input, InputArgs } from '~/decorators/input.decorator';
 import { AccountsCacheService } from '../auth/accounts.cache.service';
 import { ComputedField } from '~/decorators/computed.decorator';
 import e from '~/edgeql-js';
-import { CONFIG } from '~/config';
 import { Transfer } from '../transfers/transfers.model';
 import { TransfersInput } from '../transfers/transfers.input';
 import { TransfersService } from '../transfers/transfers.service';
@@ -54,8 +53,8 @@ export class AccountsResolver {
   }
 
   @Query(() => Boolean)
-  async labelAvailable(@Input() { label }: LabelAvailableInput) {
-    return this.service.labelAvailable(label);
+  async nameAvailable(@Input() { name }: NameAvailableInput) {
+    return this.service.nameAvailable(name);
   }
 
   @Mutation(() => Account)
@@ -68,11 +67,6 @@ export class AccountsResolver {
   async updateAccount(@Input() input: UpdateAccountInput, @Info() info: GraphQLResolveInfo) {
     await this.service.updateAccount(input);
     return this.service.selectUnique(input.account, getShape(info));
-  }
-
-  @ComputedField<typeof e.Account>(() => String, { label: true })
-  name(@Parent() { label }: Account): string {
-    return label + CONFIG.ensSuffix;
   }
 
   @ComputedField<typeof e.Account>(() => [Transfer], { id: true })

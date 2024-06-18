@@ -224,7 +224,7 @@ export class TransfersEvents {
     const acc = await this.db.query(
       e.select(e.Account, (a) => ({
         filter_single: { address: account },
-        label: true,
+        name: true,
         approvers: e.select(a.approvers, (approver) => ({
           filter: e.op('exists', approver.pushToken),
           pushToken: approver.pushToken,
@@ -238,7 +238,6 @@ export class TransfersEvents {
     );
     if (!acc) return;
 
-    const accountName = acc.label + CONFIG.ensSuffix;
 
     await this.expo.sendNotification(
       acc.approvers.map((a) => {
@@ -249,8 +248,8 @@ export class TransfersEvents {
           to: a.pushToken!,
           title:
             type === 'transfer'
-              ? `${accountName}: tokens received`
-              : `${accountName}: spending approval`,
+              ? `${acc.name}: tokens received`
+              : `${acc.name}: spending approval`,
           body:
             type === 'transfer'
               ? t

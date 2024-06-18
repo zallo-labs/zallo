@@ -108,7 +108,7 @@ describe(TransactionsService.name, () => {
       .insert(e.Account, {
         id: accountId,
         address: account,
-        label: randomLabel(),
+        name: randomLabel(),
         implementation: randomAddress(),
         salt: randomDeploySalt(),
         upgradedAtBlock: 1n,

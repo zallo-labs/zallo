@@ -9,27 +9,24 @@ import { and, or } from '../database/database.util';
 
 type UniqueContact = uuid | UAddress;
 
-export const selectContact = (c: UniqueContact) => {
-  return e.select(e.Contact, () => ({
-    filter_single: isUAddress(c) ? { user: e.global.current_user, address: c } : { id: c },
-  }));
-};
+export const selectContact = (id: UniqueContact) =>
+  e.assert_single(
+    e.select(e.Contact, (c) => ({
+      filter: isUAddress(id)
+        ? and(e.op(c.address, '=', id), e.op(c.user, '=', e.global.current_user))
+        : e.op(c.id, '=', e.uuid(id)),
+    })),
+  );
 
 @Injectable()
 export class ContactsService {
   constructor(private db: DatabaseService) {}
 
-  async selectUnique(id: UniqueContact, shape?: ShapeFunc<typeof e.Contact>) {
-    return this.db.queryWith(
-      { id: e.str },
-      (p) =>
-        e.select(e.Contact, (c) => ({
-          filter_single: isUAddress(id)
-            ? { user: e.global.current_user, address: p.id }
-            : { id: e.cast(e.uuid, p.id) },
-          ...shape?.(c),
-        })),
-      { id },
+  async selectUnique(id: UniqueContact, shape?: ShapeFunc) {
+    return this.db.query(
+      e.select(selectContact(id), (c) => ({
+        ...shape?.(c),
+      })),
     );
   }
 
@@ -40,7 +37,7 @@ export class ContactsService {
         e.select(e.Contact, (c) => ({
           ...shape?.(c),
           filter: and(
-            e.op(or(e.op(c.address, 'ilike', query), e.op(c.label, 'ilike', query)), '??', true),
+            e.op(or(e.op(c.address, 'ilike', query), e.op(c.name, 'ilike', query)), '??', true),
             e.op(c.chain, '?!=', chain),
           ),
         })),
@@ -48,15 +45,15 @@ export class ContactsService {
     );
   }
 
-  async upsert({ previousAddress, address, label }: UpsertContactInput) {
+  async upsert({ previousAddress, address, name: name }: UpsertContactInput) {
     // Ignore leading and trailing whitespace
-    label = label.trim();
+    name = name.trim();
 
     // UNLESS CONFLICT ON can only be used on a single property, so (= newAddress OR = previousAddress) nor a simple upsert is  possible
     if (previousAddress && previousAddress !== address) {
       const id = await this.db.query(
         e.update(selectContact(previousAddress), () => ({
-          set: { address, label },
+          set: { address, name },
         })).id,
       );
 
@@ -67,11 +64,11 @@ export class ContactsService {
       e
         .insert(e.Contact, {
           address,
-          label,
+          name,
         })
         .unlessConflict((c) => ({
           on: e.tuple([c.user, c.address]),
-          else: e.update(c, () => ({ set: { label } })),
+          else: e.update(c, () => ({ set: { name } })),
         })).id,
     );
   }
@@ -81,12 +78,8 @@ export class ContactsService {
   }
 
   async label(address: UAddress) {
-    const r = await this.db.queryWith(
-      { address: e.UAddress },
-      ({ address }) => e.select(e.label(address)),
-      { address },
-    );
-
-    return r || null;
+    return this.db.queryWith({ address: e.UAddress }, ({ address }) => e.select(e.label(address)), {
+      address,
+    });
   }
 }

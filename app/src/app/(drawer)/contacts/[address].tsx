@@ -31,7 +31,7 @@ const Contact = gql(/* GraphQL */ `
   fragment ContactScreen_Contact on Contact {
     id
     address
-    label
+    name
   }
 `);
 
@@ -58,7 +58,7 @@ const Delete = gql(/* GraphQL */ `
 `);
 
 const schema = z.object({
-  label: z.string().min(1),
+  name: z.string().min(1),
   address: zAddress(),
   chain: zChain(),
 });
@@ -84,16 +84,16 @@ function ContactScreen_(props: ContactScreenProps) {
   const { control, handleSubmit, reset } = useForm<z.infer<typeof schema>>({
     resolver: zodResolver(schema),
     defaultValues: {
-      label: current?.label,
+      name: current?.name,
       address: props.address,
       chain: props.chain ?? selectedChain,
     },
   });
 
   const submit = handleSubmit(async (input) => {
-    const { label, address, chain } = input;
+    const { name, address, chain } = input;
     await upsert({
-      input: { label, address: asUAddress(address, chain), previousAddress: current?.address },
+      input: { name, address: asUAddress(address, chain), previousAddress: current?.address },
     });
     router.back();
     reset(input);
@@ -129,7 +129,7 @@ function ContactScreen_(props: ContactScreenProps) {
 
       <ScrollableScreenSurface>
         <View style={styles.fields}>
-          <FormTextField label="Label" name="label" control={control} required />
+          <FormTextField label="Name" name="name" control={control} required />
 
           <FormTextField
             label="Address"

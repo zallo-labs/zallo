@@ -97,7 +97,7 @@ export class UsersService {
             issuerApprovers: e.update(issuerUser.approvers, () => ({ set: { user: linkerUser } }))
               .address,
             contacts: e.update(issuerUser.contacts, (c) => ({
-              filter: e.op(c.label, 'not in', linkerUser.contacts.label),
+              filter: e.op(c.name, 'not in', linkerUser.contacts.name),
               set: { user: linkerUser },
             })),
           })

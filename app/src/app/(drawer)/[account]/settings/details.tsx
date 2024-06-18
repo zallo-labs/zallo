@@ -1,9 +1,8 @@
 import { Pane } from '#/layout/Pane';
 import { gql } from '@api';
-import { Text } from 'react-native-paper';
 import { useQuery } from '~/gql';
 import { useLocalParams } from '~/hooks/useLocalParams';
-import { AccountSettingsParams } from './_layout';
+import { AccountSettingsParams } from './index';
 import { NotFound } from '#/NotFound';
 import { useMutation } from 'urql';
 import { useForm } from 'react-hook-form';
@@ -20,23 +19,22 @@ const Query = gql(/* GraphQL */ `
     account(input: { account: $account }) {
       id
       address
-      label
+      name
     }
   }
 `);
 
 const Update = gql(/* GraphQL */ `
-  mutation AccountDetails_Update($account: UAddress!, $label: String!) {
-    updateAccount(input: { account: $account, label: $label }) {
+  mutation AccountDetails_Update($account: UAddress!, $name: String!) {
+    updateAccount(input: { account: $account, name: $name }) {
       id
-      label
       name
     }
   }
 `);
 
 interface Inputs {
-  label: string;
+  name: string;
 }
 
 export default function AccountDetails() {
@@ -45,7 +43,7 @@ export default function AccountDetails() {
 
   const a = useQuery(Query, { account }).data.account;
 
-  const { control, handleSubmit, reset } = useForm<Inputs>({ defaultValues: { label: a?.label } });
+  const { control, handleSubmit, reset } = useForm<Inputs>({ defaultValues: { name: a?.name } });
 
   if (!a) return <NotFound name="Account" />;
 
@@ -55,7 +53,7 @@ export default function AccountDetails() {
 
       <Surface style={styles.surface}>
         <View style={styles.fields}>
-          <AccountNameFormField name="label" control={control} required />
+          <AccountNameFormField name="name" control={control} required />
         </View>
 
         <Actions>
@@ -64,7 +62,7 @@ export default function AccountDetails() {
             requireChanges
             control={control}
             onPress={handleSubmit(async (input) => {
-              await update({ account, label: input.label });
+              await update({ account, name: input.name });
               reset(input);
             })}
           >

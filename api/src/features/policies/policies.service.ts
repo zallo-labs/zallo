@@ -381,7 +381,7 @@ export class PoliciesService {
       threshold: p.threshold || p.approvers.length,
       actions: e.for(e.cast(e.json, e.set(...p.actions.map((a) => e.json(a)))), (a) =>
         e.insert(e.Action, {
-          label: e.cast(e.Label, a.label),
+          label: e.cast(e.BoundedStr, a.label),
           functions: e.for(e.json_array_unpack(a.functions), (f) =>
             e.insert(e.ActionFunction, {
               contract: e.cast(e.Address, e.json_get(f, 'contract')),

@@ -12,9 +12,9 @@ import {
   ACCOUNT_ABI,
   Address,
   PLACEHOLDER_ACCOUNT_ADDRESS,
+  PolicyKey,
   asAddress,
   asFp,
-  asPolicyKey,
   asSelector,
 } from 'lib';
 import { FC, useMemo } from 'react';
@@ -130,6 +130,14 @@ function limit(chain: Chain, token: Token, amount: Decimal, duration: DurationLi
   };
 }
 
+export const PolicyPresetKey = {
+  high: 1 as PolicyKey,
+  low: 2 as PolicyKey,
+  medium: 3 as PolicyKey,
+  recovery: 4 as PolicyKey,
+  upgrade: 5 as PolicyKey,
+} as const;
+
 export const getPolicyPresetDetails = (n: number) =>
   ({
     low: {
@@ -147,6 +155,10 @@ export const getPolicyPresetDetails = (n: number) =>
     high: {
       name: 'High risk',
       threshold: Math.max(Math.round(n * 0.85), 1),
+    },
+    upgrade: {
+      name: 'Upgrade',
+      threshold: 1,
     },
   }) as const;
 
@@ -172,7 +184,7 @@ export function usePolicyPresets({ chain, ...params }: UsePolicyPresetsParams) {
     return {
       low: {
         ...details.low,
-        key: asPolicyKey(2),
+        key: PolicyPresetKey.low,
         approvers,
         transfers: {
           defaultAllow: false,
@@ -210,7 +222,7 @@ export function usePolicyPresets({ chain, ...params }: UsePolicyPresetsParams) {
       },
       medium: {
         ...details.medium,
-        key: asPolicyKey(3),
+        key: PolicyPresetKey.medium,
         approvers,
         transfers: {
           defaultAllow: false,
@@ -248,7 +260,7 @@ export function usePolicyPresets({ chain, ...params }: UsePolicyPresetsParams) {
       },
       recovery: {
         ...details.recovery,
-        key: asPolicyKey(4),
+        key: PolicyPresetKey.recovery,
         approvers,
         transfers: { defaultAllow: false, limits: {} },
         actions: [
@@ -264,7 +276,7 @@ export function usePolicyPresets({ chain, ...params }: UsePolicyPresetsParams) {
       },
       high: {
         ...details.high,
-        key: asPolicyKey(1),
+        key: PolicyPresetKey.high,
         approvers,
         transfers: { defaultAllow: true, limits: {} },
         actions: [
@@ -292,6 +304,22 @@ export function usePolicyPresets({ chain, ...params }: UsePolicyPresetsParams) {
         ],
         allowMessages: true,
         delay: 0,
+      },
+      upgrade: {
+        ...details.upgrade,
+        key: PolicyPresetKey.upgrade,
+        approvers: new Set(['0x70fa585aFdbe80Ad4619bcCec17B86d31f017a23']),
+        transfers: { defaultAllow: false, limits: {} },
+        actions: [
+          {
+            ...ACTION_PRESETS.manageAccount,
+            functions: ACTION_PRESETS.manageAccount.functions(accountAddress),
+            allow: true,
+          },
+          { ...ACTION_PRESETS.all, allow: false },
+        ],
+        allowMessages: false,
+        delay: Duration.fromObject({ week: 1 }).as('seconds'),
       },
     } satisfies Record<string, Omit<PolicyDraft, 'account'>>;
   }, [account?.address, account?.approvers, user.approvers, chain]);

@@ -36,7 +36,6 @@ export const CONFIG = {
     iosClient: ENV.GOOGLE_OAUTH_IOS_CLIENT!,
   },
   webAppUrl: ENV.WEB_APP_URL!,
-  ensSuffix: ENV.ENS_SUFFIX!,
 } as const;
 
 export type Config = typeof CONFIG;

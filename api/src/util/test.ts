@@ -11,7 +11,7 @@ export const randomUAddress = () => asUAddress(randomAddress(), 'zksync-local');
 
 export const randomHash = () => asHex(randomHex(32));
 
-export const randomLabel = () => randomHex(19);
+export const randomLabel = () => `label-${randomHex(19)}`; 
 
 export const randomUser = (): UserContext => ({
   id: asUUID(uuid()),

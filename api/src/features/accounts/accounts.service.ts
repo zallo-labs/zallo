@@ -79,19 +79,19 @@ export class AccountsService {
     );
   }
 
-  private labelPattern = /^[0-9a-zA-Z$-]{4,40}$/;
-  async labelAvailable(label: string): Promise<boolean> {
-    if (!this.labelPattern.exec(label)) return false;
+  private namePattern = /^(?![0O][xX])[^\n]{3,50}$/;
+  async nameAvailable(name: string): Promise<boolean> {
+    if (!this.namePattern.exec(name)) return false;
 
     return e
-      .params({ label: e.str }, ({ label }) => {
-        const account = e.select(e.Account, () => ({ filter_single: { label } }));
-        return e.select(e.op('not', e.op('exists', account)));
+      .params({ name: e.str }, ({ name }) => {
+        const labels = e.select(e.GlobalLabel, (l) => ({ filter: e.op(l.name, '=', name) }));
+        return e.select(e.op('not', e.op('exists', labels)));
       })
-      .run(this.db.DANGEROUS_superuserClient, { label });
+      .run(this.db.DANGEROUS_superuserClient, { name });
   }
 
-  async createAccount({ chain, label, policies: policyInputs }: CreateAccountInput) {
+  async createAccount({ chain, name, policies: policyInputs }: CreateAccountInput) {
     const baseAutoKey = Math.max(MIN_AUTO_POLICY_KEY, ...policyInputs.map((p) => p.key ?? 0));
     const policies = policyInputs.map((p, i) => ({
       ...p,
@@ -124,7 +124,7 @@ export class AccountsService {
         e.insert(e.Account, {
           id,
           address: account,
-          label,
+          name,
           implementation,
           salt,
         }),
@@ -147,10 +147,10 @@ export class AccountsService {
     return { id, address: account };
   }
 
-  async updateAccount({ account: address, label, photo }: UpdateAccountInput) {
+  async updateAccount({ account: address, name, photo }: UpdateAccountInput) {
     const r = await this.db.query(
       e.update(e.Account, () => ({
-        set: { label, photo },
+        set: { name, photo },
         filter_single: { address },
       })),
     );
@@ -167,9 +167,7 @@ export class AccountsService {
     const approvers = await this.db.query(
       e.select(e.Account, () => ({
         filter_single: { address: account },
-        approvers: {
-          address: true,
-        },
+        approvers: { address: true },
       })).approvers.address,
     );
 

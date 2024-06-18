@@ -49,7 +49,7 @@ describe(PoliciesService.name, () => {
       e.insert(e.Account, {
         id: accountId,
         address: account,
-        label: randomLabel(),
+        name: randomLabel(),
         implementation: randomAddress(),
         salt: randomDeploySalt(),
       }),

@@ -10,7 +10,7 @@ const Contact = gql(/* GraphQL */ `
   fragment ContactItem_Contact on Contact {
     id
     address
-    label
+    name
   }
 `);
 
@@ -26,7 +26,7 @@ export const ContactItem = forwardRef<View, ContactItemProps>((props, ref) => {
       ref={ref}
       leading={<AddressIcon address={c.address} />}
       leadingSize="medium"
-      headline={c.label}
+      headline={c.name}
       supporting={truncateAddr(c.address)}
       trailing={NavigateNextIcon}
       {...props}
