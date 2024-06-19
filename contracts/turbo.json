@@ -4,7 +4,7 @@
     "build": {
       "dependsOn": ["^build"],
       "inputs": [
-        "contracts/",
+        "contracts/**",
         "config.ts",
         "foundry.toml",
         "remappings.txt",
@@ -12,12 +12,12 @@
         "package.json"
       ],
       "outputs": [
-        "abi/",
-        "artifacts-zk/",
-        "cache/",
-        "cache-zk/",
-        "script/contracts/",
-        "../packages/lib/src/generated/"
+        "abi/**",
+        "artifacts-zk/**",
+        "cache/**",
+        "cache-zk/**",
+        "script/contracts/**",
+        "../packages/lib/src/generated/**"
       ]
     },
     "typecheck": {
@@ -25,7 +25,7 @@
     },
     "test": {
       "dependsOn": [],
-      "inputs": ["contracts/", "test/", "package.json", "foundry.toml", "remappings.txt"]
+      "inputs": ["contracts/**", "test/**", "package.json", "foundry.toml", "remappings.txt"]
     }
   }
 }
