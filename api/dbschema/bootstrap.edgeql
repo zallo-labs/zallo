@@ -6,7 +6,7 @@ configure instance set effective_io_concurrency := 1000;
 
 # The amount of memory used by internal query operations such as sorting.
 # A single query may use multiple working memory buffers
-configure instance set query_work_mem := <cfg::memory>"16MiB";
+configure instance set query_work_mem := <cfg::memory>"8MiB";
 
 # Memory available to cache data - 50%
 configure instance set shared_buffers := <cfg::memory>"2GiB";
