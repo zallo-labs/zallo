@@ -54,6 +54,7 @@ export function PolicyPresets(props: PolicyPresetsProps) {
           </Chip>
         )}
         contentContainerStyle={styles.container}
+        showsHorizontalScrollIndicator={false}
       />
     </View>
   );

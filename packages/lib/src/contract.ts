@@ -40,6 +40,10 @@ export const DEPLOYER = {
   }),
 };
 
+export const UPGRADE_APPROVER = addresses({
+  'zksync-sepolia': '0x70fa585aFdbe80Ad4619bcCec17B86d31f017a23',
+});
+
 function addresses(
   m: Partial<Record<Chain, Address>> & Pick<Record<Chain, Address>, 'zksync-sepolia'>,
 ): Record<Chain, Address> {

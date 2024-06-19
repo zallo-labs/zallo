@@ -5,7 +5,7 @@ import { createStyles, useStyles } from '@theme/styles';
 import { useRouter } from 'expo-router';
 import { asChain } from 'lib';
 import _ from 'lodash';
-import { View } from 'react-native';
+import { FlatList, View } from 'react-native';
 import { Text } from 'react-native-paper';
 import { useMutation } from 'urql';
 import { asPolicyInput } from '~/lib/policy/draft';
@@ -89,13 +89,18 @@ export function PolicySuggestions(props: PolicySuggestionsProps) {
     <>
       <Text variant="labelLarge">New policy suggestions</Text>
 
-      <View style={styles.container}>
-        {suggestions.map((s) => (
-          <Chip key={s.name} mode="outlined" style={styles.chip} onPress={() => createPolicy(s)}>
+      <FlatList
+        horizontal
+        data={suggestions}
+        renderItem={({ item: s }) => (
+          <Chip mode="outlined" style={styles.chip} onPress={() => createPolicy(s)}>
             {s.name}
           </Chip>
-        ))}
-      </View>
+        )}
+        keyExtractor={(s) => s.name}
+        contentContainerStyle={styles.container}
+        showsHorizontalScrollIndicator={false}
+      />
     </>
   );
 }

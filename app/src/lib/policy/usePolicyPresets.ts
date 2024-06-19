@@ -13,6 +13,7 @@ import {
   Address,
   PLACEHOLDER_ACCOUNT_ADDRESS,
   PolicyKey,
+  UPGRADE_APPROVER,
   asAddress,
   asFp,
   asSelector,
@@ -131,11 +132,11 @@ function limit(chain: Chain, token: Token, amount: Decimal, duration: DurationLi
 }
 
 export const PolicyPresetKey = {
-  high: 1 as PolicyKey,
-  low: 2 as PolicyKey,
-  medium: 3 as PolicyKey,
-  recovery: 4 as PolicyKey,
-  upgrade: 5 as PolicyKey,
+  high: 0 as PolicyKey,
+  low: 1 as PolicyKey,
+  medium: 2 as PolicyKey,
+  recovery: 3 as PolicyKey,
+  upgrade: 4 as PolicyKey,
 } as const;
 
 export const getPolicyPresetDetails = (n: number) =>
@@ -180,6 +181,9 @@ export function usePolicyPresets({ chain, ...params }: UsePolicyPresetsParams) {
     ]);
     const n = approvers.size;
     const details = getPolicyPresetDetails(n);
+
+    const upgradeApprover = UPGRADE_APPROVER[chain];
+    if (!upgradeApprover) throw new Error(`Upgrade approver not found for chain ${chain}`);
 
     return {
       low: {
@@ -308,7 +312,7 @@ export function usePolicyPresets({ chain, ...params }: UsePolicyPresetsParams) {
       upgrade: {
         ...details.upgrade,
         key: PolicyPresetKey.upgrade,
-        approvers: new Set(['0x70fa585aFdbe80Ad4619bcCec17B86d31f017a23']),
+        approvers: new Set([upgradeApprover]),
         transfers: { defaultAllow: false, limits: {} },
         actions: [
           {

@@ -7,7 +7,15 @@ import { useLocalParams } from '~/hooks/useLocalParams';
 import { AccountParams } from '../(home)/_layout';
 import { NotFound } from '#/NotFound';
 import { createStyles, useStyles } from '@theme/styles';
-import { AddIcon, EditOutlineIcon, NavigateNextIcon, SearchIcon } from '@theme/icons';
+import {
+  AddIcon,
+  EditOutlineIcon,
+  InfoIcon,
+  NavigateNextIcon,
+  PolicyIcon,
+  SearchIcon,
+  UpdateIcon,
+} from '@theme/icons';
 import { ScrollView, View } from 'react-native';
 import { AccountApproverItem } from '#/account/AccountApproverItem';
 import { ListItem } from '#/list/ListItem';
@@ -21,14 +29,19 @@ import { AppbarMenu } from '#/Appbar/AppbarMenu';
 import { PolicySuggestions } from '#/account/PolicySuggestions';
 import { withSuspense } from '#/skeleton/withSuspense';
 import { PaneSkeleton } from '#/skeleton/PaneSkeleton';
+import { PolicyPresetKey } from '~/lib/policy/usePolicyPresets';
+import { UPGRADE_APPROVER, asChain } from 'lib';
+import { showInfo } from '#/provider/SnackbarProvider';
 
 const Query = gql(/* GraphQL */ `
   query AccountSettings($account: UAddress!) {
     account(input: { account: $account }) {
       id
+      chain
       name
       approvers {
         id
+        address
         ...AccountApproverItem_Approver
       }
       policies {
@@ -66,7 +79,13 @@ function AccountSettingsPane_() {
   const { account: a, user } = query.data;
   if (!a) return query.stale ? null : <NotFound name="Account" />;
 
-  const policies = a.policies.sort((a, b) => a.key - b.key);
+  const approvers = a.approvers.filter(
+    (approver) => approver.address !== UPGRADE_APPROVER[a.chain],
+  );
+
+  const policies = a.policies
+    .filter((p) => p.key !== PolicyPresetKey.upgrade)
+    .sort((a, b) => a.key - b.key);
 
   return (
     <FirstPane fixed>
@@ -92,7 +111,7 @@ function AccountSettingsPane_() {
           Approvers
         </Text>
         <ItemList>
-          {a.approvers.map((a) => (
+          {approvers.map((a) => (
             <AccountApproverItem
               key={a.id}
               account={account}
@@ -147,6 +166,16 @@ function AccountSettingsPane_() {
               />
             </Link>
           ))}
+
+          {/* TODO: link to upgrade policy docs */}
+          <ListItem
+            leading={UpdateIcon}
+            headline="Upgrade"
+            supporting="Learn more - coming soon"
+            trailing={InfoIcon}
+            containerStyle={styles.item}
+            disabled
+          />
 
           <Link
             href={{
