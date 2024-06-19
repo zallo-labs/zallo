@@ -4,7 +4,7 @@ import { zAddress } from '~/lib/zod';
 import { Appbar } from '#/Appbar/Appbar';
 import { Pane } from '#/layout/Pane';
 import { SIDE_SHEET, SideSheetLayout } from '#/SideSheet/SideSheetLayout';
-import { ScrollView, View } from 'react-native';
+import { View } from 'react-native';
 import { createStyles } from '@theme/styles';
 import { gql } from '@api';
 import { useQuery } from '~/gql';
@@ -20,6 +20,7 @@ import { useSetAtom } from 'jotai';
 import { ApproverPolicies } from '#/approver/ApproverPolicies';
 import { NotFound } from '#/NotFound';
 import { asChain, asUAddress } from 'lib';
+import { Scrollable } from '#/Scrollable';
 
 const Query = gql(/* GraphQL */ `
   query ApproverSettings($account: UAddress!, $approver: Address!, $approverUAddress: UAddress!) {
@@ -68,7 +69,7 @@ export default function ApproverSettingsScreen() {
       <Appbar mode="small" />
 
       <SideSheetLayout defaultVisible={isUserApprover}>
-        <ScrollView contentContainerStyle={styles.container}>
+        <Scrollable contentContainerStyle={styles.container}>
           <View style={styles.header}>
             <AddressIcon address={address} size={ICON_SIZE.extraLarge} />
             <Text variant="headlineLarge" numberOfLines={1}>
@@ -101,7 +102,7 @@ export default function ApproverSettingsScreen() {
           </View>
 
           <ApproverPolicies approver={address} account={account} />
-        </ScrollView>
+        </Scrollable>
 
         <ApproverDetailsSideSheet approver={approver} />
       </SideSheetLayout>
@@ -111,7 +112,6 @@ export default function ApproverSettingsScreen() {
 
 const styles = createStyles({
   container: {
-    flex: 1,
     gap: 8,
   },
   header: {
