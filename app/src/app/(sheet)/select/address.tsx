@@ -25,7 +25,6 @@ import * as Clipboard from 'expo-clipboard';
 import { isAddress } from 'viem';
 import { showWarning } from '#/provider/SnackbarProvider';
 import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
-import { EdgeInsets, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const Query = gql(/* GraphQL */ `
   query SelectAddressSheet(
@@ -77,7 +76,6 @@ function SelectAddressSheet() {
   const { styles } = useStyles(stylesheet);
   const disabled = params.disabled && new Set(params.disabled.flatMap((a) => [a, asAddress(a)]));
   const scanAddress = useScanAddress();
-  const insets = useSafeAreaInsets();
 
   const { data } = useQuery(Query, {
     chain,
@@ -169,16 +167,16 @@ function SelectAddressSheet() {
         keyExtractor={(v) => (typeof v === 'object' ? v.id : v)}
         getItemType={(item) => (typeof item === 'object' ? item.__typename : 'header')}
         estimatedItemSize={ListItemHeight.DOUBLE_LINE}
-        contentContainerStyle={styles.container(insets)}
+        contentContainerStyle={styles.container}
       />
     </Sheet>
   );
 }
 
-const stylesheet = createStyles(() => ({
-  container: (insets: EdgeInsets) => ({
+const stylesheet = createStyles((_, { insets }) => ({
+  container: {
     paddingBottom: insets.bottom + 12,
-  }),
+  },
   headline: {
     marginHorizontal: 16,
     marginVertical: 8,

@@ -15,7 +15,6 @@ import { useEffect } from 'react';
 import { View } from 'react-native';
 import { Switch, Text } from 'react-native-paper';
 import QRCode from 'react-native-qrcode-svg';
-import { EdgeInsets, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Subject } from 'rxjs';
 import { useSubscription } from 'urql';
 import { z } from 'zod';
@@ -80,7 +79,7 @@ function JoinAccountModal() {
 
   return (
     <Blur>
-      <View style={styles.container(useSafeAreaInsets())}>
+      <View style={styles.container}>
         <View style={styles.headerContainer}>
           <Link href=".." asChild>
             <IconButton mode="contained-tonal" icon={CloseIcon} size={styles.iconButton.width} />
@@ -134,11 +133,11 @@ function JoinAccountModal() {
   );
 }
 
-const stylesheet = createStyles(({ colors, iconSize, corner }, { screen }) => ({
-  container: (insets: EdgeInsets) => ({
+const stylesheet = createStyles(({ colors, iconSize, corner }, { insets, screen }) => ({
+  container: {
     flex: 1,
     marginTop: insets.top,
-  }),
+  },
   iconButton: {
     width: iconSize.small,
   },

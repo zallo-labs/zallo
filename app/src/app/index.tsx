@@ -12,7 +12,6 @@ import { z } from 'zod';
 import { useLocalParams } from '~/hooks/useLocalParams';
 import { zBool } from '~/lib/zod';
 import { useMemo } from 'react';
-import { EdgeInsets, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { withSuspense } from '#/skeleton/withSuspense';
 import { ScreenSkeleton } from '#/skeleton/ScreenSkeleton';
 
@@ -33,7 +32,6 @@ function LandingScreen() {
   const { styles, theme } = useStyles(stylesheet);
   const { redirect } = useLocalParams(LandingScreenParams);
   const selectedAccount = useSelectedAccount();
-  const insets = useSafeAreaInsets();
 
   const query = useQuery(Query, {}, { context });
 
@@ -46,7 +44,7 @@ function LandingScreen() {
     return <Redirect href={{ pathname: `/(drawer)/[account]/(home)/`, params: { account } }} />;
 
   return (
-    <ScrollView contentContainerStyle={styles.root(insets)} stickyHeaderIndices={[0]}>
+    <ScrollView contentContainerStyle={styles.root} stickyHeaderIndices={[0]}>
       <LandingHeader />
 
       <LinearGradient
@@ -62,11 +60,11 @@ function LandingScreen() {
   );
 }
 
-const stylesheet = createStyles((_theme, { screen }) => ({
-  root: (insets: EdgeInsets) => ({
+const stylesheet = createStyles((_theme, { insets, screen }) => ({
+  root: {
     flexGrow: 1,
     paddingBottom: insets.bottom,
-  }),
+  },
   gradient: {
     flex: 1,
     maxHeight: screen.height,

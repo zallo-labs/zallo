@@ -10,7 +10,6 @@ import { Button } from '#/Button';
 import { share } from '~/lib/share';
 import { Link } from 'expo-router';
 import { createStyles, useStyles } from '@theme/styles';
-import { EdgeInsets, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ReactNode, useState } from 'react';
 import { SelectChip } from './fields/SelectChip';
 import { CHAINS } from 'chains';
@@ -32,7 +31,7 @@ export function QrModal({ address, actions }: QrModalProps) {
 
   return (
     <Blur>
-      <View style={styles.container(useSafeAreaInsets())}>
+      <View style={styles.container}>
         <View style={styles.headerContainer}>
           <Link href=".." asChild>
             <IconButton mode="contained-tonal" icon={CloseIcon} size={styles.iconButton.width} />
@@ -97,11 +96,11 @@ export function QrModal({ address, actions }: QrModalProps) {
   );
 }
 
-const stylesheet = createStyles(({ colors, iconSize, corner }, { screen }) => ({
-  container: (insets: EdgeInsets) => ({
+const stylesheet = createStyles(({ colors, iconSize, corner }, { insets, screen }) => ({
+  container: {
     flex: 1,
     marginTop: insets.top,
-  }),
+  },
   iconButton: {
     width: iconSize.small,
   },

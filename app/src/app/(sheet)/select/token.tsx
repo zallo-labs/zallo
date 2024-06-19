@@ -16,7 +16,6 @@ import { useQuery } from '~/gql';
 import { useLocalParams } from '~/hooks/useLocalParams';
 import { zArray, zBool, zUAddress } from '~/lib/zod';
 import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
-import { EdgeInsets, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { TokenItem } from '#/token/TokenItem';
 import { TokenIcon } from '#/token/TokenIcon';
 import { useRecentTokens, useSetSelectedToken } from '~/hooks/useSelectToken';
@@ -49,7 +48,6 @@ function SelectTokenSheet() {
   const { account, feeToken, ...params } = useLocalParams(SelectTokenSheetParams);
   const { styles } = useStyles(stylesheet);
   const router = useRouter();
-  const insets = useSafeAreaInsets();
   const chain = asChain(account);
   const setSelected = useSetSelectedToken(chain);
 
@@ -115,16 +113,16 @@ function SelectTokenSheet() {
         keyExtractor={(v) => (typeof v === 'object' ? v.id : v)}
         getItemType={(item) => (typeof item === 'object' ? item.__typename : 'header')}
         estimatedItemSize={ListItemHeight.DOUBLE_LINE}
-        contentContainerStyle={styles.container(insets)}
+        contentContainerStyle={styles.container}
       />
     </Sheet>
   );
 }
 
-const stylesheet = createStyles(() => ({
-  container: (insets: EdgeInsets) => ({
+const stylesheet = createStyles((_, { insets }) => ({
+  container: {
     paddingBottom: insets.bottom + 12,
-  }),
+  },
   headline: {
     marginHorizontal: 16,
     marginVertical: 8,
