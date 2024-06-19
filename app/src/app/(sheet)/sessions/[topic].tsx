@@ -1,6 +1,5 @@
 import { Link, Redirect, useRouter } from 'expo-router';
 import { getSdkError } from '@walletconnect/utils';
-import { StyleSheet } from 'react-native';
 import { ListItem } from '#/list/ListItem';
 import { Sheet } from '#/sheet/Sheet';
 import {
@@ -90,7 +89,7 @@ export default function SessionDetailsSheet() {
   };
 
   return (
-    <Sheet contentContainerStyle={styles.container}>
+    <Sheet>
       <DappHeader dapp={peer} />
 
       {accounts.length > 0 && (
@@ -111,11 +110,5 @@ export default function SessionDetailsSheet() {
     </Sheet>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    paddingBottom: 16,
-  },
-});
 
 export { ErrorBoundary } from '#/ErrorBoundary';

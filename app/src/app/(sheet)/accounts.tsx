@@ -3,7 +3,6 @@ import { useRef } from 'react';
 import { BottomSheetFlatList } from '@gorhom/bottom-sheet';
 import { Sheet } from '#/sheet/Sheet';
 import { gql } from '@api/generated';
-import { CORNER, ICON_SIZE } from '@theme/paper';
 import { AccountItem } from '#/item/AccountItem';
 import { useQuery } from '~/gql';
 import { useSelectedAccount } from '~/hooks/useSelectedAccount';
@@ -94,46 +93,18 @@ export default function AccountsSheet() {
           />
         )}
         keyExtractor={(a) => a.id}
+        contentContainerStyle={styles.contentContainer}
       />
-
-      {/* <ListItem
-          leading={
-            <View style={styles.addIconContainer}>
-              <AddIcon />
-            </View>
-          }
-          headline="Account"
-          onPress={() => {
-            goBackOnClose.current = false;
-            router.push(`/accounts/create`);
-          }}
-        /> */}
     </Sheet>
   );
 }
 
-const stylesheet = createStyles(({ colors }) => ({
-  contentContaiiner: {
-    paddingBottom: 8,
-  },
-  selectedContainer: {
-    alignItems: 'center',
-    gap: 8,
-    marginHorizontal: 16,
-    marginBottom: 8,
-  },
-  selectedLabelContainer: {
-    alignItems: 'center',
+const stylesheet = createStyles(({ colors, corner }, { insets }) => ({
+  contentContainer: {
+    paddingBottom: insets.bottom + 8,
   },
   selectedAddress: {
     color: colors.onSurfaceVariant,
-  },
-  selectedAccountButton: {
-    alignSelf: 'stretch',
-  },
-  addIconContainer: {
-    alignItems: 'center',
-    width: ICON_SIZE.medium,
   },
   actions: {
     flexDirection: 'row',
@@ -146,7 +117,7 @@ const stylesheet = createStyles(({ colors }) => ({
     gap: 8,
     width: 80,
     paddingVertical: 8,
-    borderRadius: CORNER.m,
+    borderRadius: corner.m,
   },
   actionLabel: {
     textAlign: 'center',

@@ -175,7 +175,7 @@ function SelectAddressSheet() {
 
 const stylesheet = createStyles((_, { insets }) => ({
   container: {
-    paddingBottom: insets.bottom + 12,
+    paddingBottom: insets.bottom + 8,
   },
   headline: {
     marginHorizontal: 16,

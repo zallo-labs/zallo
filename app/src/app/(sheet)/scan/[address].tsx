@@ -2,7 +2,6 @@ import { useRouter } from 'expo-router';
 import { Sheet } from '#/sheet/Sheet';
 import { ContactsIcon, NavigateNextIcon, TransferIcon } from '@theme/icons';
 import { ListItem } from '#/list/ListItem';
-import { StyleSheet } from 'react-native';
 import { z } from 'zod';
 import { zAddress, zUAddress } from '~/lib/zod';
 import { useLocalParams } from '~/hooks/useLocalParams';
@@ -20,7 +19,7 @@ export default function ScannedAddressSheet() {
   const chain = useSelectedChain();
 
   return (
-    <Sheet handle={false} contentContainerStyle={styles.contentContainer}>
+    <Sheet handle={false}>
       {account && (
         <ListItem
           leading={TransferIcon}
@@ -49,11 +48,5 @@ export default function ScannedAddressSheet() {
     </Sheet>
   );
 }
-
-const styles = StyleSheet.create({
-  contentContainer: {
-    paddingBottom: 16,
-  },
-});
 
 export { ErrorBoundary } from '#/ErrorBoundary';

@@ -54,7 +54,6 @@ const stylesheet = createStyles(({ fonts }) => ({
   container: {
     alignItems: 'center',
     gap: 8,
-    marginBottom: 16,
   },
   icon: {
     width: 80,

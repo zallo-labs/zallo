@@ -75,7 +75,7 @@ const stylesheet = createStyles(({ colors }, { insets }) => ({
     opacity: 0.4,
   },
   contentContainer: {
-    paddingBottom: insets.bottom,
+    paddingBottom: insets.bottom + 8,
     // marginHorizontal: {
     //   [mq.only.width(640)]: 56,
     // },
