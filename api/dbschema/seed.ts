@@ -121,9 +121,9 @@ async function upsertTokens() {
 }
 
 async function upsertGlobalLabels() {
-  const gLabels = Object.entries(GLOBAL_LABELS).map(([address, label]) => ({
+  const gLabels = Object.entries(GLOBAL_LABELS).map(([address, name]) => ({
     address: asUAddress(address),
-    label,
+    name,
   }));
 
   const toUpdate = await e

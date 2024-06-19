@@ -9,15 +9,18 @@ import { randomBytes } from 'crypto';
 import { uuid } from 'edgedb/dist/codecs/ifaces';
 import { UserInputError } from '@nestjs/apollo';
 import { AccountsCacheService } from '../auth/accounts.cache.service';
-import { Address, UUID } from 'lib';
+import { Address, asAddress } from 'lib';
 import { PubsubService } from '../util/pubsub/pubsub.service';
 import { getUserCtx } from '#/util/context';
 import { selectAccount } from '~/features/accounts/accounts.util';
-import { and } from '../database/database.util';
 
-export interface UserSubscriptionPayload {}
-const getUserTrigger = (user: uuid) => `user.${user}`;
-const getUserApproverTrigger = (approver: Address) => `user.approver.${approver}`;
+const TOKEN_EXPIRY_S = 60 * 60; // 1 hour
+
+export interface UserLinkedPayload {
+  issuer: Address;
+  linker: Address;
+}
+const getUserLinkedTrigger = (user: uuid) => `user-linked:${user}`;
 
 @Injectable()
 export class UsersService {
@@ -46,87 +49,80 @@ export class UsersService {
   }
 
   async subscribeToUser() {
-    const user = await this.db.query(
-      e.assert_exists(e.select(e.global.current_user, () => ({ id: true }))).id,
-    );
+    const user = await this.db.query(e.assert_exists(e.select(e.global.current_user.id)));
 
-    return this.pubsub.asyncIterator([
-      getUserTrigger(user),
-      getUserApproverTrigger(getUserCtx().approver),
-    ]);
+    return this.pubsub.asyncIterator([getUserLinkedTrigger(user)]);
   }
 
-  async getLinkingToken(user: UUID) {
-    const key = this.getLinkingTokenKey(user);
-    const newSecret = randomBytes(32).toString('base64');
+  async generateLinkingToken() {
+    const issuer = getUserCtx().approver;
+    const key = this.getLinkingTokenKey(issuer);
+    const newSecret = randomBytes(16).toString('base64');
 
-    const secret = (await this.redis.set(key, newSecret, 'NX', 'GET')) ?? newSecret;
-    this.redis.expire(key, 60 * 60 /* 1 hour */);
+    const z = await this.redis
+      .multi()
+      .set(key, newSecret, 'NX', 'GET') // get if exists or set if not
+      .expire(key, TOKEN_EXPIRY_S)
+      .exec();
+    if (!z) throw new Error('Failed to generate linking token');
+    const secret = z[0][1] ?? newSecret;
 
-    return `${user}:${secret}`;
+    return `${issuer}:${secret}`;
   }
 
   async link(token: string) {
-    const [oldId, secret] = token.split(':');
+    const [issuerStr, secret] = token.split(':');
+    const issuer = asAddress(issuerStr);
 
-    const expectedSecret = await this.redis.get(this.getLinkingTokenKey(oldId));
-    if (secret !== expectedSecret)
+    if (secret !== (await this.redis.get(this.getLinkingTokenKey(issuer))))
       throw new UserInputError(`Invalid linking token; token may have expired (1h)`);
 
-    const newId = await this.db.query(e.assert_exists(e.select(e.global.current_user.id)));
-
-    const { oldUserApprovers, allApprovers } = await this.db.DANGEROUS_superuserClient.transaction(
+    const linkerUserId = getUserCtx().id;
+    const { issuerUser, issuerApprovers } = await this.db.DANGEROUS_superuserClient.transaction(
       async (db) => {
-        const newUser = e.select(e.User, () => ({ filter_single: { id: newId } }));
-        const oldUser = e.assert_single(
-          e.select(e.User, (u) => ({
-            filter: and(e.op(u.id, '=', e.uuid(oldId)), e.op(oldId, '!=', newId)),
+        const selectSrcApprover = e.select(e.Approver, () => ({
+          filter_single: { address: issuer },
+        }));
+        const issuerUser = e.assert_single(
+          e.select(selectSrcApprover.user, (u) => ({
+            filter: e.op(u.id, '!=', e.uuid(linkerUserId)),
           })),
         );
+        const linkerUser = e.select(e.User, () => ({ filter_single: { id: linkerUserId } }));
 
-        // Merge old user into new user (avoiding exclusivity constraint violations)
+        // Merge issuer into linker (avoiding exclusivity constraint violations)
         const r = await e
           .select({
-            oldUserApprovers: e.update(oldUser.approvers, () => ({ set: { user: newUser } }))
+            issuerUser: issuerUser.id,
+            issuerApprovers: e.update(issuerUser.approvers, () => ({ set: { user: linkerUser } }))
               .address,
-            contacts: e.update(oldUser.contacts, (c) => ({
-              filter: e.op(c.label, 'not in', newUser.contacts.label),
-              set: { user: newUser },
+            contacts: e.update(issuerUser.contacts, (c) => ({
+              filter: e.op(c.name, 'not in', linkerUser.contacts.name),
+              set: { user: linkerUser },
             })),
-            allApprovers: e.select(
-              e.op('distinct', e.op(oldUser.approvers, 'union', newUser.approvers)),
-            ).address,
           })
           .run(db);
 
-        // Delete old user
-        await e.delete(oldUser).run(db);
+        // Delete old issuer user
+        if (r.issuerUser) await e.delete(issuerUser).run(db);
 
         return r;
       },
     );
 
-    // Remove approver -> user cache
-    await this.accountsCache.invalidateApproversCache(...(oldUserApprovers as Address[]));
+    const payload: UserLinkedPayload = { issuer, linker: getUserCtx().approver };
+    this.pubsub.publish<UserLinkedPayload>(getUserLinkedTrigger(linkerUserId), payload);
+    if (issuerUser) {
+      this.pubsub.publish<UserLinkedPayload>(getUserLinkedTrigger(issuerUser), payload);
 
-    await Promise.all([
-      this.pubsub.publish<UserSubscriptionPayload>(getUserTrigger(newId), {}),
-      ...allApprovers.map((approver) =>
-        this.pubsub.publish<UserSubscriptionPayload>(
-          getUserApproverTrigger(approver as Address),
-          {},
-        ),
-      ),
-    ]);
+      this.accountsCache.invalidateApproversCache(...(issuerApprovers as Address[]));
+      this.accountsCache.invalidateUsersCache(issuerUser, linkerUserId);
+    }
 
-    // Remove user -> accounts cache for both old & new user
-    await this.accountsCache.invalidateUsersCache(oldId, newId);
-
-    // Remove token
-    await this.redis.del(this.getLinkingTokenKey(oldId));
+    await this.redis.del(this.getLinkingTokenKey(issuer));
   }
 
-  private getLinkingTokenKey(user: uuid) {
-    return `linking-token:${user}`;
+  private getLinkingTokenKey(issuer: Address) {
+    return `link:${issuer}`;
   }
 }

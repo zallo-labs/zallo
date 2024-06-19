@@ -14,14 +14,13 @@ enum AbiSourceConfidence {
   Medium
 }
 
-type Account implements Node {
+type Account implements Labelled & Node {
   active: Boolean!
   address: UAddress!
   approvers: [Approver!]!
   chain: Chain!
   id: ID!
   implementation: Address!
-  label: String!
   messages: [Message!]!
   name: String!
   photo: URL
@@ -160,10 +159,10 @@ enum CloudProvider {
   Google
 }
 
-type Contact implements Node {
+type Contact implements Labelled & Node {
   address: UAddress!
   id: ID!
-  label: String!
+  name: String!
 }
 
 input ContactInput {
@@ -201,7 +200,7 @@ input ContractInput {
 
 input CreateAccountInput {
   chain: Chain! = "zksync-sepolia"
-  label: String!
+  name: String!
   policies: [PolicyInput!]!
 }
 
@@ -213,6 +212,7 @@ input CreatePolicyInput {
 
   """seconds"""
   delay: Float
+  key: PolicyKey
   name: String
   threshold: Float
   transfers: TransfersConfigInput
@@ -301,12 +301,12 @@ The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://
 """
 scalar JSON @specifiedBy(url: "http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf")
 
-input LabelAvailableInput {
-  label: String!
-}
-
 input LabelInput {
   address: UAddress!
+}
+
+interface Labelled {
+  name: String!
 }
 
 input LinkInput {
@@ -365,6 +365,10 @@ type Mutation {
   updateUser(input: UpdateUserInput!): User!
   upsertContact(input: UpsertContactInput!): Contact!
   upsertToken(input: UpsertTokenInput!): Token!
+}
+
+input NameAvailableInput {
+  name: String!
 }
 
 type NameTaken implements Err {
@@ -427,6 +431,7 @@ input PolicyInput {
 
   """seconds"""
   delay: Float
+  key: PolicyKey
   name: String
   threshold: Float
   transfers: TransfersConfigInput
@@ -571,8 +576,8 @@ type Query {
   contractFunction(input: ContractFunctionInput!): ContractFunction
   estimateFeesPerGas(input: EstimateFeesPerGasInput!): FeesPerGas
   label(input: LabelInput!): String
-  labelAvailable(input: LabelAvailableInput!): Boolean!
   message(input: UniqueProposalInput!): Message
+  nameAvailable(input: NameAvailableInput!): Boolean!
   node(id: ID!): Node
   policy(input: UniquePolicyInput!): Policy
   proposal(input: UniqueProposalInput!): Proposal
@@ -682,7 +687,7 @@ type Subscription {
   account(input: AccountSubscriptionInput! = {}): Account!
   proposalUpdated(input: ProposalUpdatedInput! = {}): ProposalUpdated!
   transfer(input: TransferSubscriptionInput! = {}): Transfer!
-  user: User!
+  userLinked: UserLinked!
 }
 
 type Successful implements Node & ReceiptResult & Result {
@@ -723,7 +728,7 @@ type SystemTx implements Node {
   usdPerFeeToken: Decimal!
 }
 
-type Token implements Node {
+type Token implements Labelled & Node {
   address: UAddress!
   balance(input: BalanceInput!): Decimal!
   decimals: Int!
@@ -741,7 +746,7 @@ type Token implements Node {
   userOwned: Boolean!
 }
 
-type TokenMetadata {
+type TokenMetadata implements CustomNode {
   decimals: Int!
   icon: URL
   id: ID!
@@ -980,7 +985,7 @@ input UniqueProposalInput {
 
 input UpdateAccountInput {
   account: UAddress!
-  label: String!
+  name: String!
   photo: URL
 }
 
@@ -1006,7 +1011,7 @@ input UpdatePolicyInput {
 
   """seconds"""
   delay: Float
-  key: PolicyKey!
+  key: PolicyKey
   name: String
   threshold: Float
   transfers: TransfersConfigInput
@@ -1040,7 +1045,7 @@ input UpdateUserInput {
 
 input UpsertContactInput {
   address: UAddress!
-  label: String!
+  name: String!
   previousAddress: UAddress
 }
 
@@ -1069,6 +1074,13 @@ type UserApprover implements Node {
   label: String
   name: String
   pushToken: String
+}
+
+type UserLinked implements CustomNode {
+  id: ID!
+  issuer: Address!
+  linker: Address!
+  user: User!
 }
 
 type ValidationError {

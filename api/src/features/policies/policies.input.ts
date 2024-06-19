@@ -77,6 +77,9 @@ export class TransferLimitInput {
 
 @InputType()
 export class PolicyInput {
+  @PolicyKeyField({ nullable: true })
+  key?: PolicyKey;
+
   @Field(() => String, { nullable: true })
   name?: string;
 

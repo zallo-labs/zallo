@@ -37,9 +37,9 @@ describe(ContactsService.name, () => {
 
   const upsertContact = (
     address: UAddress = randomUAddress(),
-    label = `${address.slice(0, 30)} contact`,
+    name = `${address.slice(0, 30)} contact`,
   ) => {
-    return service.upsert({ label, address });
+    return service.upsert({ name, address });
   };
 
   describe('upsert', () => {
@@ -52,16 +52,16 @@ describe(ContactsService.name, () => {
 
     it('updates a contact if it already existed', () =>
       asUser(user1, async () => {
-        const newLabel = 'b';
-        await upsertContact(user1Contact, 'a');
+        const newLabel = 'b1234';
+        await upsertContact(user1Contact, 'a1234');
         await upsertContact(user1Contact, newLabel);
 
-        expect(await db.query(selectContact(user1Contact).label)).toEqual(newLabel);
+        expect(await db.query(selectContact(user1Contact).name)).toEqual(newLabel);
       }));
 
     it('only allow unique names (within the scope of a user)', () =>
       asUser(user1, async () => {
-        const name = 'a';
+        const name = 'a1234';
         await upsertContact(user1Contact, name);
         await expect(upsertContact(randomUAddress(), name)).rejects.toThrow();
       }));

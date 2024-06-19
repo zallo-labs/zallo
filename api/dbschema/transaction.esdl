@@ -3,6 +3,7 @@ module default {
     required to: Address;
     value: uint256;
     data: Bytes;
+    required position: uint16 { default := 0; }
   }
 
   type PaymasterFees {
@@ -13,10 +14,11 @@ module default {
   scalar type TransactionStatus extending enum<'Pending', 'Scheduled', 'Executing', 'Successful', 'Failed', 'Cancelled'>;
 
   type Transaction extending Proposal {
-    required multi operations: Operation {
+    required multi unorderedOperations: Operation {
       constraint exclusive;
       on source delete delete target;
     }
+    required multi operations := (select .unorderedOperations order by .position asc);
     required gasLimit: uint256 { default := 0; }
     required feeToken: Token;
     required maxAmount: decimal;

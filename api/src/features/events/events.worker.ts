@@ -14,8 +14,9 @@ import { UnrecoverableError } from 'bullmq';
 const TARGET_LOGS_PER_JOB = 9_000; // Max 10k
 const DEFAULT_LOGS_PER_BLOCK = 200;
 const LPB_ALPHA = 0.2;
-const TOO_MANY_RESULTS_RE =
-  /Query returned more than .+? results. Try with this block range \[(?:0x[0-9a-f]+), (0x[0-9a-f]+)\]/;
+
+const TOO_MANY_RESULTS_RE = /Try with this block range \[(?:0x[0-9a-f]+), (0x[0-9a-f]+)\]/; // zkSync
+const TOO_MANY_BLOCKS_RE = /limited to (\d+) block range/; // blockpi
 
 export const EventsQueue = createQueue<EventJobData>('Events');
 export type EventsQueue = typeof EventsQueue;
@@ -123,18 +124,33 @@ export class EventsWorker extends Worker<EventsQueue> {
         `${chain}: ${logs.length} events from ${blocksProcessed} blocks [${from}, ${to}]`,
       );
     } catch (e) {
-      const match = TOO_MANY_RESULTS_RE.exec((e as Error).message ?? '');
-      if (!match) throw e;
+      const message = (e as Error).message;
 
-      // Split the job into two smaller jobs
-      const mid = Math.max(from, hexToNumber(asHex(match[1])));
-      if (to <= mid)
-        throw new UnrecoverableError(`Invalid split block range: [${from}, ${mid}] for split`);
+      let match = TOO_MANY_RESULTS_RE.exec(message);
+      if (match) {
+        const mid = Math.max(from, hexToNumber(asHex(match[1])));
+        if (to <= mid)
+          throw new UnrecoverableError(`Invalid split block range: [${from}, ${mid}] for split`);
 
-      this.queue.addBulk([
-        { name: 'Split (lower)', data: { chain, from, to: mid, split: true } },
-        { name: 'Split (upper)', data: { chain, from: mid + 1, to, split: true } },
-      ]);
+        this.queue.addBulk([
+          { name: 'Split (too many results)', data: { chain, from, to: mid, split: true } },
+          { name: 'Split (too many results)', data: { chain, from: mid + 1, to, split: true } },
+        ]);
+        return;
+      }
+
+      match = TOO_MANY_BLOCKS_RE.exec(message);
+      if (match) {
+        const maxRange = parseInt(match[1]);
+
+        this.queue.addBulk(
+          partitionRange(from, to, maxRange).map(([from, to]) => ({
+            name: 'Split (range limited)',
+            data: { chain, from, to, split: true },
+          })),
+        );
+        return;
+      }
     }
   }
 
@@ -183,4 +199,12 @@ export class EventsWorker extends Worker<EventsQueue> {
 
 function delay(blockTime: number) {
   return Math.max(50 /* min */, Math.min(blockTime - 100, 30_000 /* max */));
+}
+
+function partitionRange(rangeFrom: number, rangeTo: number, n: number) {
+  const chunks: [number, number][] = [];
+  for (let from = rangeFrom; from <= rangeTo; from += n) {
+    chunks.push([from, Math.min(from + n - 1, rangeTo)]);
+  }
+  return chunks;
 }

@@ -3,6 +3,7 @@ import { Injectable } from '@nestjs/common';
 import {
   Address,
   ETH_ADDRESS,
+  Hex,
   UUID,
   asAddress,
   asChain,
@@ -33,7 +34,7 @@ import { SelectedPolicies, selectPolicy } from '../policies/policies.util';
 import { ProposalsService } from '../proposals/proposals.service';
 import { ProposalEvent } from '../proposals/proposals.input';
 
-export const SimulationsQueue = createQueue<{ transaction: UUID }>('Simulations');
+export const SimulationsQueue = createQueue<{ transaction: UUID | Hex }>('Simulations');
 export type SimulationsQueue = typeof SimulationsQueue;
 
 type TransferDetails = Parameters<typeof e.insert<typeof e.TransferDetails>>[1];
@@ -65,7 +66,12 @@ export class SimulationsWorker extends Worker<SimulationsQueue> {
 
   async process(job: TypedJob<SimulationsQueue>) {
     const proposal = selectTransaction(job.data.transaction);
-    const p = await this.db.query(e.select(proposal, () => TransactionExecutableShape));
+    const p = await this.db.query(
+      e.select(proposal, () => ({
+        id: true,
+        ...TransactionExecutableShape,
+      })),
+    );
     if (!p) return 'Transaction not found';
 
     const promisedExecutable = this.isExecutable(p);
@@ -188,7 +194,7 @@ export class SimulationsWorker extends Worker<SimulationsQueue> {
       }),
     );
 
-    this.proposals.publish({ id: job.data.transaction, account }, ProposalEvent.simulated);
+    this.proposals.publish({ id: asUUID(p.id), account }, ProposalEvent.simulated);
 
     return { executable };
   }

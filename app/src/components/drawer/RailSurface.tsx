@@ -4,7 +4,6 @@ import { useDrawerActions } from './DrawerContextProvider';
 import { MenuIcon } from '#/Appbar/AppbarMenu';
 import { ReactNode } from 'react';
 import { ICON_SIZE } from '@theme/paper';
-import { EdgeInsets, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { View } from 'react-native';
 import { IconButton } from '#/IconButton';
 
@@ -15,10 +14,9 @@ export interface RailSurfaceProps extends SurfaceProps {
 export function RailSurface({ children, fab, ...surfaceProps }: RailSurfaceProps) {
   const { styles } = useStyles(stylesheet);
   const { toggle } = useDrawerActions();
-  const insets = useSafeAreaInsets();
 
   return (
-    <Surface elevation={0} {...surfaceProps} style={[styles.surface(insets), surfaceProps.style]}>
+    <Surface elevation={0} {...surfaceProps} style={[styles.surface, surfaceProps.style]}>
       <View style={styles.top}>
         <IconButton icon={MenuIcon} size={ICON_SIZE.small} onPress={toggle} />
         {fab}
@@ -30,15 +28,15 @@ export function RailSurface({ children, fab, ...surfaceProps }: RailSurfaceProps
   );
 }
 
-const stylesheet = createStyles(({ colors, corner }) => ({
-  surface: (insets: EdgeInsets) => ({
+const stylesheet = createStyles(({ colors }, { insets }) => ({
+  surface: {
     flex: 1,
     width: 80,
     // paddingHorizontal: 12,
     paddingTop: insets.top + 44,
     paddingBottom: insets.bottom + 56,
     backgroundColor: colors.surfaceContainer.low,
-  }),
+  },
   top: {
     alignItems: 'center',
     gap: 12,

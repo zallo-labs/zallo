@@ -2,20 +2,15 @@ module default {
   global current_accounts: array<uuid>;
   global current_approver_address: Address;
   global current_approver := assert_single((select Approver filter .address = global current_approver_address));
-  global current_user := global current_approver.user;
+  global current_user := (global current_approver).user;
 
-  type Account {
-    required address: UAddress { constraint exclusive; }
-    required label: str {
-      constraint exclusive;
-      constraint regexp(r'^[0-9a-zA-Z$-]{4,40}$');
-    }
+  type Account extending Labelled {
+    overloaded required address: UAddress { constraint exclusive; }
     required implementation: Address;
     required salt: Bytes32;
     activationEthFee: decimal { constraint min_value(0); }
     upgradedAtBlock: bigint { constraint min_value(0); }
     photo: Url;
-    required property chain := as_chain(.address);
     required property active := exists .upgradedAtBlock;
     multi policies: Policy { on source delete delete target; on target delete allow; }
     multi link proposals := .<account[is Proposal];
@@ -36,7 +31,7 @@ module default {
     required account: Account;
     required policy: Policy;
     required validationErrors: array<tuple<reason: str, operation: int32>>;
-    label: Label;
+    label: BoundedStr;
     icon: Url;
     required timestamp: datetime;
     required createdAt: datetime { default := datetime_of_statement(); }

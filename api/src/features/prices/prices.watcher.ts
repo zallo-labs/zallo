@@ -61,7 +61,7 @@ export class PricesWatcher implements OnModuleInit, OnModuleDestroy {
   }
 
   async subscribe(priceIds: Hex[]) {
-    this.redis.sadd(SUBSCRIPTIONS, ...priceIds);
+    if (priceIds.length) this.redis.sadd(SUBSCRIPTIONS, ...priceIds);
   }
 
   private async watchSubscriptions() {

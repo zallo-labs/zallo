@@ -691,6 +691,7 @@ export type $ObjectTypeλShape = $.typeutil.flatten<$SourceλShape & Omit<$Consi
   "<__type__[is schema::Trigger]": $.LinkDesc<$Trigger, $.Cardinality.Many, {}, false, false,  false, false>;
   "<__type__[is schema::ObjectType]": $.LinkDesc<$ObjectType, $.Cardinality.Many, {}, false, false,  false, false>;
   "<__type__[is schema::Extension]": $.LinkDesc<$Extension, $.Cardinality.Many, {}, false, false,  false, false>;
+  "<__type__[is Labelled]": $.LinkDesc<_default.$Labelled, $.Cardinality.Many, {}, false, false,  false, false>;
   "<__type__[is Account]": $.LinkDesc<_default.$Account, $.Cardinality.Many, {}, false, false,  false, false>;
   "<__type__[is ProposalResponse]": $.LinkDesc<_default.$ProposalResponse, $.Cardinality.Many, {}, false, false,  false, false>;
   "<__type__[is Approval]": $.LinkDesc<_default.$Approval, $.Cardinality.Many, {}, false, false,  false, false>;
@@ -705,6 +706,7 @@ export type $ObjectTypeλShape = $.typeutil.flatten<$SourceλShape & Omit<$Consi
   "<__type__[is Message]": $.LinkDesc<_default.$Message, $.Cardinality.Many, {}, false, false,  false, false>;
   "<__type__[is Operation]": $.LinkDesc<_default.$Operation, $.Cardinality.Many, {}, false, false,  false, false>;
   "<__type__[is Transaction]": $.LinkDesc<_default.$Transaction, $.Cardinality.Many, {}, false, false,  false, false>;
+  "<__type__[is UserLabelled]": $.LinkDesc<_default.$UserLabelled, $.Cardinality.Many, {}, false, false,  false, false>;
   "<__type__[is Token]": $.LinkDesc<_default.$Token, $.Cardinality.Many, {}, false, false,  false, false>;
   "<__type__[is User]": $.LinkDesc<_default.$User, $.Cardinality.Many, {}, false, false,  false, false>;
   "<__type__[is current_user]": $.LinkDesc<_default.$current_user, $.Cardinality.Many, {}, false, false,  false, false>;
@@ -721,12 +723,12 @@ export type $ObjectTypeλShape = $.typeutil.flatten<$SourceλShape & Omit<$Consi
   "<__type__[is TransfersConfig]": $.LinkDesc<_default.$TransfersConfig, $.Cardinality.Many, {}, false, false,  false, false>;
   "<__type__[is PolicyState]": $.LinkDesc<_default.$PolicyState, $.Cardinality.Many, {}, false, false,  false, false>;
   "<__type__[is Policy]": $.LinkDesc<_default.$Policy, $.Cardinality.Many, {}, false, false,  false, false>;
-  "<__type__[is Function]": $.LinkDesc<_default.$Function, $.Cardinality.Many, {}, false, false,  false, false>;
   "<__type__[is RemovedPolicy]": $.LinkDesc<_default.$RemovedPolicy, $.Cardinality.Many, {}, false, false,  false, false>;
   "<__type__[is SystemTx]": $.LinkDesc<_default.$SystemTx, $.Cardinality.Many, {}, false, false,  false, false>;
   "<__type__[is Failed]": $.LinkDesc<_default.$Failed, $.Cardinality.Many, {}, false, false,  false, false>;
   "<__type__[is Scheduled]": $.LinkDesc<_default.$Scheduled, $.Cardinality.Many, {}, false, false,  false, false>;
   "<__type__[is PaymasterFees]": $.LinkDesc<_default.$PaymasterFees, $.Cardinality.Many, {}, false, false,  false, false>;
+  "<__type__[is Function]": $.LinkDesc<_default.$Function, $.Cardinality.Many, {}, false, false,  false, false>;
   "<__type__[is Contract]": $.LinkDesc<_default.$Contract, $.Cardinality.Many, {}, false, false,  false, false>;
   "<__type__": $.LinkDesc<$.ObjectType, $.Cardinality.Many, {}, false, false,  false, false>;
   "<intersection_of": $.LinkDesc<$.ObjectType, $.Cardinality.Many, {}, false, false,  false, false>;

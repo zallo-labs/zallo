@@ -60,11 +60,11 @@ export type scalarAssignableBy<T extends $.ScalarType> =
   T extends _default.$TransferDirection ? _default.$TransferDirection : 
   T extends _default.$TransactionStatus ? _default.$TransactionStatus : 
   T extends _default.$MAC ? _default.$MAC : 
-  T extends _default.$Label ? _default.$Label : 
   T extends _default.$CloudProvider ? _default.$CloudProvider : 
   T extends _default.$Bytes4 ? _default.$Bytes4 : 
   T extends _default.$Bytes32 ? _default.$Bytes32 : 
   T extends _default.$Bytes ? _default.$Bytes : 
+  T extends _default.$BoundedStr ? _default.$BoundedStr : 
   T extends _default.$ApprovalIssue ? _default.$ApprovalIssue : 
   T extends _default.$Amount ? _default.$Amount : 
   T extends _std.$decimal ? _std.$decimalλIAssignableBy : 
@@ -131,11 +131,11 @@ export type scalarCastableFrom<T extends $.ScalarType> =
   T extends _default.$TransferDirection ? _default.$TransferDirection : 
   T extends _default.$TransactionStatus ? _default.$TransactionStatus : 
   T extends _default.$MAC ? _default.$MAC : 
-  T extends _default.$Label ? _default.$Label : 
   T extends _default.$CloudProvider ? _default.$CloudProvider : 
   T extends _default.$Bytes4 ? _default.$Bytes4 : 
   T extends _default.$Bytes32 ? _default.$Bytes32 : 
   T extends _default.$Bytes ? _default.$Bytes : 
+  T extends _default.$BoundedStr ? _default.$BoundedStr : 
   T extends _default.$ApprovalIssue ? _default.$ApprovalIssue : 
   T extends _default.$Amount ? _default.$Amount : 
   T extends _std.$decimal ? _std.$decimalλICastableTo : 
@@ -445,12 +445,6 @@ type getSharedParentScalar<A, B> =
     :
     never
   :
-  A extends _default.$Label ?
-    B extends _default.$Label ?
-    B
-    :
-    never
-  :
   A extends _default.$CloudProvider ?
     B extends _default.$CloudProvider ?
     B
@@ -471,6 +465,12 @@ type getSharedParentScalar<A, B> =
   :
   A extends _default.$Bytes ?
     B extends _default.$Bytes ?
+    B
+    :
+    never
+  :
+  A extends _default.$BoundedStr ?
+    B extends _default.$BoundedStr ?
     B
     :
     never
@@ -876,12 +876,6 @@ function getSharedParentScalar<A extends $.ScalarType, B extends $.ScalarType>(a
     }
     throw new Error(`Types are not castable: ${a.__name__}, ${b.__name__}`);
     }
-  if (a.__name__ === "default::Label") {
-    if(b.__name__ === "default::Label") {
-      return b;
-    }
-    throw new Error(`Types are not castable: ${a.__name__}, ${b.__name__}`);
-    }
   if (a.__name__ === "default::CloudProvider") {
     if(b.__name__ === "default::CloudProvider") {
       return b;
@@ -902,6 +896,12 @@ function getSharedParentScalar<A extends $.ScalarType, B extends $.ScalarType>(a
     }
   if (a.__name__ === "default::Bytes") {
     if(b.__name__ === "default::Bytes") {
+      return b;
+    }
+    throw new Error(`Types are not castable: ${a.__name__}, ${b.__name__}`);
+    }
+  if (a.__name__ === "default::BoundedStr") {
+    if(b.__name__ === "default::BoundedStr") {
       return b;
     }
     throw new Error(`Types are not castable: ${a.__name__}, ${b.__name__}`);

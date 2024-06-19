@@ -14,9 +14,8 @@ import { P, match } from 'ts-pattern';
 import { z } from 'zod';
 import { useQuery } from '~/gql';
 import { useLocalParams } from '~/hooks/useLocalParams';
-import { zArray, zUAddress } from '~/lib/zod';
+import { zArray, zBool, zUAddress } from '~/lib/zod';
 import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
-import { EdgeInsets, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { TokenItem } from '#/token/TokenItem';
 import { TokenIcon } from '#/token/TokenIcon';
 import { useRecentTokens, useSetSelectedToken } from '~/hooks/useSelectToken';
@@ -41,7 +40,7 @@ export const SelectTokenSheetParams = z.object({
   account: zUAddress(),
   enabled: zArray(zUAddress()).optional(),
   disabled: zArray(zUAddress()).optional(),
-  feeToken: z.coerce.boolean().optional(),
+  feeToken: zBool().optional(),
 });
 export type SelectTokenSheetParams = z.infer<typeof SelectTokenSheetParams>;
 
@@ -49,7 +48,6 @@ function SelectTokenSheet() {
   const { account, feeToken, ...params } = useLocalParams(SelectTokenSheetParams);
   const { styles } = useStyles(stylesheet);
   const router = useRouter();
-  const insets = useSafeAreaInsets();
   const chain = asChain(account);
   const setSelected = useSetSelectedToken(chain);
 
@@ -115,16 +113,16 @@ function SelectTokenSheet() {
         keyExtractor={(v) => (typeof v === 'object' ? v.id : v)}
         getItemType={(item) => (typeof item === 'object' ? item.__typename : 'header')}
         estimatedItemSize={ListItemHeight.DOUBLE_LINE}
-        contentContainerStyle={styles.container(insets)}
+        contentContainerStyle={styles.container}
       />
     </Sheet>
   );
 }
 
-const stylesheet = createStyles(() => ({
-  container: (insets: EdgeInsets) => ({
-    paddingBottom: insets.bottom,
-  }),
+const stylesheet = createStyles((_, { insets }) => ({
+  container: {
+    paddingBottom: insets.bottom + 8,
+  },
   headline: {
     marginHorizontal: 16,
     marginVertical: 8,

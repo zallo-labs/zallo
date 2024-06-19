@@ -1,19 +1,16 @@
 import { useRouter } from 'expo-router';
 import { useRef } from 'react';
-import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
+import { BottomSheetFlatList } from '@gorhom/bottom-sheet';
 import { Sheet } from '#/sheet/Sheet';
-import { ListHeader } from '#/list/ListHeader';
-import { AddIcon, CheckCircleIcon, materialCommunityIcon } from '@theme/icons';
-import { ListItem } from '#/list/ListItem';
-import { View } from 'react-native';
 import { gql } from '@api/generated';
-import { ICON_SIZE } from '@theme/paper';
 import { AccountItem } from '#/item/AccountItem';
 import { useQuery } from '~/gql';
 import { useSelectedAccount } from '~/hooks/useSelectedAccount';
 import { createStyles, useStyles } from '@theme/styles';
-
-const SwitchIcon = materialCommunityIcon('swap-horizontal');
+import { Divider, RadioButton, Text } from 'react-native-paper';
+import { PressableOpacity } from '#/PressableOpacity';
+import { View } from 'react-native';
+import { AddIcon, QrCodeIcon } from '@theme/icons';
 
 const Query = gql(/* GraphQL */ `
   query AccountsSheet {
@@ -37,22 +34,56 @@ export default function AccountsSheet() {
 
   return (
     <Sheet
+      contentContainer={false}
       onClose={() => {
         if (goBackOnClose.current) router.back();
         goBackOnClose.current = true;
       }}
     >
-      <BottomSheetScrollView
-        contentContainerStyle={styles.contentContaiiner}
-        showsVerticalScrollIndicator={false}
-      >
-        <ListHeader>Accounts</ListHeader>
+      <BottomSheetFlatList
+        ListHeaderComponent={
+          <>
+            <View style={styles.actions}>
+              <PressableOpacity
+                style={styles.action}
+                onPress={() => {
+                  goBackOnClose.current = false;
+                  router.push(`/accounts/create`);
+                }}
+              >
+                <AddIcon />
+                <Text variant="labelLarge" style={styles.actionLabel}>
+                  Create account
+                </Text>
+              </PressableOpacity>
 
-        {accounts.map((a) => (
+              <PressableOpacity
+                style={styles.action}
+                onPress={() => {
+                  goBackOnClose.current = false;
+                  router.push(`/accounts/join`);
+                }}
+              >
+                <QrCodeIcon />
+                <Text variant="labelLarge" style={styles.actionLabel}>
+                  Join account
+                </Text>
+              </PressableOpacity>
+            </View>
+
+            <Divider horizontalInset style={styles.divider} />
+          </>
+        }
+        data={accounts}
+        renderItem={({ item: a }) => (
           <AccountItem
-            key={a.id}
             account={a}
-            trailing={a.address === selectedAddress ? CheckCircleIcon : SwitchIcon}
+            trailing={
+              <RadioButton
+                value={a.address}
+                status={selectedAddress === a.address ? 'checked' : 'unchecked'}
+              />
+            }
             onPress={() =>
               router.push({
                 pathname: `/(drawer)/[account]/(home)/`,
@@ -60,47 +91,39 @@ export default function AccountsSheet() {
               })
             }
           />
-        ))}
-
-        <ListItem
-          leading={
-            <View style={styles.addIconContainer}>
-              <AddIcon />
-            </View>
-          }
-          headline="Account"
-          onPress={() => {
-            goBackOnClose.current = false;
-            router.push(`/accounts/create`);
-          }}
-        />
-      </BottomSheetScrollView>
+        )}
+        keyExtractor={(a) => a.id}
+        contentContainerStyle={styles.contentContainer}
+      />
     </Sheet>
   );
 }
 
-const stylesheet = createStyles(({ colors }) => ({
-  contentContaiiner: {
-    paddingBottom: 8,
-  },
-  selectedContainer: {
-    alignItems: 'center',
-    gap: 8,
-    marginHorizontal: 16,
-    marginBottom: 8,
-  },
-  selectedLabelContainer: {
-    alignItems: 'center',
+const stylesheet = createStyles(({ colors, corner }, { insets }) => ({
+  contentContainer: {
+    paddingBottom: insets.bottom + 8,
   },
   selectedAddress: {
     color: colors.onSurfaceVariant,
   },
-  selectedAccountButton: {
-    alignSelf: 'stretch',
+  actions: {
+    flexDirection: 'row',
+    gap: 16,
+    marginHorizontal: 16,
+    marginVertical: 8,
   },
-  addIconContainer: {
+  action: {
     alignItems: 'center',
-    width: ICON_SIZE.medium,
+    gap: 8,
+    width: 80,
+    paddingVertical: 8,
+    borderRadius: corner.m,
+  },
+  actionLabel: {
+    textAlign: 'center',
+  },
+  divider: {
+    marginVertical: 8,
   },
 }));
 

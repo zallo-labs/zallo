@@ -21,11 +21,10 @@ import {
 } from './accounts.input';
 import { getApprover, getUserCtx } from '#/util/context';
 import { UserInputError } from '@nestjs/apollo';
-import { NetworksService } from '../util/networks/networks.service';
 import { PubsubService } from '../util/pubsub/pubsub.service';
 import { ContractsService } from '../contracts/contracts.service';
 import { FaucetService } from '../faucet/faucet.service';
-import { PoliciesService } from '../policies/policies.service';
+import { MIN_AUTO_POLICY_KEY, PoliciesService } from '../policies/policies.service';
 import { inputAsPolicy } from '../policies/policies.util';
 import { AccountsCacheService } from '../auth/accounts.cache.service';
 import { v4 as uuid } from 'uuid';
@@ -43,7 +42,6 @@ export interface AccountSubscriptionPayload {
 export class AccountsService {
   constructor(
     private db: DatabaseService,
-    private networks: NetworksService,
     private pubsub: PubsubService,
     private contracts: ContractsService,
     private faucet: FaucetService,
@@ -81,58 +79,62 @@ export class AccountsService {
     );
   }
 
-  private labelPattern = /^[0-9a-zA-Z$-]{4,40}$/;
-  async labelAvailable(label: string): Promise<boolean> {
-    if (!this.labelPattern.exec(label)) return false;
+  private namePattern = /^(?![0O][xX])[^\n]{3,50}$/;
+  async nameAvailable(name: string): Promise<boolean> {
+    if (!this.namePattern.exec(name)) return false;
 
     return e
-      .params({ label: e.str }, ({ label }) => {
-        const account = e.select(e.Account, () => ({ filter_single: { label } }));
-        return e.select(e.op('not', e.op('exists', account)));
+      .params({ name: e.str }, ({ name }) => {
+        const labels = e.select(e.GlobalLabel, (l) => ({ filter: e.op(l.name, '=', name) }));
+        return e.select(e.op('not', e.op('exists', labels)));
       })
-      .run(this.db.DANGEROUS_superuserClient, { label });
+      .run(this.db.DANGEROUS_superuserClient, { name });
   }
 
-  async createAccount({ chain, label, policies: policyInputs }: CreateAccountInput) {
-    const approver = getApprover();
-    if (!policyInputs.find((p) => p.approvers.includes(approver)))
-      throw new UserInputError('User must be included in at least one policy');
+  async createAccount({ chain, name, policies: policyInputs }: CreateAccountInput) {
+    const baseAutoKey = Math.max(MIN_AUTO_POLICY_KEY, ...policyInputs.map((p) => p.key ?? 0));
+    const policies = policyInputs.map((p, i) => ({
+      ...p,
+      key: p.key ?? asPolicyKey(i + baseAutoKey),
+    }));
+    if (new Set(policies.map((p) => p.key)).size !== policies.length)
+      throw new UserInputError('Duplicate policy keys');
 
     const implementation = ACCOUNT_IMPLEMENTATION.address[chain];
     const salt = randomDeploySalt();
-    const policies = policyInputs.map((p, i) => inputAsPolicy(asPolicyKey(i), p));
-
     const account = asUAddress(
       getProxyAddress({
         deployer: DEPLOYER.address[chain],
         implementation,
         salt,
-        policies,
+        policies: policies.map((p) => inputAsPolicy(p.key, p)),
       }),
       chain,
     );
 
     // The account id must be in the user's list of accounts prior to starting the transaction for the globals to be set correctly
     const id = uuid();
-    await this.accountsCache.addCachedAccount({ approver, account: { id, address: account } });
+    await this.accountsCache.addCachedAccount({
+      approver: getApprover(),
+      account: { id, address: account },
+    });
 
     await this.db.transaction(async () => {
       await this.db.query(
         e.insert(e.Account, {
           id,
           address: account,
-          label,
+          name,
           implementation,
           salt,
         }),
       );
 
-      for (const [i, policy] of policyInputs.entries()) {
+      for (const policy of policyInputs) {
         await this.policies.create({
-          ...policy,
           account,
-          key: asPolicyKey(i),
           initState: true,
+          ...policy,
         });
       }
     });
@@ -145,10 +147,10 @@ export class AccountsService {
     return { id, address: account };
   }
 
-  async updateAccount({ account: address, label, photo }: UpdateAccountInput) {
+  async updateAccount({ account: address, name, photo }: UpdateAccountInput) {
     const r = await this.db.query(
       e.update(e.Account, () => ({
-        set: { label, photo },
+        set: { name, photo },
         filter_single: { address },
       })),
     );
@@ -165,9 +167,7 @@ export class AccountsService {
     const approvers = await this.db.query(
       e.select(e.Account, () => ({
         filter_single: { address: account },
-        approvers: {
-          address: true,
-        },
+        approvers: { address: true },
       })).approvers.address,
     );
 

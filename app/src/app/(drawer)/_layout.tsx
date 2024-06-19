@@ -12,7 +12,6 @@ import {
   GithubIcon,
   QrCodeIcon,
   GenericTokenIcon,
-  DevicesIcon,
   AccountIcon,
 } from '@theme/icons';
 import { DrawerItem as Item } from '#/drawer/DrawerItem';
@@ -143,7 +142,7 @@ function DrawerContent() {
     <DrawerSurface>
       <Section>
         <Link href={{ pathname: '/', params: { redirect: 'false' } }} asChild>
-          <PressableOpacity>
+          <PressableOpacity noHover>
             <DrawerLogo style={contentStyles.logo} />
           </PressableOpacity>
         </Link>
@@ -193,7 +192,6 @@ function DrawerContent() {
       </Section>
 
       <Section>
-        <Item href={`/(drawer)/approvers`} icon={DevicesIcon} label="My approvers" />
         <Item href={`/(drawer)/contacts/`} icon={ContactsIcon} label="Contacts" />
         {account && (
           <Item

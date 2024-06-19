@@ -8,7 +8,6 @@ import {
   validateMessage,
   validateTransaction,
   Policy,
-  PolicyKey,
   Address,
   UAddress,
   PLACEHOLDER_ACCOUNT_ADDRESS,
@@ -38,14 +37,15 @@ import {
 import { NameTaken, Policy as PolicyModel, ValidationError } from './policies.model';
 import { TX_SHAPE, transactionAsTx, ProposalTxShape } from '../transactions/transactions.util';
 import { and, isExclusivityConstraintViolation } from '../database/database.util';
-import { selectAccount } from '../accounts/accounts.util';
+import { selectAccount, selectAccount2 } from '../accounts/accounts.util';
 import { err, ok } from 'neverthrow';
 import { encodeFunctionData } from 'viem';
 import { $Transaction } from '~/edgeql-js/modules/default';
 import { getUserCtx } from '#/util/context';
 
+export const MIN_AUTO_POLICY_KEY = 32; // 2^5; keys [0, 31] are reserved for manual keys
+
 export interface CreatePolicyParams extends CreatePolicyInput {
-  key?: PolicyKey;
   initState?: boolean;
 }
 
@@ -80,20 +80,8 @@ export class PoliciesService {
     );
   }
 
-  async create({ account, name, key: keyArg, initState, ...policyInput }: CreatePolicyParams) {
-    const selectedAccount = selectAccount(account);
-
-    const key =
-      keyArg ??
-      (await (async () => {
-        const maxKey = (await this.db.query(
-          e.select(
-            e.max(e.select(selectedAccount['<account[is Policy]'], () => ({ key: true })).key),
-          ),
-        )) as number | null;
-
-        return asPolicyKey(maxKey !== null ? maxKey + 1 : 0);
-      })());
+  async create({ account, name, key, initState, ...policyInput }: CreatePolicyParams) {
+    key ??= await this.getNextKey(account);
 
     const state = policyInputAsStateShape(key, policyInput);
     const proposal =
@@ -103,7 +91,7 @@ export class PoliciesService {
       // with proposal required - https://github.com/edgedb/edgedb/issues/6305
       const { id } = await this.db.query(
         e.insert(e.Policy, {
-          account: selectedAccount,
+          account: selectAccount(account),
           key,
           name: name || `Policy ${key}`,
           ...(proposal && { proposal }),
@@ -334,32 +322,35 @@ export class PoliciesService {
   }
 
   async best(account: UAddress, proposal: Tx | 'message') {
-    const policies = await this.db.query(
-      e.select(selectAccount(account).policies, () => ({
-        id: true,
-        ...PolicyShape,
-      })),
+    const policies = await this.db.queryWith(
+      { account: e.UAddress },
+      ({ account }) =>
+        e.select(selectAccount2(account).policies, () => ({
+          id: true,
+          isActive: true,
+          ...PolicyShape,
+        })),
+      { account },
     );
     if (policies.length === 0)
       throw new UserInputError('No policies for account. Account is bricked');
 
     const { approver } = getUserCtx();
-    const sorted = (
-      await Promise.all(
-        policies.map(async (p) => {
-          const policy = policyStateAsPolicy(p);
-          const validationErrors = this.validate(proposal, policy);
-          const threshold = policy.threshold - Number(policy.approvers.has(approver)); // Expect the proposer to approve
+    const sorted = policies
+      .map((p) => {
+        const policy = policyStateAsPolicy(p);
+        const validationErrors = this.validate(proposal, policy);
+        const threshold = policy.threshold - Number(policy.approvers.has(approver)); // Expect the proposer to approve
 
-          return { id: p.id, validationErrors, ...policy, threshold };
-        }),
-      )
-    ).sort(
-      (a, b) =>
-        Number(a.validationErrors.length) - Number(b.validationErrors.length) ||
-        a.permissions.delay - b.permissions.delay ||
-        a.threshold - b.threshold,
-    );
+        return { id: p.id, validationErrors, ...policy, threshold, isActive: p.isActive };
+      })
+      .sort(
+        (a, b) =>
+          Number(a.validationErrors.length) - Number(b.validationErrors.length) ||
+          Number(b.isActive) - Number(a.isActive) ||
+          a.permissions.delay - b.permissions.delay ||
+          a.threshold - b.threshold,
+      );
 
     const p = sorted[0];
     return {
@@ -391,7 +382,7 @@ export class PoliciesService {
       threshold: p.threshold || p.approvers.length,
       actions: e.for(e.cast(e.json, e.set(...p.actions.map((a) => e.json(a)))), (a) =>
         e.insert(e.Action, {
-          label: e.cast(e.Label, a.label),
+          label: e.cast(e.BoundedStr, a.label),
           functions: e.for(e.json_array_unpack(a.functions), (f) =>
             e.insert(e.ActionFunction, {
               contract: e.cast(e.Address, e.json_get(f, 'contract')),
@@ -433,5 +424,13 @@ export class PoliciesService {
         },
       ],
     });
+  }
+
+  private async getNextKey(account: UAddress) {
+    const maxKey = (await this.db.query(e.select(e.max(selectAccount(account).policies.key)))) as
+      | number
+      | null;
+
+    return asPolicyKey(Math.max(MIN_AUTO_POLICY_KEY, maxKey !== null ? maxKey + 1 : 0));
   }
 }

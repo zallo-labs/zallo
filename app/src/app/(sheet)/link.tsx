@@ -39,7 +39,7 @@ export default function LinkWithTokenSheet() {
         <LinkIcon style={styles.icon} />
 
         <Text variant="titleLarge" style={styles.text}>
-          Are you sure you want to link these users?
+          Are you sure you want to link with this device?
         </Text>
 
         <View>

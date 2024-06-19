@@ -1,7 +1,7 @@
 import { FragmentType, gql, useFragment } from '@api';
 import { createStyles, useStyles } from '@theme/styles';
 import { useAtomValue, useSetAtom } from 'jotai';
-import { ScrollView, View } from 'react-native';
+import { FlatList, View } from 'react-native';
 import { Chip } from 'react-native-paper';
 import { usePolicyDraftAtom } from '~/lib/policy/draft';
 import { usePolicyPresets } from '~/lib/policy/usePolicyPresets';
@@ -40,41 +40,35 @@ export function PolicyPresets(props: PolicyPresetsProps) {
 
   return (
     <View>
-      <ScrollView
+      <FlatList
         horizontal
-        showsHorizontalScrollIndicator={false}
+        data={Object.values(presets)}
+        renderItem={({ item: preset }) => (
+          <Chip
+            mode="outlined"
+            onPress={() => setDraft((d) => ({ ...d, ...preset, key: d.key, name: d.name }))}
+            style={styles.chip}
+            textStyle={styles.chipText}
+          >
+            {preset.name}
+          </Chip>
+        )}
         contentContainerStyle={styles.container}
-      >
-        {Object.values(presets).map((preset) => {
-          const selected = policy.name === preset.name;
-          return (
-            <Chip
-              key={preset.name}
-              mode={selected ? 'flat' : 'outlined'}
-              onPress={() => setDraft((d) => ({ ...d, ...preset }))}
-              style={styles.chip(selected)}
-              textStyle={styles.chipText(selected)}
-            >
-              {preset.name}
-            </Chip>
-          );
-        })}
-      </ScrollView>
+        showsHorizontalScrollIndicator={false}
+      />
     </View>
   );
 }
 
 const stylesheet = createStyles(({ colors }) => ({
   container: {
-    flexDirection: 'row',
     gap: 8,
-    marginHorizontal: 16,
-    marginBottom: 8,
+    paddingBottom: 8,
   },
-  chip: (selected: boolean) => ({
-    backgroundColor: selected ? colors.secondaryContainer : 'transparent',
-  }),
-  chipText: (selected: boolean) => ({
-    color: selected ? colors.onSecondaryContainer : colors.onSurface,
-  }),
+  chip: {
+    backgroundColor: 'transparent',
+  },
+  chipText: {
+    color: colors.onSurface,
+  },
 }));

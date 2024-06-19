@@ -14,7 +14,6 @@ import { usePolicyPresets } from '~/lib/policy/usePolicyPresets';
 import { asPolicyInput } from '~/lib/policy/draft';
 import { Chain } from 'chains';
 import { useQuery } from '~/gql';
-import { useMemo } from 'react';
 import { FormChainSelector } from './fields/FormChainSelector';
 
 const Query = gql(/* GraphQL */ `
@@ -40,7 +39,7 @@ const Create = gql(/* GraphQL */ `
 `);
 
 interface Inputs {
-  label: string;
+  name: string;
   chain: Chain;
 }
 
@@ -56,25 +55,12 @@ export function CreateAccount({ onCreate }: CreateAccountScreenProps) {
   const { user } = useQuery(Query).data;
 
   const { control, handleSubmit, reset, watch } = useForm<Inputs>({
-    defaultValues: { label: '', chain: 'zksync-sepolia' },
+    defaultValues: { name: '', chain: 'zksync-sepolia' },
     mode: 'onChange',
   });
 
   const chain = watch('chain');
   const presets = usePolicyPresets({ chain, user, account: undefined });
-
-  const policies = useMemo(() => {
-    const all =
-      user.approvers.length === 1
-        ? [presets.high]
-        : [presets.high, presets.low, presets.medium, presets.recovery];
-
-    return all.filter(
-      (p, i) =>
-        // Filter out redundant policies
-        all.findIndex((p2) => p.threshold === p2.threshold && p.delay === p2.delay) === i,
-    );
-  }, [presets.high, presets.low, presets.medium, presets.recovery, user.approvers]);
 
   return (
     <>
@@ -82,7 +68,7 @@ export function CreateAccount({ onCreate }: CreateAccountScreenProps) {
         <Text variant="bodyLarge">You can update your account details at any time</Text>
 
         <AccountNameFormField
-          name="label"
+          name="name"
           label="Account name"
           control={control}
           required
@@ -97,9 +83,9 @@ export function CreateAccount({ onCreate }: CreateAccountScreenProps) {
           mode="contained"
           style={styles.button}
           control={control}
-          onPress={handleSubmit(async ({ label, chain }) => {
+          onPress={handleSubmit(async ({ name, chain }) => {
             const r = await create({
-              input: { label, chain, policies: policies.map(asPolicyInput) },
+              input: { name, chain, policies: Object.values(presets).map(asPolicyInput) },
             });
 
             const account = r.data?.createAccount.address;

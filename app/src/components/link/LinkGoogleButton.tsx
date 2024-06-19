@@ -45,10 +45,6 @@ const styles = createStyles({
   container: {
     backgroundColor: 'white',
   },
-  icon: (size: number) => ({
-    aspectRatio: 1,
-    height: size,
-  }),
   button: {
     backgroundColor: 'white',
   },

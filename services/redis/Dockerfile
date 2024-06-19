@@ -1,5 +1,5 @@
 ARG REDIS_VERSION=7
-FROM redis:${REDIS_VERSION}-alpine
+FROM redis:${REDIS_VERSION}
 
 COPY start-redis-server.sh /usr/bin/start-redis-server.sh
 

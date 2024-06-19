@@ -5,8 +5,6 @@ import { useRouter } from 'expo-router';
 import { SheetBackground } from '#/sheet/SheetBackground';
 import { SheetBackdrop } from '#/sheet/SheetBackdrop';
 import { createStyles, useStyles } from '@theme/styles';
-import { EdgeInsets, useSafeAreaInsets } from 'react-native-safe-area-context';
-import { mq } from 'react-native-unistyles';
 
 /*
  * https://m3.material.io/components/bottom-sheets/specs
@@ -23,7 +21,6 @@ export const Sheet = forwardRef<BottomSheet, SheetProps>(
   ({ children, handle = true, contentContainer = true, contentContainerStyle, ...props }, ref) => {
     const { styles } = useStyles(stylesheet);
     const router = useRouter();
-    const insets = useSafeAreaInsets();
 
     return (
       <BottomSheet
@@ -41,7 +38,7 @@ export const Sheet = forwardRef<BottomSheet, SheetProps>(
         handleIndicatorStyle={[styles.handleIndicator, props.handleIndicatorStyle]}
       >
         {contentContainer ? (
-          <BottomSheetView style={[styles.contentContainer(insets), contentContainerStyle]}>
+          <BottomSheetView style={[styles.contentContainer, contentContainerStyle]}>
             {children}
           </BottomSheetView>
         ) : (
@@ -52,7 +49,7 @@ export const Sheet = forwardRef<BottomSheet, SheetProps>(
   },
 );
 
-const stylesheet = createStyles(({ colors }) => ({
+const stylesheet = createStyles(({ colors }, { insets }) => ({
   container: {
     maxWidth: 640 + 56 * 2,
     marginHorizontal: 'auto',
@@ -77,12 +74,12 @@ const stylesheet = createStyles(({ colors }) => ({
     height: 4,
     opacity: 0.4,
   },
-  contentContainer: (insets: EdgeInsets) => ({
-    paddingBottom: insets.bottom,
+  contentContainer: {
+    paddingBottom: insets.bottom + 8,
     // marginHorizontal: {
     //   [mq.only.width(640)]: 56,
     // },
-  }),
+  },
 }));
 
 function NoHandle() {

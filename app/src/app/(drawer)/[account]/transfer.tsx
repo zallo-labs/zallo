@@ -57,14 +57,15 @@ function TransferScreen() {
   const selectToken = useSelectToken();
   const selectedToken = useSelectedToken(chain);
 
-  const { token } = useQuery(Query, { account, token: selectedToken }).data;
+  const query = useQuery(Query, { account, token: selectedToken });
+  const { token } = query.data;
 
   const [input, setInput] = useState('');
   const [type, setType] = useState(InputType.Token);
 
   useEffect(() => {
-    if (!token) invalidateRecent(selectedToken);
-  }, [chain, invalidateRecent, selectedToken, token]);
+    if (!token && !query.stale && !query.fetching) invalidateRecent(selectedToken);
+  }, [chain, invalidateRecent, query.fetching, query.stale, selectedToken, token]);
 
   if (!token) return null;
 

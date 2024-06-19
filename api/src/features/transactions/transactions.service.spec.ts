@@ -104,17 +104,26 @@ describe(TransactionsService.name, () => {
     const accountId = uuid();
     getUserCtx().accounts.push({ id: accountId, address: account });
 
-    const inserted = await e
-      .insert(e.Account, {
-        id: accountId,
-        address: account,
-        label: randomLabel(),
-        implementation: randomAddress(),
-        salt: randomDeploySalt(),
-        upgradedAtBlock: 1n,
-      })
-      .unlessConflict()
-      .id.run(db.client);
+    const { account: inserted } = await db.query(
+      e.select({
+        account: e
+          .insert(e.Account, {
+            id: accountId,
+            address: account,
+            name: randomLabel(),
+            implementation: randomAddress(),
+            salt: randomDeploySalt(),
+            upgradedAtBlock: 1n,
+          })
+          .unlessConflict(),
+        approver: e
+          .insert(e.Approver, {
+            address: getUserCtx().approver,
+            user: e.insert(e.User, { id: getUserCtx().id }).unlessConflict(),
+          })
+          .unlessConflict((a) => ({ on: a.address, else: a })),
+      }),
+    );
 
     if (inserted) {
       await e
@@ -123,9 +132,9 @@ describe(TransactionsService.name, () => {
           key: 0,
           name: 'Policy 0',
           threshold: 0,
-          approvers: e
-            .insert(e.Approver, { address: getApprover() })
-            .unlessConflict((approver) => ({ on: approver.address, else: approver })),
+          approvers: e.select(e.Approver, () => ({
+            filter_single: { address: getUserCtx().approver },
+          })),
           transfers: e.insert(e.TransfersConfig, { budget: 0 }),
         })
         .unlessConflict()

@@ -45,7 +45,7 @@ describe(TransfersService.name, () => {
       .insert(e.Account, {
         id,
         address,
-        label: randomLabel(),
+        name: randomLabel(),
         implementation: randomAddress(),
         salt: randomDeploySalt(),
         upgradedAtBlock: 1n,

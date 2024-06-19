@@ -2,7 +2,7 @@
 ##            Build
 ## ------------------------------
 
-FROM node:20-alpine as builder
+FROM node:20-slim as builder
 
 ARG TURBO_TEAM
 ENV TURBO_TEAM=$TURBO_TEAM
@@ -23,7 +23,7 @@ RUN yarn api build
 ##            Runtime
 ## ------------------------------
 
-FROM node:20-alpine as runtime
+FROM node:20-slim as runtime
 
 ENV NODE_ENV production
 

@@ -184,31 +184,30 @@ export class TransactionsService {
     const { policy, validationErrors } = await this.policies.best(account, tx);
 
     // Ordering operation ids ensures
-    const operationIds = operations.map(() => uuid()).sort((a, b) => a.localeCompare(b));
+    // TODO: ensure operations are retrieved in the same order as they were inserted
     const insertOperation = e.for(
       e.set(
         ...operations.map((op, i) =>
           e.json({
-            id: operationIds[i],
             to: op.to,
             value: op.value,
             data: op.data,
+            position: i,
           }),
         ),
       ),
       (op) =>
         e.insert(e.Operation, {
-          id: e.cast(e.uuid, op.id),
           to: e.cast(e.Address, op.to),
           value: e.cast(e.uint256, e.cast(e.str, e.json_get(op, 'value'))),
           data: e.cast(e.Bytes, e.json_get(op, 'data')),
+          position: e.cast(e.int32, op.position),
         }),
     );
 
-    const id = asUUID(uuid());
+    const hash = hashTx(account, tx);
     const insert = e.insert(e.Transaction, {
-      id,
-      hash: hashTx(account, tx),
+      hash,
       account: selectAccount(account),
       policy,
       validationErrors,
@@ -221,7 +220,7 @@ export class TransactionsService {
           icons: dapp.icons,
         },
       }),
-      operations: insertOperation,
+      unorderedOperations: insertOperation,
       timestamp,
       gasLimit: gas,
       feeToken: e.assert_single(
@@ -237,7 +236,7 @@ export class TransactionsService {
       }),
     });
 
-    afterRequest(() => this.simulations.add(SimulationsQueue.name, { transaction: id }));
+    afterRequest(() => this.simulations.add(SimulationsQueue.name, { transaction: hash }));
 
     return insert;
   }

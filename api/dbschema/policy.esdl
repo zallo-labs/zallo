@@ -29,7 +29,7 @@ module default {
   }
 
   type Policy extending PolicyState {
-    required name: Label;
+    required name: BoundedStr;
     required threshold: uint16;
     multi approvers: Approver;
     multi actions: Action;
@@ -85,7 +85,7 @@ module default {
   );
 
   type Action {
-    required label: Label;
+    required label: BoundedStr;
     required multi functions: ActionFunction;
     required allow: bool;
     description: str;

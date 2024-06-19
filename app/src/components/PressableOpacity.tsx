@@ -1,14 +1,22 @@
 import { createStyles, useStyles } from '@theme/styles';
 import { forwardRef } from 'react';
-import { Pressable, View } from 'react-native';
+import { Pressable, PressableProps, View } from 'react-native';
 
-export type PressableOpacityProps = React.ComponentProps<typeof Pressable>;
+export interface PressableOpacityProps extends PressableProps {
+  noHover?: boolean;
+}
 
 export const PressableOpacity = forwardRef<View, PressableOpacityProps>((props, ref) => {
   const { styles } = useStyles(stylesheet);
 
-  const pressable = !!(props.onPress || props.onPressIn || props.onPressOut || props.onLongPress);
-  const hoverable = pressable || !!props.onHoverIn || !!props.onHoverOut;
+  const hoverableProps =
+    props.onPress ||
+    props.onPressIn ||
+    props.onPressOut ||
+    props.onLongPress ||
+    props.onHoverIn ||
+    props.onHoverOut;
+  const hoverable = !props.noHover && hoverableProps;
 
   return (
     <Pressable
@@ -16,7 +24,7 @@ export const PressableOpacity = forwardRef<View, PressableOpacityProps>((props, 
       ref={ref}
       style={(state) => [
         hoverable && (state as { hovered?: boolean }).hovered && styles.hovered, // state.hovered exists on web
-        pressable && state.pressed && styles.pressed,
+        state.pressed && styles.pressed,
         typeof props.style === 'function' ? props.style(state) : props.style,
       ]}
     />

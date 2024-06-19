@@ -1,6 +1,5 @@
 import { createMock, DeepMocked } from '@golevelup/ts-jest';
 import { Test } from '@nestjs/testing';
-import { NetworksService } from '../util/networks/networks.service';
 import { UserContext, asUser, getUserCtx } from '#/util/context';
 import { randomLabel, randomAddress, randomUAddress, randomUser } from '~/util/test';
 import { getProxyAddress, UAddress } from 'lib';
@@ -24,7 +23,6 @@ const getProxyAddressMock = jest.mocked(getProxyAddress);
 describe(AccountsService.name, () => {
   let service: AccountsService;
   let db: DatabaseService;
-  let networks: DeepMocked<NetworksService>;
   let policies: DeepMocked<PoliciesService>;
   let activationsQueue: DeepMocked<TypedQueue<typeof ActivationsQueue>>;
   let accountsCache: DeepMocked<AccountsCacheService>;
@@ -40,7 +38,6 @@ describe(AccountsService.name, () => {
       .compile();
     service = module.get(AccountsService);
     db = module.get(DatabaseService);
-    networks = module.get(NetworksService);
     policies = module.get(PoliciesService);
     activationsQueue = module.get(getQueueToken(ActivationsQueue.name));
     accountsCache = module.get(AccountsCacheService);
@@ -58,7 +55,7 @@ describe(AccountsService.name, () => {
 
     return service.createAccount({
       chain: 'zksync-local',
-      label: randomLabel(),
+      name: randomLabel(),
       policies: [{ approvers: [userCtx.approver] }],
     });
   };
@@ -132,10 +129,10 @@ describe(AccountsService.name, () => {
   describe('updateAccountMetadata', () => {
     it('updates metadata', () =>
       asUser(user1, async () => {
-        const newLabel = randomLabel();
-        await service.updateAccount({ account: user1Account, label: newLabel });
-        expect((await service.selectUnique(user1Account, () => ({ label: true })))?.label).toEqual(
-          newLabel,
+        const newName = randomLabel();
+        await service.updateAccount({ account: user1Account, name: newName });
+        expect((await service.selectUnique(user1Account, () => ({ name: true })))?.name).toEqual(
+          newName,
         );
       }));
 
@@ -143,7 +140,7 @@ describe(AccountsService.name, () => {
       asUser(user1, async () => {
         const newLabel = randomLabel();
         service.publishAccount = jest.fn();
-        await service.updateAccount({ account: user1Account, label: newLabel });
+        await service.updateAccount({ account: user1Account, name: newLabel });
         expect(service.publishAccount).toBeCalledTimes(1);
       }));
 
@@ -151,7 +148,7 @@ describe(AccountsService.name, () => {
       asUser(randomUser(), async () => {
         const newLabel = randomLabel();
         await expect(
-          service.updateAccount({ account: user1Account, label: newLabel }),
+          service.updateAccount({ account: user1Account, name: newLabel }),
         ).rejects.toThrow();
       }));
   });

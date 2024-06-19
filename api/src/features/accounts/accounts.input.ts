@@ -20,9 +20,9 @@ export class AccountsInput {
 }
 
 @InputType()
-export class LabelAvailableInput {
+export class NameAvailableInput {
   @Field(() => String)
-  label: string;
+  name: string;
 }
 
 export enum AccountEvent {
@@ -49,7 +49,7 @@ export class CreateAccountInput {
   chain: Chain;
 
   @Field(() => String)
-  label: string;
+  name: string;
 
   @Field(() => [PolicyInput], { middleware: [minLengthMiddleware(1)] })
   policies: PolicyInput[];
@@ -61,7 +61,7 @@ export class UpdateAccountInput {
   account: UAddress;
 
   @Field(() => String)
-  label: string;
+  name: string;
 
   @UrlField({ nullable: true })
   photo?: string;

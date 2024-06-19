@@ -11,8 +11,8 @@ export const GLOBAL_LABELS: Record<UAddress, string> = {
   ),
 };
 
-function every(address: Address, label: string) {
+function every(address: Address, name: string) {
   return Object.fromEntries(
-    Object.keys(CHAINS).map((chain) => [asUAddress(address, chain as Chain), label] as const),
+    Object.keys(CHAINS).map((chain) => [asUAddress(address, chain as Chain), name] as const),
   );
 }

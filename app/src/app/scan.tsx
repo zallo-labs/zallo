@@ -20,7 +20,7 @@ import { useLocalParams } from '~/hooks/useLocalParams';
 import { isWalletConnectUri } from '~/lib/wc/uri';
 import { Button } from '#/Button';
 
-export const SCANNED_ADDRESSES = new Subject<Address>();
+const SCANNED_ADDRESSES = new Subject<Address>();
 export function useScanAddress() {
   const getEvent = useGetEvent();
 
@@ -46,7 +46,7 @@ export default function ScanScreen() {
       if (SCANNED_ADDRESSES.observed) {
         SCANNED_ADDRESSES.next(address);
       } else {
-        router.push({
+        router.replace({
           pathname: `/(sheet)/scan/[address]`,
           params: { address, ...(account && { account }) },
         });
@@ -60,7 +60,7 @@ export default function ScanScreen() {
         showError('Failed to connect. Please refresh the DApp and try again');
       }
     } else if (parseAppLink(data)) {
-      router.push(parseAppLink(data)!);
+      router.replace(parseAppLink(data)!);
       return true;
     }
 

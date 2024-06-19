@@ -117,15 +117,16 @@ export class AccountsCacheService implements OnModuleInit {
         return json ? (JSON.parse(json) as Address[]) : [];
       }),
     );
-    await this.redis.del(
-      ...userApprovers.flat().map((approver) => approverAccountsKey(asAddress(approver))),
-    );
+    const approverAccounts = userApprovers.flat().map((a) => approverAccountsKey(asAddress(a)));
+    if (approverAccounts.length) await this.redis.del(...approverAccounts);
   }
 
   async invalidateApproversCache(...approvers: Address[]) {
     if (!approvers.length) return;
 
-    const users = (await this.redis.mget(...new Set(approvers.map(approverUserKey)))).filter(Boolean);
+    const users = (await this.redis.mget(...new Set(approvers.map(approverUserKey)))).filter(
+      Boolean,
+    );
     await this.invalidateUsersCache(...users);
   }
 

@@ -3,13 +3,11 @@ import { useUrqlApiClient } from '@api/client';
 import { createStyles, useStyles } from '@theme/styles';
 import { useState } from 'react';
 import { FieldValues, FieldPath } from 'react-hook-form';
-import { TextInput } from 'react-native-paper';
 import { FormTextField, FormTextFieldProps } from '#/fields/FormTextField';
-import { CONFIG } from '~/util/config';
 
-const LabelAvailable = gql(/* GraphQL */ `
-  query AccountNameFormField_LabelAvailable($label: String!) {
-    labelAvailable(input: { label: $label })
+const NameAvailable = gql(/* GraphQL */ `
+  query AccountNameFormField_nameAvailable($name: String!) {
+    nameAvailable(input: { name: $name })
   }
 `);
 
@@ -31,7 +29,6 @@ export function AccountNameFormField<
     <FormTextField
       label="Name"
       placeholder="alisha"
-      right={<TextInput.Affix text={CONFIG.ensSuffix} />}
       autoCapitalize="none"
       rules={{
         minLength: { value: 4, message: 'Too short' },
@@ -40,9 +37,9 @@ export function AccountNameFormField<
           value: /^[0-9a-zA-Z$-]{4,40}$/,
           message: 'Must contain only alpha-numeric characters and: $ -',
         },
-        validate: async (label) => {
+        validate: async (name) => {
           setAvailable('checking');
-          const available = !!(await api.query(LabelAvailable, { label })).data?.labelAvailable;
+          const available = !!(await api.query(NameAvailable, { name })).data?.nameAvailable;
           setAvailable(available);
           return available || 'Not available';
         },

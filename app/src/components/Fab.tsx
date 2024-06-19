@@ -4,7 +4,6 @@ import { Keyboard, View } from 'react-native';
 import { FAB as PaperFAB } from 'react-native-paper';
 import { IconSource } from 'react-native-paper/lib/typescript/components/Icon';
 import { createStyles, useStyles } from '@theme/styles';
-import { EdgeInsets, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 type BaseProps = ComponentPropsWithoutRef<typeof PaperFAB>;
 
@@ -18,7 +17,6 @@ export const Fab = forwardRef<View, FabProps>(
   ({ appbar, position = 'absolute', style, ...props }, ref) => {
     const { styles } = useStyles(stylesheet);
     const [loading, onPress] = useWithLoading(props.onPress);
-    const insets = useSafeAreaInsets();
 
     return (
       <PaperFAB
@@ -26,7 +24,7 @@ export const Fab = forwardRef<View, FabProps>(
         icon={undefined as unknown as IconSource} // https://github.com/callstack/react-native-paper/issues/3594
         size={appbar ? 'small' : 'medium'}
         mode={appbar ? 'flat' : 'elevated'}
-        style={[position === 'absolute' && styles.absolute(insets), style]}
+        style={[position === 'absolute' && styles.absolute, style]}
         {...props}
         loading={props.loading || (props.loading !== false && loading)}
         {...(onPress && {
@@ -40,10 +38,10 @@ export const Fab = forwardRef<View, FabProps>(
   },
 );
 
-const stylesheet = createStyles(() => ({
-  absolute: (insets: EdgeInsets) => ({
+const stylesheet = createStyles((_, { insets }) => ({
+  absolute: {
     position: 'absolute',
     bottom: 16 + insets.bottom,
     right: 16,
-  }),
+  },
 }));

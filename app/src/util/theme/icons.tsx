@@ -1,6 +1,6 @@
 import { Image, ImageProps, ImageSource, ImageStyle } from '#/Image';
-import { ComponentPropsWithoutRef, Ref, forwardRef } from 'react';
-import { ColorValue, StyleProp, View } from 'react-native';
+import { ComponentPropsWithoutRef, forwardRef } from 'react';
+import { ColorValue, Pressable, StyleProp, View } from 'react-native';
 import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
 import { ICON_SIZE } from './paper';
 import { PressableOpacity, PressableOpacityProps } from '#/PressableOpacity';
@@ -27,9 +27,9 @@ export const icon =
       const IconSet = iconSet[set];
 
       return (
-        <PressableOpacity onPress={onPress} disabled={!onPress}>
+        <Pressable onPress={onPress} disabled={!onPress}>
           <IconSet size={ICON_SIZE.small} {...(props as any)} name={name} />
-        </PressableOpacity>
+        </Pressable>
       );
     };
   };
@@ -74,7 +74,7 @@ export const LockOpenIcon = materialIcon('lock-open');
 export const UpdateIcon = materialIcon('update');
 export const PasswordIcon = materialCommunityIcon('key');
 export const DevicesIcon = materialIcon('devices');
-export const GenericTokenIcon = materialCommunityIcon('blur');
+export const GenericTokenIcon = imageFromSource(require('assets/generic-token.svg'));
 export const CustomActionIcon = materialCommunityIcon('pentagon-outline');
 export const DataIcon = materialCommunityIcon('code-tags');
 export const DisconnectIcon = materialCommunityIcon('link-off');
@@ -85,8 +85,10 @@ export const PolicyIcon = materialCommunityIcon('security');
 export const PolicyEditOutlineIcon = materialCommunityIcon('shield-edit-outline');
 export const PolicyRemoveOutlineIcon = materialCommunityIcon('shield-remove-outline');
 export const TextIcon = materialCommunityIcon('text');
+export const InfoIcon = materialCommunityIcon('information-outline');
 
 export const ZalloLogo = imageFromSource(require('assets/brand/logo-l.svg'));
+export const ZalloIconMinimal = imageFromSource(require('assets/brand/icon-m.svg'));
 export const AppStoreBadge = imageFromSource(require('assets/app-store-badge.svg'));
 export const GooglePlayBadge = imageFromSource(require('assets/google-play-badge.png'));
 export const WalletConnectIcon = imageFromSource(require('assets/walletconnect-light.svg'));

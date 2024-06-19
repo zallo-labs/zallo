@@ -2,7 +2,7 @@ import { FC, ReactNode, forwardRef } from 'react';
 import { IconProps } from '@theme/icons';
 import { Text } from 'react-native-paper';
 import { TextProps } from '@theme/types';
-import { Pressable, PressableProps, StyleProp, TextStyle, View, ViewStyle } from 'react-native';
+import { PressableProps, StyleProp, TextStyle, View, ViewStyle } from 'react-native';
 import { O } from 'ts-toolbelt';
 import { ICON_SIZE } from '@theme/paper';
 import { createStyles, useStyles } from '@theme/styles';
@@ -53,7 +53,6 @@ export const ListItem = forwardRef<View, ListItemProps>(
     ref,
   ) => {
     const { styles } = useStyles(getStylesheet({ lines, leadingSize, disabled }));
-    const pressable = !!(touchableProps.onPress || touchableProps.onLongPress);
 
     const OverlineText = ({ style, ...props }: TextProps) => (
       <Text

@@ -1,12 +1,13 @@
+import { Labelled } from '#/contacts/contacts.model';
 import { Field, ID, ObjectType } from '@nestjs/graphql';
 import { GraphQLInt } from 'graphql';
 import { Hex, UAddress } from 'lib';
 import { Bytes32Field } from '~/apollo/scalars/Bytes.scalar';
 import { UAddressField } from '~/apollo/scalars/UAddress.scalar';
 import { UrlField } from '~/apollo/scalars/Url.scalar';
-import { Node, NodeType } from '~/decorators/interface.decorator';
+import { CustomNodeType, Node, NodeType } from '~/decorators/interface.decorator';
 
-@NodeType()
+@NodeType({ implements: Labelled })
 export class Token extends Node {
   @UAddressField()
   address: UAddress;
@@ -45,7 +46,7 @@ export class TokenUnit {
   decimals: number;
 }
 
-@ObjectType()
+@CustomNodeType()
 export class TokenMetadata {
   @Field(() => ID)
   id: string;
