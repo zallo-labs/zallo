@@ -13,12 +13,12 @@ import { getAbiItem } from 'viem';
 import { TransferDirection } from './transfers.input';
 import { AccountsCacheService } from '../auth/accounts.cache.service';
 import { ExpoService } from '../util/expo/expo.service';
-import { CONFIG } from '~/config';
 import { BalancesService } from '~/features/util/balances/balances.service';
 import Decimal from 'decimal.js';
 import { TokensService } from '~/features/tokens/tokens.service';
 import { ampli } from '~/util/ampli';
 import { selectSysTx } from '../system-txs/system-tx.util';
+import { and } from '#/database/database.util';
 
 export const getTransferTrigger = (account: UAddress) => `transfer.account.${account}`;
 export interface TransferSubscriptionPayload {
@@ -78,7 +78,14 @@ export class TransfersEvents {
     await Promise.all(
       accounts.map(async (account) => {
         const selectedAccount = selectAccount(account);
-        const systx = selectSysTx(log.transactionHash);
+        const systx = e.assert_single(
+          e.select(e.SystemTx, (systx) => ({
+            filter: and(
+              e.op(systx.hash, '=', log.transactionHash),
+              e.op(systx.proposal.account, '=', selectedAccount),
+            ),
+          })),
+        );
 
         const transfer = await this.db.query(
           e.select(
@@ -116,7 +123,7 @@ export class TransfersEvents {
               id: true,
               internal: true,
               isFeeTransfer: true,
-              account: { approvers: { user: true } },
+              accountUsers: selectedAccount.approvers.user.id,
             }),
           ),
         );
@@ -142,8 +149,8 @@ export class TransfersEvents {
           if (to === account) this.notifyMembers('transfer', account, from, token, amount);
         }
 
-        transfer.account.approvers.map(({ user }) => {
-          ampli.transfer(user.id, { in: to === account, out: from === account });
+        transfer.accountUsers.map((user) => {
+          ampli.transfer(user, { in: to === account, out: from === account });
         });
       }),
     );
@@ -238,7 +245,6 @@ export class TransfersEvents {
     );
     if (!acc) return;
 
-
     await this.expo.sendNotification(
       acc.approvers.map((a) => {
         const fromLabel = a.fromLabel || truncateAddress(from);
@@ -247,9 +253,7 @@ export class TransfersEvents {
         return {
           to: a.pushToken!,
           title:
-            type === 'transfer'
-              ? `${acc.name}: tokens received`
-              : `${acc.name}: spending approval`,
+            type === 'transfer' ? `${acc.name}: tokens received` : `${acc.name}: spending approval`,
           body:
             type === 'transfer'
               ? t
