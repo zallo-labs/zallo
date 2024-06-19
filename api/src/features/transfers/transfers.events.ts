@@ -82,7 +82,7 @@ export class TransfersEvents {
           e.select(e.SystemTx, (systx) => ({
             filter: and(
               e.op(systx.hash, '=', log.transactionHash),
-              e.op(systx.proposal.account, '=', selectedAccount),
+              e.op(systx.proposal.account, '?=', selectedAccount),
             ),
           })),
         );
@@ -119,11 +119,11 @@ export class TransfersEvents {
                 on: e.tuple([t.account, t.block, t.logIndex]),
                 else: t,
               })),
-            () => ({
+            (t) => ({
               id: true,
               internal: true,
               isFeeTransfer: true,
-              accountUsers: selectedAccount.approvers.user.id,
+              accountUsers: t.account.approvers.user.id,
             }),
           ),
         );
