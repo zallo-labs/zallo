@@ -115,7 +115,7 @@ export function ApproverPolicies({ approver, ...props }: ApproverPoliciesProps) 
 
       <ItemList>
         {account.policies.map((p) => {
-          const n = p.approvers.length + Number(!pols[p.id].existingMember);
+          const n = p.approvers.length + Number(!pols[p.id]?.existingMember);
 
           return (
             <ListItem
