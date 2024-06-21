@@ -86,7 +86,7 @@ export default function AccountsSheet() {
             }
             onPress={() =>
               router.push({
-                pathname: `/(drawer)/[account]/(home)/`,
+                pathname: `/(nav)/[account]/(home)/`,
                 params: { account: a.address },
               })
             }

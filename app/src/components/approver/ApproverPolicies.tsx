@@ -105,8 +105,7 @@ export function ApproverPolicies({ approver, ...props }: ApproverPoliciesProps) 
     if (r.error) showError('Something went wrong updating policies', { event: { error: r.error } });
 
     const proposal = r.data?.updatePolicies[0].proposal;
-    if (proposal)
-      router.push({ pathname: '/(drawer)/transaction/[id]', params: { id: proposal.id } });
+    if (proposal) router.push({ pathname: '/(nav)/transaction/[id]', params: { id: proposal.id } });
   };
 
   return (

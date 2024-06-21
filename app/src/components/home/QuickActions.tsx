@@ -41,7 +41,7 @@ function QuickActions_({ account }: QuickActionsProps) {
         mode="contained-tonal"
         style={styles.button}
         loading={false}
-        onPress={() => push({ pathname: `/(drawer)/[account]/swap`, params: { account } })}
+        onPress={() => push({ pathname: `/(nav)/[account]/swap`, params: { account } })}
       >
         Swap
       </Button>

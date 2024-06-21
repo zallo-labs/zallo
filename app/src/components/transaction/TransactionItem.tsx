@@ -122,7 +122,7 @@ function TransactionItem_({
     .exhaustive();
 
   return (
-    <Link href={{ pathname: `/(drawer)/transaction/[id]`, params: { id: p.id } }} asChild>
+    <Link href={{ pathname: `/(nav)/transaction/[id]`, params: { id: p.id } }} asChild>
       <ListItem
         leading={
           p.icon ? (

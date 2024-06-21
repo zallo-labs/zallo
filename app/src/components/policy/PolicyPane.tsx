@@ -155,7 +155,7 @@ export function PolicyPane({ initial, ...props }: PolicyPaneProps) {
                 router.setParams({ ...params, id: p.id });
                 if (p.proposal) {
                   router.push({
-                    pathname: `/(drawer)/transaction/[id]`,
+                    pathname: `/(nav)/transaction/[id]`,
                     params: { id: p.proposal.id },
                   });
                 }
@@ -168,7 +168,7 @@ export function PolicyPane({ initial, ...props }: PolicyPaneProps) {
                 label="View proposal"
                 onPress={() =>
                   router.push({
-                    pathname: '/(drawer)/transaction/[id]',
+                    pathname: '/(nav)/transaction/[id]',
                     params: { id: policy.proposal!.id },
                   })
                 }

@@ -68,7 +68,7 @@ function MessageItem_(props: MessageItemProps) {
     .exhaustive();
 
   return (
-    <Link href={{ pathname: `/(drawer)/message/[id]`, params: { id: p.id } }} asChild>
+    <Link href={{ pathname: `/(nav)/message/[id]`, params: { id: p.id } }} asChild>
       <ListItem
         leading={<MessageIcon proposal={p} />}
         headline={p.label || 'Message'}

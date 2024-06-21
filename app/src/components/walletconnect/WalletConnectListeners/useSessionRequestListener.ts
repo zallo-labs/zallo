@@ -86,7 +86,7 @@ export const useSessionRequestListener = ({ proposals }: UseSessionRequestListen
           }
         });
 
-        router.push({ pathname: `/(drawer)/transaction/[id]`, params: { id: proposal } });
+        router.push({ pathname: `/(nav)/transaction/[id]`, params: { id: proposal } });
 
         // sub is automatically unsubscribed on unmount due to proposals unsubscribe
       } else if (isSignatureRequest(request)) {
@@ -124,7 +124,7 @@ export const useSessionRequestListener = ({ proposals }: UseSessionRequestListen
           }
         });
 
-        router.push({ pathname: `/(drawer)/message/[id]`, params: { id: proposal.id } });
+        router.push({ pathname: `/(nav)/message/[id]`, params: { id: proposal.id } });
 
         // sub is automatically unsubscribed on unmount due to proposals unsubscribe
       } else {

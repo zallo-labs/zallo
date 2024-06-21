@@ -95,7 +95,7 @@ export function CreateAccount({ onCreate }: CreateAccountScreenProps) {
             if (onCreate) {
               onCreate(account);
             } else {
-              router.push({ pathname: `/(drawer)/[account]/(home)/`, params: { account } });
+              router.push({ pathname: `/(nav)/[account]/(home)/`, params: { account } });
             }
 
             reset();

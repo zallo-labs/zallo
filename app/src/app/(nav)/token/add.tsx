@@ -61,7 +61,7 @@ export default function AddTokenScreen() {
             control={control}
             onPress={handleSubmit(({ address, chain }) =>
               router.replace({
-                pathname: '/(drawer)/token/[token]',
+                pathname: '/(nav)/token/[token]',
                 params: { token: asUAddress(address, chain) },
               }),
             )}

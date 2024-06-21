@@ -12,7 +12,7 @@ import { gql } from '@api/generated';
 import { useQuery } from '~/gql';
 import { useSubscription } from 'urql';
 import { MessageItem } from '#/message/MessageItem';
-import { AccountParams } from '~/app/(drawer)/[account]/(home)/_layout';
+import { AccountParams } from '~/app/(nav)/[account]/(home)/_layout';
 import { useLocalParams } from '~/hooks/useLocalParams';
 
 const Query = gql(/* GraphQL */ `

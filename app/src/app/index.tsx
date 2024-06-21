@@ -41,7 +41,7 @@ function LandingScreen() {
   );
 
   if (redirect && account)
-    return <Redirect href={{ pathname: `/(drawer)/[account]/(home)/`, params: { account } }} />;
+    return <Redirect href={{ pathname: `/(nav)/[account]/(home)/`, params: { account } }} />;
 
   return (
     <ScrollView contentContainerStyle={styles.root} stickyHeaderIndices={[0]}>

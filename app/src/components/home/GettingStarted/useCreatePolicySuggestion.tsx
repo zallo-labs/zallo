@@ -20,7 +20,9 @@ export interface UseCreatePolicySuggestionParams {
   account: FragmentType<typeof Account> | null | undefined;
 }
 
-export function useCreatePolicySuggestion(props: UseCreatePolicySuggestionParams): Suggestion | null {
+export function useCreatePolicySuggestion(
+  props: UseCreatePolicySuggestionParams,
+): Suggestion | null {
   const account = useFragment(Account, props.account);
 
   if (!account) return null;
@@ -29,7 +31,7 @@ export function useCreatePolicySuggestion(props: UseCreatePolicySuggestionParams
     Item: (props) => (
       <Link
         href={{
-          pathname: `/(drawer)/[account]/settings/policy/[id]/`,
+          pathname: `/(nav)/[account]/settings/policy/[id]/`,
           params: { account: account.address, id: 'add' },
         }}
         asChild

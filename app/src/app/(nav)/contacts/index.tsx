@@ -31,7 +31,7 @@ const Query = gql(/* GraphQL */ `
 function ContactsPane_() {
   const { styles } = useStyles(stylesheet);
   const router = useRouter();
-  const contactSelected = usePath().includes('/(drawer)/contacts/[address]');
+  const contactSelected = usePath().includes('/(nav)/contacts/[address]');
   const currentRouteParams = useRouteInfo().params;
   const scanAddress = useScanAddress();
 
@@ -51,7 +51,7 @@ function ContactsPane_() {
               const address = await scanAddress();
               if (address) {
                 router.push({
-                  pathname: `/(drawer)/contacts/[address]`,
+                  pathname: `/(nav)/contacts/[address]`,
                   params: { address },
                 });
               }
@@ -66,7 +66,7 @@ function ContactsPane_() {
         {contacts.map((c) => (
           <Link
             key={c.id}
-            href={{ pathname: `/(drawer)/contacts/[address]`, params: { address: c.address } }}
+            href={{ pathname: `/(nav)/contacts/[address]`, params: { address: c.address } }}
             asChild
           >
             <ContactItem

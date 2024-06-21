@@ -97,7 +97,7 @@ function AccountSettingsPane_() {
             <EditOutlineIcon
               onPress={() =>
                 router.push({
-                  pathname: '/(drawer)/[account]/settings/details',
+                  pathname: '/(nav)/[account]/settings/details',
                   params: { account },
                 })
               }
@@ -142,7 +142,7 @@ function AccountSettingsPane_() {
             <Link
               key={p.id}
               href={{
-                pathname: `/(drawer)/[account]/settings/policy/[id]/`,
+                pathname: `/(nav)/[account]/settings/policy/[id]/`,
                 params: { account, id: p.id },
               }}
               asChild
@@ -160,7 +160,7 @@ function AccountSettingsPane_() {
                 )}
                 containerStyle={styles.item}
                 selected={
-                  path.includes('/(drawer)/[account]/settings/policy/[id]') &&
+                  path.includes('/(nav)/[account]/settings/policy/[id]') &&
                   currentRouteParams.id === p.id
                 }
               />
@@ -179,7 +179,7 @@ function AccountSettingsPane_() {
 
           <Link
             href={{
-              pathname: `/(drawer)/[account]/settings/policy/[id]/`,
+              pathname: `/(nav)/[account]/settings/policy/[id]/`,
               params: { account, id: 'add' },
             }}
             asChild
@@ -190,7 +190,7 @@ function AccountSettingsPane_() {
               lines={2}
               containerStyle={styles.item}
               selected={
-                path.includes('/(drawer)/[account]/settings/policy/[id]') &&
+                path.includes('/(nav)/[account]/settings/policy/[id]') &&
                 currentRouteParams.id === 'add'
               }
             />

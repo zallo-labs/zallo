@@ -90,7 +90,7 @@ function RailContent() {
     >
       {account ? (
         <RailItem
-          href={{ pathname: `/(drawer)/[account]/(home)/`, params: { account } }}
+          href={{ pathname: `/(nav)/[account]/(home)/`, params: { account } }}
           icon={HomeIcon}
           label="Home"
         />
@@ -100,7 +100,7 @@ function RailContent() {
 
       {account && (
         <RailItem
-          href={{ pathname: `/(drawer)/[account]/swap`, params: { account } }}
+          href={{ pathname: `/(nav)/[account]/swap`, params: { account } }}
           icon={SwapIcon}
           label="Swap"
         />
@@ -116,7 +116,7 @@ function RailContent() {
 
       {account && (
         <RailItem
-          href={{ pathname: `/(drawer)/[account]/settings/`, params: { account } }}
+          href={{ pathname: `/(nav)/[account]/settings/`, params: { account } }}
           icon={AccountIcon}
           label="Account"
         />
@@ -149,7 +149,7 @@ function DrawerContent() {
 
         {account ? (
           <Item
-            href={{ pathname: `/(drawer)/[account]/(home)/`, params: { account } }}
+            href={{ pathname: `/(nav)/[account]/(home)/`, params: { account } }}
             icon={HomeIcon}
             label="Home"
           />
@@ -159,7 +159,7 @@ function DrawerContent() {
 
         {account && (
           <Item
-            href={{ pathname: `/(drawer)/[account]/transfer`, params: { account } }}
+            href={{ pathname: `/(nav)/[account]/transfer`, params: { account } }}
             icon={TransferIcon}
             label="Transfer"
             onPress={() => transfer({ account })}
@@ -168,7 +168,7 @@ function DrawerContent() {
 
         {account && (
           <Item
-            href={{ pathname: `/(drawer)/[account]/swap`, params: { account } }}
+            href={{ pathname: `/(nav)/[account]/swap`, params: { account } }}
             icon={SwapIcon}
             label="Swap"
           />
@@ -184,7 +184,7 @@ function DrawerContent() {
 
         {account && (
           <Item
-            href={{ pathname: `/(drawer)/[account]/settings/`, params: { account } }}
+            href={{ pathname: `/(nav)/[account]/settings/`, params: { account } }}
             icon={AccountIcon}
             label="Account"
           />
@@ -192,19 +192,19 @@ function DrawerContent() {
       </Section>
 
       <Section>
-        <Item href={`/(drawer)/contacts/`} icon={ContactsIcon} label="Contacts" />
+        <Item href={`/(nav)/contacts/`} icon={ContactsIcon} label="Contacts" />
         {account && (
           <Item
-            href={{ pathname: `/(drawer)/[account]/tokens`, params: { account } }}
+            href={{ pathname: `/(nav)/[account]/tokens`, params: { account } }}
             icon={GenericTokenIcon}
             label="Tokens"
           />
         )}
-        <Item href={`/(drawer)/sessions/`} icon={WalletConnectIcon} label="Sessions" />
+        <Item href={`/(nav)/sessions/`} icon={WalletConnectIcon} label="Sessions" />
 
-        <Item href={`/(drawer)/settings/auth`} icon={FingerprintIcon} label="Auth" />
+        <Item href={`/(nav)/settings/auth`} icon={FingerprintIcon} label="Auth" />
         <Item
-          href={`/(drawer)/settings/notifications`}
+          href={`/(nav)/settings/notifications`}
           icon={NotificationsIcon}
           label="Notifications"
         />

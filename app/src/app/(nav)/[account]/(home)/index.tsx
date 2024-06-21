@@ -9,7 +9,7 @@ import { asChain } from 'lib';
 import { useMemo } from 'react';
 import { gql } from '@api/generated';
 import { useQuery } from '~/gql';
-import { AccountParams } from '~/app/(drawer)/[account]/(home)/_layout';
+import { AccountParams } from '~/app/(nav)/[account]/(home)/_layout';
 import { useLocalParams } from '~/hooks/useLocalParams';
 import Decimal from 'decimal.js';
 

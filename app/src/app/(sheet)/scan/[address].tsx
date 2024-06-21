@@ -27,7 +27,7 @@ export default function ScannedAddressSheet() {
           trailing={NavigateNextIcon}
           onPress={() =>
             router.replace({
-              pathname: `/(drawer)/[account]/transfer`,
+              pathname: `/(nav)/[account]/transfer`,
               params: { account, to: address },
             })
           }
@@ -40,7 +40,7 @@ export default function ScannedAddressSheet() {
         trailing={NavigateNextIcon}
         onPress={() =>
           router.replace({
-            pathname: `/(drawer)/contacts/[address]`,
+            pathname: `/(nav)/contacts/[address]`,
             params: { address: asUAddress(address, chain) },
           })
         }

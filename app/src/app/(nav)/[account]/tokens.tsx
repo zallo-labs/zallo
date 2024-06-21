@@ -61,7 +61,7 @@ function TokensScreen() {
               amount={token.balance}
               onPress={() =>
                 router.push({
-                  pathname: `/(drawer)/token/[token]`,
+                  pathname: `/(nav)/token/[token]`,
                   params: { token: token.address },
                 })
               }

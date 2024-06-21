@@ -1,7 +1,7 @@
 import { gql } from '@api';
 import { materialCommunityIcon } from '@theme/icons';
 import { OperationContext, useMutation } from 'urql';
-import { AccountParams } from '~/app/(drawer)/[account]/(home)/_layout';
+import { AccountParams } from '~/app/(nav)/[account]/(home)/_layout';
 import { Button } from '#/Button';
 import { QrModal } from '#/QrModal';
 import { useQuery } from '~/gql';

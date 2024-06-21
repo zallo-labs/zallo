@@ -111,7 +111,7 @@ function TransferScreen() {
               if (!proposal) return;
 
               router.replace({
-                pathname: `/(drawer)/transaction/[id]`,
+                pathname: `/(nav)/transaction/[id]`,
                 params: { id: proposal },
               });
               ampli.transferProposal({ token: token.address });

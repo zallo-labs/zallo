@@ -47,7 +47,7 @@ export function PrimarySection({ account }: PrimarySectionProps) {
       <View style={styles.actionsContainer}>
         <View style={styles.actions}>
           {account ? (
-            <Link href={{ pathname: `/(drawer)/[account]/(home)/`, params: { account } }} asChild>
+            <Link href={{ pathname: `/(nav)/[account]/(home)/`, params: { account } }} asChild>
               <Button mode="contained" style={styles.primaryAction}>
                 View account
               </Button>

@@ -15,7 +15,7 @@ import { useLocalParams } from '~/hooks/useLocalParams';
 import { withSuspense } from '#/skeleton/withSuspense';
 import { ScrollableScreenSurface } from '#/layout/ScrollableScreenSurface';
 import { createStyles } from '@theme/styles';
-import { AccountParams } from '~/app/(drawer)/[account]/(home)/_layout';
+import { AccountParams } from '~/app/(nav)/[account]/(home)/_layout';
 import { materialCommunityIcon } from '@theme/icons';
 import { ListItem, ListItemHeight } from '#/list/ListItem';
 import { TokenIcon } from '#/token/TokenIcon';
@@ -194,7 +194,7 @@ function SwapScreen() {
                   });
                   if (proposal) {
                     router.push({
-                      pathname: `/(drawer)/transaction/[id]`,
+                      pathname: `/(nav)/transaction/[id]`,
                       params: { id: proposal },
                     });
                     ampli.swapProposal({ from: from.address, to: to!.address });

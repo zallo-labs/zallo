@@ -39,7 +39,7 @@ export function AccountApproverItem({ account, ...props }: AccountApproverItemPr
   return (
     <Link
       href={{
-        pathname: '/(drawer)/[account]/settings/approver/[address]',
+        pathname: '/(nav)/[account]/settings/approver/[address]',
         params: { account, address: a.address },
       }}
       asChild

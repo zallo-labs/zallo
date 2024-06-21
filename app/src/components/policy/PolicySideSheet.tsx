@@ -119,7 +119,7 @@ export function PolicySideSheet(props: PolicySideSheetProps) {
 
                 if (proposal)
                   router.push({
-                    pathname: `/(drawer)/transaction/[id]`,
+                    pathname: `/(nav)/transaction/[id]`,
                     params: { id: proposal.id },
                   });
               }
