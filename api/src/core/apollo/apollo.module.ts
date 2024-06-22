@@ -3,7 +3,7 @@ import { Logger, Module, NestMiddleware } from '@nestjs/common';
 import { GraphQLModule } from '@nestjs/graphql';
 import { ApolloServerPluginLandingPageLocalDefault } from '@apollo/server/plugin/landingPage/default';
 import { CONFIG, LogLevel } from '~/config';
-import { GqlContext, IncomingWsContext, IncomingHttpContext } from '~/core/apollo/ctx';
+import { GqlContext, IncomingWsContext, IncomingHttpContext } from './ctx';
 import { AuthModule } from '~/feat/auth/auth.module';
 import { SessionMiddleware } from '~/feat/auth/session.middleware';
 import { AuthMiddleware } from '~/feat/auth/auth.middleware';
@@ -11,12 +11,15 @@ import { Request, Response } from 'express';
 import { GraphQLError } from 'graphql';
 import _ from 'lodash';
 import { REQUEST_CONTEXT, getContext, getContextUnsafe, getDefaultContext } from '~/core/context';
+import { RedisModule } from '~/core/redis/redis.module';
+import { InMemoryLRUCache } from '@apollo/utils.keyvaluecache';
 
 export const GQL_ENDPOINT = '/graphql';
 
 @Module({
   imports: [
     AuthModule,
+    RedisModule,
     GraphQLModule.forRootAsync<ApolloDriverConfig>({
       driver: ApolloDriver,
       inject: [SessionMiddleware, AuthMiddleware],
@@ -24,12 +27,16 @@ export const GQL_ENDPOINT = '/graphql';
         const log = new Logger('Apollo');
 
         return {
+          path: GQL_ENDPOINT,
           autoSchemaFile: 'schema.graphql',
           sortSchema: true,
-          debug: CONFIG.logLevel === LogLevel.Debug || CONFIG.logLevel === LogLevel.Verbose,
           introspection: true,
-          path: GQL_ENDPOINT,
-          cache: 'bounded',
+          debug: CONFIG.logLevel === LogLevel.Debug || CONFIG.logLevel === LogLevel.Verbose,
+          cache: new InMemoryLRUCache({
+            max: 3000, // 10KB each on average; specifying pre-allocates memory
+            maxSize: 30 * 1024 * 1024, // 30MB
+          }),
+          persistedQueries: { ttl: 86400 /* 1 day */ },
           subscriptions: {
             'graphql-ws': {
               onSubscribe: async (ctx) => {
