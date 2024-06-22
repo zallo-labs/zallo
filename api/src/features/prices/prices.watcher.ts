@@ -48,7 +48,7 @@ export class PricesWatcher implements OnModuleInit, OnModuleDestroy {
   }
 
   onModuleDestroy() {
-    this.pyth.closeWebSocket;
+    this.pyth.closeWebSocket();
   }
 
   async getPrice(priceId: Hex): Promise<PriceData | undefined> {
