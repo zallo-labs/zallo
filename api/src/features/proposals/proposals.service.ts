@@ -46,35 +46,35 @@ export class ProposalsService {
     );
   }
 
-  async select({ accounts, pending }: ProposalsInput, shape: ShapeFunc<typeof e.Proposal>) {
-    return this.db.query(
-      e.select(e.Proposal, (p) => {
-        const pendingFilter = (() => {
-          if (pending === undefined) return undefined;
+  async select(account: UUID, { pending }: ProposalsInput, shape: ShapeFunc<typeof e.Proposal>) {
+    return this.db.queryWith(
+      { account: e.uuid },
+      ({ account }) =>
+        e.select(e.Proposal, (p) => {
+          const pendingFilter = (() => {
+            if (pending === undefined) return undefined;
 
-          const isPending = e.select(
-            e.op(
-              e.op(p.is(e.Transaction).status, '=', e.TransactionStatus.Pending),
-              'if',
-              e.op('exists', p.is(e.Transaction)),
-              'else',
-              e.op('not', e.op('exists', p.is(e.Message).signature)),
-            ),
-          );
+            const isPending = e.select(
+              e.op(
+                e.op(p.is(e.Transaction).status, '=', e.TransactionStatus.Pending),
+                'if',
+                e.op('exists', p.is(e.Transaction)),
+                'else',
+                e.op('not', e.op('exists', p.is(e.Message).signature)),
+              ),
+            );
 
-          return pending ? isPending : e.op('not', isPending);
-        })();
+            return pending ? isPending : e.op('not', isPending);
+          })();
 
-        return {
-          ...shape?.(p),
-          ...(pendingFilter ? { pendingFilter } : {}), // Must be included in the select (not just the filter) to avoid bug
-          filter: and(
-            accounts && e.op(p.account, 'in', e.set(...accounts.map((a) => selectAccount(a)))),
-            pendingFilter,
-          ),
-          order_by: p.createdAt,
-        };
-      }),
+          return {
+            ...shape?.(p),
+            ...(pendingFilter ? { pendingFilter } : {}), // Must be included in the select (not just the filter) to avoid bug
+            filter: and(e.op(p.account, '=', e.cast(e.Account, account)), pendingFilter),
+            order_by: p.createdAt,
+          };
+        }),
+      { account },
     );
   }
 

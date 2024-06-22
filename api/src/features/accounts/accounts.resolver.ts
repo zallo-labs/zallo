@@ -26,6 +26,9 @@ import e from '~/edgeql-js';
 import { Transfer } from '../transfers/transfers.model';
 import { TransfersInput } from '../transfers/transfers.input';
 import { TransfersService } from '../transfers/transfers.service';
+import { ProposalsInput } from '#/proposals/proposals.input';
+import { ProposalsService } from '#/proposals/proposals.service';
+import { Proposal } from '#/proposals/proposals.model';
 
 @Resolver(() => Account)
 export class AccountsResolver {
@@ -34,6 +37,7 @@ export class AccountsResolver {
     private pubsub: PubsubService,
     private accountsCache: AccountsCacheService,
     private transfersService: TransfersService,
+    private proposalsService: ProposalsService,
   ) {}
 
   @Query(() => Account, { nullable: true })
@@ -76,6 +80,15 @@ export class AccountsResolver {
     @Info() info: GraphQLResolveInfo,
   ) {
     return this.transfersService.select(id, input, getShape(info));
+  }
+
+  @ComputedField<typeof e.Account>(() => [Proposal], { id: true })
+  proposals(
+    @Parent() { id }: Account,
+    @Input({ defaultValue: {} }) input: ProposalsInput,
+    @Info() info: GraphQLResolveInfo,
+  ) {
+    return this.proposalsService.select(id, input, getShape(info));
   }
 
   @Subscription(() => Account, {

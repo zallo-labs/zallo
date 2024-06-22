@@ -24,9 +24,6 @@ export class ProposalInput {
 
 @InputType()
 export class ProposalsInput {
-  @Field(() => [UAddressScalar], { nullable: true })
-  accounts?: UAddress[];
-
   @Field(() => Boolean, { nullable: true })
   pending?: boolean;
 }

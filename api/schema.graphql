@@ -25,7 +25,7 @@ type Account implements Labelled & Node {
   name: String!
   photo: URL
   policies: [Policy!]!
-  proposals: [Proposal!]!
+  proposals(input: ProposalsInput! = {}): [Proposal!]!
   salt: Bytes32!
   transactions: [Transaction!]!
   transfers(input: TransfersInput! = {}): [Transfer!]!
@@ -519,7 +519,6 @@ input ProposalUpdatedInput {
 }
 
 input ProposalsInput {
-  accounts: [UAddress!]
   pending: Boolean
 }
 
@@ -581,7 +580,6 @@ type Query {
   node(id: ID!): Node
   policy(input: UniquePolicyInput!): Policy
   proposal(input: UniqueProposalInput!): Proposal
-  proposals(input: ProposalsInput! = {}): [Proposal!]!
   requestableTokens(input: RequestTokensInput!): [Address!]!
   token(address: UAddress!): Token
   tokenMetadata(address: UAddress!): TokenMetadata

@@ -8,6 +8,7 @@ import { UpgradeEvents } from '~/features/accounts/upgrades.events';
 import { EventsModule } from '~/features/events/events.module';
 import { SystemTxsModule } from '~/features/system-txs/system-txs.module';
 import { TransfersModule } from '../transfers/transfers.module';
+import { ProposalsModule } from '#/proposals/proposals.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { TransfersModule } from '../transfers/transfers.module';
     EventsModule,
     SystemTxsModule,
     TransfersModule,
+    ProposalsModule,
   ],
   exports: [AccountsService],
   providers: [AccountsResolver, AccountsService, UpgradeEvents],

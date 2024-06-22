@@ -4,12 +4,7 @@ import { InputArgs, Input } from '~/decorators/input.decorator';
 import { GqlContext } from '~/request/ctx';
 import { asUser, getUserCtx } from '#/util/context';
 import { getShape } from '../database/database.select';
-import {
-  UniqueProposalInput,
-  ProposalUpdatedInput,
-  ProposalsInput,
-  UpdateProposalInput,
-} from './proposals.input';
+import { UniqueProposalInput, ProposalUpdatedInput, UpdateProposalInput } from './proposals.input';
 import { Proposal, ProposalUpdated } from './proposals.model';
 import {
   ProposalsService,
@@ -29,14 +24,6 @@ export class ProposalsResolver {
   @Query(() => Proposal, { nullable: true })
   async proposal(@Input() { id }: UniqueProposalInput, @Info() info: GraphQLResolveInfo) {
     return this.service.selectUnique(id, getShape(info));
-  }
-
-  @Query(() => [Proposal])
-  async proposals(
-    @Input({ defaultValue: {} }) input: ProposalsInput,
-    @Info() info: GraphQLResolveInfo,
-  ) {
-    return this.service.select(input, getShape(info));
   }
 
   @Mutation(() => Proposal)
