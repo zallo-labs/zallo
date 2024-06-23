@@ -1,81 +1,119 @@
-import { Text } from 'react-native-paper';
-import { FlashList } from '@shopify/flash-list';
-import { ListItemHeight } from '#/list/ListItem';
-import { TokenItem } from '#/token/TokenItem';
+import { FirstPane } from '#/layout/FirstPane';
+import { PaneSkeleton } from '#/skeleton/PaneSkeleton';
 import { withSuspense } from '#/skeleton/withSuspense';
-import { TabScreenSkeleton } from '#/tab/TabScreenSkeleton';
-import { StyleSheet } from 'react-native';
-import { asChain } from 'lib';
-import { useMemo } from 'react';
-import { gql } from '@api/generated';
+import { gql } from '@api';
 import { useQuery } from '~/gql';
-import { AccountParams } from '~/app/(nav)/[account]/(home)/_layout';
 import { useLocalParams } from '~/hooks/useLocalParams';
+import { AccountParams } from '../_layout';
+import { asChain } from 'lib';
+import { QuickActions } from '#/home/QuickActions';
+import { Appbar } from '#/Appbar/Appbar';
+import { AccountSelector } from '#/AccountSelector';
+import { ActivitySection } from '#/home/ActivitySection';
+import { AccountValue } from '#/home/AccountValue';
 import Decimal from 'decimal.js';
+import { TokenItem } from '#/token/TokenItem';
+import { createStyles, useStyles } from '@theme/styles';
+import { FlatList, View } from 'react-native';
+import { CORNER } from '@theme/paper';
 
 const Query = gql(/* GraphQL */ `
-  query TokensTab($account: UAddress!, $chain: Chain) {
+  query HomePane($account: UAddress!, $chain: Chain!) {
+    account(input: { account: $account }) {
+      id
+      ...AccountSelector_Account
+      ...ActivitySection_Account
+    }
+
+    user {
+      id
+      ...ActivitySection_User
+    }
+
     tokens(input: { chain: $chain }) {
       id
-      decimals
+      balance(input: { account: $account })
       price {
         id
         usd
       }
-      balance(input: { account: $account })
+      ...AccountValue_Token @arguments(account: $account)
       ...TokenItem_Token
     }
   }
 `);
 
-const TokensTabParams = AccountParams;
+function HomePane_() {
+  const { styles } = useStyles(stylesheet);
+  const address = useLocalParams(AccountParams).account;
+  const chain = asChain(address);
+  const { account, user, tokens } = useQuery(Query, { account: address, chain }).data;
 
-function TokensTab() {
-  const { account } = useLocalParams(TokensTabParams);
-  const { data } = useQuery(Query, { account, chain: asChain(account) });
+  const tokensByValue = tokens
+    .map((t) => ({
+      ...t,
+      value: new Decimal(t.balance).mul(new Decimal(t.price?.usd ?? 0)),
+    }))
+    .sort((a, b) => b.value.comparedTo(a.value));
 
-  const tokens = useMemo(
-    () =>
-      (data.tokens ?? [])
-        .map((t) => ({
-          ...t,
-          value: new Decimal(t.balance).mul(new Decimal(t.price?.usd ?? 0)),
-        }))
-        .sort((a, b) => b.value.comparedTo(a.value)),
-    [data.tokens],
-  );
+  if (!account) return null;
 
   return (
-    <FlashList
-      data={tokens}
-      renderItem={({ item }) => <TokenItem token={item} amount={item.balance} />}
-      ListEmptyComponent={
-        <Text variant="titleMedium" style={styles.emptyText}>
-          You have no tokens{'\n'}
-          Receive tokens to get started
-        </Text>
-      }
-      contentContainerStyle={styles.contentContainer}
-      estimatedItemSize={ListItemHeight.DOUBLE_LINE}
-      keyExtractor={(item) => item.id}
-      showsVerticalScrollIndicator={false}
-    />
+    <FirstPane flex>
+      <FlatList
+        ListHeaderComponent={
+          <>
+            <Appbar leading="menu" center headline={<AccountSelector account={account} />} />
+            <QuickActions account={address} />
+            <ActivitySection account={account} user={user} />
+            <AccountValue tokens={tokens} />
+          </>
+        }
+        data={tokensByValue}
+        renderItem={({ item, index }) => (
+          <TokenItem
+            token={item}
+            amount={item.balance}
+            containerStyle={[
+              styles.item,
+              index === 0 && styles.firstItem,
+              index === tokensByValue.length - 1 && styles.lastItem,
+            ]}
+          />
+        )}
+        keyExtractor={(item) => item.id}
+        showsVerticalScrollIndicator={false}
+        ItemSeparatorComponent={() => <View style={styles.separator} />}
+        style={{ overflow: 'visible' }}
+      />
+    </FirstPane>
   );
 }
 
-export default withSuspense(
-  TokensTab,
-  <TabScreenSkeleton listItems={{ leading: true, supporting: true, trailing: true }} />,
-);
-
-const styles = StyleSheet.create({
-  contentContainer: {
-    paddingVertical: 8,
+const stylesheet = createStyles(({ colors }) => ({
+  container: {
+    overflow: 'visible', // Allows negative pane margins
   },
-  emptyText: {
-    margin: 16,
-    textAlign: 'center',
+  item: {
+    backgroundColor: colors.background,
   },
-});
+  separator: {
+    height: 2,
+  },
+  firstItem: {
+    borderTopLeftRadius: CORNER.l,
+    borderTopRightRadius: CORNER.l,
+  },
+  lastItem: {
+    borderBottomLeftRadius: CORNER.l,
+    borderBottomRightRadius: CORNER.l,
+  },
+}));
 
-export { ErrorBoundary } from '#/ErrorBoundary';
+export const HomePane = withSuspense(HomePane_, <PaneSkeleton />);
+
+export default function HomeScreen() {
+  return null;
+}
+
+export { ErrorBoundary } from '#/ErrorBoundary/ErrorBoundary';

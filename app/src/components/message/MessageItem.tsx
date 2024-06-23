@@ -39,7 +39,7 @@ const User = gql(/* GraphQL */ `
   }
 `);
 
-export interface MessageItemProps {
+export interface MessageItemProps extends Partial<ListItemProps> {
   message: FragmentType<typeof Message>;
   user: FragmentType<typeof User>;
 }
@@ -73,6 +73,7 @@ function MessageItem_(props: MessageItemProps) {
         leading={<MessageIcon proposal={p} />}
         headline={p.label || 'Message'}
         supporting={supporting}
+        {...props}
       />
     </Link>
   );

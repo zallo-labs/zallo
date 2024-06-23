@@ -11,7 +11,7 @@ export function ItemList(props: ItemListProps) {
 const styles = createStyles({
   list: {
     overflow: 'hidden',
-    gap: 4,
+    gap: 2,
     borderRadius: CORNER.l,
   },
 });

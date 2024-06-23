@@ -1,5 +1,6 @@
 import { useStyles } from '@theme/styles';
 import { Dispatch, ReactNode, SetStateAction, createContext, useContext, useMemo } from 'react';
+import { UnistylesBreakpoints } from 'react-native-unistyles';
 import { P, match } from 'ts-pattern';
 
 const CONTEXT = createContext<DrawerContext | undefined>(undefined);
@@ -14,8 +15,10 @@ export type DrawerType = 'modal' | 'standard';
 export type NavType = DrawerType | 'rail';
 
 export function useNavType(): NavType {
-  const { breakpoint } = useStyles();
+  return getNavType(useStyles().breakpoint);
+}
 
+export function getNavType(breakpoint: keyof UnistylesBreakpoints): NavType {
   return match(breakpoint)
     .returnType<NavType>()
     .with('compact', () => 'modal')

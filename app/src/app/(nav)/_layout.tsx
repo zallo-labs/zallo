@@ -24,10 +24,10 @@ import { AppbarHeader } from '#/Appbar/AppbarHeader';
 import { DrawerLogo } from '#/drawer/DrawerLogo';
 import { createStyles, useStyles } from '@theme/styles';
 import { PressableOpacity } from '#/PressableOpacity';
-import { useNavType } from '#/drawer/DrawerContextProvider';
 import { Fab } from '#/Fab';
 import { RailSurface } from '#/drawer/RailSurface';
 import { RailItem } from '#/drawer/RailItem';
+import { getPanesPadding } from '#/layout/Panes';
 
 const Section = PaperDrawer.Section;
 
@@ -37,33 +37,23 @@ export const unstable_settings = {
 
 export default function DrawerLayout() {
   const { styles } = useStyles(stylesheet);
-  const type = useNavType();
 
   return (
     <Drawer DrawerContent={DrawerContent} RailContent={RailContent}>
       <Stack
         screenOptions={{
           header: (props) => <AppbarHeader {...props} />,
-          contentStyle: [styles.content, type === 'modal' && styles.modalPadding],
+          contentStyle: styles.content,
         }}
       />
     </Drawer>
   );
 }
 
-const stylesheet = createStyles(({ colors }) => ({
+const stylesheet = createStyles(({ colors }, { breakpoint }) => ({
   content: {
     backgroundColor: colors.surfaceContainer.low,
-    paddingRight: {
-      compact: 16,
-      medium: 24,
-    },
-  },
-  modalPadding: {
-    paddingLeft: {
-      compact: 16,
-      medium: 24,
-    },
+    ...getPanesPadding(breakpoint),
   },
 }));
 

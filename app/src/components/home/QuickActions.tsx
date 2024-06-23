@@ -1,66 +1,76 @@
-import { QrCodeIcon, TransferIcon, SwapIcon } from '@theme/icons';
-import { StyleSheet, View } from 'react-native';
+import { QrCodeIcon, TransferIcon, SwapIcon, ScanIcon } from '@theme/icons';
+import { ScrollView, View } from 'react-native';
 import { UAddress } from 'lib';
-import { useRouter } from 'expo-router';
+import { Link } from 'expo-router';
 import { useTransfer } from '~/hooks/useTransfer';
-import { Button } from '../Button';
-import { memo } from 'react';
+import { CORNER } from '@theme/paper';
+import { createStyles, useStyles } from '@theme/styles';
+import { Button } from '#/Button';
+import { getNegativePanesMargin } from '#/layout/Panes';
 
 export interface QuickActionsProps {
   account: UAddress;
 }
 
-function QuickActions_({ account }: QuickActionsProps) {
-  const { push } = useRouter();
+export function QuickActions({ account }: QuickActionsProps) {
+  const { styles } = useStyles(stylesheet);
   const transfer = useTransfer();
 
   return (
     <View style={styles.container}>
-      <Button
-        icon={TransferIcon}
-        mode="contained-tonal"
-        style={styles.button}
-        loading={false}
-        onPress={() => transfer({ account })}
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.content}
       >
-        Transfer
-      </Button>
+        <Button mode="contained" icon={TransferIcon} onPress={() => transfer({ account })}>
+          Send
+        </Button>
 
-      <Button
-        icon={QrCodeIcon}
-        mode="contained-tonal"
-        style={styles.button}
-        loading={false}
-        onPress={() => push({ pathname: `/(modal)/[account]/receive`, params: { account } })}
-      >
-        Receive
-      </Button>
+        <Link asChild href={{ pathname: `/(nav)/[account]/swap`, params: { account } }}>
+          <Button mode="contained-tonal" icon={SwapIcon}>
+            Swap
+          </Button>
+        </Link>
 
-      <Button
-        icon={SwapIcon}
-        mode="contained-tonal"
-        style={styles.button}
-        loading={false}
-        onPress={() => push({ pathname: `/(nav)/[account]/swap`, params: { account } })}
-      >
-        Swap
-      </Button>
+        <Link asChild href={{ pathname: '/scan', params: { account } }}>
+          <Button mode="contained-tonal" icon={ScanIcon}>
+            Scan
+          </Button>
+        </Link>
+
+        <Link asChild href={{ pathname: `/(modal)/[account]/receive`, params: { account } }}>
+          <Button mode="contained-tonal" icon={QrCodeIcon}>
+            Receive
+          </Button>
+        </Link>
+      </ScrollView>
     </View>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
+const stylesheet = createStyles(({ colors }, { breakpoint }) => ({
+  container: getNegativePanesMargin(breakpoint),
+  content: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
-    margin: 16,
+    gap: 8,
+    marginTop: 8,
+    marginBottom: 16,
+    marginHorizontal: 'auto',
+    paddingHorizontal: 16,
+  },
+  action: {
+    alignItems: 'center',
     gap: 16,
-    flexWrap: 'wrap',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: CORNER.l,
   },
-  button: {
-    flex: 1,
+  iconContainer: {
+    backgroundColor: colors.secondaryContainer,
   },
-});
-
-export const QuickActions = memo(QuickActions_);
+  icon: {
+    color: colors.onSecondaryContainer,
+  },
+}));
