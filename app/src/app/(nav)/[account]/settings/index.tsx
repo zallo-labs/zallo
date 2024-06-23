@@ -4,7 +4,7 @@ import { Link } from 'expo-router';
 import { Text } from 'react-native-paper';
 import { useQuery } from '~/gql';
 import { useLocalParams } from '~/hooks/useLocalParams';
-import { AccountParams } from '../(home)/_layout';
+import { AccountParams } from '~/app/(nav)/[account]/_layout';
 import { NotFound } from '#/NotFound';
 import { createStyles, useStyles } from '@theme/styles';
 import {
@@ -12,7 +12,6 @@ import {
   EditOutlineIcon,
   InfoIcon,
   NavigateNextIcon,
-  PolicyIcon,
   SearchIcon,
   UpdateIcon,
 } from '@theme/icons';
@@ -30,8 +29,7 @@ import { PolicySuggestions } from '#/account/PolicySuggestions';
 import { withSuspense } from '#/skeleton/withSuspense';
 import { PaneSkeleton } from '#/skeleton/PaneSkeleton';
 import { PolicyPresetKey } from '~/lib/policy/usePolicyPresets';
-import { UPGRADE_APPROVER, asChain } from 'lib';
-import { showInfo } from '#/provider/SnackbarProvider';
+import { UPGRADE_APPROVER } from 'lib';
 
 const Query = gql(/* GraphQL */ `
   query AccountSettings($account: UAddress!) {

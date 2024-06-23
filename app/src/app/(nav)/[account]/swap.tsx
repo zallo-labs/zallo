@@ -15,7 +15,7 @@ import { useLocalParams } from '~/hooks/useLocalParams';
 import { withSuspense } from '#/skeleton/withSuspense';
 import { ScrollableScreenSurface } from '#/layout/ScrollableScreenSurface';
 import { createStyles } from '@theme/styles';
-import { AccountParams } from '~/app/(nav)/[account]/(home)/_layout';
+import { AccountParams } from '~/app/(nav)/[account]/_layout';
 import { materialCommunityIcon } from '@theme/icons';
 import { ListItem, ListItemHeight } from '#/list/ListItem';
 import { TokenIcon } from '#/token/TokenIcon';

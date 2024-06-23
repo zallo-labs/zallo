@@ -1,5 +1,5 @@
 import { useLocalParams } from '~/hooks/useLocalParams';
-import { AccountParams } from '../../(home)/_layout';
+import { AccountParams } from '~/app/(nav)/[account]/_layout';
 import { zAddress } from '~/lib/zod';
 import { Appbar } from '#/Appbar/Appbar';
 import { Pane } from '#/layout/Pane';

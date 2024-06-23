@@ -20,7 +20,7 @@ import { Divider, Text } from 'react-native-paper';
 import { useQuery } from '~/gql';
 import { Address, asAddress, asChain } from 'lib';
 import { useLinkZallo } from '~/app/(modal)/accounts/join';
-import { AccountParams } from '~/app/(nav)/[account]/(home)/_layout';
+import { AccountParams } from '~/app/(nav)/[account]/_layout';
 import { useLocalParams } from '~/hooks/useLocalParams';
 import { useRouter } from 'expo-router';
 import { useLinkLedger } from '#/link/ledger/LedgerItem';

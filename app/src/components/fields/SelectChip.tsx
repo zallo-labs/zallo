@@ -1,4 +1,4 @@
-import { DownArrowIcon, IconProps } from '@theme/icons';
+import { ArrowDropDownIcon, IconProps } from '@theme/icons';
 import { createStyles, useStyles } from '@theme/styles';
 import { FC, useState } from 'react';
 import { Chip, ChipProps, Menu, MenuProps } from 'react-native-paper';
@@ -42,7 +42,7 @@ export function SelectChip<T>({
       anchor={
         <Chip
           icon={EntryIcon && ((props) => <EntryIcon {...props} value={value} />)}
-          closeIcon={DownArrowIcon}
+          closeIcon={ArrowDropDownIcon}
           onClose={() => {}}
           {...chipProps}
           onPress={toggle}
