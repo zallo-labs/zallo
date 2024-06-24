@@ -855,7 +855,7 @@ type TransferApproval implements Event & Node & TransferDetails & Transferlike {
 
 type TransferApprovalOp implements TransferlikeOp {
   amount: Decimal!
-  spender: Address!
+  to: Address!
   token: Address!
 }
 
@@ -934,6 +934,7 @@ interface Transferlike implements Event & Node & TransferDetails {
 
 interface TransferlikeOp {
   amount: Decimal!
+  to: Address!
   token: Address!
 }
 

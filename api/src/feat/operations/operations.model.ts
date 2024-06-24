@@ -75,28 +75,22 @@ export class TransferlikeOp extends GenericOp {
 
   @DecimalField()
   amount: Decimal;
-}
 
-@ObjectType({ implements: TransferlikeOp })
-export class TransferOp extends TransferlikeOp {
   @AddressField()
   to: Address;
 }
+
+@ObjectType({ implements: TransferlikeOp })
+export class TransferOp extends TransferlikeOp {}
 
 @ObjectType({ implements: TransferlikeOp })
 export class TransferFromOp extends TransferlikeOp {
   @AddressField()
   from: Address;
-
-  @AddressField()
-  to: Address;
 }
 
 @ObjectType({ implements: TransferlikeOp })
-export class TransferApprovalOp extends TransferlikeOp {
-  @AddressField()
-  spender: Address;
-}
+export class TransferApprovalOp extends TransferlikeOp {}
 
 @ObjectType()
 export class SwapOp extends GenericOp {

@@ -145,7 +145,7 @@ export class OperationsService {
         return Object.assign(new TransferApprovalOp(), {
           ...base,
           token: to,
-          spender: f.args[0],
+          to: f.args[0],
           amount: await this.tokens.asDecimal(asUAddress(to, chain), f.args[1]),
         } satisfies TransferApprovalOp);
       /* SyncSwap */

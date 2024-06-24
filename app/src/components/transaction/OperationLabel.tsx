@@ -37,7 +37,7 @@ const FragmentDoc = gql(/* GraphQL */ `
       }
       ... on TransferApprovalOp {
         token
-        spender
+        to
         amount
       }
       ... on SwapOp {
@@ -120,7 +120,7 @@ function TransferFromOp({ f, chain }: PropsFor<'TransferFromOp'>) {
 }
 
 function TransferApprovalOp({ f, chain }: PropsFor<'TransferApprovalOp'>) {
-  return `Allow ${useAddressLabel(asUAddress(f.spender, chain))} to spend ${useAddressLabel(
+  return `Allow ${useAddressLabel(asUAddress(f.to, chain))} to spend ${useAddressLabel(
     asUAddress(f.token, chain),
   )}`;
 }
