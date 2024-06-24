@@ -7,14 +7,7 @@ import { useLocalParams } from '~/hooks/useLocalParams';
 import { AccountParams } from '~/app/(nav)/[account]/_layout';
 import { NotFound } from '#/NotFound';
 import { createStyles, useStyles } from '@theme/styles';
-import {
-  AddIcon,
-  EditOutlineIcon,
-  InfoIcon,
-  NavigateNextIcon,
-  SearchIcon,
-  UpdateIcon,
-} from '@theme/icons';
+import { AddIcon, EditOutlineIcon, InfoIcon, NavigateNextIcon, UpdateIcon } from '@theme/icons';
 import { ScrollView, View } from 'react-native';
 import { AccountApproverItem } from '#/account/AccountApproverItem';
 import { ListItem } from '#/list/ListItem';
@@ -24,12 +17,12 @@ import { usePath } from '#/usePath';
 import { FirstPane } from '#/layout/FirstPane';
 import { useRouteInfo, useRouter } from 'expo-router/build/hooks';
 import { ItemList } from '#/layout/ItemList';
-import { AppbarMenu } from '#/Appbar/AppbarMenu';
 import { PolicySuggestions } from '#/account/PolicySuggestions';
 import { withSuspense } from '#/skeleton/withSuspense';
 import { PaneSkeleton } from '#/skeleton/PaneSkeleton';
 import { PolicyPresetKey } from '~/lib/policy/usePolicyPresets';
 import { UPGRADE_APPROVER } from 'lib';
+import { MenuOrSearchIcon } from '#/Appbar/MenuOrSearchIcon';
 
 const Query = gql(/* GraphQL */ `
   query AccountSettings($account: UAddress!) {
@@ -89,7 +82,7 @@ function AccountSettingsPane_() {
     <FirstPane fixed>
       <ScrollView contentContainerStyle={styles.pane} showsVerticalScrollIndicator={false}>
         <Searchbar
-          leading={(props) => <AppbarMenu {...props} fallback={SearchIcon} />}
+          leading={MenuOrSearchIcon}
           placeholder={`Search ${a.name}`}
           trailing={() => (
             <EditOutlineIcon

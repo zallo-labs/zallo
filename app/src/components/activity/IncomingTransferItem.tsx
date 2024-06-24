@@ -1,6 +1,6 @@
 import { useAddressLabel } from '#/address/AddressLabel';
 import { Timestamp } from '#/format/Timestamp';
-import { ListItem } from '#/list/ListItem';
+import { ListItem, ListItemProps } from '#/list/ListItem';
 import { ListItemSkeleton } from '#/list/ListItemSkeleton';
 import { withSuspense } from '#/skeleton/withSuspense';
 import { FiatValue } from '#/FiatValue';
@@ -24,7 +24,7 @@ const Transfer = gql(/* GraphQL */ `
   }
 `);
 
-export interface IncomingTransferItemProps {
+export interface IncomingTransferItemProps extends Partial<ListItemProps> {
   transfer: FragmentType<typeof Transfer>;
 }
 
@@ -45,6 +45,7 @@ function IncomingTransferItem_(props: IncomingTransferItemProps) {
           </Text>
         ) : null
       }
+      {...props}
     />
   );
 }

@@ -76,6 +76,7 @@ export const ActivityIcon = materialIcon('history');
 export const PasswordIcon = materialCommunityIcon('key');
 export const DevicesIcon = materialIcon('devices');
 export const GenericTokenIcon = imageFromSource(require('assets/generic-token.svg'));
+export const ActionIcon = materialIcon('bolt');
 export const CustomActionIcon = materialCommunityIcon('pentagon-outline');
 export const DataIcon = materialCommunityIcon('code-tags');
 export const DisconnectIcon = materialCommunityIcon('link-off');

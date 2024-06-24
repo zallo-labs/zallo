@@ -1,13 +1,12 @@
 import { useState } from 'react';
 import { Link, useRouter } from 'expo-router';
-import { AddIcon, ContactsIcon, NavigateNextIcon, ScanIcon, SearchIcon } from '~/util/theme/icons';
+import { AddIcon, ContactsIcon, NavigateNextIcon, ScanIcon } from '~/util/theme/icons';
 import { Searchbar } from '#/Appbar/Searchbar';
 import { gql } from '@api/generated';
 import { Fab } from '#/Fab';
 import { useQuery } from '~/gql';
 import { useScanAddress } from '~/app/scan';
 import { ContactItem } from '#/item/ContactItem';
-import { AppbarMenu } from '#/Appbar/AppbarMenu';
 import { withSuspense } from '#/skeleton/withSuspense';
 import { createStyles, useStyles } from '@theme/styles';
 import { PaneSkeleton } from '#/skeleton/PaneSkeleton';
@@ -17,6 +16,7 @@ import { useRouteInfo } from 'expo-router/build/hooks';
 import { View } from 'react-native';
 import { Text } from 'react-native-paper';
 import { ICON_SIZE } from '@theme/paper';
+import { MenuOrSearchIcon } from '#/Appbar/MenuOrSearchIcon';
 
 const Query = gql(/* GraphQL */ `
   query ContactsPane($query: String) {
@@ -42,7 +42,7 @@ function ContactsPane_() {
   return (
     <>
       <Searchbar
-        leading={(props) => <AppbarMenu fallback={SearchIcon} {...props} />}
+        leading={MenuOrSearchIcon}
         placeholder="Search contacts"
         trailing={(props) => (
           <ScanIcon

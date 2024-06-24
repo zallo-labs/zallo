@@ -1,14 +1,13 @@
 import { useRouter } from 'expo-router';
 import { FlatList, StyleSheet } from 'react-native';
 import { asChain } from 'lib';
-import { AddIcon, SearchIcon } from '@theme/icons';
+import { AddIcon } from '@theme/icons';
 import { ListHeader } from '#/list/ListHeader';
 import { TokenItem } from '#/token/TokenItem';
 import { useState } from 'react';
 import { gql } from '@api/generated';
 import { useQuery } from '~/gql';
 import { OperationContext } from 'urql';
-import { AppbarMenu } from '#/Appbar/AppbarMenu';
 import { z } from 'zod';
 import { zUAddress } from '~/lib/zod';
 import { useLocalParams } from '~/hooks/useLocalParams';
@@ -16,6 +15,7 @@ import { withSuspense } from '#/skeleton/withSuspense';
 import { ScreenSkeleton } from '#/skeleton/ScreenSkeleton';
 import { SearchbarOptions } from '#/Appbar/SearchbarOptions';
 import { ScreenSurface } from '#/layout/ScreenSurface';
+import { MenuOrSearchIcon } from '#/Appbar/MenuOrSearchIcon';
 
 const Query = gql(/* GraphQL */ `
   query TokensScreen($account: UAddress!, $chain: Chain, $query: String) {
@@ -44,7 +44,7 @@ function TokensScreen() {
   return (
     <>
       <SearchbarOptions
-        leading={(props) => <AppbarMenu fallback={SearchIcon} {...props} />}
+        leading={MenuOrSearchIcon}
         placeholder="Search tokens"
         trailing={(props) => <AddIcon {...props} onPress={() => router.push(`/token/add`)} />}
         value={query}

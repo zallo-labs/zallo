@@ -45,6 +45,7 @@ export function useQuery<Data, Variables extends AnyVariables>(
 
   return {
     ...response,
+    data: response.data ?? {},
     reexecute,
   } as QueryResponse<Data, Variables>;
 }

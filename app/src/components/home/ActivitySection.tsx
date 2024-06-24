@@ -5,6 +5,7 @@ import { TransactionItem } from '#/transaction/TransactionItem';
 import { FragmentType, gql, useFragment } from '@api';
 import { ActivityIcon, NavigateNextIcon } from '@theme/icons';
 import { createStyles, useStyles } from '@theme/styles';
+import { Link } from 'expo-router';
 import { match } from 'ts-pattern';
 
 const VISIBLE_PROPOSALS = 3;
@@ -12,6 +13,7 @@ const VISIBLE_PROPOSALS = 3;
 const Account = gql(/* GraphQL */ `
   fragment ActivitySection_Account on Account {
     id
+    address
     proposals(input: { pending: true }) {
       __typename
       id
@@ -36,18 +38,27 @@ export interface ActivitySectionProps {
 
 export function ActivitySection(props: ActivitySectionProps) {
   const { styles } = useStyles(stylesheet);
-  const { proposals } = useFragment(Account, props.account);
+  const account = useFragment(Account, props.account);
   const user = useFragment(User, props.user);
+  const proposals = account.proposals;
 
   return (
     <ItemList>
-      <ListItem
-        leading={ActivityIcon}
-        headline="Activity"
-        supporting={`${proposals.length} pending proposals`}
-        trailing={NavigateNextIcon}
-        containerStyle={styles.item}
-      />
+      <Link
+        asChild
+        href={{
+          pathname: `/(nav)/[account]/(home)/activity`,
+          params: { account: account.address },
+        }}
+      >
+        <ListItem
+          leading={ActivityIcon}
+          headline="Activity"
+          supporting={`${proposals.length} pending proposals`}
+          trailing={NavigateNextIcon}
+          containerStyle={styles.item}
+        />
+      </Link>
 
       {proposals.slice(0, VISIBLE_PROPOSALS).map((proposal) =>
         match(proposal)

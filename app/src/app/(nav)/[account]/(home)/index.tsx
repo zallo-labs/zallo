@@ -16,6 +16,7 @@ import { TokenItem } from '#/token/TokenItem';
 import { createStyles, useStyles } from '@theme/styles';
 import { FlatList, View } from 'react-native';
 import { CORNER } from '@theme/paper';
+import { ITEM_LIST_GAP } from '#/layout/ItemList';
 
 const Query = gql(/* GraphQL */ `
   query HomePane($account: UAddress!, $chain: Chain!) {
@@ -84,7 +85,8 @@ function HomePane_() {
         keyExtractor={(item) => item.id}
         showsVerticalScrollIndicator={false}
         ItemSeparatorComponent={() => <View style={styles.separator} />}
-        style={{ overflow: 'visible' }}
+        style={{ overflow: 'visible' }} // Required for some reason
+        // style={styles.container} // Doesn't work...
       />
     </FirstPane>
   );
@@ -98,7 +100,7 @@ const stylesheet = createStyles(({ colors }) => ({
     backgroundColor: colors.background,
   },
   separator: {
-    height: 2,
+    height: ITEM_LIST_GAP,
   },
   firstItem: {
     borderTopLeftRadius: CORNER.l,
