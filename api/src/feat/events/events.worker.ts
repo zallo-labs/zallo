@@ -9,7 +9,7 @@ import { RUNNING_JOB_STATUSES, TypedJob, createQueue } from '../../core/bull/bul
 import { Worker } from '~/core/bull/Worker';
 import { AbiEvent } from 'abitype';
 import { Log as ViemLog, encodeEventTopics, hexToNumber } from 'viem';
-import { UnrecoverableError } from 'bullmq';
+import { JobsOptions, UnrecoverableError } from 'bullmq';
 
 const TARGET_LOGS_PER_JOB = 9_000; // Max 10k
 const DEFAULT_LOGS_PER_BLOCK = 200;
@@ -76,6 +76,7 @@ export class EventsWorker extends Worker<EventsQueue> {
     const latest = Number(await network.blockNumber()); // Warning: bigint -> number
 
     if (latest < from) {
+      // Add a non-unique job
       this.queue.add(
         'Ahead',
         { chain, from, to: job.data.to },
@@ -92,9 +93,9 @@ export class EventsWorker extends Worker<EventsQueue> {
     // Queue following job
     if (firstAttempt) {
       if (to < latest) {
-        this.queue.add('Behind', { chain, from: to + 1, to: to + this.targetBlocks(chain) });
+        this.addUnique('Behind', { chain, from: to + 1, to: to + this.targetBlocks(chain) });
       } else {
-        this.queue.add(
+        this.addUnique(
           'Tracking',
           { chain, from: to + 1, to: to + this.targetBlocks(chain) },
           { delay: delay(network.blockTime()) },
@@ -132,10 +133,17 @@ export class EventsWorker extends Worker<EventsQueue> {
         if (to <= mid)
           throw new UnrecoverableError(`Invalid split block range: [${from}, ${mid}] for split`);
 
-        this.queue.addBulk([
-          { name: 'Split (too many results)', data: { chain, from, to: mid, split: true } },
-          { name: 'Split (too many results)', data: { chain, from: mid + 1, to, split: true } },
-        ]);
+        this.queue.addBulk(
+          [
+            { chain, from, to: mid, split: true },
+            { chain, from: mid + 1, to, split: true },
+          ].map((data) => ({
+            name: 'Split (too many results)',
+            data,
+            opts: { jobId: uniqueId(data) },
+          })),
+        );
+
         return;
       }
 
@@ -144,10 +152,14 @@ export class EventsWorker extends Worker<EventsQueue> {
         const maxRange = parseInt(match[1]);
 
         this.queue.addBulk(
-          partitionRange(from, to, maxRange).map(([from, to]) => ({
-            name: 'Split (range limited)',
-            data: { chain, from, to, split: true },
-          })),
+          partitionRange(from, to, maxRange).map(([from, to]) => {
+            const data = { chain, from, to, split: true };
+            return {
+              name: 'Split (range limited)',
+              data,
+              opts: { jobId: uniqueId(data) },
+            };
+          }),
         );
         return;
       }
@@ -186,7 +198,7 @@ export class EventsWorker extends Worker<EventsQueue> {
         : Number(await network.blockNumber()); // Warning: bigint -> number
 
       const chain = network.chain.key;
-      this.queue.add(EventsQueue.name, { chain, from, to: from + this.targetBlocks(chain) });
+      this.addUnique('Bootstrap', { chain, from, to: from + this.targetBlocks(chain) });
 
       this.log.log(
         `${network.chain.key}: events starting from ${
@@ -194,6 +206,10 @@ export class EventsWorker extends Worker<EventsQueue> {
         }`,
       );
     }
+  }
+
+  private addUnique(name: string, data: EventJobData, opts?: JobsOptions) {
+    return this.queue.add(name, data, { jobId: uniqueId(data), ...opts });
   }
 }
 
@@ -207,4 +223,8 @@ function partitionRange(rangeFrom: number, rangeTo: number, n: number) {
     chunks.push([from, Math.min(from + n - 1, rangeTo)]);
   }
   return chunks;
+}
+
+function uniqueId(d: EventJobData) {
+  return `${d.chain}:[${d.from}-${d.to}]` + (d.split ? ':split' : '');
 }
