@@ -44,7 +44,11 @@ function TokenIcon_({
   const { styles } = useStyles(stylesheet);
 
   const addr = isUAddress(fragOrAddr) ? fragOrAddr : undefined;
-  const query = useQuery(Query, { token: addr ?? 'zksync:0x' }, { pause: !addr }).data;
+  const query = useQuery(
+    Query,
+    { token: addr ?? 'zksync:0x' },
+    { pause: !addr, requestPolicy: 'cache-first' },
+  ).data;
 
   const url =
     getFragment(Token, !isUAddress(fragOrAddr) ? fragOrAddr : query?.token)?.icon ?? fallbackUri;
