@@ -15,7 +15,7 @@ import { View } from 'react-native';
 import { Switch } from 'react-native-paper';
 import { useMutation } from 'urql';
 import { useImmer } from 'use-immer';
-import { getPolicyPresetDetails } from '~/lib/policy/usePolicyPresets';
+import { PolicyPresetKey, getPolicyPresetDetails } from '~/lib/policy/usePolicyPresets';
 
 const Update = gql(/* GraphQL */ `
   mutation ApproverPolicies_Update($input: UpdatePoliciesInput!) {
@@ -60,10 +60,11 @@ export function ApproverPolicies({ approver, ...props }: ApproverPoliciesProps) 
   const account = useFragment(Account, props.account);
   const router = useRouter();
   const updatePolicies = useMutation(Update)[1];
-  const add = !account.policies.some((p) => p.approvers.some((a) => a.address === approver));
+  const policies = account.policies.filter((p) => p.key !== PolicyPresetKey.upgrade);
+  const add = !policies.some((p) => p.approvers.some((a) => a.address === approver));
 
   const init = Object.fromEntries(
-    account.policies.map((p) => {
+    policies.map((p) => {
       const existingMember = p.approvers.some((a) => a.address === approver);
 
       const presets = getPolicyPresetDetails(p.approvers.length + Number(!existingMember));
@@ -89,7 +90,7 @@ export function ApproverPolicies({ approver, ...props }: ApproverPoliciesProps) 
       input: {
         account: account.address,
         policies: modified.map(([id, v]) => {
-          const p = account.policies.find((p) => p.id === id)!;
+          const p = policies.find((p) => p.id === id)!;
 
           return {
             account: account.address,
@@ -113,7 +114,7 @@ export function ApproverPolicies({ approver, ...props }: ApproverPoliciesProps) 
       <ListHeader>Approver of policies</ListHeader>
 
       <ItemList>
-        {account.policies.map((p) => {
+        {policies.map((p) => {
           const n = p.approvers.length + Number(!pols[p.id]?.existingMember);
 
           return (
