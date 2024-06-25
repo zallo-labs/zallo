@@ -4,7 +4,7 @@ import e, { createClient, $infer } from '~/edgeql-js';
 import { BaseTypeToTsType, Expression, ParamType } from '~/edgeql-js/typesystem';
 import { getContextUnsafe } from '~/core/context';
 import { AsyncLocalStorage } from 'async_hooks';
-import { EdgeDBError, type Client } from 'edgedb';
+import { EdgeDBError, Executor, type Client } from 'edgedb';
 import { Transaction } from 'edgedb/dist/transaction';
 import * as Sentry from '@sentry/node';
 import { $expr_OptionalParam, $expr_Param } from '~/edgeql-js/params';
@@ -51,8 +51,8 @@ export class DatabaseService implements OnModuleInit {
     return reqCtx.db;
   }
 
-  private async run<R>(p: Promise<R>): Promise<R> {
-    return Sentry.startSpan({ op: 'db.query', name: 'db.query' }, async () => {
+  private async run<R>(p: Promise<R>, name = 'inline'): Promise<R> {
+    return Sentry.startSpan({ op: 'db.query', name }, async () => {
       try {
         return await p;
       } catch (e) {
@@ -76,6 +76,13 @@ export class DatabaseService implements OnModuleInit {
   ) {
     const expression = e.params(paramsDef, getExpr as any);
     return this.run(expression.run(this.client, params as any)) as Promise<$infer<Expr>>;
+  }
+
+  async exec<F extends (client: Executor, args: any) => Promise<R>, R>(
+    f: F,
+    args: Parameters<F>[1],
+  ): Promise<R> {
+    return this.run(f(this.client, args), f.name);
   }
 
   async transaction<T>(action: (transaction: Transaction) => Promise<T>): Promise<T> {

@@ -1,7 +1,6 @@
-import { UserInputError } from '@nestjs/apollo';
 import { Injectable } from '@nestjs/common';
 import e, { Set } from '~/edgeql-js';
-import { UAddress, asApproval, asHex, asUAddress, UUID, asUUID } from 'lib';
+import { UAddress, asUAddress, UUID, asUUID, asApproval, asHex } from 'lib';
 import { getUserCtx } from '~/core/context';
 import { ShapeFunc } from '../../core/database/database.select';
 import { DatabaseService } from '../../core/database/database.service';
@@ -16,6 +15,9 @@ import { PubsubService } from '~/core/pubsub/pubsub.service';
 import { and } from '../../core/database/database.util';
 import { $ } from 'edgedb';
 import { $uuid } from '~/edgeql-js/modules/std';
+import { rejectProposal } from './reject-proposal.query';
+import { approveProposal } from './approve-proposal.query';
+import { UserInputError } from '@nestjs/apollo';
 
 export type UniqueProposal = UUID;
 
@@ -103,54 +105,17 @@ export class ProposalsService {
     if (!(await asApproval({ hash, approver, signature, network })))
       throw new UserInputError('Invalid signature');
 
-    await this.db.queryWith(
-      { proposal: e.uuid, approver: e.Address },
-      ({ proposal, approver }) => {
-        const selectedProposal = selectProposal2(proposal);
-        const selectedApprover = e.select(e.Approver, () => ({
-          filter_single: { address: approver },
-        }));
-
-        // Remove prior response (if any); this may be a prior approval that could now be invalid
-        const deleteResponse = e.delete(e.ProposalResponse, () => ({
-          filter_single: {
-            proposal: selectedProposal,
-            approver: selectedApprover,
-          },
-        }));
-
-        return e.with(
-          [selectedProposal, selectedApprover, deleteResponse],
-          e.select(
-            e.insert(e.Approval, {
-              proposal: selectedProposal,
-              approver: selectedApprover,
-              signature,
-              signedHash: hash,
-            }),
-          ),
-        );
-      },
-      { proposal: id, approver: approver },
-    );
+    await this.db.exec(approveProposal, {
+      proposal: id,
+      approver,
+      signature,
+    });
 
     this.publish(id, ProposalEvent.approval);
   }
 
   async reject(id: UUID) {
-    await this.db.queryWith(
-      { id: e.uuid },
-      ({ id }) => {
-        const proposal = selectProposal2(id);
-
-        const deleteResponse = e.delete(e.Approval, () => ({
-          filter_single: { proposal, approver: e.global.current_approver },
-        }));
-
-        return e.with([proposal, deleteResponse], e.select(e.insert(e.Rejection, { proposal })));
-      },
-      { id },
-    );
+    await this.db.exec(rejectProposal, { proposal: id });
 
     this.publish(id, ProposalEvent.rejection);
   }
