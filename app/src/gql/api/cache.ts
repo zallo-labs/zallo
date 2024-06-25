@@ -14,7 +14,11 @@ import {
   Message,
   MutationApproveMessageArgs,
   MutationApproveTransactionArgs,
+  MutationProposeMessageArgs,
+  MutationProposeTransactionArgs,
   MutationRejectProposalArgs,
+  MutationRemoveMessageArgs,
+  MutationUpdatePolicyArgs,
   Proposal,
   ProposalUpdated,
   TokenScreenUpsertMutation,
@@ -138,31 +142,30 @@ export const CACHE_SCHEMA_CONFIG: Pick<
         invalidate(cache, 'Query', ['user', 'accounts']);
       },
       createPolicy: (_result, { input }: MutationCreatePolicyArgs, cache) => {
-        invalidate(cache, accountEntities(cache, input.account), ['policies']);
-        invalidate(cache, 'Query', ['proposals']);
+        invalidate(cache, accountEntities(cache, input.account), ['policies', 'proposals']);
       },
-      updatePolicy: (result: Node, _args, cache) => {
-        invalidate(cache, { __typename: 'Policy', id: result.id }); // Required to update fields not fetched by mutation
-        invalidate(cache, 'Query', ['proposals']);
+      updatePolicy: (result: Node, { input }: MutationUpdatePolicyArgs, cache) => {
+        invalidate(cache, { __typename: 'Policy', id: result.id }); // Required to update fields not fetched by mutation\
+        invalidate(cache, accountEntities(cache, input.account), ['policies']);
       },
       removePolicy: (result: Node, { input }: MutationRemovePolicyArgs, cache) => {
         invalidate(cache, { __typename: 'Policy', id: result.id });
         invalidate(cache, accountEntities(cache, input.account), ['policies']);
       },
-      proposeTransaction: (_result, _args, cache) => {
-        invalidate(cache, 'Query', ['proposals']);
+      proposeTransaction: (_result, { input }: MutationProposeTransactionArgs, cache) => {
+        invalidate(cache, accountEntities(cache, input.account), ['proposals']);
       },
       removeTransaction: (result: string, _args, cache) => {
         invalidate(cache, { __typename: 'Transaction', id: result });
-        invalidate(cache, 'Query', ['node', 'proposals', 'policy']);
-        invalidate(cache, accountEntities(cache), ['policies']);
+        invalidate(cache, 'Query', ['node', 'policy']);
+        invalidate(cache, accountEntities(cache), ['policies', 'proposals']);
       },
       removeMessage: (result: string, _args, cache) => {
         invalidate(cache, { __typename: 'Message', id: result });
-        invalidate(cache, 'Query', ['proposals']);
+        invalidate(cache, accountEntities(cache), ['proposals']);
       },
-      proposeMessage: (_result, _args, cache) => {
-        invalidate(cache, 'Query', ['proposals']);
+      proposeMessage: (_result, { input }: MutationProposeMessageArgs, cache) => {
+        invalidate(cache, accountEntities(cache, input.account), ['proposals']);
       },
       upsertToken: (result: TokenScreenUpsertMutation, _args, cache) => {
         invalidate(cache, 'Query', ['token', 'tokens']);
@@ -182,8 +185,7 @@ export const CACHE_SCHEMA_CONFIG: Pick<
         _args,
         cache,
       ) => {
-        if (r.event === 'create' || r.event === 'delete') invalidate(cache, 'Query', ['proposals']);
-        if (r.event === 'executed' || r.event === 'delete') {
+        if (r.event === 'create' || r.event === 'delete' || r.event === 'executed') {
           invalidate(cache, 'Query', ['node', 'policy']);
           invalidate(cache, accountEntities(cache, r.account), ['policies']);
         }
