@@ -6,7 +6,7 @@ import { DatabaseService } from '../../core/database/database.service';
 import e from '~/edgeql-js';
 import { and, or } from '../../core/database/database.util';
 import { getAbiItem } from 'viem';
-import { selectAccount } from '../accounts/accounts.util';
+import { selectAccount2 } from '../accounts/accounts.util';
 
 const policyAddedEvent = getAbiItem({ abi: ACCOUNT_ABI, name: 'PolicyAdded' });
 const policyRemovedEvent = getAbiItem({ abi: ACCOUNT_ABI, name: 'PolicyRemoved' });
@@ -30,23 +30,29 @@ export class PoliciesEventsProcessor {
   }
 
   private async markStateAsActive(chain: Chain, log: Log, key: PolicyKey) {
-    // TODO: filter state by state hash (part of event log) to ensure correct state is activated
-    // It's possible that two policies are activated in the same proposal; it's not prohibited by a constraint.
-    const proposal = e.select(e.SystemTx, () => ({
-      filter_single: { hash: log.transactionHash },
-    })).proposal;
+    await this.db.queryWith(
+      { account: e.UAddress, hash: e.Bytes32, activationBlock: e.bigint },
+      ({ account, hash, activationBlock }) => {
+        // TODO: filter state by state hash (part of event log) to ensure correct state is activated
+        // It's possible that two policies are activated in the same proposal; it's not prohibited by a constraint.
+        const proposal = e.select(e.SystemTx, () => ({ filter_single: { hash } })).proposal;
 
-    await this.db.query(
-      e.update(e.PolicyState, (ps) => ({
-        filter: and(
-          e.op(ps.account, '=', selectAccount(asUAddress(log.address, chain))),
-          e.op(ps.key, '=', key),
-          or(e.op(ps.proposal, '?=', proposal), ps.initState),
-        ),
-        set: {
-          activationBlock: log.blockNumber,
-        },
-      })),
+        return e.update(e.PolicyState, (ps) => ({
+          filter: and(
+            e.op(ps.account, '?=', selectAccount2(account)),
+            e.op(ps.key, '=', key),
+            or(e.op(ps.proposal, '?=', proposal), ps.initState),
+          ),
+          set: {
+            activationBlock,
+          },
+        }));
+      },
+      {
+        account: asUAddress(log.address, chain),
+        hash: log.transactionHash,
+        activationBlock: log.blockNumber,
+      },
     );
   }
 }

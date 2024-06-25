@@ -26,11 +26,14 @@ export class TransfersService {
   ) {}
 
   async selectUnique(id: uuid, shape?: ShapeFunc<typeof e.Transfer>) {
-    return this.db.query(
-      e.select(e.Transfer, (transfer) => ({
-        filter_single: { id },
-        ...shape?.(transfer),
-      })),
+    return this.db.queryWith(
+      { id: e.uuid },
+      ({ id }) =>
+        e.select(e.Transfer, (transfer) => ({
+          filter_single: { id },
+          ...shape?.(transfer),
+        })),
+      { id },
     );
   }
 
@@ -39,15 +42,18 @@ export class TransfersService {
     { direction, internal }: TransfersInput,
     shape?: ShapeFunc<typeof e.Transfer>,
   ) {
-    return this.db.query(
-      e.select(e.Transfer, (t) => ({
-        ...shape?.(t),
-        filter: and(
-          e.op(t.account, '=', selectAccount(account)),
-          internal !== undefined && e.op(t.internal, '=', internal),
-          direction && e.op(e.cast(e.TransferDirection, direction), 'in', t.direction),
-        ),
-      })),
+    return this.db.queryWith(
+      { account: e.uuid, direction: e.optional(e.TransferDirection), internal: e.optional(e.bool) },
+      ({ account, direction, internal }) =>
+        e.select(e.Transfer, (t) => ({
+          ...shape?.(t),
+          filter: and(
+            e.op(t.account, '=', e.cast(e.Account, account)),
+            e.op(e.op(t.internal, '=', internal), 'if', e.op('exists', internal), 'else', true),
+            e.op(e.op(direction, 'in', t.direction), 'if', e.op('exists', direction), 'else', true),
+          ),
+        })),
+      { account, direction, internal },
     );
   }
 

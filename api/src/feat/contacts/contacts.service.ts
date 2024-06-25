@@ -18,16 +18,44 @@ export const selectContact = (id: UniqueContact) =>
     })),
   );
 
+export const selectContact2 = (id: UniqueContact) =>
+  e.assert_single(
+    e.select(e.Contact, (c) => ({
+      filter: isUAddress(id)
+        ? and(e.op(c.address, '=', id), e.op(c.user, '=', e.global.current_user))
+        : e.op(c.id, '=', e.uuid(id)),
+    })),
+  );
+
 @Injectable()
 export class ContactsService {
   constructor(private db: DatabaseService) {}
 
   async selectUnique(id: UniqueContact, shape?: ShapeFunc) {
-    return this.db.query(
-      e.select(selectContact(id), (c) => ({
-        ...shape?.(c),
-      })),
-    );
+    return isUAddress(id)
+      ? this.db.queryWith(
+          { address: e.UAddress },
+          ({ address }) =>
+            e.assert_single(
+              e.select(e.Contact, (c) => ({
+                filter: and(
+                  e.op(c.address, '=', address),
+                  e.op(c.user, '=', e.global.current_user),
+                ),
+                ...shape?.(c),
+              })),
+            ),
+          { address: id },
+        )
+      : this.db.queryWith(
+          { id: e.uuid },
+          ({ id }) =>
+            e.select(e.Contact, (c) => ({
+              filter_single: { id },
+              ...shape?.(c),
+            })),
+          { id: id },
+        );
   }
 
   async select({ query, chain }: ContactsInput, shape?: ShapeFunc<typeof e.Contact>) {

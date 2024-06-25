@@ -29,7 +29,7 @@ import { NetworksService } from '~/core/networks/networks.service';
 import { TX_SHAPE, transactionAsTx } from '~/feat/transactions/transactions.util';
 import { Shape } from '../../core/database/database.select';
 import { TokensService } from '../tokens/tokens.service';
-import { selectTransaction } from '../transactions/transactions.service';
+import { selectTransaction } from '../transactions/transactions.util';
 import { SelectedPolicies, selectPolicy } from '../policies/policies.util';
 import { ProposalsService } from '../proposals/proposals.service';
 import { ProposalEvent } from '../proposals/proposals.input';

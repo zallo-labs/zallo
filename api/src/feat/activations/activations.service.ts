@@ -63,11 +63,14 @@ export class ActivationsService {
   }
 
   async fee({ account, feePerGas }: FeeParams): Promise<Decimal | null> {
-    const a = await this.db.query(
-      e.select(e.Account, () => ({
-        filter_single: { address: account },
-        activationEthFee: true,
-      })),
+    const a = await this.db.queryWith(
+      { address: e.UAddress },
+      ({ address }) =>
+        e.select(e.Account, () => ({
+          filter_single: { address },
+          activationEthFee: true,
+        })),
+      { address: account },
     );
     if (!a) return null;
     if (a.activationEthFee) return new Decimal(a.activationEthFee);
@@ -88,17 +91,20 @@ export class ActivationsService {
   }
 
   async request(address: UAddress) {
-    const account = await this.db.query(
-      e.select(e.Account, (a) => ({
-        filter_single: { address },
-        active: true,
-        implementation: true,
-        salt: true,
-        initPolicies: e.select(a.policies, (p) => ({
-          filter: p.initState,
-          ...PolicyShape,
+    const account = await this.db.queryWith(
+      { address: e.UAddress },
+      ({ address }) =>
+        e.select(e.Account, (a) => ({
+          filter_single: { address },
+          active: true,
+          implementation: true,
+          salt: true,
+          initPolicies: e.select(a.policies, (p) => ({
+            filter: p.initState,
+            ...PolicyShape,
+          })),
         })),
-      })),
+      { address },
     );
     if (!account) throw new Error(`Account ${address} not found`);
     if (account.active) return null;

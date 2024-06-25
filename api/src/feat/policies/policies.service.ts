@@ -114,11 +114,14 @@ export class PoliciesService {
   async update({ account, key, name, ...policyInput }: UpdatePolicyInput) {
     // Metadata
     if (name !== undefined) {
-      const updatedPolicies = await this.db.query(
-        e.update(e.Policy, (p) => ({
-          filter: and(e.op(p.account, '=', selectAccount(account)), e.op(p.key, '=', key)),
-          set: { name },
-        })),
+      const updatedPolicies = await this.db.queryWith(
+        { account: e.UAddress, key: e.int64 },
+        ({ account, key }) =>
+          e.update(e.Policy, (p) => ({
+            filter: and(e.op(p.account, '=', selectAccount2(account)), e.op(p.key, '=', key)),
+            set: { name },
+          })),
+        { account, key },
       );
 
       if (!updatedPolicies.length) throw new UserInputError("Policy doesn't exist");
@@ -129,12 +132,14 @@ export class PoliciesService {
       // Get existing policy state
       // If approvers, threshold, or permissions are undefined then modify the policy accordingly
       // Propose new state
-      const selectedExisting = selectPolicy({ account, key });
-      const existing = await this.db.query(
-        e.select(selectedExisting, (p) => ({
-          draft: e.select(p.draft.is(e.Policy), () => PolicyShape),
-          ...PolicyShape,
-        })),
+      const existing = await this.db.queryWith(
+        { account: e.UAddress, key: e.int64 },
+        ({ account, key }) =>
+          e.select(latestPolicy2(account, key), (p) => ({
+            draft: e.select(p.draft.is(e.Policy), () => PolicyShape),
+            ...PolicyShape,
+          })),
+        { account, key },
       );
       if (!existing) throw new UserInputError("Policy doesn't exist");
 
@@ -150,7 +155,7 @@ export class PoliciesService {
         e.insert(e.Policy, {
           account: selectAccount(account),
           key,
-          name: name || selectedExisting.name,
+          name: name || selectPolicy({ account, key }).name,
           proposal: await this.getStateProposal(account, newPolicy),
           ...this.insertStateShape(newState),
         }),

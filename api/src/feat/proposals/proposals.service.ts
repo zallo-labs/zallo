@@ -1,6 +1,6 @@
 import { UserInputError } from '@nestjs/apollo';
 import { Injectable } from '@nestjs/common';
-import e from '~/edgeql-js';
+import e, { Set } from '~/edgeql-js';
 import { UAddress, asApproval, asHex, asUAddress, UUID, asUUID } from 'lib';
 import { getUserCtx } from '~/core/context';
 import { ShapeFunc } from '../../core/database/database.select';
@@ -14,12 +14,16 @@ import {
 } from './proposals.input';
 import { PubsubService } from '~/core/pubsub/pubsub.service';
 import { and } from '../../core/database/database.util';
-import { selectAccount } from '../accounts/accounts.util';
+import { $ } from 'edgedb';
+import { $uuid } from '~/edgeql-js/modules/std';
 
 export type UniqueProposal = UUID;
 
 export const selectProposal = (id: UniqueProposal) =>
   e.select(e.Proposal, () => ({ filter_single: { id: e.uuid(id) } }));
+
+export const selectProposal2 = (id: Set<$uuid, $.Cardinality.One>) =>
+  e.select(e.Proposal, () => ({ filter_single: { id } }));
 
 export interface ProposalSubscriptionPayload {
   id: UUID;
@@ -38,11 +42,14 @@ export class ProposalsService {
   ) {}
 
   async selectUnique(id: UUID, shape: ShapeFunc<typeof e.Proposal>) {
-    return this.db.query(
-      e.select(e.Proposal, (p) => ({
-        filter_single: { id },
-        ...shape?.(p),
-      })),
+    return this.db.queryWith(
+      { id: e.uuid },
+      ({ id }) =>
+        e.select(e.Proposal, (p) => ({
+          filter_single: { id },
+          ...shape(p),
+        })),
+      { id },
     );
   }
 
@@ -79,12 +86,15 @@ export class ProposalsService {
   }
 
   async approve({ id, approver = getUserCtx().approver, signature }: ApproveInput) {
-    const selectedProposal = selectProposal(id);
-    const p = await this.db.query(
-      e.select(selectedProposal, () => ({
-        hash: true,
-        account: { address: true },
-      })),
+    const p = await this.db.queryWith(
+      { id: e.uuid },
+      ({ id }) =>
+        e.select(e.Proposal, () => ({
+          filter_single: { id },
+          hash: true,
+          account: { address: true },
+        })),
+      { id },
     );
     if (!p) throw new UserInputError('Proposal not found');
 
@@ -93,45 +103,54 @@ export class ProposalsService {
     if (!(await asApproval({ hash, approver, signature, network })))
       throw new UserInputError('Invalid signature');
 
-    await this.db.transaction(async () => {
-      const selectApprover = e.select(e.Approver, () => ({ filter_single: { address: approver } }));
+    await this.db.queryWith(
+      { proposal: e.uuid, approver: e.Address },
+      ({ proposal, approver }) => {
+        const selectedProposal = selectProposal2(proposal);
+        const selectedApprover = e.select(e.Approver, () => ({
+          filter_single: { address: approver },
+        }));
 
-      // Remove prior response (if any); this may be a prior approval that could now be invalid
-      await this.db.query(
-        e.delete(e.ProposalResponse, () => ({
+        // Remove prior response (if any); this may be a prior approval that could now be invalid
+        const deleteResponse = e.delete(e.ProposalResponse, () => ({
           filter_single: {
             proposal: selectedProposal,
-            approver: selectApprover,
+            approver: selectedApprover,
           },
-        })),
-      );
+        }));
 
-      await this.db.query(
-        e.insert(e.Approval, {
-          proposal: selectedProposal,
-          approver: selectApprover,
-          signature,
-          signedHash: hash,
-        }),
-      );
-    });
+        return e.with(
+          [selectedProposal, selectedApprover, deleteResponse],
+          e.select(
+            e.insert(e.Approval, {
+              proposal: selectedProposal,
+              approver: selectedApprover,
+              signature,
+              signedHash: hash,
+            }),
+          ),
+        );
+      },
+      { proposal: id, approver: approver },
+    );
 
     this.publish(id, ProposalEvent.approval);
   }
 
   async reject(id: UUID) {
-    await this.db.transaction(async () => {
-      const proposal = selectProposal(id);
+    await this.db.queryWith(
+      { id: e.uuid },
+      ({ id }) => {
+        const proposal = selectProposal2(id);
 
-      // Remove prior approval (if any)
-      await this.db.query(
-        e.delete(e.Approval, () => ({
+        const deleteResponse = e.delete(e.Approval, () => ({
           filter_single: { proposal, approver: e.global.current_approver },
-        })),
-      );
+        }));
 
-      await this.db.query(e.insert(e.Rejection, { proposal }));
-    });
+        return e.with([proposal, deleteResponse], e.select(e.insert(e.Rejection, { proposal })));
+      },
+      { id },
+    );
 
     this.publish(id, ProposalEvent.rejection);
   }
@@ -139,19 +158,22 @@ export class ProposalsService {
   async update({ id, policy }: UpdateProposalInput) {
     if (policy === undefined) return;
 
-    const p = await this.db.query(
-      e.select(
-        e.update(e.Proposal, (p) => ({
-          filter_single: { id },
-          set: {
-            ...(policy !== undefined && { policy: e.latestPolicy(p.account, policy) }),
-          },
-        })),
-        () => ({
-          id: true,
-          account: { address: true },
-        }),
-      ),
+    const p = await this.db.queryWith(
+      { id: e.uuid, policy: e.optional(e.uint16) },
+      ({ id, policy }) =>
+        e.select(
+          e.update(e.Proposal, (p) => ({
+            filter_single: { id },
+            set: {
+              policy: e.latestPolicy(p.account, policy),
+            },
+          })),
+          () => ({
+            id: true,
+            account: { address: true },
+          }),
+        ),
+      { id, policy },
     );
 
     this.publish(p, ProposalEvent.update);

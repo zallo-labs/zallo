@@ -23,7 +23,7 @@ import { Chain } from 'chains';
 import { ProposalsService } from '../proposals/proposals.service';
 import { ProposalEvent } from '../proposals/proposals.input';
 import { selectSysTx } from './system-tx.util';
-import { selectTransaction } from '../transactions/transactions.service';
+import { selectTransaction } from '../transactions/transactions.util';
 import { ExecutionsQueue } from '~/feat/transactions/executions.worker';
 import { DEFAULT_FLOW } from '~/core/bull/bull.module';
 

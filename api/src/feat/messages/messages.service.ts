@@ -10,7 +10,7 @@ import {
   hexToString,
   keccak256,
 } from 'viem';
-import e from '~/edgeql-js';
+import e, { Set } from '~/edgeql-js';
 import { selectAccount } from '../accounts/accounts.util';
 import { ProposalsService, UniqueProposal } from '../proposals/proposals.service';
 import {
@@ -34,9 +34,14 @@ import { ethers } from 'ethers';
 import _ from 'lodash';
 import { WritableDeep } from 'ts-toolbelt/out/Object/Writable';
 import { PoliciesService } from '../policies/policies.service';
+import { $uuid } from '~/edgeql-js/modules/std';
+import { $ } from 'edgedb';
 
 export const selectMessage = (id: UUID | Hex) =>
   e.select(e.Message, () => ({ filter_single: isHex(id) ? { hash: id } : { id } }));
+
+export const selectMessage2 = (id: Set<$uuid, $.Cardinality.One>) =>
+  e.select(e.Message, () => ({ filter_single: { id } }));
 
 @Injectable()
 export class MessagesService {
@@ -133,12 +138,19 @@ export class MessagesService {
   }
 
   async remove(proposal: UUID) {
-    const selectedMessage = selectMessage(proposal);
-    const { account } = await this.db.query(
-      e.select({
-        account: e.assert_exists(selectedMessage.account.address),
-        deleted: e.delete(selectedMessage),
-      }),
+    const { account } = await this.db.queryWith(
+      { id: e.uuid },
+      ({ id }) => {
+        const m = selectMessage2(id);
+        return e.with(
+          [m],
+          e.select({
+            account: e.assert_exists(m.account.address),
+            deleted: e.delete(m),
+          }),
+        );
+      },
+      { id: proposal },
     );
 
     this.proposals.publish({ id: proposal, account: asUAddress(account) }, ProposalEvent.delete);
@@ -147,22 +159,25 @@ export class MessagesService {
   }
 
   private async trySign(id: UUID) {
-    const proposal = await this.db.query(
-      e.select(e.Message, () => ({
-        filter_single: { id },
-        hash: true,
-        message: true,
-        typedData: true,
-        signature: true,
-        approvals: {
-          approver: { address: true },
+    const proposal = await this.db.queryWith(
+      { id: e.uuid },
+      ({ id }) =>
+        e.select(e.Message, () => ({
+          filter_single: { id },
+          hash: true,
+          message: true,
+          typedData: true,
           signature: true,
-        },
-        account: {
-          address: true,
-          policies: PolicyShape,
-        },
-      })),
+          approvals: {
+            approver: { address: true },
+            signature: true,
+          },
+          account: {
+            address: true,
+            policies: PolicyShape,
+          },
+        })),
+      { id },
     );
     if (!proposal) return undefined;
 
@@ -193,11 +208,14 @@ export class MessagesService {
       approvals,
     });
 
-    await this.db.query(
-      e.update(e.Message, () => ({
-        filter_single: { id },
-        set: { signature },
-      })),
+    await this.db.queryWith(
+      { id: e.uuid, signature: e.Bytes },
+      ({ id, signature }) =>
+        e.update(e.Message, () => ({
+          filter_single: { id },
+          set: { signature },
+        })),
+      { id, signature },
     );
 
     await this.proposals.publish({ id, account }, ProposalEvent.signed);

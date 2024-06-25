@@ -1,6 +1,14 @@
-import { Operation, asAddress, asHex, asTx } from 'lib';
-import e, { $infer } from '~/edgeql-js';
-import { Shape } from '../../core/database/database.select';
+import { Hex, Operation, UUID, asAddress, asHex, asTx, isHex } from 'lib';
+import e, { $infer, Set } from '~/edgeql-js';
+import { Shape } from '~/core/database/database.select';
+import { $uuid } from '~/edgeql-js/modules/std';
+import { $ } from 'edgedb';
+
+export const selectTransaction = (id: UUID | Hex) =>
+  e.select(e.Transaction, () => ({ filter_single: isHex(id) ? { hash: id } : { id } }));
+
+export const selectTransaction2 = (id: Set<$uuid, $.Cardinality.One>) =>
+  e.select(e.Transaction, () => ({ filter_single: { id } }));
 
 export const TX_SHAPE = {
   operations: {

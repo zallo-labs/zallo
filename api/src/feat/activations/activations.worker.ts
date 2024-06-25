@@ -7,6 +7,7 @@ import { ActivationsService } from './activations.service';
 import { ActivationsQueue } from './activations.queue';
 import { DatabaseService } from '../../core/database/database.service';
 import e from '~/edgeql-js';
+import { selectTransaction2 } from '../transactions/transactions.util';
 
 @Injectable()
 @Processor(ActivationsQueue.name, { autorun: false })
@@ -22,13 +23,12 @@ export class ActivationsWorker extends Worker<ActivationsQueue> {
   async process(job: TypedJob<ActivationsQueue>): Promise<QueueReturnType<ActivationsQueue>> {
     const { account, sponsoringTransaction } = job.data;
 
-    const sponsorTx = await this.db.query(
-      e.select(e.Transaction, () => ({
-        filter_single: { id: sponsoringTransaction },
-        executable: true,
-      })),
+    const sponsorTxExecutable = await this.db.queryWith(
+      { id: e.uuid },
+      ({ id }) => selectTransaction2(id).executable,
+      { id: sponsoringTransaction },
     );
-    if (!sponsorTx?.executable)
+    if (!sponsorTxExecutable)
       return `Sponsoring transaction is not executable: ${sponsoringTransaction}`;
 
     // TODO: handle gas limits given `activationFee`. Currently the activation fee may take an additonal transaction to repay

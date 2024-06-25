@@ -77,15 +77,18 @@ export class PricesService implements OnModuleInit {
     const cached = this.systemTokenPriceIds.get(token);
     if (cached) return cached;
 
-    const usdPriceId = await this.db.query(
-      e.assert_single(
-        e.select(e.Token, (t) => ({
-          filter: e.op(t.address, '=', token),
-          limit: 1,
-          order_by: preferUserToken(t),
-          pythUsdPriceId: true,
-        })).pythUsdPriceId,
-      ),
+    const usdPriceId = await this.db.queryWith(
+      { token: e.UAddress },
+      ({ token }) =>
+        e.assert_single(
+          e.select(e.Token, (t) => ({
+            filter: e.op(t.address, '=', token),
+            limit: 1,
+            order_by: preferUserToken(t),
+            pythUsdPriceId: true,
+          })).pythUsdPriceId,
+        ),
+      { token },
     );
     if (!usdPriceId) throw new Error(`Failed to get price id for ${token}`);
 

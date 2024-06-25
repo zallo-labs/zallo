@@ -15,7 +15,7 @@ import { TokenSpending } from './spending.model';
 import { Transferlike } from '../transfers/transfers.model';
 import { getUserCtx } from '~/core/context';
 import { BalancesService } from '../../core/balances/balances.service';
-import { selectTransaction } from '../transactions/transactions.service';
+import { selectTransaction } from '../transactions/transactions.util';
 import { SelectedPolicies } from '../policies/policies.util';
 
 @Injectable()
@@ -30,10 +30,13 @@ export class TokensService {
   ) {}
 
   async selectUnique(address: UAddress, shape?: ShapeFunc<typeof e.Token>) {
-    return this.db.query(
-      e.select(e.token(address), (t) => ({
-        ...shape?.(t),
-      })),
+    return this.db.queryWith(
+      { address: e.UAddress },
+      ({ address }) =>
+        e.select(e.token(address), (t) => ({
+          ...shape?.(t),
+        })),
+      { address },
     );
   }
 
@@ -41,29 +44,48 @@ export class TokensService {
     { address, query, feeToken, chain }: TokensInput = {},
     shape?: ShapeFunc<typeof e.Token>,
   ) {
-    const tokens = await this.db.query(
-      e.select(e.Token, (t) => ({
-        ...shape?.(t),
-        address: true,
-        filter: and(
-          address && address.length > 0 && e.op(t.address, 'in', e.set(...address)),
-          query &&
-            or(
-              e.op(t.address, 'ilike', query),
-              e.op(t.name, 'ilike', query),
-              e.op(t.symbol, 'ilike', query),
+    const tokens = await this.db.queryWith(
+      {
+        address: e.optional(e.array(e.UAddress)),
+        query: e.optional(e.str),
+        feeToken: e.optional(e.bool),
+        chain: e.optional(e.str),
+      },
+      ({ address, query, feeToken, chain }) =>
+        e.select(e.Token, (t) => ({
+          ...shape?.(t),
+          address: true,
+          filter: and(
+            e.op(
+              e.op(t.address, 'in', e.array_unpack(address)),
+              'if',
+              e.op('exists', address),
+              'else',
+              true,
             ),
-          feeToken !== undefined && e.op(t.isFeeToken, '=', feeToken),
-          chain && e.op(t.chain, '=', chain),
-        ),
-        order_by: [
-          {
-            expression: t.address,
-            direction: e.ASC,
-          },
-          preferUserToken(t),
-        ],
-      })),
+            e.op(
+              or(
+                e.op(t.address, 'ilike', query),
+                e.op(t.name, 'ilike', query),
+                e.op(t.symbol, 'ilike', query),
+              ),
+              'if',
+              e.op('exists', query),
+              'else',
+              true,
+            ),
+            e.op(e.op(t.isFeeToken, '=', feeToken), 'if', e.op('exists', feeToken), 'else', true),
+            e.op(e.op(t.chain, '=', chain), 'if', e.op('exists', chain), 'else', true),
+          ),
+          order_by: [
+            {
+              expression: t.address,
+              direction: e.ASC,
+            },
+            preferUserToken(t),
+          ],
+        })),
+      { address, query: query || undefined, feeToken, chain },
     );
 
     // Filter out duplicate allowlisted (no user) tokens

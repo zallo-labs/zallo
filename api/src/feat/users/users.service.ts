@@ -12,7 +12,6 @@ import { AccountsCacheService } from '../auth/accounts.cache.service';
 import { Address, asAddress } from 'lib';
 import { PubsubService } from '../../core/pubsub/pubsub.service';
 import { getUserCtx } from '~/core/context';
-import { selectAccount } from '~/feat/accounts/accounts.util';
 
 const TOKEN_EXPIRY_S = 60 * 60; // 1 hour
 
@@ -41,10 +40,17 @@ export class UsersService {
   }
 
   async update({ primaryAccount }: UpdateUserInput) {
-    return this.db.query(
-      e.update(e.global.current_user, () => ({
-        set: { primaryAccount: primaryAccount && selectAccount(primaryAccount) },
-      })),
+    return this.db.queryWith(
+      { primaryAccount: e.optional(e.UAddress) },
+      ({ primaryAccount }) =>
+        e.update(e.global.current_user, () => ({
+          set: {
+            primaryAccount: e.select(e.Account, () => ({
+              filter_single: { address: primaryAccount },
+            })),
+          },
+        })),
+      { primaryAccount },
     );
   }
 

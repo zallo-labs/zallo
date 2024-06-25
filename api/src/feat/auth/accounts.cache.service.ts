@@ -55,20 +55,23 @@ export class AccountsCacheService implements OnModuleInit {
         accounts: JSON.parse(cachedAccounts) as UserAccountContext[],
       };
 
-    const { user } = await this.db.query(
-      e.select(
-        e.insert(e.Approver, { address: approver }).unlessConflict((a) => ({
-          on: a.address,
-          else: a,
-        })),
-        () => ({
-          user: {
-            id: true,
-            approvers: { address: true },
-            accounts: { id: true, address: true },
-          },
-        }),
-      ),
+    const { user } = await this.db.queryWith(
+      { approver: e.Address },
+      ({ approver }) =>
+        e.select(
+          e.insert(e.Approver, { address: approver }).unlessConflict((a) => ({
+            on: a.address,
+            else: a,
+          })),
+          () => ({
+            user: {
+              id: true,
+              approvers: { address: true },
+              accounts: { id: true, address: true },
+            },
+          }),
+        ),
+      { approver },
     );
 
     const accounts = user.accounts.map(
@@ -96,11 +99,14 @@ export class AccountsCacheService implements OnModuleInit {
     if (!getUserCtx().accounts.find((a) => a.id === account.id))
       getUserCtx().accounts.push(account);
 
-    const user = await this.db.query(
-      e.select(e.Approver, () => ({
-        filter_single: { address: approver },
-        user: { id: true },
-      })).user.id,
+    const user = await this.db.queryWith(
+      { approver: e.Address },
+      ({ approver }) =>
+        e.select(e.Approver, () => ({
+          filter_single: { address: approver },
+          user: { id: true },
+        })).user.id,
+      { approver },
     );
 
     if (user) {

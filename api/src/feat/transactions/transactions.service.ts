@@ -15,8 +15,6 @@ import {
   estimateTransactionVerificationGas,
   ACCOUNT_ABI,
   asHex,
-  isHex,
-  Hex,
 } from 'lib';
 import { NetworksService } from '~/core/networks/networks.service';
 import {
@@ -40,7 +38,6 @@ import { QueueData, TypedQueue } from '~/core/bull/bull.util';
 import { SimulationsQueue } from '~/feat/simulations/simulations.worker';
 import { TX_SHAPE, transactionAsTx } from '~/feat/transactions/transactions.util';
 import { encodeFunctionData, hashTypedData } from 'viem';
-import { v4 as uuid } from 'uuid';
 import { FlowProducer } from 'bullmq';
 import { ActivationsService } from '../activations/activations.service';
 import { ReceiptsQueue } from '../system-txs/receipts.queue';
@@ -52,11 +49,9 @@ import Decimal from 'decimal.js';
 import { afterRequest } from '~/core/context';
 import { DEFAULT_FLOW } from '~/core/bull/bull.module';
 import { PaymasterFeeParts } from '~/feat/paymasters/paymasters.model';
+import { selectTransaction } from './transactions.util';
 
 const MAX_NETWORK_FEE_MULTIPLIER = new Decimal(5); // Allow for a higher network fee
-
-export const selectTransaction = (id: UUID | Hex) =>
-  e.select(e.Transaction, () => ({ filter_single: isHex(id) ? { hash: id } : { id } }));
 
 export const estimateFeesDeps = {
   id: true,
@@ -100,11 +95,14 @@ export class TransactionsService {
   }
 
   async tryExecute(transaction: UUID, ignoreSimulation?: boolean) {
-    const t = await this.db.query(
-      e.select(e.Transaction, () => ({
-        filter_single: { id: transaction },
-        account: { address: true, active: true },
-      })),
+    const t = await this.db.queryWith(
+      { transaction: e.uuid },
+      ({ transaction }) =>
+        e.select(e.Transaction, () => ({
+          filter_single: { id: transaction },
+          account: { address: true, active: true },
+        })),
+      { transaction },
     );
     if (!t) throw new Error(`Transaction proposal not found: ${transaction}`);
     const account = asUAddress(t.account.address);
