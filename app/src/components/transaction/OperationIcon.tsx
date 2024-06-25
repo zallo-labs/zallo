@@ -5,7 +5,7 @@ import {
   PolicyEditOutlineIcon,
   PolicyRemoveOutlineIcon,
   SwapIcon,
-  TransferIcon,
+  OutboundIcon,
 } from '@theme/icons';
 import { Chain } from 'chains';
 import { P, match } from 'ts-pattern';
@@ -52,7 +52,7 @@ export function OperationIcon({
       (f) => (props: IconProps) => (
         <View>
           <AddressIcon address={f.to} {...props} />
-          <FilledIcon icon={TransferIcon} size={(size * 10) / 24} style={styles.overlayed(size)} />
+          <FilledIcon icon={OutboundIcon} size={(size * 10) / 24} style={styles.overlayed(size)} />
         </View>
       ),
     )

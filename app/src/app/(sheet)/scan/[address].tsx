@@ -1,6 +1,6 @@
 import { useRouter } from 'expo-router';
 import { Sheet } from '#/sheet/Sheet';
-import { ContactsIcon, NavigateNextIcon, TransferIcon } from '@theme/icons';
+import { ContactsIcon, NavigateNextIcon, OutboundIcon } from '@theme/icons';
 import { ListItem } from '#/list/ListItem';
 import { z } from 'zod';
 import { zAddress, zUAddress } from '~/lib/zod';
@@ -22,12 +22,12 @@ export default function ScannedAddressSheet() {
     <Sheet handle={false}>
       {account && (
         <ListItem
-          leading={TransferIcon}
+          leading={OutboundIcon}
           headline="Send"
           trailing={NavigateNextIcon}
           onPress={() =>
             router.replace({
-              pathname: `/(nav)/[account]/transfer`,
+              pathname: `/(nav)/[account]/send`,
               params: { account, to: address },
             })
           }

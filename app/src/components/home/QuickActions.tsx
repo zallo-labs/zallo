@@ -1,8 +1,8 @@
-import { QrCodeIcon, TransferIcon, SwapIcon, ScanIcon } from '@theme/icons';
+import { QrCodeIcon, OutboundIcon, SwapIcon, ScanIcon } from '@theme/icons';
 import { ScrollView, View } from 'react-native';
 import { UAddress } from 'lib';
 import { Link } from 'expo-router';
-import { useTransfer } from '~/hooks/useTransfer';
+import { useSend } from '~/hooks/useSend';
 import { CORNER } from '@theme/paper';
 import { createStyles, useStyles } from '@theme/styles';
 import { Button } from '#/Button';
@@ -14,7 +14,7 @@ export interface QuickActionsProps {
 
 export function QuickActions({ account }: QuickActionsProps) {
   const { styles } = useStyles(stylesheet);
-  const transfer = useTransfer();
+  const send = useSend();
 
   return (
     <View style={styles.container}>
@@ -23,7 +23,7 @@ export function QuickActions({ account }: QuickActionsProps) {
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={styles.content}
       >
-        <Button mode="contained" icon={TransferIcon} onPress={() => transfer({ account })}>
+        <Button mode="contained" icon={OutboundIcon} onPress={() => send({ account })}>
           Send
         </Button>
 

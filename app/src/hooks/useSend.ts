@@ -1,22 +1,22 @@
 import { useSelectAddress } from '~/hooks/useSelectAddress';
-import { TransferScreenParams } from '~/app/(nav)/[account]/transfer';
+import { SendScreenParams } from '~/app/(nav)/[account]/send';
 import { O } from 'ts-toolbelt';
 import { useRouter } from 'expo-router';
 import { asAddress } from 'lib';
 
-export function useTransfer() {
+export function useSend() {
   const router = useRouter();
   const selectAddress = useSelectAddress();
 
-  return async (params: O.Optional<TransferScreenParams, 'to'>) => {
+  return async (params: O.Optional<SendScreenParams, 'to'>) => {
     params.to ??= asAddress(
       await selectAddress({
-        headline: 'Transfer to',
+        headline: 'Send to',
         include: ['accounts', 'contacts'],
         disabled: [params.account],
       }),
     );
 
-    if (params.to) router.push({ pathname: `/(nav)/[account]/transfer`, params });
+    if (params.to) router.push({ pathname: `/(nav)/[account]/send`, params });
   };
 }

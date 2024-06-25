@@ -4,7 +4,7 @@ import {
   ContactsIcon,
   FingerprintIcon,
   NotificationsIcon,
-  TransferIcon,
+  OutboundIcon,
   SwapIcon,
   HomeIcon,
   WalletConnectIcon,
@@ -17,7 +17,7 @@ import {
 import { DrawerItem as Item } from '#/drawer/DrawerItem';
 import { useSelectedAccount } from '~/hooks/useSelectedAccount';
 import { CONFIG } from '~/util/config';
-import { useTransfer } from '~/hooks/useTransfer';
+import { useSend } from '~/hooks/useSend';
 import { DrawerSurface } from '#/drawer/DrawerSurface';
 import { Link, Stack } from 'expo-router';
 import { AppbarHeader } from '#/Appbar/AppbarHeader';
@@ -60,7 +60,7 @@ const stylesheet = createStyles(({ colors }, { breakpoint }) => ({
 function RailContent() {
   const { styles } = useStyles(railStylesheet);
   const account = useSelectedAccount();
-  const transfer = useTransfer();
+  const send = useSend();
 
   return (
     <RailSurface
@@ -69,10 +69,10 @@ function RailContent() {
           <Fab
             mode="flat"
             position="relative"
-            icon={() => <TransferIcon color={styles.fabIcon.color} />}
+            icon={() => <OutboundIcon color={styles.fabIcon.color} />}
             style={styles.fabContainer}
             loading={false}
-            onPress={() => transfer({ account })}
+            onPress={() => send({ account })}
             animated={false}
           />
         )
@@ -126,7 +126,7 @@ const railStylesheet = createStyles(({ colors }) => ({
 
 function DrawerContent() {
   const account = useSelectedAccount();
-  const transfer = useTransfer();
+  const send = useSend();
 
   return (
     <DrawerSurface>
@@ -149,10 +149,10 @@ function DrawerContent() {
 
         {account && (
           <Item
-            href={{ pathname: `/(nav)/[account]/transfer`, params: { account } }}
-            icon={TransferIcon}
-            label="Transfer"
-            onPress={() => transfer({ account })}
+            href={{ pathname: `/(nav)/[account]/send`, params: { account } }}
+            icon={OutboundIcon}
+            label="Send"
+            onPress={() => send({ account })}
           />
         )}
 

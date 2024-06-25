@@ -1,7 +1,7 @@
 import { useImmerAtom } from 'jotai-immer';
 import { Switch, Text } from 'react-native-paper';
 import { ListItem } from '#/list/ListItem';
-import { FingerprintIcon, LockOpenIcon, TransferIcon } from '@theme/icons';
+import { FingerprintIcon, LockOpenIcon, OutboundIcon } from '@theme/icons';
 import { useEffect } from 'react';
 import { useBiometrics } from '~/hooks/useBiometrics';
 import { persistedAtom } from '~/lib/persistedAtom';
@@ -71,7 +71,7 @@ export function AuthSettings({ style }: AuthSettings2Props) {
         />
 
         <ListItem
-          leading={TransferIcon}
+          leading={OutboundIcon}
           headline="Approve action"
           trailing={() => (
             <Switch

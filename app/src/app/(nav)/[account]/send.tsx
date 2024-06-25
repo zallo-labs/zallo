@@ -25,7 +25,7 @@ import Decimal from 'decimal.js';
 import { ampli } from '~/lib/ampli';
 
 const Query = gql(/* GraphQL */ `
-  query TransferScreen($account: UAddress!, $token: UAddress!) {
+  query SendScreen($account: UAddress!, $token: UAddress!) {
     token(address: $token) {
       id
       address
@@ -41,14 +41,14 @@ const Query = gql(/* GraphQL */ `
   }
 `);
 
-const TransferScreenParams = z.object({
+const SendScreenParams = z.object({
   account: zUAddress(),
   to: zAddress(),
 });
-export type TransferScreenParams = z.infer<typeof TransferScreenParams>;
+export type TransferScreenParams = z.infer<typeof SendScreenParams>;
 
-function TransferScreen() {
-  const { account, to } = useLocalParams(TransferScreenParams);
+function SendScreen() {
+  const { account, to } = useLocalParams(SendScreenParams);
   const chain = asChain(account);
   const router = useRouter();
   const propose = usePropose();
@@ -136,6 +136,6 @@ const styles = StyleSheet.create({
   },
 });
 
-export default withSuspense(TransferScreen, ScreenSkeleton);
+export default withSuspense(SendScreen, ScreenSkeleton);
 
 export { ErrorBoundary } from '#/ErrorBoundary';
