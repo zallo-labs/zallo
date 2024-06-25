@@ -14,7 +14,6 @@ const FragmentDoc = gql(/* GraphQL */ `
       __typename
       ... on GenericOp {
         _name
-        _args
       }
       ... on UpdatePolicyOp {
         account
@@ -42,10 +41,7 @@ const FragmentDoc = gql(/* GraphQL */ `
       }
       ... on SwapOp {
         fromToken
-        fromAmount
         toToken
-        minimumToAmount
-        deadline
       }
     }
   }
@@ -107,14 +103,14 @@ function RemovePolicyOp({ f, chain }: PropsFor<'RemovePolicyOp'>) {
 }
 
 function TransferOp({ f, chain }: PropsFor<'TransferOp'>) {
-  return `Transfer ${useFormattedTokenAmount({
+  return `Send ${useFormattedTokenAmount({
     ...f,
     token: asUAddress(f.token, chain),
   })} to ${useAddressLabel(asUAddress(f.to, chain))}`;
 }
 
 function TransferFromOp({ f, chain }: PropsFor<'TransferFromOp'>) {
-  return `Transfer ${useAddressLabel(asUAddress(f.token, chain))} from ${useAddressLabel(
+  return `Send ${useAddressLabel(asUAddress(f.token, chain))} from ${useAddressLabel(
     asUAddress(f.from, chain),
   )}`;
 }
@@ -136,7 +132,7 @@ interface GenericOpProps extends PropsFor<'GenericOp'> {
 }
 
 function GenericOp({ f, chain, op }: GenericOpProps) {
-  return `Call ${f._name} on ${useAddressLabel(asUAddress(op.to, chain))}`;
+  return `${f._name} on ${useAddressLabel(asUAddress(op.to, chain))}`;
 }
 
 interface CallOpProps {

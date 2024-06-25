@@ -1,6 +1,5 @@
 import { IconProps, UnknownOutlineIcon, imageFromSource } from '@theme/icons';
 import { Chain } from 'chains';
-import { memo } from 'react';
 
 const icons = {
   zksync: imageFromSource(require('assets/zksync.svg')),
@@ -12,10 +11,8 @@ export interface ChainIconProps extends IconProps {
   chain: Chain;
 }
 
-function ChainIcon_({ chain, ...props }: ChainIconProps) {
+export function ChainIcon({ chain, ...props }: ChainIconProps) {
   const Icon = icons[chain];
 
   return <Icon {...props} />;
 }
-
-export const ChainIcon = memo(ChainIcon_);

@@ -1,6 +1,6 @@
 import { FragmentType, gql, useFragment } from '@api';
 import {
-  DataIcon,
+  ActionIcon,
   IconProps,
   PolicyEditOutlineIcon,
   PolicyRemoveOutlineIcon,
@@ -17,6 +17,7 @@ import { AddressIcon } from '#/Identicon/AddressIcon';
 
 const Operation = gql(/* GraphQL */ `
   fragment OperationIcon_Operation on Operation {
+    to
     function {
       __typename
       ... on TransferlikeOp {
@@ -56,7 +57,12 @@ export function OperationIcon({
       ),
     )
     .with({ __typename: 'SwapOp' }, () => SwapIcon)
-    .otherwise(() => DataIcon);
+    .otherwise(() => (props: IconProps) => (
+      <View>
+        <AddressIcon address={op.to} {...props} />
+        <FilledIcon icon={ActionIcon} size={(size * 10) / 24} style={styles.overlayed(size)} />
+      </View>
+    ));
 
   return <Icon size={size} {...iconProps} />;
 }

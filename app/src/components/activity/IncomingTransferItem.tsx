@@ -5,15 +5,14 @@ import { ListItemSkeleton } from '#/list/ListItemSkeleton';
 import { withSuspense } from '#/skeleton/withSuspense';
 import { FiatValue } from '#/FiatValue';
 import { FragmentType, gql, useFragment } from '@api/generated';
-import { TokenIcon } from '../token/TokenIcon';
 import { asUAddress } from 'lib';
 import { createStyles } from '@theme/styles';
 import { View } from 'react-native';
-import Address from '~/app/(sheet)/select/address';
 import { FilledIcon } from '#/FilledIcon';
 import { ReceiveIcon } from '@theme/icons';
 import { AddressIcon } from '#/Identicon/AddressIcon';
 import { ICON_SIZE } from '@theme/paper';
+import { useFormattedTokenAmount } from '#/token/TokenAmount';
 
 const Transfer = gql(/* GraphQL */ `
   fragment IncomingTransferItem_Transfer on Transfer {
@@ -23,10 +22,11 @@ const Transfer = gql(/* GraphQL */ `
     }
     token {
       id
-      ...TokenIcon_Token
+      ...UseFormattedTokenAmount_token
     }
     from
     timestamp
+    amount
     value
   }
 `);
@@ -37,6 +37,8 @@ export interface IncomingTransferItemProps extends Partial<ListItemProps> {
 
 function IncomingTransferItem_(props: IncomingTransferItemProps) {
   const transfer = useFragment(Transfer, props.transfer);
+  const from = useAddressLabel(asUAddress(transfer.from, transfer.account.chain));
+  const amount = useFormattedTokenAmount({ token: transfer.token, amount: transfer.amount });
 
   return (
     <ListItem
@@ -50,10 +52,8 @@ function IncomingTransferItem_(props: IncomingTransferItemProps) {
           />
         </View>
       }
-      headline={`Transfer from ${useAddressLabel(
-        asUAddress(transfer.from, transfer.account.chain),
-      )}`}
-      supporting={<Timestamp timestamp={transfer.timestamp} weekday />}
+      headline={`Received ${amount} from ${from}`}
+      supporting={<Timestamp timestamp={transfer.timestamp} />}
       trailing={({ Text }) =>
         transfer.value !== null && transfer.value !== undefined ? (
           <Text variant="labelLarge">
