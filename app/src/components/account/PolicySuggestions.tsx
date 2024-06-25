@@ -78,7 +78,7 @@ export function PolicySuggestions(props: PolicySuggestionsProps) {
       return showError(`A policy with the name "${preset.name}" already exists`);
 
     router.push({
-      pathname: '/(drawer)/[account]/settings/policy/[id]/',
+      pathname: '/(nav)/[account]/settings/policy/[id]/',
       params: { account: account.address, id: p.id },
     });
   };

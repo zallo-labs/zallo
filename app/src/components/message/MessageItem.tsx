@@ -39,7 +39,7 @@ const User = gql(/* GraphQL */ `
   }
 `);
 
-export interface MessageItemProps {
+export interface MessageItemProps extends Partial<ListItemProps> {
   message: FragmentType<typeof Message>;
   user: FragmentType<typeof User>;
 }
@@ -68,11 +68,12 @@ function MessageItem_(props: MessageItemProps) {
     .exhaustive();
 
   return (
-    <Link href={{ pathname: `/(drawer)/message/[id]`, params: { id: p.id } }} asChild>
+    <Link href={{ pathname: `/(nav)/message/[id]`, params: { id: p.id } }} asChild>
       <ListItem
         leading={<MessageIcon proposal={p} />}
         headline={p.label || 'Message'}
         supporting={supporting}
+        {...props}
       />
     </Link>
   );

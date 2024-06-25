@@ -94,7 +94,7 @@ export function ScheduleSection({ children, ...props }: ScheduleSectionProps) {
                     ).data?.proposeCancelScheduledTransaction.id;
                     if (!id) return showError('Failed to propose to cancel scheduled transaction');
 
-                    router.push({ pathname: '/(drawer)/transaction/[id]', params: { id } });
+                    router.push({ pathname: '/(nav)/transaction/[id]', params: { id } });
                   }}
                 />
               )}

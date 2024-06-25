@@ -35,7 +35,7 @@ const FragmentDoc = gql(/* GraphQL */ `
       }
       ... on TransferApprovalOp {
         token
-        spender
+        to
         amount
       }
       ... on SwapOp {
@@ -130,9 +130,9 @@ function TransferApprovalOp({ f, chain }: PropsFor<'TransferApprovalOp'>) {
   return (
     <>
       <ListItem
-        leading={<AddressIcon address={f.spender} />}
+        leading={<AddressIcon address={f.to} />}
         overline="Spender"
-        headline={useAddressLabel(asUAddress(f.spender, chain))}
+        headline={useAddressLabel(asUAddress(f.to, chain))}
       />
       <ListItem
         leading={<TokenIcon token={asUAddress(f.token, chain)} />}

@@ -1,56 +1,59 @@
 import { Module } from '@nestjs/common';
 import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
-import { ContextModule } from '#/util/context/context.module';
-import { ContextInterceptor } from '#/util/context/context.interceptor';
-import { HealthModule } from '#//health/health.module';
-import { UsersModule } from '#//users/users.module';
-import { AccountsModule } from '#//accounts/accounts.module';
-import { ApproversModule } from '#//approvers/approvers.module';
-import { AuthModule } from '#//auth/auth.module';
-import { AuthGuard } from '#//auth/auth.guard';
-import { ApolloModule } from './apollo/apollo.module';
-import { NetworksModule } from '#//util/networks/networks.module';
-import { ContactsModule } from '#//contacts/contacts.module';
-import { DatabaseModule } from '#//database/database.module';
-import { ContractFunctionsModule } from '#//contract-functions/contract-functions.module';
-import { TransactionsModule } from '#//transactions/transactions.module';
-import { SystemTxsModule } from '#//system-txs/system-txs.module';
-import { FaucetModule } from '#//faucet/faucet.module';
-import { ExpoModule } from '#//util/expo/expo.module';
-import { PubsubModule } from '#//util/pubsub/pubsub.module';
-import { PoliciesModule } from '#//policies/policies.module';
-import { ContractsModule } from '#//contracts/contracts.module';
-import { TransfersModule } from '#//transfers/transfers.module';
-import { EventsModule } from '#//events/events.module';
-import { RedisModule } from '#//util/redis/redis.module';
-import { PaymastersModule } from '#//paymasters/paymasters.module';
-import { SentryModule } from '#//util/sentry/sentry.module';
-import { SentryInterceptor } from '#//util/sentry/sentry.interceptor';
-import { OperationsModule } from '#//operations/operations.module';
-import { SimulationsModule } from '#//simulations/simulations.module';
-import { BullModule } from '#//util/bull/bull.module';
-import { TokensModule } from '#//tokens/tokens.module';
-import { PricesModule } from '#//prices/prices.module';
-import { MessagesModule } from '#//messages/messages.module';
-import { ProposalsModule } from '#//proposals/proposals.module';
-import { BalancesModule } from '#/util/balances/balances.module';
-import { NodesModule } from '#//nodes/nodes.module';
 import { CONFIG } from './config';
+import { ContextModule } from '~/core/context/context.module';
+import { ContextInterceptor } from '~/core/context/context.interceptor';
+import { HealthModule } from '~/feat/health/health.module';
+import { UsersModule } from '~/feat/users/users.module';
+import { AccountsModule } from '~/feat/accounts/accounts.module';
+import { ApproversModule } from '~/feat/approvers/approvers.module';
+import { AuthModule } from '~/feat/auth/auth.module';
+import { AuthGuard } from '~/feat/auth/auth.guard';
+import { ApolloModule } from './core/apollo/apollo.module';
+import { NetworksModule } from '~/core/networks/networks.module';
+import { ContactsModule } from '~/feat/contacts/contacts.module';
+import { DatabaseModule } from '~/core/database/database.module';
+import { ContractFunctionsModule } from '~/feat/contract-functions/contract-functions.module';
+import { TransactionsModule } from '~/feat/transactions/transactions.module';
+import { SystemTxsModule } from '~/feat/system-txs/system-txs.module';
+import { FaucetModule } from '~/feat/faucet/faucet.module';
+import { ExpoModule } from '~/core/expo/expo.module';
+import { PubsubModule } from '~/core/pubsub/pubsub.module';
+import { PoliciesModule } from '~/feat/policies/policies.module';
+import { ContractsModule } from '~/feat/contracts/contracts.module';
+import { TransfersModule } from '~/feat/transfers/transfers.module';
+import { EventsModule } from '~/feat/events/events.module';
+import { RedisModule } from '~/core/redis/redis.module';
+import { PaymastersModule } from '~/feat/paymasters/paymasters.module';
+import { SentryModule } from '~/core/sentry/sentry.module';
+import { SentryInterceptor } from '~/core/sentry/sentry.interceptor';
+import { OperationsModule } from '~/feat/operations/operations.module';
+import { SimulationsModule } from '~/feat/simulations/simulations.module';
+import { BullModule } from '~/core/bull/bull.module';
+import { TokensModule } from '~/feat/tokens/tokens.module';
+import { PricesModule } from '~/feat/prices/prices.module';
+import { MessagesModule } from '~/feat/messages/messages.module';
+import { ProposalsModule } from '~/feat/proposals/proposals.module';
+import { BalancesModule } from '~/core/balances/balances.module';
+import { NodesModule } from '~/feat/nodes/nodes.module';
+import { ActivationsModule } from '~/feat/activations/activations.module';
 
 @Module({
   imports: [
-    // Util
-    ContextModule,
-    SentryModule.forRoot(),
-    DatabaseModule,
-    RedisModule,
-    BullModule,
+    // Core
     ApolloModule,
-    PubsubModule,
-    NetworksModule,
     BalancesModule,
+    BullModule,
+    ContextModule,
+    DatabaseModule,
+    ExpoModule,
+    NetworksModule,
+    PubsubModule,
+    RedisModule,
+    SentryModule.forRoot(),
     // Features
     AccountsModule,
+    ActivationsModule,
     ApproversModule,
     AuthModule,
     ContactsModule,
@@ -72,7 +75,6 @@ import { CONFIG } from './config';
     TransactionsModule,
     TransfersModule,
     UsersModule,
-    ExpoModule,
   ],
   providers: [
     !!CONFIG.sentryDsn && { provide: APP_INTERCEPTOR, useClass: SentryInterceptor },

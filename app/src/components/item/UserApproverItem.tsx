@@ -33,7 +33,7 @@ export function UserApproverItem(props: UserApproverItemProps) {
       supporting={truncateAddr(a.address)}
       {...(selected && { trailing: 'This device' })}
       onPress={() =>
-        router.push({ pathname: `/(drawer)/approvers/[address]/`, params: { address: a.address } })
+        router.push({ pathname: `/(nav)/approvers/[address]/`, params: { address: a.address } })
       }
       {...props}
     />

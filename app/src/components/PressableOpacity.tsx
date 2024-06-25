@@ -23,9 +23,9 @@ export const PressableOpacity = forwardRef<View, PressableOpacityProps>((props, 
       {...props}
       ref={ref}
       style={(state) => [
+        typeof props.style === 'function' ? props.style(state) : props.style,
         hoverable && (state as { hovered?: boolean }).hovered && styles.hovered, // state.hovered exists on web
         state.pressed && styles.pressed,
-        typeof props.style === 'function' ? props.style(state) : props.style,
       ]}
     />
   );

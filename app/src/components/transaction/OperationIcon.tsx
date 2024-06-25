@@ -1,23 +1,27 @@
 import { FragmentType, gql, useFragment } from '@api';
 import {
-  DataIcon,
+  ActionIcon,
   IconProps,
   PolicyEditOutlineIcon,
   PolicyRemoveOutlineIcon,
   SwapIcon,
+  OutboundIcon,
 } from '@theme/icons';
 import { Chain } from 'chains';
-import { asUAddress } from 'lib';
 import { P, match } from 'ts-pattern';
-import { TokenIcon } from '#/token/TokenIcon';
 import { ICON_SIZE } from '@theme/paper';
+import { createStyles } from '@theme/styles';
+import { View } from 'react-native';
+import { FilledIcon } from '#/FilledIcon';
+import { AddressIcon } from '#/Identicon/AddressIcon';
 
 const Operation = gql(/* GraphQL */ `
   fragment OperationIcon_Operation on Operation {
+    to
     function {
       __typename
       ... on TransferlikeOp {
-        token
+        to
       }
     }
   }
@@ -45,10 +49,29 @@ export function OperationIcon({
         { __typename: 'TransferFromOp' },
         { __typename: 'TransferApprovalOp' },
       ),
-      (f) => (props: IconProps) => <TokenIcon {...props} token={asUAddress(f.token, chain)} />,
+      (f) => (props: IconProps) => (
+        <View>
+          <AddressIcon address={f.to} {...props} />
+          <FilledIcon icon={OutboundIcon} size={(size * 10) / 24} style={styles.overlayed(size)} />
+        </View>
+      ),
     )
     .with({ __typename: 'SwapOp' }, () => SwapIcon)
-    .otherwise(() => DataIcon);
+    .otherwise(() => (props: IconProps) => (
+      <View>
+        <AddressIcon address={op.to} {...props} />
+        <FilledIcon icon={ActionIcon} size={(size * 10) / 24} style={styles.overlayed(size)} />
+      </View>
+    ));
 
   return <Icon size={size} {...iconProps} />;
 }
+
+const styles = createStyles({
+  overlayed: (size: number) => ({
+    position: 'absolute',
+    bottom: 0,
+    right: 0,
+    marginTop: -size,
+  }),
+});

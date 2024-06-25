@@ -1,4 +1,4 @@
-import { CustomActionIcon, materialIcon } from '@theme/icons';
+import { ActionIcon, CustomActionIcon } from '@theme/icons';
 import { createStyles, useStyles } from '@theme/styles';
 import { Switch } from 'react-native-paper';
 import { Chevron } from '#/Chevron';
@@ -27,7 +27,7 @@ export function ActionsSettings() {
   return (
     <CollapsibleItemList expanded={expanded}>
       <ListItem
-        leading={materialIcon('bolt')}
+        leading={ActionIcon}
         headline="Actions"
         supporting="Things the policy can do"
         trailing={

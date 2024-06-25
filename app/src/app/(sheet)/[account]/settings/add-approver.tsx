@@ -20,7 +20,7 @@ import { Divider, Text } from 'react-native-paper';
 import { useQuery } from '~/gql';
 import { Address, asAddress, asChain } from 'lib';
 import { useLinkZallo } from '~/app/(modal)/accounts/join';
-import { AccountParams } from '~/app/(drawer)/[account]/(home)/_layout';
+import { AccountParams } from '~/app/(nav)/[account]/_layout';
 import { useLocalParams } from '~/hooks/useLocalParams';
 import { useRouter } from 'expo-router';
 import { useLinkLedger } from '#/link/ledger/LedgerItem';
@@ -51,7 +51,7 @@ function AddApproverSheet() {
   const add = (approver: Address | null | undefined) => {
     if (approver)
       router.push({
-        pathname: '/(drawer)/[account]/settings/approver/[address]',
+        pathname: '/(nav)/[account]/settings/approver/[address]',
         params: { account, address: approver },
       });
   };

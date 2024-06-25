@@ -32,7 +32,7 @@ function AccountOnboardingScreen() {
   const next = useCallback(
     (account: UAddress) => {
       setSelected(account);
-      router.push({ pathname: '/(drawer)/[account]/(home)/', params: { account } });
+      router.push({ pathname: '/(nav)/[account]/(home)/', params: { account } });
     },
     [router, setSelected],
   );

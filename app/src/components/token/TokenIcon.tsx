@@ -2,7 +2,7 @@ import { FragmentType, gql, useFragment as getFragment } from '@api/generated';
 import { GenericTokenIcon } from '@theme/icons';
 import { createStyles, useStyles } from '@theme/styles';
 import { Image, ImageProps } from '#/Image';
-import { UAddress, isUAddress } from 'lib';
+import { UAddress, asUAddress, isUAddress } from 'lib';
 import { ImageStyle, StyleProp } from 'react-native';
 import { CircleSkeleton } from '#/skeleton/CircleSkeleton';
 import { withSuspense } from '#/skeleton/withSuspense';
@@ -43,10 +43,11 @@ function TokenIcon_({
 }: TokenIconProps) {
   const { styles } = useStyles(stylesheet);
 
+  const addr = isUAddress(fragOrAddr) ? fragOrAddr : undefined;
   const query = useQuery(
     Query,
-    { token: isUAddress(fragOrAddr) ? fragOrAddr : 'zksync:0x' },
-    { pause: !isUAddress(fragOrAddr) },
+    { token: addr ?? 'zksync:0x' },
+    { pause: !addr, requestPolicy: 'cache-first' },
   ).data;
 
   const url =

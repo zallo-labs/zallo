@@ -34,7 +34,7 @@ export function useRemoveTransaction(
     if (await confirmRemoval()) {
       await remove({ proposal: p.id });
       account
-        ? router.push({ pathname: '/(drawer)/[account]/(home)/activity', params: { account } })
+        ? router.push({ pathname: '/(nav)/[account]/(home)/activity', params: { account } })
         : router.back();
     }
   };

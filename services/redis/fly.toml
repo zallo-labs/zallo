@@ -4,9 +4,6 @@ primary_region = "iad" # Ashburn, Virginia
 [build]
   dockerfile = "Dockerfile"
 
-# Secrets
-# REDIS_PASSWORD    # Randomly generated
-
 [mounts]
   source = "redis_data"   # fly volume create --app $APP redis_data
   destination = "/data"

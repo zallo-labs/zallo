@@ -3,7 +3,7 @@ import { ListItem, ListItemProps } from '#/list/ListItem';
 import { withSuspense } from '#/skeleton/withSuspense';
 import { ListItemSkeleton } from '#/list/ListItemSkeleton';
 import { match } from 'ts-pattern';
-import { materialCommunityIcon } from '@theme/icons';
+import { ActionIcon } from '@theme/icons';
 import { FragmentType, gql, useFragment } from '@api/generated';
 import { OperationLabel } from './OperationLabel';
 import { ProposalValue } from './ProposalValue';
@@ -11,6 +11,7 @@ import { Link } from 'expo-router';
 import { createStyles, useStyles } from '@theme/styles';
 import { OperationIcon } from '#/transaction/OperationIcon';
 import { Image } from '#/Image';
+import { ICON_SIZE } from '@theme/paper';
 
 const Transaction = gql(/* GraphQL */ `
   fragment TransactionItem_Transaction on Transaction {
@@ -61,8 +62,6 @@ const User = gql(/* GraphQL */ `
     }
   }
 `);
-
-const MultiOperationIcon = materialCommunityIcon('multiplication');
 
 export interface TransactionItemProps extends Partial<ListItemProps> {
   transaction: FragmentType<typeof Transaction>;
@@ -122,13 +121,13 @@ function TransactionItem_({
     .exhaustive();
 
   return (
-    <Link href={{ pathname: `/(drawer)/transaction/[id]`, params: { id: p.id } }} asChild>
+    <Link href={{ pathname: `/(nav)/transaction/[id]`, params: { id: p.id } }} asChild>
       <ListItem
         leading={
           p.icon ? (
             <Image source={{ uri: p.icon }} style={styles.icon} />
           ) : isMulti ? (
-            <MultiOperationIcon style={styles.icon} />
+            <ActionIcon style={[styles.icon, styles.multiIcon]} size={ICON_SIZE.medium} />
           ) : (
             <OperationIcon operation={p.operations[0]} chain={p.account.chain} />
           )
@@ -171,6 +170,9 @@ const stylesheet = createStyles(({ colors, iconSize, corner }) => ({
     width: iconSize.medium,
     height: iconSize.medium,
     borderRadius: corner.l,
+  },
+  multiIcon: {
+    color: colors.onSurfaceVariant,
   },
 }));
 

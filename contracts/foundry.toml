@@ -8,9 +8,10 @@ test = 'test'
 cache_path = 'cache-forge'
 # Compiler options
 via_ir = true
-# zkSync options
-zksync = true
-mode = "3"
+
+[profile.default.zksync]
+enable = true
+mode = '3'
 # is_system = true
 # detect_missing_libraries = true
 

@@ -1,5 +1,5 @@
 import { gql } from '@api';
-import { AddIcon, GenericTokenIcon, TransferIcon } from '@theme/icons';
+import { AddIcon, GenericTokenIcon, OutboundIcon } from '@theme/icons';
 import { createStyles, useStyles } from '@theme/styles';
 import { asAddress, asChain, asUAddress } from 'lib';
 import { useMemo } from 'react';
@@ -72,7 +72,7 @@ function SpendingSettings_() {
       />
 
       <ListItem
-        leading={TransferIcon}
+        leading={OutboundIcon}
         headline="Allow other spending"
         supporting="Applies to tokens without limits"
         trailing={

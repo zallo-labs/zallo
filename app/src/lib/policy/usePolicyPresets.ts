@@ -33,9 +33,9 @@ export const ACTION_PRESETS = {
     label: 'Anything else',
     functions: [{}],
   },
-  transferNfts: {
+  sendNfts: {
     icon: imageFromSource(require('assets/ENS.svg')),
-    label: 'Transfer NFTs',
+    label: 'Send NFTs',
     functions: [
       getAbiItem({ abi: ERC721_ABI, name: 'safeTransferFrom', args: ['0x', '0x', 0n] }),
       getAbiItem({ abi: ERC721_ABI, name: 'safeTransferFrom', args: ['0x', '0x', 0n, '0x'] }),

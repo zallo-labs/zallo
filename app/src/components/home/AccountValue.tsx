@@ -4,31 +4,27 @@ import Decimal from 'decimal.js';
 import { Text } from 'react-native-paper';
 import { FiatValue } from '#/FiatValue';
 
-const Query = gql(/* GraphQL */ `
-  fragment AccountValue_Query on Query
-  @argumentDefinitions(account: { type: "UAddress!" }, chain: { type: "Chain!" }) {
-    tokens(input: { chain: $chain }) {
+const Token = gql(/* GraphQL */ `
+  fragment AccountValue_Token on Token @argumentDefinitions(account: { type: "UAddress!" }) {
+    balance(input: { account: $account })
+    price {
       id
-      balance(input: { account: $account })
-      price {
-        id
-        usd
-      }
+      usd
     }
   }
 `);
 
 export interface AccountValueProps {
-  query: FragmentType<typeof Query>;
+  tokens: FragmentType<typeof Token>[];
 }
 
 export function AccountValue(props: AccountValueProps) {
-  const { tokens } = useFragment(Query, props.query);
+  const tokens = useFragment(Token, props.tokens);
 
   const total = Decimal.sum(0, ...tokens.map((t) => new Decimal(t.balance).mul(t.price?.usd ?? 0)));
 
   return (
-    <Text variant="displayMedium" style={styles.text}>
+    <Text variant="displaySmall" style={styles.text}>
       <FiatValue value={total} />
     </Text>
   );
@@ -37,5 +33,6 @@ export function AccountValue(props: AccountValueProps) {
 const styles = createStyles({
   text: {
     margin: 16,
+    marginTop: 24,
   },
 });

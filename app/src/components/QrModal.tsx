@@ -1,7 +1,7 @@
 import QRCode from 'react-native-qrcode-svg';
 import { Address, UAddress, asAddress, asChain, isUAddress } from 'lib';
 import { IconButton, Surface, Text } from 'react-native-paper';
-import { CloseIcon, DownArrowIcon, ShareIcon, materialCommunityIcon } from '@theme/icons';
+import { CloseIcon, ArrowDropDownIcon, ShareIcon, materialCommunityIcon } from '@theme/icons';
 import { Actions } from '#/layout/Actions';
 import { View } from 'react-native';
 import { AddressLabel } from '#/address/AddressLabel';
@@ -62,7 +62,7 @@ export function QrModal({ address, actions }: QrModalProps) {
                     },
                   ]}
                   value={mode}
-                  chipProps={{ elevated: true, mode: 'outlined', closeIcon: DownArrowIcon }}
+                  chipProps={{ elevated: true, mode: 'outlined', closeIcon: ArrowDropDownIcon }}
                   onChange={(v) => setMode(v)}
                 />
               </View>

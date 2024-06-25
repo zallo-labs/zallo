@@ -8,7 +8,7 @@ import { Actions } from '#/layout/Actions';
 import { Button } from '#/Button';
 import { ListItem } from '#/list/ListItem';
 import { useAtomValue } from 'jotai';
-import { IconProps, TransferIcon, UpdateIcon, materialCommunityIcon } from '@theme/icons';
+import { IconProps, OutboundIcon, UpdateIcon, materialCommunityIcon } from '@theme/icons';
 import { FC } from 'react';
 import { createStyles } from '@theme/styles';
 
@@ -26,7 +26,7 @@ export const NotificationChannelConfig: Record<
   transfers: {
     name: 'Transfers',
     description: 'Incoming tokens and allowances',
-    icon: TransferIcon,
+    icon: OutboundIcon,
     importance: Notifications.AndroidImportance.DEFAULT,
     showBadge: false,
     enableLights: false,

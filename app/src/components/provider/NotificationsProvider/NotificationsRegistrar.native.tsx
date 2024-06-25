@@ -20,8 +20,11 @@ const Query = gql(/* GraphQL */ `
       pushToken
     }
 
-    proposals(input: { pending: true }) {
+    accounts {
       id
+      proposals(input: { pending: true }) {
+        id
+      }
     }
   }
 `);
@@ -47,7 +50,7 @@ export const NotificationsRegistrar = () => {
   const channelEnabled = useNotificationSettings();
   const updatePushToken = useMutation(UpdatePushToken)[1];
 
-  const { approver, proposals } = useQuery(Query, {}).data;
+  const { approver, accounts } = useQuery(Query, {}).data;
 
   const hasPermission = Notifications.usePermissions()[0]?.granted;
 
@@ -101,9 +104,10 @@ export const NotificationsRegistrar = () => {
   }, [hasPermission, channelEnabled, approver, updatePushToken]);
 
   // Set badge count
+  const proposals = accounts.reduce((n, account) => n + account.proposals.length, 0);
   useEffect(() => {
-    if (hasPermission) Notifications.setBadgeCountAsync(proposals.length);
-  }, [hasPermission, proposals.length]);
+    if (hasPermission) Notifications.setBadgeCountAsync(proposals);
+  }, [hasPermission, proposals]);
 
   return null;
 };

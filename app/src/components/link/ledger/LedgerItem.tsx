@@ -23,7 +23,7 @@ export function useLinkLedger() {
 
   if (Platform.OS === 'web') return null;
 
-  return () => getEvent({ pathname: `/(drawer)/ledger/link` }, LEDGER_LINKED);
+  return () => getEvent({ pathname: `/(nav)/ledger/link` }, LEDGER_LINKED);
 }
 
 const Query = gql(/* GraphQL */ `

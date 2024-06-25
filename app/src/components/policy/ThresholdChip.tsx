@@ -1,4 +1,4 @@
-import { DownArrowIcon } from '@theme/icons';
+import { ArrowDropDownIcon } from '@theme/icons';
 import { SelectChip } from '#/fields/SelectChip';
 import _ from 'lodash';
 import { match } from 'ts-pattern';
@@ -40,7 +40,7 @@ export function ThresholdChip() {
         })
       }
       chipProps={{
-        closeIcon: DownArrowIcon,
+        closeIcon: ArrowDropDownIcon,
         style: styles.chip,
         textStyle: styles.chipLabel,
       }}

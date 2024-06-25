@@ -84,7 +84,7 @@ export function PolicyAppbar({ reset, ...props }: PolicyAppbarProps) {
                   title="View proposal"
                   onPress={handle(() =>
                     router.push({
-                      pathname: `/(drawer)/transaction/[id]`,
+                      pathname: `/(nav)/transaction/[id]`,
                       params: { id: policy.proposal!.id },
                     }),
                   )}
