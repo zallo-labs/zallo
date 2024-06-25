@@ -6,7 +6,7 @@ import {
   ReturnTypeFunc,
 } from '@nestjs/graphql';
 import { ObjectTypeSet } from '~/edgeql-js/reflection';
-import { Shape } from '~/core/database/database.select';
+import { Shape } from '~/core/database';
 import { GqlContext } from '~/core/apollo/ctx';
 import { asUser } from '~/core/context';
 

@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { Expo, ExpoPushMessage, ExpoPushToken } from 'expo-server-sdk';
 import { CONFIG } from '~/config';
-import { DatabaseService } from '~/core/database/database.service';
+import { DatabaseService } from '~/core/database';
 import e from '~/edgeql-js';
 
 @Injectable()

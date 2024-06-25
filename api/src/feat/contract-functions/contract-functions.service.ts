@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { ContractsService } from '../contracts/contracts.service';
-import { DatabaseService } from '../../core/database/database.service';
+import { DatabaseService } from '~/core/database';
 import e from '~/edgeql-js';
-import { ShapeFunc } from '../../core/database/database.select';
+import { ShapeFunc } from '~/core/database';
 import { ContractFunctionInput } from './contract-functions.input';
 
 @Injectable()

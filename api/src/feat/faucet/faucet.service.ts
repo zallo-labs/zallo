@@ -1,12 +1,12 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { Address, UAddress, asAddress, asChain, asUAddress, filterAsync, isEthToken } from 'lib';
-import { NetworksService } from '~/core/networks/networks.service';
-import { DatabaseService } from '../../core/database/database.service';
+import { NetworksService } from '~/core/networks';
+import { DatabaseService } from '~/core/database';
 import e from '~/edgeql-js';
 import { parseUnits } from 'viem';
 import { ERC20 } from 'lib/dapps';
 import { BalancesService } from '~/core/balances/balances.service';
-import { and } from '~/core/database/database.util';
+import { and } from '~/core/database';
 import { CHAINS } from 'chains';
 import { getUserCtx } from '~/core/context';
 

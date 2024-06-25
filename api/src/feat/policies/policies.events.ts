@@ -2,9 +2,9 @@ import { Injectable } from '@nestjs/common';
 import { EventsWorker, EventData, Log } from '../events/events.worker';
 import { ACCOUNT_ABI, PolicyKey, asPolicyKey, asUAddress } from 'lib';
 import { Chain } from 'chains';
-import { DatabaseService } from '../../core/database/database.service';
+import { DatabaseService } from '~/core/database';
 import e from '~/edgeql-js';
-import { and, or } from '../../core/database/database.util';
+import { and, or } from '~/core/database';
 import { getAbiItem } from 'viem';
 import { selectAccount2 } from '../accounts/accounts.util';
 

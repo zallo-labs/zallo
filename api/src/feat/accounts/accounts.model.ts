@@ -8,7 +8,7 @@ import { Transaction } from '../transactions/transactions.model';
 import { Node, NodeType } from '~/common/decorators/interface.decorator';
 import { createUnionType } from '@nestjs/graphql';
 import e from '~/edgeql-js';
-import { makeUnionTypeResolver } from '../../core/database/database.util';
+import { makeUnionTypeResolver } from '~/core/database';
 import { Message } from '../messages/messages.model';
 import { Approver } from '../approvers/approvers.model';
 import { UAddressField } from '~/common/scalars/UAddress.scalar';

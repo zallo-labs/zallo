@@ -1,5 +1,5 @@
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
-import { DatabaseService } from '../../core/database/database.service';
+import { DatabaseService } from '~/core/database';
 import e from '~/edgeql-js';
 import {
   Address,
@@ -12,7 +12,7 @@ import {
   DEPLOYER,
   asUAddress,
 } from 'lib';
-import { ShapeFunc } from '../../core/database/database.select';
+import { ShapeFunc } from '~/core/database';
 import {
   AccountEvent,
   AccountsInput,
@@ -21,14 +21,14 @@ import {
 } from './accounts.input';
 import { getApprover, getUserCtx } from '~/core/context';
 import { UserInputError } from '@nestjs/apollo';
-import { PubsubService } from '../../core/pubsub/pubsub.service';
+import { PubsubService } from '~/core/pubsub/pubsub.service';
 import { ContractsService } from '../contracts/contracts.service';
 import { FaucetService } from '../faucet/faucet.service';
 import { MIN_AUTO_POLICY_KEY, PoliciesService } from '../policies/policies.service';
 import { inputAsPolicy } from '../policies/policies.util';
 import { AccountsCacheService } from '../auth/accounts.cache.service';
 import { v4 as uuid } from 'uuid';
-import { and } from '~/core/database/database.util';
+import { and } from '~/core/database';
 import { selectAccount } from '~/feat/accounts/accounts.util';
 
 export const getAccountTrigger = (address: UAddress) => `account.${address}`;

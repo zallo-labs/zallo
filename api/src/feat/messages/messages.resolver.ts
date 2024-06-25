@@ -5,7 +5,7 @@ import { ProposeMessageInput } from './messages.input';
 import { GraphQLResolveInfo } from 'graphql';
 import { ApproveInput, UniqueProposalInput } from '../proposals/proposals.input';
 import { MessagesService } from './messages.service';
-import { getShape } from '../../core/database/database.select';
+import { getShape } from '~/core/database';
 import { ComputedField } from '~/common/decorators/computed.decorator';
 import e from '~/edgeql-js';
 

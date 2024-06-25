@@ -14,7 +14,7 @@ import {
   UpdatePolicyResponse,
   ValidationError,
 } from './policies.model';
-import { getShape } from '../../core/database/database.select';
+import { getShape } from '~/core/database';
 import { Input } from '~/common/decorators/input.decorator';
 import e from '~/edgeql-js';
 import { ComputedField } from '~/common/decorators/computed.decorator';

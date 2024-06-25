@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { DatabaseService } from '../../core/database/database.service';
+import { DatabaseService } from '~/core/database';
 import { ProposeMessageInput } from './messages.input';
 import { ApproveInput, ProposalEvent } from '../proposals/proposals.input';
 import {
@@ -26,9 +26,9 @@ import {
   isHex,
   mapAsync,
 } from 'lib';
-import { ShapeFunc } from '../../core/database/database.select';
+import { ShapeFunc } from '~/core/database';
 import { policyStateAsPolicy, PolicyShape } from '../policies/policies.util';
-import { NetworksService } from '../../core/networks/networks.service';
+import { NetworksService } from '~/core/networks/networks.service';
 import { UserInputError } from '@nestjs/apollo';
 import { ethers } from 'ethers';
 import _ from 'lodash';

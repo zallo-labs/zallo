@@ -6,7 +6,7 @@ import { getProxyAddress, UAddress } from 'lib';
 import { PoliciesService } from '../policies/policies.service';
 import { BullModule, getQueueToken } from '@nestjs/bullmq';
 import { ActivationsQueue } from '../activations/activations.queue';
-import { DatabaseService } from '../../core/database/database.service';
+import { DatabaseService } from '~/core/database';
 import { AccountsService } from './accounts.service';
 import e from '~/edgeql-js';
 import { uuid } from 'edgedb/dist/codecs/ifaces';

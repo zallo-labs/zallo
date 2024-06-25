@@ -3,17 +3,17 @@ import { Hex, UAddress, asHex, filterAsync, decodeRevertError, isUAddress, asUAd
 import { Price } from './prices.model';
 import e from '~/edgeql-js';
 import { preferUserToken } from '~/feat/tokens/tokens.service';
-import { DatabaseService } from '~/core/database/database.service';
+import { DatabaseService } from '~/core/database';
 import { EvmPriceServiceConnection } from '@pythnetwork/pyth-evm-js';
 import { CONFIG } from '~/config';
 import { DateTime } from 'luxon';
 import { ETH, PYTH } from 'lib/dapps';
 import { CHAINS, Chain } from 'chains';
-import { NetworksService } from '~/core/networks/networks.service';
+import { NetworksService } from '~/core/networks';
 import Redis from 'ioredis';
 import { InjectRedis } from '@songkeys/nestjs-redis';
 import { runExclusively } from '~/util/mutex';
-import { and } from '~/core/database/database.util';
+import { and } from '~/core/database';
 import { PricesWatcher } from './prices.watcher';
 import { PriceData, extractFeedPrice } from './prices.util';
 

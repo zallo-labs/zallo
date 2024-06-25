@@ -1,7 +1,7 @@
 import { Test } from '@nestjs/testing';
 import { createMock, DeepMocked } from '@golevelup/ts-jest';
 import { PricesService } from '~/feat/prices/prices.service';
-import { Network, NetworksService } from '~/core/networks/networks.service';
+import { Network, NetworksService } from '~/core/networks';
 import { EvmPriceServiceConnection, PriceFeed } from '@pythnetwork/pyth-evm-js';
 import { runExclusively } from '~/util/mutex';
 import { DEFAULT_REDIS_NAMESPACE, getRedisToken } from '@songkeys/nestjs-redis';

@@ -2,9 +2,8 @@ import { Injectable } from '@nestjs/common';
 import e, { Set } from '~/edgeql-js';
 import { UAddress, asUAddress, UUID, asUUID, asApproval, asHex } from 'lib';
 import { getUserCtx } from '~/core/context';
-import { ShapeFunc } from '../../core/database/database.select';
-import { DatabaseService } from '../../core/database/database.service';
-import { NetworksService } from '~/core/networks/networks.service';
+import { DatabaseService, ShapeFunc, and } from '~/core/database';
+import { NetworksService } from '~/core/networks';
 import {
   ApproveInput,
   ProposalEvent,
@@ -12,7 +11,6 @@ import {
   UpdateProposalInput,
 } from './proposals.input';
 import { PubsubService } from '~/core/pubsub/pubsub.service';
-import { and } from '../../core/database/database.util';
 import { $ } from 'edgedb';
 import { $uuid } from '~/edgeql-js/modules/std';
 import { rejectProposal } from './reject-proposal.query';
@@ -158,17 +156,13 @@ export class ProposalsService {
     const { id, account } =
       typeof proposal === 'string'
         ? await (async () => {
-            const p = await this.db.query(
+            const account = await this.db.queryWith2({ id: e.uuid }, { id: proposal }, ({ id }) =>
               e.assert_exists(
-                e.select(e.Proposal, () => ({
-                  filter_single: { id: proposal },
-                  id: true,
-                  account: { address: true },
-                })),
+                e.select(e.Proposal, () => ({ filter_single: { id } })).account.address,
               ),
             );
 
-            return { id: asUUID(p.id), account: asUAddress(p.account.address) };
+            return { id: proposal, account: asUAddress(account) };
           })()
         : typeof proposal.account === 'object'
           ? { id: asUUID(proposal.id), account: asUAddress(proposal.account.address) }

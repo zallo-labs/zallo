@@ -6,13 +6,13 @@ import { UserContext } from '~/core/context';
 import { asUser, getUserCtx } from '~/core/context';
 import { randomAddress, randomLabel, randomUAddress, randomUser } from '~/util/test';
 import { TransactionsService } from '../transactions/transactions.service';
-import { DatabaseService } from '../../core/database/database.service';
+import { DatabaseService } from '~/core/database';
 import e from '~/edgeql-js';
 import { inputAsPolicy, policyStateAsPolicy, PolicyShape, selectPolicy } from './policies.util';
 import { PolicyInput } from './policies.input';
 import { v1 as uuidv1 } from 'uuid';
 import { selectAccount } from '../accounts/accounts.util';
-import { and } from '../../core/database/database.util';
+import { and } from '~/core/database';
 
 describe(PoliciesService.name, () => {
   let service: PoliciesService;

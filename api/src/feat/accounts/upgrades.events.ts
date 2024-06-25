@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { asUAddress, ACCOUNT_PROXY, asDecimal } from 'lib';
 import { TransactionEventData, ReceiptsWorker } from '../system-txs/receipts.worker';
-import { DatabaseService } from '../../core/database/database.service';
+import { DatabaseService } from '~/core/database';
 import { selectAccount } from './accounts.util';
 import { getAbiItem } from 'viem';
 import { AccountsCacheService } from '../auth/accounts.cache.service';

@@ -10,9 +10,9 @@ import {
   randomUser,
 } from '~/util/test';
 import { randomDeploySalt, Hex, UAddress, ZERO_ADDR, asUUID } from 'lib';
-import { Network, NetworksService } from '../../core/networks/networks.service';
+import { Network, NetworksService } from '~/core/networks/networks.service';
 import { ProposeTransactionInput } from './transactions.input';
-import { DatabaseService } from '../../core/database/database.service';
+import { DatabaseService } from '~/core/database';
 import { TransactionsService } from './transactions.service';
 import { selectTransaction } from './transactions.util';
 import e from '~/edgeql-js';
@@ -22,7 +22,7 @@ import { v4 as uuid } from 'uuid';
 import { BullModule, getFlowProducerToken, getQueueToken } from '@nestjs/bullmq';
 import { SimulationsQueue } from '~/feat/simulations/simulations.worker';
 import { ExecutionsQueue } from '~/feat/transactions/executions.worker';
-import { FLOW_PRODUCER, registerFlowsProducer } from '../../core/bull/bull.util';
+import { FLOW_PRODUCER, registerFlowsProducer } from '~/core/bull/bull.util';
 import { CHAINS } from 'chains';
 import { PaymastersService } from '~/feat/paymasters/paymasters.service';
 import Decimal from 'decimal.js';

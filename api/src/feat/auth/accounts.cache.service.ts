@@ -3,7 +3,7 @@ import { Address, UAddress, UUID, asAddress, asUAddress } from 'lib';
 import { InjectRedis } from '@songkeys/nestjs-redis';
 import Redis from 'ioredis';
 import { getUserCtx, UserAccountContext } from '~/core/context';
-import { DatabaseService } from '../../core/database/database.service';
+import { DatabaseService } from '~/core/database';
 import { uuid } from 'edgedb/dist/codecs/ifaces';
 import e from '~/edgeql-js';
 import { Duration } from 'luxon';

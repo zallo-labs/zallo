@@ -78,6 +78,18 @@ export class DatabaseService implements OnModuleInit {
     return this.run(expression.run(this.client, params as any)) as Promise<$infer<Expr>>;
   }
 
+  async queryWith2<
+    Params extends { [key: string]: ParamType | $expr_OptionalParam },
+    Expr extends Expression,
+  >(
+    paramsDef: Params,
+    params: paramsToParamArgs<Params>,
+    getExpr: (params: paramsToParamExprs<Params>) => Expr,
+  ) {
+    const expression = e.params(paramsDef, getExpr as any);
+    return this.run(expression.run(this.client, params as any)) as Promise<$infer<Expr>>;
+  }
+
   async exec<F extends (client: Executor, args: any) => Promise<R>, R>(
     f: F,
     args: Parameters<F>[1],

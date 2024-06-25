@@ -3,7 +3,7 @@ import { InjectRedis } from '@songkeys/nestjs-redis';
 import Redis from 'ioredis';
 import { UAddress, asAddress, asChain, isEthToken, tryOrIgnoreAsync } from 'lib';
 import { ERC20 } from 'lib/dapps';
-import { NetworksService } from '~/core/networks/networks.service';
+import { NetworksService } from '~/core/networks';
 
 export interface BalanceArgs {
   account: UAddress;

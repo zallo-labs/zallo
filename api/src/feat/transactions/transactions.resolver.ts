@@ -8,7 +8,7 @@ import {
 } from './transactions.input';
 import { EstimatedTransactionFees, Transaction, TransactionStatus } from './transactions.model';
 import { EstimateFeesDeps, TransactionsService, estimateFeesDeps } from './transactions.service';
-import { getShape } from '../../core/database/database.select';
+import { getShape } from '~/core/database';
 import e from '~/edgeql-js';
 import { Input } from '~/common/decorators/input.decorator';
 import { uuid } from 'edgedb/dist/codecs/ifaces';

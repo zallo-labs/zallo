@@ -9,7 +9,7 @@ import {
 } from 'lib';
 import { uuid } from 'edgedb/dist/codecs/ifaces';
 import e, { $infer, Set } from '~/edgeql-js';
-import { Shape } from '../../core/database/database.select';
+import { Shape } from '~/core/database';
 import { PolicyInput, TransfersConfigInput } from './policies.input';
 import { selectAccount } from '~/feat/accounts/accounts.util';
 import { merge } from 'ts-deepmerge';

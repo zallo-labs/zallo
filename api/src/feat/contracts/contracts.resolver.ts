@@ -3,7 +3,7 @@ import { ContractsService } from './contracts.service';
 import { ContractInput } from './contracts.input';
 import { GraphQLResolveInfo } from 'graphql';
 import { Contract } from './contracts.model';
-import { getShape } from '../../core/database/database.select';
+import { getShape } from '~/core/database';
 import { Input } from '~/common/decorators/input.decorator';
 
 @Resolver(() => Contract)

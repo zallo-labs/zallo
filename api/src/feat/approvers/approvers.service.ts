@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { Address } from 'lib';
-import { DatabaseService } from '../../core/database/database.service';
-import { ShapeFunc } from '../../core/database/database.select';
+import { DatabaseService } from '~/core/database';
+import { ShapeFunc } from '~/core/database';
 import e from '~/edgeql-js';
 import { getUserCtx } from '~/core/context';
 import { UpdateApproverInput } from './approvers.input';
-import { and } from '../../core/database/database.util';
+import { and } from '~/core/database';
 
 @Injectable()
 export class ApproversService {

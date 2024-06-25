@@ -2,10 +2,10 @@ import { Processor } from '@nestjs/bullmq';
 import { Injectable } from '@nestjs/common';
 import { TypedJob, QueueReturnType } from '~/core/bull/bull.util';
 import { Worker } from '~/core/bull/Worker';
-import { NetworksService } from '~/core/networks/networks.service';
+import { NetworksService } from '~/core/networks';
 import { ActivationsService } from './activations.service';
 import { ActivationsQueue } from './activations.queue';
-import { DatabaseService } from '../../core/database/database.service';
+import { DatabaseService } from '~/core/database';
 import e from '~/edgeql-js';
 import { selectTransaction2 } from '../transactions/transactions.util';
 

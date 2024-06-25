@@ -3,7 +3,7 @@ import { GraphQLResolveInfo } from 'graphql';
 import { InputArgs, Input } from '~/common/decorators/input.decorator';
 import { GqlContext } from '~/core/apollo/ctx';
 import { asUser, getUserCtx } from '~/core/context';
-import { getShape } from '../../core/database/database.select';
+import { getShape } from '~/core/database';
 import { UniqueProposalInput, ProposalUpdatedInput, UpdateProposalInput } from './proposals.input';
 import { Proposal, ProposalUpdated } from './proposals.model';
 import {
@@ -12,7 +12,7 @@ import {
   getProposalTrigger,
   getProposalAccountTrigger,
 } from './proposals.service';
-import { PubsubService } from '../../core/pubsub/pubsub.service';
+import { PubsubService } from '~/core/pubsub/pubsub.service';
 
 @Resolver(() => Proposal)
 export class ProposalsResolver {

@@ -1,12 +1,12 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { TokensService } from './tokens.service';
-import { DatabaseService } from '../../core/database/database.service';
+import { DatabaseService } from '~/core/database';
 import { DeepMocked, createMock } from '@golevelup/ts-jest';
 import { UserContext, asUser } from '~/core/context';
 import { randomUser, DeepPartial, randomUAddress } from '~/util/test';
 import e from '~/edgeql-js';
 import { UpsertTokenInput } from './tokens.input';
-import { Network, NetworksService } from '../../core/networks/networks.service';
+import { Network, NetworksService } from '~/core/networks/networks.service';
 
 describe('TokensService', () => {
   let service: TokensService;

@@ -3,7 +3,7 @@ import { GraphQLResolveInfo } from 'graphql';
 import { LinkInput, UpdateUserInput } from './users.input';
 import { User, UserLinked } from './users.model';
 import { UsersService, UserLinkedPayload } from './users.service';
-import { getShape } from '../../core/database/database.select';
+import { getShape } from '~/core/database';
 import { Input } from '~/common/decorators/input.decorator';
 import { ComputedField } from '~/common/decorators/computed.decorator';
 import e from '~/edgeql-js';

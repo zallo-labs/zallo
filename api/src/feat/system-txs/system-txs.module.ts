@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { ReceiptsWorker } from './receipts.worker';
 import { ReceiptsQueue } from './receipts.queue';
 import { TransactionsEvents } from './transactions.events';
-import { registerBullQueue, registerFlowsProducer } from '../../core/bull/bull.util';
+import { registerBullQueue, registerFlowsProducer } from '~/core/bull/bull.util';
 import { ProposalsModule } from '../proposals/proposals.module';
 import { SchedulerEvents } from './scheduler.events';
 import { TokensModule } from '~/feat/tokens/tokens.module';

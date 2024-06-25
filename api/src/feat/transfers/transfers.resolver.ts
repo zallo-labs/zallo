@@ -7,11 +7,11 @@ import {
 import { TransferSubscriptionInput, TransfersInput } from './transfers.input';
 import { Transfer, TransferDetails } from './transfers.model';
 import { GraphQLResolveInfo } from 'graphql';
-import { getShape } from '../../core/database/database.select';
+import { getShape } from '~/core/database';
 import { Input, InputArgs } from '~/common/decorators/input.decorator';
 import { GqlContext } from '~/core/apollo/ctx';
 import { asUser, getUserCtx } from '~/core/context';
-import { PubsubService } from '../../core/pubsub/pubsub.service';
+import { PubsubService } from '~/core/pubsub/pubsub.service';
 import { TransferSubscriptionPayload, getTransferTrigger } from './transfers.events';
 import { ComputedField } from '~/common/decorators/computed.decorator';
 import { DecimalScalar } from '~/common/scalars/Decimal.scalar';

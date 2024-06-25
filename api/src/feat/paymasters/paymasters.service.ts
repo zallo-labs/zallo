@@ -1,16 +1,16 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
-import { NetworksService } from '../../core/networks/networks.service';
+import { NetworksService } from '~/core/networks/networks.service';
 import { PAYMASTER, UAddress, asUAddress } from 'lib';
 import { Chain } from 'chains';
 import { FeesPerGas } from '~/feat/paymasters/paymasters.model';
 import { PricesService } from '~/feat/prices/prices.service';
-import { DatabaseService } from '~/core/database/database.service';
+import { DatabaseService } from '~/core/database';
 import { TokensService } from '~/feat/tokens/tokens.service';
 import e from '~/edgeql-js';
 import Decimal from 'decimal.js';
 import { ActivationsService } from '../activations/activations.service';
 import { PaymasterFeeParts } from './paymasters.model';
-import { and } from '~/core/database/database.util';
+import { and } from '~/core/database';
 
 interface PaymasterFeesParams {
   account: UAddress;

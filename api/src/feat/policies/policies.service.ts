@@ -24,9 +24,9 @@ import {
 } from './policies.input';
 import { UserInputError } from '@nestjs/apollo';
 import { AccountsCacheService } from '../auth/accounts.cache.service';
-import { DatabaseService } from '../../core/database/database.service';
+import { DatabaseService } from '~/core/database';
 import e from '~/edgeql-js';
-import { ShapeFunc } from '../../core/database/database.select';
+import { ShapeFunc } from '~/core/database';
 import {
   policyStateAsPolicy,
   PolicyShape,
@@ -36,7 +36,7 @@ import {
 } from './policies.util';
 import { NameTaken, Policy as PolicyModel, ValidationError } from './policies.model';
 import { TX_SHAPE, transactionAsTx, ProposalTxShape } from '../transactions/transactions.util';
-import { and, isExclusivityConstraintViolation } from '../../core/database/database.util';
+import { and, isExclusivityConstraintViolation } from '~/core/database';
 import { selectAccount, selectAccount2 } from '../accounts/accounts.util';
 import { err, ok } from 'neverthrow';
 import { encodeFunctionData } from 'viem';

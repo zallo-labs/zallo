@@ -1,12 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { TransfersInput } from './transfers.input';
-import { DatabaseService } from '../../core/database/database.service';
+import { DatabaseService } from '~/core/database';
 import e, { $infer } from '~/edgeql-js';
-import { and } from '../../core/database/database.util';
-import { ShapeFunc } from '../../core/database/database.select';
+import { and } from '~/core/database';
+import { ShapeFunc } from '~/core/database';
 import { selectAccount } from '../accounts/accounts.util';
 import { uuid } from 'edgedb/dist/codecs/ifaces';
-import { Shape } from '../../core/database/database.select';
+import { Shape } from '~/core/database';
 import { PricesService } from '../prices/prices.service';
 import { UUID, asHex } from 'lib';
 import Decimal from 'decimal.js';

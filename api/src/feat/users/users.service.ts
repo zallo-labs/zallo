@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { DatabaseService } from '../../core/database/database.service';
-import { ShapeFunc } from '../../core/database/database.select';
+import { DatabaseService } from '~/core/database';
+import { ShapeFunc } from '~/core/database';
 import e from '~/edgeql-js';
 import { UpdateUserInput } from './users.input';
 import { InjectRedis } from '@songkeys/nestjs-redis';
@@ -10,7 +10,7 @@ import { uuid } from 'edgedb/dist/codecs/ifaces';
 import { UserInputError } from '@nestjs/apollo';
 import { AccountsCacheService } from '../auth/accounts.cache.service';
 import { Address, asAddress } from 'lib';
-import { PubsubService } from '../../core/pubsub/pubsub.service';
+import { PubsubService } from '~/core/pubsub/pubsub.service';
 import { getUserCtx } from '~/core/context';
 
 const TOKEN_EXPIRY_S = 60 * 60; // 1 hour

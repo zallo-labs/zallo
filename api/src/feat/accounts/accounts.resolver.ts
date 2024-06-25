@@ -8,7 +8,7 @@ import {
   NameAvailableInput,
   AccountsInput,
 } from './accounts.input';
-import { PubsubService } from '../../core/pubsub/pubsub.service';
+import { PubsubService } from '~/core/pubsub/pubsub.service';
 import { GqlContext } from '~/core/apollo/ctx';
 import { asUser, getApprover, getUserCtx } from '~/core/context';
 import { Account } from './accounts.model';
@@ -18,7 +18,7 @@ import {
   getAccountTrigger,
   getAccountApproverTrigger,
 } from './accounts.service';
-import { getShape } from '../../core/database/database.select';
+import { getShape } from '~/core/database';
 import { Input, InputArgs } from '~/common/decorators/input.decorator';
 import { AccountsCacheService } from '../auth/accounts.cache.service';
 import { ComputedField } from '~/common/decorators/computed.decorator';

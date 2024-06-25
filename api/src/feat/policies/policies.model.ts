@@ -13,7 +13,7 @@ import {
   NodeType,
 } from '~/common/decorators/interface.decorator';
 import { AbiFunction } from 'abitype';
-import { makeUnionTypeResolver } from '~/core/database/database.util';
+import { makeUnionTypeResolver } from '~/core/database';
 import e from '~/edgeql-js';
 import { AddressField, SelectorField, AbiFunctionField, PolicyKeyField } from '~/common/scalars';
 

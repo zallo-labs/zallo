@@ -4,7 +4,7 @@ import { ApproversService } from './approvers.service';
 import { Input } from '~/common/decorators/input.decorator';
 import { ApproverInput, UpdateApproverInput } from './approvers.input';
 import { GraphQLResolveInfo } from 'graphql';
-import { getShape } from '../../core/database/database.select';
+import { getShape } from '~/core/database';
 
 @Resolver(() => UserApprover)
 export class ApproversResolver {

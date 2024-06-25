@@ -1,9 +1,9 @@
 import { Controller, Get } from '@nestjs/common';
 import { HealthCheck, HealthCheckService } from '@nestjs/terminus';
 import { Public } from '~/common/decorators/public.decorator';
-import { RedisHealthIndicator } from '../../core/redis/redis.indicator';
-import { DatabaseHealthIndicator } from '../../core/database/database.health';
-import { NetworksHealthIndicator } from '../../core/networks/networks.health';
+import { RedisHealthIndicator } from '~/core/redis/redis.indicator';
+import { DatabaseHealthIndicator } from '~/core/database/database.health';
+import { NetworksHealthIndicator } from '~/core/networks/networks.health';
 import { InjectRedis } from '@songkeys/nestjs-redis';
 import Redis from 'ioredis';
 import { InjectRedisSubscriber } from '~/common/decorators/redis.decorator';
