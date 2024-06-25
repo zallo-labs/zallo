@@ -1,4 +1,4 @@
-import { QrCodeIcon, OutboundIcon, SwapIcon, ScanIcon } from '@theme/icons';
+import { QrCodeIcon, OutboundIcon, SwapIcon, ScanIcon, ReceiveIcon } from '@theme/icons';
 import { ScrollView, View } from 'react-native';
 import { UAddress } from 'lib';
 import { Link } from 'expo-router';
@@ -40,7 +40,7 @@ export function QuickActions({ account }: QuickActionsProps) {
         </Link>
 
         <Link asChild href={{ pathname: `/(modal)/[account]/receive`, params: { account } }}>
-          <Button mode="contained-tonal" icon={QrCodeIcon}>
+          <Button mode="contained-tonal" icon={ReceiveIcon}>
             Receive
           </Button>
         </Link>

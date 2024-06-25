@@ -10,9 +10,9 @@ import {
   WalletConnectIcon,
   TwitterIcon,
   GithubIcon,
-  QrCodeIcon,
   GenericTokenIcon,
   AccountIcon,
+  ReceiveIcon,
 } from '@theme/icons';
 import { DrawerItem as Item } from '#/drawer/DrawerItem';
 import { useSelectedAccount } from '~/hooks/useSelectedAccount';
@@ -99,7 +99,7 @@ function RailContent() {
       {account && (
         <RailItem
           href={{ pathname: `/(modal)/[account]/receive`, params: { account } }}
-          icon={QrCodeIcon}
+          icon={ReceiveIcon}
           label="Receive"
         />
       )}
@@ -167,7 +167,7 @@ function DrawerContent() {
         {account && (
           <Item
             href={{ pathname: `/(modal)/[account]/receive`, params: { account } }}
-            icon={QrCodeIcon}
+            icon={ReceiveIcon}
             label="Receive"
           />
         )}
