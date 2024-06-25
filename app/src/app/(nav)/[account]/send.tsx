@@ -45,7 +45,7 @@ const SendScreenParams = z.object({
   account: zUAddress(),
   to: zAddress(),
 });
-export type TransferScreenParams = z.infer<typeof SendScreenParams>;
+export type SendScreenParams = z.infer<typeof SendScreenParams>;
 
 function SendScreen() {
   const { account, to } = useLocalParams(SendScreenParams);
