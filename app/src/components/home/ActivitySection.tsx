@@ -63,10 +63,10 @@ export function ActivitySection(props: ActivitySectionProps) {
       {proposals.slice(0, VISIBLE_PROPOSALS).map((proposal) =>
         match(proposal)
           .with({ __typename: 'Transaction' }, (t) => (
-            <TransactionItem transaction={t} user={user} containerStyle={styles.item} />
+            <TransactionItem key={t.id} transaction={t} user={user} containerStyle={styles.item} />
           ))
           .with({ __typename: 'Message' }, (m) => (
-            <MessageItem message={m} user={user} containerStyle={styles.item} />
+            <MessageItem key={m.id} message={m} user={user} containerStyle={styles.item} />
           ))
           .exhaustive(),
       )}
