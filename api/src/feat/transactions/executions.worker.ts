@@ -39,6 +39,8 @@ import {
   paymasterFeesEq,
   totalPaymasterEthFees,
 } from '~/feat/paymasters/paymasters.util';
+import { insertSystx } from './insert-systx.query';
+import { updatePaymasterFees } from './update-paymaster-fees.query';
 
 export const ExecutionsQueue = createQueue<ExecutionJob>('Executions');
 export type ExecutionsQueue = typeof ExecutionsQueue;
@@ -72,7 +74,7 @@ export class ExecutionsWorker extends Worker<ExecutionsQueue> {
   }
 
   private async processStandard({ transaction: id, ignoreSimulation }: ExecutionJob) {
-    const proposal = await this.db.query(
+    const proposal = await this.db.queryWith2({ id: e.uuid }, { id: id }, ({ id }) =>
       e.select(e.Transaction, () => ({
         filter_single: { id },
         hash: true,
@@ -129,7 +131,7 @@ export class ExecutionsWorker extends Worker<ExecutionsQueue> {
   }
 
   private async processScheduled({ transaction: id, ignoreSimulation }: ExecutionJob) {
-    const proposal = await this.db.query(
+    const proposal = await this.db.queryWith2({ id: e.uuid }, { id }, ({ id }) =>
       e.select(e.Transaction, () => ({
         filter_single: { id },
         hash: true,
@@ -199,15 +201,13 @@ export class ExecutionsWorker extends Worker<ExecutionsQueue> {
     const r = await (async () => {
       if (execution.isOk()) {
         const hash = execution.value;
-        await this.db.query(
-          e.insert(e.SystemTx, {
-            hash,
-            proposal: selectTransaction(id),
-            maxEthFeePerGas: maxFeePerGas.toString(),
-            ethPerFeeToken: feeTokenPrice.eth.toString(),
-            usdPerFeeToken: feeTokenPrice.usd.toString(),
-          }),
-        );
+        await this.db.exec(insertSystx, {
+          hash,
+          proposal: id,
+          maxEthFeePerGas: maxFeePerGas.toString(),
+          ethPerFeeToken: feeTokenPrice.eth.toString(),
+          usdPerFeeToken: feeTokenPrice.usd.toString(),
+        });
 
         return hash;
       } /* execution isErr */ else {
@@ -239,16 +239,10 @@ export class ExecutionsWorker extends Worker<ExecutionsQueue> {
     const current = await this.paymasters.paymasterFees({ account });
     const lowest = lowerOfPaymasterFees(existing, current);
     if (!paymasterFeesEq(existing, lowest)) {
-      this.db.query(
-        e.update(e.Transaction, () => ({
-          filter_single: { id: transaction },
-          set: {
-            paymasterEthFees: e.insert(e.PaymasterFees, {
-              activation: lowest.activation.toString(),
-            }),
-          },
-        })),
-      );
+      this.db.exec(updatePaymasterFees, {
+        transaction,
+        activation: lowest.activation.toString(),
+      });
     }
 
     return lowest;

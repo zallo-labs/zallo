@@ -117,7 +117,6 @@ export class TransfersEvents {
               })
               .unlessConflict((t) => ({
                 on: e.tuple([t.account, t.block, t.logIndex]),
-                else: t,
               })),
             (t) => ({
               id: true,
@@ -127,6 +126,7 @@ export class TransfersEvents {
             }),
           ),
         );
+        if (!transfer) return; // Already processed
 
         this.balances.invalidateBalance({ account, token });
 
@@ -182,7 +182,7 @@ export class TransfersEvents {
         const selectedAccount = selectAccount(account);
         const systx = selectSysTx(log.transactionHash);
 
-        await this.db.query(
+        const approval = await this.db.query(
           e
             .insert(e.TransferApproval, {
               account: selectedAccount,
@@ -213,6 +213,7 @@ export class TransfersEvents {
               on: e.tuple([t.account, t.block, t.logIndex]),
             })),
         );
+        if (!approval) return; // Already processed
 
         if (to === account) {
           this.log.debug(`Transfer approval ${token}: ${from} -> ${to}`);

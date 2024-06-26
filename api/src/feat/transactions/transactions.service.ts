@@ -15,6 +15,8 @@ import {
   estimateTransactionVerificationGas,
   ACCOUNT_ABI,
   asHex,
+  isHex,
+  Hex,
 } from 'lib';
 import { NetworksService } from '~/core/networks';
 import {
@@ -31,10 +33,9 @@ import { ProposalsService, UniqueProposal } from '../proposals/proposals.service
 import { ApproveInput, ProposalEvent } from '../proposals/proposals.input';
 import { PaymastersService } from '~/feat/paymasters/paymasters.service';
 import { EstimatedTransactionFees } from '~/feat/transactions/transactions.model';
-import { InjectFlowProducer, InjectQueue } from '@nestjs/bullmq';
+import { InjectFlowProducer } from '@nestjs/bullmq';
 import { ExecutionsQueue } from '~/feat/transactions/executions.worker';
-import { FLOW_PRODUCER } from '~/core/bull/bull.util';
-import { QueueData, TypedQueue } from '~/core/bull/bull.util';
+import { FLOW_PRODUCER, QueueData } from '~/core/bull/bull.util';
 import { SimulationsQueue } from '~/feat/simulations/simulations.worker';
 import { TX_SHAPE, transactionAsTx } from '~/feat/transactions/transactions.util';
 import { encodeFunctionData, hashTypedData } from 'viem';
@@ -71,8 +72,6 @@ export class TransactionsService {
     private networks: NetworksService,
     private proposals: ProposalsService,
     private paymasters: PaymastersService,
-    @InjectQueue(SimulationsQueue.name)
-    private simulations: TypedQueue<SimulationsQueue>,
     @InjectFlowProducer(FLOW_PRODUCER)
     private flows: FlowProducer,
     private activations: ActivationsService,
@@ -94,17 +93,25 @@ export class TransactionsService {
     );
   }
 
-  async tryExecute(transaction: UUID, ignoreSimulation?: boolean) {
-    const t = await this.db.queryWith(
-      { transaction: e.uuid },
-      ({ transaction }) =>
-        e.select(e.Transaction, () => ({
-          filter_single: { id: transaction },
-          account: { address: true, active: true },
-        })),
-      { transaction },
-    );
+  async tryExecute(transaction: UUID | Hex, ignoreSimulation?: boolean) {
+    const t = isHex(transaction)
+      ? await this.db.queryWith2({ hash: e.Bytes32 }, { hash: transaction }, ({ hash }) =>
+          e.select(e.Transaction, () => ({
+            filter_single: { hash },
+            id: true,
+            account: { address: true, active: true },
+          })),
+        )
+      : await this.db.queryWith2({ id: e.uuid }, { id: transaction }, ({ id }) =>
+          e.select(e.Transaction, () => ({
+            filter_single: { id },
+            id: true,
+            account: { address: true, active: true },
+          })),
+        );
     if (!t) throw new Error(`Transaction proposal not found: ${transaction}`);
+
+    const id = asUUID(t.id);
     const account = asUAddress(t.account.address);
     const chain = asChain(account);
 
@@ -123,7 +130,7 @@ export class TransactionsService {
             queueName: ExecutionsQueue.name,
             name: 'Standard transaction',
             data: {
-              transaction,
+              transaction: id,
               ignoreSimulation,
               type: 'standard',
             } satisfies QueueData<ExecutionsQueue>,
@@ -135,7 +142,7 @@ export class TransactionsService {
                     data: { transaction } satisfies QueueData<SimulationsQueue>,
                   },
                 ]
-              : [this.activations.flow(account, transaction) /* Includes simulation */],
+              : [this.activations.flow(account, id) /* Includes simulation */],
           },
         ],
       },
@@ -234,7 +241,7 @@ export class TransactionsService {
       }),
     });
 
-    afterRequest(() => this.simulations.add(SimulationsQueue.name, { transaction: hash }));
+    afterRequest(() => this.tryExecute(hash));
 
     return insert;
   }
@@ -242,11 +249,8 @@ export class TransactionsService {
   async propose({ signature, ...args }: ProposeTransactionInput) {
     const id = asUUID((await this.db.query(await this.getInsertProposal(args))).id);
 
-    if (signature) {
-      await this.approve({ id, signature });
-    } else {
-      this.tryExecute(id);
-    }
+    this.proposals.event({ id, account: args.account }, ProposalEvent.create);
+    if (signature) await this.approve({ id, signature }, false);
 
     return { id };
   }
@@ -273,9 +277,9 @@ export class TransactionsService {
     });
   }
 
-  async approve(input: ApproveInput) {
+  async approve(input: ApproveInput, tryExecute = true) {
     await this.proposals.approve(input);
-    this.tryExecute(input.id);
+    if (tryExecute) this.tryExecute(input.id);
   }
 
   async update({ id, policy, feeToken }: UpdateTransactionInput) {
