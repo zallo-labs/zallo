@@ -87,12 +87,12 @@ export namespace $default {
     "implementation": string;
     "photo"?: string | null;
     "salt": string;
-    "policies": Policy[];
-    "approvers": Approver[];
     "messages": Message[];
     "proposals": Proposal[];
     "transactions": Transaction[];
     "transfers": Transfer[];
+    "policies": Policy[];
+    "approvers": Approver[];
   }
   export interface Action extends std.$Object {
     "functions": ActionFunction[];
@@ -210,8 +210,9 @@ export namespace $default {
     "proposal"?: Transaction | null;
     "initState": boolean;
     "isDraft": boolean;
-    "latest"?: Policy | null;
+    "latest"?: PolicyState | null;
     "isActive": boolean;
+    "isLatest": boolean;
   }
   export interface Policy extends PolicyState {
     "approvers": Approver[];
@@ -310,8 +311,8 @@ export namespace $default {
   export interface User extends std.$Object {
     "primaryAccount"?: Account | null;
     "approvers": Approver[];
-    "accounts": Account[];
     "contacts": Contact[];
+    "accounts": Account[];
   }
   export interface current_approver extends Approver {}
   export interface current_user extends User {}

@@ -9,9 +9,9 @@ import {
 } from 'lib';
 import { uuid } from 'edgedb/dist/codecs/ifaces';
 import e, { $infer, Set } from '~/edgeql-js';
-import { Shape } from '~/core/database';
+import { and, Shape } from '~/core/database';
 import { PolicyInput, TransfersConfigInput } from './policies.input';
-import { selectAccount } from '~/feat/accounts/accounts.util';
+import { selectAccount, selectAccount2 } from '~/feat/accounts/accounts.util';
 import { merge } from 'ts-deepmerge';
 import { match, P } from 'ts-pattern';
 import { getUserCtx } from '~/core/context';
@@ -24,7 +24,13 @@ export const selectPolicy = (id: UniquePolicy) =>
   typeof id === 'string'
     ? e.select(e.Policy, () => ({ filter_single: { id } }))
     : e.assert_single(
-        e.select(selectAccount(id.account).policies, (p) => ({ filter: e.op(p.key, '=', id.key) })),
+        e.select(e.Policy, (p) => ({
+          filter: and(
+            e.op(p.account, '?=', selectAccount(id.account)),
+            e.op(p.key, '=', id.key),
+            p.isLatest,
+          ),
+        })),
       );
 
 export const latestPolicy2 = (
@@ -32,10 +38,13 @@ export const latestPolicy2 = (
   key: Set<$uint16, $.Cardinality.One>,
 ) =>
   e.assert_single(
-    e.select(
-      e.select(e.Account, () => ({ filter_single: { address: account } })).policies,
-      (p) => ({ filter: e.op(p.key, '=', key) }),
-    ),
+    e.select(e.Policy, (p) => ({
+      filter: and(
+        e.op(p.account, '?=', selectAccount2(account)),
+        e.op(p.key, '=', key),
+        p.isLatest,
+      ),
+    })),
   );
 
 const s_ = (id: uuid) => e.select(e.Policy, () => ({ filter_single: { id } }));

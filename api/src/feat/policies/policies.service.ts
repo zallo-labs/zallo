@@ -40,7 +40,6 @@ import {
   transactionAsTx,
   ProposalTxShape,
   selectTransaction,
-  selectTransaction2,
 } from '../transactions/transactions.util';
 import { and, isExclusivityConstraintViolation } from '~/core/database';
 import { selectAccount, selectAccount2 } from '../accounts/accounts.util';
@@ -94,7 +93,6 @@ export class PoliciesService {
       !initState && (await this.getStateProposal(account, policyStateAsPolicy(state)));
 
     try {
-      // with proposal required - https://github.com/edgedb/edgedb/issues/6305
       const { id } = await this.db.query(
         e.insert(e.Policy, {
           account: selectAccount(account),
@@ -340,7 +338,7 @@ export class PoliciesService {
       ({ account }) =>
         e.select(selectAccount2(account).policies, (p) => ({
           id: true,
-          isActive: p.hasBeenActive, // WAY faster, and equivalent when selecting from account.policies
+          isActive: true,
           ...PolicyShape,
         })),
       { account },
