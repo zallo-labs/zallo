@@ -39,7 +39,7 @@ export class TransactionsResolver {
     @Input() input: ProposeTransactionInput,
     @Info() info: GraphQLResolveInfo,
   ) {
-    const { id } = await this.service.propose(input);
+    const id = await this.service.propose(input);
     return this.service.selectUnique(id, getShape(info));
   }
 
@@ -48,7 +48,7 @@ export class TransactionsResolver {
     @Input() input: ProposeCancelScheduledTransactionInput,
     @Info() info: GraphQLResolveInfo,
   ) {
-    const { id } = await this.service.proposeCancelScheduledTransaction(input);
+    const id = await this.service.proposeCancelScheduledTransaction(input);
     return this.service.selectUnique(id, getShape(info));
   }
 

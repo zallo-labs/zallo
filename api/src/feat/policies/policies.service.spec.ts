@@ -1,7 +1,15 @@
 import { Test } from '@nestjs/testing';
 import { createMock, DeepMocked } from '@golevelup/ts-jest';
 import { CreatePolicyParams, PoliciesService } from './policies.service';
-import { asPolicyKey, asSelector, randomDeploySalt, randomHex, UAddress, ZERO_ADDR } from 'lib';
+import {
+  asPolicyKey,
+  asSelector,
+  asUUID,
+  randomDeploySalt,
+  randomHex,
+  UAddress,
+  ZERO_ADDR,
+} from 'lib';
 import { UserContext } from '~/core/context';
 import { asUser, getUserCtx } from '~/core/context';
 import { randomAddress, randomLabel, randomUAddress, randomUser } from '~/util/test';
@@ -63,25 +71,29 @@ describe(PoliciesService.name, () => {
       })
     )._unsafeUnwrap();
 
-    proposals.getInsertProposal.mockImplementation(async () => {
+    proposals.propose.mockImplementation(async () => {
       const hash = randomHex(32);
 
-      return e.insert(e.Transaction, {
-        hash,
-        account: selectAccount(account),
-        policy: selectPolicy(initPolicy.id),
-        validationErrors: [],
-        unorderedOperations: e.insert(e.Operation, { to: ZERO_ADDR }),
-        timestamp: new Date(),
-        paymaster: ZERO_ADDR,
-        feeToken: e.assert_single(
-          e.select(e.Token, (t) => ({
-            filter: t.isFeeToken,
-            limit: 1,
-          })),
-        ),
-        maxAmount: '1',
-      });
+      const { id } = await db.query(
+        e.insert(e.Transaction, {
+          hash,
+          account: selectAccount(account),
+          policy: selectPolicy(initPolicy.id),
+          validationErrors: [],
+          unorderedOperations: e.insert(e.Operation, { to: ZERO_ADDR }),
+          timestamp: new Date(),
+          paymaster: ZERO_ADDR,
+          feeToken: e.assert_single(
+            e.select(e.Token, (t) => ({
+              filter: t.isFeeToken,
+              limit: 1,
+            })),
+          ),
+          maxAmount: '1',
+        }),
+      );
+
+      return asUUID(id);
     });
 
     const { id, key } = (
@@ -122,7 +134,7 @@ describe(PoliciesService.name, () => {
     it('proposes an upsert', () =>
       asUser(user1, async () => {
         await create();
-        expect(proposals.getInsertProposal).toHaveBeenCalled();
+        expect(proposals.propose).toHaveBeenCalled();
       }));
 
     it('inserts correct policy', () =>
@@ -182,7 +194,7 @@ describe(PoliciesService.name, () => {
       asUser(user1, async () => {
         const policy = await create();
 
-        expect(proposals.getInsertProposal).toHaveBeenCalled();
+        expect(proposals.propose).toHaveBeenCalled();
         await service.update({ ...policy, approvers: [] });
       }));
 
@@ -266,18 +278,18 @@ describe(PoliciesService.name, () => {
       asUser(user1, async () => {
         const policy = await create({ activate: true });
 
-        proposals.getInsertProposal.mockClear();
+        proposals.propose.mockClear();
         await service.remove(policy);
-        expect(proposals.getInsertProposal).toHaveBeenCalled();
+        expect(proposals.propose).toHaveBeenCalled();
       }));
 
     it('removes without a proposal if the policy is inactive', () =>
       asUser(user1, async () => {
         const policy = await create();
 
-        proposals.getInsertProposal.mockClear();
+        proposals.propose.mockClear();
         await service.remove(policy);
-        expect(proposals.getInsertProposal).not.toHaveBeenCalled();
+        expect(proposals.propose).not.toHaveBeenCalled();
       }));
 
     it("returns undefined if the user isn't a member of the account", async () => {

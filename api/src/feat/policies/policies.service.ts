@@ -35,7 +35,13 @@ import {
   latestPolicy2,
 } from './policies.util';
 import { NameTaken, Policy as PolicyModel, ValidationError } from './policies.model';
-import { TX_SHAPE, transactionAsTx, ProposalTxShape } from '../transactions/transactions.util';
+import {
+  TX_SHAPE,
+  transactionAsTx,
+  ProposalTxShape,
+  selectTransaction,
+  selectTransaction2,
+} from '../transactions/transactions.util';
 import { and, isExclusivityConstraintViolation } from '~/core/database';
 import { selectAccount, selectAccount2 } from '../accounts/accounts.util';
 import { err, ok } from 'neverthrow';
@@ -94,7 +100,7 @@ export class PoliciesService {
           account: selectAccount(account),
           key,
           name: name || `Policy ${key}`,
-          ...(proposal && { proposal }),
+          ...(proposal && { proposal: selectTransaction(proposal) }),
           ...this.insertStateShape(state, initState ? { account: asAddress(account) } : undefined),
         }),
       );
@@ -156,7 +162,7 @@ export class PoliciesService {
           account: selectAccount(account),
           key,
           name: name || selectPolicy({ account, key }).name,
-          proposal: await this.getStateProposal(account, newPolicy),
+          proposal: selectTransaction(await this.getStateProposal(account, newPolicy)),
           ...this.insertStateShape(newState),
         }),
       );
@@ -222,7 +228,7 @@ export class PoliciesService {
 
     if (!newPolicies.length) return;
 
-    const proposal = await this.transactions.getInsertProposal({
+    const transaction = await this.transactions.propose({
       label: 'Update ' + (newPolicies.length === 1 ? 'policy' : 'policies'),
       account,
       operations: newPolicies.map((p) => ({
@@ -236,19 +242,16 @@ export class PoliciesService {
     });
 
     const insertedPolicies = await this.db.query(
-      e.with(
-        [proposal],
-        e.select(
-          e.set(
-            ...newPolicies.map((p) =>
-              e.insert(e.Policy, {
-                account: selectAccount(account),
-                key: p.policy.key,
-                name: p.name,
-                proposal,
-                ...this.insertStateShape(p.state),
-              }),
-            ),
+      e.select(
+        e.set(
+          ...newPolicies.map((p) =>
+            e.insert(e.Policy, {
+              account: selectAccount(account),
+              key: p.policy.key,
+              name: p.name,
+              proposal: selectTransaction(transaction),
+              ...this.insertStateShape(p.state),
+            }),
           ),
         ),
       ),
@@ -272,26 +275,31 @@ export class PoliciesService {
     );
     if (!policy || policy.removalDrafted) return;
 
-    await this.db.query(
-      e.insert(e.RemovedPolicy, {
-        account: selectAccount(account),
-        key,
-        ...(policy.isActive && {
-          proposal: await this.transactions.getInsertProposal({
-            account,
-            operations: [
-              {
-                to: asAddress(account),
-                data: encodeFunctionData({
-                  abi: ACCOUNT_ABI,
-                  functionName: 'removePolicy',
-                  args: [key],
-                }),
-              },
-            ],
-          }),
+    const transaction =
+      policy.isActive &&
+      (await this.transactions.propose({
+        account,
+        operations: [
+          {
+            to: asAddress(account),
+            data: encodeFunctionData({
+              abi: ACCOUNT_ABI,
+              functionName: 'removePolicy',
+              args: [key],
+            }),
+          },
+        ],
+      }));
+
+    await this.db.queryWith2(
+      { account: e.UAddress, key: e.uint16, transaction: e.optional(e.uuid) },
+      { account, key, transaction: transaction || undefined },
+      ({ account, key, transaction }) =>
+        e.insert(e.RemovedPolicy, {
+          account: selectAccount2(account),
+          key,
+          proposal: e.select(e.Transaction, () => ({ filter_single: { id: transaction } })),
         }),
-      }),
     );
   }
 
@@ -330,9 +338,9 @@ export class PoliciesService {
     const policies = await this.db.queryWith(
       { account: e.UAddress },
       ({ account }) =>
-        e.select(selectAccount2(account).policies, () => ({
+        e.select(selectAccount2(account).policies, (p) => ({
           id: true,
-          isActive: true,
+          isActive: p.hasBeenActive, // WAY faster, and equivalent when selecting from account.policies
           ...PolicyShape,
         })),
       { account },
@@ -359,6 +367,7 @@ export class PoliciesService {
 
     const p = sorted[0];
     return {
+      policyId: p.id,
       policy: e.assert_exists(e.select(e.Policy, () => ({ filter_single: { id: p.id } }))),
       validationErrors: p.validationErrors,
     };
@@ -416,7 +425,7 @@ export class PoliciesService {
   }
 
   private async getStateProposal(account: UAddress, policy: Policy) {
-    return await this.transactions.getInsertProposal({
+    return await this.transactions.propose({
       account,
       operations: [
         {

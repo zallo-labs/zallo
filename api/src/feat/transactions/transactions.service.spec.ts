@@ -143,6 +143,7 @@ describe(TransactionsService.name, () => {
     }
 
     policies.best.mockImplementation(async () => ({
+      policyId: await db.query(e.assert_exists(selectPolicy({ account, key: 0 })).id),
       policy: selectPolicy({ account, key: 0 }) as any,
       validationErrors: [],
     }));
@@ -153,7 +154,7 @@ describe(TransactionsService.name, () => {
   describe('propose', () => {
     it('creates a proposal', () =>
       asUser(user1, async () => {
-        const { id } = await propose();
+        const id = await propose();
 
         expect(await db.query(selectTransaction(id))).toBeTruthy();
       }));
@@ -169,12 +170,12 @@ describe(TransactionsService.name, () => {
   describe('selectUnqiue', () => {
     it('returns proposal', () =>
       asUser(user1, async () => {
-        const { id } = await propose();
+        const id = await propose();
         expect(await service.selectUnique(id)).toBeTruthy();
       }));
 
     it("returns null if the proposal if from an account the user isn't a member of", async () => {
-      const { id } = await asUser(user1, () => propose());
+      const id = await asUser(user1, () => propose());
 
       await asUser(randomUser(), async () => {
         expect(await service.selectUnique(id)).toBeNull();
@@ -418,7 +419,7 @@ describe(TransactionsService.name, () => {
   describe('delete', () => {
     it('deletes proposal', () =>
       asUser(user1, async () => {
-        const { id } = await propose();
+        const id = await propose();
         await service.delete(id);
 
         expect(await db.query(selectTransaction(id))).toBeNull();
@@ -430,14 +431,14 @@ describe(TransactionsService.name, () => {
       }));
 
     it("not remove if the user isn't a member of the proposing account", async () => {
-      const { id } = await asUser(user1, () => propose());
+      const id = await asUser(user1, () => propose());
 
       await asUser(randomUser(), async () => expect(await service.delete(id)).toEqual(null));
     });
 
     it('deletes policy that the proposal was going to create', () =>
       asUser(user1, async () => {
-        const { id } = await propose();
+        const id = await propose();
 
         const policy = await db.query(
           e.insert(e.Policy, {
