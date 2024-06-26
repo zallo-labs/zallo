@@ -65,7 +65,7 @@ export class TransactionsEvents implements OnModuleInit {
     if (!proposal) return `Transaction already processed: ${receipt.transactionHash}`;
 
     this.log.debug(`Proposal executed: ${proposal.id}`);
-    this.proposals.publish(proposal, ProposalEvent.executed);
+    this.proposals.event(proposal, ProposalEvent.executed);
 
     // const usdPerEth = new Decimal(transaction.usdPerFeeToken).div(transaction.ethPerFeeToken);
     const revenue = 0; // new Decimal(0).mul(usdPerEth).toNumber();
@@ -101,7 +101,7 @@ export class TransactionsEvents implements OnModuleInit {
     if (!proposal) return `Transaction already processed: ${receipt.transactionHash}`;
 
     this.log.debug(`Proposal reverted: ${proposal.id}`);
-    this.proposals.publish(proposal, ProposalEvent.executed);
+    this.proposals.event(proposal, ProposalEvent.executed);
 
     // const usdPerEth = new Decimal(transaction.usdPerFeeToken).div(transaction.ethPerFeeToken);
     const revenue = 0; // new Decimal(0).mul(usdPerEth).toNumber();

@@ -1,10 +1,10 @@
-import { Context, Info, Parent, Query, Resolver, Subscription } from '@nestjs/graphql';
+import { Context, Parent, Resolver, Subscription } from '@nestjs/graphql';
 import {
   TRANSFER_VALUE_FIELDS_SHAPE,
   TransferValueSelectFields,
   TransfersService,
 } from './transfers.service';
-import { TransferSubscriptionInput, TransfersInput } from './transfers.input';
+import { TransferSubscriptionInput } from './transfers.input';
 import { Transfer, TransferDetails } from './transfers.model';
 import { GraphQLResolveInfo } from 'graphql';
 import { getShape } from '~/core/database';
@@ -12,7 +12,7 @@ import { Input, InputArgs } from '~/common/decorators/input.decorator';
 import { GqlContext } from '~/core/apollo/ctx';
 import { asUser, getUserCtx } from '~/core/context';
 import { PubsubService } from '~/core/pubsub/pubsub.service';
-import { TransferSubscriptionPayload, getTransferTrigger } from './transfers.events';
+import { TransferSubscriptionPayload, transferTrigger } from './transfers.events';
 import { ComputedField } from '~/common/decorators/computed.decorator';
 import { DecimalScalar } from '~/common/scalars/Decimal.scalar';
 import Decimal from 'decimal.js';
@@ -23,6 +23,11 @@ export class TransfersResolver {
     private service: TransfersService,
     private pubsub: PubsubService,
   ) {}
+
+  @ComputedField(() => DecimalScalar, TRANSFER_VALUE_FIELDS_SHAPE, { nullable: true })
+  async value(@Parent() parent: TransferValueSelectFields): Promise<Decimal | null> {
+    return this.service.value(parent);
+  }
 
   @Subscription(() => Transfer, {
     name: 'transfer',
@@ -53,12 +58,7 @@ export class TransfersResolver {
       // Subscribe to all available accounts if none are specified
       if (!accounts?.length) accounts = getUserCtx().accounts.map((a) => a.address);
 
-      return this.pubsub.asyncIterator(accounts.map((account) => getTransferTrigger(account)));
+      return this.pubsub.asyncIterator(accounts.map((account) => transferTrigger(account)));
     });
-  }
-
-  @ComputedField(() => DecimalScalar, TRANSFER_VALUE_FIELDS_SHAPE, { nullable: true })
-  async value(@Parent() parent: TransferValueSelectFields): Promise<Decimal | null> {
-    return this.service.value(parent);
   }
 }

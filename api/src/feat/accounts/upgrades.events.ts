@@ -65,7 +65,7 @@ export class UpgradeEvents {
     if (!updated) return;
 
     this.log.debug(`Account ${address} upgraded to ${implementation}`);
-    await this.accounts.publishAccount({ account: address, event: AccountEvent.update });
+    await this.accounts.event({ account: address, event: AccountEvent.update });
     if (activated) {
       users.forEach((user) => ampli.accountActivated(user.id));
     }

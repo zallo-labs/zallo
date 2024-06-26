@@ -9,8 +9,7 @@ import { Proposal, ProposalUpdated } from './proposals.model';
 import {
   ProposalsService,
   ProposalSubscriptionPayload,
-  getProposalTrigger,
-  getProposalAccountTrigger,
+  proposalTrigger,
 } from './proposals.service';
 import { PubsubService } from '~/core/pubsub/pubsub.service';
 
@@ -40,9 +39,9 @@ export class ProposalsResolver {
 
   @Subscription(() => ProposalUpdated, {
     filter: (
-      { event }: ProposalSubscriptionPayload,
-      { input: { events } }: InputArgs<ProposalUpdatedInput>,
-    ) => !events || events.includes(event),
+      { id, event }: ProposalSubscriptionPayload,
+      { input: { proposals, events } }: InputArgs<ProposalUpdatedInput>,
+    ) => (!proposals || proposals?.includes(id)) && (!events || events.includes(event)),
     async resolve(
       this: ProposalsResolver,
       { id, account, event }: ProposalSubscriptionPayload,
@@ -62,17 +61,13 @@ export class ProposalsResolver {
     },
   })
   async proposalUpdated(
-    @Input({ defaultValue: {} }) { proposals, accounts }: ProposalUpdatedInput,
+    @Input({ defaultValue: {} }) { accounts }: ProposalUpdatedInput,
     @Context() ctx: GqlContext,
   ) {
     return asUser(ctx, async () => {
-      if (!accounts?.length && !proposals?.length)
-        accounts = getUserCtx().accounts.map((a) => a.address);
+      if (!accounts?.length) accounts = getUserCtx().accounts.map((a) => a.address);
 
-      return this.pubsub.asyncIterator([
-        ...[...(proposals ?? [])].map(getProposalTrigger),
-        ...[...(accounts ?? [])].map(getProposalAccountTrigger),
-      ]);
+      return this.pubsub.asyncIterator(accounts.map(proposalTrigger));
     });
   }
 }

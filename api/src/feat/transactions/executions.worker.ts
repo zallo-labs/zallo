@@ -226,7 +226,7 @@ export class ExecutionsWorker extends Worker<ExecutionsQueue> {
       }
     })();
 
-    this.proposals.publish({ id, account }, ProposalEvent.submitted);
+    this.proposals.event({ id, account }, ProposalEvent.submitted);
 
     return r;
   }

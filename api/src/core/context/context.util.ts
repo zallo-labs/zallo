@@ -51,7 +51,12 @@ export function getApprover() {
 }
 
 export function afterRequest(hook: AfterRequestHook) {
-  getContext().afterRequestHooks.push(hook);
+  const ctx = getContextUnsafe();
+  if (ctx) {
+    ctx.afterRequestHooks.push(hook);
+  } else {
+    hook();
+  }
 }
 
 export function asUser<R, TArgs extends unknown[]>(

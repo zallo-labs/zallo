@@ -10,16 +10,16 @@ import { uuid } from 'edgedb/dist/codecs/ifaces';
 import { UserInputError } from '@nestjs/apollo';
 import { AccountsCacheService } from '../auth/accounts.cache.service';
 import { Address, asAddress } from 'lib';
-import { PubsubService } from '~/core/pubsub/pubsub.service';
+import { EventPayload, PubsubService } from '~/core/pubsub/pubsub.service';
 import { getUserCtx } from '~/core/context';
 
 const TOKEN_EXPIRY_S = 60 * 60; // 1 hour
 
-export interface UserLinkedPayload {
+export interface UserLinkedPayload extends EventPayload<'linked'> {
   issuer: Address;
   linker: Address;
 }
-const getUserLinkedTrigger = (user: uuid) => `user-linked:${user}`;
+const userLinkedTrigger = (user: uuid) => `user.linked:${user}`;
 
 @Injectable()
 export class UsersService {
@@ -57,7 +57,7 @@ export class UsersService {
   async subscribeToUser() {
     const user = await this.db.query(e.assert_exists(e.select(e.global.current_user.id)));
 
-    return this.pubsub.asyncIterator([getUserLinkedTrigger(user)]);
+    return this.pubsub.asyncIterator(userLinkedTrigger(user));
   }
 
   async generateLinkingToken() {
@@ -68,7 +68,7 @@ export class UsersService {
     const z = await this.redis
       .multi()
       .set(key, newSecret, 'NX', 'GET') // get if exists or set if not
-      .expire(key, TOKEN_EXPIRY_S)
+      .expire(key, TOKEN_EXPIRY_S) // resets expiry
       .exec();
     if (!z) throw new Error('Failed to generate linking token');
     const secret = z[0][1] ?? newSecret;
@@ -116,10 +116,10 @@ export class UsersService {
       },
     );
 
-    const payload: UserLinkedPayload = { issuer, linker: getUserCtx().approver };
-    this.pubsub.publish<UserLinkedPayload>(getUserLinkedTrigger(linkerUserId), payload);
+    const payload: UserLinkedPayload = { event: 'linked', issuer, linker: getUserCtx().approver };
+    this.pubsub.event<UserLinkedPayload>(userLinkedTrigger(linkerUserId), payload);
     if (issuerUser) {
-      this.pubsub.publish<UserLinkedPayload>(getUserLinkedTrigger(issuerUser), payload);
+      this.pubsub.event<UserLinkedPayload>(userLinkedTrigger(issuerUser), payload);
 
       this.accountsCache.invalidateApproversCache(...(issuerApprovers as Address[]));
       this.accountsCache.invalidateUsersCache(issuerUser, linkerUserId);

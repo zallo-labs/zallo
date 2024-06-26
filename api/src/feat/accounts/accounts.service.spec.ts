@@ -139,9 +139,9 @@ describe(AccountsService.name, () => {
     it('publishes account', () =>
       asUser(user1, async () => {
         const newLabel = randomLabel();
-        service.publishAccount = jest.fn();
+        service.event = jest.fn();
         await service.updateAccount({ account: user1Account, name: newLabel });
-        expect(service.publishAccount).toBeCalledTimes(1);
+        expect(service.event).toBeCalledTimes(1);
       }));
 
     it('throws if user is not member of account being updated', () =>

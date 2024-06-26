@@ -10,7 +10,7 @@ import {
   ProposalsInput,
   UpdateProposalInput,
 } from './proposals.input';
-import { PubsubService } from '~/core/pubsub/pubsub.service';
+import { EventPayload, PubsubService } from '~/core/pubsub/pubsub.service';
 import { $ } from 'edgedb';
 import { $uuid } from '~/edgeql-js/modules/std';
 import { rejectProposal } from './reject-proposal.query';
@@ -25,13 +25,11 @@ export const selectProposal = (id: UniqueProposal) =>
 export const selectProposal2 = (id: Set<$uuid, $.Cardinality.One>) =>
   e.select(e.Proposal, () => ({ filter_single: { id } }));
 
-export interface ProposalSubscriptionPayload {
+export interface ProposalSubscriptionPayload extends EventPayload<ProposalEvent> {
   id: UUID;
   account: UAddress;
-  event: ProposalEvent;
 }
-export const getProposalTrigger = (id: UUID) => `proposal.${id}`;
-export const getProposalAccountTrigger = (account: UAddress) => `proposal.account.${account}`;
+export const proposalTrigger = (account: UAddress) => `account.proposal:${account}`;
 
 @Injectable()
 export class ProposalsService {
@@ -103,19 +101,19 @@ export class ProposalsService {
     if (!(await asApproval({ hash, approver, signature, network })))
       throw new UserInputError('Invalid signature');
 
-    await this.db.exec(approveProposal, {
+    const approval = await this.db.exec(approveProposal, {
       proposal: id,
       approver,
       signature,
     });
 
-    this.publish(id, ProposalEvent.approval);
+    this.event(approval.proposal, ProposalEvent.approval);
   }
 
   async reject(id: UUID) {
-    await this.db.exec(rejectProposal, { proposal: id });
+    const rejection = await this.db.exec(rejectProposal, { proposal: id });
 
-    this.publish(id, ProposalEvent.rejection);
+    this.event(rejection.proposal, ProposalEvent.rejection);
   }
 
   async update({ id, policy }: UpdateProposalInput) {
@@ -139,14 +137,13 @@ export class ProposalsService {
       { id, policy },
     );
 
-    this.publish(p, ProposalEvent.update);
+    this.event(p, ProposalEvent.update);
   }
 
-  async publish(
+  async event(
     proposal:
       | { id: UUID; account: UAddress }
       | { id: string; account: { address: string } }
-      | UUID
       | undefined
       | null,
     event: ProposalEvent,
@@ -154,25 +151,14 @@ export class ProposalsService {
     if (!proposal) return;
 
     const { id, account } =
-      typeof proposal === 'string'
-        ? await (async () => {
-            const account = await this.db.queryWith2({ id: e.uuid }, { id: proposal }, ({ id }) =>
-              e.assert_exists(
-                e.select(e.Proposal, () => ({ filter_single: { id } })).account.address,
-              ),
-            );
+      typeof proposal.account === 'object'
+        ? { id: asUUID(proposal.id), account: asUAddress(proposal.account.address) }
+        : (proposal as { id: UUID; account: UAddress });
 
-            return { id: proposal, account: asUAddress(account) };
-          })()
-        : typeof proposal.account === 'object'
-          ? { id: asUUID(proposal.id), account: asUAddress(proposal.account.address) }
-          : (proposal as { id: UUID; account: UAddress });
-
-    const payload: ProposalSubscriptionPayload = { id, account, event };
-
-    await Promise.all([
-      this.pubsub.publish<ProposalSubscriptionPayload>(getProposalTrigger(id), payload),
-      this.pubsub.publish<ProposalSubscriptionPayload>(getProposalAccountTrigger(account), payload),
-    ]);
+    await this.pubsub.event<ProposalSubscriptionPayload>(proposalTrigger(account), {
+      id,
+      account,
+      event,
+    });
   }
 }

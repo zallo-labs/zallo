@@ -8,16 +8,10 @@ import {
   NameAvailableInput,
   AccountsInput,
 } from './accounts.input';
-import { PubsubService } from '~/core/pubsub/pubsub.service';
 import { GqlContext } from '~/core/apollo/ctx';
 import { asUser, getApprover, getUserCtx } from '~/core/context';
 import { Account } from './accounts.model';
-import {
-  AccountSubscriptionPayload,
-  AccountsService,
-  getAccountTrigger,
-  getAccountApproverTrigger,
-} from './accounts.service';
+import { AccountSubscriptionPayload, AccountsService } from './accounts.service';
 import { getShape } from '~/core/database';
 import { Input, InputArgs } from '~/common/decorators/input.decorator';
 import { AccountsCacheService } from '../auth/accounts.cache.service';
@@ -34,7 +28,6 @@ import { Proposal } from '~/feat/proposals/proposals.model';
 export class AccountsResolver {
   constructor(
     private service: AccountsService,
-    private pubsub: PubsubService,
     private accountsCache: AccountsCacheService,
     private transfersService: TransfersService,
     private proposalsService: ProposalsService,
@@ -113,13 +106,9 @@ export class AccountsResolver {
     },
   })
   async subscribeToAccounts(
-    @Input({ defaultValue: {} }) { accounts }: AccountSubscriptionInput,
+    @Input({ defaultValue: {} }) input: AccountSubscriptionInput,
     @Context() ctx: GqlContext,
   ) {
-    return asUser(ctx, () =>
-      this.pubsub.asyncIterator(
-        accounts ? [...accounts].map(getAccountTrigger) : getAccountApproverTrigger(getApprover()),
-      ),
-    );
+    return asUser(ctx, () => this.service.subscribe(input));
   }
 }

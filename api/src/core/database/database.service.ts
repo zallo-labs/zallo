@@ -90,10 +90,10 @@ export class DatabaseService implements OnModuleInit {
     return this.run(expression.run(this.client, params as any)) as Promise<$infer<Expr>>;
   }
 
-  async exec<F extends (client: Executor, args: any) => Promise<R>, R>(
+  async exec<F extends (client: Executor, args: any) => Promise<any>>(
     f: F,
     args: Parameters<F>[1],
-  ): Promise<R> {
+  ): Promise<Awaited<ReturnType<F>>> {
     return this.run(f(this.client, args), f.name);
   }
 

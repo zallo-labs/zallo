@@ -340,7 +340,7 @@ export class TransactionsService {
 
     if (policy !== undefined) await this.tryExecute(id);
 
-    this.proposals.publish({ id, account: p.account }, ProposalEvent.update);
+    this.proposals.event({ id, account: p.account }, ProposalEvent.update);
 
     return { id };
   }
@@ -362,7 +362,7 @@ export class TransactionsService {
       }),
     );
 
-    this.proposals.publish(t, ProposalEvent.delete);
+    this.proposals.event(t, ProposalEvent.delete);
 
     return t?.id ?? null;
   }

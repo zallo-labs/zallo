@@ -9,7 +9,15 @@ export type ApproveProposalArgs = {
 };
 
 export type ApproveProposalReturns = {
-  "id": string;
+  "approval": {
+    "id": string;
+  };
+  "proposal": {
+    "id": string;
+    "account": {
+      "address": string;
+    };
+  } | null;
 };
 
 export function approveProposal(client: Executor, args: ApproveProposalArgs): Promise<ApproveProposalReturns> {
@@ -17,11 +25,19 @@ export function approveProposal(client: Executor, args: ApproveProposalArgs): Pr
 with proposal := (select Proposal filter .id = <uuid>$proposal),
      approver := (select Approver filter .address = <UAddress>$approver),
      deletedResponse := (delete ProposalResponse filter .proposal = proposal and .approver = approver)
-insert Approval {
-  proposal := proposal,
-  approver := approver,
-  signedHash := proposal.hash,
-  signature := <Bytes>$signature
+select {
+  approval := (
+    insert Approval {
+      proposal := proposal,
+      approver := approver,
+      signedHash := proposal.hash,
+      signature := <Bytes>$signature
+    }
+  ),
+  proposal := (
+    id := proposal.id,
+    account := { address := proposal.account.address }
+  )
 }`, args);
 
 }

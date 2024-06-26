@@ -125,7 +125,7 @@ export class MessagesService {
     );
 
     const id = asUUID(proposal.id);
-    if (inserted) this.proposals.publish({ id, account }, ProposalEvent.create);
+    if (inserted) this.proposals.event({ id, account }, ProposalEvent.create);
 
     if (signature) await this.approve({ id, signature });
 
@@ -153,7 +153,7 @@ export class MessagesService {
       { id: proposal },
     );
 
-    this.proposals.publish({ id: proposal, account: asUAddress(account) }, ProposalEvent.delete);
+    this.proposals.event({ id: proposal, account: asUAddress(account) }, ProposalEvent.delete);
 
     return proposal;
   }
@@ -218,7 +218,7 @@ export class MessagesService {
       { id, signature },
     );
 
-    await this.proposals.publish({ id, account }, ProposalEvent.signed);
+    await this.proposals.event({ id, account }, ProposalEvent.signed);
 
     return signature;
   }

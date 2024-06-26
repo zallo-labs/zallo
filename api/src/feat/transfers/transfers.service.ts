@@ -4,7 +4,6 @@ import { DatabaseService } from '~/core/database';
 import e, { $infer } from '~/edgeql-js';
 import { and } from '~/core/database';
 import { ShapeFunc } from '~/core/database';
-import { selectAccount } from '../accounts/accounts.util';
 import { uuid } from 'edgedb/dist/codecs/ifaces';
 import { Shape } from '~/core/database';
 import { PricesService } from '../prices/prices.service';

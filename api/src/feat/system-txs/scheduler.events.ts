@@ -62,7 +62,7 @@ export class SchedulerEvents implements OnModuleInit {
 
     if (proposalId) {
       this.flows.add(this.getJob(asUUID(proposalId), event.chain, scheduledFor));
-      this.proposals.publish({ id: asUUID(proposalId), account }, ProposalEvent.scheduled);
+      this.proposals.event({ id: asUUID(proposalId), account }, ProposalEvent.scheduled);
       this.log.debug(`Scheduled ${proposalId}`);
     }
   }
@@ -85,7 +85,7 @@ export class SchedulerEvents implements OnModuleInit {
 
     if (proposalId) {
       this.queue.remove(event.log.args.proposal);
-      this.proposals.publish({ id: asUUID(proposalId), account }, ProposalEvent.cancelled);
+      this.proposals.event({ id: asUUID(proposalId), account }, ProposalEvent.cancelled);
       this.log.debug(`Cancelled scheduled ${proposalId}`);
     }
   }

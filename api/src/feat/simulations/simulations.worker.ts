@@ -194,7 +194,7 @@ export class SimulationsWorker extends Worker<SimulationsQueue> {
       }),
     );
 
-    this.proposals.publish({ id: asUUID(p.id), account }, ProposalEvent.simulated);
+    this.proposals.event({ id: asUUID(p.id), account }, ProposalEvent.simulated);
 
     return { executable };
   }

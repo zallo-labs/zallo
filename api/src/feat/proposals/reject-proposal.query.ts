@@ -7,15 +7,32 @@ export type RejectProposalArgs = {
 };
 
 export type RejectProposalReturns = {
-  "id": string;
+  "rejection": {
+    "id": string;
+  };
+  "proposal": {
+    "id": string;
+    "account": {
+      "address": string;
+    };
+  } | null;
 };
 
 export function rejectProposal(client: Executor, args: RejectProposalArgs): Promise<RejectProposalReturns> {
   return client.queryRequiredSingle(`\
 with proposal := (select Proposal filter .id = <uuid>$proposal),
      deletedResponse := (delete ProposalResponse filter .proposal = proposal and .approver = global current_approver)
-insert Rejection {
-  proposal := proposal
+
+select {
+  rejection := (
+    insert Rejection {
+      proposal := proposal
+    }
+  ),
+  proposal := (
+    id := proposal.id,
+    account := { address := proposal.account.address }
+  )
 }`, args);
 
 }
