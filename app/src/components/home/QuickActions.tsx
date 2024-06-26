@@ -1,4 +1,4 @@
-import { QrCodeIcon, OutboundIcon, SwapIcon, ScanIcon, ReceiveIcon } from '@theme/icons';
+import { OutboundIcon, SwapIcon, ScanIcon, ReceiveIcon } from '@theme/icons';
 import { ScrollView, View } from 'react-native';
 import { UAddress } from 'lib';
 import { Link } from 'expo-router';
@@ -23,7 +23,13 @@ export function QuickActions({ account }: QuickActionsProps) {
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={styles.content}
       >
-        <Button mode="contained" icon={OutboundIcon} onPress={() => send({ account })}>
+        <Button
+          mode="contained"
+          icon={OutboundIcon}
+          onPress={() => {
+            send({ account });
+          }}
+        >
           Send
         </Button>
 
