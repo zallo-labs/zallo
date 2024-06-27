@@ -42,7 +42,7 @@ input AccountInput {
   account: UAddress
 }
 
-input AccountSubscriptionInput {
+input AccountUpdatedInput {
   """Defaults to user accounts"""
   accounts: [UAddress!]
 
@@ -424,6 +424,13 @@ type Policy implements Node & PolicyState {
   validationErrors(proposal: ID!): [ValidationError!]!
 }
 
+enum PolicyEvent {
+  activated
+  created
+  removed
+  updated
+}
+
 input PolicyInput {
   actions: [ActionInput!]
   allowMessages: Boolean
@@ -453,6 +460,20 @@ interface PolicyState implements Node {
   key: PolicyKey!
   latest: Policy
   proposal: Transaction
+}
+
+type PolicyUpdated implements CustomNode {
+  account: UAddress!
+  event: PolicyEvent!
+  id: ID!
+  policy: Policy!
+}
+
+input PolicyUpdatedInput {
+  accounts: [UAddress!]
+
+  """Defaults to all events"""
+  events: PolicyEvent
 }
 
 type Price implements CustomNode {
@@ -682,7 +703,8 @@ input SpendingInput {
 }
 
 type Subscription {
-  account(input: AccountSubscriptionInput! = {}): Account!
+  accountUpdated(input: AccountUpdatedInput! = {}): Account!
+  policyUpdated(input: PolicyUpdatedInput! = {}): PolicyUpdated!
   proposalUpdated(input: ProposalUpdatedInput! = {}): ProposalUpdated!
   transfer(input: TransferSubscriptionInput! = {}): Transfer!
   userLinked: UserLinked!

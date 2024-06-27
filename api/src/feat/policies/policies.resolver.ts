@@ -1,4 +1,13 @@
-import { Args, Info, Mutation, Parent, Query, Resolver } from '@nestjs/graphql';
+import {
+  Args,
+  Context,
+  Info,
+  Mutation,
+  Parent,
+  Query,
+  Resolver,
+  Subscription,
+} from '@nestjs/graphql';
 import { GraphQLResolveInfo } from 'graphql';
 import {
   CreatePolicyInput,
@@ -6,19 +15,23 @@ import {
   UniquePolicyInput,
   UpdatePolicyInput,
   UpdatePoliciesInput,
+  PolicyUpdatedInput,
 } from './policies.input';
-import { PoliciesService } from './policies.service';
+import { PoliciesService, PolicyUpdatedPayload } from './policies.service';
 import {
   CreatePolicyResponse,
   Policy,
+  PolicyUpdated,
   UpdatePolicyResponse,
   ValidationError,
 } from './policies.model';
 import { getShape } from '~/core/database';
-import { Input } from '~/common/decorators/input.decorator';
+import { Input, InputArgs } from '~/common/decorators/input.decorator';
 import e from '~/edgeql-js';
 import { ComputedField } from '~/common/decorators/computed.decorator';
 import { PolicyShape } from './policies.util';
+import { GqlContext } from '~/core/apollo/ctx';
+import { asUser } from '~/core/context';
 
 @Resolver(() => Policy)
 export class PoliciesResolver {
@@ -62,5 +75,32 @@ export class PoliciesResolver {
   async removePolicy(@Input() input: UniquePolicyInput, @Info() info: GraphQLResolveInfo) {
     await this.service.remove(input);
     return this.service.latest({ account: input.account, key: input.key }, getShape(info));
+  }
+
+  @Subscription(() => PolicyUpdated, {
+    filter: (
+      { event }: PolicyUpdatedPayload,
+      { input: { events } }: InputArgs<PolicyUpdatedInput>,
+    ) => !events || events.includes(event),
+    resolve(
+      this: PoliciesResolver,
+      p: PolicyUpdatedPayload,
+      _input,
+      ctx: GqlContext,
+      info: GraphQLResolveInfo,
+    ) {
+      return asUser(ctx, async () => ({
+        id: `${p.policyId}:${p.event}`,
+        event: p.event,
+        account: p.account,
+        policy: await this.service.selectUnique(p.policyId, getShape(info)),
+      }));
+    },
+  })
+  async policyUpdated(
+    @Input({ defaultValue: {} }) input: PolicyUpdatedInput,
+    @Context() ctx: GqlContext,
+  ) {
+    return asUser(ctx, () => this.service.subscribe(input.accounts));
   }
 }

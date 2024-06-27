@@ -1,11 +1,12 @@
-import { Field, ObjectType, createUnionType } from '@nestjs/graphql';
+import { Field, ObjectType, createUnionType, registerEnumType } from '@nestjs/graphql';
 import { GraphQLBigInt } from 'graphql-scalars';
 import { Account } from '../accounts/accounts.model';
 import { Transaction } from '../transactions/transactions.model';
 import * as eql from '~/edgeql-interfaces';
-import { Address, PolicyKey, Selector } from 'lib';
+import { Address, PolicyKey, Selector, UAddress } from 'lib';
 import { Approver } from '../approvers/approvers.model';
 import {
+  CustomNodeType,
   Err,
   ErrorType,
   Node,
@@ -15,7 +16,13 @@ import {
 import { AbiFunction } from 'abitype';
 import { makeUnionTypeResolver } from '~/core/database';
 import e from '~/edgeql-js';
-import { AddressField, SelectorField, AbiFunctionField, PolicyKeyField } from '~/common/scalars';
+import {
+  AddressField,
+  SelectorField,
+  AbiFunctionField,
+  PolicyKeyField,
+  UAddressField,
+} from '~/common/scalars';
 
 @NodeType()
 export class ActionFunction extends Node implements eql.ActionFunction {
@@ -154,3 +161,23 @@ export const UpdatePolicyResponse = createUnionType({
   types: () => [Policy, NameTaken],
   resolveType: makeUnionTypeResolver([[e.Policy, Policy]]),
 });
+
+export enum PolicyEvent {
+  created,
+  updated,
+  activated,
+  removed,
+}
+registerEnumType(PolicyEvent, { name: 'PolicyEvent' });
+
+@CustomNodeType()
+export class PolicyUpdated {
+  @Field(() => PolicyEvent)
+  event: PolicyEvent;
+
+  @UAddressField()
+  account: UAddress;
+
+  @Field(() => Policy)
+  policy: Policy;
+}

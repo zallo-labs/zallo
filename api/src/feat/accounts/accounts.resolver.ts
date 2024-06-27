@@ -4,14 +4,14 @@ import {
   AccountInput,
   UpdateAccountInput,
   CreateAccountInput,
-  AccountSubscriptionInput,
+  AccountUpdatedInput,
   NameAvailableInput,
   AccountsInput,
 } from './accounts.input';
 import { GqlContext } from '~/core/apollo/ctx';
 import { asUser, getApprover, getUserCtx } from '~/core/context';
 import { Account } from './accounts.model';
-import { AccountSubscriptionPayload, AccountsService } from './accounts.service';
+import { AccountUpdatedPayload, AccountsService } from './accounts.service';
 import { getShape } from '~/core/database';
 import { Input, InputArgs } from '~/common/decorators/input.decorator';
 import { AccountsCacheService } from '../auth/accounts.cache.service';
@@ -85,14 +85,13 @@ export class AccountsResolver {
   }
 
   @Subscription(() => Account, {
-    name: 'account',
     filter: (
-      { event }: AccountSubscriptionPayload,
-      { input: { events } }: InputArgs<AccountSubscriptionInput>,
+      { event }: AccountUpdatedPayload,
+      { input: { events } }: InputArgs<AccountUpdatedInput>,
     ) => !events || events.includes(event),
     resolve(
       this: AccountsResolver,
-      { account }: AccountSubscriptionPayload,
+      { account }: AccountUpdatedPayload,
       _input,
       ctx: GqlContext,
       info: GraphQLResolveInfo,
@@ -105,8 +104,8 @@ export class AccountsResolver {
       });
     },
   })
-  async subscribeToAccounts(
-    @Input({ defaultValue: {} }) input: AccountSubscriptionInput,
+  async accountUpdated(
+    @Input({ defaultValue: {} }) input: AccountUpdatedInput,
     @Context() ctx: GqlContext,
   ) {
     return asUser(ctx, () => this.service.subscribe(input));

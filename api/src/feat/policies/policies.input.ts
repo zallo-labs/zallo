@@ -10,7 +10,9 @@ import {
   SelectorField,
   AbiFunctionField,
   AddressScalar,
+  UAddressScalar,
 } from '~/common/scalars';
+import { PolicyEvent } from './policies.model';
 
 @InputType()
 export class UniquePolicyInput implements PolicyId {
@@ -130,4 +132,13 @@ export class UpdatePoliciesInput {
 export class ValidationErrorsArgs {
   @IdField()
   proposal: UUID;
+}
+
+@InputType()
+export class PolicyUpdatedInput {
+  @Field(() => [UAddressScalar], { nullable: true })
+  accounts?: UAddress[];
+
+  @Field(() => PolicyEvent, { nullable: true, description: 'Defaults to all events' })
+  events?: PolicyEvent[];
 }

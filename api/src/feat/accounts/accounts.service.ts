@@ -15,7 +15,7 @@ import { ShapeFunc } from '~/core/database';
 import {
   AccountEvent,
   AccountsInput,
-  AccountSubscriptionInput,
+  AccountUpdatedInput,
   CreateAccountInput,
   UpdateAccountInput,
 } from './accounts.input';
@@ -29,8 +29,8 @@ import { inputAsPolicy } from '../policies/policies.util';
 import { AccountsCacheService } from '../auth/accounts.cache.service';
 import { v4 as uuid } from 'uuid';
 
-const accountTrigger = (account: UAddress) => `account.changed:${account}`;
-export interface AccountSubscriptionPayload extends EventPayload<AccountEvent> {
+const accountTrigger = (account: UAddress) => `account.updated:${account}`;
+export interface AccountUpdatedPayload extends EventPayload<AccountEvent> {
   account: UAddress;
 }
 
@@ -155,13 +155,11 @@ export class AccountsService {
     this.event({ account, event: AccountEvent.update });
   }
 
-  async event(payload: AccountSubscriptionPayload) {
-    this.pubsub.event<AccountSubscriptionPayload>(accountTrigger(payload.account), payload);
+  async event(payload: AccountUpdatedPayload) {
+    this.pubsub.event<AccountUpdatedPayload>(accountTrigger(payload.account), payload);
   }
 
-  async subscribe({
-    accounts = getUserCtx().accounts.map((a) => a.address),
-  }: AccountSubscriptionInput) {
+  async subscribe({ accounts = getUserCtx().accounts.map((a) => a.address) }: AccountUpdatedInput) {
     return this.pubsub.asyncIterator(accounts.map(accountTrigger));
   }
 

@@ -35,7 +35,7 @@ export enum AccountEvent {
 registerEnumType(AccountEvent, { name: 'AccountEvent' });
 
 @InputType()
-export class AccountSubscriptionInput {
+export class AccountUpdatedInput {
   @Field(() => [UAddressScalar], {
     nullable: true,
     description: 'Defaults to user accounts',
