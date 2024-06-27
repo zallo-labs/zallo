@@ -128,7 +128,7 @@ export class TransfersEvents {
         );
         if (!transfer) return; // Already processed
 
-        this.balances.invalidateBalance({ account, token });
+        this.balances.invalidate({ account, token });
 
         this.pubsub.event<TransferSubscriptionPayload>(transferTrigger(account), {
           event: 'transfer',

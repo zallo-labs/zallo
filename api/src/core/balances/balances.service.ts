@@ -44,8 +44,9 @@ export class BalancesService {
     return balance ?? 0n;
   }
 
-  invalidateBalance(args: BalanceArgs) {
-    return this.redis.del(this.key(args));
+  async invalidate(args: BalanceArgs) {
+    const existed = (await this.redis.del(this.key(args))) === 1;
+    if (existed) this.balance(args);
   }
 
   private key(args: BalanceArgs) {
