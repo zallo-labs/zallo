@@ -15,6 +15,7 @@ import { GqlContext } from '~/core/apollo/ctx';
 import { getContextUnsafe } from '../context';
 import { SpanStatus } from '@sentry/tracing';
 import { execute } from 'graphql';
+import { Scope } from '@sentry/node';
 
 type Filter<E = unknown> = [
   type: new (...args: any[]) => E,
@@ -28,43 +29,40 @@ export class SentryInterceptor implements NestInterceptor {
   ];
 
   intercept(context: ExecutionContext, next: CallHandler) {
-    return Sentry.continueTrace(this.extractTrace(context), () =>
-      Sentry.startSpanManual(
-        {
-          op: `${context.getType()}.request`,
-          name: `${context.getClass().name}.${context.getHandler().name}`,
-        },
-        (span, finishSpan) =>
-          next.handle().pipe(
-            tap({
-              complete: () => {
-                span?.setStatus({ code: 1 /* ok */, message: SpanStatus.Ok });
-              },
-              error: (exception) => {
-                span?.setStatus({
-                  code: 2 /* error */,
-                  message:
-                    execute instanceof UnauthorizedException
-                      ? SpanStatus.Unauthenticated
-                      : SpanStatus.UnknownError,
-                });
-                if (!this.shouldReport(exception)) return;
+    return this.withUserScope((scope) =>
+      Sentry.continueTrace(this.extractTrace(context), () =>
+        Sentry.startSpanManual(
+          {
+            op: `${context.getType()}.request`,
+            name: `${context.getClass().name}.${context.getHandler().name}`,
+          },
+          (span) =>
+            next.handle().pipe(
+              tap({
+                complete: () => {
+                  span.setStatus({ code: 1 /* ok */, message: SpanStatus.Ok });
+                },
+                error: (exception) => {
+                  span.setStatus({
+                    code: 2 /* error */,
+                    message:
+                      execute instanceof UnauthorizedException
+                        ? SpanStatus.Unauthenticated
+                        : SpanStatus.UnknownError,
+                  });
+                  if (!this.shouldReport(exception)) return;
 
-                Sentry.withScope((scope) => {
-                  const userCtx = getContextUnsafe()?.user;
-                  if (userCtx) scope.setUser({ id: userCtx.approver });
                   scope.setExtra('exceptionData', JSON.stringify(exception, null, 2));
-
                   this.addContextExceptionMetadata(scope, context);
 
-                  return Sentry.captureException(exception);
-                });
-              },
-              finalize: () => {
-                finishSpan();
-              },
-            }),
-          ),
+                  Sentry.captureException(exception);
+                },
+                finalize: () => {
+                  span.end();
+                },
+              }),
+            ),
+        ),
       ),
     );
   }
@@ -93,6 +91,15 @@ export class SentryInterceptor implements NestInterceptor {
         scope.setExtra('rpc_data', rpc.getData());
       })
       .exhaustive();
+  }
+
+  private withUserScope<T>(callback: (scope: Scope) => T): T {
+    return Sentry.withScope((scope) => {
+      const ctx = getContextUnsafe();
+      if (ctx?.user) scope.setUser({ id: ctx.user.approver });
+
+      return callback(scope);
+    });
   }
 
   private extractTrace(context: ExecutionContext) {
