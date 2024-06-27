@@ -44,10 +44,9 @@ export class TransfersService {
     return this.db.queryWith(
       { account: e.uuid, direction: e.optional(e.TransferDirection), internal: e.optional(e.bool) },
       ({ account, direction, internal }) =>
-        e.select(e.Transfer, (t) => ({
+        e.select(e.cast(e.Account, account).transfers, (t) => ({
           ...shape?.(t),
           filter: and(
-            e.op(t.account, '=', e.cast(e.Account, account)),
             e.op(e.op(t.internal, '=', internal), 'if', e.op('exists', internal), 'else', true),
             e.op(e.op(direction, 'in', t.direction), 'if', e.op('exists', direction), 'else', true),
           ),

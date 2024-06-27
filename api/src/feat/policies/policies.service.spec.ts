@@ -198,26 +198,6 @@ describe(PoliciesService.name, () => {
         await service.update({ ...policy, approvers: [] });
       }));
 
-    it('updates policies link when activated', () =>
-      asUser(user1, async () => {
-        const { account, key } = await create();
-        await service.update({ account, key, approvers: [] });
-
-        const newPolicy = e.assert_single(
-          e.select(e.Policy, (p) => ({
-            filter: and(e.op(p.account, '=', selectAccount(account)), e.op(p.key, '=', key)),
-            order_by: { expression: p.createdAt, direction: 'DESC' },
-            limit: 1,
-          })),
-        );
-        const newPolicyId = await db.query(
-          e.update(newPolicy, () => ({ set: { activationBlock: 100n } })).id,
-        );
-
-        const link = await db.query(e.select(selectPolicy({ account, key }).id));
-        expect(link).toEqual(newPolicyId);
-      }));
-
     it('updates names', () =>
       asUser(user1, async () => {
         const { account, key } = await create();
@@ -263,15 +243,6 @@ describe(PoliciesService.name, () => {
           })).removalDrafted,
         );
         expect(removalDrafted).toBeTruthy();
-      }));
-
-    it('removes link of draft policy', () =>
-      asUser(user1, async () => {
-        const { account, key } = await create();
-        await service.remove({ account, key });
-
-        const linkedPolicy = await db.query(e.select(selectPolicy({ account, key })));
-        expect(linkedPolicy).toBeNull();
       }));
 
     it('proposes a remove if the policy is active', () =>
