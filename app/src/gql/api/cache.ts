@@ -17,10 +17,9 @@ import {
   MutationProposeMessageArgs,
   MutationProposeTransactionArgs,
   MutationRejectProposalArgs,
-  MutationRemoveMessageArgs,
   MutationUpdatePolicyArgs,
+  PolicyUpdated,
   Proposal,
-  ProposalUpdated,
   TokenScreenUpsertMutation,
   Transaction,
 } from './documents.generated';
@@ -180,15 +179,9 @@ export const CACHE_SCHEMA_CONFIG: Pick<
       },
     } as Partial<Record<Mutation, UpdateResolver<unknown, unknown>>>,
     Subscription: {
-      proposalUpdated: (
-        { proposalUpdated: r }: { proposalUpdated: Partial<ProposalUpdated> },
-        _args,
-        cache,
-      ) => {
-        if (r.event === 'create' || r.event === 'delete' || r.event === 'executed') {
-          invalidate(cache, 'Query', ['node', 'policy']);
-          invalidate(cache, accountEntities(cache, r.account), ['policies']);
-        }
+      policyUpdated: ({ policyUpdated: r }: { policyUpdated: PolicyUpdated }, _args, cache) => {
+        if (r.policy?.id) invalidate(cache, { __typename: 'Policy', id: r.policy.id });
+        invalidate(cache, accountEntities(cache, r.account), ['policies']);
       },
       transfer: (_result, _args, cache) => {
         invalidate(cache, 'Query', ['tokens']);

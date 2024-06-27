@@ -25,6 +25,7 @@ import { SentryProvider } from '#/provider/SentryProvider';
 import { GoogleAuthProvider } from '#/cloud/google/GoogleAuthProvider';
 import { Try } from 'expo-router/build/views/Try';
 import { PortalProvider } from '@gorhom/portal';
+import { AccountUpdatesListener } from '#/AccountUpdatesListener';
 
 export const unstable_settings = {
   initialRouteName: `index`,
@@ -72,6 +73,7 @@ function RootLayout() {
                               <UpdateProvider />
                               <Analytics />
                               <WalletConnectListeners />
+                              <AccountUpdatesListener />
                               <NotificationsProvider />
                             </Suspense>
                           </Try>
