@@ -45,7 +45,7 @@ insert Transaction {
     for pair in enumerate(array_unpack(<array<json>>$operations)) union (
       insert Operation {
         to := <Address>pair.1['to'],
-        value := <uint256>json_get(pair.1, 'value'),
+        value := <uint256><str>json_get(pair.1, 'value'),
         data := <Bytes>json_get(pair.1, 'data'),
         position := <uint16>pair.0
       }
