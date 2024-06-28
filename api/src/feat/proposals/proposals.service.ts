@@ -25,7 +25,7 @@ export const selectProposal = (id: UniqueProposal) =>
 export const selectProposal2 = (id: Set<$uuid, $.Cardinality.One>) =>
   e.select(e.Proposal, () => ({ filter_single: { id } }));
 
-export interface ProposalSubscriptionPayload extends EventPayload<ProposalEvent> {
+export interface ProposalUpdatedPayload extends EventPayload<ProposalEvent> {
   id: UUID;
   account: UAddress;
 }
@@ -155,7 +155,7 @@ export class ProposalsService {
         ? { id: asUUID(proposal.id), account: asUAddress(proposal.account.address) }
         : (proposal as { id: UUID; account: UAddress });
 
-    await this.pubsub.event<ProposalSubscriptionPayload>(proposalTrigger(account), {
+    await this.pubsub.event<ProposalUpdatedPayload>(proposalTrigger(account), {
       id,
       account,
       event,

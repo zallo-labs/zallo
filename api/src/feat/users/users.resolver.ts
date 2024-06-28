@@ -35,7 +35,7 @@ export class UsersResolver {
     ) {
       return {
         id: `${issuer}:${linker}`,
-        user: asUser(ctx, () => this.service.selectUnique(getShape(info))),
+        user: asUser(ctx, () => this.service.selectUnique((u) => getShape(info)(u, 'user'))),
         issuer,
         linker,
       };

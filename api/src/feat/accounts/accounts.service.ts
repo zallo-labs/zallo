@@ -13,7 +13,6 @@ import {
 } from 'lib';
 import { ShapeFunc } from '~/core/database';
 import {
-  AccountEvent,
   AccountsInput,
   AccountUpdatedInput,
   CreateAccountInput,
@@ -28,8 +27,11 @@ import { MIN_AUTO_POLICY_KEY, PoliciesService } from '../policies/policies.servi
 import { inputAsPolicy } from '../policies/policies.util';
 import { AccountsCacheService } from '../auth/accounts.cache.service';
 import { v4 as uuid } from 'uuid';
+import { selectAccount2 } from './accounts.util';
+import { AccountEvent } from './accounts.model';
 
 const accountTrigger = (account: UAddress) => `account.updated:${account}`;
+const accountApproverTrigger = (account: UAddress) => `account.updated:approver:${account}`;
 export interface AccountUpdatedPayload extends EventPayload<AccountEvent> {
   account: UAddress;
 }
@@ -137,7 +139,7 @@ export class AccountsService {
 
     this.contracts.addAccountAsVerified(asAddress(account));
     this.faucet.requestTokens(account);
-    this.event({ account, event: AccountEvent.create });
+    this.event({ account, event: AccountEvent.created });
     this.setAsPrimaryAccountIfNotConfigured(id);
 
     return { id, address: account };
@@ -152,15 +154,27 @@ export class AccountsService {
     );
     if (!r) throw new UserInputError(`Must be a member of the account to update it`);
 
-    this.event({ account, event: AccountEvent.update });
+    this.event({ account, event: AccountEvent.updated });
   }
 
   async event(payload: AccountUpdatedPayload) {
-    this.pubsub.event<AccountUpdatedPayload>(accountTrigger(payload.account), payload);
+    const approvers = await this.db.queryWith2(
+      { address: e.UAddress },
+      { address: payload.account },
+      ({ address }) => selectAccount2(address).approvers.address,
+    );
+
+    [
+      accountTrigger(payload.account),
+      ...approvers.map((a) => accountApproverTrigger(asUAddress(a))),
+    ].map((trigger) => this.pubsub.event<AccountUpdatedPayload>(trigger, payload));
   }
 
-  async subscribe({ accounts = getUserCtx().accounts.map((a) => a.address) }: AccountUpdatedInput) {
-    return this.pubsub.asyncIterator(accounts.map(accountTrigger));
+  async subscribe({ accounts }: AccountUpdatedInput) {
+    const ctx = getUserCtx();
+    accounts ??= ctx.accounts.map((a) => a.address);
+
+    return this.pubsub.asyncIterator([...accounts.map(accountTrigger), ctx.approver]);
   }
 
   async setAsPrimaryAccountIfNotConfigured(accountId: string) {

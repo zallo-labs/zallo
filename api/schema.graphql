@@ -33,13 +33,20 @@ type Account implements Labelled & Node {
 }
 
 enum AccountEvent {
-  create
-  update
+  created
+  updated
+  upgraded
 }
 
 input AccountInput {
   """Defaults to random user account"""
   account: UAddress
+}
+
+type AccountUpdated implements CustomNode {
+  account: Account!
+  event: AccountEvent!
+  id: ID!
 }
 
 input AccountUpdatedInput {
@@ -703,7 +710,7 @@ input SpendingInput {
 }
 
 type Subscription {
-  accountUpdated(input: AccountUpdatedInput! = {}): Account!
+  accountUpdated(input: AccountUpdatedInput! = {}): AccountUpdated!
   policyUpdated(input: PolicyUpdatedInput! = {}): PolicyUpdated!
   proposalUpdated(input: ProposalUpdatedInput! = {}): ProposalUpdated!
   transfer(input: TransferSubscriptionInput! = {}): Transfer!

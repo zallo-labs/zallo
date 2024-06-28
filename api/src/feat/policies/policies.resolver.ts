@@ -93,7 +93,7 @@ export class PoliciesResolver {
         id: `${p.policyId}:${p.event}`,
         event: p.event,
         account: p.account,
-        policy: await this.service.selectUnique(p.policyId, getShape(info)),
+        policy: await this.service.selectUnique(p.policyId, (p) => getShape(info)(p, 'policy')),
       }));
     },
   })

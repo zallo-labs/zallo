@@ -6,11 +6,7 @@ import { asUser, getUserCtx } from '~/core/context';
 import { getShape } from '~/core/database';
 import { UniqueProposalInput, ProposalUpdatedInput, UpdateProposalInput } from './proposals.input';
 import { Proposal, ProposalUpdated } from './proposals.model';
-import {
-  ProposalsService,
-  ProposalSubscriptionPayload,
-  proposalTrigger,
-} from './proposals.service';
+import { ProposalsService, ProposalUpdatedPayload, proposalTrigger } from './proposals.service';
 import { PubsubService } from '~/core/pubsub/pubsub.service';
 
 @Resolver(() => Proposal)
@@ -39,25 +35,22 @@ export class ProposalsResolver {
 
   @Subscription(() => ProposalUpdated, {
     filter: (
-      { id, event }: ProposalSubscriptionPayload,
+      { id, event }: ProposalUpdatedPayload,
       { input: { proposals, events } }: InputArgs<ProposalUpdatedInput>,
     ) => (!proposals || proposals?.includes(id)) && (!events || events.includes(event)),
     async resolve(
       this: ProposalsResolver,
-      { id, account, event }: ProposalSubscriptionPayload,
+      { id, account, event }: ProposalUpdatedPayload,
       _input,
       ctx: GqlContext,
       info: GraphQLResolveInfo,
     ) {
-      return {
+      return asUser(ctx, async () => ({
         id,
-        proposal: await asUser(
-          ctx,
-          async () => await this.service.selectUnique(id, (p) => getShape(info)(p, 'proposal')),
-        ),
         account,
         event,
-      };
+        proposal: await this.service.selectUnique(id, (p) => getShape(info)(p, 'proposal')),
+      }));
     },
   })
   async proposalUpdated(

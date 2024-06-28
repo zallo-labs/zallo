@@ -1,11 +1,11 @@
-import { Field } from '@nestjs/graphql';
+import { Field, registerEnumType } from '@nestjs/graphql';
 import { AddressField } from '~/common/scalars/Address.scalar';
 import { Bytes32Field } from '~/common/scalars/Bytes.scalar';
 import { Transfer } from '../transfers/transfers.model';
 import { Policy } from '../policies/policies.model';
 import { Proposal } from '../proposals/proposals.model';
 import { Transaction } from '../transactions/transactions.model';
-import { Node, NodeType } from '~/common/decorators/interface.decorator';
+import { CustomNodeType, Node, NodeType } from '~/common/decorators/interface.decorator';
 import { createUnionType } from '@nestjs/graphql';
 import e from '~/edgeql-js';
 import { makeUnionTypeResolver } from '~/core/database';
@@ -70,3 +70,19 @@ export const Activity = createUnionType({
     [e.Transfer, Transfer],
   ]),
 });
+
+export enum AccountEvent {
+  created,
+  updated,
+  upgraded,
+}
+registerEnumType(AccountEvent, { name: 'AccountEvent' });
+
+@CustomNodeType()
+export class AccountUpdated {
+  @Field(() => AccountEvent)
+  event: AccountEvent;
+
+  @Field(() => Account)
+  account: Account;
+}

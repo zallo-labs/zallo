@@ -98,12 +98,12 @@ export class ProposalUpdated {
   @IdField()
   id: UUID;
 
-  @Field(() => Proposal, { nullable: true })
-  proposal?: Proposal;
+  @Field(() => ProposalEvent)
+  event: ProposalEvent;
 
   @UAddressField()
   account: UAddress;
 
-  @Field(() => ProposalEvent)
-  event: ProposalEvent;
+  @Field(() => Proposal, { nullable: true })
+  proposal?: Proposal;
 }

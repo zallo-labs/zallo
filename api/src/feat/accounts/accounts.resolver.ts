@@ -10,7 +10,7 @@ import {
 } from './accounts.input';
 import { GqlContext } from '~/core/apollo/ctx';
 import { asUser, getApprover, getUserCtx } from '~/core/context';
-import { Account } from './accounts.model';
+import { Account, AccountUpdated } from './accounts.model';
 import { AccountUpdatedPayload, AccountsService } from './accounts.service';
 import { getShape } from '~/core/database';
 import { Input, InputArgs } from '~/common/decorators/input.decorator';
@@ -84,14 +84,14 @@ export class AccountsResolver {
     return this.proposalsService.select(id, input, getShape(info));
   }
 
-  @Subscription(() => Account, {
+  @Subscription(() => AccountUpdated, {
     filter: (
       { event }: AccountUpdatedPayload,
       { input: { events } }: InputArgs<AccountUpdatedInput>,
     ) => !events || events.includes(event),
     resolve(
       this: AccountsResolver,
-      { account }: AccountUpdatedPayload,
+      { account, event }: AccountUpdatedPayload,
       _input,
       ctx: GqlContext,
       info: GraphQLResolveInfo,
@@ -100,7 +100,11 @@ export class AccountsResolver {
         // Context will not include newly created account (yet), as it was created on subscription
         getUserCtx().accounts = await this.accountsCache.getApproverAccounts(getApprover());
 
-        return await this.service.selectUnique(account, getShape(info));
+        return {
+          id: `${account}:${event}`,
+          event,
+          account: await this.service.selectUnique(account, (a) => getShape(info)(a, 'account')),
+        };
       });
     },
   })
