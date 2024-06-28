@@ -46,8 +46,8 @@ export class SentryModule implements OnApplicationShutdown {
       environment: CONFIG.env,
       serverName: CONFIG.serverId,
       sampleRate: 1.0,
-      tracesSampleRate: CONFIG.env === 'production' ? 0.2 : 1.0,
-      profilesSampleRate: 1.0, // Relative to `tracesSampleRate`
+      tracesSampleRate: CONFIG.env === 'production' ? 0.1 : 1.0, // 10% of all requests
+      profilesSampleRate: CONFIG.env === 'production' ? 0.1 : 1.0, // 1% of all requests (relative to `tracesSampleRate`)
       includeLocalVariables: true,
       attachStacktrace: true,
       integrations: [
