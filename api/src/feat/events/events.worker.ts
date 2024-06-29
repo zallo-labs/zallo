@@ -46,7 +46,7 @@ export type EventListener<TAbiEvent extends AbiEvent> = (
 ) => Promise<void>;
 
 @Injectable()
-@Processor(EventsQueue.name, { autorun: false })
+@Processor(EventsQueue.name, { autorun: false, lockDuration: 60_000, stalledInterval: 60_000 })
 export class EventsWorker extends Worker<EventsQueue> {
   private listeners = new Map<Hex, EventListener<AbiEvent>[]>();
   private events: AbiEvent[] = [];
