@@ -1,17 +1,21 @@
 with account := (select Account filter .address = <UAddress>$account),
-     key := <uint16>$key,
      proposal := (select SystemTx filter .hash = <Bytes32>$systxHash).proposal,
-     pol := assert_single((select PolicyState filter .account = account and .key = key and (.proposal ?= proposal or .initState))),
-     oldLatest := assert_single((select PolicyState filter .account = account and key = .key and .isLatest and .id != pol.id)),
+     key := <uint16>$key,
+     new := assert_single((select PolicyState filter .account = account and .key = key and (.proposal ?= proposal or .initState))),
+     old := assert_single((select PolicyState filter .account = account and key = .key and .isLatest and .id != new.id)),
      activationBlock := <bigint>$activationBlock,
-     isLater := (activationBlock > (oldLatest.activationBlock ?? -1n)),
-     updatedOldLatest := (update oldLatest filter isLater set { isLatest := false })
+     isLater := (activationBlock > (old.activationBlock ?? -1n)),
+     updatedOldLatest := (update old filter isLater set { isLatest := false })
 select {
-  old := oldLatest.id,
+  old := old.id,
   new := (
-    update pol set {
+    update new set {
       activationBlock := activationBlock,
       isLatest := isLater
     }
-  ).id
+  ).id,
+  pendingTransactions := (
+    (select Transaction filter (.policy ?= old or .policy ?= new) and .status = TransactionStatus.Pending).id
+    if (new is Policy) else <uuid>{}
+  )
 };

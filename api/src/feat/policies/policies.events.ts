@@ -7,6 +7,7 @@ import { getAbiItem } from 'viem';
 import { activatePolicy } from './activate-policy.query';
 import { PoliciesService } from './policies.service';
 import { PolicyEvent } from './policies.model';
+import { TransactionsService } from '../transactions/transactions.service';
 
 const policyAddedEvent = getAbiItem({ abi: ACCOUNT_ABI, name: 'PolicyAdded' });
 const policyRemovedEvent = getAbiItem({ abi: ACCOUNT_ABI, name: 'PolicyRemoved' });
@@ -17,6 +18,7 @@ export class PoliciesEventsProcessor {
     private db: DatabaseService,
     private events: EventsWorker,
     private policies: PoliciesService,
+    private transactions: TransactionsService,
   ) {
     this.events.on(policyAddedEvent, (data) => this.policyAdded(data));
     this.events.on(policyRemovedEvent, (data) => this.policyRemoved(data));
@@ -52,6 +54,8 @@ export class PoliciesEventsProcessor {
       systxHash: log.transactionHash,
       activationBlock: log.blockNumber,
     });
+
+    await Promise.all(r.pendingTransactions.map((id) => this.transactions.tryExecute(asUUID(id))));
 
     return { account, old: r.old, new: r.new };
   }
