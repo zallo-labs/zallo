@@ -401,13 +401,16 @@ export class TransactionsService {
       maxAmount: await this.tokens.asFp(uFeeToken, maxAmount),
     };
 
+    const hash = hashTypedData(asTypedData(account, tx));
+    const newHash = hash !== p.hash ? hash : undefined;
     await this.db.query(
       e.update(e.Transaction, (p) => ({
         filter_single: { id },
         set: {
+          hash: newHash,
           ...(policy && { policy: e.latestPolicy(p.account, policy) }),
           ...(feeToken && {
-            hash: hashTypedData(asTypedData(account, tx)),
+            hash,
             feeToken: e.assert_single(
               e.select(e.Token, (t) => ({
                 filter: and(e.op(t.address, '=', uFeeToken), e.op(t.isFeeToken, '=', true)),
@@ -420,7 +423,7 @@ export class TransactionsService {
       })),
     );
 
-    if (policy !== undefined) await this.tryExecute(id);
+    if (newHash || policy !== undefined) await this.tryExecute(id);
 
     this.proposals.event({ id, account: p.account }, ProposalEvent.update);
 
