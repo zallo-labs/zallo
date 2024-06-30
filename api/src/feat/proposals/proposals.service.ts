@@ -16,6 +16,7 @@ import { $uuid } from '~/edgeql-js/modules/std';
 import { rejectProposal } from './reject-proposal.query';
 import { approveProposal } from './approve-proposal.query';
 import { UserInputError } from '@nestjs/apollo';
+import { deleteResponse } from './delete-response.query';
 
 export type UniqueProposal = UUID;
 
@@ -83,7 +84,7 @@ export class ProposalsService {
     );
   }
 
-  async approve({ id, approver = getUserCtx().approver, signature }: ApproveInput) {
+  async approve({ id: proposal, approver = getUserCtx().approver, signature }: ApproveInput) {
     const p = await this.db.queryWith(
       { id: e.uuid },
       ({ id }) =>
@@ -92,7 +93,7 @@ export class ProposalsService {
           hash: true,
           account: { address: true },
         })),
-      { id },
+      { id: proposal },
     );
     if (!p) throw new UserInputError('Proposal not found');
 
@@ -101,8 +102,9 @@ export class ProposalsService {
     if (!(await asApproval({ hash, approver, signature, network })))
       throw new UserInputError('Invalid signature');
 
+    await this.db.exec(deleteResponse, { proposal, approver });
     const approval = await this.db.exec(approveProposal, {
-      proposal: id,
+      proposal,
       approver,
       signature,
     });
@@ -110,8 +112,11 @@ export class ProposalsService {
     this.event(approval.proposal, ProposalEvent.approval);
   }
 
-  async reject(id: UUID) {
-    const rejection = await this.db.exec(rejectProposal, { proposal: id });
+  async reject(proposal: UUID) {
+    const approver = getUserCtx().approver;
+
+    await this.db.exec(deleteResponse, { proposal, approver });
+    const rejection = await this.db.exec(rejectProposal, { proposal, approver });
 
     this.event(rejection.proposal, ProposalEvent.rejection);
   }

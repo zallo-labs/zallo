@@ -4,12 +4,11 @@ import type {Executor} from "edgedb";
 
 export type RejectProposalArgs = {
   readonly "proposal": string;
+  readonly "approver": string;
 };
 
 export type RejectProposalReturns = {
-  "rejection": {
-    "id": string;
-  };
+  "rejection": string;
   "proposal": {
     "id": string;
     "account": {
@@ -21,14 +20,15 @@ export type RejectProposalReturns = {
 export function rejectProposal(client: Executor, args: RejectProposalArgs): Promise<RejectProposalReturns> {
   return client.queryRequiredSingle(`\
 with proposal := (select Proposal filter .id = <uuid>$proposal),
-     deletedResponse := (delete ProposalResponse filter .proposal = proposal and .approver = global current_approver)
-
+     approver := (select Approver filter .address = <Address>$approver)
+    #  deletedResponse := (delete ProposalResponse filter .proposal = proposal and .approver = approver)
 select {
   rejection := (
-    insert Rejection {
-      proposal := proposal
+    insert Rejection { 
+      proposal := proposal,
+      approver := approver
     }
-  ),
+  ).id,
   proposal := (
     id := proposal.id,
     account := { address := proposal.account.address }
