@@ -15,28 +15,33 @@ import {
   estimateTransactionVerificationGas,
   ACCOUNT_ABI,
   asHex,
+  isHex,
+  Hex,
 } from 'lib';
-import { NetworksService } from '~/core/networks/networks.service';
+import { NetworksService } from '~/core/networks';
 import {
   ProposeCancelScheduledTransactionInput,
   ProposeTransactionInput,
   UpdateTransactionInput,
 } from './transactions.input';
-import { DatabaseService } from '../../core/database/database.service';
+import { DatabaseService } from '~/core/database';
 import e, { $infer } from '~/edgeql-js';
-import { Shape, ShapeFunc } from '../../core/database/database.select';
-import { and } from '../../core/database/database.util';
+import { Shape, ShapeFunc } from '~/core/database';
+import { and } from '~/core/database';
 import { selectAccount } from '../accounts/accounts.util';
 import { ProposalsService, UniqueProposal } from '../proposals/proposals.service';
 import { ApproveInput, ProposalEvent } from '../proposals/proposals.input';
 import { PaymastersService } from '~/feat/paymasters/paymasters.service';
 import { EstimatedTransactionFees } from '~/feat/transactions/transactions.model';
-import { InjectFlowProducer, InjectQueue } from '@nestjs/bullmq';
+import { InjectFlowProducer } from '@nestjs/bullmq';
 import { ExecutionsQueue } from '~/feat/transactions/executions.worker';
-import { FLOW_PRODUCER } from '../../core/bull/bull.util';
-import { QueueData, TypedQueue } from '~/core/bull/bull.util';
+import { FLOW_PRODUCER, QueueData } from '~/core/bull/bull.util';
 import { SimulationsQueue } from '~/feat/simulations/simulations.worker';
-import { TX_SHAPE, transactionAsTx } from '~/feat/transactions/transactions.util';
+import {
+  TX_SHAPE,
+  selectTransaction2,
+  transactionAsTx,
+} from '~/feat/transactions/transactions.util';
 import { encodeFunctionData, hashTypedData } from 'viem';
 import { FlowProducer } from 'bullmq';
 import { ActivationsService } from '../activations/activations.service';
@@ -46,10 +51,11 @@ import { TokensService } from '~/feat/tokens/tokens.service';
 import { PricesService } from '~/feat/prices/prices.service';
 import { lowerOfPaymasterFees, totalPaymasterEthFees } from '~/feat/paymasters/paymasters.util';
 import Decimal from 'decimal.js';
-import { afterRequest } from '~/core/context';
+import { afterRequest, getContext } from '~/core/context';
 import { DEFAULT_FLOW } from '~/core/bull/bull.module';
 import { PaymasterFeeParts } from '~/feat/paymasters/paymasters.model';
 import { selectTransaction } from './transactions.util';
+import { insertTransaction } from './insert-transaction.query';
 
 const MAX_NETWORK_FEE_MULTIPLIER = new Decimal(5); // Allow for a higher network fee
 
@@ -71,8 +77,6 @@ export class TransactionsService {
     private networks: NetworksService,
     private proposals: ProposalsService,
     private paymasters: PaymastersService,
-    @InjectQueue(SimulationsQueue.name)
-    private simulations: TypedQueue<SimulationsQueue>,
     @InjectFlowProducer(FLOW_PRODUCER)
     private flows: FlowProducer,
     private activations: ActivationsService,
@@ -94,17 +98,25 @@ export class TransactionsService {
     );
   }
 
-  async tryExecute(transaction: UUID, ignoreSimulation?: boolean) {
-    const t = await this.db.queryWith(
-      { transaction: e.uuid },
-      ({ transaction }) =>
-        e.select(e.Transaction, () => ({
-          filter_single: { id: transaction },
-          account: { address: true, active: true },
-        })),
-      { transaction },
-    );
+  async tryExecute(transaction: UUID | Hex, ignoreSimulation?: boolean) {
+    const t = isHex(transaction)
+      ? await this.db.queryWith2({ hash: e.Bytes32 }, { hash: transaction }, ({ hash }) =>
+          e.select(e.Transaction, () => ({
+            filter_single: { hash },
+            id: true,
+            account: { address: true, active: true },
+          })),
+        )
+      : await this.db.queryWith2({ id: e.uuid }, { id: transaction }, ({ id }) =>
+          e.select(e.Transaction, () => ({
+            filter_single: { id },
+            id: true,
+            account: { address: true, active: true },
+          })),
+        );
     if (!t) throw new Error(`Transaction proposal not found: ${transaction}`);
+
+    const id = asUUID(t.id);
     const account = asUAddress(t.account.address);
     const chain = asChain(account);
 
@@ -123,7 +135,7 @@ export class TransactionsService {
             queueName: ExecutionsQueue.name,
             name: 'Standard transaction',
             data: {
-              transaction,
+              transaction: id,
               ignoreSimulation,
               type: 'standard',
             } satisfies QueueData<ExecutionsQueue>,
@@ -135,7 +147,7 @@ export class TransactionsService {
                     data: { transaction } satisfies QueueData<SimulationsQueue>,
                   },
                 ]
-              : [this.activations.flow(account, transaction) /* Includes simulation */],
+              : [this.activations.flow(account, id) /* Includes simulation */],
           },
         ],
       },
@@ -150,19 +162,25 @@ export class TransactionsService {
     icon,
     dapp,
     timestamp = new Date(),
-    gas,
+    gas: gasInput,
     feeToken = ETH_ADDRESS,
   }: Omit<ProposeTransactionInput, 'signature'>) {
     if (!operations.length) throw new UserInputError('No operations provided');
 
     const chain = asChain(account);
     const network = this.networks.get(chain);
-    gas ??=
-      (
-        await estimateTransactionOperationsGas({ account: asAddress(account), network, operations })
-      ).unwrapOr(FALLBACK_OPERATIONS_GAS) + estimateTransactionVerificationGas(3);
+    const getGas = async () =>
+      (gasInput ??=
+        (
+          await estimateTransactionOperationsGas({
+            account: asAddress(account),
+            network,
+            operations,
+          })
+        ).unwrapOr(FALLBACK_OPERATIONS_GAS) + estimateTransactionVerificationGas(3));
 
-    const [maxFeePerGas, paymasterFees, feeTokenPrice] = await Promise.all([
+    const [gas, maxFeePerGas, paymasterFees, feeTokenPrice] = await Promise.all([
+      getGas(),
       network.estimatedMaxFeePerGas(),
       this.paymasters.paymasterFees({ account }),
       this.prices.price(asUAddress(feeToken, chain)),
@@ -179,6 +197,7 @@ export class TransactionsService {
       paymaster: this.paymasters.for(chain),
       maxAmount: await this.tokens.asFp(asUAddress(feeToken, chain), maxAmount),
     } satisfies Tx;
+    const hash = hashTx(account, tx);
     const { policy, validationErrors } = await this.policies.best(account, tx);
 
     // Ordering operation ids ensures
@@ -203,7 +222,6 @@ export class TransactionsService {
         }),
     );
 
-    const hash = hashTx(account, tx);
     const insert = e.insert(e.Transaction, {
       hash,
       account: selectAccount(account),
@@ -234,28 +252,92 @@ export class TransactionsService {
       }),
     });
 
-    afterRequest(() => this.simulations.add(SimulationsQueue.name, { transaction: hash }));
+    afterRequest(() => this.tryExecute(hash));
 
     return insert;
   }
 
-  async propose({ signature, ...args }: ProposeTransactionInput) {
-    const id = asUUID((await this.db.query(await this.getInsertProposal(args))).id);
+  async propose({
+    account,
+    operations,
+    label,
+    icon,
+    timestamp = new Date(),
+    dapp,
+    gas: gasInput,
+    feeToken = ETH_ADDRESS,
+    signature,
+  }: ProposeTransactionInput) {
+    if (!operations.length) throw new UserInputError('No operations provided');
 
+    const chain = asChain(account);
+    const network = this.networks.get(chain);
+    const getGas = async () =>
+      (gasInput ??=
+        (
+          await estimateTransactionOperationsGas({
+            account: asAddress(account),
+            network,
+            operations,
+          })
+        ).unwrapOr(FALLBACK_OPERATIONS_GAS) + estimateTransactionVerificationGas(3));
+
+    const [gas, maxFeePerGas, paymasterFees, feeTokenPrice] = await Promise.all([
+      getGas(),
+      network.estimatedMaxFeePerGas(),
+      this.paymasters.paymasterFees({ account }),
+      this.prices.price(asUAddress(feeToken, chain)),
+    ]);
+    const maxNetworkFee = maxFeePerGas.mul(gas.toString()).mul(MAX_NETWORK_FEE_MULTIPLIER);
+    const totalEthFees = maxNetworkFee.plus(totalPaymasterEthFees(paymasterFees));
+    const maxAmount = totalEthFees.div(feeTokenPrice.eth);
+
+    const tx = {
+      operations,
+      timestamp: BigInt(Math.floor(timestamp.getTime() / 1000)),
+      gas,
+      feeToken,
+      paymaster: this.paymasters.for(chain),
+      maxAmount: await this.tokens.asFp(asUAddress(feeToken, chain), maxAmount),
+    } satisfies Tx;
+    const hash = hashTx(account, tx);
+    const { policyId, validationErrors } = await this.policies.best(account, tx);
+
+    const r = await this.db.exec(insertTransaction, {
+      hash,
+      account,
+      policy: policyId,
+      validationErrors,
+      label,
+      icon,
+      timestamp,
+      dapp,
+      operations,
+      gasLimit: gas,
+      feeToken: asUAddress(feeToken, chain),
+      maxAmount: maxAmount.toString(),
+      paymaster: tx.paymaster,
+      activationFee: paymasterFees.activation.toString(),
+    });
+    const id = asUUID(r.id);
+
+    this.proposals.event({ id, account }, ProposalEvent.create);
     if (signature) {
-      await this.approve({ id, signature });
+      await this.approve({ id, signature }, true);
     } else {
-      this.tryExecute(id);
+      afterRequest(() => this.tryExecute(id));
     }
 
-    return { id };
+    return id;
   }
 
   async proposeCancelScheduledTransaction({
     proposal,
     ...params
   }: ProposeCancelScheduledTransactionInput) {
-    const hash = await this.db.query(e.select(selectTransaction(proposal).hash));
+    const hash = await this.db.queryWith2({ id: e.uuid }, { id: proposal }, ({ id }) =>
+      e.select(selectTransaction2(id).hash),
+    );
     if (!hash) throw new UserInputError('Transaction proposal not found');
 
     return this.propose({
@@ -273,9 +355,9 @@ export class TransactionsService {
     });
   }
 
-  async approve(input: ApproveInput) {
+  async approve(input: ApproveInput, tryExecute = true) {
     await this.proposals.approve(input);
-    this.tryExecute(input.id);
+    if (tryExecute) this.tryExecute(input.id);
   }
 
   async update({ id, policy, feeToken }: UpdateTransactionInput) {
@@ -319,13 +401,16 @@ export class TransactionsService {
       maxAmount: await this.tokens.asFp(uFeeToken, maxAmount),
     };
 
+    const hash = hashTypedData(asTypedData(account, tx));
+    const newHash = hash !== p.hash ? hash : undefined;
     await this.db.query(
       e.update(e.Transaction, (p) => ({
         filter_single: { id },
         set: {
+          hash: newHash,
           ...(policy && { policy: e.latestPolicy(p.account, policy) }),
           ...(feeToken && {
-            hash: hashTypedData(asTypedData(account, tx)),
+            hash,
             feeToken: e.assert_single(
               e.select(e.Token, (t) => ({
                 filter: and(e.op(t.address, '=', uFeeToken), e.op(t.isFeeToken, '=', true)),
@@ -338,9 +423,9 @@ export class TransactionsService {
       })),
     );
 
-    if (policy !== undefined) await this.tryExecute(id);
+    if (newHash || policy !== undefined) await this.tryExecute(id);
 
-    this.proposals.publish({ id, account: p.account }, ProposalEvent.update);
+    this.proposals.event({ id, account: p.account }, ProposalEvent.update);
 
     return { id };
   }
@@ -362,7 +447,7 @@ export class TransactionsService {
       }),
     );
 
-    this.proposals.publish(t, ProposalEvent.delete);
+    this.proposals.event(t, ProposalEvent.delete);
 
     return t?.id ?? null;
   }

@@ -3,25 +3,25 @@ import { Address, UAddress, asAddress, asUAddress, isTruthy, ETH_ADDRESS, isEthT
 import { ERC20 } from 'lib/dapps';
 import { TransactionEventData, ReceiptsWorker } from '../system-txs/receipts.worker';
 import { EventData, EventsWorker } from '../events/events.worker';
-import { DatabaseService } from '../../core/database/database.service';
+import { DatabaseService } from '~/core/database';
 import e from '~/edgeql-js';
 import { selectAccount } from '../accounts/accounts.util';
-import { NetworksService } from '../../core/networks/networks.service';
+import { NetworksService } from '~/core/networks/networks.service';
 import { uuid } from 'edgedb/dist/codecs/ifaces';
-import { PubsubService } from '../../core/pubsub/pubsub.service';
+import { EventPayload, PubsubService } from '~/core/pubsub/pubsub.service';
 import { getAbiItem } from 'viem';
 import { TransferDirection } from './transfers.input';
 import { AccountsCacheService } from '../auth/accounts.cache.service';
-import { ExpoService } from '../../core/expo/expo.service';
+import { ExpoService } from '~/core/expo/expo.service';
 import { BalancesService } from '~/core/balances/balances.service';
 import Decimal from 'decimal.js';
 import { TokensService } from '~/feat/tokens/tokens.service';
 import { ampli } from '~/util/ampli';
 import { selectSysTx } from '../system-txs/system-tx.util';
-import { and } from '~/core/database/database.util';
+import { and } from '~/core/database';
 
-export const getTransferTrigger = (account: UAddress) => `transfer.account.${account}`;
-export interface TransferSubscriptionPayload {
+export const transferTrigger = (account: UAddress) => `transfer.account.${account}`;
+export interface TransferSubscriptionPayload extends EventPayload<'transfer'> {
   transfer: uuid;
   directions: TransferDirection[];
   internal: boolean;
@@ -117,7 +117,6 @@ export class TransfersEvents {
               })
               .unlessConflict((t) => ({
                 on: e.tuple([t.account, t.block, t.logIndex]),
-                else: t,
               })),
             (t) => ({
               id: true,
@@ -127,10 +126,12 @@ export class TransfersEvents {
             }),
           ),
         );
+        if (!transfer) return; // Already processed
 
-        this.balances.invalidateBalance({ account, token });
+        this.balances.invalidate({ account, token });
 
-        this.pubsub.publish<TransferSubscriptionPayload>(getTransferTrigger(account), {
+        this.pubsub.event<TransferSubscriptionPayload>(transferTrigger(account), {
+          event: 'transfer',
           transfer: transfer.id,
           directions: [
             from === account && TransferDirection.Out,
@@ -181,7 +182,7 @@ export class TransfersEvents {
         const selectedAccount = selectAccount(account);
         const systx = selectSysTx(log.transactionHash);
 
-        await this.db.query(
+        const approval = await this.db.query(
           e
             .insert(e.TransferApproval, {
               account: selectedAccount,
@@ -212,6 +213,7 @@ export class TransfersEvents {
               on: e.tuple([t.account, t.block, t.logIndex]),
             })),
         );
+        if (!approval) return; // Already processed
 
         if (to === account) {
           this.log.debug(`Transfer approval ${token}: ${from} -> ${to}`);

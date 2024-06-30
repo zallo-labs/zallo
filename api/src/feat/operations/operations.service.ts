@@ -12,7 +12,7 @@ import {
   asDecimal,
 } from 'lib';
 import { ContractsService } from '../contracts/contracts.service';
-import { DatabaseService } from '../../core/database/database.service';
+import { DatabaseService } from '~/core/database';
 import e from '~/edgeql-js';
 import { AbiFunction } from 'abitype';
 import { decodeFunctionData, size } from 'viem';
@@ -29,7 +29,7 @@ import {
 import { ACCOUNT_ABI } from 'lib';
 import { ERC20, ETH, SYNCSWAP, WETH } from 'lib/dapps';
 import { match } from 'ts-pattern';
-import { NetworksService } from '../../core/networks/networks.service';
+import { NetworksService } from '~/core/networks/networks.service';
 import { Chain } from 'chains';
 import { TokensService } from '~/feat/tokens/tokens.service';
 

@@ -24,9 +24,9 @@ import {
 } from './policies.input';
 import { UserInputError } from '@nestjs/apollo';
 import { AccountsCacheService } from '../auth/accounts.cache.service';
-import { DatabaseService } from '../../core/database/database.service';
+import { DatabaseService } from '~/core/database';
 import e from '~/edgeql-js';
-import { ShapeFunc } from '../../core/database/database.select';
+import { ShapeFunc } from '~/core/database';
 import {
   policyStateAsPolicy,
   PolicyShape,
@@ -34,16 +34,29 @@ import {
   selectPolicy,
   latestPolicy2,
 } from './policies.util';
-import { NameTaken, Policy as PolicyModel, ValidationError } from './policies.model';
-import { TX_SHAPE, transactionAsTx, ProposalTxShape } from '../transactions/transactions.util';
-import { and, isExclusivityConstraintViolation } from '../../core/database/database.util';
+import { NameTaken, PolicyEvent, Policy as PolicyModel, ValidationError } from './policies.model';
+import {
+  TX_SHAPE,
+  transactionAsTx,
+  ProposalTxShape,
+  selectTransaction,
+} from '../transactions/transactions.util';
+import { and, isExclusivityConstraintViolation } from '~/core/database';
 import { selectAccount, selectAccount2 } from '../accounts/accounts.util';
 import { err, ok } from 'neverthrow';
 import { encodeFunctionData } from 'viem';
 import { $Transaction } from '~/edgeql-js/modules/default';
 import { getUserCtx } from '~/core/context';
+import { PubsubService } from '~/core/pubsub/pubsub.service';
 
 export const MIN_AUTO_POLICY_KEY = 32; // 2^5; keys [0, 31] are reserved for manual keys
+
+export interface PolicyUpdatedPayload {
+  event: PolicyEvent;
+  account: UAddress;
+  policyId: UUID;
+}
+const policyUpdatedTrigger = (account: UAddress) => `account.policy:${account}`;
 
 export interface CreatePolicyParams extends CreatePolicyInput {
   initState?: boolean;
@@ -56,7 +69,17 @@ export class PoliciesService {
     @Inject(forwardRef(() => TransactionsService))
     private transactions: TransactionsService,
     private userAccounts: AccountsCacheService,
+    private pubsub: PubsubService,
   ) {}
+
+  async selectUnique(id: UUID, shape?: ShapeFunc) {
+    return this.db.queryWith2({ id: e.uuid }, { id }, ({ id }) =>
+      e.select(e.Policy, (p) => ({
+        filter_single: { id },
+        ...shape?.(p),
+      })),
+    );
+  }
 
   async latest(unique: { account: UAddress; key: number }, shape?: ShapeFunc) {
     return (await this.db.queryWith(
@@ -88,18 +111,19 @@ export class PoliciesService {
       !initState && (await this.getStateProposal(account, policyStateAsPolicy(state)));
 
     try {
-      // with proposal required - https://github.com/edgedb/edgedb/issues/6305
       const { id } = await this.db.query(
         e.insert(e.Policy, {
           account: selectAccount(account),
           key,
           name: name || `Policy ${key}`,
-          ...(proposal && { proposal }),
+          ...(proposal && { proposal: selectTransaction(proposal) }),
           ...this.insertStateShape(state, initState ? { account: asAddress(account) } : undefined),
         }),
       );
 
       this.userAccounts.invalidateApproversCache(...policyInput.approvers);
+
+      this.event({ event: PolicyEvent.created, account, policyId: asUUID(id) });
 
       return ok({ id, account, key });
     } catch (e) {
@@ -151,19 +175,21 @@ export class PoliciesService {
       // TODO: update existing Policy object directly if equivalent
       if (encodePolicy(currentPolicy) === encodePolicy(newPolicy)) return ok(undefined); // Only update if policy would actually change
 
-      await this.db.query(
+      const id = await this.db.query(
         e.insert(e.Policy, {
           account: selectAccount(account),
           key,
           name: name || selectPolicy({ account, key }).name,
-          proposal: await this.getStateProposal(account, newPolicy),
+          proposal: selectTransaction(await this.getStateProposal(account, newPolicy)),
           ...this.insertStateShape(newState),
-        }),
+        }).id,
       );
 
       this.userAccounts.invalidateApproversCache(
         ...newState.approvers.map((a) => asAddress(a.address)),
       );
+
+      this.event({ event: PolicyEvent.created, account, policyId: asUUID(id) });
     }
   }
 
@@ -197,7 +223,7 @@ export class PoliciesService {
       { policies: policies.map((p) => ({ account: p.account, key: p.key })) },
     );
 
-    const newPolicies = policies
+    const toUpdate = policies
       .map((p, i) => {
         const existing = existingPolicies[i];
         if (!existing)
@@ -220,12 +246,12 @@ export class PoliciesService {
       })
       .filter(Boolean);
 
-    if (!newPolicies.length) return;
+    if (!toUpdate.length) return;
 
-    const proposal = await this.transactions.getInsertProposal({
-      label: 'Update ' + (newPolicies.length === 1 ? 'policy' : 'policies'),
+    const transaction = await this.transactions.propose({
+      label: 'Update ' + (toUpdate.length === 1 ? 'policy' : 'policies'),
       account,
-      operations: newPolicies.map((p) => ({
+      operations: toUpdate.map((p) => ({
         to: asAddress(p.account),
         data: encodeFunctionData({
           abi: ACCOUNT_ABI,
@@ -236,31 +262,32 @@ export class PoliciesService {
     });
 
     const insertedPolicies = await this.db.query(
-      e.with(
-        [proposal],
-        e.select(
-          e.set(
-            ...newPolicies.map((p) =>
-              e.insert(e.Policy, {
-                account: selectAccount(account),
-                key: p.policy.key,
-                name: p.name,
-                proposal,
-                ...this.insertStateShape(p.state),
-              }),
-            ),
+      e.select(
+        e.set(
+          ...toUpdate.map((p) =>
+            e.insert(e.Policy, {
+              account: selectAccount(account),
+              key: p.policy.key,
+              name: p.name,
+              proposal: selectTransaction(transaction),
+              ...this.insertStateShape(p.state),
+            }),
           ),
-        ),
+        ).id,
       ),
     );
 
     this.userAccounts.invalidateApproversCache(
-      ...newPolicies.flatMap((p) => p.state.approvers).map((a) => asAddress(a.address)),
+      ...toUpdate.flatMap((p) => p.state.approvers).map((a) => asAddress(a.address)),
     );
 
-    return (Array.isArray(insertedPolicies) ? insertedPolicies : [insertedPolicies]).map((p) =>
-      asUUID(p.id),
+    const ids = (Array.isArray(insertedPolicies) ? insertedPolicies : [insertedPolicies]).map(
+      asUUID,
     );
+
+    ids.map((policyId) => this.event({ event: PolicyEvent.updated, account, policyId }));
+
+    return ids;
   }
 
   async remove({ account, key }: UniquePolicyInput) {
@@ -272,26 +299,31 @@ export class PoliciesService {
     );
     if (!policy || policy.removalDrafted) return;
 
-    await this.db.query(
-      e.insert(e.RemovedPolicy, {
-        account: selectAccount(account),
-        key,
-        ...(policy.isActive && {
-          proposal: await this.transactions.getInsertProposal({
-            account,
-            operations: [
-              {
-                to: asAddress(account),
-                data: encodeFunctionData({
-                  abi: ACCOUNT_ABI,
-                  functionName: 'removePolicy',
-                  args: [key],
-                }),
-              },
-            ],
-          }),
+    const transaction =
+      policy.isActive &&
+      (await this.transactions.propose({
+        account,
+        operations: [
+          {
+            to: asAddress(account),
+            data: encodeFunctionData({
+              abi: ACCOUNT_ABI,
+              functionName: 'removePolicy',
+              args: [key],
+            }),
+          },
+        ],
+      }));
+
+    await this.db.queryWith2(
+      { account: e.UAddress, key: e.uint16, transaction: e.optional(e.uuid) },
+      { account, key, transaction: transaction || undefined },
+      ({ account, key, transaction }) =>
+        e.insert(e.RemovedPolicy, {
+          account: selectAccount2(account),
+          key,
+          proposal: e.select(e.Transaction, () => ({ filter_single: { id: transaction } })),
         }),
-      }),
     );
   }
 
@@ -330,7 +362,7 @@ export class PoliciesService {
     const policies = await this.db.queryWith(
       { account: e.UAddress },
       ({ account }) =>
-        e.select(selectAccount2(account).policies, () => ({
+        e.select(selectAccount2(account).policies, (p) => ({
           id: true,
           isActive: true,
           ...PolicyShape,
@@ -359,9 +391,18 @@ export class PoliciesService {
 
     const p = sorted[0];
     return {
+      policyId: p.id,
       policy: e.assert_exists(e.select(e.Policy, () => ({ filter_single: { id: p.id } }))),
       validationErrors: p.validationErrors,
     };
+  }
+
+  subscribe(accounts: UAddress[] = getUserCtx().accounts.map((a) => a.address)) {
+    return this.pubsub.asyncIterator(accounts.map(policyUpdatedTrigger));
+  }
+
+  event(payload: PolicyUpdatedPayload) {
+    this.pubsub.event<PolicyUpdatedPayload>(policyUpdatedTrigger(payload.account), payload);
   }
 
   private insertStateShape(p: NonNullable<PolicyShape>, initState?: { account: Address }) {
@@ -416,7 +457,7 @@ export class PoliciesService {
   }
 
   private async getStateProposal(account: UAddress, policy: Policy) {
-    return await this.transactions.getInsertProposal({
+    return await this.transactions.propose({
       account,
       operations: [
         {

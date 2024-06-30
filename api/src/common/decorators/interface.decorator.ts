@@ -7,7 +7,7 @@ import {
   ObjectTypeOptions,
 } from '@nestjs/graphql';
 import { UUID } from 'lib';
-import { makeUnionTypeResolver } from '~/core/database/database.util';
+import { makeUnionTypeResolver } from '~/core/database';
 
 const createObjectWithInterfaceDecorator =
   (iface: Function | (() => Function)) =>

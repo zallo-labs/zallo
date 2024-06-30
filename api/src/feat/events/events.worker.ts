@@ -1,11 +1,11 @@
 import { Processor } from '@nestjs/bullmq';
 import { Injectable } from '@nestjs/common';
-import { NetworksService } from '../../core/networks/networks.service';
-import { DatabaseService } from '../../core/database/database.service';
+import { NetworksService } from '~/core/networks/networks.service';
+import { DatabaseService } from '~/core/database';
 import e from '~/edgeql-js';
 import { Hex, asHex } from 'lib';
 import { CHAINS, Chain } from 'chains';
-import { RUNNING_JOB_STATUSES, TypedJob, createQueue } from '../../core/bull/bull.util';
+import { RUNNING_JOB_STATUSES, TypedJob, createQueue } from '~/core/bull/bull.util';
 import { Worker } from '~/core/bull/Worker';
 import { AbiEvent } from 'abitype';
 import { Log as ViemLog, encodeEventTopics, hexToNumber } from 'viem';
@@ -46,7 +46,7 @@ export type EventListener<TAbiEvent extends AbiEvent> = (
 ) => Promise<void>;
 
 @Injectable()
-@Processor(EventsQueue.name, { autorun: false })
+@Processor(EventsQueue.name, { autorun: false, lockDuration: 60_000, stalledInterval: 60_000 })
 export class EventsWorker extends Worker<EventsQueue> {
   private listeners = new Map<Hex, EventListener<AbiEvent>[]>();
   private events: AbiEvent[] = [];

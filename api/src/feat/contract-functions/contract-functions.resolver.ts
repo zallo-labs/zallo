@@ -6,7 +6,7 @@ import { ContractFunction, AbiSourceConfidence } from './contract-functions.mode
 import { match } from 'ts-pattern';
 import { ComputedField } from '~/common/decorators/computed.decorator';
 import e from '~/edgeql-js';
-import { getShape } from '../../core/database/database.select';
+import { getShape } from '~/core/database';
 import { Input } from '~/common/decorators/input.decorator';
 
 @Resolver(() => ContractFunction)

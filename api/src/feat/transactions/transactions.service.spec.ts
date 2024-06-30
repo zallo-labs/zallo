@@ -10,9 +10,9 @@ import {
   randomUser,
 } from '~/util/test';
 import { randomDeploySalt, Hex, UAddress, ZERO_ADDR, asUUID } from 'lib';
-import { Network, NetworksService } from '../../core/networks/networks.service';
+import { Network, NetworksService } from '~/core/networks/networks.service';
 import { ProposeTransactionInput } from './transactions.input';
-import { DatabaseService } from '../../core/database/database.service';
+import { DatabaseService } from '~/core/database';
 import { TransactionsService } from './transactions.service';
 import { selectTransaction } from './transactions.util';
 import e from '~/edgeql-js';
@@ -22,7 +22,7 @@ import { v4 as uuid } from 'uuid';
 import { BullModule, getFlowProducerToken, getQueueToken } from '@nestjs/bullmq';
 import { SimulationsQueue } from '~/feat/simulations/simulations.worker';
 import { ExecutionsQueue } from '~/feat/transactions/executions.worker';
-import { FLOW_PRODUCER, registerFlowsProducer } from '../../core/bull/bull.util';
+import { FLOW_PRODUCER, registerFlowsProducer } from '~/core/bull/bull.util';
 import { CHAINS } from 'chains';
 import { PaymastersService } from '~/feat/paymasters/paymasters.service';
 import Decimal from 'decimal.js';
@@ -143,6 +143,7 @@ describe(TransactionsService.name, () => {
     }
 
     policies.best.mockImplementation(async () => ({
+      policyId: await db.query(e.assert_exists(selectPolicy({ account, key: 0 })).id),
       policy: selectPolicy({ account, key: 0 }) as any,
       validationErrors: [],
     }));
@@ -153,7 +154,7 @@ describe(TransactionsService.name, () => {
   describe('propose', () => {
     it('creates a proposal', () =>
       asUser(user1, async () => {
-        const { id } = await propose();
+        const id = await propose();
 
         expect(await db.query(selectTransaction(id))).toBeTruthy();
       }));
@@ -169,12 +170,12 @@ describe(TransactionsService.name, () => {
   describe('selectUnqiue', () => {
     it('returns proposal', () =>
       asUser(user1, async () => {
-        const { id } = await propose();
+        const id = await propose();
         expect(await service.selectUnique(id)).toBeTruthy();
       }));
 
     it("returns null if the proposal if from an account the user isn't a member of", async () => {
-      const { id } = await asUser(user1, () => propose());
+      const id = await asUser(user1, () => propose());
 
       await asUser(randomUser(), async () => {
         expect(await service.selectUnique(id)).toBeNull();
@@ -418,7 +419,7 @@ describe(TransactionsService.name, () => {
   describe('delete', () => {
     it('deletes proposal', () =>
       asUser(user1, async () => {
-        const { id } = await propose();
+        const id = await propose();
         await service.delete(id);
 
         expect(await db.query(selectTransaction(id))).toBeNull();
@@ -430,14 +431,14 @@ describe(TransactionsService.name, () => {
       }));
 
     it("not remove if the user isn't a member of the proposing account", async () => {
-      const { id } = await asUser(user1, () => propose());
+      const id = await asUser(user1, () => propose());
 
       await asUser(randomUser(), async () => expect(await service.delete(id)).toEqual(null));
     });
 
     it('deletes policy that the proposal was going to create', () =>
       asUser(user1, async () => {
-        const { id } = await propose();
+        const id = await propose();
 
         const policy = await db.query(
           e.insert(e.Policy, {

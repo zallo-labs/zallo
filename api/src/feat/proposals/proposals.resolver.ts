@@ -3,16 +3,11 @@ import { GraphQLResolveInfo } from 'graphql';
 import { InputArgs, Input } from '~/common/decorators/input.decorator';
 import { GqlContext } from '~/core/apollo/ctx';
 import { asUser, getUserCtx } from '~/core/context';
-import { getShape } from '../../core/database/database.select';
+import { getShape } from '~/core/database';
 import { UniqueProposalInput, ProposalUpdatedInput, UpdateProposalInput } from './proposals.input';
 import { Proposal, ProposalUpdated } from './proposals.model';
-import {
-  ProposalsService,
-  ProposalSubscriptionPayload,
-  getProposalTrigger,
-  getProposalAccountTrigger,
-} from './proposals.service';
-import { PubsubService } from '../../core/pubsub/pubsub.service';
+import { ProposalsService, ProposalUpdatedPayload, proposalTrigger } from './proposals.service';
+import { PubsubService } from '~/core/pubsub/pubsub.service';
 
 @Resolver(() => Proposal)
 export class ProposalsResolver {
@@ -40,39 +35,32 @@ export class ProposalsResolver {
 
   @Subscription(() => ProposalUpdated, {
     filter: (
-      { event }: ProposalSubscriptionPayload,
-      { input: { events } }: InputArgs<ProposalUpdatedInput>,
-    ) => !events || events.includes(event),
+      { id, event }: ProposalUpdatedPayload,
+      { input: { proposals, events } }: InputArgs<ProposalUpdatedInput>,
+    ) => (!proposals || proposals?.includes(id)) && (!events || events.includes(event)),
     async resolve(
       this: ProposalsResolver,
-      { id, account, event }: ProposalSubscriptionPayload,
+      { id, account, event }: ProposalUpdatedPayload,
       _input,
       ctx: GqlContext,
       info: GraphQLResolveInfo,
     ) {
-      return {
+      return asUser(ctx, async () => ({
         id,
-        proposal: await asUser(
-          ctx,
-          async () => await this.service.selectUnique(id, (p) => getShape(info)(p, 'proposal')),
-        ),
         account,
         event,
-      };
+        proposal: await this.service.selectUnique(id, (p) => getShape(info)(p, 'proposal')),
+      }));
     },
   })
   async proposalUpdated(
-    @Input({ defaultValue: {} }) { proposals, accounts }: ProposalUpdatedInput,
+    @Input({ defaultValue: {} }) { accounts }: ProposalUpdatedInput,
     @Context() ctx: GqlContext,
   ) {
     return asUser(ctx, async () => {
-      if (!accounts?.length && !proposals?.length)
-        accounts = getUserCtx().accounts.map((a) => a.address);
+      if (!accounts?.length) accounts = getUserCtx().accounts.map((a) => a.address);
 
-      return this.pubsub.asyncIterator([
-        ...[...(proposals ?? [])].map(getProposalTrigger),
-        ...[...(accounts ?? [])].map(getProposalAccountTrigger),
-      ]);
+      return this.pubsub.asyncIterator(accounts.map(proposalTrigger));
     });
   }
 }

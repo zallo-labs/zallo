@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { BullModule as BaseModule } from '@nestjs/bullmq';
-import { DEFAULT_REDIS_NAMESPACE, RedisService } from '@songkeys/nestjs-redis';
+import { DEFAULT_REDIS_NAMESPACE, getRedisToken } from '@songkeys/nestjs-redis';
 import { BullBoardModule } from '@bull-board/nestjs';
 import { ExpressAdapter } from '@bull-board/express';
 import { BasicAuthMiddleware } from './basic-auth.middlware';
@@ -8,6 +8,7 @@ import { BULL_BOARD_ENABLED } from './bull.util';
 import { isTruthy } from 'lib';
 import { DefaultJobOptions, FlowOpts, QueueOptions } from 'bullmq';
 import { REDIS_CONFIG } from '../redis/redis.module';
+import Redis from 'ioredis';
 
 export const NON_RETRYING_JOB = {
   removeOnComplete: 1000,
@@ -29,11 +30,11 @@ export const DEFAULT_FLOW: FlowOpts = {
 @Module({
   imports: [
     BaseModule.forRootAsync({
-      inject: [RedisService],
+      inject: [getRedisToken(DEFAULT_REDIS_NAMESPACE)],
 
-      useFactory: (redisService: RedisService) => ({
+      useFactory: (redis: Redis) => ({
         // TODO: re-enable shared client once graphql-redis-subscriptions is updated (it doesn't support latest ioredis which bullmq requires)
-        // connection: redisService.getClient(DEFAULT_REDIS_NAMESPACE),
+        // connection: redis,
         connection: REDIS_CONFIG,
         defaultJobOptions: DEFAULT_JOB,
       }),

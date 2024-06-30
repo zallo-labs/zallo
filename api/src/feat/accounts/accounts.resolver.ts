@@ -4,21 +4,15 @@ import {
   AccountInput,
   UpdateAccountInput,
   CreateAccountInput,
-  AccountSubscriptionInput,
+  AccountUpdatedInput,
   NameAvailableInput,
   AccountsInput,
 } from './accounts.input';
-import { PubsubService } from '../../core/pubsub/pubsub.service';
 import { GqlContext } from '~/core/apollo/ctx';
 import { asUser, getApprover, getUserCtx } from '~/core/context';
-import { Account } from './accounts.model';
-import {
-  AccountSubscriptionPayload,
-  AccountsService,
-  getAccountTrigger,
-  getAccountApproverTrigger,
-} from './accounts.service';
-import { getShape } from '../../core/database/database.select';
+import { Account, AccountUpdated } from './accounts.model';
+import { AccountUpdatedPayload, AccountsService } from './accounts.service';
+import { getShape } from '~/core/database';
 import { Input, InputArgs } from '~/common/decorators/input.decorator';
 import { AccountsCacheService } from '../auth/accounts.cache.service';
 import { ComputedField } from '~/common/decorators/computed.decorator';
@@ -34,7 +28,6 @@ import { Proposal } from '~/feat/proposals/proposals.model';
 export class AccountsResolver {
   constructor(
     private service: AccountsService,
-    private pubsub: PubsubService,
     private accountsCache: AccountsCacheService,
     private transfersService: TransfersService,
     private proposalsService: ProposalsService,
@@ -91,15 +84,14 @@ export class AccountsResolver {
     return this.proposalsService.select(id, input, getShape(info));
   }
 
-  @Subscription(() => Account, {
-    name: 'account',
+  @Subscription(() => AccountUpdated, {
     filter: (
-      { event }: AccountSubscriptionPayload,
-      { input: { events } }: InputArgs<AccountSubscriptionInput>,
+      { event }: AccountUpdatedPayload,
+      { input: { events } }: InputArgs<AccountUpdatedInput>,
     ) => !events || events.includes(event),
     resolve(
       this: AccountsResolver,
-      { account }: AccountSubscriptionPayload,
+      { account, event }: AccountUpdatedPayload,
       _input,
       ctx: GqlContext,
       info: GraphQLResolveInfo,
@@ -108,18 +100,18 @@ export class AccountsResolver {
         // Context will not include newly created account (yet), as it was created on subscription
         getUserCtx().accounts = await this.accountsCache.getApproverAccounts(getApprover());
 
-        return await this.service.selectUnique(account, getShape(info));
+        return {
+          id: `${account}:${event}`,
+          event,
+          account: await this.service.selectUnique(account, (a) => getShape(info)(a, 'account')),
+        };
       });
     },
   })
-  async subscribeToAccounts(
-    @Input({ defaultValue: {} }) { accounts }: AccountSubscriptionInput,
+  async accountUpdated(
+    @Input({ defaultValue: {} }) input: AccountUpdatedInput,
     @Context() ctx: GqlContext,
   ) {
-    return asUser(ctx, () =>
-      this.pubsub.asyncIterator(
-        accounts ? [...accounts].map(getAccountTrigger) : getAccountApproverTrigger(getApprover()),
-      ),
-    );
+    return asUser(ctx, () => this.service.subscribe(input));
   }
 }

@@ -1,15 +1,15 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { asUAddress, ACCOUNT_PROXY, asDecimal } from 'lib';
 import { TransactionEventData, ReceiptsWorker } from '../system-txs/receipts.worker';
-import { DatabaseService } from '../../core/database/database.service';
+import { DatabaseService } from '~/core/database';
 import { selectAccount } from './accounts.util';
 import { getAbiItem } from 'viem';
 import { AccountsCacheService } from '../auth/accounts.cache.service';
 import { ampli } from '~/util/ampli';
 import { AccountsService } from '~/feat/accounts/accounts.service';
-import { AccountEvent } from '~/feat/accounts/accounts.input';
 import e from '~/edgeql-js';
 import { ETH } from 'lib/dapps';
+import { AccountEvent } from './accounts.model';
 
 const upgradedEvent = getAbiItem({ abi: ACCOUNT_PROXY.abi, name: 'Upgraded' });
 
@@ -65,7 +65,7 @@ export class UpgradeEvents {
     if (!updated) return;
 
     this.log.debug(`Account ${address} upgraded to ${implementation}`);
-    await this.accounts.publishAccount({ account: address, event: AccountEvent.update });
+    await this.accounts.event({ account: address, event: AccountEvent.upgraded });
     if (activated) {
       users.forEach((user) => ampli.accountActivated(user.id));
     }

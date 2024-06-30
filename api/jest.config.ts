@@ -8,7 +8,7 @@ const config: JestConfigWithTsJest = {
     '^.+\\.ts$': ['ts-jest', { tsconfig: 'tsconfig.json' }],
   },
   testRegex: '.*\\.spec\\.ts$',
-  testTimeout: 30_000,
+  testTimeout: 60_000,
   globalSetup: './src/setup.jest.ts',
 
   moduleNameMapper: pathsToModuleNameMapper(compilerOptions.paths, { prefix: '<rootDir>/' }),

@@ -1,18 +1,26 @@
 import { Test } from '@nestjs/testing';
 import { createMock, DeepMocked } from '@golevelup/ts-jest';
 import { CreatePolicyParams, PoliciesService } from './policies.service';
-import { asPolicyKey, asSelector, randomDeploySalt, randomHex, UAddress, ZERO_ADDR } from 'lib';
+import {
+  asPolicyKey,
+  asSelector,
+  asUUID,
+  randomDeploySalt,
+  randomHex,
+  UAddress,
+  ZERO_ADDR,
+} from 'lib';
 import { UserContext } from '~/core/context';
 import { asUser, getUserCtx } from '~/core/context';
 import { randomAddress, randomLabel, randomUAddress, randomUser } from '~/util/test';
 import { TransactionsService } from '../transactions/transactions.service';
-import { DatabaseService } from '../../core/database/database.service';
+import { DatabaseService } from '~/core/database';
 import e from '~/edgeql-js';
 import { inputAsPolicy, policyStateAsPolicy, PolicyShape, selectPolicy } from './policies.util';
 import { PolicyInput } from './policies.input';
 import { v1 as uuidv1 } from 'uuid';
 import { selectAccount } from '../accounts/accounts.util';
-import { and } from '../../core/database/database.util';
+import { and } from '~/core/database';
 
 describe(PoliciesService.name, () => {
   let service: PoliciesService;
@@ -63,25 +71,29 @@ describe(PoliciesService.name, () => {
       })
     )._unsafeUnwrap();
 
-    proposals.getInsertProposal.mockImplementation(async () => {
+    proposals.propose.mockImplementation(async () => {
       const hash = randomHex(32);
 
-      return e.insert(e.Transaction, {
-        hash,
-        account: selectAccount(account),
-        policy: selectPolicy(initPolicy.id),
-        validationErrors: [],
-        unorderedOperations: e.insert(e.Operation, { to: ZERO_ADDR }),
-        timestamp: new Date(),
-        paymaster: ZERO_ADDR,
-        feeToken: e.assert_single(
-          e.select(e.Token, (t) => ({
-            filter: t.isFeeToken,
-            limit: 1,
-          })),
-        ),
-        maxAmount: '1',
-      });
+      const { id } = await db.query(
+        e.insert(e.Transaction, {
+          hash,
+          account: selectAccount(account),
+          policy: selectPolicy(initPolicy.id),
+          validationErrors: [],
+          unorderedOperations: e.insert(e.Operation, { to: ZERO_ADDR }),
+          timestamp: new Date(),
+          paymaster: ZERO_ADDR,
+          feeToken: e.assert_single(
+            e.select(e.Token, (t) => ({
+              filter: t.isFeeToken,
+              limit: 1,
+            })),
+          ),
+          maxAmount: '1',
+        }),
+      );
+
+      return asUUID(id);
     });
 
     const { id, key } = (
@@ -122,7 +134,7 @@ describe(PoliciesService.name, () => {
     it('proposes an upsert', () =>
       asUser(user1, async () => {
         await create();
-        expect(proposals.getInsertProposal).toHaveBeenCalled();
+        expect(proposals.propose).toHaveBeenCalled();
       }));
 
     it('inserts correct policy', () =>
@@ -182,28 +194,8 @@ describe(PoliciesService.name, () => {
       asUser(user1, async () => {
         const policy = await create();
 
-        expect(proposals.getInsertProposal).toHaveBeenCalled();
+        expect(proposals.propose).toHaveBeenCalled();
         await service.update({ ...policy, approvers: [] });
-      }));
-
-    it('updates policies link when activated', () =>
-      asUser(user1, async () => {
-        const { account, key } = await create();
-        await service.update({ account, key, approvers: [] });
-
-        const newPolicy = e.assert_single(
-          e.select(e.Policy, (p) => ({
-            filter: and(e.op(p.account, '=', selectAccount(account)), e.op(p.key, '=', key)),
-            order_by: { expression: p.createdAt, direction: 'DESC' },
-            limit: 1,
-          })),
-        );
-        const newPolicyId = await db.query(
-          e.update(newPolicy, () => ({ set: { activationBlock: 100n } })).id,
-        );
-
-        const link = await db.query(e.select(selectPolicy({ account, key }).id));
-        expect(link).toEqual(newPolicyId);
       }));
 
     it('updates names', () =>
@@ -253,31 +245,22 @@ describe(PoliciesService.name, () => {
         expect(removalDrafted).toBeTruthy();
       }));
 
-    it('removes link of draft policy', () =>
-      asUser(user1, async () => {
-        const { account, key } = await create();
-        await service.remove({ account, key });
-
-        const linkedPolicy = await db.query(e.select(selectPolicy({ account, key })));
-        expect(linkedPolicy).toBeNull();
-      }));
-
     it('proposes a remove if the policy is active', () =>
       asUser(user1, async () => {
         const policy = await create({ activate: true });
 
-        proposals.getInsertProposal.mockClear();
+        proposals.propose.mockClear();
         await service.remove(policy);
-        expect(proposals.getInsertProposal).toHaveBeenCalled();
+        expect(proposals.propose).toHaveBeenCalled();
       }));
 
     it('removes without a proposal if the policy is inactive', () =>
       asUser(user1, async () => {
         const policy = await create();
 
-        proposals.getInsertProposal.mockClear();
+        proposals.propose.mockClear();
         await service.remove(policy);
-        expect(proposals.getInsertProposal).not.toHaveBeenCalled();
+        expect(proposals.propose).not.toHaveBeenCalled();
       }));
 
     it("returns undefined if the user isn't a member of the account", async () => {

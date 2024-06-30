@@ -11,7 +11,7 @@ import {
 } from './tokens.input';
 import { TokensService } from './tokens.service';
 import { GraphQLResolveInfo } from 'graphql';
-import { getShape } from '../../core/database/database.select';
+import { getShape } from '~/core/database';
 import { uuid } from 'edgedb/dist/codecs/ifaces';
 import { Price } from '../prices/prices.model';
 import { ComputedField } from '~/common/decorators/computed.decorator';

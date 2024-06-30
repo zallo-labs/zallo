@@ -1,4 +1,4 @@
-import { Field, InputType, registerEnumType } from '@nestjs/graphql';
+import { Field, InputType } from '@nestjs/graphql';
 import { UAddress } from 'lib';
 import { PolicyInput } from '../policies/policies.input';
 import { Chain } from 'chains';
@@ -9,6 +9,7 @@ import {
   UrlField,
   minLengthMiddleware,
 } from '~/common/scalars';
+import { AccountEvent } from './accounts.model';
 
 @InputType()
 export class AccountInput {
@@ -28,14 +29,8 @@ export class NameAvailableInput {
   name: string;
 }
 
-export enum AccountEvent {
-  create,
-  update,
-}
-registerEnumType(AccountEvent, { name: 'AccountEvent' });
-
 @InputType()
-export class AccountSubscriptionInput {
+export class AccountUpdatedInput {
   @Field(() => [UAddressScalar], {
     nullable: true,
     description: 'Defaults to user accounts',

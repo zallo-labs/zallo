@@ -1,7 +1,7 @@
 import { Processor } from '@nestjs/bullmq';
 import { Injectable } from '@nestjs/common';
 import { ReceiptEventType, ReceiptsQueue } from './receipts.queue';
-import { NetworksService } from '../../core/networks/networks.service';
+import { NetworksService } from '~/core/networks/networks.service';
 import { Chain, ChainConfig } from 'chains';
 import {
   FormattedBlock,

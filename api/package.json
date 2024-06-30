@@ -15,7 +15,7 @@
     "format": "prettier --config ../.prettierrc --write \"src/**/*.ts\"",
     "with-env": "npx -y dotenv-cli -e ../.env",
     "generate:schema": "yarn prebuild && SKIP_ENV_CHECK=true nest start --entryFile generate-schema",
-    "generate:edgeql": "npx -y concurrently -n edgeql-js,interfaces -c blue,magenta \"npx @edgedb/generate edgeql-js --target ts --force-overwrite\" \"npx @edgedb/generate interfaces\"",
+    "generate:edgeql": "npx -y concurrently -n edgeql-js,queries,interfaces -c blue,green,magenta \"npx @edgedb/generate edgeql-js --target ts --force-overwrite\" \"npx @edgedb/generate queries --target ts\" \"npx @edgedb/generate interfaces\"",
     "generate:ampli": "ampli pull -p ./src/util/ampli --omit-api-keys",
     "generate:gql": "graphql-codegen --config codegen.ts",
     "db:prepare": "yarn db:migrate && yarn db:seed",

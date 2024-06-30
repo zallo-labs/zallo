@@ -1,8 +1,7 @@
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
-import { DatabaseService } from '../../core/database/database.service';
+import { DatabaseService } from '~/core/database';
 import e from '~/edgeql-js';
 import {
-  Address,
   asPolicyKey,
   randomDeploySalt,
   getProxyAddress,
@@ -12,30 +11,29 @@ import {
   DEPLOYER,
   asUAddress,
 } from 'lib';
-import { ShapeFunc } from '../../core/database/database.select';
+import { ShapeFunc } from '~/core/database';
 import {
-  AccountEvent,
   AccountsInput,
+  AccountUpdatedInput,
   CreateAccountInput,
   UpdateAccountInput,
 } from './accounts.input';
 import { getApprover, getUserCtx } from '~/core/context';
 import { UserInputError } from '@nestjs/apollo';
-import { PubsubService } from '../../core/pubsub/pubsub.service';
+import { EventPayload, PubsubService } from '~/core/pubsub/pubsub.service';
 import { ContractsService } from '../contracts/contracts.service';
 import { FaucetService } from '../faucet/faucet.service';
 import { MIN_AUTO_POLICY_KEY, PoliciesService } from '../policies/policies.service';
 import { inputAsPolicy } from '../policies/policies.util';
 import { AccountsCacheService } from '../auth/accounts.cache.service';
 import { v4 as uuid } from 'uuid';
-import { and } from '~/core/database/database.util';
-import { selectAccount } from '~/feat/accounts/accounts.util';
+import { selectAccount2 } from './accounts.util';
+import { AccountEvent } from './accounts.model';
 
-export const getAccountTrigger = (address: UAddress) => `account.${address}`;
-export const getAccountApproverTrigger = (approver: Address) => `account.approver.${approver}`;
-export interface AccountSubscriptionPayload {
+const accountTrigger = (account: UAddress) => `account.updated:${account}`;
+const accountApproverTrigger = (account: UAddress) => `account.updated:approver:${account}`;
+export interface AccountUpdatedPayload extends EventPayload<AccountEvent> {
   account: UAddress;
-  event: AccountEvent;
 }
 
 @Injectable()
@@ -141,56 +139,50 @@ export class AccountsService {
 
     this.contracts.addAccountAsVerified(asAddress(account));
     this.faucet.requestTokens(account);
-    this.publishAccount({ account, event: AccountEvent.create });
+    this.event({ account, event: AccountEvent.created });
     this.setAsPrimaryAccountIfNotConfigured(id);
 
     return { id, address: account };
   }
 
-  async updateAccount({ account: address, name, photo }: UpdateAccountInput) {
+  async updateAccount({ account, name, photo }: UpdateAccountInput) {
     const r = await this.db.query(
       e.update(e.Account, () => ({
         set: { name, photo },
-        filter_single: { address },
+        filter_single: { address: account },
       })),
     );
-
     if (!r) throw new UserInputError(`Must be a member of the account to update it`);
 
-    this.publishAccount({ account: address, event: AccountEvent.update });
+    this.event({ account, event: AccountEvent.updated });
   }
 
-  async publishAccount(payload: AccountSubscriptionPayload) {
-    const { account } = payload;
-
-    // Publish events to all users with access to the account
-    const approvers = await this.db.query(
-      e.select(e.Account, () => ({
-        filter_single: { address: account },
-        approvers: { address: true },
-      })).approvers.address,
+  async event(payload: AccountUpdatedPayload) {
+    const approvers = await this.db.queryWith2(
+      { address: e.UAddress },
+      { address: payload.account },
+      ({ address }) => selectAccount2(address).approvers.address,
     );
 
-    await Promise.all([
-      this.pubsub.publish<AccountSubscriptionPayload>(getAccountTrigger(account), payload),
-      ...approvers.map((approver) =>
-        this.pubsub.publish<AccountSubscriptionPayload>(
-          getAccountApproverTrigger(asAddress(approver)),
-          payload,
-        ),
-      ),
-    ]);
+    [
+      accountTrigger(payload.account),
+      ...approvers.map((a) => accountApproverTrigger(asUAddress(a))),
+    ].map((trigger) => this.pubsub.event<AccountUpdatedPayload>(trigger, payload));
+  }
+
+  async subscribe({ accounts }: AccountUpdatedInput) {
+    const ctx = getUserCtx();
+    accounts ??= ctx.accounts.map((a) => a.address);
+
+    return this.pubsub.asyncIterator([...accounts.map(accountTrigger), ctx.approver]);
   }
 
   async setAsPrimaryAccountIfNotConfigured(accountId: string) {
-    return this.db.query(
-      e.update(e.User, (u) => ({
-        filter: and(
-          e.op(u.id, '=', e.global.current_user.id),
-          e.op('not', e.op('exists', u.primaryAccount)),
-        ),
+    return this.db.queryWith2({ id: e.uuid }, { id: accountId }, ({ id }) =>
+      e.update(e.global.current_user, (u) => ({
+        filter: e.op('not', e.op('exists', u.primaryAccount)),
         set: {
-          primaryAccount: selectAccount(accountId),
+          primaryAccount: e.select(e.Account, () => ({ filter_single: { id } })),
         },
       })),
     );

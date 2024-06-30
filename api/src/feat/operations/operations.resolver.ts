@@ -3,7 +3,7 @@ import { ComputedField } from '~/common/decorators/computed.decorator';
 import e, { $infer } from '~/edgeql-js';
 import { Operation, OperationFunction } from './operations.model';
 import { OperationsService } from './operations.service';
-import { Shape } from '~/core/database/database.select';
+import { Shape } from '~/core/database';
 import { asAddress, asHex } from 'lib';
 import { getChain } from 'chains';
 

@@ -10,6 +10,8 @@ import {
 import { DocumentNode, Kind } from 'graphql';
 import * as documents from '~/gql/api/documents.generated';
 import { logWarning } from '~/util/analytics';
+import { usePrevious } from '~/hooks/usePrevious';
+import _ from 'lodash';
 
 type Options<Data, Variables extends AnyVariables> = Omit<
   UseQueryArgs<Variables, Data>,
@@ -43,9 +45,16 @@ export function useQuery<Data, Variables extends AnyVariables>(
     variables: variables!,
   });
 
+  const previousData = usePrevious(response.data);
+  const data =
+    (!response.data && response.stale && previousData ? previousData : response.data) ?? {};
+
+  if ((!response.data || _.isEmpty(response.data)) && response.stale)
+    console.log({ data, previousData });
+
   return {
     ...response,
-    data: response.data ?? {},
+    data,
     reexecute,
   } as QueryResponse<Data, Variables>;
 }

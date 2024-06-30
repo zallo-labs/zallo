@@ -1,21 +1,22 @@
-import { UserInputError } from '@nestjs/apollo';
 import { Injectable } from '@nestjs/common';
 import e, { Set } from '~/edgeql-js';
-import { UAddress, asApproval, asHex, asUAddress, UUID, asUUID } from 'lib';
+import { UAddress, asUAddress, UUID, asUUID, asApproval, asHex } from 'lib';
 import { getUserCtx } from '~/core/context';
-import { ShapeFunc } from '../../core/database/database.select';
-import { DatabaseService } from '../../core/database/database.service';
-import { NetworksService } from '~/core/networks/networks.service';
+import { DatabaseService, ShapeFunc, and } from '~/core/database';
+import { NetworksService } from '~/core/networks';
 import {
   ApproveInput,
   ProposalEvent,
   ProposalsInput,
   UpdateProposalInput,
 } from './proposals.input';
-import { PubsubService } from '~/core/pubsub/pubsub.service';
-import { and } from '../../core/database/database.util';
+import { EventPayload, PubsubService } from '~/core/pubsub/pubsub.service';
 import { $ } from 'edgedb';
 import { $uuid } from '~/edgeql-js/modules/std';
+import { rejectProposal } from './reject-proposal.query';
+import { approveProposal } from './approve-proposal.query';
+import { UserInputError } from '@nestjs/apollo';
+import { deleteResponse } from './delete-response.query';
 
 export type UniqueProposal = UUID;
 
@@ -25,13 +26,11 @@ export const selectProposal = (id: UniqueProposal) =>
 export const selectProposal2 = (id: Set<$uuid, $.Cardinality.One>) =>
   e.select(e.Proposal, () => ({ filter_single: { id } }));
 
-export interface ProposalSubscriptionPayload {
+export interface ProposalUpdatedPayload extends EventPayload<ProposalEvent> {
   id: UUID;
   account: UAddress;
-  event: ProposalEvent;
 }
-export const getProposalTrigger = (id: UUID) => `proposal.${id}`;
-export const getProposalAccountTrigger = (account: UAddress) => `proposal.account.${account}`;
+export const proposalTrigger = (account: UAddress) => `account.proposal:${account}`;
 
 @Injectable()
 export class ProposalsService {
@@ -85,7 +84,7 @@ export class ProposalsService {
     );
   }
 
-  async approve({ id, approver = getUserCtx().approver, signature }: ApproveInput) {
+  async approve({ id: proposal, approver = getUserCtx().approver, signature }: ApproveInput) {
     const p = await this.db.queryWith(
       { id: e.uuid },
       ({ id }) =>
@@ -94,7 +93,7 @@ export class ProposalsService {
           hash: true,
           account: { address: true },
         })),
-      { id },
+      { id: proposal },
     );
     if (!p) throw new UserInputError('Proposal not found');
 
@@ -103,56 +102,23 @@ export class ProposalsService {
     if (!(await asApproval({ hash, approver, signature, network })))
       throw new UserInputError('Invalid signature');
 
-    await this.db.queryWith(
-      { proposal: e.uuid, approver: e.Address },
-      ({ proposal, approver }) => {
-        const selectedProposal = selectProposal2(proposal);
-        const selectedApprover = e.select(e.Approver, () => ({
-          filter_single: { address: approver },
-        }));
+    await this.db.exec(deleteResponse, { proposal, approver });
+    const approval = await this.db.exec(approveProposal, {
+      proposal,
+      approver,
+      signature,
+    });
 
-        // Remove prior response (if any); this may be a prior approval that could now be invalid
-        const deleteResponse = e.delete(e.ProposalResponse, () => ({
-          filter_single: {
-            proposal: selectedProposal,
-            approver: selectedApprover,
-          },
-        }));
-
-        return e.with(
-          [selectedProposal, selectedApprover, deleteResponse],
-          e.select(
-            e.insert(e.Approval, {
-              proposal: selectedProposal,
-              approver: selectedApprover,
-              signature,
-              signedHash: hash,
-            }),
-          ),
-        );
-      },
-      { proposal: id, approver: approver },
-    );
-
-    this.publish(id, ProposalEvent.approval);
+    this.event(approval.proposal, ProposalEvent.approval);
   }
 
-  async reject(id: UUID) {
-    await this.db.queryWith(
-      { id: e.uuid },
-      ({ id }) => {
-        const proposal = selectProposal2(id);
+  async reject(proposal: UUID) {
+    const approver = getUserCtx().approver;
 
-        const deleteResponse = e.delete(e.Approval, () => ({
-          filter_single: { proposal, approver: e.global.current_approver },
-        }));
+    await this.db.exec(deleteResponse, { proposal, approver });
+    const rejection = await this.db.exec(rejectProposal, { proposal, approver });
 
-        return e.with([proposal, deleteResponse], e.select(e.insert(e.Rejection, { proposal })));
-      },
-      { id },
-    );
-
-    this.publish(id, ProposalEvent.rejection);
+    this.event(rejection.proposal, ProposalEvent.rejection);
   }
 
   async update({ id, policy }: UpdateProposalInput) {
@@ -176,14 +142,13 @@ export class ProposalsService {
       { id, policy },
     );
 
-    this.publish(p, ProposalEvent.update);
+    this.event(p, ProposalEvent.update);
   }
 
-  async publish(
+  async event(
     proposal:
       | { id: UUID; account: UAddress }
       | { id: string; account: { address: string } }
-      | UUID
       | undefined
       | null,
     event: ProposalEvent,
@@ -191,29 +156,14 @@ export class ProposalsService {
     if (!proposal) return;
 
     const { id, account } =
-      typeof proposal === 'string'
-        ? await (async () => {
-            const p = await this.db.query(
-              e.assert_exists(
-                e.select(e.Proposal, () => ({
-                  filter_single: { id: proposal },
-                  id: true,
-                  account: { address: true },
-                })),
-              ),
-            );
+      typeof proposal.account === 'object'
+        ? { id: asUUID(proposal.id), account: asUAddress(proposal.account.address) }
+        : (proposal as { id: UUID; account: UAddress });
 
-            return { id: asUUID(p.id), account: asUAddress(p.account.address) };
-          })()
-        : typeof proposal.account === 'object'
-          ? { id: asUUID(proposal.id), account: asUAddress(proposal.account.address) }
-          : (proposal as { id: UUID; account: UAddress });
-
-    const payload: ProposalSubscriptionPayload = { id, account, event };
-
-    await Promise.all([
-      this.pubsub.publish<ProposalSubscriptionPayload>(getProposalTrigger(id), payload),
-      this.pubsub.publish<ProposalSubscriptionPayload>(getProposalAccountTrigger(account), payload),
-    ]);
+    await this.pubsub.event<ProposalUpdatedPayload>(proposalTrigger(account), {
+      id,
+      account,
+      event,
+    });
   }
 }

@@ -101,12 +101,12 @@ export type $AccountλShape = $.typeutil.flatten<Omit<$LabelledλShape, "address
   "implementation": $.PropertyDesc<$Address, $.Cardinality.One, false, false, false, false>;
   "photo": $.PropertyDesc<$Url, $.Cardinality.AtMostOne, false, false, false, false>;
   "salt": $.PropertyDesc<$Bytes32, $.Cardinality.One, false, false, false, false>;
-  "policies": $.LinkDesc<$Policy, $.Cardinality.Many, {}, false, false,  false, false>;
-  "approvers": $.LinkDesc<$Approver, $.Cardinality.Many, {}, false, true,  false, false>;
   "messages": $.LinkDesc<$Message, $.Cardinality.Many, {}, false, true,  false, false>;
   "proposals": $.LinkDesc<$Proposal, $.Cardinality.Many, {}, false, true,  false, false>;
   "transactions": $.LinkDesc<$Transaction, $.Cardinality.Many, {}, false, true,  false, false>;
   "transfers": $.LinkDesc<$Transfer, $.Cardinality.Many, {}, false, true,  false, false>;
+  "policies": $.LinkDesc<$Policy, $.Cardinality.Many, {}, false, true,  false, false>;
+  "approvers": $.LinkDesc<$Approver, $.Cardinality.Many, {}, false, true,  false, false>;
   "<account[is Proposal]": $.LinkDesc<$Proposal, $.Cardinality.Many, {}, false, false,  false, false>;
   "<account[is Message]": $.LinkDesc<$Message, $.Cardinality.Many, {}, false, false,  false, false>;
   "<account[is Transaction]": $.LinkDesc<$Transaction, $.Cardinality.Many, {}, false, false,  false, false>;
@@ -437,12 +437,17 @@ export type $PolicyStateλShape = $.typeutil.flatten<_std.$Object_8ce8c71ee4fa5f
   "proposal": $.LinkDesc<$Transaction, $.Cardinality.AtMostOne, {}, false, false,  false, false>;
   "initState": $.PropertyDesc<_std.$bool, $.Cardinality.One, false, true, false, false>;
   "isDraft": $.PropertyDesc<_std.$bool, $.Cardinality.One, false, true, false, false>;
-  "latest": $.LinkDesc<$Policy, $.Cardinality.AtMostOne, {}, false, true,  false, false>;
+  "latest": $.LinkDesc<$PolicyState, $.Cardinality.AtMostOne, {}, false, true,  false, false>;
   "isActive": $.PropertyDesc<_std.$bool, $.Cardinality.One, false, true, false, false>;
+  "isLatest": $.PropertyDesc<_std.$bool, $.Cardinality.One, false, false, false, true>;
   "<draft[is PolicyState]": $.LinkDesc<$PolicyState, $.Cardinality.Many, {}, false, false,  false, false>;
   "<draft[is Policy]": $.LinkDesc<$Policy, $.Cardinality.Many, {}, false, false,  false, false>;
   "<draft[is RemovedPolicy]": $.LinkDesc<$RemovedPolicy, $.Cardinality.Many, {}, false, false,  false, false>;
+  "<latest[is RemovedPolicy]": $.LinkDesc<$RemovedPolicy, $.Cardinality.Many, {}, false, false,  false, false>;
+  "<latest[is Policy]": $.LinkDesc<$Policy, $.Cardinality.Many, {}, false, false,  false, false>;
+  "<latest[is PolicyState]": $.LinkDesc<$PolicyState, $.Cardinality.Many, {}, false, false,  false, false>;
   "<draft": $.LinkDesc<$.ObjectType, $.Cardinality.Many, {}, false, false,  false, false>;
+  "<latest": $.LinkDesc<$.ObjectType, $.Cardinality.Many, {}, false, false,  false, false>;
 }>;
 type $PolicyState = $.ObjectType<"default::PolicyState", $PolicyStateλShape, null, [
   ..._std.$Object_8ce8c71ee4fa5f73840c22d7eaa58588['__exclusives__'],
@@ -461,15 +466,11 @@ export type $PolicyλShape = $.typeutil.flatten<$PolicyStateλShape & {
   "threshold": $.PropertyDesc<$uint16, $.Cardinality.One, false, false, false, false>;
   "<policy[is Message]": $.LinkDesc<$Message, $.Cardinality.Many, {}, false, false,  false, false>;
   "<policy[is Transaction]": $.LinkDesc<$Transaction, $.Cardinality.Many, {}, false, false,  false, false>;
-  "<policies[is Account]": $.LinkDesc<$Account, $.Cardinality.Many, {}, false, false,  false, false>;
   "<spentBy[is Transfer]": $.LinkDesc<$Transfer, $.Cardinality.Many, {}, false, false,  false, false>;
-  "<latest[is PolicyState]": $.LinkDesc<$PolicyState, $.Cardinality.Many, {}, false, false,  false, false>;
-  "<latest[is Policy]": $.LinkDesc<$Policy, $.Cardinality.Many, {}, false, false,  false, false>;
-  "<latest[is RemovedPolicy]": $.LinkDesc<$RemovedPolicy, $.Cardinality.Many, {}, false, false,  false, false>;
   "<spentBy[is Transferlike]": $.LinkDesc<$Transferlike, $.Cardinality.Many, {}, false, false,  false, false>;
   "<spentBy[is TransferApproval]": $.LinkDesc<$TransferApproval, $.Cardinality.Many, {}, false, false,  false, false>;
   "<policy[is Proposal]": $.LinkDesc<$Proposal, $.Cardinality.Many, {}, false, false,  false, false>;
-  "<latest": $.LinkDesc<$.ObjectType, $.Cardinality.Many, {}, false, false,  false, false>;
+  "<policies[is Account]": $.LinkDesc<$Account, $.Cardinality.Many, {}, false, false,  false, false>;
   "<policies": $.LinkDesc<$.ObjectType, $.Cardinality.Many, {}, false, false,  false, false>;
   "<policy": $.LinkDesc<$.ObjectType, $.Cardinality.Many, {}, false, false,  false, false>;
   "<spentBy": $.LinkDesc<$.ObjectType, $.Cardinality.Many, {}, false, false,  false, false>;
@@ -738,8 +739,8 @@ const TransfersConfig: $.$expr_PathNode<$.TypeSet<$TransfersConfig, $.Cardinalit
 export type $UserλShape = $.typeutil.flatten<_std.$Object_8ce8c71ee4fa5f73840c22d7eaa58588λShape & {
   "primaryAccount": $.LinkDesc<$Account, $.Cardinality.AtMostOne, {}, false, false,  false, false>;
   "approvers": $.LinkDesc<$Approver, $.Cardinality.Many, {}, false, true,  false, false>;
-  "accounts": $.LinkDesc<$Account, $.Cardinality.Many, {}, false, true,  false, false>;
   "contacts": $.LinkDesc<$Contact, $.Cardinality.Many, {}, false, true,  false, false>;
+  "accounts": $.LinkDesc<$Account, $.Cardinality.Many, {}, false, true,  false, false>;
   "<user[is Approver]": $.LinkDesc<$Approver, $.Cardinality.Many, {}, false, false,  false, false>;
   "<user[is current_approver]": $.LinkDesc<$current_approver, $.Cardinality.Many, {}, false, false,  false, false>;
   "<user[is Contact]": $.LinkDesc<$Contact, $.Cardinality.Many, {}, false, false,  false, false>;
@@ -921,33 +922,6 @@ function as_decimal(...args: any[]) {
   }) as any;
 };
 
-type latestPolicyλFuncExpr<
-  P1 extends $.TypeSet<$Account>,
-  P2 extends _.castMaps.orScalarLiteral<$.TypeSet<_std.$number>>,
-> = $.$expr_Function<
-  $Policy, $.cardutil.overrideLowerBound<$.cardutil.multiplyCardinalities<$.cardutil.paramCardinality<P1>, $.cardutil.paramCardinality<P2>>, 'Zero'>
->;
-function latestPolicy<
-  P1 extends $.TypeSet<$Account>,
-  P2 extends _.castMaps.orScalarLiteral<$.TypeSet<_std.$number>>,
->(
-  account: P1,
-  key: P2,
-): latestPolicyλFuncExpr<P1, P2>;
-function latestPolicy(...args: any[]) {
-  const {returnType, cardinality, args: positionalArgs, namedArgs} = _.syntax.$resolveOverload('default::latestPolicy', args, _.spec, [
-    {args: [{typeId: "4d810c9e-2d7f-11ef-b6f3-0fc90c99b135", optional: false, setoftype: false, variadic: false}, {typeId: "00000000-0000-0000-0000-0000000001ff", optional: false, setoftype: false, variadic: false}], returnTypeId: "50abdaa2-2d7f-11ef-92c5-bfd3f231be91", returnTypemod: "OptionalType"},
-  ]);
-  return _.syntax.$expressionify({
-    __kind__: $.ExpressionKind.Function,
-    __element__: returnType,
-    __cardinality__: cardinality,
-    __name__: "default::latestPolicy",
-    __args__: positionalArgs,
-    __namedargs__: namedArgs,
-  }) as any;
-};
-
 type labelForUserλFuncExpr<
   P1 extends _.castMaps.orScalarLiteral<$.TypeSet<_std.$str>>,
   P2 extends $.TypeSet<$User>,
@@ -1021,6 +995,33 @@ function tokenForUser(...args: any[]) {
     __element__: returnType,
     __cardinality__: cardinality,
     __name__: "default::tokenForUser",
+    __args__: positionalArgs,
+    __namedargs__: namedArgs,
+  }) as any;
+};
+
+type latestPolicyλFuncExpr<
+  P1 extends $.TypeSet<$Account>,
+  P2 extends _.castMaps.orScalarLiteral<$.TypeSet<_std.$number>>,
+> = $.$expr_Function<
+  $Policy, $.cardutil.overrideLowerBound<$.cardutil.multiplyCardinalities<$.cardutil.paramCardinality<P1>, $.cardutil.paramCardinality<P2>>, 'Zero'>
+>;
+function latestPolicy<
+  P1 extends $.TypeSet<$Account>,
+  P2 extends _.castMaps.orScalarLiteral<$.TypeSet<_std.$number>>,
+>(
+  account: P1,
+  key: P2,
+): latestPolicyλFuncExpr<P1, P2>;
+function latestPolicy(...args: any[]) {
+  const {returnType, cardinality, args: positionalArgs, namedArgs} = _.syntax.$resolveOverload('default::latestPolicy', args, _.spec, [
+    {args: [{typeId: "4d810c9e-2d7f-11ef-b6f3-0fc90c99b135", optional: false, setoftype: false, variadic: false}, {typeId: "00000000-0000-0000-0000-0000000001ff", optional: false, setoftype: false, variadic: false}], returnTypeId: "50abdaa2-2d7f-11ef-92c5-bfd3f231be91", returnTypemod: "OptionalType"},
+  ]);
+  return _.syntax.$expressionify({
+    __kind__: $.ExpressionKind.Function,
+    __element__: returnType,
+    __cardinality__: cardinality,
+    __name__: "default::latestPolicy",
     __args__: positionalArgs,
     __namedargs__: namedArgs,
   }) as any;
@@ -1149,10 +1150,10 @@ type __defaultExports = {
   "as_fixed": typeof as_fixed;
   "is_member": typeof is_member;
   "as_decimal": typeof as_decimal;
-  "latestPolicy": typeof latestPolicy;
   "labelForUser": typeof labelForUser;
   "label": typeof label;
   "tokenForUser": typeof tokenForUser;
+  "latestPolicy": typeof latestPolicy;
   "token": typeof token;
   "global": typeof $default__globals
 };
@@ -1221,10 +1222,10 @@ const __defaultExports: __defaultExports = {
   "as_fixed": as_fixed,
   "is_member": is_member,
   "as_decimal": as_decimal,
-  "latestPolicy": latestPolicy,
   "labelForUser": labelForUser,
   "label": label,
   "tokenForUser": tokenForUser,
+  "latestPolicy": latestPolicy,
   "token": token,
   "global": $default__globals
 };

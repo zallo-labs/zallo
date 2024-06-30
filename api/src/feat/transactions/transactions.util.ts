@@ -1,6 +1,6 @@
 import { Hex, Operation, UUID, asAddress, asHex, asTx, isHex } from 'lib';
 import e, { $infer, Set } from '~/edgeql-js';
-import { Shape } from '~/core/database/database.select';
+import { Shape } from '~/core/database';
 import { $uuid } from '~/edgeql-js/modules/std';
 import { $ } from 'edgedb';
 

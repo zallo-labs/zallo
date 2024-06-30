@@ -1,9 +1,9 @@
 import { Args, Info, Query, Resolver } from '@nestjs/graphql';
 import { Node } from '~/common/decorators/interface.decorator';
-import { DatabaseService } from '../../core/database/database.service';
+import { DatabaseService } from '~/core/database';
 import { GraphQLResolveInfo } from 'graphql';
 import e from '~/edgeql-js';
-import { getShape } from '../../core/database/database.select';
+import { getShape } from '~/core/database';
 import { NodesArgs } from './nodes.input';
 import * as uuid from 'uuid';
 

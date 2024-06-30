@@ -3,7 +3,7 @@ import { GraphQLResolveInfo } from 'graphql';
 import { ContactInput, ContactsInput, LabelInput, UpsertContactInput } from './contacts.input';
 import { Contact } from './contacts.model';
 import { ContactsService } from './contacts.service';
-import { getShape } from '../../core/database/database.select';
+import { getShape } from '~/core/database';
 import { Input } from '~/common/decorators/input.decorator';
 import { uuid } from 'edgedb/dist/codecs/ifaces';
 

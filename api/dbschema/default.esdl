@@ -12,7 +12,7 @@ module default {
     upgradedAtBlock: bigint { constraint min_value(0); }
     photo: Url;
     required property active := exists .upgradedAtBlock;
-    multi policies: Policy { on source delete delete target; on target delete allow; }
+    multi link policies := (select .<account[is Policy] filter .isLatest); 
     multi link proposals := .<account[is Proposal];
     multi link transactions := .<account[is Transaction];
     multi link messages := .<account[is Message];

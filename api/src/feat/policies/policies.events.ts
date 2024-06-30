@@ -1,12 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { EventsWorker, EventData, Log } from '../events/events.worker';
-import { ACCOUNT_ABI, PolicyKey, asPolicyKey, asUAddress } from 'lib';
+import { ACCOUNT_ABI, PolicyKey, asPolicyKey, asUAddress, asUUID } from 'lib';
 import { Chain } from 'chains';
-import { DatabaseService } from '../../core/database/database.service';
-import e from '~/edgeql-js';
-import { and, or } from '../../core/database/database.util';
+import { DatabaseService } from '~/core/database';
 import { getAbiItem } from 'viem';
-import { selectAccount2 } from '../accounts/accounts.util';
+import { activatePolicy } from './activate-policy.query';
+import { PoliciesService } from './policies.service';
+import { PolicyEvent } from './policies.model';
+import { TransactionsService } from '../transactions/transactions.service';
 
 const policyAddedEvent = getAbiItem({ abi: ACCOUNT_ABI, name: 'PolicyAdded' });
 const policyRemovedEvent = getAbiItem({ abi: ACCOUNT_ABI, name: 'PolicyRemoved' });
@@ -16,43 +17,46 @@ export class PoliciesEventsProcessor {
   constructor(
     private db: DatabaseService,
     private events: EventsWorker,
+    private policies: PoliciesService,
+    private transactions: TransactionsService,
   ) {
     this.events.on(policyAddedEvent, (data) => this.policyAdded(data));
     this.events.on(policyRemovedEvent, (data) => this.policyRemoved(data));
   }
 
   private async policyAdded({ chain, log }: EventData<typeof policyAddedEvent>) {
-    await this.markStateAsActive(chain, log, asPolicyKey(log.args.key));
+    const { account, new: policyId } = await this.markStateAsActive(
+      chain,
+      log,
+      asPolicyKey(log.args.key),
+    );
+
+    if (policyId)
+      this.policies.event({ event: PolicyEvent.created, account, policyId: asUUID(policyId) });
   }
 
   private async policyRemoved({ chain, log }: EventData<typeof policyRemovedEvent>) {
-    await this.markStateAsActive(chain, log, asPolicyKey(log.args.key));
+    const { account, old: policyId } = await this.markStateAsActive(
+      chain,
+      log,
+      asPolicyKey(log.args.key),
+    );
+
+    if (policyId)
+      this.policies.event({ event: PolicyEvent.removed, account, policyId: asUUID(policyId) });
   }
 
   private async markStateAsActive(chain: Chain, log: Log, key: PolicyKey) {
-    await this.db.queryWith(
-      { account: e.UAddress, hash: e.Bytes32, activationBlock: e.bigint },
-      ({ account, hash, activationBlock }) => {
-        // TODO: filter state by state hash (part of event log) to ensure correct state is activated
-        // It's possible that two policies are activated in the same proposal; it's not prohibited by a constraint.
-        const proposal = e.select(e.SystemTx, () => ({ filter_single: { hash } })).proposal;
+    const account = asUAddress(log.address, chain);
+    const r = await this.db.exec(activatePolicy, {
+      account,
+      key,
+      systxHash: log.transactionHash,
+      activationBlock: log.blockNumber,
+    });
 
-        return e.update(e.PolicyState, (ps) => ({
-          filter: and(
-            e.op(ps.account, '?=', selectAccount2(account)),
-            e.op(ps.key, '=', key),
-            or(e.op(ps.proposal, '?=', proposal), ps.initState),
-          ),
-          set: {
-            activationBlock,
-          },
-        }));
-      },
-      {
-        account: asUAddress(log.address, chain),
-        hash: log.transactionHash,
-        activationBlock: log.blockNumber,
-      },
-    );
+    await Promise.all(r.pendingTransactions.map((id) => this.transactions.tryExecute(asUUID(id))));
+
+    return { account, old: r.old, new: r.new };
   }
 }

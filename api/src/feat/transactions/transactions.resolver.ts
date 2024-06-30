@@ -8,7 +8,7 @@ import {
 } from './transactions.input';
 import { EstimatedTransactionFees, Transaction, TransactionStatus } from './transactions.model';
 import { EstimateFeesDeps, TransactionsService, estimateFeesDeps } from './transactions.service';
-import { getShape } from '../../core/database/database.select';
+import { getShape } from '~/core/database';
 import e from '~/edgeql-js';
 import { Input } from '~/common/decorators/input.decorator';
 import { uuid } from 'edgedb/dist/codecs/ifaces';
@@ -39,7 +39,7 @@ export class TransactionsResolver {
     @Input() input: ProposeTransactionInput,
     @Info() info: GraphQLResolveInfo,
   ) {
-    const { id } = await this.service.propose(input);
+    const id = await this.service.propose(input);
     return this.service.selectUnique(id, getShape(info));
   }
 
@@ -48,7 +48,7 @@ export class TransactionsResolver {
     @Input() input: ProposeCancelScheduledTransactionInput,
     @Info() info: GraphQLResolveInfo,
   ) {
-    const { id } = await this.service.proposeCancelScheduledTransaction(input);
+    const id = await this.service.proposeCancelScheduledTransaction(input);
     return this.service.selectUnique(id, getShape(info));
   }
 

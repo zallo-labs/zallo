@@ -1,7 +1,7 @@
 import { Test } from '@nestjs/testing';
 import { EventsQueue, EventsWorker, EventData, Log } from './events.worker';
 import { DeepMocked, createMock } from '@golevelup/ts-jest';
-import { Network, NetworksService } from '../../core/networks/networks.service';
+import { Network, NetworksService } from '~/core/networks/networks.service';
 import { BullModule } from '@nestjs/bullmq';
 import { DEFAULT_REDIS_NAMESPACE, getRedisToken } from '@songkeys/nestjs-redis';
 import { DeepPartial, randomAddress } from '~/util/test';

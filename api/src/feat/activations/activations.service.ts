@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { ActivationsQueue } from './activations.queue';
-import { QueueData } from '../../core/bull/bull.util';
+import { QueueData } from '~/core/bull/bull.util';
 import {
   DEPLOYER,
   UAddress,
@@ -13,9 +13,9 @@ import {
   ACCOUNT_PROXY,
   encodeProxyConstructorArgs,
 } from 'lib';
-import { NetworksService } from '../../core/networks/networks.service';
+import { NetworksService } from '~/core/networks/networks.service';
 import e from '~/edgeql-js';
-import { DatabaseService } from '../../core/database/database.service';
+import { DatabaseService } from '~/core/database';
 import { policyStateAsPolicy, PolicyShape } from '../policies/policies.util';
 import { FlowJob } from 'bullmq';
 import { ReceiptsQueue } from '../system-txs/receipts.queue';

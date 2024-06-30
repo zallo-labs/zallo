@@ -3,7 +3,7 @@ import { InjectRedis } from '@songkeys/nestjs-redis';
 import Redis from 'ioredis';
 import { UAddress, asAddress, asChain, isEthToken, tryOrIgnoreAsync } from 'lib';
 import { ERC20 } from 'lib/dapps';
-import { NetworksService } from '~/core/networks/networks.service';
+import { NetworksService } from '~/core/networks';
 
 export interface BalanceArgs {
   account: UAddress;
@@ -44,8 +44,9 @@ export class BalancesService {
     return balance ?? 0n;
   }
 
-  invalidateBalance(args: BalanceArgs) {
-    return this.redis.del(this.key(args));
+  async invalidate(args: BalanceArgs) {
+    const existed = (await this.redis.del(this.key(args))) === 1;
+    if (existed) this.balance(args);
   }
 
   private key(args: BalanceArgs) {

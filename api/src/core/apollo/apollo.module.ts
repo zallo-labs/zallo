@@ -13,6 +13,7 @@ import _ from 'lodash';
 import { REQUEST_CONTEXT, getContext, getContextUnsafe, getDefaultContext } from '~/core/context';
 import { RedisModule } from '~/core/redis/redis.module';
 import { InMemoryLRUCache } from '@apollo/utils.keyvaluecache';
+import { createApolloTracingPlugin } from '../sentry/sentry.apollo';
 
 export const GQL_ENDPOINT = '/graphql';
 
@@ -73,7 +74,10 @@ export const GQL_ENDPOINT = '/graphql';
               : { ...ctx.extra.context, req: ctx.extra.request }; // WS
           },
           playground: false,
-          plugins: [ApolloServerPluginLandingPageLocalDefault({ includeCookies: true })],
+          plugins: [
+            ApolloServerPluginLandingPageLocalDefault({ includeCookies: true }),
+            createApolloTracingPlugin(),
+          ],
         };
       },
     }),

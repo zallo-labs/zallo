@@ -49,7 +49,7 @@ const Transaction = gql(/* GraphQL */ `
 
 const Query = gql(/* GraphQL */ `
   query TransactionScreen($transaction: ID!) {
-    transaction(input: { id: $transaction }) {
+    transaction(input: { id: $transaction }) @_required {
       ...TransactionScreen_Transaction @arguments(transaction: $transaction)
     }
 
@@ -80,9 +80,9 @@ function TransactionScreen() {
 
   // Extract account from Transaction result, and use it as a variable to get the full result
   const variables = { transaction: id } satisfies DocumentVariables<typeof Query>;
-
   const query = useQuery(Query, variables);
   useSubscription({ query: getOptimizedDocument(Subscription), variables });
+
   const p = useFragment(Transaction, query.data?.transaction);
   const remove = useRemoveTransaction(p);
 

@@ -4,18 +4,18 @@ import { TransactionData, ReceiptsWorker, Receipt } from './receipts.worker';
 import { InjectQueue } from '@nestjs/bullmq';
 import { ReceiptsQueue } from './receipts.queue';
 import e from '~/edgeql-js';
-import { DatabaseService } from '../../core/database/database.service';
-import { and } from '../../core/database/database.util';
+import { DatabaseService } from '~/core/database';
+import { and } from '~/core/database';
 import { ProposalsService } from '../proposals/proposals.service';
 import { ProposalEvent } from '../proposals/proposals.input';
 import { InjectRedis } from '@songkeys/nestjs-redis';
 import Redis from 'ioredis';
-import { RUNNING_JOB_STATUSES, TypedQueue } from '../../core/bull/bull.util';
+import { RUNNING_JOB_STATUSES, TypedQueue } from '~/core/bull/bull.util';
 import { ETH } from 'lib/dapps';
 import { runOnce } from '~/util/mutex';
 import { ampli } from '~/util/ampli';
 import { selectSysTx } from './system-tx.util';
-import { NetworksService, Network } from '~/core/networks/networks.service';
+import { NetworksService, Network } from '~/core/networks';
 
 @Injectable()
 export class TransactionsEvents implements OnModuleInit {
@@ -65,7 +65,7 @@ export class TransactionsEvents implements OnModuleInit {
     if (!proposal) return `Transaction already processed: ${receipt.transactionHash}`;
 
     this.log.debug(`Proposal executed: ${proposal.id}`);
-    this.proposals.publish(proposal, ProposalEvent.executed);
+    this.proposals.event(proposal, ProposalEvent.executed);
 
     // const usdPerEth = new Decimal(transaction.usdPerFeeToken).div(transaction.ethPerFeeToken);
     const revenue = 0; // new Decimal(0).mul(usdPerEth).toNumber();
@@ -101,7 +101,7 @@ export class TransactionsEvents implements OnModuleInit {
     if (!proposal) return `Transaction already processed: ${receipt.transactionHash}`;
 
     this.log.debug(`Proposal reverted: ${proposal.id}`);
-    this.proposals.publish(proposal, ProposalEvent.executed);
+    this.proposals.event(proposal, ProposalEvent.executed);
 
     // const usdPerEth = new Decimal(transaction.usdPerFeeToken).div(transaction.ethPerFeeToken);
     const revenue = 0; // new Decimal(0).mul(usdPerEth).toNumber();

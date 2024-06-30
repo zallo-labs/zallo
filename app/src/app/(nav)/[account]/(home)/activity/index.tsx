@@ -4,7 +4,6 @@ import { PaneSkeleton } from '#/skeleton/PaneSkeleton';
 import { withSuspense } from '#/skeleton/withSuspense';
 import { gql } from '@api';
 import { AccountParams } from '../../_layout';
-import { useSubscription } from 'urql';
 import { useLocalParams } from '~/hooks/useLocalParams';
 import { useQuery } from '~/gql';
 import { asDateTime } from '#/format/Timestamp';
@@ -58,39 +57,11 @@ const Query = gql(/* GraphQL */ `
   }
 `);
 
-const ProposalSubscription = gql(/* GraphQL */ `
-  subscription ActivityPane_ProposalSubscription($accounts: [UAddress!]!) {
-    proposalUpdated(input: { accounts: $accounts, events: [create, delete] }) {
-      id
-      event
-      proposal {
-        __typename
-        id
-        timestamp: createdAt
-        ...TransactionItem_Transaction
-      }
-    }
-  }
-`);
-
-const TransferSubscription = gql(/* GraphQL */ `
-  subscription ActivityPane_TransferSubscription($accounts: [UAddress!]!) {
-    transfer(input: { accounts: $accounts, internal: false }) {
-      __typename
-      id
-      timestamp
-      ...IncomingTransferItem_Transfer
-    }
-  }
-`);
-
 function ActivityPane_() {
   const { styles } = useStyles(stylesheet);
   const { account } = useLocalParams(AccountParams);
 
   const { account: a, user } = useQuery(Query, { account }).data ?? {};
-  useSubscription({ query: ProposalSubscription, variables: { accounts: [account] } });
-  useSubscription({ query: TransferSubscription, variables: { accounts: [account] } });
 
   const items = [...(a?.proposals ?? []), ...(a?.transfers ?? [])]
     .map((v) => ({ ...v, section: getItemSection(v), timestamp: asDateTime(v.timestamp) }))

@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { TransfersService } from './transfers.service';
 import { createMock } from '@golevelup/ts-jest';
-import { DatabaseService } from '../../core/database/database.service';
+import { DatabaseService } from '~/core/database';
 import { UserContext } from '~/core/context';
 import { asUser, getUserCtx } from '~/core/context';
 import {

@@ -11,18 +11,20 @@ import { gql } from './generated';
 import { Arraylike, UAddress, asUUID, toArray } from 'lib';
 import { WritableDeep } from 'ts-toolbelt/out/Object/Writable';
 import {
+  AccountUpdated,
   Message,
   MutationApproveMessageArgs,
   MutationApproveTransactionArgs,
   MutationProposeMessageArgs,
   MutationProposeTransactionArgs,
   MutationRejectProposalArgs,
-  MutationRemoveMessageArgs,
   MutationUpdatePolicyArgs,
+  PolicyUpdated,
   Proposal,
   ProposalUpdated,
   TokenScreenUpsertMutation,
   Transaction,
+  Transfer,
 } from './documents.generated';
 import type { O } from 'ts-toolbelt';
 
@@ -180,19 +182,34 @@ export const CACHE_SCHEMA_CONFIG: Pick<
       },
     } as Partial<Record<Mutation, UpdateResolver<unknown, unknown>>>,
     Subscription: {
+      accountUpdated: ({ accountUpdated: r }: { accountUpdated: AccountUpdated }, _args, cache) => {
+        invalidate(cache, { __typename: 'Account', id: r.account?.id });
+        if (r.event === 'created') {
+          const accounts = cache.resolve('Query', 'todos') ?? [];
+          if (Array.isArray(accounts)) cache.link('Query', 'accounts', [...accounts, r.account]);
+        }
+      },
+      policyUpdated: ({ policyUpdated: r }: { policyUpdated: PolicyUpdated }, _args, cache) => {
+        invalidate(cache, { __typename: 'Policy', id: r.policy?.id });
+        if (r.event === 'created' || r.event === 'removed' || r.event === 'activated')
+          invalidate(cache, accountEntities(cache, r.account), ['policies']);
+      },
       proposalUpdated: (
-        { proposalUpdated: r }: { proposalUpdated: Partial<ProposalUpdated> },
+        { proposalUpdated: r }: { proposalUpdated: ProposalUpdated },
         _args,
         cache,
       ) => {
-        if (r.event === 'create' || r.event === 'delete' || r.event === 'executed') {
-          invalidate(cache, 'Query', ['node', 'policy']);
-          invalidate(cache, accountEntities(cache, r.account), ['policies']);
-        }
+        invalidate(cache, { __typename: 'Proposal', id: r.proposal?.id });
+        if (r.event === 'create' || r.event === 'delete')
+          invalidate(cache, accountEntities(cache, r.account), ['proposals']);
       },
-      transfer: (_result, _args, cache) => {
-        invalidate(cache, 'Query', ['tokens']);
-        invalidate(cache, accountEntities(cache), ['transfers']);
+      transfer: ({ transfer: t }: { transfer: Transfer }, _args, cache) => {
+        invalidate(cache, { __typename: 'Token', id: t.token?.id }, ['balance', 'spending']);
+        invalidate(
+          cache,
+          t.account.id ? { __typename: 'Account', id: t.account.id } : accountEntities(cache),
+          ['transfers'],
+        );
       },
     } satisfies Partial<Record<Subscription, UpdateResolver<unknown, unknown>>>,
   },
@@ -347,12 +364,13 @@ type SubscriptionType = Type<{ name: Schema['subscriptionType']['name'] }>['fiel
 type Subscription = SubscriptionType['name'];
 
 function invalidate<
-  Entity extends Type<{ kind: 'OBJECT' | 'INTERFACE' }>,
-  EntityName extends Entity['name'],
+  Entities extends Type<{ kind: 'OBJECT' | 'INTERFACE' }>,
+  EntityName extends Entities['name'],
+  Entity extends Extract<Entities, { name: EntityName }>,
   Fieldname extends Entity['fields'][number]['name'],
 >(
   cache: Cache,
-  entities: Arraylike<EntityName | { __typename: EntityName; id: string } | undefined>,
+  entities: Arraylike<EntityName | { __typename: EntityName; id?: string } | undefined>,
   fieldnames: Fieldname[] = [],
 ) {
   for (const entity of toArray(entities)) {

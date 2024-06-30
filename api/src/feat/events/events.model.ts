@@ -1,7 +1,7 @@
 import { Field, InterfaceType, createUnionType } from '@nestjs/graphql';
 import { GraphQLBigInt } from 'graphql-scalars';
 import { Transfer, TransferApproval } from '../transfers/transfers.model';
-import { makeUnionTypeResolver } from '../../core/database/database.util';
+import { makeUnionTypeResolver } from '~/core/database';
 import e from '~/edgeql-js';
 import { Bytes32Field } from '~/common/scalars/Bytes.scalar';
 import { Hex } from 'lib';

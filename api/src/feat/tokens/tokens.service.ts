@@ -1,12 +1,12 @@
 import { Injectable } from '@nestjs/common';
-import { DatabaseService } from '../../core/database/database.service';
+import { DatabaseService } from '~/core/database';
 import { BalanceInput, SpendingInput, TokensInput, UpsertTokenInput } from './tokens.input';
-import { Scope, ShapeFunc } from '../../core/database/database.select';
+import { Scope, ShapeFunc } from '~/core/database';
 import e from '~/edgeql-js';
 import { UAddress, asAddress, asDecimal, asFp, asHex, asUAddress } from 'lib';
 import { ERC20, TOKENS, flattenToken } from 'lib/dapps';
-import { and, or } from '../../core/database/database.util';
-import { NetworksService } from '../../core/networks/networks.service';
+import { and, or } from '~/core/database';
+import { NetworksService } from '~/core/networks/networks.service';
 import { UserInputError } from '@nestjs/apollo';
 import { OrderByObjExpr } from '~/edgeql-js/select';
 import Decimal from 'decimal.js';
@@ -14,7 +14,7 @@ import { selectAccount } from '../accounts/accounts.util';
 import { TokenSpending } from './spending.model';
 import { Transferlike } from '../transfers/transfers.model';
 import { getUserCtx } from '~/core/context';
-import { BalancesService } from '../../core/balances/balances.service';
+import { BalancesService } from '~/core/balances/balances.service';
 import { selectTransaction } from '../transactions/transactions.util';
 import { SelectedPolicies } from '../policies/policies.util';
 

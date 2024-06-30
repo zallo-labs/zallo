@@ -4,7 +4,7 @@ import { UAddress } from 'lib';
 import { UserContext } from '~/core/context';
 import { asUser } from '~/core/context';
 import { randomUAddress, randomUser } from '~/util/test';
-import { DatabaseService } from '../../core/database/database.service';
+import { DatabaseService } from '~/core/database';
 import { ContactsService, selectContact } from './contacts.service';
 import e from '~/edgeql-js';
 

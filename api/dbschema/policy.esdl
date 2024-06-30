@@ -8,18 +8,27 @@ module default {
       on target delete delete source;
     }
     activationBlock: bigint { constraint min_value(0n); }
-    required property initState := (.activationBlock ?= 0);
-    required property hasBeenActive := exists .activationBlock;
-    latest := latestPolicy(.account, .key);
+    required isLatest: bool {
+      default := false;
+      rewrite insert using (
+        ((.activationBlock ?? 0n) > ((select latestPolicy(.account, .key)).activationBlock ?? -1n))
+        if (not __specified__.isLatest) else .isLatest
+      )
+    }
+    required initState := .activationBlock ?= 0;
+    required hasBeenActive := exists .activationBlock;
+    required isActive := .isLatest and .hasBeenActive;
+    required isDraft := exists .draft;
+    latest := (__source__ if .isLatest else latestPolicy(.account, .key));
     draft := assert_single((
       with account := __source__.account, key := __source__.key
       select detached PolicyState filter .account = account and .key = key and not .hasBeenActive
       order by .createdAt desc limit 1
     ));
-    required property isActive := (.hasBeenActive and .latest ?= __source__);
-    required property isDraft := exists .draft;
 
     index on ((.account, .key));
+    index on ((.account, .key, .isLatest));
+    index on ((.account, .isLatest));
 
     access policy members_select_insert_update allow select, insert, update
       using (is_member(.account));
@@ -37,15 +46,8 @@ module default {
     required allowMessages: bool { default := false; }
     required delay: uint32 { default := 0; }
 
-    trigger link_insert after insert, update for each
-    when ((__new__.activationBlock ?? 0) > ((select __new__.account.policies filter .key = __new__.key limit 1).activationBlock ?? -1)) do (
-      update __new__.account set {
-        policies := assert_distinct((select __new__.account.policies filter .key != __new__.key) union __new__)
-      }
-    );
-
-    trigger update_proposals after insert, update for each
-    when ((__new__.activationBlock ?? 0) > ((select __new__.account.policies filter .key = __new__.key limit 1).activationBlock ?? -1)) do (
+    trigger update_proposals_when_latest after insert, update for each
+    when (__new__.isLatest) do (
       update Proposal filter .account = __new__.account and .policy.key = __new__.key and
         (([is Transaction].status ?= TransactionStatus.Pending) or ((exists [is Message].id) and (not exists [is Message].signature))) 
       set { 
@@ -57,31 +59,24 @@ module default {
       update Proposal filter .account = __old__.account and .policy.key = __old__.key and
         (([is Transaction].status ?= TransactionStatus.Pending) or ((exists [is Message].id) and (not exists [is Message].signature))) 
       set {
-        policy := (select __old__.account.policies limit 1)
+        policy := (select Policy filter .account = __old__.account order by .isActive limit 1)
       }
     )
   }
 
   type RemovedPolicy extending PolicyState {
-    trigger rm_policy_draft_link after insert, update for each
-    when ((__new__.activationBlock ?? 0) > ((select __new__.account.policies filter .key = __new__.key limit 1).activationBlock ?? -1)) do (
-      update __new__.account set {
-        policies := assert_distinct((select __new__.account.policies filter .key != __new__.key))
-      } 
-    );
-
-    trigger update_proposals after insert, update for each
-    when ((__new__.activationBlock ?? 0) > ((select __new__.account.policies filter .key = __new__.key limit 1).activationBlock ?? -1)) do (
+    trigger update_proposals_when_latest after insert, update for each
+    when (__new__.isLatest) do ( 
       update Proposal filter .account = __new__.account and .policy.key = __new__.key and
         (([is Transaction].status ?= TransactionStatus.Pending) or ((exists [is Message].id) and (not exists [is Message].signature))) 
       set {
-        policy := (select __new__.account.policies limit 1)
+        policy := (select Policy filter .account = __new__.account order by .isActive limit 1)
       }
     );
   }
   
   function latestPolicy(account: Account, key: int64) -> optional Policy using (
-    assert_single((select account.policies filter .key = key))
+    assert_single((select Policy filter .account = account and .key = key and .isLatest))
   );
 
   type Action {
