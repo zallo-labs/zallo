@@ -1,0 +1,3 @@
+# URQL local directives: https://commerce.nearform.com/open-source/urql/docs/graphcache/local-directives/#client-controlled-nullability
+directive @_required on FIELD
+directive @_optional on FIELD

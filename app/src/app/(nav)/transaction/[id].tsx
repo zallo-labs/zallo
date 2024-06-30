@@ -49,7 +49,7 @@ const Transaction = gql(/* GraphQL */ `
 
 const Query = gql(/* GraphQL */ `
   query TransactionScreen($transaction: ID!) {
-    transaction(input: { id: $transaction }) {
+    transaction(input: { id: $transaction }) @_required {
       ...TransactionScreen_Transaction @arguments(transaction: $transaction)
     }
 
