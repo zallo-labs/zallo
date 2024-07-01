@@ -44,6 +44,9 @@
     "husky": "^9.0.11",
     "lint-staged": "^15.2.5",
     "prettier": "^3.3.1",
+    "react-relay": "link:./packages",
+    "relay-compiler": "link:./packages",
+    "relay-runtime": "link:./packages",
     "solady": "link:./packages",
     "turbo": "^2.0.2"
   },

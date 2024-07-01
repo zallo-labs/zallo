@@ -29,6 +29,7 @@ module.exports = function (api) {
           },
         },
       ],
+      ['relay', { artifactDirectory: './src/api/__generated__' }],
       ['babel-plugin-react-compiler', { runtimeModule: 'react-compiler-runtime' }],
       'formatjs',
       'lodash',

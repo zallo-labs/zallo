@@ -11,6 +11,7 @@ import { Splash } from '#/Splash';
 import { WalletConnectListeners } from '#/walletconnect/WalletConnectListeners';
 import { GqlProvider } from '~/gql/GqlProvider';
 import { AuthGate } from '#/provider/AuthGate';
+import { ApiProvider } from '~/api/ApiProvider';
 import { NotificationsProvider } from '#/provider/NotificationsProvider';
 import { SnackbarProvider } from '#/provider/SnackbarProvider';
 import { UpdateProvider } from '#/provider/UpdateProvider';
@@ -56,30 +57,32 @@ function RootLayout() {
               <Background>
                 <Suspense fallback={<Splash />}>
                   <AuthGate>
-                    <GqlProvider>
-                      <TQueryProvider>
-                        <GoogleAuthProvider>
-                          <Try catch={RootErrorBoundary}>
-                            <Suspense fallback={<Splash />}>
-                              <RnpPortal.Host>
-                                <PortalProvider>
-                                  <Layout />
-                                </PortalProvider>
-                              </RnpPortal.Host>
-                            </Suspense>
-                          </Try>
-                          <Try catch={IgnoredErrorBoundary}>
-                            <Suspense fallback={null}>
-                              <UpdateProvider />
-                              <Analytics />
-                              <WalletConnectListeners />
-                              <GlobalSubscriptions />
-                              <NotificationsProvider />
-                            </Suspense>
-                          </Try>
-                        </GoogleAuthProvider>
-                      </TQueryProvider>
-                    </GqlProvider>
+                    <ApiProvider>
+                      <GqlProvider>
+                        <TQueryProvider>
+                          <GoogleAuthProvider>
+                            <Try catch={RootErrorBoundary}>
+                              <Suspense fallback={<Splash />}>
+                                <RnpPortal.Host>
+                                  <PortalProvider>
+                                    <Layout />
+                                  </PortalProvider>
+                                </RnpPortal.Host>
+                              </Suspense>
+                            </Try>
+                            <Try catch={IgnoredErrorBoundary}>
+                              <Suspense fallback={null}>
+                                <UpdateProvider />
+                                <Analytics />
+                                <WalletConnectListeners />
+                                <GlobalSubscriptions />
+                                <NotificationsProvider />
+                              </Suspense>
+                            </Try>
+                          </GoogleAuthProvider>
+                        </TQueryProvider>
+                      </GqlProvider>
+                    </ApiProvider>
                   </AuthGate>
                 </Suspense>
               </Background>
