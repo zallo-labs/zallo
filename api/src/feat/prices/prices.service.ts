@@ -4,7 +4,7 @@ import { Price } from './prices.model';
 import e from '~/edgeql-js';
 import { preferUserToken } from '~/feat/tokens/tokens.service';
 import { DatabaseService } from '~/core/database';
-import { EvmPriceServiceConnection } from '@pythnetwork/pyth-evm-js';
+import { HermesClient } from '@pythnetwork/hermes-client';
 import { CONFIG } from '~/config';
 import { DateTime } from 'luxon';
 import { ETH, PYTH } from 'lib/dapps';
@@ -15,12 +15,13 @@ import { InjectRedis } from '@songkeys/nestjs-redis';
 import { runExclusively } from '~/util/mutex';
 import { and } from '~/core/database';
 import { PricesWatcher } from './prices.watcher';
-import { PriceData, extractFeedPrice } from './prices.util';
+import { PriceData, parsePriceUpdate } from './prices.util';
 
 @Injectable()
 export class PricesService implements OnModuleInit {
   private log = new Logger(this.constructor.name);
-  private pyth: EvmPriceServiceConnection;
+  private pyth: HermesClient;
+  private systemTokenPriceIds = new Map<UAddress, Hex>();
   private lastOnchainPublishTime = Object.keys(CHAINS).reduce(
     (acc, chain) => ({
       ...acc,
@@ -28,7 +29,6 @@ export class PricesService implements OnModuleInit {
     }),
     {} as Record<Chain, Map<Hex, DateTime>>,
   );
-  private systemTokenPriceIds = new Map<UAddress, Hex>();
 
   constructor(
     private db: DatabaseService,
@@ -36,7 +36,7 @@ export class PricesService implements OnModuleInit {
     @InjectRedis() private redis: Redis,
     private watcher: PricesWatcher,
   ) {
-    this.pyth = new EvmPriceServiceConnection(CONFIG.pythHermesUrl);
+    this.pyth = new HermesClient(CONFIG.pythHermesUrl);
   }
 
   onModuleInit() {
@@ -67,10 +67,15 @@ export class PricesService implements OnModuleInit {
     const cached = await this.watcher.getPrice(priceId);
     if (cached) return cached;
 
-    const [feed] = (await this.pyth.getLatestPriceFeeds([priceId])) ?? [];
-    if (!feed) return null;
+    const priceUpdate = (
+      await this.pyth.getLatestPriceUpdates([priceId], {
+        parsed: true,
+        encoding: 'hex',
+      })
+    ).parsed?.[0];
+    if (!priceUpdate) return null;
 
-    return extractFeedPrice(feed);
+    return parsePriceUpdate(priceUpdate);
   }
 
   private async getUsdPriceId(token: UAddress) {
@@ -116,7 +121,9 @@ export class PricesService implements OnModuleInit {
         );
         if (expiredPriceIds.length === 0) return;
 
-        const updateData = (await this.pyth.getPriceFeedsUpdateData(expiredPriceIds)).map(asHex);
+        const updateData = (await this.pyth.getLatestPriceUpdates(expiredPriceIds)).binary.data.map(
+          asHex,
+        );
 
         const network = this.networks.get(chain);
         const updateFee = await network.readContract({

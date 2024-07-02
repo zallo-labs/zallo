@@ -1,4 +1,4 @@
-import { PriceFeed } from '@pythnetwork/pyth-evm-js';
+import { PriceUpdate } from '@pythnetwork/hermes-client';
 import Decimal from 'decimal.js';
 
 export interface PriceData {
@@ -8,12 +8,11 @@ export interface PriceData {
 
 const TEN = new Decimal(10);
 
-export function extractFeedPrice(feed: PriceFeed): PriceData {
-  const current = feed.getPriceUnchecked();
-  const ema = feed.getEmaPriceUnchecked();
+export type ParsedPriceUpdate = NonNullable<PriceUpdate['parsed']>[0];
 
+export function parsePriceUpdate({ price, ema_price }: ParsedPriceUpdate) {
   return {
-    current: new Decimal(current.price).mul(TEN.pow(current.expo)),
-    ema: new Decimal(ema.price).mul(TEN.pow(ema.expo)),
-  };
+    current: new Decimal(price.price).mul(TEN.pow(price.expo)),
+    ema: new Decimal(ema_price.price).mul(TEN.pow(ema_price.expo)),
+  } satisfies PriceData;
 }

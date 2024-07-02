@@ -3,28 +3,26 @@ import { createStyles, useStyles } from '@theme/styles';
 import { LandingHeader } from '#/landing/LandingHeader';
 import { PrimarySection } from '#/landing/PrimarySection';
 import { LinearGradient } from 'expo-linear-gradient';
-import { gql } from '@api';
-import { useQuery } from '~/gql';
 import { useSelectedAccount } from '~/hooks/useSelectedAccount';
 import { Redirect } from 'expo-router';
-import { OperationContext } from 'urql';
 import { z } from 'zod';
 import { useLocalParams } from '~/hooks/useLocalParams';
 import { zBool } from '~/lib/zod';
-import { useMemo } from 'react';
 import { withSuspense } from '#/skeleton/withSuspense';
 import { ScreenSkeleton } from '#/skeleton/ScreenSkeleton';
+import { graphql } from 'relay-runtime';
+import { useLazyLoadQuery } from 'react-relay';
+import { app_LandingScreenQuery } from '~/api/__generated__/app_LandingScreenQuery.graphql';
 
-const Query = gql(/* GraphQL */ `
-  query LandingScreen {
+// Must use Query.accounts to avoid potential redirect loop with AccountLayout
+const Query = graphql`
+  query app_LandingScreenQuery {
     accounts {
       id
       address
     }
   }
-`);
-
-const context = { suspense: false } satisfies Partial<OperationContext>;
+`;
 
 const LandingScreenParams = z.object({ redirect: zBool().default('true') });
 
@@ -33,13 +31,9 @@ function LandingScreen() {
   const { redirect } = useLocalParams(LandingScreenParams);
   const selectedAccount = useSelectedAccount();
 
-  const query = useQuery(Query, {}, { context });
+  const query = useLazyLoadQuery<app_LandingScreenQuery>(Query, {});
 
-  const account = useMemo(
-    () => selectedAccount ?? (!query.stale ? query.data?.accounts?.[0]?.address : undefined),
-    [query.data?.accounts, query.stale, selectedAccount],
-  );
-
+  const account = selectedAccount ?? query.accounts[0]?.address;
   if (redirect && account)
     return <Redirect href={{ pathname: `/(nav)/[account]/(home)/`, params: { account } }} />;
 

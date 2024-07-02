@@ -2,7 +2,7 @@ import { Test } from '@nestjs/testing';
 import { createMock, DeepMocked } from '@golevelup/ts-jest';
 import { PricesService } from '~/feat/prices/prices.service';
 import { Network, NetworksService } from '~/core/networks';
-import { EvmPriceServiceConnection, PriceFeed } from '@pythnetwork/pyth-evm-js';
+import { HermesClient } from '@pythnetwork/hermes-client';
 import { runExclusively } from '~/util/mutex';
 import { DEFAULT_REDIS_NAMESPACE, getRedisToken } from '@songkeys/nestjs-redis';
 
@@ -11,21 +11,14 @@ jest.mock('~/util/mutex', () => ({
 }));
 jest.mocked(runExclusively).mockImplementation(async (f) => f());
 
-const getLatestPriceFeeds: jest.MockedFunction<
-  typeof EvmPriceServiceConnection.prototype.getLatestPriceFeeds
-> = jest.fn();
-const getPriceFeedsUpdateData: jest.MockedFunction<
-  typeof EvmPriceServiceConnection.prototype.getPriceFeedsUpdateData
+const getLatestPriceUpdates: jest.MockedFunction<
+  typeof HermesClient.prototype.getLatestPriceUpdates
 > = jest.fn();
 
-jest.mock('@pythnetwork/pyth-evm-js', () => ({
-  ...jest.requireActual('@pythnetwork/pyth-evm-js'),
-  EvmPriceServiceConnection: function () {
-    return {
-      getLatestPriceFeeds,
-      getPriceFeedsUpdateData,
-      subscribePriceFeedUpdates: jest.fn(),
-    } as any as EvmPriceServiceConnection;
+jest.mock('@pythnetwork/hermes-client', () => ({
+  ...jest.requireActual('@pythnetwork/hermes-client'),
+  HermesClient: function () {
+    return { getLatestPriceUpdates } as any as HermesClient;
   },
 }));
 
@@ -50,8 +43,10 @@ describe(PricesService.name, () => {
     network = createMock<Network>();
     networks.get.mockReturnValue(network);
 
-    getPriceFeedsUpdateData.mockReset();
-    getPriceFeedsUpdateData.mockImplementation(async () => []);
+    getLatestPriceUpdates.mockReset();
+    getLatestPriceUpdates.mockImplementation(async () => ({
+      binary: { data: [] as string[], encoding: 'hex' },
+    }));
   });
 
   describe('updatePriceFeedsIfNecessary', () => {
@@ -63,7 +58,7 @@ describe(PricesService.name, () => {
         .mockImplementation(async (_chain, priceId) => priceId !== priceFeeds[0]);
 
       await service.updatePriceFeedsIfNecessary('zksync-local', priceFeeds);
-      expect(getPriceFeedsUpdateData).toHaveBeenCalledWith([priceFeeds[0]]);
+      expect(getLatestPriceUpdates).toHaveBeenCalledWith([priceFeeds[0]]);
       expect(network.useWallet).toHaveBeenCalled();
     });
 
@@ -72,7 +67,7 @@ describe(PricesService.name, () => {
       jest.mocked(service.checkPriceFeedFresh).mockImplementation(async () => true);
 
       await service.updatePriceFeedsIfNecessary('zksync-local', ['0x']);
-      expect(getPriceFeedsUpdateData).not.toHaveBeenCalled();
+      expect(getLatestPriceUpdates).not.toHaveBeenCalled();
       expect(network.useWallet).not.toHaveBeenCalled();
     });
   });
