@@ -3,7 +3,6 @@ import { ListHeader } from '#/list/ListHeader';
 import { ListItemHeight } from '#/list/ListItem';
 import { Sheet } from '#/sheet/Sheet';
 import { withSuspense } from '#/skeleton/withSuspense';
-import { gql } from '@api';
 import { FlashList } from '@shopify/flash-list';
 import { NavigateNextIcon } from '@theme/icons';
 import { CORNER, ICON_SIZE } from '@theme/paper';
@@ -12,7 +11,6 @@ import { UAddress, asChain } from 'lib';
 import { Divider, Text } from 'react-native-paper';
 import { P, match } from 'ts-pattern';
 import { z } from 'zod';
-import { useQuery } from '~/gql';
 import { useLocalParams } from '~/hooks/useLocalParams';
 import { zArray, zBool, zUAddress } from '~/lib/zod';
 import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
@@ -21,20 +19,23 @@ import { TokenIcon } from '#/token/TokenIcon';
 import { useRecentTokens, useSetSelectedToken } from '~/hooks/useSelectToken';
 import { useRouter } from 'expo-router';
 import { useRef } from 'react';
+import { graphql } from 'relay-runtime';
+import { useLazyLoadQuery } from 'react-relay';
+import { token_SelectTokenSheetQuery } from '~/api/__generated__/token_SelectTokenSheetQuery.graphql';
 
-const Query = gql(/* GraphQL */ `
-  query SelectTokenSheet($account: UAddress!, $chain: Chain!, $feeToken: Boolean) {
+const Query = graphql`
+  query token_SelectTokenSheetQuery($account: UAddress!, $chain: Chain!, $feeToken: Boolean) {
     tokens(input: { chain: $chain, feeToken: $feeToken }) {
       __typename
       id
       address
       symbol
       balance(input: { account: $account })
-      ...TokenIcon_Token
-      ...TokenItem_Token
+      ...TokenIcon_token
+      ...TokenItem_token
     }
   }
-`);
+`;
 
 export const SelectTokenSheetParams = z.object({
   account: zUAddress(),
@@ -51,7 +52,11 @@ function SelectTokenSheet() {
   const chain = asChain(account);
   const setSelected = useSetSelectedToken(chain);
 
-  const { tokens } = useQuery(Query, { account, chain, feeToken }).data;
+  const { tokens } = useLazyLoadQuery<token_SelectTokenSheetQuery>(Query, {
+    account,
+    chain,
+    feeToken,
+  });
 
   const isDisabled = (t: UAddress) =>
     (params.disabled && params.disabled.includes(t)) ||

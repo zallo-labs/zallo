@@ -1,4 +1,3 @@
-import { FragmentType, gql, useFragment } from '@api';
 import {
   ActionIcon,
   IconProps,
@@ -14,9 +13,12 @@ import { createStyles } from '@theme/styles';
 import { View } from 'react-native';
 import { FilledIcon } from '#/FilledIcon';
 import { AddressIcon } from '#/Identicon/AddressIcon';
+import { graphql } from 'relay-runtime';
+import { useFragment } from 'react-relay';
+import { OperationIcon_operation$key } from '~/api/__generated__/OperationIcon_operation.graphql';
 
-const Operation = gql(/* GraphQL */ `
-  fragment OperationIcon_Operation on Operation {
+const Operation = graphql`
+  fragment OperationIcon_operation on Operation {
     to
     function {
       __typename
@@ -25,10 +27,10 @@ const Operation = gql(/* GraphQL */ `
       }
     }
   }
-`);
+`;
 
 export interface OperationIconProps extends IconProps {
-  operation: FragmentType<typeof Operation>;
+  operation: OperationIcon_operation$key;
   chain: Chain;
 }
 
@@ -51,7 +53,7 @@ export function OperationIcon({
       ),
       (f) => (props: IconProps) => (
         <View>
-          <AddressIcon address={f.to} {...props} />
+          <AddressIcon address={f.to!} {...props} />
           <FilledIcon icon={OutboundIcon} size={(size * 10) / 24} style={styles.overlayed(size)} />
         </View>
       ),

@@ -4,7 +4,7 @@ import { materialCommunityIcon } from '@theme/icons';
 import { CORNER } from '@theme/paper';
 import { createStyles, useStyles } from '@theme/styles';
 import { Duration } from 'luxon';
-import { usePolicyDraft } from '~/lib/policy/draft';
+import { usePolicyDraft } from '~/lib/policy/policyAsDraft';
 
 export const DELAY_ENTRIES = [
   { title: 'None', value: 0 },

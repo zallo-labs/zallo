@@ -6,8 +6,6 @@ import { Pane } from '#/layout/Pane';
 import { SIDE_SHEET, SideSheetLayout } from '#/SideSheet/SideSheetLayout';
 import { View } from 'react-native';
 import { createStyles } from '@theme/styles';
-import { gql } from '@api';
-import { useQuery } from '~/gql';
 import { AddressIcon } from '#/Identicon/AddressIcon';
 import { ICON_SIZE } from '@theme/paper';
 import { Text } from 'react-native-paper';
@@ -21,17 +19,24 @@ import { ApproverPolicies } from '#/approver/ApproverPolicies';
 import { NotFound } from '#/NotFound';
 import { asChain, asUAddress } from 'lib';
 import { Scrollable } from '#/Scrollable';
+import { graphql } from 'relay-runtime';
+import { useLazyLoadQuery } from 'react-relay';
+import { Address_ApproverSettingsQuery } from '~/api/__generated__/Address_ApproverSettingsQuery.graphql';
 
-const Query = gql(/* GraphQL */ `
-  query ApproverSettings($account: UAddress!, $approver: Address!, $approverUAddress: UAddress!) {
+const Query = graphql`
+  query Address_ApproverSettingsQuery(
+    $account: UAddress!
+    $approver: Address!
+    $approverUAddress: UAddress!
+  ) {
     account(input: { account: $account }) {
       id
-      ...ApproverPolicies_Account
+      ...ApproverPolicies_account
     }
 
     approver(input: { address: $approver }) {
       id
-      ...ApproverDetailsSideSheet_UserApprover
+      ...ApproverDetailsSideSheet_approver
     }
 
     user {
@@ -43,7 +48,7 @@ const Query = gql(/* GraphQL */ `
 
     label(input: { address: $approverUAddress })
   }
-`);
+`;
 
 const ApproverSettingsParams = AccountParams.extend({
   address: zAddress(),
@@ -54,11 +59,14 @@ export default function ApproverSettingsScreen() {
   const { address } = params;
   const showSheet = useSetAtom(SIDE_SHEET);
 
-  const { account, approver, user, label } = useQuery(Query, {
-    account: params.account,
-    approver: address,
-    approverUAddress: asUAddress(address, asChain(params.account)),
-  }).data;
+  const { account, approver, user, label } = useLazyLoadQuery<Address_ApproverSettingsQuery>(
+    Query,
+    {
+      account: params.account,
+      approver: address,
+      approverUAddress: asUAddress(address, asChain(params.account)),
+    },
+  );
 
   const isUserApprover = user.approvers.some((a) => a.id === approver.id);
 

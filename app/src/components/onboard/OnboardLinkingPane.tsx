@@ -1,5 +1,4 @@
 import { useLinkingTokenUrl } from '#/link/useLinkingTokenUrl';
-import { gql } from '@api';
 import { AppStoreBadge, GooglePlayBadge } from '@theme/icons';
 import { createStyles, useStyles } from '@theme/styles';
 import { Link } from 'expo-router';
@@ -8,24 +7,26 @@ import { View } from 'react-native';
 import { Text } from 'react-native-paper';
 import QRCode from 'react-native-qrcode-svg';
 import { mq } from 'react-native-unistyles';
-import { useQuery } from '~/gql';
+import { useLazyLoadQuery } from 'react-relay';
+import { graphql } from 'relay-runtime';
+import { OnboardLinkingPaneQuery } from '~/api/__generated__/OnboardLinkingPaneQuery.graphql';
 import { CONFIG } from '~/util/config';
 
-const Query = gql(/* GraphQL */ `
-  query OnboardLinkingPane {
+const Query = graphql`
+  query OnboardLinkingPaneQuery {
     user {
       id
-      ...useLinkingTokenUrl_User
+      ...useLinkingTokenUrl_user
     }
   }
-`);
+`;
 
 export function OnboardLinkingPane() {
   const { styles } = useStyles(stylesheet);
 
   const [qrSize, setQrSize] = useState(0);
 
-  const { user } = useQuery(Query).data;
+  const { user } = useLazyLoadQuery<OnboardLinkingPaneQuery>(Query, {});
   const link = useLinkingTokenUrl({ user });
 
   return (

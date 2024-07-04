@@ -3,39 +3,39 @@ import Collapsible from 'react-native-collapsible';
 import { Chevron } from '#/Chevron';
 import { ListItem } from '#/list/ListItem';
 import { OperationDetails } from './OperationDetails';
-import { FragmentType, gql, useFragment } from '@api/generated';
 import { OperationLabel } from '#/transaction/OperationLabel';
 import { OperationIcon } from '#/transaction/OperationIcon';
+import { graphql } from 'relay-runtime';
+import { useFragment } from 'react-relay';
+import { OperationSection_transaction$key } from '~/api/__generated__/OperationSection_transaction.graphql';
+import { OperationSection_operation$key } from '~/api/__generated__/OperationSection_operation.graphql';
 
-const Transaction = gql(/* GraphQL */ `
-  fragment OperationSection_Transaction on Transaction {
+const Transaction = graphql`
+  fragment OperationSection_transaction on Transaction {
     account {
       id
       address
       chain
     }
   }
-`);
+`;
 
-const Operation = gql(/* GraphQL */ `
-  fragment OperationSection_Operation on Operation {
-    ...OperationIcon_Operation
-    ...OperationLabel_OperationFragment
-    ...OperationDetails_Operation
+const Operation = graphql`
+  fragment OperationSection_operation on Operation {
+    ...OperationIcon_operation
+    ...OperationLabel_operation
+    ...OperationDetails_operation
   }
-`);
+`;
 
 export interface OperationSectionProps {
-  proposal: FragmentType<typeof Transaction>;
-  operation: FragmentType<typeof Operation>;
+  transaction: OperationSection_transaction$key;
+  operation: OperationSection_operation$key;
 }
 
-export function OperationSection({
-  proposal: proposalFragment,
-  operation: operationFragment,
-}: OperationSectionProps) {
-  const proposal = useFragment(Transaction, proposalFragment);
-  const op = useFragment(Operation, operationFragment);
+export function OperationSection(props: OperationSectionProps) {
+  const proposal = useFragment(Transaction, props.transaction);
+  const op = useFragment(Operation, props.operation);
 
   const [expanded, toggleExpanded] = useToggle(false);
 

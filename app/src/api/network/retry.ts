@@ -31,10 +31,10 @@ export function retryExchange({
 
   // return retry(0);
 
-  return (input) => (requests$) => {
+  return (input) => (operations$) => {
     const { forward } = input;
 
-    return requests$.pipe(
+    return operations$.pipe(
       forward,
       rxRetry({
         count: maxAttempts,

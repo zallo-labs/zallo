@@ -1,5 +1,4 @@
 import { Redirect, useRouter } from 'expo-router';
-import { gql } from '@api/generated';
 import { buildApprovedNamespaces, getSdkError } from '@walletconnect/utils';
 import { useEffect, useMemo } from 'react';
 import { useImmer } from 'use-immer';
@@ -8,7 +7,6 @@ import { Actions } from '#/layout/Actions';
 import { Sheet } from '#/sheet/Sheet';
 import { AccountsList } from '#/walletconnect/AccountsList';
 import { DappHeader } from '#/walletconnect/DappHeader';
-import { useQuery } from '~/gql';
 import { hideSnackbar, showError, showSuccess } from '#/provider/SnackbarProvider';
 import {
   sessionChains,
@@ -24,16 +22,19 @@ import { Text } from 'react-native-paper';
 import { SignClientTypes } from '@walletconnect/types';
 import { useDappVerification, type VerificationStatus } from '#/walletconnect/DappVerification';
 import { P, match } from 'ts-pattern';
+import { graphql } from 'relay-runtime';
+import { useLazyLoadQuery } from 'react-relay';
+import { Id_ConnectSessionSheetQuery } from '~/api/__generated__/Id_ConnectSessionSheetQuery.graphql';
 
-const Query = gql(/* GraphQL */ `
-  query ConnectSessionSheet {
+const Query = graphql`
+  query Id_ConnectSessionSheetQuery {
     accounts {
       id
       chain
-      ...AccountsList_Account
+      ...AccountsList_account
     }
   }
-`);
+`;
 
 const ConnectSessionSheetParams = z.object({ id: z.coerce.number() });
 
@@ -52,7 +53,9 @@ export default function ConnectSessionSheet() {
   const chains = sessionChains(proposal);
   const verification = useDappVerification(id);
 
-  const accounts = useQuery(Query).data.accounts.filter((a) => chains.includes(a.chain));
+  const accounts = useLazyLoadQuery<Id_ConnectSessionSheetQuery>(Query, {}).accounts.filter((a) =>
+    chains.includes(a.chain),
+  );
   const [selected, updateSelected] = useImmer(new Set([useSelectedAccount()].filter(Boolean)));
 
   useEffect(() => {

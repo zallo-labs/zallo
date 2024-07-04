@@ -1,5 +1,5 @@
 import { useRouter } from 'expo-router';
-import { usePropose } from '@api/usePropose';
+import { useProposeTransaction } from '~/hooks/mutations/useProposeTransaction';
 import { FIAT_DECIMALS, asAddress, asChain, asFp, asUAddress } from 'lib';
 import { useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
@@ -9,8 +9,6 @@ import { NumericInput } from '#/fields/NumericInput';
 import { TokenItem } from '#/token/TokenItem';
 import { InputsView, InputType } from '../../../components/InputsView';
 import { Button } from '#/Button';
-import { gql } from '@api/generated';
-import { useQuery } from '~/gql';
 import { useInvalidateRecentToken, useSelectToken, useSelectedToken } from '~/hooks/useSelectToken';
 import { createTransferOp } from '~/lib/transfer';
 import { AppbarOptions } from '#/Appbar/AppbarOptions';
@@ -23,10 +21,13 @@ import { ScreenSkeleton } from '#/skeleton/ScreenSkeleton';
 import { ScrollableScreenSurface } from '#/layout/ScrollableScreenSurface';
 import Decimal from 'decimal.js';
 import { ampli } from '~/lib/ampli';
+import { graphql } from 'relay-runtime';
+import { useLazyLoadQuery } from 'react-relay';
+import { send_SendScreenQuery } from '~/api/__generated__/send_SendScreenQuery.graphql';
 
-const Query = gql(/* GraphQL */ `
-  query SendScreen($account: UAddress!, $token: UAddress!) {
-    token(address: $token) {
+const Query = graphql`
+  query send_SendScreenQuery($account: UAddress!, $token: UAddress!) {
+    token(address: $token) @required(action: LOG) {
       id
       address
       decimals
@@ -36,10 +37,10 @@ const Query = gql(/* GraphQL */ `
         usd
       }
       ...InputsView_token @arguments(account: $account)
-      ...TokenItem_Token
+      ...TokenItem_token
     }
   }
-`);
+`;
 
 const SendScreenParams = z.object({
   account: zUAddress(),
@@ -51,21 +52,23 @@ function SendScreen() {
   const { account, to } = useLocalParams(SendScreenParams);
   const chain = asChain(account);
   const router = useRouter();
-  const propose = usePropose();
+  const propose = useProposeTransaction();
   const toLabel = useAddressLabel(asUAddress(to, chain));
   const invalidateRecent = useInvalidateRecentToken(chain);
   const selectToken = useSelectToken();
   const selectedToken = useSelectedToken(chain);
 
-  const query = useQuery(Query, { account, token: selectedToken });
-  const { token } = query.data;
+  const token = useLazyLoadQuery<send_SendScreenQuery>(Query, {
+    account,
+    token: selectedToken,
+  })?.token;
 
   const [input, setInput] = useState('');
   const [type, setType] = useState(InputType.Token);
 
   useEffect(() => {
-    if (!token && !query.stale && !query.fetching) invalidateRecent(selectedToken);
-  }, [chain, invalidateRecent, query.fetching, query.stale, selectedToken, token]);
+    if (!token) invalidateRecent(selectedToken);
+  }, [chain, invalidateRecent, selectedToken, token]);
 
   if (!token) return null;
 

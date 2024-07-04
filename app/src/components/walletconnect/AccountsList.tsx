@@ -3,20 +3,22 @@ import { ListItem } from '../list/ListItem';
 import { Checkbox } from 'react-native-paper';
 import { StyleSheet, View } from 'react-native';
 import { UAddress } from 'lib';
-import { FragmentType, gql, useFragment } from '@api/generated';
 import { AddressIcon } from '../Identicon/AddressIcon';
 import { ListHeader } from '../list/ListHeader';
+import { graphql } from 'relay-runtime';
+import { AccountsList_account$key } from '~/api/__generated__/AccountsList_account.graphql';
+import { useFragment } from 'react-relay';
 
-const Account = gql(/* GraphQL */ `
-  fragment AccountsList_Account on Account {
+const Account = graphql`
+  fragment AccountsList_account on Account @relay(plural: true) {
     id
     address
     name
   }
-`);
+`;
 
 export interface AccountsListProps {
-  accounts: FragmentType<typeof Account>[];
+  accounts: AccountsList_account$key;
   selected: Set<UAddress>;
   updateSelected: Updater<Set<UAddress>>;
 }

@@ -1,16 +1,18 @@
-import { FragmentType, gql, useFragment } from '@api';
 import { createStyles, useStyles } from '@theme/styles';
 import Decimal from 'decimal.js';
 import { ReactNode } from 'react';
 import { View } from 'react-native';
 import { Text } from 'react-native-paper';
 import { ListHeader } from '#/list/ListHeader';
-import { ProposalValue } from '#/transaction/ProposalValue';
+import { TransactionValue } from '#/transaction/TransactionValue';
 import { TokenAmount } from '#/token/TokenAmount';
 import { TokenItem } from '#/token/TokenItem';
+import { graphql } from 'relay-runtime';
+import { TransfersSection_transaction$key } from '~/api/__generated__/TransfersSection_transaction.graphql';
+import { useFragment } from 'react-relay';
 
-const Transaction = gql(/* GraphQL */ `
-  fragment TransfersSection_Transaction on Transaction
+const Transaction = graphql`
+  fragment TransfersSection_transaction on Transaction
   @argumentDefinitions(transaction: { type: "ID!" }) {
     id
     result {
@@ -20,7 +22,7 @@ const Transaction = gql(/* GraphQL */ `
         id
         tokenAddress
         token {
-          ...TokenItem_Token
+          ...TokenItem_token
         }
         amount
         from
@@ -37,7 +39,7 @@ const Transaction = gql(/* GraphQL */ `
         token {
           id
           balance(input: { transaction: $transaction })
-          ...TokenItem_Token
+          ...TokenItem_token
           ...TokenAmount_token
         }
         amount
@@ -46,18 +48,18 @@ const Transaction = gql(/* GraphQL */ `
         isFeeTransfer
       }
     }
-    ...ProposalValue_Transaction
+    ...TransactionValue_transaction
   }
-`);
+`;
 
 export interface TransfersSectionProps {
-  proposal: FragmentType<typeof Transaction>;
+  transaction: TransfersSection_transaction$key;
   children: ReactNode;
 }
 
 export function TransfersSection(props: TransfersSectionProps) {
   const { styles } = useStyles(stylesheet);
-  const p = useFragment(Transaction, props.proposal);
+  const p = useFragment(Transaction, props.transaction);
 
   const transfers = [...(p.result?.transfers ?? p.simulation?.transfers ?? [])].filter(
     (t) => !t.isFeeTransfer,
@@ -70,7 +72,7 @@ export function TransfersSection(props: TransfersSectionProps) {
       <ListHeader
         trailing={({ Text }) => (
           <Text>
-            <ProposalValue proposal={p} />
+            <TransactionValue transaction={p} />
           </Text>
         )}
       >

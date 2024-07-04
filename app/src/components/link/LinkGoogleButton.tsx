@@ -1,26 +1,25 @@
-import { FragmentType, gql, useFragment } from '@api';
 import { GoogleIcon } from '@theme/icons';
 import { UseLinkGoogleProps, useLinkGoogle } from '#/cloud/google/useLinkGoogle';
 import { createStyles } from '@theme/styles';
 import { Button } from '#/Button';
+import { graphql } from 'relay-runtime';
+import { LinkGoogleButton_user$key } from '~/api/__generated__/LinkGoogleButton_user.graphql';
+import { useFragment } from 'react-relay';
 
-const User = gql(/* GraphQL */ `
-  fragment LinkGoogleButton_User on User {
+const User = graphql`
+  fragment LinkGoogleButton_user on User {
     id
-    ...useLinkGoogle_User
+    ...useLinkGoogle_user
   }
-`);
+`;
 
 export interface LinkGoogleButtonProps extends Omit<UseLinkGoogleProps, 'user'> {
-  user: FragmentType<typeof User>;
+  user: LinkGoogleButton_user$key;
   onLink?: () => void | Promise<void>;
 }
 
 export function LinkGoogleButton({ user, onLink, ...params }: LinkGoogleButtonProps) {
-  const link = useLinkGoogle({
-    user: useFragment(User, user),
-    ...params,
-  });
+  const link = useLinkGoogle({ user: useFragment(User, user), ...params });
 
   if (!link) return null;
 

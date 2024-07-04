@@ -1,14 +1,18 @@
-import { FragmentType, gql, useFragment as getFragment } from '@api';
-import { PolicyAsDraft_PolicyFragment, PolicyInput } from '@api/generated/graphql';
 import { PrimitiveAtom } from 'jotai';
 import { useImmerAtom } from 'jotai-immer';
 import { Address, PolicyKey, TransfersConfig, UAddress } from 'lib';
 import { createContext, useContext } from 'react';
+import { graphql, readInlineData } from 'relay-runtime';
+import {
+  policyAsDraft_policy$data,
+  policyAsDraft_policy$key,
+} from '~/api/__generated__/policyAsDraft_policy.graphql';
+import { PolicyInput } from '~/api/__generated__/useCreateAccountMutation.graphql';
 
 export type PolicyDraftAction = Omit<
-  PolicyAsDraft_PolicyFragment['actions'][0],
+  policyAsDraft_policy$data['actions'][0],
   'id' | 'functions'
-> & { functions: Omit<PolicyAsDraft_PolicyFragment['actions'][0]['functions'][0], 'id'>[] };
+> & { functions: Omit<policyAsDraft_policy$data['actions'][0]['functions'][0], 'id'>[] };
 
 export interface PolicyDraft {
   account: UAddress;
@@ -28,8 +32,8 @@ export const PolicyDraftContext = createContext<PrimitiveAtom<PolicyDraft> | nul
 export const usePolicyDraftAtom = () => useContext(PolicyDraftContext)!;
 export const usePolicyDraft = () => useImmerAtom(usePolicyDraftAtom());
 
-const PolicyState = gql(/* GraphQL */ `
-  fragment policyAsDraft_Policy on Policy {
+const Policy = graphql`
+  fragment policyAsDraft_policy on Policy @inline {
     id
     approvers {
       id
@@ -62,15 +66,15 @@ const PolicyState = gql(/* GraphQL */ `
     allowMessages
     delay
   }
-`);
+`;
 
 export function policyAsDraft(
-  stateFragment: FragmentType<typeof PolicyState>,
+  policyKey: policyAsDraft_policy$key,
 ): Pick<
   PolicyDraft,
   'approvers' | 'threshold' | 'actions' | 'transfers' | 'allowMessages' | 'delay'
 > {
-  const s = getFragment(PolicyState, stateFragment);
+  const s = readInlineData(Policy, policyKey);
 
   return {
     approvers: new Set(s.approvers.map((a) => a.address)),
@@ -107,7 +111,7 @@ export function asPolicyInput(p: Omit<PolicyDraft, 'account'>): PolicyInput {
     transfers: {
       limits: Object.entries(p.transfers.limits).map(([token, limit]) => ({
         token: token as Address,
-        amount: limit.amount,
+        amount: limit.amount.toString(),
         duration: limit.duration,
       })),
       budget: p.transfers.budget,

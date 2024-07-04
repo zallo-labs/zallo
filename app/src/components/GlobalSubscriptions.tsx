@@ -1,8 +1,9 @@
-import { gql } from '@api';
-import { useSubscription } from 'urql';
+import { useMemo } from 'react';
+import { useSubscription } from 'react-relay';
+import { graphql } from 'relay-runtime';
 
-const AccountUpdated = gql(/* GraphQL */ `
-  subscription GlobalSubscriptions_AccountUpdated {
+const AccountUpdated = graphql`
+  subscription GlobalSubscriptions_AccountUpdatedSubscription {
     accountUpdated {
       id
       event
@@ -11,10 +12,10 @@ const AccountUpdated = gql(/* GraphQL */ `
       }
     }
   }
-`);
+`;
 
-const PolicyUpdated = gql(/* GraphQL */ `
-  subscription AccountUpdatesListener_PolicyUpdated {
+const PolicyUpdated = graphql`
+  subscription GlobalSubscriptions_PolicyUpdatedSubscription {
     policyUpdated {
       id
       event
@@ -24,10 +25,10 @@ const PolicyUpdated = gql(/* GraphQL */ `
       }
     }
   }
-`);
+`;
 
-const ProposalUpdated = gql(/* GraphQL */ `
-  subscription AccountUpdatesListener_ProposalUpdated {
+const ProposalUpdated = graphql`
+  subscription GlobalSubscriptions_ProposalUpdatedSubscription {
     proposalUpdated {
       id
       event
@@ -37,10 +38,10 @@ const ProposalUpdated = gql(/* GraphQL */ `
       }
     }
   }
-`);
+`;
 
-const Transfer = gql(/* GraphQL */ `
-  subscription AccountUpdatesListener_TransferSubscription {
+const Transfer = graphql`
+  subscription GlobalSubscriptions_TransferSubscriptionSubscription {
     transfer {
       id
       account {
@@ -48,13 +49,13 @@ const Transfer = gql(/* GraphQL */ `
       }
     }
   }
-`);
+`;
 
 export function GlobalSubscriptions() {
-  useSubscription({ query: AccountUpdated });
-  useSubscription({ query: PolicyUpdated });
-  useSubscription({ query: ProposalUpdated });
-  useSubscription({ query: Transfer });
+  // useSubscription(useMemo(() => ({ subscription: AccountUpdated, variables: {} }), []));
+  // useSubscription(useMemo(() => ({ subscription: PolicyUpdated, variables: {} }), []));
+  // useSubscription(useMemo(() => ({ subscription: ProposalUpdated, variables: {} }), []));
+  // useSubscription(useMemo(() => ({ subscription: Transfer, variables: {} }), []));
 
   return null;
 }

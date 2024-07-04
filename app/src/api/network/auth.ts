@@ -1,9 +1,9 @@
 import { mergeMap, tap } from 'rxjs';
-import { Exchange, OperationRequest, OperationResult } from './layer';
+import { Exchange, Operation, OperationResult } from './layer';
 
 export interface AuthExchangeOptions {
   getAuthHeaders: () => Record<string, string>;
-  willAuthError?: (request: OperationRequest) => boolean;
+  willAuthError?: (op: Operation) => boolean;
   didAuthError?: (result: OperationResult) => boolean;
   refreshToken?: () => void | Promise<void>;
 }
@@ -15,24 +15,24 @@ export function authExchange({
   refreshToken,
 }: AuthExchangeOptions): Exchange {
   return ({ forward }) =>
-    (requests$) => {
-      const results = requests$.pipe(
-        mergeMap(async (req) => {
-          if (willAuthError?.(req)) await refreshToken?.();
+    (operations$) => {
+      const results = operations$.pipe(
+        mergeMap(async (op) => {
+          if (willAuthError?.(op)) await refreshToken?.();
 
-          req.fetchOptions.headers = {
-            ...req.fetchOptions.headers,
+          op.fetchOptions.headers = {
+            ...op.fetchOptions.headers,
             ...getAuthHeaders(),
           };
 
-          return req;
+          return op;
         }),
         forward,
       );
 
       return results.pipe(
-        tap((result) => {
-          if (didAuthError?.(result)) refreshToken?.();
+        tap((op) => {
+          if (didAuthError?.(op)) refreshToken?.();
         }),
       );
     };

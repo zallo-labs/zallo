@@ -1,15 +1,17 @@
-import { FragmentType, gql, useFragment } from '@api';
 import { useMemo } from 'react';
+import { useFragment } from 'react-relay';
+import { graphql } from 'relay-runtime';
+import { useLinkingTokenUrl_user$key } from '~/api/__generated__/useLinkingTokenUrl_user.graphql';
 import { appLink } from '~/lib/appLink';
 
-const User = gql(/* GraphQL */ `
-  fragment useLinkingTokenUrl_User on User {
+const User = graphql`
+  fragment useLinkingTokenUrl_user on User {
     linkingToken
   }
-`);
+`;
 
 export interface useLinkingTokenUrlParams {
-  user: FragmentType<typeof User>;
+  user: useLinkingTokenUrl_user$key;
 }
 
 export function useLinkingTokenUrl(params: useLinkingTokenUrlParams) {

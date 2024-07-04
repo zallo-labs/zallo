@@ -1,20 +1,21 @@
-import { Environment, RecordSource, Store } from 'relay-runtime';
+import { Environment, RecordSource, RelayFeatureFlags, Store } from 'relay-runtime';
 import { PrivateKeyAccount } from 'viem';
 import { atom, useAtomValue } from 'jotai';
 import { DANGEROUS_approverAtom } from '@network/useApprover';
 import { InteractionManager } from 'react-native';
-import { restoreRelayRecords } from './persist';
 import { atomFamily } from 'jotai/utils';
 import { createNetworkLayer } from './network/layer';
 import { fetchExchange } from './network/fetch';
 import { CONFIG } from '~/util/config';
 import { createClient } from 'graphql-ws';
 import { subscriptionExchange } from './network/subscription';
-import { persistExchange } from './network/persist';
+import { persistExchange, restoreRelayRecords } from './network/persist';
 import { authExchange } from './network/auth';
 import { getAuthManager } from './auth-manager';
-import { retryExchange } from './network/retry';
 import { mapExchange } from './network/map';
+import { missingFieldHandlers } from './field-handlers';
+
+RelayFeatureFlags.ENABLE_FIELD_ERROR_HANDLING_THROW_BY_DEFAULT = true;
 
 const environment = atom(async (get) => {
   const approver = get(DANGEROUS_approverAtom);
@@ -88,9 +89,12 @@ async function getEnvironment({ key, approver, persist }: EnvironmentConfig) {
     ],
   });
 
-  return new Environment({
+  const environment = new Environment({
     configName: key,
     network,
     store,
+    missingFieldHandlers,
   });
+
+  return environment;
 }

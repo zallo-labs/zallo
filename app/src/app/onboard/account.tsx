@@ -1,8 +1,6 @@
-import { gql } from '@api';
 import { useRouter } from 'expo-router';
 import { UAddress } from 'lib';
 import { useCallback } from 'react';
-import { useQuery } from '~/gql';
 import { useSetSelectedAccont } from '~/hooks/useSelectedAccount';
 import { useFocusEffect } from 'expo-router';
 import { ScreenSkeleton } from '#/skeleton/ScreenSkeleton';
@@ -13,21 +11,23 @@ import { Appbar } from '#/Appbar/Appbar';
 import { CreateAccount } from '#/CreateAccount';
 import { withSuspense } from '#/skeleton/withSuspense';
 import { OnboardMainPane } from '#/onboard/OnboardMainPane';
+import { graphql, useLazyLoadQuery } from 'react-relay';
+import { account_AccountOnboardingQuery } from '~/api/__generated__/account_AccountOnboardingQuery.graphql';
 
-const Query = gql(/* GraphQL */ `
-  query AccountOnboarding {
+const Query = graphql`
+  query account_AccountOnboardingQuery {
     accounts {
       id
       address
     }
   }
-`);
+`;
 
 function AccountOnboardingScreen() {
   const router = useRouter();
   const setSelected = useSetSelectedAccont();
 
-  const { accounts } = useQuery(Query).data;
+  const { accounts } = useLazyLoadQuery<account_AccountOnboardingQuery>(Query, {});
 
   const next = useCallback(
     (account: UAddress) => {

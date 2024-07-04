@@ -1,8 +1,6 @@
-import { FragmentType, gql, useFragment } from '@api';
 import { useApproverAddress } from '~/lib/network/useApprover';
 import { Address, asMessageTypedData } from 'lib';
 import { match } from 'ts-pattern';
-import { useMutation } from 'urql';
 import { showError } from '#/provider/SnackbarProvider';
 import { proposalAsTypedData } from '~/lib/proposalAsTypedData';
 import { useGetLedgerApprover } from '~/app/(sheet)/ledger/approve';
@@ -14,26 +12,40 @@ import { useGetAppleApprover } from '#/cloud/useGetAppleApprover';
 import { useGetGoogleApprover } from '#/cloud/google/useGetGoogleApprover';
 import { TypedDataDefinition, hashMessage, hashTypedData } from 'viem';
 import { useMemo } from 'react';
+import { graphql } from 'relay-runtime';
+import { useFragment } from 'react-relay';
+import { useApprove_user$key } from '~/api/__generated__/useApprove_user.graphql';
+import { useApprove_proposal$key } from '~/api/__generated__/useApprove_proposal.graphql';
+import { useMutation } from '~/api';
+import { useApprove_approveMessageMutation } from '~/api/__generated__/useApprove_approveMessageMutation.graphql';
+import { useApprove_approveTransactionMutation } from '~/api/__generated__/useApprove_approveTransactionMutation.graphql';
 
-const User = gql(/* GraphQL */ `
-  fragment UseApprove_User on User {
+const User = graphql`
+  fragment useApprove_user on User {
     id
     approvers {
       id
       address
-      bluetoothDevices
-      cloud {
-        provider
-        subject
+      details {
+        id
+        bluetoothDevices
+        cloud {
+          provider
+          subject
+        }
       }
     }
   }
-`);
+`;
 
-const Proposal = gql(/* GraphQL */ `
-  fragment UseApprove_Proposal on Proposal {
+const Proposal = graphql`
+  fragment useApprove_proposal on Proposal {
     __typename
     id
+    account {
+      id
+      address
+    }
     policy {
       id
       approvers {
@@ -42,7 +54,7 @@ const Proposal = gql(/* GraphQL */ `
     }
     approvals {
       id
-      approver {
+      approver @required(action: THROW) {
         id
       }
     }
@@ -53,48 +65,52 @@ const Proposal = gql(/* GraphQL */ `
       updatable
       message
       typedData
-      account {
-        id
-        address
-      }
     }
     ...proposalAsTypedData_Transaction
   }
-`);
+`;
 
-const ApproveTransaction = gql(/* GraphQL */ `
-  mutation UseApprove_ApproveTransaction($input: ApproveInput!) {
+const ApproveTransaction = graphql`
+  mutation useApprove_approveTransactionMutation($input: ApproveInput!) {
     approveTransaction(input: $input) {
       __typename
       id
       approvals {
         id
+        approver {
+          id
+          address
+        }
       }
       rejections {
         id
       }
     }
   }
-`);
+`;
 
-const ApproveMessage = gql(/* GraphQL */ `
-  mutation UseApprove_ApproveMessage($input: ApproveInput!) {
+const ApproveMessage = graphql`
+  mutation useApprove_approveMessageMutation($input: ApproveInput!) {
     approveMessage(input: $input) {
       __typename
       id
       approvals {
         id
+        approver {
+          id
+          address
+        }
       }
       rejections {
         id
       }
     }
   }
-`);
+`;
 
 export interface UseApproveParams {
-  user: FragmentType<typeof User>;
-  proposal: FragmentType<typeof Proposal>;
+  user: useApprove_user$key;
+  proposal: useApprove_proposal$key;
   approver?: Address;
 }
 
@@ -104,12 +120,14 @@ export function useApprove(params: UseApproveParams) {
   const device = useApproverAddress();
   const signWithDevice = useSignWithApprover();
   const getLedgerApprover = useGetLedgerApprover();
-  const approveTransaction = useMutation(ApproveTransaction)[1];
-  const approveMessage = useMutation(ApproveMessage)[1];
+  const approveTransaction = useMutation<useApprove_approveTransactionMutation>(ApproveTransaction);
+  const approveMessage = useMutation<useApprove_approveMessageMutation>(ApproveMessage);
   const getGoogleApprover = useGetGoogleApprover();
   const getAppleApprover = useGetAppleApprover();
   const deviceApprover = useApproverAddress();
   const approver = params.approver ?? deviceApprover;
+
+  console.log({ useApprove: p });
 
   const userApprover = user.approvers.find((a) => a.address === approver);
   const canApprove =
@@ -123,8 +141,8 @@ export function useApprove(params: UseApproveParams) {
       p.__typename === 'Transaction'
         ? proposalAsTypedData(p)
         : asMessageTypedData(
-            p.account.address,
-            p.typedData ? hashTypedData(p.typedData) : hashMessage(p.message),
+            p.account!.address,
+            p.typedData ? hashTypedData(p.typedData) : hashMessage(p.message!),
           ),
     [p],
   );
@@ -140,11 +158,7 @@ export function useApprove(params: UseApproveParams) {
     const type = p.__typename === 'Transaction' ? 'Transaction' : 'Message';
     ampli.approval({ method, type });
 
-    return r.data
-      ? 'approveTransaction' in r.data
-        ? r.data.approveTransaction
-        : r.data.approveMessage
-      : undefined;
+    return r ? ('approveTransaction' in r ? r.approveTransaction : r.approveMessage) : undefined;
   };
 
   if (approver === device) {
@@ -153,15 +167,15 @@ export function useApprove(params: UseApproveParams) {
 
       if (signature.isOk()) return approve('Device', { signature: signature.value });
     };
-  } else if (userApprover?.bluetoothDevices?.length) {
+  } else if (userApprover.details?.bluetoothDevices?.length) {
     return async () => {
       const { signTypedData } = await getLedgerApprover({ device: approver });
       const signature = await signTypedData(proposalData);
 
       if (signature) return approve('Ledger', { approver, signature });
     };
-  } else if (userApprover.cloud) {
-    return match(userApprover.cloud)
+  } else if (userApprover.details?.cloud) {
+    return match(userApprover.details.cloud)
       .with({ provider: 'Apple' }, ({ subject }) => {
         if (!getAppleApprover) return undefined;
 

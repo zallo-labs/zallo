@@ -1,4 +1,3 @@
-import { FragmentType, gql, useFragment } from '@api';
 import { CheckIcon } from '@theme/icons';
 import { asUAddress } from 'lib';
 import { AddressLabel } from '#/address/AddressLabel';
@@ -6,35 +5,40 @@ import { ListItem } from '#/list/ListItem';
 import { useApprove } from '~/hooks/useApprove';
 import { IconButton } from '#/IconButton';
 import { AddressIcon } from '#/Identicon/AddressIcon';
+import { graphql } from 'relay-runtime';
+import { useFragment } from 'react-relay';
+import { PendingApprovalItem_user$key } from '~/api/__generated__/PendingApprovalItem_user.graphql';
+import { PendingApprovalItem_approver$key } from '~/api/__generated__/PendingApprovalItem_approver.graphql';
+import { PendingApprovalItem_proposal$key } from '~/api/__generated__/PendingApprovalItem_proposal.graphql';
 
-const User = gql(/* GraphQL */ `
-  fragment PendingApprovalItem_User on User {
-    ...UseApprove_User
+const User = graphql`
+  fragment PendingApprovalItem_user on User {
+    ...useApprove_user
   }
-`);
+`;
 
-const Approver = gql(/* GraphQL */ `
-  fragment PendingApprovalItem_Approver on Approver {
+const Approver = graphql`
+  fragment PendingApprovalItem_approver on Approver {
     id
     address
     label
   }
-`);
+`;
 
-const Proposal = gql(/* GraphQL */ `
-  fragment PendingApprovalItem_Proposal on Proposal {
+const Proposal = graphql`
+  fragment PendingApprovalItem_proposal on Proposal {
     account {
       id
       chain
     }
-    ...UseApprove_Proposal
+    ...useApprove_proposal
   }
-`);
+`;
 
 export interface PendingApprovalItemProps {
-  user: FragmentType<typeof User>;
-  approver: FragmentType<typeof Approver>;
-  proposal: FragmentType<typeof Proposal>;
+  user: PendingApprovalItem_user$key;
+  approver: PendingApprovalItem_approver$key;
+  proposal: PendingApprovalItem_proposal$key;
 }
 
 export function PendingApprovalItem(props: PendingApprovalItemProps) {

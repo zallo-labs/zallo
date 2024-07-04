@@ -1,28 +1,30 @@
-import { FragmentType, gql, useFragment } from '@api';
 import { createStyles, useStyles } from '@theme/styles';
 import { TextProps } from '@theme/types';
 import { View } from 'react-native';
 import { Text } from 'react-native-paper';
+import { useFragment } from 'react-relay';
+import { graphql } from 'relay-runtime';
 import { match } from 'ts-pattern';
+import { TransactionStatus_transaction$key } from '~/api/__generated__/TransactionStatus_transaction.graphql';
 
-const Transaction = gql(/* GraphQL */ `
-  fragment TransactionStatus_Transaction on Transaction {
+const Transaction = graphql`
+  fragment TransactionStatus_transaction on Transaction {
     id
     status
   }
-`);
+`;
 
 export interface TransactionStatusProps extends Omit<TextProps, 'children'> {
-  proposal: FragmentType<typeof Transaction>;
+  transaction: TransactionStatus_transaction$key;
 }
 
 export function TransactionStatus(props: TransactionStatusProps) {
   const { styles } = useStyles(stylesheet);
-  const p = useFragment(Transaction, props.proposal);
+  const t = useFragment(Transaction, props.transaction);
 
   return (
     <View style={styles.container}>
-      {match(p.status)
+      {match(t.status)
         .with('Pending', () => (
           <Text {...props} style={[props.style, styles.pending]}>
             Pending approval

@@ -5,37 +5,38 @@ import { Actions } from '#/layout/Actions';
 import { Surface } from '#/layout/Surface';
 import { useLinkingTokenUrl } from '#/link/useLinkingTokenUrl';
 import { withSuspense } from '#/skeleton/withSuspense';
-import { gql } from '@api';
 import { useApproverAddress } from '@network/useApprover';
 import { CloseIcon, ScanIcon, ShareIcon } from '@theme/icons';
 import { createStyles, useStyles } from '@theme/styles';
 import { Link, useRouter } from 'expo-router';
 import { Address } from 'lib';
-import { useEffect } from 'react';
+import { useMemo } from 'react';
 import { View } from 'react-native';
 import { Switch, Text } from 'react-native-paper';
 import QRCode from 'react-native-qrcode-svg';
+import { useLazyLoadQuery, useSubscription } from 'react-relay';
+import { graphql } from 'relay-runtime';
 import { Subject } from 'rxjs';
-import { useSubscription } from 'urql';
 import { z } from 'zod';
+import { join_JoinAccountModalQuery } from '~/api/__generated__/join_JoinAccountModalQuery.graphql';
+import { join_JoinAccountModalSubscription } from '~/api/__generated__/join_JoinAccountModalSubscription.graphql';
 import { useScanAddress } from '~/app/scan';
-import { useQuery } from '~/gql';
 import { useGetEvent } from '~/hooks/useGetEvent';
 import { useLocalParams } from '~/hooks/useLocalParams';
 import { share } from '~/lib/share';
 import { zBool } from '~/lib/zod';
 
-const Query = gql(/* GraphQL */ `
-  query JoinAccountModal {
+const Query = graphql`
+  query join_JoinAccountModalQuery {
     user {
       id
-      ...useLinkingTokenUrl_User
+      ...useLinkingTokenUrl_user
     }
   }
-`);
+`;
 
-const Subscription = gql(/* GraphQL */ `
-  subscription JoinAccountModal_Subscription {
+const Subscription = graphql`
+  subscription join_JoinAccountModalSubscription {
     userLinked {
       id
       user {
@@ -45,7 +46,7 @@ const Subscription = gql(/* GraphQL */ `
       linker
     }
   }
-`);
+`;
 
 const APPROVER_LINKED = new Subject<Address>();
 export function useLinkZallo() {
@@ -64,18 +65,26 @@ function JoinAccountModal() {
 
   const setPersonal = (v: boolean) => router.setParams({ personal: v ? 'true' : 'false' });
 
-  const { user } = useQuery(Query).data;
+  const { user } = useLazyLoadQuery<join_JoinAccountModalQuery>(Query, {});
   const linkingToken = useLinkingTokenUrl({ user });
   const value = personal ? linkingToken : approver;
 
-  const userLinked = useSubscription({ query: Subscription })[0];
-  useEffect(() => {
-    if (!userLinked.stale && userLinked.data) {
-      const { issuer, linker } = userLinked.data.userLinked;
-      router.back();
-      APPROVER_LINKED.next(issuer === approver ? linker : issuer);
-    }
-  }, [approver, router, userLinked.data, userLinked.stale]);
+  useSubscription<join_JoinAccountModalSubscription>(
+    useMemo(
+      () => ({
+        subscription: Subscription,
+        variables: {},
+        onNext: (data) => {
+          if (data?.userLinked) {
+            const { issuer, linker } = data.userLinked;
+            router.back();
+            APPROVER_LINKED.next(issuer === approver ? linker : issuer);
+          }
+        },
+      }),
+      [approver, router],
+    ),
+  );
 
   return (
     <Blur>

@@ -6,7 +6,6 @@ import { ListHeader } from '#/list/ListHeader';
 import { ListItemHeight } from '#/list/ListItem';
 import { Sheet } from '#/sheet/Sheet';
 import { withSuspense } from '#/skeleton/withSuspense';
-import { gql } from '@api';
 import { FlashList } from '@shopify/flash-list';
 import { NavigateNextIcon, PasteIcon, ScanIcon } from '@theme/icons';
 import { CORNER } from '@theme/paper';
@@ -17,7 +16,6 @@ import { Divider, Text } from 'react-native-paper';
 import { P, match } from 'ts-pattern';
 import { z } from 'zod';
 import { useScanAddress } from '~/app/scan';
-import { useQuery } from '~/gql';
 import { useLocalParams } from '~/hooks/useLocalParams';
 import { ADDRESS_SELECTED } from '~/hooks/useSelectAddress';
 import { zChain, zArray, zUAddress, zAddress } from '~/lib/zod';
@@ -25,39 +23,42 @@ import * as Clipboard from 'expo-clipboard';
 import { isAddress } from 'viem';
 import { showWarning } from '#/provider/SnackbarProvider';
 import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
+import { graphql } from 'relay-runtime';
+import { useLazyLoadQuery } from 'react-relay';
+import { address_SelectAddressSheetQuery } from '~/api/__generated__/address_SelectAddressSheetQuery.graphql';
 
-const Query = gql(/* GraphQL */ `
-  query SelectAddressSheet(
+const Query = graphql`
+  query address_SelectAddressSheetQuery(
     $chain: Chain
-    $includeAccounts: Boolean!
-    $includeApprovers: Boolean!
-    $includeContacts: Boolean!
+    $accounts: Boolean!
+    $approvers: Boolean!
+    $contacts: Boolean!
   ) {
-    accounts(input: { chain: $chain }) @include(if: $includeAccounts) {
+    accounts(input: { chain: $chain }) @include(if: $accounts) {
       __typename
       id
       address
-      ...AccountItem_Account
+      ...AccountItem_account
     }
 
-    user @include(if: $includeApprovers) {
+    user @include(if: $approvers) {
       id
       approvers {
         __typename
         id
         address
-        ...UserApproverItem_UserApprover
+        ...UserApproverItem_approver
       }
     }
 
-    contacts(input: { chain: $chain }) @include(if: $includeContacts) {
+    contacts(input: { chain: $chain }) @include(if: $contacts) {
       __typename
       id
       address
-      ...ContactItem_Contact
+      ...ContactItem_contact
     }
   }
-`);
+`;
 
 export const SelectAddressSheetParams = z.object({
   headline: z.string(),
@@ -77,11 +78,11 @@ function SelectAddressSheet() {
   const disabled = params.disabled && new Set(params.disabled.flatMap((a) => [a, asAddress(a)]));
   const scanAddress = useScanAddress();
 
-  const { data } = useQuery(Query, {
+  const data = useLazyLoadQuery<address_SelectAddressSheetQuery>(Query, {
     chain,
-    includeAccounts: include.includes('accounts'),
-    includeApprovers: include.includes('approvers'),
-    includeContacts: include.includes('contacts'),
+    accounts: include.includes('accounts'),
+    approvers: include.includes('approvers'),
+    contacts: include.includes('contacts'),
   });
 
   const accounts = data.accounts?.filter((a) => !disabled?.has(a.address)) ?? [];
@@ -145,7 +146,7 @@ function SelectAddressSheet() {
                 onPress={() => ADDRESS_SELECTED.next(item.address)}
               />
             ))
-            .with({ __typename: 'UserApprover' }, (item) => (
+            .with({ __typename: 'Approver' }, (item) => (
               <UserApproverItem
                 approver={item}
                 trailing={NavigateNextIcon}

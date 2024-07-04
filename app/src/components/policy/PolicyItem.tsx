@@ -1,11 +1,13 @@
-import { FragmentType, gql, useFragment } from '@api/generated';
 import { ListItem, ListItemProps } from '#/list/ListItem';
 import { PolicyIcon } from '@theme/icons';
 import { forwardRef } from 'react';
 import { View } from 'react-native';
+import { useFragment } from 'react-relay';
+import { graphql } from 'relay-runtime';
+import { PolicyItem_policy$key } from '~/api/__generated__/PolicyItem_policy.graphql';
 
-const Policy = gql(/* GraphQL */ `
-  fragment PolicyItem_Policy on Policy {
+const Policy = graphql`
+  fragment PolicyItem_policy on Policy {
     id
     name
     threshold
@@ -13,10 +15,10 @@ const Policy = gql(/* GraphQL */ `
       id
     }
   }
-`);
+`;
 
 export interface PolicyItemProps extends Partial<ListItemProps> {
-  policy: FragmentType<typeof Policy>;
+  policy: PolicyItem_policy$key;
 }
 
 export const PolicyItem = forwardRef<View, PolicyItemProps>((props, ref) => {

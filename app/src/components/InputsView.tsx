@@ -1,4 +1,3 @@
-import { FragmentType, gql, useFragment } from '@api/generated';
 import { SwapVerticalIcon } from '@theme/icons';
 import { createStyles, useStyles } from '@theme/styles';
 import Decimal from 'decimal.js';
@@ -6,10 +5,13 @@ import { Dispatch, SetStateAction } from 'react';
 import { View } from 'react-native';
 import { IconButton, Text } from 'react-native-paper';
 import { FiatValue } from '#/FiatValue';
-import { TokenAmount } from '#/token/TokenAmount';
+import { TokenAmount } from './token/TokenAmount';
 import { Button } from './Button';
+import { graphql } from 'relay-runtime';
+import { InputsView_token$key } from '~/api/__generated__/InputsView_token.graphql';
+import { useFragment } from 'react-relay';
 
-const FragmentDoc = gql(/* GraphQL */ `
+const FragmentDoc = graphql`
   fragment InputsView_token on Token @argumentDefinitions(account: { type: "UAddress!" }) {
     id
     decimals
@@ -20,7 +22,7 @@ const FragmentDoc = gql(/* GraphQL */ `
     }
     ...TokenAmount_token
   }
-`);
+`;
 
 const BUTTON_WIDTH = 64;
 const ICON_BUTTON_WIDTH = 40;
@@ -31,7 +33,7 @@ export enum InputType {
 }
 
 export interface InputsViewProps {
-  token: FragmentType<typeof FragmentDoc>;
+  token: InputsView_token$key;
   input: string;
   setInput: Dispatch<SetStateAction<string>>;
   type: InputType;

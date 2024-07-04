@@ -1,14 +1,14 @@
 import { tap } from 'rxjs/operators';
-import { Exchange, OperationRequest, OperationResult } from './layer';
-import { OperationRequestError } from './OperationRequestError';
+import { Exchange, Operation, OperationResult } from './layer';
+import { OperationError } from './OperationError';
 
 type ResultWithGraphQLError = Omit<OperationResult, 'errors'> &
   Required<Pick<OperationResult, 'errors'>>;
 
 export interface MapExchangeOptions {
-  onRequest?: (request: OperationRequest) => void;
+  onRequest?: (op: Operation) => void;
   onResponse?: (result: OperationResult) => void;
-  onNetworkError?: (error: Error | OperationRequestError) => void;
+  onNetworkError?: (error: Error | OperationError) => void;
   onGraphQLError?: (result: ResultWithGraphQLError) => void;
 }
 
@@ -21,8 +21,8 @@ export function mapExchange({
   return ({ forward }) =>
     (requests$) =>
       requests$.pipe(
-        tap((request) => {
-          onRequest?.(request);
+        tap((op) => {
+          onRequest?.(op);
         }),
         forward,
         tap({

@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { zAddress, zChain, zUAddress } from '~/lib/zod';
 import { useLocalParams } from '~/hooks/useLocalParams';
 import { useRouter } from 'expo-router';
-import { Address, asAddress, asChain, asUAddress, tryAsUAddress } from 'lib';
+import { Address, ZERO_ADDR, asAddress, asChain, asUAddress, tryAsUAddress } from 'lib';
 import { RemoveIcon } from '@theme/icons';
 import { useForm } from 'react-hook-form';
 import { StyleSheet } from 'react-native';
@@ -13,9 +13,6 @@ import { FormSubmitButton } from '#/fields/FormSubmitButton';
 import { FormTextField } from '#/fields/FormTextField';
 import { Actions } from '#/layout/Actions';
 import { FormResetIcon } from '#/fields/ResetFormIcon';
-import { gql, useFragment } from '@api/generated';
-import { useQuery } from '~/gql';
-import { useMutation } from 'urql';
 import { useConfirmRemoval } from '~/hooks/useConfirm';
 import { withSuspense } from '#/skeleton/withSuspense';
 import { ScrollableScreenSurface } from '#/layout/ScrollableScreenSurface';
@@ -26,36 +23,43 @@ import { Appbar } from '#/Appbar/Appbar';
 import { Pane } from '#/layout/Pane';
 import { FormChainSelector } from '#/fields/FormChainSelector';
 import { PaneSkeleton } from '#/skeleton/PaneSkeleton';
+import { graphql } from 'relay-runtime';
+import { useMutation } from '~/api';
+import { Address_ContactScreen_upsertMutation } from '~/api/__generated__/Address_ContactScreen_upsertMutation.graphql';
+import { Address_ContactScreen_deleteMutation } from '~/api/__generated__/Address_ContactScreen_deleteMutation.graphql';
+import { useFragment, useLazyLoadQuery } from 'react-relay';
+import { Address_ContactScreenQuery } from '~/api/__generated__/Address_ContactScreenQuery.graphql';
+import { Address_ContactScreen_contact$key } from '~/api/__generated__/Address_ContactScreen_contact.graphql';
 
-const Contact = gql(/* GraphQL */ `
-  fragment ContactScreen_Contact on Contact {
+const Contact = graphql`
+  fragment Address_ContactScreen_contact on Contact {
     id
     address
     name
   }
-`);
+`;
 
-const Query = gql(/* GraphQL */ `
-  query Contact($address: UAddress!) {
-    contact(input: { address: $address }) {
-      ...ContactScreen_Contact
+const Query = graphql`
+  query Address_ContactScreenQuery($address: UAddress!, $include: Boolean!) {
+    contact(input: { address: $address }) @include(if: $include) {
+      ...Address_ContactScreen_contact
     }
   }
-`);
+`;
 
-const Upsert = gql(/* GraphQL */ `
-  mutation ContactScreen_Upsert($input: UpsertContactInput!) {
+const Upsert = graphql`
+  mutation Address_ContactScreen_upsertMutation($input: UpsertContactInput!) {
     upsertContact(input: $input) {
-      ...ContactScreen_Contact
+      ...Address_ContactScreen_contact
     }
   }
-`);
+`;
 
-const Delete = gql(/* GraphQL */ `
-  mutation ContactScreen_Delete($address: UAddress!) {
-    deleteContact(input: { address: $address })
+const Delete = graphql`
+  mutation Address_ContactScreen_deleteMutation($address: UAddress!) {
+    deleteContact(input: { address: $address }) @deleteRecord
   }
-`);
+`;
 
 const schema = z.object({
   name: z.string().min(1),
@@ -70,16 +74,19 @@ export interface ContactScreenProps {
 
 function ContactScreen_(props: ContactScreenProps) {
   const router = useRouter();
-  const upsert = useMutation(Upsert)[1];
-  const remove = useMutation(Delete)[1];
+  const upsert = useMutation<Address_ContactScreen_upsertMutation>(Upsert);
+  const remove = useMutation<Address_ContactScreen_deleteMutation>(Delete);
   const confirmRemove = useConfirmRemoval({
     message: 'Are you sure you want to remove this contact',
   });
   const selectedChain = useSelectedChain();
 
   const existingAddress = tryAsUAddress(props.address, props.chain);
-  const { data } = useQuery(Query, { address: existingAddress! }, { pause: !existingAddress });
-  const current = useFragment(Contact, data?.contact);
+  const data = useLazyLoadQuery<Address_ContactScreenQuery>(Query, {
+    address: existingAddress ?? `zksync:${ZERO_ADDR}`,
+    include: !!existingAddress,
+  });
+  const current = useFragment<Address_ContactScreen_contact$key>(Contact, data?.contact);
 
   const { control, handleSubmit, reset } = useForm<z.infer<typeof schema>>({
     resolver: zodResolver(schema),

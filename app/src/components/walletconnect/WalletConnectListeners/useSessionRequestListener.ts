@@ -1,4 +1,3 @@
-import { gql } from '@api/generated';
 import { asUAddress } from 'lib';
 import { CHAINS } from 'chains';
 import { useEffect } from 'react';
@@ -10,25 +9,27 @@ import {
   asWalletConnectResult,
   useWalletConnectWithoutWatching,
 } from '~/lib/wc';
-import { usePropose } from '@api/usePropose';
+import { useProposeTransaction } from '~/hooks/mutations/useProposeTransaction';
 import { Observable } from 'rxjs';
 import { SignClientTypes } from '@walletconnect/types';
-import { useMutation } from 'urql';
 import { useRouter } from 'expo-router';
 import { normalizeSigningRequest, isSignatureRequest } from '~/lib/wc/methods/signing';
 import { isTransactionRequest } from '~/lib/wc/methods/transaction';
 import { useVerifyDapp } from '../DappVerification';
 import { ApprovedProposal } from './useProposalsListener';
 import { asDapp } from '~/lib/wc/uri';
+import { graphql } from 'relay-runtime';
+import { useMutation } from '~/api';
+import { useSessionRequestListener_proposeMessageMutation } from '~/api/__generated__/useSessionRequestListener_proposeMessageMutation.graphql';
 
-const ProposeMessage = gql(/* GraphQL */ `
-  mutation UseSessionRequestListener_ProposeMessage($input: ProposeMessageInput!) {
+const ProposeMessage = graphql`
+  mutation useSessionRequestListener_proposeMessageMutation($input: ProposeMessageInput!) {
     proposeMessage(input: $input) {
       id
       signature
     }
   }
-`);
+`;
 
 type SessionRequestArgs = SignClientTypes.EventArguments['session_request'];
 
@@ -39,8 +40,9 @@ export interface UseSessionRequestListenerParams {
 export const useSessionRequestListener = ({ proposals }: UseSessionRequestListenerParams) => {
   const router = useRouter();
   const client = useWalletConnectWithoutWatching();
-  const proposeTransaction = usePropose();
-  const proposeMessage = useMutation(ProposeMessage)[1];
+  const proposeTransaction = useProposeTransaction();
+  const proposeMessage =
+    useMutation<useSessionRequestListener_proposeMessageMutation>(ProposeMessage);
   const verify = useVerifyDapp();
 
   useEffect(() => {
@@ -104,7 +106,7 @@ export const useSessionRequestListener = ({ proposals }: UseSessionRequestListen
               dapp,
             },
           })
-        ).data?.proposeMessage;
+        ).proposeMessage;
         if (!proposal) return showError(`${dapp.name}: failed to propose transaction`);
 
         // Respond immediately if message has previously been signed

@@ -2,10 +2,11 @@ import { useApproverAddress } from '~/lib/network/useApprover';
 import { useGlobalSearchParams, usePathname } from 'expo-router';
 import { useEffect, useRef } from 'react';
 import * as Sentry from '@sentry/react-native';
-import { gql } from '@api';
-import { useQuery } from '~/gql';
 import { ampli } from '~/lib/ampli';
 import { CONFIG } from '~/util/config';
+import { graphql } from 'relay-runtime';
+import { useLazyLoadQuery } from 'react-relay';
+import { AnalyticsQuery } from '~/api/__generated__/AnalyticsQuery.graphql';
 
 ampli.load({
   client: {
@@ -16,13 +17,13 @@ ampli.load({
   },
 });
 
-const Query = gql(/* GraphQL */ `
-  query Analytics {
+const Query = graphql`
+  query AnalyticsQuery {
     user {
       id
     }
   }
-`);
+`;
 
 export function Analytics() {
   const approver = useApproverAddress();
@@ -31,7 +32,7 @@ export function Analytics() {
 
   const previousPathname = useRef<string>();
 
-  const userId = useQuery(Query, {}).data?.user.id;
+  const userId = useLazyLoadQuery<AnalyticsQuery>(Query, {}).user.id;
 
   useEffect(() => {
     ampli.identify(userId, { device_id: approver });

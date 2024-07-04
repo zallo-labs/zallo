@@ -1,25 +1,25 @@
 import { ScreenSkeleton } from '#/skeleton/ScreenSkeleton';
 import { withSuspense } from '#/skeleton/withSuspense';
-import { gql } from '@api';
 import { z } from 'zod';
-import { useQuery } from '~/gql';
 import { ZERO_UUID, zUAddress, zUuid } from '~/lib/zod';
 import { useLocalParams } from '~/hooks/useLocalParams';
 import { usePolicyPresets } from '~/lib/policy/usePolicyPresets';
 import { ZERO_ADDR, asChain } from 'lib';
 import { useMemo } from 'react';
-import { PolicyDraft, PolicyDraftContext, policyAsDraft } from '~/lib/policy/draft';
+import { PolicyDraft, PolicyDraftContext, policyAsDraft } from '~/lib/policy/policyAsDraft';
 import { atom } from 'jotai';
 import { PolicyPane } from '#/policy/PolicyPane';
-import { NotFound } from '#/NotFound';
+import { graphql } from 'relay-runtime';
+import { useLazyLoadQuery } from 'react-relay';
+import { Id_PolicyScreenQuery } from '~/api/__generated__/Id_PolicyScreenQuery.graphql';
 
-const Query = gql(/* GraphQL */ `
-  query Policy($account: UAddress!, $policy: ID!, $includePolicy: Boolean!) {
-    account(input: { account: $account }) {
+const Query = graphql`
+  query Id_PolicyScreenQuery($account: UAddress!, $policy: ID!, $includePolicy: Boolean!) {
+    account(input: { account: $account }) @required(action: THROW) {
       id
       address
-      ...UsePolicyPresets_Account
-      ...PolicyPane_Account
+      ...usePolicyPresets_account
+      ...PolicyPane_account
     }
 
     policy: node(id: $policy) @include(if: $includePolicy) {
@@ -28,18 +28,18 @@ const Query = gql(/* GraphQL */ `
         id
         key
         name
-        ...policyAsDraft_Policy
+        ...policyAsDraft_policy
       }
-      ...PolicyPane_Policy
+      ...PolicyPane_policy
     }
 
     user {
       id
-      ...UsePolicyPresets_User
-      ...PolicyPane_User
+      ...usePolicyPresets_user
+      ...PolicyPane_user
     }
   }
-`);
+`;
 
 export const PolicyScreenParams = z.object({
   account: zUAddress(),
@@ -50,11 +50,11 @@ function PolicyScreen() {
   const params = useLocalParams(PolicyScreenParams);
   const id = params.id !== 'add' ? params.id : undefined;
 
-  const { account, policy, user } = useQuery(Query, {
+  const { account, policy, user } = useLazyLoadQuery<Id_PolicyScreenQuery>(Query, {
     account: params.account,
     policy: id ?? ZERO_UUID,
     includePolicy: !!id,
-  }).data;
+  });
 
   const presets = usePolicyPresets({
     account,
@@ -80,7 +80,6 @@ function PolicyScreen() {
 
   const draftAtom = useMemo(() => atom(initial), [initial]);
 
-  if (!account) return <NotFound name="Account" />;
   if (policy && policy.__typename !== 'Policy') return null;
 
   return (

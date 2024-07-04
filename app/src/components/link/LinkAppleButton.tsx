@@ -1,4 +1,3 @@
-import { FragmentType, gql, useFragment } from '@api';
 import { createStyles, useStyles } from '@theme/styles';
 import { useLinkApple } from '#/cloud/useLinkApple';
 import {
@@ -6,16 +5,19 @@ import {
   AppleAuthenticationButtonStyle,
   AppleAuthenticationButtonType,
 } from 'expo-apple-authentication';
+import { graphql } from 'relay-runtime';
+import { useFragment } from 'react-relay';
+import { LinkAppleButton_user$key } from '~/api/__generated__/LinkAppleButton_user.graphql';
 
-const User = gql(/* GraphQL */ `
-  fragment LinkAppleButton_User on User {
+const User = graphql`
+  fragment LinkAppleButton_user on User {
     id
-    ...useLinkApple_User
+    ...useLinkApple_user
   }
-`);
+`;
 
 export interface LinkAppleButtonProps {
-  user: FragmentType<typeof User>;
+  user: LinkAppleButton_user$key;
   onLink?: () => void | Promise<void>;
 }
 

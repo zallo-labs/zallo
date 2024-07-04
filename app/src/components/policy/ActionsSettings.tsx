@@ -6,7 +6,7 @@ import { ListItem } from '#/list/ListItem';
 import { ListItemHorizontalTrailing } from '#/list/ListItemHorizontalTrailing';
 import { ListItemTrailingText } from '#/list/ListItemTrailingText';
 import { useToggle } from '~/hooks/useToggle';
-import { PolicyDraftAction, usePolicyDraft } from '~/lib/policy/draft';
+import { PolicyDraftAction, usePolicyDraft } from '~/lib/policy/policyAsDraft';
 import { ACTION_PRESETS } from '~/lib/policy/usePolicyPresets';
 import { CollapsibleItemList } from '#/layout/CollapsibleItemList';
 

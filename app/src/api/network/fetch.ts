@@ -1,7 +1,7 @@
 import { GraphQLSingularResponse } from 'relay-runtime';
 import { filter, merge, mergeMap } from 'rxjs';
 import { Exchange, OperationResult } from './layer';
-import { OperationRequestError } from './OperationRequestError';
+import { OperationError } from './OperationError';
 
 export interface FetchExchangeOptions extends RequestInit {
   url: string;
@@ -9,56 +9,69 @@ export interface FetchExchangeOptions extends RequestInit {
 
 export function fetchExchange({ url, ...rootFetchOptions }: FetchExchangeOptions): Exchange {
   return ({ forward }) =>
-    (requests$) => {
-      const fetchResults$ = requests$.pipe(
+    (operations$) => {
+      const fetchResults$ = operations$.pipe(
         filter(({ kind }) => kind === 'query' || kind === 'mutation'),
-        mergeMap(async (request): Promise<OperationResult> => {
-          const { operation, variables, fetchOptions } = request;
-
+        mergeMap(async (op): Promise<OperationResult> => {
+          console.log('FETCHING', { op });
           try {
             const response = await fetch(url, {
               method: 'POST',
               body: JSON.stringify({
-                query: operation.text || '', // GraphQL text from input
-                variables,
+                query: op.text || '', // GraphQL text from input
+                variables: op.variables,
               }),
               ...rootFetchOptions,
-              ...fetchOptions,
+              ...op.fetchOptions,
               headers: {
-                'content-type': 'application/json',
+                Accept: 'application/json',
+                'Content-type': 'application/json',
                 ...rootFetchOptions?.headers,
-                ...fetchOptions?.headers,
+                ...op.fetchOptions?.headers,
               },
             });
 
-            if (request.kind === 'mutation' && !response.ok) {
-              console.log('mutation failed', { request, response });
-              console.log('mutation failed', { request, response, data: await response.json() });
+            if (op.kind === 'mutation' && !response.ok) {
+              console.log('mutation failed', { request: op, response });
+              console.log('mutation failed', {
+                request: op,
+                response,
+                data: await response.json(),
+              });
             }
 
             if (!response.ok /* non 2xx response */) {
-              if (request.kind === 'mutation') throw new OperationRequestError(request, response);
+              if (op.kind === 'mutation') throw new OperationError(op, response);
 
-              console.log('non 2xx response', { request, response });
-              return { request, response, errors: [] };
+              console.log('non 2xx response', { request: op, response });
+              return { operation: op, response, errors: [] };
             }
 
-            const data = (await response.json()) as GraphQLSingularResponse;
+            const data = await extractData(response);
+            console.log('GOT DATA', { op, data });
 
-            return { ...data, data: data.data || undefined, request, response, errors: [] };
+            const errors = ('errors' in data && data.errors) || [];
+            return { ...data, data: data.data || undefined, operation: op, response, errors };
           } catch (e) {
-            if (e instanceof OperationRequestError) throw e;
+            if (e instanceof OperationError) throw e;
 
-            throw new OperationRequestError(request, undefined, e as Error);
+            throw new OperationError(op, undefined, e as Error);
           }
         }),
       );
 
-      const forward$ = requests$.pipe(
+      const forward$ = operations$.pipe(
         filter(({ kind }) => kind !== 'query' && kind !== 'mutation'),
         forward,
       );
 
       return merge(fetchResults$, forward$);
     };
+}
+
+async function extractData(response: Response) {
+  if (response.headers.get('content-type')?.includes('application/json'))
+    return (await response.json()) as GraphQLSingularResponse;
+
+  return (await JSON.parse(response.text())) as GraphQLSingularResponse;
 }

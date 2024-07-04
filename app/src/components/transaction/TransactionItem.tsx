@@ -4,17 +4,20 @@ import { withSuspense } from '#/skeleton/withSuspense';
 import { ListItemSkeleton } from '#/list/ListItemSkeleton';
 import { match } from 'ts-pattern';
 import { ActionIcon } from '@theme/icons';
-import { FragmentType, gql, useFragment } from '@api/generated';
 import { OperationLabel } from './OperationLabel';
-import { ProposalValue } from './ProposalValue';
+import { TransactionValue } from './TransactionValue';
 import { Link } from 'expo-router';
 import { createStyles, useStyles } from '@theme/styles';
 import { OperationIcon } from '#/transaction/OperationIcon';
 import { Image } from '#/Image';
 import { ICON_SIZE } from '@theme/paper';
+import { graphql } from 'relay-runtime';
+import { useFragment } from 'react-relay';
+import { TransactionItem_transaction$key } from '~/api/__generated__/TransactionItem_transaction.graphql';
+import { TransactionItem_user$key } from '~/api/__generated__/TransactionItem_user.graphql';
 
-const Transaction = gql(/* GraphQL */ `
-  fragment TransactionItem_Transaction on Transaction {
+const Transaction = graphql`
+  fragment TransactionItem_transaction on Transaction {
     id
     label
     status
@@ -27,8 +30,8 @@ const Transaction = gql(/* GraphQL */ `
     }
     operations {
       to
-      ...OperationIcon_Operation
-      ...OperationLabel_OperationFragment
+      ...OperationIcon_operation
+      ...OperationLabel_operation
     }
     result {
       __typename
@@ -50,22 +53,22 @@ const Transaction = gql(/* GraphQL */ `
         id
       }
     }
-    ...ProposalValue_Transaction
+    ...TransactionValue_transaction
   }
-`);
+`;
 
-const User = gql(/* GraphQL */ `
-  fragment TransactionItem_User on User {
+const User = graphql`
+  fragment TransactionItem_user on User {
     id
     approvers {
       id
     }
   }
-`);
+`;
 
 export interface TransactionItemProps extends Partial<ListItemProps> {
-  transaction: FragmentType<typeof Transaction>;
-  user: FragmentType<typeof User>;
+  transaction: TransactionItem_transaction$key;
+  user: TransactionItem_user$key;
 }
 
 function TransactionItem_({
@@ -99,7 +102,7 @@ function TransactionItem_({
         ({ Text }) =>
           p.result?.__typename === 'Scheduled' && (
             <Text style={styles.scheduled}>
-              Scheduled for <Timestamp timestamp={p.result.scheduledFor} time />
+              Scheduled for <Timestamp timestamp={p.result.scheduledFor!} time />
             </Text>
           ),
     )
@@ -144,7 +147,7 @@ function TransactionItem_({
         supporting={supporting}
         trailing={({ Text }) => (
           <Text variant="labelLarge">
-            <ProposalValue proposal={p} hideZero />
+            <TransactionValue transaction={p} hideZero />
           </Text>
         )}
         {...itemProps}

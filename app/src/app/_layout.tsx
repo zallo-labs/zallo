@@ -70,7 +70,7 @@ function RootLayout() {
                                 </RnpPortal.Host>
                               </Suspense>
                             </Try>
-                            <Try catch={IgnoredErrorBoundary}>
+                            {/* <Try catch={IgnoredErrorBoundary}>
                               <Suspense fallback={null}>
                                 <UpdateProvider />
                                 <Analytics />
@@ -78,7 +78,7 @@ function RootLayout() {
                                 <GlobalSubscriptions />
                                 <NotificationsProvider />
                               </Suspense>
-                            </Try>
+                            </Try> */}
                           </GoogleAuthProvider>
                         </TQueryProvider>
                       </GqlProvider>

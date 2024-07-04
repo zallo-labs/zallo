@@ -1,19 +1,21 @@
-import { FragmentType, gql, useFragment } from '@api';
 import { useGetAppleApprover } from './useGetAppleApprover';
-import { useMutation } from 'urql';
-import { authContext } from '@api/client';
 import { showError } from '#/provider/SnackbarProvider';
 import { ampli } from '~/lib/ampli';
+import { graphql } from 'relay-runtime';
+import { useFragment } from 'react-relay';
+import { useLinkApple_user$key } from '~/api/__generated__/useLinkApple_user.graphql';
+import { useMutation } from '~/api';
+import { signAuthToken } from '~/api/auth-manager';
 
-const User = gql(/* GraphQL */ `
-  fragment useLinkApple_User on User {
+const User = graphql`
+  fragment useLinkApple_user on User {
     id
     linkingToken
   }
-`);
+`;
 
-const Link = gql(/* GraphQL */ `
-  mutation LinkAppleButton_Link($token: String!) {
+const Link = graphql`
+  mutation useLinkAppleMutation($token: String!) {
     link(input: { token: $token }) {
       id
       approvers {
@@ -21,16 +23,16 @@ const Link = gql(/* GraphQL */ `
       }
     }
   }
-`);
+`;
 
 export interface useLinkAppleParams {
-  user: FragmentType<typeof User>;
+  user: useLinkApple_user$key;
 }
 
 export function useLinkApple(params: useLinkAppleParams) {
   const user = useFragment(User, params.user);
   const getApprover = useGetAppleApprover();
-  const link = useMutation(Link)[1];
+  const link = useMutation(Link);
 
   if (!getApprover) return undefined;
 
@@ -45,7 +47,7 @@ export function useLinkApple(params: useLinkAppleParams) {
     }
 
     const approver = r.value;
-    await link({ token: user.linkingToken }, await authContext(approver));
+    await link({ token: user.linkingToken }, { authToken: await signAuthToken(approver) });
     ampli.socialLinked({ cloud: 'Apple' });
 
     return r.value.address;

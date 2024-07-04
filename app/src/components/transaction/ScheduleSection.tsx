@@ -3,21 +3,25 @@ import { ListHeader } from '#/list/ListHeader';
 import { ListItem } from '#/list/ListItem';
 import { DELAY_ENTRIES } from '#/policy/DelaySettings';
 import { showError } from '#/provider/SnackbarProvider';
-import { FragmentType, gql, useFragment } from '@api';
 import { CancelIcon, materialCommunityIcon } from '@theme/icons';
 import { createStyles } from '@theme/styles';
 import { useRouter } from 'expo-router';
 import { ReactNode } from 'react';
 import { IconButton } from 'react-native-paper';
+import { useFragment } from 'react-relay';
+import { graphql } from 'relay-runtime';
 import { P, match } from 'ts-pattern';
-import { useMutation } from 'urql';
+import { useMutation } from '~/api';
+import { ScheduleSection_cancelMutation } from '~/api/__generated__/ScheduleSection_cancelMutation.graphql';
+import { ScheduleSection_transaction$key } from '~/api/__generated__/ScheduleSection_transaction.graphql';
+import { logError } from '~/util/analytics';
 
 const DelayIcon = materialCommunityIcon('timer-outline');
 const ScheduledIcon = materialCommunityIcon('calendar-month');
 const CancelledIcon = materialCommunityIcon('calendar-remove');
 
-const Transaction = gql(/* GraphQL */ `
-  fragment ScheduleSection_Transaction on Transaction {
+const Transaction = graphql`
+  fragment ScheduleSection_transaction on Transaction {
     id
     status
     account {
@@ -37,25 +41,25 @@ const Transaction = gql(/* GraphQL */ `
       }
     }
   }
-`);
+`;
 
-const CancelScheduledTx = gql(/* GraphQL */ `
-  mutation ScheduleSection_CancelScheduledTx($input: ProposeCancelScheduledTransactionInput!) {
+const CancelScheduledTx = graphql`
+  mutation ScheduleSection_cancelMutation($input: ProposeCancelScheduledTransactionInput!) {
     proposeCancelScheduledTransaction(input: $input) {
       id
     }
   }
-`);
+`;
 
 export interface ScheduleSectionProps {
   children?: ReactNode;
-  proposal: FragmentType<typeof Transaction>;
+  transaction: ScheduleSection_transaction$key;
 }
 
 export function ScheduleSection({ children, ...props }: ScheduleSectionProps) {
-  const p = useFragment(Transaction, props.proposal);
+  const p = useFragment(Transaction, props.transaction);
   const router = useRouter();
-  const proposeCancelScheduledTx = useMutation(CancelScheduledTx)[1];
+  const proposeCancelScheduledTx = useMutation<ScheduleSection_cancelMutation>(CancelScheduledTx);
 
   const delay = p.policy.delay;
 
@@ -80,7 +84,7 @@ export function ScheduleSection({ children, ...props }: ScheduleSectionProps) {
             <ListItem
               leading={ScheduledIcon}
               leadingSize="medium"
-              headline={<Timestamp timestamp={t.scheduledFor} time />}
+              headline={<Timestamp timestamp={t.scheduledFor!} time />}
               trailing={(props) => (
                 <IconButton
                   {...props}
@@ -91,8 +95,7 @@ export function ScheduleSection({ children, ...props }: ScheduleSectionProps) {
                       await proposeCancelScheduledTx({
                         input: { account: p.account.address, proposal: p.id },
                       })
-                    ).data?.proposeCancelScheduledTransaction.id;
-                    if (!id) return showError('Failed to propose to cancel scheduled transaction');
+                    ).proposeCancelScheduledTransaction.id;
 
                     router.push({ pathname: '/(nav)/transaction/[id]', params: { id } });
                   }}
@@ -109,13 +112,16 @@ export function ScheduleSection({ children, ...props }: ScheduleSectionProps) {
               leadingSize="medium"
               headline={({ Text }) => (
                 <Text style={styles.strike}>
-                  <Timestamp timestamp={t.scheduledFor} time />
+                  <Timestamp timestamp={t.scheduledFor!} time />
                 </Text>
               )}
             />
           </>
         ))
-        .exhaustive()}
+        .otherwise((result) => {
+          logError('Unexpected transaction status', { result });
+          return null;
+        })}
 
       {children}
     </>

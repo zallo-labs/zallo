@@ -82,7 +82,7 @@ const client = atom(async (get) => {
     url: `${CONFIG.apiUrl}/graphql`,
     suspense: true,
     exchanges: [
-      __DEV__ && devtoolsExchange,
+      // __DEV__ && devtoolsExchange,
       mapExchange({
         onError(error, operation) {
           logError('[urql] error: ' + error.message, { error, operation });

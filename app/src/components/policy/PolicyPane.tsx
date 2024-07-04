@@ -1,10 +1,8 @@
-import { FragmentType, gql, useFragment } from '@api';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useAtom } from 'jotai';
 import _ from 'lodash';
-import { useMutation } from 'urql';
 import { PolicyAppbar } from '#/policy/PolicyAppbar';
-import { usePolicyDraftAtom, asPolicyInput, PolicyDraft } from '~/lib/policy/draft';
+import { usePolicyDraftAtom, asPolicyInput, PolicyDraft } from '~/lib/policy/policyAsDraft';
 import { showError } from '#/provider/SnackbarProvider';
 import { ApprovalSettings } from '#/policy/ApprovalSettings';
 import { SpendingSettings } from '#/policy/SpendingSettings';
@@ -20,9 +18,17 @@ import { Pane } from '#/layout/Pane';
 import { ScrollView } from 'react-native';
 import { AddIcon, UpdateIcon } from '@theme/icons';
 import { Fab } from '#/Fab';
+import { graphql } from 'relay-runtime';
+import { useFragment } from 'react-relay';
+import { PolicyPane_account$key } from '~/api/__generated__/PolicyPane_account.graphql';
+import { PolicyPane_policy$key } from '~/api/__generated__/PolicyPane_policy.graphql';
+import { PolicyPane_user$key } from '~/api/__generated__/PolicyPane_user.graphql';
+import { useMutation } from '~/api';
+import { PolicyPane_createMutation } from '~/api/__generated__/PolicyPane_createMutation.graphql';
+import { PolicyPane_updateMutation } from '~/api/__generated__/PolicyPane_updateMutation.graphql';
 
-const Create = gql(/* GraphQL */ `
-  mutation PolicyScreen_Create($input: CreatePolicyInput!) {
+const Create = graphql`
+  mutation PolicyPane_createMutation($input: CreatePolicyInput!) {
     createPolicy(input: $input) {
       __typename
       ... on Policy {
@@ -42,10 +48,10 @@ const Create = gql(/* GraphQL */ `
       }
     }
   }
-`);
+`;
 
-const Update = gql(/* GraphQL */ `
-  mutation PolicyScreen_Update($input: UpdatePolicyInput!) {
+const Update = graphql`
+  mutation PolicyPane_updateMutation($input: UpdatePolicyInput!) {
     updatePolicy(input: $input) {
       __typename
       ... on Policy {
@@ -65,19 +71,19 @@ const Update = gql(/* GraphQL */ `
       }
     }
   }
-`);
+`;
 
-const Account = gql(/* GraphQL */ `
-  fragment PolicyPane_Account on Account {
+const Account = graphql`
+  fragment PolicyPane_account on Account {
     id
     address
-    ...PolicyPresets_Account
-    ...PolicySideSheet_Account
+    ...PolicyPresets_account
+    ...PolicySideSheet_account
   }
-`);
+`;
 
-const Policy = gql(/* GraphQL */ `
-  fragment PolicyPane_Policy on Policy {
+const Policy = graphql`
+  fragment PolicyPane_policy on Policy {
     id
     draft {
       id
@@ -85,30 +91,30 @@ const Policy = gql(/* GraphQL */ `
     proposal {
       id
     }
-    ...PolicyAppbar_Policy
-    ...PolicySideSheet_Policy
+    ...PolicyAppbar_policy
+    ...PolicySideSheet_policy
   }
-`);
+`;
 
-const User = gql(/* GraphQL */ `
-  fragment PolicyPane_User on User {
+const User = graphql`
+  fragment PolicyPane_user on User {
     id
-    ...PolicyPresets_User
+    ...PolicyPresets_user
   }
-`);
+`;
 
 export interface PolicyPaneProps {
   initial: PolicyDraft;
-  account: FragmentType<typeof Account>;
-  policy: FragmentType<typeof Policy> | null | undefined;
-  user: FragmentType<typeof User>;
+  account: PolicyPane_account$key;
+  policy: PolicyPane_policy$key | null | undefined;
+  user: PolicyPane_user$key;
 }
 
 export function PolicyPane({ initial, ...props }: PolicyPaneProps) {
   const router = useRouter();
   const params = useLocalSearchParams();
-  const create = useMutation(Create)[1];
-  const update = useMutation(Update)[1];
+  const create = useMutation<PolicyPane_createMutation>(Create);
+  const update = useMutation<PolicyPane_updateMutation>(Update);
 
   const account = useFragment(Account, props.account);
   const policy = useFragment(Policy, props.policy);
@@ -123,7 +129,7 @@ export function PolicyPane({ initial, ...props }: PolicyPaneProps) {
     [initial, isModified, setDraft],
   );
 
-  if (!account || (policy && policy.__typename !== 'Policy')) return null;
+  if (!account) return null;
 
   return (
     <Pane flex>
@@ -146,8 +152,8 @@ export function PolicyPane({ initial, ...props }: PolicyPaneProps) {
                 const input = { account: draft.account, ...asPolicyInput(draft) };
                 const r =
                   input.key !== undefined
-                    ? (await update({ input: { ...input, key: input.key! } })).data?.updatePolicy
-                    : (await create({ input })).data?.createPolicy;
+                    ? (await update({ input: { ...input, key: input.key! } })).updatePolicy
+                    : (await create({ input })).createPolicy;
 
                 if (r?.__typename !== 'Policy') return showError(r?.message);
 

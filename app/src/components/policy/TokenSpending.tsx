@@ -1,4 +1,3 @@
-import { useEffect } from 'react';
 import { Address, TransferLimit, asChain, asUAddress } from 'lib';
 import { DateTime, Duration } from 'luxon';
 import { View } from 'react-native';
@@ -7,25 +6,28 @@ import { SelectChip } from '#/fields/SelectChip';
 import { ListHeader } from '#/list/ListHeader';
 import { useBigIntInput } from '#/fields/useBigIntInput';
 import { ClockOutlineIcon } from '@theme/icons';
-import { gql } from '@api/generated';
-import { usePolicyDraft } from '~/lib/policy/draft';
-import { useQuery } from '~/gql';
+import { usePolicyDraft } from '~/lib/policy/policyAsDraft';
 import { AppbarOptions } from '#/Appbar/AppbarOptions';
 import { truncateAddr } from '~/util/format';
 import { ScrollableScreenSurface } from '#/layout/ScrollableScreenSurface';
 import { ProgressBar, Text } from 'react-native-paper';
 import { Actions } from '#/layout/Actions';
 import { Button } from '#/Button';
-import { useRouter } from 'expo-router';
 import { createStyles, useStyles } from '@theme/styles';
 import { Timestamp } from '#/format/Timestamp';
 import Decimal from 'decimal.js';
 import { IncomingTransferItem } from '#/activity/IncomingTransferItem';
 import { withSuspense } from '#/skeleton/withSuspense';
 import { RectSkeleton } from '#/skeleton/RectSkeleton';
+import { graphql, useLazyLoadQuery } from 'react-relay';
+import { TokenSpendingQuery } from '~/api/__generated__/TokenSpendingQuery.graphql';
 
-const Query = gql(/* GraphQL */ `
-  query TokenSpending($token: UAddress!, $spending: SpendingInput!, $includeSpending: Boolean!) {
+const Query = graphql`
+  query TokenSpendingQuery(
+    $token: UAddress!
+    $spending: SpendingInput!
+    $includeSpending: Boolean!
+  ) {
     token(address: $token) {
       id
       name
@@ -37,16 +39,19 @@ const Query = gql(/* GraphQL */ `
         transfers {
           __typename
           id
-          ...IncomingTransferItem_Transfer
+          ...IncomingTransferItem_transfer
         }
       }
     }
   }
-`);
+`;
 
 const DEFAULT_DURATION = Duration.fromObject({ day: 1 });
 
-export const DEFAULT_LIMIT: TransferLimit = { amount: 0n, duration: DEFAULT_DURATION.as('seconds') };
+export const DEFAULT_LIMIT: TransferLimit = {
+  amount: 0n,
+  duration: DEFAULT_DURATION.as('seconds'),
+};
 
 export const SPENDING_LIMIT_DURATIONS = [
   { title: 'Hour', value: Duration.fromObject({ hours: 1 }) },
@@ -67,11 +72,11 @@ function TokenSpending_({ token: address }: TokenSpendingProps) {
   const [policy, update] = usePolicyDraft();
   const { account } = policy;
 
-  const { token: t } = useQuery(Query, {
+  const { token: t } = useLazyLoadQuery<TokenSpendingQuery>(Query, {
     token: asUAddress(address, asChain(account)),
     spending: { account, policyKey: policy.key },
     includeSpending: policy.key !== undefined,
-  }).data;
+  });
 
   const currentLimit: TransferLimit | undefined = policy.transfers.limits[address];
   const limit = currentLimit ?? DEFAULT_LIMIT;
@@ -150,7 +155,7 @@ function TokenSpending_({ token: address }: TokenSpendingProps) {
                 (t): t is Extract<typeof t, { __typename: 'Transfer' }> =>
                   t.__typename === 'Transfer',
               )
-              .map((t) => (
+              .map((t: any) => (
                 <IncomingTransferItem key={t.id} transfer={t} />
               ))}
           </View>

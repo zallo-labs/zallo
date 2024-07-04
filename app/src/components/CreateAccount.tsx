@@ -1,42 +1,35 @@
 import { useRouter } from 'expo-router';
-import { gql } from '@api/generated';
 import { useForm } from 'react-hook-form';
 import { View } from 'react-native';
-import { useMutation } from 'urql';
 import { FormSubmitButton } from '#/fields/FormSubmitButton';
 import { Actions } from '#/layout/Actions';
-import { showError } from '#/provider/SnackbarProvider';
 import { UAddress } from 'lib';
 import { Text } from 'react-native-paper';
 import { AccountNameFormField } from '#/fields/AccountNameFormField';
 import { createStyles, useStyles } from '@theme/styles';
 import { usePolicyPresets } from '~/lib/policy/usePolicyPresets';
-import { asPolicyInput } from '~/lib/policy/draft';
+import { asPolicyInput } from '~/lib/policy/policyAsDraft';
 import { Chain } from 'chains';
-import { useQuery } from '~/gql';
 import { FormChainSelector } from './fields/FormChainSelector';
+import { graphql } from 'relay-runtime';
+import { useLazyLoadQuery } from 'react-relay';
+import { CreateAccountScreenQuery } from '~/api/__generated__/CreateAccountScreenQuery.graphql';
+import { useCreateAccount } from '~/hooks/mutations/useCreateAccount';
 
-const Query = gql(/* GraphQL */ `
-  query CreateAccountScreen {
+const Query = graphql`
+  query CreateAccountScreenQuery {
     user {
       id
       approvers {
         id
         address
       }
-      ...UsePolicyPresets_User
+      ...usePolicyPresets_user
     }
-  }
-`);
 
-const Create = gql(/* GraphQL */ `
-  mutation CreateAccountScreen_Create($input: CreateAccountInput!) {
-    createAccount(input: $input) {
-      id
-      address
-    }
+    ...useCreateAccount_query
   }
-`);
+`;
 
 interface Inputs {
   name: string;
@@ -50,9 +43,10 @@ export interface CreateAccountScreenProps {
 export function CreateAccount({ onCreate }: CreateAccountScreenProps) {
   const { styles } = useStyles(stylesheet);
   const router = useRouter();
-  const create = useMutation(Create)[1];
 
-  const { user } = useQuery(Query).data;
+  const query = useLazyLoadQuery<CreateAccountScreenQuery>(Query, {});
+  const create = useCreateAccount({ query });
+  const { user } = query;
 
   const { control, handleSubmit, reset, watch } = useForm<Inputs>({
     defaultValues: { name: '', chain: 'zksync-sepolia' },
@@ -88,10 +82,7 @@ export function CreateAccount({ onCreate }: CreateAccountScreenProps) {
               input: { name, chain, policies: Object.values(presets).map(asPolicyInput) },
             });
 
-            const account = r.data?.createAccount.address;
-            if (!account)
-              return showError('Failed to create account', { event: { error: r.error } });
-
+            const account = r.createAccount.address;
             if (onCreate) {
               onCreate(account);
             } else {

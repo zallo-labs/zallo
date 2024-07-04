@@ -3,7 +3,6 @@ import { useLinkApple } from '#/cloud/useLinkApple';
 import { ListItem } from '#/list/ListItem';
 import { Sheet } from '#/sheet/Sheet';
 import { withSuspense } from '#/skeleton/withSuspense';
-import { gql } from '@api';
 import {
   AppleBlackIcon,
   BluetoothIcon,
@@ -17,7 +16,6 @@ import {
 } from '@theme/icons';
 import { createStyles } from '@theme/styles';
 import { Divider, Text } from 'react-native-paper';
-import { useQuery } from '~/gql';
 import { Address, asAddress, asChain } from 'lib';
 import { useLinkZallo } from '~/app/(modal)/accounts/join';
 import { AccountParams } from '~/app/(nav)/[account]/_layout';
@@ -25,23 +23,26 @@ import { useLocalParams } from '~/hooks/useLocalParams';
 import { useRouter } from 'expo-router';
 import { useLinkLedger } from '#/link/ledger/LedgerItem';
 import { useSelectAddress } from '~/hooks/useSelectAddress';
+import { graphql } from 'relay-runtime';
+import { useLazyLoadQuery } from 'react-relay';
+import { addApprover_AddApproverSheetQuery } from '~/api/__generated__/addApprover_AddApproverSheetQuery.graphql';
 
-const Query = gql(/* GraphQL */ `
-  query AddApproverSheet {
+const Query = graphql`
+  query addApprover_AddApproverSheetQuery {
     user {
       id
-      ...useLinkApple_User
-      ...useLinkGoogle_User
+      ...useLinkApple_user
+      ...useLinkGoogle_user
     }
   }
-`);
+`;
 
 function AddApproverSheet() {
   const { account } = useLocalParams(AccountParams);
   const router = useRouter();
   const selectAddress = useSelectAddress();
 
-  const { user } = useQuery(Query).data;
+  const { user } = useLazyLoadQuery<addApprover_AddApproverSheetQuery>(Query, {});
 
   const linkZallo = useLinkZallo();
   const linkLedger = useLinkLedger();

@@ -1,27 +1,29 @@
 import { Text } from 'react-native-paper';
 import { Chevron } from './Chevron';
-import { FragmentType, gql, useFragment } from '@api/generated';
 import { Link } from 'expo-router';
 import { createStyles, useStyles } from '@theme/styles';
 import { AddressIcon } from './Identicon/AddressIcon';
 import { ICON_SIZE } from '@theme/paper';
 import { memo } from 'react';
 import { PressableOpacity } from './PressableOpacity';
+import { AccountSelector_account$key } from '~/api/__generated__/AccountSelector_account.graphql';
+import { graphql } from 'relay-runtime';
+import { useFragment } from 'react-relay';
 
-const FragmentDoc = gql(/* GraphQL */ `
-  fragment AccountSelector_Account on Account {
+const Account = graphql`
+  fragment AccountSelector_account on Account {
     id
     address
     name
   }
-`);
+`;
 
 export interface AccountSelectorParams {
-  account: FragmentType<typeof FragmentDoc>;
+  account: AccountSelector_account$key;
 }
 
 export function AccountSelector(props: AccountSelectorParams) {
-  const account = useFragment(FragmentDoc, props.account);
+  const account = useFragment(Account, props.account);
   const { styles } = useStyles(stylesheet);
 
   return (

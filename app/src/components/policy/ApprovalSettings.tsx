@@ -12,7 +12,7 @@ import { ThresholdChip } from './ThresholdChip';
 import { showInfo } from '#/provider/SnackbarProvider';
 import { useSelectAddress } from '~/hooks/useSelectAddress';
 import { useToggle } from '~/hooks/useToggle';
-import { usePolicyDraft } from '~/lib/policy/draft';
+import { usePolicyDraft } from '~/lib/policy/policyAsDraft';
 import { CORNER } from '@theme/paper';
 import { AddCircleIcon } from '#/AddCircleIcon';
 import { CollapsibleItemList } from '#/layout/CollapsibleItemList';

@@ -11,14 +11,15 @@ import { Sheet } from '#/sheet/Sheet';
 import { useLedger } from '~/hooks/ledger/useLedger';
 import { Result } from 'neverthrow';
 import { Button } from '#/Button';
-import { gql } from '@api/generated';
-import { useQuery } from '~/gql';
 import { TypedDataDefinition } from 'viem';
 import { z } from 'zod';
 import { useLocalParams } from '~/hooks/useLocalParams';
-import { Subject, firstValueFrom } from 'rxjs';
+import { Subject, firstValueFrom, skip } from 'rxjs';
 import { useGetEvent } from '~/hooks/useGetEvent';
 import { createStyles, useStyles } from '@theme/styles';
+import { graphql } from 'relay-runtime';
+import { useLazyLoadQuery } from 'react-relay';
+import { approve_LedgerApproveSheetQuery } from '~/api/__generated__/approve_LedgerApproveSheetQuery.graphql';
 
 const RejectedIcon = materialIcon('error-outline');
 
@@ -57,15 +58,15 @@ type PersonalMessage = string;
 const isPersonalMessage = (c: SignContent): c is PersonalMessage => typeof c === 'string';
 const isEip712Message = (c: SignContent): c is TypedDataDefinition => typeof c === 'object';
 
-const Query = gql(/* GraphQL */ `
-  query LedgerSignSheet($approver: Address!) {
-    approver(input: { address: $approver }) {
+const Query = graphql`
+  query approve_LedgerApproveSheetQuery($approver: Address!, $skip: Boolean!) {
+    approver(input: { address: $approver }) @skip(if: $skip) {
       id
-      name
-      ...UseLedger_UserApprover
+      label
+      ...useLedger_approver
     }
   }
-`);
+`;
 
 const LedgerApproveParams = z.object({
   device: z.string(),
@@ -76,11 +77,10 @@ export default function LedgerApproveSheet() {
   const params = useLocalParams(LedgerApproveParams);
   const { styles } = useStyles(stylesheet);
 
-  const approver = useQuery(
-    Query,
-    { approver: params.device as Address },
-    { pause: !isAddress(params.device) },
-  ).data?.approver;
+  const { approver } = useLazyLoadQuery<approve_LedgerApproveSheetQuery>(Query, {
+    approver: params.device as Address,
+    skip: !isAddress(params.device),
+  });
   const result = useLedger(approver ?? params.device);
 
   const content = useRef<SignContent | undefined>();
@@ -121,7 +121,7 @@ export default function LedgerApproveSheet() {
         <LedgerLogo style={styles.logo} />
 
         <Text variant="headlineSmall" style={styles.name}>
-          {approver?.name || params.name || params.device}
+          {approver?.label || params.name || params.device}
         </Text>
       </View>
 

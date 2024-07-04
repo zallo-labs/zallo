@@ -2,14 +2,16 @@ import Collapsible from 'react-native-collapsible';
 import { Chevron } from '#/Chevron';
 import { useToggle } from '~/hooks/useToggle';
 import { Divider } from 'react-native-paper';
-import { FragmentType, gql, useFragment } from '@api/generated';
 import { OtherPolicies } from './OtherPolicies';
 import { createStyles, useStyles } from '@theme/styles';
 import { PolicyItem } from '#/policy/PolicyItem';
 import { View } from 'react-native';
+import { graphql } from 'relay-runtime';
+import { useFragment } from 'react-relay';
+import { SelectedPolicy_proposal$key } from '~/api/__generated__/SelectedPolicy_proposal.graphql';
 
-const Proposal = gql(/* GraphQL */ `
-  fragment SelectedPolicy_Proposal on Proposal @argumentDefinitions(proposal: { type: "ID!" }) {
+const Proposal = graphql`
+  fragment SelectedPolicy_proposal on Proposal {
     id
     ... on Transaction {
       updatable
@@ -19,17 +21,17 @@ const Proposal = gql(/* GraphQL */ `
     }
     policy {
       id
-      ...PolicyItem_Policy
+      ...PolicyItem_policy
     }
     validationErrors {
       reason
     }
-    ...OtherPolicies_Proposal
+    ...OtherPolicies_proposal
   }
-`);
+`;
 
 export interface SelectedPolicyProps {
-  proposal: FragmentType<typeof Proposal>;
+  proposal: SelectedPolicy_proposal$key;
 }
 
 export function SelectedPolicy(props: SelectedPolicyProps) {

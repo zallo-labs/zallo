@@ -6,30 +6,24 @@ import {
   Store,
   UploadableMap,
   Variables,
-  FetchFunction,
-  GraphQLSingularResponse,
-  PayloadData,
-  PayloadError,
 } from 'relay-runtime';
 import {
   GraphQLResponseWithData,
   GraphQLResponseWithoutData,
-  PayloadExtensions,
 } from 'relay-runtime/lib/network/RelayNetworkTypes';
 import { Observable, map, of } from 'rxjs';
 
 export type OperationKind = 'query' | 'mutation' | 'subscription';
-export interface OperationRequest {
+export type Operation = RequestParameters & {
   kind: OperationKind;
-  operation: RequestParameters;
   variables: Variables;
   cacheConfig: CacheConfig;
   uploadables?: UploadableMap | null;
   fetchOptions: RequestInit;
-}
+};
 
 export type OperationResult = (GraphQLResponseWithData | GraphQLResponseWithoutData) & {
-  request: OperationRequest;
+  operation: Operation;
   response?: Response;
 };
 
@@ -37,7 +31,7 @@ interface ExchangeInput {
   forward: ExchangeIO;
 }
 export type Exchange = (input: ExchangeInput) => ExchangeIO;
-type ExchangeIO = (operations$: Observable<OperationRequest>) => Observable<OperationResult>;
+type ExchangeIO = (operations$: Observable<Operation>) => Observable<OperationResult>;
 
 export interface NetworkLayerOptions {
   exchanges: Exchange[];
@@ -47,32 +41,32 @@ export interface NetworkLayerOptions {
 export function createNetworkLayer({ exchanges }: NetworkLayerOptions) {
   const exchangeChain = composeExchanges(exchanges);
 
-  const execute = (request: OperationRequest) =>
+  const execute = (request: Operation) =>
     RelayObservable.from<OperationResult>(exchangeChain(of(request)));
 
   return Network.create(
-    (operation, variables, cacheConfig, uploadables) => {
-      return execute(buildRequest(operation, variables, cacheConfig, uploadables));
+    (requestParams, variables, cacheConfig, uploadables) => {
+      return execute(buildOperation(requestParams, variables, cacheConfig, uploadables));
     },
-    (operation, variables, cacheConfig) => {
-      return execute(buildRequest(operation, variables, cacheConfig));
+    (requestParams, variables, cacheConfig) => {
+      return execute(buildOperation(requestParams, variables, cacheConfig));
     },
   );
 }
 
-function buildRequest(
-  operation: RequestParameters,
+function buildOperation(
+  requestParams: RequestParameters,
   variables: Variables,
   cacheConfig: CacheConfig,
   uploadables?: UploadableMap | null,
-): OperationRequest {
+): Operation {
   return {
-    kind: operation.operationKind as OperationKind,
-    operation,
+    kind: requestParams.operationKind as OperationKind,
     variables,
     cacheConfig,
     uploadables,
     fetchOptions: {},
+    ...requestParams,
   };
 }
 

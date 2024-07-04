@@ -8,16 +8,20 @@ import {
   NotificationChannelConfig,
   useNotificationSettings,
 } from '#/NotificationSettings';
-import { gql } from '@api/generated';
-import { useQuery } from '~/gql';
-import { useMutation } from 'urql';
 import { retryAsync } from '~/util/retry';
+import { graphql } from 'relay-runtime';
+import { useLazyLoadQuery } from 'react-relay';
+import { NotificationsRegistrarQuery } from '~/api/__generated__/NotificationsRegistrarQuery.graphql';
+import { useMutation } from '~/api';
 
-const Query = gql(/* GraphQL */ `
-  query NotificationsRegistrar {
+const Query = graphql`
+  query NotificationsRegistrarQuery {
     approver {
       id
-      pushToken
+      details @required(action: NONE) {
+        id
+        pushToken
+      }
     }
 
     accounts {
@@ -27,16 +31,19 @@ const Query = gql(/* GraphQL */ `
       }
     }
   }
-`);
+`;
 
-const UpdatePushToken = gql(/* GraphQL */ `
-  mutation UpdatePushToken($pushToken: String) {
+const UpdatePushToken = graphql`
+  mutation NotificationsRegistrarMutation($pushToken: String) {
     updateApprover(input: { pushToken: $pushToken }) {
       id
-      pushToken
+      details {
+        id
+        pushToken
+      }
     }
   }
-`);
+`;
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -48,9 +55,9 @@ Notifications.setNotificationHandler({
 
 export const NotificationsRegistrar = () => {
   const channelEnabled = useNotificationSettings();
-  const updatePushToken = useMutation(UpdatePushToken)[1];
+  const updatePushToken = useMutation(UpdatePushToken);
 
-  const { approver, accounts } = useQuery(Query, {}).data;
+  const { approver, accounts } = useLazyLoadQuery<NotificationsRegistrarQuery>(Query, {});
 
   const hasPermission = Notifications.usePermissions()[0]?.granted;
 
@@ -86,7 +93,7 @@ export const NotificationsRegistrar = () => {
               })
             ).data;
 
-            if (pushToken !== approver?.pushToken) await updatePushToken({ pushToken });
+            if (pushToken !== approver?.details?.pushToken) await updatePushToken({ pushToken });
           },
           { delayMs: 2000 },
         );

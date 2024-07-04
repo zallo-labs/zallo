@@ -1,4 +1,3 @@
-import { FragmentType, gql, useFragment } from '@api';
 import { SearchIcon, materialCommunityIcon } from '@theme/icons';
 import { createStyles, useStyles } from '@theme/styles';
 import { Link } from 'expo-router';
@@ -8,31 +7,34 @@ import { ListHeader } from '#/list/ListHeader';
 import { ListItem } from '#/list/ListItem';
 import { OperationSection } from '#/transaction/OperationSection';
 import { ICON_SIZE } from '@theme/paper';
+import { graphql } from 'relay-runtime';
+import { OperationsSection_transaction$key } from '~/api/__generated__/OperationsSection_transaction.graphql';
+import { useFragment } from 'react-relay';
 
 const AlertIcon = materialCommunityIcon('alert-circle-outline');
 
-const Transaction = gql(/* GraphQL */ `
-  fragment OperationsSection_Transaction on Transaction {
+const Transaction = graphql`
+  fragment OperationsSection_transaction on Transaction {
     id
     operations {
-      ...OperationSection_Operation
+      ...OperationSection_operation
     }
     simulation {
       id
       success
       responses
     }
-    ...OperationSection_Transaction
+    ...OperationSection_transaction
   }
-`);
+`;
 
 export interface OperationsSectionProps {
-  proposal: FragmentType<typeof Transaction>;
+  transaction: OperationsSection_transaction$key;
 }
 
 export function OperationsSection(props: OperationsSectionProps) {
   const { styles } = useStyles(stylesheet);
-  const p = useFragment(Transaction, props.proposal);
+  const p = useFragment(Transaction, props.transaction);
 
   const simulatedErrorSelector =
     p.simulation?.responses.length &&
@@ -57,7 +59,7 @@ export function OperationsSection(props: OperationsSectionProps) {
       <ListHeader>Operations</ListHeader>
 
       {p.operations.map((operation, i) => (
-        <OperationSection key={i} proposal={p} operation={operation} />
+        <OperationSection key={i} transaction={p} operation={operation} />
       ))}
 
       {expectedFailureItem &&

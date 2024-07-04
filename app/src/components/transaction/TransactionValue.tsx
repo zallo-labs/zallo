@@ -1,9 +1,11 @@
-import { FragmentType, gql, useFragment } from '@api/generated';
+import { graphql } from 'relay-runtime';
 import { FiatValue } from '../FiatValue';
 import Decimal from 'decimal.js';
+import { useFragment } from 'react-relay';
+import { TransactionValue_transaction$key } from '~/api/__generated__/TransactionValue_transaction.graphql';
 
-const Transaction = gql(/* GraphQL */ `
-  fragment ProposalValue_Transaction on Transaction {
+const Transaction = graphql`
+  fragment TransactionValue_transaction on Transaction {
     id
     result {
       id
@@ -22,15 +24,15 @@ const Transaction = gql(/* GraphQL */ `
       }
     }
   }
-`);
+`;
 
-export interface ProposalValueProps {
-  proposal: FragmentType<typeof Transaction>;
+export interface TransactionValueProps {
+  transaction: TransactionValue_transaction$key;
   hideZero?: boolean;
 }
 
-export function ProposalValue(props: ProposalValueProps) {
-  const p = useFragment(Transaction, props.proposal);
+export function TransactionValue(props: TransactionValueProps) {
+  const p = useFragment(Transaction, props.transaction);
 
   const transfers = [...(p.result?.transfers ?? p.simulation?.transfers ?? [])].filter(
     (t) => !t.isFeeTransfer,

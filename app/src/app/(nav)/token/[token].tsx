@@ -1,5 +1,4 @@
 import { Link, useRouter } from 'expo-router';
-import { gql } from '@api/generated';
 import { Image } from '#/Image';
 import { asAddress, asChain, tryOrIgnore } from 'lib';
 import { useForm } from 'react-hook-form';
@@ -8,8 +7,6 @@ import { FormTextField } from '#/fields/FormTextField';
 import { Actions } from '#/layout/Actions';
 import { AppbarMore } from '#/Appbar/AppbarMore';
 import { Menu } from 'react-native-paper';
-import { useQuery } from '~/gql';
-import { useMutation } from 'urql';
 import { useConfirmRemoval } from '~/hooks/useConfirm';
 import { AppbarOptions } from '#/Appbar/AppbarOptions';
 import { withSuspense } from '#/skeleton/withSuspense';
@@ -26,11 +23,15 @@ import { createStyles } from '@theme/styles';
 import { Button } from '#/Button';
 import { ExternalLinkIcon, GenericTokenIcon } from '@theme/icons';
 import { ICON_SIZE } from '@theme/paper';
+import { graphql } from 'relay-runtime';
+import { useMutation } from '~/api';
+import { useLazyLoadQuery } from 'react-relay';
+import { TokenScreenQuery } from '~/api/__generated__/TokenScreenQuery.graphql';
 
 const PYTH_PRICE_FEEDS_URL = 'https://pyth.network/developers/price-feed-ids';
 
-const Query = gql(/* GraphQL */ `
-  query TokenScreen($token: UAddress!) {
+const Query = graphql`
+  query TokenScreenQuery($token: UAddress!) {
     token(address: $token) {
       id
       address
@@ -49,10 +50,10 @@ const Query = gql(/* GraphQL */ `
       pythUsdPriceId
     }
   }
-`);
+`;
 
-const UpsertToken = gql(/* GraphQL */ `
-  mutation TokenScreenUpsert($input: UpsertTokenInput!) {
+const UpsertToken = graphql`
+  mutation TokenScreen_upsertMutation($input: UpsertTokenInput!) {
     upsertToken(input: $input) {
       id
       name
@@ -61,13 +62,13 @@ const UpsertToken = gql(/* GraphQL */ `
       pythUsdPriceId
     }
   }
-`);
+`;
 
-const RemoveToken = gql(/* GraphQL */ `
-  mutation TokenScreenRemoval($token: UAddress!) {
+const RemoveToken = graphql`
+  mutation TokenScreen_removeMutation($token: UAddress!) {
     removeToken(address: $token)
   }
-`);
+`;
 
 const scheme = z.object({
   name: z.string().min(1),
@@ -81,13 +82,13 @@ const TokenScreenParams = z.object({ token: zUAddress() });
 function TokenScreen_() {
   const { token } = useLocalParams(TokenScreenParams);
   const router = useRouter();
-  const upsert = useMutation(UpsertToken)[1];
-  const remove = useMutation(RemoveToken)[1];
+  const upsert = useMutation(UpsertToken);
+  const remove = useMutation(RemoveToken);
   const confirmRemoval = useConfirmRemoval({
     message: 'Are you sure you want to remove this token?',
   });
 
-  const query = useQuery(Query, { token }).data ?? {};
+  const query = useLazyLoadQuery<TokenScreenQuery>(Query, { token });
 
   const t = query.token ?? query.metadata;
   const { control, handleSubmit, watch, reset } = useForm<z.infer<typeof scheme>>({

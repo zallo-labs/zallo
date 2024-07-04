@@ -15,12 +15,24 @@ import { useMemo } from 'react';
 import { withSuspense } from '#/skeleton/withSuspense';
 import { ScreenSkeleton } from '#/skeleton/ScreenSkeleton';
 import { ScreenSurface } from '#/layout/ScreenSurface';
+import { graphql } from 'relay-runtime';
+import { useLazyLoadQuery } from 'react-relay';
+import { link_LinkLedgerScreenQuery } from '~/api/__generated__/link_LinkLedgerScreenQuery.graphql';
+
+const Query = graphql`
+  query link_LinkLedgerScreenQuery {
+    user {
+      ...LedgerItem_user
+    }
+  }
+`;
 
 function LinkLedgerScreen() {
   const [hasPermission, requestPermissions] = useBluetoothPermissions();
-
   const devices =
     useObservable(useMemo(() => (hasPermission ? bleDevices() : null), [hasPermission])) ?? ok([]);
+
+  const { user } = useLazyLoadQuery<link_LinkLedgerScreenQuery>(Query, {});
 
   return (
     <>
@@ -43,7 +55,7 @@ function LinkLedgerScreen() {
                 Available devices
               </ListHeader>
             }
-            renderItem={({ item }) => <LedgerItem device={item} />}
+            renderItem={({ item }) => <LedgerItem device={item} user={user} />}
             contentContainerStyle={styles.listContainer}
             keyExtractor={(d) => d.id}
           />
