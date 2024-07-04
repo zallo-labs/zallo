@@ -3,16 +3,6 @@ import { GraphQLMAC } from 'graphql-scalars';
 import { Address } from 'lib';
 import { AddressField } from '~/common/scalars/Address.scalar';
 import { NodeType, Node } from '~/common/decorators/interface.decorator';
-import * as eql from '~/edgeql-interfaces';
-
-@NodeType()
-export class Approver extends Node implements Partial<eql.Approver> {
-  @AddressField()
-  address: Address;
-
-  @Field(() => String, { nullable: true })
-  label?: string;
-}
 
 export enum CloudProvider {
   Apple = 'Apple',
@@ -30,7 +20,7 @@ export class Cloud {
 }
 
 @NodeType()
-export class UserApprover extends Approver {
+export class ApproverDetails {
   @Field(() => String, { nullable: true })
   name?: string;
 
@@ -42,4 +32,16 @@ export class UserApprover extends Approver {
 
   @Field(() => Cloud, { nullable: true })
   cloud?: Cloud;
+}
+
+@NodeType()
+export class Approver extends Node {
+  @AddressField()
+  address: Address;
+
+  @Field(() => String, { nullable: true })
+  label?: string;
+
+  @Field(() => ApproverDetails, { nullable: true })
+  details?: ApproverDetails;
 }

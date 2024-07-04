@@ -235,8 +235,8 @@ export class TransfersEvents {
         filter_single: { address: account },
         name: true,
         approvers: e.select(a.approvers, (approver) => ({
-          filter: e.op('exists', approver.pushToken),
-          pushToken: approver.pushToken,
+          filter: e.op('exists', approver.details.pushToken),
+          pushToken: approver.details.pushToken,
           fromLabel: e.labelForUser(from, approver.user),
           token: e.select(e.tokenForUser(token, approver.user), () => ({
             symbol: true,

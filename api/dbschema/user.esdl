@@ -9,31 +9,42 @@ module default {
   scalar type MAC extending str { constraint regexp(r'^([0-9A-F]{2}[:-]){5}([0-9A-F]{2})$'); }
   scalar type CloudProvider extending enum<'Apple', 'Google'>;
 
+  type ApproverDetails {
+    required user: User {
+      default := (insert User {});
+      on source delete delete target if orphan;
+    }
+    name: BoundedStr;
+    pushToken: str;
+    bluetoothDevices: array<MAC>;
+    cloud: tuple<provider: CloudProvider, subject: str>;
+
+    access policy user_select_insert_update
+      allow select, insert, update
+      using (.user ?= global current_user);
+  }
+
   type Approver {
     required address: Address { constraint exclusive; }
     required user: User {
       default := (insert User {});
       on source delete delete target if orphan;
     }
-    name: BoundedStr;
-    label := .name ?? .labelled.name;
+    details: ApproverDetails { 
+      constraint exclusive;
+      on source delete delete target;
+    }
+    label := .details.name ?? .labelled.name;
     labelled := assert_single((
       with addr := .address
       select Labelled filter as_address(.address) = addr order by [is UserLabelled] limit 1
     ));
-    pushToken: str;
-    bluetoothDevices: array<MAC>;
-    cloud: tuple<provider: CloudProvider, subject: str>;
     link accounts := (select Account filter __source__ in .approvers);
 
     constraint exclusive on ((.user, .address));
 
     access policy anyone_select_insert
       allow select, insert;
-
-    access policy user_select_update
-      allow select, update
-      using (.user ?= global current_user);
   }
 
   type Token extending UserLabelled {

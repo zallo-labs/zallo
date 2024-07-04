@@ -118,15 +118,19 @@ export namespace $default {
   }
   export type ApprovalIssue = "HashMismatch" | "Expired";
   export interface Approver extends std.$Object {
-    "bluetoothDevices"?: string[] | null;
     "address": string;
-    "cloud"?: {provider: CloudProvider, subject: string} | null;
-    "name"?: string | null;
-    "pushToken"?: string | null;
     "user": User;
     "labelled"?: Labelled | null;
-    "label"?: string | null;
     "accounts": Account[];
+    "details"?: ApproverDetails | null;
+    "label"?: string | null;
+  }
+  export interface ApproverDetails extends std.$Object {
+    "user": User;
+    "name"?: string | null;
+    "bluetoothDevices"?: string[] | null;
+    "cloud"?: {provider: CloudProvider, subject: string} | null;
+    "pushToken"?: string | null;
   }
   export type CloudProvider = "Apple" | "Google";
   export interface UserLabelled extends Labelled {}
@@ -326,6 +330,7 @@ import ProposalResponse = $default.ProposalResponse;
 import Approval = $default.Approval;
 import ApprovalIssue = $default.ApprovalIssue;
 import Approver = $default.Approver;
+import ApproverDetails = $default.ApproverDetails;
 import CloudProvider = $default.CloudProvider;
 import UserLabelled = $default.UserLabelled;
 import Contact = $default.Contact;
@@ -371,6 +376,7 @@ export type {
   Approval,
   ApprovalIssue,
   Approver,
+  ApproverDetails,
   CloudProvider,
   UserLabelled,
   Contact,
@@ -677,6 +683,7 @@ export interface types {
     "Approval": $default.Approval;
     "ApprovalIssue": $default.ApprovalIssue;
     "Approver": $default.Approver;
+    "ApproverDetails": $default.ApproverDetails;
     "CloudProvider": $default.CloudProvider;
     "UserLabelled": $default.UserLabelled;
     "Contact": $default.Contact;

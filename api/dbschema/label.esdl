@@ -40,7 +40,7 @@ module default {
          label := assert_single((select Labelled filter .address = address order by [is UserLabelled] limit 1)).name,
         #  userLabel := (select UserLabelled filter .address = address and .user = user).label,
         #  globalLabel := (select GlobalLabel filter .address = address).label,
-         approverLabel := (select Approver filter .address = as_address(address)).name
+         approverLabel := (select Approver filter .address = as_address(address)).details.name
     select (label ?? approverLabel)
   );
 }

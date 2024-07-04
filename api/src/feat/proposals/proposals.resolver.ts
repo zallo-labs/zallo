@@ -46,7 +46,7 @@ export class ProposalsResolver {
       info: GraphQLResolveInfo,
     ) {
       return asUser(ctx, async () => ({
-        id,
+        id: `${id}:${event}`,
         account,
         event,
         proposal: await this.service.selectUnique(id, (p) => getShape(info)(p, 'proposal')),

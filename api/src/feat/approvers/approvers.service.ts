@@ -5,7 +5,6 @@ import { ShapeFunc } from '~/core/database';
 import e from '~/edgeql-js';
 import { getUserCtx } from '~/core/context';
 import { UpdateApproverInput } from './approvers.input';
-import { and } from '~/core/database';
 
 @Injectable()
 export class ApproversService {
@@ -20,8 +19,8 @@ export class ApproversService {
       ({ address }) =>
         e.assert_single(
           e.select(e.Approver, (a) => ({
+            filter_single: { address },
             ...shape?.(a),
-            filter: and(e.op(a.address, '=', address), e.op(e.global.current_user, '=', a.user)),
           })),
         ),
       { address },
@@ -38,8 +37,7 @@ export class ApproversService {
     cloud,
   }: UpdateApproverInput) {
     return this.db.query(
-      e.update(e.Approver, () => ({
-        filter_single: { address },
+      e.update(e.select(e.Approver, () => ({ filter_single: { address } })).details, () => ({
         set: {
           name,
           pushToken,

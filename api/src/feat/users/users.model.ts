@@ -1,6 +1,6 @@
 import { Field } from '@nestjs/graphql';
 import { Contact } from '../contacts/contacts.model';
-import { UserApprover } from '../approvers/approvers.model';
+import { Approver } from '../approvers/approvers.model';
 import { Account } from '~/feat/accounts/accounts.model';
 import {
   CustomNode,
@@ -16,8 +16,8 @@ export class User extends Node {
   @Field(() => Account, { nullable: true })
   primaryAccount?: Account;
 
-  @Field(() => [UserApprover])
-  approvers: UserApprover[];
+  @Field(() => [Approver])
+  approvers: Approver[];
 
   @Field(() => [Contact])
   contacts: Contact[];

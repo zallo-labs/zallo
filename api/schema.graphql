@@ -123,8 +123,17 @@ input ApproveInput {
 
 type Approver implements Node {
   address: Address!
+  details: ApproverDetails
   id: ID!
   label: String
+}
+
+type ApproverDetails implements Node {
+  bluetoothDevices: [MAC!]
+  cloud: Cloud
+  id: ID!
+  name: String
+  pushToken: String
 }
 
 input ApproverInput {
@@ -364,7 +373,7 @@ type Mutation {
   removeTransaction(input: UniqueProposalInput!): ID
   requestTokens(input: RequestTokensInput!): [Address!]!
   updateAccount(input: UpdateAccountInput!): Account!
-  updateApprover(input: UpdateApproverInput!): UserApprover!
+  updateApprover(input: UpdateApproverInput!): Approver!
   updatePolicies(input: UpdatePoliciesInput!): [Policy!]!
   updatePolicy(input: UpdatePolicyInput!): UpdatePolicyResponse!
   updateProposal(input: UpdateProposalInput!): Proposal!
@@ -596,7 +605,7 @@ input ProposeTransactionInput {
 type Query {
   account(input: AccountInput! = {}): Account
   accounts(input: AccountsInput! = {}): [Account!]!
-  approver(input: ApproverInput! = {}): UserApprover!
+  approver(input: ApproverInput! = {}): Approver!
   contact(input: ContactInput!): Contact
   contacts(input: ContactsInput! = {}): [Contact!]!
   contract(input: ContractInput!): Contract
@@ -1087,21 +1096,11 @@ input UpsertTokenInput {
 }
 
 type User implements Node {
-  approvers: [UserApprover!]!
+  approvers: [Approver!]!
   contacts: [Contact!]!
   id: ID!
   linkingToken: String!
   primaryAccount: Account
-}
-
-type UserApprover implements Node {
-  address: Address!
-  bluetoothDevices: [MAC!]
-  cloud: Cloud
-  id: ID!
-  label: String
-  name: String
-  pushToken: String
 }
 
 type UserLinked implements CustomNode {

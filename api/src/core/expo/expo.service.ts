@@ -23,7 +23,7 @@ export class ExpoService {
 
     if (tokensToRemove.length) {
       await e
-        .update(e.Approver, (a) => ({
+        .update(e.ApproverDetails, (a) => ({
           filter: e.op(a.pushToken, 'in', e.set(...tokensToRemove)),
           set: { pushToken: null },
         }))
