@@ -20,8 +20,8 @@ const Account = graphql`
     proposals(input: { pending: true }) {
       __typename
       id
-      ...TransactionItem_transaction
-      ...MessageItem_message
+      ...TransactionItem_transaction @alias
+      ...MessageItem_message @alias
     }
   }
 `;
@@ -65,12 +65,26 @@ export function ActivitySection(props: ActivitySectionProps) {
 
       {proposals.slice(0, VISIBLE_PROPOSALS).map((proposal) =>
         match(proposal)
-          .with({ __typename: 'Transaction' }, (t) => (
-            <TransactionItem key={t.id} transaction={t} user={user} containerStyle={styles.item} />
-          ))
-          .with({ __typename: 'Message' }, (m) => (
-            <MessageItem key={m.id} message={m} user={user} containerStyle={styles.item} />
-          ))
+          .with({ __typename: 'Transaction' }, (t) =>
+            t.TransactionItem_transaction ? (
+              <TransactionItem
+                key={t.id}
+                transaction={t.TransactionItem_transaction}
+                user={user}
+                containerStyle={styles.item}
+              />
+            ) : null,
+          )
+          .with({ __typename: 'Message' }, (m) =>
+            m.MessageItem_message ? (
+              <MessageItem
+                key={m.id}
+                message={m.MessageItem_message}
+                user={user}
+                containerStyle={styles.item}
+              />
+            ) : null,
+          )
           .otherwise(() => {
             throw new Error('Unexpected item type');
           }),

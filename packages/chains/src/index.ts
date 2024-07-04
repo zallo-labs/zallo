@@ -1,10 +1,10 @@
-import * as viem from 'viem';
+import * as viem_ from 'viem';
 import * as viemChain from 'viem/chains';
 
 export type Chain = keyof typeof CHAINS; // shortName https://eips.ethereum.org/EIPS/eip-3770
 export type ChainConfig = (typeof CHAINS)[Chain];
-export type Network = viem.PublicClient<viem.Transport, ChainConfig>;
-export type NetworkWallet = viem.WalletClient<viem.Transport, ChainConfig, viem.Account>;
+export type Network = viem_.PublicClient<viem_.Transport, ChainConfig>;
+export type NetworkWallet = viem_.WalletClient<viem_.Transport, ChainConfig, viem_.Account>;
 
 export const CHAINS = {
   zksync: {

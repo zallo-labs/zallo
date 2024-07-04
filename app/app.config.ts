@@ -91,6 +91,8 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
         // SENTRY_AUTH_TOKEN read directly from ENV
       },
     ],
+    'expo-asset',
+    'expo-secure-store',
     'expo-camera',
     'react-native-ble-plx',
     [
@@ -172,6 +174,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   },
   experiments: {
     typedRoutes: true,
+    // reactCompiler: true,
   },
   updates: {
     url: `https://u.expo.dev/${PROJECT_ID}`,

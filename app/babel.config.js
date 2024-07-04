@@ -6,10 +6,16 @@ const projectRoot = __dirname;
 module.exports = function (api) {
   api.cache(true);
   return {
-    presets: ['babel-preset-expo'],
+    presets: [
+      [
+        'babel-preset-expo',
+        // { 'react-compiler': { runtimeModule: 'react-compiler-runtime' } },
+      ],
+    ],
     plugins: [
       '@babel/plugin-transform-flow-strip-types', // Must proceed other @babel plugins - https://github.com/facebook/react-native/issues/36828
       ['@babel/plugin-transform-private-methods', { loose: true }], // Required by ethers
+      // ['babel-plugin-react-compiler', { runtimeModule: 'react-compiler-runtime' }],
       [
         'module-resolver',
         {
@@ -30,7 +36,6 @@ module.exports = function (api) {
         },
       ],
       ['relay', { artifactDirectory: './src/api/__generated__' }],
-      ['babel-plugin-react-compiler', { runtimeModule: 'react-compiler-runtime' }],
       'formatjs',
       'lodash',
       // reanimated

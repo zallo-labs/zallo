@@ -39,7 +39,7 @@ const Query = graphql`
         transfers {
           __typename
           id
-          ...IncomingTransferItem_transfer
+          ...IncomingTransferItem_transfer @alias
         }
       }
     }

@@ -33,7 +33,7 @@ const Proposal = graphql`
     }
     approvals {
       id
-      approver @required(action: THROW) {
+      approver {
         id
         address
       }
@@ -73,7 +73,7 @@ const Query = graphql`
       }
       approvals {
         id
-        approver @required(action: THROW) {
+        approver {
           id
           address
         }

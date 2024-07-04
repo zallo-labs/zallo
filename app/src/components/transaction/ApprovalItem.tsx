@@ -23,7 +23,7 @@ const Approval = graphql`
     createdAt
     approver {
       id
-      address @required(action: THROW)
+      address
     }
   }
 `;

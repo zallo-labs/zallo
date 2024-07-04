@@ -96,12 +96,24 @@ function ActivityPane_() {
           ];
 
           return match(item)
-            .with({ __typename: 'Transaction' }, (t) => (
-              <TransactionItem transaction={t} user={user} containerStyle={containerStyle} />
-            ))
-            .with({ __typename: 'Message' }, (m) => (
-              <MessageItem message={m} user={user} containerStyle={containerStyle} />
-            ))
+            .with({ __typename: 'Transaction' }, (t) =>
+              t.TransactionItem_transaction ? (
+                <TransactionItem
+                  transaction={t.TransactionItem_transaction}
+                  user={user}
+                  containerStyle={containerStyle}
+                />
+              ) : null,
+            )
+            .with({ __typename: 'Message' }, (m) =>
+              m.MessageItem_message ? (
+                <MessageItem
+                  message={m.MessageItem_message}
+                  user={user}
+                  containerStyle={containerStyle}
+                />
+              ) : null,
+            )
             .with({ __typename: 'Transfer' }, (t) => (
               <IncomingTransferItem transfer={t as any} containerStyle={containerStyle} />
             ))

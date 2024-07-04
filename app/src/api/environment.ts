@@ -17,13 +17,13 @@ import { missingFieldHandlers } from './field-handlers';
 
 RelayFeatureFlags.ENABLE_FIELD_ERROR_HANDLING_THROW_BY_DEFAULT = true;
 
-const environment = atom(async (get) => {
+const environmentAtom = atom(async (get) => {
   const approver = get(DANGEROUS_approverAtom);
   return await getEnvironment({ key: 'main', approver, persist: true });
 });
 
 export function useApiEnvironment() {
-  return useAtomValue(environment);
+  return useAtomValue(environmentAtom);
 }
 
 const approverEnvironment = atomFamily(
@@ -45,16 +45,23 @@ export interface EnvironmentConfig {
   persist?: boolean;
 }
 
-async function getEnvironment({ key, approver, persist }: EnvironmentConfig) {
+let environment: Environment | undefined;
+export async function getEnvironment({ key, approver, persist }: EnvironmentConfig) {
+  if (environment) return environment;
+
   const [initialRecords, authManager] = await Promise.all([
-    persist ? await restoreRelayRecords(key) : new RecordSource(),
+    persist ? restoreRelayRecords(key) : new RecordSource(),
     getAuthManager(approver),
   ]);
 
+  if (environment) return environment;
+
   const store = new Store(initialRecords, {
-    gcReleaseBufferSize: 50, // gc exempt queries
-    queryCacheExpirationTime: 5 * 60_000,
-    gcScheduler: (run) => InteractionManager.runAfterInteractions(run),
+    gcReleaseBufferSize: 100, // gc exempt queries
+    queryCacheExpirationTime: 10 * 60_000,
+    gcScheduler: (run) => {
+      InteractionManager.runAfterInteractions(run);
+    },
   });
 
   const network = createNetworkLayer({
@@ -89,11 +96,14 @@ async function getEnvironment({ key, approver, persist }: EnvironmentConfig) {
     ],
   });
 
-  const environment = new Environment({
+  console.trace('creating environment');
+
+  environment = new Environment({
     configName: key,
     network,
     store,
     missingFieldHandlers,
+    // UNSTABLE_defaultRenderPolicy: 'full',
   });
 
   return environment;

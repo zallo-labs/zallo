@@ -96,11 +96,7 @@ function TransactionScreen() {
   const { id } = useLocalParams(TransactionScreenParams);
 
   // Extract account from Transaction result, and use it as a variable to get the full result
-  const query = useLazyLoadQuery<Id_TransactionScreenQuery>(
-    Query,
-    { transaction: id },
-    { UNSTABLE_renderPolicy: 'full' },
-  );
+  const query = useLazyLoadQuery<Id_TransactionScreenQuery>(Query, { transaction: id });
   // const p = useFragment<Id_TransactionScreen_transaction$key>(Transaction, query.transaction);
   const p = query.transaction;
   const remove = useRemoveTransaction(p);
@@ -145,9 +141,9 @@ function TransactionScreen() {
           <TransactionActions transaction={p} user={query.user} />
         </ScrollableScreenSurface>
 
-        {/* <SideSheet headline="Approvals">
+        <SideSheet headline="Approvals">
           <ProposalApprovals proposal={id} />
-        </SideSheet> */}
+        </SideSheet>
       </SideSheetLayout>
     </>
   );

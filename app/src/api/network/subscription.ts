@@ -1,8 +1,9 @@
-import { GraphQLResponse } from 'relay-runtime';
+import { GraphQLResponse, PayloadError } from 'relay-runtime';
 import { Client as WebsocketClient } from 'graphql-ws';
 import { Observable, filter, merge, mergeMap } from 'rxjs';
 import { Exchange, OperationResult } from './layer';
 import { OperationError } from './OperationError';
+import { PayloadExtensions } from 'relay-runtime/lib/network/RelayNetworkTypes';
 
 export function subscriptionExchange(client: WebsocketClient): Exchange {
   return ({ forward }) =>
@@ -20,7 +21,13 @@ export function subscriptionExchange(client: WebsocketClient): Exchange {
               {
                 next(value) {
                   console.log('SUBSCRIPTION NEXT', { value });
-                  sink.next({ errors: [], operation: op, ...value, data: value.data || undefined });
+                  sink.next({
+                    operation: op,
+                    ...value,
+                    data: value.data || undefined,
+                    errors: (value.errors as PayloadError[] | undefined) ?? [],
+                    extensions: value.extensions as PayloadExtensions,
+                  });
                   // if (value.data) {
                   //   if (Array.isArray(value.data)) {
                   //     (value.data as GraphQLSingularResponse[]).forEach((r) =>

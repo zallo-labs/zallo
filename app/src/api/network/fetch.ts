@@ -73,5 +73,5 @@ async function extractData(response: Response) {
   if (response.headers.get('content-type')?.includes('application/json'))
     return (await response.json()) as GraphQLSingularResponse;
 
-  return (await JSON.parse(response.text())) as GraphQLSingularResponse;
+  return JSON.parse(await response.text()) as GraphQLSingularResponse;
 }

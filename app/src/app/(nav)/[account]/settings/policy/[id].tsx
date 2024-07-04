@@ -24,13 +24,13 @@ const Query = graphql`
 
     policy: node(id: $policy) @include(if: $includePolicy) {
       __typename
-      ... on Policy {
+      ... on Policy @alias(as: "policy") {
         id
         key
         name
         ...policyAsDraft_policy
       }
-      ...PolicyPane_policy
+      ...PolicyPane_policy @alias
     }
 
     user {

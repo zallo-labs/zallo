@@ -1,5 +1,5 @@
 import { useApproverAddress } from '~/lib/network/useApprover';
-import { Address, asMessageTypedData } from 'lib';
+import { Address, asMessageTypedData, asUUID } from 'lib';
 import { match } from 'ts-pattern';
 import { showError } from '#/provider/SnackbarProvider';
 import { proposalAsTypedData } from '~/lib/proposalAsTypedData';
@@ -19,6 +19,13 @@ import { useApprove_proposal$key } from '~/api/__generated__/useApprove_proposal
 import { useMutation } from '~/api';
 import { useApprove_approveMessageMutation } from '~/api/__generated__/useApprove_approveMessageMutation.graphql';
 import { useApprove_approveTransactionMutation } from '~/api/__generated__/useApprove_approveTransactionMutation.graphql';
+import { v4 as uuid } from 'uuid';
+
+graphql`
+  fragment useApprove_assignable_approval on Approval @assignable {
+    __typename
+  }
+`;
 
 const User = graphql`
   fragment useApprove_user on User {
@@ -54,9 +61,10 @@ const Proposal = graphql`
     }
     approvals {
       id
-      approver @required(action: THROW) {
+      approver {
         id
       }
+      ...useApprove_assignable_approval
     }
     ... on Transaction {
       updatable
@@ -66,12 +74,14 @@ const Proposal = graphql`
       message
       typedData
     }
-    ...proposalAsTypedData_Transaction
+    ... on Transaction @alias(as: "proposalAsTypedData") {
+      ...proposalAsTypedData_Transaction
+    }
   }
 `;
 
 const ApproveTransaction = graphql`
-  mutation useApprove_approveTransactionMutation($input: ApproveInput!) {
+  mutation useApprove_approveTransactionMutation($input: ApproveInput!) @raw_response_type {
     approveTransaction(input: $input) {
       __typename
       id
@@ -79,7 +89,6 @@ const ApproveTransaction = graphql`
         id
         approver {
           id
-          address
         }
       }
       rejections {
@@ -90,7 +99,7 @@ const ApproveTransaction = graphql`
 `;
 
 const ApproveMessage = graphql`
-  mutation useApprove_approveMessageMutation($input: ApproveInput!) {
+  mutation useApprove_approveMessageMutation($input: ApproveInput!) @raw_response_type {
     approveMessage(input: $input) {
       __typename
       id
@@ -98,7 +107,6 @@ const ApproveMessage = graphql`
         id
         approver {
           id
-          address
         }
       }
       rejections {
@@ -120,8 +128,30 @@ export function useApprove(params: UseApproveParams) {
   const device = useApproverAddress();
   const signWithDevice = useSignWithApprover();
   const getLedgerApprover = useGetLedgerApprover();
-  const approveTransaction = useMutation<useApprove_approveTransactionMutation>(ApproveTransaction);
-  const approveMessage = useMutation<useApprove_approveMessageMutation>(ApproveMessage);
+  const userApprover = user.approvers.find((a) => a.address === approver);
+  const approveTransaction = useMutation<useApprove_approveTransactionMutation>(
+    ApproveTransaction,
+    {
+      optimisticResponse: userApprover && {
+        approveTransaction: {
+          __typename: 'Transaction',
+          id: p.id,
+          approvals: [...p.approvals, { id: asUUID(uuid()), approver: { id: userApprover.id } }],
+          rejections: p.approvals.filter((a) => a.approver.id !== userApprover.id),
+        },
+      },
+    },
+  );
+  const approveMessage = useMutation<useApprove_approveMessageMutation>(ApproveMessage, {
+    optimisticResponse: userApprover && {
+      approveMessage: {
+        __typename: 'Message',
+        id: p.id,
+        approvals: [...p.approvals, { id: asUUID(uuid()), approver: { id: userApprover.id } }],
+        rejections: p.approvals.filter((a) => a.approver.id !== userApprover.id),
+      },
+    },
+  });
   const getGoogleApprover = useGetGoogleApprover();
   const getAppleApprover = useGetAppleApprover();
   const deviceApprover = useApproverAddress();
@@ -129,31 +159,37 @@ export function useApprove(params: UseApproveParams) {
 
   console.log({ useApprove: p });
 
-  const userApprover = user.approvers.find((a) => a.address === approver);
   const canApprove =
     p.updatable &&
     !!userApprover &&
     p.policy.approvers.some((a) => a.id === userApprover.id) &&
     !p.approvals.some((a) => a.approver.id === userApprover.id);
 
-  const proposalData: TypedDataDefinition = useMemo(
-    () =>
-      p.__typename === 'Transaction'
-        ? proposalAsTypedData(p)
-        : asMessageTypedData(
-            p.account!.address,
-            p.typedData ? hashTypedData(p.typedData) : hashMessage(p.message!),
-          ),
-    [p],
-  );
-
-  if (!userApprover || !p.updatable || !canApprove) return undefined;
+  const proposalData: TypedDataDefinition | undefined =
+    p.__typename === 'Transaction'
+      ? p.proposalAsTypedData
+        ? proposalAsTypedData(p.proposalAsTypedData)
+        : undefined
+      : asMessageTypedData(
+          p.account!.address,
+          p.typedData ? hashTypedData(p.typedData) : hashMessage(p.message!),
+        );
+  if (!userApprover || !p.updatable || !canApprove || !proposalData) return undefined;
 
   const approve = async (method: ApprovalProperties['method'], input: Omit<ApproveInput, 'id'>) => {
     hapticFeedback('neutral');
 
     const mutation = p.__typename === 'Transaction' ? approveTransaction : approveMessage;
-    const r = await mutation({ input: { ...input, id: p.id } });
+    const r = await mutation(
+      { input: { ...input, id: p.id } },
+      {
+        // updater: (store, data) => {
+        //   if (!data) return;
+        //   const p = 'approveTransaction' in data ? data.approveTransaction : data.approveMessage;
+        //   p.
+        // },
+      },
+    );
 
     const type = p.__typename === 'Transaction' ? 'Transaction' : 'Message';
     ampli.approval({ method, type });

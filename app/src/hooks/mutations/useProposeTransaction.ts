@@ -6,20 +6,6 @@ import {
   useProposeTransactionMutation,
 } from '~/api/__generated__/useProposeTransactionMutation.graphql';
 
-// graphql`
-//   fragment useProposeTransaction_assignable_proposal on Proposal @assignable {
-//     __typename
-//   }
-// `;
-
-// const Account = graphql`
-//   fragment useProposeTransaction_account on Account {
-//     proposals {
-//       ...useProposeTransaction_assignable_proposal
-//     }
-//   }
-// `;
-
 const Propose = graphql`
   mutation useProposeTransactionMutation($input: ProposeTransactionInput!) {
     proposeTransaction(input: $input) {
@@ -31,9 +17,7 @@ const Propose = graphql`
   }
 `;
 
-export interface UseProposeTransactionMutationParams {
-  // query: useProposeTransaction_account$key;
-}
+export interface UseProposeTransactionMutationParams {}
 
 export function useProposeTransaction() {
   const propose = useMutation<useProposeTransactionMutation>(Propose, {
