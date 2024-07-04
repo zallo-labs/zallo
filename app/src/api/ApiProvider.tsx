@@ -3,7 +3,6 @@ import { RelayEnvironmentProvider } from 'react-relay';
 import { useApiEnvironment } from './environment';
 import { withSuspense } from '#/skeleton/withSuspense';
 import { Splash } from '#/Splash';
-import { RelayStorePersistor } from './RelayStorePersistor';
 
 export interface ApiProviderProps {
   children: ReactNode;
@@ -12,7 +11,6 @@ export interface ApiProviderProps {
 function ApiProvider_({ children }: ApiProviderProps) {
   return (
     <RelayEnvironmentProvider environment={useApiEnvironment()}>
-      <RelayStorePersistor />
       {children}
     </RelayEnvironmentProvider>
   );

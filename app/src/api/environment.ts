@@ -1,40 +1,96 @@
 import { Environment, RecordSource, Store } from 'relay-runtime';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { PrivateKeyAccount } from 'viem';
-import { getRelayNetwork } from './network';
 import { atom, useAtomValue } from 'jotai';
 import { DANGEROUS_approverAtom } from '@network/useApprover';
 import { InteractionManager } from 'react-native';
-
-export const RELAY_STORE_KEY = 'relay';
+import { restoreRelayRecords } from './persist';
+import { atomFamily } from 'jotai/utils';
+import { createNetworkLayer } from './network/layer';
+import { fetchExchange } from './network/fetch';
+import { CONFIG } from '~/util/config';
+import { createClient } from 'graphql-ws';
+import { subscriptionExchange } from './network/subscription';
+import { persistExchange } from './network/persist';
+import { authExchange } from './network/auth';
+import { getAuthManager } from './auth-manager';
+import { retryExchange } from './network/retry';
+import { mapExchange } from './network/map';
 
 const environment = atom(async (get) => {
   const approver = get(DANGEROUS_approverAtom);
-  return await getEnvironment(approver);
+  return await getEnvironment({ key: 'main', approver, persist: true });
 });
 
 export function useApiEnvironment() {
   return useAtomValue(environment);
 }
 
-async function getEnvironment(approver: Promise<PrivateKeyAccount>) {
-  const [persistedRecords, network] = await Promise.all([restore(), getRelayNetwork(approver)]);
-  const source = new RecordSource(persistedRecords);
-  const store = new Store(source, {
+const approverEnvironment = atomFamily(
+  (approver: PrivateKeyAccount) =>
+    atom(async () => {
+      const promisedApprover = new Promise<PrivateKeyAccount>((resolve) => resolve(approver));
+      return getEnvironment({ key: approver.address, approver: promisedApprover, persist: false });
+    }),
+  (a, b) => a.address === b.address,
+);
+
+export function useApproverApiEnvironment(approver: PrivateKeyAccount) {
+  return useAtomValue(approverEnvironment(approver));
+}
+
+export interface EnvironmentConfig {
+  key: string;
+  approver: Promise<PrivateKeyAccount>;
+  persist?: boolean;
+}
+
+async function getEnvironment({ key, approver, persist }: EnvironmentConfig) {
+  const [initialRecords, authManager] = await Promise.all([
+    persist ? await restoreRelayRecords(key) : new RecordSource(),
+    getAuthManager(approver),
+  ]);
+
+  const store = new Store(initialRecords, {
     gcReleaseBufferSize: 50, // gc exempt queries
     queryCacheExpirationTime: 5 * 60_000,
-    gcScheduler: (run) => {
-      InteractionManager.runAfterInteractions(run);
-    },
+    gcScheduler: (run) => InteractionManager.runAfterInteractions(run),
+  });
+
+  const network = createNetworkLayer({
+    store,
+    exchanges: [
+      mapExchange({
+        onRequest: (request) => {
+          console.log('[Request]', request);
+        },
+        onResponse: (result) => {
+          console.log('[Response]', result);
+        },
+        onGraphQLError: (result) => {
+          console.error('[GraphQL Error]', result);
+        },
+        onNetworkError: (result) => {
+          console.error('[Network Error]', result);
+        },
+      }),
+      persistExchange(key, store),
+      // retryExchange(),
+      authExchange(authManager),
+      fetchExchange({ url: `${CONFIG.apiUrl}/graphql` }),
+      subscriptionExchange(
+        createClient({
+          url: CONFIG.apiGqlWs,
+          lazy: true,
+          retryAttempts: 15,
+          connectionParams: authManager.getAuthHeaders,
+        }),
+      ),
+    ],
   });
 
   return new Environment({
+    configName: key,
     network,
     store,
   });
-}
-
-async function restore() {
-  const records = await AsyncStorage.getItem(RELAY_STORE_KEY);
-  return records ? JSON.parse(records) : {};
 }
