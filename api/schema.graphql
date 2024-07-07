@@ -38,11 +38,6 @@ enum AccountEvent {
   upgraded
 }
 
-input AccountInput {
-  """Defaults to random user account"""
-  account: UAddress
-}
-
 type AccountUpdated implements CustomNode {
   account: Account!
   event: AccountEvent!
@@ -370,7 +365,7 @@ type Mutation {
   removeMessage(input: UniqueProposalInput!): ID!
   removePolicy(input: UniquePolicyInput!): Policy!
   removeToken(address: UAddress!): ID
-  removeTransaction(input: UniqueProposalInput!): ID
+  removeTransaction(id: ID!): ID
   requestTokens(input: RequestTokensInput!): [Address!]!
   updateAccount(input: UpdateAccountInput!): Account!
   updateApprover(input: UpdateApproverInput!): Approver!
@@ -603,7 +598,10 @@ input ProposeTransactionInput {
 }
 
 type Query {
-  account(input: AccountInput! = {}): Account
+  account(
+    """Defaults to random user account"""
+    address: UAddress
+  ): Account
   accounts(input: AccountsInput! = {}): [Account!]!
   approver(input: ApproverInput! = {}): Approver!
   contact(input: ContactInput!): Contact
@@ -612,16 +610,16 @@ type Query {
   contractFunction(input: ContractFunctionInput!): ContractFunction
   estimateFeesPerGas(input: EstimateFeesPerGasInput!): FeesPerGas
   label(input: LabelInput!): String
-  message(input: UniqueProposalInput!): Message
+  message(id: ID!): Message
   nameAvailable(input: NameAvailableInput!): Boolean!
   node(id: ID!): Node
   policy(input: UniquePolicyInput!): Policy
-  proposal(input: UniqueProposalInput!): Proposal
+  proposal(id: ID!): Proposal
   requestableTokens(input: RequestTokensInput!): [Address!]!
   token(address: UAddress!): Token
   tokenMetadata(address: UAddress!): TokenMetadata
   tokens(input: TokensInput! = {}): [Token!]!
-  transaction(input: UniqueProposalInput!): Transaction
+  transaction(id: ID!): Transaction
   user: User!
 }
 
@@ -694,10 +692,11 @@ scalar Selector
 type SimulatedTransfer implements Node & TransferDetails {
   account: Account!
   amount: Decimal!
-  direction: [TransferDirection!]!
   from: Address!
   id: ID!
+  incoming: Boolean!
   isFeeTransfer: Boolean!
+  outgoing: Boolean!
   to: Address!
   token: Token
   tokenAddress: UAddress!
@@ -860,11 +859,12 @@ type Transfer implements Event & Node & TransferDetails & Transferlike {
   account: Account!
   amount: Decimal!
   block: BigInt!
-  direction: [TransferDirection!]!
   from: Address!
   id: ID!
+  incoming: Boolean!
   isFeeTransfer: Boolean!
   logIndex: Float!
+  outgoing: Boolean!
   systxHash: Bytes32!
   timestamp: DateTime!
   to: Address!
@@ -878,11 +878,12 @@ type TransferApproval implements Event & Node & TransferDetails & Transferlike {
   amount: Decimal!
   block: BigInt!
   delta: Decimal!
-  direction: [TransferDirection!]!
   from: Address!
   id: ID!
+  incoming: Boolean!
   isFeeTransfer: Boolean!
   logIndex: Float!
+  outgoing: Boolean!
   systxHash: Bytes32!
   timestamp: DateTime!
   to: Address!
@@ -900,19 +901,15 @@ type TransferApprovalOp implements TransferlikeOp {
 interface TransferDetails implements Node {
   account: Account!
   amount: Decimal!
-  direction: [TransferDirection!]!
   from: Address!
   id: ID!
+  incoming: Boolean!
   isFeeTransfer: Boolean!
+  outgoing: Boolean!
   to: Address!
   token: Token
   tokenAddress: UAddress!
   value: Decimal
-}
-
-enum TransferDirection {
-  In
-  Out
 }
 
 type TransferFromOp implements TransferlikeOp {
@@ -947,21 +944,23 @@ type TransferOp implements TransferlikeOp {
 
 input TransferSubscriptionInput {
   accounts: [UAddress!]
-  direction: TransferDirection
+  incoming: Boolean
 
   """Originating from an account transaction"""
   internal: Boolean
+  outgoing: Boolean
 }
 
 interface Transferlike implements Event & Node & TransferDetails {
   account: Account!
   amount: Decimal!
   block: BigInt!
-  direction: [TransferDirection!]!
   from: Address!
   id: ID!
+  incoming: Boolean!
   isFeeTransfer: Boolean!
   logIndex: Float!
+  outgoing: Boolean!
   systxHash: Bytes32!
   timestamp: DateTime!
   to: Address!
@@ -991,10 +990,11 @@ input TransfersConfigInput {
 }
 
 input TransfersInput {
-  direction: TransferDirection
+  incoming: Boolean
 
   """Originating from an account transaction"""
   internal: Boolean
+  outgoing: Boolean
 }
 
 """EIP712 Typed Data"""

@@ -4,7 +4,7 @@ import { DatabaseService } from '~/core/database';
 import { GraphQLResolveInfo } from 'graphql';
 import e from '~/edgeql-js';
 import { getShape } from '~/core/database';
-import { NodesArgs } from './nodes.input';
+import { NodeArgs } from './nodes.input';
 import * as uuid from 'uuid';
 
 @Resolver(() => Node)
@@ -12,7 +12,7 @@ export class NodesResolver {
   constructor(private db: DatabaseService) {}
 
   @Query(() => Node, { nullable: true })
-  async node(@Args() { id }: NodesArgs, @Info() info: GraphQLResolveInfo) {
+  async node(@Args() { id }: NodeArgs, @Info() info: GraphQLResolveInfo) {
     if (!uuid.validate(id)) throw new Error('Invalid ID');
 
     return this.db.queryWith(

@@ -10,7 +10,6 @@ import { NetworksService } from '~/core/networks/networks.service';
 import { uuid } from 'edgedb/dist/codecs/ifaces';
 import { EventPayload, PubsubService } from '~/core/pubsub/pubsub.service';
 import { getAbiItem } from 'viem';
-import { TransferDirection } from './transfers.input';
 import { AccountsCacheService } from '../auth/accounts.cache.service';
 import { ExpoService } from '~/core/expo/expo.service';
 import { BalancesService } from '~/core/balances/balances.service';
@@ -23,7 +22,8 @@ import { and } from '~/core/database';
 export const transferTrigger = (account: UAddress) => `transfer.account.${account}`;
 export interface TransferSubscriptionPayload extends EventPayload<'transfer'> {
   transfer: uuid;
-  directions: TransferDirection[];
+  incoming: boolean;
+  outgoing: boolean;
   internal: boolean;
 }
 
@@ -94,6 +94,7 @@ export class TransfersEvents {
                 account: selectedAccount,
                 systxHash: log.transactionHash,
                 systx,
+                internal: e.op('exists', systx),
                 logIndex: log.logIndex,
                 block: log.blockNumber,
                 timestamp: new Date(Number(block.timestamp) * 1000),
@@ -106,9 +107,8 @@ export class TransfersEvents {
                     : to === account
                       ? amount.toString()
                       : amount.negated().toString(),
-                direction: [account === to && 'In', account === from && 'Out'].filter(Boolean) as [
-                  'In',
-                ],
+                incoming: account === to,
+                outgoing: account === from,
                 isFeeTransfer: e.op(
                   e.op(systx.proposal.paymaster, 'in', e.set(localFrom, localTo)),
                   '??',
@@ -133,10 +133,8 @@ export class TransfersEvents {
         this.pubsub.event<TransferSubscriptionPayload>(transferTrigger(account), {
           event: 'transfer',
           transfer: transfer.id,
-          directions: [
-            from === account && TransferDirection.Out,
-            to === account && TransferDirection.In,
-          ].filter(isTruthy),
+          incoming: to === account,
+          outgoing: from === account,
           internal: transfer.internal,
         });
 
@@ -188,6 +186,7 @@ export class TransfersEvents {
               account: selectedAccount,
               systxHash: log.transactionHash,
               systx,
+              internal: e.op('exists', systx),
               logIndex: log.logIndex,
               block: log.blockNumber,
               timestamp: new Date(Number(block.timestamp) * 1000),
@@ -200,9 +199,8 @@ export class TransfersEvents {
                   : to === account
                     ? amount.toString()
                     : amount.negated().toString(),
-              direction: [account === to && 'In', account === from && 'Out'].filter(Boolean) as [
-                'In',
-              ],
+              incoming: account === to,
+              outgoing: account === from,
               isFeeTransfer: e.op(
                 e.op(systx.proposal.paymaster, 'in', e.set(localFrom, localTo)),
                 '??',

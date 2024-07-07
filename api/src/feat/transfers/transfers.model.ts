@@ -9,7 +9,6 @@ import { Address, UAddress } from 'lib';
 import { DecimalField } from '~/common/scalars/Decimal.scalar';
 import Decimal from 'decimal.js';
 import { NodeInterface, NodeType, Node } from '~/common/decorators/interface.decorator';
-import { TransferDirection } from './transfers.input';
 
 @NodeInterface()
 export class TransferDetails extends Node {
@@ -31,8 +30,11 @@ export class TransferDetails extends Node {
   @DecimalField()
   amount: Decimal;
 
-  @Field(() => [TransferDirection])
-  direction: TransferDirection[];
+  @Field(() => Boolean)
+  incoming: boolean;
+
+  @Field(() => Boolean)
+  outgoing: boolean;
 
   @Field(() => Boolean)
   isFeeTransfer: boolean;

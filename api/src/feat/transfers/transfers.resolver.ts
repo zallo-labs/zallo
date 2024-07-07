@@ -36,7 +36,8 @@ export class TransfersResolver {
       { input }: InputArgs<TransferSubscriptionInput>,
     ) => {
       return (
-        (input.direction === undefined || transfer.directions.includes(input.direction)) &&
+        (input.incoming === undefined || transfer.incoming === input.incoming) &&
+        (input.outgoing === undefined || transfer.outgoing === input.outgoing) &&
         (input.internal === undefined || input.internal === transfer.internal)
       );
     },

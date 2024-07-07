@@ -2,11 +2,11 @@ module default {
   type Event {
     required account: Account;
     required systxHash: Bytes32;
+    systx: SystemTx;
     required block: bigint { constraint min_value(0); }
     required logIndex: uint32;
     required timestamp: datetime { default := datetime_of_statement(); }
-    systx: SystemTx;
-    required property internal := exists .systx;
+    required internal: bool;
 
     index on ((.account, .internal));
 
@@ -15,13 +15,11 @@ module default {
       using (is_member(.account));
   }
 
-  scalar type TransferDirection extending enum<`In`, `Out`>;
-
   type TransferDetails {
     required account: Account;
     required from: Address;
     required to: Address;
-    required tokenAddress: UAddress;
+    required tokenAddress: UAddress; 
     link token := (
       assert_single((
         with address := .tokenAddress
@@ -29,7 +27,8 @@ module default {
       ))
     );
     required amount: decimal;
-    required multi direction: TransferDirection;
+    required incoming: bool;
+    required outgoing: bool;
     required isFeeTransfer: bool { default := false; }
 
     access policy members_can_select_insert
@@ -45,6 +44,8 @@ module default {
 
   type Transfer extending Transferlike {
     constraint exclusive on ((.account, .block, .logIndex));  # Must be declared directly on type
+
+    index on ((.account, .internal, .incoming));
   }
 
   type TransferApproval extending Transferlike {

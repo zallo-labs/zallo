@@ -1,4 +1,4 @@
-import { Field, InputType } from '@nestjs/graphql';
+import { ArgsType, Field, InputType } from '@nestjs/graphql';
 import { UAddress } from 'lib';
 import { PolicyInput } from '../policies/policies.input';
 import { Chain } from 'chains';
@@ -11,10 +11,10 @@ import {
 } from '~/common/scalars';
 import { AccountEvent } from './accounts.model';
 
-@InputType()
-export class AccountInput {
+@ArgsType()
+export class AccountArgs {
   @UAddressField({ nullable: true, description: 'Defaults to random user account' })
-  account?: UAddress;
+  address?: UAddress;
 }
 
 @InputType()

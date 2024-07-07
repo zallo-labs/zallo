@@ -11,8 +11,9 @@ module default {
     required isLatest: bool {
       default := false;
       rewrite insert using (
-        ((.activationBlock ?? 0n) > ((select latestPolicy(.account, .key)).activationBlock ?? -1n))
-        if (not __specified__.isLatest) else .isLatest
+        .isLatest if (__specified__.isLatest) else
+        # ((.activationBlock ?? 0n) > (latestPolcy(.account, .key)).activationBlock ?? -1n)
+        ((.activationBlock ?? 0n) > (assert_single((select Policy filter .account = __subject__.account and .key = __subject__.key and .isLatest)).activationBlock ?? -1n)) 
       )
     }
     required initState := .activationBlock ?= 0;
