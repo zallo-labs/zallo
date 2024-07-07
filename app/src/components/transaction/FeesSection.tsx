@@ -10,7 +10,6 @@ import Collapsible from 'react-native-collapsible';
 import { View } from 'react-native';
 import { Text } from 'react-native-paper';
 import { TokenAmount } from '#/token/TokenAmount';
-import { getOptimizedDocument } from '~/gql';
 import { graphql, useFragment, useMutation } from 'react-relay';
 import { FeesSection_transaction$key } from '~/api/__generated__/FeesSection_transaction.graphql';
 

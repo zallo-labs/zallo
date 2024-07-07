@@ -4,7 +4,6 @@ import { Actions } from '#/layout/Actions';
 import { ItemList } from '#/layout/ItemList';
 import { ListHeader } from '#/list/ListHeader';
 import { ListItem } from '#/list/ListItem';
-import { showError } from '#/provider/SnackbarProvider';
 import { AddIcon, CloseIcon, PolicyIcon, UndoIcon, UpdateIcon } from '@theme/icons';
 import { createStyles, useStyles } from '@theme/styles';
 import { useRouter } from 'expo-router';

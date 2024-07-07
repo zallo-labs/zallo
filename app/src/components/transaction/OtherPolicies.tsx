@@ -13,7 +13,7 @@ import { OtherPoliciesQuery } from '~/api/__generated__/OtherPoliciesQuery.graph
 // TODO: replace query with @deferred fragment once supported (graphql-js 17)
 const Query = graphql`
   query OtherPoliciesQuery($proposal: ID!) {
-    proposal(input: { id: $proposal }) @required(action: THROW) {
+    proposal(id: $proposal) @required(action: THROW) {
       id
       account {
         id

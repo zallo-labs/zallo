@@ -1,4 +1,4 @@
-import { delay, filter, map, merge, mergeMap, of, partition, tap, retry as rxRetry } from 'rxjs';
+import { retry, timer } from 'rxjs';
 import { Exchange } from './layer';
 
 export interface RetryExchangeOptions {
@@ -7,39 +7,16 @@ export interface RetryExchangeOptions {
 }
 
 export function retryExchange({
-  maxAttempts = 3,
+  maxAttempts = 1,
   backoff = (n) => 200 * 2 ** n,
 }: RetryExchangeOptions = {}): Exchange {
-  // const retry =
-  //   (attempts: number): Exchange =>
-  //   (input) =>
-  //   (requests$) => {
-  //     const { forward } = input;
-  //     const results$ = requests$.pipe(forward);
-  //     const [toRetry$, forward$] = partition(results$, (r) => !!r.error && attempts < maxAttempts);
-
-  //     // requests$.pipe(forward, map(to error if failed), rxjsRetry());
-
-  //     const retried$ = toRetry$.pipe(
-  //       delay(backoff(attempts)),
-  //       map((r) => r.request),
-  //       retry(attempts + 1)(input),
-  //     );
-
-  //     return merge(forward$, retried$);
-  //   };
-
-  // return retry(0);
-
-  return (input) => (operations$) => {
-    const { forward } = input;
-
-    return operations$.pipe(
-      forward,
-      rxRetry({
-        count: maxAttempts,
-        delay: 100, // TODO: use backoff
-      }),
-    );
-  };
+  return ({ forward }) =>
+    (operations$) =>
+      operations$.pipe(
+        forward,
+        retry({
+          delay: (_err, attempt) => timer(backoff(attempt)),
+          count: maxAttempts,
+        }),
+      );
 }

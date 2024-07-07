@@ -11,47 +11,49 @@ graphql`
   }
 `;
 
-const Query = graphql`
-  fragment useCreateAccount_query on Query {
-    accounts {
-      ...useCreateAccount_assignable_account
-    }
-  }
-`;
-
-const Create = graphql`
-  mutation useCreateAccountMutation($input: CreateAccountInput!) {
-    createAccount(input: $input) {
-      id
-      address
-      ...useCreateAccount_assignable_account
-    }
-  }
-`;
-
 export interface UseCreateAccountMutationParams {
   query: useCreateAccount_query$key;
 }
 
 export function useCreateAccount(params: UseCreateAccountMutationParams) {
-  const { accounts } = useFragment(Query, params.query);
+  const { accounts } = useFragment(
+    graphql`
+      fragment useCreateAccount_query on Query {
+        accounts {
+          ...useCreateAccount_assignable_account
+        }
+      }
+    `,
+    params.query,
+  );
 
-  return useMutation<useCreateAccountMutation>(Create, {
-    updater: (store, data) => {
-      const account = data?.createAccount;
-      if (!account) return;
-      const { updatableData } = store.readUpdatableQuery<useCreateAccountUpdaterQuery>(
-        graphql`
-          query useCreateAccountUpdaterQuery @updatable {
-            accounts {
-              ...useCreateAccount_assignable_account
+  return useMutation<useCreateAccountMutation>(
+    graphql`
+      mutation useCreateAccountMutation($input: CreateAccountInput!) {
+        createAccount(input: $input) {
+          id
+          address
+          ...useCreateAccount_assignable_account
+        }
+      }
+    `,
+    {
+      updater: (store, data) => {
+        const account = data?.createAccount;
+        if (!account) return;
+        const { updatableData } = store.readUpdatableQuery<useCreateAccountUpdaterQuery>(
+          graphql`
+            query useCreateAccountUpdaterQuery @updatable {
+              accounts {
+                ...useCreateAccount_assignable_account
+              }
             }
-          }
-        `,
-        {},
-      );
+          `,
+          {},
+        );
 
-      updatableData.accounts = [...accounts, account];
+        updatableData.accounts = [...accounts, account];
+      },
     },
-  });
+  );
 }

@@ -490,8 +490,6 @@ input PolicyUpdatedInput {
 type Price implements CustomNode {
   eth: Decimal!
   ethEma: Decimal!
-
-  """Pyth USD price id"""
   id: ID!
   usd: Decimal!
   usdEma: Decimal!

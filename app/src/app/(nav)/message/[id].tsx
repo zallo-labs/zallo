@@ -21,8 +21,8 @@ import { useLazyLoadQuery } from 'react-relay';
 import { Id_MessageScreenQuery } from '~/api/__generated__/Id_MessageScreenQuery.graphql';
 
 const Query = graphql`
-  query Id_MessageScreenQuery($proposal: ID!) {
-    message(input: { id: $proposal }) @required(action: THROW) {
+  query Id_MessageScreenQuery($id: ID!) {
+    message(id: $id) @required(action: THROW) {
       id
       label
       message
@@ -52,13 +52,13 @@ const MessageScreenParams = z.object({ id: zUuid() });
 export default function MessageScreen() {
   const { id } = useLocalParams(MessageScreenParams);
 
-  const { message: p, user } = useLazyLoadQuery<Id_MessageScreenQuery>(Query, { proposal: id });
-  const remove = useRemoveMessage(p);
+  const { message: m, user } = useLazyLoadQuery<Id_MessageScreenQuery>(Query, { id });
+  const remove = useRemoveMessage(m);
 
   return (
     <SideSheetLayout defaultVisible>
       <AppbarOptions
-        headline={(props) => <MessageStatus message={p} {...props} />}
+        headline={(props) => <MessageStatus message={m} {...props} />}
         mode="large"
         {...(remove && {
           trailing: (props) => (
@@ -70,19 +70,19 @@ export default function MessageScreen() {
       />
 
       <ScrollableScreenSurface contentContainerStyle={styles.sheet}>
-        {p.dapp && <DappHeader dapp={p.dapp} action="wants you to sign" />}
+        {m.dapp && <DappHeader dapp={m.dapp} action="wants you to sign" />}
 
-        <AccountSection account={p.account} />
+        <AccountSection account={m.account} />
         <Divider horizontalInset style={styles.divider} />
 
         <View style={styles.messageContainer}>
           <ListHeader>Message</ListHeader>
-          <DataView chain={p.account.chain} style={styles.messageData}>
-            {p.typedData ?? p.message}
+          <DataView chain={m.account.chain} style={styles.messageData}>
+            {m.typedData ?? m.message}
           </DataView>
         </View>
 
-        <MessageActions message={p} user={user} />
+        <MessageActions message={m} user={user} />
       </ScrollableScreenSurface>
 
       <SideSheet headline="Approvals">

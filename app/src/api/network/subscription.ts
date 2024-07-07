@@ -15,12 +15,11 @@ export function subscriptionExchange(client: WebsocketClient): Exchange {
             client.subscribe<GraphQLResponse>(
               {
                 operationName: op.name,
-                query: op.text || '',
+                query: op.query,
                 variables: op.variables,
               },
               {
                 next(value) {
-                  console.log('SUBSCRIPTION NEXT', { value });
                   sink.next({
                     operation: op,
                     ...value,

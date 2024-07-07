@@ -24,40 +24,22 @@ import { Pane } from '#/layout/Pane';
 import { FormChainSelector } from '#/fields/FormChainSelector';
 import { PaneSkeleton } from '#/skeleton/PaneSkeleton';
 import { graphql } from 'relay-runtime';
-import { useMutation } from '~/api';
-import { Address_ContactScreen_upsertMutation } from '~/api/__generated__/Address_ContactScreen_upsertMutation.graphql';
-import { Address_ContactScreen_deleteMutation } from '~/api/__generated__/Address_ContactScreen_deleteMutation.graphql';
-import { useFragment, useLazyLoadQuery } from 'react-relay';
+import { useLazyLoadQuery } from 'react-relay';
 import { Address_ContactScreenQuery } from '~/api/__generated__/Address_ContactScreenQuery.graphql';
-import { Address_ContactScreen_contact$key } from '~/api/__generated__/Address_ContactScreen_contact.graphql';
-
-const Contact = graphql`
-  fragment Address_ContactScreen_contact on Contact {
-    id
-    address
-    name
-  }
-`;
+import { useUpsertContact } from '~/hooks/mutations/useUpsertContact';
+import { useRemoveContact } from '~/hooks/mutations/useRemoveContact';
 
 const Query = graphql`
   query Address_ContactScreenQuery($address: UAddress!, $include: Boolean!) {
     contact(input: { address: $address }) @include(if: $include) {
-      ...Address_ContactScreen_contact
+      id
+      address
+      name
+      ...useRemoveContact_contact
     }
-  }
-`;
 
-const Upsert = graphql`
-  mutation Address_ContactScreen_upsertMutation($input: UpsertContactInput!) {
-    upsertContact(input: $input) {
-      ...Address_ContactScreen_contact
-    }
-  }
-`;
-
-const Delete = graphql`
-  mutation Address_ContactScreen_deleteMutation($address: UAddress!) {
-    deleteContact(input: { address: $address }) @deleteRecord
+    ...useUpsertContact_query
+    ...useRemoveContact_query
   }
 `;
 
@@ -74,19 +56,19 @@ export interface ContactScreenProps {
 
 function ContactScreen_(props: ContactScreenProps) {
   const router = useRouter();
-  const upsert = useMutation<Address_ContactScreen_upsertMutation>(Upsert);
-  const remove = useMutation<Address_ContactScreen_deleteMutation>(Delete);
   const confirmRemove = useConfirmRemoval({
     message: 'Are you sure you want to remove this contact',
   });
   const selectedChain = useSelectedChain();
 
   const existingAddress = tryAsUAddress(props.address, props.chain);
-  const data = useLazyLoadQuery<Address_ContactScreenQuery>(Query, {
+  const query = useLazyLoadQuery<Address_ContactScreenQuery>(Query, {
     address: existingAddress ?? `zksync:${ZERO_ADDR}`,
     include: !!existingAddress,
   });
-  const current = useFragment<Address_ContactScreen_contact$key>(Contact, data?.contact);
+  const current = query.contact;
+  const upsert = useUpsertContact({ query });
+  const remove = useRemoveContact({ query, contact: query.contact });
 
   const { control, handleSubmit, reset } = useForm<z.infer<typeof schema>>({
     resolver: zodResolver(schema),
@@ -100,7 +82,9 @@ function ContactScreen_(props: ContactScreenProps) {
   const submit = handleSubmit(async (input) => {
     const { name, address, chain } = input;
     await upsert({
-      input: { name, address: asUAddress(address, chain), previousAddress: current?.address },
+      name,
+      address: asUAddress(address, chain),
+      previousAddress: current?.address,
     });
     router.back();
     reset(input);
@@ -111,7 +95,7 @@ function ContactScreen_(props: ContactScreenProps) {
       <Appbar
         mode="small"
         headline="Contact"
-        {...(current && {
+        {...(remove && {
           trailing: [
             (props) => <FormResetIcon control={control} reset={reset} {...props} />,
             (props) => (
@@ -122,8 +106,8 @@ function ContactScreen_(props: ContactScreenProps) {
                     title="Remove contact"
                     onPress={handle(async () => {
                       if (await confirmRemove()) {
-                        remove({ address: current.address });
                         router.back();
+                        remove();
                       }
                     })}
                   />

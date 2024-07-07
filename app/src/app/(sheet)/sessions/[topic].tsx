@@ -93,7 +93,7 @@ export default function SessionDetailsSheet() {
 
   return (
     <Sheet>
-      <DappHeader dapp={peer} />
+      <DappHeader metadata={peer} />
 
       {accounts.length > 0 && (
         <AccountsList accounts={accounts} selected={selected} updateSelected={updateSelected} />

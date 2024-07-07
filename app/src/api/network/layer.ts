@@ -14,12 +14,15 @@ import {
 import { Observable, map, of } from 'rxjs';
 
 export type OperationKind = 'query' | 'mutation' | 'subscription';
-export type Operation = RequestParameters & {
+export type Operation = Omit<RequestParameters, 'text' | 'operationKind'> & {
+  id: string;
+  query: string;
   kind: OperationKind;
   variables: Variables;
   cacheConfig: CacheConfig;
   uploadables?: UploadableMap | null;
   fetchOptions: RequestInit;
+  context: Record<string, unknown>;
 };
 
 export type OperationResult = (GraphQLResponseWithData | GraphQLResponseWithoutData) & {
@@ -40,15 +43,14 @@ export interface NetworkLayerOptions {
 
 export function createNetworkLayer({ exchanges }: NetworkLayerOptions) {
   const exchangeChain = composeExchanges(exchanges);
-
-  const execute = (request: Operation) =>
-    RelayObservable.from<OperationResult>(exchangeChain(of(request)));
+  const execute = (operation: Operation) =>
+    RelayObservable.from<OperationResult>(exchangeChain(of(operation)));
 
   return Network.create(
-    (requestParams, variables, cacheConfig, uploadables) => {
+    function fetcher(requestParams, variables, cacheConfig, uploadables) {
       return execute(buildOperation(requestParams, variables, cacheConfig, uploadables));
     },
-    (requestParams, variables, cacheConfig) => {
+    function subscriber(requestParams, variables, cacheConfig) {
       return execute(buildOperation(requestParams, variables, cacheConfig));
     },
   );
@@ -61,12 +63,15 @@ function buildOperation(
   uploadables?: UploadableMap | null,
 ): Operation {
   return {
+    ...requestParams,
+    id: 'cacheID' in requestParams ? requestParams.cacheID : requestParams.id,
+    query: requestParams.text || '',
     kind: requestParams.operationKind as OperationKind,
     variables,
     cacheConfig,
     uploadables,
     fetchOptions: {},
-    ...requestParams,
+    context: {},
   };
 }
 

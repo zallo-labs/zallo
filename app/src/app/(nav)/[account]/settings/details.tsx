@@ -17,7 +17,7 @@ import { useMutation } from '~/api';
 
 const Query = graphql`
   query details_AccountDetailsQuery($account: UAddress!) {
-    account(input: { account: $account }) {
+    account(address: $account) {
       id
       address
       name

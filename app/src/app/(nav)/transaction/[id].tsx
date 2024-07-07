@@ -27,25 +27,9 @@ import { Id_TransactionScreenQuery } from '~/api/__generated__/Id_TransactionScr
 import { Id_TransactionScreen_transaction$key } from '~/api/__generated__/Id_TransactionScreen_transaction.graphql';
 
 const Query = graphql`
-  query Id_TransactionScreenQuery($transaction: ID!) {
-    transaction(input: { id: $transaction }) @required(action: THROW) {
-      # ...Id_TransactionScreen_transaction @arguments(transaction: $transaction)
-      id
-      account {
-        id
-        address
-        ...AccountSection_account
-      }
-      dapp {
-        ...DappHeader_dappMetadata
-      }
-      ...useRemoveTransaction_transaction
-      ...TransactionStatus_transaction
-      ...OperationsSection_transaction
-      ...ScheduleSection_transaction
-      ...TransfersSection_transaction @arguments(transaction: $transaction)
-      ...FeesSection_transaction @arguments(transaction: $transaction)
-      ...TransactionActions_transaction
+  query Id_TransactionScreenQuery($id: ID!) {
+    transaction(id: $id) @required(action: THROW) {
+      ...Id_TransactionScreen_transaction @arguments(transaction: $id)
     }
 
     user {
@@ -95,20 +79,18 @@ function TransactionScreen() {
   const { styles } = useStyles(stylesheet);
   const { id } = useLocalParams(TransactionScreenParams);
 
-  // Extract account from Transaction result, and use it as a variable to get the full result
-  const query = useLazyLoadQuery<Id_TransactionScreenQuery>(Query, { transaction: id });
-  // const p = useFragment<Id_TransactionScreen_transaction$key>(Transaction, query.transaction);
-  const p = query.transaction;
-  const remove = useRemoveTransaction(p);
+  const query = useLazyLoadQuery<Id_TransactionScreenQuery>(Query, { id });
+  const t = useFragment<Id_TransactionScreen_transaction$key>(Transaction, query.transaction);
+  const remove = useRemoveTransaction({ transaction: t });
 
-  // useSubscription(
-  //   useMemo(() => ({ subscription: Subscription, variables: { transaction: id } }), [id]),
-  // );
+  useSubscription(
+    useMemo(() => ({ subscription: Subscription, variables: { transaction: id } }), [id]),
+  );
 
   return (
     <>
       <AppbarOptions
-        headline={(props) => <TransactionStatus transaction={p} {...props} />}
+        headline={<TransactionStatus transaction={t} />}
         {...(remove && {
           trailing: (props) => (
             <AppbarMore iconProps={props}>
@@ -120,25 +102,25 @@ function TransactionScreen() {
 
       <SideSheetLayout defaultVisible>
         <ScrollableScreenSurface>
-          {p.dapp && <DappHeader dapp={p.dapp} action="wants you to execute" />}
+          {t.dapp && <DappHeader dapp={t.dapp} action="wants you to execute" />}
 
-          <AccountSection account={p.account} />
+          <AccountSection account={t.account} />
           <Divider horizontalInset style={styles.divider} />
 
-          <ScheduleSection transaction={p}>
+          <ScheduleSection transaction={t}>
             <Divider horizontalInset style={styles.divider} />
           </ScheduleSection>
 
-          <OperationsSection transaction={p} />
+          <OperationsSection transaction={t} />
           <Divider horizontalInset style={styles.divider} />
 
-          <TransfersSection transaction={p}>
+          <TransfersSection transaction={t}>
             <Divider horizontalInset style={styles.divider} />
           </TransfersSection>
 
-          <FeesSection transaction={p} />
+          <FeesSection transaction={t} />
 
-          <TransactionActions transaction={p} user={query.user} />
+          <TransactionActions transaction={t} user={query.user} />
         </ScrollableScreenSurface>
 
         <SideSheet headline="Approvals">

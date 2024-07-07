@@ -3,6 +3,7 @@ import { useFragment } from 'react-relay';
 import { graphql } from 'relay-runtime';
 import { useMutation } from '~/api';
 import { useRemoveTransaction_transaction$key } from '~/api/__generated__/useRemoveTransaction_transaction.graphql';
+import { useRemoveTransactionMutation } from '~/api/__generated__/useRemoveTransactionMutation.graphql';
 import { useConfirmRemoval } from '~/hooks/useConfirm';
 import { useSelectedAccount } from '~/hooks/useSelectedAccount';
 
@@ -13,31 +14,35 @@ const Transaction = graphql`
   }
 `;
 
-const Remove = graphql`
-  mutation useRemoveTransactionMutation($proposal: ID!) {
-    removeTransaction(input: { id: $proposal }) @deleteRecord
-  }
-`;
+export interface RemoveTransactionParams {
+  transaction: useRemoveTransaction_transaction$key;
+}
 
-export function useRemoveTransaction(
-  proposalFrag: useRemoveTransaction_transaction$key | null | undefined,
-) {
-  const p = useFragment(Transaction, proposalFrag);
+export function useRemoveTransaction(params: RemoveTransactionParams) {
+  const p = useFragment(Transaction, params.transaction);
   const router = useRouter();
   const account = useSelectedAccount();
-  const remove = useMutation(Remove);
   const confirmRemoval = useConfirmRemoval({
     message: 'Are you sure you want to remove this proposal?',
   });
 
-  if (!p || p.status !== 'Pending') return null;
+  const commit = useMutation<useRemoveTransactionMutation>(
+    graphql`
+      mutation useRemoveTransactionMutation($proposal: ID!) @raw_response_type {
+        removeTransaction(id: $proposal) @deleteRecord
+      }
+    `,
+    { optimisticResponse: { removeTransaction: p.id } },
+  );
+
+  if (p.status !== 'Pending') return null;
 
   return async () => {
-    if (await confirmRemoval()) {
-      await remove({ proposal: p.id });
-      account
-        ? router.push({ pathname: '/(nav)/[account]/(home)/activity', params: { account } })
-        : router.back();
-    }
+    if (!(await confirmRemoval())) return;
+
+    await commit({ proposal: p.id });
+    account
+      ? router.push({ pathname: '/(nav)/[account]/(home)/activity', params: { account } })
+      : router.back();
   };
 }

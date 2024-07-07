@@ -27,7 +27,7 @@ import { send_SendScreenQuery } from '~/api/__generated__/send_SendScreenQuery.g
 
 const Query = graphql`
   query send_SendScreenQuery($account: UAddress!, $token: UAddress!) {
-    token(address: $token) @required(action: LOG) {
+    token(address: $token) {
       id
       address
       decimals
@@ -39,6 +39,10 @@ const Query = graphql`
       ...InputsView_token @arguments(account: $account)
       ...TokenItem_token
     }
+
+    account(address: $account) @required(action: THROW) {
+      ...useProposeTransaction_account
+    }
   }
 `;
 
@@ -49,8 +53,8 @@ const SendScreenParams = z.object({
 export type SendScreenParams = z.infer<typeof SendScreenParams>;
 
 function SendScreen() {
-  const { account, to } = useLocalParams(SendScreenParams);
-  const chain = asChain(account);
+  const { account: accountAddress, to } = useLocalParams(SendScreenParams);
+  const chain = asChain(accountAddress);
   const router = useRouter();
   const propose = useProposeTransaction();
   const toLabel = useAddressLabel(asUAddress(to, chain));
@@ -58,10 +62,10 @@ function SendScreen() {
   const selectToken = useSelectToken();
   const selectedToken = useSelectedToken(chain);
 
-  const token = useLazyLoadQuery<send_SendScreenQuery>(Query, {
-    account,
+  const { token, account } = useLazyLoadQuery<send_SendScreenQuery>(Query, {
+    account: accountAddress,
     token: selectedToken,
-  })?.token;
+  });
 
   const [input, setInput] = useState('');
   const [type, setType] = useState(InputType.Token);
@@ -87,7 +91,11 @@ function SendScreen() {
 
         <View style={styles.spacer} />
 
-        <TokenItem token={token} amount={token.balance} onPress={() => selectToken({ account })} />
+        <TokenItem
+          token={token}
+          amount={token.balance}
+          onPress={() => selectToken({ account: accountAddress })}
+        />
         <Divider horizontalInset />
 
         <NumericInput
@@ -101,8 +109,8 @@ function SendScreen() {
             mode="contained"
             style={styles.action}
             onPress={async () => {
-              const proposal = await propose({
-                account,
+              // TODO: pass account
+              const proposal = await propose(account, {
                 operations: [
                   createTransferOp({
                     token: asAddress(token.address),

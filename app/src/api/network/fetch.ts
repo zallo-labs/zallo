@@ -1,6 +1,6 @@
 import { GraphQLSingularResponse } from 'relay-runtime';
 import { filter, merge, mergeMap } from 'rxjs';
-import { Exchange, OperationResult } from './layer';
+import { Exchange, Operation, OperationResult } from './layer';
 import { OperationError } from './OperationError';
 
 export interface FetchExchangeOptions extends RequestInit {
@@ -13,12 +13,11 @@ export function fetchExchange({ url, ...rootFetchOptions }: FetchExchangeOptions
       const fetchResults$ = operations$.pipe(
         filter(({ kind }) => kind === 'query' || kind === 'mutation'),
         mergeMap(async (op): Promise<OperationResult> => {
-          console.log('FETCHING', { op });
           try {
             const response = await fetch(url, {
               method: 'POST',
               body: JSON.stringify({
-                query: op.text || '', // GraphQL text from input
+                query: op.query,
                 variables: op.variables,
               }),
               ...rootFetchOptions,
@@ -31,27 +30,17 @@ export function fetchExchange({ url, ...rootFetchOptions }: FetchExchangeOptions
               },
             });
 
-            if (op.kind === 'mutation' && !response.ok) {
-              console.log('mutation failed', { request: op, response });
-              console.log('mutation failed', {
-                request: op,
-                response,
-                data: await response.json(),
-              });
+            // Mutations must 2xx; queries may return non-2xx response with graphql errors
+            if (!response.ok && op.kind === 'mutation') throw new OperationError(op, response);
+
+            try {
+              const data = await extractData(response);
+              const errors = ('errors' in data && data.errors) || [];
+
+              return { ...data, data: data.data || undefined, operation: op, response, errors };
+            } catch (extractError) {
+              throw new OperationError(op, response, extractError as Error);
             }
-
-            if (!response.ok /* non 2xx response */) {
-              if (op.kind === 'mutation') throw new OperationError(op, response);
-
-              console.log('non 2xx response', { request: op, response });
-              return { operation: op, response, errors: [] };
-            }
-
-            const data = await extractData(response);
-            console.log('GOT DATA', { op, data });
-
-            const errors = ('errors' in data && data.errors) || [];
-            return { ...data, data: data.data || undefined, operation: op, response, errors };
           } catch (e) {
             if (e instanceof OperationError) throw e;
 
@@ -74,4 +63,13 @@ async function extractData(response: Response) {
     return (await response.json()) as GraphQLSingularResponse;
 
   return JSON.parse(await response.text()) as GraphQLSingularResponse;
+}
+
+export function makeFetchBody(operation: Operation, extras?: Record<string, unknown>) {
+  return JSON.stringify({
+    operationName: operation.name,
+    query: operation.query,
+    variables: operation.variables,
+    ...extras,
+  });
 }

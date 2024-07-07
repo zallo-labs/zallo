@@ -38,7 +38,9 @@ function ContactsPane_() {
 
   const [query, setQuery] = useState('');
 
-  const { contacts } = useLazyLoadQuery<contacts_ContactsPaneQuery>(Query, { query });
+  const { contacts } = useLazyLoadQuery<contacts_ContactsPaneQuery>(Query, {
+    query: query || null,
+  });
 
   return (
     <>

@@ -36,6 +36,7 @@
       "**/build/**": true,
       "**/dist/**": true,
       "**/node_modules/**": true,
+      "**/__generated__": true,
       "yarn.lock": true,
     },
     "files.watcherExclude": {

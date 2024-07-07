@@ -21,7 +21,7 @@ import { HomePaneQuery } from '~/api/__generated__/HomePaneQuery.graphql';
 
 const Query = graphql`
   query HomePaneQuery($account: UAddress!, $chain: Chain!) {
-    account(input: { account: $account }) {
+    account(address: $account) {
       id
       ...AccountSelector_account
       ...ActivitySection_account

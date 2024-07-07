@@ -8,12 +8,12 @@ import {
 import { fromPromise, ok, safeTry } from 'neverthrow';
 import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts';
 import { asHex } from 'lib';
-import { UpdateApproverInput } from '@api/documents.generated';
 import { fetchQuery, graphql } from 'relay-runtime';
 import { useRelayEnvironment } from 'react-relay';
 import { useMutation } from '~/api';
 import { useGetCloudApproverQuery } from '~/api/__generated__/useGetCloudApproverQuery.graphql';
 import { signAuthToken } from '~/api/auth-manager';
+import { UpdateApproverInput } from '~/api/__generated__/useGetCloudApproverMutation.graphql';
 
 const PK_PATH = '/approver.private-key';
 const SCOPE = CloudStorageScope.AppData;

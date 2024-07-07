@@ -19,14 +19,16 @@ import { useVerifyDapp } from '../DappVerification';
 import { ApprovedProposal } from './useProposalsListener';
 import { asDapp } from '~/lib/wc/uri';
 import { graphql } from 'relay-runtime';
-import { useMutation } from '~/api';
-import { useSessionRequestListener_proposeMessageMutation } from '~/api/__generated__/useSessionRequestListener_proposeMessageMutation.graphql';
+import { useLazyLoadQuery } from 'react-relay';
+import { useSessionRequestListenerQuery } from '~/api/__generated__/useSessionRequestListenerQuery.graphql';
+import { useProposeMessage } from '~/hooks/mutations/useProposeMessage';
 
-const ProposeMessage = graphql`
-  mutation useSessionRequestListener_proposeMessageMutation($input: ProposeMessageInput!) {
-    proposeMessage(input: $input) {
-      id
-      signature
+const Query = graphql`
+  query useSessionRequestListenerQuery {
+    accounts {
+      address
+      ...useProposeTransaction_account
+      ...useProposeMessage_account
     }
   }
 `;
@@ -40,10 +42,11 @@ export interface UseSessionRequestListenerParams {
 export const useSessionRequestListener = ({ proposals }: UseSessionRequestListenerParams) => {
   const router = useRouter();
   const client = useWalletConnectWithoutWatching();
-  const proposeTransaction = useProposeTransaction();
-  const proposeMessage =
-    useMutation<useSessionRequestListener_proposeMessageMutation>(ProposeMessage);
   const verify = useVerifyDapp();
+  const proposeTransaction = useProposeTransaction();
+  const proposeMessage = useProposeMessage();
+
+  const { accounts } = useLazyLoadQuery<useSessionRequestListenerQuery>(Query, {});
 
   useEffect(() => {
     const handleRequest = async ({ id, topic, params, verifyContext }: SessionRequestArgs) => {
@@ -62,8 +65,11 @@ export const useSessionRequestListener = ({ proposals }: UseSessionRequestListen
       if (isTransactionRequest(request)) {
         const [tx] = request.params;
 
-        const proposal = await proposeTransaction({
-          account: asUAddress(tx.from, chain),
+        const accountAddress = asUAddress(tx.from, chain);
+        const account = accounts.find((a) => a.address === accountAddress);
+        if (!account) return showError('Account not found');
+
+        const proposal = await proposeTransaction(account, {
           operations: [
             {
               to: tx.to,
@@ -94,19 +100,16 @@ export const useSessionRequestListener = ({ proposals }: UseSessionRequestListen
       } else if (isSignatureRequest(request)) {
         const r = normalizeSigningRequest(request);
 
-        const proposal = (
-          await proposeMessage({
-            input: {
-              account: asUAddress(r.account, chain),
-              label: `${dapp.name} message`,
-              icon: dapp.icons[0],
-              ...(r.method === 'personal-sign'
-                ? { message: r.message }
-                : { typedData: r.typedData }),
-              dapp,
-            },
-          })
-        ).proposeMessage;
+        const accountAddress = asUAddress(r.account, chain);
+        const account = accounts.find((a) => a.address === accountAddress);
+        if (!account) return showError('Account not found');
+
+        const proposal = await proposeMessage(account, {
+          label: `${dapp.name} message`,
+          icon: dapp.icons[0],
+          ...(r.method === 'personal-sign' ? { message: r.message } : { typedData: r.typedData }),
+          dapp,
+        });
         if (!proposal) return showError(`${dapp.name}: failed to propose transaction`);
 
         // Respond immediately if message has previously been signed
@@ -139,5 +142,5 @@ export const useSessionRequestListener = ({ proposals }: UseSessionRequestListen
     return () => {
       client.off('session_request', handleRequest);
     };
-  }, [client, router, proposals, proposeMessage, proposeTransaction, verify]);
+  }, [client, router, proposals, proposeMessage, proposeTransaction, verify, accounts]);
 };

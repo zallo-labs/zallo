@@ -51,7 +51,6 @@
     "turbo": "^2.0.6"
   },
   "resolutions": {
-    "graphql": "^16.9.0",
     "dotenv": "patch:dotenv@npm:16.4.5#.yarn/patches/dotenv-npm-16.4.5-bcb20eb95d.patch"
   }
 }

@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { CoreTypes } from '@walletconnect/types';
-import { DappMetadataInput } from '@api/documents.generated';
+import { DappMetadataInput } from '~/api/__generated__/useProposeTransactionMutation.graphql';
 
 const URI_PATTERN = /^wc:[0-9a-f]{64}@2\?/;
 

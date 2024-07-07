@@ -8,6 +8,7 @@ import { DappVerification } from './DappVerification';
 import { graphql } from 'relay-runtime';
 import { DappHeader_dappMetadata$key } from '~/api/__generated__/DappHeader_dappMetadata.graphql';
 import { useFragment } from 'react-relay';
+import { O } from 'ts-toolbelt';
 
 const DappMetadata = graphql`
   fragment DappHeader_dappMetadata on DappMetadata {
@@ -18,21 +19,22 @@ const DappMetadata = graphql`
   }
 `;
 
-export interface DappHeaderProps {
-  dapp: CoreTypes.Metadata | DappHeader_dappMetadata$key | undefined;
-  action?: string;
-  request?: number;
-}
+export type DappHeaderProps = O.Either<
+  {
+    metadata: CoreTypes.Metadata | undefined;
+    dapp: DappHeader_dappMetadata$key | undefined;
+    action?: string;
+    request?: number;
+  },
+  'metadata' | 'dapp'
+>;
 
 export function DappHeader({ action, request, ...props }: DappHeaderProps) {
   const { styles } = useStyles(stylesheet);
 
-  const dappFragment = useFragment(
-    DappMetadata,
-    props.dapp && isFragment(props.dapp) ? props.dapp : null,
-  );
+  const dappFragment = useFragment(DappMetadata, props.dapp);
 
-  const dapp = dappFragment || (props.dapp as CoreTypes.Metadata);
+  const dapp = dappFragment || props.metadata;
 
   return (
     <View style={styles.container}>
@@ -78,10 +80,3 @@ const stylesheet = createStyles(({ colors, corner }) => ({
     marginTop: 16,
   },
 }));
-
-function isFragment(
-  d: CoreTypes.Metadata | DappHeader_dappMetadata$key,
-): d is DappHeader_dappMetadata$key {
-  // TODO: check
-  return '__typename' in d;
-}

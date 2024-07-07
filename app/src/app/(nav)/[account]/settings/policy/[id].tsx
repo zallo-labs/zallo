@@ -15,7 +15,7 @@ import { Id_PolicyScreenQuery } from '~/api/__generated__/Id_PolicyScreenQuery.g
 
 const Query = graphql`
   query Id_PolicyScreenQuery($account: UAddress!, $policy: ID!, $includePolicy: Boolean!) {
-    account(input: { account: $account }) @required(action: THROW) {
+    account(address: $account) @required(action: THROW) {
       id
       address
       ...usePolicyPresets_account
@@ -24,10 +24,12 @@ const Query = graphql`
 
     policy: node(id: $policy) @include(if: $includePolicy) {
       __typename
-      ... on Policy @alias(as: "policy") {
+      ... on Policy {
         id
         key
         name
+      }
+      ... on Policy @alias(as: "policyAsDraft") {
         ...policyAsDraft_policy
       }
       ...PolicyPane_policy @alias
@@ -68,8 +70,8 @@ function PolicyScreen() {
       account: account?.address ?? `zksync:${ZERO_ADDR}`, // Should only occur whilst loading
       key: p?.key,
       name: p?.name || '',
-      ...(p
-        ? policyAsDraft(p)
+      ...(p?.policyAsDraft
+        ? policyAsDraft(p.policyAsDraft)
         : {
             ...presets.low,
             key: undefined,
@@ -84,7 +86,12 @@ function PolicyScreen() {
 
   return (
     <PolicyDraftContext.Provider value={draftAtom}>
-      <PolicyPane initial={initial} account={account} policy={policy} user={user} />
+      <PolicyPane
+        initial={initial}
+        account={account}
+        policy={policy?.PolicyPane_policy}
+        user={user}
+      />
     </PolicyDraftContext.Provider>
   );
 }

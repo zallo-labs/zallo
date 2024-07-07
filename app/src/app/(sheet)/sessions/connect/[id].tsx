@@ -112,7 +112,7 @@ export default function ConnectSessionSheet() {
   return (
     <Sheet onClose={reject}>
       <DappHeader
-        dapp={proposal.proposer.metadata}
+        metadata={proposal.proposer.metadata}
         request={proposal.id}
         action="wants to connect"
       />

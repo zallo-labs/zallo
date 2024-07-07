@@ -29,7 +29,7 @@ const Query = graphql`
     $approver: Address!
     $approverUAddress: UAddress!
   ) {
-    account(input: { account: $account }) {
+    account(address: $account) {
       id
       ...ApproverPolicies_account
     }

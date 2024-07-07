@@ -1,4 +1,4 @@
-import { Environment, RecordSource, RelayFeatureFlags, Store } from 'relay-runtime';
+import { Environment, RecordSource, Store } from 'relay-runtime';
 import { PrivateKeyAccount } from 'viem';
 import { atom, useAtomValue } from 'jotai';
 import { DANGEROUS_approverAtom } from '@network/useApprover';
@@ -9,17 +9,17 @@ import { fetchExchange } from './network/fetch';
 import { CONFIG } from '~/util/config';
 import { createClient } from 'graphql-ws';
 import { subscriptionExchange } from './network/subscription';
-import { persistExchange, restoreRelayRecords } from './network/persist';
 import { authExchange } from './network/auth';
 import { getAuthManager } from './auth-manager';
 import { mapExchange } from './network/map';
 import { missingFieldHandlers } from './field-handlers';
-
-RelayFeatureFlags.ENABLE_FIELD_ERROR_HANDLING_THROW_BY_DEFAULT = true;
+import { persistedQueryExchange } from './network/persistedQuery';
+import { retryExchange } from './network/retry';
+import { PersitedRecordSource } from './PersistedRecordSource';
 
 const environmentAtom = atom(async (get) => {
   const approver = get(DANGEROUS_approverAtom);
-  return await getEnvironment({ key: 'main', approver, persist: true });
+  return getEnvironment({ key: 'main', approver, persist: true });
 });
 
 export function useApiEnvironment() {
@@ -45,45 +45,42 @@ export interface EnvironmentConfig {
   persist?: boolean;
 }
 
-let environment: Environment | undefined;
+export let environment: Environment | undefined;
+export function setEnvironment(env: Environment) {
+  environment = env;
+}
+
 export async function getEnvironment({ key, approver, persist }: EnvironmentConfig) {
   if (environment) return environment;
 
-  const [initialRecords, authManager] = await Promise.all([
-    persist ? restoreRelayRecords(key) : new RecordSource(),
+  const [recordSource, authManager] = await Promise.all([
+    persist ? PersitedRecordSource.restore(`relay:${key}`) : new RecordSource(),
     getAuthManager(approver),
   ]);
 
   if (environment) return environment;
 
-  const store = new Store(initialRecords, {
+  const store = new Store(recordSource, {
     gcReleaseBufferSize: 100, // gc exempt queries
     queryCacheExpirationTime: 10 * 60_000,
     gcScheduler: (run) => {
       InteractionManager.runAfterInteractions(run);
     },
   });
+  // persist && store.notify(undefined, true); // Invalidate persisted data
 
   const network = createNetworkLayer({
     store,
     exchanges: [
       mapExchange({
-        onRequest: (request) => {
-          console.log('[Request]', request);
-        },
-        onResponse: (result) => {
-          console.log('[Response]', result);
-        },
-        onGraphQLError: (result) => {
-          console.error('[GraphQL Error]', result);
-        },
-        onNetworkError: (result) => {
-          console.error('[Network Error]', result);
-        },
+        // onRequest: (request) => console.debug('[Request]', request),
+        // onResponse: (result) => console.debug('[Response]', result),
+        onGraphQLError: (result) => console.error('[GraphQL Error]', result),
+        onNetworkError: (result) => console.error('[Network Error]', result),
       }),
-      persistExchange(key, store),
-      // retryExchange(),
+      retryExchange(),
       authExchange(authManager),
+      persistedQueryExchange(),
       fetchExchange({ url: `${CONFIG.apiUrl}/graphql` }),
       subscriptionExchange(
         createClient({
@@ -96,14 +93,14 @@ export async function getEnvironment({ key, approver, persist }: EnvironmentConf
     ],
   });
 
-  console.trace('creating environment');
-
   environment = new Environment({
     configName: key,
     network,
     store,
     missingFieldHandlers,
-    // UNSTABLE_defaultRenderPolicy: 'full',
+    requiredFieldLogger: (field) => console.warn('[Missing field]', field),
+    // @ts-expect-error types are wrong
+    relayFieldLogger: (field) => console.error('[Relay]', field),
   });
 
   return environment;

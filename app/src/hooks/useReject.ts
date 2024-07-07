@@ -12,6 +12,7 @@ import { graphql, useFragment } from 'react-relay';
 import { useMutation } from '~/api';
 import { PrivateKeyAccount } from 'viem';
 import { signAuthToken } from '~/api/auth-manager';
+import { useRejectMutation } from '~/api/__generated__/useRejectMutation.graphql';
 
 const User = graphql`
   fragment useReject_user on User {
@@ -42,10 +43,18 @@ const Proposal = graphql`
         id
       }
     }
-    rejections {
+    approvals {
       id
       approver {
         id
+      }
+    }
+    rejections {
+      id
+      createdAt
+      approver {
+        id
+        address
       }
     }
     ... on Transaction {
@@ -58,14 +67,14 @@ const Proposal = graphql`
 `;
 
 const Reject = graphql`
-  mutation useRejectMutation($proposal: ID!) {
+  mutation useRejectMutation($proposal: ID!) @raw_response_type {
     rejectProposal(input: { id: $proposal }) {
       id
       approvals {
         id
       }
       rejections {
-        id
+        ...RejectionItem_rejection
       }
     }
   }
@@ -80,18 +89,29 @@ export interface UseRejectParams {
 export function useReject(params: UseRejectParams) {
   const user = useFragment(User, params.user);
   const p = useFragment(Proposal, params.proposal);
-  const rejectMutation = useMutation(Reject);
   const getAppleApprover = useGetAppleApprover();
   const getGoogleApprover = useGetGoogleApprover();
-  const device = useApproverAddress();
-  const approver = params.approver ?? device;
 
-  const userApprover = user.approvers.find((a) => a.address === approver);
+  const device = useApproverAddress();
+  const approverAddress = params.approver ?? device;
+  const approver = user.approvers.find((a) => a.address === approverAddress);
+
+  const rejectMutation = useMutation<useRejectMutation>(Reject, {
+    optimisticResponse: approver && {
+      rejectProposal: {
+        __typename: p.__typename,
+        id: p.id,
+        approvals: p.approvals.filter((a) => a.approver.id !== approver.id),
+        rejections: p.rejections.filter((a) => a.approver.id !== approver.id),
+      },
+    },
+  });
+
   const canReject =
     p.updatable &&
-    !!userApprover &&
-    p.policy.approvers.some((a) => a.id === userApprover.id) &&
-    !p.rejections.some((a) => a.approver.id === userApprover.id);
+    !!approver &&
+    p.policy.approvers.some((a) => a.id === approver.id) &&
+    !p.rejections.some((a) => a.approver.id === approver.id);
 
   if (!p.updatable || !canReject) return undefined;
 
@@ -107,12 +127,12 @@ export function useReject(params: UseRejectParams) {
     ampli.rejection({ method, type });
   };
 
-  if (approver === device) {
+  if (approverAddress === device) {
     return async () => {
       await reject('Device');
     };
-  } else if (userApprover.details?.cloud) {
-    return match(userApprover.details.cloud)
+  } else if (approver.details?.cloud) {
+    return match(approver.details.cloud)
       .with({ provider: 'Apple' }, ({ subject }) => {
         if (!getAppleApprover) return undefined;
 

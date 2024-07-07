@@ -52,6 +52,10 @@ const Query = graphql`
       ...SwapToTokenItem_token_from
       ...SwapToTokenItem_token_to
     }
+
+    account(address: $account) @required(action: THROW) {
+      ...useProposeTransaction_account
+    }
   }
 `;
 
@@ -61,14 +65,15 @@ function SwapScreen() {
   const { account } = useLocalParams(SwapScreenParams);
   const chain = asChain(account);
   const router = useRouter();
-  const propose = useProposeTransaction();
   const selectToken = useSelectToken();
   const swappableTokens = useSwappableTokens(chain);
 
-  const { tokens } = useLazyLoadQuery<swap_SwapScreenQuery>(Query, {
+  const query = useLazyLoadQuery<swap_SwapScreenQuery>(Query, {
     account,
     tokens: swappableTokens,
   });
+  const { tokens } = query;
+  const propose = useProposeTransaction();
 
   const [fromAddress, setFromAddress] = useState<UAddress>(
     tokens[0]?.address ?? asUAddress(ETH_ADDRESS, chain),
@@ -188,8 +193,7 @@ function SwapScreen() {
                   });
                   if (operations.isErr()) return showError('Something went wrong building swap');
 
-                  const proposal = await propose({
-                    account,
+                  const proposal = await propose(query.account, {
                     label: `Swap ${from.symbol} for ${to!.symbol}`,
                     operations: operations.value,
                   });

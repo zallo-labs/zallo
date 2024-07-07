@@ -9,7 +9,6 @@ import { Background } from '#/layout/Background';
 import { RootErrorBoundary, IgnoredErrorBoundary } from '#/ErrorBoundary';
 import { Splash } from '#/Splash';
 import { WalletConnectListeners } from '#/walletconnect/WalletConnectListeners';
-import { GqlProvider } from '~/gql/GqlProvider';
 import { AuthGate } from '#/provider/AuthGate';
 import { ApiProvider } from '~/api/ApiProvider';
 import { NotificationsProvider } from '#/provider/NotificationsProvider';
@@ -57,8 +56,8 @@ function RootLayout() {
               <Background>
                 <Suspense fallback={<Splash />}>
                   <AuthGate>
-                    <ApiProvider>
-                      <GqlProvider>
+                    <Suspense fallback={<Splash />}>
+                      <ApiProvider>
                         <TQueryProvider>
                           <GoogleAuthProvider>
                             <Try catch={RootErrorBoundary}>
@@ -81,8 +80,8 @@ function RootLayout() {
                             </Try> */}
                           </GoogleAuthProvider>
                         </TQueryProvider>
-                      </GqlProvider>
-                    </ApiProvider>
+                      </ApiProvider>
+                    </Suspense>
                   </AuthGate>
                 </Suspense>
               </Background>

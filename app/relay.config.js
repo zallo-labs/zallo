@@ -35,6 +35,6 @@ module.exports = {
   },
   featureFlags: {
     enable_fragment_aliases: { kind: 'enabled' },
-    enforce_fragment_alias_where_ambiguous: { kind: 'enabled' },
+    // enforce_fragment_alias_where_ambiguous: { kind: 'enabled' },
   },
 };

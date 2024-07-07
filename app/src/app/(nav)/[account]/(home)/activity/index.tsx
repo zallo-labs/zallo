@@ -29,7 +29,7 @@ import {
 
 const Query = graphql`
   query activity_ActivityPaneQuery($account: UAddress!) {
-    account(input: { account: $account }) {
+    account(address: $account) {
       id
       proposals {
         __typename
@@ -44,7 +44,7 @@ const Query = graphql`
         ...TransactionItem_transaction @alias
         ...MessageItem_message @alias
       }
-      transfers(input: { direction: In, internal: false }) {
+      transfers(input: { incoming: true, internal: false }) {
         __typename
         id
         timestamp

@@ -53,41 +53,8 @@ const Proposal = graphql`
 
 const Query = graphql`
   query ProposalApprovalsQuery($proposal: ID!) {
-    proposal(input: { id: $proposal }) {
-      id
-      policy {
-        id
-        threshold
-        approvers {
-          id
-          address
-          ...PendingApprovalItem_approver
-        }
-      }
-      rejections {
-        id
-        approver {
-          id
-        }
-        ...RejectionItem_rejection
-      }
-      approvals {
-        id
-        approver {
-          id
-          address
-        }
-        ...ApprovalItem_approval
-      }
-      createdAt
-      proposedBy {
-        id
-        address
-      }
-      ...SelectedPolicy_proposal
-      ...PendingApprovalItem_proposal
-      ...RejectionItem_proposal
-      ...ApprovalItem_proposal
+    proposal(id: $proposal) {
+      ...ProposalApprovals_proposal
     }
 
     user {
@@ -102,6 +69,7 @@ const Subscription = graphql`
   subscription ProposalApprovals_Subscription($proposal: ID!) {
     proposalUpdated(input: { proposals: [$proposal], events: [approval, rejection] }) {
       id
+      event
       proposal {
         ...ProposalApprovals_proposal
       }
@@ -115,13 +83,12 @@ export interface PolicyTabProps {
 
 function ProposalApprovals_({ proposal: id }: PolicyTabProps) {
   const data = useLazyLoadQuery<ProposalApprovalsQuery>(Query, { proposal: id });
-  // const p = useFragment<ProposalApprovals_proposal$key>(Proposal, data.proposal);
-  const p = data.proposal;
+  const p = useFragment<ProposalApprovals_proposal$key>(Proposal, data.proposal);
   const user = data.user;
 
-  // useSubscription(
-  //   useMemo(() => ({ subscription: Subscription, variables: { proposal: id } }), [id]),
-  // );
+  useSubscription(
+    useMemo(() => ({ subscription: Subscription, variables: { proposal: id } }), [id]),
+  );
 
   if (!p) return null;
 
@@ -157,15 +124,14 @@ function ProposalApprovals_({ proposal: id }: PolicyTabProps) {
       ))}
 
       {p.approvals.length > 0 && <ListHeader>Approvals</ListHeader>}
-      {p.approvals.map((approval) => {
-        console.log({ ProposalApprovals: { approval, proposal: p } });
-        return <ApprovalItem key={approval.id} user={user} approval={approval} proposal={p} />;
-      })}
+      {p.approvals.map((a) => (
+        <ApprovalItem key={a.id} user={user} approval={a} proposal={p} />
+      ))}
     </>
   );
 }
 
 export const ProposalApprovals = withSuspense(
-  memo(ProposalApprovals_),
+  ProposalApprovals_,
   <ListItemSkeleton leading supporting trailing />,
 );

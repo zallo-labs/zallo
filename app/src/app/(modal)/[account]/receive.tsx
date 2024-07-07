@@ -4,9 +4,9 @@ import { Button } from '#/Button';
 import { QrModal } from '#/QrModal';
 import { useLocalParams } from '~/hooks/useLocalParams';
 import { graphql } from 'relay-runtime';
-import { useMutation } from '~/api';
 import { useLazyLoadQuery } from 'react-relay';
 import { receive_ReceiveModalQuery } from '~/api/__generated__/receive_ReceiveModalQuery.graphql';
+import { useRequestTokens } from '~/hooks/mutations/useRequestTokens';
 
 const Query = graphql`
   query receive_ReceiveModalQuery($account: UAddress!) {
@@ -14,19 +14,11 @@ const Query = graphql`
   }
 `;
 
-const RequestTokens = graphql`
-  mutation receive_ReceiveModalMutation($account: UAddress!) {
-    requestTokens(input: { account: $account })
-  }
-`;
-
 const FaucetIcon = materialCommunityIcon('water');
 
-const ReceiveModalParams = AccountParams;
-
 export default function ReceiveModal() {
-  const { account } = useLocalParams(ReceiveModalParams);
-  const requestTokens = useMutation(RequestTokens);
+  const { account } = useLocalParams(AccountParams);
+  const requestTokens = useRequestTokens();
 
   const { requestableTokens } = useLazyLoadQuery<receive_ReceiveModalQuery>(Query, {
     account,
@@ -38,11 +30,7 @@ export default function ReceiveModal() {
       actions={
         <>
           {requestableTokens.length > 0 && (
-            <Button
-              mode="contained-tonal"
-              icon={FaucetIcon}
-              onPress={() => requestTokens({ account })}
-            >
+            <Button mode="contained-tonal" icon={FaucetIcon} onPress={() => requestTokens(account)}>
               Request testnet tokens
             </Button>
           )}

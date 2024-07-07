@@ -26,7 +26,7 @@ import { settings_AccountSettingsQuery } from '~/api/__generated__/settings_Acco
 
 const Query = graphql`
   query settings_AccountSettingsQuery($account: UAddress!) {
-    account(input: { account: $account }) @required(action: THROW) {
+    account(address: $account) @required(action: THROW) {
       id
       chain
       name

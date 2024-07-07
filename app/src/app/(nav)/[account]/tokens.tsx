@@ -14,8 +14,8 @@ import { SearchbarOptions } from '#/Appbar/SearchbarOptions';
 import { ScreenSurface } from '#/layout/ScreenSurface';
 import { MenuOrSearchIcon } from '#/Appbar/MenuOrSearchIcon';
 import { graphql } from 'relay-runtime';
-import { useLazyLoadQuery } from 'react-relay';
 import { tokens_TokensScreenQuery } from '~/api/__generated__/tokens_TokensScreenQuery.graphql';
+import { useLazyLoadQuery } from 'react-relay';
 
 const Query = graphql`
   query tokens_TokensScreenQuery($account: UAddress!, $chain: Chain, $query: String) {
@@ -36,11 +36,11 @@ function TokensScreen() {
 
   const [query, setQuery] = useState('');
 
-  const tokens = useLazyLoadQuery<tokens_TokensScreenQuery>(Query, {
+  const { tokens } = useLazyLoadQuery<tokens_TokensScreenQuery>(Query, {
     account,
     chain: asChain(account),
-    query,
-  }).tokens;
+    query: query || null,
+  });
 
   return (
     <>

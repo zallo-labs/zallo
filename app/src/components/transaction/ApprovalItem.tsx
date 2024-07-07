@@ -46,11 +46,13 @@ export interface ApprovalItemProps {
 
 export function ApprovalItem(props: ApprovalItemProps) {
   const user = useFragment(User, props.user);
-  const { approver, createdAt } = useFragment(Approval, props.approval);
+  const approval = useFragment(Approval, props.approval);
   const proposal = useFragment(Proposal, props.proposal);
+  const reject = useReject({ user, proposal, approver: approval?.approver.address });
 
-  console.log({ ApprovalItem: { approver, proposal } });
-  const reject = useReject({ user, proposal, approver: approver.address });
+  if (!approval) return null;
+
+  const { approver, createdAt } = approval;
 
   return (
     <ListItem
