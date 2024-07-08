@@ -12,7 +12,7 @@ module.exports = {
     'babel.config.js',
   ],
   artifactDirectory: './src/api/__generated__',
-  schemaExtensions: ['./src/api/local'],
+  // schemaExtensions: ['./src/api/local'],
   noFutureProofEnums: true,
   customScalarTypes: {
     ID: { name: 'UUID', path: 'lib' },

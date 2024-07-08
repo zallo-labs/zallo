@@ -27,7 +27,7 @@
     "ethers": "^6.13.1",
     "lodash": "^4.17.21",
     "neverthrow": "^6.2.2",
-    "ts-pattern": "^5.1.2",
+    "ts-pattern": "^5.2.0",
     "ts-toolbelt": "^9.6.0",
     "viem": "^2.16.5",
     "zksync-ethers": "^6.9.0"

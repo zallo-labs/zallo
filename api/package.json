@@ -48,7 +48,7 @@
     "chardet": "^2.0.0",
     "connect-redis": "^7.1.1",
     "decimal.js": "^10.4.3",
-    "deepmerge-ts": "^5.1.0",
+    "deepmerge-ts": "^7.0.3",
     "dotenv": "^16.4.5",
     "edgedb": "^1.5.7",
     "ethers": "^6.13.1",
@@ -70,7 +70,7 @@
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1",
     "ts-deepmerge": "^7.0.0",
-    "ts-pattern": "^5.1.2",
+    "ts-pattern": "^5.2.0",
     "viem": "^2.16.5",
     "zod": "^3.23.8"
   },
