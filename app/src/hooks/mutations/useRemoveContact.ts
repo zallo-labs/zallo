@@ -45,7 +45,7 @@ export function useRemoveContact(params: RemoveContactParams) {
 
   const commit = useMutation<useRemoveContactMutation>(graphql`
     mutation useRemoveContactMutation($address: UAddress!) @raw_response_type {
-      deleteContact(input: { address: $address }) @deleteRecord
+      deleteContact(address: $address) @deleteRecord
     }
   `);
 

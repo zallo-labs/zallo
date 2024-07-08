@@ -60,7 +60,7 @@ const isEip712Message = (c: SignContent): c is TypedDataDefinition => typeof c =
 
 const Query = graphql`
   query approve_LedgerApproveSheetQuery($approver: Address!, $skip: Boolean!) {
-    approver(input: { address: $approver }) @skip(if: $skip) {
+    approver(address: $approver) @skip(if: $skip) {
       id
       label
       ...useLedger_approver

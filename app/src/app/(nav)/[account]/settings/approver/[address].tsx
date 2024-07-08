@@ -29,12 +29,12 @@ const Query = graphql`
     $approver: Address!
     $approverUAddress: UAddress!
   ) {
-    account(address: $account) {
+    account(address: $account) @required(action: THROW) {
       id
       ...ApproverPolicies_account
     }
 
-    approver(input: { address: $approver }) {
+    approver(address: $approver) {
       id
       ...ApproverDetailsSideSheet_approver
     }
@@ -46,7 +46,7 @@ const Query = graphql`
       }
     }
 
-    label(input: { address: $approverUAddress })
+    label(address: $approverUAddress)
   }
 `;
 

@@ -1,11 +1,11 @@
-import { Field, InputType } from '@nestjs/graphql';
+import { ArgsType, Field, InputType } from '@nestjs/graphql';
 import { GraphQLMAC, GraphQLJWT } from 'graphql-scalars';
 import { Address } from 'lib';
 import { AddressField } from '~/common/scalars/Address.scalar';
 import { CloudProvider } from './approvers.model';
 
-@InputType()
-export class ApproverInput {
+@ArgsType()
+export class ApproverArgs {
   @AddressField({ nullable: true, description: 'Defaults to current approver' })
   address?: Address;
 }
@@ -26,7 +26,10 @@ export class CloudInput {
 }
 
 @InputType()
-export class UpdateApproverInput extends ApproverInput {
+export class UpdateApproverInput {
+  @AddressField({ nullable: true, description: 'Defaults to current approver' })
+  address?: Address;
+
   @Field(() => String, { nullable: true })
   name?: string | null;
 

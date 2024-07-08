@@ -6,7 +6,7 @@ import { truncateAddr } from '~/util/format';
 
 const Query = graphql`
   query AddressLabelQuery($address: UAddress!, $skip: Boolean!) {
-    label(input: { address: $address }) @skip(if: $skip)
+    label(address: $address) @skip(if: $skip)
   }
 `;
 

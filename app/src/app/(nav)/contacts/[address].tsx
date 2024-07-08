@@ -31,7 +31,7 @@ import { useRemoveContact } from '~/hooks/mutations/useRemoveContact';
 
 const Query = graphql`
   query Address_ContactScreenQuery($address: UAddress!, $include: Boolean!) {
-    contact(input: { address: $address }) @include(if: $include) {
+    contact(address: $address) @include(if: $include) {
       id
       address
       name

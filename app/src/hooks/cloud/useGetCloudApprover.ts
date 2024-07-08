@@ -20,7 +20,7 @@ const SCOPE = CloudStorageScope.AppData;
 
 const Query = graphql`
   query useGetCloudApproverQuery($approver: Address!) {
-    approver(input: { address: $approver }) {
+    approver(address: $approver) {
       id
       details {
         id

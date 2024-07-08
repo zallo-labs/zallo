@@ -50,7 +50,7 @@ export function useUpsertContact(params: UpsertContactParams) {
     const { updatableData } = store.readUpdatableQuery<useUpsertContactUpdatableQuery>(
       graphql`
         query useUpsertContactUpdatableQuery($address: UAddress!) @updatable {
-          contact(input: { address: $address }) {
+          contact(address: $address) {
             ...useUpsertContact_assignable_contact
           }
 

@@ -1,11 +1,11 @@
-import { Field, InputType } from '@nestjs/graphql';
+import { ArgsType, Field, InputType } from '@nestjs/graphql';
 import { Chain } from 'chains';
 import { UAddress } from 'lib';
 import { ChainField } from '~/common/scalars/Chain.scalar';
 import { UAddressField } from '~/common/scalars/UAddress.scalar';
 
-@InputType()
-export class ContactInput {
+@ArgsType()
+export class UniqueAddressArgs {
   @UAddressField()
   address: UAddress;
 }
@@ -29,10 +29,4 @@ export class UpsertContactInput {
 
   @Field(() => String)
   name: string;
-}
-
-@InputType()
-export class LabelInput {
-  @UAddressField()
-  address: UAddress;
 }
