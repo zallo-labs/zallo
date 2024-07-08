@@ -49,7 +49,7 @@ input AccountUpdatedInput {
   accounts: [UAddress!]
 
   """Defaults to all events"""
-  events: AccountEvent
+  events: [AccountEvent!]
 }
 
 input AccountsInput {
@@ -683,6 +683,7 @@ type SimulatedTransfer implements Node & TransferDetails {
   from: Address!
   id: ID!
   incoming: Boolean!
+  internal: Boolean!
   isFeeTransfer: Boolean!
   outgoing: Boolean!
   to: Address!
@@ -850,6 +851,7 @@ type Transfer implements Event & Node & TransferDetails & Transferlike {
   from: Address!
   id: ID!
   incoming: Boolean!
+  internal: Boolean!
   isFeeTransfer: Boolean!
   logIndex: Float!
   outgoing: Boolean!
@@ -869,6 +871,7 @@ type TransferApproval implements Event & Node & TransferDetails & Transferlike {
   from: Address!
   id: ID!
   incoming: Boolean!
+  internal: Boolean!
   isFeeTransfer: Boolean!
   logIndex: Float!
   outgoing: Boolean!
@@ -892,6 +895,7 @@ interface TransferDetails implements Node {
   from: Address!
   id: ID!
   incoming: Boolean!
+  internal: Boolean!
   isFeeTransfer: Boolean!
   outgoing: Boolean!
   to: Address!
@@ -946,6 +950,7 @@ interface Transferlike implements Event & Node & TransferDetails {
   from: Address!
   id: ID!
   incoming: Boolean!
+  internal: Boolean!
   isFeeTransfer: Boolean!
   logIndex: Float!
   outgoing: Boolean!

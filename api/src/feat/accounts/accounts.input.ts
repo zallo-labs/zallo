@@ -37,7 +37,7 @@ export class AccountUpdatedInput {
   })
   accounts?: UAddress[];
 
-  @Field(() => AccountEvent, { nullable: true, description: 'Defaults to all events' })
+  @Field(() => [AccountEvent], { nullable: true, description: 'Defaults to all events' })
   events?: AccountEvent[];
 }
 

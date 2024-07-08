@@ -37,6 +37,9 @@ export class TransferDetails extends Node {
   outgoing: boolean;
 
   @Field(() => Boolean)
+  internal: boolean;
+
+  @Field(() => Boolean)
   isFeeTransfer: boolean;
 }
 

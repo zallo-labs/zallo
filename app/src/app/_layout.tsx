@@ -25,7 +25,7 @@ import { SentryProvider } from '#/provider/SentryProvider';
 import { GoogleAuthProvider } from '#/cloud/google/GoogleAuthProvider';
 import { Try } from 'expo-router/build/views/Try';
 import { PortalProvider } from '@gorhom/portal';
-import { GlobalSubscriptions } from '#/GlobalSubscriptions';
+import { GlobalSubscriptions } from '#/GlobalSubscriptions/GlobalSubscriptions';
 
 export const unstable_settings = {
   initialRouteName: `index`,
@@ -69,7 +69,7 @@ function RootLayout() {
                                 </RnpPortal.Host>
                               </Suspense>
                             </Try>
-                            {/* <Try catch={IgnoredErrorBoundary}>
+                            <Try catch={IgnoredErrorBoundary}>
                               <Suspense fallback={null}>
                                 <UpdateProvider />
                                 <Analytics />
@@ -77,7 +77,7 @@ function RootLayout() {
                                 <GlobalSubscriptions />
                                 <NotificationsProvider />
                               </Suspense>
-                            </Try> */}
+                            </Try>
                           </GoogleAuthProvider>
                         </TQueryProvider>
                       </ApiProvider>
