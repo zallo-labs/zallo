@@ -13,6 +13,7 @@ import {
   fallback,
   http,
   webSocket,
+  nonceManager,
 } from 'viem';
 import { eip712WalletActions, ZkSyncTransactionSerializableEIP712 } from 'viem/zksync';
 import { privateKeyToAccount } from 'viem/accounts';
@@ -92,7 +93,7 @@ type Client = PublicClient<Transport, ChainConfig>;
 function walletActions(client: Client, transport: Transport, redis: Redis) {
   const chain = client.chain;
   const wallet = createWalletClient({
-    account: privateKeyToAccount(CONFIG.walletPrivateKeys[chain.key]),
+    account: privateKeyToAccount(CONFIG.walletPrivateKeys[chain.key], { nonceManager }),
     chain,
     transport,
   });

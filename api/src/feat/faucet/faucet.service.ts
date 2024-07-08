@@ -54,21 +54,24 @@ export class FaucetService implements OnModuleInit {
     const tokensToSend = await this.getTokensToSend(account);
 
     const network = this.networks.get(account);
-    for (const token of tokensToSend) {
-      await network.useWallet(async (wallet) => {
-        await (isEthToken(token.address)
-          ? wallet.sendTransaction({
-              to: asAddress(account),
-              value: token.amount,
-            })
-          : wallet.writeContract({
-              address: token.address,
-              abi: ERC20,
-              functionName: 'transfer',
-              args: [asAddress(account), token.amount],
-            }));
-      });
-    }
+
+    await network.useWallet(async (wallet) => {
+      return Promise.all(
+        tokensToSend.map((token) =>
+          isEthToken(token.address)
+            ? wallet.sendTransaction({
+                to: asAddress(account),
+                value: token.amount,
+              })
+            : wallet.writeContract({
+                address: token.address,
+                abi: ERC20,
+                functionName: 'transfer',
+                args: [asAddress(account), token.amount],
+              }),
+        ),
+      );
+    });
 
     return tokensToSend.map((t) => t.address);
   }
