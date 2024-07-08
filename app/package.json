@@ -20,7 +20,7 @@
   "dependencies": {
     "@amplitude/analytics-react-native": "^1.4.9",
     "@expo/config": "~9.0.2",
-    "@expo/vector-icons": "^14.0.2",
+    "@expo/vector-icons": "patch:@expo/vector-icons@npm:14.0.2#~/.yarn/patches/@expo-vector-icons-npm-14.0.2-204d0a5342.patch",
     "@formatjs/intl": "^2.10.4",
     "@formatjs/intl-datetimeformat": "^6.12.5",
     "@formatjs/intl-getcanonicallocales": "^2.3.0",

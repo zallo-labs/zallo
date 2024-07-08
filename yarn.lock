@@ -4581,6 +4581,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@expo/vector-icons@npm:14.0.2":
+  version: 14.0.2
+  resolution: "@expo/vector-icons@npm:14.0.2"
+  dependencies:
+    prop-types: "npm:^15.8.1"
+  checksum: 10/b50dab5d32907cf6b176db6b9d3c7284559ab95a1dfe0a5af530f8b27fdb5ab3c655d798ac46f78b7650ce6cf0fea682e8f6be1cc868a534f6d0debc79062c67
+  languageName: node
+  linkType: hard
+
 "@expo/vector-icons@npm:^14.0.0":
   version: 14.0.0
   resolution: "@expo/vector-icons@npm:14.0.0"
@@ -4588,12 +4597,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@expo/vector-icons@npm:^14.0.2":
+"@expo/vector-icons@patch:@expo/vector-icons@npm:14.0.2#~/.yarn/patches/@expo-vector-icons-npm-14.0.2-204d0a5342.patch":
   version: 14.0.2
-  resolution: "@expo/vector-icons@npm:14.0.2"
+  resolution: "@expo/vector-icons@patch:@expo/vector-icons@npm%3A14.0.2#~/.yarn/patches/@expo-vector-icons-npm-14.0.2-204d0a5342.patch::version=14.0.2&hash=6bd395"
   dependencies:
     prop-types: "npm:^15.8.1"
-  checksum: 10/b50dab5d32907cf6b176db6b9d3c7284559ab95a1dfe0a5af530f8b27fdb5ab3c655d798ac46f78b7650ce6cf0fea682e8f6be1cc868a534f6d0debc79062c67
+  checksum: 10/e9080bbf7e17a3113c046eb5f0fc44de0366330196d5b2ab32b8ec0e4cd1ac991725bcd6cfd7edbcc5452577deda48b7e14a22b57f7de8fd61364ea8eb9ebf8e
   languageName: node
   linkType: hard
 
@@ -12207,7 +12216,7 @@ __metadata:
     "@babel/plugin-transform-flow-strip-types": "npm:^7.24.7"
     "@babel/plugin-transform-private-methods": "npm:^7.24.7"
     "@expo/config": "npm:~9.0.2"
-    "@expo/vector-icons": "npm:^14.0.2"
+    "@expo/vector-icons": "patch:@expo/vector-icons@npm:14.0.2#~/.yarn/patches/@expo-vector-icons-npm-14.0.2-204d0a5342.patch"
     "@formatjs/intl": "npm:^2.10.4"
     "@formatjs/intl-datetimeformat": "npm:^6.12.5"
     "@formatjs/intl-getcanonicallocales": "npm:^2.3.0"

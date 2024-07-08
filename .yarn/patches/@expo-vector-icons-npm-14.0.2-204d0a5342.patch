@@ -1,5 +1,5 @@
 diff --git a/build/createIconSet.js b/build/createIconSet.js
-index 7f655368b266af73c881673d72723a6a9a4d5391..e50ee6581330b85a52c64efedc185e4644176b84 100644
+index e8e1ec0c13be904ff6ab539784dc2b9229ebe2fc..2b38bf627ee6f6b77357f03d544e030eb657e3de 100644
 --- a/build/createIconSet.js
 +++ b/build/createIconSet.js
 @@ -31,11 +31,7 @@ export default function (glyphMap, fontName, expoAssetId, fontStyle) {
