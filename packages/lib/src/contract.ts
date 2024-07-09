@@ -28,15 +28,15 @@ export const ACCOUNT_ABI = [
 export const PAYMASTER = {
   abi: paymasterArtifact.abi,
   address: addresses({
-    // Addresses may differ due to different chain configurations
-    'zksync-sepolia': '0xAf722c55dE9c3C1933631d73A8D2801f79C2Fe26',
+    // Address across chains may differ due to different chain configurations
+    'zksync-sepolia': '0x8A9e0413fbA71b8feAaa39A87cC497AC72960737',
   }),
 };
 
 export const DEPLOYER = {
   abi: deployerArtifact.abi,
   address: addresses({
-    'zksync-sepolia': '0x51ed28f82dD91CcaC612C7402672Bf9F0EB16444',
+    'zksync-sepolia': '0x1C0E3aa8C1D5EbA1982026408500D7A382E2166f',
   }),
 };
 
