@@ -126,9 +126,9 @@ export namespace $default {
     "label"?: string | null;
   }
   export interface ApproverDetails extends std.$Object {
-    "bluetoothDevices"?: string[] | null;
     "approver": Approver;
     "name"?: string | null;
+    "bluetoothDevices"?: string[] | null;
     "cloud"?: {provider: CloudProvider, subject: string} | null;
     "pushToken"?: string | null;
   }
