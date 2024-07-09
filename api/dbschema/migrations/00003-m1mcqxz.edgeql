@@ -1,25 +1,20 @@
-CREATE MIGRATION m1imkvo47oo366iu7zqrwaefcvolw25t5nqefaqca467febwhkkxla
+CREATE MIGRATION m1dvaeoglquugsmzozdywq2vi2hwfo2yl32rfd2pj66gk62ibqeiga
     ONTO m1msez63jkpjpwsku7jrbuu45dovo5hylpmgeylgdlt3temlkyvn7q
 {
   CREATE TYPE default::ApproverDetails {
-      CREATE REQUIRED LINK user: default::User {
-          SET default := (INSERT
-              default::User
-          );
-          ON SOURCE DELETE DELETE TARGET IF ORPHAN;
+      CREATE REQUIRED LINK approver: default::Approver {
+          ON TARGET DELETE DELETE SOURCE;
+          CREATE CONSTRAINT std::exclusive;
       };
       CREATE PROPERTY name: default::BoundedStr;
       CREATE ACCESS POLICY user_select_insert_update
-          ALLOW SELECT, UPDATE, INSERT USING ((.user ?= GLOBAL default::current_user));
+          ALLOW SELECT, UPDATE, INSERT USING ((.approver.user ?= GLOBAL default::current_user));
       CREATE PROPERTY bluetoothDevices: array<default::MAC>;
       CREATE PROPERTY cloud: tuple<provider: default::CloudProvider, subject: std::str>;
       CREATE PROPERTY pushToken: std::str;
   };
   ALTER TYPE default::Approver {
-      CREATE LINK details: default::ApproverDetails {
-          ON SOURCE DELETE DELETE TARGET;
-          CREATE CONSTRAINT std::exclusive;
-      };
+      CREATE LINK details := (.<approver[IS default::ApproverDetails]);
       DROP ACCESS POLICY user_select_update;
       ALTER PROPERTY label {
           USING ((.details.name ?? .labelled.name));
@@ -49,22 +44,8 @@ CREATE MIGRATION m1imkvo47oo366iu7zqrwaefcvolw25t5nqefaqca467febwhkkxla
       (label ?? approverLabel)
   );
   ALTER TYPE default::Event {
-      ALTER PROPERTY internal {
-          RESET EXPRESSION;
-          RESET CARDINALITY;
-          SET TYPE std::bool;
-      };
-  };
-  ALTER TYPE default::TransferDetails {
-      CREATE REQUIRED PROPERTY incoming: std::bool {
-          SET REQUIRED USING (<std::bool>(default::TransferDirection.`In` IN .direction));
-      };
-      CREATE REQUIRED PROPERTY outgoing: std::bool {
-          SET REQUIRED USING (<std::bool>(default::TransferDirection.Out IN .direction));
-      };
-  };
-  ALTER TYPE default::Transfer {
-      CREATE INDEX ON ((.account, .internal, .incoming));
+      DROP INDEX ON ((.account, .internal));
+      DROP PROPERTY internal;
   };
   ALTER TYPE default::PolicyState {
       ALTER PROPERTY isLatest {
@@ -83,19 +64,24 @@ CREATE MIGRATION m1imkvo47oo366iu7zqrwaefcvolw25t5nqefaqca467febwhkkxla
               ))).activationBlock ?? -1n))));
       };
   };
-  # Migrate Approver details -> ApproverDetails
-  update Approver set {
-    details := (
-      with user := .user, name := .name, pushToken := .pushToken, bluetoothDevices := .bluetoothDevices, cloud := .cloud,
-      insert ApproverDetails {
-        user := user,
-        name := name,
-        pushToken := pushToken,
-        bluetoothDevices := bluetoothDevices,
-        cloud := cloud
-      }
-    )
+  ALTER TYPE default::TransferDetails {
+      CREATE REQUIRED PROPERTY incoming: std::bool {
+          SET REQUIRED USING (<std::bool>(default::TransferDirection.`In` IN .direction));
+      };
+      CREATE REQUIRED PROPERTY outgoing: std::bool {
+          SET REQUIRED USING (<std::bool>(default::TransferDirection.Out IN .direction));
+      };
   };
+  # Migrate Approver details -> ApproverDetails
+  for approver in (select Approver) union (
+    insert ApproverDetails {
+        approver := approver,
+        name := approver.name,
+        bluetoothDevices := approver.bluetoothDevices,
+        cloud := approver.cloud,
+        pushToken := approver.pushToken
+    }
+  );
   #
   # Drop fields
   ALTER TYPE default::Approver {
@@ -103,6 +89,15 @@ CREATE MIGRATION m1imkvo47oo366iu7zqrwaefcvolw25t5nqefaqca467febwhkkxla
       DROP PROPERTY cloud;
       DROP PROPERTY name;
       DROP PROPERTY pushToken;
+  };
+  ALTER TYPE default::Event {
+      CREATE REQUIRED PROPERTY internal: std::bool {
+          SET REQUIRED USING (<std::bool>EXISTS (.systx));
+      };
+      CREATE INDEX ON ((.account, .internal));
+  };
+  ALTER TYPE default::Transfer {
+      CREATE INDEX ON ((.account, .internal, .incoming));
   };
   ALTER TYPE default::TransferDetails {
       DROP PROPERTY direction;
