@@ -2,10 +2,8 @@ import { Searchbar } from '#/Appbar/Searchbar';
 import { FirstPane } from '#/layout/FirstPane';
 import { PaneSkeleton } from '#/skeleton/PaneSkeleton';
 import { withSuspense } from '#/skeleton/withSuspense';
-import { gql } from '@api';
 import { AccountParams } from '../../_layout';
 import { useLocalParams } from '~/hooks/useLocalParams';
-import { useQuery } from '~/gql';
 import { asDateTime } from '#/format/Timestamp';
 import { FlashList } from '@shopify/flash-list';
 import { P, match } from 'ts-pattern';
@@ -22,11 +20,16 @@ import { ITEM_LIST_GAP } from '#/layout/ItemList';
 import { NoActivity } from '#/activity/NoActivity';
 import { ListHeader } from '#/list/ListHeader';
 import { DateTime } from 'luxon';
-import { ActivityPaneQuery } from '@api/generated/graphql';
+import { graphql } from 'relay-runtime';
+import { useLazyLoadQuery } from 'react-relay';
+import {
+  activity_ActivityPaneQuery,
+  activity_ActivityPaneQuery$data,
+} from '~/api/__generated__/activity_ActivityPaneQuery.graphql';
 
-const Query = gql(/* GraphQL */ `
-  query ActivityPane($account: UAddress!) {
-    account(input: { account: $account }) {
+const Query = graphql`
+  query activity_ActivityPaneQuery($account: UAddress!) {
+    account(address: $account) {
       id
       proposals {
         __typename
@@ -38,30 +41,30 @@ const Query = gql(/* GraphQL */ `
         ... on Message {
           signature
         }
-        ...TransactionItem_Transaction
-        ...MessageItem_Message
+        ...TransactionItem_transaction @alias
+        ...MessageItem_message @alias
       }
-      transfers(input: { direction: In, internal: false }) {
+      transfers(input: { incoming: true, internal: false }) {
         __typename
         id
         timestamp
-        ...IncomingTransferItem_Transfer
+        ...IncomingTransferItem_transfer
       }
     }
 
     user {
       id
-      ...TransactionItem_User
-      ...MessageItem_User
+      ...TransactionItem_user
+      ...MessageItem_user
     }
   }
-`);
+`;
 
 function ActivityPane_() {
   const { styles } = useStyles(stylesheet);
   const { account } = useLocalParams(AccountParams);
 
-  const { account: a, user } = useQuery(Query, { account }).data ?? {};
+  const { account: a, user } = useLazyLoadQuery<activity_ActivityPaneQuery>(Query, { account });
 
   const items = [...(a?.proposals ?? []), ...(a?.transfers ?? [])]
     .map((v) => ({ ...v, section: getItemSection(v), timestamp: asDateTime(v.timestamp) }))
@@ -93,16 +96,30 @@ function ActivityPane_() {
           ];
 
           return match(item)
-            .with({ __typename: 'Transaction' }, (t) => (
-              <TransactionItem transaction={t} user={user} containerStyle={containerStyle} />
-            ))
-            .with({ __typename: 'Message' }, (m) => (
-              <MessageItem message={m} user={user} containerStyle={containerStyle} />
-            ))
+            .with({ __typename: 'Transaction' }, (t) =>
+              t.TransactionItem_transaction ? (
+                <TransactionItem
+                  transaction={t.TransactionItem_transaction}
+                  user={user}
+                  containerStyle={containerStyle}
+                />
+              ) : null,
+            )
+            .with({ __typename: 'Message' }, (m) =>
+              m.MessageItem_message ? (
+                <MessageItem
+                  message={m.MessageItem_message}
+                  user={user}
+                  containerStyle={containerStyle}
+                />
+              ) : null,
+            )
             .with({ __typename: 'Transfer' }, (t) => (
-              <IncomingTransferItem transfer={t} containerStyle={containerStyle} />
+              <IncomingTransferItem transfer={t as any} containerStyle={containerStyle} />
             ))
-            .exhaustive();
+            .otherwise(() => {
+              throw new Error('Unexpected item type');
+            });
         }}
         ItemSeparatorComponent={() => <View style={styles.separator} />}
         ListEmptyComponent={<NoActivity />}
@@ -139,8 +156,8 @@ const stylesheet = createStyles(({ colors }) => ({
 }));
 
 type Item =
-  | NonNullable<ActivityPaneQuery['account']>['proposals'][0]
-  | NonNullable<ActivityPaneQuery['account']>['transfers'][0];
+  | NonNullable<activity_ActivityPaneQuery$data['account']>['proposals'][0]
+  | NonNullable<activity_ActivityPaneQuery$data['account']>['transfers'][0];
 type Section = ReturnType<typeof getItemSection>;
 
 function getItemSection(item: Item) {
@@ -150,6 +167,7 @@ function getItemSection(item: Item) {
     .with({ __typename: 'Message', signature: P.nullish }, (m) => 'Pending approval' as const)
     .otherwise((v) => {
       const ts = asDateTime(v.timestamp);
+      if (!ts) console.log('No timestamp', { v });
 
       if (ts.diffNow().days <= 7) return 'Past 7 days' as const;
 

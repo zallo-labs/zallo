@@ -87,12 +87,12 @@ export namespace $default {
     "implementation": string;
     "photo"?: string | null;
     "salt": string;
+    "approvers": Approver[];
     "messages": Message[];
     "proposals": Proposal[];
     "transactions": Transaction[];
     "transfers": Transfer[];
     "policies": Policy[];
-    "approvers": Approver[];
   }
   export interface Action extends std.$Object {
     "functions": ActionFunction[];
@@ -118,15 +118,19 @@ export namespace $default {
   }
   export type ApprovalIssue = "HashMismatch" | "Expired";
   export interface Approver extends std.$Object {
-    "bluetoothDevices"?: string[] | null;
     "address": string;
-    "cloud"?: {provider: CloudProvider, subject: string} | null;
-    "name"?: string | null;
-    "pushToken"?: string | null;
     "user": User;
     "labelled"?: Labelled | null;
-    "label"?: string | null;
     "accounts": Account[];
+    "details"?: ApproverDetails | null;
+    "label"?: string | null;
+  }
+  export interface ApproverDetails extends std.$Object {
+    "bluetoothDevices"?: string[] | null;
+    "approver": Approver;
+    "name"?: string | null;
+    "cloud"?: {provider: CloudProvider, subject: string} | null;
+    "pushToken"?: string | null;
   }
   export type CloudProvider = "Apple" | "Google";
   export interface UserLabelled extends Labelled {}
@@ -284,10 +288,11 @@ export namespace $default {
     "tokenAddress": string;
     "token"?: Token | null;
     "amount": string;
-    "direction": TransferDirection[];
     "from": string;
     "isFeeTransfer": boolean;
     "to": string;
+    "incoming": boolean;
+    "outgoing": boolean;
   }
   export interface Transferlike extends Event, TransferDetails {
     "spentBy"?: Policy | null;
@@ -297,7 +302,6 @@ export namespace $default {
     "previous"?: TransferApproval | null;
     "delta": string;
   }
-  export type TransferDirection = "In" | "Out";
   export interface TransferLimit extends std.$Object {
     "amount": bigint;
     "duration": number;
@@ -311,8 +315,8 @@ export namespace $default {
   export interface User extends std.$Object {
     "primaryAccount"?: Account | null;
     "approvers": Approver[];
-    "contacts": Contact[];
     "accounts": Account[];
+    "contacts": Contact[];
   }
   export interface current_approver extends Approver {}
   export interface current_user extends User {}
@@ -326,6 +330,7 @@ import ProposalResponse = $default.ProposalResponse;
 import Approval = $default.Approval;
 import ApprovalIssue = $default.ApprovalIssue;
 import Approver = $default.Approver;
+import ApproverDetails = $default.ApproverDetails;
 import CloudProvider = $default.CloudProvider;
 import UserLabelled = $default.UserLabelled;
 import Contact = $default.Contact;
@@ -355,7 +360,6 @@ import TransferDetails = $default.TransferDetails;
 import Transferlike = $default.Transferlike;
 import Transfer = $default.Transfer;
 import TransferApproval = $default.TransferApproval;
-import TransferDirection = $default.TransferDirection;
 import TransferLimit = $default.TransferLimit;
 import TransfersConfig = $default.TransfersConfig;
 import User = $default.User;
@@ -371,6 +375,7 @@ export type {
   Approval,
   ApprovalIssue,
   Approver,
+  ApproverDetails,
   CloudProvider,
   UserLabelled,
   Contact,
@@ -400,7 +405,6 @@ export type {
   Transferlike,
   Transfer,
   TransferApproval,
-  TransferDirection,
   TransferLimit,
   TransfersConfig,
   User,
@@ -677,6 +681,7 @@ export interface types {
     "Approval": $default.Approval;
     "ApprovalIssue": $default.ApprovalIssue;
     "Approver": $default.Approver;
+    "ApproverDetails": $default.ApproverDetails;
     "CloudProvider": $default.CloudProvider;
     "UserLabelled": $default.UserLabelled;
     "Contact": $default.Contact;
@@ -706,7 +711,6 @@ export interface types {
     "Transferlike": $default.Transferlike;
     "Transfer": $default.Transfer;
     "TransferApproval": $default.TransferApproval;
-    "TransferDirection": $default.TransferDirection;
     "TransferLimit": $default.TransferLimit;
     "TransfersConfig": $default.TransfersConfig;
     "User": $default.User;

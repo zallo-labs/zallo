@@ -6,7 +6,7 @@ export type Rules<
   TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
 > = UseControllerProps<TFieldValues, TName>['rules'];
 
-export const ADDRESS_FIELD_RULES: Rules = {
+export const ADDRESS_FIELD_RULES = {
   minLength: {
     value: ZERO_ADDR.length,
     message: `Must be ${ZERO_ADDR.length} characters`,
@@ -20,4 +20,4 @@ export const ADDRESS_FIELD_RULES: Rules = {
     message: `Must be ${ZERO_ADDR.length} characters`,
   },
   validate: (v) => isAddressLike(v) || 'Must be a valid address',
-};
+} satisfies Rules;

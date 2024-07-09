@@ -1,4 +1,3 @@
-import { FragmentType, gql, useFragment } from '@api';
 import Decimal from 'decimal.js';
 import { UAddress, asDecimal, asFp } from 'lib';
 import { FormattedNumber } from '#/format/FormattedNumber';
@@ -9,29 +8,33 @@ import { TokenAmount } from '#/token/TokenAmount';
 import { TokenIcon } from '#/token/TokenIcon';
 import { SwapRoute } from '~/hooks/swap/useSwapRoute';
 import { useEstimateSwap } from '~/util/swap/syncswap/estimate';
+import { graphql } from 'relay-runtime';
+import { SwapToTokenItem_token_from$key } from '~/api/__generated__/SwapToTokenItem_token_from.graphql';
+import { SwapToTokenItem_token_to$key } from '~/api/__generated__/SwapToTokenItem_token_to.graphql';
+import { useFragment } from 'react-relay';
 
-const FromToken = gql(/* GraphQL */ `
-  fragment SwapToTokenItem_FromToken on Token {
+const FromToken = graphql`
+  fragment SwapToTokenItem_token_from on Token {
     id
     symbol
     decimals
   }
-`);
+`;
 
-const ToToken = gql(/* GraphQL */ `
-  fragment SwapToTokenItem_ToToken on Token {
+const ToToken = graphql`
+  fragment SwapToTokenItem_token_to on Token {
     id
     decimals
-    ...TokenIcon_Token
+    ...TokenIcon_token
     ...TokenAmount_token
   }
-`);
+`;
 
 export interface SwapToTokenItemProps {
   account: UAddress;
-  from: FragmentType<typeof FromToken>;
+  from: SwapToTokenItem_token_from$key;
   fromAmount: Decimal;
-  to: FragmentType<typeof ToToken>;
+  to: SwapToTokenItem_token_to$key;
   route: SwapRoute;
   selectTo: () => void;
 }

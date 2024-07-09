@@ -36,6 +36,7 @@
       "**/build/**": true,
       "**/dist/**": true,
       "**/node_modules/**": true,
+      "**/__generated__": true,
       "yarn.lock": true,
     },
     "files.watcherExclude": {
@@ -81,5 +82,9 @@
     "jest.autoRun": "off",
     "typescript.tsdk": "/node_modules/typescript/lib",
     "solidity.compileUsingRemoteVersion": "v0.8.25",
+    "relay.rootDirectory": "app",
+    "relay.lspOutputLevel": "debug",
+    "relay.compilerOutputLevel": "debug",
+    "relay.autoStartCompiler": true,
   },
 }

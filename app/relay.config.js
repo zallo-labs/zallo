@@ -1,0 +1,40 @@
+// https://github.com/facebook/relay/tree/main/packages/relay-compiler#configuration
+// https://github.com/facebook/relay/blob/main/compiler/relay-compiler-config-schema.json
+module.exports = {
+  src: './src',
+  schema: '../api/schema.graphql',
+  language: 'typescript',
+  excludes: [
+    '**/node_modules/**',
+    '**/__mocks__/**',
+    '**/__generated__/**',
+    'relay.config.js',
+    'babel.config.js',
+  ],
+  artifactDirectory: './src/api/__generated__',
+  // schemaExtensions: ['./src/api/local'],
+  noFutureProofEnums: true,
+  customScalarTypes: {
+    ID: { name: 'UUID', path: 'lib' },
+    Address: { name: 'Address', path: 'lib' },
+    UAddress: { name: 'UAddress', path: 'lib' },
+    BigInt: { name: 'BigIntlike', path: '~/api/scalar' },
+    Bytes: { name: 'Hex', path: 'lib' },
+    Bytes32: { name: 'Hex', path: 'lib' },
+    Chain: { name: 'Chain', path: 'chains' },
+    DateTime: 'string',
+    Decimal: { name: 'Decimallike', path: 'lib' },
+    MAC: 'string',
+    PolicyKey: { name: 'PolicyKey', path: 'lib' },
+    Selector: { name: 'Selector', path: 'lib' },
+    Uint256: { name: 'BigIntlike', path: '~/api/scalar' },
+    UUID: { name: 'UUID', path: 'lib' },
+    URL: 'string',
+    TypedData: { name: 'TypedDataDefinition', path: 'viem' },
+    AbiFunction: { name: 'AbiFunction', path: 'abitype' },
+  },
+  featureFlags: {
+    enable_fragment_aliases: { kind: 'enabled' },
+    // enforce_fragment_alias_where_ambiguous: { kind: 'enabled' },
+  },
+};

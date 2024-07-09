@@ -5,6 +5,7 @@ import {
   asPolicyKey,
   randomDeploySalt,
   getProxyAddress,
+  Address,
   UAddress,
   asAddress,
   ACCOUNT_IMPLEMENTATION,
@@ -31,7 +32,7 @@ import { selectAccount2 } from './accounts.util';
 import { AccountEvent } from './accounts.model';
 
 const accountTrigger = (account: UAddress) => `account.updated:${account}`;
-const accountApproverTrigger = (account: UAddress) => `account.updated:approver:${account}`;
+const accountApproverTrigger = (approver: Address) => `account.updated:approver:${approver}`;
 export interface AccountUpdatedPayload extends EventPayload<AccountEvent> {
   account: UAddress;
 }
@@ -166,7 +167,7 @@ export class AccountsService {
 
     [
       accountTrigger(payload.account),
-      ...approvers.map((a) => accountApproverTrigger(asUAddress(a))),
+      ...approvers.map((a) => accountApproverTrigger(asAddress(a))),
     ].map((trigger) => this.pubsub.event<AccountUpdatedPayload>(trigger, payload));
   }
 

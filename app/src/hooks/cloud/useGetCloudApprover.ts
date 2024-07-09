@@ -5,42 +5,50 @@ import {
   CloudStorageErrorCode,
   CloudStorageScope,
 } from 'react-native-cloud-storage';
-import { gql } from '@api';
-import { authContext, useUrqlApiClient } from '@api/client';
-import { useMutation } from 'urql';
 import { fromPromise, ok, safeTry } from 'neverthrow';
 import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts';
 import { asHex } from 'lib';
-import { UpdateApproverInput } from '@api/documents.generated';
+import { fetchQuery, graphql } from 'relay-runtime';
+import { useRelayEnvironment } from 'react-relay';
+import { useMutation } from '~/api';
+import { useGetCloudApproverQuery } from '~/api/__generated__/useGetCloudApproverQuery.graphql';
+import { signAuthToken } from '~/api/auth-manager';
+import { UpdateApproverInput } from '~/api/__generated__/useGetCloudApproverMutation.graphql';
 
 const PK_PATH = '/approver.private-key';
 const SCOPE = CloudStorageScope.AppData;
 
-const Query = gql(/* GraphQL */ `
-  query UseGetCloudApprover($approver: Address!) {
-    approver(input: { address: $approver }) {
+const Query = graphql`
+  query useGetCloudApproverQuery($approver: Address!) {
+    approver(address: $approver) {
       id
-      name
-      cloud {
-        provider
-        subject
+      details {
+        id
+        name
+        cloud {
+          provider
+          subject
+        }
       }
     }
   }
-`);
+`;
 
-const UpdateApprover = gql(/* GraphQL */ `
-  mutation UseGetCloudApprover_UpdateApprover($input: UpdateApproverInput!) {
+const UpdateApprover = graphql`
+  mutation useGetCloudApproverMutation($input: UpdateApproverInput!) {
     updateApprover(input: $input) {
       id
-      name
-      cloud {
-        provider
-        subject
+      details {
+        id
+        name
+        cloud {
+          provider
+          subject
+        }
       }
     }
   }
-`);
+`;
 
 export interface GetCloudApproverParams {
   accessToken: string | null;
@@ -48,8 +56,8 @@ export interface GetCloudApproverParams {
 }
 
 export function useGetCloudApprover() {
-  const api = useUrqlApiClient();
-  const updateApprover = useMutation(UpdateApprover)[1];
+  const environment = useRelayEnvironment();
+  const updateApprover = useMutation(UpdateApprover);
 
   return useCallback(
     ({ accessToken, details }: GetCloudApproverParams) =>
@@ -69,7 +77,11 @@ export function useGetCloudApprover() {
         }
 
         (async function updateDetails() {
-          const e = (await api.query(Query, { approver: approver.address })).data?.approver;
+          const e = (
+            await fetchQuery<useGetCloudApproverQuery>(environment, Query, {
+              approver: approver.address,
+            }).toPromise()
+          )?.approver.details;
 
           await updateApprover(
             {
@@ -79,13 +91,13 @@ export function useGetCloudApprover() {
                 cloud: !e?.cloud ? details?.cloud : undefined,
               },
             },
-            await authContext(approver),
+            { authToken: await signAuthToken(approver) },
           );
         })();
 
         return ok(approver);
       }),
-    [api, updateApprover],
+    [environment, updateApprover],
   );
 }
 

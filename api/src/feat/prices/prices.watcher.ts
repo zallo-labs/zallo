@@ -1,12 +1,12 @@
 import { Injectable, Logger, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
-import { EvmPriceServiceConnection } from '@pythnetwork/pyth-evm-js';
 import { InjectRedis } from '@songkeys/nestjs-redis';
 import Decimal from 'decimal.js';
 import Redis from 'ioredis';
 import { Hex, asHex } from 'lib';
 import { CONFIG } from '~/config';
-import { extractFeedPrice } from './prices.util';
+import { parsePriceUpdate } from './prices.util';
 import { InjectRedisSubscriber } from '~/common/decorators/redis.decorator';
+import { HermesClient, PriceUpdate } from '@pythnetwork/hermes-client';
 
 interface PriceData {
   current: Decimal;
@@ -24,14 +24,15 @@ function priceIdKey(priceId: Hex) {
 @Injectable()
 export class PricesWatcher implements OnModuleInit, OnModuleDestroy {
   private log = new Logger(this.constructor.name);
-  private pyth: EvmPriceServiceConnection;
+  private pyth: HermesClient;
   private watched = new Set<Hex>();
+  private eventSource?: EventSource;
 
   constructor(
     @InjectRedis() private redis: Redis,
     @InjectRedisSubscriber() private redisSubscriber: Redis,
   ) {
-    this.pyth = this.newConnection();
+    this.pyth = new HermesClient(CONFIG.pythHermesUrl);
   }
 
   onModuleInit() {
@@ -48,7 +49,7 @@ export class PricesWatcher implements OnModuleInit, OnModuleDestroy {
   }
 
   onModuleDestroy() {
-    this.pyth.closeWebSocket();
+    this.eventSource?.close();
   }
 
   async getPrice(priceId: Hex): Promise<PriceData | undefined> {
@@ -65,42 +66,33 @@ export class PricesWatcher implements OnModuleInit, OnModuleDestroy {
   }
 
   private async watchSubscriptions() {
-    const priceIds = (await this.redis.smembers(SUBSCRIPTIONS))
-      .map(asHex)
-      .filter((p) => !this.watched.has(p));
-    if (!priceIds.length) return;
+    const priceIds = (await this.redis.smembers(SUBSCRIPTIONS)).map(asHex);
+    if (priceIds.every((p) => this.watched.has(p))) return;
 
-    for (const priceId of priceIds) {
-      this.watched.add(priceId);
-      const cacheKey = priceIdKey(priceId);
+    this.watched = new Set(priceIds);
+    this.eventSource?.close();
+    const eventSource = await this.pyth.getPriceUpdatesStream(priceIds, {
+      parsed: true,
+      benchmarksOnly: true,
+    });
 
-      this.pyth.subscribePriceFeedUpdates([priceId], (feed) => {
-        const p = extractFeedPrice(feed);
+    eventSource.onmessage = (m: MessageEvent<string>) => {
+      const updates = (JSON.parse(m.data) as PriceUpdate).parsed ?? [];
+      if (!updates.length) return;
 
-        this.redis
-          .multi()
+      const pipeline = this.redis.pipeline();
+      for (const priceUpdate of updates) {
+        const p = parsePriceUpdate(priceUpdate);
+
+        const cacheKey = priceIdKey(asHex(`0x${priceUpdate.id}`));
+        pipeline
           .hset(cacheKey, {
             current: p.current.toString(),
             ema: p.ema.toString(),
           })
-          .expire(cacheKey, EXPIRE_AFTER_SECONDS)
-          .exec();
-      });
-    }
-  }
-
-  private newConnection() {
-    const pyth = new EvmPriceServiceConnection(CONFIG.pythHermesUrl);
-    pyth.onWsError = (e) => this.handleWebsocketError(e);
-    return pyth;
-  }
-
-  private handleWebsocketError(error: Error) {
-    this.log.error(error);
-    // this.pyth.closeWebSocket();
-    // this.watched.clear();
-
-    // this.pyth = this.newConnection();
-    // this.watchSubscriptions();
+          .expire(cacheKey, EXPIRE_AFTER_SECONDS);
+      }
+      pipeline.exec();
+    };
   }
 }

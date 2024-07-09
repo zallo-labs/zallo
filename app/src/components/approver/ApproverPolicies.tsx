@@ -4,8 +4,6 @@ import { Actions } from '#/layout/Actions';
 import { ItemList } from '#/layout/ItemList';
 import { ListHeader } from '#/list/ListHeader';
 import { ListItem } from '#/list/ListItem';
-import { showError } from '#/provider/SnackbarProvider';
-import { FragmentType, gql, useFragment } from '@api';
 import { AddIcon, CloseIcon, PolicyIcon, UndoIcon, UpdateIcon } from '@theme/icons';
 import { createStyles, useStyles } from '@theme/styles';
 import { useRouter } from 'expo-router';
@@ -13,12 +11,16 @@ import { Address } from 'lib';
 import _ from 'lodash';
 import { View } from 'react-native';
 import { Switch } from 'react-native-paper';
-import { useMutation } from 'urql';
+import { useFragment } from 'react-relay';
+import { graphql } from 'relay-runtime';
 import { useImmer } from 'use-immer';
+import { useMutation } from '~/api';
+import { ApproverPoliciesMutation } from '~/api/__generated__/ApproverPoliciesMutation.graphql';
+import { ApproverPolicies_account$key } from '~/api/__generated__/ApproverPolicies_account.graphql';
 import { PolicyPresetKey, getPolicyPresetDetails } from '~/lib/policy/usePolicyPresets';
 
-const Update = gql(/* GraphQL */ `
-  mutation ApproverPolicies_Update($input: UpdatePoliciesInput!) {
+const Update = graphql`
+  mutation ApproverPoliciesMutation($input: UpdatePoliciesInput!) {
     updatePolicies(input: $input) {
       id
       threshold
@@ -30,10 +32,10 @@ const Update = gql(/* GraphQL */ `
       }
     }
   }
-`);
+`;
 
-const Account = gql(/* GraphQL */ `
-  fragment ApproverPolicies_Account on Account {
+const Account = graphql`
+  fragment ApproverPolicies_account on Account {
     id
     address
     policies {
@@ -46,20 +48,20 @@ const Account = gql(/* GraphQL */ `
         address
       }
     }
-    ...UsePolicyPresets_Account
+    ...usePolicyPresets_account
   }
-`);
+`;
 
 export interface ApproverPoliciesProps {
   approver: Address;
-  account: FragmentType<typeof Account>;
+  account: ApproverPolicies_account$key;
 }
 
 export function ApproverPolicies({ approver, ...props }: ApproverPoliciesProps) {
   const { styles } = useStyles(stylesheet);
   const account = useFragment(Account, props.account);
   const router = useRouter();
-  const updatePolicies = useMutation(Update)[1];
+  const updatePolicies = useMutation<ApproverPoliciesMutation>(Update);
   const policies = account.policies.filter((p) => p.key !== PolicyPresetKey.upgrade);
   const add = !policies.some((p) => p.approvers.some((a) => a.address === approver));
 
@@ -103,9 +105,8 @@ export function ApproverPolicies({ approver, ...props }: ApproverPoliciesProps) 
         }),
       },
     });
-    if (r.error) showError('Something went wrong updating policies', { event: { error: r.error } });
 
-    const proposal = r.data?.updatePolicies[0].proposal;
+    const proposal = r.updatePolicies?.[0].proposal;
     if (proposal) router.push({ pathname: '/(nav)/transaction/[id]', params: { id: proposal.id } });
   };
 

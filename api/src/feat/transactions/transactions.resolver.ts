@@ -1,4 +1,4 @@
-import { ID, Info, Mutation, Parent, Query, Resolver } from '@nestjs/graphql';
+import { Args, ID, Info, Mutation, Parent, Query, Resolver } from '@nestjs/graphql';
 import { GraphQLResolveInfo } from 'graphql';
 import {
   ExecuteTransactionInput,
@@ -13,14 +13,15 @@ import e from '~/edgeql-js';
 import { Input } from '~/common/decorators/input.decorator';
 import { uuid } from 'edgedb/dist/codecs/ifaces';
 import { ComputedField } from '~/common/decorators/computed.decorator';
-import { ApproveInput, UniqueProposalInput } from '../proposals/proposals.input';
+import { ApproveInput } from '../proposals/proposals.input';
+import { NodeArgs } from '../nodes/nodes.input';
 
 @Resolver(() => Transaction)
 export class TransactionsResolver {
   constructor(private service: TransactionsService) {}
 
   @Query(() => Transaction, { nullable: true })
-  async transaction(@Input() { id }: UniqueProposalInput, @Info() info: GraphQLResolveInfo) {
+  async transaction(@Args() { id }: NodeArgs, @Info() info: GraphQLResolveInfo) {
     return this.service.selectUnique(id, getShape(info));
   }
 
@@ -68,7 +69,7 @@ export class TransactionsResolver {
   }
 
   @Mutation(() => ID, { nullable: true })
-  async removeTransaction(@Input() { id }: UniqueProposalInput): Promise<uuid | null> {
+  async removeTransaction(@Args() { id }: NodeArgs): Promise<uuid | null> {
     return this.service.delete(id);
   }
 

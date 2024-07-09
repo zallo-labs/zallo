@@ -1,43 +1,45 @@
-import { FragmentType, gql, useFragment as getFragment } from '@api';
 import { Address, TransferLimit, asDecimal } from 'lib';
 import _ from 'lodash';
 import { Duration } from 'luxon';
 import { AddressIcon } from '#/Identicon/AddressIcon';
 import { ListItem } from '#/list/ListItem';
-import { useFormattedTokenAmount } from '#/token/TokenAmount';
+import { useTokenAmount } from '#/token/useTokenAmount';
 import { TokenIcon } from '#/token/TokenIcon';
-import { usePolicyDraft } from '~/lib/policy/draft';
+import { usePolicyDraft } from '~/lib/policy/policyAsDraft';
 import { truncateAddr } from '~/util/format';
 import { Chevron } from '#/Chevron';
 import { useState } from 'react';
 import { TokenSpending } from './TokenSpending';
 import { createStyles, useStyles } from '@theme/styles';
 import { View } from 'react-native';
+import { graphql } from 'relay-runtime';
+import { useFragment } from 'react-relay';
+import { TokenLimitItem_token$key } from '~/api/__generated__/TokenLimitItem_token.graphql';
 
-const Token = gql(/* GraphQL */ `
-  fragment TokenLimitItem_Token on Token {
+const Token = graphql`
+  fragment TokenLimitItem_token on Token {
     name
     decimals
-    ...TokenIcon_Token
-    ...UseFormattedTokenAmount_token
+    ...TokenIcon_token
+    ...useTokenAmount_token
   }
-`);
+`;
 
 export interface TokenLimitItemProps {
   address: Address;
-  token: FragmentType<typeof Token> | null | undefined;
+  token: TokenLimitItem_token$key | null | undefined;
 }
 
 export function TokenLimitItem({ address, ...props }: TokenLimitItemProps) {
   const { styles } = useStyles(stylesheet);
-  const token = getFragment(Token, props.token);
+  const token = useFragment(Token, props.token);
   const [policy] = usePolicyDraft();
 
   const [expanded, setExpanded] = useState(false);
 
   const limit: TransferLimit | undefined = policy.transfers.limits[address];
   // TODO: make limit.amount a decimal
-  const formattedAmount = useFormattedTokenAmount({
+  const formattedAmount = useTokenAmount({
     token,
     amount: token && limit ? asDecimal(limit.amount, token?.decimals) : 0,
   });

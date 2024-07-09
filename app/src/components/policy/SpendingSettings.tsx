@@ -1,4 +1,3 @@
-import { gql } from '@api';
 import { AddIcon, GenericTokenIcon, OutboundIcon } from '@theme/icons';
 import { createStyles, useStyles } from '@theme/styles';
 import { asAddress, asChain, asUAddress } from 'lib';
@@ -11,22 +10,24 @@ import { ListItemSkeleton } from '#/list/ListItemSkeleton';
 import { ListItemTrailingText } from '#/list/ListItemTrailingText';
 import { TokenLimitItem } from '#/policy/TokenLimitItem';
 import { withSuspense } from '#/skeleton/withSuspense';
-import { useQuery } from '~/gql';
 import { useToggle } from '~/hooks/useToggle';
-import { usePolicyDraft } from '~/lib/policy/draft';
+import { usePolicyDraft } from '~/lib/policy/policyAsDraft';
 import { CollapsibleItemList } from '#/layout/CollapsibleItemList';
 import { DEFAULT_LIMIT } from './TokenSpending';
 import { useSelectToken } from '~/hooks/useSelectToken';
+import { graphql } from 'relay-runtime';
+import { useLazyLoadQuery } from 'react-relay';
+import { SpendingSettingsQuery } from '~/api/__generated__/SpendingSettingsQuery.graphql';
 
-const Query = gql(/* GraphQL */ `
-  query SpendingSettings($input: TokensInput!) {
+const Query = graphql`
+  query SpendingSettingsQuery($input: TokensInput!) {
     tokens(input: $input) {
       id
       address
-      ...TokenLimitItem_Token
+      ...TokenLimitItem_token
     }
   }
-`);
+`;
 
 function SpendingSettings_() {
   const { styles } = useStyles(stylesheet);
@@ -38,7 +39,7 @@ function SpendingSettings_() {
   const { transfers } = policy;
   const chain = asChain(policy.account);
   const tokenAddresses = Object.keys(transfers.limits).map((address) => asUAddress(address, chain));
-  const query = useQuery(Query, { input: { address: tokenAddresses } }).data.tokens;
+  const query = useLazyLoadQuery<SpendingSettingsQuery>(Query, { input: { address: tokenAddresses } }).tokens; 
 
   const tokens = useMemo(
     () =>

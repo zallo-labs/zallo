@@ -1,35 +1,28 @@
-import { gql } from '@api';
 import { materialCommunityIcon } from '@theme/icons';
-import { OperationContext, useMutation } from 'urql';
 import { AccountParams } from '~/app/(nav)/[account]/_layout';
 import { Button } from '#/Button';
 import { QrModal } from '#/QrModal';
-import { useQuery } from '~/gql';
 import { useLocalParams } from '~/hooks/useLocalParams';
+import { graphql } from 'relay-runtime';
+import { useLazyLoadQuery } from 'react-relay';
+import { receive_ReceiveModalQuery } from '~/api/__generated__/receive_ReceiveModalQuery.graphql';
+import { useRequestTokens } from '~/hooks/mutations/useRequestTokens';
 
-const Query = gql(/* GraphQL */ `
-  query ReceiveModal($account: UAddress!) {
+const Query = graphql`
+  query receive_ReceiveModalQuery($account: UAddress!) {
     requestableTokens(input: { account: $account })
   }
-`);
-
-const RequestTokens = gql(/* GraphQL */ `
-  mutation ReceiveModal_RequestTokens($account: UAddress!) {
-    requestTokens(input: { account: $account })
-  }
-`);
+`;
 
 const FaucetIcon = materialCommunityIcon('water');
-const queryContext: Partial<OperationContext> = { suspense: false };
-
-const ReceiveModalParams = AccountParams;
 
 export default function ReceiveModal() {
-  const { account } = useLocalParams(ReceiveModalParams);
-  const requestTokens = useMutation(RequestTokens)[1];
+  const { account } = useLocalParams(AccountParams);
+  const requestTokens = useRequestTokens();
 
-  const { requestableTokens = [] } =
-    useQuery(Query, { account }, { context: queryContext }).data ?? {};
+  const { requestableTokens } = useLazyLoadQuery<receive_ReceiveModalQuery>(Query, {
+    account,
+  });
 
   return (
     <QrModal
@@ -37,11 +30,7 @@ export default function ReceiveModal() {
       actions={
         <>
           {requestableTokens.length > 0 && (
-            <Button
-              mode="contained-tonal"
-              icon={FaucetIcon}
-              onPress={() => requestTokens({ account })}
-            >
+            <Button mode="contained-tonal" icon={FaucetIcon} onPress={() => requestTokens(account)}>
               Request testnet tokens
             </Button>
           )}

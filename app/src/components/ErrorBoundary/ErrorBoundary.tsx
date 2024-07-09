@@ -16,6 +16,7 @@ export function ErrorBoundary({ error, retry }: ErrorBoundaryProps) {
 
   return (
     <ErrorBoundaryDetails
+      error={error}
       actions={
         <>
           <Button mode="text" onPress={retry}>

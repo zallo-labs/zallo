@@ -1,39 +1,62 @@
-import { FragmentType, gql, useFragment } from '@api';
 import { useApproverAddress } from '~/lib/network/useApprover';
-import { Address, asMessageTypedData } from 'lib';
+import { Address, asMessageTypedData, UUID } from 'lib';
 import { match } from 'ts-pattern';
-import { useMutation } from 'urql';
 import { showError } from '#/provider/SnackbarProvider';
 import { proposalAsTypedData } from '~/lib/proposalAsTypedData';
 import { useGetLedgerApprover } from '~/app/(sheet)/ledger/approve';
 import { useSignWithApprover } from '#/transaction/useSignWithApprover';
 import { ampli, type ApprovalProperties } from '~/lib/ampli';
-import type { ApproveInput } from '@api/generated/graphql';
 import { hapticFeedback } from '~/lib/haptic';
 import { useGetAppleApprover } from '#/cloud/useGetAppleApprover';
 import { useGetGoogleApprover } from '#/cloud/google/useGetGoogleApprover';
 import { TypedDataDefinition, hashMessage, hashTypedData } from 'viem';
-import { useMemo } from 'react';
+import { graphql } from 'relay-runtime';
+import { useFragment } from 'react-relay';
+import { useApprove_user$key } from '~/api/__generated__/useApprove_user.graphql';
+import {
+  useApprove_proposal$data,
+  useApprove_proposal$key,
+} from '~/api/__generated__/useApprove_proposal.graphql';
+import { useMutation, UseMutationOptions } from '~/api';
+import { useApprove_approveMessageMutation } from '~/api/__generated__/useApprove_approveMessageMutation.graphql';
+import {
+  ApproveInput,
+  useApprove_approveTransactionMutation,
+} from '~/api/__generated__/useApprove_approveTransactionMutation.graphql';
+import { randomUUID } from '~/lib/id';
 
-const User = gql(/* GraphQL */ `
-  fragment UseApprove_User on User {
+graphql`
+  fragment useApprove_assignable_approval on Approval @assignable {
+    __typename
+  }
+`;
+
+const User = graphql`
+  fragment useApprove_user on User {
     id
     approvers {
       id
       address
-      bluetoothDevices
-      cloud {
-        provider
-        subject
+      details {
+        id
+        bluetoothDevices
+        cloud {
+          provider
+          subject
+        }
       }
     }
   }
-`);
+`;
 
-const Proposal = gql(/* GraphQL */ `
-  fragment UseApprove_Proposal on Proposal {
+const Proposal = graphql`
+  fragment useApprove_proposal on Proposal {
     __typename
     id
+    account {
+      id
+      address
+    }
     policy {
       id
       approvers {
@@ -41,6 +64,15 @@ const Proposal = gql(/* GraphQL */ `
       }
     }
     approvals {
+      id
+      createdAt
+      approver {
+        id
+        address
+      }
+      ...ApprovalItem_approval
+    }
+    rejections {
       id
       approver {
         id
@@ -53,48 +85,51 @@ const Proposal = gql(/* GraphQL */ `
       updatable
       message
       typedData
-      account {
-        id
-        address
-      }
     }
-    ...proposalAsTypedData_Transaction
+    ... on Transaction @alias(as: "proposalAsTypedData") {
+      ...proposalAsTypedData_Transaction
+    }
   }
-`);
+`;
 
-const ApproveTransaction = gql(/* GraphQL */ `
-  mutation UseApprove_ApproveTransaction($input: ApproveInput!) {
+const ApproveTransaction = graphql`
+  mutation useApprove_approveTransactionMutation($input: ApproveInput!) @raw_response_type {
     approveTransaction(input: $input) {
       __typename
       id
       approvals {
         id
+        approver {
+          id
+          address
+        }
+        ...ApprovalItem_approval
       }
       rejections {
         id
       }
     }
   }
-`);
+`;
 
-const ApproveMessage = gql(/* GraphQL */ `
-  mutation UseApprove_ApproveMessage($input: ApproveInput!) {
+const ApproveMessage = graphql`
+  mutation useApprove_approveMessageMutation($input: ApproveInput!) @raw_response_type {
     approveMessage(input: $input) {
       __typename
       id
       approvals {
-        id
+        ...ApprovalItem_approval
       }
       rejections {
         id
       }
     }
   }
-`);
+`;
 
 export interface UseApproveParams {
-  user: FragmentType<typeof User>;
-  proposal: FragmentType<typeof Proposal>;
+  user: useApprove_user$key;
+  proposal: useApprove_proposal$key;
   approver?: Address;
 }
 
@@ -104,32 +139,38 @@ export function useApprove(params: UseApproveParams) {
   const device = useApproverAddress();
   const signWithDevice = useSignWithApprover();
   const getLedgerApprover = useGetLedgerApprover();
-  const approveTransaction = useMutation(ApproveTransaction)[1];
-  const approveMessage = useMutation(ApproveMessage)[1];
   const getGoogleApprover = useGetGoogleApprover();
   const getAppleApprover = useGetAppleApprover();
+
   const deviceApprover = useApproverAddress();
-  const approver = params.approver ?? deviceApprover;
+  const approverAddress = params.approver ?? deviceApprover;
+  const approver = user.approvers.find((a) => a.address === approverAddress);
 
-  const userApprover = user.approvers.find((a) => a.address === approver);
-  const canApprove =
-    p.updatable &&
-    !!userApprover &&
-    p.policy.approvers.some((a) => a.id === userApprover.id) &&
-    !p.approvals.some((a) => a.approver.id === userApprover.id);
-
-  const proposalData: TypedDataDefinition = useMemo(
-    () =>
-      p.__typename === 'Transaction'
-        ? proposalAsTypedData(p)
-        : asMessageTypedData(
-            p.account.address,
-            p.typedData ? hashTypedData(p.typedData) : hashMessage(p.message),
-          ),
-    [p],
+  const approveTransaction = useMutation<useApprove_approveTransactionMutation>(
+    ApproveTransaction,
+    approveTransactionMutationParams(approver, p),
+  );
+  const approveMessage = useMutation<useApprove_approveMessageMutation>(
+    ApproveMessage,
+    approveMessageMutationParams(approver, p),
   );
 
-  if (!userApprover || !p.updatable || !canApprove) return undefined;
+  const canApprove =
+    p.updatable &&
+    approver &&
+    p.policy.approvers.some((a) => a.id === approver.id) &&
+    !p.approvals.some((a) => a.approver.id === approver.id);
+
+  const proposalData: TypedDataDefinition | undefined =
+    p.__typename === 'Transaction'
+      ? p.proposalAsTypedData
+        ? proposalAsTypedData(p.proposalAsTypedData)
+        : undefined
+      : asMessageTypedData(
+          p.account.address,
+          p.typedData ? hashTypedData(p.typedData) : hashMessage(p.message!),
+        );
+  if (!approver || !p.updatable || !canApprove || !proposalData) return undefined;
 
   const approve = async (method: ApprovalProperties['method'], input: Omit<ApproveInput, 'id'>) => {
     hapticFeedback('neutral');
@@ -140,28 +181,24 @@ export function useApprove(params: UseApproveParams) {
     const type = p.__typename === 'Transaction' ? 'Transaction' : 'Message';
     ampli.approval({ method, type });
 
-    return r.data
-      ? 'approveTransaction' in r.data
-        ? r.data.approveTransaction
-        : r.data.approveMessage
-      : undefined;
+    return r ? ('approveTransaction' in r ? r.approveTransaction : r.approveMessage) : undefined;
   };
 
-  if (approver === device) {
+  if (approverAddress === device) {
     return async () => {
       const signature = await signWithDevice.signTypedData(proposalData);
 
       if (signature.isOk()) return approve('Device', { signature: signature.value });
     };
-  } else if (userApprover?.bluetoothDevices?.length) {
+  } else if (approver.details?.bluetoothDevices?.length) {
     return async () => {
-      const { signTypedData } = await getLedgerApprover({ device: approver });
+      const { signTypedData } = await getLedgerApprover({ device: approverAddress });
       const signature = await signTypedData(proposalData);
 
-      if (signature) return approve('Ledger', { approver, signature });
+      if (signature) return approve('Ledger', { approver: approverAddress, signature });
     };
-  } else if (userApprover.cloud) {
-    return match(userApprover.cloud)
+  } else if (approver.details?.cloud) {
+    return match(approver.details.cloud)
       .with({ provider: 'Apple' }, ({ subject }) => {
         if (!getAppleApprover) return undefined;
 
@@ -196,4 +233,49 @@ export function useApprove(params: UseApproveParams) {
       })
       .exhaustive();
   }
+}
+function approveTransactionMutationParams(
+  approver: { id: UUID; address: Address } | undefined,
+  p: useApprove_proposal$data,
+): UseMutationOptions<useApprove_approveTransactionMutation> | undefined {
+  return {
+    optimisticResponse: approver && {
+      approveTransaction: {
+        __typename: 'Transaction',
+        id: p.id,
+        approvals: [
+          ...p.approvals.filter((a) => a.approver.id !== approver.id),
+          {
+            id: randomUUID(),
+            createdAt: new Date().toISOString(),
+            approver: { id: approver.id, address: approver.address },
+          },
+        ],
+        rejections: p.rejections.filter((a) => a.approver.id !== approver.id),
+      },
+    },
+  };
+}
+
+function approveMessageMutationParams(
+  approver: { id: UUID; address: Address } | undefined,
+  p: useApprove_proposal$data,
+): UseMutationOptions<useApprove_approveMessageMutation> | undefined {
+  return {
+    optimisticResponse: approver && {
+      approveMessage: {
+        __typename: 'Message',
+        id: p.id,
+        approvals: [
+          ...p.approvals.filter((a) => a.approver.id !== approver.id),
+          {
+            id: randomUUID(),
+            createdAt: new Date().toISOString(),
+            approver: { id: approver.id, address: approver.address },
+          },
+        ],
+        rejections: p.rejections.filter((a) => a.approver.id !== approver.id),
+      },
+    },
+  };
 }

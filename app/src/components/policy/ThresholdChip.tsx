@@ -3,7 +3,7 @@ import { SelectChip } from '#/fields/SelectChip';
 import _ from 'lodash';
 import { match } from 'ts-pattern';
 import { useEffect } from 'react';
-import { usePolicyDraft } from '~/lib/policy/draft';
+import { usePolicyDraft } from '~/lib/policy/policyAsDraft';
 import { createStyles, useStyles } from '@theme/styles';
 
 export function ThresholdChip() {

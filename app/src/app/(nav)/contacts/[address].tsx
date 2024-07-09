@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { zAddress, zChain, zUAddress } from '~/lib/zod';
 import { useLocalParams } from '~/hooks/useLocalParams';
 import { useRouter } from 'expo-router';
-import { Address, asAddress, asChain, asUAddress, tryAsUAddress } from 'lib';
+import { Address, ZERO_ADDR, asAddress, asChain, asUAddress, tryAsUAddress } from 'lib';
 import { RemoveIcon } from '@theme/icons';
 import { useForm } from 'react-hook-form';
 import { StyleSheet } from 'react-native';
@@ -13,9 +13,6 @@ import { FormSubmitButton } from '#/fields/FormSubmitButton';
 import { FormTextField } from '#/fields/FormTextField';
 import { Actions } from '#/layout/Actions';
 import { FormResetIcon } from '#/fields/ResetFormIcon';
-import { gql, useFragment } from '@api/generated';
-import { useQuery } from '~/gql';
-import { useMutation } from 'urql';
 import { useConfirmRemoval } from '~/hooks/useConfirm';
 import { withSuspense } from '#/skeleton/withSuspense';
 import { ScrollableScreenSurface } from '#/layout/ScrollableScreenSurface';
@@ -26,36 +23,25 @@ import { Appbar } from '#/Appbar/Appbar';
 import { Pane } from '#/layout/Pane';
 import { FormChainSelector } from '#/fields/FormChainSelector';
 import { PaneSkeleton } from '#/skeleton/PaneSkeleton';
+import { graphql } from 'relay-runtime';
+import { useLazyLoadQuery } from 'react-relay';
+import { Address_ContactScreenQuery } from '~/api/__generated__/Address_ContactScreenQuery.graphql';
+import { useUpsertContact } from '~/hooks/mutations/useUpsertContact';
+import { useRemoveContact } from '~/hooks/mutations/useRemoveContact';
 
-const Contact = gql(/* GraphQL */ `
-  fragment ContactScreen_Contact on Contact {
-    id
-    address
-    name
-  }
-`);
-
-const Query = gql(/* GraphQL */ `
-  query Contact($address: UAddress!) {
-    contact(input: { address: $address }) {
-      ...ContactScreen_Contact
+const Query = graphql`
+  query Address_ContactScreenQuery($address: UAddress!, $include: Boolean!) {
+    contact(address: $address) @include(if: $include) {
+      id
+      address
+      name
+      ...useRemoveContact_contact
     }
-  }
-`);
 
-const Upsert = gql(/* GraphQL */ `
-  mutation ContactScreen_Upsert($input: UpsertContactInput!) {
-    upsertContact(input: $input) {
-      ...ContactScreen_Contact
-    }
+    ...useUpsertContact_query
+    ...useRemoveContact_query
   }
-`);
-
-const Delete = gql(/* GraphQL */ `
-  mutation ContactScreen_Delete($address: UAddress!) {
-    deleteContact(input: { address: $address })
-  }
-`);
+`;
 
 const schema = z.object({
   name: z.string().min(1),
@@ -70,16 +56,19 @@ export interface ContactScreenProps {
 
 function ContactScreen_(props: ContactScreenProps) {
   const router = useRouter();
-  const upsert = useMutation(Upsert)[1];
-  const remove = useMutation(Delete)[1];
   const confirmRemove = useConfirmRemoval({
     message: 'Are you sure you want to remove this contact',
   });
   const selectedChain = useSelectedChain();
 
   const existingAddress = tryAsUAddress(props.address, props.chain);
-  const { data } = useQuery(Query, { address: existingAddress! }, { pause: !existingAddress });
-  const current = useFragment(Contact, data?.contact);
+  const query = useLazyLoadQuery<Address_ContactScreenQuery>(Query, {
+    address: existingAddress ?? `zksync:${ZERO_ADDR}`,
+    include: !!existingAddress,
+  });
+  const current = query.contact;
+  const upsert = useUpsertContact({ query });
+  const remove = useRemoveContact({ query, contact: query.contact });
 
   const { control, handleSubmit, reset } = useForm<z.infer<typeof schema>>({
     resolver: zodResolver(schema),
@@ -93,7 +82,9 @@ function ContactScreen_(props: ContactScreenProps) {
   const submit = handleSubmit(async (input) => {
     const { name, address, chain } = input;
     await upsert({
-      input: { name, address: asUAddress(address, chain), previousAddress: current?.address },
+      name,
+      address: asUAddress(address, chain),
+      previousAddress: current?.address,
     });
     router.back();
     reset(input);
@@ -104,7 +95,7 @@ function ContactScreen_(props: ContactScreenProps) {
       <Appbar
         mode="small"
         headline="Contact"
-        {...(current && {
+        {...(remove && {
           trailing: [
             (props) => <FormResetIcon control={control} reset={reset} {...props} />,
             (props) => (
@@ -115,8 +106,8 @@ function ContactScreen_(props: ContactScreenProps) {
                     title="Remove contact"
                     onPress={handle(async () => {
                       if (await confirmRemove()) {
-                        remove({ address: current.address });
                         router.back();
+                        remove();
                       }
                     })}
                   />

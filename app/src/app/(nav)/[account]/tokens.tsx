@@ -5,9 +5,6 @@ import { AddIcon } from '@theme/icons';
 import { ListHeader } from '#/list/ListHeader';
 import { TokenItem } from '#/token/TokenItem';
 import { useState } from 'react';
-import { gql } from '@api/generated';
-import { useQuery } from '~/gql';
-import { OperationContext } from 'urql';
 import { z } from 'zod';
 import { zUAddress } from '~/lib/zod';
 import { useLocalParams } from '~/hooks/useLocalParams';
@@ -16,21 +13,22 @@ import { ScreenSkeleton } from '#/skeleton/ScreenSkeleton';
 import { SearchbarOptions } from '#/Appbar/SearchbarOptions';
 import { ScreenSurface } from '#/layout/ScreenSurface';
 import { MenuOrSearchIcon } from '#/Appbar/MenuOrSearchIcon';
+import { graphql } from 'relay-runtime';
+import { tokens_TokensScreenQuery } from '~/api/__generated__/tokens_TokensScreenQuery.graphql';
+import { useLazyLoadQuery } from 'react-relay';
 
-const Query = gql(/* GraphQL */ `
-  query TokensScreen($account: UAddress!, $chain: Chain, $query: String) {
+const Query = graphql`
+  query tokens_TokensScreenQuery($account: UAddress!, $chain: Chain, $query: String) {
     tokens(input: { chain: $chain, query: $query }) {
       id
       address
       balance(input: { account: $account })
-      ...TokenItem_Token
+      ...TokenItem_token
     }
   }
-`);
+`;
 
 const TokensScreenParams = z.object({ account: zUAddress() });
-
-const noSuspense: Partial<OperationContext> = { suspense: false };
 
 function TokensScreen() {
   const { account } = useLocalParams(TokensScreenParams);
@@ -38,8 +36,11 @@ function TokensScreen() {
 
   const [query, setQuery] = useState('');
 
-  const tokens =
-    useQuery(Query, { account, chain: asChain(account), query }, noSuspense).data.tokens ?? [];
+  const { tokens } = useLazyLoadQuery<tokens_TokensScreenQuery>(Query, {
+    account,
+    chain: asChain(account),
+    query: query || null,
+  });
 
   return (
     <>

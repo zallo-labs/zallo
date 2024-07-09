@@ -1,14 +1,9 @@
-import { Field, ID } from '@nestjs/graphql';
 import Decimal from 'decimal.js';
-import { Hex } from 'lib';
 import { DecimalField } from '~/common/scalars/Decimal.scalar';
-import { CustomNodeType } from '~/common/decorators/interface.decorator';
+import { CustomNode, CustomNodeType } from '~/common/decorators/interface.decorator';
 
 @CustomNodeType()
-export class Price {
-  @Field(() => ID, { description: 'Pyth USD price id' })
-  id: Hex;
-
+export class Price extends CustomNode {
   @DecimalField()
   eth: Decimal;
 

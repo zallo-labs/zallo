@@ -1,5 +1,3 @@
-import { FragmentType, gql, useFragment } from '@api/generated';
-import { useMutation } from 'urql';
 import { TokenItem } from '#/token/TokenItem';
 import { useSelectToken } from '~/hooks/useSelectToken';
 import { createStyles, useStyles } from '@theme/styles';
@@ -12,10 +10,11 @@ import Collapsible from 'react-native-collapsible';
 import { View } from 'react-native';
 import { Text } from 'react-native-paper';
 import { TokenAmount } from '#/token/TokenAmount';
-import { getOptimizedDocument } from '~/gql';
+import { graphql, useFragment, useMutation } from 'react-relay';
+import { FeesSection_transaction$key } from '~/api/__generated__/FeesSection_transaction.graphql';
 
-const Transaction = gql(/* GraphQL */ `
-  fragment FeesSection_Transaction on Transaction
+const Transaction = graphql`
+  fragment FeesSection_transaction on Transaction
   @argumentDefinitions(transaction: { type: "ID!" }) {
     id
     status
@@ -31,7 +30,7 @@ const Transaction = gql(/* GraphQL */ `
         eth
       }
       balance(input: { transaction: $transaction })
-      ...TokenItem_Token
+      ...TokenItem_token
       ...TokenAmount_token
     }
     updatable
@@ -55,31 +54,31 @@ const Transaction = gql(/* GraphQL */ `
       ethPerFeeToken
     }
     result {
+      __typename
       id
       ... on ReceiptResult {
         networkEthFee
       }
     }
   }
-`);
+`;
 
-const Update = gql(/* GraphQL */ `
-  mutation FeeToken_Update($transaction: ID!, $feeToken: Address!) {
+const Update = graphql`
+  mutation FeesSection_UpdateMutation($transaction: ID!, $feeToken: Address!) {
     updateTransaction(input: { id: $transaction, feeToken: $feeToken }) {
-      ...FeesSection_Transaction @arguments(transaction: $transaction)
+      ...FeesSection_transaction @arguments(transaction: $transaction)
     }
   }
-`);
-const OptimizedUpdate = getOptimizedDocument(Update);
+`;
 
-export interface FeeTokenProps {
-  proposal: FragmentType<typeof Transaction>;
+export interface FeesSectionProps {
+  transaction: FeesSection_transaction$key;
 }
 
-export function FeesSection(props: FeeTokenProps) {
+export function FeesSection(props: FeesSectionProps) {
   const { styles } = useStyles(stylesheet);
-  const p = useFragment(Transaction, props.proposal);
-  const update = useMutation(OptimizedUpdate)[1];
+  const p = useFragment(Transaction, props.transaction);
+  const [update, isUpdating] = useMutation(Update);
   const selectToken = useSelectToken();
 
   const [expanded, toggleExpanded] = useToggle(false);
@@ -88,7 +87,7 @@ export function FeesSection(props: FeeTokenProps) {
   const estNetworkEthFee = new Decimal(p.estimatedFees.maxNetworkEthFee);
   const actNetworkEthFee =
     p.result?.__typename === 'Successful' || p.result?.__typename === 'Failed'
-      ? new Decimal(p.result.networkEthFee)
+      ? new Decimal(p.result.networkEthFee!)
       : undefined;
 
   const paymasterEthFees = actNetworkEthFee ? p.paymasterEthFees : p.estimatedFees.paymasterEthFees;
@@ -161,9 +160,10 @@ export function FeesSection(props: FeeTokenProps) {
           mode="outlined"
           icon={GenericTokenIcon}
           style={styles.button}
+          loading={isUpdating}
           onPress={async () => {
             const token = await selectToken({ account: p.account.address, feeToken: true });
-            if (token) await update({ transaction: p.id, feeToken: asAddress(token) });
+            if (token) update({ variables: { transaction: p.id, feeToken: asAddress(token) } });
           }}
         >
           Pay fees in another token

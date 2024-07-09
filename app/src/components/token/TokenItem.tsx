@@ -5,14 +5,16 @@ import { ListItemSkeleton } from '../list/ListItemSkeleton';
 import { withSuspense } from '../skeleton/withSuspense';
 import { TokenAmount } from './TokenAmount';
 import { Decimallike } from 'lib';
-import { FragmentType, gql, useFragment } from '@api/generated';
 import { TokenIcon } from './TokenIcon';
 import { FC, memo } from 'react';
 import deepEqual from 'fast-deep-equal';
 import Decimal from 'decimal.js';
+import { graphql } from 'relay-runtime';
+import { useFragment } from 'react-relay';
+import { TokenItem_token$key } from '~/api/__generated__/TokenItem_token.graphql';
 
-const Token = gql(/* GraphQL */ `
-  fragment TokenItem_Token on Token {
+const Token = graphql`
+  fragment TokenItem_token on Token {
     id
     address
     name
@@ -21,13 +23,13 @@ const Token = gql(/* GraphQL */ `
       id
       usd
     }
-    ...TokenIcon_Token
+    ...TokenIcon_token
     ...TokenAmount_token
   }
-`);
+`;
 
 export interface TokenItemProps extends Omit<Partial<ListItemProps>, 'trailing'> {
-  token: FragmentType<typeof Token>;
+  token: TokenItem_token$key;
   amount: Decimallike | undefined;
   containerStyle?: StyleProp<ViewStyle>;
   trailing?: FC<ListIconElementProps & ListItemTextProps & { Trailing: FC }>;

@@ -4,7 +4,6 @@ import { ListItem, ListItemProps } from '#/list/ListItem';
 import { ListItemSkeleton } from '#/list/ListItemSkeleton';
 import { withSuspense } from '#/skeleton/withSuspense';
 import { FiatValue } from '#/FiatValue';
-import { FragmentType, gql, useFragment } from '@api/generated';
 import { asUAddress } from 'lib';
 import { createStyles } from '@theme/styles';
 import { View } from 'react-native';
@@ -12,33 +11,36 @@ import { FilledIcon } from '#/FilledIcon';
 import { ReceiveIcon } from '@theme/icons';
 import { AddressIcon } from '#/Identicon/AddressIcon';
 import { ICON_SIZE } from '@theme/paper';
-import { useFormattedTokenAmount } from '#/token/TokenAmount';
+import { useTokenAmount } from '#/token/useTokenAmount';
+import { graphql } from 'relay-runtime';
+import { useFragment } from 'react-relay';
+import { IncomingTransferItem_transfer$key } from '~/api/__generated__/IncomingTransferItem_transfer.graphql';
 
-const Transfer = gql(/* GraphQL */ `
-  fragment IncomingTransferItem_Transfer on Transfer {
+const Transfer = graphql`
+  fragment IncomingTransferItem_transfer on Transfer {
     account {
       id
       chain
     }
     token {
       id
-      ...UseFormattedTokenAmount_token
+      ...useTokenAmount_token
     }
     from
     timestamp
     amount
     value
   }
-`);
+`;
 
 export interface IncomingTransferItemProps extends Partial<ListItemProps> {
-  transfer: FragmentType<typeof Transfer>;
+  transfer: IncomingTransferItem_transfer$key;
 }
 
 function IncomingTransferItem_(props: IncomingTransferItemProps) {
   const transfer = useFragment(Transfer, props.transfer);
   const from = useAddressLabel(asUAddress(transfer.from, transfer.account.chain));
-  const amount = useFormattedTokenAmount({ token: transfer.token, amount: transfer.amount });
+  const amount = useTokenAmount({ token: transfer.token, amount: transfer.amount });
 
   return (
     <ListItem

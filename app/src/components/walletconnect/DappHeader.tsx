@@ -5,32 +5,40 @@ import { CoreTypes } from '@walletconnect/types';
 import { createStyles, useStyles } from '@theme/styles';
 import { Link } from 'expo-router';
 import { DappVerification } from './DappVerification';
-import { FragmentType, gql, useFragment as getFragment } from '@api';
+import { graphql } from 'relay-runtime';
+import { DappHeader_dappMetadata$key } from '~/api/__generated__/DappHeader_dappMetadata.graphql';
+import { useFragment } from 'react-relay';
+import { O } from 'ts-toolbelt';
 
-const DappMetadata = gql(/* GraphQL */ `
-  fragment DappHeader_DappMetadata on DappMetadata {
+const DappMetadata = graphql`
+  fragment DappHeader_dappMetadata on DappMetadata {
     __typename
     name
     url
     icons
   }
-`);
+`;
 
-export interface DappHeaderProps {
-  dapp: CoreTypes.Metadata | FragmentType<typeof DappMetadata> | undefined;
-  action?: string;
-  request?: number;
-}
+export type DappHeaderProps = O.Either<
+  {
+    metadata: CoreTypes.Metadata | undefined;
+    dapp: DappHeader_dappMetadata$key | undefined;
+    action?: string;
+    request?: number;
+  },
+  'metadata' | 'dapp'
+>;
 
 export function DappHeader({ action, request, ...props }: DappHeaderProps) {
   const { styles } = useStyles(stylesheet);
-  const dapp =
-    // eslint-disable-next-line react-compiler/react-compiler   -- useFragment is not an actual hook
-    props.dapp && isFragment(props.dapp) ? getFragment(DappMetadata, props.dapp) : props.dapp;
+
+  const dappFragment = useFragment(DappMetadata, props.dapp);
+
+  const dapp = dappFragment || props.metadata;
 
   return (
     <View style={styles.container}>
-      {dapp && dapp.icons.length > 0 && <Image source={dapp.icons} style={styles.icon} />}
+      {dapp && dapp.icons.length > 0 && <Image source={[...dapp.icons]} style={styles.icon} />}
 
       <Text variant="headlineMedium" style={styles.actionText}>
         <Text variant="headlineMedium">{dapp?.name || 'Unknown dapp'} </Text>
@@ -72,9 +80,3 @@ const stylesheet = createStyles(({ colors, corner }) => ({
     marginTop: 16,
   },
 }));
-
-function isFragment(
-  d: CoreTypes.Metadata | FragmentType<typeof DappMetadata>,
-): d is FragmentType<typeof DappMetadata> {
-  return '__typename' in d;
-}

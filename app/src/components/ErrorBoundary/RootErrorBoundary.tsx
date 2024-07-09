@@ -13,6 +13,7 @@ export function RootErrorBoundary({ error, retry }: RootErrorBoundaryProps) {
 
   return (
     <ErrorBoundaryDetails
+      error={error}
       actions={
         <Button mode="contained" onPress={retry}>
           Retry

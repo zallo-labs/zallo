@@ -2,44 +2,48 @@ import { SideSheet } from '#/SideSheet/SideSheet';
 import { FormSubmitButton } from '#/fields/FormSubmitButton';
 import { FormTextField } from '#/fields/FormTextField';
 import { Actions } from '#/layout/Actions';
-import { showError } from '#/provider/SnackbarProvider';
-import { FragmentType, gql, useFragment } from '@api';
 import { createStyles, useStyles } from '@theme/styles';
 import { useForm } from 'react-hook-form';
-import { useMutation } from 'urql';
+import { useFragment } from 'react-relay';
+import { graphql } from 'relay-runtime';
+import { useMutation } from '~/api';
+import { ApproverDetailsSideSheet_UpdateMutation } from '~/api/__generated__/ApproverDetailsSideSheet_UpdateMutation.graphql';
+import { ApproverDetailsSideSheet_approver$key } from '~/api/__generated__/ApproverDetailsSideSheet_approver.graphql';
 
-const Update = gql(/* GraphQL */ `
-  mutation ApproverDetailsSideSheet_Update($input: UpdateApproverInput!) {
+const Update = graphql`
+  mutation ApproverDetailsSideSheet_UpdateMutation($input: UpdateApproverInput!) {
     updateApprover(input: $input) {
+      ...ApproverDetailsSideSheet_approver
+    }
+  }
+`;
+
+const Approver = graphql`
+  fragment ApproverDetailsSideSheet_approver on Approver {
+    id
+    address
+    details {
       id
       name
     }
   }
-`);
-
-const Approver = gql(/* GraphQL */ `
-  fragment ApproverDetailsSideSheet_UserApprover on UserApprover {
-    id
-    address
-    name
-  }
-`);
+`;
 
 interface Inputs {
   name: string;
 }
 
 export interface ApproverDetailsSideSheetProps {
-  approver: FragmentType<typeof Approver>;
+  approver: ApproverDetailsSideSheet_approver$key;
 }
 
 export function ApproverDetailsSideSheet(props: ApproverDetailsSideSheetProps) {
   const { styles } = useStyles(stylesheet);
   const approver = useFragment(Approver, props.approver);
-  const update = useMutation(Update)[1];
+  const update = useMutation<ApproverDetailsSideSheet_UpdateMutation>(Update);
 
   const { control, handleSubmit, reset } = useForm<Inputs>({
-    defaultValues: { name: approver.name ?? '' },
+    defaultValues: { name: approver.details?.name ?? '' },
   });
 
   return (
@@ -63,9 +67,7 @@ export function ApproverDetailsSideSheet(props: ApproverDetailsSideSheetProps) {
           control={control}
           requireChanges
           onPress={handleSubmit(async (input) => {
-            const r = await update({ input: { address: approver.address, name: input.name } });
-            if (r.error) return showError(r.error.message);
-
+            await update({ input: { address: approver.address, name: input.name } });
             reset(input);
           })}
         >

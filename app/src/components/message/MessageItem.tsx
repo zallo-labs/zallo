@@ -1,4 +1,3 @@
-import { FragmentType, gql, useFragment } from '@api/generated';
 import { ListItem, ListItemProps } from '../list/ListItem';
 import { MessageIcon } from './MessageIcon';
 import { P, match } from 'ts-pattern';
@@ -7,9 +6,13 @@ import { createStyles, useStyles } from '@theme/styles';
 import { withSuspense } from '#/skeleton/withSuspense';
 import { memo } from 'react';
 import { ListItemSkeleton } from '#/list/ListItemSkeleton';
+import { graphql } from 'relay-runtime';
+import { MessageItem_message$key } from '~/api/__generated__/MessageItem_message.graphql';
+import { MessageItem_user$key } from '~/api/__generated__/MessageItem_user.graphql';
+import { useFragment } from 'react-relay';
 
-const Message = gql(/* GraphQL */ `
-  fragment MessageItem_Message on Message {
+const Message = graphql`
+  fragment MessageItem_message on Message {
     id
     label
     signature
@@ -26,22 +29,22 @@ const Message = gql(/* GraphQL */ `
         id
       }
     }
-    ...MessageIcon_Message
+    ...MessageIcon_message
   }
-`);
+`;
 
-const User = gql(/* GraphQL */ `
-  fragment MessageItem_User on User {
+const User = graphql`
+  fragment MessageItem_user on User {
     id
     approvers {
       id
     }
   }
-`);
+`;
 
 export interface MessageItemProps extends Partial<ListItemProps> {
-  message: FragmentType<typeof Message>;
-  user: FragmentType<typeof User>;
+  message: MessageItem_message$key;
+  user: MessageItem_user$key;
 }
 
 function MessageItem_(props: MessageItemProps) {

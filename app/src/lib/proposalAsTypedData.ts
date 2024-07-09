@@ -1,9 +1,10 @@
-import { FragmentType, gql, useFragment as getFragment } from '@api/generated';
 import Decimal from 'decimal.js';
 import { Operation, asAddress, asFp, asTypedData } from 'lib';
+import { graphql, readInlineData } from 'relay-runtime';
+import { proposalAsTypedData_Transaction$key } from '~/api/__generated__/proposalAsTypedData_Transaction.graphql';
 
-const Transaction = gql(/* GraphQL */ `
-  fragment proposalAsTypedData_Transaction on Transaction {
+const Transaction = graphql`
+  fragment proposalAsTypedData_Transaction on Transaction @inline {
     id
     account {
       id
@@ -24,10 +25,10 @@ const Transaction = gql(/* GraphQL */ `
     maxAmount
     paymaster
   }
-`);
+`;
 
-export function proposalAsTypedData(proposalFragment: FragmentType<typeof Transaction>) {
-  const p = getFragment(Transaction, proposalFragment);
+export function proposalAsTypedData(proposalFragment: proposalAsTypedData_Transaction$key) {
+  const p = readInlineData(Transaction, proposalFragment);
 
   return asTypedData(p.account.address, {
     operations: p.operations.map(

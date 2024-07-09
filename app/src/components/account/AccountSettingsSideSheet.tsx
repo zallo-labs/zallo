@@ -1,40 +1,43 @@
-import { FragmentType, gql, useFragment } from '@api/generated';
 import { useForm } from 'react-hook-form';
 import { StyleSheet, View } from 'react-native';
-import { useMutation } from 'urql';
 import { FormSubmitButton } from '#/fields/FormSubmitButton';
 import { Actions } from '#/layout/Actions';
 import { AccountNameFormField } from '#/fields/AccountNameFormField';
 import { SideSheet } from '../SideSheet/SideSheet';
+import { graphql } from 'relay-runtime';
+import { useFragment } from 'react-relay';
+import { AccountSettingsSideSheet_account$key } from '~/api/__generated__/AccountSettingsSideSheet_account.graphql';
+import { useMutation } from '~/api';
+import { AccountSettingsSideSheetMutation } from '~/api/__generated__/AccountSettingsSideSheetMutation.graphql';
 
-const Account = gql(/* GraphQL */ `
-  fragment AccountSettingsSideSheet_Account on Account {
+const Account = graphql`
+  fragment AccountSettingsSideSheet_account on Account {
     id
     address
     name
   }
-`);
+`;
 
-const Update = gql(/* GraphQL */ `
-  mutation AccountSettingsSideSheet_Update($account: UAddress!, $name: String!) {
+const Update = graphql`
+  mutation AccountSettingsSideSheetMutation($account: UAddress!, $name: String!) {
     updateAccount(input: { account: $account, name: $name }) {
       id
       name
     }
   }
-`);
+`;
 
 interface Inputs {
   name: string;
 }
 
 export interface AccountSettingsSideSheetProps {
-  account: FragmentType<typeof Account>;
+  account: AccountSettingsSideSheet_account$key;
 }
 
 export function AccountSettingsSideSheet(props: AccountSettingsSideSheetProps) {
   const account = useFragment(Account, props.account);
-  const update = useMutation(Update)[1];
+  const update = useMutation<AccountSettingsSideSheetMutation>(Update);
 
   const { control, handleSubmit, reset } = useForm<Inputs>({
     defaultValues: { name: account?.name },

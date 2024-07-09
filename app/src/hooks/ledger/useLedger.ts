@@ -4,26 +4,30 @@ import { DeviceId } from 'react-native-ble-plx';
 import { useMemo } from 'react';
 import { persistedAtom } from '~/lib/persistedAtom';
 import { useAtomValue } from 'jotai';
-import { FragmentType, gql, useFragment as getFragment } from '@api/generated';
 import { connectLedger } from './connectLedger';
 import useBluetoothPermissions from '~/hooks/ble/useBluetoothPermissions';
 import { useObservable } from '~/hooks/useObservable';
+import { graphql } from 'relay-runtime';
+import { useLedger_approver$key } from '~/api/__generated__/useLedger_approver.graphql';
+import { useFragment } from 'react-relay';
 
-const UserApprover = gql(/* GraphQL */ `
-  fragment UseLedger_UserApprover on UserApprover {
+const UserApprover = graphql`
+  fragment useLedger_approver on Approver {
     id
     address
-    bluetoothDevices
+    details @required(action: THROW) {
+      id
+      bluetoothDevices
+    }
   }
-`);
+`;
 
 export const APPROVER_BLE_IDS = persistedAtom<Record<Address, DeviceId[]>>('approverBleIds', {});
 
-export function useLedger(device: DeviceId | FragmentType<typeof UserApprover>) {
+export function useLedger(device: DeviceId | useLedger_approver$key) {
   const [hasPermission, requestPermissions] = useBluetoothPermissions();
 
-  // eslint-disable-next-line react-compiler/react-compiler   -- useFragment is not an actual hook
-  const approver = typeof device !== 'string' ? getFragment(UserApprover, device) : undefined;
+  const approver = useFragment(UserApprover, typeof device !== 'string' ? device : null);
   const approverBleIds = useAtomValue(APPROVER_BLE_IDS);
 
   const result =
@@ -32,7 +36,10 @@ export function useLedger(device: DeviceId | FragmentType<typeof UserApprover>) 
         if (!hasPermission) return null;
 
         const deviceIds = approver
-          ? [...(approverBleIds[approver.address] ?? []), ...(approver?.bluetoothDevices ?? [])]
+          ? [
+              ...(approverBleIds[approver.address] ?? []),
+              ...(approver?.details?.bluetoothDevices ?? []),
+            ]
           : [device as string];
 
         return connectLedger(deviceIds);

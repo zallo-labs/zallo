@@ -1,0 +1,17 @@
+diff --git a/build/createIconSet.js b/build/createIconSet.js
+index e8e1ec0c13be904ff6ab539784dc2b9229ebe2fc..2b38bf627ee6f6b77357f03d544e030eb657e3de 100644
+--- a/build/createIconSet.js
++++ b/build/createIconSet.js
+@@ -31,11 +31,7 @@ export default function (glyphMap, fontName, expoAssetId, fontStyle) {
+         componentWillUnmount() {
+             this._mounted = false;
+         }
+-        setNativeProps(props) {
+-            if (this._icon) {
+-                this._icon.setNativeProps(props);
+-            }
+-        }
++        setNativeProps = this._icon?.setNativeProps;
+         render() {
+             if (__DEV__ && this.props.name && !(this.props.name in glyphMap)) {
+                 console.warn(`"${this.props.name}" is not a valid icon name for family "${fontName}"`);

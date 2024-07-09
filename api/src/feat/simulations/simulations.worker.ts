@@ -124,7 +124,8 @@ export class SimulationsWorker extends Worker<SimulationsQueue> {
           to: op.to,
           tokenAddress: asUAddress(ETH_ADDRESS, chain),
           amount: op.to === localAccount ? '0' : asDecimal(-op.value, ETH).toString(),
-          direction: ['Out' as const, ...(op.to === localAccount ? (['In'] as const) : [])],
+          incoming: op.to === localAccount,
+          outgoing: true,
         });
       }
 
@@ -142,7 +143,8 @@ export class SimulationsWorker extends Worker<SimulationsQueue> {
           to: f.to,
           tokenAddress: asUAddress(f.token, chain),
           amount: f.to === localAccount ? e.decimal('0') : f.amount.negated().toString(),
-          direction: ['Out' as const, ...(localAccount === f.to ? (['In'] as const) : [])],
+          incoming: localAccount === f.to,
+          outgoing: true,
         });
       } else if (f instanceof TransferFromOp) {
         transfers.push({
@@ -150,7 +152,8 @@ export class SimulationsWorker extends Worker<SimulationsQueue> {
           to: f.to,
           tokenAddress: asUAddress(f.token, chain),
           amount: f.amount.toString(),
-          direction: ['Out' as const, ...(localAccount === f.to ? (['In'] as const) : [])],
+          incoming: localAccount === f.to,
+          outgoing: true,
         });
       } else if (f instanceof SwapOp) {
         transfers.push({
@@ -158,7 +161,8 @@ export class SimulationsWorker extends Worker<SimulationsQueue> {
           to: localAccount,
           tokenAddress: asUAddress(f.toToken, chain),
           amount: f.minimumToAmount.toString(),
-          direction: ['In' as const],
+          incoming: true,
+          outgoing: false,
         });
       }
     }
@@ -183,7 +187,8 @@ export class SimulationsWorker extends Worker<SimulationsQueue> {
                       to: e.cast(e.Address, t.to),
                       tokenAddress: e.cast(e.UAddress, t.tokenAddress),
                       amount: e.cast(e.decimal, e.cast(e.str, t.amount)),
-                      direction: e.cast(e.TransferDirection, e.json_array_unpack(t.direction)),
+                      incoming: e.cast(e.bool, t.incoming),
+                      outgoing: e.cast(e.bool, t.outgoing),
                     }),
                   ),
                 ),

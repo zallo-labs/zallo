@@ -33,8 +33,8 @@ import { CONFIG } from '~/config';
 // Avoid deep merging edgedb type reflection metadata (from e.is) as they can be very deep!
 const merge = deepmergeCustom({
   mergeRecords: (values, utils, meta) => {
+    // Don't merge proxy objects
     if (meta?.key === '__polyType__') return values[0];
-
     if (CONFIG.env === 'development' && typesUtil.isProxy(values[0]))
       throw new Error('Unexpected proxy found when merging select shapes');
 

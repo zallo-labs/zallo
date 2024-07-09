@@ -35,20 +35,22 @@
     "@matterlabs/zksync-contracts": "link:./packages",
     "@openzeppelin/contracts": "link:./packages",
     "@pythnetwork/pyth-sdk-solidity": "link:./packages",
-    "@typescript-eslint/eslint-plugin": "^7.12.0",
-    "@typescript-eslint/parser": "^7.12.0",
+    "@typescript-eslint/eslint-plugin": "^7.15.0",
+    "@typescript-eslint/parser": "^7.15.0",
     "eslint": "^8.57.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-eslint-comments": "^3.2.0",
     "forge-std": "link:./packages",
     "husky": "^9.0.11",
-    "lint-staged": "^15.2.5",
-    "prettier": "^3.3.1",
+    "lint-staged": "^15.2.7",
+    "prettier": "^3.3.2",
+    "react-relay": "link:./packages",
+    "relay-compiler": "link:./packages",
+    "relay-runtime": "link:./packages",
     "solady": "link:./packages",
-    "turbo": "^2.0.2"
+    "turbo": "^2.0.6"
   },
   "resolutions": {
-    "graphql": "^16.8.1",
     "dotenv": "patch:dotenv@npm:16.4.5#.yarn/patches/dotenv-npm-16.4.5-bcb20eb95d.patch"
   }
 }

@@ -2,33 +2,34 @@ import { useRouter } from 'expo-router';
 import { useRef } from 'react';
 import { BottomSheetFlatList } from '@gorhom/bottom-sheet';
 import { Sheet } from '#/sheet/Sheet';
-import { gql } from '@api/generated';
 import { AccountItem } from '#/item/AccountItem';
-import { useQuery } from '~/gql';
 import { useSelectedAccount } from '~/hooks/useSelectedAccount';
 import { createStyles, useStyles } from '@theme/styles';
 import { Divider, RadioButton, Text } from 'react-native-paper';
 import { PressableOpacity } from '#/PressableOpacity';
 import { View } from 'react-native';
 import { AddIcon, QrCodeIcon } from '@theme/icons';
+import { graphql } from 'relay-runtime';
+import { useLazyLoadQuery } from 'react-relay';
+import { accounts_AccountsSheetQuery } from '~/api/__generated__/accounts_AccountsSheetQuery.graphql';
 
-const Query = gql(/* GraphQL */ `
-  query AccountsSheet {
+const Query = graphql`
+  query accounts_AccountsSheetQuery {
     accounts {
       id
       address
       name
-      ...AccountItem_Account
+      ...AccountItem_account
     }
   }
-`);
+`;
 
 export default function AccountsSheet() {
   const { styles } = useStyles(stylesheet);
   const router = useRouter();
   const selectedAddress = useSelectedAccount();
 
-  const { accounts } = useQuery(Query).data;
+  const { accounts } = useLazyLoadQuery<accounts_AccountsSheetQuery>(Query, {});
 
   const goBackOnClose = useRef(true);
 

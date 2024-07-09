@@ -83,7 +83,7 @@ export class ActivationsService {
       const gas = await network.estimateContractGas(request);
       return feePerGas.mul(gas.toString());
     } catch (e) {
-      const isDeployed = !!(await network.getBytecode({ address: asAddress(account) }))?.length;
+      const isDeployed = !!(await network.getCode({ address: asAddress(account) }))?.length;
       if (isDeployed) return null;
 
       throw e;

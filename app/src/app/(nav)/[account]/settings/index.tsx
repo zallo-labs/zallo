@@ -1,11 +1,8 @@
 import { Searchbar } from '#/Appbar/Searchbar';
-import { gql } from '@api';
 import { Link } from 'expo-router';
 import { Text } from 'react-native-paper';
-import { useQuery } from '~/gql';
 import { useLocalParams } from '~/hooks/useLocalParams';
 import { AccountParams } from '~/app/(nav)/[account]/_layout';
-import { NotFound } from '#/NotFound';
 import { createStyles, useStyles } from '@theme/styles';
 import { AddIcon, EditOutlineIcon, InfoIcon, NavigateNextIcon, UpdateIcon } from '@theme/icons';
 import { ScrollView, View } from 'react-native';
@@ -23,17 +20,20 @@ import { PaneSkeleton } from '#/skeleton/PaneSkeleton';
 import { PolicyPresetKey } from '~/lib/policy/usePolicyPresets';
 import { UPGRADE_APPROVER } from 'lib';
 import { MenuOrSearchIcon } from '#/Appbar/MenuOrSearchIcon';
+import { graphql } from 'relay-runtime';
+import { useLazyLoadQuery } from 'react-relay';
+import { settings_AccountSettingsQuery } from '~/api/__generated__/settings_AccountSettingsQuery.graphql';
 
-const Query = gql(/* GraphQL */ `
-  query AccountSettings($account: UAddress!) {
-    account(input: { account: $account }) {
+const Query = graphql`
+  query settings_AccountSettingsQuery($account: UAddress!) {
+    account(address: $account) @required(action: THROW) {
       id
       chain
       name
       approvers {
         id
         address
-        ...AccountApproverItem_Approver
+        ...AccountApproverItem_approver
       }
       policies {
         id
@@ -44,18 +44,18 @@ const Query = gql(/* GraphQL */ `
         approvers {
           id
         }
-        ...PolicyItem_Policy
+        ...PolicyItem_policy
       }
-      ...PolicySuggestions_Account
+      ...PolicySuggestions_account
     }
 
     user {
       id
-      ...PolicySuggestions_User
-      ...AccountApproverItem_User
+      ...PolicySuggestions_user
+      ...AccountApproverItem_user
     }
   }
-`);
+`;
 
 export const AccountSettingsParams = AccountParams;
 
@@ -66,9 +66,7 @@ function AccountSettingsPane_() {
   const path = usePath();
   const currentRouteParams = useRouteInfo().params;
 
-  const query = useQuery(Query, { account });
-  const { account: a, user } = query.data;
-  if (!a) return query.stale ? null : <NotFound name="Account" />;
+  const { account: a, user } = useLazyLoadQuery<settings_AccountSettingsQuery>(Query, { account });
 
   const approvers = a.approvers.filter(
     (approver) => approver.address !== UPGRADE_APPROVER[a.chain],

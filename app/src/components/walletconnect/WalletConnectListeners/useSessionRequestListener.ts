@@ -1,4 +1,3 @@
-import { gql } from '@api/generated';
 import { asUAddress } from 'lib';
 import { CHAINS } from 'chains';
 import { useEffect } from 'react';
@@ -10,25 +9,29 @@ import {
   asWalletConnectResult,
   useWalletConnectWithoutWatching,
 } from '~/lib/wc';
-import { usePropose } from '@api/usePropose';
+import { useProposeTransaction } from '~/hooks/mutations/useProposeTransaction';
 import { Observable } from 'rxjs';
 import { SignClientTypes } from '@walletconnect/types';
-import { useMutation } from 'urql';
 import { useRouter } from 'expo-router';
 import { normalizeSigningRequest, isSignatureRequest } from '~/lib/wc/methods/signing';
 import { isTransactionRequest } from '~/lib/wc/methods/transaction';
 import { useVerifyDapp } from '../DappVerification';
 import { ApprovedProposal } from './useProposalsListener';
 import { asDapp } from '~/lib/wc/uri';
+import { graphql } from 'relay-runtime';
+import { useLazyLoadQuery } from 'react-relay';
+import { useSessionRequestListenerQuery } from '~/api/__generated__/useSessionRequestListenerQuery.graphql';
+import { useProposeMessage } from '~/hooks/mutations/useProposeMessage';
 
-const ProposeMessage = gql(/* GraphQL */ `
-  mutation UseSessionRequestListener_ProposeMessage($input: ProposeMessageInput!) {
-    proposeMessage(input: $input) {
-      id
-      signature
+const Query = graphql`
+  query useSessionRequestListenerQuery {
+    accounts {
+      address
+      ...useProposeTransaction_account
+      ...useProposeMessage_account
     }
   }
-`);
+`;
 
 type SessionRequestArgs = SignClientTypes.EventArguments['session_request'];
 
@@ -39,9 +42,11 @@ export interface UseSessionRequestListenerParams {
 export const useSessionRequestListener = ({ proposals }: UseSessionRequestListenerParams) => {
   const router = useRouter();
   const client = useWalletConnectWithoutWatching();
-  const proposeTransaction = usePropose();
-  const proposeMessage = useMutation(ProposeMessage)[1];
   const verify = useVerifyDapp();
+  const proposeTransaction = useProposeTransaction();
+  const proposeMessage = useProposeMessage();
+
+  const { accounts } = useLazyLoadQuery<useSessionRequestListenerQuery>(Query, {});
 
   useEffect(() => {
     const handleRequest = async ({ id, topic, params, verifyContext }: SessionRequestArgs) => {
@@ -60,8 +65,11 @@ export const useSessionRequestListener = ({ proposals }: UseSessionRequestListen
       if (isTransactionRequest(request)) {
         const [tx] = request.params;
 
-        const proposal = await proposeTransaction({
-          account: asUAddress(tx.from, chain),
+        const accountAddress = asUAddress(tx.from, chain);
+        const account = accounts.find((a) => a.address === accountAddress);
+        if (!account) return showError('Account not found');
+
+        const proposal = await proposeTransaction(account, {
           operations: [
             {
               to: tx.to,
@@ -92,19 +100,16 @@ export const useSessionRequestListener = ({ proposals }: UseSessionRequestListen
       } else if (isSignatureRequest(request)) {
         const r = normalizeSigningRequest(request);
 
-        const proposal = (
-          await proposeMessage({
-            input: {
-              account: asUAddress(r.account, chain),
-              label: `${dapp.name} message`,
-              icon: dapp.icons[0],
-              ...(r.method === 'personal-sign'
-                ? { message: r.message }
-                : { typedData: r.typedData }),
-              dapp,
-            },
-          })
-        ).data?.proposeMessage;
+        const accountAddress = asUAddress(r.account, chain);
+        const account = accounts.find((a) => a.address === accountAddress);
+        if (!account) return showError('Account not found');
+
+        const proposal = await proposeMessage(account, {
+          label: `${dapp.name} message`,
+          icon: dapp.icons[0],
+          ...(r.method === 'personal-sign' ? { message: r.message } : { typedData: r.typedData }),
+          dapp,
+        });
         if (!proposal) return showError(`${dapp.name}: failed to propose transaction`);
 
         // Respond immediately if message has previously been signed
@@ -137,5 +142,5 @@ export const useSessionRequestListener = ({ proposals }: UseSessionRequestListen
     return () => {
       client.off('session_request', handleRequest);
     };
-  }, [client, router, proposals, proposeMessage, proposeTransaction, verify]);
+  }, [client, router, proposals, proposeMessage, proposeTransaction, verify, accounts]);
 };

@@ -1,12 +1,14 @@
-import { gql } from '@api';
-import { useUrqlApiClient } from '@api/client';
-import { UseProposalsListenerSubscriptionSubscription } from '@api/documents.generated';
 import { useMemo, useEffect } from 'react';
+import { useSubscription } from 'react-relay';
+import { graphql } from 'relay-runtime';
 import { Subject } from 'rxjs';
-import { getOptimizedDocument } from '~/gql';
+import {
+  useProposalsListenerSubscription,
+  useProposalsListenerSubscription$data,
+} from '~/api/__generated__/useProposalsListenerSubscription.graphql';
 
-const Subscription = gql(/* GraphQL */ `
-  subscription UseProposalsListenerSubscription {
+const Subscription = graphql`
+  subscription useProposalsListenerSubscription {
     proposalUpdated(input: { events: [executed, signed] }) {
       id
       event
@@ -25,26 +27,28 @@ const Subscription = gql(/* GraphQL */ `
       }
     }
   }
-`);
+`;
 
 export type ApprovedProposal = NonNullable<
-  UseProposalsListenerSubscriptionSubscription['proposalUpdated']['proposal']
+  useProposalsListenerSubscription$data['proposalUpdated']['proposal']
 >;
 
 export function useProposalsListener() {
-  const api = useUrqlApiClient();
   const proposals = useMemo(() => new Subject<ApprovedProposal>(), []);
   useEffect(() => proposals.unsubscribe, [proposals]);
 
-  useEffect(() => {
-    const subscription = api
-      .subscription(getOptimizedDocument(Subscription), {})
-      .subscribe(({ data }) => {
-        data?.proposalUpdated.proposal && proposals.next(data.proposalUpdated.proposal);
-      });
-
-    return subscription.unsubscribe;
-  }, [api, proposals]);
+  useSubscription<useProposalsListenerSubscription>(
+    useMemo(
+      () => ({
+        subscription: Subscription,
+        variables: {},
+        onNext: (data) => {
+          data?.proposalUpdated.proposal && proposals.next(data.proposalUpdated.proposal);
+        },
+      }),
+      [proposals],
+    ),
+  );
 
   return proposals;
 }

@@ -1,17 +1,19 @@
-import { FragmentType, gql, useFragment } from '@api/generated';
-import { useMutation } from 'urql';
-import { useQuery } from '~/gql';
 import { withSuspense } from '#/skeleton/withSuspense';
 import { ListItemSkeleton } from '#/list/ListItemSkeleton';
 import { PolicyIcon } from '@theme/icons';
 import { PolicyItem } from '#/policy/PolicyItem';
 import { createStyles, useStyles } from '@theme/styles';
 import { memo } from 'react';
+import { graphql } from 'relay-runtime';
+import { useFragment, useLazyLoadQuery } from 'react-relay';
+import { OtherPolicies_proposal$key } from '~/api/__generated__/OtherPolicies_proposal.graphql';
+import { useMutation } from '~/api';
+import { OtherPoliciesQuery } from '~/api/__generated__/OtherPoliciesQuery.graphql';
 
 // TODO: replace query with @deferred fragment once supported (graphql-js 17)
-const Query = gql(/* GraphQL */ `
-  query OtherPolicies($proposal: ID!) {
-    proposal(input: { id: $proposal }) {
+const Query = graphql`
+  query OtherPoliciesQuery($proposal: ID!) {
+    proposal(id: $proposal) @required(action: THROW) {
       id
       account {
         id
@@ -21,15 +23,15 @@ const Query = gql(/* GraphQL */ `
           validationErrors(proposal: $proposal) {
             reason
           }
-          ...PolicyItem_Policy
+          ...PolicyItem_policy
         }
       }
     }
   }
-`);
+`;
 
-const Update = gql(/* GraphQL */ `
-  mutation OtherPolicies_Update($proposal: ID!, $policy: PolicyKey!) {
+const Update = graphql`
+  mutation OtherPoliciesMutation($proposal: ID!, $policy: PolicyKey!) {
     updateProposal(input: { id: $proposal, policy: $policy }) {
       id
       policy {
@@ -37,28 +39,29 @@ const Update = gql(/* GraphQL */ `
       }
     }
   }
-`);
+`;
 
-const Proposal = gql(/* GraphQL */ `
-  fragment OtherPolicies_Proposal on Proposal {
+const Proposal = graphql`
+  fragment OtherPolicies_proposal on Proposal {
     id
     policy {
       id
     }
   }
-`);
+`;
 
 interface OtherPoliciesProps {
-  proposal: FragmentType<typeof Proposal>;
+  proposal: OtherPolicies_proposal$key;
   toggleExpanded: () => void;
 }
 
 function OtherPolicies_(props: OtherPoliciesProps) {
   const { styles } = useStyles(stylesheet);
   const proposal = useFragment(Proposal, props.proposal);
-  const update = useMutation(Update)[1];
+  const update = useMutation(Update);
 
-  const policies = useQuery(Query, { proposal: proposal.id }).data.proposal?.account.policies ?? [];
+  const { policies } = useLazyLoadQuery<OtherPoliciesQuery>(Query, { proposal: proposal.id })
+    .proposal.account;
 
   return (
     <>

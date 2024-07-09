@@ -1,4 +1,4 @@
-import { ID, Info, Mutation, Parent, Query, Resolver } from '@nestjs/graphql';
+import { Args, ID, Info, Mutation, Parent, Query, Resolver } from '@nestjs/graphql';
 import { Message } from './messages.model';
 import { Input } from '~/common/decorators/input.decorator';
 import { ProposeMessageInput } from './messages.input';
@@ -8,14 +8,15 @@ import { MessagesService } from './messages.service';
 import { getShape } from '~/core/database';
 import { ComputedField } from '~/common/decorators/computed.decorator';
 import e from '~/edgeql-js';
+import { NodeArgs } from '../nodes/nodes.input';
 
 @Resolver(() => Message)
 export class MessagesResolver {
   constructor(private service: MessagesService) {}
 
   @Query(() => Message, { nullable: true })
-  async message(@Input() input: UniqueProposalInput, @Info() info: GraphQLResolveInfo) {
-    return this.service.selectUnique(input.id, getShape(info));
+  async message(@Args() { id }: NodeArgs, @Info() info: GraphQLResolveInfo) {
+    return this.service.selectUnique(id, getShape(info));
   }
 
   @ComputedField<typeof e.Message>(() => Boolean, { signature: true })

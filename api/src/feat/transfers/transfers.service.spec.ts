@@ -69,16 +69,15 @@ describe(TransfersService.name, () => {
       e.insert(e.Transfer, {
         account: e.select(e.Account, () => ({ filter_single: { id: account.id } })),
         systxHash: zeroHash,
+        internal: false,
         logIndex: 0,
         block: BigInt(Math.floor(Math.random() * 1000)),
         from: ZERO_ADDR,
         to: asAddress(account.address),
         tokenAddress: asUAddress(ETH_ADDRESS, asChain(account.address)),
         amount: e.decimal('1'),
-        direction: [
-          asAddress(account.address) === (params?.to ?? asAddress(account.address)) && 'In',
-          asAddress(account.address) === (params?.from ?? ZERO_ADDR) && 'Out',
-        ].filter(Boolean) as ['Out'],
+        incoming: asAddress(account.address) === (params?.to ?? asAddress(account.address)),
+        outgoing: asAddress(account.address) === (params?.from ?? ZERO_ADDR),
         ...params,
       }).id,
     );
@@ -131,13 +130,13 @@ describe(TransfersService.name, () => {
             to: ZERO_ADDR,
           });
 
-          expect(
-            (await service.select(account1.id, { direction: 'In' as any })).map((t) => t.id),
-          ).toEqual([inTransfer]);
+          expect((await service.select(account1.id, { incoming: true })).map((t) => t.id)).toEqual([
+            inTransfer,
+          ]);
 
-          expect(
-            (await service.select(account1.id, { direction: 'Out' as any })).map((t) => t.id),
-          ).toEqual([outTransfer]);
+          expect((await service.select(account1.id, { outgoing: true })).map((t) => t.id)).toEqual([
+            outTransfer,
+          ]);
         }));
 
       it('internal', () =>

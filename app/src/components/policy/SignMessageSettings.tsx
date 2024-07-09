@@ -3,7 +3,7 @@ import { GenericMessageIcon } from '#/message/MessageIcon';
 import { CORNER } from '@theme/paper';
 import { createStyles, useStyles } from '@theme/styles';
 import { Switch } from 'react-native-paper';
-import { usePolicyDraft } from '~/lib/policy/draft';
+import { usePolicyDraft } from '~/lib/policy/policyAsDraft';
 
 export function SignMessageSettings() {
   const { styles } = useStyles(stylesheet);

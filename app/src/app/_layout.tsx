@@ -9,8 +9,8 @@ import { Background } from '#/layout/Background';
 import { RootErrorBoundary, IgnoredErrorBoundary } from '#/ErrorBoundary';
 import { Splash } from '#/Splash';
 import { WalletConnectListeners } from '#/walletconnect/WalletConnectListeners';
-import { GqlProvider } from '~/gql/GqlProvider';
 import { AuthGate } from '#/provider/AuthGate';
+import { ApiProvider } from '~/api/ApiProvider';
 import { NotificationsProvider } from '#/provider/NotificationsProvider';
 import { SnackbarProvider } from '#/provider/SnackbarProvider';
 import { UpdateProvider } from '#/provider/UpdateProvider';
@@ -25,7 +25,7 @@ import { SentryProvider } from '#/provider/SentryProvider';
 import { GoogleAuthProvider } from '#/cloud/google/GoogleAuthProvider';
 import { Try } from 'expo-router/build/views/Try';
 import { PortalProvider } from '@gorhom/portal';
-import { GlobalSubscriptions } from '#/GlobalSubscriptions';
+import { GlobalSubscriptions } from '#/GlobalSubscriptions/GlobalSubscriptions';
 
 export const unstable_settings = {
   initialRouteName: `index`,
@@ -56,30 +56,32 @@ function RootLayout() {
               <Background>
                 <Suspense fallback={<Splash />}>
                   <AuthGate>
-                    <GqlProvider>
-                      <TQueryProvider>
-                        <GoogleAuthProvider>
-                          <Try catch={RootErrorBoundary}>
-                            <Suspense fallback={<Splash />}>
-                              <RnpPortal.Host>
-                                <PortalProvider>
-                                  <Layout />
-                                </PortalProvider>
-                              </RnpPortal.Host>
-                            </Suspense>
-                          </Try>
-                          <Try catch={IgnoredErrorBoundary}>
-                            <Suspense fallback={null}>
-                              <UpdateProvider />
-                              <Analytics />
-                              <WalletConnectListeners />
-                              <GlobalSubscriptions />
-                              <NotificationsProvider />
-                            </Suspense>
-                          </Try>
-                        </GoogleAuthProvider>
-                      </TQueryProvider>
-                    </GqlProvider>
+                    <Suspense fallback={<Splash />}>
+                      <ApiProvider>
+                        <TQueryProvider>
+                          <GoogleAuthProvider>
+                            <Try catch={RootErrorBoundary}>
+                              <Suspense fallback={<Splash />}>
+                                <RnpPortal.Host>
+                                  <PortalProvider>
+                                    <Layout />
+                                  </PortalProvider>
+                                </RnpPortal.Host>
+                              </Suspense>
+                            </Try>
+                            <Try catch={IgnoredErrorBoundary}>
+                              <Suspense fallback={null}>
+                                <UpdateProvider />
+                                <Analytics />
+                                <WalletConnectListeners />
+                                <GlobalSubscriptions />
+                                <NotificationsProvider />
+                              </Suspense>
+                            </Try>
+                          </GoogleAuthProvider>
+                        </TQueryProvider>
+                      </ApiProvider>
+                    </Suspense>
                   </AuthGate>
                 </Suspense>
               </Background>

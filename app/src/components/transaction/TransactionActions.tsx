@@ -1,7 +1,5 @@
 import { Actions } from '#/layout/Actions';
 import { ShareIcon } from '@theme/icons';
-import { FragmentType, gql, useFragment } from '@api/generated';
-import { useMutation } from 'urql';
 import { useApprove } from '~/hooks/useApprove';
 import { useReject } from '~/hooks/useReject';
 import { share } from '~/lib/share';
@@ -11,10 +9,14 @@ import { useConfirm } from '~/hooks/useConfirm';
 import { Button } from '../Button';
 import { SIDE_SHEET } from '#/SideSheet/SideSheetLayout';
 import { useAtom } from 'jotai';
+import { graphql } from 'relay-runtime';
+import { useFragment } from 'react-relay';
+import { TransactionActions_transaction$key } from '~/api/__generated__/TransactionActions_transaction.graphql';
+import { TransactionActions_user$key } from '~/api/__generated__/TransactionActions_user.graphql';
+import { useMutation } from '~/api';
 
-const Transaction = gql(/* GraphQL */ `
-  fragment TransactionActions_Transaction on Transaction
-  @argumentDefinitions(transaction: { type: "ID!" }) {
+const Transaction = graphql`
+  fragment TransactionActions_transaction on Transaction {
     id
     status
     updatable
@@ -34,38 +36,38 @@ const Transaction = gql(/* GraphQL */ `
       id
       hash
     }
-    ...UseApprove_Proposal
-    ...UseReject_Proposal
+    ...useApprove_proposal
+    ...useReject_proposal
   }
-`);
+`;
 
-const User = gql(/* GraphQL */ `
-  fragment TransactionActions_User on User {
-    ...UseApprove_User
-    ...UseReject_User
+const User = graphql`
+  fragment TransactionActions_user on User {
+    ...useApprove_user
+    ...useReject_user
   }
-`);
+`;
 
-const Execute = gql(/* GraphQL */ `
-  mutation TransactionActions_Execute($input: ExecuteTransactionInput!) {
+const Execute = graphql`
+  mutation TransactionActions_executeMutation($input: ExecuteTransactionInput!) {
     execute(input: $input) {
       id
     }
   }
-`);
+`;
 
-export interface ProposalActionsProps {
-  proposal: FragmentType<typeof Transaction>;
-  user: FragmentType<typeof User>;
+export interface TransactionActionsProps {
+  transaction: TransactionActions_transaction$key;
+  user: TransactionActions_user$key;
 }
 
-export const TransactionActions = (props: ProposalActionsProps) => {
+export const TransactionActions = (props: TransactionActionsProps) => {
   const { styles } = useStyles(stylesheet);
-  const p = useFragment(Transaction, props.proposal);
+  const p = useFragment(Transaction, props.transaction);
   const user = useFragment(User, props.user);
   const approve = useApprove({ proposal: p, user });
   const reject = useReject({ proposal: p, user });
-  const execute = useMutation(Execute)[1];
+  const execute = useMutation(Execute);
   const [sheetVisible, showSheet] = useAtom(SIDE_SHEET);
   const confirmExecute = useConfirm({
     title: 'Force execute?',

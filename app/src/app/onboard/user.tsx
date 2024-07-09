@@ -10,63 +10,66 @@ import { OnboardMainPane } from '#/onboard/OnboardMainPane';
 import { OnboardProgress } from '#/onboard/OnboardProgress';
 import { ScreenSkeleton } from '#/skeleton/ScreenSkeleton';
 import { withSuspense } from '#/skeleton/withSuspense';
-import { gql } from '@api';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { QrCodeIcon } from '@theme/icons';
 import { createStyles, useStyles } from '@theme/styles';
-import { Link, useFocusEffect, useRouter } from 'expo-router';
-import { useCallback, useMemo } from 'react';
+import { Link, useRouter } from 'expo-router';
+import { useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { View } from 'react-native';
-import { useMutation, useSubscription } from 'urql';
+import { useLazyLoadQuery, useSubscription } from 'react-relay';
+import { graphql } from 'relay-runtime';
 import { z } from 'zod';
-import { useQuery } from '~/gql';
+import { useMutation } from '~/api';
+import { user_UserOnboardingMutation } from '~/api/__generated__/user_UserOnboardingMutation.graphql';
+import { user_UserOnboardingQuery } from '~/api/__generated__/user_UserOnboardingQuery.graphql';
+import { user_UserOnboardingSubscription } from '~/api/__generated__/user_UserOnboardingSubscription.graphql';
 import { getDeviceModel } from '~/lib/device';
 
-const Query = gql(/* GraphQL */ `
-  query UserOnboarding {
+const Query = graphql`
+  query user_UserOnboardingQuery {
     approver {
       id
-      name
+      label
     }
 
     user {
       id
-      ...LinkAppleButton_User
-      ...LinkGoogleButton_User
+      ...LinkAppleButton_user
+      ...LinkGoogleButton_user
     }
   }
-`);
+`;
 
-const Update = gql(/* GraphQL */ `
-  mutation UserOnboarding_Update($name: String!) {
+const Update = graphql`
+  mutation user_UserOnboardingMutation($name: String!) {
     updateApprover(input: { name: $name }) {
       id
-      name
+      label
     }
   }
-`);
+`;
 
-const Subscription = gql(/* GraphQL */ `
-  subscription UserOnboarding_Subscription {
+const Subscription = graphql`
+  subscription user_UserOnboardingSubscription {
     userLinked {
       id
     }
   }
-`);
+`;
 
 const schema = z.object({ name: z.string().min(1) });
 
 function UserOnboarding() {
   const { styles } = useStyles(stylesheet);
   const router = useRouter();
-  const update = useMutation(Update)[1];
+  const update = useMutation<user_UserOnboardingMutation>(Update);
 
-  const { approver, user } = useQuery(Query).data;
+  const { approver, user } = useLazyLoadQuery<user_UserOnboardingQuery>(Query, {});
 
   const { control, handleSubmit, reset } = useForm<z.infer<typeof schema>>({
     resolver: zodResolver(schema),
-    defaultValues: { name: approver.name || getDeviceModel() },
+    defaultValues: { name: approver.label || getDeviceModel() },
   });
 
   const next = useMemo(
@@ -80,11 +83,8 @@ function UserOnboarding() {
     [handleSubmit, reset, router, update],
   );
 
-  const userLinked = useSubscription({ query: Subscription })[0].data;
-  useFocusEffect(
-    useCallback(() => {
-      if (userLinked) next();
-    }, [next, userLinked]),
+  useSubscription<user_UserOnboardingSubscription>(
+    useMemo(() => ({ subscription: Subscription, variables: {}, onNext: () => next() }), [next]),
   );
 
   return (

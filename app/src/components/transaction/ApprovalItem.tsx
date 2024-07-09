@@ -1,4 +1,3 @@
-import { FragmentType, gql, useFragment } from '@api';
 import { CloseIcon } from '@theme/icons';
 import { asUAddress } from 'lib';
 import { IconButton } from '#/IconButton';
@@ -7,15 +6,19 @@ import { Timestamp } from '#/format/Timestamp';
 import { ListItem } from '#/list/ListItem';
 import { useReject } from '~/hooks/useReject';
 import { AddressIcon } from '#/Identicon/AddressIcon';
+import { graphql, useFragment } from 'react-relay';
+import { ApprovalItem_user$key } from '~/api/__generated__/ApprovalItem_user.graphql';
+import { ApprovalItem_approval$key } from '~/api/__generated__/ApprovalItem_approval.graphql';
+import { ApprovalItem_proposal$key } from '~/api/__generated__/ApprovalItem_proposal.graphql';
 
-const User = gql(/* GraphQL */ `
-  fragment ApprovalItem_User on User {
-    ...UseReject_User
+const User = graphql`
+  fragment ApprovalItem_user on User {
+    ...useReject_user
   }
-`);
+`;
 
-const Approval = gql(/* GraphQL */ `
-  fragment ApprovalItem_Approval on Approval {
+const Approval = graphql`
+  fragment ApprovalItem_approval on Approval {
     id
     createdAt
     approver {
@@ -23,30 +26,33 @@ const Approval = gql(/* GraphQL */ `
       address
     }
   }
-`);
+`;
 
-const Proposal = gql(/* GraphQL */ `
-  fragment ApprovalItem_Proposal on Proposal {
+const Proposal = graphql`
+  fragment ApprovalItem_proposal on Proposal {
     account {
       id
       chain
     }
-    ...UseReject_Proposal
+    ...useReject_proposal
   }
-`);
+`;
 
 export interface ApprovalItemProps {
-  user: FragmentType<typeof User>;
-  approval: FragmentType<typeof Approval>;
-  proposal: FragmentType<typeof Proposal>;
+  user: ApprovalItem_user$key;
+  approval: ApprovalItem_approval$key;
+  proposal: ApprovalItem_proposal$key;
 }
 
 export function ApprovalItem(props: ApprovalItemProps) {
   const user = useFragment(User, props.user);
-  const { approver, createdAt } = useFragment(Approval, props.approval);
+  const approval = useFragment(Approval, props.approval);
   const proposal = useFragment(Proposal, props.proposal);
+  const reject = useReject({ user, proposal, approver: approval?.approver.address });
 
-  const reject = useReject({ user, proposal, approver: approver.address });
+  if (!approval) return null;
+
+  const { approver, createdAt } = approval;
 
   return (
     <ListItem

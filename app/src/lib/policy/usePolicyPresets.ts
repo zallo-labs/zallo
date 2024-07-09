@@ -6,8 +6,7 @@ import {
   materialCommunityIcon,
   materialIcon,
 } from '@theme/icons';
-import { PolicyDraft, PolicyDraftAction } from './draft';
-import { FragmentType, gql, useFragment } from '@api';
+import { PolicyDraft, PolicyDraftAction } from './policyAsDraft';
 import {
   ACCOUNT_ABI,
   Address,
@@ -24,6 +23,10 @@ import { SYNCSWAP, ERC721_ABI, USDC, USDT, DAI, Token } from 'lib/dapps';
 import { Chain } from 'chains';
 import Decimal from 'decimal.js';
 import { Duration, DurationLikeObject } from 'luxon';
+import { graphql } from 'relay-runtime';
+import { useFragment } from 'react-relay';
+import { usePolicyPresets_account$key } from '~/api/__generated__/usePolicyPresets_account.graphql';
+import { usePolicyPresets_user$key } from '~/api/__generated__/usePolicyPresets_user.graphql';
 
 type ActionDefinition = Omit<PolicyDraftAction, 'allow'> & { icon?: FC<IconProps> };
 
@@ -31,39 +34,49 @@ export const ACTION_PRESETS = {
   all: {
     icon: materialIcon('circle'),
     label: 'Anything else',
-    functions: [{}],
+    description: undefined,
+    functions: [{ contract: undefined, selector: undefined, abi: undefined }],
   },
   sendNfts: {
     icon: imageFromSource(require('assets/ENS.svg')),
     label: 'Send NFTs',
+    description: undefined,
     functions: [
       getAbiItem({ abi: ERC721_ABI, name: 'safeTransferFrom', args: ['0x', '0x', 0n] }),
       getAbiItem({ abi: ERC721_ABI, name: 'safeTransferFrom', args: ['0x', '0x', 0n, '0x'] }),
       getAbiItem({ abi: ERC721_ABI, name: 'transferFrom' }),
       getAbiItem({ abi: ERC721_ABI, name: 'approve' }),
       getAbiItem({ abi: ERC721_ABI, name: 'setApprovalForAll' }),
-    ].map((f) => ({ selector: asSelector(toFunctionSelector(f)) })),
+    ].map((f) => ({
+      contract: undefined,
+      selector: asSelector(toFunctionSelector(f)),
+      abi: undefined,
+    })),
   },
   manageAccount: {
     icon: AccountIcon,
     label: 'Manage account',
-    functions: (account: Address) => [{ contract: account }],
+    description: undefined,
+    functions: (account: Address) => [{ contract: account, selector: undefined, abi: undefined }],
   },
   cancelDelayedTransactions: {
     icon: materialCommunityIcon('calendar-remove'),
     label: 'Cancel scheduled transaction',
+    description: undefined,
     functions: (account: Address) => [
       {
         contract: account,
         selector: asSelector(
           toFunctionSelector(getAbiItem({ abi: ACCOUNT_ABI, name: 'cancelScheduledTransaction' })),
         ),
+        abi: undefined,
       },
     ],
   },
   syncswapSwap: {
     icon: SwapIcon,
     label: 'Swap (SyncSwap)',
+    description: undefined,
     functions: (chain: Chain) =>
       [
         getAbiItem({ abi: SYNCSWAP.router.abi, name: 'swap' }),
@@ -71,11 +84,13 @@ export const ACTION_PRESETS = {
       ].map((f) => ({
         contract: SYNCSWAP.router.address[chain],
         selector: asSelector(toFunctionSelector(f)),
+        abi: undefined,
       })),
   },
   syncswapLiquidity: {
     icon: materialCommunityIcon('water'),
     label: 'Manage liquidity (SyncSwap)',
+    description: undefined,
     functions: (chain: Chain) =>
       [
         getAbiItem({ abi: SYNCSWAP.router.abi, name: 'addLiquidity' }),
@@ -89,6 +104,7 @@ export const ACTION_PRESETS = {
       ].map((f) => ({
         contract: SYNCSWAP.router.address[chain],
         selector: asSelector(toFunctionSelector(f)),
+        abi: undefined,
       })),
   },
 } satisfies Record<
@@ -99,8 +115,8 @@ export const ACTION_PRESETS = {
     })
 >;
 
-const Account = gql(/* GraphQL */ `
-  fragment UsePolicyPresets_Account on Account {
+const Account = graphql`
+  fragment usePolicyPresets_account on Account {
     id
     address
     approvers {
@@ -108,17 +124,17 @@ const Account = gql(/* GraphQL */ `
       address
     }
   }
-`);
+`;
 
-const User = gql(/* GraphQL */ `
-  fragment UsePolicyPresets_User on User {
+const User = graphql`
+  fragment usePolicyPresets_user on User {
     id
     approvers {
       id
       address
     }
   }
-`);
+`;
 
 function limit(chain: Chain, token: Token, amount: Decimal, duration: DurationLikeObject) {
   if (!token.address[chain]) return {};
@@ -164,8 +180,8 @@ export const getPolicyPresetDetails = (n: number) =>
   }) as const;
 
 export interface UsePolicyPresetsParams {
-  account: FragmentType<typeof Account> | null | undefined;
-  user: FragmentType<typeof User>;
+  account: usePolicyPresets_account$key | null | undefined;
+  user: usePolicyPresets_user$key;
   chain: Chain;
 }
 

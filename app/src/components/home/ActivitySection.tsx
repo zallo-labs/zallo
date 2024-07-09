@@ -2,38 +2,41 @@ import { ItemList } from '#/layout/ItemList';
 import { ListItem } from '#/list/ListItem';
 import { MessageItem } from '#/message/MessageItem';
 import { TransactionItem } from '#/transaction/TransactionItem';
-import { FragmentType, gql, useFragment } from '@api';
 import { ActivityIcon, NavigateNextIcon } from '@theme/icons';
 import { createStyles, useStyles } from '@theme/styles';
 import { Link } from 'expo-router';
+import { useFragment } from 'react-relay';
+import { graphql } from 'relay-runtime';
 import { match } from 'ts-pattern';
+import { ActivitySection_account$key } from '~/api/__generated__/ActivitySection_account.graphql';
+import { ActivitySection_user$key } from '~/api/__generated__/ActivitySection_user.graphql';
 
 const VISIBLE_PROPOSALS = 3;
 
-const Account = gql(/* GraphQL */ `
-  fragment ActivitySection_Account on Account {
+const Account = graphql`
+  fragment ActivitySection_account on Account {
     id
     address
     proposals(input: { pending: true }) {
       __typename
       id
-      ...TransactionItem_Transaction
-      ...MessageItem_Message
+      ...TransactionItem_transaction @alias
+      ...MessageItem_message @alias
     }
   }
-`);
+`;
 
-const User = gql(/* GraphQL */ `
-  fragment ActivitySection_User on User {
+const User = graphql`
+  fragment ActivitySection_user on User {
     id
-    ...TransactionItem_User
-    ...MessageItem_User
+    ...TransactionItem_user
+    ...MessageItem_user
   }
-`);
+`;
 
 export interface ActivitySectionProps {
-  account: FragmentType<typeof Account>;
-  user: FragmentType<typeof User>;
+  account: ActivitySection_account$key;
+  user: ActivitySection_user$key;
 }
 
 export function ActivitySection(props: ActivitySectionProps) {
@@ -62,13 +65,29 @@ export function ActivitySection(props: ActivitySectionProps) {
 
       {proposals.slice(0, VISIBLE_PROPOSALS).map((proposal) =>
         match(proposal)
-          .with({ __typename: 'Transaction' }, (t) => (
-            <TransactionItem key={t.id} transaction={t} user={user} containerStyle={styles.item} />
-          ))
-          .with({ __typename: 'Message' }, (m) => (
-            <MessageItem key={m.id} message={m} user={user} containerStyle={styles.item} />
-          ))
-          .exhaustive(),
+          .with({ __typename: 'Transaction' }, (t) =>
+            t.TransactionItem_transaction ? (
+              <TransactionItem
+                key={t.id}
+                transaction={t.TransactionItem_transaction}
+                user={user}
+                containerStyle={styles.item}
+              />
+            ) : null,
+          )
+          .with({ __typename: 'Message' }, (m) =>
+            m.MessageItem_message ? (
+              <MessageItem
+                key={m.id}
+                message={m.MessageItem_message}
+                user={user}
+                containerStyle={styles.item}
+              />
+            ) : null,
+          )
+          .otherwise(() => {
+            throw new Error('Unexpected item type');
+          }),
       )}
     </ItemList>
   );

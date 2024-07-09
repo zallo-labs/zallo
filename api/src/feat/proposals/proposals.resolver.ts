@@ -1,4 +1,4 @@
-import { Context, Info, Mutation, Query, Resolver, Subscription } from '@nestjs/graphql';
+import { Args, Context, Info, Mutation, Query, Resolver, Subscription } from '@nestjs/graphql';
 import { GraphQLResolveInfo } from 'graphql';
 import { InputArgs, Input } from '~/common/decorators/input.decorator';
 import { GqlContext } from '~/core/apollo/ctx';
@@ -8,6 +8,7 @@ import { UniqueProposalInput, ProposalUpdatedInput, UpdateProposalInput } from '
 import { Proposal, ProposalUpdated } from './proposals.model';
 import { ProposalsService, ProposalUpdatedPayload, proposalTrigger } from './proposals.service';
 import { PubsubService } from '~/core/pubsub/pubsub.service';
+import { NodeArgs } from '../nodes/nodes.input';
 
 @Resolver(() => Proposal)
 export class ProposalsResolver {
@@ -17,7 +18,7 @@ export class ProposalsResolver {
   ) {}
 
   @Query(() => Proposal, { nullable: true })
-  async proposal(@Input() { id }: UniqueProposalInput, @Info() info: GraphQLResolveInfo) {
+  async proposal(@Args() { id }: NodeArgs, @Info() info: GraphQLResolveInfo) {
     return this.service.selectUnique(id, getShape(info));
   }
 
@@ -46,7 +47,7 @@ export class ProposalsResolver {
       info: GraphQLResolveInfo,
     ) {
       return asUser(ctx, async () => ({
-        id,
+        id: `${id}:${event}`,
         account,
         event,
         proposal: await this.service.selectUnique(id, (p) => getShape(info)(p, 'proposal')),

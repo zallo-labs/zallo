@@ -5,13 +5,18 @@ import { Actions } from '#/layout/Actions';
 import { ICON_SIZE } from '@theme/paper';
 import { ReactNode } from 'react';
 import { SomethingWrongIcon } from '@theme/icons';
+import { NotFound } from '#/NotFound';
 
 export interface ErrorBoundaryDetailsProps {
+  error: Error;
   actions: ReactNode;
 }
 
-export function ErrorBoundaryDetails({ actions }: ErrorBoundaryDetailsProps) {
+export function ErrorBoundaryDetails({ error, actions }: ErrorBoundaryDetailsProps) {
   const { styles } = useStyles(stylesheet);
+
+  const relayRequiredPath = extraRelayRequiredPath(error);
+  if (relayRequiredPath) return <NotFound name={relayRequiredPath} />;
 
   return (
     <View style={styles.container}>
@@ -49,3 +54,10 @@ const stylesheet = createStyles(({ colors }) => ({
     color: colors.tertiary,
   },
 }));
+
+function extraRelayRequiredPath(error: Error) {
+  const match = error.message.match(/Relay: Missing @required value at path '([^']+)'/);
+  if (!match) return null;
+
+  return match[1];
+}

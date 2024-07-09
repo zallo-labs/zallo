@@ -1,5 +1,5 @@
 import { useRouter } from 'expo-router';
-import { usePropose } from '@api/usePropose';
+import { useProposeTransaction } from '~/hooks/mutations/useProposeTransaction';
 import { ETH_ADDRESS, FIAT_DECIMALS, UAddress, asAddress, asChain, asFp, asUAddress } from 'lib';
 import { useMemo, useState } from 'react';
 import { InputType, InputsView } from '#/InputsView';
@@ -8,8 +8,6 @@ import { View } from 'react-native';
 import { NumericInput } from '#/fields/NumericInput';
 import { DateTime } from 'luxon';
 import { Button } from '#/Button';
-import { gql } from '@api/generated';
-import { useQuery } from '~/gql';
 import { AppbarOptions } from '#/Appbar/AppbarOptions';
 import { useLocalParams } from '~/hooks/useLocalParams';
 import { withSuspense } from '#/skeleton/withSuspense';
@@ -30,12 +28,15 @@ import { SwapToTokenItem } from '#/swap/SwapToTokenItem';
 import { showError } from '#/provider/SnackbarProvider';
 import { estimateSwap } from '~/util/swap/syncswap/estimate';
 import { ScreenSkeleton } from '#/skeleton/ScreenSkeleton';
+import { graphql } from 'relay-runtime';
+import { useLazyLoadQuery } from 'react-relay';
+import { swap_SwapScreenQuery } from '~/api/__generated__/swap_SwapScreenQuery.graphql';
 
 const DownArrow = materialCommunityIcon('arrow-down-thin');
 const ICON_BUTTON_SIZE = 24;
 
-const Query = gql(/* GraphQL */ `
-  query SwapScreen($account: UAddress!, $tokens: [UAddress!]!) {
+const Query = graphql`
+  query swap_SwapScreenQuery($account: UAddress!, $tokens: [UAddress!]!) {
     tokens(input: { address: $tokens }) {
       id
       address
@@ -46,13 +47,17 @@ const Query = gql(/* GraphQL */ `
         usd
       }
       ...InputsView_token @arguments(account: $account)
-      ...TokenIcon_Token
+      ...TokenIcon_token
       ...TokenAmount_token
-      ...SwapToTokenItem_FromToken
-      ...SwapToTokenItem_ToToken
+      ...SwapToTokenItem_token_from
+      ...SwapToTokenItem_token_to
+    }
+
+    account(address: $account) @required(action: THROW) {
+      ...useProposeTransaction_account
     }
   }
-`);
+`;
 
 const SwapScreenParams = AccountParams;
 
@@ -60,14 +65,15 @@ function SwapScreen() {
   const { account } = useLocalParams(SwapScreenParams);
   const chain = asChain(account);
   const router = useRouter();
-  const propose = usePropose();
   const selectToken = useSelectToken();
   const swappableTokens = useSwappableTokens(chain);
 
-  const { tokens } = useQuery(Query, {
+  const query = useLazyLoadQuery<swap_SwapScreenQuery>(Query, {
     account,
     tokens: swappableTokens,
-  }).data;
+  });
+  const { tokens } = query;
+  const propose = useProposeTransaction();
 
   const [fromAddress, setFromAddress] = useState<UAddress>(
     tokens[0]?.address ?? asUAddress(ETH_ADDRESS, chain),
@@ -187,8 +193,7 @@ function SwapScreen() {
                   });
                   if (operations.isErr()) return showError('Something went wrong building swap');
 
-                  const proposal = await propose({
-                    account,
+                  const proposal = await propose(query.account, {
                     label: `Swap ${from.symbol} for ${to!.symbol}`,
                     operations: operations.value,
                   });

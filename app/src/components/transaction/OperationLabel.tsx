@@ -1,14 +1,18 @@
 import { match, P } from 'ts-pattern';
 import { useAddressLabel } from '../address/AddressLabel';
-import { useFormattedTokenAmount } from '../token/TokenAmount';
-import { FragmentType, gql, useFragment } from '@api/generated';
-import { useQuery } from '~/gql';
 import { Chain } from 'chains';
 import { asUAddress } from 'lib';
-import { OperationLabel_OperationFragmentFragment } from '@api/generated/graphql';
+import { graphql } from 'relay-runtime';
+import { useFragment, useLazyLoadQuery } from 'react-relay';
+import { OperationLabel_PolicyQuery } from '~/api/__generated__/OperationLabel_PolicyQuery.graphql';
+import {
+  OperationLabel_operation$data,
+  OperationLabel_operation$key,
+} from '~/api/__generated__/OperationLabel_operation.graphql';
+import { useLazyTokenAmount } from '#/token/useLazyTokenAmount';
 
-const FragmentDoc = gql(/* GraphQL */ `
-  fragment OperationLabel_OperationFragment on Operation {
+const Operation = graphql`
+  fragment OperationLabel_operation on Operation {
     to
     function {
       __typename
@@ -45,24 +49,24 @@ const FragmentDoc = gql(/* GraphQL */ `
       }
     }
   }
-`);
+`;
 
-const PolicyQuery = gql(/* GraphQL */ `
-  query OperationLabel_Policy($input: UniquePolicyInput!) {
+const PolicyQuery = graphql`
+  query OperationLabel_PolicyQuery($input: UniquePolicyInput!) {
     policy(input: $input) {
       id
       name
     }
   }
-`);
+`;
 
 export interface OperationLabelProps {
-  operation: FragmentType<typeof FragmentDoc>;
+  operation: OperationLabel_operation$key;
   chain: Chain;
 }
 
 export function OperationLabel({ chain, ...props }: OperationLabelProps) {
-  const op = useFragment(FragmentDoc, props.operation);
+  const op = useFragment(Operation, props.operation);
 
   return match(op.function)
     .with({ __typename: 'UpdatePolicyOp' }, (f) => <UpdatePolicyOp f={f} chain={chain} />)
@@ -73,37 +77,36 @@ export function OperationLabel({ chain, ...props }: OperationLabelProps) {
     .with({ __typename: 'SwapOp' }, (f) => <SwapOp f={f} chain={chain} />)
     .with({ __typename: 'GenericOp' }, (f) => <GenericOp f={f} chain={chain} op={op} />)
     .with(P.nullish, () => <CallOp op={op} chain={chain} />)
-    .exhaustive();
+    .otherwise(() => {
+      throw new Error(`Unknown operation: ${op.function?.__typename}`);
+    });
 }
 
 interface PropsFor<
-  Typename extends NonNullable<OperationLabel_OperationFragmentFragment['function']>['__typename'],
+  Typename extends NonNullable<OperationLabel_operation$data['function']>['__typename'],
 > {
-  f: Extract<
-    NonNullable<OperationLabel_OperationFragmentFragment['function']>,
-    { __typename: Typename }
-  >;
+  f: Extract<NonNullable<OperationLabel_operation$data['function']>, { __typename: Typename }>;
   chain: Chain;
 }
 
 function UpdatePolicyOp({ f, chain }: PropsFor<'UpdatePolicyOp'>) {
   return `Update policy: ${
-    useQuery(PolicyQuery, {
+    useLazyLoadQuery<OperationLabel_PolicyQuery>(PolicyQuery, {
       input: { account: asUAddress(f.account, chain), key: f.key },
-    }).data.policy?.name
+    }).policy?.name
   }`;
 }
 
 function RemovePolicyOp({ f, chain }: PropsFor<'RemovePolicyOp'>) {
   return `Remove policy: ${
-    useQuery(PolicyQuery, {
+    useLazyLoadQuery<OperationLabel_PolicyQuery>(PolicyQuery, {
       input: { account: asUAddress(f.account, chain), key: f.key },
-    }).data.policy?.name
+    }).policy?.name
   }`;
 }
 
 function TransferOp({ f, chain }: PropsFor<'TransferOp'>) {
-  return `Send ${useFormattedTokenAmount({
+  return `Send ${useLazyTokenAmount({
     ...f,
     token: asUAddress(f.token, chain),
   })} to ${useAddressLabel(asUAddress(f.to, chain))}`;
@@ -128,7 +131,7 @@ function SwapOp({ f, chain }: PropsFor<'SwapOp'>) {
 }
 
 interface GenericOpProps extends PropsFor<'GenericOp'> {
-  op: OperationLabel_OperationFragmentFragment;
+  op: OperationLabel_operation$data;
 }
 
 function GenericOp({ f, chain, op }: GenericOpProps) {
@@ -136,7 +139,7 @@ function GenericOp({ f, chain, op }: GenericOpProps) {
 }
 
 interface CallOpProps {
-  op: OperationLabel_OperationFragmentFragment;
+  op: OperationLabel_operation$data;
   chain: Chain;
 }
 

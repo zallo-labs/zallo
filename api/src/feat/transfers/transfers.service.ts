@@ -38,20 +38,26 @@ export class TransfersService {
 
   async select(
     account: UUID,
-    { direction, internal }: TransfersInput,
+    { incoming, outgoing, internal }: TransfersInput,
     shape?: ShapeFunc<typeof e.Transfer>,
   ) {
     return this.db.queryWith(
-      { account: e.uuid, direction: e.optional(e.TransferDirection), internal: e.optional(e.bool) },
-      ({ account, direction, internal }) =>
+      {
+        account: e.uuid,
+        incoming: e.optional(e.bool),
+        outgoing: e.optional(e.bool),
+        internal: e.optional(e.bool),
+      },
+      ({ account, incoming, outgoing, internal }) =>
         e.select(e.cast(e.Account, account).transfers, (t) => ({
           ...shape?.(t),
           filter: and(
+            e.op(e.op(t.incoming, '=', incoming), 'if', e.op('exists', incoming), 'else', true),
+            e.op(e.op(t.outgoing, '=', outgoing), 'if', e.op('exists', outgoing), 'else', true),
             e.op(e.op(t.internal, '=', internal), 'if', e.op('exists', internal), 'else', true),
-            e.op(e.op(direction, 'in', t.direction), 'if', e.op('exists', direction), 'else', true),
           ),
         })),
-      { account, direction, internal },
+      { account, incoming, outgoing, internal },
     );
   }
 

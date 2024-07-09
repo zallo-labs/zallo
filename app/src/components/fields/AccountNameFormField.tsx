@@ -1,15 +1,16 @@
-import { gql } from '@api';
-import { useUrqlApiClient } from '@api/client';
 import { createStyles, useStyles } from '@theme/styles';
 import { useState } from 'react';
 import { FieldValues, FieldPath } from 'react-hook-form';
 import { FormTextField, FormTextFieldProps } from '#/fields/FormTextField';
+import { fetchQuery, graphql } from 'relay-runtime';
+import { useRelayEnvironment } from 'react-relay';
+import { AccountNameFormFieldQuery } from '~/api/__generated__/AccountNameFormFieldQuery.graphql';
 
-const NameAvailable = gql(/* GraphQL */ `
-  query AccountNameFormField_nameAvailable($name: String!) {
+const NameAvailable = graphql`
+  query AccountNameFormFieldQuery($name: String!) {
     nameAvailable(input: { name: $name })
   }
-`);
+`;
 
 export interface AccountNameFormFieldProps<
   TFieldValues extends FieldValues,
@@ -21,7 +22,7 @@ export function AccountNameFormField<
   TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
 >(props: AccountNameFormFieldProps<TFieldValues, TName>) {
   const { styles } = useStyles(stylesheet);
-  const api = useUrqlApiClient();
+  const environment = useRelayEnvironment();
 
   const [isAvailable, setAvailable] = useState<boolean | 'checking'>(false);
 
@@ -39,7 +40,12 @@ export function AccountNameFormField<
         },
         validate: async (name) => {
           setAvailable('checking');
-          const available = !!(await api.query(NameAvailable, { name })).data?.nameAvailable;
+
+          const available = !!(
+            await fetchQuery<AccountNameFormFieldQuery>(environment, NameAvailable, {
+              name,
+            }).toPromise()
+          )?.nameAvailable;
           setAvailable(available);
           return available || 'Not available';
         },

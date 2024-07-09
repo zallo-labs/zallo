@@ -3,27 +3,32 @@ import { useForm } from 'react-hook-form';
 import { FormTextField } from '#/fields/FormTextField';
 import { Actions } from '#/layout/Actions';
 import { FormSubmitButton } from '#/fields/FormSubmitButton';
-import { FragmentType, gql, useFragment } from '@api/generated';
-import { useMutation } from 'urql';
-import { usePolicyDraft } from '~/lib/policy/draft';
+import { usePolicyDraft } from '~/lib/policy/policyAsDraft';
 import { showError } from '#/provider/SnackbarProvider';
 import { SideSheet } from '../SideSheet/SideSheet';
 import { useConfirmRemoval } from '~/hooks/useConfirm';
 import { Button } from '../Button';
 import { createStyles, useStyles } from '@theme/styles';
 import { useEffect } from 'react';
+import { graphql } from 'relay-runtime';
+import { useFragment } from 'react-relay';
+import { PolicySideSheet_account$key } from '~/api/__generated__/PolicySideSheet_account.graphql';
+import { PolicySideSheet_policy$key } from '~/api/__generated__/PolicySideSheet_policy.graphql';
+import { useMutation } from '~/api';
+import { PolicySideSheet_renameMutation } from '~/api/__generated__/PolicySideSheet_renameMutation.graphql';
+import { PolicySideSheet_removeMutation } from '~/api/__generated__/PolicySideSheet_removeMutation.graphql';
 
 const trimmed = (v: string) => v.trim();
 
-const Account = gql(/* GraphQL */ `
-  fragment PolicySideSheet_Account on Account {
+const Account = graphql`
+  fragment PolicySideSheet_account on Account {
     id
     address
   }
-`);
+`;
 
-const Policy = gql(/* GraphQL */ `
-  fragment PolicySideSheet_Policy on Policy {
+const Policy = graphql`
+  fragment PolicySideSheet_policy on Policy {
     id
     key
     draft {
@@ -31,10 +36,10 @@ const Policy = gql(/* GraphQL */ `
       id
     }
   }
-`);
+`;
 
-const Rename = gql(/* GraphQL */ `
-  mutation PolicySideSheet_Rename($account: UAddress!, $key: PolicyKey!, $name: String!) {
+const Rename = graphql`
+  mutation PolicySideSheet_renameMutation($account: UAddress!, $key: PolicyKey!, $name: String!) {
     updatePolicy(input: { account: $account, key: $key, name: $name }) {
       __typename
       ... on Policy {
@@ -46,10 +51,10 @@ const Rename = gql(/* GraphQL */ `
       }
     }
   }
-`);
+`;
 
-const Remove = gql(/* GraphQL */ `
-  mutation PolicySideSheet_Remove($account: UAddress!, $key: PolicyKey!) {
+const Remove = graphql`
+  mutation PolicySideSheet_removeMutation($account: UAddress!, $key: PolicyKey!) {
     removePolicy(input: { account: $account, key: $key }) {
       id
       draft {
@@ -60,15 +65,15 @@ const Remove = gql(/* GraphQL */ `
       }
     }
   }
-`);
+`;
 
 interface Inputs {
   name: string;
 }
 
 export interface PolicySideSheetProps {
-  account: FragmentType<typeof Account>;
-  policy?: FragmentType<typeof Policy> | null;
+  account: PolicySideSheet_account$key;
+  policy?: PolicySideSheet_policy$key | null;
 }
 
 export function PolicySideSheet(props: PolicySideSheetProps) {
@@ -76,8 +81,8 @@ export function PolicySideSheet(props: PolicySideSheetProps) {
   const account = useFragment(Account, props.account);
   const policy = useFragment(Policy, props.policy);
   const router = useRouter();
-  const rename = useMutation(Rename)[1];
-  const remove = useMutation(Remove)[1];
+  const rename = useMutation<PolicySideSheet_renameMutation>(Rename);
+  const remove = useMutation<PolicySideSheet_removeMutation>(Remove);
   const confirmRemove = useConfirmRemoval({
     title: 'Remove policy',
     message: 'Are you sure you want to remove this policy?',
@@ -114,8 +119,8 @@ export function PolicySideSheet(props: PolicySideSheetProps) {
             labelStyle={styles.removeLabel}
             onPress={async () => {
               if (await confirmRemove()) {
-                const proposal = (await remove({ account: account.address, key: policy.key })).data
-                  ?.removePolicy.draft?.proposal;
+                const proposal = (await remove({ account: account.address, key: policy.key }))
+                  .removePolicy.draft?.proposal;
 
                 if (proposal)
                   router.push({
@@ -139,7 +144,7 @@ export function PolicySideSheet(props: PolicySideSheetProps) {
 
             if (name !== draft.name) {
               if (draft.key !== undefined) {
-                const r = (await rename({ account: draft.account, key: draft.key, name })).data
+                const r = (await rename({ account: draft.account, key: draft.key, name }))
                   ?.updatePolicy;
                 if (r?.__typename !== 'Policy') return showError(r?.message);
               }

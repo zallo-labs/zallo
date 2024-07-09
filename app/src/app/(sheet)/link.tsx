@@ -4,15 +4,16 @@ import { materialCommunityIcon } from '@theme/icons';
 import { View } from 'react-native';
 import { Text } from 'react-native-paper';
 import { Button } from '#/Button';
-import { gql } from '@api/generated';
 import { showSuccess } from '#/provider/SnackbarProvider';
-import { useMutation } from 'urql';
 import { z } from 'zod';
 import { useLocalParams } from '~/hooks/useLocalParams';
 import { createStyles, useStyles } from '@theme/styles';
+import { graphql } from 'relay-runtime';
+import { useMutation } from '~/api';
+import { link_LinkWithTokenSheetMutation } from '~/api/__generated__/link_LinkWithTokenSheetMutation.graphql';
 
-const Link = gql(/* GraphQL */ `
-  mutation ConfirmLinkSheet_Link($token: String!) {
+const Link = graphql`
+  mutation link_LinkWithTokenSheetMutation($token: String!) {
     link(input: { token: $token }) {
       id
       approvers {
@@ -20,7 +21,7 @@ const Link = gql(/* GraphQL */ `
       }
     }
   }
-`);
+`;
 
 export const LinkIcon = materialCommunityIcon('link-variant');
 
@@ -31,7 +32,7 @@ export default function LinkWithTokenSheet() {
   const { token } = useLocalParams(LinkWithTokenSheetParams);
   const { styles } = useStyles(stylesheet);
   const { back } = useRouter();
-  const link = useMutation(Link)[1];
+  const link = useMutation<link_LinkWithTokenSheetMutation>(Link);
 
   return (
     <Sheet handle={false}>
@@ -58,8 +59,7 @@ export default function LinkWithTokenSheet() {
           icon={LinkIcon}
           style={styles.button}
           onPress={async () => {
-            const r = await link({ token });
-            if (!r.data) return;
+            await link({ token });
             showSuccess('Linked');
             back();
           }}

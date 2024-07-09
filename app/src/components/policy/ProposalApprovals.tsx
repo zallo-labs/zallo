@@ -1,18 +1,19 @@
 import { ListHeader } from '#/list/ListHeader';
 import { UUID } from 'lib';
-import { gql, useFragment } from '@api/generated';
-import { getOptimizedDocument, useQuery } from '~/gql';
-import { useSubscription } from 'urql';
 import { ApprovalItem } from '#/transaction/ApprovalItem';
 import { SelectedPolicy } from '#/transaction/SelectedPolicy';
 import { PendingApprovalItem } from '#/transaction/PendingApprovalItem';
 import { RejectionItem } from '#/transaction/RejectionItem';
 import { withSuspense } from '#/skeleton/withSuspense';
-import { memo } from 'react';
+import { memo, useMemo } from 'react';
 import { ListItemSkeleton } from '#/list/ListItemSkeleton';
+import { graphql } from 'relay-runtime';
+import { useFragment, useLazyLoadQuery, useSubscription } from 'react-relay';
+import { ProposalApprovalsQuery } from '~/api/__generated__/ProposalApprovalsQuery.graphql';
+import { ProposalApprovals_proposal$key } from '~/api/__generated__/ProposalApprovals_proposal.graphql';
 
-const Proposal = gql(/* GraphQL */ `
-  fragment ProposalApprovals_Proposal on Proposal @argumentDefinitions(proposal: { type: "ID!" }) {
+const Proposal = graphql`
+  fragment ProposalApprovals_proposal on Proposal {
     id
     policy {
       id
@@ -20,7 +21,7 @@ const Proposal = gql(/* GraphQL */ `
       approvers {
         id
         address
-        ...PendingApprovalItem_Approver
+        ...PendingApprovalItem_approver
       }
     }
     rejections {
@@ -28,64 +29,66 @@ const Proposal = gql(/* GraphQL */ `
       approver {
         id
       }
-      ...RejectionItem_Rejection
+      ...RejectionItem_rejection
     }
     approvals {
       id
       approver {
         id
+        address
       }
-      ...ApprovalItem_Approval
+      ...ApprovalItem_approval
     }
     createdAt
     proposedBy {
       id
       address
     }
-    ...SelectedPolicy_Proposal @arguments(proposal: $proposal)
-    ...PendingApprovalItem_Proposal
-    ...RejectionItem_Proposal
-    ...ApprovalItem_Proposal
+    ...SelectedPolicy_proposal
+    ...PendingApprovalItem_proposal
+    ...RejectionItem_proposal
+    ...ApprovalItem_proposal
   }
-`);
+`;
 
-const Query = gql(/* GraphQL */ `
-  query ProposalApprovals($proposal: ID!) {
-    proposal(input: { id: $proposal }) {
-      ...ProposalApprovals_Proposal @arguments(proposal: $proposal)
+const Query = graphql`
+  query ProposalApprovalsQuery($proposal: ID!) {
+    proposal(id: $proposal) {
+      ...ProposalApprovals_proposal
     }
 
     user {
-      ...PendingApprovalItem_User
-      ...RejectionItem_User
-      ...ApprovalItem_User
+      ...PendingApprovalItem_user
+      ...RejectionItem_user
+      ...ApprovalItem_user
     }
   }
-`);
+`;
 
-const Subscription = gql(/* GraphQL */ `
+const Subscription = graphql`
   subscription ProposalApprovals_Subscription($proposal: ID!) {
     proposalUpdated(input: { proposals: [$proposal], events: [approval, rejection] }) {
       id
+      event
       proposal {
-        ...ProposalApprovals_Proposal @arguments(proposal: $proposal)
+        ...ProposalApprovals_proposal
       }
     }
   }
-`);
+`;
 
 export interface PolicyTabProps {
   proposal: UUID;
 }
 
 function ProposalApprovals_({ proposal: id }: PolicyTabProps) {
-  const { data } = useQuery(Query, { proposal: id });
-  useSubscription({
-    query: getOptimizedDocument(Subscription),
-    variables: { proposal: id },
-  });
-  const p = useFragment(Proposal, data.proposal);
+  const data = useLazyLoadQuery<ProposalApprovalsQuery>(Query, { proposal: id });
+  const p = useFragment<ProposalApprovals_proposal$key>(Proposal, data.proposal);
   const user = data.user;
+
+  useSubscription(
+    useMemo(() => ({ subscription: Subscription, variables: { proposal: id } }), [id]),
+  );
 
   if (!p) return null;
 
@@ -121,14 +124,14 @@ function ProposalApprovals_({ proposal: id }: PolicyTabProps) {
       ))}
 
       {p.approvals.length > 0 && <ListHeader>Approvals</ListHeader>}
-      {p.approvals.map((approval) => (
-        <ApprovalItem key={approval.id} user={user} approval={approval} proposal={p} />
+      {p.approvals.map((a) => (
+        <ApprovalItem key={a.id} user={user} approval={a} proposal={p} />
       ))}
     </>
   );
 }
 
 export const ProposalApprovals = withSuspense(
-  memo(ProposalApprovals_),
+  ProposalApprovals_,
   <ListItemSkeleton leading supporting trailing />,
 );

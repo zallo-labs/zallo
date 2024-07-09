@@ -2,15 +2,17 @@ import { SettingsOutlineIcon, SwapIcon, UndoIcon } from '@theme/icons';
 import { Chip, Menu } from 'react-native-paper';
 import { AppbarMore } from '#/Appbar/AppbarMore';
 import { useAtomValue, useSetAtom } from 'jotai';
-import { FragmentType, gql, useFragment } from '@api/generated';
-import { usePolicyDraftAtom } from '~/lib/policy/draft';
+import { usePolicyDraftAtom } from '~/lib/policy/policyAsDraft';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { createStyles, useStyles } from '@theme/styles';
 import { Appbar } from '#/Appbar/Appbar';
 import { SIDE_SHEET } from '#/SideSheet/SideSheetLayout';
+import { graphql } from 'relay-runtime';
+import { useFragment } from 'react-relay';
+import { PolicyAppbar_policy$key } from '~/api/__generated__/PolicyAppbar_policy.graphql';
 
-const Policy = gql(/* GraphQL */ `
-  fragment PolicyAppbar_Policy on Policy {
+const Policy = graphql`
+  fragment PolicyAppbar_policy on Policy {
     id
     key
     isActive
@@ -24,10 +26,10 @@ const Policy = gql(/* GraphQL */ `
       id
     }
   }
-`);
+`;
 
 export interface PolicyAppbarProps {
-  policy?: FragmentType<typeof Policy> | null;
+  policy?: PolicyAppbar_policy$key | null;
   reset?: () => void;
 }
 

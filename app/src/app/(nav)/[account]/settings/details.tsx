@@ -1,10 +1,6 @@
 import { Pane } from '#/layout/Pane';
-import { gql } from '@api';
-import { useQuery } from '~/gql';
 import { useLocalParams } from '~/hooks/useLocalParams';
 import { AccountSettingsParams } from './index';
-import { NotFound } from '#/NotFound';
-import { useMutation } from 'urql';
 import { useForm } from 'react-hook-form';
 import { createStyles } from '@theme/styles';
 import { Appbar } from '#/Appbar/Appbar';
@@ -13,25 +9,30 @@ import { View } from 'react-native';
 import { AccountNameFormField } from '#/fields/AccountNameFormField';
 import { Actions } from '#/layout/Actions';
 import { FormSubmitButton } from '#/fields/FormSubmitButton';
+import { graphql } from 'relay-runtime';
+import { useLazyLoadQuery } from 'react-relay';
+import { details_AccountDetailsQuery } from '~/api/__generated__/details_AccountDetailsQuery.graphql';
+import { useMutation } from '~/api';
+import { details_AccountDetailsMutation } from '~/api/__generated__/details_AccountDetailsMutation.graphql';
 
-const Query = gql(/* GraphQL */ `
-  query AccountDetails($account: UAddress!) {
-    account(input: { account: $account }) {
+const Query = graphql`
+  query details_AccountDetailsQuery($account: UAddress!) {
+    account(address: $account) @required(action: THROW) {
       id
       address
       name
     }
   }
-`);
+`;
 
-const Update = gql(/* GraphQL */ `
-  mutation AccountDetails_Update($account: UAddress!, $name: String!) {
+const Update = graphql`
+  mutation details_AccountDetailsMutation($account: UAddress!, $name: String!) @raw_response_type {
     updateAccount(input: { account: $account, name: $name }) {
       id
       name
     }
   }
-`);
+`;
 
 interface Inputs {
   name: string;
@@ -39,13 +40,11 @@ interface Inputs {
 
 export default function AccountDetails() {
   const { account } = useLocalParams(AccountSettingsParams);
-  const update = useMutation(Update)[1];
+  const update = useMutation<details_AccountDetailsMutation>(Update);
 
-  const a = useQuery(Query, { account }).data.account;
+  const a = useLazyLoadQuery<details_AccountDetailsQuery>(Query, { account }).account;
 
   const { control, handleSubmit, reset } = useForm<Inputs>({ defaultValues: { name: a?.name } });
-
-  if (!a) return <NotFound name="Account" />;
 
   return (
     <Pane flex>
@@ -62,7 +61,10 @@ export default function AccountDetails() {
             requireChanges
             control={control}
             onPress={handleSubmit(async (input) => {
-              await update({ account, name: input.name });
+              await update(
+                { account, name: input.name },
+                { optimisticResponse: { updateAccount: { id: a.id, name: input.name } } },
+              );
               reset(input);
             })}
           >

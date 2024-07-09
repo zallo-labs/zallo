@@ -7,12 +7,8 @@
       "outputs": [".expo/types/**", "expo-env.d.ts"]
     },
     "generate:gql": {
-      "inputs": ["../api/schema.graphql", "codgen.ts", "src/**"],
-      "outputs": [
-        "src/gql/api/documents.generated.ts",
-        "src/gql/api/generated/",
-        "src/gql/api/schema.generated.ts"
-      ]
+      "inputs": ["../api/schema.graphql", "relay.config.js", "src/**"],
+      "outputs": ["src/api/__generated__/**"]
     },
     "build:web": {
       "dependsOn": ["prepare"],

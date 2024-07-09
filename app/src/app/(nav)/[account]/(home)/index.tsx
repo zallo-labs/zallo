@@ -1,8 +1,6 @@
 import { FirstPane } from '#/layout/FirstPane';
 import { PaneSkeleton } from '#/skeleton/PaneSkeleton';
 import { withSuspense } from '#/skeleton/withSuspense';
-import { gql } from '@api';
-import { useQuery } from '~/gql';
 import { useLocalParams } from '~/hooks/useLocalParams';
 import { AccountParams } from '../_layout';
 import { asChain } from 'lib';
@@ -17,18 +15,21 @@ import { createStyles, useStyles } from '@theme/styles';
 import { FlatList, View } from 'react-native';
 import { CORNER } from '@theme/paper';
 import { ITEM_LIST_GAP } from '#/layout/ItemList';
+import { graphql } from 'relay-runtime';
+import { useLazyLoadQuery } from 'react-relay';
+import { HomePaneQuery } from '~/api/__generated__/HomePaneQuery.graphql';
 
-const Query = gql(/* GraphQL */ `
-  query HomePane($account: UAddress!, $chain: Chain!) {
-    account(input: { account: $account }) {
+const Query = graphql`
+  query HomePaneQuery($account: UAddress!, $chain: Chain!) {
+    account(address: $account) {
       id
-      ...AccountSelector_Account
-      ...ActivitySection_Account
+      ...AccountSelector_account
+      ...ActivitySection_account
     }
 
     user {
       id
-      ...ActivitySection_User
+      ...ActivitySection_user
     }
 
     tokens(input: { chain: $chain }) {
@@ -38,17 +39,20 @@ const Query = gql(/* GraphQL */ `
         id
         usd
       }
-      ...AccountValue_Token @arguments(account: $account)
-      ...TokenItem_Token
+      ...AccountValue_token @arguments(account: $account)
+      ...TokenItem_token
     }
   }
-`);
+`;
 
 function HomePane_() {
   const { styles } = useStyles(stylesheet);
   const address = useLocalParams(AccountParams).account;
   const chain = asChain(address);
-  const { account, user, tokens } = useQuery(Query, { account: address, chain }).data;
+  const { account, user, tokens } = useLazyLoadQuery<HomePaneQuery>(Query, {
+    account: address,
+    chain,
+  });
 
   const tokensByValue = tokens
     .map((t) => ({

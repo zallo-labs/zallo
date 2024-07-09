@@ -1,8 +1,5 @@
-import { authContext, useUrqlApiClient } from '@api/client';
-import { gql } from '@api/generated';
 import { BluetoothIcon } from '@theme/icons';
 import { useCallback } from 'react';
-import { useMutation } from 'urql';
 import { ListItem } from '#/list/ListItem';
 import { useGetLedgerApprover } from '~/app/(sheet)/ledger/approve';
 import { APPROVER_BLE_IDS } from '~/hooks/ledger/useLedger';
@@ -16,6 +13,13 @@ import { ampli } from '~/lib/ampli';
 import { Subject } from 'rxjs';
 import { useGetEvent } from '~/hooks/useGetEvent';
 import { Platform } from 'react-native';
+import { graphql } from 'relay-runtime';
+import { useMutation } from '~/api';
+import { signAuthToken } from '~/api/auth-manager';
+import { useFragment } from 'react-relay';
+import { LedgerItem_user$key } from '~/api/__generated__/LedgerItem_user.graphql';
+import { LedgerItem_linkMutation } from '~/api/__generated__/LedgerItem_linkMutation.graphql';
+import { LedgerItem_updateMutation } from '~/api/__generated__/LedgerItem_updateMutation.graphql';
 
 const LEDGER_LINKED = new Subject<Address>();
 export function useLinkLedger() {
@@ -26,47 +30,51 @@ export function useLinkLedger() {
   return () => getEvent({ pathname: `/(nav)/ledger/link` }, LEDGER_LINKED);
 }
 
-const Query = gql(/* GraphQL */ `
-  query LedgerItem {
-    user {
-      id
-      linkingToken
-    }
-
-    approver {
-      id
-      name
-      bluetoothDevices
-    }
+const User = graphql`
+  fragment LedgerItem_user on User {
+    id
+    linkingToken
   }
-`);
+`;
 
-const Update = gql(/* GraphQL */ `
-  mutation LedgerItem_update($input: UpdateApproverInput!) {
-    updateApprover(input: $input) {
-      id
-      name
-      bluetoothDevices
-    }
-  }
-`);
-
-const Link = gql(/* GraphQL */ `
-  mutation LedgerItem_Link($token: String!) {
+const Link = graphql`
+  mutation LedgerItem_linkMutation($token: String!) {
     link(input: { token: $token }) {
       id
+      approvers {
+        id
+        address
+        details {
+          id
+          bluetoothDevices
+        }
+      }
     }
   }
-`);
+`;
+
+const Update = graphql`
+  mutation LedgerItem_updateMutation($details: UpdateApproverInput!) {
+    updateApprover(input: $details) {
+      id
+      label
+      details {
+        id
+        bluetoothDevices
+      }
+    }
+  }
+`;
 
 export interface LedgerItemProps {
   device: BleDevice;
+  user: LedgerItem_user$key;
 }
 
-export function LedgerItem({ device: d }: LedgerItemProps) {
-  const api = useUrqlApiClient();
-  const update = useMutation(Update)[1];
-  const link = useMutation(Link)[1];
+export function LedgerItem({ device: d, ...props }: LedgerItemProps) {
+  const user = useFragment(User, props.user);
+  const link = useMutation<LedgerItem_linkMutation>(Link);
+  const updateDetails = useMutation<LedgerItem_updateMutation>(Update);
   const setApproverBleIds = useImmerAtom(APPROVER_BLE_IDS)[1];
   const getSign = useGetLedgerApprover();
   const model = getLedgerDeviceModel(d)?.productName || 'Unknown model';
@@ -76,8 +84,8 @@ export function LedgerItem({ device: d }: LedgerItemProps) {
 
     const { address, signMessage } = await getSign({ device: d.id, name });
 
-    const context = await tryOrIgnoreAsync(() =>
-      authContext({
+    const authToken = await tryOrIgnoreAsync(() =>
+      signAuthToken({
         address,
         signMessage: async ({ message }) => {
           const signature = await signMessage({ message });
@@ -86,45 +94,39 @@ export function LedgerItem({ device: d }: LedgerItemProps) {
         },
       }),
     );
-    if (!context)
+    if (!authToken)
       return showError('Connection request cancelled', {
         action: { label: 'Try again', onPress: connect },
       });
 
-    const { data } = await api.query(Query, {}, context);
+    // 1. Link
+    const { approvers } = (await link({ token: user.linkingToken }, { authToken })).link;
+    const approver = approvers.find((a) => a.address === address)?.details;
 
-    const linkingToken = data?.user.linkingToken;
-    if (!linkingToken) return showError('Failed to get linking token, please try again');
-
+    // 2. Update ledger details
     const uniqueId = isUniqueBleDeviceId(d.id) ? d.id : null;
-
-    update(
-      {
-        input: {
-          address,
-          name: !data.approver?.name ? name : undefined,
-          bluetoothDevices:
-            uniqueId && !data.approver?.bluetoothDevices?.includes(uniqueId)
-              ? [...(data.approver?.bluetoothDevices ?? []), uniqueId]
-              : undefined,
-        },
-      },
-      context,
-    );
-
-    // Persist approver => deviceId association locally if OS doesn't provide device's MAC (iOS)
     if (!uniqueId) {
+      // Persist approver => deviceId association locally if OS doesn't provide device's MAC (iOS)
       setApproverBleIds((approverBluetoothIDs) => {
         const ids = approverBluetoothIDs[address] ?? [];
         approverBluetoothIDs[address] = ids.includes(d.id) ? ids : [...ids, d.id];
       });
     }
 
-    await link({ token: linkingToken });
-    LEDGER_LINKED.next(address);
+    updateDetails({
+      details: {
+        address,
+        name,
+        bluetoothDevices:
+          uniqueId && !approver?.bluetoothDevices?.includes(uniqueId)
+            ? [...(approver?.bluetoothDevices ?? []), uniqueId]
+            : undefined,
+      },
+    });
 
+    LEDGER_LINKED.next(address);
     ampli.ledgerLinked({ model });
-  }, [d.name, d.id, model, getSign, api, update, link, setApproverBleIds]);
+  }, [d.name, d.id, model, getSign, link, user.linkingToken, updateDetails, setApproverBleIds]);
 
   return (
     <ListItem

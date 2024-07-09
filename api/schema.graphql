@@ -38,11 +38,6 @@ enum AccountEvent {
   upgraded
 }
 
-input AccountInput {
-  """Defaults to random user account"""
-  account: UAddress
-}
-
 type AccountUpdated implements CustomNode {
   account: Account!
   event: AccountEvent!
@@ -54,7 +49,7 @@ input AccountUpdatedInput {
   accounts: [UAddress!]
 
   """Defaults to all events"""
-  events: AccountEvent
+  events: [AccountEvent!]
 }
 
 input AccountsInput {
@@ -123,13 +118,17 @@ input ApproveInput {
 
 type Approver implements Node {
   address: Address!
+  details: ApproverDetails
   id: ID!
   label: String
 }
 
-input ApproverInput {
-  """Defaults to current approver"""
-  address: Address
+type ApproverDetails implements Node {
+  bluetoothDevices: [MAC!]
+  cloud: Cloud
+  id: ID!
+  name: String
+  pushToken: String
 }
 
 input BalanceInput {
@@ -170,10 +169,6 @@ type Contact implements Labelled & Node {
   address: UAddress!
   id: ID!
   name: String!
-}
-
-input ContactInput {
-  address: UAddress!
 }
 
 input ContactsInput {
@@ -308,10 +303,6 @@ The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://
 """
 scalar JSON @specifiedBy(url: "http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf")
 
-input LabelInput {
-  address: UAddress!
-}
-
 interface Labelled {
   name: String!
 }
@@ -351,7 +342,7 @@ type Mutation {
   approveTransaction(input: ApproveInput!): Transaction!
   createAccount(input: CreateAccountInput!): Account!
   createPolicy(input: CreatePolicyInput!): CreatePolicyResponse!
-  deleteContact(input: ContactInput!): ID
+  deleteContact(address: UAddress!): ID
   execute(input: ExecuteTransactionInput!): Transaction
   link(input: LinkInput!): User!
   proposeCancelScheduledTransaction(input: ProposeCancelScheduledTransactionInput!): Transaction!
@@ -361,10 +352,10 @@ type Mutation {
   removeMessage(input: UniqueProposalInput!): ID!
   removePolicy(input: UniquePolicyInput!): Policy!
   removeToken(address: UAddress!): ID
-  removeTransaction(input: UniqueProposalInput!): ID
+  removeTransaction(id: ID!): ID
   requestTokens(input: RequestTokensInput!): [Address!]!
   updateAccount(input: UpdateAccountInput!): Account!
-  updateApprover(input: UpdateApproverInput!): UserApprover!
+  updateApprover(input: UpdateApproverInput!): Approver!
   updatePolicies(input: UpdatePoliciesInput!): [Policy!]!
   updatePolicy(input: UpdatePolicyInput!): UpdatePolicyResponse!
   updateProposal(input: UpdateProposalInput!): Proposal!
@@ -486,8 +477,6 @@ input PolicyUpdatedInput {
 type Price implements CustomNode {
   eth: Decimal!
   ethEma: Decimal!
-
-  """Pyth USD price id"""
   id: ID!
   usd: Decimal!
   usdEma: Decimal!
@@ -594,25 +583,31 @@ input ProposeTransactionInput {
 }
 
 type Query {
-  account(input: AccountInput! = {}): Account
+  account(
+    """Defaults to random user account"""
+    address: UAddress
+  ): Account
   accounts(input: AccountsInput! = {}): [Account!]!
-  approver(input: ApproverInput! = {}): UserApprover!
-  contact(input: ContactInput!): Contact
+  approver(
+    """Defaults to current approver"""
+    address: Address
+  ): Approver!
+  contact(address: UAddress!): Contact
   contacts(input: ContactsInput! = {}): [Contact!]!
   contract(input: ContractInput!): Contract
   contractFunction(input: ContractFunctionInput!): ContractFunction
   estimateFeesPerGas(input: EstimateFeesPerGasInput!): FeesPerGas
-  label(input: LabelInput!): String
-  message(input: UniqueProposalInput!): Message
+  label(address: UAddress!): String
+  message(id: ID!): Message
   nameAvailable(input: NameAvailableInput!): Boolean!
   node(id: ID!): Node
   policy(input: UniquePolicyInput!): Policy
-  proposal(input: UniqueProposalInput!): Proposal
+  proposal(id: ID!): Proposal
   requestableTokens(input: RequestTokensInput!): [Address!]!
   token(address: UAddress!): Token
   tokenMetadata(address: UAddress!): TokenMetadata
   tokens(input: TokensInput! = {}): [Token!]!
-  transaction(input: UniqueProposalInput!): Transaction
+  transaction(id: ID!): Transaction
   user: User!
 }
 
@@ -685,10 +680,12 @@ scalar Selector
 type SimulatedTransfer implements Node & TransferDetails {
   account: Account!
   amount: Decimal!
-  direction: [TransferDirection!]!
   from: Address!
   id: ID!
+  incoming: Boolean!
+  internal: Boolean!
   isFeeTransfer: Boolean!
+  outgoing: Boolean!
   to: Address!
   token: Token
   tokenAddress: UAddress!
@@ -851,11 +848,13 @@ type Transfer implements Event & Node & TransferDetails & Transferlike {
   account: Account!
   amount: Decimal!
   block: BigInt!
-  direction: [TransferDirection!]!
   from: Address!
   id: ID!
+  incoming: Boolean!
+  internal: Boolean!
   isFeeTransfer: Boolean!
   logIndex: Float!
+  outgoing: Boolean!
   systxHash: Bytes32!
   timestamp: DateTime!
   to: Address!
@@ -869,11 +868,13 @@ type TransferApproval implements Event & Node & TransferDetails & Transferlike {
   amount: Decimal!
   block: BigInt!
   delta: Decimal!
-  direction: [TransferDirection!]!
   from: Address!
   id: ID!
+  incoming: Boolean!
+  internal: Boolean!
   isFeeTransfer: Boolean!
   logIndex: Float!
+  outgoing: Boolean!
   systxHash: Bytes32!
   timestamp: DateTime!
   to: Address!
@@ -891,19 +892,16 @@ type TransferApprovalOp implements TransferlikeOp {
 interface TransferDetails implements Node {
   account: Account!
   amount: Decimal!
-  direction: [TransferDirection!]!
   from: Address!
   id: ID!
+  incoming: Boolean!
+  internal: Boolean!
   isFeeTransfer: Boolean!
+  outgoing: Boolean!
   to: Address!
   token: Token
   tokenAddress: UAddress!
   value: Decimal
-}
-
-enum TransferDirection {
-  In
-  Out
 }
 
 type TransferFromOp implements TransferlikeOp {
@@ -938,21 +936,24 @@ type TransferOp implements TransferlikeOp {
 
 input TransferSubscriptionInput {
   accounts: [UAddress!]
-  direction: TransferDirection
+  incoming: Boolean
 
   """Originating from an account transaction"""
   internal: Boolean
+  outgoing: Boolean
 }
 
 interface Transferlike implements Event & Node & TransferDetails {
   account: Account!
   amount: Decimal!
   block: BigInt!
-  direction: [TransferDirection!]!
   from: Address!
   id: ID!
+  incoming: Boolean!
+  internal: Boolean!
   isFeeTransfer: Boolean!
   logIndex: Float!
+  outgoing: Boolean!
   systxHash: Bytes32!
   timestamp: DateTime!
   to: Address!
@@ -982,10 +983,11 @@ input TransfersConfigInput {
 }
 
 input TransfersInput {
-  direction: TransferDirection
+  incoming: Boolean
 
   """Originating from an account transaction"""
   internal: Boolean
+  outgoing: Boolean
 }
 
 """EIP712 Typed Data"""
@@ -1087,21 +1089,11 @@ input UpsertTokenInput {
 }
 
 type User implements Node {
-  approvers: [UserApprover!]!
+  approvers: [Approver!]!
   contacts: [Contact!]!
   id: ID!
   linkingToken: String!
   primaryAccount: Account
-}
-
-type UserApprover implements Node {
-  address: Address!
-  bluetoothDevices: [MAC!]
-  cloud: Cloud
-  id: ID!
-  label: String
-  name: String
-  pushToken: String
 }
 
 type UserLinked implements CustomNode {

@@ -1,29 +1,32 @@
-import { FragmentType, gql, useFragment } from '@api';
 import { createStyles, useStyles } from '@theme/styles';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { FlatList, View } from 'react-native';
 import { Chip } from 'react-native-paper';
-import { usePolicyDraftAtom } from '~/lib/policy/draft';
+import { useFragment } from 'react-relay';
+import { graphql } from 'relay-runtime';
+import { PolicyPresets_account$key } from '~/api/__generated__/PolicyPresets_account.graphql';
+import { PolicyPresets_user$key } from '~/api/__generated__/PolicyPresets_user.graphql';
+import { usePolicyDraftAtom } from '~/lib/policy/policyAsDraft';
 import { usePolicyPresets } from '~/lib/policy/usePolicyPresets';
 
-const Account = gql(/* GraphQL */ `
-  fragment PolicyPresets_Account on Account {
+const Account = graphql`
+  fragment PolicyPresets_account on Account {
     id
     chain
-    ...UsePolicyPresets_Account
+    ...usePolicyPresets_account
   }
-`);
+`;
 
-const User = gql(/* GraphQL */ `
-  fragment PolicyPresets_User on User {
+const User = graphql`
+  fragment PolicyPresets_user on User {
     id
-    ...UsePolicyPresets_User
+    ...usePolicyPresets_user
   }
-`);
+`;
 
 export interface PolicyPresetsProps {
-  account: FragmentType<typeof Account>;
-  user: FragmentType<typeof User>;
+  account: PolicyPresets_account$key;
+  user: PolicyPresets_user$key;
 }
 
 export function PolicyPresets(props: PolicyPresetsProps) {

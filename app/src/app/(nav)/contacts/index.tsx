@@ -2,9 +2,7 @@ import { useState } from 'react';
 import { Link, useRouter } from 'expo-router';
 import { AddIcon, ContactsIcon, NavigateNextIcon, ScanIcon } from '~/util/theme/icons';
 import { Searchbar } from '#/Appbar/Searchbar';
-import { gql } from '@api/generated';
 import { Fab } from '#/Fab';
-import { useQuery } from '~/gql';
 import { useScanAddress } from '~/app/scan';
 import { ContactItem } from '#/item/ContactItem';
 import { withSuspense } from '#/skeleton/withSuspense';
@@ -17,16 +15,19 @@ import { View } from 'react-native';
 import { Text } from 'react-native-paper';
 import { ICON_SIZE } from '@theme/paper';
 import { MenuOrSearchIcon } from '#/Appbar/MenuOrSearchIcon';
+import { graphql } from 'relay-runtime';
+import { useLazyLoadQuery } from 'react-relay';
+import { contacts_ContactsPaneQuery } from '~/api/__generated__/contacts_ContactsPaneQuery.graphql';
 
-const Query = gql(/* GraphQL */ `
-  query ContactsPane($query: String) {
+const Query = graphql`
+  query contacts_ContactsPaneQuery($query: String) {
     contacts(input: { query: $query }) {
       id
       address
-      ...ContactItem_Contact
+      ...ContactItem_contact
     }
   }
-`);
+`;
 
 function ContactsPane_() {
   const { styles } = useStyles(stylesheet);
@@ -37,7 +38,9 @@ function ContactsPane_() {
 
   const [query, setQuery] = useState('');
 
-  const { contacts } = useQuery(Query, { query }).data;
+  const { contacts } = useLazyLoadQuery<contacts_ContactsPaneQuery>(Query, {
+    query: query || null,
+  });
 
   return (
     <>

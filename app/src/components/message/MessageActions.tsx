@@ -1,32 +1,35 @@
-import { FragmentType, gql, useFragment } from '@api/generated';
 import { Actions } from '#/layout/Actions';
 import { useApprove } from '~/hooks/useApprove';
 import { useReject } from '~/hooks/useReject';
 import { Button } from '../Button';
 import { useAtom } from 'jotai';
 import { SIDE_SHEET } from '#/SideSheet/SideSheetLayout';
+import { graphql } from 'relay-runtime';
+import { MessageActions_message$key } from '~/api/__generated__/MessageActions_message.graphql';
+import { MessageActions_user$key } from '~/api/__generated__/MessageActions_user.graphql';
+import { useFragment } from 'react-relay';
 
-const Message = gql(/* GraphQL */ `
-  fragment MessageActions_Message on Message {
-    ...UseApprove_Proposal
-    ...UseReject_Proposal
+const Message = graphql`
+  fragment MessageActions_message on Message {
+    ...useApprove_proposal
+    ...useReject_proposal
   }
-`);
+`;
 
-const User = gql(/* GraphQL */ `
-  fragment MessageActions_User on User {
-    ...UseApprove_User
-    ...UseReject_User
+const User = graphql`
+  fragment MessageActions_user on User {
+    ...useApprove_user
+    ...useReject_user
   }
-`);
+`;
 
 export interface MessageActionsProps {
-  proposal: FragmentType<typeof Message>;
-  user: FragmentType<typeof User>;
+  message: MessageActions_message$key;
+  user: MessageActions_user$key;
 }
 
 export function MessageActions(props: MessageActionsProps) {
-  const p = useFragment(Message, props.proposal);
+  const p = useFragment(Message, props.message);
   const user = useFragment(User, props.user);
   const approve = useApprove({ proposal: p, user });
   const reject = useReject({ proposal: p, user });

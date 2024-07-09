@@ -16,20 +16,21 @@ import { useLocalParams } from '~/hooks/useLocalParams';
 import { DappHeader } from '#/walletconnect/DappHeader';
 import { Updater, useImmer } from 'use-immer';
 import { UAddress } from 'lib';
-import { gql } from '@api';
-import { useQuery } from '~/gql';
 import { AccountsList } from '#/walletconnect/AccountsList';
 import _ from 'lodash';
+import { graphql } from 'relay-runtime';
+import { useLazyLoadQuery } from 'react-relay';
+import { Topic_SessionDetailsSheetQuery } from '~/api/__generated__/Topic_SessionDetailsSheetQuery.graphql';
 
-const Query = gql(/* GraphQL */ `
-  query SessionDetailsSheet {
+const Query = graphql`
+  query Topic_SessionDetailsSheetQuery {
     accounts {
       id
       chain
-      ...AccountsList_Account
+      ...AccountsList_account
     }
   }
-`);
+`;
 
 const SessionDetailsSheetParams = z.object({ topic: z.string() });
 
@@ -42,7 +43,9 @@ export default function SessionDetailsSheet() {
   const session = Object.values(client.getActiveSessions()).find((p) => p.pairingTopic === topic);
   const chains = sessionChains(session);
 
-  const accounts = useQuery(Query).data.accounts.filter((a) => chains.includes(a.chain));
+  const accounts = useLazyLoadQuery<Topic_SessionDetailsSheetQuery>(Query, {}).accounts.filter(
+    (a) => chains.includes(a.chain),
+  );
 
   const [selected, _updateSelected] = useImmer<Set<UAddress>>(
     () => new Set(session?.namespaces[WC_NAMESPACE].accounts.map(fromCaip10).filter(Boolean) ?? []),
@@ -90,7 +93,7 @@ export default function SessionDetailsSheet() {
 
   return (
     <Sheet>
-      <DappHeader dapp={peer} />
+      <DappHeader metadata={peer} />
 
       {accounts.length > 0 && (
         <AccountsList accounts={accounts} selected={selected} updateSelected={updateSelected} />

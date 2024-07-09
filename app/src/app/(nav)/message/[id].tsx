@@ -1,9 +1,6 @@
 import { z } from 'zod';
 import { useLocalParams } from '~/hooks/useLocalParams';
 import { zUuid } from '~/lib/zod';
-import { gql } from '@api/generated';
-import { NotFound } from '#/NotFound';
-import { useQuery } from '~/gql';
 import { AppbarMore } from '#/Appbar/AppbarMore';
 import { Divider, Menu } from 'react-native-paper';
 import { AppbarOptions } from '#/Appbar/AppbarOptions';
@@ -19,10 +16,13 @@ import { ListHeader } from '#/list/ListHeader';
 import { DappHeader } from '#/walletconnect/DappHeader';
 import { AccountSection } from '#/proposal/AccountSection';
 import { useRemoveMessage } from '#/message/useRemoveMessage';
+import { graphql } from 'relay-runtime';
+import { useLazyLoadQuery } from 'react-relay';
+import { Id_MessageScreenQuery } from '~/api/__generated__/Id_MessageScreenQuery.graphql';
 
-const Query = gql(/* GraphQL */ `
-  query MessageScreen($proposal: ID!) {
-    message(input: { id: $proposal }) {
+const Query = graphql`
+  query Id_MessageScreenQuery($id: ID!) {
+    message(id: $id) @required(action: THROW) {
       id
       label
       message
@@ -30,39 +30,35 @@ const Query = gql(/* GraphQL */ `
       account {
         id
         chain
-        ...AccountSection_Account
+        ...AccountSection_account
       }
       dapp {
-        ...DappHeader_DappMetadata
+        ...DappHeader_dappMetadata
       }
-      ...useRemoveMessage_Message
-      ...MessageStatus_Message
-      ...MessageActions_Message
+      ...useRemoveMessage_message
+      ...MessageStatus_message
+      ...MessageActions_message
     }
 
     user {
       id
-      ...MessageActions_User
+      ...MessageActions_user
     }
   }
-`);
+`;
 
 const MessageScreenParams = z.object({ id: zUuid() });
 
 export default function MessageScreen() {
   const { id } = useLocalParams(MessageScreenParams);
 
-  const query = useQuery(Query, { proposal: id });
-  const p = query.data?.message;
-
-  const remove = useRemoveMessage(p);
-
-  if (!p) return query.stale ? null : <NotFound name="Message" />;
+  const { message: m, user } = useLazyLoadQuery<Id_MessageScreenQuery>(Query, { id });
+  const remove = useRemoveMessage(m);
 
   return (
     <SideSheetLayout defaultVisible>
       <AppbarOptions
-        headline={(props) => <MessageStatus proposal={p} {...props} />}
+        headline={(props) => <MessageStatus message={m} {...props} />}
         mode="large"
         {...(remove && {
           trailing: (props) => (
@@ -74,19 +70,19 @@ export default function MessageScreen() {
       />
 
       <ScrollableScreenSurface contentContainerStyle={styles.sheet}>
-        {p.dapp && <DappHeader dapp={p.dapp} action="wants you to sign" />}
+        {m.dapp && <DappHeader dapp={m.dapp} action="wants you to sign" />}
 
-        <AccountSection account={p.account} />
+        <AccountSection account={m.account} />
         <Divider horizontalInset style={styles.divider} />
 
         <View style={styles.messageContainer}>
           <ListHeader>Message</ListHeader>
-          <DataView chain={p.account.chain} style={styles.messageData}>
-            {p.typedData ?? p.message}
+          <DataView chain={m.account.chain} style={styles.messageData}>
+            {m.typedData ?? m.message}
           </DataView>
         </View>
 
-        <MessageActions proposal={p} user={query.data.user} />
+        <MessageActions message={m} user={user} />
       </ScrollableScreenSurface>
 
       <SideSheet headline="Approvals">

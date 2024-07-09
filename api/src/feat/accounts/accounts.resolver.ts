@@ -1,7 +1,16 @@
-import { Context, Info, Mutation, Parent, Query, Resolver, Subscription } from '@nestjs/graphql';
+import {
+  Args,
+  Context,
+  Info,
+  Mutation,
+  Parent,
+  Query,
+  Resolver,
+  Subscription,
+} from '@nestjs/graphql';
 import { GraphQLResolveInfo } from 'graphql';
 import {
-  AccountInput,
+  AccountArgs,
   UpdateAccountInput,
   CreateAccountInput,
   AccountUpdatedInput,
@@ -34,11 +43,8 @@ export class AccountsResolver {
   ) {}
 
   @Query(() => Account, { nullable: true })
-  async account(
-    @Input({ defaultValue: {} }) { account }: AccountInput,
-    @Info() info: GraphQLResolveInfo,
-  ) {
-    return this.service.selectUnique(account, getShape(info));
+  async account(@Args() { address }: AccountArgs, @Info() info: GraphQLResolveInfo) {
+    return this.service.selectUnique(address, getShape(info));
   }
 
   @Query(() => [Account])

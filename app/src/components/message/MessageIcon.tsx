@@ -1,19 +1,21 @@
-import { FragmentType, gql, useFragment } from '@api/generated';
 import { IconProps, materialIcon } from '@theme/icons';
 import { createStyles, useStyles } from '@theme/styles';
 import { Image } from '#/Image';
+import { graphql } from 'relay-runtime';
+import { useFragment } from 'react-relay';
+import { MessageIcon_message$key } from '~/api/__generated__/MessageIcon_message.graphql';
 
 export const GenericMessageIcon = materialIcon('mail');
 
-const Message = gql(/* GraphQL */ `
-  fragment MessageIcon_Message on Proposal {
+const Message = graphql`
+  fragment MessageIcon_message on Proposal {
     id
     icon
   }
-`);
+`;
 
 export interface MessageIconProps extends Partial<IconProps> {
-  proposal: FragmentType<typeof Message>;
+  proposal: MessageIcon_message$key;
 }
 
 export function MessageIcon({ proposal: proposalFragment, ...iconProps }: MessageIconProps) {
