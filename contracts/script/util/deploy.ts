@@ -42,7 +42,7 @@ export async function deploy<TAbi extends Abi>(
 
   console.log(chalk.blue('Address: ') + explorer('address/', address));
 
-  const isDeployed = !!(await network.getBytecode({ address }))?.length;
+  const isDeployed = !!(await network.getCode({ address }))?.length;
   if (!isDeployed) {
     // @ts-expect-error types don't allow `deploymentType`, but it is required
     const hash = await wallet.deployContract({
