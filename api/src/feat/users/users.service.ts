@@ -80,8 +80,9 @@ export class UsersService {
     const [issuerStr, secret] = token.split(':');
     const issuer = asAddress(issuerStr);
 
-    if (secret !== (await this.redis.get(this.getLinkingTokenKey(issuer))))
-      throw new UserInputError(`Invalid linking token; token may have expired (1h)`);
+    const expectedSecret = await this.redis.get(this.getLinkingTokenKey(issuer));
+    if (!expectedSecret) throw new UserInputError(`Linking token not found; it expires after 1h`);
+    if (secret !== expectedSecret) throw new UserInputError('Wrong linking token');
 
     const linkerUserId = getUserCtx().id;
     const { issuerUser, issuerApprovers } = await this.db.DANGEROUS_superuserClient.transaction(
