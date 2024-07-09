@@ -130,13 +130,17 @@ export class TransfersEvents {
 
         this.balances.invalidate({ account, token });
 
-        this.pubsub.event<TransferSubscriptionPayload>(transferTrigger(account), {
-          event: 'transfer',
-          transfer: transfer.id,
-          incoming: to === account,
-          outgoing: from === account,
-          internal: transfer.internal,
-        });
+        this.pubsub.event<TransferSubscriptionPayload>(
+          transferTrigger(account),
+          {
+            event: 'transfer',
+            transfer: transfer.id,
+            incoming: to === account,
+            outgoing: from === account,
+            internal: transfer.internal,
+          },
+          (payload) => payload.transfer,
+        );
 
         if (!isFromTransaction && !transfer.isFeeTransfer) {
           this.log.debug(
