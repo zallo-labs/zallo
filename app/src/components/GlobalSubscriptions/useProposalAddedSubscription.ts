@@ -1,9 +1,13 @@
 import { useMemo } from 'react';
 import { useFragment, useSubscription } from 'react-relay';
-import { graphql } from 'relay-runtime';
-import { type useProposalAddedSubscription } from '~/api/__generated__/useProposalAddedSubscription.graphql';
+import { graphql, SelectorStoreUpdater } from 'relay-runtime';
+import {
+  useProposalAddedSubscription$data,
+  type useProposalAddedSubscription,
+} from '~/api/__generated__/useProposalAddedSubscription.graphql';
 import { useProposalAddedSubscription_account$key } from '~/api/__generated__/useProposalAddedSubscription_account.graphql';
 import { useProposalAddedSubscriptionUpdatableQuery } from '~/api/__generated__/useProposalAddedSubscriptionUpdatableQuery.graphql';
+import { useLatestRef } from '~/hooks/useLatestRef';
 
 graphql`
   fragment useProposalAddedSubscription_assignable_proposal on Proposal @assignable {
@@ -28,6 +32,34 @@ export function useProposalAddedSubscription(params: UseProposalAddedSubscriptio
     params.account,
   );
 
+  const updater = useLatestRef(
+    useMemo(
+      (): SelectorStoreUpdater<useProposalAddedSubscription$data> => (store, data) => {
+        const proposal = data?.proposalUpdated.proposal;
+        if (!proposal) return;
+
+        // Prepend to Account.proposals
+        const { updatableData } =
+          store.readUpdatableQuery<useProposalAddedSubscriptionUpdatableQuery>(
+            graphql`
+              query useProposalAddedSubscriptionUpdatableQuery($address: UAddress!) @updatable {
+                account(address: $address) {
+                  proposals {
+                    ...useProposalAddedSubscription_assignable_proposal
+                  }
+                }
+              }
+            `,
+            { address: account.address },
+          );
+
+        if (updatableData.account)
+          updatableData.account.proposals = [proposal, ...account.proposals];
+      },
+      [account.address, account.proposals],
+    ),
+  );
+
   useSubscription<useProposalAddedSubscription>(
     useMemo(
       () => ({
@@ -45,30 +77,9 @@ export function useProposalAddedSubscription(params: UseProposalAddedSubscriptio
           }
         `,
         variables: { account: account.address },
-        updater: (store, data) => {
-          const proposal = data?.proposalUpdated.proposal;
-          if (!proposal) return;
-
-          // Prepend to Account.proposals
-          const { updatableData } =
-            store.readUpdatableQuery<useProposalAddedSubscriptionUpdatableQuery>(
-              graphql`
-                query useProposalAddedSubscriptionUpdatableQuery($address: UAddress!) @updatable {
-                  account(address: $address) {
-                    proposals {
-                      ...useProposalAddedSubscription_assignable_proposal
-                    }
-                  }
-                }
-              `,
-              { address: account.address },
-            );
-
-          if (updatableData.account)
-            updatableData.account.proposals = [proposal, ...account.proposals];
-        },
+        updater: updater.current,
       }),
-      [account],
+      [account.address, updater],
     ),
   );
 }

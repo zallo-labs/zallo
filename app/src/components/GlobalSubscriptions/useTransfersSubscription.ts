@@ -1,9 +1,13 @@
 import { useMemo } from 'react';
 import { useFragment, useSubscription } from 'react-relay';
-import { graphql } from 'relay-runtime';
-import { type useTransfersSubscription } from '~/api/__generated__/useTransfersSubscription.graphql';
+import { graphql, SelectorStoreUpdater } from 'relay-runtime';
+import {
+  useTransfersSubscription$data,
+  type useTransfersSubscription,
+} from '~/api/__generated__/useTransfersSubscription.graphql';
 import { useTransfersSubscription_account$key } from '~/api/__generated__/useTransfersSubscription_account.graphql';
 import { useTransfersSubscriptionUpdatableQuery } from '~/api/__generated__/useTransfersSubscriptionUpdatableQuery.graphql';
+import { useLatestRef } from '~/hooks/useLatestRef';
 
 graphql`
   fragment useTransfersSubscription_assignable_transfer on Transfer @assignable {
@@ -29,9 +33,45 @@ export function useTransfersSubscription(params: UseTransfersSubscriptionParams)
     params.account,
   );
 
-  useSubscription<useTransfersSubscription>(
+  const updater = useLatestRef(
     useMemo(
-      () => ({
+      (): SelectorStoreUpdater<useTransfersSubscription$data> => (store, data) => {
+        const t = data?.transfer;
+        if (!t) return;
+
+        console.log(`Transfer ${t.id} received`);
+
+        // Invalidate Token.balance
+        if (t.token) store.get(t.token.id)?.invalidateRecord();
+
+        // Prepend to Account.transfers
+        if (t.incoming && !t.internal) {
+          const { updatableData } =
+            store.readUpdatableQuery<useTransfersSubscriptionUpdatableQuery>(
+              graphql`
+                query useTransfersSubscriptionUpdatableQuery($account: UAddress!) @updatable {
+                  account(address: $account) {
+                    transfers(input: { incoming: true, internal: false }) {
+                      id
+                      ...useTransfersSubscription_assignable_transfer
+                    }
+                  }
+                }
+              `,
+              { account: account.address },
+            );
+          if (updatableData.account) updatableData.account.transfers = [t, ...account.transfers];
+        }
+      },
+      [account.address, account.transfers],
+    ),
+  );
+
+  useSubscription<useTransfersSubscription>(
+    useMemo(() => {
+      console.log(`Subscribing to transfers for ${account.address}`);
+
+      return {
         subscription: graphql`
           subscription useTransfersSubscription($account: UAddress!) {
             transfer(input: { accounts: [$account] }) {
@@ -48,34 +88,8 @@ export function useTransfersSubscription(params: UseTransfersSubscriptionParams)
           }
         `,
         variables: { account: account.address },
-        updater: (store, data) => {
-          const t = data?.transfer;
-          if (!t) return;
-
-          // Invalidate Token.balance
-          if (t.token) store.get(t.token.id)?.invalidateRecord();
-
-          // Prepend to Account.transfers
-          if (t.incoming && !t.internal) {
-            const { updatableData } =
-              store.readUpdatableQuery<useTransfersSubscriptionUpdatableQuery>(
-                graphql`
-                  query useTransfersSubscriptionUpdatableQuery($account: UAddress!) @updatable {
-                    account(address: $account) {
-                      transfers(input: { incoming: true, internal: false }) {
-                        id
-                        ...useTransfersSubscription_assignable_transfer
-                      }
-                    }
-                  }
-                `,
-                { account: account.address },
-              );
-            if (updatableData.account) updatableData.account.transfers = [t, ...account.transfers];
-          }
-        },
-      }),
-      [account],
-    ),
+        updater: updater.current,
+      };
+    }, [account.address, updater]),
   );
 }

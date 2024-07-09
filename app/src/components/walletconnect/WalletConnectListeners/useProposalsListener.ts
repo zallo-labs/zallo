@@ -37,18 +37,18 @@ export function useProposalsListener() {
   const proposals = useMemo(() => new Subject<ApprovedProposal>(), []);
   useEffect(() => proposals.unsubscribe, [proposals]);
 
-  // useSubscription<useProposalsListenerSubscription>(
-  //   useMemo(
-  //     () => ({
-  //       subscription: Subscription,
-  //       variables: {},
-  //       onNext: (data) => {
-  //         data?.proposalUpdated.proposal && proposals.next(data.proposalUpdated.proposal);
-  //       },
-  //     }),
-  //     [proposals],
-  //   ),
-  // );
+  useSubscription<useProposalsListenerSubscription>(
+    useMemo(
+      () => ({
+        subscription: Subscription,
+        variables: {},
+        onNext: (data) => {
+          data?.proposalUpdated.proposal && proposals.next(data.proposalUpdated.proposal);
+        },
+      }),
+      [proposals],
+    ),
+  );
 
   return proposals;
 }
