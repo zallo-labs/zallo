@@ -39,7 +39,7 @@ export abstract class Worker<Q extends QueueDefintion>
   }
 
   async onModuleDestroy() {
-    await this.worker.close();
+    await this.worker.close(true);
   }
 
   private async bootstrapAndResume() {
