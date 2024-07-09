@@ -1,7 +1,6 @@
 import { Pane } from '#/layout/Pane';
 import { useLocalParams } from '~/hooks/useLocalParams';
 import { AccountSettingsParams } from './index';
-import { NotFound } from '#/NotFound';
 import { useForm } from 'react-hook-form';
 import { createStyles } from '@theme/styles';
 import { Appbar } from '#/Appbar/Appbar';
@@ -14,10 +13,11 @@ import { graphql } from 'relay-runtime';
 import { useLazyLoadQuery } from 'react-relay';
 import { details_AccountDetailsQuery } from '~/api/__generated__/details_AccountDetailsQuery.graphql';
 import { useMutation } from '~/api';
+import { details_AccountDetailsMutation } from '~/api/__generated__/details_AccountDetailsMutation.graphql';
 
 const Query = graphql`
   query details_AccountDetailsQuery($account: UAddress!) {
-    account(address: $account) {
+    account(address: $account) @required(action: THROW) {
       id
       address
       name
@@ -26,7 +26,7 @@ const Query = graphql`
 `;
 
 const Update = graphql`
-  mutation details_AccountDetailsMutation($account: UAddress!, $name: String!) {
+  mutation details_AccountDetailsMutation($account: UAddress!, $name: String!) @raw_response_type {
     updateAccount(input: { account: $account, name: $name }) {
       id
       name
@@ -40,13 +40,11 @@ interface Inputs {
 
 export default function AccountDetails() {
   const { account } = useLocalParams(AccountSettingsParams);
-  const update = useMutation(Update);
+  const update = useMutation<details_AccountDetailsMutation>(Update);
 
   const a = useLazyLoadQuery<details_AccountDetailsQuery>(Query, { account }).account;
 
   const { control, handleSubmit, reset } = useForm<Inputs>({ defaultValues: { name: a?.name } });
-
-  if (!a) return <NotFound name="Account" />;
 
   return (
     <Pane flex>
@@ -63,7 +61,10 @@ export default function AccountDetails() {
             requireChanges
             control={control}
             onPress={handleSubmit(async (input) => {
-              await update({ account, name: input.name });
+              await update(
+                { account, name: input.name },
+                { optimisticResponse: { updateAccount: { id: a.id, name: input.name } } },
+              );
               reset(input);
             })}
           >

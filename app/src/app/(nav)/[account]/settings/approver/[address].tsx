@@ -16,7 +16,6 @@ import { QrCodeIcon, SettingsOutlineIcon } from '@theme/icons';
 import { ApproverDetailsSideSheet } from '#/approver/ApproverDetailsSideSheet';
 import { useSetAtom } from 'jotai';
 import { ApproverPolicies } from '#/approver/ApproverPolicies';
-import { NotFound } from '#/NotFound';
 import { asChain, asUAddress } from 'lib';
 import { Scrollable } from '#/Scrollable';
 import { graphql } from 'relay-runtime';
@@ -69,8 +68,6 @@ export default function ApproverSettingsScreen() {
   );
 
   const isUserApprover = user.approvers.some((a) => a.id === approver.id);
-
-  if (!account) return <NotFound name="Account" />;
 
   return (
     <Pane flex>
