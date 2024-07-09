@@ -67,7 +67,7 @@ export async function getEnvironment({ key, approver, persist }: EnvironmentConf
       InteractionManager.runAfterInteractions(run);
     },
   });
-  // persist && store.notify(undefined, true); // Invalidate persisted data
+  persist && store.notify(undefined, true); // Invalidate persisted data
 
   const network = createNetworkLayer({
     store,
