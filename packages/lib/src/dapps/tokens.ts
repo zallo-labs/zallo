@@ -55,7 +55,20 @@ export const USDC = {
   decimals: 6,
   address: addressMap({
     zksync: '0x1d17CBcF0D6D143135aE902365D2E5e2A16538D4',
-    'zksync-sepolia': '0xd45ab0E1dc7F503Eb177949c2Fb2Ab772B4B6CFC', // New address is 0xAe045DE5638162fa134807Cb558E15A3F5A7F853 but not used by syncswap yet
+    'zksync-sepolia': '0xAe045DE5638162fa134807Cb558E15A3F5A7F853',
+  }),
+  icon: icon(`USDC.svg`),
+  isFeeToken: true,
+  pythUsdPriceId: '0xeaa020c61cc479712813461ce153894a96a6c00b21ed0cfc2798d1f9a9e9c94a',
+} satisfies Token;
+
+export const USDC_E = {
+  name: 'USD Coin (Bridged)',
+  symbol: 'USDC.e',
+  decimals: 6,
+  address: addressMap({
+    zksync: '0x3355df6D4c9C3035724Fd0e3914dE96A5a83aaf4',
+    'zksync-sepolia': '0xd45ab0E1dc7F503Eb177949c2Fb2Ab772B4B6CFC',
   }),
   icon: icon(`USDC.svg`),
   isFeeToken: true,
@@ -146,7 +159,7 @@ export const SHIB = {
   pythUsdPriceId: '0xf0d57deca57b3da2fe63a493f4c25925fdfd8edf834b20f93e1f84dbd1504d4a',
 } satisfies Token;
 
-export const TOKENS = [ETH, WETH, USDC, USDT, DAI, WBTC, RETH, CBETH, UNI, SHIB] satisfies Token[];
+export const TOKENS = [ETH, WETH, USDC, USDC_E, USDT, DAI, WBTC, RETH, CBETH, UNI, SHIB] satisfies Token[];
 
 export function flattenToken(t: Token) {
   return Object.keys(t.address)
