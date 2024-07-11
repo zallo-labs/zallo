@@ -57,6 +57,8 @@ export function useUpsertContact(params: UpsertContactParams) {
           contacts(input: { query: null }) {
             ...useUpsertContact_assignable_contact
           }
+          
+          label(address: $address)
         }
       `,
       { address: data.upsertContact.address },
@@ -67,6 +69,7 @@ export function useUpsertContact(params: UpsertContactParams) {
       ...contacts.filter((c) => c.address !== data.upsertContact.address),
       data.upsertContact,
     ];
+    updatableData.label = data.upsertContact.name;
   };
 
   return (input: UpsertContactInput) =>
