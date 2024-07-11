@@ -87,7 +87,7 @@ export async function getEnvironment({ key, approver, persist }: EnvironmentConf
           url: CONFIG.apiGqlWs,
           lazy: true,
           retryAttempts: 15,
-          connectionParams: authManager.getAuthHeaders,
+          connectionParams: () => authManager.getAuthHeaders(undefined, undefined),
         }),
       ),
     ],

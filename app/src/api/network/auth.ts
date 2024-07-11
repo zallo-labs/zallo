@@ -1,8 +1,9 @@
 import { mergeMap, tap } from 'rxjs';
 import { Exchange, Operation, OperationResult } from './layer';
+import { CacheConfig } from 'relay-runtime';
 
 export interface AuthExchangeOptions {
-  getAuthHeaders: () => Record<string, string>;
+  getAuthHeaders: (op?: Operation, requestHeaders?: Headers) => Record<string, string>;
   willAuthError?: (op: Operation) => boolean;
   didAuthError?: (result: OperationResult) => boolean;
   refreshToken?: () => void | Promise<void>;
@@ -22,7 +23,7 @@ export function authExchange({
 
           op.fetchOptions.headers = {
             ...op.fetchOptions.headers,
-            ...getAuthHeaders(),
+            ...getAuthHeaders(op, extractHeaders(op)),
           };
 
           return op;
@@ -36,4 +37,21 @@ export function authExchange({
         }),
       );
     };
+}
+
+const AUTH_HEADERS_KEY = '__headers';
+
+export type Headers = Record<string, string>;
+export function withHeaders(headers: Headers, c?: CacheConfig): CacheConfig {
+  return {
+    ...c,
+    metadata: {
+      ...c?.metadata,
+      [AUTH_HEADERS_KEY]: headers,
+    },
+  };
+}
+
+function extractHeaders(op: Operation | undefined) {
+  return op?.cacheConfig.metadata?.[AUTH_HEADERS_KEY] as Headers | undefined;
 }

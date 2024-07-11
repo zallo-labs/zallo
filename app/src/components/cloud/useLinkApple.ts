@@ -5,7 +5,7 @@ import { graphql } from 'relay-runtime';
 import { useFragment } from 'react-relay';
 import { useLinkApple_user$key } from '~/api/__generated__/useLinkApple_user.graphql';
 import { useMutation } from '~/api';
-import { signAuthToken } from '~/api/auth-manager';
+import { signAuthHeaders } from '~/api/auth-manager';
 
 const User = graphql`
   fragment useLinkApple_user on User {
@@ -47,7 +47,7 @@ export function useLinkApple(params: useLinkAppleParams) {
     }
 
     const approver = r.value;
-    await link({ token: user.linkingToken }, { authToken: await signAuthToken(approver) });
+    await link({ token: user.linkingToken }, { headers: await signAuthHeaders(approver) });
     ampli.socialLinked({ cloud: 'Apple' });
 
     return r.value.address;

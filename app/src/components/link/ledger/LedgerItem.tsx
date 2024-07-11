@@ -15,7 +15,7 @@ import { useGetEvent } from '~/hooks/useGetEvent';
 import { Platform } from 'react-native';
 import { graphql } from 'relay-runtime';
 import { useMutation } from '~/api';
-import { signAuthToken } from '~/api/auth-manager';
+import { signAuthHeaders } from '~/api/auth-manager';
 import { useFragment } from 'react-relay';
 import { LedgerItem_user$key } from '~/api/__generated__/LedgerItem_user.graphql';
 import { LedgerItem_linkMutation } from '~/api/__generated__/LedgerItem_linkMutation.graphql';
@@ -84,8 +84,8 @@ export function LedgerItem({ device: d, ...props }: LedgerItemProps) {
 
     const { address, signMessage } = await getSign({ device: d.id, name });
 
-    const authToken = await tryOrIgnoreAsync(() =>
-      signAuthToken({
+    const authHeaders = await tryOrIgnoreAsync(() =>
+      signAuthHeaders({
         address,
         signMessage: async ({ message }) => {
           const signature = await signMessage({ message });
@@ -94,13 +94,13 @@ export function LedgerItem({ device: d, ...props }: LedgerItemProps) {
         },
       }),
     );
-    if (!authToken)
+    if (!authHeaders)
       return showError('Connection request cancelled', {
         action: { label: 'Try again', onPress: connect },
       });
 
     // 1. Link
-    const { approvers } = (await link({ token: user.linkingToken }, { authToken })).link;
+    const { approvers } = (await link({ token: user.linkingToken }, { headers: authHeaders })).link;
     const approver = approvers.find((a) => a.address === address)?.details;
 
     // 2. Update ledger details

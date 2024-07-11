@@ -6,13 +6,7 @@ import { DateTime } from 'luxon';
 import { SiweMessage, createSiweMessage } from 'viem/siwe';
 import { AuthExchangeOptions } from './network/auth';
 
-type RequestVariables = unknown; // Request variables can be used to identify the request as the object retains its reference
-const REQUEST_TOKEN = new Map<RequestVariables, AuthToken>();
-export function setRequestAuthToken(variables: RequestVariables, token: AuthToken) {
-  REQUEST_TOKEN.set(variables, token);
-}
-
-const TOKEN_KEY = 'relay-token';
+const TOKEN_KEY = 'relay.token';
 
 export interface AuthToken {
   message: string;
@@ -25,7 +19,9 @@ export async function getAuthManager(approver: Promise<PrivateKeyAccount>) {
   let headers = token ? getHeaders(token) : null;
 
   return {
-    getAuthHeaders: () => headers ?? {},
+    getAuthHeaders: (_op, requestHeaders) => {
+      return { ...headers, ...requestHeaders };
+    },
     willAuthError: () => !token || token.expiration <= Date.now(),
     refreshToken: async () => {
       token = await signAuthToken(await approver);
@@ -45,7 +41,7 @@ export interface CreateTokenApprover {
   signMessage: (m: { message: string }) => Promise<Hex>;
 }
 
-export async function signAuthToken(approver: CreateTokenApprover): Promise<AuthToken> {
+async function signAuthToken(approver: CreateTokenApprover): Promise<AuthToken> {
   // Cookies are problematic on RN - https://github.com/facebook/react-native/issues/23185
   // const nonce = await (await fetch(`${CONFIG.apiUrl}/auth/nonce`, { credentials: 'include' })).text();
   const nonce = 'nonceless';
@@ -73,6 +69,6 @@ function getHeaders(token: AuthToken) {
   };
 }
 
-function willAuthError(token: AuthToken | null) {
-  return !token || token.expiration <= Date.now();
+export async function signAuthHeaders(approver: CreateTokenApprover) {
+  return getHeaders(await signAuthToken(approver));
 }
