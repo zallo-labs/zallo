@@ -15,10 +15,10 @@ export type UpdateApproverArgs = {
 
 export type UpdateApproverReturns = {
   "id": string;
-};
+} | null;
 
 export function updateApprover(client: Executor, args: UpdateApproverArgs): Promise<UpdateApproverReturns> {
-  return client.queryRequiredSingle(`\
+  return client.querySingle(`\
 with address := <Address>$address,
      name := <optional str>$name,
      pushToken := <optional str>$pushToken,
