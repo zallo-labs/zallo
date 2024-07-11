@@ -140,7 +140,7 @@ const stylesheet = createStyles(({ colors }) => ({
     paddingBottom: 8,
   },
   item: {
-    backgroundColor: colors.background,
+    backgroundColor: colors.surface,
   },
   separator: {
     height: ITEM_LIST_GAP,

@@ -102,12 +102,13 @@ function HomePane_() {
 const stylesheet = createStyles(({ colors, padding }) => ({
   container: {
     paddingHorizontal: padding,
+    paddingBottom: 16,
   },
   appbar: {
     marginRight: 40, // menu offset
   },
   item: {
-    backgroundColor: colors.background,
+    backgroundColor: colors.surface,
   },
   separator: {
     height: ITEM_LIST_GAP,
