@@ -23,6 +23,8 @@ export interface AppbarProps extends Pick<StyleOptions, 'center'> {
   headline?: ReactNode | FC<Omit<TextProps, 'children'>>;
   elevated?: boolean;
   inset?: boolean;
+  style?: StyleProp<ViewStyle>;
+  noPadding?: boolean;
 }
 
 export function Appbar({
@@ -33,8 +35,10 @@ export function Appbar({
   center,
   elevated,
   inset = true,
+  style,
+  noPadding,
 }: AppbarProps) {
-  const { styles } = useStyles(stylesheet({ mode, center, inset }));
+  const { styles } = useStyles(stylesheet({ mode, center, inset, noPadding }));
 
   const Leading = typeof leading === 'string' ? LEADING_COMPONENT[leading] : leading;
 
@@ -49,7 +53,7 @@ export function Appbar({
   );
 
   return (
-    <Surface elevation={elevated ? 2 : 0} style={styles.root}>
+    <Surface elevation={elevated ? 2 : 0} style={[styles.root, style]}>
       <View style={styles.headerContainer}>
         <Leading
           size={styles.leadingIcon.fontSize}
@@ -79,9 +83,10 @@ interface StyleOptions {
   mode: 'small' | 'medium' | 'large';
   center?: boolean;
   inset?: boolean;
+  noPadding?: boolean;
 }
 
-const stylesheet = ({ mode, center, inset }: StyleOptions) =>
+const stylesheet = ({ mode, center, inset, noPadding }: StyleOptions) =>
   createStyles(({ colors, fonts }, runtime) => {
     const insets = inset ? runtime.insets : undefined;
 
@@ -110,7 +115,7 @@ const stylesheet = ({ mode, center, inset }: StyleOptions) =>
           medium: 24,
           large: 28,
         }[mode],
-        paddingHorizontal: 16,
+        ...(!noPadding && { paddingHorizontal: 16 }),
       },
       headerContainer: {
         flexDirection: 'row',

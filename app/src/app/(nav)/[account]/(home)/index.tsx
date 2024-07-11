@@ -21,7 +21,7 @@ import { HomePaneQuery } from '~/api/__generated__/HomePaneQuery.graphql';
 
 const Query = graphql`
   query HomePaneQuery($account: UAddress!, $chain: Chain!) {
-    account(address: $account) {
+    account(address: $account) @required(action: THROW) {
       id
       ...AccountSelector_account
       ...ActivitySection_account
@@ -61,14 +61,19 @@ function HomePane_() {
     }))
     .sort((a, b) => b.value.comparedTo(a.value));
 
-  if (!account) return null;
-
   return (
-    <FirstPane flex>
+    <FirstPane flex padding={false}>
       <FlatList
+        contentContainerStyle={styles.container}
         ListHeaderComponent={
           <>
-            <Appbar leading="menu" center headline={<AccountSelector account={account} />} />
+            <Appbar
+              leading="menu"
+              center
+              headline={<AccountSelector account={account} />}
+              style={styles.appbar}
+              noPadding
+            />
             <QuickActions account={address} />
             <ActivitySection account={account} user={user} />
             <AccountValue tokens={tokens} />
@@ -86,19 +91,20 @@ function HomePane_() {
             ]}
           />
         )}
+        ItemSeparatorComponent={() => <View style={styles.separator} />}
         keyExtractor={(item) => item.id}
         showsVerticalScrollIndicator={false}
-        ItemSeparatorComponent={() => <View style={styles.separator} />}
-        style={{ overflow: 'visible' }} // Required for some reason
-        // style={styles.container} // Doesn't work...
       />
     </FirstPane>
   );
 }
 
-const stylesheet = createStyles(({ colors }) => ({
+const stylesheet = createStyles(({ colors, padding }) => ({
   container: {
-    overflow: 'visible', // Allows negative pane margins
+    paddingHorizontal: padding,
+  },
+  appbar: {
+    marginRight: 40, // menu offset
   },
   item: {
     backgroundColor: colors.background,

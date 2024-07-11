@@ -2,6 +2,7 @@ import { materialCommunityIcon } from '@theme/icons';
 import { ComponentPropsWithoutRef, FC } from 'react';
 import { useDrawerActions, useNavType } from '#/drawer/DrawerContextProvider';
 import { ICON_SIZE } from '@theme/paper';
+import { View } from 'react-native';
 
 export const MenuIcon = materialCommunityIcon('menu');
 
@@ -15,9 +16,12 @@ export function AppbarMenu({ fallback: Fallback, ...props }: AppbarMenuProps) {
   const type = useNavType();
   const { toggle } = useDrawerActions();
 
-  return type === 'modal' ? (
-    <MenuIcon onPress={toggle} size={ICON_SIZE.medium} {...props} />
-  ) : Fallback ? (
-    <Fallback {...props} />
-  ) : null;
+  if (type !== 'modal')
+    return Fallback ? (
+      <Fallback {...props} />
+    ) : (
+      <View style={{ width: ICON_SIZE.medium, height: ICON_SIZE.medium }} />
+    );
+
+  return <MenuIcon onPress={toggle} size={ICON_SIZE.medium} {...props} />;
 }

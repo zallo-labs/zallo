@@ -124,6 +124,8 @@ export const LIGHT_THEME = {
     return colors.onSurface;
   },
 
+  padding: { compact: 16, medium: 24 } as const,
+  negativeMargin: { compact: -16, medium: -24 } as const,
   iconSize: {
     small: 24,
     medium: 40,
