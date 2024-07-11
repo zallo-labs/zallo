@@ -114,7 +114,7 @@ export class TransactionsEvents implements OnModuleInit {
     const tx = await network.getTransaction({ hash: receipt.transactionHash });
 
     return /* may throw */ await network.call({
-      blockNumber: receipt.blockNumber,
+      blockNumber: receipt.blockNumber - 1n,
       account: receipt.from,
       gas: tx.gas,
       maxFeePerGas: tx.maxFeePerGas,
