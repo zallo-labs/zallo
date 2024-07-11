@@ -159,7 +159,19 @@ export const SHIB = {
   pythUsdPriceId: '0xf0d57deca57b3da2fe63a493f4c25925fdfd8edf834b20f93e1f84dbd1504d4a',
 } satisfies Token;
 
-export const TOKENS = [ETH, WETH, USDC, USDC_E, USDT, DAI, WBTC, RETH, CBETH, UNI, SHIB] satisfies Token[];
+const LINK = {
+  name: 'Chainlink',
+  symbol: 'LINK',
+  decimals: 18,
+  address: {
+    zksync: '0x52869bae3E091e36b0915941577F2D47d8d8B534',
+    'zksync-sepolia': '0x23A1aFD896c8c8876AF46aDc38521f4432658d1e',
+  },
+  icon: icon('LINK.webp'),
+  pythUsdPriceId: '0x8ac0c70fff57e9aefdf5edf44b51d62c2d433653cbb2cf5cc06bb115af04d221',
+} satisfies Token;
+
+export const TOKENS = [ETH, WETH, USDC, USDC_E, USDT, DAI, WBTC, RETH, CBETH, UNI, SHIB, LINK] satisfies Token[];
 
 export function flattenToken(t: Token) {
   return Object.keys(t.address)
