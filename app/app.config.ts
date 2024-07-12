@@ -107,7 +107,6 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       { iCloudContainerEnvironment: CONFIG.env === 'development' ? 'Development' : 'Production' },
     ],
   ],
-  orientation: 'portrait',
   icon: './public/icon-1024s.png',
   splash: {
     image: './assets/splash.png',
