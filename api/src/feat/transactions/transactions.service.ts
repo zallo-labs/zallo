@@ -51,11 +51,11 @@ import { TokensService } from '~/feat/tokens/tokens.service';
 import { PricesService } from '~/feat/prices/prices.service';
 import { lowerOfPaymasterFees, totalPaymasterEthFees } from '~/feat/paymasters/paymasters.util';
 import Decimal from 'decimal.js';
-import { afterRequest, getContext } from '~/core/context';
+import { afterRequest } from '~/core/context';
 import { DEFAULT_FLOW } from '~/core/bull/bull.module';
 import { PaymasterFeeParts } from '~/feat/paymasters/paymasters.model';
-import { selectTransaction } from './transactions.util';
 import { insertTransaction } from './insert-transaction.query';
+import { deleteTransaction } from './delete-transaction.query';
 
 const MAX_NETWORK_FEE_MULTIPLIER = new Decimal(5); // Allow for a higher network fee
 
@@ -431,21 +431,7 @@ export class TransactionsService {
   }
 
   async delete(id: UniqueProposal) {
-    // 1. Policies the proposal was going to create
-    // Delete policies the proposal was going to activate
-    const selectedTransaction = selectTransaction(id);
-    const { transaction: t } = await this.db.query(
-      e.select({
-        transaction: e.select(selectedTransaction, () => ({
-          id: true,
-          account: { address: true },
-        })),
-        deletedPolicies: e.assert_distinct(
-          e.for(selectedTransaction['<proposal[is PolicyState]'], (p) => e.delete(p)),
-        ),
-        deletedTransaction: e.delete(selectedTransaction),
-      }),
-    );
+    const { transaction: t } = await this.db.exec(deleteTransaction, { transaction: id });
 
     this.proposals.event(t, ProposalEvent.delete);
 
