@@ -14,7 +14,7 @@ import {
   UpdateAccountInput,
   CreateAccountInput,
   AccountUpdatedInput,
-  NameAvailableInput,
+  NameAvailableArgs,
   AccountsInput,
 } from './accounts.input';
 import { GqlContext } from '~/core/apollo/ctx';
@@ -56,7 +56,7 @@ export class AccountsResolver {
   }
 
   @Query(() => Boolean)
-  async nameAvailable(@Input() { name }: NameAvailableInput) {
+  async nameAvailable(@Args() { name }: NameAvailableArgs) {
     return this.service.nameAvailable(name);
   }
 

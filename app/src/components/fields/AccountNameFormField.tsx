@@ -8,7 +8,7 @@ import { AccountNameFormFieldQuery } from '~/api/__generated__/AccountNameFormFi
 
 const NameAvailable = graphql`
   query AccountNameFormFieldQuery($name: String!) {
-    nameAvailable(input: { name: $name })
+    nameAvailable(name: $name)
   }
 `;
 
@@ -42,11 +42,15 @@ export function AccountNameFormField<
           setAvailable('checking');
 
           const available = !!(
-            await fetchQuery<AccountNameFormFieldQuery>(environment, NameAvailable, {
-              name,
-            }).toPromise()
+            await fetchQuery<AccountNameFormFieldQuery>(
+              environment,
+              NameAvailable,
+              { name },
+              { fetchPolicy: 'network-only' },
+            ).toPromise()
           )?.nameAvailable;
           setAvailable(available);
+
           return available || 'Not available';
         },
       }}

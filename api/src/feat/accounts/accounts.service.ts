@@ -84,7 +84,7 @@ export class AccountsService {
 
     return e
       .params({ name: e.str }, ({ name }) => {
-        const labels = e.select(e.GlobalLabel, (l) => ({ filter: e.op(l.name, '=', name) }));
+        const labels = e.select(e.Labelled, (l) => ({ filter: e.op(l.name, '=', name) }));
         return e.select(e.op('not', e.op('exists', labels)));
       })
       .run(this.db.DANGEROUS_superuserClient, { name });
