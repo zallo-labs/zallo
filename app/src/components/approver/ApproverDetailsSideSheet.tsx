@@ -3,16 +3,24 @@ import { FormSubmitButton } from '#/fields/FormSubmitButton';
 import { FormTextField } from '#/fields/FormTextField';
 import { Actions } from '#/layout/Actions';
 import { createStyles, useStyles } from '@theme/styles';
+import { Chain } from 'chains';
+import { asChain, asUAddress } from 'lib';
 import { useForm } from 'react-hook-form';
 import { useFragment } from 'react-relay';
-import { graphql } from 'relay-runtime';
+import { graphql, SelectorStoreUpdater } from 'relay-runtime';
 import { useMutation } from '~/api';
-import { ApproverDetailsSideSheet_UpdateMutation } from '~/api/__generated__/ApproverDetailsSideSheet_UpdateMutation.graphql';
+import { ApproverDetailsSideSheetUpdateQuery } from '~/api/__generated__/ApproverDetailsSideSheetUpdateQuery.graphql';
+import {
+  ApproverDetailsSideSheet_UpdateMutation,
+  ApproverDetailsSideSheet_UpdateMutation$data,
+} from '~/api/__generated__/ApproverDetailsSideSheet_UpdateMutation.graphql';
 import { ApproverDetailsSideSheet_approver$key } from '~/api/__generated__/ApproverDetailsSideSheet_approver.graphql';
 
 const Update = graphql`
-  mutation ApproverDetailsSideSheet_UpdateMutation($input: UpdateApproverInput!) {
+  mutation ApproverDetailsSideSheet_UpdateMutation($input: UpdateApproverInput!)
+  @raw_response_type {
     updateApprover(input: $input) {
+      label
       ...ApproverDetailsSideSheet_approver
     }
   }
@@ -35,6 +43,7 @@ interface Inputs {
 
 export interface ApproverDetailsSideSheetProps {
   approver: ApproverDetailsSideSheet_approver$key;
+  chain: Chain;
 }
 
 export function ApproverDetailsSideSheet(props: ApproverDetailsSideSheetProps) {
@@ -51,7 +60,7 @@ export function ApproverDetailsSideSheet(props: ApproverDetailsSideSheetProps) {
       <FormTextField
         label="Approver name"
         control={control}
-        name="name"
+      name="name"
         containerStyle={styles.field}
         rules={{
           required: true,
@@ -67,7 +76,37 @@ export function ApproverDetailsSideSheet(props: ApproverDetailsSideSheetProps) {
           control={control}
           requireChanges
           onPress={handleSubmit(async (input) => {
-            await update({ input: { address: approver.address, name: input.name } });
+            const updater: SelectorStoreUpdater<ApproverDetailsSideSheet_UpdateMutation$data> = (
+              store,
+            ) => {
+              const { updatableData } =
+                store.readUpdatableQuery<ApproverDetailsSideSheetUpdateQuery>(
+                  graphql`
+                    query ApproverDetailsSideSheetUpdateQuery($address: UAddress!) @updatable {
+                      label(address: $address)
+                    }
+                  `,
+                  { address: asUAddress(approver.address, props.chain) },
+                );
+
+              updatableData.label = input.name;
+            };
+
+            await update(
+              { input: { address: approver.address, name: input.name } },
+              {
+                optimisticResponse: {
+                  updateApprover: {
+                    id: approver.id,
+                    address: approver.address,
+                    label: input.name,
+                    details: approver.details && { id: approver.details.id, name: input.name },
+                  },
+                },
+                optimisticUpdater: updater,
+                updater,
+              },
+            );
             reset(input);
           })}
         >

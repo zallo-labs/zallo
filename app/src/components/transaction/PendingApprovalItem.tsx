@@ -1,6 +1,4 @@
 import { CheckIcon } from '@theme/icons';
-import { asUAddress } from 'lib';
-import { AddressLabel } from '#/address/AddressLabel';
 import { ListItem } from '#/list/ListItem';
 import { useApprove } from '~/hooks/useApprove';
 import { IconButton } from '#/IconButton';
@@ -10,6 +8,7 @@ import { useFragment } from 'react-relay';
 import { PendingApprovalItem_user$key } from '~/api/__generated__/PendingApprovalItem_user.graphql';
 import { PendingApprovalItem_approver$key } from '~/api/__generated__/PendingApprovalItem_approver.graphql';
 import { PendingApprovalItem_proposal$key } from '~/api/__generated__/PendingApprovalItem_proposal.graphql';
+import { truncateAddr } from '~/util/format';
 
 const User = graphql`
   fragment PendingApprovalItem_user on User {
@@ -51,11 +50,7 @@ export function PendingApprovalItem(props: PendingApprovalItemProps) {
   return (
     <ListItem
       leading={<AddressIcon address={approver.address} />}
-      headline={
-        approver.label || (
-          <AddressLabel address={asUAddress(approver.address, proposal.account.chain)} />
-        )
-      }
+      headline={approver.label || truncateAddr(approver.address)}
       {...(approve && {
         trailing: ({ size, disabled }) => (
           <IconButton
