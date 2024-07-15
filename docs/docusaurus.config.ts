@@ -55,6 +55,7 @@ const config: Config = {
         srcDark: 'img/icon-m-d.svg',
       },
       items: [
+        /* Left */
         {
           type: 'docSidebar',
           sidebarId: 'tutorialSidebar',
@@ -62,10 +63,12 @@ const config: Config = {
           label: 'Docs',
         },
         // { to: '/blog', label: 'Blog', position: 'left' },
+        /* Right */
         {
           href: REPO,
-          label: 'GitHub',
           position: 'right',
+          className: 'header-github-link',
+          'aria-label': 'GitHub repository',
         },
       ],
     },
@@ -75,7 +78,7 @@ const config: Config = {
           title: 'Community',
           items: [
             {
-              label: 'Twitter',
+              label: 'X / Twitter',
               href: process.env.TWITTER || PLACEHOLDER_URL,
             },
             {
