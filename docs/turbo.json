@@ -19,7 +19,7 @@
       ],
       "outputs": ["build/**"]
     },
-    "test": {
+    "typecheck": {
       "dependsOn": ["build"]
     }
   }

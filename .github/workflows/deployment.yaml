@@ -96,13 +96,4 @@ jobs:
       - name: 🚀 Publish update
         run: yarn app deploy:update
 
-  # docs:
-  #   environment: main - docs
-  #   runs-on: ubuntu-latest
-
-  #   steps:
-  #     - name: 🚀 Deploy
-  #       uses: fjogeleit/http-request-action@v1
-  #       with:
-  #         url: ${{ secrets.DEPLOY_HOOK }}
-  #         method: POST
+  # Docs deployed via Vercel

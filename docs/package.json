@@ -10,8 +10,7 @@
     "serve": "docusaurus serve",
     "write-translations": "docusaurus write-translations",
     "write-heading-ids": "docusaurus write-heading-ids",
-    "typecheck": "tsc",
-    "test": "typecheck"
+    "typecheck": "tsc"
   },
   "dependencies": {
     "@docusaurus/core": "3.4.0",
