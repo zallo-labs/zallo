@@ -1,0 +1,17 @@
+{
+  "$schema": "https://frontmatter.codes/frontmatter.schema.json",
+  "frontMatter.framework.id": "docusaurus",
+  "frontMatter.content.publicFolder": "static",
+  "frontMatter.preview.host": "http://localhost:3000",
+  "frontMatter.content.pageFolders": [
+    {
+      "title": "docs",
+      "path": "[[workspace]]/docs"
+    },
+    {
+      "title": "blog",
+      "path": "[[workspace]]/blog"
+    }
+  ],
+  "frontMatter.git.enabled": true
+}

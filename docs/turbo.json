@@ -1,0 +1,26 @@
+{
+  "extends": ["//"],
+  "tasks": {
+    "dev": {
+      "dependsOn": ["^build"],
+      "cache": false,
+      "persistent": true
+    },
+    "build": {
+      "dependsOn": ["^build"],
+      "inputs": [
+        "blog/**",
+        "docs/**",
+        "src/**",
+        "static/**",
+        "docusaurus.config.ts",
+        "package.json",
+        "tsconfig.json"
+      ],
+      "outputs": ["build/**"]
+    },
+    "test": {
+      "dependsOn": ["build"]
+    }
+  }
+}
