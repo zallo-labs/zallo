@@ -2,6 +2,8 @@ import { themes as prismThemes } from 'prism-react-renderer';
 import type { Config } from '@docusaurus/types';
 import type * as Preset from '@docusaurus/preset-classic';
 
+require('dotenv').config({ path: '../.env' });
+
 const PLACEHOLDER_URL = 'https://example.com';
 const REPO = process.env.GITHUB || PLACEHOLDER_URL;
 
@@ -73,12 +75,12 @@ const config: Config = {
           title: 'Community',
           items: [
             {
-              label: 'GitHub',
-              href: REPO,
-            },
-            {
               label: 'Twitter',
               href: process.env.TWITTER || PLACEHOLDER_URL,
+            },
+            {
+              label: 'GitHub',
+              href: REPO,
             },
           ],
         },
