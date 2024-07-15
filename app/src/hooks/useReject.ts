@@ -11,7 +11,7 @@ import { useReject_proposal$key } from '~/api/__generated__/useReject_proposal.g
 import { graphql, useFragment } from 'react-relay';
 import { useMutation } from '~/api';
 import { PrivateKeyAccount } from 'viem';
-import { signAuthToken } from '~/api/auth-manager';
+import { signAuthHeaders } from '~/api/auth-manager';
 import { useRejectMutation } from '~/api/__generated__/useRejectMutation.graphql';
 
 const User = graphql`
@@ -120,7 +120,7 @@ export function useReject(params: UseRejectParams) {
 
     await rejectMutation(
       { proposal: p.id },
-      { authToken: approver && (await signAuthToken(approver)) },
+      { headers: approver && (await signAuthHeaders(approver)) },
     );
 
     const type = p.__typename === 'Transaction' ? 'Transaction' : 'Message';

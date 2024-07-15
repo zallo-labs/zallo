@@ -22,7 +22,7 @@ export function getNavType(breakpoint: keyof UnistylesBreakpoints): NavType {
   return match(breakpoint)
     .returnType<NavType>()
     .with('compact', () => 'modal')
-    .with(P.union('medium', 'expanded'), () => 'rail')
+    .with(P.union('medium', 'expanded', 'large'), () => 'rail')
     .otherwise(() => 'standard');
 }
 

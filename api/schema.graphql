@@ -365,10 +365,6 @@ type Mutation {
   upsertToken(input: UpsertTokenInput!): Token!
 }
 
-input NameAvailableInput {
-  name: String!
-}
-
 type NameTaken implements Err {
   message: String!
 }
@@ -599,7 +595,7 @@ type Query {
   estimateFeesPerGas(input: EstimateFeesPerGasInput!): FeesPerGas
   label(address: UAddress!): String
   message(id: ID!): Message
-  nameAvailable(input: NameAvailableInput!): Boolean!
+  nameAvailable(name: String!): Boolean!
   node(id: ID!): Node
   policy(input: UniquePolicyInput!): Policy
   proposal(id: ID!): Proposal

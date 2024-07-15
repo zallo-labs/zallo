@@ -6,7 +6,6 @@ import { useSend } from '~/hooks/useSend';
 import { CORNER } from '@theme/paper';
 import { createStyles, useStyles } from '@theme/styles';
 import { Button } from '#/Button';
-import { getNegativePanesMargin } from '#/layout/Panes';
 
 export interface QuickActionsProps {
   account: UAddress;
@@ -55,15 +54,18 @@ export function QuickActions({ account }: QuickActionsProps) {
   );
 }
 
-const stylesheet = createStyles(({ colors }, { breakpoint }) => ({
-  container: getNegativePanesMargin(breakpoint),
+const stylesheet = createStyles(({ colors, negativeMargin }) => ({
+  container: {
+    marginHorizontal: negativeMargin,
+  },
   content: {
+    flexGrow: 1,
     flexDirection: 'row',
+    justifyContent: 'center',
     alignItems: 'center',
     gap: 8,
     marginTop: 8,
     marginBottom: 16,
-    marginHorizontal: 'auto',
     paddingHorizontal: 16,
   },
   action: {

@@ -140,7 +140,7 @@ const stylesheet = createStyles(({ colors }) => ({
     paddingBottom: 8,
   },
   item: {
-    backgroundColor: colors.background,
+    backgroundColor: colors.surface,
   },
   separator: {
     height: ITEM_LIST_GAP,
@@ -166,31 +166,35 @@ function getItemSection(item: Item) {
     .with({ __typename: 'Transaction', status: 'Scheduled' }, () => 'Scheduled' as const)
     .with({ __typename: 'Message', signature: P.nullish }, (m) => 'Pending approval' as const)
     .otherwise((v) => {
-      const ts = asDateTime(v.timestamp);
-      if (!ts) console.log('No timestamp', { v });
+      const t = asDateTime(v.timestamp).startOf('day');
 
-      if (ts.diffNow().days <= 7) return 'Past 7 days' as const;
+      const daysAgo = DateTime.now().startOf('day').diff(t).as('days');
+      if (daysAgo == 0) return 'Today' as const;
+      if (daysAgo == 1) return 'Yesterday' as const;
+      if (daysAgo <= 7) return 'Past 7 days' as const;
 
-      return DateTime.fromObject({ month: ts.month, year: ts.year }).toMillis();
+      return DateTime.fromObject({ month: t.month, year: t.year }).toMillis();
     });
 }
 
-const ORDER = {
-  'Pending approval': 0,
-  Scheduled: 1,
-  'Past 7 days': 2,
-} satisfies Record<Section, number>;
+const SECTION_ORDERING = [
+  'Pending approval',
+  'Scheduled',
+  'Today',
+  'Yesterday',
+  'Past 7 days',
+] satisfies Section[];
 
 function sectionOrder(section: Section) {
-  return typeof section === 'string' ? ORDER[section] : section;
+  return typeof section === 'string' ? SECTION_ORDERING.indexOf(section) : section;
 }
 
-const now = DateTime.now();
 function sectionLabel(section: Section) {
   if (typeof section === 'string') return section;
 
   const dt = DateTime.fromMillis(section);
 
+  const now = DateTime.now();
   if (dt.year === now.year && dt.month === now.month) return 'This month';
 
   return dt.toLocaleString({

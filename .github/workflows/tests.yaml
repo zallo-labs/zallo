@@ -199,24 +199,19 @@ jobs:
 
       - name: 🧪 Verify analytics implementation
         run: cd app && ampli status -t ${{secrets.AMPLI_TOKEN}} --is-merged --is-latest
-# site:
-#   runs-on: ubuntu-latest
 
-#   steps:
-#     - name: 🚧 Checkout
-#       uses: actions/checkout@v4
+  docs:
+    runs-on: ubuntu-latest
 
-#     - name: 🚧 Setup Node
-#       uses: actions/setup-node@v4
-#       with:
-#         cache: 'yarn'
-#         node-version-file: '.nvmrc'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
 
-#     - name: 📦 Install
-#       run: yarn
+      - name: 📦 Install
+        run: yarn
 
-#     - name: 🏗️ Build
-#       run: yarn site build
+      - name: 🏗️ Build
+        run: yarn docs build
 
-#     - name: 🧪 Typecheck
-#       run: yarn site typecheck
+      - name: 🧪 Typecheck
+        run: yarn docs typecheck

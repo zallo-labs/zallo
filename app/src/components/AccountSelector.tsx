@@ -46,9 +46,10 @@ const stylesheet = createStyles(({ colors, corner }) => ({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    padding: 8,
+    paddingVertical: 8,
+    paddingLeft: 40, // Centers element
+    paddingRight: 8,
     borderRadius: corner.m,
-    marginLeft: 32, // Centers element
   },
   text: {
     color: colors.onSurfaceVariant,

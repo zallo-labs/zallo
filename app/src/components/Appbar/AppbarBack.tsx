@@ -18,7 +18,7 @@ export interface AppbarBackProps extends IconProps {
 export function AppbarBack(props: AppbarBackProps) {
   const router = useRouter();
 
-  if (!router.canGoBack()) return null;
-
-  return <BackIcon onPress={router.back} {...props} />;
+  return (
+    <BackIcon onPress={() => (router.canGoBack() ? router.back() : router.push('/'))} {...props} />
+  );
 }

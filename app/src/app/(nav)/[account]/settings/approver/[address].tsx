@@ -16,18 +16,14 @@ import { QrCodeIcon, SettingsOutlineIcon } from '@theme/icons';
 import { ApproverDetailsSideSheet } from '#/approver/ApproverDetailsSideSheet';
 import { useSetAtom } from 'jotai';
 import { ApproverPolicies } from '#/approver/ApproverPolicies';
-import { asChain, asUAddress } from 'lib';
 import { Scrollable } from '#/Scrollable';
 import { graphql } from 'relay-runtime';
 import { useLazyLoadQuery } from 'react-relay';
 import { Address_ApproverSettingsQuery } from '~/api/__generated__/Address_ApproverSettingsQuery.graphql';
+import { asChain } from 'lib';
 
 const Query = graphql`
-  query Address_ApproverSettingsQuery(
-    $account: UAddress!
-    $approver: Address!
-    $approverUAddress: UAddress!
-  ) {
+  query Address_ApproverSettingsQuery($account: UAddress!, $approver: Address!) {
     account(address: $account) @required(action: THROW) {
       id
       ...ApproverPolicies_account
@@ -35,6 +31,7 @@ const Query = graphql`
 
     approver(address: $approver) {
       id
+      label
       ...ApproverDetailsSideSheet_approver
     }
 
@@ -44,8 +41,6 @@ const Query = graphql`
         id
       }
     }
-
-    label(address: $approverUAddress)
   }
 `;
 
@@ -58,14 +53,10 @@ export default function ApproverSettingsScreen() {
   const { address } = params;
   const showSheet = useSetAtom(SIDE_SHEET);
 
-  const { account, approver, user, label } = useLazyLoadQuery<Address_ApproverSettingsQuery>(
-    Query,
-    {
-      account: params.account,
-      approver: address,
-      approverUAddress: asUAddress(address, asChain(params.account)),
-    },
-  );
+  const { account, approver, user } = useLazyLoadQuery<Address_ApproverSettingsQuery>(Query, {
+    account: params.account,
+    approver: address,
+  });
 
   const isUserApprover = user.approvers.some((a) => a.id === approver.id);
 
@@ -78,7 +69,7 @@ export default function ApproverSettingsScreen() {
           <View style={styles.header}>
             <AddressIcon address={address} size={ICON_SIZE.extraLarge} />
             <Text variant="headlineLarge" numberOfLines={1}>
-              {label || truncateAddr(address)}
+              {approver.label || truncateAddr(address)}
             </Text>
 
             <View style={styles.actions}>
@@ -109,7 +100,7 @@ export default function ApproverSettingsScreen() {
           <ApproverPolicies approver={address} account={account} />
         </Scrollable>
 
-        <ApproverDetailsSideSheet approver={approver} />
+        <ApproverDetailsSideSheet approver={approver} chain={asChain(params.account)} />
       </SideSheetLayout>
     </Pane>
   );

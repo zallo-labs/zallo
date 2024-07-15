@@ -41,7 +41,7 @@ export function Drawer({ children, DrawerContent, RailContent, ...props }: Drawe
 
 const stylesheet = createStyles(({ colors }) => ({
   drawer: {
-    backgroundColor: colors.surfaceContainer.low,
+    backgroundColor: 'transparent',
     width: {
       // Modal type
       compact: 360,
@@ -51,6 +51,7 @@ const stylesheet = createStyles(({ colors }) => ({
     //  Unset borders
     borderLeftWidth: undefined,
     borderRightWidth: undefined,
+    overflow: 'hidden',
   },
   overlay: {
     backgroundColor: colors.scrim,

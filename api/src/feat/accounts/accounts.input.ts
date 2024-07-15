@@ -23,8 +23,8 @@ export class AccountsInput {
   chain?: Chain;
 }
 
-@InputType()
-export class NameAvailableInput {
+@ArgsType()
+export class NameAvailableArgs {
   @Field(() => String)
   name: string;
 }

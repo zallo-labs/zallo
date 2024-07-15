@@ -5,7 +5,6 @@ import { ShapeFunc } from '~/core/database';
 import e from '~/edgeql-js';
 import { getUserCtx } from '~/core/context';
 import { UpdateApproverInput } from './approvers.input';
-import { updateApprover } from './update-approver.query';
 
 @Injectable()
 export class ApproversService {
@@ -37,12 +36,26 @@ export class ApproversService {
     bluetoothDevices,
     cloud,
   }: UpdateApproverInput) {
-    return this.db.exec(updateApprover, {
-      address,
-      name,
-      pushToken,
-      bluetoothDevices,
-      cloud,
-    });
+    return this.db.query(
+      e
+        .insert(e.ApproverDetails, {
+          approver: e.select(e.Approver, () => ({ filter_single: { address } })),
+          name,
+          pushToken,
+          bluetoothDevices,
+          cloud,
+        })
+        .unlessConflict((a) => ({
+          on: a.approver,
+          else: e.update(a, () => ({
+            set: {
+              name,
+              pushToken,
+              bluetoothDevices,
+              cloud,
+            },
+          })),
+        })),
+    );
   }
 }

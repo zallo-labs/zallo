@@ -56,15 +56,18 @@ export function useRemoveContact(params: RemoveContactParams) {
 
     const { updatableData } = store.readUpdatableQuery<useRemoveContactUpdatableQuery>(
       graphql`
-        query useRemoveContactUpdatableQuery @updatable {
+        query useRemoveContactUpdatableQuery($address: UAddress!) @updatable {
           contacts(input: { query: null }) {
             ...useRemoveContact_assignable_contact
           }
+
+          label(address: $address)
         }
       `,
-      {},
+      { address: contact.address },
     );
     updatableData.contacts = contacts.filter((c) => c.id !== data.deleteContact);
+    updatableData.label = undefined;
   };
 
   return () =>

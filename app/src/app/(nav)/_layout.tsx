@@ -27,7 +27,6 @@ import { PressableOpacity } from '#/PressableOpacity';
 import { Fab } from '#/Fab';
 import { RailSurface } from '#/drawer/RailSurface';
 import { RailItem } from '#/drawer/RailItem';
-import { getPanesPadding } from '#/layout/Panes';
 
 const Section = PaperDrawer.Section;
 
@@ -36,26 +35,12 @@ export const unstable_settings = {
 };
 
 export default function DrawerLayout() {
-  const { styles } = useStyles(stylesheet);
-
   return (
     <Drawer DrawerContent={DrawerContent} RailContent={RailContent}>
-      <Stack
-        screenOptions={{
-          header: (props) => <AppbarHeader {...props} />,
-          contentStyle: styles.content,
-        }}
-      />
+      <Stack screenOptions={{ header: (props) => <AppbarHeader {...props} /> }} />
     </Drawer>
   );
 }
-
-const stylesheet = createStyles(({ colors }, { breakpoint }) => ({
-  content: {
-    backgroundColor: colors.surfaceContainer.low,
-    ...getPanesPadding(breakpoint),
-  },
-}));
 
 function RailContent() {
   const { styles } = useStyles(railStylesheet);

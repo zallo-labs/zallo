@@ -39,8 +39,6 @@ export function useTransfersSubscription(params: UseTransfersSubscriptionParams)
         const t = data?.transfer;
         if (!t) return;
 
-        console.log(`Transfer ${t.id} received`);
-
         // Invalidate Token.balance
         if (t.token) store.get(t.token.id)?.invalidateRecord();
 
@@ -69,8 +67,6 @@ export function useTransfersSubscription(params: UseTransfersSubscriptionParams)
 
   useSubscription<useTransfersSubscription>(
     useMemo(() => {
-      console.log(`Subscribing to transfers for ${account.address}`);
-
       return {
         subscription: graphql`
           subscription useTransfersSubscription($account: UAddress!) {

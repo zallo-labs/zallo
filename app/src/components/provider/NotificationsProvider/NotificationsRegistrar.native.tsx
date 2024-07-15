@@ -26,7 +26,7 @@ const Query = graphql`
 
     accounts {
       id
-      proposals(input: { pending: true }) {
+      proposals(input: { pending: true }) @required(action: NONE) {
         id
       }
     }
@@ -111,7 +111,7 @@ export const NotificationsRegistrar = () => {
   }, [hasPermission, channelEnabled, approver, updatePushToken]);
 
   // Set badge count
-  const proposals = accounts.reduce((n, account) => n + account.proposals.length, 0);
+  const proposals = accounts.reduce((n, account) => n + (account?.proposals.length ?? 0), 0);
   useEffect(() => {
     if (hasPermission) Notifications.setBadgeCountAsync(proposals);
   }, [hasPermission, proposals]);

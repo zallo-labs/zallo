@@ -5,7 +5,7 @@ import {
   MutationParameters,
   commitMutation,
 } from 'relay-runtime';
-import { AuthToken, setRequestAuthToken } from './auth-manager';
+import { Headers, withHeaders } from './network/auth';
 
 export interface UseMutationOptions<TOperation extends MutationParameters>
   extends Pick<
@@ -15,7 +15,7 @@ export interface UseMutationOptions<TOperation extends MutationParameters>
 
 interface MutateOptions<TOperation extends MutationParameters>
   extends Omit<MutationConfig<TOperation>, 'mutation' | 'variables'> {
-  authToken?: AuthToken;
+  headers?: Headers;
 }
 
 export function useMutation<TOperation extends MutationParameters>(
@@ -25,7 +25,7 @@ export function useMutation<TOperation extends MutationParameters>(
   const environment = useRelayEnvironment();
 
   return (variables: TOperation['variables'], opts: MutateOptions<TOperation> = {}) => {
-    if (opts.authToken) setRequestAuthToken(variables, opts.authToken);
+    const overrides = { ...params, ...opts };
 
     return new Promise<TOperation['response']>((resolve, reject) =>
       commitMutation(environment, {
@@ -33,8 +33,10 @@ export function useMutation<TOperation extends MutationParameters>(
         variables,
         onCompleted: (response) => resolve(response),
         onError: (error) => reject(error),
-        ...params,
-        ...opts,
+        ...overrides,
+        ...(opts.headers && {
+          cacheConfig: withHeaders(opts.headers, overrides.cacheConfig),
+        }),
       }),
     );
   };

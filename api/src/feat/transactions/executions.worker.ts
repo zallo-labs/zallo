@@ -21,7 +21,6 @@ import e, { $infer } from '~/edgeql-js';
 import { policyStateAsPolicy, PolicyShape } from '~/feat/policies/policies.util';
 import { TX_SHAPE, transactionAsTx } from './transactions.util';
 import { ProposalEvent } from '~/feat/proposals/proposals.input';
-import { selectTransaction } from './transactions.util';
 import { QueueReturnType, TypedJob, createQueue } from '~/core/bull/bull.util';
 import { Worker } from '~/core/bull/Worker';
 import { UnrecoverableError } from 'bullmq';

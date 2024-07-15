@@ -12,8 +12,9 @@ import { fetchQuery, graphql } from 'relay-runtime';
 import { useRelayEnvironment } from 'react-relay';
 import { useMutation } from '~/api';
 import { useGetCloudApproverQuery } from '~/api/__generated__/useGetCloudApproverQuery.graphql';
-import { signAuthToken } from '~/api/auth-manager';
+import { signAuthHeaders } from '~/api/auth-manager';
 import { UpdateApproverInput } from '~/api/__generated__/useGetCloudApproverMutation.graphql';
+import { withHeaders } from '~/api/network/auth';
 
 const PK_PATH = '/approver.private-key';
 const SCOPE = CloudStorageScope.AppData;
@@ -76,12 +77,21 @@ export function useGetCloudApprover() {
           yield* writeFile(PK_PATH, privateKey).safeUnwrap();
         }
 
+        const authHeaders = await signAuthHeaders(approver);
+
         (async function updateDetails() {
           const e = (
-            await fetchQuery<useGetCloudApproverQuery>(environment, Query, {
-              approver: approver.address,
-            }).toPromise()
+            await fetchQuery<useGetCloudApproverQuery>(
+              environment,
+              Query,
+              {
+                approver: approver.address,
+              },
+              { networkCacheConfig: withHeaders(authHeaders) },
+            ).toPromise()
           )?.approver.details;
+
+          console.log({ e });
 
           await updateApprover(
             {
@@ -91,7 +101,7 @@ export function useGetCloudApprover() {
                 cloud: !e?.cloud ? details?.cloud : undefined,
               },
             },
-            { authToken: await signAuthToken(approver) },
+            { headers: authHeaders },
           );
         })();
 

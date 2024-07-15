@@ -5,7 +5,7 @@ import { graphql } from 'relay-runtime';
 import { useFragment } from 'react-relay';
 import { useLinkGoogle_user$key } from '~/api/__generated__/useLinkGoogle_user.graphql';
 import { useMutation } from '~/api';
-import { signAuthToken } from '~/api/auth-manager';
+import { signAuthHeaders } from '~/api/auth-manager';
 
 const User = graphql`
   fragment useLinkGoogle_user on User {
@@ -47,7 +47,7 @@ export function useLinkGoogle(props: UseLinkGoogleProps) {
     }
 
     const approver = r.value;
-    await link({ token: user.linkingToken }, { authToken: await signAuthToken(approver) });
+    await link({ token: user.linkingToken }, { headers: await signAuthHeaders(approver) });
     ampli.socialLinked({ cloud: 'Google' });
 
     return approver.address;

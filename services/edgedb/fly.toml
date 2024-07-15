@@ -55,6 +55,6 @@ swap_size_mb = 4096
   path = "/metrics"
 
 # Local postgres
-[mounts]
-  source = "edgedb_data"
-  destination = "/var/lib/edgedb" # EDGEDB_SERVER_DATADIR (/var/lib/edgedb/data) parent
+# [mounts]
+#   source = "edgedb_data"
+#   destination = "/var/lib/edgedb" # EDGEDB_SERVER_DATADIR (/var/lib/edgedb/data) parent

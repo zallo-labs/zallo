@@ -46,6 +46,7 @@ const Subscription = graphql`
       event
       proposal {
         ...Id_TransactionScreen_transaction @arguments(transaction: $transaction) @alias
+        ...TransactionItem_transaction
       }
     }
   }

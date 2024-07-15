@@ -10,7 +10,7 @@ import { FlashList } from '@shopify/flash-list';
 import { NavigateNextIcon, PasteIcon, ScanIcon } from '@theme/icons';
 import { CORNER } from '@theme/paper';
 import { createStyles, useStyles } from '@theme/styles';
-import { asAddress, isUAddress } from 'lib';
+import { asAddress, asChain, isUAddress } from 'lib';
 import { View } from 'react-native';
 import { Divider, Text } from 'react-native-paper';
 import { P, match } from 'ts-pattern';
@@ -29,12 +29,12 @@ import { address_SelectAddressSheetQuery } from '~/api/__generated__/address_Sel
 
 const Query = graphql`
   query address_SelectAddressSheetQuery(
-    $chain: Chain
     $accounts: Boolean!
     $approvers: Boolean!
     $contacts: Boolean!
   ) {
-    accounts(input: { chain: $chain }) @include(if: $accounts) {
+    # { chain: $chain } ideally, but use {} for cache update simplicity
+    accounts @include(if: $accounts) {
       __typename
       id
       address
@@ -51,7 +51,8 @@ const Query = graphql`
       }
     }
 
-    contacts(input: { chain: $chain }) @include(if: $contacts) {
+    # { chain: $chain } ideally, but use query: null for cache update simplicity
+    contacts(input: { query: null }) @include(if: $contacts) {
       __typename
       id
       address
@@ -78,16 +79,23 @@ function SelectAddressSheet() {
   const disabled = params.disabled && new Set(params.disabled.flatMap((a) => [a, asAddress(a)]));
   const scanAddress = useScanAddress();
 
-  const data = useLazyLoadQuery<address_SelectAddressSheetQuery>(Query, {
-    chain,
+  const query = useLazyLoadQuery<address_SelectAddressSheetQuery>(Query, {
     accounts: include.includes('accounts'),
     approvers: include.includes('approvers'),
     contacts: include.includes('contacts'),
   });
 
-  const accounts = data.accounts?.filter((a) => !disabled?.has(a.address)) ?? [];
-  const approvers = data.user?.approvers?.filter((a) => !disabled?.has(a.address)) ?? [];
-  const contacts = data.contacts?.filter((a) => !disabled?.has(a.address)) ?? [];
+  console.log(query);
+
+  const accounts =
+    query.accounts?.filter(
+      (a) => !disabled?.has(a.address) && (!chain || asChain(a.address) === chain),
+    ) ?? [];
+  const approvers = query.user?.approvers?.filter((a) => !disabled?.has(a.address)) ?? [];
+  const contacts =
+    query.contacts?.filter(
+      (c) => !disabled?.has(c.address) && (!chain || asChain(c.address) === chain),
+    ) ?? [];
 
   const scan = async () => {
     const address = await scanAddress();

@@ -136,7 +136,7 @@ export function PolicyPane({ initial, ...props }: PolicyPaneProps) {
       <PolicyAppbar policy={policy} reset={reset} />
 
       <SideSheetLayout>
-        <ScrollView contentContainerStyle={styles.container}>
+        <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
           <PolicyPresets account={account} user={user} />
           <ApprovalSettings />
           <SpendingSettings />

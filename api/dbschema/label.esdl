@@ -37,7 +37,7 @@ module default {
   # TODO: use `user: optional User` param when fixed - https://github.com/edgedb/edgedb-js/issues/894
   function labelForUser(addressParam: str, user: User) -> optional str using (
     with address := <UAddress>addressParam,
-         label := assert_single((select Labelled filter .address = address order by [is UserLabelled] limit 1)).name,
+         label := assert_single((select Labelled filter .address = address order by [is UserLabelled] desc limit 1)).name,
          approverLabel := (select Approver filter .address = as_address(address)).details.name
     select (label ?? approverLabel)
   );
