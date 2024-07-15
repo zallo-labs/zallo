@@ -60,7 +60,7 @@ export function PrimarySection({ account }: PrimarySectionProps) {
             </Link>
           )}
 
-          <Link href={CONFIG.metadata.twitter} asChild>
+          <Link href={CONFIG.docsUrl} asChild target="_blank">
             <Button mode="text" style={styles.action}>
               Learn more
             </Button>

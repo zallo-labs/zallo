@@ -21,6 +21,7 @@ export const CONFIG = {
   sentryDsn: ENV.APP_SENTRY_DSN!,
   apiUrl: ENV.API_URL!,
   apiGqlWs: ENV.API_GQL_WS!,
+  docsUrl: ENV.DOCS_URL!,
   walletConnectProjectId: ENV.WALLET_CONNECT_PROJECT_ID!,
   aplitudeKey: ENV.AMPLITUDE_KEY!,
   metadata: {
