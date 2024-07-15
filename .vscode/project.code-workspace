@@ -17,8 +17,8 @@
       "path": "../contracts",
     },
     {
-      "name": "site",
-      "path": "../site",
+      "name": "docs",
+      "path": "../docs",
     },
     {
       "name": "lib",

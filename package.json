@@ -8,7 +8,7 @@
     "api",
     "app",
     "contracts",
-    "lib",
+    "docs",
     "packages/**",
     "services/**"
   ],
