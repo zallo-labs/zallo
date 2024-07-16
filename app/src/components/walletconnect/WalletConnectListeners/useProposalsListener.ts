@@ -35,7 +35,12 @@ export type ApprovedProposal = NonNullable<
 
 export function useProposalsListener() {
   const proposals = useMemo(() => new Subject<ApprovedProposal>(), []);
-  useEffect(() => proposals.unsubscribe, [proposals]);
+  useEffect(
+    () => () => {
+      proposals.complete();
+    },
+    [proposals],
+  );
 
   useSubscription<useProposalsListenerSubscription>(
     useMemo(
