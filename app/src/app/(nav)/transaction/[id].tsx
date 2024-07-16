@@ -60,6 +60,7 @@ const Transaction = graphql`
       id
       address
       ...AccountSection_account
+      ...useRemoveTransaction_account
     }
     dapp {
       ...DappHeader_dappMetadata
@@ -82,7 +83,7 @@ function TransactionScreen() {
 
   const query = useLazyLoadQuery<Id_TransactionScreenQuery>(Query, { id });
   const t = useFragment<Id_TransactionScreen_transaction$key>(Transaction, query.transaction);
-  const remove = useRemoveTransaction({ transaction: t });
+  const remove = useRemoveTransaction({ account: t.account, transaction: t });
 
   useSubscription(
     useMemo(() => ({ subscription: Subscription, variables: { transaction: id } }), [id]),

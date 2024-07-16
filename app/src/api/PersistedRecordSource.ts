@@ -60,7 +60,7 @@ export class PersitedRecordSource extends RecordSource {
       Object.entries(allRecords)
         .filter(([key]) => !key.startsWith('client:local'))
         .map(([key, value]) => {
-          if ('__invalidated_at' in value) {
+          if (value && '__invalidated_at' in value) {
             const { __invalidated_at, ...rest } = value;
             return [key, rest];
           }

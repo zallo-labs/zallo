@@ -31,6 +31,7 @@ const Query = graphql`
         id
         chain
         ...AccountSection_account
+        ...useRemoveMessage_account
       }
       dapp {
         ...DappHeader_dappMetadata
@@ -53,7 +54,7 @@ export default function MessageScreen() {
   const { id } = useLocalParams(MessageScreenParams);
 
   const { message: m, user } = useLazyLoadQuery<Id_MessageScreenQuery>(Query, { id });
-  const remove = useRemoveMessage(m);
+  const remove = useRemoveMessage({ account: m.account, message: m });
 
   return (
     <SideSheetLayout defaultVisible>
