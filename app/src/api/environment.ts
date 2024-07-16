@@ -3,7 +3,6 @@ import { PrivateKeyAccount } from 'viem';
 import { atom, useAtomValue } from 'jotai';
 import { DANGEROUS_approverAtom } from '@network/useApprover';
 import { InteractionManager } from 'react-native';
-import { atomFamily } from 'jotai/utils';
 import { createNetworkLayer } from './network/layer';
 import { fetchExchange } from './network/fetch';
 import { CONFIG } from '~/util/config';
@@ -26,30 +25,13 @@ export function useApiEnvironment() {
   return useAtomValue(environmentAtom);
 }
 
-const approverEnvironment = atomFamily(
-  (approver: PrivateKeyAccount) =>
-    atom(async () => {
-      const promisedApprover = new Promise<PrivateKeyAccount>((resolve) => resolve(approver));
-      return getEnvironment({ key: approver.address, approver: promisedApprover, persist: false });
-    }),
-  (a, b) => a.address === b.address,
-);
-
-export function useApproverApiEnvironment(approver: PrivateKeyAccount) {
-  return useAtomValue(approverEnvironment(approver));
-}
-
 export interface EnvironmentConfig {
   key: string;
   approver: Promise<PrivateKeyAccount>;
   persist?: boolean;
 }
 
-export let environment: Environment | undefined;
-export function setEnvironment(env: Environment) {
-  environment = env;
-}
-
+let environment: Environment | undefined;
 export async function getEnvironment({ key, approver, persist }: EnvironmentConfig) {
   if (environment) return environment;
 
@@ -67,7 +49,7 @@ export async function getEnvironment({ key, approver, persist }: EnvironmentConf
       InteractionManager.runAfterInteractions(run);
     },
   });
-  persist && store.notify(undefined, true); // Invalidate persisted data
+  // persist && store.notify(undefined, true); // Invalidate persisted data
 
   const network = createNetworkLayer({
     store,

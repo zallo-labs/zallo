@@ -23,32 +23,52 @@ export class PersitedRecordSource extends RecordSource {
   }
 
   set(dataID: DataID, record: Record): void {
-    this.save();
+    this.saveAfterDelay();
     return super.set(dataID, record);
   }
 
-  private save() {
-    // Clear pending save
+  private saveAfterDelay() {
+    this.clearPending();
+
+    // Save after delay (debounce)
+    const timer = setTimeout(() => {
+      InteractionManager.runAfterInteractions(() => this.save());
+    }, DELAY);
+
+    // Save pending immediately on background
+    const listener = AppState.addEventListener('change', (state) => {
+      if (state === 'background') this.save();
+    });
+
+    this.pending = { timer, listener };
+  }
+
+  private clearPending() {
     if (this.pending) {
       clearTimeout(this.pending.timer);
       this.pending.listener.remove();
       this.pending = undefined;
     }
+  }
 
-    const save = () => {
-      AsyncStorage.setItem(this.key, JSON.stringify(this.toJSON()));
-    };
+  private save() {
+    this.clearPending();
 
-    // Save after delay (debounce)
-    const timer = setTimeout(() => {
-      InteractionManager.runAfterInteractions(save);
-    }, DELAY);
+    const allRecords = this.toJSON();
 
-    // Save pending immediately on background
-    const listener = AppState.addEventListener('change', (state) => {
-      if (state === 'background') save();
-    });
+    const filteredRecords = Object.fromEntries(
+      Object.entries(allRecords)
+        .filter(([key]) => !key.startsWith('client:local'))
+        .map(([key, value]) => {
+          if ('__invalidated_at' in value) {
+            const { __invalidated_at, ...rest } = value;
+            return [key, rest];
+          }
 
-    this.pending = { timer, listener };
+          return [key, value];
+        }),
+    );
+
+    AsyncStorage.setItem(this.key, JSON.stringify(filteredRecords));
   }
 }
