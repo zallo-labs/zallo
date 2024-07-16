@@ -14,14 +14,14 @@ const ENV = process.env;
 const vary = (value: string, f: (variant: string) => string = (v) => '.' + v) =>
   value + (ENV.APP_VARIANT ? f(ENV.APP_VARIANT) : '');
 
-type ExternalUrl = `http:${string}`;
+type ExternalUrl = `https:${string}`;
 
 export const CONFIG = {
   env: ENV.RELEASE_ENV === 'development' ? 'development' : 'production',
   sentryDsn: ENV.APP_SENTRY_DSN!,
   apiUrl: ENV.API_URL!,
   apiGqlWs: ENV.API_GQL_WS!,
-  docsUrl: ENV.DOCS_URL!,
+  docsUrl: ENV.DOCS_URL! as ExternalUrl,
   walletConnectProjectId: ENV.WALLET_CONNECT_PROJECT_ID!,
   aplitudeKey: ENV.AMPLITUDE_KEY!,
   metadata: {
