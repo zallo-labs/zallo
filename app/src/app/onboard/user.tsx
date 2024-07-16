@@ -17,6 +17,7 @@ import { Link, useRouter } from 'expo-router';
 import { useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { View } from 'react-native';
+import { Text } from 'react-native-paper';
 import { useLazyLoadQuery, useSubscription } from 'react-relay';
 import { graphql } from 'relay-runtime';
 import { z } from 'zod';
@@ -25,6 +26,7 @@ import { user_UserOnboardingMutation } from '~/api/__generated__/user_UserOnboar
 import { user_UserOnboardingQuery } from '~/api/__generated__/user_UserOnboardingQuery.graphql';
 import { user_UserOnboardingSubscription } from '~/api/__generated__/user_UserOnboardingSubscription.graphql';
 import { getDeviceModel } from '~/lib/device';
+import { TERMS_OF_SERVICE_HREF } from '../terms-of-service';
 
 const Query = graphql`
   query user_UserOnboardingQuery {
@@ -117,6 +119,13 @@ function UserOnboarding() {
           <FormSubmitButton mode="outlined" control={control} onPress={next}>
             Continue
           </FormSubmitButton>
+
+          <Text variant="titleMedium" style={styles.tosText}>
+            By continuing, you agree to our{' '}
+            <Link href={TERMS_OF_SERVICE_HREF} style={styles.link}>
+              Terms of Service
+            </Link>
+          </Text>
         </Actions>
       </OnboardMainPane>
 
@@ -125,7 +134,7 @@ function UserOnboarding() {
   );
 }
 
-const stylesheet = createStyles(() => ({
+const stylesheet = createStyles(({ colors }) => ({
   screen: {
     flex: 1,
     flexDirection: 'row',
@@ -141,6 +150,13 @@ const stylesheet = createStyles(() => ({
     flex: 1,
     marginHorizontal: 16,
     marginTop: 16,
+  },
+  tosText: {
+    marginVertical: 8,
+    textAlign: 'center',
+  },
+  link: {
+    color: colors.tertiary,
   },
 }));
 

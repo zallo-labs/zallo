@@ -88,8 +88,12 @@ const config: Config = {
           ],
         },
         {
-          title: 'Legal',
+          title: 'Company',
           items: [
+            {
+              label: 'Terms of Service',
+              to: 'terms-of-service',
+            },
             {
               label: 'Privacy Policy',
               to: 'privacy',
