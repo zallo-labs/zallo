@@ -41,6 +41,7 @@ export function TextField({
         // Other
         autoCorrect={false}
         style={textStyle}
+        outlineStyle={styles.outline}
         {...props}
         {...(props.label && required && { label: `${props.label}*` })}
       />
@@ -58,6 +59,9 @@ export function TextField({
 }
 
 const stylesheet = createStyles(({ colors }) => ({
+  outline: {
+    backgroundColor: 'transparent',
+  },
   errorText: {
     color: colors.error,
   },

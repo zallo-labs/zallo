@@ -7,6 +7,7 @@ import { Chevron } from '../Chevron';
 import Collapsible from 'react-native-collapsible';
 import { SUPPORTED_CHAIN_KEYS } from '@network/chains';
 import { ICON_SIZE } from '@theme/paper';
+import { createStyles, useStyles } from '@theme/styles';
 
 const descriptions: Record<Chain, string> = {
   zksync: 'Fast & low-cost layer 2 secured by Ethereum',
@@ -25,10 +26,12 @@ export function ChainSelector({
   onChange,
   chains = SUPPORTED_CHAIN_KEYS,
 }: ChainSelectorProps) {
+  const { styles } = useStyles(stylesheet);
+
   const [expanded, setExpanded] = useState(false);
 
   return (
-    <Card type="outlined">
+    <Card type="outlined" style={styles.card}>
       <ListItem
         leading={<ChainIcon chain={selected} size={ICON_SIZE.medium} />}
         overline="Network"
@@ -59,3 +62,10 @@ export function ChainSelector({
     </Card>
   );
 }
+
+const stylesheet = createStyles(({ colors }) => ({
+  card: {
+    backgroundColor: 'transparent',
+    borderColor: colors.outline,
+  },
+}));
