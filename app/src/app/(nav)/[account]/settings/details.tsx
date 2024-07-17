@@ -50,28 +50,26 @@ export default function AccountDetails() {
     <Pane flex>
       <Appbar mode="large" headline="Account details" />
 
-      <Surface style={styles.surface}>
-        <View style={styles.fields}>
-          <AccountNameFormField name="name" control={control} required />
-        </View>
+      <View style={styles.fields}>
+        <AccountNameFormField name="name" control={control} required />
+      </View>
 
-        <Actions>
-          <FormSubmitButton
-            mode="contained"
-            requireChanges
-            control={control}
-            onPress={handleSubmit(async (input) => {
-              await update(
-                { account, name: input.name },
-                { optimisticResponse: { updateAccount: { id: a.id, name: input.name } } },
-              );
-              reset(input);
-            })}
-          >
-            Update
-          </FormSubmitButton>
-        </Actions>
-      </Surface>
+      <Actions>
+        <FormSubmitButton
+          mode="contained"
+          requireChanges
+          control={control}
+          onPress={handleSubmit(async (input) => {
+            await update(
+              { account, name: input.name },
+              { optimisticResponse: { updateAccount: { id: a.id, name: input.name } } },
+            );
+            reset(input);
+          })}
+        >
+          Update
+        </FormSubmitButton>
+      </Actions>
     </Pane>
   );
 }
