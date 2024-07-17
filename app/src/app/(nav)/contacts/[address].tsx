@@ -86,7 +86,6 @@ function ContactScreen_(props: ContactScreenProps) {
       address: asUAddress(address, chain),
       previousAddress: current?.address,
     });
-    router.back();
     reset(input);
   });
 
