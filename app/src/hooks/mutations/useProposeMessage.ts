@@ -36,6 +36,9 @@ export function useProposeMessage() {
           proposals {
             ...useProposeMessage_assignable_proposal
           }
+          pendingProposals: proposals(input: { pending: true }) {
+            ...useProposeMessage_assignable_proposal
+          }
         }
       `,
       accountKey,
@@ -56,14 +59,21 @@ export function useProposeMessage() {
                   proposals {
                     ...useProposeMessage_assignable_proposal
                   }
+                  pendingProposals: proposals(input: { pending: true }) {
+                    ...useProposeMessage_assignable_proposal
+                  }
                 }
               }
             `,
             account,
           );
 
-          // @ts-expect-error one __typename is 'string' the other is 'Message'
-          if (updatableData.account) updatableData.account.proposals = [t, ...account.proposals];
+          if (updatableData.account) {
+            // @ts-expect-error one __typename is 'string' the other is 'Message'
+            updatableData.account.proposals = [t, ...account.proposals];
+            // @ts-expect-error one __typename is 'string' the other is 'Message'
+            updatableData.account.pendingProposals = [t, ...account.pendingProposals];
+          }
         },
       },
     );

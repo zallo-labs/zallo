@@ -25,7 +25,7 @@ export function useUpsertContact(params: UpsertContactParams) {
     graphql`
       fragment useUpsertContact_query on Query {
         contacts(input: { query: null }) {
-          address
+          id
           ...useUpsertContact_assignable_contact
         }
       }
@@ -45,7 +45,8 @@ export function useUpsertContact(params: UpsertContactParams) {
   `);
 
   const updater: SelectorStoreUpdater<useUpsertContactMutation$data> = (store, data) => {
-    if (!data?.upsertContact) return;
+    const id = data?.upsertContact.id;
+    if (!id) return;
 
     const { updatableData } = store.readUpdatableQuery<useUpsertContactUpdatableQuery>(
       graphql`
@@ -57,7 +58,7 @@ export function useUpsertContact(params: UpsertContactParams) {
           contacts(input: { query: null }) {
             ...useUpsertContact_assignable_contact
           }
-          
+
           label(address: $address)
         }
       `,
@@ -65,10 +66,7 @@ export function useUpsertContact(params: UpsertContactParams) {
     );
 
     updatableData.contact = data.upsertContact;
-    updatableData.contacts = [
-      ...contacts.filter((c) => c.address !== data.upsertContact.address),
-      data.upsertContact,
-    ];
+    updatableData.contacts = [...contacts.filter((c) => c.id !== id), data.upsertContact];
     updatableData.label = data.upsertContact.name;
   };
 

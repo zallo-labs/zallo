@@ -85,8 +85,6 @@ function SelectAddressSheet() {
     contacts: include.includes('contacts'),
   });
 
-  console.log(query);
-
   const accounts =
     query.accounts?.filter(
       (a) => !disabled?.has(a.address) && (!chain || asChain(a.address) === chain),

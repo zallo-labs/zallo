@@ -21,6 +21,8 @@ import { graphql } from 'relay-runtime';
 import { useLazyLoadQuery } from 'react-relay';
 import { Address_ApproverSettingsQuery } from '~/api/__generated__/Address_ApproverSettingsQuery.graphql';
 import { asChain } from 'lib';
+import { ScreenSkeleton } from '#/skeleton/ScreenSkeleton';
+import { withSuspense } from '#/skeleton/withSuspense';
 
 const Query = graphql`
   query Address_ApproverSettingsQuery($account: UAddress!, $approver: Address!) {
@@ -48,7 +50,7 @@ const ApproverSettingsParams = AccountParams.extend({
   address: zAddress(),
 });
 
-export default function ApproverSettingsScreen() {
+function ApproverSettingsScreen() {
   const params = useLocalParams(ApproverSettingsParams);
   const { address } = params;
   const showSheet = useSetAtom(SIDE_SHEET);
@@ -121,3 +123,7 @@ const styles = createStyles({
     gap: 8,
   },
 });
+
+export default withSuspense(ApproverSettingsScreen, <ScreenSkeleton />);
+
+export { ErrorBoundary } from '#/ErrorBoundary';

@@ -39,8 +39,8 @@ export function useTransfersSubscription(params: UseTransfersSubscriptionParams)
         const t = data?.transfer;
         if (!t) return;
 
-        // Invalidate Token.balance
-        if (t.token) store.get(t.token.id)?.invalidateRecord();
+        // TODO: Invalidate Token.balance; disabled to prevent home screen from suspending whilst re-fetching
+        // if (t.token) store.get(t.token.id)?.invalidateRecord();
 
         // Prepend to Account.transfers
         if (t.incoming && !t.internal) {
