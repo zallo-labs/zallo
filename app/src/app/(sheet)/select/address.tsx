@@ -24,7 +24,7 @@ import { isAddress } from 'viem';
 import { showWarning } from '#/provider/SnackbarProvider';
 import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import { graphql } from 'relay-runtime';
-import { useLazyLoadQuery } from 'react-relay';
+import { useLazyQuery } from '~/api';
 import { address_SelectAddressSheetQuery } from '~/api/__generated__/address_SelectAddressSheetQuery.graphql';
 
 const Query = graphql`
@@ -79,7 +79,7 @@ function SelectAddressSheet() {
   const disabled = params.disabled && new Set(params.disabled.flatMap((a) => [a, asAddress(a)]));
   const scanAddress = useScanAddress();
 
-  const query = useLazyLoadQuery<address_SelectAddressSheetQuery>(Query, {
+  const query = useLazyQuery<address_SelectAddressSheetQuery>(Query, {
     accounts: include.includes('accounts'),
     approvers: include.includes('approvers'),
     contacts: include.includes('contacts'),

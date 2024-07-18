@@ -20,7 +20,7 @@ import { useRecentTokens, useSetSelectedToken } from '~/hooks/useSelectToken';
 import { useRouter } from 'expo-router';
 import { useRef } from 'react';
 import { graphql } from 'relay-runtime';
-import { useLazyLoadQuery } from 'react-relay';
+import { useLazyQuery } from '~/api';
 import { token_SelectTokenSheetQuery } from '~/api/__generated__/token_SelectTokenSheetQuery.graphql';
 
 const Query = graphql`
@@ -52,7 +52,7 @@ function SelectTokenSheet() {
   const chain = asChain(account);
   const setSelected = useSetSelectedToken(chain);
 
-  const { tokens } = useLazyLoadQuery<token_SelectTokenSheetQuery>(Query, {
+  const { tokens } = useLazyQuery<token_SelectTokenSheetQuery>(Query, {
     account,
     chain,
     feeToken,

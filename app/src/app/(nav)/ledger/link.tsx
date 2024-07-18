@@ -16,7 +16,7 @@ import { withSuspense } from '#/skeleton/withSuspense';
 import { ScreenSkeleton } from '#/skeleton/ScreenSkeleton';
 import { ScreenSurface } from '#/layout/ScreenSurface';
 import { graphql } from 'relay-runtime';
-import { useLazyLoadQuery } from 'react-relay';
+import { useLazyQuery } from '~/api';
 import { link_LinkLedgerScreenQuery } from '~/api/__generated__/link_LinkLedgerScreenQuery.graphql';
 
 const Query = graphql`
@@ -32,7 +32,7 @@ function LinkLedgerScreen() {
   const devices =
     useObservable(useMemo(() => (hasPermission ? bleDevices() : null), [hasPermission])) ?? ok([]);
 
-  const { user } = useLazyLoadQuery<link_LinkLedgerScreenQuery>(Query, {});
+  const { user } = useLazyQuery<link_LinkLedgerScreenQuery>(Query, {});
 
   return (
     <>

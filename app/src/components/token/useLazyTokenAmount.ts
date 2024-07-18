@@ -1,7 +1,7 @@
 import { graphql } from 'relay-runtime';
 import { TokenAmountOptions, useTokenAmount } from './useTokenAmount';
 import { UAddress } from 'lib';
-import { useLazyLoadQuery } from 'react-relay';
+import { useLazyQuery } from '~/api';
 import { useLazyTokenAmountQuery } from '~/api/__generated__/useLazyTokenAmountQuery.graphql';
 
 const Query = graphql`
@@ -17,7 +17,7 @@ export interface LazyTokenAmountOptions extends Omit<TokenAmountOptions, 'token'
 }
 
 export function useLazyTokenAmount({ token, ...options }: LazyTokenAmountOptions) {
-  const query = useLazyLoadQuery<useLazyTokenAmountQuery>(Query, { token });
+  const query = useLazyQuery<useLazyTokenAmountQuery>(Query, { token });
 
   return useTokenAmount({ ...options, token: query.token });
 }

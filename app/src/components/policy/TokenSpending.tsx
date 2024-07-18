@@ -19,8 +19,9 @@ import Decimal from 'decimal.js';
 import { IncomingTransferItem } from '#/activity/IncomingTransferItem';
 import { withSuspense } from '#/skeleton/withSuspense';
 import { RectSkeleton } from '#/skeleton/RectSkeleton';
-import { graphql, useLazyLoadQuery } from 'react-relay';
+import { graphql} from 'react-relay';
 import { TokenSpendingQuery } from '~/api/__generated__/TokenSpendingQuery.graphql';
+import { useLazyQuery } from '~/api';
 
 const Query = graphql`
   query TokenSpendingQuery(
@@ -72,7 +73,7 @@ function TokenSpending_({ token: address }: TokenSpendingProps) {
   const [policy, update] = usePolicyDraft();
   const { account } = policy;
 
-  const { token: t } = useLazyLoadQuery<TokenSpendingQuery>(Query, {
+  const { token: t } = useLazyQuery<TokenSpendingQuery>(Query, {
     token: asUAddress(address, asChain(account)),
     spending: { account, policyKey: policy.key },
     includeSpending: policy.key !== undefined,

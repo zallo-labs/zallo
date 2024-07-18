@@ -2,7 +2,7 @@ import { UAddress } from 'lib';
 import { TokenIcon, TokenIconProps } from './TokenIcon';
 import { graphql } from 'relay-runtime';
 import { LazyTokenIconQuery } from '~/api/__generated__/LazyTokenIconQuery.graphql';
-import { useLazyLoadQuery } from 'react-relay';
+import { useLazyQuery } from '~/api';
 
 const Query = graphql`
   query LazyTokenIconQuery($token: UAddress!) {
@@ -17,7 +17,7 @@ export interface LazyTokenIconProps extends Omit<TokenIconProps, 'token'> {
 }
 
 export function LazyTokenIcon({ token, ...props }: LazyTokenIconProps) {
-  const query = useLazyLoadQuery<LazyTokenIconQuery>(Query, { token });
+  const query = useLazyQuery<LazyTokenIconQuery>(Query, { token });
 
   return <TokenIcon {...props} token={query.token} />;
 }

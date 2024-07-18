@@ -43,13 +43,11 @@ export async function getEnvironment({ key, approver, persist }: EnvironmentConf
   if (environment) return environment;
 
   const store = new Store(recordSource, {
-    gcReleaseBufferSize: 100, // gc exempt queries
-    queryCacheExpirationTime: 10 * 60_000,
+    gcReleaseBufferSize: 100, // Queries not retained excluded from GC
     gcScheduler: (run) => {
       InteractionManager.runAfterInteractions(run);
     },
   });
-  // persist && store.notify(undefined, true); // Invalidate persisted data
 
   const network = createNetworkLayer({
     store,

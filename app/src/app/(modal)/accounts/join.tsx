@@ -14,10 +14,11 @@ import { useMemo } from 'react';
 import { View } from 'react-native';
 import { Switch, Text } from 'react-native-paper';
 import QRCode from 'react-native-qrcode-svg';
-import { useLazyLoadQuery, useSubscription } from 'react-relay';
+import { useSubscription } from 'react-relay';
 import { graphql } from 'relay-runtime';
 import { Subject } from 'rxjs';
 import { z } from 'zod';
+import { useLazyQuery } from '~/api';
 import { join_JoinAccountModalQuery } from '~/api/__generated__/join_JoinAccountModalQuery.graphql';
 import { join_JoinAccountModalSubscription } from '~/api/__generated__/join_JoinAccountModalSubscription.graphql';
 import { useScanAddress } from '~/app/scan';
@@ -65,7 +66,7 @@ function JoinAccountModal() {
 
   const setPersonal = (v: boolean) => router.setParams({ personal: v ? 'true' : 'false' });
 
-  const { user } = useLazyLoadQuery<join_JoinAccountModalQuery>(Query, {});
+  const { user } = useLazyQuery<join_JoinAccountModalQuery>(Query, {});
   const linkingToken = useLinkingTokenUrl({ user });
   const value = personal ? linkingToken : approver;
 

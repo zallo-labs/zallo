@@ -19,7 +19,7 @@ import { useVerifyDapp } from '../DappVerification';
 import { ApprovedProposal } from './useProposalsListener';
 import { asDapp } from '~/lib/wc/uri';
 import { graphql } from 'relay-runtime';
-import { useLazyLoadQuery } from 'react-relay';
+import { useLazyQuery } from '~/api';
 import { useSessionRequestListenerQuery } from '~/api/__generated__/useSessionRequestListenerQuery.graphql';
 import { useProposeMessage } from '~/hooks/mutations/useProposeMessage';
 
@@ -46,7 +46,7 @@ export const useSessionRequestListener = ({ proposals }: UseSessionRequestListen
   const proposeTransaction = useProposeTransaction();
   const proposeMessage = useProposeMessage();
 
-  const { accounts } = useLazyLoadQuery<useSessionRequestListenerQuery>(Query, {});
+  const { accounts } = useLazyQuery<useSessionRequestListenerQuery>(Query, {});
 
   useEffect(() => {
     const handleRequest = async ({ id, topic, params, verifyContext }: SessionRequestArgs) => {

@@ -14559,6 +14559,7 @@ __metadata:
     jest-environment-node: "npm:^29.7.0"
     jest-expo: "npm:~51.0.3"
     jotai: "npm:^2.8.4"
+    jotai-effect: "npm:^1.0.0"
     jotai-immer: "npm:^0.4.1"
     jwt-decode: "npm:^4.0.0"
     lib: "workspace:*"
@@ -25299,6 +25300,15 @@ __metadata:
   version: 5.6.3
   resolution: "jose@npm:5.6.3"
   checksum: 10/829f07b8857221ada1cd112a5ebd084e34748f6e3247f5cb03aca0a1f25dd6a07283c9a4f5b854935bda505e3243405640550f8e9eb46c45b172dc4cb336ac89
+  languageName: node
+  linkType: hard
+
+"jotai-effect@npm:^1.0.0":
+  version: 1.0.0
+  resolution: "jotai-effect@npm:1.0.0"
+  peerDependencies:
+    jotai: ">=2.5.0"
+  checksum: 10/4393c88deaebbfd4e8fad46ac1b7d03235d0dd684c56049e8c57b14a1298695e80b047c0b1561cbb5af694db9ea819aaaf6ae9c1a35b27d4ef98532b39065d15
   languageName: node
   linkType: hard
 

@@ -12,7 +12,7 @@ import { asPolicyInput } from '~/lib/policy/policyAsDraft';
 import { Chain } from 'chains';
 import { FormChainSelector } from './fields/FormChainSelector';
 import { graphql } from 'relay-runtime';
-import { useLazyLoadQuery } from 'react-relay';
+import { useLazyQuery } from '~/api';
 import { CreateAccountScreenQuery } from '~/api/__generated__/CreateAccountScreenQuery.graphql';
 import { useCreateAccount } from '~/hooks/mutations/useCreateAccount';
 
@@ -44,7 +44,7 @@ export function CreateAccount({ onCreate }: CreateAccountScreenProps) {
   const { styles } = useStyles(stylesheet);
   const router = useRouter();
 
-  const query = useLazyLoadQuery<CreateAccountScreenQuery>(Query, {});
+  const query = useLazyQuery<CreateAccountScreenQuery>(Query, {});
   const create = useCreateAccount({ query });
   const { user } = query;
 

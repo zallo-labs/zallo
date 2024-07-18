@@ -18,10 +18,10 @@ import { useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { View } from 'react-native';
 import { Text } from 'react-native-paper';
-import { useLazyLoadQuery, useSubscription } from 'react-relay';
+import { useSubscription } from 'react-relay';
 import { graphql } from 'relay-runtime';
 import { z } from 'zod';
-import { useMutation } from '~/api';
+import { useLazyQuery, useMutation } from '~/api';
 import { user_UserOnboardingMutation } from '~/api/__generated__/user_UserOnboardingMutation.graphql';
 import { user_UserOnboardingQuery } from '~/api/__generated__/user_UserOnboardingQuery.graphql';
 import { user_UserOnboardingSubscription } from '~/api/__generated__/user_UserOnboardingSubscription.graphql';
@@ -67,7 +67,7 @@ function UserOnboarding() {
   const router = useRouter();
   const update = useMutation<user_UserOnboardingMutation>(Update);
 
-  const { approver, user } = useLazyLoadQuery<user_UserOnboardingQuery>(Query, {});
+  const { approver, user } = useLazyQuery<user_UserOnboardingQuery>(Query, {});
 
   const { control, handleSubmit, reset } = useForm<z.infer<typeof schema>>({
     resolver: zodResolver(schema),

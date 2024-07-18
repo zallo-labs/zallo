@@ -21,10 +21,11 @@ import { useRemoveTransaction } from '#/transaction/useRemoveTransaction';
 import { withSuspense } from '#/skeleton/withSuspense';
 import { ScreenSkeleton } from '#/skeleton/ScreenSkeleton';
 import { graphql } from 'relay-runtime';
-import { useFragment, useLazyLoadQuery, useSubscription } from 'react-relay';
+import { useFragment, useSubscription } from 'react-relay';
 import { useMemo } from 'react';
 import { Id_TransactionScreenQuery } from '~/api/__generated__/Id_TransactionScreenQuery.graphql';
 import { Id_TransactionScreen_transaction$key } from '~/api/__generated__/Id_TransactionScreen_transaction.graphql';
+import { useLazyQuery } from '~/api';
 
 const Query = graphql`
   query Id_TransactionScreenQuery($id: ID!) {
@@ -81,7 +82,7 @@ function TransactionScreen() {
   const { styles } = useStyles(stylesheet);
   const { id } = useLocalParams(TransactionScreenParams);
 
-  const query = useLazyLoadQuery<Id_TransactionScreenQuery>(Query, { id });
+  const query = useLazyQuery<Id_TransactionScreenQuery>(Query, { id });
   const t = useFragment<Id_TransactionScreen_transaction$key>(Transaction, query.transaction);
   const remove = useRemoveTransaction({ account: t.account, transaction: t });
 

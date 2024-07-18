@@ -5,9 +5,9 @@ import { PolicyItem } from '#/policy/PolicyItem';
 import { createStyles, useStyles } from '@theme/styles';
 import { memo } from 'react';
 import { graphql } from 'relay-runtime';
-import { useFragment, useLazyLoadQuery } from 'react-relay';
+import { useFragment } from 'react-relay';
 import { OtherPolicies_proposal$key } from '~/api/__generated__/OtherPolicies_proposal.graphql';
-import { useMutation } from '~/api';
+import { useLazyQuery, useMutation } from '~/api';
 import { OtherPoliciesQuery } from '~/api/__generated__/OtherPoliciesQuery.graphql';
 
 // TODO: replace query with @deferred fragment once supported (graphql-js 17)
@@ -60,8 +60,8 @@ function OtherPolicies_(props: OtherPoliciesProps) {
   const proposal = useFragment(Proposal, props.proposal);
   const update = useMutation(Update);
 
-  const { policies } = useLazyLoadQuery<OtherPoliciesQuery>(Query, { proposal: proposal.id })
-    .proposal.account;
+  const { policies } = useLazyQuery<OtherPoliciesQuery>(Query, { proposal: proposal.id }).proposal
+    .account;
 
   return (
     <>

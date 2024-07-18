@@ -16,7 +16,7 @@ import { Text } from 'react-native-paper';
 import { ICON_SIZE } from '@theme/paper';
 import { MenuOrSearchIcon } from '#/Appbar/MenuOrSearchIcon';
 import { graphql } from 'relay-runtime';
-import { useLazyLoadQuery } from 'react-relay';
+import { useLazyQuery } from '~/api';
 import { contacts_ContactsPaneQuery } from '~/api/__generated__/contacts_ContactsPaneQuery.graphql';
 
 const Query = graphql`
@@ -38,7 +38,7 @@ function ContactsPane_() {
 
   const [query, setQuery] = useState('');
 
-  const { contacts } = useLazyLoadQuery<contacts_ContactsPaneQuery>(Query, {
+  const { contacts } = useLazyQuery<contacts_ContactsPaneQuery>(Query, {
     query: query || null,
   });
 

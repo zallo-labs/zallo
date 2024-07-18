@@ -21,7 +21,7 @@ import { PolicyPresetKey } from '~/lib/policy/usePolicyPresets';
 import { UPGRADE_APPROVER } from 'lib';
 import { MenuOrSearchIcon } from '#/Appbar/MenuOrSearchIcon';
 import { graphql } from 'relay-runtime';
-import { useLazyLoadQuery } from 'react-relay';
+import { useLazyQuery } from '~/api';
 import { settings_AccountSettingsQuery } from '~/api/__generated__/settings_AccountSettingsQuery.graphql';
 
 const Query = graphql`
@@ -66,7 +66,7 @@ function AccountSettingsPane_() {
   const path = usePath();
   const currentRouteParams = useRouteInfo().params;
 
-  const { account: a, user } = useLazyLoadQuery<settings_AccountSettingsQuery>(Query, { account });
+  const { account: a, user } = useLazyQuery<settings_AccountSettingsQuery>(Query, { account });
 
   const approvers = a.approvers.filter(
     (approver) => approver.address !== UPGRADE_APPROVER[a.chain],

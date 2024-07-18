@@ -11,7 +11,7 @@ import { zBool } from '~/lib/zod';
 import { withSuspense } from '#/skeleton/withSuspense';
 import { ScreenSkeleton } from '#/skeleton/ScreenSkeleton';
 import { graphql } from 'relay-runtime';
-import { useLazyLoadQuery } from 'react-relay';
+import { useLazyQuery } from '~/api';
 import { app_LandingScreenQuery } from '~/api/__generated__/app_LandingScreenQuery.graphql';
 
 // Must use Query.accounts to avoid potential redirect loop with AccountLayout
@@ -31,7 +31,7 @@ function LandingScreen() {
   const { redirect } = useLocalParams(LandingScreenParams);
   const selectedAccount = useSelectedAccount();
 
-  const query = useLazyLoadQuery<app_LandingScreenQuery>(Query, {});
+  const query = useLazyQuery<app_LandingScreenQuery>(Query, {});
 
   const account = selectedAccount ?? query.accounts[0]?.address;
   if (redirect && account)

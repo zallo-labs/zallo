@@ -29,7 +29,7 @@ import { showError } from '#/provider/SnackbarProvider';
 import { estimateSwap } from '~/util/swap/syncswap/estimate';
 import { ScreenSkeleton } from '#/skeleton/ScreenSkeleton';
 import { graphql } from 'relay-runtime';
-import { useLazyLoadQuery } from 'react-relay';
+import { useLazyQuery } from '~/api';
 import { swap_SwapScreenQuery } from '~/api/__generated__/swap_SwapScreenQuery.graphql';
 
 const DownArrow = materialCommunityIcon('arrow-down-thin');
@@ -68,7 +68,7 @@ function SwapScreen() {
   const selectToken = useSelectToken();
   const swappableTokens = useSwappableTokens(chain);
 
-  const query = useLazyLoadQuery<swap_SwapScreenQuery>(Query, {
+  const query = useLazyQuery<swap_SwapScreenQuery>(Query, {
     account,
     tokens: swappableTokens,
   });

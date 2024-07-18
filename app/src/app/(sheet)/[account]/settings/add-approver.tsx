@@ -24,7 +24,7 @@ import { useRouter } from 'expo-router';
 import { useLinkLedger } from '#/link/ledger/LedgerItem';
 import { useSelectAddress } from '~/hooks/useSelectAddress';
 import { graphql } from 'relay-runtime';
-import { useLazyLoadQuery } from 'react-relay';
+import { useLazyQuery } from '~/api';
 import { addApprover_AddApproverSheetQuery } from '~/api/__generated__/addApprover_AddApproverSheetQuery.graphql';
 
 const Query = graphql`
@@ -42,7 +42,7 @@ function AddApproverSheet() {
   const router = useRouter();
   const selectAddress = useSelectAddress();
 
-  const { user } = useLazyLoadQuery<addApprover_AddApproverSheetQuery>(Query, {});
+  const { user } = useLazyQuery<addApprover_AddApproverSheetQuery>(Query, {});
 
   const linkZallo = useLinkZallo();
   const linkLedger = useLinkLedger();

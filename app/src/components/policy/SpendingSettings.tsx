@@ -16,7 +16,7 @@ import { CollapsibleItemList } from '#/layout/CollapsibleItemList';
 import { DEFAULT_LIMIT } from './TokenSpending';
 import { useSelectToken } from '~/hooks/useSelectToken';
 import { graphql } from 'relay-runtime';
-import { useLazyLoadQuery } from 'react-relay';
+import { useLazyQuery } from '~/api';
 import { SpendingSettingsQuery } from '~/api/__generated__/SpendingSettingsQuery.graphql';
 
 const Query = graphql`
@@ -39,7 +39,9 @@ function SpendingSettings_() {
   const { transfers } = policy;
   const chain = asChain(policy.account);
   const tokenAddresses = Object.keys(transfers.limits).map((address) => asUAddress(address, chain));
-  const query = useLazyLoadQuery<SpendingSettingsQuery>(Query, { input: { address: tokenAddresses } }).tokens; 
+  const query = useLazyQuery<SpendingSettingsQuery>(Query, {
+    input: { address: tokenAddresses },
+  }).tokens;
 
   const tokens = useMemo(
     () =>
