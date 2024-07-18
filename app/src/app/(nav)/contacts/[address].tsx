@@ -5,7 +5,6 @@ import { useRouter } from 'expo-router';
 import { Address, ZERO_ADDR, asAddress, asChain, asUAddress, tryAsUAddress } from 'lib';
 import { RemoveIcon } from '@theme/icons';
 import { useForm } from 'react-hook-form';
-import { StyleSheet } from 'react-native';
 import { View } from 'react-native';
 import { Menu } from 'react-native-paper';
 import { AppbarMore } from '#/Appbar/AppbarMore';
@@ -15,7 +14,6 @@ import { Actions } from '#/layout/Actions';
 import { FormResetIcon } from '#/fields/ResetFormIcon';
 import { useConfirmRemoval } from '~/hooks/useConfirm';
 import { withSuspense } from '#/skeleton/withSuspense';
-import { ScrollableScreenSurface } from '#/layout/ScrollableScreenSurface';
 import { Chain } from 'chains';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useSelectedChain } from '~/hooks/useSelectedAccount';
@@ -28,6 +26,8 @@ import { useLazyLoadQuery } from 'react-relay';
 import { Address_ContactScreenQuery } from '~/api/__generated__/Address_ContactScreenQuery.graphql';
 import { useUpsertContact } from '~/hooks/mutations/useUpsertContact';
 import { useRemoveContact } from '~/hooks/mutations/useRemoveContact';
+import { Scrollable } from '#/Scrollable';
+import { createStyles } from '@theme/styles';
 
 const Query = graphql`
   query Address_ContactScreenQuery($address: UAddress!, $include: Boolean!) {
@@ -117,7 +117,7 @@ function ContactScreen_(props: ContactScreenProps) {
         })}
       />
 
-      <ScrollableScreenSurface>
+      <Scrollable>
         <View style={styles.fields}>
           <FormTextField label="Name" name="name" control={control} required />
 
@@ -143,12 +143,12 @@ function ContactScreen_(props: ContactScreenProps) {
             {current ? 'Update' : 'Add'}
           </FormSubmitButton>
         </Actions>
-      </ScrollableScreenSurface>
+      </Scrollable>
     </Pane>
   );
 }
 
-const styles = StyleSheet.create({
+const styles = createStyles({
   fields: {
     gap: 16,
     margin: 16,
