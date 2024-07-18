@@ -1,4 +1,5 @@
 ---
+slug: /privacy
 categories:
   - Legal
 ---

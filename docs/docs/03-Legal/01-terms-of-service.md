@@ -1,4 +1,5 @@
 ---
+slug: /terms-of-service
 categories:
   - Legal
 ---
@@ -11,7 +12,7 @@ categories:
 
 These Terms of Service ("Terms") govern your access to and use of the Zallo Labs Pty Ltd ("us", "we", or "our") Services, including but not limited to our website (https://zallo.io), its subdomains, and our app.
 
-By using our Services, you agree to be bound by the Terms and our [Privacy Policy](./03-privacy.md).
+By using our Services, you agree to be bound by the Terms and our [Privacy Policy](./02-privacy.md).
 
 ## 2. User responsibility and key management
 
