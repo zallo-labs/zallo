@@ -10,7 +10,6 @@ import { Menu } from 'react-native-paper';
 import { AppbarOptions } from '#/Appbar/AppbarOptions';
 import { withSuspense } from '#/skeleton/withSuspense';
 import { ScreenSkeleton } from '#/skeleton/ScreenSkeleton';
-import { ScrollableScreenSurface } from '#/layout/ScrollableScreenSurface';
 import { z } from 'zod';
 import { zHex, zUAddress } from '~/lib/zod';
 import { useLocalParams } from '~/hooks/useLocalParams';
@@ -18,16 +17,19 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { ListItem } from '#/list/ListItem';
 import { CHAINS } from 'chains';
 import { View } from 'react-native';
-import { createStyles } from '@theme/styles';
+import { createStyles, useStyles } from '@theme/styles';
 import { Button } from '#/Button';
 import { ExternalLinkIcon, GenericTokenIcon } from '@theme/icons';
 import { ICON_SIZE } from '@theme/paper';
-import { graphql, ROOT_ID } from 'relay-runtime';
+import { graphql } from 'relay-runtime';
 import { useLazyLoadQuery } from 'react-relay';
 import { useUpsertToken } from '~/hooks/mutations/useUpsertToken';
 import { Address_TokenScreenQuery } from '~/api/__generated__/Address_TokenScreenQuery.graphql';
 import { useRemoveToken } from '~/hooks/mutations/useRemoveToken';
-import { useInvalidateQueryOn, useQuery } from '~/api/useQuery';
+import { useInvalidateQueryOn } from '~/api/useQuery';
+import { Scrollable } from '#/Scrollable';
+import { Pane } from '#/layout/Pane';
+import { ItemList } from '#/layout/ItemList';
 
 const PYTH_PRICE_FEEDS_URL = 'https://pyth.network/developers/price-feed-ids';
 
@@ -68,6 +70,7 @@ const TokenScreenParams = z.object({ address: zUAddress() });
 
 function TokenScreen_() {
   const { address: token } = useLocalParams(TokenScreenParams);
+  const { styles } = useStyles(stylesheet);
   const router = useRouter();
   const chain = asChain(token);
 
@@ -90,7 +93,7 @@ function TokenScreen_() {
   const iconValid = !!tryOrIgnore(() => icon && new URL(icon));
 
   return (
-    <>
+    <Pane flex>
       <AppbarOptions
         headline="Token"
         {...(query.token?.userOwned && {
@@ -110,19 +113,23 @@ function TokenScreen_() {
         })}
       />
 
-      <ScrollableScreenSurface contentContainerStyle={styles.sheet}>
-        <ListItem
-          leading={
-            icon && iconValid ? (
-              <Image source={[{ uri: icon }]} style={styles.icon} />
-            ) : (
-              GenericTokenIcon
-            )
-          }
-          headline={`${name || 'Token'} (${symbol || 'TKN'})`}
-          supporting={asAddress(token)}
-          trailing={CHAINS[chain].name}
-        />
+      <Scrollable contentContainerStyle={styles.sheet}>
+        <ItemList>
+          <ListItem
+            leading={
+              icon && iconValid ? (
+                <Image source={[{ uri: icon }]} style={styles.icon} />
+              ) : (
+                GenericTokenIcon
+              )
+            }
+            headline={`${name || 'Token'} (${symbol || 'TKN'})`}
+            supporting={asAddress(token)}
+            trailing={CHAINS[chain].name}
+            containerStyle={styles.item}
+          />
+        </ItemList>
+
         <View style={styles.fields}>
           <FormTextField label="Name" name="name" placeholder="Token name" control={control} />
 
@@ -167,14 +174,17 @@ function TokenScreen_() {
             {query.token ? 'Update' : 'Add'}
           </FormSubmitButton>
         </Actions>
-      </ScrollableScreenSurface>
-    </>
+      </Scrollable>
+    </Pane>
   );
 }
 
-const styles = createStyles({
+const stylesheet = createStyles(({ colors }) => ({
   sheet: {
     paddingTop: 8,
+  },
+  item: {
+    backgroundColor: colors.surface,
   },
   fields: {
     marginVertical: 16,
@@ -185,7 +195,7 @@ const styles = createStyles({
     width: ICON_SIZE.medium,
     height: ICON_SIZE.medium,
   },
-});
+}));
 
 export default withSuspense(TokenScreen_, <ScreenSkeleton />);
 
