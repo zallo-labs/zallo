@@ -26,7 +26,6 @@ import { useLazyLoadQuery } from 'react-relay';
 import { useUpsertToken } from '~/hooks/mutations/useUpsertToken';
 import { Address_TokenScreenQuery } from '~/api/__generated__/Address_TokenScreenQuery.graphql';
 import { useRemoveToken } from '~/hooks/mutations/useRemoveToken';
-import { useInvalidateQueryOn } from '~/api/useQuery';
 import { Scrollable } from '#/Scrollable';
 import { Pane } from '#/layout/Pane';
 import { ItemList } from '#/layout/ItemList';
@@ -79,7 +78,6 @@ function TokenScreen_() {
   const remove = useRemoveToken({ query });
 
   const t = query.token ?? query.metadata;
-  useInvalidateQueryOn(Query, [t?.id].filter(Boolean));
   const { control, handleSubmit, watch, reset } = useForm<z.infer<typeof scheme>>({
     resolver: zodResolver(scheme),
     defaultValues: {
