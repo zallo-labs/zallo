@@ -10,7 +10,7 @@ export const EXPOSED_ABI = exposedArtifact.abi;
 
 export const ACCOUNT_IMPLEMENTATION = {
   address: addresses({
-    'zksync-sepolia': '0x1422336652eDFD915237bC6F40160FAccA993FEA',
+    'zksync-sepolia': '0x990C247374eDf1d8F973CBE350d2D98F59Df4C19',
   }),
 } as const;
 
