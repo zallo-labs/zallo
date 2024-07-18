@@ -80,13 +80,18 @@ function ContactScreen_(props: ContactScreenProps) {
   });
 
   const submit = handleSubmit(async (input) => {
+    reset(input);
+
     const { name, address, chain } = input;
+    const uaddress = asUAddress(address, chain);
     await upsert({
       name,
-      address: asUAddress(address, chain),
+      address: uaddress,
       previousAddress: current?.address,
     });
-    reset(input);
+
+    if (current?.address !== uaddress)
+      router.replace({ pathname: `/(nav)/contacts/[address]`, params: { address: uaddress } });
   });
 
   return (
