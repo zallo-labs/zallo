@@ -62,8 +62,8 @@ module default {
 
     constraint exclusive on ((.proposal, .approver));
 
-    access policy anyone_select allow select
-      using (true);
+    access policy members_select allow select
+      using (is_member(.proposal.account));
 
     access policy user_all allow all
       using (.approver ?= global current_approver or .approver.user ?= global current_user);
