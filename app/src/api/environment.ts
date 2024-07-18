@@ -13,7 +13,7 @@ import { getAuthManager } from './auth-manager';
 import { mapExchange } from './network/map';
 import { missingFieldHandlers } from './field-handlers';
 import { persistedQueryExchange } from './network/persistedQuery';
-import { retryExchange } from './network/retry';
+import { exponentialBackoffDelayWithJitter, retryExchange } from './network/retry';
 import { PersitedRecordSource } from './PersistedRecordSource';
 
 const environmentAtom = atom(async (get) => {
@@ -49,6 +49,7 @@ export async function getEnvironment({ key, approver, persist }: EnvironmentConf
     },
   });
 
+  const retries = 8;
   const network = createNetworkLayer({
     store,
     exchanges: [
@@ -58,7 +59,7 @@ export async function getEnvironment({ key, approver, persist }: EnvironmentConf
         onGraphQLError: (result) => console.error('[GraphQL Error]', result),
         onNetworkError: (result) => console.error('[Network Error]', result),
       }),
-      retryExchange(),
+      retryExchange({ maxAttempts: retries }),
       authExchange(authManager),
       persistedQueryExchange(),
       fetchExchange({ url: `${CONFIG.apiUrl}/graphql` }),
@@ -66,7 +67,11 @@ export async function getEnvironment({ key, approver, persist }: EnvironmentConf
         createClient({
           url: CONFIG.apiGqlWs,
           lazy: true,
-          retryAttempts: 15,
+          retryAttempts: retries,
+          retryWait: (retries: number) =>
+            new Promise((resolve) =>
+              setTimeout(resolve, exponentialBackoffDelayWithJitter(retries)),
+            ),
           connectionParams: () => authManager.getAuthHeaders(undefined, undefined),
         }),
       ),
