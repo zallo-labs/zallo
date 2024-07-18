@@ -13,7 +13,7 @@ import { AppbarHeader } from '#/Appbar/AppbarHeader';
 import { withSuspense } from '#/skeleton/withSuspense';
 import { Splash } from '#/Splash';
 import { graphql } from 'relay-runtime';
-import { useLazyLoadQuery } from 'react-relay';
+import { useLazyQuery } from '~/api';
 import { Layout_AccountLayoutQuery } from '~/api/__generated__/Layout_AccountLayoutQuery.graphql';
 
 // Must use Query.accounts to avoid potential redirect loop with LandingScreen
@@ -37,7 +37,7 @@ export function AccountLayout() {
   const params = useLocalSearchParams();
   const router = useRouter();
 
-  const found = !!useLazyLoadQuery<Layout_AccountLayoutQuery>(Query, {}).accounts.find(
+  const found = !!useLazyQuery<Layout_AccountLayoutQuery>(Query, {}).accounts.find(
     (a) => a.address === account,
   );
 

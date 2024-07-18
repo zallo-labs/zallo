@@ -33,7 +33,6 @@ const requestFetchPolicy = atomFamily((requestId: RequestIdentifier) =>
 
     const lastUpdated = get(ttlLastUpdated);
     get(updateTtlEffect);
-    console.log({ lastFetched, lastUpdated });
 
     return lastFetched < lastUpdated - TTL ? 'store-and-network' : 'store-or-network';
   }),

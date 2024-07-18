@@ -7,7 +7,7 @@ import { View } from 'react-native';
 import { Text } from 'react-native-paper';
 import QRCode from 'react-native-qrcode-svg';
 import { mq } from 'react-native-unistyles';
-import { useLazyLoadQuery } from 'react-relay';
+import { useLazyQuery } from '~/api';
 import { graphql } from 'relay-runtime';
 import { OnboardLinkingPaneQuery } from '~/api/__generated__/OnboardLinkingPaneQuery.graphql';
 import { CONFIG } from '~/util/config';
@@ -26,7 +26,7 @@ export function OnboardLinkingPane() {
 
   const [qrSize, setQrSize] = useState(0);
 
-  const { user } = useLazyLoadQuery<OnboardLinkingPaneQuery>(Query, {});
+  const { user } = useLazyQuery<OnboardLinkingPaneQuery>(Query, {});
   const link = useLinkingTokenUrl({ user });
 
   return (

@@ -11,8 +11,9 @@ import { Appbar } from '#/Appbar/Appbar';
 import { CreateAccount } from '#/CreateAccount';
 import { withSuspense } from '#/skeleton/withSuspense';
 import { OnboardMainPane } from '#/onboard/OnboardMainPane';
-import { graphql, useLazyLoadQuery } from 'react-relay';
+import { graphql } from 'react-relay';
 import { account_AccountOnboardingQuery } from '~/api/__generated__/account_AccountOnboardingQuery.graphql';
+import { useLazyQuery } from '~/api';
 
 const Query = graphql`
   query account_AccountOnboardingQuery {
@@ -27,7 +28,7 @@ function AccountOnboardingScreen() {
   const router = useRouter();
   const setSelected = useSetSelectedAccont();
 
-  const { accounts } = useLazyLoadQuery<account_AccountOnboardingQuery>(Query, {});
+  const { accounts } = useLazyQuery<account_AccountOnboardingQuery>(Query, {});
 
   const next = useCallback(
     (account: UAddress) => {

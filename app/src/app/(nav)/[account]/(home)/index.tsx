@@ -16,8 +16,8 @@ import { FlatList, View } from 'react-native';
 import { CORNER } from '@theme/paper';
 import { ITEM_LIST_GAP } from '#/layout/ItemList';
 import { graphql } from 'relay-runtime';
-import { useLazyLoadQuery } from 'react-relay';
 import { HomePaneQuery } from '~/api/__generated__/HomePaneQuery.graphql';
+import { useLazyQuery } from '~/api/useLazyQuery';
 
 const Query = graphql`
   query HomePaneQuery($account: UAddress!, $chain: Chain!) {
@@ -49,7 +49,7 @@ function HomePane_() {
   const { styles } = useStyles(stylesheet);
   const address = useLocalParams(AccountParams).account;
   const chain = asChain(address);
-  const { account, user, tokens } = useLazyLoadQuery<HomePaneQuery>(Query, {
+  const { account, user, tokens } = useLazyQuery<HomePaneQuery>(Query, {
     account: address,
     chain,
   });

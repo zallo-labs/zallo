@@ -1,4 +1,4 @@
-import { useLazyLoadQuery } from 'react-relay';
+import { useLazyQuery } from '~/api';
 import { graphql } from 'relay-runtime';
 import { useAccountCreatedSubscription } from './useAccountCreatedSubscription';
 import {
@@ -13,7 +13,7 @@ import { useProposalAddedSubscription } from './useProposalAddedSubscription';
 
 export function GlobalSubscriptions() {
   const selectedAccount = useSelectedAccount();
-  const query = useLazyLoadQuery<GlobalSubscriptionsQuery>(
+  const query = useLazyQuery<GlobalSubscriptionsQuery>(
     graphql`
       query GlobalSubscriptionsQuery($account: UAddress!, $skipAccount: Boolean!) {
         account(address: $account) @skip(if: $skipAccount) {

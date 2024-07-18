@@ -22,7 +22,7 @@ import { ScrollableScreenSurface } from '#/layout/ScrollableScreenSurface';
 import Decimal from 'decimal.js';
 import { ampli } from '~/lib/ampli';
 import { graphql } from 'relay-runtime';
-import { useLazyLoadQuery } from 'react-relay';
+import { useLazyQuery } from '~/api';
 import { send_SendScreenQuery } from '~/api/__generated__/send_SendScreenQuery.graphql';
 
 const Query = graphql`
@@ -62,7 +62,7 @@ function SendScreen() {
   const selectToken = useSelectToken();
   const selectedToken = useSelectedToken(chain);
 
-  const { token, account } = useLazyLoadQuery<send_SendScreenQuery>(Query, {
+  const { token, account } = useLazyQuery<send_SendScreenQuery>(Query, {
     account: accountAddress,
     token: selectedToken,
   });

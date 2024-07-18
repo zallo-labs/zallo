@@ -17,7 +17,7 @@ import { DappHeader } from '#/walletconnect/DappHeader';
 import { AccountSection } from '#/proposal/AccountSection';
 import { useRemoveMessage } from '#/message/useRemoveMessage';
 import { graphql } from 'relay-runtime';
-import { useLazyLoadQuery } from 'react-relay';
+import { useLazyQuery } from '~/api';
 import { Id_MessageScreenQuery } from '~/api/__generated__/Id_MessageScreenQuery.graphql';
 
 const Query = graphql`
@@ -53,7 +53,7 @@ const MessageScreenParams = z.object({ id: zUuid() });
 export default function MessageScreen() {
   const { id } = useLocalParams(MessageScreenParams);
 
-  const { message: m, user } = useLazyLoadQuery<Id_MessageScreenQuery>(Query, { id });
+  const { message: m, user } = useLazyQuery<Id_MessageScreenQuery>(Query, { id });
   const remove = useRemoveMessage({ account: m.account, message: m });
 
   return (

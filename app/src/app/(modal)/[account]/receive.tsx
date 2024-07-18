@@ -4,7 +4,7 @@ import { Button } from '#/Button';
 import { QrModal } from '#/QrModal';
 import { useLocalParams } from '~/hooks/useLocalParams';
 import { graphql } from 'relay-runtime';
-import { useLazyLoadQuery } from 'react-relay';
+import { useLazyQuery } from '~/api';
 import { receive_ReceiveModalQuery } from '~/api/__generated__/receive_ReceiveModalQuery.graphql';
 import { useRequestTokens } from '~/hooks/mutations/useRequestTokens';
 
@@ -20,7 +20,7 @@ export default function ReceiveModal() {
   const { account } = useLocalParams(AccountParams);
   const requestTokens = useRequestTokens();
 
-  const { requestableTokens } = useLazyLoadQuery<receive_ReceiveModalQuery>(Query, {
+  const { requestableTokens } = useLazyQuery<receive_ReceiveModalQuery>(Query, {
     account,
   });
 

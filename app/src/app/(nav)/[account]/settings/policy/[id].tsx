@@ -10,7 +10,7 @@ import { PolicyDraft, PolicyDraftContext, policyAsDraft } from '~/lib/policy/pol
 import { atom } from 'jotai';
 import { PolicyPane } from '#/policy/PolicyPane';
 import { graphql } from 'relay-runtime';
-import { useLazyLoadQuery } from 'react-relay';
+import { useLazyQuery } from '~/api';
 import { Id_PolicyScreenQuery } from '~/api/__generated__/Id_PolicyScreenQuery.graphql';
 
 const Query = graphql`
@@ -52,7 +52,7 @@ function PolicyScreen() {
   const params = useLocalParams(PolicyScreenParams);
   const id = params.id !== 'add' ? params.id : undefined;
 
-  const { account, policy, user } = useLazyLoadQuery<Id_PolicyScreenQuery>(Query, {
+  const { account, policy, user } = useLazyQuery<Id_PolicyScreenQuery>(Query, {
     account: params.account,
     policy: id ?? ZERO_UUID,
     includePolicy: !!id,

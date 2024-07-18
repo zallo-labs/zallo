@@ -23,7 +23,7 @@ import { SignClientTypes } from '@walletconnect/types';
 import { useDappVerification, type VerificationStatus } from '#/walletconnect/DappVerification';
 import { P, match } from 'ts-pattern';
 import { graphql } from 'relay-runtime';
-import { useLazyLoadQuery } from 'react-relay';
+import { useLazyQuery } from '~/api';
 import { Id_ConnectSessionSheetQuery } from '~/api/__generated__/Id_ConnectSessionSheetQuery.graphql';
 
 const Query = graphql`
@@ -53,7 +53,7 @@ export default function ConnectSessionSheet() {
   const chains = sessionChains(proposal);
   const verification = useDappVerification(id);
 
-  const accounts = useLazyLoadQuery<Id_ConnectSessionSheetQuery>(Query, {}).accounts.filter((a) =>
+  const accounts = useLazyQuery<Id_ConnectSessionSheetQuery>(Query, {}).accounts.filter((a) =>
     chains.includes(a.chain),
   );
   const [selected, updateSelected] = useImmer(new Set([useSelectedAccount()].filter(Boolean)));

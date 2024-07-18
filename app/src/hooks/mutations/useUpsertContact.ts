@@ -26,6 +26,7 @@ export function useUpsertContact(params: UpsertContactParams) {
       fragment useUpsertContact_query on Query {
         contacts(input: { query: null }) {
           id
+          address
           ...useUpsertContact_assignable_contact
         }
       }
@@ -77,7 +78,9 @@ export function useUpsertContact(params: UpsertContactParams) {
         optimisticResponse: {
           upsertContact: {
             __typename: 'Contact',
-            id: randomUUID(),
+            id:
+              contacts.find((c) => c.address === (input.previousAddress || input.address))?.id ??
+              randomUUID(),
             address: input.address,
             name: input.name,
           },

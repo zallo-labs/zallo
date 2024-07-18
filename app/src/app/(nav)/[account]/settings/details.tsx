@@ -10,7 +10,7 @@ import { AccountNameFormField } from '#/fields/AccountNameFormField';
 import { Actions } from '#/layout/Actions';
 import { FormSubmitButton } from '#/fields/FormSubmitButton';
 import { graphql } from 'relay-runtime';
-import { useLazyLoadQuery } from 'react-relay';
+import { useLazyQuery } from '~/api';
 import { details_AccountDetailsQuery } from '~/api/__generated__/details_AccountDetailsQuery.graphql';
 import { useMutation } from '~/api';
 import { details_AccountDetailsMutation } from '~/api/__generated__/details_AccountDetailsMutation.graphql';
@@ -42,7 +42,7 @@ export default function AccountDetails() {
   const { account } = useLocalParams(AccountSettingsParams);
   const update = useMutation<details_AccountDetailsMutation>(Update);
 
-  const a = useLazyLoadQuery<details_AccountDetailsQuery>(Query, { account }).account;
+  const a = useLazyQuery<details_AccountDetailsQuery>(Query, { account }).account;
 
   const { control, handleSubmit, reset } = useForm<Inputs>({ defaultValues: { name: a?.name } });
 

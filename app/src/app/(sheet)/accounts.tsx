@@ -10,7 +10,7 @@ import { PressableOpacity } from '#/PressableOpacity';
 import { View } from 'react-native';
 import { AddIcon, QrCodeIcon } from '@theme/icons';
 import { graphql } from 'relay-runtime';
-import { useLazyLoadQuery } from 'react-relay';
+import { useLazyQuery } from '~/api';
 import { accounts_AccountsSheetQuery } from '~/api/__generated__/accounts_AccountsSheetQuery.graphql';
 
 const Query = graphql`
@@ -29,7 +29,7 @@ export default function AccountsSheet() {
   const router = useRouter();
   const selectedAddress = useSelectedAccount();
 
-  const { accounts } = useLazyLoadQuery<accounts_AccountsSheetQuery>(Query, {});
+  const { accounts } = useLazyQuery<accounts_AccountsSheetQuery>(Query, {});
 
   const goBackOnClose = useRef(true);
 

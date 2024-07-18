@@ -10,7 +10,7 @@ import {
 } from '#/NotificationSettings';
 import { retryAsync } from '~/util/retry';
 import { graphql } from 'relay-runtime';
-import { useLazyLoadQuery } from 'react-relay';
+import { useLazyQuery } from '~/api';
 import { NotificationsRegistrarQuery } from '~/api/__generated__/NotificationsRegistrarQuery.graphql';
 import { useMutation } from '~/api';
 
@@ -57,7 +57,7 @@ export const NotificationsRegistrar = () => {
   const channelEnabled = useNotificationSettings();
   const updatePushToken = useMutation(UpdatePushToken);
 
-  const { approver, accounts } = useLazyLoadQuery<NotificationsRegistrarQuery>(Query, {});
+  const { approver, accounts } = useLazyQuery<NotificationsRegistrarQuery>(Query, {});
 
   const hasPermission = Notifications.usePermissions()[0]?.granted;
 

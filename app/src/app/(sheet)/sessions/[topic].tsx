@@ -19,7 +19,7 @@ import { UAddress } from 'lib';
 import { AccountsList } from '#/walletconnect/AccountsList';
 import _ from 'lodash';
 import { graphql } from 'relay-runtime';
-import { useLazyLoadQuery } from 'react-relay';
+import { useLazyQuery } from '~/api';
 import { Topic_SessionDetailsSheetQuery } from '~/api/__generated__/Topic_SessionDetailsSheetQuery.graphql';
 
 const Query = graphql`
@@ -43,8 +43,8 @@ export default function SessionDetailsSheet() {
   const session = Object.values(client.getActiveSessions()).find((p) => p.pairingTopic === topic);
   const chains = sessionChains(session);
 
-  const accounts = useLazyLoadQuery<Topic_SessionDetailsSheetQuery>(Query, {}).accounts.filter(
-    (a) => chains.includes(a.chain),
+  const accounts = useLazyQuery<Topic_SessionDetailsSheetQuery>(Query, {}).accounts.filter((a) =>
+    chains.includes(a.chain),
   );
 
   const [selected, _updateSelected] = useImmer<Set<UAddress>>(

@@ -21,7 +21,7 @@ import { NoActivity } from '#/activity/NoActivity';
 import { ListHeader } from '#/list/ListHeader';
 import { DateTime } from 'luxon';
 import { graphql } from 'relay-runtime';
-import { useLazyLoadQuery } from 'react-relay';
+import { useLazyQuery } from '~/api';
 import {
   activity_ActivityPaneQuery,
   activity_ActivityPaneQuery$data,
@@ -64,7 +64,7 @@ function ActivityPane_() {
   const { styles } = useStyles(stylesheet);
   const { account } = useLocalParams(AccountParams);
 
-  const { account: a, user } = useLazyLoadQuery<activity_ActivityPaneQuery>(Query, { account });
+  const { account: a, user } = useLazyQuery<activity_ActivityPaneQuery>(Query, { account });
 
   const items = [...(a?.proposals ?? []), ...(a?.transfers ?? [])]
     .map((v) => ({ ...v, section: getItemSection(v), timestamp: asDateTime(v.timestamp) }))

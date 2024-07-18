@@ -22,7 +22,7 @@ import { Button } from '#/Button';
 import { ExternalLinkIcon, GenericTokenIcon } from '@theme/icons';
 import { ICON_SIZE } from '@theme/paper';
 import { graphql } from 'relay-runtime';
-import { useLazyLoadQuery } from 'react-relay';
+import { useLazyQuery } from '~/api';
 import { useUpsertToken } from '~/hooks/mutations/useUpsertToken';
 import { Address_TokenScreenQuery } from '~/api/__generated__/Address_TokenScreenQuery.graphql';
 import { useRemoveToken } from '~/hooks/mutations/useRemoveToken';
@@ -73,7 +73,7 @@ function TokenScreen_() {
   const router = useRouter();
   const chain = asChain(token);
 
-  const query = useLazyLoadQuery<Address_TokenScreenQuery>(Query, { token, chain });
+  const query = useLazyQuery<Address_TokenScreenQuery>(Query, { token, chain });
   const upsert = useUpsertToken({ query });
   const remove = useRemoveToken({ query });
 

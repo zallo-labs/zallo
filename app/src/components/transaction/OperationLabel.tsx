@@ -3,13 +3,14 @@ import { useAddressLabel } from '../address/AddressLabel';
 import { Chain } from 'chains';
 import { asUAddress } from 'lib';
 import { graphql } from 'relay-runtime';
-import { useFragment, useLazyLoadQuery } from 'react-relay';
+import { useFragment } from 'react-relay';
 import { OperationLabel_PolicyQuery } from '~/api/__generated__/OperationLabel_PolicyQuery.graphql';
 import {
   OperationLabel_operation$data,
   OperationLabel_operation$key,
 } from '~/api/__generated__/OperationLabel_operation.graphql';
 import { useLazyTokenAmount } from '#/token/useLazyTokenAmount';
+import { useLazyQuery } from '~/api';
 
 const Operation = graphql`
   fragment OperationLabel_operation on Operation {
@@ -91,7 +92,7 @@ interface PropsFor<
 
 function UpdatePolicyOp({ f, chain }: PropsFor<'UpdatePolicyOp'>) {
   return `Update policy: ${
-    useLazyLoadQuery<OperationLabel_PolicyQuery>(PolicyQuery, {
+    useLazyQuery<OperationLabel_PolicyQuery>(PolicyQuery, {
       input: { account: asUAddress(f.account, chain), key: f.key },
     }).policy?.name
   }`;
@@ -99,7 +100,7 @@ function UpdatePolicyOp({ f, chain }: PropsFor<'UpdatePolicyOp'>) {
 
 function RemovePolicyOp({ f, chain }: PropsFor<'RemovePolicyOp'>) {
   return `Remove policy: ${
-    useLazyLoadQuery<OperationLabel_PolicyQuery>(PolicyQuery, {
+    useLazyQuery<OperationLabel_PolicyQuery>(PolicyQuery, {
       input: { account: asUAddress(f.account, chain), key: f.key },
     }).policy?.name
   }`;

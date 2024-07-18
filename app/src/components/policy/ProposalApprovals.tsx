@@ -5,12 +5,13 @@ import { SelectedPolicy } from '#/transaction/SelectedPolicy';
 import { PendingApprovalItem } from '#/transaction/PendingApprovalItem';
 import { RejectionItem } from '#/transaction/RejectionItem';
 import { withSuspense } from '#/skeleton/withSuspense';
-import { memo, useMemo } from 'react';
+import { useMemo } from 'react';
 import { ListItemSkeleton } from '#/list/ListItemSkeleton';
 import { graphql } from 'relay-runtime';
-import { useFragment, useLazyLoadQuery, useSubscription } from 'react-relay';
+import { useFragment, useSubscription } from 'react-relay';
 import { ProposalApprovalsQuery } from '~/api/__generated__/ProposalApprovalsQuery.graphql';
 import { ProposalApprovals_proposal$key } from '~/api/__generated__/ProposalApprovals_proposal.graphql';
+import { useLazyQuery } from '~/api';
 
 const Proposal = graphql`
   fragment ProposalApprovals_proposal on Proposal {
@@ -82,7 +83,7 @@ export interface PolicyTabProps {
 }
 
 function ProposalApprovals_({ proposal: id }: PolicyTabProps) {
-  const data = useLazyLoadQuery<ProposalApprovalsQuery>(Query, { proposal: id });
+  const data = useLazyQuery<ProposalApprovalsQuery>(Query, { proposal: id });
   const p = useFragment<ProposalApprovals_proposal$key>(Proposal, data.proposal);
   const user = data.user;
 

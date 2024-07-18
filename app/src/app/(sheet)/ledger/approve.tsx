@@ -18,7 +18,7 @@ import { Subject, firstValueFrom, skip } from 'rxjs';
 import { useGetEvent } from '~/hooks/useGetEvent';
 import { createStyles, useStyles } from '@theme/styles';
 import { graphql } from 'relay-runtime';
-import { useLazyLoadQuery } from 'react-relay';
+import { useLazyQuery } from '~/api';
 import { approve_LedgerApproveSheetQuery } from '~/api/__generated__/approve_LedgerApproveSheetQuery.graphql';
 
 const RejectedIcon = materialIcon('error-outline');
@@ -77,7 +77,7 @@ export default function LedgerApproveSheet() {
   const params = useLocalParams(LedgerApproveParams);
   const { styles } = useStyles(stylesheet);
 
-  const { approver } = useLazyLoadQuery<approve_LedgerApproveSheetQuery>(Query, {
+  const { approver } = useLazyQuery<approve_LedgerApproveSheetQuery>(Query, {
     approver: params.device as Address,
     skip: !isAddress(params.device),
   });

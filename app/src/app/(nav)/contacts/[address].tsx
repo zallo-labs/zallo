@@ -22,7 +22,7 @@ import { Pane } from '#/layout/Pane';
 import { FormChainSelector } from '#/fields/FormChainSelector';
 import { PaneSkeleton } from '#/skeleton/PaneSkeleton';
 import { graphql } from 'relay-runtime';
-import { useLazyLoadQuery } from 'react-relay';
+import { useLazyQuery } from '~/api';
 import { Address_ContactScreenQuery } from '~/api/__generated__/Address_ContactScreenQuery.graphql';
 import { useUpsertContact } from '~/hooks/mutations/useUpsertContact';
 import { useRemoveContact } from '~/hooks/mutations/useRemoveContact';
@@ -62,7 +62,7 @@ function ContactScreen_(props: ContactScreenProps) {
   const selectedChain = useSelectedChain();
 
   const existingAddress = tryAsUAddress(props.address, props.chain);
-  const query = useLazyLoadQuery<Address_ContactScreenQuery>(Query, {
+  const query = useLazyQuery<Address_ContactScreenQuery>(Query, {
     address: existingAddress ?? `zksync:${ZERO_ADDR}`,
     include: !!existingAddress,
   });

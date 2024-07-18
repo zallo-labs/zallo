@@ -5,7 +5,7 @@ import * as Sentry from '@sentry/react-native';
 import { ampli } from '~/lib/ampli';
 import { CONFIG } from '~/util/config';
 import { graphql } from 'relay-runtime';
-import { useLazyLoadQuery } from 'react-relay';
+import { useLazyQuery } from '~/api';
 import { AnalyticsQuery } from '~/api/__generated__/AnalyticsQuery.graphql';
 
 ampli.load({
@@ -32,7 +32,7 @@ export function Analytics() {
 
   const previousPathname = useRef<string>();
 
-  const userId = useLazyLoadQuery<AnalyticsQuery>(Query, {}).user.id;
+  const userId = useLazyQuery<AnalyticsQuery>(Query, {}).user.id;
 
   useEffect(() => {
     ampli.identify(userId, { device_id: approver });

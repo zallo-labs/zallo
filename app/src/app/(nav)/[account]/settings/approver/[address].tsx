@@ -18,7 +18,7 @@ import { useSetAtom } from 'jotai';
 import { ApproverPolicies } from '#/approver/ApproverPolicies';
 import { Scrollable } from '#/Scrollable';
 import { graphql } from 'relay-runtime';
-import { useLazyLoadQuery } from 'react-relay';
+import { useLazyQuery } from '~/api';
 import { Address_ApproverSettingsQuery } from '~/api/__generated__/Address_ApproverSettingsQuery.graphql';
 import { asChain } from 'lib';
 import { ScreenSkeleton } from '#/skeleton/ScreenSkeleton';
@@ -55,7 +55,7 @@ function ApproverSettingsScreen() {
   const { address } = params;
   const showSheet = useSetAtom(SIDE_SHEET);
 
-  const { account, approver, user } = useLazyLoadQuery<Address_ApproverSettingsQuery>(Query, {
+  const { account, approver, user } = useLazyQuery<Address_ApproverSettingsQuery>(Query, {
     account: params.account,
     approver: address,
   });

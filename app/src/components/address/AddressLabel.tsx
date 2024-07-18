@@ -1,5 +1,5 @@
 import { UAddress } from 'lib';
-import { useLazyLoadQuery } from 'react-relay';
+import { useLazyQuery } from '~/api';
 import { graphql } from 'relay-runtime';
 import { AddressLabelQuery } from '~/api/__generated__/AddressLabelQuery.graphql';
 import { truncateAddr } from '~/util/format';
@@ -11,7 +11,7 @@ const Query = graphql`
 `;
 
 export const useAddressLabel = <A extends UAddress | undefined>(address: A) => {
-  const { label } = useLazyLoadQuery<AddressLabelQuery>(Query, {
+  const { label } = useLazyQuery<AddressLabelQuery>(Query, {
     address: address!,
     skip: !address,
   });

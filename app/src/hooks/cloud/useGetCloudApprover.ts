@@ -91,8 +91,6 @@ export function useGetCloudApprover() {
             ).toPromise()
           )?.approver.details;
 
-          console.log({ e });
-
           await updateApprover(
             {
               input: {

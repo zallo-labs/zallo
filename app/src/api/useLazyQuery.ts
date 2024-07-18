@@ -32,7 +32,6 @@ export function useLazyQuery<TQuery extends OperationType>(
     fetchKey: useTtlLastUpdated(),
     ...options,
   });
-  console.log(useTtlFetchPolicy(requestId));
 
   const setLastFetched = useSetRequestLastFetched(requestId);
   useEffect(() => {
