@@ -7,8 +7,12 @@ module default {
     constraint regexp(r'^[0-9a-zA-Z-]+?:0x[0-9a-fA-F]{40}$');
   }
 
+  scalar type NonEmptyStr extending str { 
+    constraint regexp(r'^\S');
+  };
+
   scalar type BoundedStr extending str {
-    constraint regexp(r'^(?![0O][xX])[^\n]{3,50}$');
+    constraint regexp(r'^(?![0oO][xX])[^\n\t]{3,50}$');
   }
 
   scalar type Bytes extending str {

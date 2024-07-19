@@ -1,7 +1,7 @@
 module default {
   abstract type Labelled {
     required address: UAddress;
-    required name: BoundedStr;
+    required name: str;
     required chain := as_chain(.address);
 
     index on (.address);
@@ -16,6 +16,7 @@ module default {
   abstract type UserLabelled extending Labelled {}
 
   type Contact extending UserLabelled {
+    overloaded required name: BoundedStr;
     user: User { 
       default := (<User>(global current_user).id);
       on target delete delete source;

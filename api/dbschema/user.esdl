@@ -45,14 +45,15 @@ module default {
 
   type Token extending UserLabelled {
     overloaded required address: UAddress;
+    overloaded required name: NonEmptyStr;
     user: User { 
       default := (<User>(global current_user).id);
       on target delete delete source;
     }
-    required symbol: BoundedStr;
+    required symbol: NonEmptyStr;
     required decimals: uint16;
     icon: Url;
-    units: array<tuple<symbol: BoundedStr, decimals: uint16>>;
+    units: array<tuple<symbol: NonEmptyStr, decimals: uint16>>;
     required isFeeToken: bool { default := false; };
     pythUsdPriceId: Bytes32;
     required property isSystem := (not exists .user);
