@@ -4,7 +4,7 @@ import { FormTextField } from '#/fields/FormTextField';
 import { Actions } from '#/layout/Actions';
 import { createStyles, useStyles } from '@theme/styles';
 import { Chain } from 'chains';
-import { asChain, asUAddress } from 'lib';
+import { asUAddress } from 'lib';
 import { useForm } from 'react-hook-form';
 import { useFragment } from 'react-relay';
 import { graphql, SelectorStoreUpdater } from 'relay-runtime';
@@ -15,6 +15,7 @@ import {
   ApproverDetailsSideSheet_UpdateMutation$data,
 } from '~/api/__generated__/ApproverDetailsSideSheet_UpdateMutation.graphql';
 import { ApproverDetailsSideSheet_approver$key } from '~/api/__generated__/ApproverDetailsSideSheet_approver.graphql';
+import { BOUND_STR_RULES } from '~/util/form.rules';
 
 const Update = graphql`
   mutation ApproverDetailsSideSheet_UpdateMutation($input: UpdateApproverInput!)
@@ -60,14 +61,9 @@ export function ApproverDetailsSideSheet(props: ApproverDetailsSideSheetProps) {
       <FormTextField
         label="Approver name"
         control={control}
-      name="name"
+        name="name"
         containerStyle={styles.field}
-        rules={{
-          required: true,
-          minLength: 1,
-          maxLength: 50,
-          pattern: { value: /\S+/, message: 'Name cannot contain only whitespace' },
-        }}
+        rules={BOUND_STR_RULES}
       />
 
       <Actions>

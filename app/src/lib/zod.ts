@@ -56,3 +56,15 @@ export function zHex(byteSize?: number) {
 export function zBool() {
   return z.enum(['true', 'false']).transform((value) => value === 'true');
 }
+
+export function zBoundStr() {
+  return z
+    .string()
+    .min(3)
+    .max(50)
+    .regex(/(?![0oO][xX])[^\n\t]{3,50}$/, 'Must not start with 0x');
+}
+
+export function zNonEmptyStr() {
+  return z.string().min(1).regex(/^\S/, 'Must not be empty');
+}

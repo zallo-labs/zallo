@@ -16,6 +16,7 @@ import { PolicySideSheet_policy$key } from '~/api/__generated__/PolicySideSheet_
 import { useMutation } from '~/api';
 import { PolicySideSheet_renameMutation } from '~/api/__generated__/PolicySideSheet_renameMutation.graphql';
 import { useRemovePolicy } from '~/hooks/mutations/useRemovePolicy';
+import { BOUND_STR_RULES } from '~/util/form.rules';
 
 const trimmed = (v: string) => v.trim();
 
@@ -88,11 +89,7 @@ export function PolicySideSheet(props: PolicySideSheetProps) {
         control={control}
         name="name"
         containerStyle={styles.field}
-        rules={{
-          required: true,
-          minLength: 1,
-          pattern: { value: /\S+/, message: 'Name cannot contain only whitespace' },
-        }}
+        rules={BOUND_STR_RULES}
       />
 
       <Actions>

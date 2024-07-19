@@ -58,6 +58,7 @@ export type scalarAssignableBy<T extends $.ScalarType> =
   T extends _default.$Url ? _default.$Url : 
   T extends _default.$UAddress ? _default.$UAddress : 
   T extends _default.$TransactionStatus ? _default.$TransactionStatus : 
+  T extends _default.$NonEmptyStr ? _default.$NonEmptyStr : 
   T extends _default.$MAC ? _default.$MAC : 
   T extends _default.$CloudProvider ? _default.$CloudProvider : 
   T extends _default.$Bytes4 ? _default.$Bytes4 : 
@@ -128,6 +129,7 @@ export type scalarCastableFrom<T extends $.ScalarType> =
   T extends _default.$Url ? _default.$Url : 
   T extends _default.$UAddress ? _default.$UAddress : 
   T extends _default.$TransactionStatus ? _default.$TransactionStatus : 
+  T extends _default.$NonEmptyStr ? _default.$NonEmptyStr : 
   T extends _default.$MAC ? _default.$MAC : 
   T extends _default.$CloudProvider ? _default.$CloudProvider : 
   T extends _default.$Bytes4 ? _default.$Bytes4 : 
@@ -427,6 +429,12 @@ type getSharedParentScalar<A, B> =
   :
   A extends _default.$TransactionStatus ?
     B extends _default.$TransactionStatus ?
+    B
+    :
+    never
+  :
+  A extends _default.$NonEmptyStr ?
+    B extends _default.$NonEmptyStr ?
     B
     :
     never
@@ -852,6 +860,12 @@ function getSharedParentScalar<A extends $.ScalarType, B extends $.ScalarType>(a
     }
   if (a.__name__ === "default::TransactionStatus") {
     if(b.__name__ === "default::TransactionStatus") {
+      return b;
+    }
+    throw new Error(`Types are not castable: ${a.__name__}, ${b.__name__}`);
+    }
+  if (a.__name__ === "default::NonEmptyStr") {
+    if(b.__name__ === "default::NonEmptyStr") {
       return b;
     }
     throw new Error(`Types are not castable: ${a.__name__}, ${b.__name__}`);

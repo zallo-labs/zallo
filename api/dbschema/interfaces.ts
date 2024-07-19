@@ -76,8 +76,8 @@ export namespace $default {
   export type AbiSource = "Verified";
   export interface Labelled extends std.$Object {
     "address": string;
-    "name": string;
     "chain": string;
+    "name": string;
   }
   export interface Account extends Labelled {
     "address": string;
@@ -136,6 +136,7 @@ export namespace $default {
   export interface UserLabelled extends Labelled {}
   export interface Contact extends UserLabelled {
     "user"?: User | null;
+    "name": string;
   }
   export interface Contract extends std.$Object {
     "functions": Function[];
@@ -255,15 +256,16 @@ export namespace $default {
     "result"?: Result | null;
   }
   export interface Token extends UserLabelled {
-    "units"?: {symbol: string, decimals: number}[] | null;
     "address": string;
-    "symbol": string;
     "decimals": number;
     "isFeeToken": boolean;
     "icon"?: string | null;
     "pythUsdPriceId"?: string | null;
     "user"?: User | null;
     "isSystem": boolean;
+    "units"?: {symbol: string, decimals: number}[] | null;
+    "name": string;
+    "symbol": string;
   }
   export interface Transaction extends Proposal {
     "maxAmount": string;
