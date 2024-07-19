@@ -3,20 +3,24 @@ import { Exchange } from './layer';
 
 export interface RetryExchangeOptions {
   maxAttempts?: number;
-  backoff?: (attempt: number) => number;
+  delay?: (attempt: number) => number;
 }
 
 export function retryExchange({
-  maxAttempts = 1,
-  backoff = (n) => 200 * 2 ** n,
+  maxAttempts = 3,
+  delay = exponentialBackoffDelayWithJitter,
 }: RetryExchangeOptions = {}): Exchange {
   return ({ forward }) =>
     (operations$) =>
       operations$.pipe(
         forward,
         retry({
-          delay: (_err, attempt) => timer(backoff(attempt)),
+          delay: (_err, retries) => timer(delay(retries)),
           count: maxAttempts,
         }),
       );
+}
+
+export function exponentialBackoffDelayWithJitter(retries: number) {
+  return 200 * 2 ** retries + Math.random() * 1000;
 }

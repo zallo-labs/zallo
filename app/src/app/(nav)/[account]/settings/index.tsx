@@ -4,7 +4,7 @@ import { Text } from 'react-native-paper';
 import { useLocalParams } from '~/hooks/useLocalParams';
 import { AccountParams } from '~/app/(nav)/[account]/_layout';
 import { createStyles, useStyles } from '@theme/styles';
-import { AddIcon, EditOutlineIcon, InfoIcon, NavigateNextIcon, UpdateIcon } from '@theme/icons';
+import { AddIcon, EditOutlineIcon, NavigateNextIcon } from '@theme/icons';
 import { ScrollView, View } from 'react-native';
 import { AccountApproverItem } from '#/account/AccountApproverItem';
 import { ListItem } from '#/list/ListItem';
@@ -23,6 +23,7 @@ import { MenuOrSearchIcon } from '#/Appbar/MenuOrSearchIcon';
 import { graphql } from 'relay-runtime';
 import { useLazyQuery } from '~/api';
 import { settings_AccountSettingsQuery } from '~/api/__generated__/settings_AccountSettingsQuery.graphql';
+import { UpgradePolicyItem } from '#/account/UpgradePolicyItem';
 
 const Query = graphql`
   query settings_AccountSettingsQuery($account: UAddress!) {
@@ -75,6 +76,7 @@ function AccountSettingsPane_() {
   const policies = a.policies
     .filter((p) => p.key !== PolicyPresetKey.upgrade)
     .sort((a, b) => a.key - b.key);
+  const upgradePolicy = a.policies.find((p) => p.key === PolicyPresetKey.upgrade);
 
   return (
     <FirstPane fixed>
@@ -156,15 +158,13 @@ function AccountSettingsPane_() {
             </Link>
           ))}
 
-          {/* TODO: link to upgrade policy docs */}
-          <ListItem
-            leading={UpdateIcon}
-            headline="Upgrade"
-            supporting="Learn more - coming soon"
-            trailing={InfoIcon}
-            containerStyle={styles.item}
-            disabled
-          />
+          {upgradePolicy && (
+            <UpgradePolicyItem
+              account={account}
+              policyKey={upgradePolicy.key}
+              containerStyle={styles.item}
+            />
+          )}
 
           <Link
             href={{

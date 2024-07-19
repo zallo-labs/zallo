@@ -1,4 +1,3 @@
-import { useRouter } from 'expo-router';
 import { useForm } from 'react-hook-form';
 import { FormTextField } from '#/fields/FormTextField';
 import { Actions } from '#/layout/Actions';
@@ -16,7 +15,7 @@ import { PolicySideSheet_account$key } from '~/api/__generated__/PolicySideSheet
 import { PolicySideSheet_policy$key } from '~/api/__generated__/PolicySideSheet_policy.graphql';
 import { useMutation } from '~/api';
 import { PolicySideSheet_renameMutation } from '~/api/__generated__/PolicySideSheet_renameMutation.graphql';
-import { PolicySideSheet_removeMutation } from '~/api/__generated__/PolicySideSheet_removeMutation.graphql';
+import { useRemovePolicy } from '~/hooks/mutations/useRemovePolicy';
 
 const trimmed = (v: string) => v.trim();
 
@@ -53,20 +52,6 @@ const Rename = graphql`
   }
 `;
 
-const Remove = graphql`
-  mutation PolicySideSheet_removeMutation($account: UAddress!, $key: PolicyKey!) {
-    removePolicy(input: { account: $account, key: $key }) {
-      id
-      draft {
-        id
-        proposal {
-          id
-        }
-      }
-    }
-  }
-`;
-
 interface Inputs {
   name: string;
 }
@@ -80,9 +65,8 @@ export function PolicySideSheet(props: PolicySideSheetProps) {
   const { styles } = useStyles(stylesheet);
   const account = useFragment(Account, props.account);
   const policy = useFragment(Policy, props.policy);
-  const router = useRouter();
   const rename = useMutation<PolicySideSheet_renameMutation>(Rename);
-  const remove = useMutation<PolicySideSheet_removeMutation>(Remove);
+  const remove = useRemovePolicy();
   const confirmRemove = useConfirmRemoval({
     title: 'Remove policy',
     message: 'Are you sure you want to remove this policy?',
@@ -118,16 +102,7 @@ export function PolicySideSheet(props: PolicySideSheetProps) {
             style={styles.removeButton}
             labelStyle={styles.removeLabel}
             onPress={async () => {
-              if (await confirmRemove()) {
-                const proposal = (await remove({ account: account.address, key: policy.key }))
-                  .removePolicy.draft?.proposal;
-
-                if (proposal)
-                  router.push({
-                    pathname: `/(nav)/transaction/[id]`,
-                    params: { id: proposal.id },
-                  });
-              }
+              if (await confirmRemove()) await remove(account.address, policy.key);
             }}
           >
             Remove policy
