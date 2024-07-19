@@ -136,7 +136,6 @@ function ActivityPane_() {
 
 const stylesheet = createStyles(({ colors }) => ({
   contentContainer: {
-    flex: 1,
     paddingBottom: 8,
   },
   item: {
