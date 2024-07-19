@@ -9,7 +9,7 @@ export type NetworkWallet = viem_.WalletClient<viem_.Transport, ChainConfig, vie
 export const CHAINS = {
   zksync: {
     ...viemChain.zkSync,
-    key: 'zksync',
+    key: 'zksync', // EIP155 shortName
     name: 'zkSync Era',
     layer1: viemChain.mainnet,
     verifyUrl: 'https://zksync2-mainnet-explorer.zksync.io/contract_verification',
@@ -18,14 +18,14 @@ export const CHAINS = {
   'zksync-sepolia': {
     ...viemChain.zkSyncSepoliaTestnet,
     key: 'zksync-sepolia',
-    name: 'zkSync Sepolia testnet',
+    name: 'zkSync Sepolia',
     layer1: viemChain.sepolia,
     verifyUrl: 'https://explorer.sepolia.era.zksync.dev/contract_verification',
   } as const,
   'zksync-local': {
     ...viemChain.zkSyncSepoliaTestnet,
     key: 'zksync-local',
-    name: 'zkSync Local testnet',
+    name: 'zkSync Local',
     /* era-test-node - https://github.com/matter-labs/era-test-node */
     id: 260,
     layer1: undefined,
