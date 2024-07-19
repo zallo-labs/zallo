@@ -21,3 +21,18 @@ export const ADDRESS_FIELD_RULES = {
   },
   validate: (v) => isAddressLike(v) || 'Must be a valid address',
 } satisfies Rules;
+
+export const BOUND_STR_RULES = {
+  minLength: {
+    value: 3,
+    message: `Must be at least ${3} characters`,
+  },
+  maxLength: {
+    value: 50,
+    message: `Must be ${50} characters or less`,
+  },
+  pattern: {
+    value: /(?![0oO][xX])[^\n\t]{3,50}$/,
+    message: 'Must not start with 0x',
+  },
+};

@@ -11,7 +11,7 @@ import { AppbarOptions } from '#/Appbar/AppbarOptions';
 import { withSuspense } from '#/skeleton/withSuspense';
 import { ScreenSkeleton } from '#/skeleton/ScreenSkeleton';
 import { z } from 'zod';
-import { zHex, zUAddress } from '~/lib/zod';
+import { zHex, zNonEmptyStr, zUAddress } from '~/lib/zod';
 import { useLocalParams } from '~/hooks/useLocalParams';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ListItem } from '#/list/ListItem';
@@ -59,8 +59,8 @@ const Query = graphql`
 `;
 
 const scheme = z.object({
-  name: z.string().min(1),
-  symbol: z.string().min(1),
+  name: zNonEmptyStr(),
+  symbol: zNonEmptyStr(),
   icon: z.union([z.string().trim().url().optional(), z.null()]),
   priceId: zHex(32).optional(),
 });
