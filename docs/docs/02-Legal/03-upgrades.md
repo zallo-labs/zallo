@@ -35,7 +35,7 @@ During the 7-day period before an automatic upgrade, you can cancel the upgrade 
 
 You can choose to opt-out of all future automatic upgrades at any time. To do this:
 - Go to your account settings
-- Locate the upgrade policy item
+- Locate the "Automatic upgrades" item
 - Long-press on this item to opt-out of future automatic upgrades
 
 ## 3. Important considerations
