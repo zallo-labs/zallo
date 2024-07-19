@@ -1,7 +1,7 @@
 import QRCode from 'react-native-qrcode-svg';
 import { Address, UAddress, asAddress, asChain, isUAddress } from 'lib';
 import { IconButton, Surface, Text } from 'react-native-paper';
-import { CloseIcon, ArrowDropDownIcon, ShareIcon, materialCommunityIcon } from '@theme/icons';
+import { CloseIcon, ShareIcon } from '@theme/icons';
 import { Actions } from '#/layout/Actions';
 import { View } from 'react-native';
 import { AddressLabel } from '#/address/AddressLabel';
@@ -11,11 +11,9 @@ import { share } from '~/lib/share';
 import { Link } from 'expo-router';
 import { createStyles, useStyles } from '@theme/styles';
 import { ReactNode, useState } from 'react';
-import { SelectChip } from './fields/SelectChip';
 import { CHAINS } from 'chains';
 import { ChainIcon } from './Identicon/ChainIcon';
-
-const UniqueAddressIcon = materialCommunityIcon('web');
+import { Chip } from './Chip';
 
 export interface QrModalProps {
   address: Address | UAddress;
@@ -25,8 +23,8 @@ export interface QrModalProps {
 export function QrModal({ address, actions }: QrModalProps) {
   const { styles } = useStyles(stylesheet);
 
-  const [mode, setMode] = useState<'address' | 'uaddress'>('address');
-  const displayed = mode === 'address' ? asAddress(address) : address;
+  const [type, setType] = useState<'cross-chain' | 'chain'>('cross-chain');
+  const displayed = type === 'chain' ? asAddress(address) : address;
   const chain = isUAddress(address) && asChain(address);
 
   return (
@@ -48,28 +46,23 @@ export function QrModal({ address, actions }: QrModalProps) {
           {chain && (
             <View style={styles.modeContainer}>
               <View style={styles.modeSelectorContainer}>
-                <SelectChip
-                  entries={[
-                    {
-                      icon: (props) => <ChainIcon chain={chain} {...props} />,
-                      title: `${CHAINS[chain].name} address`,
-                      value: 'address' as const,
-                    },
-                    {
-                      icon: UniqueAddressIcon,
-                      title: 'Unique address',
-                      value: 'uaddress' as const,
-                    },
-                  ]}
-                  value={mode}
-                  chipProps={{ elevated: true, mode: 'outlined', closeIcon: ArrowDropDownIcon }}
-                  onChange={(v) => setMode(v)}
-                />
-              </View>
+                <Chip
+                  mode={type === 'cross-chain' ? 'flat' : 'outlined'}
+                  selected={type === 'cross-chain'}
+                  onPress={() => setType('cross-chain')}
+                >
+                  Cross-chain
+                </Chip>
 
-              <Text variant="bodyLarge" style={styles.address}>
-                {mode === 'address' ? asAddress(address) : address}
-              </Text>
+                <Chip
+                  mode={type === 'chain' ? 'flat' : 'outlined'}
+                  icon={(props) => <ChainIcon chain={chain} {...props} />}
+                  selected={type === 'chain'}
+                  onPress={() => setType('chain')}
+                >
+                  {CHAINS[chain].name}
+                </Chip>
+              </View>
             </View>
           )}
 
@@ -82,6 +75,10 @@ export function QrModal({ address, actions }: QrModalProps) {
               ecl="L"
             />
           </Surface>
+
+          <Text variant="titleLarge" style={styles.address}>
+            {displayed}
+          </Text>
         </View>
 
         <Actions flex={false} style={styles.actions}>
@@ -120,18 +117,19 @@ const stylesheet = createStyles(({ colors, iconSize, corner }, { insets, screen 
   },
   modeSelectorContainer: {
     flexDirection: 'row',
-    justifyContent: 'center',
+    gap: 8,
   },
   address: {
     color: colors.inverseOnSurface,
     textAlign: 'center',
+    maxWidth: Math.min(screen.width * 0.8, screen.height * 0.6, 1024 - 96),
   },
   contentContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    gap: 32,
-    marginHorizontal: 32,
+    gap: 16,
+    marginHorizontal: 16,
   },
   qrSurface: {
     padding: 32,
@@ -139,7 +137,7 @@ const stylesheet = createStyles(({ colors, iconSize, corner }, { insets, screen 
     backgroundColor: colors.primaryContainer,
   },
   qr: {
-    fontSize: Math.min(screen.width * 0.8, screen.height * 0.6, 1024 - 96),
+    fontSize: Math.min(screen.width * 0.8, screen.height * 0.6, 1024 - 96) - 32,
     color: colors.onPrimaryContainer,
   },
   actions: {
