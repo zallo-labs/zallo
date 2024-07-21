@@ -1,10 +1,10 @@
 app = "zallo-production-edgedb"
 primary_region = "iad" # Ashburn, Virginia
 
-swap_size_mb = 4096
+swap_size_mb = 2048
 
 [build]
-  image = "edgedb/edgedb:5.6"
+  image = "edgedb/edgedb:5.4"
 
 [env]
   EDGEDB_SERVER_PORT = 10700 # default
@@ -42,13 +42,13 @@ swap_size_mb = 4096
     hard_limit = 500
 
   [[services.http_checks]]
-    interval = "10s"
-    grace_period = "60s"
     method = "get"
     path = "/server/status/alive"
     protocol = "https"
-    timeout = "2s"
     tls_skip_verify = true
+    interval = "10s"
+    grace_period = "60s"
+    timeout = "2s"
 
 [metrics]
   port = 10700
