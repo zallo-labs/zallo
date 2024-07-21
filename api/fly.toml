@@ -5,8 +5,8 @@ primary_region = "iad" # Ashburn, Virginia
   dockerfile = "Dockerfile"
 
 [deploy]
-  # Runs instead of image CMD
   release_command = "yarn db:prepare"
+  strategy = "bluegreen"
 
 [env]
   API_PORT = 3000
