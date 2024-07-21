@@ -94,6 +94,7 @@
     "jotai": "^2.8.4",
     "jotai-effect": "^1.0.0",
     "jotai-immer": "^0.4.1",
+    "jotai-scope": "^0.7.0",
     "jwt-decode": "^4.0.0",
     "lib": "workspace:*",
     "luxon": "^3.4.4",

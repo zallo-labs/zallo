@@ -1,5 +1,4 @@
 import { Searchbar } from '#/Appbar/Searchbar';
-import { FirstPane } from '#/layout/FirstPane';
 import { PaneSkeleton } from '#/skeleton/PaneSkeleton';
 import { withSuspense } from '#/skeleton/withSuspense';
 import { AccountParams } from '../../_layout';
@@ -26,6 +25,7 @@ import {
   activity_ActivityPaneQuery,
   activity_ActivityPaneQuery$data,
 } from '~/api/__generated__/activity_ActivityPaneQuery.graphql';
+import { Pane } from '#/layout/Pane';
 
 const Query = graphql`
   query activity_ActivityPaneQuery($account: UAddress!) {
@@ -78,7 +78,7 @@ function ActivityPane_() {
     });
 
   return (
-    <FirstPane flex>
+    <Pane flex>
       <FlashList
         ListHeaderComponent={
           <>
@@ -130,7 +130,7 @@ function ActivityPane_() {
         keyExtractor={(item) => (typeof item === 'string' ? item : item.id)}
         getItemType={(item) => (typeof item === 'string' ? 'section' : item.__typename)}
       />
-    </FirstPane>
+    </Pane>
   );
 }
 

@@ -1,4 +1,3 @@
-import { FirstPane } from '#/layout/FirstPane';
 import { PaneSkeleton } from '#/skeleton/PaneSkeleton';
 import { withSuspense } from '#/skeleton/withSuspense';
 import { useLocalParams } from '~/hooks/useLocalParams';
@@ -18,6 +17,7 @@ import { ITEM_LIST_GAP } from '#/layout/ItemList';
 import { graphql } from 'relay-runtime';
 import { HomePaneQuery } from '~/api/__generated__/HomePaneQuery.graphql';
 import { useLazyQuery } from '~/api/useLazyQuery';
+import { Pane } from '#/layout/Pane';
 
 const Query = graphql`
   query HomePaneQuery($account: UAddress!, $chain: Chain!) {
@@ -62,7 +62,7 @@ function HomePane_() {
     .sort((a, b) => b.value.comparedTo(a.value));
 
   return (
-    <FirstPane flex padding={false}>
+    <Pane flex padding={false}>
       <FlatList
         contentContainerStyle={styles.container}
         ListHeaderComponent={
@@ -95,7 +95,7 @@ function HomePane_() {
         keyExtractor={(item) => item.id}
         showsVerticalScrollIndicator={false}
       />
-    </FirstPane>
+    </Pane>
   );
 }
 
