@@ -1,6 +1,6 @@
 import { MissingFieldHandler, ROOT_TYPE } from 'relay-runtime';
 
-const NODE_RESOLVERS = new Set(['node', 'proposal', 'transaction', 'message']);
+const NODE_RESOLVERS = new Set(['node', 'proposal', 'transaction', 'message', 'transfer']);
 
 export const missingFieldHandlers: MissingFieldHandler[] = [
   {

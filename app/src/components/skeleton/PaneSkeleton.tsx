@@ -1,12 +1,12 @@
 import { createStyles } from '@theme/styles';
-import { RectSkeleton } from './RectSkeleton';
-import { View } from 'react-native';
+import { Pane } from '#/layout/Pane';
+import { Splash } from '#/Splash';
 
 export function PaneSkeleton() {
   return (
-    <View style={styles.container}>
-      <RectSkeleton height="100%" />
-    </View>
+    <Pane flex>
+      <Splash />
+    </Pane>
   );
 }
 
