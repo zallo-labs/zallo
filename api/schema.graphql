@@ -604,6 +604,7 @@ type Query {
   tokenMetadata(address: UAddress!): TokenMetadata
   tokens(input: TokensInput! = {}): [Token!]!
   transaction(id: ID!): Transaction
+  transfer(id: ID!): Transferlike
   user: User!
 }
 

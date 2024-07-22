@@ -11,7 +11,6 @@ import { ListItem } from '#/list/ListItem';
 import { AddCircleIcon } from '#/AddCircleIcon';
 import { PolicyItem } from '#/policy/PolicyItem';
 import { usePath } from '#/usePath';
-import { FirstPane } from '#/layout/FirstPane';
 import { useRouteInfo, useRouter } from 'expo-router/build/hooks';
 import { ItemList } from '#/layout/ItemList';
 import { PolicySuggestions } from '#/account/PolicySuggestions';
@@ -24,6 +23,7 @@ import { graphql } from 'relay-runtime';
 import { useLazyQuery } from '~/api';
 import { settings_AccountSettingsQuery } from '~/api/__generated__/settings_AccountSettingsQuery.graphql';
 import { UpgradePolicyItem } from '#/account/UpgradePolicyItem';
+import { Pane } from '#/layout/Pane';
 
 const Query = graphql`
   query settings_AccountSettingsQuery($account: UAddress!) {
@@ -79,7 +79,7 @@ function AccountSettingsPane_() {
   const upgradePolicy = a.policies.find((p) => p.key === PolicyPresetKey.upgrade);
 
   return (
-    <FirstPane fixed>
+    <Pane fixed>
       <ScrollView contentContainerStyle={styles.pane} showsVerticalScrollIndicator={false}>
         <Searchbar
           leading={MenuOrSearchIcon}
@@ -186,7 +186,7 @@ function AccountSettingsPane_() {
           </Link>
         </ItemList>
       </ScrollView>
-    </FirstPane>
+    </Pane>
   );
 }
 

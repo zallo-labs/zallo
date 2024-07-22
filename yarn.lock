@@ -14561,6 +14561,7 @@ __metadata:
     jotai: "npm:^2.8.4"
     jotai-effect: "npm:^1.0.0"
     jotai-immer: "npm:^0.4.1"
+    jotai-scope: "npm:^0.7.0"
     jwt-decode: "npm:^4.0.0"
     lib: "workspace:*"
     luxon: "npm:^3.4.4"
@@ -25319,6 +25320,16 @@ __metadata:
     immer: ">=9.0.0"
     jotai: ">=2.0.0"
   checksum: 10/3964b55cd380f06f2a4e179104b9225fe665d41e6e1a4c526d76f3e43d46d5a3031574d4f10645a94758d6a272eb00405ed9b55b217624c24ebdf5d5696ea74d
+  languageName: node
+  linkType: hard
+
+"jotai-scope@npm:^0.7.0":
+  version: 0.7.0
+  resolution: "jotai-scope@npm:0.7.0"
+  peerDependencies:
+    jotai: ">=2.5.0"
+    react: ">=17.0.0"
+  checksum: 10/f0328cdeb76329c8b2ca5bdf204beb8f7abded661c2a839ce3d49fdb2d632a3d01d48b6c4a1ee910fc99c892f7f0c2e742106b85023d84345d949f1b4f8387e3
   languageName: node
   linkType: hard
 

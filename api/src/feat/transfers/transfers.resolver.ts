@@ -1,11 +1,11 @@
-import { Context, Parent, Resolver, Subscription } from '@nestjs/graphql';
+import { Args, Context, Info, Parent, Query, Resolver, Subscription } from '@nestjs/graphql';
 import {
   TRANSFER_VALUE_FIELDS_SHAPE,
   TransferValueSelectFields,
   TransfersService,
 } from './transfers.service';
 import { TransferSubscriptionInput } from './transfers.input';
-import { Transfer, TransferDetails } from './transfers.model';
+import { Transfer, TransferDetails, Transferlike } from './transfers.model';
 import { GraphQLResolveInfo } from 'graphql';
 import { getShape } from '~/core/database';
 import { Input, InputArgs } from '~/common/decorators/input.decorator';
@@ -16,6 +16,7 @@ import { TransferSubscriptionPayload, transferTrigger } from './transfers.events
 import { ComputedField } from '~/common/decorators/computed.decorator';
 import { DecimalScalar } from '~/common/scalars/Decimal.scalar';
 import Decimal from 'decimal.js';
+import { NodeArgs } from '../nodes/nodes.input';
 
 @Resolver(() => TransferDetails)
 export class TransfersResolver {
@@ -23,6 +24,11 @@ export class TransfersResolver {
     private service: TransfersService,
     private pubsub: PubsubService,
   ) {}
+
+  @Query(() => Transferlike, { nullable: true })
+  async transfer(@Args() { id }: NodeArgs, @Info() info: GraphQLResolveInfo) {
+    return this.service.selectUnique(id, getShape(info));
+  }
 
   @ComputedField(() => DecimalScalar, TRANSFER_VALUE_FIELDS_SHAPE, { nullable: true })
   async value(@Parent() parent: TransferValueSelectFields): Promise<Decimal | null> {

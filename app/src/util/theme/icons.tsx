@@ -41,6 +41,7 @@ export const HomeIcon = materialIcon('home');
 export const OutboundIcon = materialCommunityIcon('arrow-top-right');
 export const UserOutlineIcon = materialIcon('person-outline');
 export const ContactsIcon = materialIcon('people');
+export const ContactsOutlineIcon = materialIcon('people-outline');
 export const AddIcon = materialCommunityIcon('plus');
 export const DeleteIcon = materialCommunityIcon('delete');
 export const EditIcon = materialCommunityIcon('pencil');
@@ -89,6 +90,7 @@ export const PolicyRemoveOutlineIcon = materialCommunityIcon('shield-remove-outl
 export const TextIcon = materialCommunityIcon('text');
 export const InfoIcon = materialCommunityIcon('information-outline');
 export const ReceiveIcon = materialIcon('arrow-downward');
+export const WebIcon = materialCommunityIcon('web');
 
 export const ZalloLogo = imageFromSource(require('assets/brand/logo-l.svg'));
 export const ZalloIconMinimal = imageFromSource(require('assets/brand/icon-m.svg'));
