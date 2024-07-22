@@ -24,11 +24,11 @@ export class TransfersService {
     private prices: PricesService,
   ) {}
 
-  async selectUnique(id: uuid, shape?: ShapeFunc<typeof e.Transfer>) {
+  async selectUnique(id: uuid, shape?: ShapeFunc<typeof e.Transferlike>) {
     return this.db.queryWith(
       { id: e.uuid },
       ({ id }) =>
-        e.select(e.Transfer, (transfer) => ({
+        e.select(e.Transferlike, (transfer) => ({
           filter_single: { id },
           ...shape?.(transfer),
         })),
