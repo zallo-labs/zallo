@@ -1,9 +1,10 @@
 import { createStyles, useStyles } from '@theme/styles';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { useLayoutEffect, useRef } from 'react';
-import { View, ViewProps } from 'react-native';
+import { ViewProps } from 'react-native';
 import { PANES_MOUNTED } from './Panes';
 import { BREAKPOINTS } from '@theme/styles';
+import Animated, { FadeIn } from 'react-native-reanimated';
 
 const MAX_PANES: Record<keyof typeof BREAKPOINTS, number> = {
   compact: 1,
@@ -33,8 +34,10 @@ export function Pane({ padding = true, flex, fixed: _, ...props }: PaneProps) {
   const fixed = !flex && count !== 1;
 
   return (
-    <View
+    <Animated.View
       {...props}
+      entering={FadeIn.duration(200)}
+      // exiting depends on how the pane was removed
       style={[styles.flex, fixed && styles.fixed, padding && styles.margins, props.style]}
     />
   );
