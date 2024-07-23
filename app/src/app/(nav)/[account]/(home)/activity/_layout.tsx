@@ -1,4 +1,3 @@
-import { Panes } from '#/layout/Panes';
 import { Slot } from 'expo-router';
 import { ActivityPane } from './index';
 

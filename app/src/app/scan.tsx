@@ -13,7 +13,7 @@ import { useFocusEffect, useRouter } from 'expo-router';
 import { ScanOverlay } from '#/ScanOverlay';
 import { Subject } from 'rxjs';
 import { useGetEvent } from '~/hooks/useGetEvent';
-import { AppbarOptions } from '#/Appbar/AppbarOptions';
+import { Appbar } from '#/Appbar/Appbar';
 import { z } from 'zod';
 import { zUAddress } from '~/lib/zod';
 import { useLocalParams } from '~/hooks/useLocalParams';
@@ -92,8 +92,7 @@ export default function ScanScreen() {
     </CameraView>
   ) : (
     <View style={styles.grantContainer}>
-      <Stack.Screen options={{ headerShown: true }} />
-      <AppbarOptions headline="Camera permission required" />
+      <Appbar headline="Camera permission required" />
 
       <Text variant="headlineMedium" style={styles.grantText}>
         Please grant camera permissions in order to scan a QR code

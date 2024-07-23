@@ -1,4 +1,4 @@
-import { AppbarOptions } from '#/Appbar/AppbarOptions';
+import { Appbar } from '#/Appbar/Appbar';
 import { withSuspense } from '#/skeleton/withSuspense';
 import { ScreenSkeleton } from '#/skeleton/ScreenSkeleton';
 import { ScrollableScreenSurface } from '#/layout/ScrollableScreenSurface';
@@ -7,7 +7,7 @@ import { CreateAccount } from '#/CreateAccount';
 function CreateAccountScreen() {
   return (
     <>
-      <AppbarOptions mode="large" headline="Let's setup your account" />
+      <Appbar mode="large" headline="Let's setup your account" />
 
       <ScrollableScreenSurface>
         <CreateAccount />

@@ -7,7 +7,7 @@ import { FormTextField } from '#/fields/FormTextField';
 import { Actions } from '#/layout/Actions';
 import { AppbarMore } from '#/Appbar/AppbarMore';
 import { Menu } from 'react-native-paper';
-import { AppbarOptions } from '#/Appbar/AppbarOptions';
+import { Appbar } from '#/Appbar/Appbar';
 import { withSuspense } from '#/skeleton/withSuspense';
 import { ScreenSkeleton } from '#/skeleton/ScreenSkeleton';
 import { z } from 'zod';
@@ -92,7 +92,7 @@ function TokenScreen_() {
 
   return (
     <Pane flex>
-      <AppbarOptions
+      <Appbar
         headline="Token"
         {...(query.token?.userOwned && {
           trailing: (props) => (

@@ -1,4 +1,4 @@
-import { AppbarOptions } from '#/Appbar/AppbarOptions';
+import { Appbar } from '#/Appbar/Appbar';
 import { ScrollableScreenSurface } from '#/layout/ScrollableScreenSurface';
 import { NotificationSettings } from '#/NotificationSettings';
 import { ScreenSkeleton } from '#/skeleton/ScreenSkeleton';
@@ -8,7 +8,7 @@ import { createStyles } from '@theme/styles';
 export function NotificationSettingsScreen() {
   return (
     <>
-      <AppbarOptions mode="large" leading="menu" headline="Notifications" />
+      <Appbar mode="large" leading="menu" headline="Notifications" />
 
       <ScrollableScreenSurface style={styles.surface}>
         <NotificationSettings />

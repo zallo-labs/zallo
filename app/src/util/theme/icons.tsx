@@ -49,6 +49,7 @@ export const EditOutlineIcon = materialCommunityIcon('pencil-outline');
 export const ScanIcon = materialCommunityIcon('line-scan');
 export const ShareIcon = materialCommunityIcon('share-variant');
 export const CheckIcon = materialCommunityIcon('check');
+export const CheckAllIcon = materialCommunityIcon('check-all');
 export const CloseIcon = materialCommunityIcon('close');
 export const CancelIcon = CloseIcon;
 export const RemoveIcon = CloseIcon;

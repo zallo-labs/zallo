@@ -1,5 +1,5 @@
 import { useEffect, useLayoutEffect } from 'react';
-import { Redirect, Stack, useLocalSearchParams, useRouter } from 'expo-router';
+import { Redirect, Slot, useLocalSearchParams, useRouter } from 'expo-router';
 import {
   ErrorBoundary as BaseErrorBoundary,
   ErrorBoundaryProps,
@@ -9,7 +9,6 @@ import NotFound from '~/app/+not-found';
 import { useLocalParams } from '~/hooks/useLocalParams';
 import { useSelectedAccount, useSetSelectedAccont } from '~/hooks/useSelectedAccount';
 import { zUAddress } from '~/lib/zod';
-import { AppbarHeader } from '#/Appbar/AppbarHeader';
 import { withSuspense } from '#/skeleton/withSuspense';
 import { Splash } from '#/Splash';
 import { graphql } from 'relay-runtime';
@@ -52,12 +51,7 @@ export function AccountLayout() {
   // Redirect to the home page if account isn't found
   if (!found) return <Redirect href="/" />;
 
-  return (
-    <>
-      <Stack.Screen options={{ headerShown: false }} />
-      <Stack screenOptions={{ header: (props) => <AppbarHeader {...props} /> }} />
-    </>
-  );
+  return <Slot />;
 }
 
 export default withSuspense(AccountLayout, <Splash />);

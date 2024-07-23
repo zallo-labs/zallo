@@ -1,4 +1,4 @@
-import { AppbarOptions } from '#/Appbar/AppbarOptions';
+import { Appbar } from '#/Appbar/Appbar';
 import { FormSelectChip } from '#/fields/FormSelectChip';
 import { FormSubmitButton } from '#/fields/FormSubmitButton';
 import { FormTextField } from '#/fields/FormTextField';
@@ -31,7 +31,7 @@ export default function AddTokenScreen() {
 
   return (
     <>
-      <AppbarOptions headline="Add token" />
+      <Appbar headline="Add token" />
 
       <ScrollableScreenSurface>
         <View style={styles.container}>

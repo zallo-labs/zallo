@@ -6,7 +6,7 @@ import { Actions } from '#/layout/Actions';
 import { Button } from '#/Button';
 import { match } from 'ts-pattern';
 import { LedgerItem } from '#/link/ledger/LedgerItem';
-import { AppbarOptions } from '#/Appbar/AppbarOptions';
+import { Appbar } from '#/Appbar/Appbar';
 import { useObservable } from '~/hooks/useObservable';
 import { bleDevices } from '~/lib/ble/manager';
 import { ok } from 'neverthrow';
@@ -36,7 +36,7 @@ function LinkLedgerScreen() {
 
   return (
     <>
-      <AppbarOptions headline="Link Ledger" />
+      <Appbar headline="Link Ledger" />
 
       <ScreenSurface>
         <View style={styles.headerContainer}>

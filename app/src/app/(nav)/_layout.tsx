@@ -17,16 +17,15 @@ import {
 import { DrawerItem as Item } from '#/drawer/DrawerItem';
 import { useSelectedAccount } from '~/hooks/useSelectedAccount';
 import { CONFIG } from '~/util/config';
-import { useSend } from '~/hooks/useSend';
 import { DrawerSurface } from '#/drawer/DrawerSurface';
-import { Link, Stack } from 'expo-router';
-import { AppbarHeader } from '#/Appbar/AppbarHeader';
+import { Link, Slot, useRouter } from 'expo-router';
 import { DrawerLogo } from '#/drawer/DrawerLogo';
 import { createStyles, useStyles } from '@theme/styles';
 import { PressableOpacity } from '#/PressableOpacity';
 import { Fab } from '#/Fab';
 import { RailSurface } from '#/drawer/RailSurface';
 import { RailItem } from '#/drawer/RailItem';
+import { SendScreenParams } from './[account]/(home)/send';
 
 const Section = PaperDrawer.Section;
 
@@ -37,7 +36,7 @@ export const unstable_settings = {
 export default function DrawerLayout() {
   return (
     <Drawer DrawerContent={DrawerContent} RailContent={RailContent}>
-      <Stack screenOptions={{ header: (props) => <AppbarHeader {...props} /> }} />
+      <Slot />
     </Drawer>
   );
 }
@@ -45,7 +44,7 @@ export default function DrawerLayout() {
 function RailContent() {
   const { styles } = useStyles(railStylesheet);
   const account = useSelectedAccount();
-  const send = useSend();
+  const router = useRouter();
 
   return (
     <RailSurface
@@ -56,9 +55,13 @@ function RailContent() {
             position="relative"
             icon={() => <OutboundIcon color={styles.fabIcon.color} />}
             style={styles.fabContainer}
-            loading={false}
-            onPress={() => send({ account })}
             animated={false}
+            onPress={() =>
+              router.push({
+                pathname: `/(nav)/[account]/send`,
+                params: { account } satisfies SendScreenParams,
+              })
+            }
           />
         )
       }
@@ -111,7 +114,6 @@ const railStylesheet = createStyles(({ colors }) => ({
 
 function DrawerContent() {
   const account = useSelectedAccount();
-  const send = useSend();
 
   return (
     <DrawerSurface>
@@ -137,7 +139,6 @@ function DrawerContent() {
             href={{ pathname: `/(nav)/[account]/send`, params: { account } }}
             icon={OutboundIcon}
             label="Send"
-            onPress={() => send({ account })}
           />
         )}
 

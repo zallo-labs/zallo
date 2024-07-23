@@ -76,9 +76,6 @@ const stylesheet = createStyles(({ colors, fonts }) => {
     flexGrow: {
       [mq.only.width(0, 'medium')]: 1,
     },
-    flexBasis: {
-      [mq.only.width(0, 'medium')]: '100%',
-    },
   } as const;
 
   return {

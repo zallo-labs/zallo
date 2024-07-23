@@ -4,7 +4,7 @@ import { StyleSheet, FlatList } from 'react-native';
 import { useWalletConnect } from '~/lib/wc';
 import { PairingItem } from '#/walletconnect/PairingItem';
 import { Divider, Text } from 'react-native-paper';
-import { AppbarOptions } from '#/Appbar/AppbarOptions';
+import { Appbar } from '#/Appbar/Appbar';
 import { withSuspense } from '#/skeleton/withSuspense';
 import { ScreenSkeleton } from '#/skeleton/ScreenSkeleton';
 import { ScreenSurface } from '#/layout/ScreenSurface';
@@ -24,7 +24,7 @@ function SessionsScreen() {
 
   return (
     <>
-      <AppbarOptions mode="large" leading="menu" headline="Sessions" />
+      <Appbar mode="large" leading="menu" headline="Sessions" />
 
       <ScreenSurface>
         <FlatList
