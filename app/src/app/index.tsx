@@ -1,4 +1,4 @@
-import { ScrollView, View } from 'react-native';
+import { View } from 'react-native';
 import { createStyles, useStyles } from '@theme/styles';
 import { LandingHeader } from '#/landing/LandingHeader';
 import { PrimarySection } from '#/landing/PrimarySection';
@@ -13,6 +13,7 @@ import { ScreenSkeleton } from '#/skeleton/ScreenSkeleton';
 import { graphql } from 'relay-runtime';
 import { useLazyQuery } from '~/api';
 import { app_LandingScreenQuery } from '~/api/__generated__/app_LandingScreenQuery.graphql';
+import { Scrollable } from '#/Scrollable';
 
 // Must use Query.accounts to avoid potential redirect loop with AccountLayout
 const Query = graphql`
@@ -38,7 +39,7 @@ function LandingScreen() {
     return <Redirect href={{ pathname: `/(nav)/[account]/(home)/`, params: { account } }} />;
 
   return (
-    <ScrollView contentContainerStyle={styles.root} stickyHeaderIndices={[0]}>
+    <Scrollable contentContainerStyle={styles.root} stickyHeaderIndices={[0]}>
       <LandingHeader />
 
       <LinearGradient
@@ -50,7 +51,7 @@ function LandingScreen() {
           <PrimarySection account={account} />
         </View>
       </LinearGradient>
-    </ScrollView>
+    </Scrollable>
   );
 }
 

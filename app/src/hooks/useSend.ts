@@ -1,5 +1,5 @@
 import { useSelectAddress } from '~/hooks/useSelectAddress';
-import { SendScreenParams } from '~/app/(nav)/[account]/send';
+import { SendScreenParams } from '~/app/(nav)/[account]/(home)/send';
 import { O } from 'ts-toolbelt';
 import { useRouter } from 'expo-router';
 import { asAddress } from 'lib';
