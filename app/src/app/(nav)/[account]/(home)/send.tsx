@@ -117,7 +117,7 @@ const stylesheet = createStyles(({ colors, padding, negativeMargin }) => ({
     paddingHorizontal: padding,
   },
   inputContainer: {
-    marginVertical: 32,
+    marginVertical: 16,
   },
   sendModeChipsContainer: {
     marginHorizontal: negativeMargin,

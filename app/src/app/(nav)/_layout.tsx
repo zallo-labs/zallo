@@ -36,7 +36,7 @@ export const unstable_settings = {
 export default function DrawerLayout() {
   return (
     <Drawer DrawerContent={DrawerContent} RailContent={RailContent}>
-      <Stack screenOptions={{ header: (props) => <AppbarHeader {...props} /> }} />
+      <Slot />
     </Drawer>
   );
 }
@@ -44,7 +44,7 @@ export default function DrawerLayout() {
 function RailContent() {
   const { styles } = useStyles(railStylesheet);
   const account = useSelectedAccount();
-  const send = useSend();
+  const router = useRouter();
 
   return (
     <RailSurface
@@ -55,9 +55,13 @@ function RailContent() {
             position="relative"
             icon={() => <OutboundIcon color={styles.fabIcon.color} />}
             style={styles.fabContainer}
-            loading={false}
-            onPress={() => send({ account })}
             animated={false}
+            onPress={() =>
+              router.push({
+                pathname: `/(nav)/[account]/send`,
+                params: { account } satisfies SendScreenParams,
+              })
+            }
           />
         )
       }
@@ -110,7 +114,6 @@ const railStylesheet = createStyles(({ colors }) => ({
 
 function DrawerContent() {
   const account = useSelectedAccount();
-  const send = useSend();
 
   return (
     <DrawerSurface>
@@ -136,7 +139,6 @@ function DrawerContent() {
             href={{ pathname: `/(nav)/[account]/send`, params: { account } }}
             icon={OutboundIcon}
             label="Send"
-            onPress={() => send({ account })}
           />
         )}
 

@@ -11,6 +11,7 @@ import { ERC20 } from 'lib/dapps';
 import Decimal from 'decimal.js';
 import { CheckAllIcon } from '@theme/icons';
 import { useRouter } from 'expo-router';
+import { ampli } from '~/lib/ampli';
 
 const Account = graphql`
   fragment TransferMode_account on Account {
@@ -56,6 +57,7 @@ export function TransferMode({ to, amount, ...props }: TransferModeProps) {
         // executionGas: TODO: estimate execution gas
       });
       router.push({ pathname: `/(nav)/transaction/[id]`, params: { id: transaction } });
+      ampli.transferProposal({ token: token.address });
     });
 
   return (

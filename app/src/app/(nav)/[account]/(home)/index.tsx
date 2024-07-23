@@ -63,17 +63,17 @@ function HomePane_() {
 
   return (
     <Pane flex padding={false}>
+      <Appbar
+        leading="menu"
+        center
+        headline={<AccountSelector account={account} />}
+        style={styles.appbar}
+        noPadding
+      />
       <FlatList
         contentContainerStyle={styles.container}
         ListHeaderComponent={
           <>
-            <Appbar
-              leading="menu"
-              center
-              headline={<AccountSelector account={account} />}
-              style={styles.appbar}
-              noPadding
-            />
             <QuickActions account={address} />
             <ActivitySection account={account} user={user} />
             <AccountValue tokens={tokens} />

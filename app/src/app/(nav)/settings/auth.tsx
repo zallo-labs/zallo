@@ -1,4 +1,4 @@
-import { AppbarOptions } from '#/Appbar/AppbarOptions';
+import { Appbar } from '#/Appbar/Appbar';
 import { AuthSettings } from '#/auth/AuthSettings';
 import { ScrollableScreenSurface } from '#/layout/ScrollableScreenSurface';
 import { ScreenSkeleton } from '#/skeleton/ScreenSkeleton';
@@ -8,7 +8,7 @@ import { createStyles } from '@theme/styles';
 function AuthSettingsScreen() {
   return (
     <>
-      <AppbarOptions mode="large" leading="menu" headline="Authentication" />
+      <Appbar mode="large" leading="menu" headline="Authentication" />
 
       <ScrollableScreenSurface contentContainerStyle={styles.surface}>
         <AuthSettings />

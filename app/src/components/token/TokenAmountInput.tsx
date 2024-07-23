@@ -64,7 +64,6 @@ export function TokenAmountInput({ account, amount, onChange, ...props }: TokenA
             placeholder="0"
             placeholderTextColor={styles.placeholder.color}
             selectionColor={styles.selection.color}
-            autoFocus
           />
         </View>
 

@@ -10,12 +10,12 @@ import { zUAddress } from '~/lib/zod';
 import { useLocalParams } from '~/hooks/useLocalParams';
 import { withSuspense } from '#/skeleton/withSuspense';
 import { ScreenSkeleton } from '#/skeleton/ScreenSkeleton';
-import { SearchbarOptions } from '#/Appbar/SearchbarOptions';
 import { ScreenSurface } from '#/layout/ScreenSurface';
 import { MenuOrSearchIcon } from '#/Appbar/MenuOrSearchIcon';
 import { graphql } from 'relay-runtime';
 import { tokens_TokensScreenQuery } from '~/api/__generated__/tokens_TokensScreenQuery.graphql';
 import { useLazyQuery } from '~/api';
+import { Searchbar } from '#/Appbar/Searchbar';
 
 const Query = graphql`
   query tokens_TokensScreenQuery($account: UAddress!, $chain: Chain, $query: String) {
@@ -44,7 +44,7 @@ function TokensScreen() {
 
   return (
     <>
-      <SearchbarOptions
+      <Searchbar
         leading={MenuOrSearchIcon}
         placeholder="Search tokens"
         trailing={(props) => <AddIcon {...props} onPress={() => router.push(`/token/add`)} />}

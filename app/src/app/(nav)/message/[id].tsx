@@ -3,7 +3,7 @@ import { useLocalParams } from '~/hooks/useLocalParams';
 import { zUuid } from '~/lib/zod';
 import { AppbarMore } from '#/Appbar/AppbarMore';
 import { Divider, Menu } from 'react-native-paper';
-import { AppbarOptions } from '#/Appbar/AppbarOptions';
+import { Appbar } from '#/Appbar/Appbar';
 import { ScrollableScreenSurface } from '#/layout/ScrollableScreenSurface';
 import { MessageStatus } from '#/message/MessageStatus';
 import { StyleSheet, View } from 'react-native';
@@ -58,7 +58,7 @@ export default function MessageScreen() {
 
   return (
     <SideSheetLayout defaultVisible>
-      <AppbarOptions
+      <Appbar
         headline={(props) => <MessageStatus message={m} {...props} />}
         mode="large"
         {...(remove && {

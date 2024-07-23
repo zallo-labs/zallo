@@ -8,7 +8,6 @@ import { View } from 'react-native';
 import { NumericInput } from '#/fields/NumericInput';
 import { DateTime } from 'luxon';
 import { Button } from '#/Button';
-import { AppbarOptions } from '#/Appbar/AppbarOptions';
 import { useLocalParams } from '~/hooks/useLocalParams';
 import { withSuspense } from '#/skeleton/withSuspense';
 import { ScrollableScreenSurface } from '#/layout/ScrollableScreenSurface';
@@ -31,6 +30,7 @@ import { ScreenSkeleton } from '#/skeleton/ScreenSkeleton';
 import { graphql } from 'relay-runtime';
 import { useLazyQuery } from '~/api';
 import { swap_SwapScreenQuery } from '~/api/__generated__/swap_SwapScreenQuery.graphql';
+import { Appbar } from '#/Appbar/Appbar';
 
 const DownArrow = materialCommunityIcon('arrow-down-thin');
 const ICON_BUTTON_SIZE = 24;
@@ -112,7 +112,7 @@ function SwapScreen() {
 
   return (
     <>
-      <AppbarOptions leading="menu" headline="Swap" />
+      <Appbar leading="menu" headline="Swap" />
 
       <ScrollableScreenSurface>
         <InputsView token={from} input={input} setInput={setInput} type={type} setType={setType} />

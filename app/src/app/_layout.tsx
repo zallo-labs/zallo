@@ -15,7 +15,6 @@ import { NotificationsProvider } from '#/provider/NotificationsProvider';
 import { SnackbarProvider } from '#/provider/SnackbarProvider';
 import { UpdateProvider } from '#/provider/UpdateProvider';
 import { ThemeProvider } from '~/util/theme/ThemeProvider';
-import { AppbarHeader } from '#/Appbar/AppbarHeader';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { Portal as RnpPortal } from 'react-native-paper';
 import { TQueryProvider } from '#/provider/TQueryProvider';
@@ -33,13 +32,23 @@ export const unstable_settings = {
 
 function Layout() {
   return (
-    <Stack screenOptions={{ header: (props) => <AppbarHeader {...props} /> }}>
-      <Stack.Screen name={`(nav)`} options={{ headerShown: false }} />
-      <Stack.Screen name={`onboard`} options={{ headerShown: false }} />
-      <Stack.Screen name={`_sitemap`} />
-      <Stack.Screen name={`+not-found`} />
-      <Stack.Screen name={`index`} options={{ headerShown: false }} />
-      <Stack.Screen name={`scan`} options={{ headerShown: false }} />
+    <Stack screenOptions={{ headerShown: false }}>
+      <Stack.Screen
+        name={`(modal)`}
+        options={{
+          presentation: 'transparentModal',
+          animation: 'fade',
+          animationDuration: 100,
+        }}
+      />
+      <Stack.Screen
+        name={`(sheet)`}
+        options={{
+          presentation: 'transparentModal',
+          animation: 'fade',
+          animationDuration: 100,
+        }}
+      />
     </Stack>
   );
 }

@@ -1,7 +1,7 @@
 import { AppbarMore } from '#/Appbar/AppbarMore';
 import { z } from 'zod';
 import { useLocalParams } from '~/hooks/useLocalParams';
-import { AppbarOptions } from '#/Appbar/AppbarOptions';
+import { Appbar } from '#/Appbar/Appbar';
 import { ScrollableScreenSurface } from '#/layout/ScrollableScreenSurface';
 import { zUuid } from '~/lib/zod';
 import { TransactionStatus } from '#/transaction/TransactionStatus';
@@ -92,7 +92,7 @@ function TransactionScreen() {
 
   return (
     <>
-      <AppbarOptions
+      <Appbar
         headline={<TransactionStatus transaction={t} />}
         {...(remove && {
           trailing: (props) => (

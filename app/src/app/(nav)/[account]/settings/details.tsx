@@ -4,7 +4,6 @@ import { AccountSettingsParams } from './index';
 import { useForm } from 'react-hook-form';
 import { createStyles } from '@theme/styles';
 import { Appbar } from '#/Appbar/Appbar';
-import { Surface } from '#/layout/Surface';
 import { View } from 'react-native';
 import { AccountNameFormField } from '#/fields/AccountNameFormField';
 import { Actions } from '#/layout/Actions';

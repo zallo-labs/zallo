@@ -1,16 +1,8 @@
-import { Slot, Stack } from 'expo-router';
+import { Slot } from 'expo-router';
 
 export default function SheetLayout() {
   return (
     <>
-      <Stack.Screen
-        options={{
-          presentation: 'transparentModal',
-          headerShown: false,
-          animation: 'fade',
-          animationDuration: 0,
-        }}
-      />
       <Slot />
     </>
   );

@@ -7,7 +7,7 @@ import { ListHeader } from '#/list/ListHeader';
 import { useBigIntInput } from '#/fields/useBigIntInput';
 import { ClockOutlineIcon } from '@theme/icons';
 import { usePolicyDraft } from '~/lib/policy/policyAsDraft';
-import { AppbarOptions } from '#/Appbar/AppbarOptions';
+import { Appbar } from '#/Appbar/Appbar';
 import { truncateAddr } from '~/util/format';
 import { ScrollableScreenSurface } from '#/layout/ScrollableScreenSurface';
 import { ProgressBar, Text } from 'react-native-paper';
@@ -19,7 +19,7 @@ import Decimal from 'decimal.js';
 import { IncomingTransferItem } from '#/activity/IncomingTransferItem';
 import { withSuspense } from '#/skeleton/withSuspense';
 import { RectSkeleton } from '#/skeleton/RectSkeleton';
-import { graphql} from 'react-relay';
+import { graphql } from 'react-relay';
 import { TokenSpendingQuery } from '~/api/__generated__/TokenSpendingQuery.graphql';
 import { useLazyQuery } from '~/api';
 
@@ -100,7 +100,7 @@ function TokenSpending_({ token: address }: TokenSpendingProps) {
 
   return (
     <>
-      <AppbarOptions
+      <Appbar
         mode="large"
         leading="back"
         headline={`${t?.name ?? truncateAddr(address)} Spending`}
