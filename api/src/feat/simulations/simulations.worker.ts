@@ -20,7 +20,6 @@ import { DatabaseService } from '~/core/database';
 import e, { $infer } from '~/edgeql-js';
 import { and } from '~/core/database';
 import { OperationsService } from '../operations/operations.service';
-import { selectAccount } from '../accounts/accounts.util';
 import { SwapOp, TransferFromOp, TransferOp } from '../operations/operations.model';
 import { RUNNING_JOB_STATUSES, TypedJob, createQueue } from '~/core/bull/bull.util';
 import { Worker } from '~/core/bull/Worker';
@@ -33,6 +32,7 @@ import { selectTransaction } from '../transactions/transactions.util';
 import { SelectedPolicies, selectPolicy } from '../policies/policies.util';
 import { ProposalsService } from '../proposals/proposals.service';
 import { ProposalEvent } from '../proposals/proposals.input';
+import { insertSimulation } from './insert-simulation.query';
 
 export const SimulationsQueue = createQueue<{ transaction: UUID | Hex }>('Simulations');
 export type SimulationsQueue = typeof SimulationsQueue;
@@ -66,27 +66,26 @@ export class SimulationsWorker extends Worker<SimulationsQueue> {
 
   async process(job: TypedJob<SimulationsQueue>) {
     const proposal = selectTransaction(job.data.transaction);
-    const p = await this.db.query(
+    const t = await this.db.query(
       e.select(proposal, () => ({
         id: true,
         ...TransactionExecutableShape,
       })),
     );
-    if (!p) return 'Transaction not found';
+    if (!t) return 'Transaction not found';
 
-    const promisedExecutable = this.isExecutable(p);
-    const account = asUAddress(p.account.address);
+    const promisedExecutable = this.isExecutable(t);
+    const account = asUAddress(t.account.address);
     const localAccount = asAddress(account);
     const chain = asChain(account);
-    const selectedAccount = selectAccount(account);
 
     const simulations = await Promise.all(
-      p.operations.map(async (op) =>
+      t.operations.map(async (op) =>
         (
           await simulate({
             network: this.networks.get(chain),
             account: localAccount,
-            gas: p.gasLimit,
+            gas: t.gasLimit,
             type: 'eip712',
             to: asAddress(op.to),
             value: op.value ?? 0n,
@@ -117,7 +116,7 @@ export class SimulationsWorker extends Worker<SimulationsQueue> {
       .filter(isTruthy);
 
     const transfers: Omit<TransferDetails, 'account'>[] = [];
-    for (const op of p.operations) {
+    for (const op of t.operations) {
       if (op.value) {
         transfers.push({
           from: localAccount,
@@ -142,7 +141,7 @@ export class SimulationsWorker extends Worker<SimulationsQueue> {
           from: localAccount,
           to: f.to,
           tokenAddress: asUAddress(f.token, chain),
-          amount: f.to === localAccount ? e.decimal('0') : f.amount.negated().toString(),
+          amount: f.to === localAccount ? '0' : f.amount.negated().toString(),
           incoming: localAccount === f.to,
           outgoing: true,
         });
@@ -168,38 +167,15 @@ export class SimulationsWorker extends Worker<SimulationsQueue> {
     }
 
     const executable = await promisedExecutable;
-    await this.db.query(
-      e.select({
-        prevSimulation: e.delete(proposal.simulation, () => ({})),
-        proposal: e.update(proposal, () => ({
-          set: {
-            executable,
-            simulation: e.insert(e.Simulation, {
-              success,
-              responses,
-              ...(transfers.length && {
-                transfers: e.with(
-                  [selectedAccount],
-                  e.for(e.set(...transfers.map((t) => e.json(t))), (t) =>
-                    e.insert(e.TransferDetails, {
-                      account: selectedAccount,
-                      from: e.cast(e.Address, t.from),
-                      to: e.cast(e.Address, t.to),
-                      tokenAddress: e.cast(e.UAddress, t.tokenAddress),
-                      amount: e.cast(e.decimal, e.cast(e.str, t.amount)),
-                      incoming: e.cast(e.bool, t.incoming),
-                      outgoing: e.cast(e.bool, t.outgoing),
-                    }),
-                  ),
-                ),
-              }),
-            }),
-          },
-        })),
-      }),
-    );
+    await this.db.exec(insertSimulation, {
+      transaction: t.id,
+      executable,
+      success,
+      responses,
+      transfers,
+    });
 
-    this.proposals.event({ id: asUUID(p.id), account }, ProposalEvent.simulated);
+    this.proposals.event({ id: asUUID(t.id), account }, ProposalEvent.simulated);
 
     return { executable };
   }

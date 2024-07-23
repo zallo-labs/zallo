@@ -87,12 +87,12 @@ export namespace $default {
     "implementation": string;
     "photo"?: string | null;
     "salt": string;
+    "policies": Policy[];
     "approvers": Approver[];
     "messages": Message[];
     "proposals": Proposal[];
     "transactions": Transaction[];
     "transfers": Transfer[];
-    "policies": Policy[];
   }
   export interface Action extends std.$Object {
     "functions": ActionFunction[];
@@ -119,18 +119,18 @@ export namespace $default {
   export type ApprovalIssue = "HashMismatch" | "Expired";
   export interface Approver extends std.$Object {
     "address": string;
-    "user": User;
     "labelled"?: Labelled | null;
-    "accounts": Account[];
     "details"?: ApproverDetails | null;
     "label"?: string | null;
+    "user": User;
+    "accounts": Account[];
   }
   export interface ApproverDetails extends std.$Object {
-    "approver": Approver;
-    "name"?: string | null;
     "bluetoothDevices"?: string[] | null;
+    "name"?: string | null;
     "cloud"?: {provider: CloudProvider, subject: string} | null;
     "pushToken"?: string | null;
+    "approver": Approver;
   }
   export type CloudProvider = "Apple" | "Google";
   export interface UserLabelled extends Labelled {}
@@ -145,11 +145,11 @@ export namespace $default {
   export interface Event extends std.$Object {
     "account": Account;
     "block": bigint;
+    "internal": boolean;
     "logIndex": number;
     "systxHash": string;
     "timestamp": Date;
     "systx"?: SystemTx | null;
-    "internal": boolean;
   }
   export interface Result extends std.$Object {
     "timestamp": Date;
@@ -185,9 +185,9 @@ export namespace $default {
     "timestamp": Date;
     "validationErrors": {reason: string, operation: number}[];
     "approvals": Approval[];
+    "policy": Policy;
     "proposedBy": Approver;
     "rejections": Rejection[];
-    "policy": Policy;
   }
   export interface Message extends Proposal {
     "signature"?: string | null;
@@ -214,9 +214,9 @@ export namespace $default {
     "draft"?: PolicyState | null;
     "proposal"?: Transaction | null;
     "initState": boolean;
+    "isActive": boolean;
     "isDraft": boolean;
     "latest"?: PolicyState | null;
-    "isActive": boolean;
     "isLatest": boolean;
   }
   export interface Policy extends PolicyState {
@@ -256,16 +256,16 @@ export namespace $default {
     "result"?: Result | null;
   }
   export interface Token extends UserLabelled {
+    "units"?: {symbol: string, decimals: number}[] | null;
     "address": string;
+    "symbol": string;
+    "name": string;
     "decimals": number;
     "isFeeToken": boolean;
     "icon"?: string | null;
     "pythUsdPriceId"?: string | null;
     "user"?: User | null;
     "isSystem": boolean;
-    "units"?: {symbol: string, decimals: number}[] | null;
-    "name": string;
-    "symbol": string;
   }
   export interface Transaction extends Proposal {
     "maxAmount": string;
@@ -291,10 +291,10 @@ export namespace $default {
     "token"?: Token | null;
     "amount": string;
     "from": string;
-    "isFeeTransfer": boolean;
-    "to": string;
     "incoming": boolean;
+    "isFeeTransfer": boolean;
     "outgoing": boolean;
+    "to": string;
   }
   export interface Transferlike extends Event, TransferDetails {
     "spentBy"?: Policy | null;
