@@ -47,9 +47,9 @@ export const useTokenAmount = ({
   const unit = amount.eq(0)
     ? token
     : units.reduce(
-        // Find the closest unit; bias the smaller unit (-1)
+        // Find the closest unit
         (closest, unit) =>
-          Math.abs(unit.decimals - d) - 1 <= Math.abs(closest.decimals - d) ? unit : closest,
+          Math.abs(unit.decimals - d) <= Math.abs(closest.decimals - d) ? unit : closest,
         units[0],
       );
 

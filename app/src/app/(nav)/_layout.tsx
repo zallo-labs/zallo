@@ -17,16 +17,15 @@ import {
 import { DrawerItem as Item } from '#/drawer/DrawerItem';
 import { useSelectedAccount } from '~/hooks/useSelectedAccount';
 import { CONFIG } from '~/util/config';
-import { useSend } from '~/hooks/useSend';
 import { DrawerSurface } from '#/drawer/DrawerSurface';
-import { Link, Stack } from 'expo-router';
-import { AppbarHeader } from '#/Appbar/AppbarHeader';
+import { Link, Slot, useRouter } from 'expo-router';
 import { DrawerLogo } from '#/drawer/DrawerLogo';
 import { createStyles, useStyles } from '@theme/styles';
 import { PressableOpacity } from '#/PressableOpacity';
 import { Fab } from '#/Fab';
 import { RailSurface } from '#/drawer/RailSurface';
 import { RailItem } from '#/drawer/RailItem';
+import { SendScreenParams } from './[account]/(home)/send';
 
 const Section = PaperDrawer.Section;
 
