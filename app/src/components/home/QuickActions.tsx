@@ -2,10 +2,10 @@ import { OutboundIcon, SwapIcon, ScanIcon, ReceiveIcon } from '@theme/icons';
 import { ScrollView, View } from 'react-native';
 import { UAddress } from 'lib';
 import { Link } from 'expo-router';
-import { useSend } from '~/hooks/useSend';
 import { CORNER } from '@theme/paper';
 import { createStyles, useStyles } from '@theme/styles';
 import { Button } from '#/Button';
+import { SendScreenParams } from '~/app/(nav)/[account]/(home)/send';
 
 export interface QuickActionsProps {
   account: UAddress;
@@ -13,7 +13,6 @@ export interface QuickActionsProps {
 
 export function QuickActions({ account }: QuickActionsProps) {
   const { styles } = useStyles(stylesheet);
-  const send = useSend();
 
   return (
     <View style={styles.container}>
@@ -22,15 +21,17 @@ export function QuickActions({ account }: QuickActionsProps) {
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={styles.content}
       >
-        <Button
-          mode="contained"
-          icon={OutboundIcon}
-          onPress={() => {
-            send({ account });
+        <Link
+          asChild
+          href={{
+            pathname: `/(nav)/[account]/send`,
+            params: { account } satisfies SendScreenParams,
           }}
         >
-          Send
-        </Button>
+          <Button mode="contained" icon={OutboundIcon}>
+            Send
+          </Button>
+        </Link>
 
         <Link asChild href={{ pathname: `/(nav)/[account]/swap`, params: { account } }}>
           <Button mode="contained-tonal" icon={SwapIcon}>
@@ -54,7 +55,7 @@ export function QuickActions({ account }: QuickActionsProps) {
   );
 }
 
-const stylesheet = createStyles(({ colors, negativeMargin }) => ({
+const stylesheet = createStyles(({ colors, padding, negativeMargin }) => ({
   container: {
     marginHorizontal: negativeMargin,
   },
@@ -66,7 +67,7 @@ const stylesheet = createStyles(({ colors, negativeMargin }) => ({
     gap: 8,
     marginTop: 8,
     marginBottom: 16,
-    paddingHorizontal: 16,
+    paddingHorizontal: padding,
   },
   action: {
     alignItems: 'center',

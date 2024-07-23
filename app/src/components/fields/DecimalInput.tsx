@@ -1,5 +1,5 @@
 import Decimal from 'decimal.js';
-import { ComponentType, Dispatch, SetStateAction, useState } from 'react';
+import { ComponentType, Dispatch, SetStateAction, startTransition, useState } from 'react';
 import { TextInput as NativeTextInput, TextInputProps } from 'react-native';
 import { z } from 'zod';
 
@@ -28,17 +28,17 @@ export function DecimalInput({
   onChange,
   ...props
 }: DecimalInputProps) {
-  const [input, setInput] = useState(() => value.isZero() ? '' : value.toString());
+  const [input, setInput] = useState(() => (value.isZero() ? '' : value.toString()));
 
   const handleChangeText = (input: string) => {
-    setInput(input);
-
     const parsed = decimal.safeParse(input);
     if (parsed.data) {
-      onChange(parsed.data);
+      startTransition(() => onChange(parsed.data));
     } else {
       // If the input is not a valid decimal, don't update the value
     }
+
+    if (parsed.success || input === '.') setInput(input);
   };
 
   return (

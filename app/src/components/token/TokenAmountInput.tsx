@@ -12,6 +12,7 @@ import { ICON_SIZE } from '@theme/paper';
 import { useSelectToken } from '~/hooks/useSelectToken';
 import { PressableOpacity } from '#/PressableOpacity';
 import { UAddress } from 'lib';
+import { FiatValue } from '#/FiatValue';
 
 const Token = graphql`
   fragment TokenAmountInput_token on Token {
@@ -48,7 +49,8 @@ export function TokenAmountInput({ account, amount, onChange, ...props }: TokenA
           }}
         >
           <Text variant="headlineMedium" style={styles.approximation}>
-            {`≈ $${value.toString()}`}
+            {'≈ '}
+            <FiatValue value={value} />
           </Text>
         </PressableOpacity>
       )}
@@ -83,7 +85,7 @@ export function TokenAmountInput({ account, amount, onChange, ...props }: TokenA
   );
 }
 
-const stylesheet = createStyles(({ colors, fonts, corner }, { screen }) => ({
+const stylesheet = createStyles(({ colors, fonts, corner, negativeMargin }) => ({
   secondary: {
     alignSelf: 'flex-start',
     padding: 4,
@@ -99,10 +101,13 @@ const stylesheet = createStyles(({ colors, fonts, corner }, { screen }) => ({
     color: colors.onSurfaceVariant,
   },
   inputContainer: {
-    flexBasis: '70%',
+    flex: 1,
+    flexBasis: '65%',
   },
   input: {
     ...fonts.displayLarge,
+    // ...(Platform.OS === 'web' && { outlineStyle: 'none' }), // only on web
+    outlineStyle: 'none',
   },
   placeholder: {
     color: colors.tertiary,
@@ -116,6 +121,7 @@ const stylesheet = createStyles(({ colors, fonts, corner }, { screen }) => ({
     alignItems: 'center',
     gap: 8,
     padding: 8,
+    marginHorizontal: -8,
     borderRadius: corner.m,
   },
   unit: {
