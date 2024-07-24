@@ -14513,7 +14513,6 @@ __metadata:
     babel-preset-expo: "npm:~11.0.8"
     chardet: "npm:^2.0.0"
     color: "npm:^4.2.3"
-    core-js: "npm:^3.37.1"
     crypto-browserify: "npm:^3.12.0"
     decimal.js: "npm:^10.4.3"
     dotenv: "npm:^16.4.5"
@@ -17366,7 +17365,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"core-js@npm:^3.31.1, core-js@npm:^3.37.1":
+"core-js@npm:^3.31.1":
   version: 3.37.1
   resolution: "core-js@npm:3.37.1"
   checksum: 10/25d6bd15fcc6ffd2a0ec0be57a78ff3358b3e1fdffdb6800fc93dcfdb3854037aee41f3d101aed8c37905d107daf98218b3e7ee95cec383710d2a66a5d9e541b
