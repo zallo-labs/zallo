@@ -60,7 +60,7 @@ const Query = graphql`
   }
 `;
 
-function ActivityPane_() {
+function ActivityPane() {
   const { styles } = useStyles(stylesheet);
   const { account } = useLocalParams(AccountParams);
 
@@ -210,10 +210,6 @@ function withFirstAndLast<T>(items: T[]) {
   }));
 }
 
-export const ActivityPane = withSuspense(ActivityPane_, <PaneSkeleton />);
-
-export default function ActivityScreen() {
-  return null;
-}
+export default withSuspense(ActivityPane, <PaneSkeleton />);
 
 export { ErrorBoundary } from '#/ErrorBoundary';

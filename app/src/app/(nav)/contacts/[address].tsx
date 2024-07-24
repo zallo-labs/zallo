@@ -99,6 +99,7 @@ function ContactScreen_(props: ContactScreenProps) {
       <Appbar
         mode="small"
         headline="Contact"
+        noPadding
         {...(remove && {
           trailing: [
             (props) => <FormResetIcon control={control} reset={reset} {...props} />,

@@ -1,42 +1,36 @@
 import { createStyles, useStyles } from '@theme/styles';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { useLayoutEffect, useRef } from 'react';
-import { ViewProps } from 'react-native';
+import { View, ViewProps } from 'react-native';
 import { PANES_MOUNTED } from './Panes';
-import { BREAKPOINTS } from '@theme/styles';
-import Animated, { FadeIn } from 'react-native-reanimated';
-
-const MAX_PANES: Record<keyof typeof BREAKPOINTS, number> = {
-  compact: 1,
-  medium: 1,
-  expanded: 2,
-  large: 2,
-  extraLarge: 3,
-  // Injected by unistyles; never actually used
-  landscape: 1,
-  portrait: 1,
-};
+import { useNavigationState, useRoute } from '@react-navigation/native';
 
 export type PaneProps = ViewProps & {
   padding?: boolean;
 } & ({ fixed: true; flex?: never } | { fixed?: never; flex: true });
 
 export function Pane({ padding = true, flex, fixed: _, ...props }: PaneProps) {
-  const { styles, breakpoint } = useStyles(stylesheet);
-  const order = usePaneMounted();
-  const maxPanes = MAX_PANES[breakpoint];
-  const count = useAtomValue(PANES_MOUNTED);
+  const { styles } = useStyles(stylesheet);
+  // const order = usePaneMounted();
+  // const maxPanes = MAX_PANES[breakpoint];
+  // const count = useAtomValue(PANES_MOUNTED);
 
-  const withinWindow = (order.current ?? 0) < count - maxPanes;
-  if (count > maxPanes && withinWindow) return null;
+  // const withinWindow = (order.current ?? 0) < count - maxPanes;
+  // const hidden = count > maxPanes && withinWindow;
+  // if (count > maxPanes && withinWindow)
+  //   return <View style={{ width: 20, backgroundColor: 'red' }} />;
+
+  const route = useRoute();
+  const isSelected = useNavigationState((state) => state.routes[state.index].key === route.key);
+
+  console.warn(route.name, { isSelected });
 
   // Flex a fixed pane when it is the only one visible
-  const fixed = !flex && count !== 1;
+  const fixed = !flex && !isSelected;
 
   return (
-    <Animated.View
+    <View
       {...props}
-      entering={FadeIn.duration(200)}
       // exiting depends on how the pane was removed
       style={[styles.flex, fixed && styles.fixed, padding && styles.margins, props.style]}
     />
@@ -68,11 +62,9 @@ function usePaneMounted() {
   useLayoutEffect(() => {
     if (order.current === null) order.current = count;
 
-    setCount((count) => {
-      return count + 1;
-    });
+    setCount((count) => count + 1);
 
-    return () => setCount((c) => c - 1);
+    return () => setCount((count) => count - 1);
   }, [count, setCount]);
 
   return order;

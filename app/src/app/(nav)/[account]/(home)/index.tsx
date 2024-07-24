@@ -18,6 +18,7 @@ import { graphql } from 'relay-runtime';
 import { HomePaneQuery } from '~/api/__generated__/HomePaneQuery.graphql';
 import { useLazyQuery } from '~/api/useLazyQuery';
 import { Pane } from '#/layout/Pane';
+import { PaneOptions } from '#/Appbar/PaneOptions';
 
 const Query = graphql`
   query HomePaneQuery($account: UAddress!, $chain: Chain!) {
@@ -45,7 +46,7 @@ const Query = graphql`
   }
 `;
 
-function HomePane_() {
+function HomePane() {
   const { styles } = useStyles(stylesheet);
   const address = useLocalParams(AccountParams).account;
   const chain = asChain(address);
@@ -122,10 +123,6 @@ const stylesheet = createStyles(({ colors, padding }) => ({
   },
 }));
 
-export const HomePane = withSuspense(HomePane_, <PaneSkeleton />);
-
-export default function HomeScreen() {
-  return null;
-}
+export default withSuspense(HomePane, <PaneSkeleton />);
 
 export { ErrorBoundary } from '#/ErrorBoundary/ErrorBoundary';

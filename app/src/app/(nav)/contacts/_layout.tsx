@@ -1,16 +1,7 @@
-import { Panes } from '#/layout/Panes';
-import { Slot } from 'expo-router';
-import { ContactsPane } from './index';
-import { Pane } from '#/layout/Pane';
+import { createPanesNavigator } from '#/layout/PanesNavigator';
+
+const Panes = createPanesNavigator();
 
 export default function ContactsLayout() {
-  return (
-    <Panes>
-      <Pane fixed>
-        <ContactsPane />
-      </Pane>
-
-      <Slot />
-    </Panes>
-  );
+  return <Panes />;
 }
