@@ -15,7 +15,7 @@ import {
   webSocket,
   nonceManager,
 } from 'viem';
-import { eip712WalletActions, ZkSyncTransactionSerializableEIP712 } from 'viem/zksync';
+import { eip712WalletActions, ZkSyncTransactionSerializableEIP712, publicActionsL2 } from 'viem/zksync';
 import { privateKeyToAccount } from 'viem/accounts';
 import Redis from 'ioredis';
 import { InjectRedis } from '@songkeys/nestjs-redis';
@@ -80,6 +80,7 @@ function create({ chainKey, redis }: CreateParams) {
     batch: { multicall: true },
     pollingInterval: 500 /* ms */, // Used when websocket is unavailable
   }).extend((client) => ({
+    ...publicActionsL2()(client),
     ...eip712WalletActions()(client),
     ...walletActions(client, transport, redis),
     ...blockNumberAndStatusActions(client),
