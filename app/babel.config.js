@@ -31,7 +31,6 @@ module.exports = function (api) {
             '@ledgerhq/domain-service': '@ledgerhq/domain-service/lib-es',
             '@ledgerhq/evm-tools': '@ledgerhq/evm-tools/lib-es',
             '@ledgerhq/live-network': '@ledgerhq/live-network/lib-es',
-            viem: 'viem/_cjs',
           },
         },
       ],
@@ -43,11 +42,7 @@ module.exports = function (api) {
     ],
     env: {
       production: {
-        plugins: [
-          'react-native-paper/babel',
-          'transform-remove-console',
-          // [gqlBabelOptimizer, { artifactDirectory: './src/gql/api/generated', gqlTagName: 'gql' }], // TODO: enable with preset: 'client-preset'
-        ],
+        plugins: ['react-native-paper/babel', 'transform-remove-console'],
       },
     },
   };

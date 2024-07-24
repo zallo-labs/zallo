@@ -51,6 +51,7 @@
     "turbo": "^2.0.6"
   },
   "resolutions": {
-    "dotenv": "patch:dotenv@npm:16.4.5#.yarn/patches/dotenv-npm-16.4.5-bcb20eb95d.patch"
+    "dotenv": "patch:dotenv@npm:16.4.5#.yarn/patches/dotenv-npm-16.4.5-bcb20eb95d.patch",
+    "promise": "8.3.0"
   }
 }
