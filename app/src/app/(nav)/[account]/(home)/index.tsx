@@ -68,7 +68,6 @@ function HomePane_() {
         center
         headline={<AccountSelector account={account} />}
         style={styles.appbar}
-        noPadding
       />
       <FlatList
         contentContainerStyle={styles.container}
