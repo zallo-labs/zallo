@@ -60,7 +60,7 @@ const Query = graphql`
 
 export const AccountSettingsParams = AccountParams;
 
-function AccountSettingsPane_() {
+function AccountSettings() {
   const { styles } = useStyles(stylesheet);
   const { account } = useLocalParams(AccountSettingsParams);
   const router = useRouter();
@@ -78,8 +78,9 @@ function AccountSettingsPane_() {
     .sort((a, b) => a.key - b.key);
   const upgradePolicy = a.policies.find((p) => p.key === PolicyPresetKey.upgrade);
 
+  // TODO: Pane fixed
   return (
-    <Pane fixed>
+    <Pane flex>
       <ScrollView contentContainerStyle={styles.pane} showsVerticalScrollIndicator={false}>
         <Searchbar
           leading={MenuOrSearchIcon}
@@ -208,8 +209,4 @@ const stylesheet = createStyles(({ colors }) => ({
   },
 }));
 
-export const AccountSettingsPane = withSuspense(AccountSettingsPane_, <PaneSkeleton />);
-
-export default function AccountSettings() {
-  return null;
-}
+export default withSuspense(AccountSettings, <PaneSkeleton />);

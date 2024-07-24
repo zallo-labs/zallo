@@ -1,14 +1,9 @@
-import { Panes } from '#/layout/Panes';
-import { Slot } from 'expo-router';
-import { HomePane } from './index';
+import { createPanesNavigator } from '#/layout/PanesNavigator';
+
+const Panes = createPanesNavigator();
 
 export default function HomeLayout() {
-  return (
-    <Panes>
-      <HomePane />
-      <Slot />
-    </Panes>
-  );
+  return <Panes />;
 }
 
 export { ErrorBoundary } from '#/ErrorBoundary';

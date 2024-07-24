@@ -18,6 +18,7 @@ import { MenuOrSearchIcon } from '#/Appbar/MenuOrSearchIcon';
 import { graphql } from 'relay-runtime';
 import { useLazyQuery } from '~/api';
 import { contacts_ContactsPaneQuery } from '~/api/__generated__/contacts_ContactsPaneQuery.graphql';
+import { Pane } from '#/layout/Pane';
 
 const Query = graphql`
   query contacts_ContactsPaneQuery($query: String) {
@@ -29,7 +30,7 @@ const Query = graphql`
   }
 `;
 
-function ContactsPane_() {
+function ContactsPane() {
   const { styles } = useStyles(stylesheet);
   const router = useRouter();
   const contactSelected = usePath().includes('/(nav)/contacts/[address]');
@@ -43,7 +44,7 @@ function ContactsPane_() {
   });
 
   return (
-    <>
+    <Pane flex>
       <Searchbar
         leading={MenuOrSearchIcon}
         placeholder="Search contacts"
@@ -92,7 +93,7 @@ function ContactsPane_() {
       )}
 
       <Fab icon={AddIcon} label="Add contact" onPress={async () => router.push(`/contacts/add`)} />
-    </>
+    </Pane>
   );
 }
 
@@ -117,10 +118,6 @@ const stylesheet = createStyles(({ colors }) => ({
   },
 }));
 
-export const ContactsPane = withSuspense(ContactsPane_, <PaneSkeleton />);
-
-export default function ContactsScreen() {
-  return null;
-}
+export default withSuspense(ContactsPane, <PaneSkeleton />);
 
 export { ErrorBoundary } from '#/ErrorBoundary';
