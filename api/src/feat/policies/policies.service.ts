@@ -393,6 +393,7 @@ export class PoliciesService {
     return {
       policyId: p.id,
       policy: e.assert_exists(e.select(e.Policy, () => ({ filter_single: { id: p.id } }))),
+      policyKey: p.key,
       validationErrors: p.validationErrors,
     };
   }

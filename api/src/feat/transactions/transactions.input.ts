@@ -22,6 +22,27 @@ export class OperationInput {
 }
 
 @InputType()
+export class PrepareTransactionInput {
+  @UAddressField()
+  account: UAddress;
+
+  @Field(() => [OperationInput])
+  operations: OperationInput[];
+
+  @Field(() => Date, { nullable: true })
+  timestamp?: Date;
+
+  @Uint256Field({ nullable: true })
+  gas?: bigint;
+
+  @AddressField({ nullable: true })
+  feeToken?: Address;
+
+  @PolicyKeyField({ nullable: true })
+  policy?: PolicyKey;
+}
+
+@InputType()
 export class ProposeTransactionInput {
   @UAddressField()
   account: UAddress;
@@ -49,6 +70,9 @@ export class ProposeTransactionInput {
 
   @Field(() => BytesScalar, { nullable: true, description: 'Approve the proposal' })
   signature?: Hex;
+
+  @PolicyKeyField({ nullable: true })
+  policy?: PolicyKey;
 }
 
 @InputType()

@@ -2,11 +2,17 @@ import { Args, ID, Info, Mutation, Parent, Query, Resolver } from '@nestjs/graph
 import { GraphQLResolveInfo } from 'graphql';
 import {
   ExecuteTransactionInput,
+  PrepareTransactionInput,
   ProposeCancelScheduledTransactionInput,
   ProposeTransactionInput,
   UpdateTransactionInput,
 } from './transactions.input';
-import { EstimatedTransactionFees, Transaction, TransactionStatus } from './transactions.model';
+import {
+  EstimatedTransactionFees,
+  Transaction,
+  TransactionPreparation,
+  TransactionStatus,
+} from './transactions.model';
 import { EstimateFeesDeps, TransactionsService, estimateFeesDeps } from './transactions.service';
 import { getShape } from '~/core/database';
 import e from '~/edgeql-js';
@@ -23,6 +29,14 @@ export class TransactionsResolver {
   @Query(() => Transaction, { nullable: true })
   async transaction(@Args() { id }: NodeArgs, @Info() info: GraphQLResolveInfo) {
     return this.service.selectUnique(id, getShape(info));
+  }
+
+  @Query(() => TransactionPreparation)
+  async prepareTransaction(
+    @Input() input: PrepareTransactionInput,
+    @Info() info: GraphQLResolveInfo,
+  ) {
+    return this.service.prepareTransaction(input, getShape(info));
   }
 
   @ComputedField<typeof e.Transaction>(() => Boolean, { status: true })

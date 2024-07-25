@@ -1,4 +1,4 @@
-import { Field, ObjectType, registerEnumType } from '@nestjs/graphql';
+import { Field, ObjectType, PickType, registerEnumType } from '@nestjs/graphql';
 import { GraphQLBigInt } from 'graphql-scalars';
 import { SystemTx } from '../system-txs/system-tx.model';
 import { Operation } from '../operations/operations.model';
@@ -6,12 +6,13 @@ import { Token } from '../tokens/tokens.model';
 import { Simulation } from '../simulations/simulations.model';
 import { Proposal } from '../proposals/proposals.model';
 import { AddressField } from '~/common/scalars/Address.scalar';
-import { Address } from 'lib';
+import { Address, PolicyKey, UAddress } from 'lib';
 import { DecimalField } from '~/common/scalars/Decimal.scalar';
 import Decimal from 'decimal.js';
 import { CustomNode, CustomNodeType } from '~/common/decorators/interface.decorator';
 import { PaymasterFees } from '../paymasters/paymasters.model';
 import { Result } from '../system-txs/results.model';
+import { PolicyKeyField, UAddressField } from '~/common/scalars';
 
 @ObjectType({ implements: () => Proposal })
 export class Transaction extends Proposal {
@@ -53,6 +54,29 @@ export class Transaction extends Proposal {
 
   @Field(() => TransactionStatus)
   status: TransactionStatus;
+}
+
+@CustomNodeType()
+export class TransactionPreparation extends PickType(Transaction, [
+  'hash',
+  'timestamp',
+  'gasLimit',
+  'feeToken',
+  'maxAmount',
+  'paymaster',
+  'paymasterEthFees',
+]) {
+  @UAddressField()
+  account: UAddress;
+
+  @PolicyKeyField()
+  policy: PolicyKey;
+
+  @DecimalField()
+  maxNetworkFee: Decimal;
+
+  @DecimalField()
+  totalEthFees: Decimal;
 }
 
 export enum TransactionStatus {

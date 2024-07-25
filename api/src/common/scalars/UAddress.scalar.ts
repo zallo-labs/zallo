@@ -7,7 +7,7 @@ const description = 'EIP-3770 address';
 
 const parseValue = (value: unknown): UAddress => {
   const address = typeof value === 'string' && tryAsUAddress(value);
-  if (!address) throw new UserInputError(`Provided value is not a ${description}`);
+  if (!address) throw new UserInputError(`Value "${value}" is not a ${description}`);
   return asUAddress(value);
 };
 
