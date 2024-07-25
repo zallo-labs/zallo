@@ -1,7 +1,6 @@
 import { asAddress, asFp, UAddress } from 'lib';
 import { Actions } from '#/layout/Actions';
 import { Button } from '#/Button';
-import { useProposeTransaction } from '~/hooks/mutations/useProposeTransaction';
 import { graphql } from 'relay-runtime';
 import { TransferMode_account$key } from '~/api/__generated__/TransferMode_account.graphql';
 import { useFragment } from 'react-relay';
@@ -12,11 +11,13 @@ import Decimal from 'decimal.js';
 import { CheckAllIcon } from '@theme/icons';
 import { useRouter } from 'expo-router';
 import { ampli } from '~/lib/ampli';
+import { useMemo } from 'react';
+import { usePreparedTransaction } from '~/hooks/mutations/usePreparedTransaction';
 
 const Account = graphql`
   fragment TransferMode_account on Account {
     address
-    ...useProposeTransaction_account
+    ...usePreparedTransaction_account
   }
 `;
 
@@ -37,25 +38,27 @@ export interface TransferModeProps {
 export function TransferMode({ to, amount, ...props }: TransferModeProps) {
   const account = useFragment(Account, props.account);
   const token = useFragment(Token, props.token);
-  const propose = useProposeTransaction();
   const router = useRouter();
 
+  const operations = to && [
+    {
+      to: asAddress(token.address),
+      data: encodeFunctionData({
+        abi: ERC20,
+        functionName: 'transfer',
+        args: [asAddress(to), asFp(amount, token.decimals, Decimal.ROUND_DOWN)],
+      }),
+    },
+  ];
+  const propose = usePreparedTransaction({
+    account,
+    input: operations ? { operations } : undefined,
+  });
+
   const proposeTransfer =
-    to &&
+    operations &&
     (async () => {
-      const transaction = await propose(account, {
-        operations: [
-          {
-            to: asAddress(token.address),
-            data: encodeFunctionData({
-              abi: ERC20,
-              functionName: 'transfer',
-              args: [asAddress(to), asFp(amount, token.decimals, Decimal.ROUND_DOWN)],
-            }),
-          },
-        ],
-        // executionGas: TODO: estimate execution gas
-      });
+      const transaction = await propose({ operations });
       router.push({ pathname: `/(nav)/transaction/[id]`, params: { id: transaction } });
       ampli.transferProposal({ token: token.address });
     });
