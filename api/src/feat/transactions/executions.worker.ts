@@ -5,6 +5,7 @@ import {
   UUID,
   asAddress,
   asApproval,
+  asFp,
   asHex,
   asScheduledSystemTransaction,
   asSystemTransaction,
@@ -24,7 +25,6 @@ import { ProposalEvent } from '~/feat/proposals/proposals.input';
 import { QueueReturnType, TypedJob, createQueue } from '~/core/bull/bull.util';
 import { Worker } from '~/core/bull/Worker';
 import { UnrecoverableError } from 'bullmq';
-import { utils as zkUtils } from 'zksync-ethers';
 import { TokensService } from '~/feat/tokens/tokens.service';
 import { PricesService } from '~/feat/prices/prices.service';
 import Decimal from 'decimal.js';
@@ -119,12 +119,12 @@ export class ExecutionsWorker extends Worker<ExecutionsQueue> {
       paymasterEthFees: totalPaymasterEthFees(newPaymasterFees),
       ignoreSimulation,
       executeParams: {
-        ...asSystemTransaction({ tx }),
         customSignature: encodeTransactionSignature({
           tx,
           policy: policyStateAsPolicy(proposal.policy),
           approvals,
         }),
+        ...asSystemTransaction({ tx }),
       },
     });
   }
@@ -175,22 +175,36 @@ export class ExecutionsWorker extends Worker<ExecutionsQueue> {
       .plus(paymasterEthFees ?? '0');
     const amount = await this.tokens.asFp(feeToken, totalFeeTokenFees);
     const maxAmount = await this.tokens.asFp(feeToken, new Decimal(proposal.maxAmount));
-    if (amount > maxAmount) throw new Error('Amount > maxAmount'); // TODO: handle
+    if (amount > maxAmount) throw new Error('Amount > maxAmount'); // TODO: add to failed submission result TODO: fail due to insufficient funds -- re-submit for re-simulation (forced)
 
     await this.prices.updatePriceFeedsIfNecessary(network.chain.key, [
       ETH.pythUsdPriceId,
       asHex(proposal.feeToken.pythUsdPriceId!),
     ]);
 
+    const paymaster = asAddress(proposal.paymaster);
+    const paymasterInput = encodePaymasterInput({
+      token: asAddress(feeToken),
+      amount,
+      maxAmount,
+    });
+    const estimatedFee = await network.estimateFee({
+      type: 'eip712',
+      account: asAddress(account),
+      paymaster,
+      paymasterInput,
+      ...executeParams,
+    });
+
+    // if (executeParams.gas && executeParams.gas < estimatedFee.gasLimit) throw new Error('gas less than estimated gasLimit');
+
     const execution = await network.sendAccountTransaction({
       from: asAddress(account),
-      paymaster: asAddress(proposal.paymaster),
-      paymasterInput: encodePaymasterInput({
-        token: asAddress(feeToken),
-        amount,
-        maxAmount,
-      }),
-      gasPerPubdata: BigInt(zkUtils.DEFAULT_GAS_PER_PUBDATA_LIMIT),
+      paymaster,
+      paymasterInput,
+      maxFeePerGas: asFp(maxFeePerGas, ETH),
+      maxPriorityFeePerGas: estimatedFee.maxPriorityFeePerGas,
+      gasPerPubdata: estimatedFee.gasPerPubdataLimit, // This should ideally be signed during proposal creation
       ...executeParams,
     });
 
@@ -210,6 +224,9 @@ export class ExecutionsWorker extends Worker<ExecutionsQueue> {
 
         return hash;
       } /* execution isErr */ else {
+
+        // TODO: adds failed submission result
+
         // Validation failed
         // const err = execution.error;
         // await this.db.query(
