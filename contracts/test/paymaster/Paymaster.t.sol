@@ -153,22 +153,15 @@ contract PaymasterTest is UnitTest {
     validate(_systx(amount, networkFee));
   }
 
-  function test_validate_Bootloader_SupportedFlow_RevertWhen_LtMin(
+  function test_validate_Bootloader_SupportedFlow_FailWhen_LtMin(
     uint256 amount,
     uint256 networkFee
   ) public asBootloader {
     vm.assume(amount < networkFee);
+    vm.assume(networkFee < address(paymaster).balance);
 
-    Rate memory nativePerToken = Rate({base: NATIVE, basePrice: 1, quote: NATIVE, quotePrice: 1});
-    vm.expectRevert(
-      abi.encodeWithSelector(
-        Paymaster.InsufficientAmount.selector,
-        amount,
-        networkFee,
-        nativePerToken
-      )
-    );
-    validate(_systx(NATIVE, amount, networkFee));
+    (bytes4 magic, ) = validate(_systx(NATIVE, amount, networkFee));
+    assertEq(magic, FAILURE);
   }
 
   function test_validate_Bootloader_RevertWhen_OtherFlow(

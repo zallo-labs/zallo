@@ -21,7 +21,7 @@
 │   │   │   │   └── when paymaster can not pay bootloader
 │   │   │   │       └── should revert
 │   │   │   └── when amount < min
-│   │   │       └── should revert
+│   │   │       └── should fail
 │   │   └── when other flow
 │   │       └── should revert
 │   └── when called by other
