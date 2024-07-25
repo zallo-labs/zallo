@@ -29,7 +29,7 @@ export const PAYMASTER = {
   abi: paymasterArtifact.abi,
   address: addresses({
     // Address across chains may differ due to different chain configurations
-    'zksync-sepolia': '0x8A9e0413fbA71b8feAaa39A87cC497AC72960737',
+    'zksync-sepolia': '0x7E2AB3dC2006fb7Ad242C1eC40c18e9f798c55A8',
   }),
 };
 
