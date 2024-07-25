@@ -20,7 +20,7 @@ export default function AuthOnboardingScreen() {
 
       <AuthSettings />
 
-      <Actions>
+      <Actions horizontal>
         <Link href="/onboard/notifications" asChild>
           <Button mode="contained">Continue</Button>
         </Link>

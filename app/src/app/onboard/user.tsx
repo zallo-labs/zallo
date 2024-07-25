@@ -147,7 +147,6 @@ const stylesheet = createStyles(({ colors }) => ({
     paddingHorizontal: 16,
   },
   input: {
-    flex: 1,
     marginHorizontal: 16,
     marginTop: 16,
   },

@@ -69,13 +69,12 @@ export function CreateAccount({ onCreate }: CreateAccountScreenProps) {
           autoFocus
         />
 
-        <FormChainSelector control={control} name="chain" />
+        <FormChainSelector control={control} name="chain" style={styles.chainSelector} />
       </View>
 
-      <Actions>
+      <Actions horizontal style={styles.actions}>
         <FormSubmitButton
           mode="contained"
-          style={styles.button}
           control={control}
           onPress={handleSubmit(async ({ name, chain }) => {
             const r = await create({
@@ -104,16 +103,14 @@ const stylesheet = createStyles(({ colors }) => ({
     marginHorizontal: 16,
     gap: 16,
   },
-  chainContainer: {
-    alignItems: 'center',
-    gap: 8,
+  chainSelector: {
     marginTop: 16,
-    marginHorizontal: 16,
   },
-  warning: {
-    color: colors.warning,
-  },
-  button: {
-    alignSelf: 'stretch',
+  actions: {
+    // alignItems: 'flex-end',
+    // justifyContent: {
+    //   compact: 'flex-end',
+    //   large: 'flex-start',
+    // },
   },
 }));

@@ -13,30 +13,33 @@ export function Actions({ children, style, horizontal, flex = true }: ActionsPro
   const { styles } = useStyles(stylesheet);
 
   return horizontal ? (
-    <View style={[styles.hContainer, style]}>{children}</View>
+    <View style={[flex && styles.flex, styles.horizontal, style]}>{children}</View>
   ) : (
-    <View style={[styles.vContainer(flex), style]}>
-      <View style={styles.vContent}>{children}</View>
-    </View>
+    <View style={[flex && styles.flex, styles.vertical, style]}>{children}</View>
   );
 }
 
 const stylesheet = createStyles(() => ({
-  hContainer: {
+  flex: {
+    flex: 1,
+  },
+  horizontal: {
     flexDirection: 'row-reverse',
     justifyContent: 'flex-start',
-    alignItems: 'center',
+    alignItems: {
+      compact: 'flex-end',
+      extraLarge: 'flex-start',
+    },
     gap: 8,
+    padding: 16,
   },
-  vContainer: (flex: boolean) => ({
-    ...(flex && { flexGrow: 1 }),
-    justifyContent: 'flex-end',
-  }),
-  vContent: {
-    alignItems: 'stretch',
+  vertical: {
+    // alignItems: 'flex-end',
+    justifyContent: {
+      compact: 'flex-end',
+      extraLarge: 'flex-start',
+    },
+    padding: 16,
     gap: 8,
-    marginHorizontal: 16,
-    marginTop: 16,
-    marginBottom: 16,
   },
 }));
