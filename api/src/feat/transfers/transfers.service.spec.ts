@@ -102,7 +102,7 @@ describe(TransfersService.name, () => {
   describe('select', () => {
     it('returns transfers', () =>
       asUser(user1, async () => {
-        const transfers = await Promise.all([insert(), insert()]);
+        const transfers = (await Promise.all([insert(), insert()])).sort();
 
         expect((await service.select(account1.id, {})).map((t) => t.id)).toEqual(transfers);
       }));
