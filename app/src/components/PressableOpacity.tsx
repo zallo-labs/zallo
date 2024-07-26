@@ -4,6 +4,7 @@ import { Pressable, PressableProps, View } from 'react-native';
 
 export interface PressableOpacityProps extends PressableProps {
   noHover?: boolean;
+  selected?: boolean;
 }
 
 export const PressableOpacity = forwardRef<View, PressableOpacityProps>((props, ref) => {
@@ -24,8 +25,9 @@ export const PressableOpacity = forwardRef<View, PressableOpacityProps>((props, 
       ref={ref}
       style={(state) => [
         typeof props.style === 'function' ? props.style(state) : props.style,
-        hoverable && (state as { hovered?: boolean }).hovered && styles.hovered, // state.hovered exists on web
+        props.selected && styles.selected,
         state.pressed && styles.pressed,
+        !props.selected && hoverable && (state as { hovered?: boolean }).hovered && styles.hovered, // state.hovered exists on web
       ]}
     />
   );
@@ -37,5 +39,8 @@ const stylesheet = createStyles(({ colors }) => ({
   },
   pressed: {
     backgroundColor: colors.surfaceContainer.highest,
+  },
+  selected: {
+    backgroundColor: colors.secondaryContainer,
   },
 }));

@@ -14,9 +14,7 @@ import { PressableOpacity } from '#/PressableOpacity';
 
 type Lines = 1 | 2 | 3;
 
-export interface ListIconElementProps extends IconProps {
-  disabled?: boolean;
-}
+export interface ListIconElementProps extends IconProps {}
 
 export interface ListItemTextProps {
   Text: FC<TextProps>;
@@ -86,8 +84,9 @@ export const ListItem = forwardRef<View, ListItemProps>(
       <PressableOpacity
         ref={ref}
         {...touchableProps}
-        style={[styles.container, containerStyle, selected && styles.selected]}
+        style={[styles.container, containerStyle]}
         disabled={disabled}
+        selected={selected}
       >
         <>
           {Leading && (
@@ -96,7 +95,6 @@ export const ListItem = forwardRef<View, ListItemProps>(
                 <Leading
                   size={styles.leadingIcon.fontSize}
                   color={styles.leadingIcon.backgroundColor}
-                  disabled={disabled}
                 />
               ) : (
                 <>{Leading}</>
@@ -132,7 +130,6 @@ export const ListItem = forwardRef<View, ListItemProps>(
                 <Trailing
                   size={styles.trailingIcon.fontSize}
                   color={styles.trailingIcon.color}
-                  disabled={disabled}
                   Text={TrailingText}
                 />
               ) : (
@@ -162,7 +159,7 @@ const getStylesheet = ({ lines, disabled, leadingSize }: StyleProps) =>
   createStyles(({ colors, corner, stateLayer }) => {
     const justifyContent = lines === 3 ? 'flex-start' : 'center';
 
-    const withState = (color: string) => stateLayer(color, disabled && 'disabled');
+    const withState = (color: string) => color;
 
     return {
       container: {
@@ -177,9 +174,7 @@ const getStylesheet = ({ lines, disabled, leadingSize }: StyleProps) =>
         paddingVertical: lines === 3 ? 12 : 8,
         // Ideally 'box-none' but this breaks pressable children without pointerEvents: 'auto'
         // ...(!pressable && { pointerEvents: 'box-none' }),
-      },
-      selected: {
-        backgroundColor: colors.secondaryContainer,
+        ...(disabled && { opacity: 0.5 }),
       },
       leadingContainer: {
         justifyContent,

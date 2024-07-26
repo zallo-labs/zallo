@@ -204,6 +204,7 @@ input CreateAccountInput {
   chain: Chain! = "zksync-sepolia"
   name: String!
   policies: [PolicyInput!]!
+  salt: Bytes32
 }
 
 input CreatePolicyInput {
@@ -470,6 +471,15 @@ input PolicyUpdatedInput {
   events: PolicyEvent
 }
 
+input PrepareTransactionInput {
+  account: UAddress!
+  feeToken: Address
+  gas: Uint256
+  operations: [OperationInput!]!
+  policy: PolicyKey
+  timestamp: DateTime
+}
+
 type Price implements CustomNode {
   eth: Decimal!
   ethEma: Decimal!
@@ -542,6 +552,7 @@ input ProposeCancelScheduledTransactionInput {
   gas: Uint256
   icon: URL
   label: String
+  policy: PolicyKey
   proposal: ID!
 
   """Approve the proposal"""
@@ -572,6 +583,7 @@ input ProposeTransactionInput {
   icon: URL
   label: String
   operations: [OperationInput!]!
+  policy: PolicyKey
 
   """Approve the proposal"""
   signature: Bytes
@@ -598,6 +610,7 @@ type Query {
   nameAvailable(name: String!): Boolean!
   node(id: ID!): Node
   policy(input: UniquePolicyInput!): Policy
+  prepareTransaction(input: PrepareTransactionInput!): TransactionPreparation!
   proposal(id: ID!): Proposal
   requestableTokens(input: RequestTokensInput!): [Address!]!
   token(address: UAddress!): Token
@@ -830,6 +843,21 @@ type Transaction implements Node & Proposal {
   timestamp: DateTime!
   updatable: Boolean!
   validationErrors: [ValidationError!]!
+}
+
+type TransactionPreparation implements CustomNode {
+  account: UAddress!
+  feeToken: Token!
+  gasLimit: BigInt!
+  hash: Bytes32!
+  id: ID!
+  maxAmount: Decimal!
+  maxNetworkFee: Decimal!
+  paymaster: Address!
+  paymasterEthFees: PaymasterFees!
+  policy: PolicyKey!
+  timestamp: DateTime!
+  totalEthFees: Decimal!
 }
 
 enum TransactionStatus {

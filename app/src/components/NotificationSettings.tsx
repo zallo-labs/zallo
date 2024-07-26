@@ -103,7 +103,7 @@ export function NotificationSettings({ next }: NotificationSettingsProps) {
         </View>
       ))}
 
-      <Actions>
+      <Actions horizontal>
         {!perm?.granted && next && <Button onPress={next}>Skip</Button>}
 
         {(!perm?.granted || next) && (

@@ -52,14 +52,8 @@ export function PendingApprovalItem(props: PendingApprovalItemProps) {
       leading={<AddressIcon address={approver.address} />}
       headline={approver.label || truncateAddr(approver.address)}
       {...(approve && {
-        trailing: ({ size, disabled }) => (
-          <IconButton
-            mode="contained-tonal"
-            icon={CheckIcon}
-            size={size}
-            disabled={disabled}
-            onPress={approve}
-          />
+        trailing: ({ size }) => (
+          <IconButton mode="contained-tonal" icon={CheckIcon} size={size} onPress={approve} />
         ),
       })}
     />

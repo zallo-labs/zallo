@@ -3,8 +3,6 @@ import { UserInputError } from '@nestjs/apollo';
 import {
   hashTx,
   Tx,
-  estimateTransactionOperationsGas,
-  FALLBACK_OPERATIONS_GAS,
   asAddress,
   asUAddress,
   asChain,
@@ -12,14 +10,16 @@ import {
   asTypedData,
   asUUID,
   UUID,
-  estimateTransactionVerificationGas,
   ACCOUNT_ABI,
   asHex,
   isHex,
   Hex,
+  encodeOperations,
+  encodePaymasterInput,
 } from 'lib';
 import { NetworksService } from '~/core/networks';
 import {
+  PrepareTransactionInput,
   ProposeCancelScheduledTransactionInput,
   ProposeTransactionInput,
   UpdateTransactionInput,
@@ -28,7 +28,6 @@ import { DatabaseService } from '~/core/database';
 import e, { $infer } from '~/edgeql-js';
 import { Shape, ShapeFunc } from '~/core/database';
 import { and } from '~/core/database';
-import { selectAccount } from '../accounts/accounts.util';
 import { ProposalsService, UniqueProposal } from '../proposals/proposals.service';
 import { ApproveInput, ProposalEvent } from '../proposals/proposals.input';
 import { PaymastersService } from '~/feat/paymasters/paymasters.service';
@@ -56,6 +55,7 @@ import { DEFAULT_FLOW } from '~/core/bull/bull.module';
 import { PaymasterFeeParts } from '~/feat/paymasters/paymasters.model';
 import { insertTransaction } from './insert-transaction.query';
 import { deleteTransaction } from './delete-transaction.query';
+import { t } from 'lib/dist/bytes-_chY9qcm';
 
 const MAX_NETWORK_FEE_MULTIPLIER = new Decimal(5); // Allow for a higher network fee
 
@@ -155,29 +155,35 @@ export class TransactionsService {
     );
   }
 
-  async getInsertProposal({
+  private async prepare({
     account,
     operations,
-    label,
-    icon,
-    dapp,
     timestamp = new Date(),
     gas: gasInput,
     feeToken = ETH_ADDRESS,
-  }: Omit<ProposeTransactionInput, 'signature'>) {
+    policy,
+  }: PrepareTransactionInput) {
     if (!operations.length) throw new UserInputError('No operations provided');
 
     const chain = asChain(account);
     const network = this.networks.get(chain);
+    const paymaster = this.paymasters.for(chain);
+
     const getGas = async () =>
-      (gasInput ??=
-        (
-          await estimateTransactionOperationsGas({
-            account: asAddress(account),
-            network,
-            operations,
-          })
-        ).unwrapOr(FALLBACK_OPERATIONS_GAS) + estimateTransactionVerificationGas(3));
+      gasInput ??
+      (
+        await network.estimateFee({
+          type: 'eip712',
+          account: asAddress(account),
+          paymaster,
+          paymasterInput: encodePaymasterInput({
+            token: feeToken,
+            amount: 0n,
+            maxAmount: 0n,
+          }),
+          ...encodeOperations(operations),
+        })
+      ).gasLimit;
 
     const [gas, maxFeePerGas, paymasterFees, feeTokenPrice] = await Promise.all([
       getGas(),
@@ -194,67 +200,77 @@ export class TransactionsService {
       timestamp: BigInt(Math.floor(timestamp.getTime() / 1000)),
       gas,
       feeToken,
-      paymaster: this.paymasters.for(chain),
+      paymaster,
       maxAmount: await this.tokens.asFp(asUAddress(feeToken, chain), maxAmount),
     } satisfies Tx;
     const hash = hashTx(account, tx);
-    const { policy, validationErrors } = await this.policies.best(account, tx);
 
-    // Ordering operation ids ensures
-    // TODO: ensure operations are retrieved in the same order as they were inserted
-    const insertOperation = e.for(
-      e.set(
-        ...operations.map((op, i) =>
-          e.json({
-            to: op.to,
-            value: op.value,
-            data: op.data,
-            position: i,
-          }),
-        ),
-      ),
-      (op) =>
-        e.insert(e.Operation, {
-          to: e.cast(e.Address, op.to),
-          value: e.cast(e.uint256, e.cast(e.str, e.json_get(op, 'value'))),
-          data: e.cast(e.Bytes, e.json_get(op, 'data')),
-          position: e.cast(e.int32, op.position),
-        }),
-    );
+    const { policyKey, policyId, validationErrors } = await this.policies.best(account, tx);
+    policy ??= policyKey;
 
-    const insert = e.insert(e.Transaction, {
+    return {
+      tx,
       hash,
-      account: selectAccount(account),
+      paymasterFees,
+      maxNetworkFee,
+      maxAmount,
       policy,
+      policyId,
       validationErrors,
-      label,
-      icon,
-      ...(dapp && {
-        dapp: {
-          name: dapp.name,
-          url: dapp.url,
-          icons: dapp.icons,
-        },
-      }),
-      unorderedOperations: insertOperation,
+    };
+  }
+
+  async prepareTransaction(
+    {
+      account,
+      operations,
+      timestamp = new Date(),
+      gas: gasInput,
+      feeToken = ETH_ADDRESS,
+      policy: policyInput,
+    }: PrepareTransactionInput,
+    shape?: ShapeFunc,
+  ) {
+    const { tx, hash, policy, paymasterFees, maxNetworkFee } = await this.prepare({
+      account,
+      operations,
       timestamp,
-      gasLimit: gas,
-      feeToken: e.assert_single(
-        e.select(e.token(asUAddress(feeToken, asChain(account))), (t) => ({
-          filter: t.isFeeToken,
-          limit: 1,
-        })),
-      ),
-      paymaster: tx.paymaster,
-      maxAmount: maxAmount.toString(),
-      paymasterEthFees: e.insert(e.PaymasterFees, {
-        activation: paymasterFees.activation.toString(),
-      }),
+      gas: gasInput,
+      feeToken,
+      policy: policyInput,
     });
 
-    afterRequest(() => this.tryExecute(hash));
+    const r = shape?.includes?.('feeToken')
+      ? await this.db.queryWith(
+          { feeToken: e.UAddress },
+          ({ feeToken }) =>
+            e.select({
+              feeToken: shape?.includes?.('feeToken')
+                ? e.select(e.token(feeToken), (t) => ({
+                    ...shape?.(t, 'feeToken'),
+                  }))
+                : e.cast(e.Token, e.set()),
+            }),
+          { feeToken: asUAddress(feeToken, asChain(account)) },
+        )
+      : undefined;
 
-    return insert;
+    return {
+      id: `PreparedTransaction:${hash}`,
+      hash,
+      timestamp,
+      gasLimit: tx.gas,
+      feeToken: r?.feeToken,
+      maxAmount: tx.maxAmount,
+      paymaster: tx.paymaster,
+      paymasterEthFees: {
+        total: totalPaymasterEthFees(paymasterFees),
+        activation: paymasterFees.activation,
+      },
+      account,
+      policy,
+      maxNetworkFee,
+    };
   }
 
   async propose({
@@ -267,53 +283,29 @@ export class TransactionsService {
     gas: gasInput,
     feeToken = ETH_ADDRESS,
     signature,
+    policy,
   }: ProposeTransactionInput) {
-    if (!operations.length) throw new UserInputError('No operations provided');
-
     const chain = asChain(account);
-    const network = this.networks.get(chain);
-    const getGas = async () =>
-      (gasInput ??=
-        (
-          await estimateTransactionOperationsGas({
-            account: asAddress(account),
-            network,
-            operations,
-          })
-        ).unwrapOr(FALLBACK_OPERATIONS_GAS) + estimateTransactionVerificationGas(3));
-
-    const [gas, maxFeePerGas, paymasterFees, feeTokenPrice] = await Promise.all([
-      getGas(),
-      network.estimatedMaxFeePerGas(),
-      this.paymasters.paymasterFees({ account }),
-      this.prices.price(asUAddress(feeToken, chain)),
-    ]);
-    const maxNetworkFee = maxFeePerGas.mul(gas.toString()).mul(MAX_NETWORK_FEE_MULTIPLIER);
-    const totalEthFees = maxNetworkFee.plus(totalPaymasterEthFees(paymasterFees));
-    const maxAmount = totalEthFees.div(feeTokenPrice.eth);
-
-    const tx = {
+    const { tx, hash, paymasterFees, maxAmount, policyId, validationErrors } = await this.prepare({
+      account,
       operations,
-      timestamp: BigInt(Math.floor(timestamp.getTime() / 1000)),
-      gas,
+      timestamp,
+      gas: gasInput,
       feeToken,
-      paymaster: this.paymasters.for(chain),
-      maxAmount: await this.tokens.asFp(asUAddress(feeToken, chain), maxAmount),
-    } satisfies Tx;
-    const hash = hashTx(account, tx);
-    const { policyId, validationErrors } = await this.policies.best(account, tx);
+      policy,
+    });
 
     const r = await this.db.exec(insertTransaction, {
       hash,
       account,
       policy: policyId,
-      validationErrors,
+      validationErrors, // TODO: handle at result level
       label,
       icon,
       timestamp,
       dapp,
       operations,
-      gasLimit: gas,
+      gasLimit: tx.gas,
       feeToken: asUAddress(feeToken, chain),
       maxAmount: maxAmount.toString(),
       paymaster: tx.paymaster,

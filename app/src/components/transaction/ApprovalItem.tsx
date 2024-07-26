@@ -60,14 +60,8 @@ export function ApprovalItem(props: ApprovalItemProps) {
       headline={<AddressLabel address={asUAddress(approver.address, proposal.account.chain)} />}
       supporting={<Timestamp timestamp={createdAt} />}
       {...(reject && {
-        trailing: ({ size, disabled }) => (
-          <IconButton
-            mode="contained-tonal"
-            icon={CloseIcon}
-            size={size}
-            disabled={disabled}
-            onPress={reject}
-          />
+        trailing: ({ size }) => (
+          <IconButton mode="contained-tonal" icon={CloseIcon} size={size} onPress={reject} />
         ),
       })}
     />

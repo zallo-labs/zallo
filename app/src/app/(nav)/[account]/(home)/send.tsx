@@ -62,10 +62,11 @@ function SendScreen() {
   const { styles } = useStyles(stylesheet);
   const chain = asChain(params.account);
 
-  const { token, account } = useLazyQuery<send_SendScreen2Query>(Query, {
+  const query = useLazyQuery<send_SendScreen2Query>(Query, {
     account: params.account,
     token: useSelectedToken(chain),
   });
+  const { token, account } = query;
 
   const [amount, setAmount] = useState<Decimal>(new Decimal(0));
   const [mode, setMode] = useState<SendMode>('transfer');

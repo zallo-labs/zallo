@@ -9,7 +9,7 @@ import {
   randomUAddress,
   randomUser,
 } from '~/util/test';
-import { randomDeploySalt, Hex, UAddress, ZERO_ADDR, asUUID } from 'lib';
+import { randomDeploySalt, Hex, UAddress, ZERO_ADDR, asUUID, asPolicyKey } from 'lib';
 import { Network, NetworksService } from '~/core/networks/networks.service';
 import { ProposeTransactionInput } from './transactions.input';
 import { DatabaseService } from '~/core/database';
@@ -145,6 +145,7 @@ describe(TransactionsService.name, () => {
     policies.best.mockImplementation(async () => ({
       policyId: await db.query(e.assert_exists(selectPolicy({ account, key: 0 })).id),
       policy: selectPolicy({ account, key: 0 }) as any,
+      policyKey: asPolicyKey(0),
       validationErrors: [],
     }));
 

@@ -60,11 +60,10 @@ export function AuthSettings({ style }: AuthSettings2Props) {
         <ListItem
           leading={LockOpenIcon}
           headline="Unlock app"
-          trailing={({ disabled }) => (
+          trailing={() => (
             <Switch
-              value={settings.open}
+              value={!ALWAYS_REQUIRED_ON_OPEN && settings.open}
               onValueChange={(v) => updateSettings((s) => ({ ...s, open: v }))}
-              disabled={disabled}
             />
           )}
           disabled={ALWAYS_REQUIRED_ON_OPEN}
