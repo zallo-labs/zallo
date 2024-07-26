@@ -58,8 +58,6 @@ export function usePreparedTransaction(params: PrepapredTransactionParams) {
     { fetchPolicy: 'store-and-network' },
   );
 
-  console.log({ prepareTransaction });
-
   return (input: Omit<ProposeTransactionInput, 'account'>) =>
     propose(account, {
       ...input,
