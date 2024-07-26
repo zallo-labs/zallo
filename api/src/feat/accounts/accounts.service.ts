@@ -90,7 +90,12 @@ export class AccountsService {
       .run(this.db.DANGEROUS_superuserClient, { name });
   }
 
-  async createAccount({ chain, name, policies: policyInputs }: CreateAccountInput) {
+  async createAccount({
+    chain,
+    name,
+    policies: policyInputs,
+    salt = randomDeploySalt(),
+  }: CreateAccountInput) {
     const baseAutoKey = Math.max(MIN_AUTO_POLICY_KEY, ...policyInputs.map((p) => p.key ?? 0));
     const policies = policyInputs.map((p, i) => ({
       ...p,
@@ -100,7 +105,6 @@ export class AccountsService {
       throw new UserInputError('Duplicate policy keys');
 
     const implementation = ACCOUNT_IMPLEMENTATION.address[chain];
-    const salt = randomDeploySalt();
     const account = asUAddress(
       getProxyAddress({
         deployer: DEPLOYER.address[chain],

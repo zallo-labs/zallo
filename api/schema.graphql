@@ -204,6 +204,7 @@ input CreateAccountInput {
   chain: Chain! = "zksync-sepolia"
   name: String!
   policies: [PolicyInput!]!
+  salt: Bytes32
 }
 
 input CreatePolicyInput {

@@ -1,5 +1,5 @@
 import { ArgsType, Field, InputType } from '@nestjs/graphql';
-import { UAddress } from 'lib';
+import { Hex, UAddress } from 'lib';
 import { PolicyInput } from '../policies/policies.input';
 import { Chain } from 'chains';
 import {
@@ -8,6 +8,7 @@ import {
   UAddressScalar,
   UrlField,
   minLengthMiddleware,
+  Bytes32Field,
 } from '~/common/scalars';
 import { AccountEvent } from './accounts.model';
 
@@ -51,6 +52,9 @@ export class CreateAccountInput {
 
   @Field(() => [PolicyInput], { middleware: [minLengthMiddleware(1)] })
   policies: PolicyInput[];
+
+  @Bytes32Field({ nullable: true })
+  salt?: Hex;
 }
 
 @InputType()
