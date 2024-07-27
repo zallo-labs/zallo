@@ -3,12 +3,9 @@ import { useEffect } from 'react';
 import { AppState, Platform } from 'react-native';
 import { showInfo } from './SnackbarProvider';
 import { showWarning } from './SnackbarProvider';
-import { DateTime } from 'luxon';
 import * as Sentry from '@sentry/react-native';
 
-function periodElapsed(lastCheck: Date | undefined) {
-  return !lastCheck || DateTime.now() > DateTime.fromJSDate(lastCheck).plus({ minutes: 5 });
-}
+const UPDATE_INTEVAL = 5 * 60_000;
 
 export function UpdateProvider() {
   const {
@@ -22,17 +19,26 @@ export function UpdateProvider() {
 
   // Check for updates:
   // - on launch (default)
-  // - on foreground every 5 minutes
+  // - when app enters foreground
+  // - every 5 minutes
   useEffect(() => {
     if (__DEV__ || Platform.OS === 'web') return;
 
+    const checkStale = () =>
+      !lastCheckForUpdateTimeSinceRestart ||
+      lastCheckForUpdateTimeSinceRestart.getTime() + UPDATE_INTEVAL < Date.now();
+
     const listener = AppState.addEventListener('change', async (newState) => {
-      if (newState === 'active' && periodElapsed(lastCheckForUpdateTimeSinceRestart))
-        Updates.checkForUpdateAsync();
+      if (newState === 'active' && checkStale()) Updates.checkForUpdateAsync();
     });
+
+    const timer = setInterval(() => {
+      if (checkStale()) Updates.checkForUpdateAsync();
+    }, UPDATE_INTEVAL);
 
     return () => {
       listener.remove();
+      clearTimeout(timer);
     };
   }, [lastCheckForUpdateTimeSinceRestart]);
 
@@ -44,7 +50,7 @@ export function UpdateProvider() {
   // Prompt user to reload when update is pending
   useEffect(() => {
     if (isUpdatePending) {
-      showInfo('A new version is available', {
+      showInfo('A new improved version is available. Please reload to apply the update.', {
         action: {
           label: 'Reload',
           onPress: Updates.reloadAsync,
