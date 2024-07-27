@@ -13,4 +13,7 @@ global.process = require('process');
 // @ts-expect-error Cannot assign to userAgent because it is a read-only property.
 global.navigator.userAgent ??= 'React Native';
 
+// Import corejs async iterator polyfill
+import 'core-js/full/async-iterator'; // Required for neverthrow & viem
+
 export default {};
