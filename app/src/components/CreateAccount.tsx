@@ -61,13 +61,7 @@ export function CreateAccount({ onCreate }: CreateAccountScreenProps) {
       <View style={styles.container}>
         <Text variant="bodyLarge">You can update your account details at any time</Text>
 
-        <AccountNameFormField
-          name="name"
-          label="Account name"
-          control={control}
-          required
-          autoFocus
-        />
+        <AccountNameFormField name="name" label="Account name" control={control} required />
 
         <FormChainSelector control={control} name="chain" style={styles.chainSelector} />
       </View>
