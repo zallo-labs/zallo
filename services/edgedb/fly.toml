@@ -1,15 +1,16 @@
 app = "zallo-production-edgedb"
 primary_region = "iad" # Ashburn, Virginia
 
-swap_size_mb = 2048
-
 [build]
   image = "edgedb/edgedb:5.4"
+
+[deploy]
+  strategy = "bluegreen"
 
 [env]
   EDGEDB_SERVER_PORT = 10700 # default
   EDGEDB_SERVER_TLS_CERT_MODE = "generate_self_signed"
-  EDGEDB_SERVER_EXTRA_ARGS = "--max-backend-connections 25" # Default: RAM/100MB
+  EDGEDB_SERVER_EXTRA_ARGS = "--max-backend-connections 40" # Default: RAM/100MB
 
 
   # Secrets
