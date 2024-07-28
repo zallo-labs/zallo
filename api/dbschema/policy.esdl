@@ -19,7 +19,7 @@ module default {
     required initState := .activationBlock ?= 0;
     required hasBeenActive := exists .activationBlock;
     required isActive := .isLatest and .hasBeenActive;
-    required isDraft := exists .draft;
+    required isDraft := (__source__ ?= .draft);
     latest := (__source__ if .isLatest else latestPolicy(.account, .key));
     draft := assert_single((
       with account := __source__.account, key := __source__.key
@@ -94,9 +94,9 @@ module default {
   }
 
   type TransfersConfig {
-    multi limits: TransferLimit { constraint exclusive; }
     required defaultAllow: bool { default := true; };
     required budget: uint32;
+    multi limits: TransferLimit { constraint exclusive; }
   }
 
   type TransferLimit {

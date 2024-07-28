@@ -215,9 +215,9 @@ export namespace $default {
     "proposal"?: Transaction | null;
     "initState": boolean;
     "isActive": boolean;
-    "isDraft": boolean;
     "latest"?: PolicyState | null;
     "isLatest": boolean;
+    "isDraft": boolean;
   }
   export interface Policy extends PolicyState {
     "approvers": Approver[];

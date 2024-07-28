@@ -12,4 +12,4 @@ configure instance set query_work_mem := <cfg::memory>"8MiB";
 configure instance set shared_buffers := <cfg::memory>"2GiB";
 
 # Total memory available to the database for caching - 75%
-configure instance set effective_cache_size := <cfg::memory>"3GiB";
+configure instance set effective_cache_size := <cfg::memory>"6GiB";
