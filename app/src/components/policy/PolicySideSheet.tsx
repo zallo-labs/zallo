@@ -39,8 +39,9 @@ const Policy = graphql`
 `;
 
 const Rename = graphql`
-  mutation PolicySideSheet_renameMutation($account: UAddress!, $key: PolicyKey!, $name: String!) {
-    updatePolicy(input: { account: $account, key: $key, name: $name }) {
+  mutation PolicySideSheet_renameMutation($account: UAddress!, $key: PolicyKey!, $name: String!)
+  @raw_response_type {
+    updatePolicyDetails(input: { account: $account, key: $key, name: $name }) {
       __typename
       ... on Policy {
         id
@@ -115,9 +116,9 @@ export function PolicySideSheet(props: PolicySideSheetProps) {
             const { name } = input;
 
             if (name !== draft.name) {
-              if (draft.key !== undefined) {
+              if (policy && draft.key !== undefined) {
                 const r = (await rename({ account: draft.account, key: draft.key, name }))
-                  ?.updatePolicy;
+                  ?.updatePolicyDetails;
                 if (r?.__typename !== 'Policy') return showError(r?.message);
               }
 

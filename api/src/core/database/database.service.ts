@@ -51,10 +51,10 @@ export class DatabaseService implements OnModuleInit {
     return reqCtx.db;
   }
 
-  private async run<R>(p: Promise<R>, name = 'inline'): Promise<R> {
+  private async run<R>(f: () => Promise<R>, name = 'inline'): Promise<R> {
     return Sentry.startSpan({ op: 'db.query', name }, async () => {
       try {
-        return await p;
+        return await f();
       } catch (e) {
         if (e instanceof EdgeDBError && e['_query']) Sentry.setExtra('EdgeQL', e['_query']);
         throw e;
@@ -63,7 +63,7 @@ export class DatabaseService implements OnModuleInit {
   }
 
   async query<Expr extends Expression>(expression: Expr): Promise<$infer<Expr>> {
-    return this.run(expression.run(this.client));
+    return this.run(() => expression.run(this.client));
   }
 
   async queryWith<
@@ -75,7 +75,7 @@ export class DatabaseService implements OnModuleInit {
     params: paramsToParamArgs<Params>,
   ) {
     const expression = e.params(paramsDef, getExpr as any);
-    return this.run(expression.run(this.client, params as any)) as Promise<$infer<Expr>>;
+    return this.run(() => expression.run(this.client, params as any)) as Promise<$infer<Expr>>;
   }
 
   async queryWith2<
@@ -87,14 +87,14 @@ export class DatabaseService implements OnModuleInit {
     getExpr: (params: paramsToParamExprs<Params>) => Expr,
   ) {
     const expression = e.params(paramsDef, getExpr as any);
-    return this.run(expression.run(this.client, params as any)) as Promise<$infer<Expr>>;
+    return this.run(() => expression.run(this.client, params as any)) as Promise<$infer<Expr>>;
   }
 
   async exec<F extends (client: Executor, args: any) => Promise<any>>(
     f: F,
     args: Parameters<F>[1],
   ): Promise<Awaited<ReturnType<F>>> {
-    return this.run(f(this.client, args), f.name);
+    return this.run(() => f(this.client, args), f.name);
   }
 
   async transaction<T>(action: (transaction: Transaction) => Promise<T>): Promise<T> {

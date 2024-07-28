@@ -24,50 +24,21 @@ import { PolicyPane_account$key } from '~/api/__generated__/PolicyPane_account.g
 import { PolicyPane_policy$key } from '~/api/__generated__/PolicyPane_policy.graphql';
 import { PolicyPane_user$key } from '~/api/__generated__/PolicyPane_user.graphql';
 import { useMutation } from '~/api';
-import { PolicyPane_createMutation } from '~/api/__generated__/PolicyPane_createMutation.graphql';
-import { PolicyPane_updateMutation } from '~/api/__generated__/PolicyPane_updateMutation.graphql';
+import { PolicyPaneMutation } from '~/api/__generated__/PolicyPaneMutation.graphql';
 
-const Create = graphql`
-  mutation PolicyPane_createMutation($input: CreatePolicyInput!) {
-    createPolicy(input: $input) {
+const Propose = graphql`
+  mutation PolicyPaneMutation($input: ProposePoliciesInput!) {
+    proposePolicies(input: $input) {
       __typename
-      ... on Policy {
+      id
+      proposal {
+        id
+      }
+      draft {
         id
         proposal {
           id
         }
-        draft {
-          id
-          proposal {
-            id
-          }
-        }
-      }
-      ... on Err {
-        message
-      }
-    }
-  }
-`;
-
-const Update = graphql`
-  mutation PolicyPane_updateMutation($input: UpdatePolicyInput!) {
-    updatePolicy(input: $input) {
-      __typename
-      ... on Policy {
-        id
-        proposal {
-          id
-        }
-        draft {
-          id
-          proposal {
-            id
-          }
-        }
-      }
-      ... on Err {
-        message
       }
     }
   }
@@ -113,8 +84,7 @@ export interface PolicyPaneProps {
 export function PolicyPane({ initial, ...props }: PolicyPaneProps) {
   const router = useRouter();
   const params = useLocalSearchParams();
-  const create = useMutation<PolicyPane_createMutation>(Create);
-  const update = useMutation<PolicyPane_updateMutation>(Update);
+  const propose = useMutation<PolicyPaneMutation>(Propose);
 
   const account = useFragment(Account, props.account);
   const policy = useFragment(Policy, props.policy);
@@ -150,12 +120,8 @@ export function PolicyPane({ initial, ...props }: PolicyPaneProps) {
               label={draft.key === undefined ? 'Create policy' : 'Update policy'}
               onPress={async () => {
                 const input = { account: draft.account, ...asPolicyInput(draft) };
-                const r =
-                  input.key !== undefined
-                    ? (await update({ input: { ...input, key: input.key! } })).updatePolicy
-                    : (await create({ input })).createPolicy;
-
-                if (r?.__typename !== 'Policy') return showError(r?.message);
+                const r = (await propose({ input: { account: input.account, policies: [input] } }))
+                  .proposePolicies?.[0];
 
                 const p = r.draft ?? r;
                 router.setParams({ ...params, id: p.id });
