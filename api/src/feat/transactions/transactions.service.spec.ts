@@ -1,14 +1,7 @@
 import { Test } from '@nestjs/testing';
 import { createMock, DeepMocked } from '@golevelup/ts-jest';
-import { asUser, getApprover, getUserCtx, UserContext } from '~/core/context';
-import {
-  DeepPartial,
-  randomAddress,
-  randomHash,
-  randomLabel,
-  randomUAddress,
-  randomUser,
-} from '~/util/test';
+import { asUser, getUserCtx, UserContext } from '~/core/context';
+import { DeepPartial, randomAddress, randomLabel, randomUAddress, randomUser } from '~/util/test';
 import { randomDeploySalt, Hex, UAddress, ZERO_ADDR, asUUID, asPolicyKey } from 'lib';
 import { Network, NetworksService } from '~/core/networks/networks.service';
 import { ProposeTransactionInput } from './transactions.input';
@@ -69,6 +62,7 @@ describe(TransactionsService.name, () => {
     networks.get.mockReturnValue({
       chain: CHAINS['zksync-local'],
       estimatedMaxFeePerGas: async () => new Decimal('.00000001'),
+      getCode: async () => '0x00',  // Non-zero - activated
     } satisfies DeepPartial<Network> as unknown as Network);
 
     paymasters.paymasterFees.mockImplementation(async () => ({
