@@ -169,19 +169,29 @@ export class TransactionsService {
     const network = this.networks.get(chain);
     const paymaster = this.paymasters.for(chain);
 
+    const isActive = !!(await network.getCode({ address: asAddress(account) }))?.length;
+
     const getGas = async () =>
       gasInput ??
       (
         await network.estimateFee({
           type: 'eip712',
           account: asAddress(account),
-          paymaster,
-          paymasterInput: encodePaymasterInput({
-            token: feeToken,
-            amount: 0n,
-            maxAmount: 0n,
-          }),
           ...encodeOperations(operations),
+          // Only active accounts can estimate paymaster fees. Inactive accounts use EOA account code and throw 'Unsupported paymaster flow'
+          ...(isActive
+            ? {
+                paymaster,
+                paymasterInput: encodePaymasterInput({
+                  token: feeToken,
+                  amount: 0n,
+                  maxAmount: 0n,
+                }),
+              }
+            : {
+                paymaster: undefined,
+                paymasterInput: undefined,
+              }),
         })
       ).gasLimit;
 
