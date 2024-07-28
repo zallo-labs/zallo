@@ -10,6 +10,7 @@ export type InsertPoliciesArgs = {
 
 export type InsertPoliciesReturns = Array<{
   "id": string;
+  "key": number;
 }>;
 
 export function insertPolicies(client: Executor, args: InsertPoliciesArgs): Promise<InsertPoliciesReturns> {
@@ -18,11 +19,11 @@ with account := (select Account filter .address = <UAddress>$account),
      txId := <optional uuid>$transaction,
      tx := ((select Transaction filter .id = txId) if exists txId else {})
 for p in array_unpack(<array<json>>$policies) union (
-  insert Policy {
+  with policy := (insert Policy {
     account := account,
     key := <uint16>p['key'],
     proposal := tx,
-    activationBlock := <bigint><str>p['activationBlock'],
+    activationBlock := <bigint><str>json_get(p, 'activationBlock'),
     name := <str>p['name'],
     threshold := <uint16>p['threshold'],
     approvers := (
@@ -55,11 +56,11 @@ for p in array_unpack(<array<json>>$policies) union (
         defaultAllow := <bool>p['transfers']['defaultAllow'],
         budget := <uint32>p['transfers']['budget'],
         limits := (
-          for l in array_unpack(<array<json>>json_get(p, 'transfers.limits')) union (
+          for l in array_unpack(<array<json>>json_get(p, 'transfers', 'limits')) union (
             insert TransferLimit {
               token := <Address>l['token'],
               amount := <uint224><str>l['amount'],
-              duration := <uint32><str>l['duration'],
+              duration := <uint32>l['duration'],
             }
           )
         ),
@@ -67,6 +68,10 @@ for p in array_unpack(<array<json>>$policies) union (
     ),
     allowMessages := <bool>json_get(p, 'allowMessages'),
     delay := <uint32>json_get(p, 'delay'),
+  })
+  select policy {
+    id,
+    key
   }
 )`, args);
 

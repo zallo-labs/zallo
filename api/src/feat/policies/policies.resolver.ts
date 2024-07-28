@@ -52,7 +52,10 @@ export class PoliciesResolver {
   @Mutation(() => [Policy])
   async proposePolicies(@Input() input: ProposePoliciesInput, @Info() info: GraphQLResolveInfo) {
     const policies = await this.service.propose(input);
-    return this.service.policies(policies, getShape(info));
+    return this.service.policies(
+      policies.map((p) => p.id),
+      getShape(info),
+    );
   }
 
   @Mutation(() => UpdatePolicyDetailsResponse, { nullable: true })

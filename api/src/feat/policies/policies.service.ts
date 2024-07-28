@@ -18,6 +18,7 @@ import {
 } from 'lib';
 import { TransactionsService } from '../transactions/transactions.service';
 import {
+  PolicyInput,
   ProposePoliciesInput,
   UniquePolicyInput,
   UpdatePolicyDetailsInput,
@@ -44,7 +45,6 @@ import { getUserCtx } from '~/core/context';
 import { PubsubService } from '~/core/pubsub/pubsub.service';
 import { existingPolicies } from './existing-policies.query';
 import { insertPolicies } from './insert-policies.query';
-import { ok } from 'neverthrow';
 import { updatePolicyDetails } from './update-policy-details.query';
 import { ConstraintViolationError } from 'edgedb';
 
@@ -56,6 +56,10 @@ export interface PolicyUpdatedPayload {
   policyId: UUID;
 }
 const policyUpdatedTrigger = (account: UAddress) => `account.policy:${account}`;
+
+export type ProposePoliciesParams = ProposePoliciesInput & {
+  isInitialization?: boolean;
+};
 
 @Injectable()
 export class PoliciesService {
@@ -98,11 +102,13 @@ export class PoliciesService {
     );
   }
 
-  async propose({ account, policies }: ProposePoliciesInput, isInitialization?: boolean) {
+  async propose(
+    { account, isInitialization }: Omit<ProposePoliciesParams, 'policies'>,
+    ...policies: PolicyInput[]
+  ) {
     let autoKey = policies.some((p) => p.key === undefined)
       ? await this.getNextKey(account)
       : asPolicyKey(0);
-
     const policiesWithKeys = policies.map((p) => ({
       ...p,
       key: (p.key ?? autoKey++) as PolicyKey,
@@ -151,12 +157,14 @@ export class PoliciesService {
           name: input.name || 'Policy ' + input.key,
         })),
       })
-    ).map((p) => asUUID(p.id));
+    ).map((p) => ({ ...p, id: asUUID(p.id), key: asPolicyKey(p.key) }));
 
     const approvers = new Set(changedPolicies.flatMap(({ input }) => input.approvers));
     this.userAccounts.invalidateApproversCache(...approvers);
 
-    newPolicies.forEach((id) => this.event({ event: PolicyEvent.created, account, policyId: id }));
+    newPolicies.forEach(({ id }) =>
+      this.event({ event: PolicyEvent.created, account, policyId: id }),
+    );
 
     return newPolicies;
   }

@@ -151,7 +151,13 @@ export class AccountsService {
         }),
       );
 
-      await this.policies.propose({ account: address, policies: selfRefPolicies }, true);
+      await this.policies.propose(
+        {
+          account: address,
+          isInitialization: true,
+        },
+        ...selfRefPolicies,
+      );
     });
 
     this.contracts.addAccountAsVerified(asAddress(address));
