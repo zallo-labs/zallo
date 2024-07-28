@@ -23,8 +23,6 @@ export function Pane({ padding = true, flex, fixed: _, ...props }: PaneProps) {
   const route = useRoute();
   const isSelected = useNavigationState((state) => state.routes[state.index].key === route.key);
 
-  console.warn(route.name, { isSelected });
-
   // Flex a fixed pane when it is the only one visible
   const fixed = !flex && !isSelected;
 

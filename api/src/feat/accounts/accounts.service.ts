@@ -11,6 +11,7 @@ import {
   ACCOUNT_IMPLEMENTATION,
   DEPLOYER,
   asUAddress,
+  PLACEHOLDER_ACCOUNT_ADDRESS,
 } from 'lib';
 import { ShapeFunc } from '~/core/database';
 import {
@@ -30,6 +31,7 @@ import { AccountsCacheService } from '../auth/accounts.cache.service';
 import { v4 as uuid } from 'uuid';
 import { selectAccount2 } from './accounts.util';
 import { AccountEvent } from './accounts.model';
+import { PolicyInput } from '../policies/policies.input';
 
 const accountTrigger = (account: UAddress) => `account.updated:${account}`;
 const accountApproverTrigger = (approver: Address) => `account.updated:approver:${approver}`;
@@ -105,7 +107,7 @@ export class AccountsService {
       throw new UserInputError('Duplicate policy keys');
 
     const implementation = ACCOUNT_IMPLEMENTATION.address[chain];
-    const account = asUAddress(
+    const address = asUAddress(
       getProxyAddress({
         deployer: DEPLOYER.address[chain],
         implementation,
@@ -119,35 +121,51 @@ export class AccountsService {
     const id = uuid();
     await this.accountsCache.addCachedAccount({
       approver: getApprover(),
-      account: { id, address: account },
+      account: { id, address },
     });
+
+    // Replace self address with account address
+    const selfRefPolicies = policies.map(
+      (p) =>
+        ({
+          ...p,
+          actions: p.actions?.map((a) => ({
+            ...a,
+            functions: a.functions.map((f) => ({
+              ...f,
+              contract:
+                f.contract === PLACEHOLDER_ACCOUNT_ADDRESS ? asAddress(address) : f.contract,
+            })),
+          })),
+        }) satisfies PolicyInput,
+    );
 
     await this.db.transaction(async () => {
       await this.db.query(
         e.insert(e.Account, {
           id,
-          address: account,
+          address,
           name,
           implementation,
           salt,
         }),
       );
 
-      for (const policy of policyInputs) {
-        await this.policies.create({
-          account,
-          initState: true,
-          ...policy,
-        });
-      }
+      await this.policies.propose(
+        {
+          account: address,
+          isInitialization: true,
+        },
+        ...selfRefPolicies,
+      );
     });
 
-    this.contracts.addAccountAsVerified(asAddress(account));
-    this.faucet.requestTokens(account);
-    this.event({ account, event: AccountEvent.created });
+    this.contracts.addAccountAsVerified(asAddress(address));
+    this.faucet.requestTokens(address);
+    this.event({ account: address, event: AccountEvent.created });
     this.setAsPrimaryAccountIfNotConfigured(id);
 
-    return { id, address: account };
+    return { id, address: address };
   }
 
   async updateAccount({ account, name, photo }: UpdateAccountInput) {

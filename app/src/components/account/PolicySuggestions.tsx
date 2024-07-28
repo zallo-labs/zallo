@@ -16,8 +16,8 @@ import { asPolicyInput } from '~/lib/policy/policyAsDraft';
 import { usePolicyPresets } from '~/lib/policy/usePolicyPresets';
 
 const Create = graphql`
-  mutation PolicySuggestionsMutation($input: CreatePolicyInput!) {
-    createPolicy(input: $input) {
+  mutation PolicySuggestionsMutation($input: ProposePoliciesInput!) {
+    proposePolicies(input: $input) {
       __typename
       ... on Policy {
         id
@@ -58,7 +58,7 @@ export function PolicySuggestions(props: PolicySuggestionsProps) {
   const account = useFragment(Account, props.account);
   const user = useFragment(User, props.user);
   const router = useRouter();
-  const create = useMutation<PolicySuggestionsMutation>(Create);
+  const proposePolicies = useMutation<PolicySuggestionsMutation>(Create);
   const presets = usePolicyPresets({ account, user, chain: asChain(account.address) });
 
   const policyKeys = new Set(account.policies.map((p) => p.key));
@@ -68,16 +68,13 @@ export function PolicySuggestions(props: PolicySuggestionsProps) {
 
   const createPolicy = async (preset: (typeof presets)[keyof typeof presets]) => {
     const r = (
-      await create({
+      await proposePolicies({
         input: {
           account: account.address,
-          ...asPolicyInput(preset),
+          policies: [asPolicyInput(preset)],
         },
       })
-    ).createPolicy;
-
-    if (r?.__typename !== 'Policy')
-      return showError(`A policy with the name "${preset.name}" already exists`);
+    ).proposePolicies?.[0];
 
     router.push({
       pathname: '/(nav)/[account]/settings/policy/[id]/',

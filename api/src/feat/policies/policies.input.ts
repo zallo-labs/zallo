@@ -108,24 +108,24 @@ export class PolicyInput {
 }
 
 @InputType()
-export class CreatePolicyInput extends PolicyInput {
+export class ProposePoliciesInput {
   @UAddressField()
   account: UAddress;
+
+  @Field(() => [PolicyInput])
+  policies: PolicyInput[];
 }
 
 @InputType()
-export class UpdatePolicyInput extends IntersectionType(
-  UniquePolicyInput,
-  PartialType(PolicyInput),
-) {}
-
-@InputType()
-export class UpdatePoliciesInput {
+export class UpdatePolicyDetailsInput {
   @UAddressField()
   account: UAddress;
 
-  @Field(() => [UpdatePolicyInput])
-  policies: UpdatePolicyInput[];
+  @PolicyKeyField()
+  key: PolicyKey;
+
+  @Field(() => String)
+  name: string;
 }
 
 @ArgsType()

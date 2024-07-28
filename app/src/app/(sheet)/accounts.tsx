@@ -49,7 +49,7 @@ export default function AccountsSheet() {
                 style={styles.action}
                 onPress={() => {
                   goBackOnClose.current = false;
-                  router.push(`/accounts/create`);
+                  router.replace(`/accounts/create`);
                 }}
               >
                 <AddIcon />
@@ -62,7 +62,7 @@ export default function AccountsSheet() {
                 style={styles.action}
                 onPress={() => {
                   goBackOnClose.current = false;
-                  router.push(`/accounts/join`);
+                  router.replace(`/accounts/join`);
                 }}
               >
                 <QrCodeIcon />
@@ -85,12 +85,13 @@ export default function AccountsSheet() {
                 status={selectedAddress === a.address ? 'checked' : 'unchecked'}
               />
             }
-            onPress={() =>
-              router.push({
+            onPress={() => {
+              goBackOnClose.current = false;
+              router.replace({
                 pathname: `/(nav)/[account]/(home)/`,
                 params: { account: a.address },
-              })
-            }
+              });
+            }}
           />
         )}
         keyExtractor={(a) => a.id}

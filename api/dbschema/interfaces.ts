@@ -38,6 +38,7 @@ export namespace cfg {
     "default_statistics_target"?: number | null;
     "force_database_error"?: string | null;
     "_pg_prepared_statement_cache_size": number;
+    "auto_rebuild_query_cache_timeout"?: edgedb.Duration | null;
   }
   export type AllowBareDDL = "AlwaysAllow" | "NeverAllow";
   export interface Auth extends ConfigObject {
@@ -215,9 +216,9 @@ export namespace $default {
     "proposal"?: Transaction | null;
     "initState": boolean;
     "isActive": boolean;
-    "isDraft": boolean;
     "latest"?: PolicyState | null;
     "isLatest": boolean;
+    "isDraft": boolean;
   }
   export interface Policy extends PolicyState {
     "approvers": Approver[];

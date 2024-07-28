@@ -10,19 +10,18 @@ import {
 } from '@nestjs/graphql';
 import { GraphQLResolveInfo } from 'graphql';
 import {
-  CreatePolicyInput,
   ValidationErrorsArgs,
   UniquePolicyInput,
-  UpdatePolicyInput,
-  UpdatePoliciesInput,
+  UpdatePolicyDetailsInput,
   PolicyUpdatedInput,
+  ProposePoliciesInput,
 } from './policies.input';
 import { PoliciesService, PolicyUpdatedPayload } from './policies.service';
 import {
-  CreatePolicyResponse,
+  NameTaken,
   Policy,
   PolicyUpdated,
-  UpdatePolicyResponse,
+  UpdatePolicyDetailsResponse,
   ValidationError,
 } from './policies.model';
 import { getShape } from '~/core/database';
@@ -50,25 +49,24 @@ export class PoliciesResolver {
     return this.service.validateProposal(proposal, policy);
   }
 
-  @Mutation(() => CreatePolicyResponse)
-  async createPolicy(
-    @Input() input: CreatePolicyInput,
-    @Info() info: GraphQLResolveInfo,
-  ): Promise<typeof CreatePolicyResponse> {
-    const r = await this.service.create(input);
-    return r.isOk() ? (await this.service.latest(r.value, getShape(info)))! : r.error;
-  }
-
-  @Mutation(() => UpdatePolicyResponse)
-  async updatePolicy(@Input() input: UpdatePolicyInput, @Info() info: GraphQLResolveInfo) {
-    await this.service.update(input);
-    return (await this.service.latest({ account: input.account, key: input.key }, getShape(info)))!;
-  }
-
   @Mutation(() => [Policy])
-  async updatePolicies(@Input() input: UpdatePoliciesInput, @Info() info: GraphQLResolveInfo) {
-    const policies = await this.service.updatePolicies(input);
-    return policies ? this.service.policies(policies, getShape(info)) : [];
+  async proposePolicies(@Input() input: ProposePoliciesInput, @Info() info: GraphQLResolveInfo) {
+    const policies = await this.service.propose(input);
+    return this.service.policies(
+      policies.map((p) => p.id),
+      getShape(info),
+    );
+  }
+
+  @Mutation(() => UpdatePolicyDetailsResponse, { nullable: true })
+  async updatePolicyDetails(
+    @Input() input: UpdatePolicyDetailsInput,
+    @Info() info: GraphQLResolveInfo,
+  ): Promise<UpdatePolicyDetailsResponse | null> {
+    const r = await this.service.updateDetails(input);
+    if (!r || r instanceof NameTaken) return r || null;
+
+    return this.service.latest({ account: input.account, key: input.key }, getShape(info));
   }
 
   @Mutation(() => Policy)

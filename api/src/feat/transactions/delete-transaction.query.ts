@@ -31,6 +31,7 @@ select {
       account: { address }
     }
   ),
+  # Delete policies the proposal was going to activate
   deletedPolicies := (delete t.<proposal[is PolicyState]),
   deletedTransaction := (delete t)
 };`, args);

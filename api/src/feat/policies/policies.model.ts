@@ -150,17 +150,12 @@ export class ValidationError {
 @ErrorType()
 export class NameTaken extends Err {}
 
-export const CreatePolicyResponse = createUnionType({
-  name: 'CreatePolicyResponse',
+export const UpdatePolicyDetailsResponse = createUnionType({
+  name: 'UpdatePolicyDetailsResponse',
   types: () => [Policy, NameTaken],
   resolveType: makeUnionTypeResolver([[e.Policy, Policy]]),
 });
-
-export const UpdatePolicyResponse = createUnionType({
-  name: 'UpdatePolicyResponse',
-  types: () => [Policy, NameTaken],
-  resolveType: makeUnionTypeResolver([[e.Policy, Policy]]),
-});
+export type UpdatePolicyDetailsResponse = typeof UpdatePolicyDetailsResponse;
 
 export enum PolicyEvent {
   created,

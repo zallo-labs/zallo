@@ -14,13 +14,14 @@ import {
   Tx,
   UUID,
   asUUID,
+  PolicyKey,
 } from 'lib';
 import { TransactionsService } from '../transactions/transactions.service';
 import {
-  CreatePolicyInput,
+  PolicyInput,
+  ProposePoliciesInput,
   UniquePolicyInput,
-  UpdatePoliciesInput,
-  UpdatePolicyInput,
+  UpdatePolicyDetailsInput,
 } from './policies.input';
 import { UserInputError } from '@nestjs/apollo';
 import { AccountsCacheService } from '../auth/accounts.cache.service';
@@ -33,21 +34,19 @@ import {
   policyInputAsStateShape,
   selectPolicy,
   latestPolicy2,
+  inputAsPolicy,
 } from './policies.util';
 import { NameTaken, PolicyEvent, Policy as PolicyModel, ValidationError } from './policies.model';
-import {
-  TX_SHAPE,
-  transactionAsTx,
-  ProposalTxShape,
-  selectTransaction,
-} from '../transactions/transactions.util';
-import { and, isExclusivityConstraintViolation } from '~/core/database';
+import { TX_SHAPE, transactionAsTx, ProposalTxShape } from '../transactions/transactions.util';
 import { selectAccount, selectAccount2 } from '../accounts/accounts.util';
-import { err, ok } from 'neverthrow';
 import { encodeFunctionData } from 'viem';
 import { $Transaction } from '~/edgeql-js/modules/default';
 import { getUserCtx } from '~/core/context';
 import { PubsubService } from '~/core/pubsub/pubsub.service';
+import { existingPolicies } from './existing-policies.query';
+import { insertPolicies } from './insert-policies.query';
+import { updatePolicyDetails } from './update-policy-details.query';
+import { ConstraintViolationError } from 'edgedb';
 
 export const MIN_AUTO_POLICY_KEY = 32; // 2^5; keys [0, 31] are reserved for manual keys
 
@@ -58,9 +57,9 @@ export interface PolicyUpdatedPayload {
 }
 const policyUpdatedTrigger = (account: UAddress) => `account.policy:${account}`;
 
-export interface CreatePolicyParams extends CreatePolicyInput {
-  initState?: boolean;
-}
+export type ProposePoliciesParams = ProposePoliciesInput & {
+  isInitialization?: boolean;
+};
 
 @Injectable()
 export class PoliciesService {
@@ -103,191 +102,81 @@ export class PoliciesService {
     );
   }
 
-  async create({ account, name, key, initState, ...policyInput }: CreatePolicyParams) {
-    key ??= await this.getNextKey(account);
+  async propose(
+    { account, isInitialization }: Omit<ProposePoliciesParams, 'policies'>,
+    ...policies: PolicyInput[]
+  ) {
+    let autoKey = policies.some((p) => p.key === undefined)
+      ? await this.getNextKey(account)
+      : asPolicyKey(0);
+    const policiesWithKeys = policies.map((p) => ({
+      ...p,
+      key: (p.key ?? autoKey++) as PolicyKey,
+    }));
 
-    const state = policyInputAsStateShape(key, policyInput);
-    const proposal =
-      !initState && (await this.getStateProposal(account, policyStateAsPolicy(state)));
-
-    try {
-      const { id } = await this.db.query(
-        e.insert(e.Policy, {
-          account: selectAccount(account),
-          key,
-          name: name || `Policy ${key}`,
-          ...(proposal && { proposal: selectTransaction(proposal) }),
-          ...this.insertStateShape(state, initState ? { account: asAddress(account) } : undefined),
-        }),
-      );
-
-      this.userAccounts.invalidateApproversCache(...policyInput.approvers);
-
-      this.event({ event: PolicyEvent.created, account, policyId: asUUID(id) });
-
-      return ok({ id, account, key });
-    } catch (e) {
-      // May occur due to key or name uniqueness; key however is only accepted internally so it must be by name
-      if (isExclusivityConstraintViolation(e))
-        return err(new NameTaken('A policy with this name already exists'));
-
-      throw e;
-    }
-  }
-
-  async update({ account, key, name, ...policyInput }: UpdatePolicyInput) {
-    // Metadata
-    if (name !== undefined) {
-      const updatedPolicies = await this.db.queryWith(
-        { account: e.UAddress, key: e.int64 },
-        ({ account, key }) =>
-          e.update(e.Policy, (p) => ({
-            filter: and(e.op(p.account, '=', selectAccount2(account)), e.op(p.key, '=', key)),
-            set: { name },
-          })),
-        { account, key },
-      );
-
-      if (!updatedPolicies.length) throw new UserInputError("Policy doesn't exist");
-    }
-
-    // State
-    if (Object.values(policyInput).some((v) => v !== undefined)) {
-      // Get existing policy state
-      // If approvers, threshold, or permissions are undefined then modify the policy accordingly
-      // Propose new state
-      const existing = await this.db.queryWith(
-        { account: e.UAddress, key: e.int64 },
-        ({ account, key }) =>
-          e.select(latestPolicy2(account, key), (p) => ({
-            draft: e.select(p.draft.is(e.Policy), () => PolicyShape),
-            ...PolicyShape,
-          })),
-        { account, key },
-      );
-      if (!existing) throw new UserInputError("Policy doesn't exist");
-
-      const currentState = existing.draft ?? existing;
-      const currentPolicy = policyStateAsPolicy(currentState);
-
-      const newState = policyInputAsStateShape(key, policyInput, currentState);
-      const newPolicy = policyStateAsPolicy(newState);
-      // TODO: update existing Policy object directly if equivalent
-      if (encodePolicy(currentPolicy) === encodePolicy(newPolicy)) return ok(undefined); // Only update if policy would actually change
-
-      const id = await this.db.query(
-        e.insert(e.Policy, {
-          account: selectAccount(account),
-          key,
-          name: name || selectPolicy({ account, key }).name,
-          proposal: selectTransaction(await this.getStateProposal(account, newPolicy)),
-          ...this.insertStateShape(newState),
-        }).id,
-      );
-
-      this.userAccounts.invalidateApproversCache(
-        ...newState.approvers.map((a) => asAddress(a.address)),
-      );
-
-      this.event({ event: PolicyEvent.created, account, policyId: asUUID(id) });
-    }
-  }
-
-  async updatePolicies({ account, policies }: UpdatePoliciesInput) {
-    const metadataUpdates = policies.filter((p) => p.name);
-    if (metadataUpdates.length) {
-      await this.db.queryWith(
-        { policies: e.array(e.tuple({ account: e.UAddress, key: e.uint16, name: e.str })) },
-        ({ policies }) =>
-          e.for(e.cast(e.json, e.array_unpack(policies)), (p) =>
-            e.update(latestPolicy2(e.cast(e.UAddress, p.account), e.cast(e.int64, p.key)), () => ({
-              set: { name: e.cast(e.str, p.name) },
-            })),
-          ),
-        {
-          policies: metadataUpdates.map((p) => ({ account: p.account, key: p.key, name: p.name! })),
-        },
-      );
-    }
-
-    const existingPolicies = await this.db.queryWith(
-      { policies: e.array(e.tuple({ account: e.UAddress, key: e.uint16 })) },
-      ({ policies }) =>
-        e.for(e.cast(e.json, e.array_unpack(policies)), (p) =>
-          e.select(latestPolicy2(e.cast(e.UAddress, p.account), e.cast(e.int64, p.key)), (p) => ({
-            draft: e.select(p.draft.is(e.Policy), () => PolicyShape),
-            name: true,
-            ...PolicyShape,
-          })),
-        ),
-      { policies: policies.map((p) => ({ account: p.account, key: p.key })) },
-    );
-
-    const toUpdate = policies
-      .map((p, i) => {
-        const existing = existingPolicies[i];
-        if (!existing)
-          throw new UserInputError(`Policy doesn't exist: account=${p.account} key=${p.key}`);
-
-        const currentState = existing.draft ?? existing;
-        const currentPolicy = policyStateAsPolicy(currentState);
-
-        const newState = policyInputAsStateShape(p.key, p, currentState);
-        const newPolicy = policyStateAsPolicy(newState);
-        // TODO: update existing Policy object directly if equivalent
-        if (encodePolicy(currentPolicy) === encodePolicy(newPolicy)) return undefined; // Only update if policy would actually change
-
-        return {
-          account: p.account,
-          state: newState,
-          policy: newPolicy,
-          name: p.name || existing.name,
-        };
+    // Only draft if it differs from existing
+    const policyKeys = policiesWithKeys.map((p) => p.key);
+    const currentPolicies = await this.db.exec(existingPolicies, { account, policyKeys });
+    const changedPolicies = policiesWithKeys
+      .map((input) => {
+        const policy = inputAsPolicy(input.key, input);
+        const existing = currentPolicies.find((p) => p.key === policy.key);
+        return (
+          (!existing || encodePolicy(policy) !== encodePolicy(policyStateAsPolicy(existing))) && {
+            input,
+            policy,
+          }
+        );
       })
       .filter(Boolean);
 
-    if (!toUpdate.length) return;
-
-    const transaction = await this.transactions.propose({
-      label: 'Update ' + (toUpdate.length === 1 ? 'policy' : 'policies'),
-      account,
-      operations: toUpdate.map((p) => ({
-        to: asAddress(p.account),
-        data: encodeFunctionData({
-          abi: ACCOUNT_ABI,
-          functionName: 'addPolicy',
-          args: [encodePolicyStruct(p.policy)],
-        }),
-      })),
-    });
-
-    const insertedPolicies = await this.db.query(
-      e.select(
-        e.set(
-          ...toUpdate.map((p) =>
-            e.insert(e.Policy, {
-              account: selectAccount(account),
-              key: p.policy.key,
-              name: p.name,
-              proposal: selectTransaction(transaction),
-              ...this.insertStateShape(p.state),
+    // Propose transaction with policy inserts
+    const transaction = !isInitialization
+      ? await this.transactions.propose({
+          label: 'Update ' + (changedPolicies.length === 1 ? 'policy' : 'policies'),
+          account,
+          operations: changedPolicies.map(({ policy }) => ({
+            to: asAddress(account),
+            data: encodeFunctionData({
+              abi: ACCOUNT_ABI,
+              functionName: 'addPolicy',
+              args: [encodePolicyStruct(policy)],
             }),
-          ),
-        ).id,
-      ),
+          })),
+        })
+      : undefined;
+
+    // Insert changed policies
+    const newPolicies = (
+      await this.db.exec(insertPolicies, {
+        account,
+        transaction,
+        policies: changedPolicies.map(({ input }) => ({
+          ...(isInitialization && { activationBlock: 0n }),
+          ...policyInputAsStateShape(input.key, input),
+          name: input.name || 'Policy ' + input.key,
+        })),
+      })
+    ).map((p) => ({ ...p, id: asUUID(p.id), key: asPolicyKey(p.key) }));
+
+    const approvers = new Set(changedPolicies.flatMap(({ input }) => input.approvers));
+    this.userAccounts.invalidateApproversCache(...approvers);
+
+    newPolicies.forEach(({ id }) =>
+      this.event({ event: PolicyEvent.created, account, policyId: id }),
     );
 
-    this.userAccounts.invalidateApproversCache(
-      ...toUpdate.flatMap((p) => p.state.approvers).map((a) => asAddress(a.address)),
-    );
+    return newPolicies;
+  }
 
-    const ids = (Array.isArray(insertedPolicies) ? insertedPolicies : [insertedPolicies]).map(
-      asUUID,
-    );
-
-    ids.map((policyId) => this.event({ event: PolicyEvent.updated, account, policyId }));
-
-    return ids;
+  async updateDetails({ account, key, name }: UpdatePolicyDetailsInput) {
+    try {
+      const r = await this.db.exec(updatePolicyDetails, { account, key, name });
+      return r;
+    } catch (e) {
+      if (e instanceof ConstraintViolationError && e.message.includes('name'))
+        return new NameTaken(e.message); // TODO: message indicating which key and name is invalid
+    }
   }
 
   async remove({ account, key }: UniquePolicyInput) {
@@ -404,73 +293,6 @@ export class PoliciesService {
 
   event(payload: PolicyUpdatedPayload) {
     this.pubsub.event<PolicyUpdatedPayload>(policyUpdatedTrigger(payload.account), payload);
-  }
-
-  private insertStateShape(p: NonNullable<PolicyShape>, initState?: { account: Address }) {
-    if (initState) {
-      p.actions = p.actions.map((a) => {
-        const functions = a.functions.map((f) => ({
-          ...f,
-          contract: f.contract === PLACEHOLDER_ACCOUNT_ADDRESS ? initState.account : f.contract,
-        }));
-
-        return { ...a, functions: functions as [(typeof functions)[0], ...typeof functions] };
-      });
-    }
-
-    return {
-      ...(initState && { activationBlock: 0n }),
-      approvers: e.for(e.cast(e.str, e.set(...p.approvers.map((a) => a.address))), (approver) =>
-        e.insert(e.Approver, { address: e.cast(e.str, approver) }).unlessConflict((approver) => ({
-          on: approver.address,
-          else: approver,
-        })),
-      ),
-      threshold: p.threshold || p.approvers.length,
-      actions: e.for(e.cast(e.json, e.set(...p.actions.map((a) => e.json(a)))), (a) =>
-        e.insert(e.Action, {
-          label: e.cast(e.BoundedStr, a.label),
-          functions: e.for(e.json_array_unpack(a.functions), (f) =>
-            e.insert(e.ActionFunction, {
-              contract: e.cast(e.Address, e.json_get(f, 'contract')),
-              selector: e.cast(e.Bytes4, e.json_get(f, 'selector')),
-              abi: e.cast(e.json, e.json_get(f, 'abi')),
-            }),
-          ),
-          allow: e.cast(e.bool, a.allow),
-          description: e.cast(e.str, e.json_get(a, 'description')),
-        }),
-      ),
-      transfers: e.insert(e.TransfersConfig, {
-        defaultAllow: p.transfers.defaultAllow,
-        budget: p.transfers.budget,
-        limits: e.for(e.cast(e.json, e.set(...p.transfers.limits.map((l) => e.json(l)))), (limit) =>
-          e.insert(e.TransferLimit, {
-            token: e.cast(e.Address, limit.token),
-            amount: e.cast(e.uint224, e.cast(e.str, limit.amount)),
-            duration: e.cast(e.uint32, limit.duration),
-          }),
-        ),
-      }),
-      allowMessages: p.allowMessages,
-      delay: p.delay,
-    } satisfies Partial<Parameters<typeof e.insert<typeof e.Policy>>[1]>;
-  }
-
-  private async getStateProposal(account: UAddress, policy: Policy) {
-    return await this.transactions.propose({
-      account,
-      operations: [
-        {
-          to: asAddress(account),
-          data: encodeFunctionData({
-            abi: ACCOUNT_ABI,
-            functionName: 'addPolicy',
-            args: [encodePolicyStruct(policy)],
-          }),
-        },
-      ],
-    });
   }
 
   private async getNextKey(account: UAddress) {

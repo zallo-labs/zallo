@@ -20,8 +20,8 @@ import { ApproverPolicies_account$key } from '~/api/__generated__/ApproverPolici
 import { PolicyPresetKey, getPolicyPresetDetails } from '~/lib/policy/usePolicyPresets';
 
 const Update = graphql`
-  mutation ApproverPoliciesMutation($input: UpdatePoliciesInput!) {
-    updatePolicies(input: $input) {
+  mutation ApproverPoliciesMutation($input: ProposePoliciesInput!) {
+    proposePolicies(input: $input) {
       id
       threshold
       approvers {
@@ -106,7 +106,7 @@ export function ApproverPolicies({ approver, ...props }: ApproverPoliciesProps) 
       },
     });
 
-    const proposal = r.updatePolicies?.[0].proposal;
+    const proposal = r.proposePolicies?.[0].proposal;
     if (proposal) router.push({ pathname: '/(nav)/transaction/[id]', params: { id: proposal.id } });
   };
 
