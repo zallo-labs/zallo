@@ -14,6 +14,6 @@ global.process = require('process');
 global.navigator.userAgent ??= 'React Native';
 
 // Import corejs async iterator polyfill
-import 'core-js/full/async-iterator'; // Required for neverthrow & viem
+import 'core-js/features/async-iterator'; // Required for neverthrow & viem
 
 export default {};
