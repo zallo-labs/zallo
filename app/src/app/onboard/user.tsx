@@ -106,7 +106,7 @@ function UserOnboarding() {
           containerStyle={styles.input}
         />
 
-        <Actions>
+        <Actions style={styles.actions}>
           <Link href="/accounts/join" asChild>
             <Button mode="contained-tonal" icon={QrCodeIcon}>
               Continue with Zallo
@@ -149,6 +149,9 @@ const stylesheet = createStyles(({ colors }) => ({
   input: {
     marginHorizontal: 16,
     marginTop: 16,
+  },
+  actions: {
+    justifyContent: 'flex-end',
   },
   tosText: {
     marginVertical: 8,
