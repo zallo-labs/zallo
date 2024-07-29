@@ -115,9 +115,7 @@ export class TransfersEvents {
                   false,
                 ),
               })
-              .unlessConflict((t) => ({
-                on: e.tuple([t.account, t.block, t.logIndex]),
-              })),
+              .unlessConflict(),
             (t) => ({
               id: true,
               internal: true,
