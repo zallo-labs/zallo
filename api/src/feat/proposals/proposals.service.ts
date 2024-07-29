@@ -181,7 +181,7 @@ export class ProposalsService {
         .filter((a) => a.pushToken)
         .map((a) => ({
           to: a.pushToken!,
-          title: `Approval required for ` + p.isTransaction ? `transaction` : `message`,
+          title: `Approval required for ${p.isTransaction ? `transaction` : `message`}`,
           channelId: 'activity',
           priority: 'normal',
           data: {
