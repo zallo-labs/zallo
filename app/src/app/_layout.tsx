@@ -25,20 +25,29 @@ import { GoogleAuthProvider } from '#/cloud/google/GoogleAuthProvider';
 import { Try } from 'expo-router/build/views/Try';
 import { PortalProvider } from '@gorhom/portal';
 import { GlobalSubscriptions } from '#/GlobalSubscriptions/GlobalSubscriptions';
+import { createStyles, useStyles } from '@theme/styles';
 
 export const unstable_settings = {
   initialRouteName: `index`,
 };
 
 function Layout() {
+  const { styles } = useStyles(stylesheet);
+
   return (
-    <Stack screenOptions={{ headerShown: false }}>
+    <Stack
+      screenOptions={{ 
+        headerShown: false,
+        contentStyle: styles.stackContent,
+      }}
+    >
       <Stack.Screen
         name={`(modal)`}
         options={{
           presentation: 'transparentModal',
           animation: 'fade',
           animationDuration: 100,
+          contentStyle: styles.transparentContent,
         }}
       />
       <Stack.Screen
@@ -47,11 +56,19 @@ function Layout() {
           presentation: 'transparentModal',
           animation: 'fade',
           animationDuration: 100,
+          contentStyle: styles.transparentContent,
         }}
       />
     </Stack>
   );
 }
+
+const stylesheet = createStyles(({ colors }) => ({
+  stackContent: {
+    backgroundColor: colors.surface,
+  },
+  transparentContent: {},
+}));
 
 function RootLayout() {
   return (
