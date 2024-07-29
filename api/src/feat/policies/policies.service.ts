@@ -8,9 +8,7 @@ import {
   validateMessage,
   validateTransaction,
   Policy,
-  Address,
   UAddress,
-  PLACEHOLDER_ACCOUNT_ADDRESS,
   Tx,
   UUID,
   asUUID,
@@ -31,10 +29,9 @@ import { ShapeFunc } from '~/core/database';
 import {
   policyStateAsPolicy,
   PolicyShape,
-  policyInputAsStateShape,
+  inputAsPolicyState,
   selectPolicy,
   latestPolicy2,
-  inputAsPolicy,
 } from './policies.util';
 import { NameTaken, PolicyEvent, Policy as PolicyModel, ValidationError } from './policies.model';
 import { TX_SHAPE, transactionAsTx, ProposalTxShape } from '../transactions/transactions.util';
@@ -119,14 +116,22 @@ export class PoliciesService {
     const currentPolicies = await this.db.exec(existingPolicies, { account, policyKeys });
     const changedPolicies = policiesWithKeys
       .map((input) => {
-        const policy = inputAsPolicy(input.key, input);
-        const existing = currentPolicies.find((p) => p.key === policy.key);
-        return (
-          (!existing || encodePolicy(policy) !== encodePolicy(policyStateAsPolicy(existing))) && {
-            input,
-            policy,
-          }
-        );
+        // Merge exisiting policy state (draft or latest) with input
+        const existing = currentPolicies.find((p) => p.key === input.key);
+        const policyState = inputAsPolicyState(input.key, input, existing);
+        const policy = policyStateAsPolicy(policyState);
+
+        // Ignore unchanged policies
+        if (existing && encodePolicy(policy) === encodePolicy(policyStateAsPolicy(existing)))
+          return;
+
+        return {
+          policy,
+          state: {
+            name: 'Policy ' + input.key,
+            ...policyState,
+          },
+        };
       })
       .filter(Boolean);
     if (!changedPolicies.length) return [];
@@ -152,15 +157,16 @@ export class PoliciesService {
       await this.db.exec(insertPolicies, {
         account,
         transaction,
-        policies: changedPolicies.map(({ input }) => ({
+        policies: changedPolicies.map(({ state }) => ({
           ...(isInitialization && { activationBlock: 0n }),
-          ...policyInputAsStateShape(input.key, input),
-          name: input.name || 'Policy ' + input.key,
+          ...state,
         })),
       })
     ).map((p) => ({ ...p, id: asUUID(p.id), key: asPolicyKey(p.key) }));
 
-    const approvers = new Set(changedPolicies.flatMap(({ input }) => input.approvers));
+    const approvers = new Set(
+      changedPolicies.flatMap(({ state }) => state.approvers.map((a) => asAddress(a.address))),
+    );
     this.userAccounts.invalidateApproversCache(...approvers);
 
     newPolicies.forEach(({ id }) =>

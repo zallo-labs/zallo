@@ -140,7 +140,7 @@ export const policyStateAsPolicy = <S extends PolicyShape>(state: S) =>
       })
     : null) as S extends null ? Policy | null : Policy;
 
-export const policyInputAsStateShape = (
+export const inputAsPolicyState = (
   key: PolicyKey,
   p: Partial<PolicyInput>,
   defaults: NonNullable<PolicyShape> = {
@@ -183,7 +183,7 @@ export const policyInputAsStateShape = (
 };
 
 export const inputAsPolicy = (key: PolicyKey, p: PolicyInput) =>
-  policyStateAsPolicy(policyInputAsStateShape(key, p));
+  policyStateAsPolicy(inputAsPolicyState(key, p));
 
 export const asTransfersConfig = (c: TransfersConfigInput): TransfersConfig => ({
   defaultAllow: c.defaultAllow,
