@@ -80,7 +80,7 @@ export class ProposalsService {
             ...shape?.(p),
             ...(pendingFilter ? { pendingFilter } : {}), // Must be included in the select (not just the filter) to avoid bug
             filter: and(e.op(p.account, '=', e.cast(e.Account, account)), pendingFilter),
-            order_by: p.createdAt,
+            order_by: { expression: p.createdAt, direction: e.DESC },
           };
         }),
       { account },
