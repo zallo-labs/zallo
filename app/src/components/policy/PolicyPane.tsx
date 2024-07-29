@@ -3,7 +3,6 @@ import { useAtom } from 'jotai';
 import _ from 'lodash';
 import { PolicyAppbar } from '#/policy/PolicyAppbar';
 import { usePolicyDraftAtom, asPolicyInput, PolicyDraft } from '~/lib/policy/policyAsDraft';
-import { showError } from '#/provider/SnackbarProvider';
 import { ApprovalSettings } from '#/policy/ApprovalSettings';
 import { SpendingSettings } from '#/policy/SpendingSettings';
 import { ActionsSettings } from '#/policy/ActionsSettings';
@@ -119,9 +118,11 @@ export function PolicyPane({ initial, ...props }: PolicyPaneProps) {
               icon={draft.key === undefined ? AddIcon : UpdateIcon}
               label={draft.key === undefined ? 'Create policy' : 'Update policy'}
               onPress={async () => {
-                const input = { account: draft.account, ...asPolicyInput(draft) };
-                const r = (await propose({ input: { account: input.account, policies: [input] } }))
-                  .proposePolicies?.[0];
+                const r = (
+                  await propose({
+                    input: { account: draft.account, policies: [asPolicyInput(draft)] },
+                  })
+                ).proposePolicies?.[0];
 
                 const p = r.draft ?? r;
                 router.setParams({ ...params, id: p.id });
