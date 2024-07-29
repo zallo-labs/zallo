@@ -104,8 +104,6 @@ export function NotificationSettings({ next }: NotificationSettingsProps) {
       ))}
 
       <Actions horizontal>
-        {!perm?.granted && next && <Button onPress={next}>Skip</Button>}
-
         {(!perm?.granted || next) && (
           <Button
             mode="contained"
@@ -117,6 +115,8 @@ export function NotificationSettings({ next }: NotificationSettingsProps) {
             {perm?.granted ? 'Continue' : 'Enable'}
           </Button>
         )}
+
+        {!perm?.granted && next && <Button onPress={next}>Skip</Button>}
       </Actions>
     </>
   );
