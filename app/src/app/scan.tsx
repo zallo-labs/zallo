@@ -60,7 +60,7 @@ export default function ScanScreen() {
         showError('Failed to connect. Please refresh the DApp and try again');
       }
     } else if (parseAppLink(data)) {
-      router.replace(parseAppLink(data)!);
+      router.push(parseAppLink(data)!);
       return true;
     }
 

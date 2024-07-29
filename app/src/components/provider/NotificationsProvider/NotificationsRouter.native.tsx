@@ -2,6 +2,7 @@ import { useRouter } from 'expo-router';
 import * as Notifications from 'expo-notifications';
 import { useEffect } from 'react';
 import { ampli } from '~/lib/ampli';
+import { ExpoRouter } from '.expo/types/router';
 
 export function NotificationsRouter() {
   const router = useRouter();
@@ -10,9 +11,14 @@ export function NotificationsRouter() {
     let isMounted = true;
 
     const handleResponse = (r: Notifications.NotificationResponse | null, appOpened: boolean) => {
-      const pathname = r?.notification.request.content.data.pathname;
-      if (pathname) router.push(pathname);
-      ampli.notificationPressed({ pathname, appOpened });
+      const href: ExpoRouter.Href = r?.notification.request.content.data.href;
+      if (href) {
+        router.push(href);
+        ampli.notificationPressed({
+          pathname: typeof href === 'string' ? href : href.pathname,
+          appOpened,
+        });
+      }
     };
 
     // User opened up through pressing notification

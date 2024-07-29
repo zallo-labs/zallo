@@ -11,8 +11,10 @@ export class ExpoService {
   constructor(private db: DatabaseService) {}
 
   async sendNotification(messages: (Omit<ExpoPushMessage, 'to'> & { to: ExpoPushToken })[]) {
-    const responses = (await this.expo.sendPushNotificationsAsync(messages)).map((ticket, i) => ({
-      ticket,
+    if (!messages.length) return;
+
+    const responses = (await this.expo.sendPushNotificationsAsync(messages)).map((message, i) => ({
+      ticket: message,
       to: messages[i].to,
     }));
 

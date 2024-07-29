@@ -9,6 +9,7 @@ export type ExistingPoliciesArgs = {
 
 export type ExistingPoliciesReturns = Array<{
   "key": number;
+  "name": string;
   "approvers": Array<{
     "address": string;
   }>;
@@ -46,6 +47,7 @@ with account := (select Account filter .address = <UAddress>$account),
      keys := array_unpack(<array<uint16>>$policyKeys)
 select Policy {
   key,
+  name,
   approvers: { address },
   threshold,
   actions: {

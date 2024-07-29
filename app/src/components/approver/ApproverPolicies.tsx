@@ -95,7 +95,6 @@ export function ApproverPolicies({ approver, ...props }: ApproverPoliciesProps) 
           const p = policies.find((p) => p.id === id)!;
 
           return {
-            account: account.address,
             key: p.key,
             threshold: v.threshold,
             approvers: v.selected

@@ -47,6 +47,9 @@ export class PoliciesEventsProcessor {
   }
 
   private async markStateAsActive(chain: Chain, log: Log, key: PolicyKey) {
+    // FIXME: when multiple policies are activated in one block, the wrong one may be marked as active
+    // This *always* occurs when a policy is activated by a policy update transaction
+
     const account = asUAddress(log.address, chain);
     const r = await this.db.exec(activatePolicy, {
       account,

@@ -17,6 +17,8 @@ import { rejectProposal } from './reject-proposal.query';
 import { approveProposal } from './approve-proposal.query';
 import { UserInputError } from '@nestjs/apollo';
 import { deleteResponse } from './delete-response.query';
+import { approversToNotify } from './approvers-to-notify.query';
+import { ExpoService } from '~/core/expo/expo.service';
 
 export type UniqueProposal = UUID;
 
@@ -38,6 +40,7 @@ export class ProposalsService {
     private db: DatabaseService,
     private networks: NetworksService,
     private pubsub: PubsubService,
+    private expo: ExpoService,
   ) {}
 
   async selectUnique(id: UUID, shape: ShapeFunc<typeof e.Proposal>) {
@@ -77,7 +80,7 @@ export class ProposalsService {
             ...shape?.(p),
             ...(pendingFilter ? { pendingFilter } : {}), // Must be included in the select (not just the filter) to avoid bug
             filter: and(e.op(p.account, '=', e.cast(e.Account, account)), pendingFilter),
-            order_by: p.createdAt,
+            order_by: { expression: p.createdAt, direction: e.DESC },
           };
         }),
       { account },
@@ -110,6 +113,7 @@ export class ProposalsService {
     });
 
     this.event(approval.proposal, ProposalEvent.approval);
+    this.notifyApprovers(proposal);
   }
 
   async reject(proposal: UUID) {
@@ -165,5 +169,28 @@ export class ProposalsService {
       account,
       event,
     });
+  }
+
+  async notifyApprovers(proposal: UUID) {
+    // Get proposal policy approvers if proposer has approved or can't else {}
+    const p = await this.db.exec(approversToNotify, { proposal });
+    if (!p) return;
+
+    await this.expo.sendNotification(
+      p.approvers
+        .filter((a) => a.pushToken)
+        .map((a) => ({
+          to: a.pushToken!,
+          title: `Approval required for ${p.isTransaction ? `transaction` : `message`}`,
+          channelId: 'activity',
+          priority: 'normal',
+          data: {
+            href: {
+              pathname: `/(nav)/transaction/[id]`,
+              params: { id: proposal },
+            },
+          },
+        })),
+    );
   }
 }

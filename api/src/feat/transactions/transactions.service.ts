@@ -323,12 +323,13 @@ export class TransactionsService {
     });
     const id = asUUID(r.id);
 
-    this.proposals.event({ id, account }, ProposalEvent.create);
     if (signature) {
       await this.approve({ id, signature }, true);
     } else {
       afterRequest(() => this.tryExecute(id));
     }
+    this.proposals.event({ id, account }, ProposalEvent.create);
+    this.proposals.notifyApprovers(id);
 
     return id;
   }
