@@ -129,6 +129,7 @@ export class PoliciesService {
         );
       })
       .filter(Boolean);
+    if (!changedPolicies.length) return [];
 
     // Propose transaction with policy inserts
     const transaction = !isInitialization
