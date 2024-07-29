@@ -3,6 +3,6 @@
 
 ## Unnecessary files
 /api
-/site
-# contracts is required by lib
-# packages/* are required
+/contracts
+/docs
+# packages/{chain,lib} are required
