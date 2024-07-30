@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { EventsWorker, EventData, Log } from '../events/events.worker';
-import { ACCOUNT_ABI, PolicyKey, asPolicyKey, asUAddress, asUUID } from 'lib';
+import { ACCOUNT_ABI, Hex, PolicyKey, asPolicyKey, asUAddress, asUUID } from 'lib';
 import { Chain } from 'chains';
 import { DatabaseService } from '~/core/database';
 import { getAbiItem } from 'viem';
@@ -29,6 +29,7 @@ export class PoliciesEventsProcessor {
       chain,
       log,
       asPolicyKey(log.args.key),
+      log.args.hash,
     );
 
     if (policyId)
@@ -46,19 +47,20 @@ export class PoliciesEventsProcessor {
       this.policies.event({ event: PolicyEvent.removed, account, policyId: asUUID(policyId) });
   }
 
-  private async markStateAsActive(chain: Chain, log: Log, key: PolicyKey) {
-    // FIXME: when multiple policies are activated in one block, the wrong one may be marked as active
-    // This *always* occurs when a policy is activated by a policy update transaction
-
+  private async markStateAsActive(chain: Chain, log: Log, key: PolicyKey, hash?: Hex) {
     const account = asUAddress(log.address, chain);
     const r = await this.db.exec(activatePolicy, {
       account,
       key,
-      systxHash: log.transactionHash,
+      hash,
       activationBlock: log.blockNumber,
     });
 
     await Promise.all(r.pendingTransactions.map((id) => this.transactions.tryExecute(asUUID(id))));
+
+    if (!r.new) {
+      // TODO: this shouldn't happen
+    }
 
     return { account, old: r.old, new: r.new };
   }
