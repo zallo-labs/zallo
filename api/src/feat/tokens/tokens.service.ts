@@ -280,7 +280,7 @@ export class TokensService {
     const limit_ = r.limitAmount ? await this.asDecimal(token, r.limitAmount) : undefined;
 
     return {
-      transfers: r.transfers as Transferlike[],
+      transfers: r.transfers as unknown as Transferlike[],
       since: r.since ?? new Date(),
       spent,
       limit: limit_,

@@ -55,7 +55,6 @@ import { DEFAULT_FLOW } from '~/core/bull/bull.module';
 import { PaymasterFeeParts } from '~/feat/paymasters/paymasters.model';
 import { insertTransaction } from './insert-transaction.query';
 import { deleteTransaction } from './delete-transaction.query';
-import { t } from 'lib/dist/bytes-_chY9qcm';
 
 const MAX_NETWORK_FEE_MULTIPLIER = new Decimal(5); // Allow for a higher network fee
 
