@@ -13,6 +13,7 @@ import {
   UUID,
   asUUID,
   PolicyKey,
+  hashPolicy,
 } from 'lib';
 import { TransactionsService } from '../transactions/transactions.service';
 import {
@@ -128,9 +129,10 @@ export class PoliciesService {
         return {
           policy,
           state: {
-            name: 'Policy ' + input.key,
             ...policyState,
+            name: input.name || 'Policy ' + input.key,
           },
+          hash: hashPolicy(policy),
         };
       })
       .filter(Boolean);
@@ -157,9 +159,10 @@ export class PoliciesService {
       await this.db.exec(insertPolicies, {
         account,
         transaction,
-        policies: changedPolicies.map(({ state }) => ({
-          ...(isInitialization && { activationBlock: 0n }),
+        policies: changedPolicies.map(({ state, hash }) => ({
+          hash,
           ...state,
+          ...(isInitialization && { activationBlock: 0n }),
         })),
       })
     ).map((p) => ({ ...p, id: asUUID(p.id), key: asPolicyKey(p.key) }));

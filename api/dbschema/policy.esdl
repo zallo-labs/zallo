@@ -13,7 +13,7 @@ module default {
       rewrite insert using (
         .isLatest if (__specified__.isLatest) else
         # ((.activationBlock ?? 0n) > (latestPolcy(.account, .key)).activationBlock ?? -1n)
-        ((.activationBlock ?? 0n) > (assert_single((select Policy filter .account = __subject__.account and .key = __subject__.key and .isLatest)).activationBlock ?? -1n)) 
+        ((.activationBlock ?? 0n) > (assert_single((select Policy filter .account = __subject__.account and .key = __subject__.key and .isLatest)).activationBlock ?? -1n))
       )
     }
     required initState := .activationBlock ?= 0;
@@ -39,6 +39,7 @@ module default {
   }
 
   type Policy extending PolicyState {
+    required hash: Bytes32;
     required name: BoundedStr;
     required threshold: uint16;
     multi approvers: Approver;
@@ -46,6 +47,8 @@ module default {
     required transfers: TransfersConfig { default := (insert TransfersConfig { budget := 0 }); }
     required allowMessages: bool { default := false; }
     required delay: uint32 { default := 0; }
+
+    index on ((.account, .key, .hash));
 
     trigger update_proposals_when_latest after insert, update for each
     when (__new__.isLatest) do (

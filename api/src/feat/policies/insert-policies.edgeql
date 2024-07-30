@@ -3,6 +3,7 @@ with account := (select Account filter .address = <UAddress>$account),
      tx := ((select Transaction filter .id = txId) if exists txId else {})
 for p in array_unpack(<array<json>>$policies) union (
   with policy := (insert Policy {
+    hash := <Bytes32>p['hash'],
     account := account,
     key := <uint16>p['key'],
     proposal := tx,

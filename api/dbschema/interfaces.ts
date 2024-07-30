@@ -228,6 +228,7 @@ export namespace $default {
     "delay": number;
     "name": string;
     "threshold": number;
+    "hash": string;
   }
   export interface Rejection extends ProposalResponse {}
   export interface RemovedPolicy extends PolicyState {}
