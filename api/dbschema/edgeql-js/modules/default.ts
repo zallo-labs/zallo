@@ -479,6 +479,7 @@ export type $PolicyλShape = $.typeutil.flatten<$PolicyStateλShape & {
   "delay": $.PropertyDesc<$uint32, $.Cardinality.One, false, false, false, true>;
   "name": $.PropertyDesc<$BoundedStr, $.Cardinality.One, false, false, false, false>;
   "threshold": $.PropertyDesc<$uint16, $.Cardinality.One, false, false, false, false>;
+  "hash": $.PropertyDesc<$Bytes32, $.Cardinality.One, false, false, false, false>;
   "<policies[is Account]": $.LinkDesc<$Account, $.Cardinality.Many, {}, false, false,  false, false>;
   "<policy[is Proposal]": $.LinkDesc<$Proposal, $.Cardinality.Many, {}, false, false,  false, false>;
   "<policy[is Transaction]": $.LinkDesc<$Transaction, $.Cardinality.Many, {}, false, false,  false, false>;

@@ -389,6 +389,7 @@ type Policy implements Node & PolicyState {
   delay: Float!
   draft: PolicyState
   hasBeenActive: Boolean!
+  hash: Bytes32!
   id: ID!
   initState: Boolean!
   isActive: Boolean!

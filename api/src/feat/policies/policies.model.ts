@@ -3,7 +3,7 @@ import { GraphQLBigInt } from 'graphql-scalars';
 import { Account } from '../accounts/accounts.model';
 import { Transaction } from '../transactions/transactions.model';
 import * as eql from '~/edgeql-interfaces';
-import { Address, PolicyKey, Selector, UAddress } from 'lib';
+import { Address, Hex, PolicyKey, Selector, UAddress } from 'lib';
 import { Approver } from '../approvers/approvers.model';
 import {
   CustomNodeType,
@@ -22,6 +22,7 @@ import {
   AbiFunctionField,
   PolicyKeyField,
   UAddressField,
+  Bytes32Field,
 } from '~/common/scalars';
 
 @NodeType()
@@ -113,6 +114,9 @@ export class PolicyState extends Node {
 
 @NodeType({ implements: [PolicyState] })
 export class Policy extends PolicyState {
+  @Bytes32Field()
+  hash: Hex;
+
   @Field(() => String)
   name: string;
 

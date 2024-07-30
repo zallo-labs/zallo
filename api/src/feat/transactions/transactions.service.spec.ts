@@ -22,6 +22,7 @@ import Decimal from 'decimal.js';
 import { PoliciesService } from '../policies/policies.service';
 import { PricesService } from '~/feat/prices/prices.service';
 import { TokensService } from '~/feat/tokens/tokens.service';
+import { zeroHash } from 'viem';
 
 const signature = '0x1234' as Hex;
 
@@ -124,6 +125,7 @@ describe(TransactionsService.name, () => {
       await e
         .insert(e.Policy, {
           account: selectAccount(accountId),
+          hash: zeroHash,
           key: 0,
           name: 'Policy 0',
           threshold: 0,
@@ -438,6 +440,7 @@ describe(TransactionsService.name, () => {
         const policy = await db.query(
           e.insert(e.Policy, {
             account: selectAccount(user1Account1),
+            hash: zeroHash,
             key: 1,
             name: 'Policy 1',
             proposal: selectTransaction(id),
