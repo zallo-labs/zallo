@@ -44,7 +44,7 @@ export class Transaction extends Proposal {
   systxs: SystemTx[];
 
   @Field(() => SystemTx, { nullable: true })
-  systx?: SystemTx | null;
+  systx?: SystemTx;
 
   @Field(() => [Result])
   results: Result[];

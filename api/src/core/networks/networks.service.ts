@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { CONFIG } from '~/config';
-import { asChain, asDecimal, asUAddress, UAddress } from 'lib';
+import { Address, asChain, asDecimal, asUAddress, Hex, UAddress } from 'lib';
 import { ChainConfig, Chain, CHAINS, NetworkWallet, isChain } from 'chains';
 import {
   FeeValuesEIP1559,
@@ -15,7 +15,11 @@ import {
   webSocket,
   nonceManager,
 } from 'viem';
-import { eip712WalletActions, ZkSyncTransactionSerializableEIP712, publicActionsL2 } from 'viem/zksync';
+import {
+  eip712WalletActions,
+  ZkSyncTransactionSerializableEIP712,
+  publicActionsL2,
+} from 'viem/zksync';
 import { privateKeyToAccount } from 'viem/accounts';
 import Redis from 'ioredis';
 import { InjectRedis } from '@songkeys/nestjs-redis';
@@ -78,12 +82,12 @@ function create({ chainKey, redis }: CreateParams) {
     key: chain.key,
     name: chain.name,
     batch: { multicall: true },
-    pollingInterval: 500 /* ms */, // Used when websocket is unavailable
+    pollingInterval: 1000 /* ms */, // Used when websocket is unavailable
   }).extend((client) => ({
     ...publicActionsL2()(client),
     ...eip712WalletActions()(client),
     ...walletActions(client, transport, redis),
-    ...blockNumberAndStatusActions(client),
+    ...blockDetails(client),
     ...estimatedFeesPerGas(client, redis),
     sendAccountTransaction: sendAccountTransaction(client, redis),
   }));
@@ -114,7 +118,7 @@ function walletActions(client: Client, transport: Transport, redis: Redis) {
 const BLOCK_TIME_ALPHA = 0.2;
 const DEFAULT_BLOCK_TIME = 1000; /* ms */
 
-function blockNumberAndStatusActions(client: Client) {
+function blockDetails(client: Client) {
   const status = new ReplaySubject<'healthy' | WatchBlockNumberErrorType>(1);
   let blockNumber = 0n;
   let blockTime = DEFAULT_BLOCK_TIME;
@@ -193,6 +197,29 @@ function estimatedFeesPerGas(client: Client, redis: Redis) {
   };
 }
 
+export type TransactionWithDetailedOutput = {
+  transactionHash: Hex;
+  storageLogs: Array<{
+    address: Address;
+    key: string;
+    writtenValue: string;
+  }>;
+  events: Array<{
+    address: Address;
+    topics: Hex[];
+    data: Hex;
+    blockHash: Hex | null;
+    blockNumber: bigint | null;
+    l1BatchNumber: bigint | null;
+    transactionHash: Hex;
+    transactionIndex: bigint;
+    logIndex: bigint | null;
+    transactionLogIndex: bigint | null;
+    logType: string | null;
+    removed: boolean;
+  }>;
+};
+
 export type SendAccountTransactionParams = PartialK<ZkSyncTransactionSerializableEIP712, 'chainId'>;
 export type SendAccountTransactionReturn = ReturnType<ReturnType<typeof sendAccountTransaction>>;
 
@@ -212,7 +239,10 @@ function sendAccountTransaction(client: Client, redis: Redis) {
         });
 
         return fromPromise(
-          client.sendRawTransaction({ serializedTransaction: serialized }),
+          client.request({
+            method: 'zks_sendRawTransactionWithDetailedOutput' as any,
+            params: [serialized],
+          }) as Promise<TransactionWithDetailedOutput>,
           (e) => e as SendRawTransactionErrorType,
         );
       },

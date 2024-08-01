@@ -258,6 +258,7 @@ export class TokensService {
           e.op(t.spentBy, '=', policy),
           e.op(t.tokenAddress, '=', token),
           e.op(t.timestamp, '>=', since),
+          t.confirmed,
         ),
         ...shape?.(t, 'transfers'),
         amount: true,

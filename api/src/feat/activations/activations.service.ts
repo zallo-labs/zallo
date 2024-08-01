@@ -18,7 +18,7 @@ import e from '~/edgeql-js';
 import { DatabaseService } from '~/core/database';
 import { policyStateAsPolicy, PolicyShape } from '../policies/policies.util';
 import { FlowJob } from 'bullmq';
-import { ReceiptsQueue } from '../system-txs/receipts.queue';
+import { ConfirmationQueue } from '../system-txs/confirmations.queue';
 import Decimal from 'decimal.js';
 import { SimulationsQueue } from '../simulations/simulations.worker';
 import { toHex } from 'viem';
@@ -38,13 +38,12 @@ export class ActivationsService {
 
   flow(account: UAddress, sponsoringTransaction: UUID) {
     return {
-      queueName: ReceiptsQueue.name,
+      queueName: ConfirmationQueue.name,
       name: 'Activation transaction',
       data: {
         chain: asChain(account),
         transaction: { child: 0 },
-        type: 'other',
-      } satisfies QueueData<ReceiptsQueue>,
+      } satisfies QueueData<ConfirmationQueue>,
       children: [
         {
           queueName: ActivationsQueue.name,

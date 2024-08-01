@@ -1,4 +1,4 @@
-CREATE MIGRATION m13qxppnkqofigih7dxkipm2lh6k3ahrqerachqhdzihw76nb6i3aa
+CREATE MIGRATION m1vh7caqxl35lle7od4cqf4gaeabpurttipgns3nylfnnnzjb2bbqa
     ONTO initial
 {
   CREATE SCALAR TYPE default::ApprovalIssue EXTENDING enum<HashMismatch, Expired>;
@@ -103,26 +103,6 @@ CREATE MIGRATION m13qxppnkqofigih7dxkipm2lh6k3ahrqerachqhdzihw76nb6i3aa
           SET default := (std::datetime_of_statement());
       };
   };
-  CREATE ABSTRACT TYPE default::Result {
-      CREATE REQUIRED PROPERTY timestamp: std::datetime {
-          SET default := (std::datetime_of_statement());
-      };
-  };
-  CREATE ABSTRACT TYPE default::ReceiptResult EXTENDING default::Result {
-      CREATE REQUIRED PROPERTY block: std::bigint {
-          CREATE CONSTRAINT std::min_value(0);
-      };
-      CREATE REQUIRED PROPERTY ethFeePerGas: std::decimal {
-          CREATE CONSTRAINT std::min_value(0);
-      };
-      CREATE REQUIRED PROPERTY gasUsed: std::bigint {
-          CREATE CONSTRAINT std::min_value(0);
-      };
-      CREATE REQUIRED PROPERTY networkEthFee := ((.ethFeePerGas * .gasUsed));
-  };
-  CREATE TYPE default::Successful EXTENDING default::ReceiptResult {
-      CREATE REQUIRED PROPERTY responses: array<default::Bytes>;
-  };
   CREATE SCALAR TYPE default::MAC EXTENDING std::str {
       CREATE CONSTRAINT std::regexp('^([0-9A-F]{2}[:-]){5}([0-9A-F]{2})$');
   };
@@ -162,9 +142,6 @@ CREATE MIGRATION m13qxppnkqofigih7dxkipm2lh6k3ahrqerachqhdzihw76nb6i3aa
       CREATE REQUIRED PROPERTY maxAmount: std::decimal;
       CREATE REQUIRED PROPERTY gasLimit: default::uint256 {
           SET default := 0;
-      };
-      CREATE LINK result: default::Result {
-          CREATE CONSTRAINT std::exclusive;
       };
       CREATE REQUIRED PROPERTY executable: std::bool {
           SET default := false;
@@ -327,16 +304,19 @@ CREATE MIGRATION m13qxppnkqofigih7dxkipm2lh6k3ahrqerachqhdzihw76nb6i3aa
       CREATE REQUIRED PROPERTY block: std::bigint {
           CREATE CONSTRAINT std::min_value(0);
       };
-      CREATE REQUIRED PROPERTY internal: std::bool;
+      CREATE REQUIRED PROPERTY confirmed: std::bool {
+          SET default := true;
+      };
+      CREATE REQUIRED PROPERTY internal: std::bool {
+          SET default := true;
+      };
       CREATE REQUIRED PROPERTY logIndex: default::uint32;
-      CREATE REQUIRED PROPERTY systxHash: default::Bytes32;
+      CREATE PROPERTY systxHash: default::Bytes32;
       CREATE REQUIRED PROPERTY timestamp: std::datetime {
           SET default := (std::datetime_of_statement());
       };
-      CREATE INDEX ON ((.account, .internal));
   };
-  CREATE TYPE default::TransferDetails {
-      CREATE REQUIRED LINK account: default::Account;
+  CREATE ABSTRACT TYPE default::Transferlike EXTENDING default::Event {
       CREATE REQUIRED PROPERTY tokenAddress: default::UAddress;
       CREATE LINK token := (std::assert_single((WITH
           address := 
@@ -360,13 +340,10 @@ CREATE MIGRATION m13qxppnkqofigih7dxkipm2lh6k3ahrqerachqhdzihw76nb6i3aa
       CREATE ACCESS POLICY members_can_select_insert
           ALLOW SELECT, INSERT USING (default::is_member(.account));
   };
-  CREATE ABSTRACT TYPE default::Transferlike EXTENDING default::Event, default::TransferDetails;
   CREATE TYPE default::Transfer EXTENDING default::Transferlike {
-      CREATE CONSTRAINT std::exclusive ON ((.account, .block, .logIndex));
       CREATE INDEX ON ((.account, .internal, .incoming));
   };
   CREATE TYPE default::TransferApproval EXTENDING default::Transferlike {
-      CREATE CONSTRAINT std::exclusive ON ((.account, .block, .logIndex));
       CREATE LINK previous := (SELECT
           default::TransferApproval FILTER
               (((.tokenAddress = .tokenAddress) AND (.from = .from)) AND (.to = .to))
@@ -456,7 +433,7 @@ CREATE MIGRATION m13qxppnkqofigih7dxkipm2lh6k3ahrqerachqhdzihw76nb6i3aa
       };
       CREATE REQUIRED PROPERTY initState := ((.activationBlock ?= 0));
       CREATE REQUIRED PROPERTY isActive := ((.isLatest AND .hasBeenActive));
-      CREATE REQUIRED PROPERTY isDraft := (EXISTS (.draft));
+      CREATE REQUIRED PROPERTY isDraft := ((__source__ ?= .draft));
       CREATE INDEX ON ((.account, .key, .isLatest));
       CREATE INDEX ON ((.account, .key));
       CREATE INDEX ON ((.account, .isLatest));
@@ -465,6 +442,8 @@ CREATE MIGRATION m13qxppnkqofigih7dxkipm2lh6k3ahrqerachqhdzihw76nb6i3aa
   };
   CREATE TYPE default::Policy EXTENDING default::PolicyState {
       CREATE MULTI LINK approvers: default::Approver;
+      CREATE REQUIRED PROPERTY hash: default::Bytes32;
+      CREATE INDEX ON ((.account, .key, .hash));
       CREATE MULTI LINK actions: default::Action;
       CREATE REQUIRED LINK transfers: default::TransfersConfig {
           SET default := (INSERT
@@ -526,52 +505,56 @@ CREATE MIGRATION m13qxppnkqofigih7dxkipm2lh6k3ahrqerachqhdzihw76nb6i3aa
       );
       CREATE MULTI LINK contacts := (.<user[IS default::Contact]);
   };
-  CREATE TYPE default::SystemTx {
-      CREATE REQUIRED LINK proposal: default::Transaction;
-      CREATE REQUIRED PROPERTY maxEthFeePerGas: std::decimal {
-          CREATE CONSTRAINT std::min_value(0);
-      };
-      CREATE REQUIRED PROPERTY maxNetworkEthFee := ((.maxEthFeePerGas * .proposal.gasLimit));
-      CREATE REQUIRED PROPERTY ethPerFeeToken: std::decimal {
-          CREATE CONSTRAINT std::min_value(0);
-      };
-      CREATE REQUIRED PROPERTY hash: default::Bytes32 {
-          CREATE CONSTRAINT std::exclusive;
-      };
+  CREATE ABSTRACT TYPE default::Result {
+      CREATE REQUIRED LINK transaction: default::Transaction;
       CREATE REQUIRED PROPERTY timestamp: std::datetime {
           SET default := (std::datetime_of_statement());
       };
-      CREATE REQUIRED PROPERTY usdPerFeeToken: std::decimal {
+  };
+  CREATE ABSTRACT TYPE default::Confirmed EXTENDING default::Result {
+      CREATE REQUIRED PROPERTY block: std::bigint {
           CREATE CONSTRAINT std::min_value(0);
       };
+      CREATE REQUIRED PROPERTY ethFeePerGas: std::decimal {
+          CREATE CONSTRAINT std::min_value(0);
+      };
+      CREATE REQUIRED PROPERTY gasUsed: std::bigint {
+          CREATE CONSTRAINT std::min_value(0);
+      };
+      CREATE REQUIRED PROPERTY networkEthFee := ((.ethFeePerGas * .gasUsed));
   };
   ALTER TYPE default::Event {
-      CREATE LINK systx: default::SystemTx;
-  };
-  ALTER TYPE default::Result {
-      CREATE LINK systx: default::SystemTx {
-          CREATE CONSTRAINT std::exclusive;
+      CREATE LINK result: default::Result;
+      ALTER PROPERTY confirmed {
+          CREATE REWRITE
+              INSERT 
+              USING (((__subject__.result IS default::Confirmed) ?? true));
+          CREATE REWRITE
+              UPDATE 
+              USING (((__subject__.result IS default::Confirmed) ?? true));
+      };
+      ALTER PROPERTY internal {
+          CREATE REWRITE
+              INSERT 
+              USING (EXISTS (__subject__.result));
+          CREATE REWRITE
+              UPDATE 
+              USING (EXISTS (__subject__.result));
       };
   };
-  ALTER TYPE default::SystemTx {
-      CREATE LINK events := (.<systx[IS default::Event]);
-  };
   ALTER TYPE default::Result {
-      CREATE MULTI LINK events := (.systx.events);
-      CREATE REQUIRED LINK transaction: default::Transaction;
-      CREATE MULTI LINK transferApprovals := (.events[IS default::TransferApproval]);
+      CREATE MULTI LINK events := (.<result[IS default::Event]);
       CREATE MULTI LINK transfers := (.events[IS default::Transfer]);
-      CREATE TRIGGER update_tx_result
-          AFTER INSERT 
-          FOR EACH DO (UPDATE
-              __new__.transaction
-          SET {
-              result := __new__
-          });
   };
-  CREATE TYPE default::Failed EXTENDING default::ReceiptResult {
+  CREATE ABSTRACT TYPE default::Failure EXTENDING default::Result {
       CREATE PROPERTY reason: std::str;
   };
+  CREATE TYPE default::ConfirmedFailure EXTENDING default::Confirmed, default::Failure;
+  CREATE ABSTRACT TYPE default::Success EXTENDING default::Result {
+      CREATE PROPERTY response: default::Bytes;
+  };
+  CREATE TYPE default::ConfirmedSuccess EXTENDING default::Confirmed, default::Success;
+  CREATE TYPE default::OptimisticSuccess EXTENDING default::Success;
   CREATE TYPE default::Scheduled EXTENDING default::Result {
       CREATE REQUIRED PROPERTY cancelled: std::bool {
           SET default := false;
@@ -594,7 +577,12 @@ CREATE MIGRATION m13qxppnkqofigih7dxkipm2lh6k3ahrqerachqhdzihw76nb6i3aa
           CREATE CONSTRAINT std::exclusive;
       };
   };
-  ALTER TYPE default::SystemTx {
+  CREATE TYPE default::SystemTx {
+      CREATE REQUIRED LINK proposal: default::Transaction;
+      CREATE REQUIRED PROPERTY maxEthFeePerGas: std::decimal {
+          CREATE CONSTRAINT std::min_value(0);
+      };
+      CREATE REQUIRED PROPERTY maxNetworkEthFee := ((.maxEthFeePerGas * .proposal.gasLimit));
       CREATE REQUIRED PROPERTY maxEthFees := ((.maxNetworkEthFee + .proposal.paymasterEthFees.total));
       CREATE TRIGGER update_activation_fee
           AFTER INSERT 
@@ -611,6 +599,18 @@ CREATE MIGRATION m13qxppnkqofigih7dxkipm2lh6k3ahrqerachqhdzihw76nb6i3aa
           SET {
               activationEthFee := std::max({0, (account.activationEthFee - paymasterEthFees.activation)})
           });
+      CREATE REQUIRED PROPERTY ethPerFeeToken: std::decimal {
+          CREATE CONSTRAINT std::min_value(0);
+      };
+      CREATE REQUIRED PROPERTY hash: default::Bytes32 {
+          CREATE CONSTRAINT std::exclusive;
+      };
+      CREATE REQUIRED PROPERTY timestamp: std::datetime {
+          SET default := (std::datetime_of_statement());
+      };
+      CREATE REQUIRED PROPERTY usdPerFeeToken: std::decimal {
+          CREATE CONSTRAINT std::min_value(0);
+      };
   };
   ALTER TYPE default::Proposal {
       CREATE REQUIRED LINK policy: default::Policy;
@@ -620,8 +620,11 @@ CREATE MIGRATION m13qxppnkqofigih7dxkipm2lh6k3ahrqerachqhdzihw76nb6i3aa
       CREATE MULTI LINK rejections := (.<proposal[IS default::Rejection]);
   };
   ALTER TYPE default::Transaction {
+      CREATE LINK result: default::Result {
+          CREATE CONSTRAINT std::exclusive;
+      };
       CREATE REQUIRED PROPERTY status := (SELECT
-          std::assert_exists((default::TransactionStatus.Pending IF NOT (.executable) ELSE (default::TransactionStatus.Executing IF NOT (EXISTS (.result)) ELSE (default::TransactionStatus.Successful IF (.result IS default::Successful) ELSE (default::TransactionStatus.Failed IF (.result IS default::Failed) ELSE (default::TransactionStatus.Scheduled IF NOT (.result[IS default::Scheduled].cancelled) ELSE default::TransactionStatus.Cancelled))))))
+          std::assert_exists((default::TransactionStatus.Pending IF NOT (.executable) ELSE (default::TransactionStatus.Executing IF NOT (EXISTS (.result)) ELSE (default::TransactionStatus.Successful IF (.result IS default::ConfirmedSuccess) ELSE (default::TransactionStatus.Failed IF (.result IS default::ConfirmedFailure) ELSE (default::TransactionStatus.Scheduled IF NOT (.result[IS default::Scheduled].cancelled) ELSE default::TransactionStatus.Cancelled))))))
       );
       CREATE LINK systx: default::SystemTx {
           CREATE CONSTRAINT std::exclusive;
@@ -630,16 +633,16 @@ CREATE MIGRATION m13qxppnkqofigih7dxkipm2lh6k3ahrqerachqhdzihw76nb6i3aa
       CREATE MULTI LINK systxs := (.<proposal[IS default::SystemTx]);
   };
   ALTER TYPE default::Transferlike {
-      CREATE LINK spentBy: default::Policy;
-      ALTER LINK spentBy {
+      CREATE LINK spentBy: default::Policy {
           CREATE REWRITE
               INSERT 
-              USING (__subject__.systx.proposal.policy);
+              USING (__subject__.result.transaction.policy);
           CREATE REWRITE
               UPDATE 
-              USING (__subject__.systx.proposal.policy);
+              USING (__subject__.result.transaction.policy);
       };
-      CREATE INDEX ON ((.spentBy, .tokenAddress));
+      CREATE CONSTRAINT std::exclusive ON ((.account, .block, .logIndex, .systxHash, .result));
+      CREATE INDEX ON ((.tokenAddress, .confirmed, .spentBy));
   };
   ALTER TYPE default::Policy {
       CREATE TRIGGER update_proposals_when_deleted
@@ -690,6 +693,16 @@ CREATE MIGRATION m13qxppnkqofigih7dxkipm2lh6k3ahrqerachqhdzihw76nb6i3aa
               )
           });
   };
+  ALTER TYPE default::Result {
+      CREATE TRIGGER update_tx_result
+          AFTER INSERT 
+          FOR EACH DO (UPDATE
+              __new__.transaction
+          SET {
+              result := __new__
+          });
+      CREATE LINK systx: default::SystemTx;
+  };
   ALTER TYPE default::SystemTx {
       CREATE TRIGGER update_tx_systx
           AFTER INSERT 
@@ -698,7 +711,12 @@ CREATE MIGRATION m13qxppnkqofigih7dxkipm2lh6k3ahrqerachqhdzihw76nb6i3aa
           SET {
               systx := __new__
           });
-      CREATE LINK result := (.<systx[IS default::Result]);
+      CREATE LINK result := (SELECT
+          .<systx[IS default::Result] ORDER BY
+              .timestamp DESC
+      LIMIT
+          1
+      );
   };
   CREATE FUNCTION default::label(address: std::str) -> OPTIONAL std::str USING (SELECT
       default::labelForUser(address, GLOBAL default::current_user)
@@ -740,7 +758,7 @@ CREATE MIGRATION m13qxppnkqofigih7dxkipm2lh6k3ahrqerachqhdzihw76nb6i3aa
       };
   };
   ALTER TYPE default::Simulation {
-      CREATE MULTI LINK transfers: default::TransferDetails {
+      CREATE MULTI LINK transfers: default::Transfer {
           ON SOURCE DELETE DELETE TARGET;
           CREATE CONSTRAINT std::exclusive;
       };

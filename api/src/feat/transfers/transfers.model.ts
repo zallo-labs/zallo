@@ -1,6 +1,5 @@
-import { Extensions, Field, IntersectionType } from '@nestjs/graphql';
+import { Extensions, Field } from '@nestjs/graphql';
 import { AddressField } from '~/common/scalars/Address.scalar';
-import { Account } from '../accounts/accounts.model';
 import { Event } from '../events/events.model';
 import e from '~/edgeql-js';
 import { Token } from '../tokens/tokens.model';
@@ -9,12 +8,10 @@ import { Address, UAddress } from 'lib';
 import { DecimalField } from '~/common/scalars/Decimal.scalar';
 import Decimal from 'decimal.js';
 import { NodeInterface, NodeType, Node } from '~/common/decorators/interface.decorator';
+import { Policy } from '../policies/policies.model';
 
-@NodeInterface()
-export class TransferDetails extends Node {
-  @Field(() => Account)
-  account: Account;
-
+@NodeInterface({ implements: [Event] })
+export class Transferlike extends Node {
   @AddressField()
   from: Address;
 
@@ -37,14 +34,11 @@ export class TransferDetails extends Node {
   outgoing: boolean;
 
   @Field(() => Boolean)
-  internal: boolean;
-
-  @Field(() => Boolean)
   isFeeTransfer: boolean;
-}
 
-@NodeInterface({ implements: [Event, TransferDetails] })
-export class Transferlike extends IntersectionType(Event, TransferDetails) {}
+  @Field(() => Policy, { nullable: true })
+  spentBy?: Policy;
+}
 
 @NodeType({ implements: Transferlike })
 @Extensions({ eqlType: e.Transfer })

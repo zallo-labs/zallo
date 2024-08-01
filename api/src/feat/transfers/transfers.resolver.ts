@@ -5,7 +5,7 @@ import {
   TransfersService,
 } from './transfers.service';
 import { TransferSubscriptionInput } from './transfers.input';
-import { Transfer, TransferDetails, Transferlike } from './transfers.model';
+import { Transfer, Transferlike } from './transfers.model';
 import { GraphQLResolveInfo } from 'graphql';
 import { getShape } from '~/core/database';
 import { Input, InputArgs } from '~/common/decorators/input.decorator';
@@ -18,7 +18,7 @@ import { DecimalScalar } from '~/common/scalars/Decimal.scalar';
 import Decimal from 'decimal.js';
 import { NodeArgs } from '../nodes/nodes.input';
 
-@Resolver(() => TransferDetails)
+@Resolver(() => Transferlike)
 export class TransfersResolver {
   constructor(
     private service: TransfersService,

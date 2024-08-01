@@ -1,8 +1,13 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { asChain, asDecimal, asHex, asUAddress, isHex } from 'lib';
-import { TransactionData, ReceiptsWorker, Receipt } from './receipts.worker';
+import {
+  ConfirmationData,
+  ConfirmationEventData,
+  ConfirmationsWorker,
+  Receipt,
+} from './confirmations.worker';
 import { InjectQueue } from '@nestjs/bullmq';
-import { ReceiptsQueue } from './receipts.queue';
+import { ConfirmationQueue } from './confirmations.queue';
 import e from '~/edgeql-js';
 import { DatabaseService } from '~/core/database';
 import { and } from '~/core/database';
@@ -10,49 +15,57 @@ import { ProposalsService } from '../proposals/proposals.service';
 import { ProposalEvent } from '../proposals/proposals.input';
 import { InjectRedis } from '@songkeys/nestjs-redis';
 import Redis from 'ioredis';
-import { RUNNING_JOB_STATUSES, TypedQueue } from '~/core/bull/bull.util';
+import { QueueData, RUNNING_JOB_STATUSES, TypedQueue } from '~/core/bull/bull.util';
 import { ETH } from 'lib/dapps';
 import { runOnce } from '~/util/mutex';
 import { ampli } from '~/util/ampli';
 import { selectSysTx } from './system-tx.util';
 import { NetworksService, Network } from '~/core/networks';
+import { AccountsCacheService } from '../auth/accounts.cache.service';
 
 @Injectable()
 export class TransactionsEvents implements OnModuleInit {
   private log = new Logger(this.constructor.name);
 
   constructor(
-    @InjectQueue(ReceiptsQueue.name)
-    private queue: TypedQueue<ReceiptsQueue>,
+    @InjectQueue(ConfirmationQueue.name)
+    private queue: TypedQueue<ConfirmationQueue>,
     private db: DatabaseService,
     @InjectRedis() private redis: Redis,
     private networks: NetworksService,
-    private receipts: ReceiptsWorker,
+    private confirmations: ConfirmationsWorker,
     private proposals: ProposalsService,
+    private accountsCache: AccountsCacheService,
   ) {
-    this.receipts.onTransaction((data) => this.executed(data));
-    this.receipts.onTransaction((data) => this.reverted(data));
+    this.confirmations.on((data) => this.executed(data));
+    this.confirmations.on((data) => this.reverted(data));
   }
 
   onModuleInit() {
     this.addMissingJobs();
   }
 
-  private async executed({ chain, receipt, block, type }: TransactionData) {
-    if (type !== 'transaction' || receipt.status !== 'success') return;
+  private async executed({ chain, receipt }: ConfirmationData) {
+    if (receipt.status !== 'success') return;
+    if (!(await this.accountsCache.isAccount(asUAddress(receipt.from, chain)))) return;
 
-    const response = await this.getResponse(this.networks.get(chain), receipt);
+    const network = this.networks.get(chain);
+    const response = await this.getResponse(network, receipt);
+    const block = await network.getBlock({
+      blockNumber: receipt.blockNumber,
+      includeTransactions: false,
+    });
 
     const systx = selectSysTx(receipt.transactionHash);
     const insertResult = e
-      .insert(e.Successful, {
+      .insert(e.ConfirmedSuccess, {
         transaction: systx.proposal,
         systx,
         timestamp: new Date(Number(block.timestamp) * 1000), // block.timestamp is in seconds
         block: BigInt(receipt.blockNumber),
         gasUsed: receipt.gasUsed,
         ethFeePerGas: asDecimal(receipt.effectiveGasPrice, ETH).toString(),
-        responses: response.data ? [response.data] : [],
+        response: response.data,
       })
       .unlessConflict();
 
@@ -74,14 +87,20 @@ export class TransactionsEvents implements OnModuleInit {
     });
   }
 
-  private async reverted({ chain, receipt, block, type }: TransactionData) {
-    if (type !== 'transaction' || receipt.status !== 'reverted') return;
+  private async reverted({ chain, receipt }: ConfirmationData) {
+    if (receipt.status !== 'reverted') return;
+    if (!(await this.accountsCache.isAccount(asUAddress(receipt.from, chain)))) return;
 
-    const response = await this.getResponse(this.networks.get(chain), receipt);
+    const network = this.networks.get(chain);
+    const response = await this.getResponse(network, receipt);
+    const block = await network.getBlock({
+      blockNumber: receipt.blockNumber,
+      includeTransactions: false,
+    });
 
     const systx = selectSysTx(receipt.transactionHash);
     const insertResult = e
-      .insert(e.Failed, {
+      .insert(e.ConfirmedFailure, {
         transaction: systx.proposal,
         systx,
         timestamp: new Date(Number(block.timestamp) * 1000), // block.timestamp is in seconds
@@ -149,12 +168,11 @@ export class TransactionsEvents implements OnModuleInit {
         if (orphanedTransactions.length) {
           await this.queue.addBulk(
             orphanedTransactions.map((t) => ({
-              name: ReceiptsQueue.name,
+              name: ConfirmationQueue.name,
               data: {
                 chain: asChain(asUAddress(t.proposal.account.address)),
                 transaction: asHex(t.hash),
-                type: 'transaction',
-              } as const,
+              } satisfies QueueData<ConfirmationQueue>,
             })),
           );
         }

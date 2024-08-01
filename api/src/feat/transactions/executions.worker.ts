@@ -40,6 +40,8 @@ import {
 } from '~/feat/paymasters/paymasters.util';
 import { insertSystx } from './insert-systx.query';
 import { updatePaymasterFees } from './update-paymaster-fees.query';
+import { EventsService, Log } from '../events/events.service';
+import { AbiEvent } from 'viem';
 
 export const ExecutionsQueue = createQueue<ExecutionJob>('Executions');
 export type ExecutionsQueue = typeof ExecutionsQueue;
@@ -55,8 +57,9 @@ const PRICE_DRIFT_MULTIPLIER = new Decimal('1.001'); // 0.1%
 @Processor(ExecutionsQueue.name, { autorun: false })
 export class ExecutionsWorker extends Worker<ExecutionsQueue> {
   constructor(
-    private networks: NetworksService,
     private db: DatabaseService,
+    private networks: NetworksService,
+    private events: EventsService,
     private proposals: ProposalsService,
     private tokens: TokensService,
     private prices: PricesService,
@@ -198,7 +201,7 @@ export class ExecutionsWorker extends Worker<ExecutionsQueue> {
 
     // if (executeParams.gas && executeParams.gas < estimatedFee.gasLimit) throw new Error('gas less than estimated gasLimit');
 
-    const execution = await network.sendAccountTransaction({
+    const txRespResult = await network.sendAccountTransaction({
       from: asAddress(account),
       paymaster,
       paymasterInput,
@@ -207,44 +210,30 @@ export class ExecutionsWorker extends Worker<ExecutionsQueue> {
       gasPerPubdata: estimatedFee.gasPerPubdataLimit, // This should ideally be signed during proposal creation
       ...executeParams,
     });
-
-    if (execution.isErr()) throw execution.error; // Transactions with validation errors should not be marked as executable
+    if (txRespResult.isErr()) throw txRespResult.error; // TODO: handle
 
     const id = asUUID(proposal.id);
-    const r = await (async () => {
-      if (execution.isOk()) {
-        const hash = execution.value;
+    const resp = txRespResult.value;
+    const result = asUUID(
+      (
         await this.db.exec(insertSystx, {
-          hash,
+          hash: resp.transactionHash,
           proposal: id,
           maxEthFeePerGas: maxFeePerGas.toString(),
           ethPerFeeToken: feeTokenPrice.eth.toString(),
           usdPerFeeToken: feeTokenPrice.usd.toString(),
-        });
-
-        return hash;
-      } /* execution isErr */ else {
-
-        // TODO: adds failed submission result
-
-        // Validation failed
-        // const err = execution.error;
-        // await this.db.query(
-        //   e.insert(e.Failed, {
-        //     transaction: selectTransaction(id),
-        //     block: network.blockNumber(),
-        //     gasUsed: 0n,
-        //     ethFeePerGas: maxFeePerGas.toString(),
-        //     reason: err.message,
-        //   }),
-        // );
-        // return err;
-      }
-    })();
-
+        })
+      ).id,
+    );
+    // TODO: process events in a separate job to avoid retrying sending of transaction if processing fails
+    await this.events.processOptimistic({
+      chain: network.chain.key,
+      result,
+      logs: resp.events as unknown as Log<AbiEvent, false>[],
+    });
     this.proposals.event({ id, account }, ProposalEvent.submitted);
 
-    return r;
+    return resp.transactionHash;
   }
 
   private async getAndUpdateNewPaymasterFees(

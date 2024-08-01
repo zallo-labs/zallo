@@ -4,7 +4,6 @@ import { AccountsCacheService } from '../auth/accounts.cache.service';
 import { getAbiItem } from 'viem';
 import { ACCOUNT_ABI, UUID, asChain, asUAddress, asUUID } from 'lib';
 import e from '~/edgeql-js';
-import { TransactionEventData, ReceiptsWorker } from './receipts.worker';
 import { InjectFlowProducer, InjectQueue } from '@nestjs/bullmq';
 import { FLOW_PRODUCER, QueueData, RUNNING_JOB_STATUSES, TypedQueue } from '~/core/bull/bull.util';
 import { runOnce } from '~/util/mutex';
@@ -13,7 +12,7 @@ import Redis from 'ioredis';
 import { and } from '~/core/database';
 import { FlowJob, FlowProducer } from 'bullmq';
 import { SimulationsQueue } from '../simulations/simulations.worker';
-import { ReceiptsQueue } from './receipts.queue';
+import { ConfirmationQueue } from './confirmations.queue';
 import { Chain } from 'chains';
 import { ProposalsService } from '../proposals/proposals.service';
 import { ProposalEvent } from '../proposals/proposals.input';
@@ -21,6 +20,7 @@ import { selectSysTx } from './system-tx.util';
 import { selectTransaction } from '../transactions/transactions.util';
 import { ExecutionsQueue } from '~/feat/transactions/executions.worker';
 import { DEFAULT_FLOW } from '~/core/bull/bull.module';
+import { ConfirmedEvent, EventsService } from '../events/events.service';
 
 const scheduledEvent = getAbiItem({ abi: ACCOUNT_ABI, name: 'Scheduled' });
 const scheduleCancelledEvent = getAbiItem({ abi: ACCOUNT_ABI, name: 'ScheduleCancelled' });
@@ -31,7 +31,7 @@ export class SchedulerEvents implements OnModuleInit {
 
   constructor(
     private db: DatabaseService,
-    private receipts: ReceiptsWorker,
+    private events: EventsService,
     private accountsCache: AccountsCacheService,
     @InjectQueue(ExecutionsQueue.name) private queue: TypedQueue<ExecutionsQueue>,
     @InjectRedis() private redis: Redis,
@@ -39,15 +39,15 @@ export class SchedulerEvents implements OnModuleInit {
     private flows: FlowProducer,
     private proposals: ProposalsService,
   ) {
-    this.receipts.onEvent(scheduledEvent, (event) => this.scheduled(event));
-    this.receipts.onEvent(scheduleCancelledEvent, (event) => this.scheduleCancelled(event));
+    this.events.onConfirmed(scheduledEvent, (event) => this.scheduled(event));
+    this.events.onConfirmed(scheduleCancelledEvent, (event) => this.scheduleCancelled(event));
   }
 
   onModuleInit() {
     this.addMissingJobs();
   }
 
-  private async scheduled(event: TransactionEventData<typeof scheduledEvent>) {
+  private async scheduled(event: ConfirmedEvent<typeof scheduledEvent>) {
     const account = asUAddress(event.log.address, event.chain);
     if (!(await this.accountsCache.isAccount(account))) return;
 
@@ -67,7 +67,7 @@ export class SchedulerEvents implements OnModuleInit {
     }
   }
 
-  private async scheduleCancelled(event: TransactionEventData<typeof scheduleCancelledEvent>) {
+  private async scheduleCancelled(event: ConfirmedEvent<typeof scheduleCancelledEvent>) {
     const account = asUAddress(event.log.address, event.chain);
     if (!(await this.accountsCache.isAccount(account))) return;
 
@@ -92,13 +92,9 @@ export class SchedulerEvents implements OnModuleInit {
 
   private getJob(txProposal: UUID, chain: Chain, scheduledFor: Date): FlowJob {
     return {
-      queueName: ReceiptsQueue.name,
+      queueName: ConfirmationQueue.name,
       name: 'Scheduled transaction',
-      data: {
-        chain,
-        transaction: { child: 0 },
-        type: 'transaction',
-      } satisfies QueueData<ReceiptsQueue>,
+      data: { chain, transaction: { child: 0 } } satisfies QueueData<ConfirmationQueue>,
       children: [
         {
           queueName: ExecutionsQueue.name,

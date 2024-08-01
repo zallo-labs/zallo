@@ -134,6 +134,27 @@ export namespace $default {
     "approver": Approver;
   }
   export type CloudProvider = "Apple" | "Google";
+  export interface Result extends std.$Object {
+    "transaction": Transaction;
+    "timestamp": Date;
+    "events": Event[];
+    "transfers": Transfer[];
+    "systx"?: SystemTx | null;
+  }
+  export interface Confirmed extends Result {
+    "block": bigint;
+    "ethFeePerGas": string;
+    "gasUsed": bigint;
+    "networkEthFee": string;
+  }
+  export interface Failure extends Result {
+    "reason"?: string | null;
+  }
+  export interface ConfirmedFailure extends Confirmed, Failure {}
+  export interface Success extends Result {
+    "response"?: string | null;
+  }
+  export interface ConfirmedSuccess extends Confirmed, Success {}
   export interface UserLabelled extends Labelled {}
   export interface Contact extends UserLabelled {
     "user"?: User | null;
@@ -146,28 +167,12 @@ export namespace $default {
   export interface Event extends std.$Object {
     "account": Account;
     "block": bigint;
-    "internal": boolean;
     "logIndex": number;
-    "systxHash": string;
+    "systxHash"?: string | null;
     "timestamp": Date;
-    "systx"?: SystemTx | null;
-  }
-  export interface Result extends std.$Object {
-    "timestamp": Date;
-    "systx"?: SystemTx | null;
-    "events": Event[];
-    "transaction": Transaction;
-    "transferApprovals": TransferApproval[];
-    "transfers": Transfer[];
-  }
-  export interface ReceiptResult extends Result {
-    "block": bigint;
-    "ethFeePerGas": string;
-    "gasUsed": bigint;
-    "networkEthFee": string;
-  }
-  export interface Failed extends ReceiptResult {
-    "reason"?: string | null;
+    "result"?: Result | null;
+    "confirmed": boolean;
+    "internal": boolean;
   }
   export interface Function extends std.$Object {
     "selector": string;
@@ -202,6 +207,7 @@ export namespace $default {
     "to": string;
     "value"?: bigint | null;
   }
+  export interface OptimisticSuccess extends Success {}
   export interface PaymasterFees extends std.$Object {
     "activation": string;
     "total": string;
@@ -216,19 +222,19 @@ export namespace $default {
     "proposal"?: Transaction | null;
     "initState": boolean;
     "isActive": boolean;
+    "isDraft": boolean;
     "latest"?: PolicyState | null;
     "isLatest": boolean;
-    "isDraft": boolean;
   }
   export interface Policy extends PolicyState {
     "approvers": Approver[];
+    "hash": string;
     "actions": Action[];
     "transfers": TransfersConfig;
     "allowMessages": boolean;
     "delay": number;
     "name": string;
     "threshold": number;
-    "hash": string;
   }
   export interface Rejection extends ProposalResponse {}
   export interface RemovedPolicy extends PolicyState {}
@@ -240,21 +246,17 @@ export namespace $default {
     "responses": string[];
     "success": boolean;
     "timestamp": Date;
-    "transfers": TransferDetails[];
-  }
-  export interface Successful extends ReceiptResult {
-    "responses": string[];
+    "transfers": Transfer[];
   }
   export interface SystemTx extends std.$Object {
     "proposal": Transaction;
     "maxEthFeePerGas": string;
     "maxNetworkEthFee": string;
+    "maxEthFees": string;
     "ethPerFeeToken": string;
     "hash": string;
     "timestamp": Date;
     "usdPerFeeToken": string;
-    "events": Event[];
-    "maxEthFees": string;
     "result"?: Result | null;
   }
   export interface Token extends UserLabelled {
@@ -272,7 +274,6 @@ export namespace $default {
   export interface Transaction extends Proposal {
     "maxAmount": string;
     "gasLimit": bigint;
-    "result"?: Result | null;
     "executable": boolean;
     "unorderedOperations": Operation[];
     "operations": Operation[];
@@ -281,14 +282,14 @@ export namespace $default {
     "feeToken": Token;
     "maxAmountFp": bigint;
     "paymasterEthFees": PaymasterFees;
+    "result"?: Result | null;
     "status": TransactionStatus;
     "systx"?: SystemTx | null;
     "results": Result[];
     "systxs": SystemTx[];
   }
   export type TransactionStatus = "Pending" | "Scheduled" | "Executing" | "Successful" | "Failed" | "Cancelled";
-  export interface TransferDetails extends std.$Object {
-    "account": Account;
+  export interface Transferlike extends Event {
     "tokenAddress": string;
     "token"?: Token | null;
     "amount": string;
@@ -297,8 +298,6 @@ export namespace $default {
     "isFeeTransfer": boolean;
     "outgoing": boolean;
     "to": string;
-  }
-  export interface Transferlike extends Event, TransferDetails {
     "spentBy"?: Policy | null;
   }
   export interface Transfer extends Transferlike {}
@@ -336,18 +335,22 @@ export type ApprovalIssue = $default.ApprovalIssue;
 export type Approver = $default.Approver;
 export type ApproverDetails = $default.ApproverDetails;
 export type CloudProvider = $default.CloudProvider;
+export type Result = $default.Result;
+export type Confirmed = $default.Confirmed;
+export type Failure = $default.Failure;
+export type ConfirmedFailure = $default.ConfirmedFailure;
+export type Success = $default.Success;
+export type ConfirmedSuccess = $default.ConfirmedSuccess;
 export type UserLabelled = $default.UserLabelled;
 export type Contact = $default.Contact;
 export type Contract = $default.Contract;
 export type Event = $default.Event;
-export type Result = $default.Result;
-export type ReceiptResult = $default.ReceiptResult;
-export type Failed = $default.Failed;
 export type Function = $default.Function;
 export type GlobalLabel = $default.GlobalLabel;
 export type Proposal = $default.Proposal;
 export type Message = $default.Message;
 export type Operation = $default.Operation;
+export type OptimisticSuccess = $default.OptimisticSuccess;
 export type PaymasterFees = $default.PaymasterFees;
 export type PolicyState = $default.PolicyState;
 export type Policy = $default.Policy;
@@ -355,12 +358,10 @@ export type Rejection = $default.Rejection;
 export type RemovedPolicy = $default.RemovedPolicy;
 export type Scheduled = $default.Scheduled;
 export type Simulation = $default.Simulation;
-export type Successful = $default.Successful;
 export type SystemTx = $default.SystemTx;
 export type Token = $default.Token;
 export type Transaction = $default.Transaction;
 export type TransactionStatus = $default.TransactionStatus;
-export type TransferDetails = $default.TransferDetails;
 export type Transferlike = $default.Transferlike;
 export type Transfer = $default.Transfer;
 export type TransferApproval = $default.TransferApproval;
@@ -641,18 +642,22 @@ export interface types {
     "Approver": $default.Approver;
     "ApproverDetails": $default.ApproverDetails;
     "CloudProvider": $default.CloudProvider;
+    "Result": $default.Result;
+    "Confirmed": $default.Confirmed;
+    "Failure": $default.Failure;
+    "ConfirmedFailure": $default.ConfirmedFailure;
+    "Success": $default.Success;
+    "ConfirmedSuccess": $default.ConfirmedSuccess;
     "UserLabelled": $default.UserLabelled;
     "Contact": $default.Contact;
     "Contract": $default.Contract;
     "Event": $default.Event;
-    "Result": $default.Result;
-    "ReceiptResult": $default.ReceiptResult;
-    "Failed": $default.Failed;
     "Function": $default.Function;
     "GlobalLabel": $default.GlobalLabel;
     "Proposal": $default.Proposal;
     "Message": $default.Message;
     "Operation": $default.Operation;
+    "OptimisticSuccess": $default.OptimisticSuccess;
     "PaymasterFees": $default.PaymasterFees;
     "PolicyState": $default.PolicyState;
     "Policy": $default.Policy;
@@ -660,12 +665,10 @@ export interface types {
     "RemovedPolicy": $default.RemovedPolicy;
     "Scheduled": $default.Scheduled;
     "Simulation": $default.Simulation;
-    "Successful": $default.Successful;
     "SystemTx": $default.SystemTx;
     "Token": $default.Token;
     "Transaction": $default.Transaction;
     "TransactionStatus": $default.TransactionStatus;
-    "TransferDetails": $default.TransferDetails;
     "Transferlike": $default.Transferlike;
     "Transfer": $default.Transfer;
     "TransferApproval": $default.TransferApproval;

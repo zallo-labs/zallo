@@ -1,6 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { asUAddress, ACCOUNT_PROXY, asDecimal } from 'lib';
-import { TransactionEventData, ReceiptsWorker } from '../system-txs/receipts.worker';
 import { DatabaseService } from '~/core/database';
 import { selectAccount } from './accounts.util';
 import { getAbiItem } from 'viem';
@@ -10,6 +9,8 @@ import { AccountsService } from '~/feat/accounts/accounts.service';
 import e from '~/edgeql-js';
 import { ETH } from 'lib/dapps';
 import { AccountEvent } from './accounts.model';
+import { ConfirmedEvent, EventsService } from '../events/events.service';
+import { NetworksService } from '~/core/networks';
 
 const upgradedEvent = getAbiItem({ abi: ACCOUNT_PROXY.abi, name: 'Upgraded' });
 
@@ -19,18 +20,24 @@ export class UpgradeEvents {
 
   constructor(
     private db: DatabaseService,
-    private receipts: ReceiptsWorker,
+    private networks: NetworksService,
+    private events: EventsService,
     private accounts: AccountsService,
     private accountsCache: AccountsCacheService,
   ) {
-    this.receipts.onEvent(upgradedEvent, (data) => this.upgraded(data));
+    this.events.onConfirmed(upgradedEvent, (data) => this.upgraded(data));
   }
 
-  private async upgraded(event: TransactionEventData<typeof upgradedEvent>) {
+  private async upgraded(event: ConfirmedEvent<typeof upgradedEvent>) {
     const { implementation } = event.log.args;
-
     const address = asUAddress(event.log.address, event.chain);
     if (!(await this.accountsCache.isAccount(address))) return;
+
+    const receipt =
+      event.receipt ?? 
+      (await this.networks
+        .get(event.chain)
+        .getTransactionReceipt({ hash: event.log.transactionHash }));
 
     const selectedAccount = selectAccount(address);
     const shouldUpdate = e.op(
@@ -43,9 +50,7 @@ export class UpgradeEvents {
         implementation,
         upgradedAtBlock: event.log.blockNumber,
         activationEthFee: e.op(
-          e.decimal(
-            asDecimal(event.receipt.gasUsed * event.receipt.effectiveGasPrice, ETH).toString(),
-          ),
+          e.decimal(asDecimal(receipt.gasUsed * receipt.effectiveGasPrice, ETH).toString()),
           'if',
           e.op('not', a.active),
           'else',
