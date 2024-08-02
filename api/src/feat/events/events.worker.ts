@@ -3,13 +3,14 @@ import { Injectable } from '@nestjs/common';
 import { NetworksService } from '~/core/networks/networks.service';
 import { DatabaseService } from '~/core/database';
 import e from '~/edgeql-js';
-import { Hex, asHex } from 'lib';
+import { asHex } from 'lib';
 import { CHAINS, Chain } from 'chains';
 import { RUNNING_JOB_STATUSES, TypedJob, createQueue } from '~/core/bull/bull.util';
 import { Worker } from '~/core/bull/Worker';
 import { AbiEvent } from 'abitype';
-import { Log as ViemLog, encodeEventTopics, hexToNumber } from 'viem';
+import { Log as ViemLog, hexToNumber } from 'viem';
 import { JobsOptions, UnrecoverableError } from 'bullmq';
+import { EventsService } from './events.service';
 
 const TARGET_LOGS_PER_JOB = 9_000; // Max 10k
 const DEFAULT_LOGS_PER_BLOCK = 200;
@@ -48,8 +49,6 @@ export type EventListener<TAbiEvent extends AbiEvent> = (
 @Injectable()
 @Processor(EventsQueue.name, { autorun: false, lockDuration: 60_000, stalledInterval: 60_000 })
 export class EventsWorker extends Worker<EventsQueue> {
-  private listeners = new Map<Hex, EventListener<AbiEvent>[]>();
-  private events: AbiEvent[] = [];
   private logsPerBlock = Object.fromEntries(
     Object.keys(CHAINS).map((chain) => [chain as Chain, undefined]),
   ) as Record<Chain, number | undefined>;
@@ -57,17 +56,9 @@ export class EventsWorker extends Worker<EventsQueue> {
   constructor(
     private db: DatabaseService,
     private networks: NetworksService,
+    private events: EventsService,
   ) {
     super();
-  }
-
-  on<TAbiEvent extends AbiEvent>(event: TAbiEvent, listener: EventListener<TAbiEvent>) {
-    const topic = encodeEventTopics({ abi: [event as AbiEvent] })[0];
-    this.listeners.set(topic, [
-      ...(this.listeners.get(topic) ?? []),
-      listener as unknown as EventListener<AbiEvent>,
-    ]);
-    this.events.push(event);
   }
 
   async process(job: TypedJob<EventsQueue>) {
@@ -107,20 +98,15 @@ export class EventsWorker extends Worker<EventsQueue> {
       const logs = await network.getLogs({
         fromBlock: BigInt(from),
         toBlock: BigInt(to),
-        events: this.events,
+        events: this.events.confirmedAbi,
         strict: true,
       });
 
       const blocksProcessed = to - from + 1;
       this.updateLogsPerBlock(chain, logs.length, blocksProcessed);
 
-      await Promise.all(
-        logs
-          .filter((log) => log.topics.length)
-          .flatMap((log) =>
-            this.listeners.get(log.topics[0]!)?.map((listener) => listener({ chain, log })),
-          ),
-      );
+      await this.events.processConfirmed({ chain, logs });
+
       this.log.verbose(
         `${chain}: ${logs.length} events from ${blocksProcessed} blocks [${from}, ${to}]`,
       );

@@ -1,22 +1,26 @@
 module default {
   type Event {
     required account: Account;
-    required systxHash: Bytes32;
-    systx: SystemTx;
+    systxHash: Bytes32;
+    result: Result;
     required block: bigint { constraint min_value(0); }
     required logIndex: uint32;
     required timestamp: datetime { default := datetime_of_statement(); }
-    required internal: bool;
-
-    index on ((.account, .internal));
+    required internal: bool {
+      default := true;
+      rewrite insert, update using (exists __subject__.result);
+    };
+    required confirmed: bool {
+      default := true;
+      rewrite insert, update using ((__subject__.result is Confirmed) ?? true);
+    }
 
     access policy members_can_select
       allow select
       using (is_member(.account));
   }
 
-  type TransferDetails {
-    required account: Account;
+  abstract type Transferlike extending Event {
     required from: Address;
     required to: Address;
     required tokenAddress: UAddress; 
@@ -30,33 +34,27 @@ module default {
     required incoming: bool;
     required outgoing: bool;
     required isFeeTransfer: bool { default := false; }
+    spentBy: Policy { rewrite insert, update using (__subject__.result.transaction.policy) }
 
     access policy members_can_select_insert
       allow select, insert
       using (is_member(.account));
-  }
 
-  abstract type Transferlike extending Event, TransferDetails {
-    spentBy: Policy { rewrite insert, update using (__subject__.systx.proposal.policy) }
+    constraint exclusive on ((.account, .block, .logIndex, .systxHash, .result));
 
-    index on ((.spentBy, .tokenAddress));
+    index on ((.tokenAddress, .confirmed, .spentBy));
   }
 
   type Transfer extending Transferlike {
-    constraint exclusive on ((.account, .block, .logIndex));  # Must be declared directly on type
 
     index on ((.account, .internal, .incoming));
   }
 
   type TransferApproval extending Transferlike {
     link previous := (
-      select TransferApproval
-      filter .tokenAddress = .tokenAddress and .from = .from and .to = .to
-      order by .block desc then .logIndex desc
-      limit 1
+      select TransferApproval filter .tokenAddress = .tokenAddress and .from = .from and .to = .to
+      order by .block desc then .logIndex desc limit 1
     );
     required property delta := .amount - (.previous.amount ?? 0);
-
-    constraint exclusive on ((.account, .block, .logIndex));  # Must be declared directly on type
   }
 }

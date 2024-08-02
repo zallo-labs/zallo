@@ -56,7 +56,7 @@ const Transaction = graphql`
     result {
       __typename
       id
-      ... on ReceiptResult {
+      ... on Confirmed {
         networkEthFee
       }
     }

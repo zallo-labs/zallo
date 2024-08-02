@@ -8,15 +8,16 @@ import { PricesModule } from '~/feat/prices/prices.module';
 import { SystemTxsModule } from '~/feat/system-txs/system-txs.module';
 import { registerBullQueue, registerFlowsProducer } from '~/core/bull/bull.util';
 import { ExecutionsQueue, ExecutionsWorker } from '~/feat/transactions/executions.worker';
-import { ReceiptsQueue } from '~/feat/system-txs/receipts.queue';
+import { ConfirmationQueue } from '../system-txs/confirmations.queue';
 import { SimulationsQueue } from '~/feat/simulations/simulations.worker';
 import { ActivationsModule } from '../activations/activations.module';
 import { PoliciesModule } from '../policies/policies.module';
 import { TokensModule } from '~/feat/tokens/tokens.module';
+import { EventsModule } from '../events/events.module';
 
 @Module({
   imports: [
-    ...registerBullQueue(SimulationsQueue, ExecutionsQueue, ReceiptsQueue),
+    ...registerBullQueue(SimulationsQueue, ExecutionsQueue, ConfirmationQueue),
     registerFlowsProducer(),
     SystemTxsModule,
     ExpoModule,
@@ -26,6 +27,7 @@ import { TokensModule } from '~/feat/tokens/tokens.module';
     ActivationsModule,
     forwardRef(() => PoliciesModule),
     TokensModule,
+    EventsModule,
   ],
   exports: [TransactionsService],
   providers: [TransactionsResolver, TransactionsService, ExecutionsWorker],

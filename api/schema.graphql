@@ -165,6 +165,44 @@ enum CloudProvider {
   Google
 }
 
+interface Confirmed implements Node & Result {
+  block: BigInt!
+  ethFeePerGas: Decimal!
+  events: [Event!]!
+  gasUsed: BigInt!
+  id: ID!
+  networkEthFee: Decimal!
+  timestamp: DateTime!
+  transaction: Transaction!
+  transfers: [Transfer!]!
+}
+
+type ConfirmedFailure implements Confirmed & Failure & Node & Result {
+  block: BigInt!
+  ethFeePerGas: Decimal!
+  events: [Event!]!
+  gasUsed: BigInt!
+  id: ID!
+  networkEthFee: Decimal!
+  reason: String!
+  timestamp: DateTime!
+  transaction: Transaction!
+  transfers: [Transfer!]!
+}
+
+type ConfirmedSuccess implements Confirmed & Node & Result & Success {
+  block: BigInt!
+  ethFeePerGas: Decimal!
+  events: [Event!]!
+  gasUsed: BigInt!
+  id: ID!
+  networkEthFee: Decimal!
+  response: Bytes!
+  timestamp: DateTime!
+  transaction: Transaction!
+  transfers: [Transfer!]!
+}
+
 type Contact implements Labelled & Node {
   address: UAddress!
   id: ID!
@@ -246,9 +284,13 @@ type EstimatedTransactionFees implements CustomNode {
 }
 
 interface Event implements Node {
+  account: Account!
   block: BigInt!
+  confirmed: Boolean!
   id: ID!
+  internal: Boolean!
   logIndex: Float!
+  result: Result
   systxHash: Bytes32!
   timestamp: DateTime!
 }
@@ -258,16 +300,12 @@ input ExecuteTransactionInput {
   ignoreSimulation: Boolean
 }
 
-type Failed implements Node & ReceiptResult & Result {
-  block: BigInt!
-  ethFeePerGas: Decimal!
+interface Failure implements Node & Result {
   events: [Event!]!
-  gasUsed: BigInt!
   id: ID!
-  networkEthFee: Decimal!
-  reason: Bytes!
+  reason: String!
   timestamp: DateTime!
-  transferApprovals: [TransferApproval!]!
+  transaction: Transaction!
   transfers: [Transfer!]!
 }
 
@@ -370,6 +408,15 @@ input OperationInput {
   data: Bytes
   to: Address!
   value: Uint256
+}
+
+type OptimisticSuccess implements Node & Result & Success {
+  events: [Event!]!
+  id: ID!
+  response: Bytes!
+  timestamp: DateTime!
+  transaction: Transaction!
+  transfers: [Transfer!]!
 }
 
 type PaymasterFees {
@@ -610,18 +657,6 @@ type Query {
   user: User!
 }
 
-interface ReceiptResult implements Node & Result {
-  block: BigInt!
-  ethFeePerGas: Decimal!
-  events: [Event!]!
-  gasUsed: BigInt!
-  id: ID!
-  networkEthFee: Decimal!
-  timestamp: DateTime!
-  transferApprovals: [TransferApproval!]!
-  transfers: [Transfer!]!
-}
-
 type Rejection implements Node & ProposalResponse {
   approver: Approver!
   createdAt: DateTime!
@@ -659,7 +694,7 @@ interface Result implements Node {
   events: [Event!]!
   id: ID!
   timestamp: DateTime!
-  transferApprovals: [TransferApproval!]!
+  transaction: Transaction!
   transfers: [Transfer!]!
 }
 
@@ -669,34 +704,19 @@ type Scheduled implements Node & Result {
   id: ID!
   scheduledFor: DateTime!
   timestamp: DateTime!
-  transferApprovals: [TransferApproval!]!
+  transaction: Transaction!
   transfers: [Transfer!]!
 }
 
 """function selector (4-byte hex string)"""
 scalar Selector
 
-type SimulatedTransfer implements Node & TransferDetails {
-  account: Account!
-  amount: Decimal!
-  from: Address!
-  id: ID!
-  incoming: Boolean!
-  internal: Boolean!
-  isFeeTransfer: Boolean!
-  outgoing: Boolean!
-  to: Address!
-  token: Token
-  tokenAddress: UAddress!
-  value: Decimal
-}
-
 type Simulation implements Node {
   id: ID!
   responses: [Bytes!]!
   success: Boolean!
   timestamp: DateTime!
-  transfers: [SimulatedTransfer!]!
+  transfers: [Transfer!]!
 }
 
 input SpendingInput {
@@ -713,16 +733,12 @@ type Subscription {
   userLinked: UserLinked!
 }
 
-type Successful implements Node & ReceiptResult & Result {
-  block: BigInt!
-  ethFeePerGas: Decimal!
+interface Success implements Node & Result {
   events: [Event!]!
-  gasUsed: BigInt!
   id: ID!
-  networkEthFee: Decimal!
-  responses: [Bytes!]!
+  response: Bytes!
   timestamp: DateTime!
-  transferApprovals: [TransferApproval!]!
+  transaction: Transaction!
   transfers: [Transfer!]!
 }
 
@@ -858,10 +874,11 @@ enum TransactionStatus {
   Successful
 }
 
-type Transfer implements Event & Node & TransferDetails & Transferlike {
+type Transfer implements Event & Node & Transferlike {
   account: Account!
   amount: Decimal!
   block: BigInt!
+  confirmed: Boolean!
   from: Address!
   id: ID!
   incoming: Boolean!
@@ -869,6 +886,8 @@ type Transfer implements Event & Node & TransferDetails & Transferlike {
   isFeeTransfer: Boolean!
   logIndex: Float!
   outgoing: Boolean!
+  result: Result
+  spentBy: Policy
   systxHash: Bytes32!
   timestamp: DateTime!
   to: Address!
@@ -877,10 +896,11 @@ type Transfer implements Event & Node & TransferDetails & Transferlike {
   value: Decimal
 }
 
-type TransferApproval implements Event & Node & TransferDetails & Transferlike {
+type TransferApproval implements Event & Node & Transferlike {
   account: Account!
   amount: Decimal!
   block: BigInt!
+  confirmed: Boolean!
   delta: Decimal!
   from: Address!
   id: ID!
@@ -889,6 +909,8 @@ type TransferApproval implements Event & Node & TransferDetails & Transferlike {
   isFeeTransfer: Boolean!
   logIndex: Float!
   outgoing: Boolean!
+  result: Result
+  spentBy: Policy
   systxHash: Bytes32!
   timestamp: DateTime!
   to: Address!
@@ -901,21 +923,6 @@ type TransferApprovalOp implements TransferlikeOp {
   amount: Decimal!
   to: Address!
   token: Address!
-}
-
-interface TransferDetails implements Node {
-  account: Account!
-  amount: Decimal!
-  from: Address!
-  id: ID!
-  incoming: Boolean!
-  internal: Boolean!
-  isFeeTransfer: Boolean!
-  outgoing: Boolean!
-  to: Address!
-  token: Token
-  tokenAddress: UAddress!
-  value: Decimal
 }
 
 type TransferFromOp implements TransferlikeOp {
@@ -957,10 +964,11 @@ input TransferSubscriptionInput {
   outgoing: Boolean
 }
 
-interface Transferlike implements Event & Node & TransferDetails {
+interface Transferlike implements Event & Node {
   account: Account!
   amount: Decimal!
   block: BigInt!
+  confirmed: Boolean!
   from: Address!
   id: ID!
   incoming: Boolean!
@@ -968,6 +976,8 @@ interface Transferlike implements Event & Node & TransferDetails {
   isFeeTransfer: Boolean!
   logIndex: Float!
   outgoing: Boolean!
+  result: Result
+  spentBy: Policy
   systxHash: Bytes32!
   timestamp: DateTime!
   to: Address!

@@ -37,7 +37,7 @@ import { insertSimulation } from './insert-simulation.query';
 export const SimulationsQueue = createQueue<{ transaction: UUID | Hex }>('Simulations');
 export type SimulationsQueue = typeof SimulationsQueue;
 
-type TransferDetails = Parameters<typeof e.insert<typeof e.TransferDetails>>[1];
+type Transfer = Parameters<typeof e.insert<typeof e.Transfer>>[1];
 
 const TransactionExecutableShape = {
   account: { address: true },
@@ -78,12 +78,13 @@ export class SimulationsWorker extends Worker<SimulationsQueue> {
     const account = asUAddress(t.account.address);
     const localAccount = asAddress(account);
     const chain = asChain(account);
+    const network = this.networks.get(chain);
 
     const simulations = await Promise.all(
       t.operations.map(async (op) =>
         (
           await simulate({
-            network: this.networks.get(chain),
+            network,
             account: localAccount,
             gas: t.gasLimit,
             type: 'eip712',
@@ -115,7 +116,8 @@ export class SimulationsWorker extends Worker<SimulationsQueue> {
       )
       .filter(isTruthy);
 
-    const transfers: Omit<TransferDetails, 'account'>[] = [];
+    const block = await network.blockNumber();
+    const transfers: Omit<Transfer, 'account'>[] = [];
     for (const op of t.operations) {
       if (op.value) {
         transfers.push({
@@ -125,6 +127,8 @@ export class SimulationsWorker extends Worker<SimulationsQueue> {
           amount: op.to === localAccount ? '0' : asDecimal(-op.value, ETH).toString(),
           incoming: op.to === localAccount,
           outgoing: true,
+          block,
+          logIndex: transfers.length,
         });
       }
 
@@ -144,6 +148,8 @@ export class SimulationsWorker extends Worker<SimulationsQueue> {
           amount: f.to === localAccount ? '0' : f.amount.negated().toString(),
           incoming: localAccount === f.to,
           outgoing: true,
+          block,
+          logIndex: transfers.length,
         });
       } else if (f instanceof TransferFromOp) {
         transfers.push({
@@ -153,6 +159,8 @@ export class SimulationsWorker extends Worker<SimulationsQueue> {
           amount: f.amount.toString(),
           incoming: localAccount === f.to,
           outgoing: true,
+          block,
+          logIndex: transfers.length,
         });
       } else if (f instanceof SwapOp) {
         transfers.push({
@@ -162,6 +170,8 @@ export class SimulationsWorker extends Worker<SimulationsQueue> {
           amount: f.minimumToAmount.toString(),
           incoming: true,
           outgoing: false,
+          block,
+          logIndex: transfers.length,
         });
       }
     }

@@ -44,7 +44,7 @@ import {
 import { encodeFunctionData, hashTypedData } from 'viem';
 import { FlowProducer } from 'bullmq';
 import { ActivationsService } from '../activations/activations.service';
-import { ReceiptsQueue } from '../system-txs/receipts.queue';
+import { ConfirmationQueue } from '../system-txs/confirmations.queue';
 import { PoliciesService } from '../policies/policies.service';
 import { TokensService } from '~/feat/tokens/tokens.service';
 import { PricesService } from '~/feat/prices/prices.service';
@@ -55,7 +55,6 @@ import { DEFAULT_FLOW } from '~/core/bull/bull.module';
 import { PaymasterFeeParts } from '~/feat/paymasters/paymasters.model';
 import { insertTransaction } from './insert-transaction.query';
 import { deleteTransaction } from './delete-transaction.query';
-import { t } from 'lib/dist/bytes-_chY9qcm';
 
 const MAX_NETWORK_FEE_MULTIPLIER = new Decimal(5); // Allow for a higher network fee
 
@@ -123,13 +122,9 @@ export class TransactionsService {
     // simulate -> (activate -> activation-receipt)? -> execute -> receipt
     this.flows.add(
       {
-        queueName: ReceiptsQueue.name,
-        name: 'Transaction proposal',
-        data: {
-          chain,
-          transaction: { child: 0 },
-          type: 'transaction',
-        } satisfies QueueData<ReceiptsQueue>,
+        queueName: ConfirmationQueue.name,
+        name: 'Transaction',
+        data: { chain, transaction: { child: 0 } } satisfies QueueData<ConfirmationQueue>,
         children: [
           {
             queueName: ExecutionsQueue.name,

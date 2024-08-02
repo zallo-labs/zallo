@@ -22,7 +22,10 @@ const Transaction = graphql`
         id
         tokenAddress
         token {
+          id
+          balance(input: { transaction: $transaction })
           ...TokenItem_token
+          ...TokenAmount_token
         }
         amount
         from
@@ -61,11 +64,9 @@ export function TransfersSection(props: TransfersSectionProps) {
   const { styles } = useStyles(stylesheet);
   const p = useFragment(Transaction, props.transaction);
 
-  const transfers = [...(p.result?.transfers ?? p.simulation?.transfers ?? [])].filter(
-    (t) => !t.isFeeTransfer,
-  ); // Ignore fee transfers, this is shown by FeeToken
+  const transfers = (p.result ?? p.simulation)?.transfers.filter((t) => !t.isFeeTransfer); // Ignore fee transfers, this is shown by FeeToken
 
-  if (!transfers.length) return null;
+  if (!transfers?.length) return null;
 
   return (
     <>
@@ -82,10 +83,7 @@ export function TransfersSection(props: TransfersSectionProps) {
       {transfers.map((t) => {
         if (!t.token) return <Text key={t.id}>{`${t.tokenAddress}: ${t.amount}`}</Text>;
 
-        const insufficient =
-          t.__typename === 'SimulatedTransfer' &&
-          t.token.balance &&
-          new Decimal(t.amount).plus(t.token.balance).isNeg();
+        const insufficient = t.token.balance && new Decimal(t.amount).plus(t.token.balance).isNeg();
 
         return (
           <TokenItem

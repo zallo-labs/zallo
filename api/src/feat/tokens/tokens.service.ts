@@ -258,6 +258,7 @@ export class TokensService {
           e.op(t.spentBy, '=', policy),
           e.op(t.tokenAddress, '=', token),
           e.op(t.timestamp, '>=', since),
+          t.confirmed,
         ),
         ...shape?.(t, 'transfers'),
         amount: true,
@@ -280,7 +281,7 @@ export class TokensService {
     const limit_ = r.limitAmount ? await this.asDecimal(token, r.limitAmount) : undefined;
 
     return {
-      transfers: r.transfers as Transferlike[],
+      transfers: r.transfers as unknown as Transferlike[],
       since: r.since ?? new Date(),
       spent,
       limit: limit_,

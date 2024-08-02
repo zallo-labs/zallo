@@ -39,8 +39,8 @@ module default {
       select assert_exists((
         TransactionStatus.Pending if (not .executable) else
         TransactionStatus.Executing if (not exists .result) else
-        TransactionStatus.Successful if (.result is Successful) else
-        TransactionStatus.Failed if (.result is Failed) else
+        TransactionStatus.Successful if (.result is ConfirmedSuccess) else
+        TransactionStatus.Failed if (.result is ConfirmedFailure) else
         TransactionStatus.Scheduled if (not .result[is Scheduled].cancelled) else
         TransactionStatus.Cancelled
       ))
@@ -50,7 +50,7 @@ module default {
   type Simulation {
     required success: bool;
     required responses: array<Bytes>;
-    multi transfers: TransferDetails {
+    multi transfers: Transfer {
       constraint exclusive;
       on source delete delete target;
     }
@@ -66,8 +66,7 @@ module default {
     required property maxNetworkEthFee := .maxEthFeePerGas * .proposal.gasLimit;
     required property maxEthFees := .maxNetworkEthFee + .proposal.paymasterEthFees.total;
     required timestamp: datetime { default := datetime_of_statement(); }
-    result := .<systx[is Result];
-    events := .<systx[is Event];
+    result := (select .<systx[is Result] order by .timestamp desc limit 1);
     
     trigger update_tx_systx after insert for each do (
       update __new__.proposal set { systx := __new__ } 
@@ -85,31 +84,36 @@ module default {
 
   abstract type Result {
     required transaction: Transaction;
-    systx: SystemTx { constraint exclusive; };
+    systx: SystemTx;
     required timestamp: datetime { default := datetime_of_statement(); }
-    multi link events := .systx.events;
+    multi link events := .<result[is Event];
     multi link transfers := .events[is Transfer];
-    multi link transferApprovals := .events[is TransferApproval];
 
     trigger update_tx_result after insert for each do (
       update __new__.transaction set { result := __new__ } 
     );
   }
 
-  abstract type ReceiptResult extending Result {
+  abstract type Success extending Result {
+    response: Bytes;
+  }
+
+  abstract type Failure extending Result {
+    reason: str;
+  }
+
+  type OptimisticSuccess extending Success {}
+
+  abstract type Confirmed extending Result {
     required block: bigint { constraint min_value(0); }
     required gasUsed: bigint { constraint min_value(0); }
     required ethFeePerGas: decimal { constraint min_value(0); }
     required property networkEthFee := .ethFeePerGas * .gasUsed;
   }
 
-  type Successful extending ReceiptResult {
-    required responses: array<Bytes>;
-  }
+  type ConfirmedSuccess extending Confirmed, Success {}
 
-  type Failed extending ReceiptResult {
-    reason: str;
-  }
+  type ConfirmedFailure extending Confirmed, Failure {}
 
   type Scheduled extending Result {
     required scheduledFor: datetime;

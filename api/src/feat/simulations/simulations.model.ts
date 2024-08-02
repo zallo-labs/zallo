@@ -1,11 +1,8 @@
 import { Field } from '@nestjs/graphql';
-import { TransferDetails } from '../transfers/transfers.model';
 import { Node, NodeType } from '~/common/decorators/interface.decorator';
 import { BytesScalar } from '~/common/scalars/Bytes.scalar';
 import { Hex } from 'lib';
-
-@NodeType({ implements: TransferDetails })
-export class SimulatedTransfer extends TransferDetails {}
+import { Transfer } from '../transfers/transfers.model';
 
 @NodeType()
 export class Simulation extends Node {
@@ -15,8 +12,8 @@ export class Simulation extends Node {
   @Field(() => [BytesScalar])
   responses: Hex[];
 
-  @Field(() => [SimulatedTransfer])
-  transfers: SimulatedTransfer[];
+  @Field(() => [Transfer])
+  transfers: Transfer[];
 
   @Field(() => Date)
   timestamp: Date;

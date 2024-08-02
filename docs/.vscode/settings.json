@@ -6,5 +6,6 @@
     "*secret*": true
   },
   "explorer.excludeGitIgnore": true,
-  "search.useIgnoreFiles": true
+  "search.useIgnoreFiles": true,
+  "jest.enable": false
 }

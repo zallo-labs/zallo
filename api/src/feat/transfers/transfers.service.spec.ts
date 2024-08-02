@@ -68,7 +68,6 @@ describe(TransfersService.name, () => {
     db.query(
       e.insert(e.Transfer, {
         account: e.select(e.Account, () => ({ filter_single: { id: account.id } })),
-        systxHash: zeroHash,
         internal: false,
         logIndex: 0,
         block: BigInt(Math.floor(Math.random() * 1000)),
@@ -104,7 +103,8 @@ describe(TransfersService.name, () => {
       asUser(user1, async () => {
         const transfers = (await Promise.all([insert(), insert()])).sort();
 
-        expect((await service.select(account1.id, {})).map((t) => t.id)).toEqual(transfers);
+        const r = (await service.select(account1.id, {})).map((t) => t.id).sort();
+        expect(r).toEqual(transfers);
       }));
 
     it("exclude transfers from accounts the user isn't a member of", async () => {
@@ -114,7 +114,8 @@ describe(TransfersService.name, () => {
         const account2 = await createAccount();
         const transfers = (await Promise.all([insert(account2), insert(account2)])).sort();
 
-        expect((await service.select(account2.id, {})).map((t) => t.id)).toEqual(transfers);
+        const r = (await service.select(account2.id, {})).map((t) => t.id).sort();
+        expect(r).toEqual(transfers);
       });
     });
 

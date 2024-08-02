@@ -6,17 +6,18 @@ import { BullModule } from '@nestjs/bullmq';
 import { DEFAULT_REDIS_NAMESPACE, getRedisToken } from '@songkeys/nestjs-redis';
 import { DeepPartial, randomAddress } from '~/util/test';
 import { ACCOUNT_ABI, Address } from 'lib';
-import { encodeEventTopics, getAbiItem } from 'viem';
+import { encodeEventTopics } from 'viem';
 import { QueueData, TypedJob, TypedQueue } from '~/core/bull/bull.util';
 import { AbiEvent } from 'abitype';
+import { EventsService, ProcessConfirmedParams } from './events.service';
 
 describe(EventsWorker.name, () => {
   let worker: EventsWorker;
   let queue: DeepMocked<TypedQueue<EventsQueue>>;
   let networks: DeepMocked<NetworksService>;
+  let events: DeepMocked<EventsService>;
   let attemptsMade = 0;
 
-  let topic1Listener: jest.Mock;
   const logs: Log<AbiEvent>[] = [
     {
       logIndex: 0,
@@ -55,8 +56,6 @@ describe(EventsWorker.name, () => {
       .compile();
 
     worker = module.get(EventsWorker);
-    topic1Listener = jest.fn();
-    worker.on(getAbiItem({ abi: ACCOUNT_ABI, name: 'Upgraded' }), topic1Listener);
 
     networks = module.get(NetworksService);
     networks.get.mockReturnValue({
@@ -64,6 +63,9 @@ describe(EventsWorker.name, () => {
       blockTime: () => 1,
       getLogs: async () => logs,
     } satisfies DeepPartial<Network> as unknown as Network);
+
+    events = module.get(EventsService);
+    events.processConfirmed.mockImplementation(async () => {});
 
     queue = createMock();
     worker.queue = queue;
@@ -82,24 +84,20 @@ describe(EventsWorker.name, () => {
   it('send relevant event to listeners', async () => {
     await process({ from: 1 });
 
-    expect(topic1Listener).toHaveBeenCalledTimes(2);
-    expect(topic1Listener).toHaveBeenCalledWith({
-      log: logs[0],
+    expect(events.processConfirmed).toHaveBeenCalledTimes(1);
+    expect(events.processConfirmed).toHaveBeenCalledWith({
       chain: 'zksync-local',
-    } satisfies EventData<AbiEvent>);
-    expect(topic1Listener).toHaveBeenCalledWith({
-      log: logs[1],
-      chain: 'zksync-local',
-    } satisfies EventData<AbiEvent>);
+      logs,
+    } satisfies ProcessConfirmedParams);
   });
 
   it('queue before processing', async () => {
     await process({ from: 1 });
 
-    expect(topic1Listener).toHaveBeenCalled();
+    expect(events.processConfirmed).toHaveBeenCalled();
     expect(queue.add).toHaveBeenCalledTimes(1);
     expect(queue.add.mock.invocationCallOrder[0]).toBeLessThan(
-      topic1Listener.mock.invocationCallOrder[0],
+      events.processConfirmed.mock.invocationCallOrder[0],
     );
   });
 

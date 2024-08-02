@@ -1,16 +1,21 @@
-import { Field, InterfaceType, createUnionType } from '@nestjs/graphql';
+import { Field } from '@nestjs/graphql';
 import { GraphQLBigInt } from 'graphql-scalars';
-import { Transfer, TransferApproval } from '../transfers/transfers.model';
-import { makeUnionTypeResolver } from '~/core/database';
-import e from '~/edgeql-js';
 import { Bytes32Field } from '~/common/scalars/Bytes.scalar';
 import { Hex } from 'lib';
 import { Node, NodeInterface } from '~/common/decorators/interface.decorator';
+import { Result } from '../system-txs/results.model';
+import { Account } from '../accounts/accounts.model';
 
 @NodeInterface()
 export class Event extends Node {
+  @Field(() => Account)
+  account: Account;
+
   @Bytes32Field()
   systxHash: Hex;
+
+  @Field(() => Result, { nullable: true })
+  result?: Result;
 
   @Field(() => GraphQLBigInt)
   block: bigint;
@@ -20,14 +25,10 @@ export class Event extends Node {
 
   @Field(() => Date)
   timestamp: Date;
-}
 
-// export type Event = typeof Event;
-// export const Event = createUnionType({
-//   name: 'Event',
-//   types: () => [Transfer, TransferApproval] as const,
-//   resolveType: makeUnionTypeResolver([
-//     [e.Transfer, Transfer],
-//     [e.TransferApproval, TransferApproval],
-//   ]),
-// });
+  @Field(() => Boolean)
+  internal: boolean;
+
+  @Field(() => Boolean)
+  confirmed: boolean;
+}

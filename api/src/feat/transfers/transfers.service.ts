@@ -13,8 +13,8 @@ import Decimal from 'decimal.js';
 export const TRANSFER_VALUE_FIELDS_SHAPE = {
   token: { pythUsdPriceId: true },
   amount: true,
-} satisfies Shape<typeof e.TransferDetails>;
-const s = e.select(e.TransferDetails, () => TRANSFER_VALUE_FIELDS_SHAPE);
+} satisfies Shape<typeof e.Transferlike>;
+const s = e.select(e.Transferlike, () => TRANSFER_VALUE_FIELDS_SHAPE);
 export type TransferValueSelectFields = $infer<typeof s>[0];
 
 @Injectable()

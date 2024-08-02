@@ -1,8 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Address, UAddress, asAddress, asUAddress, isTruthy, ETH_ADDRESS, isEthToken } from 'lib';
 import { ERC20 } from 'lib/dapps';
-import { TransactionEventData, ReceiptsWorker } from '../system-txs/receipts.worker';
-import { EventData, EventsWorker } from '../events/events.worker';
+import { EventsService, OptimisticEvent, ConfirmedEvent } from '../events/events.service';
 import { DatabaseService } from '~/core/database';
 import e from '~/edgeql-js';
 import { selectAccount } from '../accounts/accounts.util';
@@ -16,8 +15,6 @@ import { BalancesService } from '~/core/balances/balances.service';
 import Decimal from 'decimal.js';
 import { TokensService } from '~/feat/tokens/tokens.service';
 import { ampli } from '~/util/ampli';
-import { selectSysTx } from '../system-txs/system-tx.util';
-import { and } from '~/core/database';
 
 export const transferTrigger = (account: UAddress) => `transfer.account.${account}`;
 export interface TransferSubscriptionPayload extends EventPayload<'transfer'> {
@@ -36,8 +33,7 @@ export class TransfersEvents {
 
   constructor(
     private db: DatabaseService,
-    private events: EventsWorker,
-    private receipts: ReceiptsWorker,
+    private events: EventsService,
     private networks: NetworksService,
     private pubsub: PubsubService,
     private accountsCache: AccountsCacheService,
@@ -49,43 +45,33 @@ export class TransfersEvents {
      * Events processor handles events `to` account
      * Transactions processor handles events `from` account - in order to be associated with the transaction
      */
-    this.events.on(transferEvent, (data) => this.transfer(data));
-    this.receipts.onEvent(transferEvent, (data) => this.transfer(data));
+    this.events.onOptimistic(transferEvent, (data) => this.transfer(data));
+    this.events.onConfirmed(transferEvent, (data) => this.transfer(data));
 
-    this.events.on(approvalEvent, (data) => this.approval(data));
-    this.receipts.onEvent(approvalEvent, (data) => this.approval(data));
+    this.events.onOptimistic(approvalEvent, (data) => this.approval(data));
+    this.events.onConfirmed(approvalEvent, (data) => this.approval(data));
   }
 
   private async transfer(
-    event: EventData<typeof transferEvent> | TransactionEventData<typeof transferEvent>,
+    event: OptimisticEvent<typeof transferEvent> | ConfirmedEvent<typeof transferEvent>,
   ) {
     const { chain, log } = event;
-    const { args } = log;
-    const isFromTransaction = 'receipt' in event;
 
-    const [from, to] = [asUAddress(args.from, chain), asUAddress(args.to, chain)];
+    const [from, to] = [asUAddress(log.args.from, chain), asUAddress(log.args.to, chain)];
     const isAccount = await this.accountsCache.isAccount([from, to]);
     const accounts = [isAccount[0] && from, isAccount[1] && to].filter(isTruthy);
     if (!accounts.length) return;
 
     const token = asUAddress(normalizeEthAddress(asAddress(log.address)), chain);
-    const network = this.networks.get(chain);
-    const block =
-      'block' in event ? event.block : await network.getBlock({ blockNumber: log.blockNumber });
-    const amount = await this.tokens.asDecimal(token, args.value);
+    const amount = await this.tokens.asDecimal(token, log.args.value);
     const [localFrom, localTo] = [asAddress(from), asAddress(to)];
 
     await Promise.all(
       accounts.map(async (account) => {
         const selectedAccount = selectAccount(account);
-        const systx = e.assert_single(
-          e.select(e.SystemTx, (systx) => ({
-            filter: and(
-              e.op(systx.hash, '=', log.transactionHash),
-              e.op(systx.proposal.account, '?=', selectedAccount),
-            ),
-          })),
-        );
+        const result = event.result
+          ? e.assert_single(e.select(e.Result, () => ({ filter_single: { id: event.result } })))
+          : e.cast(e.Result, e.set());
 
         const transfer = await this.db.query(
           e.select(
@@ -93,11 +79,10 @@ export class TransfersEvents {
               .insert(e.Transfer, {
                 account: selectedAccount,
                 systxHash: log.transactionHash,
-                systx,
-                internal: e.op('exists', systx),
-                logIndex: log.logIndex,
-                block: log.blockNumber,
-                timestamp: new Date(Number(block.timestamp) * 1000),
+                result,
+                logIndex: event.logIndex,
+                block: event.block,
+                timestamp: event.timestamp,
                 from: localFrom,
                 to: localTo,
                 tokenAddress: token,
@@ -110,7 +95,7 @@ export class TransfersEvents {
                 incoming: account === to,
                 outgoing: account === from,
                 isFeeTransfer: e.op(
-                  e.op(systx.proposal.paymaster, 'in', e.set(localFrom, localTo)),
+                  e.op(result.transaction.paymaster, 'in', e.set(localFrom, localTo)),
                   '??',
                   false,
                 ),
@@ -140,7 +125,7 @@ export class TransfersEvents {
           (payload) => payload.transfer,
         );
 
-        if (!isFromTransaction && !transfer.isFeeTransfer) {
+        if (!event.result && !transfer.isFeeTransfer) {
           this.log.debug(
             `[${account}]: token (${token}) transfer ${
               from === account ? `to ${to}` : `from ${from}`
@@ -158,7 +143,7 @@ export class TransfersEvents {
   }
 
   private async approval(
-    event: EventData<typeof approvalEvent> | TransactionEventData<typeof approvalEvent>,
+    event: OptimisticEvent<typeof approvalEvent> | ConfirmedEvent<typeof approvalEvent>,
   ) {
     const { chain, log } = event;
     const { args } = log;
@@ -171,27 +156,25 @@ export class TransfersEvents {
     if (!accounts.length) return;
 
     const token = asUAddress(normalizeEthAddress(asAddress(log.address)), chain);
-    const network = this.networks.get(chain);
-    const block =
-      'block' in event ? event.block : await network.getBlock({ blockNumber: log.blockNumber });
     const amount = await this.tokens.asDecimal(token, args.value);
     const [localFrom, localTo] = [asAddress(from), asAddress(to)];
 
     await Promise.all(
       accounts.map(async (account) => {
         const selectedAccount = selectAccount(account);
-        const systx = selectSysTx(log.transactionHash);
+        const result = event.result
+          ? e.assert_single(e.select(e.Result, () => ({ filter_single: { id: event.result } })))
+          : e.cast(e.Result, e.set());
 
         const approval = await this.db.query(
           e
             .insert(e.TransferApproval, {
               account: selectedAccount,
               systxHash: log.transactionHash,
-              systx,
-              internal: e.op('exists', systx),
-              logIndex: log.logIndex,
-              block: log.blockNumber,
-              timestamp: new Date(Number(block.timestamp) * 1000),
+              result,
+              logIndex: event.logIndex,
+              block: event.block,
+              timestamp: event.timestamp,
               from: localFrom,
               to: localTo,
               tokenAddress: token,
@@ -204,7 +187,7 @@ export class TransfersEvents {
               incoming: account === to,
               outgoing: account === from,
               isFeeTransfer: e.op(
-                e.op(systx.proposal.paymaster, 'in', e.set(localFrom, localTo)),
+                e.op(result.transaction.paymaster, 'in', e.set(localFrom, localTo)),
                 '??',
                 false,
               ),

@@ -10,7 +10,7 @@ import { z } from 'zod';
 import { Pane } from '#/layout/Pane';
 import { TokenAmountInput } from '#/token/TokenAmountInput';
 import { useLazyQuery } from '~/api';
-import { send_SendScreen2Query } from '~/api/__generated__/send_SendScreen2Query.graphql';
+import { send_SendScreenQuery } from '~/api/__generated__/send_SendScreenQuery.graphql';
 import { useSelectedToken } from '~/hooks/useSelectToken';
 import { asChain } from 'lib';
 import { Scrollable } from '#/Scrollable';
@@ -27,7 +27,7 @@ import { TransferFromMode } from '#/send/TransferFromMode';
 import { Text } from 'react-native-paper';
 
 const Query = graphql`
-  query send_SendScreen2Query($account: UAddress!, $token: UAddress!) {
+  query send_SendScreenQuery($account: UAddress!, $token: UAddress!) {
     token(address: $token) @required(action: THROW) {
       id
       address
@@ -62,7 +62,7 @@ function SendScreen() {
   const { styles } = useStyles(stylesheet);
   const chain = asChain(params.account);
 
-  const query = useLazyQuery<send_SendScreen2Query>(Query, {
+  const query = useLazyQuery<send_SendScreenQuery>(Query, {
     account: params.account,
     token: useSelectedToken(chain),
   });
