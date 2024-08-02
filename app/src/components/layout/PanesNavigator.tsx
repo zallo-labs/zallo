@@ -40,7 +40,7 @@ export type PanesNavigatorProps = DefaultNavigatorOptions<
 >;
 
 function PanesNavigator({ initialRouteName, screenOptions, children }: PanesNavigatorProps) {
-  const { state, descriptors, navigation, NavigationContent } = useNavigationBuilder(StackRouter, {
+  const { state, descriptors, NavigationContent } = useNavigationBuilder(StackRouter, {
     children,
     screenOptions,
     initialRouteName,
@@ -48,18 +48,20 @@ function PanesNavigator({ initialRouteName, screenOptions, children }: PanesNavi
   const { breakpoint } = useStyles();
 
   const maxPanes = MAX_PANES[breakpoint];
+  const last = state.routes[state.routes.length - 1];
   const routes = state.routes
     .map((route) => ({
       ...route,
       position: state.routeNames.indexOf(route.name),
     }))
+    .filter((r) => r.name === last.name || r.name === 'index' || last.name.includes(r.name))
     .sort((a, b) => a.position - b.position);
 
   return (
     <NavigationContent>
       <Panes>
         {routes.map((route, i) => {
-          const { navigation, render, options } = descriptors[route.key];
+          const { navigation, render } = descriptors[route.key];
 
           const focussed = state.index === i;
           const shown = routes.length - maxPanes <= i;
