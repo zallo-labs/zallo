@@ -39,7 +39,7 @@ export class NetworkWorker extends Worker<NetworkQueue> {
       if (runningJobs.find((j) => j.data.chain === network.chain.key)) continue;
 
       const chain = network.chain.key;
-      this.queue.add(chain, { chain }, { repeat: { every: 2_000 /* ms */ }, ...NON_RETRYING_JOB });
+      this.queue.add(chain, { chain }, { repeat: { every: 5_000 /* ms */ }, ...NON_RETRYING_JOB });
     }
   }
 }
