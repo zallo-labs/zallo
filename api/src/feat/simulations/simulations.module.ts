@@ -4,6 +4,7 @@ import { registerBullQueue } from '~/core/bull/bull.util';
 import { SimulationsQueue, SimulationsWorker } from './simulations.worker';
 import { TokensModule } from '../tokens/tokens.module';
 import { ProposalsModule } from '../proposals/proposals.module';
+import { EventsModule } from '../events/events.module';
 
 @Module({
   imports: [
@@ -11,6 +12,7 @@ import { ProposalsModule } from '../proposals/proposals.module';
     OperationsModule,
     TokensModule,
     ProposalsModule,
+    EventsModule,
   ],
   providers: [SimulationsWorker],
 })

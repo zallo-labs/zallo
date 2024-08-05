@@ -6,7 +6,7 @@ import { Receipt } from '../system-txs/confirmations.worker';
 import { NetworksService } from '~/core/networks';
 
 export type Log<
-  TAbiEvent extends AbiEvent | undefined = AbiEvent,
+  TAbiEvent extends AbiEvent | undefined = undefined,
   Confirmed extends boolean = boolean,
 > = ViemLog<bigint, number, Confirmed extends true ? false : true, TAbiEvent, true>;
 
@@ -19,13 +19,13 @@ type ConfirmedListener<TAbiEvent extends AbiEvent> = (
 ) => Promise<void>;
 
 export interface ProcessOptimisticParams {
-  logs: Log<AbiEvent, false>[];
+  logs: Log<undefined, false>[];
   chain: Chain;
   result: UUID;
 }
 
 export interface ProcessConfirmedParams {
-  logs: Log<AbiEvent, true>[];
+  logs: Log<undefined, true>[];
   chain: Chain;
   result?: UUID;
   receipt?: Receipt;
@@ -62,10 +62,10 @@ export class EventsService {
     event: TAbiEvent,
     listener: OptimisticListener<TAbiEvent>,
   ) {
-    const topic = encodeEventTopics({ abi: [event as AbiEvent] })[0];
+    const sig = encodeEventTopics({ abi: [event as AbiEvent] })[0];
 
-    this.optimisticListeners.set(topic, [
-      ...(this.optimisticListeners.get(topic) ?? []),
+    this.optimisticListeners.set(sig, [
+      ...(this.optimisticListeners.get(sig) ?? []),
       listener as unknown as OptimisticListener<AbiEvent>,
     ]);
     this.optimisticAbi.push(event);
@@ -75,16 +75,16 @@ export class EventsService {
     event: TAbiEvent,
     listener: ConfirmedListener<TAbiEvent>,
   ) {
-    const topic = encodeEventTopics({ abi: [event as AbiEvent] })[0];
+    const sig = encodeEventTopics({ abi: [event as AbiEvent] })[0];
 
-    this.confirmedListeners.set(topic, [
-      ...(this.confirmedListeners.get(topic) ?? []),
+    this.confirmedListeners.set(sig, [
+      ...(this.confirmedListeners.get(sig) ?? []),
       listener as unknown as ConfirmedListener<AbiEvent>,
     ]);
     this.confirmedAbi.push(event);
   }
 
-  async processOptimistic({ chain, logs, result }: ProcessOptimisticParams) {
+  async processSimulatedAndOptimistic({ chain, logs, result }: ProcessOptimisticParams) {
     const parsedLogs = parseEventLogs({ logs, abi: this.optimisticAbi, strict: true });
 
     await Promise.all(

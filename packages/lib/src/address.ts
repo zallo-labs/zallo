@@ -56,7 +56,7 @@ export const isAddress = (v: unknown): v is Address =>
   typeof v === 'string' && tryAsAddress(v, { strict: true }) === v; // A value may not be a valid Address but may be convertable
 
 export const ETH_ADDRESS = asAddress(zkUtils.ETH_ADDRESS);
-export const ETH_TOKEN_ADDRESS = asAddress(zkUtils.L2_ETH_TOKEN_ADDRESS);
+export const ETH_TOKEN_ADDRESS = asAddress(zkUtils.L2_BASE_TOKEN_ADDRESS);
 export function isEthToken(address: Address) {
   return address === ETH_ADDRESS || address === ETH_TOKEN_ADDRESS;
 }

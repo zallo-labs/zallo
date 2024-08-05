@@ -1,5 +1,5 @@
 import { Test } from '@nestjs/testing';
-import { EventsQueue, EventsWorker, EventData, Log } from './events.worker';
+import { EventsQueue, EventsWorker } from './events.worker';
 import { DeepMocked, createMock } from '@golevelup/ts-jest';
 import { Network, NetworksService } from '~/core/networks/networks.service';
 import { BullModule } from '@nestjs/bullmq';
@@ -8,8 +8,7 @@ import { DeepPartial, randomAddress } from '~/util/test';
 import { ACCOUNT_ABI, Address } from 'lib';
 import { encodeEventTopics } from 'viem';
 import { QueueData, TypedJob, TypedQueue } from '~/core/bull/bull.util';
-import { AbiEvent } from 'abitype';
-import { EventsService, ProcessConfirmedParams } from './events.service';
+import { EventsService, Log, ProcessConfirmedParams } from './events.service';
 
 describe(EventsWorker.name, () => {
   let worker: EventsWorker;
@@ -18,7 +17,7 @@ describe(EventsWorker.name, () => {
   let events: DeepMocked<EventsService>;
   let attemptsMade = 0;
 
-  const logs: Log<AbiEvent>[] = [
+  const logs: Log<undefined, true>[] = [
     {
       logIndex: 0,
       topics: encodeEventTopics({
@@ -26,7 +25,7 @@ describe(EventsWorker.name, () => {
         eventName: 'Upgraded',
         args: { implementation: randomAddress() },
       }) as [Address, ...Address[]],
-    } satisfies Partial<Log<AbiEvent>> as Log<AbiEvent>,
+    } satisfies Partial<Log<undefined, true>> as Log<undefined, true>,
     {
       logIndex: 1,
       topics: encodeEventTopics({
@@ -34,14 +33,14 @@ describe(EventsWorker.name, () => {
         eventName: 'Upgraded',
         args: { implementation: randomAddress() },
       }) as [Address, ...Address[]],
-    } satisfies Partial<Log<AbiEvent>> as Log<AbiEvent>,
+    } satisfies Partial<Log<undefined, true>> as Log<undefined, true>,
     {
       logIndex: 2,
       topics: encodeEventTopics({
         abi: ACCOUNT_ABI,
         eventName: 'PolicyRemoved',
       }) as [Address, ...Address[]],
-    } satisfies Partial<Log<AbiEvent>> as Log<AbiEvent>,
+    } satisfies Partial<Log<undefined, true>> as Log<undefined, true>,
   ];
 
   beforeEach(async () => {

@@ -14,6 +14,8 @@ import {
   http,
   webSocket,
   nonceManager,
+  toHex,
+  hexToBigInt,
 } from 'viem';
 import {
   eip712WalletActions,
@@ -90,6 +92,7 @@ function create({ chainKey, redis }: CreateParams) {
     ...blockDetails(client),
     ...estimatedFeesPerGas(client, redis),
     sendAccountTransaction: sendAccountTransaction(client, redis),
+    traceCall: traceCall(client),
   }));
 }
 
@@ -248,5 +251,82 @@ function sendAccountTransaction(client: Client, redis: Redis) {
       },
       { redis, key: `send-transaction:${asUAddress(tx.from, client.chain.key)}` },
     );
+  };
+}
+
+type TraceCallSchema = {
+  Parameters: [
+    request: {
+      from?: Address;
+      to: Address;
+      data: Hex;
+      value: Hex;
+      gas?: Hex;
+      gas_price?: Hex;
+      max_fee_per_gas?: Hex;
+      max_priority_fee_per_gas?: Hex;
+    },
+    block?: Hex | 'latest', // block number or hash
+    options?: TraceCallOptions,
+  ];
+  ReturnType: TraceCallRawResponse;
+};
+
+interface TraceCallOptions {
+  tracer: 'callTracer';
+  tracerConfig?: {
+    onlyTopCall?: boolean;
+  };
+}
+
+interface TraceCallRawResponse {
+  type: 'Call' | 'Create';
+  from: Address;
+  to?: Address; // undefined for type = 'Create'
+  value: Hex;
+  input: Hex; // Call data
+  output: Hex; // 0x for ops that don't return data or failed
+  gas: Hex;
+  gasUsed: Hex;
+  error?: string | null;
+  revertReason?: string | null;
+  calls: TraceCallRawResponse[];
+}
+
+export interface TraceCallResponse extends Omit<TraceCallRawResponse, 'gas'> {
+  gas: bigint;
+}
+
+export interface TraceCallParams {
+  request: Omit<TraceCallSchema['Parameters'][0], 'value'> & { value?: bigint };
+  block?: TraceCallSchema['Parameters'][1];
+  options?: TraceCallSchema['Parameters'][2];
+}
+
+function traceCall(client: Client) {
+  return async (params: TraceCallParams) => {
+    const request = {
+      ...params.request,
+      value: params.request.value ? toHex(params.request.value) : '0x0',
+    };
+
+    const options =
+      params.options ??
+      ({
+        tracer: 'callTracer',
+        tracerConfig: {
+          onlyTopCall: true,
+        },
+      } satisfies TraceCallOptions);
+
+    const r = await client.request<TraceCallSchema>({
+      method: 'debug_traceCall',
+      params: [request, params.block ?? 'latest', options],
+    });
+
+    return {
+      ...r,
+      gasUsed: hexToBigInt(r.gasUsed),
+    };
   };
 }

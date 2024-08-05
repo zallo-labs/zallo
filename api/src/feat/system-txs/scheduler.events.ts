@@ -48,6 +48,8 @@ export class SchedulerEvents implements OnModuleInit {
   }
 
   private async scheduled(event: ConfirmedEvent<typeof scheduledEvent>) {
+    if (!event.receipt) return;
+
     const account = asUAddress(event.log.address, event.chain);
     if (!(await this.accountsCache.isAccount(account))) return;
 
@@ -57,6 +59,8 @@ export class SchedulerEvents implements OnModuleInit {
         transaction: selectTransaction(event.log.args.proposal),
         systx: selectSysTx(event.log.transactionHash),
         scheduledFor,
+        gasUsed: event.receipt.gasUsed,
+        response: '0x',
       }).transaction.id,
     );
 

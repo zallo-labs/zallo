@@ -8,6 +8,8 @@ export type InsertSystxArgs = {
   readonly "maxEthFeePerGas": string;
   readonly "ethPerFeeToken": string;
   readonly "usdPerFeeToken": string;
+  readonly "response": string;
+  readonly "gasUsed": string;
 };
 
 export type InsertSystxReturns = {
@@ -28,8 +30,9 @@ with transaction := (select Transaction filter .id = <uuid>$proposal),
      )
 insert OptimisticSuccess {
   transaction := transaction,
-  systx := systx
-  # response := <Bytes>$response    # transaction.result[is Simulation].response
+  systx := systx,
+  response := <Bytes>$response,    # transaction.result[is Simulation].response
+  gasUsed := <bigint><str>$gasUsed
 }`, args);
 
 }

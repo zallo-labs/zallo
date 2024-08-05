@@ -8,9 +8,9 @@ import { CHAINS, Chain } from 'chains';
 import { RUNNING_JOB_STATUSES, TypedJob, createQueue } from '~/core/bull/bull.util';
 import { Worker } from '~/core/bull/Worker';
 import { AbiEvent } from 'abitype';
-import { Log as ViemLog, hexToNumber } from 'viem';
+import { hexToNumber } from 'viem';
 import { JobsOptions, UnrecoverableError } from 'bullmq';
-import { EventsService } from './events.service';
+import { EventsService, Log } from './events.service';
 
 const TARGET_LOGS_PER_JOB = 9_000; // Max 10k
 const DEFAULT_LOGS_PER_BLOCK = 200;
@@ -28,14 +28,6 @@ interface EventJobData {
   to: number;
   split?: boolean;
 }
-
-export type Log<TAbiEvent extends AbiEvent | undefined = undefined> = ViemLog<
-  bigint,
-  number,
-  false,
-  TAbiEvent,
-  true
->;
 
 export interface EventData<TAbiEvent extends AbiEvent> {
   chain: Chain;
@@ -165,10 +157,10 @@ export class EventsWorker extends Worker<EventsQueue> {
   }
 
   async bootstrap() {
-    const runningJobs = await this.queue.getJobs(RUNNING_JOB_STATUSES);
+    const jobChains = (await this.queue.getJobs(RUNNING_JOB_STATUSES)).map((j) => j.data.chain);
 
     for await (const network of this.networks) {
-      if (runningJobs.find((j) => j.data.chain === network.chain.key)) continue;
+      if (jobChains.find((chain) => chain === network.chain.key)) continue;
 
       const lastProcessedBlock = (await e
         .max(
