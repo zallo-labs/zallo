@@ -41,7 +41,7 @@ import {
   selectTransaction2,
   transactionAsTx,
 } from '~/feat/transactions/transactions.util';
-import { encodeFunctionData, hashTypedData } from 'viem';
+import { encodeFunctionData, EstimateGasErrorType, hashTypedData } from 'viem';
 import { FlowProducer } from 'bullmq';
 import { ActivationsService } from '../activations/activations.service';
 import { ConfirmationQueue } from '../system-txs/confirmations.queue';
@@ -55,6 +55,7 @@ import { DEFAULT_FLOW } from '~/core/bull/bull.module';
 import { PaymasterFeeParts } from '~/feat/paymasters/paymasters.model';
 import { insertTransaction } from './insert-transaction.query';
 import { deleteTransaction } from './delete-transaction.query';
+import { fromPromise } from 'neverthrow';
 
 const MAX_NETWORK_FEE_MULTIPLIER = new Decimal(5); // Allow for a higher network fee
 
@@ -166,10 +167,11 @@ export class TransactionsService {
 
     const isActive = !!(await network.getCode({ address: asAddress(account) }))?.length;
 
-    const getGas = async () =>
-      gasInput ??
-      (
-        await network.estimateFee({
+    const getGas = async () => {
+      if (gasInput) return gasInput;
+
+      const estimate = await fromPromise(
+        network.estimateFee({
           type: 'eip712',
           account: asAddress(account),
           ...encodeOperations(operations),
@@ -187,8 +189,13 @@ export class TransactionsService {
                 paymaster: undefined,
                 paymasterInput: undefined,
               }),
-        })
-      ).gasLimit;
+        }),
+        (e) => e as EstimateGasErrorType,
+      );
+
+      // estimateFee (or estimateGas) may revert; use a fallback in these cases
+      return estimate.map((estimate) => estimate.gasLimit).unwrapOr(2_000_000n);
+    };
 
     const [gas, maxFeePerGas, paymasterFees, feeTokenPrice] = await Promise.all([
       getGas(),
