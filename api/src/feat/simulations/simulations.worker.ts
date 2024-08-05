@@ -2,28 +2,23 @@ import { Processor } from '@nestjs/bullmq';
 import { Injectable } from '@nestjs/common';
 import {
   Address,
-  ETH_ADDRESS,
+  ETH_TOKEN_ADDRESS,
   Hex,
   UUID,
   asAddress,
   asChain,
-  asDecimal,
   asHex,
   asUAddress,
   asUUID,
   decodeTransfer,
-  isHex,
-  isTruthy,
-  simulate,
+  encodeOperations,
 } from 'lib';
 import { DatabaseService } from '~/core/database';
 import e, { $infer } from '~/edgeql-js';
 import { and } from '~/core/database';
-import { OperationsService } from '../operations/operations.service';
-import { SwapOp, TransferFromOp, TransferOp } from '../operations/operations.model';
 import { RUNNING_JOB_STATUSES, TypedJob, createQueue } from '~/core/bull/bull.util';
 import { Worker } from '~/core/bull/Worker';
-import { ETH } from 'lib/dapps';
+import { ERC20, SYNCSWAP } from 'lib/dapps';
 import { NetworksService } from '~/core/networks';
 import { TX_SHAPE, transactionAsTx } from '~/feat/transactions/transactions.util';
 import { Shape } from '~/core/database';
@@ -32,12 +27,23 @@ import { selectTransaction } from '../transactions/transactions.util';
 import { SelectedPolicies, selectPolicy } from '../policies/policies.util';
 import { ProposalsService } from '../proposals/proposals.service';
 import { ProposalEvent } from '../proposals/proposals.input';
-import { insertSimulation } from './insert-simulation.query';
+import {
+  Abi,
+  ContractEventName,
+  decodeFunctionData,
+  encodeEventTopics,
+  getAbiItem,
+  size,
+  slice,
+} from 'viem';
+import { insertSimulatedSuccess } from './insert-simulated-success.query';
+import { insertSimulatedFailure } from './insert-simulated-failure.query';
+import { EventsService, Log } from '../events/events.service';
+import { encodeEventData, EncodeEventDataParameters } from '~/core/networks/encodeEventData';
+import { match } from 'ts-pattern';
 
 export const SimulationsQueue = createQueue<{ transaction: UUID | Hex }>('Simulations');
 export type SimulationsQueue = typeof SimulationsQueue;
-
-type Transfer = Parameters<typeof e.insert<typeof e.Transfer>>[1];
 
 const TransactionExecutableShape = {
   account: { address: true },
@@ -57,9 +63,9 @@ export class SimulationsWorker extends Worker<SimulationsQueue> {
   constructor(
     private db: DatabaseService,
     private networks: NetworksService,
-    private operations: OperationsService,
     private tokens: TokensService,
     private proposals: ProposalsService,
+    private events: EventsService,
   ) {
     super();
   }
@@ -74,123 +80,177 @@ export class SimulationsWorker extends Worker<SimulationsQueue> {
     );
     if (!t) return 'Transaction not found';
 
-    const promisedExecutable = this.isExecutable(t);
+    const validPromise = this.isValidatable(t);
     const account = asUAddress(t.account.address);
     const localAccount = asAddress(account);
     const chain = asChain(account);
     const network = this.networks.get(chain);
 
-    const simulations = await Promise.all(
-      t.operations.map(async (op) =>
-        (
-          await simulate({
-            network,
-            account: localAccount,
-            gas: t.gasLimit,
-            type: 'eip712',
+    const trace = await network.traceCall({
+      request: {
+        from: localAccount,
+        ...encodeOperations(
+          t.operations.map((op) => ({
             to: asAddress(op.to),
-            value: op.value ?? 0n,
-            data: asHex(op.data) ?? '0x',
-          })
-        ).mapErr((callError) => {
-          const e = callError.walk();
-
-          return typeof e === 'object' &&
-            e &&
-            'data' in e &&
-            typeof e.data === 'string' &&
-            isHex(e.data)
-            ? e.data
-            : undefined;
-        }),
-      ),
-    );
-    const success = simulations.every((r) => r.isOk());
-    const responses = simulations
-      .filter((r) => success || r.isErr())
-      .map((r) =>
-        r.match(
-          (r) => r.data,
-          (r) => r,
+            data: asHex(op.data ?? '0x'),
+            value: op.value ? BigInt(op.value) : undefined,
+          })),
         ),
-      )
-      .filter(isTruthy);
-
-    const block = await network.blockNumber();
-    const transfers: Omit<Transfer, 'account'>[] = [];
-    for (const op of t.operations) {
-      if (op.value) {
-        transfers.push({
-          from: localAccount,
-          to: op.to,
-          tokenAddress: asUAddress(ETH_ADDRESS, chain),
-          amount: op.to === localAccount ? '0' : asDecimal(-op.value, ETH).toString(),
-          incoming: op.to === localAccount,
-          outgoing: true,
-          block,
-          logIndex: transfers.length,
-        });
-      }
-
-      const f = await this.operations.decodeCustom(
-        {
-          to: asAddress(op.to),
-          value: op.value || undefined,
-          data: asHex(op.data || undefined),
-        },
-        asChain(account),
-      );
-      if (f instanceof TransferOp && f.token !== ETH_ADDRESS) {
-        transfers.push({
-          from: localAccount,
-          to: f.to,
-          tokenAddress: asUAddress(f.token, chain),
-          amount: f.to === localAccount ? '0' : f.amount.negated().toString(),
-          incoming: localAccount === f.to,
-          outgoing: true,
-          block,
-          logIndex: transfers.length,
-        });
-      } else if (f instanceof TransferFromOp) {
-        transfers.push({
-          from: f.from,
-          to: f.to,
-          tokenAddress: asUAddress(f.token, chain),
-          amount: f.amount.toString(),
-          incoming: localAccount === f.to,
-          outgoing: true,
-          block,
-          logIndex: transfers.length,
-        });
-      } else if (f instanceof SwapOp) {
-        transfers.push({
-          from: op.to,
-          to: localAccount,
-          tokenAddress: asUAddress(f.toToken, chain),
-          amount: f.minimumToAmount.toString(),
-          incoming: true,
-          outgoing: false,
-          block,
-          logIndex: transfers.length,
-        });
-      }
-    }
-
-    const executable = await promisedExecutable;
-    await this.db.exec(insertSimulation, {
-      transaction: t.id,
-      executable,
-      success,
-      responses,
-      transfers,
+      },
     });
+
+    const error = trace.error || trace.revertReason;
+    const result = await (!error
+      ? this.db.exec(insertSimulatedSuccess, {
+          transaction: t.id,
+          response: trace.output,
+          gasUsed: trace.gasUsed,
+        })
+      : this.db.exec(insertSimulatedFailure, {
+          transaction: t.id,
+          response: trace.output,
+          gasUsed: trace.gasUsed,
+          reason: error,
+        }));
+
+    const logs = await this.simulateEvents(t);
+    await this.events.processSimulatedAndOptimistic({ chain, logs, result: asUUID(result.id) });
 
     this.proposals.event({ id: asUUID(t.id), account }, ProposalEvent.simulated);
 
-    return { executable };
+    const valid = await validPromise;
+    return { executable: valid && !error };
   }
 
-  private async isExecutable(t: TransactionExecutableShape) {
+  private async simulateEvents(t: TransactionExecutableShape) {
+    const account = asAddress(t.account.address);
+
+    const logs: Log<undefined, false>[] = [];
+    for (const op of t.operations) {
+      // Native transfer
+      if (op.value) {
+        logs.push({
+          address: ETH_TOKEN_ADDRESS,
+          ...encodeEvent({
+            abi: ERC20,
+            eventName: 'Transfer',
+            args: {
+              from: account,
+              to: asAddress(op.to),
+            },
+          }),
+        });
+      }
+
+      const EVENTS_ABI = [
+        getAbiItem({ abi: ERC20, name: 'transfer' }),
+        getAbiItem({ abi: ERC20, name: 'transferFrom' }),
+        // getAbiItem({ abi: ERC20, name: 'approve' }),
+        // getAbiItem({ abi: SYNCSWAP.router.abi, name: 'swap' }),
+      ];
+
+      const data = asHex(op.data);
+      const selector = data && size(data) >= 4 && slice(data, 0, 4);
+      if (!selector) continue;
+
+      const f = decodeFunctionData({ abi: EVENTS_ABI, data });
+      match(f)
+        .with({ functionName: 'transfer' }, (f) => {
+          logs.push({
+            address: asAddress(op.to),
+            ...encodeEvent({
+              abi: ERC20,
+              eventName: 'Transfer',
+              args: {
+                from: account,
+                to: f.args[0],
+                value: f.args[1],
+              },
+            }),
+          });
+        })
+        .with({ functionName: 'transferFrom' }, (f) => {
+          logs.push({
+            address: asAddress(op.to),
+            ...encodeEvent({
+              abi: ERC20,
+              eventName: 'Transfer',
+              args: {
+                from: f.args[0],
+                to: f.args[1],
+                value: f.args[2],
+              },
+            }),
+          });
+        })
+        // .with({ functionName: 'swap' }, (f) => {
+        //   const path = f.args[0][0];
+
+        //   // Figure out the toToken by querying the pool
+        //   // TODO: find a better way to do this
+        //   const tokenCalls = await this.networks.get(chain).multicall({
+        //     contracts: [
+        //       {
+        //         address: path.steps[0].pool,
+        //         abi: SYNCSWAP.poolAbi,
+        //         functionName: 'token0',
+        //       },
+        //       {
+        //         address: path.steps[0].pool,
+        //         abi: SYNCSWAP.poolAbi,
+        //         functionName: 'token1',
+        //       },
+        //     ],
+        //   });
+
+        //   const pair = tokenCalls.map((c) => c.result).filter(Boolean);
+        //   if (pair.length !== 2) return;
+
+        //   // ETH can be used as tokenIn, but uses the WETH pool
+        //   const fromToken = path.tokenIn;
+        //   const toToken =
+        //     (isEthToken(fromToken) ? WETH.address[chain] : fromToken) === pair[0]
+        //       ? pair[1]
+        //       : pair[0];
+
+        //   const [fromAmount, minimumToAmount] = await Promise.all([
+        //     this.tokens.asDecimal(asUAddress(fromToken, chain), path.amountIn),
+        //     this.tokens.asDecimal(asUAddress(toToken, chain), f.args[1]),
+        //   ]);
+
+        //   return Object.assign(new SwapOp(), {
+        //     ...base,
+        //     fromToken,
+        //     fromAmount,
+        //     toToken,
+        //     minimumToAmount,
+        //     deadline: new Date(Number(f.args[2]) * 1000),
+        //   } satisfies SwapOp);
+
+        //   logs.push({
+        //     address: asAddress(op.to),
+        //     ...encodeEvent({
+        //       abi: ERC20,
+        //       eventName: 'Transfer',
+        //       args: {
+        //         from: f.args[0],
+        //         to: f.args[1],
+        //         amount: f.args[2],
+        //         minimumToAmount: f.args[3],
+        //         deadline: f.args[4],
+        //       },
+        //     }),
+        //   });
+        // })
+        .exhaustive();
+
+      // TODO: swap
+    }
+
+    return logs;
+  }
+
+  private async isValidatable(t: TransactionExecutableShape) {
     if (!t.policy.isActive) return false;
     if (t.validationErrors.length) return false;
 
@@ -229,7 +289,7 @@ export class SimulationsWorker extends Worker<SimulationsQueue> {
     const orphanedTransactions = await this.db.query(
       e.select(e.Transaction, (p) => ({
         filter: and(
-          e.op('not', e.op('exists', p.simulation)),
+          e.op('not', e.op('exists', p.result)),
           jobs.length
             ? e.op(
                 p.id,
@@ -250,4 +310,22 @@ export class SimulationsWorker extends Worker<SimulationsQueue> {
       );
     }
   }
+}
+
+function encodeEvent<
+  const abi extends Abi | readonly unknown[],
+  eventName extends ContractEventName<abi> | undefined = undefined,
+>(parameters: EncodeEventDataParameters<abi, eventName>) {
+  return {
+    topics: encodeEventTopics(parameters).filter(Boolean) as [Hex, ...Hex[]],
+    data: encodeEventData(parameters),
+    // eventName: parameters.eventName,
+    // args: parameters.args,
+    blockHash: null,
+    blockNumber: null,
+    transactionHash: null,
+    transactionIndex: null,
+    logIndex: null,
+    removed: false,
+  } satisfies Partial<Log<undefined, false>>;
 }

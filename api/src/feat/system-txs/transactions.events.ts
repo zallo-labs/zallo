@@ -1,11 +1,6 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { asChain, asDecimal, asHex, asUAddress, isHex } from 'lib';
-import {
-  ConfirmationData,
-  ConfirmationEventData,
-  ConfirmationsWorker,
-  Receipt,
-} from './confirmations.worker';
+import { ConfirmationData, ConfirmationsWorker, Receipt } from './confirmations.worker';
 import { InjectQueue } from '@nestjs/bullmq';
 import { ConfirmationQueue } from './confirmations.queue';
 import e from '~/edgeql-js';
@@ -107,7 +102,7 @@ export class TransactionsEvents implements OnModuleInit {
         block: BigInt(receipt.blockNumber),
         gasUsed: receipt.gasUsed,
         ethFeePerGas: asDecimal(receipt.effectiveGasPrice, ETH).toString(),
-        reason: response.data,
+        response: response.data,
       })
       .unlessConflict();
 
@@ -131,8 +126,7 @@ export class TransactionsEvents implements OnModuleInit {
 
   private async getResponse(network: Network, receipt: Receipt) {
     const tx = await network.getTransaction({ hash: receipt.transactionHash });
-
-    return /* may throw */ await network.call({
+    const r = /* may throw */ await network.call({
       blockNumber: receipt.blockNumber - 1n,
       account: receipt.from,
       gas: tx.gas,
@@ -143,6 +137,11 @@ export class TransactionsEvents implements OnModuleInit {
       value: tx.value,
       data: tx.input,
     });
+
+    return {
+      ...r,
+      data: r.data ?? '0x',
+    };
   }
 
   private async addMissingJobs() {

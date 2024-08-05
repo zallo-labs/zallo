@@ -696,7 +696,6 @@ export type $ObjectTypeλShape = $.typeutil.flatten<$SourceλShape & Omit<$Consi
   "<__type__[is ProposalResponse]": $.LinkDesc<_default.$ProposalResponse, $.Cardinality.Many, {}, false, false,  false, false>;
   "<__type__[is Approval]": $.LinkDesc<_default.$Approval, $.Cardinality.Many, {}, false, false,  false, false>;
   "<__type__[is Proposal]": $.LinkDesc<_default.$Proposal, $.Cardinality.Many, {}, false, false,  false, false>;
-  "<__type__[is Simulation]": $.LinkDesc<_default.$Simulation, $.Cardinality.Many, {}, false, false,  false, false>;
   "<__type__[is ApproverDetails]": $.LinkDesc<_default.$ApproverDetails, $.Cardinality.Many, {}, false, false,  false, false>;
   "<__type__[is Message]": $.LinkDesc<_default.$Message, $.Cardinality.Many, {}, false, false,  false, false>;
   "<__type__[is Operation]": $.LinkDesc<_default.$Operation, $.Cardinality.Many, {}, false, false,  false, false>;
@@ -705,6 +704,7 @@ export type $ObjectTypeλShape = $.typeutil.flatten<$SourceλShape & Omit<$Consi
   "<__type__[is Token]": $.LinkDesc<_default.$Token, $.Cardinality.Many, {}, false, false,  false, false>;
   "<__type__[is Approver]": $.LinkDesc<_default.$Approver, $.Cardinality.Many, {}, false, false,  false, false>;
   "<__type__[is current_approver]": $.LinkDesc<_default.$current_approver, $.Cardinality.Many, {}, false, false,  false, false>;
+  "<__type__[is OptimisticSuccess]": $.LinkDesc<_default.$OptimisticSuccess, $.Cardinality.Many, {}, false, false,  false, false>;
   "<__type__[is User]": $.LinkDesc<_default.$User, $.Cardinality.Many, {}, false, false,  false, false>;
   "<__type__[is current_user]": $.LinkDesc<_default.$current_user, $.Cardinality.Many, {}, false, false,  false, false>;
   "<__type__[is Contact]": $.LinkDesc<_default.$Contact, $.Cardinality.Many, {}, false, false,  false, false>;
@@ -712,7 +712,6 @@ export type $ObjectTypeλShape = $.typeutil.flatten<$SourceλShape & Omit<$Consi
   "<__type__[is Event]": $.LinkDesc<_default.$Event, $.Cardinality.Many, {}, false, false,  false, false>;
   "<__type__[is Transferlike]": $.LinkDesc<_default.$Transferlike, $.Cardinality.Many, {}, false, false,  false, false>;
   "<__type__[is Transfer]": $.LinkDesc<_default.$Transfer, $.Cardinality.Many, {}, false, false,  false, false>;
-  "<__type__[is Contract]": $.LinkDesc<_default.$Contract, $.Cardinality.Many, {}, false, false,  false, false>;
   "<__type__[is TransferApproval]": $.LinkDesc<_default.$TransferApproval, $.Cardinality.Many, {}, false, false,  false, false>;
   "<__type__[is Rejection]": $.LinkDesc<_default.$Rejection, $.Cardinality.Many, {}, false, false,  false, false>;
   "<__type__[is ActionFunction]": $.LinkDesc<_default.$ActionFunction, $.Cardinality.Many, {}, false, false,  false, false>;
@@ -720,19 +719,21 @@ export type $ObjectTypeλShape = $.typeutil.flatten<$SourceλShape & Omit<$Consi
   "<__type__[is TransferLimit]": $.LinkDesc<_default.$TransferLimit, $.Cardinality.Many, {}, false, false,  false, false>;
   "<__type__[is TransfersConfig]": $.LinkDesc<_default.$TransfersConfig, $.Cardinality.Many, {}, false, false,  false, false>;
   "<__type__[is PolicyState]": $.LinkDesc<_default.$PolicyState, $.Cardinality.Many, {}, false, false,  false, false>;
+  "<__type__[is Contract]": $.LinkDesc<_default.$Contract, $.Cardinality.Many, {}, false, false,  false, false>;
   "<__type__[is Policy]": $.LinkDesc<_default.$Policy, $.Cardinality.Many, {}, false, false,  false, false>;
   "<__type__[is RemovedPolicy]": $.LinkDesc<_default.$RemovedPolicy, $.Cardinality.Many, {}, false, false,  false, false>;
-  "<__type__[is Failure]": $.LinkDesc<_default.$Failure, $.Cardinality.Many, {}, false, false,  false, false>;
   "<__type__[is Result]": $.LinkDesc<_default.$Result, $.Cardinality.Many, {}, false, false,  false, false>;
   "<__type__[is Confirmed]": $.LinkDesc<_default.$Confirmed, $.Cardinality.Many, {}, false, false,  false, false>;
-  "<__type__[is OptimisticSuccess]": $.LinkDesc<_default.$OptimisticSuccess, $.Cardinality.Many, {}, false, false,  false, false>;
+  "<__type__[is Failure]": $.LinkDesc<_default.$Failure, $.Cardinality.Many, {}, false, false,  false, false>;
   "<__type__[is ConfirmedFailure]": $.LinkDesc<_default.$ConfirmedFailure, $.Cardinality.Many, {}, false, false,  false, false>;
   "<__type__[is Success]": $.LinkDesc<_default.$Success, $.Cardinality.Many, {}, false, false,  false, false>;
   "<__type__[is ConfirmedSuccess]": $.LinkDesc<_default.$ConfirmedSuccess, $.Cardinality.Many, {}, false, false,  false, false>;
   "<__type__[is Scheduled]": $.LinkDesc<_default.$Scheduled, $.Cardinality.Many, {}, false, false,  false, false>;
   "<__type__[is PaymasterFees]": $.LinkDesc<_default.$PaymasterFees, $.Cardinality.Many, {}, false, false,  false, false>;
   "<__type__[is SystemTx]": $.LinkDesc<_default.$SystemTx, $.Cardinality.Many, {}, false, false,  false, false>;
+  "<__type__[is SimulatedFailure]": $.LinkDesc<_default.$SimulatedFailure, $.Cardinality.Many, {}, false, false,  false, false>;
   "<__type__[is Function]": $.LinkDesc<_default.$Function, $.Cardinality.Many, {}, false, false,  false, false>;
+  "<__type__[is SimulatedSuccess]": $.LinkDesc<_default.$SimulatedSuccess, $.Cardinality.Many, {}, false, false,  false, false>;
   "<__type__": $.LinkDesc<$.ObjectType, $.Cardinality.Many, {}, false, false,  false, false>;
   "<intersection_of": $.LinkDesc<$.ObjectType, $.Cardinality.Many, {}, false, false,  false, false>;
   "<subject": $.LinkDesc<$.ObjectType, $.Cardinality.Many, {}, false, false,  false, false>;

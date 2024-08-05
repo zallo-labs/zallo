@@ -29,7 +29,6 @@ module default {
       on source delete delete target; 
       default := (insert PaymasterFees {}); 
     }
-    simulation: Simulation { constraint exclusive; on target delete deferred restrict; }
     required executable: bool { default := false; }
     multi link systxs := .<proposal[is SystemTx];
     link systx: SystemTx { constraint exclusive; } # Latest .timestamp
@@ -45,16 +44,6 @@ module default {
         TransactionStatus.Cancelled
       ))
     );
-  }
-
-  type Simulation {
-    required success: bool;
-    required responses: array<Bytes>;
-    multi transfers: Transfer {
-      constraint exclusive;
-      on source delete delete target;
-    }
-    required timestamp: datetime { default := datetime_of_statement(); }
   }
 
   type SystemTx {
@@ -85,6 +74,8 @@ module default {
   abstract type Result {
     required transaction: Transaction;
     systx: SystemTx;
+    required response: Bytes { default := '0x'; }
+    required gasUsed: bigint { constraint min_value(0); }
     required timestamp: datetime { default := datetime_of_statement(); }
     multi link events := .<result[is Event];
     multi link transfers := .events[is Transfer];
@@ -94,19 +85,20 @@ module default {
     );
   }
 
-  abstract type Success extending Result {
-    response: Bytes;
-  }
+  abstract type Success extending Result {}
 
   abstract type Failure extending Result {
     reason: str;
   }
 
+  type SimulatedSuccess extending Success {}
+
+  type SimulatedFailure extending Failure {}
+
   type OptimisticSuccess extending Success {}
 
   abstract type Confirmed extending Result {
     required block: bigint { constraint min_value(0); }
-    required gasUsed: bigint { constraint min_value(0); }
     required ethFeePerGas: decimal { constraint min_value(0); }
     required property networkEthFee := .ethFeePerGas * .gasUsed;
   }

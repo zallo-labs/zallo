@@ -42,6 +42,7 @@ import { insertSystx } from './insert-systx.query';
 import { updatePaymasterFees } from './update-paymaster-fees.query';
 import { EventsService, Log } from '../events/events.service';
 import { AbiEvent } from 'viem';
+import { $SimulatedSuccess } from '~/edgeql-js/modules/default';
 
 export const ExecutionsQueue = createQueue<ExecutionJob>('Executions');
 export type ExecutionsQueue = typeof ExecutionsQueue;
@@ -161,8 +162,9 @@ export class ExecutionsWorker extends Worker<ExecutionsQueue> {
     paymasterEthFees,
     ignoreSimulation,
   }: ExecuteParams) {
-    if (!proposal.simulation?.success && !ignoreSimulation) return 'Simulation failed';
     if (!proposal.executable) return 'Not executable';
+    if (proposal.result?.__type__.name !== $SimulatedSuccess.__name__ && !ignoreSimulation)
+      return 'Must be a simulated success';
 
     const account = asUAddress(proposal.account.address);
     const network = this.networks.get(account);
@@ -210,7 +212,7 @@ export class ExecutionsWorker extends Worker<ExecutionsQueue> {
       gasPerPubdata: estimatedFee.gasPerPubdataLimit, // This should ideally be signed during proposal creation
       ...executeParams,
     });
-    if (txRespResult.isErr()) throw txRespResult.error; // TODO: handle
+    if (txRespResult.isErr()) throw txRespResult.error; // TODO: insert SimulatedFailure with `txRespResult.error` as reason
 
     const id = asUUID(proposal.id);
     const resp = txRespResult.value;
@@ -222,11 +224,13 @@ export class ExecutionsWorker extends Worker<ExecutionsQueue> {
           maxEthFeePerGas: maxFeePerGas.toString(),
           ethPerFeeToken: feeTokenPrice.eth.toString(),
           usdPerFeeToken: feeTokenPrice.usd.toString(),
+          gasUsed: (proposal.result?.gasUsed ?? proposal.gasLimit).toString(),
+          response: proposal.result?.response ?? '0x',
         })
       ).id,
     );
     // TODO: process events in a separate job to avoid retrying sending of transaction if processing fails
-    await this.events.processOptimistic({
+    await this.events.processSimulatedAndOptimistic({
       chain: network.chain.key,
       result,
       logs: resp.events as unknown as Log<AbiEvent, false>[],
@@ -258,11 +262,15 @@ const EXECUTE_TX_SHAPE = {
   id: true,
   account: { address: true },
   executable: true,
-  simulation: { success: true },
   gasLimit: true,
   feeToken: { address: true, pythUsdPriceId: true },
   paymaster: true,
   maxAmount: true,
+  result: {
+    __type__: { name: true },
+    response: true,
+    gasUsed: true,
+  },
 } satisfies Shape<typeof e.Transaction>;
 const s = e.select(e.Transaction, () => EXECUTE_TX_SHAPE);
 

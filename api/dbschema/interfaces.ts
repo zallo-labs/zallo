@@ -140,20 +140,19 @@ export namespace $default {
     "events": Event[];
     "transfers": Transfer[];
     "systx"?: SystemTx | null;
+    "response": string;
+    "gasUsed": bigint;
   }
   export interface Confirmed extends Result {
     "block": bigint;
     "ethFeePerGas": string;
-    "gasUsed": bigint;
     "networkEthFee": string;
   }
   export interface Failure extends Result {
     "reason"?: string | null;
   }
   export interface ConfirmedFailure extends Confirmed, Failure {}
-  export interface Success extends Result {
-    "response"?: string | null;
-  }
+  export interface Success extends Result {}
   export interface ConfirmedSuccess extends Confirmed, Success {}
   export interface UserLabelled extends Labelled {}
   export interface Contact extends UserLabelled {
@@ -242,12 +241,8 @@ export namespace $default {
     "cancelled": boolean;
     "scheduledFor": Date;
   }
-  export interface Simulation extends std.$Object {
-    "responses": string[];
-    "success": boolean;
-    "timestamp": Date;
-    "transfers": Transfer[];
-  }
+  export interface SimulatedFailure extends Failure {}
+  export interface SimulatedSuccess extends Success {}
   export interface SystemTx extends std.$Object {
     "proposal": Transaction;
     "maxEthFeePerGas": string;
@@ -277,7 +272,6 @@ export namespace $default {
     "executable": boolean;
     "unorderedOperations": Operation[];
     "operations": Operation[];
-    "simulation"?: Simulation | null;
     "paymaster": string;
     "feeToken": Token;
     "maxAmountFp": bigint;
@@ -357,7 +351,8 @@ export type Policy = $default.Policy;
 export type Rejection = $default.Rejection;
 export type RemovedPolicy = $default.RemovedPolicy;
 export type Scheduled = $default.Scheduled;
-export type Simulation = $default.Simulation;
+export type SimulatedFailure = $default.SimulatedFailure;
+export type SimulatedSuccess = $default.SimulatedSuccess;
 export type SystemTx = $default.SystemTx;
 export type Token = $default.Token;
 export type Transaction = $default.Transaction;
@@ -664,7 +659,8 @@ export interface types {
     "Rejection": $default.Rejection;
     "RemovedPolicy": $default.RemovedPolicy;
     "Scheduled": $default.Scheduled;
-    "Simulation": $default.Simulation;
+    "SimulatedFailure": $default.SimulatedFailure;
+    "SimulatedSuccess": $default.SimulatedSuccess;
     "SystemTx": $default.SystemTx;
     "Token": $default.Token;
     "Transaction": $default.Transaction;

@@ -10,6 +10,7 @@ with transaction := (select Transaction filter .id = <uuid>$proposal),
      )
 insert OptimisticSuccess {
   transaction := transaction,
-  systx := systx
-  # response := <Bytes>$response    # transaction.result[is Simulation].response
+  systx := systx,
+  response := <Bytes>$response,    # transaction.result[is Simulation].response
+  gasUsed := <bigint><str>$gasUsed
 }
