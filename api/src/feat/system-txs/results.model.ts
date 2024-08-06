@@ -8,11 +8,21 @@ import { Node, NodeInterface, NodeType } from '~/common/decorators/interface.dec
 import { Hex } from 'lib';
 import { BytesField } from '~/common/scalars';
 import { Transaction } from '../transactions/transactions.model';
+import { SystemTx } from './system-tx.model';
 
 @NodeInterface()
 export class Result extends Node {
   @Field(() => Transaction)
   transaction: Transaction;
+
+  @Field(() => SystemTx, { nullable: true })
+  systemTx?: SystemTx;
+
+  @BytesField()
+  response: Hex;
+
+  @Field(() => GraphQLBigInt)
+  gasUsed: bigint;
 
   @Field(() => Date)
   timestamp: Date;
@@ -25,10 +35,7 @@ export class Result extends Node {
 }
 
 @NodeInterface({ implements: [Result] })
-export class Success extends Result {
-  @BytesField()
-  response: Hex;
-}
+export class Success extends Result {}
 
 @NodeInterface({ implements: [Result] })
 export class Failure extends Result {
@@ -36,16 +43,19 @@ export class Failure extends Result {
   reason: string;
 }
 
-@NodeType({ implements: [Success] })
+@NodeType({ implements: [Result, Success] })
+export class SimulatedSuccess extends Failure {}
+
+@NodeType({ implements: [Result, Failure] })
+export class SimulatedFailure extends Failure {}
+
+@NodeType({ implements: [Result, Success] })
 export class OptimisticSuccess extends Success {}
 
 @NodeInterface({ implements: [Result] })
 export class Confirmed extends Result {
   @Field(() => GraphQLBigInt)
   block: bigint;
-
-  @Field(() => GraphQLBigInt)
-  gasUsed: bigint;
 
   @DecimalField()
   ethFeePerGas: Decimal;

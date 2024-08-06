@@ -3,7 +3,6 @@ import { GraphQLBigInt } from 'graphql-scalars';
 import { SystemTx } from '../system-txs/system-tx.model';
 import { Operation } from '../operations/operations.model';
 import { Token } from '../tokens/tokens.model';
-import { Simulation } from '../simulations/simulations.model';
 import { Proposal } from '../proposals/proposals.model';
 import { AddressField } from '~/common/scalars/Address.scalar';
 import { Address, PolicyKey, UAddress } from 'lib';
@@ -33,9 +32,6 @@ export class Transaction extends Proposal {
 
   @Field(() => PaymasterFees)
   paymasterEthFees: PaymasterFees;
-
-  @Field(() => Simulation, { nullable: true })
-  simulation?: Simulation;
 
   @Field(() => Boolean)
   executable: boolean;
