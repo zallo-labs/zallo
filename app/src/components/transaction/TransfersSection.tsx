@@ -33,24 +33,6 @@ const Transaction = graphql`
         isFeeTransfer
       }
     }
-    simulation {
-      id
-      transfers {
-        __typename
-        id
-        tokenAddress
-        token {
-          id
-          balance(input: { transaction: $transaction })
-          ...TokenItem_token
-          ...TokenAmount_token
-        }
-        amount
-        from
-        to
-        isFeeTransfer
-      }
-    }
     ...TransactionValue_transaction
   }
 `;
@@ -64,7 +46,7 @@ export function TransfersSection(props: TransfersSectionProps) {
   const { styles } = useStyles(stylesheet);
   const p = useFragment(Transaction, props.transaction);
 
-  const transfers = (p.result ?? p.simulation)?.transfers.filter((t) => !t.isFeeTransfer); // Ignore fee transfers, this is shown by FeeToken
+  const transfers = p.result?.transfers.filter((t) => !t.isFeeTransfer); // Ignore fee transfers, this is shown by FeeToken
 
   if (!transfers?.length) return null;
 

@@ -19,10 +19,13 @@ const Transaction = graphql`
     operations {
       ...OperationSection_operation
     }
-    simulation {
+    result {
+      __typename
       id
-      success
-      responses
+      response
+      ... on Failure {
+        reason
+      }
     }
     ...OperationSection_transaction
   }
@@ -36,23 +39,10 @@ export function OperationsSection(props: OperationsSectionProps) {
   const { styles } = useStyles(stylesheet);
   const p = useFragment(Transaction, props.transaction);
 
-  const simulatedErrorSelector =
-    p.simulation?.responses.length &&
-    bytesize(p.simulation.responses[0]) >= 4 &&
-    slice(p.simulation.responses[0], 0, 4);
-
-  const expectedFailureItem = p.simulation?.success === false && (
-    <ListItem
-      leading={<AlertIcon size={ICON_SIZE.medium} color={styles.error.color} />}
-      headline={({ Text }) => <Text style={styles.error}>Expected to fail</Text>}
-      supporting={
-        simulatedErrorSelector
-          ? `Error: ${simulatedErrorSelector}`
-          : 'No error message was provided'
-      }
-      trailing={simulatedErrorSelector ? SearchIcon : undefined}
-    />
-  );
+  const errorSelector =
+    p.result?.__typename === 'SimulatedFailure' &&
+    bytesize(p.result.response) >= 4 &&
+    slice(p.result.response, 0, 4);
 
   return (
     <>
@@ -62,18 +52,45 @@ export function OperationsSection(props: OperationsSectionProps) {
         <OperationSection key={i} transaction={p} operation={operation} />
       ))}
 
-      {expectedFailureItem &&
-        (simulatedErrorSelector ? (
-          <Link
-            asChild
-            href={`https://openchain.xyz/signatures?query=${simulatedErrorSelector}`}
-            target="_blank"
-          >
-            {expectedFailureItem}
-          </Link>
-        ) : (
-          expectedFailureItem
-        ))}
+      {p.result?.__typename.includes('Failure') && (
+        <>
+          {p.result?.reason && (
+            <ListItem
+              leading={<AlertIcon size={ICON_SIZE.medium} color={styles.error.color} />}
+              headline={({ Text }) => <Text style={styles.error}>Expected to fail</Text>}
+              supporting={p.result.reason}
+            />
+          )}
+
+          {errorSelector ? (
+            <Link
+              asChild
+              href={`https://openchain.xyz/signatures?query=${errorSelector}`}
+              target="_blank"
+            >
+              <ListItem
+                leading={<AlertIcon size={ICON_SIZE.medium} color={styles.error.color} />}
+                headline={({ Text }) => <Text style={styles.error}>Expected to fail</Text>}
+                supporting={`Error: ${errorSelector}`}
+                trailing={SearchIcon}
+              />
+            </Link>
+          ) : (
+            <ListItem
+              leading={<AlertIcon size={ICON_SIZE.medium} color={styles.error.color} />}
+              headline={({ Text }) => <Text style={styles.error}>Expected to fail</Text>}
+              supporting="No error message was provided"
+            />
+          )}
+
+          <ListItem
+            leading={<AlertIcon size={ICON_SIZE.medium} color={styles.error.color} />}
+            headline={({ Text }) => <Text style={styles.error}>Expected to fail</Text>}
+            supporting={errorSelector ? `Error: ${errorSelector}` : 'No error message was provided'}
+            trailing={errorSelector ? SearchIcon : undefined}
+          />
+        </>
+      )}
     </>
   );
 }
