@@ -12,13 +12,14 @@ import {
   asUUID,
   decodeTransfer,
   encodeOperations,
+  tryOrIgnore,
 } from 'lib';
 import { DatabaseService } from '~/core/database';
 import e, { $infer } from '~/edgeql-js';
 import { and } from '~/core/database';
 import { RUNNING_JOB_STATUSES, TypedJob, createQueue } from '~/core/bull/bull.util';
 import { Worker } from '~/core/bull/Worker';
-import { ERC20, SYNCSWAP } from 'lib/dapps';
+import { ERC20 } from 'lib/dapps';
 import { NetworksService } from '~/core/networks';
 import { TX_SHAPE, transactionAsTx } from '~/feat/transactions/transactions.util';
 import { Shape } from '~/core/database';
@@ -153,7 +154,7 @@ export class SimulationsWorker extends Worker<SimulationsQueue> {
       const selector = data && size(data) >= 4 && slice(data, 0, 4);
       if (!selector) continue;
 
-      const f = decodeFunctionData({ abi: EVENTS_ABI, data });
+      const f = tryOrIgnore(() => decodeFunctionData({ abi: EVENTS_ABI, data }));
       match(f)
         .with({ functionName: 'transfer' }, (f) => {
           logs.push({
@@ -242,6 +243,7 @@ export class SimulationsWorker extends Worker<SimulationsQueue> {
         //     }),
         //   });
         // })
+        .with(undefined, () => {})
         .exhaustive();
 
       // TODO: swap
