@@ -29,21 +29,22 @@ module default {
       on source delete delete target; 
       default := (insert PaymasterFees {}); 
     }
-    required executable: bool { default := false; }
     multi link systxs := .<proposal[is SystemTx];
     link systx: SystemTx { constraint exclusive; } # Latest .timestamp
     multi link results := .<transaction[is Result];
     link result: Result { constraint exclusive; } # Latest .timestamp
     required property status := (
+      with result := .result
       select assert_exists((
-        TransactionStatus.Pending if (not .executable) else
-        TransactionStatus.Executing if (not exists .result) else
-        TransactionStatus.Successful if (.result is ConfirmedSuccess) else
-        TransactionStatus.Failed if (.result is ConfirmedFailure) else
-        TransactionStatus.Scheduled if (not .result[is Scheduled].cancelled) else
-        TransactionStatus.Cancelled
+        TransactionStatus.Pending if (not exists result or result is SimulatedSuccess or result is SimulatedFailure) else
+        TransactionStatus.Executing if (result is OptimisticSuccess) else
+        TransactionStatus.Successful if (result is ConfirmedSuccess) else
+        TransactionStatus.Failed if (result is ConfirmedFailure) else
+        TransactionStatus.Scheduled if (not result[is Scheduled].cancelled) else
+        TransactionStatus.Cancelled # result is Scheduled
       ))
     );
+    required executable := (.result is SimulatedSuccess) ?? false;
   }
 
   type SystemTx {
@@ -93,7 +94,9 @@ module default {
 
   type SimulatedSuccess extending Success {}
 
-  type SimulatedFailure extending Failure {}
+  type SimulatedFailure extending Failure {
+    required validationErrors: array<str> { default := <array<str>>[]; };
+  }
 
   type OptimisticSuccess extending Success {}
 
