@@ -172,6 +172,8 @@ interface Confirmed implements Node & Result {
   gasUsed: BigInt!
   id: ID!
   networkEthFee: Decimal!
+  response: Bytes!
+  systemTx: SystemTx
   timestamp: DateTime!
   transaction: Transaction!
   transfers: [Transfer!]!
@@ -185,6 +187,8 @@ type ConfirmedFailure implements Confirmed & Failure & Node & Result {
   id: ID!
   networkEthFee: Decimal!
   reason: String!
+  response: Bytes!
+  systemTx: SystemTx
   timestamp: DateTime!
   transaction: Transaction!
   transfers: [Transfer!]!
@@ -198,6 +202,7 @@ type ConfirmedSuccess implements Confirmed & Node & Result & Success {
   id: ID!
   networkEthFee: Decimal!
   response: Bytes!
+  systemTx: SystemTx
   timestamp: DateTime!
   transaction: Transaction!
   transfers: [Transfer!]!
@@ -302,8 +307,11 @@ input ExecuteTransactionInput {
 
 interface Failure implements Node & Result {
   events: [Event!]!
+  gasUsed: BigInt!
   id: ID!
   reason: String!
+  response: Bytes!
+  systemTx: SystemTx
   timestamp: DateTime!
   transaction: Transaction!
   transfers: [Transfer!]!
@@ -412,8 +420,10 @@ input OperationInput {
 
 type OptimisticSuccess implements Node & Result & Success {
   events: [Event!]!
+  gasUsed: BigInt!
   id: ID!
   response: Bytes!
+  systemTx: SystemTx
   timestamp: DateTime!
   transaction: Transaction!
   transfers: [Transfer!]!
@@ -692,7 +702,10 @@ input RequestTokensInput {
 
 interface Result implements Node {
   events: [Event!]!
+  gasUsed: BigInt!
   id: ID!
+  response: Bytes!
+  systemTx: SystemTx
   timestamp: DateTime!
   transaction: Transaction!
   transfers: [Transfer!]!
@@ -701,8 +714,11 @@ interface Result implements Node {
 type Scheduled implements Node & Result {
   cancelled: Boolean!
   events: [Event!]!
+  gasUsed: BigInt!
   id: ID!
+  response: Bytes!
   scheduledFor: DateTime!
+  systemTx: SystemTx
   timestamp: DateTime!
   transaction: Transaction!
   transfers: [Transfer!]!
@@ -711,11 +727,27 @@ type Scheduled implements Node & Result {
 """function selector (4-byte hex string)"""
 scalar Selector
 
-type Simulation implements Node {
+type SimulatedFailure implements Failure & Node & Result {
+  events: [Event!]!
+  gasUsed: BigInt!
   id: ID!
-  responses: [Bytes!]!
-  success: Boolean!
+  reason: String!
+  response: Bytes!
+  systemTx: SystemTx
   timestamp: DateTime!
+  transaction: Transaction!
+  transfers: [Transfer!]!
+}
+
+type SimulatedSuccess implements Node & Result & Success {
+  events: [Event!]!
+  gasUsed: BigInt!
+  id: ID!
+  reason: String!
+  response: Bytes!
+  systemTx: SystemTx
+  timestamp: DateTime!
+  transaction: Transaction!
   transfers: [Transfer!]!
 }
 
@@ -735,8 +767,10 @@ type Subscription {
 
 interface Success implements Node & Result {
   events: [Event!]!
+  gasUsed: BigInt!
   id: ID!
   response: Bytes!
+  systemTx: SystemTx
   timestamp: DateTime!
   transaction: Transaction!
   transfers: [Transfer!]!
@@ -841,7 +875,6 @@ type Transaction implements Node & Proposal {
   rejections: [Rejection!]!
   result: Result
   results: [Result!]!
-  simulation: Simulation
   status: TransactionStatus!
   systx: SystemTx
   systxs: [SystemTx!]!

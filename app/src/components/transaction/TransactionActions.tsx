@@ -28,9 +28,9 @@ const Transaction = graphql`
     validationErrors {
       reason
     }
-    simulation {
+    result {
+      __typename
       id
-      success
     }
     systx {
       id
@@ -77,7 +77,8 @@ export const TransactionActions = (props: TransactionActionsProps) => {
   });
 
   const blockExplorer = CHAINS[p.account.chain].blockExplorers?.default;
-  const showForceExecute = p.status === 'Pending' && p.executable && !p.simulation?.success;
+  const showForceExecute =
+    p.status === 'Pending' && p.executable && p.result?.__typename === 'SimulatedFailure';
 
   return (
     <Actions>
