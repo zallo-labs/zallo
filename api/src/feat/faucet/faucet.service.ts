@@ -42,7 +42,7 @@ export class FaucetService implements OnModuleInit {
 
     this.tokens = tokens.map((t) => ({
       address: asUAddress(t.address),
-      amount: parseUnits(isEthToken(asAddress(t.address)) ? '0.01' : '1', t.decimals),
+      amount: parseUnits(isEthToken(asAddress(t.address)) ? '0.005' : '1', t.decimals),
     }));
   }
 
