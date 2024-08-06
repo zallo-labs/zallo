@@ -7,6 +7,7 @@ export type InsertSimulatedFailureArgs = {
   readonly "response": string;
   readonly "gasUsed": bigint;
   readonly "reason": string;
+  readonly "validationErrors": ReadonlyArray<string>;
 };
 
 export type InsertSimulatedFailureReturns = {
@@ -19,7 +20,8 @@ insert SimulatedFailure {
   transaction := <Transaction><uuid>$transaction,
   response := <Bytes>$response,
   gasUsed := <bigint>$gasUsed,
-  reason := <str>$reason
+  reason := <str>$reason,
+  validationErrors := <array<str>>$validationErrors
 }`, args);
 
 }

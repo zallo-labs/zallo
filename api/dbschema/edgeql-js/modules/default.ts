@@ -577,6 +577,7 @@ const $Scheduled = $.makeType<$Scheduled>(_.spec, "23c64270-532c-11ef-863f-6be9e
 const Scheduled: $.$expr_PathNode<$.TypeSet<$Scheduled, $.Cardinality.Many>, null> = _.syntax.$PathNode($.$toSet($Scheduled, $.Cardinality.Many), null);
 
 export type $SimulatedFailureλShape = $.typeutil.flatten<$FailureλShape & {
+  "validationErrors": $.PropertyDesc<$.ArrayType<_std.$str>, $.Cardinality.One, false, false, false, true>;
 }>;
 type $SimulatedFailure = $.ObjectType<"default::SimulatedFailure", $SimulatedFailureλShape, null, [
   ...$Failure['__exclusives__'],
@@ -656,7 +657,6 @@ const Token: $.$expr_PathNode<$.TypeSet<$Token, $.Cardinality.Many>, null> = _.s
 export type $TransactionλShape = $.typeutil.flatten<Omit<$ProposalλShape, "<proposal"> & {
   "maxAmount": $.PropertyDesc<_std.$decimal, $.Cardinality.One, false, false, false, false>;
   "gasLimit": $.PropertyDesc<$uint256, $.Cardinality.One, false, false, false, true>;
-  "executable": $.PropertyDesc<_std.$bool, $.Cardinality.One, false, false, false, true>;
   "unorderedOperations": $.LinkDesc<$Operation, $.Cardinality.AtLeastOne, {}, true, false,  false, false>;
   "operations": $.LinkDesc<$Operation, $.Cardinality.AtLeastOne, {}, false, true,  false, false>;
   "paymaster": $.PropertyDesc<$Address, $.Cardinality.One, false, false, false, false>;
@@ -664,10 +664,11 @@ export type $TransactionλShape = $.typeutil.flatten<Omit<$ProposalλShape, "<pr
   "maxAmountFp": $.PropertyDesc<_std.$bigint, $.Cardinality.One, false, true, false, false>;
   "paymasterEthFees": $.LinkDesc<$PaymasterFees, $.Cardinality.One, {}, true, false,  false, true>;
   "result": $.LinkDesc<$Result, $.Cardinality.AtMostOne, {}, true, false,  false, false>;
-  "status": $.PropertyDesc<$TransactionStatus, $.Cardinality.One, false, true, false, false>;
   "systx": $.LinkDesc<$SystemTx, $.Cardinality.AtMostOne, {}, true, false,  false, false>;
   "results": $.LinkDesc<$Result, $.Cardinality.Many, {}, false, true,  false, false>;
   "systxs": $.LinkDesc<$SystemTx, $.Cardinality.Many, {}, false, true,  false, false>;
+  "status": $.PropertyDesc<$TransactionStatus, $.Cardinality.One, false, true, false, false>;
+  "executable": $.PropertyDesc<_std.$bool, $.Cardinality.One, false, true, false, false>;
   "<transaction[is ConfirmedSuccess]": $.LinkDesc<$ConfirmedSuccess, $.Cardinality.Many, {}, false, false,  false, false>;
   "<transaction[is OptimisticSuccess]": $.LinkDesc<$OptimisticSuccess, $.Cardinality.Many, {}, false, false,  false, false>;
   "<proposal[is PolicyState]": $.LinkDesc<$PolicyState, $.Cardinality.Many, {}, false, false,  false, false>;

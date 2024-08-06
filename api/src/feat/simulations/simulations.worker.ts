@@ -81,7 +81,7 @@ export class SimulationsWorker extends Worker<SimulationsQueue> {
     );
     if (!t) return 'Transaction not found';
 
-    const validPromise = this.isValidatable(t);
+    const validationErrorsPromise = this.getValidationErrors(t);
     const account = asUAddress(t.account.address);
     const localAccount = asAddress(account);
     const chain = asChain(account);
@@ -101,7 +101,10 @@ export class SimulationsWorker extends Worker<SimulationsQueue> {
     });
 
     const error = trace.error || trace.revertReason;
-    const result = await (!error
+    const validationErrors = await validationErrorsPromise;
+    const success = !error && !validationErrors.length;
+
+    const result = await (success
       ? this.db.exec(insertSimulatedSuccess, {
           transaction: t.id,
           response: trace.output,
@@ -111,7 +114,8 @@ export class SimulationsWorker extends Worker<SimulationsQueue> {
           transaction: t.id,
           response: trace.output,
           gasUsed: trace.gasUsed,
-          reason: error,
+          reason: error ?? '',
+          validationErrors,
         }));
 
     const logs = await this.simulateEvents(t);
@@ -119,8 +123,7 @@ export class SimulationsWorker extends Worker<SimulationsQueue> {
 
     this.proposals.event({ id: asUUID(t.id), account }, ProposalEvent.simulated);
 
-    const valid = await validPromise;
-    return { executable: valid && !error };
+    return { executable: success };
   }
 
   private async simulateEvents(t: TransactionExecutableShape) {
@@ -252,12 +255,14 @@ export class SimulationsWorker extends Worker<SimulationsQueue> {
     return logs;
   }
 
-  private async isValidatable(t: TransactionExecutableShape) {
-    if (!t.policy.isActive) return false;
-    if (t.validationErrors.length) return false;
+  private async getValidationErrors(t: TransactionExecutableShape) {
+    const errors: string[] = [];
+
+    if (!t.policy.isActive) errors.push('Policy not active');
+    if (t.validationErrors.length) errors.push('Policy validation errors');
 
     const approved = t.policy.threshold <= t.approvals.length;
-    if (!approved) return false;
+    if (!approved) errors.push('Insufficient approval');
 
     // Check all limits
     const transfers = transactionAsTx(t)
@@ -282,7 +287,10 @@ export class SimulationsWorker extends Worker<SimulationsQueue> {
       }),
     );
 
-    return limitResults.every((r) => r);
+    const sufficientSpending = limitResults.every((r) => r);
+    if (!sufficientSpending) errors.push('Greater than allowed spending');
+
+    return errors;
   }
 
   async bootstrap() {

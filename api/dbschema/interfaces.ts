@@ -241,7 +241,9 @@ export namespace $default {
     "cancelled": boolean;
     "scheduledFor": Date;
   }
-  export interface SimulatedFailure extends Failure {}
+  export interface SimulatedFailure extends Failure {
+    "validationErrors": string[];
+  }
   export interface SimulatedSuccess extends Success {}
   export interface SystemTx extends std.$Object {
     "proposal": Transaction;
@@ -269,7 +271,6 @@ export namespace $default {
   export interface Transaction extends Proposal {
     "maxAmount": string;
     "gasLimit": bigint;
-    "executable": boolean;
     "unorderedOperations": Operation[];
     "operations": Operation[];
     "paymaster": string;
@@ -277,10 +278,11 @@ export namespace $default {
     "maxAmountFp": bigint;
     "paymasterEthFees": PaymasterFees;
     "result"?: Result | null;
-    "status": TransactionStatus;
     "systx"?: SystemTx | null;
     "results": Result[];
     "systxs": SystemTx[];
+    "status": TransactionStatus;
+    "executable": boolean;
   }
   export type TransactionStatus = "Pending" | "Scheduled" | "Executing" | "Successful" | "Failed" | "Cancelled";
   export interface Transferlike extends Event {
