@@ -13,10 +13,13 @@ import { useBiometrics } from '~/hooks/useBiometrics';
 import { useGetEvent } from '~/hooks/useGetEvent';
 import { verifyPassword } from '~/lib/crypto/password';
 import { secureStorageLocked } from '~/lib/secure-storage';
-import { View } from 'react-native';
+import { Platform, View } from 'react-native';
 import { ICON_SIZE } from '@theme/paper';
 import { Splash } from '../components/Splash';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { ConfirmModal } from './(modal)/confirm';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as Updates from 'expo-updates';
 
 const UNLOCKED = new Subject<true>();
 const emitAuth = () => UNLOCKED.next(true);
@@ -38,6 +41,8 @@ function AuthenticateScreen({ onAuth = emitAuth }: AuthenticateScreenProps) {
   const { styles } = useStyles(stylesheet);
   const biometrics = useBiometrics();
   const passwordHash = usePasswordHash();
+
+  const [eraseModal, setEraseModal] = useState(false);
 
   const { control, handleSubmit, reset } = useForm<Inputs>({ defaultValues: { password: '' } });
 
@@ -65,6 +70,8 @@ function AuthenticateScreen({ onAuth = emitAuth }: AuthenticateScreenProps) {
 
   return (
     <View style={styles.container}>
+      <View style={styles.spacer} />
+
       <View style={styles.content}>
         <ZalloIconMinimal size={ICON_SIZE.extraLarge} style={styles.center} />
 
@@ -109,15 +116,49 @@ function AuthenticateScreen({ onAuth = emitAuth }: AuthenticateScreenProps) {
               Biometrics
             </Button>
           )}
-
-          {/* <Button mode="text">Forgot password</Button> */}
         </Actions>
       </View>
+
+      <View style={styles.resetContainer}>
+        <Text variant="bodyLarge" style={styles.resetText}>
+          Forgot password?{'\n'}
+          You can erase all data from this device.
+        </Text>
+
+        <Button mode="text" onPress={() => setEraseModal(true)}>
+          Erase data
+        </Button>
+      </View>
+
+      {eraseModal && (
+        <ConfirmModal
+          type="destructive"
+          title="Erase all data from this device?"
+          message={`This will erase all data from this device. THIS CAN NOT BE UNDONE!\n\nOnce erased, you can re-gain access to your account(s) using other approvers connected to that account`}
+          confirmLabel="Erase all data"
+          onDismiss={() => setEraseModal(false)}
+          onConfirmation={async (confirmed) => {
+            if (!confirmed) return setEraseModal(false);
+
+            await AsyncStorage.clear();
+            if (Platform.OS === 'web') {
+              window.location.replace('/');
+            } /* iOS | Android */ else if (!__DEV__) {
+              Updates.reloadAsync();
+            } else {
+              alert('Data erased. Please reload the app to continue');
+            }
+          }}
+        />
+      )}
     </View>
   );
 }
 
 const stylesheet = createStyles(({ colors }) => ({
+  spacer: {
+    flex: 1,
+  },
   container: {
     flex: 1,
     justifyContent: 'center',
@@ -126,8 +167,7 @@ const stylesheet = createStyles(({ colors }) => ({
   content: {
     width: '100%',
     maxWidth: 400,
-    marginHorizontal: 20,
-    paddingHorizontal: 16,
+    padding: 16,
   },
   center: {
     alignSelf: 'center',
@@ -141,6 +181,15 @@ const stylesheet = createStyles(({ colors }) => ({
   },
   actions: {
     marginHorizontal: 0,
+  },
+  resetContainer: {
+    flex: 1,
+    justifyContent: 'flex-end',
+    margin: 16,
+  },
+  resetText: {
+    color: colors.onSurfaceVariant,
+    textAlign: 'center',
   },
 }));
 

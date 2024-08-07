@@ -17,12 +17,23 @@ const ConfirmModalParams = z.object({
 });
 export type ConfirmModalParams = z.infer<typeof ConfirmModalParams>;
 
-export default function ConfirmModal() {
-  const { title, message, confirmLabel, type } = useLocalParams(ConfirmModalParams);
+export interface ConfirmModalProps extends ConfirmModalParams {
+  onDismiss?: () => void;
+  onConfirmation?: (confirmed: boolean) => void;
+}
+
+export function ConfirmModal({
+  title,
+  message,
+  confirmLabel,
+  type,
+  onDismiss,
+  onConfirmation = (confirmed) => CONFIRMATIONS.next(confirmed),
+}: ConfirmModalProps) {
   const { styles } = useStyles(stylesheet);
 
   return (
-    <DialogModal>
+    <DialogModal onDismiss={onDismiss}>
       {title && <Dialog.Title>{title}</Dialog.Title>}
 
       {message && (
@@ -32,16 +43,21 @@ export default function ConfirmModal() {
       )}
 
       <DialogActions>
-        <Button textColor={styles.cancel.color} onPress={() => CONFIRMATIONS.next(false)}>
+        <Button textColor={styles.cancel.color} onPress={() => onConfirmation(false)}>
           Cancel
         </Button>
 
-        <Button textColor={styles[type].color} onPress={() => CONFIRMATIONS.next(true)}>
+        <Button textColor={styles[type].color} onPress={() => onConfirmation(true)}>
           {confirmLabel || 'Ok'}
         </Button>
       </DialogActions>
     </DialogModal>
   );
+}
+
+export default function ConfirmModalScreen() {
+  const params = useLocalParams(ConfirmModalParams);
+  return <ConfirmModal {...params} />;
 }
 
 const stylesheet = createStyles(({ colors }) => ({

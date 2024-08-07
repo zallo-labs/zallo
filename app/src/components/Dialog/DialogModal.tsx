@@ -2,8 +2,11 @@ import { Dialog, DialogProps } from 'react-native-paper';
 import { useRouter } from 'expo-router';
 import { createStyles } from '@theme/styles';
 import { ScaledSize, useWindowDimensions } from 'react-native';
+import { ReactNode } from 'react';
 
-export interface DialogModalProps extends Omit<DialogProps, 'visible' | 'onDismiss'> {}
+export interface DialogModalProps extends Omit<Partial<DialogProps>, 'visible'> {
+  children: ReactNode;
+}
 
 export function DialogModal(props: DialogModalProps) {
   return (
