@@ -11,13 +11,14 @@ module default {
       rewrite insert, update using (exists __subject__.result);
     };
     required confirmed: bool {
-      default := true;
-      rewrite insert, update using ((__subject__.result is Confirmed) ?? true);
+      # rewrite insert, update using ((__subject__.result is Confirmed) ?? true);
     }
 
     access policy members_can_select
       allow select
       using (is_member(.account));
+
+    constraint exclusive on ((.account, .block, .logIndex)) except (not .confirmed);
   }
 
   abstract type Transferlike extending Event {
@@ -39,8 +40,6 @@ module default {
     access policy members_can_select_insert
       allow select, insert
       using (is_member(.account));
-
-    constraint exclusive on ((.account, .block, .logIndex, .systxHash, .result));
 
     index on ((.tokenAddress, .confirmed, .spentBy));
   }
