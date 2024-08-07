@@ -329,8 +329,6 @@ function encodeEvent<
   return {
     topics: encodeEventTopics(parameters).filter(Boolean) as [Hex, ...Hex[]],
     data: encodeEventData(parameters),
-    // eventName: parameters.eventName,
-    // args: parameters.args,
     blockHash: null,
     blockNumber: null,
     transactionHash: null,

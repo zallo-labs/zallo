@@ -186,7 +186,7 @@ type ConfirmedFailure implements Confirmed & Failure & Node & Result {
   gasUsed: BigInt!
   id: ID!
   networkEthFee: Decimal!
-  reason: String!
+  reason: String
   response: Bytes!
   systemTx: SystemTx
   timestamp: DateTime!
@@ -309,7 +309,7 @@ interface Failure implements Node & Result {
   events: [Event!]!
   gasUsed: BigInt!
   id: ID!
-  reason: String!
+  reason: String
   response: Bytes!
   systemTx: SystemTx
   timestamp: DateTime!
@@ -731,19 +731,20 @@ type SimulatedFailure implements Failure & Node & Result {
   events: [Event!]!
   gasUsed: BigInt!
   id: ID!
-  reason: String!
+  reason: String
   response: Bytes!
   systemTx: SystemTx
   timestamp: DateTime!
   transaction: Transaction!
   transfers: [Transfer!]!
+  validationErrors: [String!]!
 }
 
 type SimulatedSuccess implements Node & Result & Success {
   events: [Event!]!
   gasUsed: BigInt!
   id: ID!
-  reason: String!
+  reason: String
   response: Bytes!
   systemTx: SystemTx
   timestamp: DateTime!

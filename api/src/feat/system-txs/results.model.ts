@@ -39,15 +39,18 @@ export class Success extends Result {}
 
 @NodeInterface({ implements: [Result] })
 export class Failure extends Result {
-  @Field(() => String)
-  reason: string;
+  @Field(() => String, { nullable: true })
+  reason?: string;
 }
 
 @NodeType({ implements: [Result, Success] })
 export class SimulatedSuccess extends Failure {}
 
 @NodeType({ implements: [Result, Failure] })
-export class SimulatedFailure extends Failure {}
+export class SimulatedFailure extends Failure {
+  @Field(() => [String])
+  validationErrors: string[];
+}
 
 @NodeType({ implements: [Result, Success] })
 export class OptimisticSuccess extends Success {}
