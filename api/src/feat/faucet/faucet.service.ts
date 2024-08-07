@@ -9,6 +9,10 @@ import { BalancesService } from '~/core/balances/balances.service';
 import { and } from '~/core/database';
 import { CHAINS } from 'chains';
 import { getUserCtx } from '~/core/context';
+import { InjectRedis } from '@songkeys/nestjs-redis';
+import { Redis } from 'ioredis';
+
+const COOLDOWN = 3600; // 1 hour
 
 @Injectable()
 export class FaucetService implements OnModuleInit {
@@ -18,6 +22,7 @@ export class FaucetService implements OnModuleInit {
     private networks: NetworksService,
     private db: DatabaseService,
     private balances: BalancesService,
+    @InjectRedis() private redis: Redis,
   ) {}
 
   async onModuleInit() {
@@ -42,11 +47,14 @@ export class FaucetService implements OnModuleInit {
 
     this.tokens = tokens.map((t) => ({
       address: asUAddress(t.address),
-      amount: parseUnits(isEthToken(asAddress(t.address)) ? '0.005' : '1', t.decimals),
+      amount: parseUnits(isEthToken(asAddress(t.address)) ? '0.01' : '1', t.decimals),
     }));
   }
 
   async requestableTokens(account: UAddress): Promise<Address[]> {
+    const alreadyRequested = await this.redis.get(alreadyUsedKey(account));
+    if (alreadyRequested) return [];
+
     return (await this.getTokensToSend(account)).map((token) => token.address);
   }
 
@@ -73,6 +81,8 @@ export class FaucetService implements OnModuleInit {
       );
     });
 
+    await this.redis.set(alreadyUsedKey(account), 'true', 'EX', COOLDOWN);
+
     return tokensToSend.map((t) => t.address);
   }
 
@@ -98,4 +108,8 @@ export class FaucetService implements OnModuleInit {
       })
     ).map((t) => ({ ...t, address: asAddress(t.address) }));
   }
+}
+
+function alreadyUsedKey(account: UAddress) {
+  return `faucet:already-used:${account}`;
 }
