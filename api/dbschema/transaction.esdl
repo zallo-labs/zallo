@@ -36,7 +36,7 @@ module default {
     required property status := (
       with result := .result
       select assert_exists((
-        TransactionStatus.Pending if (not exists result or result is SimulatedSuccess or result is SimulatedFailure) else
+        TransactionStatus.Pending if ((result is SimulatedSuccess or result is SimulatedFailure) ?? true) else
         TransactionStatus.Executing if (result is OptimisticSuccess) else
         TransactionStatus.Successful if (result is ConfirmedSuccess) else
         TransactionStatus.Failed if (result is ConfirmedFailure) else
