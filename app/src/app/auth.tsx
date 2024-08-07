@@ -1,13 +1,11 @@
-import { FingerprintIcon } from '@theme/icons';
+import { FingerprintIcon, ZalloIconMinimal } from '@theme/icons';
 import { createStyles, useStyles } from '@theme/styles';
-import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Text } from 'react-native-paper';
 import { Subject } from 'rxjs';
 import useAsyncEffect from 'use-async-effect';
 import { usePasswordHash } from '#/auth/PasswordSettingsCard';
 import { Button } from '#/Button';
-import { DialogModal } from '#/Dialog/DialogModal';
 import { FormTextField } from '#/fields/FormTextField';
 import { Actions } from '#/layout/Actions';
 import { withSuspense } from '#/skeleton/withSuspense';
@@ -15,21 +13,17 @@ import { useBiometrics } from '~/hooks/useBiometrics';
 import { useGetEvent } from '~/hooks/useGetEvent';
 import { verifyPassword } from '~/lib/crypto/password';
 import { secureStorageLocked } from '~/lib/secure-storage';
-import { Blur } from '#/Blur';
+import { View } from 'react-native';
+import { ICON_SIZE } from '@theme/paper';
+import { Splash } from '../components/Splash';
+import { useEffect } from 'react';
 
-export const UNLOCKED = new Subject<true>();
-const emitOnAuth = () => UNLOCKED.next(true);
+const UNLOCKED = new Subject<true>();
+const emitAuth = () => UNLOCKED.next(true);
 
 export function useAuthenticate() {
   const getEvent = useGetEvent();
   return () => getEvent(`/auth`, UNLOCKED);
-}
-
-export function useAuthAvailable() {
-  const biometrics = useBiometrics();
-  const passwordHash = usePasswordHash();
-
-  return biometrics.enabled || !!passwordHash;
 }
 
 interface Inputs {
@@ -40,16 +34,15 @@ export interface AuthenticateScreenProps {
   onAuth?: (password?: string) => void;
 }
 
-function AuthenticateScreen({ onAuth = emitOnAuth }: AuthenticateScreenProps) {
+function AuthenticateScreen({ onAuth = emitAuth }: AuthenticateScreenProps) {
   const { styles } = useStyles(stylesheet);
   const biometrics = useBiometrics();
   const passwordHash = usePasswordHash();
-  const available = biometrics.enabled || !!passwordHash;
 
-  const [show, setShow] = useState(!biometrics.enabled);
   const { control, handleSubmit, reset } = useForm<Inputs>({ defaultValues: { password: '' } });
 
-  // Unlock immediately if no auth methods are available
+  // Automatically auth if none are available
+  const available = biometrics.enabled || !!passwordHash;
   useEffect(() => {
     if (!available) onAuth();
   }, [available, onAuth]);
@@ -57,8 +50,10 @@ function AuthenticateScreen({ onAuth = emitOnAuth }: AuthenticateScreenProps) {
   // Try biometrics first if available
   useAsyncEffect(
     async (isMounted) => {
-      const success = await biometrics.auth?.();
-      if (isMounted()) success ? onAuth() : setShow(true);
+      if (!secureStorageLocked()) {
+        const success = await biometrics.auth?.();
+        if (isMounted() && success) onAuth();
+      }
     },
     [biometrics.auth, onAuth],
   );
@@ -68,14 +63,13 @@ function AuthenticateScreen({ onAuth = emitOnAuth }: AuthenticateScreenProps) {
     reset();
   });
 
-  if (!available) return null;
-  if (!show) return null; // <Blur />; TODO: re-enable once fixed - https://github.com/Kureev/react-native-blur/issues/595
-
   return (
-    <Blur>
-      <DialogModal dismissable={false}>
-        <Text variant="titleMedium" style={styles.title}>
-          Unlock to continue
+    <View style={styles.container}>
+      <View style={styles.content}>
+        <ZalloIconMinimal size={ICON_SIZE.extraLarge} style={styles.center} />
+
+        <Text variant="headlineMedium" style={[styles.title, styles.center]}>
+          Welcome back
         </Text>
 
         {passwordHash && (
@@ -98,11 +92,16 @@ function AuthenticateScreen({ onAuth = emitOnAuth }: AuthenticateScreenProps) {
         )}
 
         <Actions flex={false}>
+          {passwordHash && (
+            <Button mode="contained" onPress={onPasswordAuth}>
+              Unlock
+            </Button>
+          )}
+
           {biometrics.auth && !secureStorageLocked() && (
             <Button
               icon={FingerprintIcon}
               mode="contained-tonal"
-              labelStyle={styles.buttonLabel}
               onPress={async () => {
                 if (await biometrics.auth?.()) onAuth();
               }}
@@ -111,32 +110,40 @@ function AuthenticateScreen({ onAuth = emitOnAuth }: AuthenticateScreenProps) {
             </Button>
           )}
 
-          {passwordHash && (
-            <Button mode="contained" labelStyle={styles.buttonLabel} onPress={onPasswordAuth}>
-              Unlock
-            </Button>
-          )}
+          {/* <Button mode="text">Forgot password</Button> */}
         </Actions>
-      </DialogModal>
-    </Blur>
+      </View>
+    </View>
   );
 }
 
 const stylesheet = createStyles(({ colors }) => ({
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  content: {
+    width: '100%',
+    maxWidth: 400,
+    marginHorizontal: 20,
+    paddingHorizontal: 16,
+  },
+  center: {
+    alignSelf: 'center',
+  },
   title: {
-    color: colors.onSurfaceVariant,
-    marginHorizontal: 16,
-    marginVertical: 8,
+    marginTop: 8,
+    marginBottom: 16,
   },
   password: {
     marginHorizontal: 16,
-    backgroundColor: colors.surfaceContainer.high,
   },
-  buttonLabel: {
-    flexShrink: 0,
+  actions: {
+    marginHorizontal: 0,
   },
 }));
 
-export default withSuspense(AuthenticateScreen, null);
+export default withSuspense(AuthenticateScreen, <Splash />);
 
 export { ErrorBoundary } from '#/ErrorBoundary';
