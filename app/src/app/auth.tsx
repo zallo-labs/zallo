@@ -4,7 +4,7 @@ import { useForm } from 'react-hook-form';
 import { Text } from 'react-native-paper';
 import { Subject } from 'rxjs';
 import useAsyncEffect from 'use-async-effect';
-import { usePasswordHash } from '#/auth/PasswordSettingsCard';
+import { usePasswordHash } from '#/auth/PasswordSettings';
 import { Button } from '#/Button';
 import { FormTextField } from '#/fields/FormTextField';
 import { Actions } from '#/layout/Actions';

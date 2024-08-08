@@ -36,11 +36,12 @@ function Layout() {
 
   return (
     <Stack
-      screenOptions={{ 
+      screenOptions={{
         headerShown: false,
         contentStyle: styles.stackContent,
       }}
     >
+      <Stack.Screen name="index" />
       <Stack.Screen
         name={`(modal)`}
         options={{

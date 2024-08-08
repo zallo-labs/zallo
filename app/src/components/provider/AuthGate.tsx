@@ -2,10 +2,8 @@ import { ReactNode, useCallback, useEffect, useState } from 'react';
 import { DateTime, Duration } from 'luxon';
 import { AppState } from 'react-native';
 import { lockSecureStorage, unlockSecureStorage } from '~/lib/secure-storage';
-import { useAuthRequiredOnOpen } from '#/auth/AuthSettings';
+import { useAuthSettings } from '#/auth/AuthSettings';
 import AuthenticateScreen from '~/app/auth';
-import { useBiometrics } from '~/hooks/useBiometrics';
-import { usePasswordHash } from '#/auth/PasswordSettingsCard';
 
 const TIMEOUT_AFTER = Duration.fromObject({ minutes: 5 }).toMillis();
 
@@ -19,7 +17,7 @@ export interface AuthGateProps {
 }
 
 export function AuthGate({ children }: AuthGateProps) {
-  const required = useRequired();
+  const { open: required } = useAuthSettings();
 
   const [state, setState] = useState<AuthState>({ success: !required });
   const onAuth = useCallback((password?: string) => {
@@ -54,12 +52,4 @@ export function AuthGate({ children }: AuthGateProps) {
   if (!state.success) return <AuthenticateScreen onAuth={onAuth} />;
 
   return <>{children}</>;
-}
-
-function useRequired() {
-  const requiredOnOpen = useAuthRequiredOnOpen();
-  const biometrics = useBiometrics();
-  const passwordHash = usePasswordHash();
-
-  return requiredOnOpen && (biometrics.enabled || !!passwordHash);
 }

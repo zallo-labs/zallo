@@ -3,12 +3,12 @@ import { ok, err } from 'neverthrow';
 import { useMemo } from 'react';
 import { useAuthenticate } from '~/app/auth';
 import { showError } from '#/provider/SnackbarProvider';
-import { useAuthRequiredOnApproval } from '#/auth/AuthSettings';
+import { useAuthSettings } from '#/auth/AuthSettings';
 
 export function useSignWithApprover() {
   const approver = useApproverWallet();
   const auth = useAuthenticate();
-  const authRequired = useAuthRequiredOnApproval();
+  const {approval: authRequired} = useAuthSettings();
 
   return useMemo(() => {
     const check = async () => {
