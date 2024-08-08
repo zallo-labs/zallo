@@ -170,8 +170,8 @@ export namespace $default {
     "systxHash"?: string | null;
     "timestamp": Date;
     "result"?: Result | null;
-    "confirmed": boolean;
     "internal": boolean;
+    "confirmed": boolean;
   }
   export interface Function extends std.$Object {
     "selector": string;
@@ -281,8 +281,8 @@ export namespace $default {
     "systx"?: SystemTx | null;
     "results": Result[];
     "systxs": SystemTx[];
-    "status": TransactionStatus;
     "executable": boolean;
+    "status": TransactionStatus;
   }
   export type TransactionStatus = "Pending" | "Scheduled" | "Executing" | "Successful" | "Failed" | "Cancelled";
   export interface Transferlike extends Event {

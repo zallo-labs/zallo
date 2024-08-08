@@ -1,7 +1,7 @@
 import { SearchIcon, materialCommunityIcon } from '@theme/icons';
 import { createStyles, useStyles } from '@theme/styles';
 import { Link } from 'expo-router';
-import { bytesize } from 'lib';
+import { bytesize, isHex } from 'lib';
 import { slice } from 'viem';
 import { ListHeader } from '#/list/ListHeader';
 import { ListItem } from '#/list/ListItem';
@@ -26,6 +26,9 @@ const Transaction = graphql`
       ... on Failure {
         reason
       }
+      ... on SimulatedFailure {
+        validationErrors
+      }
     }
     ...OperationSection_transaction
   }
@@ -40,9 +43,10 @@ export function OperationsSection(props: OperationsSectionProps) {
   const p = useFragment(Transaction, props.transaction);
 
   const errorSelector =
-    p.result?.__typename === 'SimulatedFailure' &&
-    bytesize(p.result.response) >= 4 &&
-    slice(p.result.response, 0, 4);
+    p.result &&
+    isHex(p.result.reason) &&
+    bytesize(p.result.reason) >= 4 &&
+    slice(p.result.reason, 0, 4);
 
   return (
     <>
@@ -62,33 +66,27 @@ export function OperationsSection(props: OperationsSectionProps) {
             />
           )}
 
-          {errorSelector ? (
-            <Link
-              asChild
-              href={`https://openchain.xyz/signatures?query=${errorSelector}`}
-              target="_blank"
-            >
+          {p.result.reason &&
+            (errorSelector ? (
+              <Link
+                asChild
+                href={`https://openchain.xyz/signatures?query=${errorSelector}`}
+                target="_blank"
+              >
+                <ListItem
+                  leading={<AlertIcon size={ICON_SIZE.medium} color={styles.error.color} />}
+                  headline={({ Text }) => <Text style={styles.error}>Expected to fail</Text>}
+                  supporting={`Error: ${errorSelector}`}
+                  trailing={SearchIcon}
+                />
+              </Link>
+            ) : (
               <ListItem
                 leading={<AlertIcon size={ICON_SIZE.medium} color={styles.error.color} />}
                 headline={({ Text }) => <Text style={styles.error}>Expected to fail</Text>}
-                supporting={`Error: ${errorSelector}`}
-                trailing={SearchIcon}
+                supporting="No error message was provided"
               />
-            </Link>
-          ) : (
-            <ListItem
-              leading={<AlertIcon size={ICON_SIZE.medium} color={styles.error.color} />}
-              headline={({ Text }) => <Text style={styles.error}>Expected to fail</Text>}
-              supporting="No error message was provided"
-            />
-          )}
-
-          <ListItem
-            leading={<AlertIcon size={ICON_SIZE.medium} color={styles.error.color} />}
-            headline={({ Text }) => <Text style={styles.error}>Expected to fail</Text>}
-            supporting={errorSelector ? `Error: ${errorSelector}` : 'No error message was provided'}
-            trailing={errorSelector ? SearchIcon : undefined}
-          />
+            ))}
         </>
       )}
     </>

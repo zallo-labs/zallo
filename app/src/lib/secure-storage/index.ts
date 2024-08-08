@@ -2,7 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import type { getSecureStore as _getSecureStore } from './index.native';
 import type { SecureStoreOptions } from 'expo-secure-store';
 import { BehaviorSubject, filter, firstValueFrom } from 'rxjs';
-import { createCipher } from '../crypto/cipher';
+import { Cipher, createCipher } from '../crypto/cipher';
 
 export type { SecureStoreOptions };
 
@@ -12,7 +12,6 @@ export interface SecureStore {
   removeItem: (key: string) => Promise<void>;
 }
 
-// TODO: encrypt data with user password - https://linear.app/zallo/issue/Z-195/password-security
 export const getSecureStore: typeof _getSecureStore = (_options) => ({
   getItem: async (key) => {
     key = namespaceKey(key);
@@ -32,10 +31,10 @@ export const getSecureStore: typeof _getSecureStore = (_options) => ({
   },
 });
 
-const CIPHER = new BehaviorSubject<Awaited<ReturnType<typeof createCipher>> | null>(null);
+const CIPHER = new BehaviorSubject<Cipher | null>(null);
 
 export async function unlockSecureStorage(password: string | undefined) {
-  CIPHER.next(await createCipher(password ?? ''));
+  CIPHER.next(await createCipher(password));
 }
 
 export function lockSecureStorage() {
@@ -59,7 +58,7 @@ function namespaceKey(key: string) {
 
 export async function changeSecureStorePassword(newPassword: string | undefined) {
   const currentCipher = await getCipher();
-  const newCipher = await createCipher(newPassword ?? '');
+  const newCipher = await createCipher(newPassword);
 
   const encryptedKeys = (await AsyncStorage.getAllKeys()).filter((k) => k.startsWith(NAMESPACE));
 
@@ -70,7 +69,6 @@ export async function changeSecureStorePassword(newPassword: string | undefined)
       return [key, await newCipher.encrypt(decrypted)];
     });
 
+  await unlockSecureStorage(newPassword);
   await AsyncStorage.multiSet(await Promise.all(reEncryptedItems));
-
-  unlockSecureStorage(newPassword);
 }

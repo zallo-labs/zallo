@@ -20,7 +20,6 @@ import e from '~/edgeql-js';
 import { v1 as uuidv1 } from 'uuid';
 import { InsertShape } from '~/edgeql-js/insert';
 import { $Transfer } from '~/edgeql-js/modules/default';
-import { zeroHash } from 'viem';
 
 describe(TransfersService.name, () => {
   let service: TransfersService;
@@ -71,6 +70,7 @@ describe(TransfersService.name, () => {
         internal: false,
         logIndex: 0,
         block: BigInt(Math.floor(Math.random() * 1000)),
+        confirmed: true,
         from: ZERO_ADDR,
         to: asAddress(account.address),
         tokenAddress: asUAddress(ETH_ADDRESS, asChain(account.address)),

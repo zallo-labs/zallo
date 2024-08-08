@@ -38,7 +38,7 @@ const stylesheet = createStyles(({ colors, corner }) => ({
     backgroundColor: {
       filled: colors.surfaceContainer.highest,
       elevated: colors.surfaceContainer.low,
-      outlined: colors.surface,
+      outlined: 'transparent',
     }[type],
     ...(type === 'outlined' && {
       borderWidth: StyleSheet.hairlineWidth,

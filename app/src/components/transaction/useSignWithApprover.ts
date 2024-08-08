@@ -1,18 +1,18 @@
 import { useApproverWallet } from '~/lib/network/useApprover';
 import { ok, err } from 'neverthrow';
 import { useMemo } from 'react';
-import { useAuthenticate } from '~/app/(modal)/auth';
+import { useAuthenticate } from '~/app/auth';
 import { showError } from '#/provider/SnackbarProvider';
-import { useAuthRequiredOnApproval } from '#/auth/AuthSettings';
+import { useAuthSettings } from '#/auth/AuthSettings';
 
 export function useSignWithApprover() {
   const approver = useApproverWallet();
-  const authenticate = useAuthenticate();
-  const authRequired = useAuthRequiredOnApproval();
+  const auth = useAuthenticate();
+  const {approval: authRequired} = useAuthSettings();
 
   return useMemo(() => {
     const check = async () => {
-      if (authRequired && !(await authenticate())) {
+      if (authRequired && !(await auth())) {
         showError('Authentication is required for approval');
         return err('authentication-refused' as const);
       }
@@ -25,5 +25,5 @@ export function useSignWithApprover() {
       signMessage: async (...params: Parameters<typeof approver.signMessage>) =>
         (await check()).asyncMap(async () => approver.signMessage(...params)),
     };
-  }, [approver, authRequired, authenticate]);
+  }, [approver, authRequired, auth]);
 }
