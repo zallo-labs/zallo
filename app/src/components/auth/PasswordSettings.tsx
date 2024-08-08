@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo } from 'react';
+import { useEffect } from 'react';
 import { StyleProp, View, ViewStyle } from 'react-native';
 import { useForm, useWatch } from 'react-hook-form';
 import { z } from 'zod';
@@ -15,17 +15,6 @@ import { showInfo } from '#/provider/SnackbarProvider';
 
 const PASSWORD_HASH = persistedAtom<string | null>('passwordHash', null);
 export const usePasswordHash = () => useAtomValue(PASSWORD_HASH);
-
-const schema = z
-  .object({
-    current: z.string().optional(),
-    password: z.string(), //.min(1, 'Must be at least 1 character'),
-    confirm: z.string(),
-  })
-  .refine((inputs) => inputs.password === inputs.confirm, {
-    message: 'Passwords must match',
-    path: ['confirm'],
-  });
 
 const getSchema = (expectedHash: string | null) =>
   z
@@ -68,39 +57,12 @@ export function PasswordSettings({ style }: PasswordSettingsProps) {
   });
   const { current, new_, confirm } = useWatch({ control });
 
-  const update = useCallback(
-    async (password: string | undefined, showMessage = true) => {
-      const newHash = password ? await hashPassword(password) : null;
-      console.log({ newPassword: password });
-      if (newHash !== passwordHash) {
-        await changeSecureStorePassword(password);
-        updateHash(newHash);
-        showMessage &&
-          showInfo('Password changed', {
-            visibilityTime: 8000,
-            action: {
-              label: 'Undo',
-              onPress: () => {
-                update(current, false);
-                setTimeout(() => showInfo('Password reverted to previous value'), 500);
-              },
-            },
-          });
-        reset();
-      }
-    },
-    [current, passwordHash, reset, updateHash],
-  );
-
   const submit = handleSubmit(async ({ new_: password }) => {
     const newHash = password ? await hashPassword(password) : null;
-    console.log({ newPassword: password });
-    if (newHash !== passwordHash) {
-      await changeSecureStorePassword(password);
-      updateHash(newHash);
-      showInfo('Password changed');
-      reset();
-    }
+    await changeSecureStorePassword(password);
+    updateHash(newHash);
+    showInfo('Password changed');
+    reset();
   });
 
   useEffect(() => {

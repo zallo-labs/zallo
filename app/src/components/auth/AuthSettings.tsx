@@ -13,7 +13,7 @@ import _ from 'lodash';
 
 // Security note: this has weak security guarantees as an attacker with local access may change these settings, or even the whole JS bundle...
 const AUTH_SETTINGS = persistedAtom('AuthenticationSettings', {
-  open: true,
+  open: false,
   approval: true,
 });
 

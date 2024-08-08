@@ -1,14 +1,22 @@
 import crypto from 'crypto';
+import { Platform } from 'react-native';
 
 export const SALT_SIZE = 32;
 const KEY_SIZE = 32;
 const HASH_ENCODING = 'base64';
 
+const ITERATIONS = Platform.select({
+  // https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html#pbkdf2
+  default: 600000,
+  // Performs terribly for some reason on Android; TODO: test on iOS
+  // This is not a big deal as it is not used to encrypt data on native
+  native: 100,
+});
+
 export function derrivePasswordBasedKey(password: string, salt: Buffer | null) {
   salt ??= crypto.randomBytes(SALT_SIZE);
   return new Promise<{ key: Buffer; salt: Buffer }>((resolve, reject) => {
-    // https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html#pbkdf2
-    crypto.pbkdf2(password.normalize(), salt, 600000, KEY_SIZE, 'sha256', (err, key) => {
+    crypto.pbkdf2(password.normalize(), salt, ITERATIONS, KEY_SIZE, 'sha256', (err, key) => {
       if (err) {
         reject(err);
       } else {
