@@ -5,22 +5,30 @@ import { FingerprintIcon, LockOpenIcon, OutboundIcon } from '@theme/icons';
 import { useBiometrics } from '~/hooks/useBiometrics';
 import { persistedAtom } from '~/lib/persistedAtom';
 import { useAtomValue } from 'jotai';
-import { SECURE_STORE_PASSWORD_ENCRYPTED as ALWAYS_REQUIRED_ON_OPEN } from '~/lib/secure-storage';
+import { SECURE_STORE_PASSWORD_ENCRYPTED } from '~/lib/secure-storage';
 import { createStyles } from '@theme/styles';
 import { PasswordSettings, usePasswordHash } from './PasswordSettings';
 import { StyleProp, View, ViewStyle } from 'react-native';
-import _ from 'lodash';
 
 // Security note: this has weak security guarantees as an attacker with local access may change these settings, or even the whole JS bundle...
-const AUTH_SETTINGS = persistedAtom('AuthenticationSettings', {
+interface AuthSettings {
+  open: boolean;
+  approval: boolean;
+}
+const AUTH_SETTINGS = persistedAtom<AuthSettings>('AuthenticationSettings', {
   open: false,
   approval: true,
 });
 
-export function useAuthSettings() {
+export function useAuthSettings(): AuthSettings {
   const available = useAuthAvailable();
+  const s = useAtomValue(AUTH_SETTINGS);
+  const passwordSet = !!usePasswordHash();
 
-  return _.mapValues(useAtomValue(AUTH_SETTINGS), (v) => v && available);
+  return {
+    open: available && (s.open || (passwordSet && SECURE_STORE_PASSWORD_ENCRYPTED)),
+    approval: available && s.approval,
+  };
 }
 
 function useAuthAvailable() {
@@ -37,7 +45,7 @@ export interface AuthSettingsProps {
 export function AuthSettings({ style }: AuthSettingsProps) {
   const biometrics = useBiometrics();
   const available = useAuthAvailable();
-  const unlockDisabled = !available || ALWAYS_REQUIRED_ON_OPEN;
+  const unlockDisabled = !available || SECURE_STORE_PASSWORD_ENCRYPTED;
 
   const settings = useAuthSettings();
   const [, updateSettings] = useImmerAtom(AUTH_SETTINGS);
