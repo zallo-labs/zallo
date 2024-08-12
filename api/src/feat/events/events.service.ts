@@ -120,7 +120,7 @@ export class EventsService {
         .filter((log) => log.topics.length > 0)
         .flatMap((log) => {
           const block = blocks.find((b) => b.number === log.blockNumber)!;
-          const timestamp = new Date(Number(block.timestamp));
+          const timestamp = new Date(Number(block.timestamp) * 1000);
 
           return this.confirmedListeners.get(log.topics[0]!)?.map((listener) =>
             listener({
