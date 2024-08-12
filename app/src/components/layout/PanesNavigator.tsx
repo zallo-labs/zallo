@@ -54,7 +54,10 @@ function PanesNavigator({ initialRouteName, screenOptions, children }: PanesNavi
       ...route,
       position: state.routeNames.indexOf(route.name),
     }))
-    .filter((r) => r.name === last.name || r.name === 'index' || last.name.includes(r.name))
+    .filter((r) => {
+      const trimmedName = r.name.endsWith('index') ? r.name.slice(0, -6) : r.name;
+      return r.name === last.name || last.name.includes(trimmedName);
+    })
     .sort((a, b) => a.position - b.position);
 
   return (
