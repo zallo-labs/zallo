@@ -9,12 +9,12 @@ import { Pane } from '#/layout/Pane';
 import { Scrollable } from '#/Scrollable';
 import { Appbar } from '#/Appbar/Appbar';
 import { Id_TransactionScreen2Query } from '~/api/__generated__/Id_TransactionScreen2Query.graphql';
-import { TransactionStatus2 } from '#/tx/TransactionStatus2';
-import { TransactionOperations } from '#/tx/TransactionOperations';
-import { TransactionResponse } from '#/tx/TransactionResponse';
-import { TransactionTransfers } from '#/tx/TransactionTransfers';
-import { TransactionDetails } from '#/tx/TransactionDetails';
-import { TransactionActions2 } from '#/tx/TransactionActions2';
+import { TransactionStatus } from '#/transaction/TransactionStatus';
+import { TransactionOperations } from '#/transaction/TransactionOperations';
+import { TransactionResponse } from '#/transaction/TransactionResponse';
+import { TransactionTransfers } from '#/transaction/TransactionTransfers';
+import { TransactionDetails } from '#/transaction/TransactionDetails';
+import { TransactionActions } from '#/transaction/TransactionActions';
 import { useFragment, useSubscription } from 'react-relay';
 import { Id_TransactionScreen2_transaction$key } from '~/api/__generated__/Id_TransactionScreen2_transaction.graphql';
 import { SideSheetLayout } from '#/SideSheet/SideSheetLayout';
@@ -31,7 +31,7 @@ const Query = graphql`
 
     user {
       id
-      ...TransactionActions2_user
+      ...TransactionActions_user
     }
   }
 `;
@@ -50,12 +50,12 @@ const Transaction = graphql`
   fragment Id_TransactionScreen2_transaction on Transaction
   @argumentDefinitions(id: { type: "ID!" }) {
     id
-    ...TransactionStatus2_transaction
+    ...TransactionStatus_transaction
     ...TransactionOperations_transaction
     ...TransactionTransfers_transaction @arguments(transaction: $id)
     ...TransactionResponse_transaction
     ...TransactionDetails_transaction
-    ...TransactionActions2_transaction
+    ...TransactionActions_transaction
   }
 `;
 
@@ -76,12 +76,12 @@ function TransactionScreen() {
       <Pane flex>
         <Scrollable>
           <Appbar mode="small" />
-          <TransactionStatus2 transaction={t} />
+          <TransactionStatus transaction={t} />
           <TransactionOperations transaction={t} />
           <TransactionTransfers transaction={t} />
           <TransactionResponse transaction={t} />
           <TransactionDetails transaction={t} />
-          <TransactionActions2 transaction={t} user={user} />
+          <TransactionActions transaction={t} user={user} />
         </Scrollable>
       </Pane>
 
