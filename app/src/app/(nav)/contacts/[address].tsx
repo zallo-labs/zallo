@@ -12,7 +12,6 @@ import { FormSubmitButton } from '#/fields/FormSubmitButton';
 import { FormTextField } from '#/fields/FormTextField';
 import { Actions } from '#/layout/Actions';
 import { FormResetIcon } from '#/fields/ResetFormIcon';
-import { useConfirmRemoval } from '~/hooks/useConfirm';
 import { withSuspense } from '#/skeleton/withSuspense';
 import { Chain } from 'chains';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -28,6 +27,7 @@ import { useUpsertContact } from '~/hooks/mutations/useUpsertContact';
 import { useRemoveContact } from '~/hooks/mutations/useRemoveContact';
 import { Scrollable } from '#/Scrollable';
 import { createStyles } from '@theme/styles';
+import { Confirm } from '#/Confirm';
 
 const Query = graphql`
   query Address_ContactScreenQuery($address: UAddress!, $include: Boolean!) {
@@ -56,9 +56,6 @@ export interface ContactScreenProps {
 
 function ContactScreen_(props: ContactScreenProps) {
   const router = useRouter();
-  const confirmRemove = useConfirmRemoval({
-    message: 'Are you sure you want to remove this contact',
-  });
   const selectedChain = useSelectedChain();
 
   const existingAddress = tryAsUAddress(props.address, props.chain);
@@ -110,7 +107,12 @@ function ContactScreen_(props: ContactScreenProps) {
                     leadingIcon={RemoveIcon}
                     title="Remove contact"
                     onPress={handle(async () => {
-                      if (await confirmRemove()) {
+                      if (
+                        await Confirm.call({
+                          type: 'destructive',
+                          message: 'Are you sure you want to remove this contact',
+                        })
+                      ) {
                         router.back();
                         remove();
                       }

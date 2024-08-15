@@ -1,3 +1,4 @@
+import { Confirm } from '#/Confirm';
 import { useRouter } from 'expo-router';
 import { useFragment } from 'react-relay';
 import { graphql, SelectorStoreUpdater } from 'relay-runtime';
@@ -9,8 +10,6 @@ import {
   useRemoveMessageMutation$data,
 } from '~/api/__generated__/useRemoveMessageMutation.graphql';
 import { useRemoveMessageUpdatableQuery } from '~/api/__generated__/useRemoveMessageUpdatableQuery.graphql';
-import { useConfirmRemoval } from '~/hooks/useConfirm';
-import { useSelectedAccount } from '~/hooks/useSelectedAccount';
 
 graphql`
   fragment useRemoveMessage_assignable_message on Message @assignable {
@@ -48,9 +47,6 @@ export function useRemoveMessage(params: RemoveMessageParams) {
   const account = useFragment(Account, params.account);
   const m = useFragment(Message, params.message);
   const router = useRouter();
-  const confirmRemoval = useConfirmRemoval({
-    message: 'Are you sure you want to remove this message proposal?',
-  });
 
   const commit = useMutation<useRemoveMessageMutation>(
     graphql`
@@ -64,7 +60,12 @@ export function useRemoveMessage(params: RemoveMessageParams) {
   if (m.signature) return null;
 
   return async () => {
-    if (await confirmRemoval()) {
+    if (
+      await Confirm.call({
+        type: 'destructive',
+        message: 'Are you sure you want to remove this message?',
+      })
+    ) {
       router.replace({
         pathname: '/(nav)/[account]/(home)/activity',
         params: { account: account.address },

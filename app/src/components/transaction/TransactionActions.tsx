@@ -1,4 +1,5 @@
 import { Button } from '#/Button';
+import { Confirm } from '#/Confirm';
 import { Actions } from '#/layout/Actions';
 import { useApproverAddress } from '@network/useApprover';
 import { createStyles, useStyles } from '@theme/styles';
@@ -9,7 +10,6 @@ import { TransactionActions_executeMutation } from '~/api/__generated__/Transact
 import { TransactionActions_transaction$key } from '~/api/__generated__/TransactionActions_transaction.graphql';
 import { TransactionActions_user$key } from '~/api/__generated__/TransactionActions_user.graphql';
 import { useApprove } from '~/hooks/useApprove';
-import { useConfirm } from '~/hooks/useConfirm';
 import { useReject } from '~/hooks/useReject';
 
 const Transaction = graphql`
@@ -66,12 +66,6 @@ export function TransactionActions(props: TransactionActionsProps) {
   const reject = useReject({ proposal: t, user, approver });
 
   const execute = useMutation<TransactionActions_executeMutation>(Execute);
-  const confirmExecute = useConfirm({
-    title: 'Force execute?',
-    message: 'This transaction is expected to fail.\nAre you sure you want to execute it anyway?',
-    type: 'warning',
-    confirmLabel: 'Execute anyway',
-  });
   const showForceExecute =
     t.status === 'Pending' && t.result?.__typename === 'SimulatedFailure' && !!t.result.reason; // Don't allow force executing if only validation errors exist
 
@@ -83,7 +77,13 @@ export function TransactionActions(props: TransactionActionsProps) {
           contentStyle={styles.executeContainer}
           labelStyle={styles.executeLabel}
           onPress={async () =>
-            (await confirmExecute()) && execute({ input: { id: t.id, ignoreSimulation: true } })
+            (await Confirm.call({
+              title: 'Force execute?',
+              message:
+                'This transaction is expected to fail.\nAre you sure you want to execute it anyway?',
+              type: 'warning',
+              confirmLabel: 'Execute anyway',
+            })) && execute({ input: { id: t.id, ignoreSimulation: true } })
           }
         >
           Force execute

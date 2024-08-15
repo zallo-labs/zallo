@@ -5,11 +5,11 @@ import {
   useRemoveTokenMutation$data,
 } from '~/api/__generated__/useRemoveTokenMutation.graphql';
 import { useRemoveToken_token$key } from '~/api/__generated__/useRemoveToken_token.graphql';
-import { useConfirmRemoval } from '../useConfirm';
 import { asChain } from 'lib';
 import { useRemoveTokenUpdatableQuery } from '~/api/__generated__/useRemoveTokenUpdatableQuery.graphql';
 import { useFragment } from 'react-relay';
 import { useRemoveToken_query$key } from '~/api/__generated__/useRemoveToken_query.graphql';
+import { Confirm } from '#/Confirm';
 
 graphql`
   fragment useRemoveToken_assignable_token on Token @assignable {
@@ -22,10 +22,6 @@ export interface RemoveTokenParams {
 }
 
 export function useRemoveToken(params: RemoveTokenParams) {
-  const confirm = useConfirmRemoval({
-    message: 'Are you sure you want to remove this token?',
-  });
-
   const { tokens } = useFragment(
     graphql`
       fragment useRemoveToken_query on Query @argumentDefinitions(chain: { type: "Chain!" }) {
@@ -45,7 +41,13 @@ export function useRemoveToken(params: RemoveTokenParams) {
   `);
 
   return async (tokenKey: useRemoveToken_token$key) => {
-    if (!(await confirm())) return;
+    if (
+      !(await Confirm.call({
+        type: 'destructive',
+        message: 'Are you sure you want to remove this token?',
+      }))
+    )
+      return;
 
     const token = readInlineData(
       graphql`

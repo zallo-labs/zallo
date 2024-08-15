@@ -1,3 +1,4 @@
+import { Confirm } from '#/Confirm';
 import { useRouter } from 'expo-router';
 import { useFragment } from 'react-relay';
 import { graphql, SelectorStoreUpdater } from 'relay-runtime';
@@ -9,7 +10,6 @@ import {
   useRemoveTransactionMutation$data,
 } from '~/api/__generated__/useRemoveTransactionMutation.graphql';
 import { useRemoveTransactionUpdatableQuery } from '~/api/__generated__/useRemoveTransactionUpdatableQuery.graphql';
-import { useConfirmRemoval } from '~/hooks/useConfirm';
 
 graphql`
   fragment useRemoveTransaction_assignable_transaction on Transaction @assignable {
@@ -47,9 +47,6 @@ export function useRemoveTransaction(params: RemoveTransactionParams) {
   const account = useFragment(Account, params.account);
   const p = useFragment(Transaction, params.transaction);
   const router = useRouter();
-  const confirmRemoval = useConfirmRemoval({
-    message: 'Are you sure you want to remove this proposal?',
-  });
 
   const commit = useMutation<useRemoveTransactionMutation>(graphql`
     mutation useRemoveTransactionMutation($proposal: ID!) @raw_response_type {
@@ -60,7 +57,13 @@ export function useRemoveTransaction(params: RemoveTransactionParams) {
   if (p.status !== 'Pending') return null;
 
   return async () => {
-    if (!(await confirmRemoval())) return;
+    if (
+      !(await Confirm.call({
+        type: 'destructive',
+        message: 'Are you sure you want to remove this transaction?',
+      }))
+    )
+      return;
 
     router.replace({
       pathname: '/(nav)/[account]/(home)/activity',

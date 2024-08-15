@@ -16,10 +16,11 @@ import { secureStorageLocked } from '~/lib/secure-storage';
 import { Platform, View } from 'react-native';
 import { ICON_SIZE } from '@theme/paper';
 import { Splash } from '../components/Splash';
-import { useEffect, useState } from 'react';
-import { ConfirmModal } from './(modal)/confirm';
+import { useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Updates from 'expo-updates';
+import { Confirm } from '#/Confirm';
+import { showInfo } from '#/provider/SnackbarProvider';
 
 const UNLOCKED = new Subject<true>();
 const emitAuth = () => UNLOCKED.next(true);
@@ -41,8 +42,6 @@ function AuthenticateScreen({ onAuth = emitAuth }: AuthenticateScreenProps) {
   const { styles } = useStyles(stylesheet);
   const biometrics = useBiometrics();
   const passwordHash = usePasswordHash();
-
-  const [eraseModal, setEraseModal] = useState(false);
 
   const { control, handleSubmit, reset } = useForm<Inputs>({ defaultValues: { password: '' } });
 
@@ -125,20 +124,18 @@ function AuthenticateScreen({ onAuth = emitAuth }: AuthenticateScreenProps) {
           You can erase all data from this device.
         </Text>
 
-        <Button mode="text" onPress={() => setEraseModal(true)}>
-          Erase data
-        </Button>
-      </View>
-
-      {eraseModal && (
-        <ConfirmModal
-          type="destructive"
-          title="Erase all data from this device?"
-          message={`This will erase all data from this device. THIS CAN NOT BE UNDONE!\n\nOnce erased, you can re-gain access to your account(s) using other approvers connected to that account`}
-          confirmLabel="Erase all data"
-          onDismiss={() => setEraseModal(false)}
-          onConfirmation={async (confirmed) => {
-            if (!confirmed) return setEraseModal(false);
+        <Button
+          mode="text"
+          onPress={async () => {
+            if (
+              !(await Confirm.call({
+                type: 'destructive',
+                title: 'Erase all data from this device?',
+                message: `This will erase all data from this device. THIS CAN NOT BE UNDONE!\n\nOnce erased, you can re-gain access to your account(s) using other approvers connected to that account`,
+                confirmLabel: 'Erase all data',
+              }))
+            )
+              return;
 
             await AsyncStorage.clear();
             if (Platform.OS === 'web') {
@@ -146,11 +143,13 @@ function AuthenticateScreen({ onAuth = emitAuth }: AuthenticateScreenProps) {
             } /* iOS | Android */ else if (!__DEV__) {
               Updates.reloadAsync();
             } else {
-              alert('Data erased. Please reload the app to continue');
+              showInfo('Data erased. Please reload the app to continue');
             }
           }}
-        />
-      )}
+        >
+          Erase data
+        </Button>
+      </View>
     </View>
   );
 }

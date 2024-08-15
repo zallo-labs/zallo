@@ -14621,6 +14621,7 @@ __metadata:
     neverthrow: "npm:^7.0.0"
     node-libs-react-native: "npm:^1.2.1"
     react: "npm:18.2.0"
+    react-call: "npm:^1.0.1"
     react-compiler-runtime: "file:./src/util/patches/react-compiler-runtime"
     react-content-loader: "npm:^7.0.2"
     react-dom: "npm:18.2.0"
@@ -30957,6 +30958,15 @@ __metadata:
   bin:
     rc: ./cli.js
   checksum: 10/5c4d72ae7eec44357171585938c85ce066da8ca79146b5635baf3d55d74584c92575fa4e2c9eac03efbed3b46a0b2e7c30634c012b4b4fa40d654353d3c163eb
+  languageName: node
+  linkType: hard
+
+"react-call@npm:^1.0.1":
+  version: 1.0.1
+  resolution: "react-call@npm:1.0.1"
+  peerDependencies:
+    react: ">=18"
+  checksum: 10/3732e7f1d4aad453d11c2f6298f322c1d9d27f9e031376f1f27682809b25137948c324e716c9ae7dcbfdb561052050297f29147cfbe18768507cf4f62ad1448a
   languageName: node
   linkType: hard
 
