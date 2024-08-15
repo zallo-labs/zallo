@@ -2,18 +2,28 @@ import { Button } from '#/Button';
 import { Timestamp } from '#/format/Timestamp';
 import { Actions } from '#/layout/Actions';
 import { SIDE_SHEET } from '#/SideSheet/SideSheetLayout';
-import { CheckAllIcon, WebIcon } from '@theme/icons';
+import { CheckAllIcon, CloseIcon, WebIcon } from '@theme/icons';
 import { ICON_SIZE } from '@theme/paper';
 import { createStyles, useStyles } from '@theme/styles';
 import { CHAINS } from 'chains';
-import { Link } from 'expo-router';
-import { useAtom, useSetAtom } from 'jotai';
+import { Link, useRouter } from 'expo-router';
+import { useSetAtom } from 'jotai';
 import { View } from 'react-native';
 import { ActivityIndicator, Text } from 'react-native-paper';
 import { useFragment } from 'react-relay';
 import { graphql } from 'relay-runtime';
 import { match, P } from 'ts-pattern';
+import { useMutation } from '~/api';
+import { TransactionStatus_cancelMutation } from '~/api/__generated__/TransactionStatus_cancelMutation.graphql';
 import { TransactionStatus_transaction$key } from '~/api/__generated__/TransactionStatus_transaction.graphql';
+
+const CancelScheduled = graphql`
+  mutation TransactionStatus_cancelMutation($input: ProposeCancelScheduledTransactionInput!) {
+    proposeCancelScheduledTransaction(input: $input) {
+      id
+    }
+  }
+`;
 
 const Transaction = graphql`
   fragment TransactionStatus_transaction on Transaction {
@@ -22,6 +32,7 @@ const Transaction = graphql`
     account {
       id
       chain
+      address
     }
     result {
       __typename
@@ -50,6 +61,8 @@ export interface TransactionStatusProps {
 export function TransactionStatus(props: TransactionStatusProps) {
   const { styles } = useStyles(stylesheet);
   const t = useFragment(Transaction, props.transaction);
+  const router = useRouter();
+  const cancelScheduled = useMutation<TransactionStatus_cancelMutation>(CancelScheduled);
   const showSheet = useSetAtom(SIDE_SHEET);
 
   const approvalsButton = (
@@ -163,6 +176,24 @@ export function TransactionStatus(props: TransactionStatusProps) {
           <>
             {approvalsButton}
             {explorerButton}
+            <Button
+              mode="contained"
+              icon={CloseIcon}
+              onPress={async () => {
+                const id = (
+                  await cancelScheduled({
+                    input: { account: t.account.address, proposal: t.id },
+                  })
+                ).proposeCancelScheduledTransaction.id;
+
+                router.push({
+                  pathname: '/(nav)/[account]/(home)/activity/transaction/[id]',
+                  params: { account: t.account.address, id },
+                });
+              }}
+            >
+              Cancel
+            </Button>
           </>
         </View>
       </View>
