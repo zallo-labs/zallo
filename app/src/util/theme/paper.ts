@@ -127,6 +127,7 @@ export const LIGHT_THEME = {
   padding: { compact: 16, medium: 24 } as const,
   negativeMargin: { compact: -16, medium: -24 } as const,
   iconSize: {
+    extraSmall: 16,
     small: 24,
     medium: 40,
     large: 60,

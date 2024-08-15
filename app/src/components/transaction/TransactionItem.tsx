@@ -26,6 +26,7 @@ const Transaction = graphql`
     icon
     account {
       id
+      address
       chain
     }
     operations {
@@ -106,7 +107,6 @@ function TransactionItem_({
             </Text>
           ),
     )
-    .with({ status: 'Executing' }, () => 'Executing...')
     .with({ status: 'Successful' }, () => p.result && <Timestamp timestamp={p.result.timestamp} />)
     .with(
       { status: 'Failed' },
@@ -124,7 +124,13 @@ function TransactionItem_({
     .exhaustive();
 
   return (
-    <Link href={{ pathname: `/(nav)/transaction/[id]`, params: { id: p.id } }} asChild>
+    <Link
+      href={{
+        pathname: `/(nav)/[account]/(home)/activity/transaction/[id]`,
+        params: { account: p.account.address, id: p.id },
+      }}
+      asChild
+    >
       <ListItem
         leading={
           p.icon ? (

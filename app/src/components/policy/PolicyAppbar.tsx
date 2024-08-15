@@ -16,6 +16,9 @@ const Policy = graphql`
     id
     key
     isActive
+    account {
+      address
+    }
     latest {
       id
     }
@@ -86,8 +89,8 @@ export function PolicyAppbar({ reset, ...props }: PolicyAppbarProps) {
                   title="View proposal"
                   onPress={handle(() =>
                     router.push({
-                      pathname: `/(nav)/transaction/[id]`,
-                      params: { id: policy.proposal!.id },
+                      pathname: `/(nav)/[account]/(home)/activity/transaction/[id]`,
+                      params: { account: policy.account.address, id: policy.proposal!.id },
                     }),
                   )}
                 />

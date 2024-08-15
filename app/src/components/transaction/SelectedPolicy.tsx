@@ -1,7 +1,5 @@
-import Collapsible from 'react-native-collapsible';
 import { Chevron } from '#/Chevron';
 import { useToggle } from '~/hooks/useToggle';
-import { Divider } from 'react-native-paper';
 import { OtherPolicies } from './OtherPolicies';
 import { createStyles, useStyles } from '@theme/styles';
 import { PolicyItem } from '#/policy/PolicyItem';
@@ -9,6 +7,7 @@ import { View } from 'react-native';
 import { graphql } from 'relay-runtime';
 import { useFragment } from 'react-relay';
 import { SelectedPolicy_proposal$key } from '~/api/__generated__/SelectedPolicy_proposal.graphql';
+import { ItemList } from '#/layout/ItemList';
 
 const Proposal = graphql`
   fragment SelectedPolicy_proposal on Proposal {
@@ -41,9 +40,10 @@ export function SelectedPolicy(props: SelectedPolicyProps) {
   const [expanded, toggleExpanded] = useToggle(false);
 
   return (
-    <>
+    <ItemList>
       <PolicyItem
         policy={proposal.policy}
+        containerStyle={styles.item}
         trailing={({ Text, ...props }) => (
           <View style={styles.trailingContainer}>
             {proposal.validationErrors.length !== 0 && (
@@ -56,12 +56,8 @@ export function SelectedPolicy(props: SelectedPolicyProps) {
         {...(proposal.updatable && { onPress: toggleExpanded })}
       />
 
-      <Divider horizontalInset style={styles.divider} />
-
-      <Collapsible collapsed={!expanded}>
-        <OtherPolicies proposal={proposal} toggleExpanded={toggleExpanded} />
-      </Collapsible>
-    </>
+      {expanded && <OtherPolicies proposal={proposal} toggleExpanded={toggleExpanded} />}
+    </ItemList>
   );
 }
 
@@ -74,7 +70,7 @@ const stylesheet = createStyles(({ colors }) => ({
   error: {
     color: colors.error,
   },
-  divider: {
-    marginVertical: 4,
+  item: {
+    backgroundColor: colors.surface,
   },
 }));

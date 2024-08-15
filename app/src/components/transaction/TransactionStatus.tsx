@@ -35,11 +35,6 @@ export function TransactionStatus(props: TransactionStatusProps) {
             Scheduled
           </Text>
         ))
-        .with('Executing', () => (
-          <Text {...props} style={[props.style, styles.executing]}>
-            Executing...
-          </Text>
-        ))
         .with('Successful', () => (
           <Text {...props} style={[props.style, styles.successful]}>
             Executed

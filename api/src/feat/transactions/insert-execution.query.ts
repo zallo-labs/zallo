@@ -2,7 +2,7 @@
 
 import type {Executor} from "edgedb";
 
-export type InsertSystxArgs = {
+export type InsertExecutionArgs = {
   readonly "proposal": string;
   readonly "hash": string;
   readonly "maxEthFeePerGas": string;
@@ -10,13 +10,14 @@ export type InsertSystxArgs = {
   readonly "usdPerFeeToken": string;
   readonly "response": string;
   readonly "gasUsed": string;
+  readonly "timestamp"?: Date | null;
 };
 
-export type InsertSystxReturns = {
+export type InsertExecutionReturns = {
   "id": string;
 };
 
-export function insertSystx(client: Executor, args: InsertSystxArgs): Promise<InsertSystxReturns> {
+export function insertExecution(client: Executor, args: InsertExecutionArgs): Promise<InsertExecutionReturns> {
   return client.queryRequiredSingle(`\
 with transaction := (select Transaction filter .id = <uuid>$proposal),
      systx := (
@@ -32,7 +33,8 @@ insert OptimisticSuccess {
   transaction := transaction,
   systx := systx,
   response := <Bytes>$response,    # transaction.result[is Simulation].response
-  gasUsed := <bigint><str>$gasUsed
+  gasUsed := <bigint><str>$gasUsed,
+  timestamp := <optional datetime>$timestamp
 }`, args);
 
 }

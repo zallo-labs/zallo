@@ -268,14 +268,6 @@ describe(TransactionsService.name, () => {
   //         expect(proposals.map((p) => p.id)).toEqual([pending]);
   //       }));
 
-  //     it('executing', () =>
-  //       asUser(user1, async () => {
-  //         const proposals = await service.select({
-  //           statuses: [TransactionStatus.Executing],
-  //         });
-  //         expect(proposals.map((p) => p.id)).toEqual([executing]);
-  //       }));
-
   //     it('successful', () =>
   //       asUser(user1, async () => {
   //         const proposals = await service.select({

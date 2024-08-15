@@ -1,9 +1,10 @@
 import { Processor } from '@nestjs/bullmq';
-import { Injectable } from '@nestjs/common';
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import {
   Address,
   ETH_TOKEN_ADDRESS,
   Hex,
+  Operation,
   UUID,
   asAddress,
   asChain,
@@ -24,7 +25,6 @@ import { NetworksService } from '~/core/networks';
 import { TX_SHAPE, transactionAsTx } from '~/feat/transactions/transactions.util';
 import { Shape } from '~/core/database';
 import { TokensService } from '../tokens/tokens.service';
-import { selectTransaction } from '../transactions/transactions.util';
 import { SelectedPolicies, selectPolicy } from '../policies/policies.util';
 import { ProposalsService } from '../proposals/proposals.service';
 import { ProposalEvent } from '../proposals/proposals.input';
@@ -42,8 +42,9 @@ import { insertSimulatedFailure } from './insert-simulated-failure.query';
 import { EventsService, Log } from '../events/events.service';
 import { encodeEventData, EncodeEventDataParameters } from '~/core/networks/encodeEventData';
 import { match } from 'ts-pattern';
+import { TransactionsService } from '../transactions/transactions.service';
 
-export const SimulationsQueue = createQueue<{ transaction: UUID | Hex }>('Simulations');
+export const SimulationsQueue = createQueue<{ transaction: UUID }>('Simulations');
 export type SimulationsQueue = typeof SimulationsQueue;
 
 const TransactionExecutableShape = {
@@ -67,17 +68,22 @@ export class SimulationsWorker extends Worker<SimulationsQueue> {
     private tokens: TokensService,
     private proposals: ProposalsService,
     private events: EventsService,
+    @Inject(forwardRef(() => TransactionsService))
+    private transactions: TransactionsService,
   ) {
     super();
   }
 
   async process(job: TypedJob<SimulationsQueue>) {
-    const proposal = selectTransaction(job.data.transaction);
-    const t = await this.db.query(
-      e.select(proposal, () => ({
-        id: true,
-        ...TransactionExecutableShape,
-      })),
+    const id = job.data.transaction;
+    const t = await this.db.queryWith(
+      { id: e.uuid },
+      ({ id }) =>
+        e.select(e.Transaction, () => ({
+          filter_single: { id },
+          ...TransactionExecutableShape,
+        })),
+      { id },
     );
     if (!t) return 'Transaction not found';
 
@@ -87,18 +93,27 @@ export class SimulationsWorker extends Worker<SimulationsQueue> {
     const chain = asChain(account);
     const network = this.networks.get(chain);
 
-    const trace = await network.traceCall({
-      request: {
-        from: localAccount,
-        ...encodeOperations(
-          t.operations.map((op) => ({
-            to: asAddress(op.to),
-            data: asHex(op.data ?? '0x'),
-            value: op.value ? BigInt(op.value) : undefined,
-          })),
-        ),
-      },
-    });
+    const operations = t.operations.map(
+      (op): Operation => ({
+        to: asAddress(op.to),
+        data: asHex(op.data ?? '0x'),
+        value: op.value ? BigInt(op.value) : undefined,
+      }),
+    );
+
+    const [trace, networkFees] = await Promise.all([
+      network.traceCall({
+        request: {
+          from: localAccount,
+          ...encodeOperations(operations),
+        },
+      }),
+      this.transactions.estimateNetworkFees({
+        account,
+        feeToken: asAddress(t.feeToken.address),
+        ...encodeOperations(operations),
+      }),
+    ]);
 
     const error = trace.error || trace.revertReason;
     const validationErrors = await validationErrorsPromise;
@@ -106,14 +121,14 @@ export class SimulationsWorker extends Worker<SimulationsQueue> {
 
     const result = await (success
       ? this.db.exec(insertSimulatedSuccess, {
-          transaction: t.id,
+          transaction: id,
           response: trace.output,
-          gasUsed: trace.gasUsed,
+          gasUsed: networkFees.gas,
         })
       : this.db.exec(insertSimulatedFailure, {
-          transaction: t.id,
+          transaction: id,
           response: trace.output,
-          gasUsed: trace.gasUsed,
+          gasUsed: networkFees.gas,
           reason: error ?? '',
           validationErrors,
         }));
@@ -121,7 +136,7 @@ export class SimulationsWorker extends Worker<SimulationsQueue> {
     const logs = await this.simulateEvents(t);
     await this.events.processSimulatedAndOptimistic({ chain, logs, result: asUUID(result.id) });
 
-    this.proposals.event({ id: asUUID(t.id), account }, ProposalEvent.simulated);
+    this.proposals.event({ id, account }, ProposalEvent.simulated);
 
     return { executable: success };
   }

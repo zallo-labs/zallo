@@ -18,7 +18,6 @@ import { graphql } from 'relay-runtime';
 import { HomePaneQuery } from '~/api/__generated__/HomePaneQuery.graphql';
 import { useLazyQuery } from '~/api/useLazyQuery';
 import { Pane } from '#/layout/Pane';
-import { PaneOptions } from '#/Appbar/PaneOptions';
 
 const Query = graphql`
   query HomePaneQuery($account: UAddress!, $chain: Chain!) {

@@ -1,21 +1,20 @@
 import { createStyleSheet, useStyles } from 'react-native-unistyles';
 import { ReactNode } from 'react';
 import { ScrollView, StyleProp, View, ViewStyle } from 'react-native';
-import { SideSheetSurface } from './SideSheetSurface';
 import { Text } from 'react-native-paper';
 import { CloseIcon } from '@theme/icons';
-import { SIDE_SHEET, useSideSheetType } from './SideSheetLayout';
+import { SIDE_SHEET } from './SideSheetLayout';
 import { useAtom } from 'jotai';
+import { SideSheetContainer } from './SideSheetContainer';
 
-export interface SideSheetProps {
+export interface BareSideSheetProps {
   children: ReactNode;
   headline?: string;
   style?: StyleProp<ViewStyle>;
 }
 
-export function SideSheet({ children, headline, style }: SideSheetProps) {
-  const type = useSideSheetType();
-  const { styles } = useStyles(stylesheet, { type });
+export function BareSideSheet({ children, headline, style }: BareSideSheetProps) {
+  const { styles } = useStyles(stylesheet);
   const [visible, show] = useAtom(SIDE_SHEET);
 
   const close = () => show(false);
@@ -23,7 +22,7 @@ export function SideSheet({ children, headline, style }: SideSheetProps) {
   if (!visible) return null;
 
   return (
-    <SideSheetSurface close={close}>
+    <SideSheetContainer close={close}>
       <View style={styles.header}>
         <Text variant="titleLarge" style={styles.headline}>
           {headline}
@@ -38,7 +37,7 @@ export function SideSheet({ children, headline, style }: SideSheetProps) {
       >
         {children}
       </ScrollView>
-    </SideSheetSurface>
+    </SideSheetContainer>
   );
 }
 
@@ -47,17 +46,6 @@ const stylesheet = createStyleSheet(({ colors }) => ({
     flexDirection: 'row',
     alignItems: 'center',
     marginVertical: 24,
-    variants: {
-      type: {
-        standard: {
-          marginHorizontal: 24,
-        },
-        modal: {
-          marginLeft: 16,
-          marginRight: 24,
-        },
-      },
-    },
   },
   headline: {
     flex: 1,

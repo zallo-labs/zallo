@@ -28,8 +28,8 @@ export function useRemovePolicy() {
 
     if (proposal) {
       router.push({
-        pathname: `/(nav)/transaction/[id]`,
-        params: { id: proposal.id },
+        pathname: `/(nav)/[account]/(home)/activity/transaction/[id]`,
+        params: { account, id: proposal.id },
       });
     } else {
       showError('Something went wrong removing policy', { event: { response: r } });

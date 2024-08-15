@@ -16,7 +16,7 @@ export class Result extends Node {
   transaction: Transaction;
 
   @Field(() => SystemTx, { nullable: true })
-  systemTx?: SystemTx;
+  systx?: SystemTx;
 
   @BytesField()
   response: Hex;

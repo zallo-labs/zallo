@@ -1,6 +1,7 @@
 import { Processor } from '@nestjs/bullmq';
-import { Injectable } from '@nestjs/common';
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import {
+  Address,
   UAddress,
   UUID,
   asAddress,
@@ -33,16 +34,13 @@ import { Shape } from '~/core/database';
 import { match } from 'ts-pattern';
 import { PaymasterFeeParts } from '~/feat/paymasters/paymasters.model';
 import { PaymastersService } from '~/feat/paymasters/paymasters.service';
-import {
-  lowerOfPaymasterFees,
-  paymasterFeesEq,
-  totalPaymasterEthFees,
-} from '~/feat/paymasters/paymasters.util';
-import { insertSystx } from './insert-systx.query';
+import { lowerOfPaymasterFees, paymasterFeesEq } from '~/feat/paymasters/paymasters.util';
 import { updatePaymasterFees } from './update-paymaster-fees.query';
 import { EventsService, Log } from '../events/events.service';
 import { AbiEvent } from 'viem';
 import { $SimulatedSuccess } from '~/edgeql-js/modules/default';
+import { TransactionsService } from './transactions.service';
+import { insertExecution } from './insert-execution.query';
 
 export const ExecutionsQueue = createQueue<ExecutionJob>('Executions');
 export type ExecutionsQueue = typeof ExecutionsQueue;
@@ -52,7 +50,7 @@ interface ExecutionJob {
   ignoreSimulation?: boolean;
 }
 
-const PRICE_DRIFT_MULTIPLIER = new Decimal('1.001'); // 0.1%
+const ALLOWED_PRICE_SLIPPAGE = new Decimal('1.001'); // 0.1%
 
 @Injectable()
 @Processor(ExecutionsQueue.name, { autorun: false })
@@ -65,6 +63,8 @@ export class ExecutionsWorker extends Worker<ExecutionsQueue> {
     private tokens: TokensService,
     private prices: PricesService,
     private paymasters: PaymastersService,
+    @Inject(forwardRef(() => TransactionsService))
+    private transactions: TransactionsService,
   ) {
     super();
   }
@@ -94,7 +94,7 @@ export class ExecutionsWorker extends Worker<ExecutionsQueue> {
       })),
     );
     if (!proposal) return 'Not found';
-    if (proposal.status !== 'Pending' && proposal.status !== 'Executing')
+    if (proposal.status !== 'Pending')
       return `Can't execute transaction with status ${proposal.status}`;
 
     const account = asUAddress(proposal.account.address);
@@ -120,7 +120,7 @@ export class ExecutionsWorker extends Worker<ExecutionsQueue> {
     const tx = transactionAsTx(proposal);
     return await this.execute({
       proposal,
-      paymasterEthFees: totalPaymasterEthFees(newPaymasterFees),
+      paymasterEthFees: newPaymasterFees,
       ignoreSimulation,
       executeParams: {
         customSignature: encodeTransactionSignature({
@@ -157,78 +157,80 @@ export class ExecutionsWorker extends Worker<ExecutionsQueue> {
   }
 
   private async execute({
-    proposal,
+    proposal: t,
     executeParams,
     paymasterEthFees,
     ignoreSimulation,
   }: ExecuteParams) {
-    if (!proposal.executable) return 'Not executable';
-    if (proposal.result?.__type__.name !== $SimulatedSuccess.__name__ && !ignoreSimulation)
+    if (!t.executable) return 'Not executable';
+    if (t.result?.__type__.name !== $SimulatedSuccess.__name__ && !ignoreSimulation)
       return 'Must be a simulated success';
 
-    const account = asUAddress(proposal.account.address);
+    const account = asUAddress(t.account.address);
     const network = this.networks.get(account);
+    const feeToken = asUAddress(t.feeToken.address);
+    const maxAmount = await this.tokens.asFp(feeToken, new Decimal(t.maxAmount));
 
-    const feeToken = asUAddress(proposal.feeToken.address);
-    const [maxFeePerGas, feeTokenPrice] = await Promise.all([
-      network.estimatedMaxFeePerGas(),
-      this.prices.price(asUAddress(feeToken, network.chain.key)),
-    ]);
-    const feeTokenPerGas = maxFeePerGas.div(feeTokenPrice.eth).mul(PRICE_DRIFT_MULTIPLIER);
-    const totalFeeTokenFees = feeTokenPerGas
-      .mul(proposal.gasLimit.toString())
-      .plus(paymasterEthFees ?? '0');
-    const amount = await this.tokens.asFp(feeToken, totalFeeTokenFees);
-    const maxAmount = await this.tokens.asFp(feeToken, new Decimal(proposal.maxAmount));
-    if (amount > maxAmount) throw new Error('Amount > maxAmount'); // TODO: add to failed submission result TODO: fail due to insufficient funds -- re-submit for re-simulation (forced)
+    const estimatedFees = await this.transactions.estimateFees({
+      account,
+      feeToken: asAddress(t.feeToken.address),
+      paymasterEthFees: paymasterEthFees ?? { activation: new Decimal(0) },
+      ...executeParams,
+      paymaster: asAddress(t.paymaster),
+      paymasterInput: encodePaymasterInput({
+        token: asAddress(feeToken),
+        amount: maxAmount,
+        maxAmount,
+      }),
+    });
+    const amount = await this.tokens.asFp(
+      feeToken,
+      estimatedFees.networkFee.plus(estimatedFees.paymasterFees.total).mul(ALLOWED_PRICE_SLIPPAGE),
+    );
+
+    if (amount > maxAmount) throw new Error('Amount > maxAmount'); // TODO: SubmissionFailure (or force re-simulation?)
 
     await this.prices.updatePriceFeedsIfNecessary(network.chain.key, [
       ETH.pythUsdPriceId,
-      asHex(proposal.feeToken.pythUsdPriceId!),
+      asHex(t.feeToken.pythUsdPriceId!),
     ]);
 
-    const paymaster = asAddress(proposal.paymaster);
+    const paymaster = asAddress(t.paymaster);
     const paymasterInput = encodePaymasterInput({
       token: asAddress(feeToken),
-      amount,
+      amount: maxAmount,
       maxAmount,
     });
-    const estimatedFee = await network.estimateFee({
-      type: 'eip712',
-      account: asAddress(account),
-      paymaster,
-      paymasterInput,
-      ...executeParams,
-    });
 
-    // if (executeParams.gas && executeParams.gas < estimatedFee.gasLimit) throw new Error('gas less than estimated gasLimit');
-
+    const timestamp = new Date();
     const txRespResult = await network.sendAccountTransaction({
       from: asAddress(account),
       paymaster,
       paymasterInput,
-      maxFeePerGas: asFp(maxFeePerGas, ETH),
-      maxPriorityFeePerGas: estimatedFee.maxPriorityFeePerGas,
-      gasPerPubdata: estimatedFee.gasPerPubdataLimit, // This should ideally be signed during proposal creation
+      maxFeePerGas: asFp(estimatedFees.maxEthFeePerGas, ETH),
+      maxPriorityFeePerGas: asFp(estimatedFees.maxPriorityFeePerGas, ETH),
+      gasPerPubdata: estimatedFees.gasPerPubdata,
       ...executeParams,
     });
-    if (txRespResult.isErr()) throw txRespResult.error; // TODO: insert SimulatedFailure with `txRespResult.error` as reason
+    if (txRespResult.isErr()) throw txRespResult.error; // TODO: SubmissionFailure (or force re-simulation?)
 
-    const id = asUUID(proposal.id);
+    const id = asUUID(t.id);
     const resp = txRespResult.value;
     const result = asUUID(
       (
-        await this.db.exec(insertSystx, {
+        await this.db.exec(insertExecution, {
           hash: resp.transactionHash,
           proposal: id,
-          maxEthFeePerGas: maxFeePerGas.toString(),
-          ethPerFeeToken: feeTokenPrice.eth.toString(),
-          usdPerFeeToken: feeTokenPrice.usd.toString(),
-          gasUsed: (proposal.result?.gasUsed ?? proposal.gasLimit).toString(),
-          response: proposal.result?.response ?? '0x',
+          maxEthFeePerGas: estimatedFees.maxEthFeePerGas.toString(),
+          ethPerFeeToken: estimatedFees.feeTokenPrice.eth.toString(),
+          usdPerFeeToken: estimatedFees.feeTokenPrice.usd.toString(),
+          gasUsed: (t.result?.gasUsed ?? t.gasLimit).toString(),
+          response: t.result?.response ?? '0x',
+          timestamp, // Ensures optimistic response originates before confirmation
         })
       ).id,
     );
+
     // TODO: process events in a separate job to avoid retrying sending of transaction if processing fails
     await this.events.processSimulatedAndOptimistic({
       chain: network.chain.key,
@@ -276,7 +278,10 @@ const s = e.select(e.Transaction, () => EXECUTE_TX_SHAPE);
 
 interface ExecuteParams {
   proposal: NonNullable<$infer<typeof s>>[0];
-  executeParams: Partial<SendAccountTransactionParams>;
-  paymasterEthFees: Decimal | undefined;
+  executeParams: Omit<
+    Partial<SendAccountTransactionParams>,
+    'to' | 'paymaster' | 'paymasterInput'
+  > & { to: Address };
+  paymasterEthFees: PaymasterFeeParts | undefined;
   ignoreSimulation?: boolean;
 }

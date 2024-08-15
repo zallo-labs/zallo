@@ -186,8 +186,8 @@ export class ProposalsService {
           priority: 'normal',
           data: {
             href: {
-              pathname: `/(nav)/transaction/[id]`,
-              params: { id: proposal },
+              pathname: `/(nav)/[account]/(home)/activity/transaction/[id]`,
+              params: { account: p.account, id: proposal },
             },
           },
         })),

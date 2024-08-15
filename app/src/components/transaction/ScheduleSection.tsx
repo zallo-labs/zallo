@@ -97,7 +97,10 @@ export function ScheduleSection({ children, ...props }: ScheduleSectionProps) {
                       })
                     ).proposeCancelScheduledTransaction.id;
 
-                    router.push({ pathname: '/(nav)/transaction/[id]', params: { id } });
+                    router.push({
+                      pathname: '/(nav)/[account]/(home)/activity/transaction/[id]',
+                      params: { account: p.account.address, id },
+                    });
                   }}
                 />
               )}

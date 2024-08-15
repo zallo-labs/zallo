@@ -284,7 +284,7 @@ export namespace $default {
     "executable": boolean;
     "status": TransactionStatus;
   }
-  export type TransactionStatus = "Pending" | "Scheduled" | "Executing" | "Successful" | "Failed" | "Cancelled";
+  export type TransactionStatus = "Pending" | "Scheduled" | "Successful" | "Failed" | "Cancelled";
   export interface Transferlike extends Event {
     "tokenAddress": string;
     "token"?: Token | null;

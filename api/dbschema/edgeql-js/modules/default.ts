@@ -47,11 +47,10 @@ const NonEmptyStr: $.scalarTypeWithConstructor<_std.$str, never> = $.makeType<$.
 export type $TransactionStatus = {
   "Pending": $.$expr_Literal<$TransactionStatus>;
   "Scheduled": $.$expr_Literal<$TransactionStatus>;
-  "Executing": $.$expr_Literal<$TransactionStatus>;
   "Successful": $.$expr_Literal<$TransactionStatus>;
   "Failed": $.$expr_Literal<$TransactionStatus>;
   "Cancelled": $.$expr_Literal<$TransactionStatus>;
-} & $.EnumType<"default::TransactionStatus", ["Pending", "Scheduled", "Executing", "Successful", "Failed", "Cancelled"]>;
+} & $.EnumType<"default::TransactionStatus", ["Pending", "Scheduled", "Successful", "Failed", "Cancelled"]>;
 const TransactionStatus: $TransactionStatus = $.makeType<$TransactionStatus>(_.spec, "d2eb5a82-5489-11ef-a64b-c5eeac9d34b6", _.syntax.literal);
 
 export type $UAddress = $.ScalarType<"std::str", string>;

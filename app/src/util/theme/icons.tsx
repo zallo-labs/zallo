@@ -92,6 +92,8 @@ export const TextIcon = materialCommunityIcon('text');
 export const InfoIcon = materialCommunityIcon('information-outline');
 export const ReceiveIcon = materialIcon('arrow-downward');
 export const WebIcon = materialCommunityIcon('web');
+export const ErrorOutlineIcon = materialIcon('error-outline');
+export const GasOutlineIcon = materialCommunityIcon('gas-station-outline');
 
 export const ZalloLogo = imageFromSource(require('assets/brand/logo-l.svg'));
 export const ZalloIconMinimal = imageFromSource(require('assets/brand/icon-m.svg'));

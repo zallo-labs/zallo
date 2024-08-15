@@ -12,5 +12,6 @@ insert OptimisticSuccess {
   transaction := transaction,
   systx := systx,
   response := <Bytes>$response,    # transaction.result[is Simulation].response
-  gasUsed := <bigint><str>$gasUsed
+  gasUsed := <bigint><str>$gasUsed,
+  timestamp := <optional datetime>$timestamp
 }

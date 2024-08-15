@@ -94,7 +94,10 @@ export const useSessionRequestListener = ({ proposals }: UseSessionRequestListen
           }
         });
 
-        router.push({ pathname: `/(nav)/transaction/[id]`, params: { id: proposal } });
+        router.push({
+          pathname: `/(nav)/[account]/(home)/activity/transaction/[id]`,
+          params: { account: account.address, id: proposal },
+        });
 
         // sub is automatically unsubscribed on unmount due to proposals unsubscribe
       } else if (isSignatureRequest(request)) {

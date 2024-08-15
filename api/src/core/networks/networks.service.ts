@@ -302,6 +302,7 @@ export interface TraceCallParams {
   block?: TraceCallSchema['Parameters'][1];
   options?: TraceCallSchema['Parameters'][2];
 }
+export type TraceCallReturnType = Awaited<ReturnType<ReturnType<typeof traceCall>>>;
 
 function traceCall(client: Client) {
   return async (params: TraceCallParams) => {
@@ -318,9 +319,9 @@ function traceCall(client: Client) {
           onlyTopCall: true,
         },
       } satisfies TraceCallOptions);
-
-    const r = await client.request<TraceCallSchema>({
-      method: 'debug_traceCall',
+      
+      const r = await client.request<TraceCallSchema>({
+        method: 'debug_traceCall',
       params: [request, params.block ?? 'latest', options],
     });
 

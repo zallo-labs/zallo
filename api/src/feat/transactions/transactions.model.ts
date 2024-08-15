@@ -11,7 +11,8 @@ import Decimal from 'decimal.js';
 import { CustomNode, CustomNodeType } from '~/common/decorators/interface.decorator';
 import { PaymasterFees } from '../paymasters/paymasters.model';
 import { Result } from '../system-txs/results.model';
-import { PolicyKeyField, UAddressField } from '~/common/scalars';
+import { PolicyKeyField, UAddressField, Uint256Field } from '~/common/scalars';
+import { Price } from '../prices/prices.model';
 
 @ObjectType({ implements: () => Proposal })
 export class Transaction extends Proposal {
@@ -78,7 +79,6 @@ export class TransactionPreparation extends PickType(Transaction, [
 export enum TransactionStatus {
   Pending = 'Pending',
   Scheduled = 'Scheduled',
-  Executing = 'Executing',
   Successful = 'Successful',
   Failed = 'Failed',
   Cancelled = 'Cancelled',
@@ -88,8 +88,35 @@ registerEnumType(TransactionStatus, { name: 'TransactionStatus' });
 @CustomNodeType()
 export class EstimatedTransactionFees extends CustomNode {
   @DecimalField()
-  maxNetworkEthFee: Decimal;
+  networkEthFee: Decimal;
+
+  @DecimalField()
+  networkFee: Decimal;
 
   @Field(() => PaymasterFees)
   paymasterEthFees: PaymasterFees;
+
+  @Field(() => PaymasterFees)
+  paymasterFees: PaymasterFees;
+
+  @DecimalField()
+  maxEthFeePerGas: Decimal;
+
+  @DecimalField()
+  maxFeePerGas: Decimal;
+
+  @DecimalField()
+  maxPriorityEthFeePerGas: Decimal;
+
+  @DecimalField()
+  maxPriorityFeePerGas: Decimal;
+
+  @Uint256Field()
+  gas: bigint;
+
+  @Uint256Field()
+  gasPerPubdata: bigint;
+
+  @Field(() => Price)
+  feeTokenPrice: Price;
 }

@@ -42,7 +42,7 @@ const Transaction = graphql`
     }
     estimatedFees {
       id
-      maxNetworkEthFee
+      networkEthFee
       paymasterEthFees {
         total
         activation
@@ -84,7 +84,7 @@ export function FeesSection(props: FeesSectionProps) {
   const [expanded, toggleExpanded] = useToggle(false);
 
   const ethPerFeeToken = new Decimal(p.systx?.ethPerFeeToken ?? p.feeToken.price?.eth ?? 0);
-  const estNetworkEthFee = new Decimal(p.estimatedFees.maxNetworkEthFee);
+  const estNetworkEthFee = new Decimal(p.estimatedFees.networkEthFee);
   const actNetworkEthFee =
     p.result?.__typename === 'Successful' || p.result?.__typename === 'Failed'
       ? new Decimal(p.result.networkEthFee!)

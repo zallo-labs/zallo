@@ -46,17 +46,13 @@ export class TransactionsEvents implements OnModuleInit {
 
     const network = this.networks.get(chain);
     const response = await this.getResponse(network, receipt);
-    const block = await network.getBlock({
-      blockNumber: receipt.blockNumber,
-      includeTransactions: false,
-    });
 
     const systx = selectSysTx(receipt.transactionHash);
     const insertResult = e
       .insert(e.ConfirmedSuccess, {
         transaction: systx.proposal,
         systx,
-        timestamp: new Date(Number(block.timestamp) * 1000), // block.timestamp is in seconds
+        timestamp: new Date(),  // block.timestamp not used as timestamp is used for ordering and time drift issues
         block: BigInt(receipt.blockNumber),
         gasUsed: receipt.gasUsed,
         ethFeePerGas: asDecimal(receipt.effectiveGasPrice, ETH).toString(),
@@ -88,17 +84,13 @@ export class TransactionsEvents implements OnModuleInit {
 
     const network = this.networks.get(chain);
     const response = await this.getResponse(network, receipt);
-    const block = await network.getBlock({
-      blockNumber: receipt.blockNumber,
-      includeTransactions: false,
-    });
 
     const systx = selectSysTx(receipt.transactionHash);
     const insertResult = e
       .insert(e.ConfirmedFailure, {
         transaction: systx.proposal,
         systx,
-        timestamp: new Date(Number(block.timestamp) * 1000), // block.timestamp is in seconds
+        timestamp: new Date(),  // block.timestamp not used as timestamp is used for ordering and time drift issues
         block: BigInt(receipt.blockNumber),
         gasUsed: receipt.gasUsed,
         ethFeePerGas: asDecimal(receipt.effectiveGasPrice, ETH).toString(),
