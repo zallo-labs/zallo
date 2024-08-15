@@ -22,6 +22,9 @@ import { ProposalApprovals } from '#/policy/ProposalApprovals';
 import { Id_TransactionScreen2Subscription } from '~/api/__generated__/Id_TransactionScreen2Subscription.graphql';
 import { useMemo } from 'react';
 import { BareSideSheet } from '#/SideSheet/BareSideSheet';
+import { AppbarMore } from '#/Appbar/AppbarMore';
+import { useRemoveTransaction } from '#/transaction/useRemoveTransaction';
+import { Menu } from 'react-native-paper';
 
 const Query = graphql`
   query Id_TransactionScreen2Query($id: ID!) {
@@ -50,6 +53,7 @@ const Transaction = graphql`
   fragment Id_TransactionScreen2_transaction on Transaction
   @argumentDefinitions(id: { type: "ID!" }) {
     id
+    ...useRemoveTransaction_transaction
     ...TransactionStatus_transaction
     ...TransactionOperations_transaction
     ...TransactionTransfers_transaction @arguments(transaction: $id)
@@ -64,18 +68,29 @@ const TransactionScreenParams = AccountParams.extend({ id: zUuid() });
 function TransactionScreen() {
   const { id } = useLocalParams(TransactionScreenParams);
 
+  const { user, ...query } = useLazyQuery<Id_TransactionScreen2Query>(Query, { id });
+  const t = useFragment<Id_TransactionScreen2_transaction$key>(Transaction, query.transaction);
+
   useSubscription<Id_TransactionScreen2Subscription>(
     useMemo(() => ({ subscription: Subscription, variables: { id } }), [id]),
   );
-
-  const { user, ...query } = useLazyQuery<Id_TransactionScreen2Query>(Query, { id });
-  const t = useFragment<Id_TransactionScreen2_transaction$key>(Transaction, query.transaction);
+  const remove = useRemoveTransaction({ transaction: t });
 
   return (
     <SideSheetLayout defaultVisible>
       <Pane flex>
         <Scrollable>
-          <Appbar mode="small" />
+          <Appbar
+            mode="small"
+            {...(remove && {
+              trailing: (props) => (
+                <AppbarMore iconProps={props}>
+                  {({ handle }) => <Menu.Item title="Remove" onPress={handle(remove)} />}
+                </AppbarMore>
+              ),
+            })}
+          />
+
           <TransactionStatus transaction={t} />
           <TransactionOperations transaction={t} />
           <TransactionTransfers transaction={t} />

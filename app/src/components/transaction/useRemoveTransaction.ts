@@ -3,7 +3,6 @@ import { useRouter } from 'expo-router';
 import { useFragment } from 'react-relay';
 import { graphql, SelectorStoreUpdater } from 'relay-runtime';
 import { useMutation } from '~/api';
-import { useRemoveTransaction_account$key } from '~/api/__generated__/useRemoveTransaction_account.graphql';
 import { useRemoveTransaction_transaction$key } from '~/api/__generated__/useRemoveTransaction_transaction.graphql';
 import {
   useRemoveTransactionMutation,
@@ -17,35 +16,30 @@ graphql`
   }
 `;
 
-const Account = graphql`
-  fragment useRemoveTransaction_account on Account {
-    address
-    proposals {
-      id
-      ...useRemoveTransaction_assignable_transaction
-    }
-    pendingProposals: proposals(input: { pending: true }) {
-      id
-      ...useRemoveTransaction_assignable_transaction
-    }
-  }
-`;
-
 const Transaction = graphql`
   fragment useRemoveTransaction_transaction on Transaction {
     id
     status
+    account {
+      address
+      proposals {
+        id
+        ...useRemoveTransaction_assignable_transaction
+      }
+      pendingProposals: proposals(input: { pending: true }) {
+        id
+        ...useRemoveTransaction_assignable_transaction
+      }
+    }
   }
 `;
 
 export interface RemoveTransactionParams {
-  account: useRemoveTransaction_account$key;
   transaction: useRemoveTransaction_transaction$key;
 }
 
 export function useRemoveTransaction(params: RemoveTransactionParams) {
-  const account = useFragment(Account, params.account);
-  const p = useFragment(Transaction, params.transaction);
+  const t = useFragment(Transaction, params.transaction);
   const router = useRouter();
 
   const commit = useMutation<useRemoveTransactionMutation>(graphql`
@@ -54,7 +48,7 @@ export function useRemoveTransaction(params: RemoveTransactionParams) {
     }
   `);
 
-  if (p.status !== 'Pending') return null;
+  if (t.status !== 'Pending') return null;
 
   return async () => {
     if (
@@ -67,7 +61,7 @@ export function useRemoveTransaction(params: RemoveTransactionParams) {
 
     router.replace({
       pathname: '/(nav)/[account]/(home)/activity',
-      params: { account: account.address },
+      params: { account: t.account.address },
     });
 
     const updater: SelectorStoreUpdater<useRemoveTransactionMutation$data> = (store, data) => {
@@ -88,23 +82,23 @@ export function useRemoveTransaction(params: RemoveTransactionParams) {
             }
           }
         `,
-        { address: account.address },
+        { address: t.account.address },
       );
 
       if (updatableData.account) {
         // @ts-expect-error one __typename is 'string' the other is 'Transaction'
-        updatableData.account.proposals = account.proposals.filter((p) => p.id !== id);
+        updatableData.account.proposals = t.account.proposals.filter((p) => p.id !== id);
         // @ts-expect-error one __typename is 'string' the other is 'Transaction'
-        updatableData.account.pendingProposals = account.pendingProposals.filter(
+        updatableData.account.pendingProposals = t.account.pendingProposals.filter(
           (p) => p.id !== id,
         );
       }
     };
 
     await commit(
-      { proposal: p.id },
+      { proposal: t.id },
       {
-        optimisticResponse: { removeTransaction: p.id },
+        optimisticResponse: { removeTransaction: t.id },
         optimisticUpdater: updater,
         updater,
       },
