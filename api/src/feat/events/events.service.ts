@@ -1,9 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { Chain } from 'chains';
-import { Hex, UUID } from 'lib';
+import { asUUID, Hex, UUID } from 'lib';
 import { AbiEvent, encodeEventTopics, parseEventLogs, Log as ViemLog } from 'viem';
 import { Receipt } from '../system-txs/confirmations.worker';
 import { NetworksService } from '~/core/networks';
+import { DatabaseService } from '~/core/database';
+import e from '~/edgeql-js';
 
 export type Log<
   TAbiEvent extends AbiEvent | undefined = undefined,
@@ -27,7 +29,6 @@ export interface ProcessOptimisticParams {
 export interface ProcessConfirmedParams {
   logs: Log<undefined, true>[];
   chain: Chain;
-  result?: UUID;
   receipt?: Receipt;
 }
 
@@ -56,7 +57,10 @@ export class EventsService {
   optimisticAbi: AbiEvent[] = [];
   confirmedAbi: AbiEvent[] = [];
 
-  constructor(private networks: NetworksService) {}
+  constructor(
+    private db: DatabaseService,
+    private networks: NetworksService,
+  ) {}
 
   onOptimistic<TAbiEvent extends AbiEvent>(
     event: TAbiEvent,
@@ -105,15 +109,30 @@ export class EventsService {
     );
   }
 
-  async processConfirmed({ chain, logs, result, receipt }: ProcessConfirmedParams) {
+  async processConfirmed({ chain, logs, receipt }: ProcessConfirmedParams) {
     const parsedLogs = parseEventLogs({ logs, abi: this.confirmedAbi, strict: true });
 
+    const getResult = async () => {
+      const id =
+        receipt &&
+        (await this.db.queryWith2(
+          { hash: e.Bytes32 },
+          { hash: receipt.transactionHash },
+          ({ hash }) =>
+            e.select(e.SystemTx, () => ({ filter_single: { hash }, result: true })).result.id,
+        ));
+
+      return (id && asUUID(id)) || null;
+    };
+
     const network = this.networks.get(chain);
-    const blocks = await Promise.all(
-      [...new Set(logs.map((log) => log.blockNumber))].map((blockNumber) =>
+    const uniqueBlockNumbers = [...new Set(logs.map((log) => log.blockNumber))];
+    const [result, ...blocks] = await Promise.all([
+      getResult(),
+      ...uniqueBlockNumbers.map((blockNumber) =>
         network.getBlock({ blockNumber, includeTransactions: false }),
       ),
-    );
+    ]);
 
     await Promise.all(
       parsedLogs
@@ -129,7 +148,7 @@ export class EventsService {
               timestamp,
               logIndex: log.logIndex,
               log,
-              result: result ?? null,
+              result,
               receipt,
             }),
           );

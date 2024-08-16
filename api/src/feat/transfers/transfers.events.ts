@@ -5,7 +5,6 @@ import { EventsService, OptimisticEvent, ConfirmedEvent } from '../events/events
 import { and, DatabaseService } from '~/core/database';
 import e from '~/edgeql-js';
 import { selectAccount } from '../accounts/accounts.util';
-import { NetworksService } from '~/core/networks/networks.service';
 import { uuid } from 'edgedb/dist/codecs/ifaces';
 import { EventPayload, PubsubService } from '~/core/pubsub/pubsub.service';
 import { getAbiItem } from 'viem';
@@ -34,7 +33,6 @@ export class TransfersEvents {
   constructor(
     private db: DatabaseService,
     private events: EventsService,
-    private networks: NetworksService,
     private pubsub: PubsubService,
     private accountsCache: AccountsCacheService,
     private expo: ExpoService,

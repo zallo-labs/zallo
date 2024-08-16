@@ -40,7 +40,7 @@ export class ConfirmationsWorker extends Worker<ConfirmationQueue> {
 
   async process(job: TypedJob<ConfirmationQueue>) {
     const { chain } = job.data;
-    const transaction = isHex(job.data.transaction)
+    const hash = isHex(job.data.transaction)
       ? job.data.transaction
       : await (async () => {
           const v =
@@ -49,24 +49,23 @@ export class ConfirmationsWorker extends Worker<ConfirmationQueue> {
 
           return isHex(v) ? v : undefined;
         })();
-    if (!transaction) return;
+    if (!hash) return;
 
-    await job.updateData({ ...job.data, transaction });
+    await job.updateData({ ...job.data, transaction: hash });
 
-    const network = this.networks.get(chain);
-    const receipt = await network.waitForTransactionReceipt({
-      hash: transaction,
+    const receipt = await this.networks.get(chain).waitForTransactionReceipt({
+      hash,
       timeout: 60_000,
-      pollingInterval: 1_000,
+      pollingInterval: 500,
     });
 
-    await Promise.all([
-      ...this.listeners.map((listener) => listener({ chain, receipt })),
-      this.events.processConfirmed({
-        chain,
-        logs: receipt.logs as unknown as Log<AbiEvent, true>[],
-        receipt,
-      }),
-    ]);
+    // Execute listeners prior to events to ensure result is available
+    await Promise.all(this.listeners.map((listener) => listener({ chain, receipt })));
+
+    await this.events.processConfirmed({
+      chain,
+      logs: receipt.logs as unknown as Log<AbiEvent, true>[],
+      receipt,
+    });
   }
 }
