@@ -2,12 +2,13 @@ import { Confirm } from '#/Confirm';
 import { useRouter } from 'expo-router';
 import { useFragment } from 'react-relay';
 import { graphql, SelectorStoreUpdater } from 'relay-runtime';
-import { useMutation } from '~/api';
+import { useLazyQuery, useMutation } from '~/api';
 import { useRemoveTransaction_transaction$key } from '~/api/__generated__/useRemoveTransaction_transaction.graphql';
 import {
   useRemoveTransactionMutation,
   useRemoveTransactionMutation$data,
 } from '~/api/__generated__/useRemoveTransactionMutation.graphql';
+import { useRemoveTransactionQuery } from '~/api/__generated__/useRemoveTransactionQuery.graphql';
 import { useRemoveTransactionUpdatableQuery } from '~/api/__generated__/useRemoveTransactionUpdatableQuery.graphql';
 
 graphql`
@@ -22,6 +23,13 @@ const Transaction = graphql`
     status
     account {
       address
+    }
+  }
+`;
+
+const Query = graphql`
+  query useRemoveTransactionQuery($account: UAddress!) {
+    account(address: $account) {
       proposals {
         id
         ...useRemoveTransaction_assignable_transaction
@@ -41,6 +49,12 @@ export interface RemoveTransactionParams {
 export function useRemoveTransaction(params: RemoveTransactionParams) {
   const t = useFragment(Transaction, params.transaction);
   const router = useRouter();
+
+  const { account } = useLazyQuery<useRemoveTransactionQuery>(
+    Query,
+    { account: t.account.address },
+    { fetchPolicy: 'store-only' },
+  );
 
   const commit = useMutation<useRemoveTransactionMutation>(graphql`
     mutation useRemoveTransactionMutation($proposal: ID!) @raw_response_type {
@@ -87,9 +101,9 @@ export function useRemoveTransaction(params: RemoveTransactionParams) {
 
       if (updatableData.account) {
         // @ts-expect-error one __typename is 'string' the other is 'Transaction'
-        updatableData.account.proposals = t.account.proposals.filter((p) => p.id !== id);
+        updatableData.account.proposals = account.proposals.filter((p) => p.id !== id);
         // @ts-expect-error one __typename is 'string' the other is 'Transaction'
-        updatableData.account.pendingProposals = t.account.pendingProposals.filter(
+        updatableData.account.pendingProposals = account.pendingProposals.filter(
           (p) => p.id !== id,
         );
       }
