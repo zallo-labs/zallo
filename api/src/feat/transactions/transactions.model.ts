@@ -85,38 +85,35 @@ export enum TransactionStatus {
 }
 registerEnumType(TransactionStatus, { name: 'TransactionStatus' });
 
-@CustomNodeType()
-export class EstimatedTransactionFees extends CustomNode {
-  @DecimalField()
-  networkEthFee: Decimal;
-
+@ObjectType()
+export class EstimatedFeeParts {
   @DecimalField()
   networkFee: Decimal;
-
-  @Field(() => PaymasterFees)
-  paymasterEthFees: PaymasterFees;
 
   @Field(() => PaymasterFees)
   paymasterFees: PaymasterFees;
 
   @DecimalField()
-  maxEthFeePerGas: Decimal;
-
-  @DecimalField()
   maxFeePerGas: Decimal;
-
-  @DecimalField()
-  maxPriorityEthFeePerGas: Decimal;
 
   @DecimalField()
   maxPriorityFeePerGas: Decimal;
 
-  @Uint256Field()
-  gas: bigint;
+  @DecimalField()
+  total: Decimal;
+}
+
+@CustomNodeType()
+export class EstimatedTransactionFees extends CustomNode {
+  @Field(() => EstimatedFeeParts)
+  eth: EstimatedFeeParts;
+
+  @Field(() => EstimatedFeeParts)
+  feeToken: EstimatedFeeParts;
 
   @Uint256Field()
-  gasPerPubdata: bigint;
+  gasLimit: bigint;
 
-  @Field(() => Price)
-  feeTokenPrice: Price;
+  @Uint256Field()
+  gasPerPubdataLimit: bigint;
 }

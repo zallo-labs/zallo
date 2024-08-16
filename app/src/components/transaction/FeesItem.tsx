@@ -3,7 +3,6 @@ import { TokenAmount } from '#/token/TokenAmount';
 import { TokenIcon } from '#/token/TokenIcon';
 import { SwapIcon } from '@theme/icons';
 import { ICON_SIZE } from '@theme/paper';
-import Decimal from 'decimal.js';
 import { useFragment } from 'react-relay';
 import { graphql } from 'relay-runtime';
 import { useMutation } from '~/api';
@@ -26,8 +25,7 @@ const Transaction = graphql`
     maxAmount
     estimatedFees {
       id
-      networkFee
-      paymasterFees {
+      feeToken {
         total
       }
     }
@@ -53,12 +51,7 @@ export interface FeesItemProps {
 export function FeesItem(props: FeesItemProps) {
   const t = useFragment(Transaction, props.transaction);
   const selectToken = useSelectToken();
-
   const update = useMutation(Update);
-
-  const estimatedFees = new Decimal(t.estimatedFees.networkFee).plus(
-    t.estimatedFees.paymasterFees.total,
-  );
 
   return (
     <ListItem
@@ -67,12 +60,8 @@ export function FeesItem(props: FeesItemProps) {
       headline="Fees"
       supporting={
         <>
-          {estimatedFees && (
-            <>
-              <TokenAmount token={t.feeToken} amount={estimatedFees} />
-              {' - '}
-            </>
-          )}
+          <TokenAmount token={t.feeToken} amount={t.estimatedFees.feeToken.total} />
+          {' - '}
           <TokenAmount token={t.feeToken} amount={t.maxAmount} />
         </>
       }

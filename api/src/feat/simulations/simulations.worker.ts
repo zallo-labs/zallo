@@ -123,12 +123,12 @@ export class SimulationsWorker extends Worker<SimulationsQueue> {
       ? this.db.exec(insertSimulatedSuccess, {
           transaction: id,
           response: trace.output,
-          gasUsed: networkFees.gas,
+          gasUsed: networkFees.gasLimit,
         })
       : this.db.exec(insertSimulatedFailure, {
           transaction: id,
           response: trace.output,
-          gasUsed: networkFees.gas,
+          gasUsed: networkFees.gasLimit,
           reason: error ?? '',
           validationErrors,
         }));

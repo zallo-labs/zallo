@@ -58,21 +58,30 @@ export class TransactionsResolver {
 
   @ComputedField<typeof e.Transaction>(() => EstimatedTransactionFees, ESTIMATE_FEES_DEPS)
   async estimatedFees(@Parent() d: EstimateFeesDeps): Promise<EstimatedTransactionFees> {
+    const account = asUAddress(d.account.address);
+    const feeToken = asAddress(d.feeToken.address);
+
+    const { gasLimit } = await this.service.estimateNetworkFees({
+      account,
+      feeToken,
+      ...encodeOperations(
+        d.operations.map((op) => ({
+          to: asAddress(op.to),
+          data: asHex(op.data ?? '0x'),
+          value: op.value ? BigInt(op.value) : undefined,
+        })),
+      ),
+    });
+
     return {
       id: `EstimatedTransactionFees:${d.id}`,
-      ...(await this.service.estimateFees({
-        account: asUAddress(d.account.address),
-        feeToken: asAddress(d.feeToken.address),
+      ...(await this.service.fees({
+        account,
+        feeToken,
+        gasLimit,
         paymasterEthFees: {
           activation: new Decimal(d.paymasterEthFees.activation),
         },
-        ...encodeOperations(
-          d.operations.map((op) => ({
-            to: asAddress(op.to),
-            data: asHex(op.data ?? '0x'),
-            value: op.value ? BigInt(op.value) : undefined,
-          })),
-        ),
       })),
     };
   }

@@ -169,25 +169,21 @@ export class ExecutionsWorker extends Worker<ExecutionsQueue> {
     const account = asUAddress(t.account.address);
     const network = this.networks.get(account);
     const feeToken = asUAddress(t.feeToken.address);
-    const maxAmount = await this.tokens.asFp(feeToken, new Decimal(t.maxAmount));
 
-    const estimatedFees = await this.transactions.estimateFees({
-      account,
-      feeToken: asAddress(t.feeToken.address),
-      paymasterEthFees: paymasterEthFees ?? { activation: new Decimal(0) },
-      ...executeParams,
-      paymaster: asAddress(t.paymaster),
-      paymasterInput: encodePaymasterInput({
-        token: asAddress(feeToken),
-        amount: maxAmount,
-        maxAmount,
+    const [fees, feeTokenPrice] = await Promise.all([
+      this.transactions.fees({
+        account,
+        feeToken: asAddress(t.feeToken.address),
+        paymasterEthFees: paymasterEthFees ?? { activation: new Decimal(0) },
+        gasLimit: t.gasLimit,
       }),
-    });
-    const amount = await this.tokens.asFp(
-      feeToken,
-      estimatedFees.networkFee.plus(estimatedFees.paymasterFees.total).mul(ALLOWED_PRICE_SLIPPAGE),
-    );
+      this.prices.price(feeToken),
+    ]);
 
+    const [maxAmount, amount] = await Promise.all([
+      this.tokens.asFp(feeToken, new Decimal(t.maxAmount)),
+      this.tokens.asFp(feeToken, fees.feeToken.total.mul(ALLOWED_PRICE_SLIPPAGE)),
+    ]);
     if (amount > maxAmount) throw new Error('Amount > maxAmount'); // TODO: SubmissionFailure (or force re-simulation?)
 
     await this.prices.updatePriceFeedsIfNecessary(network.chain.key, [
@@ -198,7 +194,7 @@ export class ExecutionsWorker extends Worker<ExecutionsQueue> {
     const paymaster = asAddress(t.paymaster);
     const paymasterInput = encodePaymasterInput({
       token: asAddress(feeToken),
-      amount: maxAmount,
+      amount,
       maxAmount,
     });
 
@@ -207,9 +203,9 @@ export class ExecutionsWorker extends Worker<ExecutionsQueue> {
       from: asAddress(account),
       paymaster,
       paymasterInput,
-      maxFeePerGas: asFp(estimatedFees.maxEthFeePerGas, ETH),
-      maxPriorityFeePerGas: asFp(estimatedFees.maxPriorityFeePerGas, ETH),
-      gasPerPubdata: estimatedFees.gasPerPubdata,
+      maxFeePerGas: asFp(fees.eth.maxFeePerGas, ETH),
+      maxPriorityFeePerGas: asFp(fees.eth.maxPriorityFeePerGas, ETH),
+      gasPerPubdata: fees.gasPerPubdataLimit,
       ...executeParams,
     });
     if (txRespResult.isErr()) throw txRespResult.error; // TODO: SubmissionFailure (or force re-simulation?)
@@ -221,9 +217,9 @@ export class ExecutionsWorker extends Worker<ExecutionsQueue> {
         await this.db.exec(insertExecution, {
           hash: resp.transactionHash,
           proposal: id,
-          maxEthFeePerGas: estimatedFees.maxEthFeePerGas.toString(),
-          ethPerFeeToken: estimatedFees.feeTokenPrice.eth.toString(),
-          usdPerFeeToken: estimatedFees.feeTokenPrice.usd.toString(),
+          maxEthFeePerGas: fees.eth.maxFeePerGas.toString(),
+          ethPerFeeToken: feeTokenPrice.eth.toString(),
+          usdPerFeeToken: feeTokenPrice.usd.toString(),
           gasUsed: (t.result?.gasUsed ?? t.gasLimit).toString(),
           response: t.result?.response ?? '0x',
           timestamp, // Ensures optimistic response originates before confirmation

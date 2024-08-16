@@ -282,19 +282,20 @@ input EstimateFeesPerGasInput {
   feeToken: UAddress!
 }
 
-type EstimatedTransactionFees implements CustomNode {
-  feeTokenPrice: Price!
-  gas: Uint256!
-  gasPerPubdata: Uint256!
-  id: ID!
-  maxEthFeePerGas: Decimal!
+type EstimatedFeeParts {
   maxFeePerGas: Decimal!
-  maxPriorityEthFeePerGas: Decimal!
   maxPriorityFeePerGas: Decimal!
-  networkEthFee: Decimal!
   networkFee: Decimal!
-  paymasterEthFees: PaymasterFees!
   paymasterFees: PaymasterFees!
+  total: Decimal!
+}
+
+type EstimatedTransactionFees implements CustomNode {
+  eth: EstimatedFeeParts!
+  feeToken: EstimatedFeeParts!
+  gasLimit: Uint256!
+  gasPerPubdataLimit: Uint256!
+  id: ID!
 }
 
 interface Event implements Node {

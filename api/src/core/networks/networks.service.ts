@@ -30,6 +30,7 @@ import { runExclusively } from '~/util/mutex';
 import { ETH } from 'lib/dapps';
 import { fromPromise } from 'neverthrow';
 import { PartialK } from '~/util/types';
+import Decimal from 'decimal.js';
 
 export type Network = ReturnType<typeof create>;
 
@@ -90,7 +91,8 @@ function create({ chainKey, redis }: CreateParams) {
     ...eip712WalletActions()(client),
     ...walletActions(client, transport, redis),
     ...blockDetails(client),
-    ...estimatedFeesPerGas(client, redis),
+    feeParams: feeParams(client, redis),
+    maxFeePerGas: maxFeePerGas(client, redis),
     sendAccountTransaction: sendAccountTransaction(client, redis),
     traceCall: traceCall(client),
   }));
@@ -163,41 +165,48 @@ function blockDetails(client: Client) {
   };
 }
 
-export function estimatedFeesPerGasKey(chain: Chain) {
-  return `estimatedFeesPerGasKey:${chain}`;
+export interface NetworkFeeParams {
+  maxFeePerGas: Decimal;
+  maxPriorityFeePerGas: Decimal;
+  gasPerPubdataLimit: bigint;
 }
 
-async function getEstimatedFeesPerGas(client: Client, redis: Redis): Promise<FeeValuesEIP1559> {
-  const cached = await redis.get(estimatedFeesPerGasKey(client.chain.key));
-  if (cached) {
-    const p = JSON.parse(cached) as any;
+function feeParams(client: Client, redis: Redis) {
+  const { estimateFee } = publicActionsL2()(client);
+
+  return async (): Promise<NetworkFeeParams> => {
+    const r = await (async () => {
+      const key = `feeParams:${client.chain.key}`;
+      const cached = await redis.get(key);
+      if (cached) {
+        const p = JSON.parse(cached) as any;
+        return {
+          maxFeePerGas: BigInt(p.maxFeePerGas),
+          maxPriorityFeePerGas: BigInt(p.maxPriorityFeePerGas),
+          gasPerPubdataLimit: p.gasPerPubdataLimit,
+        };
+      }
+
+      const fresh = await estimateFee({
+        /* estimateFee required to get gasPerPubdataLimit */
+        account: '0x1111111111111111111111111111111111111111',
+        to: '0x1111111111111111111111111111111111111111',
+      });
+      redis.set(key, JSON.stringify(fresh), 'EX', 5);
+      return fresh;
+    })();
+
     return {
-      maxFeePerGas: BigInt(p.maxFeePerGas),
-      maxPriorityFeePerGas: BigInt(p.maxPriorityFeePerGas),
-    } satisfies FeeValuesEIP1559;
-  }
-
-  const r = await client.estimateFeesPerGas();
-  if (r.maxFeePerGas === undefined || r.maxPriorityFeePerGas === undefined)
-    throw new Error('Gas price estimates non EIP-1559');
-
-  return r;
-}
-
-function estimatedFeesPerGas(client: Client, redis: Redis) {
-  const estimatedFeesPerGas = async () => {
-    const v = await getEstimatedFeesPerGas(client, redis);
-
-    return {
-      maxFeePerGas: asDecimal(v.maxFeePerGas!, ETH),
-      maxPriorityFeePerGas: asDecimal(v.maxPriorityFeePerGas!, ETH),
+      maxFeePerGas: asDecimal(r.maxFeePerGas, ETH),
+      maxPriorityFeePerGas: asDecimal(r.maxPriorityFeePerGas, ETH),
+      gasPerPubdataLimit: r.gasPerPubdataLimit,
     };
   };
+}
 
-  return {
-    estimatedFeesPerGas,
-    estimatedMaxFeePerGas: async () => (await estimatedFeesPerGas()).maxFeePerGas,
-  };
+function maxFeePerGas(client: Client, redis: Redis) {
+  const getFeeParams = feeParams(client, redis);
+  return async () => (await getFeeParams()).maxFeePerGas;
 }
 
 export type TransactionWithDetailedOutput = {
@@ -229,14 +238,10 @@ export type SendAccountTransactionReturn = ReturnType<ReturnType<typeof sendAcco
 function sendAccountTransaction(client: Client, redis: Redis) {
   // Transactions must be submitted sequentially due to requirement for incrementing nonces
   return async (tx: SendAccountTransactionParams) => {
-    const feesPerGas = await getEstimatedFeesPerGas(client, redis);
-
     return await runExclusively(
       async () => {
         const serialized = client.chain.serializers.transaction({
           chainId: client.chain.id,
-          maxFeePerGas: feesPerGas.maxFeePerGas!,
-          maxPriorityFeePerGas: feesPerGas.maxPriorityFeePerGas!,
           nonce: await client.getTransactionCount({ address: tx.from }),
           ...tx,
         });
@@ -319,9 +324,9 @@ function traceCall(client: Client) {
           onlyTopCall: true,
         },
       } satisfies TraceCallOptions);
-      
-      const r = await client.request<TraceCallSchema>({
-        method: 'debug_traceCall',
+
+    const r = await client.request<TraceCallSchema>({
+      method: 'debug_traceCall',
       params: [request, params.block ?? 'latest', options],
     });
 

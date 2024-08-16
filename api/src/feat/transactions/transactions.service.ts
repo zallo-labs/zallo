@@ -18,7 +18,7 @@ import {
   UAddress,
   Address,
 } from 'lib';
-import { NetworksService } from '~/core/networks';
+import { NetworkFeeParams, NetworksService } from '~/core/networks';
 import {
   PrepareTransactionInput,
   ProposeCancelScheduledTransactionInput,
@@ -32,7 +32,10 @@ import { and } from '~/core/database';
 import { ProposalsService, UniqueProposal } from '../proposals/proposals.service';
 import { ApproveInput, ProposalEvent } from '../proposals/proposals.input';
 import { PaymastersService } from '~/feat/paymasters/paymasters.service';
-import { EstimatedTransactionFees } from '~/feat/transactions/transactions.model';
+import {
+  EstimatedFeeParts,
+  EstimatedTransactionFees,
+} from '~/feat/transactions/transactions.model';
 import { InjectFlowProducer } from '@nestjs/bullmq';
 import { ExecutionsQueue } from '~/feat/transactions/executions.worker';
 import { FLOW_PRODUCER, QueueData } from '~/core/bull/bull.util';
@@ -74,9 +77,15 @@ type EstimateNetworkFeeParams = Omit<EstimateEip712FeeParams, 'type' | 'account'
     | { paymaster?: undefined; paymasterInput?: undefined }
   );
 
-type EstimateFeesParams = EstimateNetworkFeeParams & {
+interface EstimateFeesParams {
+  account: UAddress;
+  feeToken: Address;
+  gasLimit: bigint;
   paymasterEthFees: PaymasterFeeParts;
-};
+}
+
+const GAS_LIMIT_MULTIPLIER = 2n; // Future gas estimate may increase
+const FEE_TOKEN_PRICE_MULTIPLIER = new Decimal('2'); // Future fee token price may reduce
 
 @Injectable()
 export class TransactionsService {
@@ -164,15 +173,15 @@ export class TransactionsService {
       (async () =>
         gasInput ??
         (await this.estimateNetworkFees({ account, feeToken, ...encodeOperations(operations) }))
-          .gas)(),
-      network.estimatedMaxFeePerGas(),
+          .gasLimit)(),
+      network.maxFeePerGas(),
       this.paymasters.paymasterFees({ account }),
       this.prices.price(asUAddress(feeToken, chain)),
     ]);
-    const gasLimit = gasEstimate * 5n;
+    const gasLimit = gasEstimate * GAS_LIMIT_MULTIPLIER;
     const maxNetworkFee = maxFeePerGas.mul(gasLimit.toString());
     const totalEthFees = maxNetworkFee.plus(totalPaymasterEthFees(paymasterFees));
-    const maxAmount = totalEthFees.div(feeTokenPrice.eth);
+    const maxAmount = totalEthFees.div(feeTokenPrice.eth).mul(FEE_TOKEN_PRICE_MULTIPLIER);
 
     const tx = {
       operations,
@@ -357,11 +366,11 @@ export class TransactionsService {
     if (feeToken) {
       const network = this.networks.get(account);
       const [maxFeePerGas, feeTokenPrice] = await Promise.all([
-        network.estimatedMaxFeePerGas(),
+        network.maxFeePerGas(),
         this.prices.price(asUAddress(feeToken, network.chain.key)),
       ]);
       const newTotalEthFee = maxFeePerGas.mul(t.gasLimit.toString()).plus(t.paymasterEthFees.total);
-      maxAmount = newTotalEthFee.div(feeTokenPrice.eth);
+      maxAmount = newTotalEthFee.div(feeTokenPrice.eth).mul(FEE_TOKEN_PRICE_MULTIPLIER);
     }
 
     const uFeeToken = asUAddress(feeToken ?? asAddress(t.feeToken.address), asChain(account));
@@ -424,65 +433,56 @@ export class TransactionsService {
               paymaster,
               paymasterInput: encodePaymasterInput({ token: feeToken, amount: 0n, maxAmount: 0n }),
             }
-          : {
-              paymaster: undefined,
-              paymasterInput: undefined,
-            }),
+          : { paymaster: undefined, paymasterInput: undefined }),
         ...estimateParams,
       }),
       (e) => e as EstimateGasErrorType,
     );
 
-    const v = estimate.unwrapOr({
-      gasLimit: 2_000_000n,
-      gasPerPubdataLimit: BigInt(zkUtils.DEFAULT_GAS_PER_PUBDATA_LIMIT),
-    });
-
     return {
-      gas: v.gasLimit,
-      gasPerPubdata: v.gasPerPubdataLimit,
-      ...(await network.estimatedFeesPerGas()),
+      gasLimit: estimate.map((e) => e.gasLimit).unwrapOr(2_000_000n),
+      ...(await network.feeParams()),
     };
   }
 
-  async estimateFees({
+  async fees({
     account,
-    to,
-    value,
-    data,
     feeToken,
     paymasterEthFees: proposedPaymasterEthFees,
+    gasLimit,
   }: EstimateFeesParams): Promise<Omit<EstimatedTransactionFees, 'id'>> {
-    const [maxEthFeePerGas, feeTokenPrice, curPaymasterFees, networkFees] = await Promise.all([
-      this.networks.get(account).estimatedMaxFeePerGas(),
+    const [feeParams, feeTokenPrice, curPaymasterFees] = await Promise.all([
+      this.networks.get(account).feeParams(),
       this.prices.price(asUAddress(feeToken, asChain(account))),
       this.paymasters.paymasterFees({ account }),
-      this.estimateNetworkFees({ account, to, value, data, feeToken }),
     ]);
 
+    const networkFee = feeParams.maxFeePerGas.mul(gasLimit.toString());
     const lowerPaymasterEthFeeParts = lowerOfPaymasterFees(
       { activation: new Decimal(proposedPaymasterEthFees.activation) },
       curPaymasterFees,
     );
-    const paymasterEthFees = {
+    const paymasterFees = {
       total: totalPaymasterEthFees(lowerPaymasterEthFeeParts),
       ...lowerPaymasterEthFeeParts,
     };
 
-    const networkEthFee = maxEthFeePerGas.mul(networkFees.gas.toString());
+    const eth: EstimatedFeeParts = {
+      networkFee,
+      paymasterFees,
+      maxFeePerGas: feeParams.maxFeePerGas,
+      maxPriorityFeePerGas: feeParams.maxPriorityFeePerGas,
+      total: networkFee.add(paymasterFees.total),
+    };
 
     return {
-      networkEthFee,
-      networkFee: networkEthFee.div(feeTokenPrice.eth),
-      paymasterEthFees,
-      paymasterFees: _.mapValues(paymasterEthFees, (v) => v.div(feeTokenPrice.eth)),
-      maxEthFeePerGas,
-      maxFeePerGas: maxEthFeePerGas.div(feeTokenPrice.eth),
-      maxPriorityEthFeePerGas: networkFees.maxPriorityFeePerGas,
-      maxPriorityFeePerGas: networkFees.maxPriorityFeePerGas.div(feeTokenPrice.eth),
-      gas: networkFees.gas,
-      gasPerPubdata: networkFees.gasPerPubdata,
-      feeTokenPrice,
+      eth,
+      feeToken: {
+        ..._.mapValues(_.omit(eth, 'paymasterFees'), (v) => v.div(feeTokenPrice.eth)),
+        paymasterFees: _.mapValues(paymasterFees, (v) => v.div(feeTokenPrice.eth)),
+      },
+      gasLimit,
+      gasPerPubdataLimit: feeParams.gasPerPubdataLimit,
     };
   }
 }
