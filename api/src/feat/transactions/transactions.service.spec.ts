@@ -67,6 +67,7 @@ describe(TransactionsService.name, () => {
         maxPriorityFeePerGas: new Decimal(0),
         gasPerPubdataLimit: 0n,
       }),
+      maxFeePerGas: async () => new Decimal('.00000001'),
       getCode: async () => '0x00', // Non-zero - activated
     } satisfies DeepPartial<Network> as unknown as Network);
 

@@ -41,7 +41,7 @@ export function TransactionDetails(props: TransactionDetailsProps) {
             overline="Gas usage"
             headline={
               <>
-                <FormattedNumber value={t.result!.gasUsed} />
+                <FormattedNumber value={t.result.gasUsed} />
                 {' / '}
                 <FormattedNumber value={t.gasLimit} />
               </>
