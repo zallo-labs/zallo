@@ -39,7 +39,7 @@ export class PaymastersService implements OnModuleInit {
   }
 
   async paymasterFees({ account }: PaymasterFeesParams): Promise<PaymasterFeeParts> {
-    const feePerGas = await this.networks.get(account).estimatedMaxFeePerGas();
+    const feePerGas = await this.networks.get(account).maxFeePerGas();
 
     const activation = await this.activations.fee({ account, feePerGas });
 
@@ -50,16 +50,16 @@ export class PaymastersService implements OnModuleInit {
     if (!this.feeTokens.has(feeToken)) return null;
 
     try {
-      const [ethPerGas, tokenPrice, decimals] = await Promise.all([
-        this.networks.get(feeToken).estimatedFeesPerGas(),
+      const [feeParams, tokenPrice, decimals] = await Promise.all([
+        this.networks.get(feeToken).feeParams(),
         this.prices.price(feeToken),
         this.tokens.decimals(feeToken),
       ]);
 
       return {
         id: `FeesPerGas:${feeToken}`,
-        maxFeePerGas: ethPerGas.maxFeePerGas.div(tokenPrice.eth),
-        maxPriorityFeePerGas: ethPerGas.maxPriorityFeePerGas.div(tokenPrice.eth),
+        maxFeePerGas: feeParams.maxFeePerGas.div(tokenPrice.eth),
+        maxPriorityFeePerGas: feeParams.maxPriorityFeePerGas.div(tokenPrice.eth),
         feeTokenDecimals: decimals,
       };
     } catch (e) {

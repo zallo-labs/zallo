@@ -1,9 +1,10 @@
 import { Processor } from '@nestjs/bullmq';
-import { Injectable } from '@nestjs/common';
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import {
   Address,
   ETH_TOKEN_ADDRESS,
   Hex,
+  Operation,
   UUID,
   asAddress,
   asChain,
@@ -24,7 +25,6 @@ import { NetworksService } from '~/core/networks';
 import { TX_SHAPE, transactionAsTx } from '~/feat/transactions/transactions.util';
 import { Shape } from '~/core/database';
 import { TokensService } from '../tokens/tokens.service';
-import { selectTransaction } from '../transactions/transactions.util';
 import { SelectedPolicies, selectPolicy } from '../policies/policies.util';
 import { ProposalsService } from '../proposals/proposals.service';
 import { ProposalEvent } from '../proposals/proposals.input';
@@ -42,8 +42,10 @@ import { insertSimulatedFailure } from './insert-simulated-failure.query';
 import { EventsService, Log } from '../events/events.service';
 import { encodeEventData, EncodeEventDataParameters } from '~/core/networks/encodeEventData';
 import { match } from 'ts-pattern';
+import { TransactionsService } from '../transactions/transactions.service';
+import Decimal from 'decimal.js';
 
-export const SimulationsQueue = createQueue<{ transaction: UUID | Hex }>('Simulations');
+export const SimulationsQueue = createQueue<{ transaction: UUID }>('Simulations');
 export type SimulationsQueue = typeof SimulationsQueue;
 
 const TransactionExecutableShape = {
@@ -51,6 +53,7 @@ const TransactionExecutableShape = {
   approvals: { approver: { address: true } },
   policy: { id: true, isActive: true, threshold: true },
   validationErrors: true,
+  paymasterEthFees: { activation: true },
   ...TX_SHAPE,
 } satisfies Shape<typeof e.Transaction>;
 const s_ = e.assert_exists(
@@ -67,17 +70,22 @@ export class SimulationsWorker extends Worker<SimulationsQueue> {
     private tokens: TokensService,
     private proposals: ProposalsService,
     private events: EventsService,
+    @Inject(forwardRef(() => TransactionsService))
+    private transactions: TransactionsService,
   ) {
     super();
   }
 
   async process(job: TypedJob<SimulationsQueue>) {
-    const proposal = selectTransaction(job.data.transaction);
-    const t = await this.db.query(
-      e.select(proposal, () => ({
-        id: true,
-        ...TransactionExecutableShape,
-      })),
+    const id = job.data.transaction;
+    const t = await this.db.queryWith(
+      { id: e.uuid },
+      ({ id }) =>
+        e.select(e.Transaction, () => ({
+          filter_single: { id },
+          ...TransactionExecutableShape,
+        })),
+      { id },
     );
     if (!t) return 'Transaction not found';
 
@@ -87,18 +95,37 @@ export class SimulationsWorker extends Worker<SimulationsQueue> {
     const chain = asChain(account);
     const network = this.networks.get(chain);
 
-    const trace = await network.traceCall({
-      request: {
-        from: localAccount,
-        ...encodeOperations(
-          t.operations.map((op) => ({
-            to: asAddress(op.to),
-            data: asHex(op.data ?? '0x'),
-            value: op.value ? BigInt(op.value) : undefined,
-          })),
-        ),
-      },
-    });
+    const operations = t.operations.map(
+      (op): Operation => ({
+        to: asAddress(op.to),
+        data: asHex(op.data ?? '0x'),
+        value: op.value ? BigInt(op.value) : undefined,
+      }),
+    );
+
+    const [trace, fees] = await Promise.all([
+      network.traceCall({
+        request: {
+          from: localAccount,
+          ...encodeOperations(operations),
+        },
+      }),
+      (async () =>
+        this.transactions.fees({
+          account,
+          feeToken: asAddress(t.feeToken.address),
+          paymasterEthFees: {
+            activation: new Decimal(t.paymasterEthFees.activation),
+          },
+          gasLimit: (
+            await this.transactions.estimateNetworkFees({
+              account,
+              feeToken: asAddress(t.feeToken.address),
+              ...encodeOperations(operations),
+            })
+          ).gasLimit,
+        }))(),
+    ]);
 
     const error = trace.error || trace.revertReason;
     const validationErrors = await validationErrorsPromise;
@@ -106,30 +133,46 @@ export class SimulationsWorker extends Worker<SimulationsQueue> {
 
     const result = await (success
       ? this.db.exec(insertSimulatedSuccess, {
-          transaction: t.id,
+          transaction: id,
           response: trace.output,
-          gasUsed: trace.gasUsed,
+          gasUsed: fees.gasLimit,
         })
       : this.db.exec(insertSimulatedFailure, {
-          transaction: t.id,
+          transaction: id,
           response: trace.output,
-          gasUsed: trace.gasUsed,
+          gasUsed: fees.gasLimit,
           reason: error ?? '',
           validationErrors,
         }));
 
-    const logs = await this.simulateEvents(t);
+    const logs = await this.simulateEvents(t, fees.feeToken.total);
     await this.events.processSimulatedAndOptimistic({ chain, logs, result: asUUID(result.id) });
 
-    this.proposals.event({ id: asUUID(t.id), account }, ProposalEvent.simulated);
+    this.proposals.event({ id, account }, ProposalEvent.simulated);
 
     return { executable: success };
   }
 
-  private async simulateEvents(t: TransactionExecutableShape) {
+  private async simulateEvents(t: TransactionExecutableShape, totalFeeAmount: Decimal) {
     const account = asAddress(t.account.address);
-
     const logs: Log<undefined, false>[] = [];
+
+    // Fees
+    if (totalFeeAmount.gt(0)) {
+      logs.push({
+        address: asAddress(t.feeToken.address),
+        ...encodeEvent({
+          abi: ERC20,
+          eventName: 'Transfer',
+          args: {
+            from: account,
+            to: asAddress(t.paymaster),
+            value: await this.tokens.asFp(asUAddress(t.feeToken.address), totalFeeAmount),
+          },
+        }),
+      });
+    }
+
     for (const op of t.operations) {
       // Native transfer
       if (op.value) {
@@ -141,6 +184,7 @@ export class SimulationsWorker extends Worker<SimulationsQueue> {
             args: {
               from: account,
               to: asAddress(op.to),
+              value: op.value,
             },
           }),
         });

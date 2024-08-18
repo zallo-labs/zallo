@@ -12,6 +12,12 @@ import { useFragment, useSubscription } from 'react-relay';
 import { ProposalApprovalsQuery } from '~/api/__generated__/ProposalApprovalsQuery.graphql';
 import { ProposalApprovals_proposal$key } from '~/api/__generated__/ProposalApprovals_proposal.graphql';
 import { useLazyQuery } from '~/api';
+import { ItemListSubheader } from '#/list/ItemListSubheader';
+import { ItemList } from '#/layout/ItemList';
+import { createStyles, useStyles } from '@theme/styles';
+import { ProposalApprovals_Subscription } from '~/api/__generated__/ProposalApprovals_Subscription.graphql';
+import { View } from 'react-native';
+import { Text } from 'react-native-paper';
 
 const Proposal = graphql`
   fragment ProposalApprovals_proposal on Proposal {
@@ -53,8 +59,8 @@ const Proposal = graphql`
 `;
 
 const Query = graphql`
-  query ProposalApprovalsQuery($proposal: ID!) {
-    proposal(id: $proposal) {
+  query ProposalApprovalsQuery($id: ID!) {
+    proposal(id: $id) {
       ...ProposalApprovals_proposal
     }
 
@@ -67,8 +73,8 @@ const Query = graphql`
 `;
 
 const Subscription = graphql`
-  subscription ProposalApprovals_Subscription($proposal: ID!) {
-    proposalUpdated(input: { proposals: [$proposal], events: [approval, rejection] }) {
+  subscription ProposalApprovals_Subscription($id: ID!) {
+    proposalUpdated(input: { proposals: [$id], events: [approval, rejection] }) {
       id
       event
       proposal {
@@ -83,18 +89,18 @@ export interface PolicyTabProps {
 }
 
 function ProposalApprovals_({ proposal: id }: PolicyTabProps) {
-  const data = useLazyQuery<ProposalApprovalsQuery>(Query, { proposal: id });
-  const p = useFragment<ProposalApprovals_proposal$key>(Proposal, data.proposal);
-  const user = data.user;
+  const { styles } = useStyles(stylesheet);
 
-  useSubscription(
-    useMemo(() => ({ subscription: Subscription, variables: { proposal: id } }), [id]),
+  const { user, ...query } = useLazyQuery<ProposalApprovalsQuery>(Query, { id });
+  const p = useFragment<ProposalApprovals_proposal$key>(Proposal, query.proposal);
+
+  useSubscription<ProposalApprovals_Subscription>(
+    useMemo(() => ({ subscription: Subscription, variables: { id } }), [id]),
   );
 
   if (!p) return null;
 
-  const awaitingApprovers =
-    p.policy &&
+  const pendingApprovers =
     p.approvals.length < p.policy.threshold &&
     p.policy.approvers.filter(
       (approver) =>
@@ -106,31 +112,80 @@ function ProposalApprovals_({ proposal: id }: PolicyTabProps) {
     <>
       <SelectedPolicy proposal={p} />
 
-      {awaitingApprovers && (
+      {pendingApprovers && (
         <>
-          <ListHeader
-            trailing={p.policy.threshold && `${p.policy.threshold - p.approvals.length} required`}
-          >
-            Pending
-          </ListHeader>
-          {awaitingApprovers.map((approver) => (
-            <PendingApprovalItem key={approver.id} user={user} proposal={p} approver={approver} />
-          ))}
+          <View style={styles.pendingLabelContainer}>
+            <ItemListSubheader>Pending</ItemListSubheader>
+
+            <Text variant="bodyMedium">{p.policy.threshold - p.approvals.length} required</Text>
+          </View>
+
+          <ItemList>
+            {pendingApprovers.map((approver) => (
+              <PendingApprovalItem
+                key={approver.id}
+                user={user}
+                proposal={p}
+                approver={approver}
+                containerStyle={[styles.item, styles.pending]}
+              />
+            ))}
+          </ItemList>
         </>
       )}
 
-      {p.rejections.length > 0 && <ListHeader>Rejected</ListHeader>}
-      {p.rejections.map((rejection) => (
-        <RejectionItem key={rejection.id} user={user} rejection={rejection} proposal={p} />
-      ))}
+      {p.approvals.length > 0 && (
+        <>
+          <ItemListSubheader>Approvals</ItemListSubheader>
+          <ItemList>
+            {p.approvals.map((a) => (
+              <ApprovalItem
+                key={a.id}
+                user={user}
+                approval={a}
+                proposal={p}
+                containerStyle={styles.item}
+              />
+            ))}
+          </ItemList>
+        </>
+      )}
 
-      {p.approvals.length > 0 && <ListHeader>Approvals</ListHeader>}
-      {p.approvals.map((a) => (
-        <ApprovalItem key={a.id} user={user} approval={a} proposal={p} />
-      ))}
+      {p.rejections.length > 0 && (
+        <>
+          <ItemListSubheader>Rejected</ItemListSubheader>
+          <ItemList>
+            {p.rejections.map((rejection) => (
+              <RejectionItem
+                key={rejection.id}
+                user={user}
+                rejection={rejection}
+                proposal={p}
+                containerStyle={styles.item}
+              />
+            ))}
+          </ItemList>
+        </>
+      )}
     </>
   );
 }
+
+const stylesheet = createStyles(({ colors }) => ({
+  item: {
+    backgroundColor: colors.surface,
+  },
+  pending: {
+    paddingVertical: 16,
+  },
+  pendingLabelContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    gap: 8,
+    marginRight: 24,
+  },
+}));
 
 export const ProposalApprovals = withSuspense(
   ProposalApprovals_,

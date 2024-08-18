@@ -3,7 +3,7 @@ import { asUAddress } from 'lib';
 import { IconButton } from '#/IconButton';
 import { AddressLabel } from '#/address/AddressLabel';
 import { Timestamp } from '#/format/Timestamp';
-import { ListItem } from '#/list/ListItem';
+import { ListItem, ListItemProps } from '#/list/ListItem';
 import { useReject } from '~/hooks/useReject';
 import { AddressIcon } from '#/Identicon/AddressIcon';
 import { graphql, useFragment } from 'react-relay';
@@ -38,7 +38,7 @@ const Proposal = graphql`
   }
 `;
 
-export interface ApprovalItemProps {
+export interface ApprovalItemProps extends Partial<ListItemProps> {
   user: ApprovalItem_user$key;
   approval: ApprovalItem_approval$key;
   proposal: ApprovalItem_proposal$key;
@@ -64,6 +64,7 @@ export function ApprovalItem(props: ApprovalItemProps) {
           <IconButton mode="contained-tonal" icon={CloseIcon} size={size} onPress={reject} />
         ),
       })}
+      {...props}
     />
   );
 }

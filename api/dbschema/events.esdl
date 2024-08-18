@@ -10,9 +10,7 @@ module default {
       default := true;
       rewrite insert, update using (exists __subject__.result);
     };
-    required confirmed: bool {
-      # rewrite insert, update using ((__subject__.result is Confirmed) ?? true);
-    }
+    required confirmed: bool; # rewrite insert, update using ((__subject__.result is Confirmed) ?? true);
 
     access policy members_can_select
       allow select

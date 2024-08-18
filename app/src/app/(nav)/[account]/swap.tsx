@@ -199,8 +199,8 @@ function SwapScreen() {
                   });
                   if (proposal) {
                     router.push({
-                      pathname: `/(nav)/transaction/[id]`,
-                      params: { id: proposal },
+                      pathname: `/(nav)/[account]/(home)/activity/transaction/[id]`,
+                      params: { account, id: proposal },
                     });
                     ampli.swapProposal({ from: from.address, to: to!.address });
                   } else {

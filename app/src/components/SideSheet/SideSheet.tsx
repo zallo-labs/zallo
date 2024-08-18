@@ -1,10 +1,10 @@
 import { createStyleSheet, useStyles } from 'react-native-unistyles';
 import { ReactNode } from 'react';
 import { ScrollView, StyleProp, View, ViewStyle } from 'react-native';
-import { SideSheetSurface, useSideSheetType } from './SideSheetSurface';
+import { SideSheetSurface } from './SideSheetSurface';
 import { Text } from 'react-native-paper';
 import { CloseIcon } from '@theme/icons';
-import { SIDE_SHEET } from './SideSheetLayout';
+import { SIDE_SHEET, useSideSheetType } from './SideSheetLayout';
 import { useAtom } from 'jotai';
 
 export interface SideSheetProps {

@@ -1,12 +1,7 @@
 import { Field, ObjectType } from '@nestjs/graphql';
 import Decimal from 'decimal.js';
 import { DecimalField } from '~/common/scalars/Decimal.scalar';
-import {
-  CustomNode,
-  CustomNodeType,
-  Node,
-  NodeType,
-} from '~/common/decorators/interface.decorator';
+import { CustomNode, CustomNodeType } from '~/common/decorators/interface.decorator';
 
 @CustomNodeType()
 export class FeesPerGas extends CustomNode {

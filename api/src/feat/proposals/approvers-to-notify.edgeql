@@ -5,6 +5,7 @@ with p := (select Proposal filter .id = <uuid>$proposal),
      approversToNotify := (approvers if shouldNotify else {})
 select {
   isTransaction := exists [p is Transaction],
+  account := p.account.address,
   approvers := (
     select approversToNotify {
       pushToken := .details.pushToken

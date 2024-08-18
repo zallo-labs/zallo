@@ -2,10 +2,9 @@ import { Injectable, Logger } from '@nestjs/common';
 import { Address, UAddress, asAddress, asUAddress, isTruthy, ETH_ADDRESS, isEthToken } from 'lib';
 import { ERC20 } from 'lib/dapps';
 import { EventsService, OptimisticEvent, ConfirmedEvent } from '../events/events.service';
-import { DatabaseService } from '~/core/database';
+import { and, DatabaseService } from '~/core/database';
 import e from '~/edgeql-js';
 import { selectAccount } from '../accounts/accounts.util';
-import { NetworksService } from '~/core/networks/networks.service';
 import { uuid } from 'edgedb/dist/codecs/ifaces';
 import { EventPayload, PubsubService } from '~/core/pubsub/pubsub.service';
 import { getAbiItem } from 'viem';
@@ -34,7 +33,6 @@ export class TransfersEvents {
   constructor(
     private db: DatabaseService,
     private events: EventsService,
-    private networks: NetworksService,
     private pubsub: PubsubService,
     private accountsCache: AccountsCacheService,
     private expo: ExpoService,
@@ -70,7 +68,14 @@ export class TransfersEvents {
       accounts.map(async (account) => {
         const selectedAccount = selectAccount(account);
         const result = event.result
-          ? e.assert_single(e.select(e.Result, () => ({ filter_single: { id: event.result } })))
+          ? e.assert_single(
+              e.select(e.Result, (r) => ({
+                filter: and(
+                  e.op(r.id, '=', e.uuid(event.result!)),
+                  e.op(r.transaction.account, '=', selectedAccount),
+                ),
+              })),
+            )
           : e.cast(e.Result, e.set());
 
         const transfer = await this.db.query(
@@ -164,7 +169,14 @@ export class TransfersEvents {
       accounts.map(async (account) => {
         const selectedAccount = selectAccount(account);
         const result = event.result
-          ? e.assert_single(e.select(e.Result, () => ({ filter_single: { id: event.result } })))
+          ? e.assert_single(
+              e.select(e.Result, (r) => ({
+                filter: and(
+                  e.op(r.id, '=', e.uuid(event.result!)),
+                  e.op(r.transaction.account, '=', selectedAccount),
+                ),
+              })),
+            )
           : e.cast(e.Result, e.set());
 
         const approval = await this.db.query(

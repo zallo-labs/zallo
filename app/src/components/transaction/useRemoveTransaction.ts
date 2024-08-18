@@ -1,15 +1,15 @@
+import { Confirm } from '#/Confirm';
 import { useRouter } from 'expo-router';
 import { useFragment } from 'react-relay';
 import { graphql, SelectorStoreUpdater } from 'relay-runtime';
-import { useMutation } from '~/api';
-import { useRemoveTransaction_account$key } from '~/api/__generated__/useRemoveTransaction_account.graphql';
+import { useLazyQuery, useMutation } from '~/api';
 import { useRemoveTransaction_transaction$key } from '~/api/__generated__/useRemoveTransaction_transaction.graphql';
 import {
   useRemoveTransactionMutation,
   useRemoveTransactionMutation$data,
 } from '~/api/__generated__/useRemoveTransactionMutation.graphql';
+import { useRemoveTransactionQuery } from '~/api/__generated__/useRemoveTransactionQuery.graphql';
 import { useRemoveTransactionUpdatableQuery } from '~/api/__generated__/useRemoveTransactionUpdatableQuery.graphql';
-import { useConfirmRemoval } from '~/hooks/useConfirm';
 
 graphql`
   fragment useRemoveTransaction_assignable_transaction on Transaction @assignable {
@@ -17,39 +17,44 @@ graphql`
   }
 `;
 
-const Account = graphql`
-  fragment useRemoveTransaction_account on Account {
-    address
-    proposals {
-      id
-      ...useRemoveTransaction_assignable_transaction
-    }
-    pendingProposals: proposals(input: { pending: true }) {
-      id
-      ...useRemoveTransaction_assignable_transaction
-    }
-  }
-`;
-
 const Transaction = graphql`
   fragment useRemoveTransaction_transaction on Transaction {
     id
     status
+    account {
+      address
+    }
+  }
+`;
+
+const Query = graphql`
+  query useRemoveTransactionQuery($account: UAddress!) {
+    account(address: $account) {
+      proposals {
+        id
+        ...useRemoveTransaction_assignable_transaction
+      }
+      pendingProposals: proposals(input: { pending: true }) {
+        id
+        ...useRemoveTransaction_assignable_transaction
+      }
+    }
   }
 `;
 
 export interface RemoveTransactionParams {
-  account: useRemoveTransaction_account$key;
   transaction: useRemoveTransaction_transaction$key;
 }
 
 export function useRemoveTransaction(params: RemoveTransactionParams) {
-  const account = useFragment(Account, params.account);
-  const p = useFragment(Transaction, params.transaction);
+  const t = useFragment(Transaction, params.transaction);
   const router = useRouter();
-  const confirmRemoval = useConfirmRemoval({
-    message: 'Are you sure you want to remove this proposal?',
-  });
+
+  const { account } = useLazyQuery<useRemoveTransactionQuery>(
+    Query,
+    { account: t.account.address },
+    { fetchPolicy: 'store-only' },
+  );
 
   const commit = useMutation<useRemoveTransactionMutation>(graphql`
     mutation useRemoveTransactionMutation($proposal: ID!) @raw_response_type {
@@ -57,14 +62,20 @@ export function useRemoveTransaction(params: RemoveTransactionParams) {
     }
   `);
 
-  if (p.status !== 'Pending') return null;
+  if (t.status !== 'Pending') return null;
 
   return async () => {
-    if (!(await confirmRemoval())) return;
+    if (
+      !(await Confirm.call({
+        type: 'destructive',
+        message: 'Are you sure you want to remove this transaction?',
+      }))
+    )
+      return;
 
     router.replace({
       pathname: '/(nav)/[account]/(home)/activity',
-      params: { account: account.address },
+      params: { account: t.account.address },
     });
 
     const updater: SelectorStoreUpdater<useRemoveTransactionMutation$data> = (store, data) => {
@@ -85,7 +96,7 @@ export function useRemoveTransaction(params: RemoveTransactionParams) {
             }
           }
         `,
-        { address: account.address },
+        { address: t.account.address },
       );
 
       if (updatableData.account) {
@@ -99,9 +110,9 @@ export function useRemoveTransaction(params: RemoveTransactionParams) {
     };
 
     await commit(
-      { proposal: p.id },
+      { proposal: t.id },
       {
-        optimisticResponse: { removeTransaction: p.id },
+        optimisticResponse: { removeTransaction: t.id },
         optimisticUpdater: updater,
         updater,
       },

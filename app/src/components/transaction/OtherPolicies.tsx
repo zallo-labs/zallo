@@ -68,6 +68,7 @@ function OtherPolicies_(props: OtherPoliciesProps) {
       {policies.map((p) => (
         <PolicyItem
           key={p.id}
+          variant='surface'
           policy={p}
           {...(p.validationErrors.length && {
             trailing: ({ Text }) => <Text style={styles.error}>Insufficient permission</Text>,
@@ -91,7 +92,7 @@ const stylesheet = createStyles(({ colors }) => ({
 
 export const OtherPolicies = withSuspense(memo(OtherPolicies_), () => (
   <>
-    <ListItemSkeleton leading={PolicyIcon} supporting />
-    <ListItemSkeleton leading={PolicyIcon} supporting />
+    <ListItemSkeleton leading leadingSize="small" supporting />
+    <ListItemSkeleton leading leadingSize="small" supporting />
   </>
 ));

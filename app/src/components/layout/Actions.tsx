@@ -9,7 +9,7 @@ export interface ActionsProps {
   flex?: boolean;
 }
 
-export function Actions({ children, style, horizontal, flex = true }: ActionsProps) {
+export function Actions({ children, style, horizontal, flex = !horizontal }: ActionsProps) {
   const { styles } = useStyles(stylesheet);
 
   return horizontal ? (

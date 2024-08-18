@@ -71,7 +71,10 @@ export function TransferFromMode({ to, amount, ...props }: TransferFromModeProps
         ],
         // executionGas: TODO: estimate execution gas
       });
-      router.push({ pathname: `/(nav)/transaction/[id]`, params: { id: transaction } });
+      router.push({
+        pathname: `/(nav)/[account]/(home)/activity/transaction/[id]`,
+        params: { account: account.address, id: transaction },
+      });
     });
 
   return (

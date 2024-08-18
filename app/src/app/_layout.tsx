@@ -26,6 +26,7 @@ import { Try } from 'expo-router/build/views/Try';
 import { PortalProvider } from '@gorhom/portal';
 import { GlobalSubscriptions } from '#/GlobalSubscriptions/GlobalSubscriptions';
 import { createStyles, useStyles } from '@theme/styles';
+import { Confirm } from '#/Confirm';
 
 export const unstable_settings = {
   initialRouteName: `index`,
@@ -113,6 +114,7 @@ function RootLayout() {
                 </Suspense>
               </Background>
               <SnackbarProvider />
+              <Confirm.Root />
             </GestureHandlerRootView>
           </IntlProvider>
         </Try>

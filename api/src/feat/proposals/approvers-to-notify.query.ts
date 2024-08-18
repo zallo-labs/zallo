@@ -8,6 +8,7 @@ export type ApproversToNotifyArgs = {
 
 export type ApproversToNotifyReturns = {
   "isTransaction": boolean;
+  "account": string | null;
   "approvers": Array<{
     "pushToken": string | null;
   }>;
@@ -22,6 +23,7 @@ with p := (select Proposal filter .id = <uuid>$proposal),
      approversToNotify := (approvers if shouldNotify else {})
 select {
   isTransaction := exists [p is Transaction],
+  account := p.account.address,
   approvers := (
     select approversToNotify {
       pushToken := .details.pushToken

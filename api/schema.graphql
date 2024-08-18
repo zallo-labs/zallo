@@ -173,7 +173,7 @@ interface Confirmed implements Node & Result {
   id: ID!
   networkEthFee: Decimal!
   response: Bytes!
-  systemTx: SystemTx
+  systx: SystemTx
   timestamp: DateTime!
   transaction: Transaction!
   transfers: [Transfer!]!
@@ -188,7 +188,7 @@ type ConfirmedFailure implements Confirmed & Failure & Node & Result {
   networkEthFee: Decimal!
   reason: String
   response: Bytes!
-  systemTx: SystemTx
+  systx: SystemTx
   timestamp: DateTime!
   transaction: Transaction!
   transfers: [Transfer!]!
@@ -202,7 +202,7 @@ type ConfirmedSuccess implements Confirmed & Node & Result & Success {
   id: ID!
   networkEthFee: Decimal!
   response: Bytes!
-  systemTx: SystemTx
+  systx: SystemTx
   timestamp: DateTime!
   transaction: Transaction!
   transfers: [Transfer!]!
@@ -282,10 +282,20 @@ input EstimateFeesPerGasInput {
   feeToken: UAddress!
 }
 
+type EstimatedFeeParts {
+  maxFeePerGas: Decimal!
+  maxPriorityFeePerGas: Decimal!
+  networkFee: Decimal!
+  paymasterFees: PaymasterFees!
+  total: Decimal!
+}
+
 type EstimatedTransactionFees implements CustomNode {
+  eth: EstimatedFeeParts!
+  feeToken: EstimatedFeeParts!
+  gasLimit: Uint256!
+  gasPerPubdataLimit: Uint256!
   id: ID!
-  maxNetworkEthFee: Decimal!
-  paymasterEthFees: PaymasterFees!
 }
 
 interface Event implements Node {
@@ -311,7 +321,7 @@ interface Failure implements Node & Result {
   id: ID!
   reason: String
   response: Bytes!
-  systemTx: SystemTx
+  systx: SystemTx
   timestamp: DateTime!
   transaction: Transaction!
   transfers: [Transfer!]!
@@ -423,7 +433,7 @@ type OptimisticSuccess implements Node & Result & Success {
   gasUsed: BigInt!
   id: ID!
   response: Bytes!
-  systemTx: SystemTx
+  systx: SystemTx
   timestamp: DateTime!
   transaction: Transaction!
   transfers: [Transfer!]!
@@ -705,7 +715,7 @@ interface Result implements Node {
   gasUsed: BigInt!
   id: ID!
   response: Bytes!
-  systemTx: SystemTx
+  systx: SystemTx
   timestamp: DateTime!
   transaction: Transaction!
   transfers: [Transfer!]!
@@ -718,7 +728,7 @@ type Scheduled implements Node & Result {
   id: ID!
   response: Bytes!
   scheduledFor: DateTime!
-  systemTx: SystemTx
+  systx: SystemTx
   timestamp: DateTime!
   transaction: Transaction!
   transfers: [Transfer!]!
@@ -733,7 +743,7 @@ type SimulatedFailure implements Failure & Node & Result {
   id: ID!
   reason: String
   response: Bytes!
-  systemTx: SystemTx
+  systx: SystemTx
   timestamp: DateTime!
   transaction: Transaction!
   transfers: [Transfer!]!
@@ -746,7 +756,7 @@ type SimulatedSuccess implements Node & Result & Success {
   id: ID!
   reason: String
   response: Bytes!
-  systemTx: SystemTx
+  systx: SystemTx
   timestamp: DateTime!
   transaction: Transaction!
   transfers: [Transfer!]!
@@ -771,7 +781,7 @@ interface Success implements Node & Result {
   gasUsed: BigInt!
   id: ID!
   response: Bytes!
-  systemTx: SystemTx
+  systx: SystemTx
   timestamp: DateTime!
   transaction: Transaction!
   transfers: [Transfer!]!
@@ -901,7 +911,6 @@ type TransactionPreparation implements CustomNode {
 
 enum TransactionStatus {
   Cancelled
-  Executing
   Failed
   Pending
   Scheduled

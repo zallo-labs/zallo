@@ -62,8 +62,13 @@ describe(TransactionsService.name, () => {
 
     networks.get.mockReturnValue({
       chain: CHAINS['zksync-local'],
-      estimatedMaxFeePerGas: async () => new Decimal('.00000001'),
-      getCode: async () => '0x00',  // Non-zero - activated
+      feeParams: async () => ({
+        maxFeePerGas: new Decimal('.00000001'),
+        maxPriorityFeePerGas: new Decimal(0),
+        gasPerPubdataLimit: 0n,
+      }),
+      maxFeePerGas: async () => new Decimal('.00000001'),
+      getCode: async () => '0x00', // Non-zero - activated
     } satisfies DeepPartial<Network> as unknown as Network);
 
     paymasters.paymasterFees.mockImplementation(async () => ({
@@ -266,14 +271,6 @@ describe(TransactionsService.name, () => {
   //       asUser(user1, async () => {
   //         const proposals = await service.select({ statuses: [TransactionStatus.Pending] });
   //         expect(proposals.map((p) => p.id)).toEqual([pending]);
-  //       }));
-
-  //     it('executing', () =>
-  //       asUser(user1, async () => {
-  //         const proposals = await service.select({
-  //           statuses: [TransactionStatus.Executing],
-  //         });
-  //         expect(proposals.map((p) => p.id)).toEqual([executing]);
   //       }));
 
   //     it('successful', () =>

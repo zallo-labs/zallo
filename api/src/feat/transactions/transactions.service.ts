@@ -12,12 +12,13 @@ import {
   UUID,
   ACCOUNT_ABI,
   asHex,
-  isHex,
   Hex,
   encodeOperations,
   encodePaymasterInput,
+  UAddress,
+  Address,
 } from 'lib';
-import { NetworksService } from '~/core/networks';
+import { NetworkFeeParams, NetworksService } from '~/core/networks';
 import {
   PrepareTransactionInput,
   ProposeCancelScheduledTransactionInput,
@@ -25,13 +26,16 @@ import {
   UpdateTransactionInput,
 } from './transactions.input';
 import { DatabaseService } from '~/core/database';
-import e, { $infer } from '~/edgeql-js';
-import { Shape, ShapeFunc } from '~/core/database';
+import e from '~/edgeql-js';
+import { ShapeFunc } from '~/core/database';
 import { and } from '~/core/database';
 import { ProposalsService, UniqueProposal } from '../proposals/proposals.service';
 import { ApproveInput, ProposalEvent } from '../proposals/proposals.input';
 import { PaymastersService } from '~/feat/paymasters/paymasters.service';
-import { EstimatedTransactionFees } from '~/feat/transactions/transactions.model';
+import {
+  EstimatedFeeParts,
+  EstimatedTransactionFees,
+} from '~/feat/transactions/transactions.model';
 import { InjectFlowProducer } from '@nestjs/bullmq';
 import { ExecutionsQueue } from '~/feat/transactions/executions.worker';
 import { FLOW_PRODUCER, QueueData } from '~/core/bull/bull.util';
@@ -52,23 +56,36 @@ import { lowerOfPaymasterFees, totalPaymasterEthFees } from '~/feat/paymasters/p
 import Decimal from 'decimal.js';
 import { afterRequest } from '~/core/context';
 import { DEFAULT_FLOW } from '~/core/bull/bull.module';
-import { PaymasterFeeParts } from '~/feat/paymasters/paymasters.model';
 import { insertTransaction } from './insert-transaction.query';
 import { deleteTransaction } from './delete-transaction.query';
 import { fromPromise } from 'neverthrow';
+import _ from 'lodash';
+import { PaymasterFeeParts } from '../paymasters/paymasters.model';
+import { utils as zkUtils } from 'zksync-ethers';
+import { EstimateFeeParameters } from 'viem/zksync';
+import { ChainConfig } from 'chains';
 
-const MAX_NETWORK_FEE_MULTIPLIER = new Decimal(5); // Allow for a higher network fee
+type EstimateEip712FeeParams = Extract<
+  EstimateFeeParameters<ChainConfig>,
+  { type?: 'eip712' | 'priority' | null | undefined }
+>;
+type EstimateNetworkFeeParams = Omit<EstimateEip712FeeParams, 'type' | 'account'> & {
+  account: UAddress;
+  feeToken: Address;
+} & (
+    | { paymaster: Address; paymasterInput: Hex }
+    | { paymaster?: undefined; paymasterInput?: undefined }
+  );
 
-export const estimateFeesDeps = {
-  id: true,
-  account: { address: true },
-  gasLimit: true,
-  paymasterEthFees: {
-    activation: true,
-  },
-} satisfies Shape<typeof e.Transaction>;
-const s_ = e.assert_exists(e.assert_single(e.select(e.Transaction, () => estimateFeesDeps)));
-export type EstimateFeesDeps = $infer<typeof s_>;
+interface EstimateFeesParams {
+  account: UAddress;
+  feeToken: Address;
+  gasLimit: bigint;
+  paymasterEthFees: PaymasterFeeParts;
+}
+
+const GAS_LIMIT_MULTIPLIER = 2n; // Future gas estimate may increase
+const FEE_TOKEN_PRICE_MULTIPLIER = new Decimal('2'); // Future fee token price may reduce
 
 @Injectable()
 export class TransactionsService {
@@ -87,36 +104,23 @@ export class TransactionsService {
   ) {}
 
   async selectUnique(id: UniqueProposal, shape?: ShapeFunc<typeof e.Transaction>) {
-    return this.db.queryWith(
-      { id: e.uuid },
-      ({ id }) =>
-        e.select(e.Transaction, (t) => ({
-          ...shape?.(t),
-          filter_single: { id },
-        })),
-      { id },
+    return this.db.queryWith2({ id: e.uuid }, { id }, ({ id }) =>
+      e.select(e.Transaction, (t) => ({
+        ...shape?.(t),
+        filter_single: { id },
+      })),
     );
   }
 
-  async tryExecute(transaction: UUID | Hex, ignoreSimulation?: boolean) {
-    const t = isHex(transaction)
-      ? await this.db.queryWith2({ hash: e.Bytes32 }, { hash: transaction }, ({ hash }) =>
-          e.select(e.Transaction, () => ({
-            filter_single: { hash },
-            id: true,
-            account: { address: true, active: true },
-          })),
-        )
-      : await this.db.queryWith2({ id: e.uuid }, { id: transaction }, ({ id }) =>
-          e.select(e.Transaction, () => ({
-            filter_single: { id },
-            id: true,
-            account: { address: true, active: true },
-          })),
-        );
+  async tryExecute(transaction: UUID, ignoreSimulation?: boolean) {
+    const t = await this.db.queryWith2({ id: e.uuid }, { id: transaction }, ({ id }) =>
+      e.select(e.Transaction, () => ({
+        filter_single: { id },
+        account: { address: true, active: true },
+      })),
+    );
     if (!t) throw new Error(`Transaction proposal not found: ${transaction}`);
 
-    const id = asUUID(t.id);
     const account = asUAddress(t.account.address);
     const chain = asChain(account);
 
@@ -131,7 +135,7 @@ export class TransactionsService {
             queueName: ExecutionsQueue.name,
             name: 'Standard transaction',
             data: {
-              transaction: id,
+              transaction,
               ignoreSimulation,
               type: 'standard',
             } satisfies QueueData<ExecutionsQueue>,
@@ -143,7 +147,7 @@ export class TransactionsService {
                     data: { transaction } satisfies QueueData<SimulationsQueue>,
                   },
                 ]
-              : [this.activations.flow(account, id) /* Includes simulation */],
+              : [this.activations.flow(account, transaction) /* Includes simulation */],
           },
         ],
       },
@@ -165,52 +169,24 @@ export class TransactionsService {
     const network = this.networks.get(chain);
     const paymaster = this.paymasters.for(chain);
 
-    const isActive = !!(await network.getCode({ address: asAddress(account) }))?.length;
-
-    const getGas = async () => {
-      if (gasInput) return gasInput;
-
-      const estimate = await fromPromise(
-        network.estimateFee({
-          type: 'eip712',
-          account: asAddress(account),
-          ...encodeOperations(operations),
-          // Only active accounts can estimate paymaster fees. Inactive accounts use EOA account code and throw 'Unsupported paymaster flow'
-          ...(isActive
-            ? {
-                paymaster,
-                paymasterInput: encodePaymasterInput({
-                  token: feeToken,
-                  amount: 0n,
-                  maxAmount: 0n,
-                }),
-              }
-            : {
-                paymaster: undefined,
-                paymasterInput: undefined,
-              }),
-        }),
-        (e) => e as EstimateGasErrorType,
-      );
-
-      // estimateFee (or estimateGas) may revert; use a fallback in these cases
-      return estimate.map((estimate) => estimate.gasLimit).unwrapOr(2_000_000n);
-    };
-
-    const [gas, maxFeePerGas, paymasterFees, feeTokenPrice] = await Promise.all([
-      getGas(),
-      network.estimatedMaxFeePerGas(),
+    const [gasEstimate, maxFeePerGas, paymasterFees, feeTokenPrice] = await Promise.all([
+      (async () =>
+        gasInput ??
+        (await this.estimateNetworkFees({ account, feeToken, ...encodeOperations(operations) }))
+          .gasLimit)(),
+      network.maxFeePerGas(),
       this.paymasters.paymasterFees({ account }),
       this.prices.price(asUAddress(feeToken, chain)),
     ]);
-    const maxNetworkFee = maxFeePerGas.mul(gas.toString()).mul(MAX_NETWORK_FEE_MULTIPLIER);
+    const gasLimit = gasEstimate * GAS_LIMIT_MULTIPLIER;
+    const maxNetworkFee = maxFeePerGas.mul(gasLimit.toString());
     const totalEthFees = maxNetworkFee.plus(totalPaymasterEthFees(paymasterFees));
-    const maxAmount = totalEthFees.div(feeTokenPrice.eth);
+    const maxAmount = totalEthFees.div(feeTokenPrice.eth).mul(FEE_TOKEN_PRICE_MULTIPLIER);
 
     const tx = {
       operations,
       timestamp: BigInt(Math.floor(timestamp.getTime() / 1000)),
-      gas,
+      gas: gasLimit,
       feeToken,
       paymaster,
       maxAmount: await this.tokens.asFp(asUAddress(feeToken, chain), maxAmount),
@@ -330,6 +306,7 @@ export class TransactionsService {
     } else {
       afterRequest(() => this.tryExecute(id));
     }
+
     this.proposals.event({ id, account }, ProposalEvent.create);
     this.proposals.notifyApprovers(id);
 
@@ -366,12 +343,12 @@ export class TransactionsService {
   }
 
   async update({ id, policy, feeToken }: UpdateTransactionInput) {
-    const p = await this.db.query(
+    const t = await this.db.query(
       e.assert_single(
-        e.select(e.Transaction, (p) => ({
+        e.select(e.Transaction, (t) => ({
           filter: and(
-            e.op(p.id, '=', e.uuid(id)),
-            e.op(p.status, 'in', e.set(e.TransactionStatus.Pending, e.TransactionStatus.Failed)),
+            e.op(t.id, '=', e.uuid(id)),
+            e.op(t.status, 'in', e.set(e.TransactionStatus.Pending, e.TransactionStatus.Failed)),
           ),
           hash: true,
           account: { address: true },
@@ -381,33 +358,30 @@ export class TransactionsService {
         })),
       ),
     );
-    if (!p) return;
+    if (!t) return;
 
-    const account = asUAddress(p.account.address);
+    const account = asUAddress(t.account.address);
 
-    let maxAmount = new Decimal(p.maxAmount);
+    let maxAmount = new Decimal(t.maxAmount);
     if (feeToken) {
       const network = this.networks.get(account);
       const [maxFeePerGas, feeTokenPrice] = await Promise.all([
-        network.estimatedMaxFeePerGas(),
+        network.maxFeePerGas(),
         this.prices.price(asUAddress(feeToken, network.chain.key)),
       ]);
-      const newTotalEthFee = maxFeePerGas
-        .mul(p.gasLimit.toString())
-        .mul(MAX_NETWORK_FEE_MULTIPLIER)
-        .plus(p.paymasterEthFees.total);
-      maxAmount = newTotalEthFee.div(feeTokenPrice.eth);
+      const newTotalEthFee = maxFeePerGas.mul(t.gasLimit.toString()).plus(t.paymasterEthFees.total);
+      maxAmount = newTotalEthFee.div(feeTokenPrice.eth).mul(FEE_TOKEN_PRICE_MULTIPLIER);
     }
 
-    const uFeeToken = asUAddress(feeToken ?? asAddress(p.feeToken.address), asChain(account));
+    const uFeeToken = asUAddress(feeToken ?? asAddress(t.feeToken.address), asChain(account));
     const tx: Tx = {
-      ...transactionAsTx(p),
+      ...transactionAsTx(t),
       feeToken,
       maxAmount: await this.tokens.asFp(uFeeToken, maxAmount),
     };
 
     const hash = hashTypedData(asTypedData(account, tx));
-    const newHash = hash !== p.hash ? hash : undefined;
+    const newHash = hash !== t.hash ? hash : undefined;
     await this.db.query(
       e.update(e.Transaction, (p) => ({
         filter_single: { id },
@@ -430,7 +404,7 @@ export class TransactionsService {
 
     if (newHash || policy !== undefined) await this.tryExecute(id);
 
-    this.proposals.event({ id, account: p.account }, ProposalEvent.update);
+    this.proposals.event({ id, account: t.account }, ProposalEvent.update);
 
     return { id };
   }
@@ -443,22 +417,72 @@ export class TransactionsService {
     return t?.id ?? null;
   }
 
-  async estimateFees(d: EstimateFeesDeps): Promise<EstimatedTransactionFees> {
-    const account = asUAddress(d.account.address);
-    const [maxFeePerGas, curPaymasterFees] = await Promise.all([
-      this.networks.get(account).estimatedMaxFeePerGas(),
+  async estimateNetworkFees({ account, feeToken, ...estimateParams }: EstimateNetworkFeeParams) {
+    const chain = asChain(account);
+    const network = this.networks.get(chain);
+    const paymaster = this.paymasters.for(chain);
+    const isActive = !!(await network.getCode({ address: asAddress(account) }))?.length;
+
+    const estimate = await fromPromise(
+      network.estimateFee({
+        type: 'eip712',
+        account: asAddress(account),
+        // Only active accounts can estimate paymaster fees. Inactive accounts use EOA account code and throw 'Unsupported paymaster flow'
+        ...(isActive
+          ? {
+              paymaster,
+              paymasterInput: encodePaymasterInput({ token: feeToken, amount: 0n, maxAmount: 0n }),
+            }
+          : { paymaster: undefined, paymasterInput: undefined }),
+        ...estimateParams,
+      }),
+      (e) => e as EstimateGasErrorType,
+    );
+
+    return {
+      gasLimit: estimate.map((e) => e.gasLimit).unwrapOr(2_000_000n),
+      ...(await network.feeParams()),
+    };
+  }
+
+  async fees({
+    account,
+    feeToken,
+    paymasterEthFees: proposedPaymasterEthFees,
+    gasLimit,
+  }: EstimateFeesParams): Promise<Omit<EstimatedTransactionFees, 'id'>> {
+    const [feeParams, feeTokenPrice, curPaymasterFees] = await Promise.all([
+      this.networks.get(account).feeParams(),
+      this.prices.price(asUAddress(feeToken, asChain(account))),
       this.paymasters.paymasterFees({ account }),
     ]);
 
-    const existingPaymasterFees: PaymasterFeeParts = {
-      activation: new Decimal(d.paymasterEthFees.activation),
+    const networkFee = feeParams.maxFeePerGas.mul(gasLimit.toString());
+    const lowerPaymasterEthFeeParts = lowerOfPaymasterFees(
+      { activation: new Decimal(proposedPaymasterEthFees.activation) },
+      curPaymasterFees,
+    );
+    const paymasterFees = {
+      total: totalPaymasterEthFees(lowerPaymasterEthFeeParts),
+      ...lowerPaymasterEthFeeParts,
     };
-    const estPaymasterFees = lowerOfPaymasterFees(existingPaymasterFees, curPaymasterFees);
+
+    const eth: EstimatedFeeParts = {
+      networkFee,
+      paymasterFees,
+      maxFeePerGas: feeParams.maxFeePerGas,
+      maxPriorityFeePerGas: feeParams.maxPriorityFeePerGas,
+      total: networkFee.add(paymasterFees.total),
+    };
 
     return {
-      id: `EstimatedTransactionFees:${d.id}`,
-      maxNetworkEthFee: maxFeePerGas.mul(d.gasLimit.toString()),
-      paymasterEthFees: { total: totalPaymasterEthFees(estPaymasterFees), ...estPaymasterFees },
+      eth,
+      feeToken: {
+        ..._.mapValues(_.omit(eth, 'paymasterFees'), (v) => v.div(feeTokenPrice.eth)),
+        paymasterFees: _.mapValues(paymasterFees, (v) => v.div(feeTokenPrice.eth)),
+      },
+      gasLimit,
+      gasPerPubdataLimit: feeParams.gasPerPubdataLimit,
     };
   }
 }

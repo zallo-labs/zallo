@@ -52,6 +52,7 @@ export class TransfersService {
         e.select(e.cast(e.Account, account).transfers, (t) => ({
           ...shape?.(t),
           filter: and(
+            t.confirmed,
             e.op(e.op(t.incoming, '=', incoming), 'if', e.op('exists', incoming), 'else', true),
             e.op(e.op(t.outgoing, '=', outgoing), 'if', e.op('exists', outgoing), 'else', true),
             e.op(e.op(t.internal, '=', internal), 'if', e.op('exists', internal), 'else', true),

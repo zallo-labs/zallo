@@ -13,14 +13,26 @@ import {
   TransactionPreparation,
   TransactionStatus,
 } from './transactions.model';
-import { EstimateFeesDeps, TransactionsService, estimateFeesDeps } from './transactions.service';
-import { getShape } from '~/core/database';
-import e from '~/edgeql-js';
+import { TransactionsService } from './transactions.service';
+import { getShape, Shape } from '~/core/database';
+import e, { $infer } from '~/edgeql-js';
 import { Input } from '~/common/decorators/input.decorator';
 import { uuid } from 'edgedb/dist/codecs/ifaces';
 import { ComputedField } from '~/common/decorators/computed.decorator';
 import { ApproveInput } from '../proposals/proposals.input';
 import { NodeArgs } from '../nodes/nodes.input';
+import { asAddress, asHex, asUAddress, encodeOperations } from 'lib';
+import Decimal from 'decimal.js';
+
+const ESTIMATE_FEES_DEPS = {
+  id: true,
+  account: { address: true },
+  operations: { to: true, data: true, value: true },
+  paymasterEthFees: { activation: true },
+  feeToken: { address: true },
+} satisfies Shape<typeof e.Transaction>;
+const s_ = e.assert_exists(e.assert_single(e.select(e.Transaction, () => ESTIMATE_FEES_DEPS)));
+type EstimateFeesDeps = $infer<typeof s_>;
 
 @Resolver(() => Transaction)
 export class TransactionsResolver {
@@ -44,9 +56,34 @@ export class TransactionsResolver {
     return status === TransactionStatus.Pending;
   }
 
-  @ComputedField<typeof e.Transaction>(() => EstimatedTransactionFees, estimateFeesDeps)
-  async estimatedFees(@Parent() deps: EstimateFeesDeps): Promise<EstimatedTransactionFees> {
-    return this.service.estimateFees(deps);
+  @ComputedField<typeof e.Transaction>(() => EstimatedTransactionFees, ESTIMATE_FEES_DEPS)
+  async estimatedFees(@Parent() d: EstimateFeesDeps): Promise<EstimatedTransactionFees> {
+    const account = asUAddress(d.account.address);
+    const feeToken = asAddress(d.feeToken.address);
+
+    const { gasLimit } = await this.service.estimateNetworkFees({
+      account,
+      feeToken,
+      ...encodeOperations(
+        d.operations.map((op) => ({
+          to: asAddress(op.to),
+          data: asHex(op.data ?? '0x'),
+          value: op.value ? BigInt(op.value) : undefined,
+        })),
+      ),
+    });
+
+    return {
+      id: `EstimatedTransactionFees:${d.id}`,
+      ...(await this.service.fees({
+        account,
+        feeToken,
+        gasLimit,
+        paymasterEthFees: {
+          activation: new Decimal(d.paymasterEthFees.activation),
+        },
+      })),
+    };
   }
 
   @Mutation(() => Transaction)

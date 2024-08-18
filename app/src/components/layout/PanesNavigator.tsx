@@ -8,10 +8,10 @@ import {
   StackRouter,
 } from '@react-navigation/native';
 import { Screen } from '@react-navigation/elements';
-import { Panes } from './Panes';
 import { PaneProps } from './Pane';
 import { withLayoutContext } from 'expo-router';
 import { BREAKPOINTS, createStyles, useStyles } from '@theme/styles';
+import { View } from 'react-native';
 
 const MAX_PANES: Record<keyof typeof BREAKPOINTS, number> = {
   compact: 1,
@@ -54,12 +54,15 @@ function PanesNavigator({ initialRouteName, screenOptions, children }: PanesNavi
       ...route,
       position: state.routeNames.indexOf(route.name),
     }))
-    .filter((r) => r.name === last.name || r.name === 'index' || last.name.includes(r.name))
+    .filter((r) => {
+      const trimmedName = r.name.endsWith('index') ? r.name.slice(0, -6) : r.name;
+      return r.name === last.name ? r.key === last.key : last.name.includes(trimmedName);
+    })
     .sort((a, b) => a.position - b.position);
 
   return (
     <NavigationContent>
-      <Panes>
+      <View style={styles.container}>
         {routes.map((route, i) => {
           const { navigation, render } = descriptors[route.key];
 
@@ -74,13 +77,13 @@ function PanesNavigator({ initialRouteName, screenOptions, children }: PanesNavi
               navigation={navigation}
               header={null}
               headerShown={false}
-              style={shown ? styles.visible : styles.hidden}
+              style={!shown && styles.hidden}
             >
               {render()}
             </Screen>
           );
         })}
-      </Panes>
+      </View>
     </NavigationContent>
   );
 }
@@ -96,7 +99,10 @@ export const createPanesNavigator = () =>
   );
 
 const styles = createStyles({
-  visible: {},
+  container: {
+    flex: 1,
+    flexDirection: 'row',
+  },
   hidden: {
     display: 'none',
   },

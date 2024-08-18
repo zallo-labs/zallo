@@ -1,5 +1,5 @@
 import { CheckIcon } from '@theme/icons';
-import { ListItem } from '#/list/ListItem';
+import { ListItem, ListItemProps } from '#/list/ListItem';
 import { useApprove } from '~/hooks/useApprove';
 import { IconButton } from '#/IconButton';
 import { AddressIcon } from '#/Identicon/AddressIcon';
@@ -34,7 +34,7 @@ const Proposal = graphql`
   }
 `;
 
-export interface PendingApprovalItemProps {
+export interface PendingApprovalItemProps extends Partial<ListItemProps> {
   user: PendingApprovalItem_user$key;
   approver: PendingApprovalItem_approver$key;
   proposal: PendingApprovalItem_proposal$key;
@@ -56,6 +56,7 @@ export function PendingApprovalItem(props: PendingApprovalItemProps) {
           <IconButton mode="contained-tonal" icon={CheckIcon} size={size} onPress={approve} />
         ),
       })}
+      {...props}
     />
   );
 }

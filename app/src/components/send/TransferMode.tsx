@@ -59,7 +59,10 @@ export function TransferMode({ to, amount, ...props }: TransferModeProps) {
     operations &&
     (async () => {
       const transaction = await propose({ operations });
-      router.push({ pathname: `/(nav)/transaction/[id]`, params: { id: transaction } });
+      router.push({
+        pathname: `/(nav)/[account]/(home)/activity/transaction/[id]`,
+        params: { account: account.address, id: transaction },
+      });
       ampli.transferProposal({ token: token.address });
     });
 

@@ -1,7 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfirmationsWorker } from './confirmations.worker';
 import { ConfirmationQueue } from './confirmations.queue';
-import { TransactionsEvents } from './transactions.events';
 import { registerBullQueue, registerFlowsProducer } from '~/core/bull/bull.util';
 import { ProposalsModule } from '../proposals/proposals.module';
 import { SchedulerEvents } from './scheduler.events';
@@ -20,6 +19,6 @@ import { EventsModule } from '../events/events.module';
     EventsModule,
   ],
   exports: [ConfirmationsWorker],
-  providers: [ConfirmationsWorker, TransactionsEvents, SchedulerEvents],
+  providers: [ConfirmationsWorker, SchedulerEvents],
 })
 export class SystemTxsModule {}

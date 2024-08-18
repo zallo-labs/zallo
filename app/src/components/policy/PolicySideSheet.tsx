@@ -5,7 +5,6 @@ import { FormSubmitButton } from '#/fields/FormSubmitButton';
 import { usePolicyDraft } from '~/lib/policy/policyAsDraft';
 import { showError } from '#/provider/SnackbarProvider';
 import { SideSheet } from '../SideSheet/SideSheet';
-import { useConfirmRemoval } from '~/hooks/useConfirm';
 import { Button } from '../Button';
 import { createStyles, useStyles } from '@theme/styles';
 import { useEffect } from 'react';
@@ -17,6 +16,7 @@ import { useMutation } from '~/api';
 import { PolicySideSheet_renameMutation } from '~/api/__generated__/PolicySideSheet_renameMutation.graphql';
 import { useRemovePolicy } from '~/hooks/mutations/useRemovePolicy';
 import { BOUND_STR_RULES } from '~/util/form.rules';
+import { Confirm } from '#/Confirm';
 
 const trimmed = (v: string) => v.trim();
 
@@ -69,10 +69,6 @@ export function PolicySideSheet(props: PolicySideSheetProps) {
   const policy = useFragment(Policy, props.policy);
   const rename = useMutation<PolicySideSheet_renameMutation>(Rename);
   const remove = useRemovePolicy();
-  const confirmRemove = useConfirmRemoval({
-    title: 'Remove policy',
-    message: 'Are you sure you want to remove this policy?',
-  });
 
   const [draft, updateDraft] = usePolicyDraft();
   const { control, handleSubmit, reset } = useForm<Inputs>({
@@ -100,7 +96,14 @@ export function PolicySideSheet(props: PolicySideSheetProps) {
             style={styles.removeButton}
             labelStyle={styles.removeLabel}
             onPress={async () => {
-              if (await confirmRemove()) await remove(account.address, policy.key);
+              if (
+                await Confirm.call({
+                  type: 'destructive',
+                  title: 'Remove policy',
+                  message: 'Are you sure you want to remove this policy?',
+                })
+              )
+                await remove(account.address, policy.key);
             }}
           >
             Remove policy

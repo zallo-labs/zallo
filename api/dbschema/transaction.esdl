@@ -11,7 +11,7 @@ module default {
     required activation: decimal { constraint min_value(0); default := 0; }
   }
 
-  scalar type TransactionStatus extending enum<'Pending', 'Scheduled', 'Executing', 'Successful', 'Failed', 'Cancelled'>;
+  scalar type TransactionStatus extending enum<'Pending', 'Scheduled', 'Successful', 'Failed', 'Cancelled'>;
 
   type Transaction extending Proposal {
     required multi unorderedOperations: Operation {
@@ -37,8 +37,7 @@ module default {
       with result := .result
       select assert_exists((
         TransactionStatus.Pending if ((result is SimulatedSuccess or result is SimulatedFailure) ?? true) else
-        TransactionStatus.Executing if (result is OptimisticSuccess) else
-        TransactionStatus.Successful if (result is ConfirmedSuccess) else
+        TransactionStatus.Successful if ((result is OptimisticSuccess or result is ConfirmedSuccess) ?? false) else
         TransactionStatus.Failed if (result is ConfirmedFailure) else
         TransactionStatus.Scheduled if (not result[is Scheduled].cancelled) else
         TransactionStatus.Cancelled # result is Scheduled
@@ -81,7 +80,8 @@ module default {
     multi link events := .<result[is Event];
     multi link transfers := .events[is Transfer];
 
-    trigger update_tx_result after insert for each do (
+    trigger update_tx_result after insert for each
+    when ((__new__.timestamp >= __new__.transaction.result.timestamp) ?? true) do (
       update __new__.transaction set { result := __new__ } 
     );
   }

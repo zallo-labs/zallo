@@ -21,7 +21,7 @@ export interface ListItemTextProps {
 }
 
 export type ListItemProps = Pick<PressableProps, 'onPress' | 'onLongPress'> &
-  O.Optional<StyleProps, 'lines' | 'leadingSize'> & {
+  O.Optional<StyleProps, 'lines' | 'leadingSize' | 'variant'> & {
     leading?: ReactNode | FC<ListIconElementProps>;
     overline?: ReactNode | FC<ListItemTextProps>;
     headline: ReactNode | FC<ListItemTextProps>;
@@ -46,11 +46,12 @@ export const ListItem = forwardRef<View, ListItemProps>(
       disabled,
       containerStyle,
       textStyle,
+      variant = 'flat',
       ...touchableProps
     },
     ref,
   ) => {
-    const { styles } = useStyles(getStylesheet({ lines, leadingSize, disabled }));
+    const { styles } = useStyles(getStylesheet({ lines, leadingSize, disabled, variant }));
 
     const OverlineText = ({ style, ...props }: TextProps) => (
       <Text
@@ -147,6 +148,7 @@ interface StyleProps {
   lines: Lines;
   disabled?: boolean;
   leadingSize: 'small' | 'medium';
+  variant: 'flat' | 'surface';
 }
 
 export enum ListItemHeight {
@@ -155,7 +157,7 @@ export enum ListItemHeight {
   TRIPLE_LINE = 88,
 }
 
-const getStylesheet = ({ lines, disabled, leadingSize }: StyleProps) =>
+const getStylesheet = ({ lines, disabled, leadingSize, variant }: StyleProps) =>
   createStyles(({ colors, corner, stateLayer }) => {
     const justifyContent = lines === 3 ? 'flex-start' : 'center';
 
@@ -172,6 +174,7 @@ const getStylesheet = ({ lines, disabled, leadingSize }: StyleProps) =>
         paddingLeft: 16,
         paddingRight: 24,
         paddingVertical: lines === 3 ? 12 : 8,
+        ...(variant === 'surface' && { backgroundColor: colors.surface }),
         // Ideally 'box-none' but this breaks pressable children without pointerEvents: 'auto'
         // ...(!pressable && { pointerEvents: 'box-none' }),
         ...(disabled && { opacity: 0.5 }),

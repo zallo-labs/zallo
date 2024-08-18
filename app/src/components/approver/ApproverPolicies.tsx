@@ -106,7 +106,11 @@ export function ApproverPolicies({ approver, ...props }: ApproverPoliciesProps) 
     });
 
     const proposal = r.proposePolicies?.[0].proposal;
-    if (proposal) router.push({ pathname: '/(nav)/transaction/[id]', params: { id: proposal.id } });
+    if (proposal)
+      router.push({
+        pathname: '/(nav)/[account]/(home)/activity/transaction/[id]',
+        params: { account: account.address, id: proposal.id },
+      });
   };
 
   return (

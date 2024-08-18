@@ -3,7 +3,7 @@ import { asUAddress } from 'lib';
 import { IconButton } from '#/IconButton';
 import { AddressLabel } from '#/address/AddressLabel';
 import { Timestamp } from '#/format/Timestamp';
-import { ListItem } from '#/list/ListItem';
+import { ListItem, ListItemProps } from '#/list/ListItem';
 import { useApprove } from '~/hooks/useApprove';
 import { AddressIcon } from '#/Identicon/AddressIcon';
 import { graphql } from 'relay-runtime';
@@ -39,7 +39,7 @@ const Proposal = graphql`
   }
 `;
 
-export interface RejectionItemProps {
+export interface RejectionItemProps extends Partial<ListItemProps> {
   user: RejectionItem_user$key;
   rejection: RejectionItem_rejection$key;
   proposal: RejectionItem_proposal$key;
@@ -62,6 +62,7 @@ export function RejectionItem(props: RejectionItemProps) {
           <IconButton mode="contained-tonal" icon={CheckIcon} size={size} onPress={approve} />
         ),
       })}
+      {...props}
     />
   );
 }

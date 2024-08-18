@@ -1,10 +1,10 @@
 import { createStyleSheet, useStyles } from 'react-native-unistyles';
 import { ReactNode } from 'react';
-import { StyleProp, ViewStyle, useWindowDimensions } from 'react-native';
+import { StyleProp, ViewStyle } from 'react-native';
 import { SlideInRight, SlideOutRight } from 'react-native-reanimated';
-import { BREAKPOINTS } from '@theme/styles';
 import { Modal } from '../Modal';
 import { Surface } from '#/layout/Surface';
+import { useSideSheetType } from './SideSheetLayout';
 
 export interface SideSheetSurfaceProps {
   children: ReactNode;
@@ -48,9 +48,3 @@ const stylesheet = createStyleSheet(({ corner }, { insets }) => ({
     paddingRight: insets.right,
   },
 }));
-
-export type SideSheetType = 'standard' | 'modal';
-
-export function useSideSheetType(): SideSheetType {
-  return useWindowDimensions().width >= BREAKPOINTS.extraLarge ? 'standard' : 'modal';
-}
