@@ -18,13 +18,12 @@ import './task/upload-openchain';
 // https://hardhat.org/config/
 export default {
   solidity: {
-    version: '0.8.25',
+    version: '0.8.26',
   },
   zksolc: {
-    version: '1.5.1', // https://github.com/matter-labs/zksolc-bin/tree/main/linux-amd64
+    version: '1.5.2', // https://github.com/matter-labs/zksolc-bin/tree/main/linux-amd64
     settings: {
-      // enableEraVMExtensions: true,
-      isSystem: true, // Required to deploy AA contracts
+      enableEraVMExtensions: true,
       optimizer: {
         enabled: true,
         mode: '3',
@@ -63,7 +62,7 @@ export default {
     },
     {
       path: '../packages/lib/src/abi',
-      contracts: ['^src\\/.*:((Account.*)|(Deployer)|(Paymaster)|(PaymasterFlows)|(Expose))$'],
+      contracts: ['^src\\/.*:((Account.*)|(Paymaster)|(PaymasterFlows)|(Expose))$'],
       include: ['abi', 'bytecode', 'factoryDeps'],
     },
   ],
