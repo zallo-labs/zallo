@@ -191,15 +191,15 @@ export function usePolicyPresets({ chain, ...params }: UsePolicyPresetsParams) {
 
   return useMemo(() => {
     const accountAddress = asAddress(account?.address) ?? PLACEHOLDER_ACCOUNT_ADDRESS;
-    const approvers = new Set([
-      ...(account?.approvers.map((a) => a.address) ?? []),
-      ...user.approvers.map((a) => a.address),
-    ]);
+    const upgradeApprover = UPGRADE_APPROVER[chain];
+    const approvers = new Set(
+      [
+        ...(account?.approvers.map((a) => a.address) ?? []),
+        ...user.approvers.map((a) => a.address),
+      ].filter((a) => a !== upgradeApprover),
+    );
     const n = approvers.size;
     const details = getPolicyPresetDetails(n);
-
-    const upgradeApprover = UPGRADE_APPROVER[chain];
-    if (!upgradeApprover) throw new Error(`Upgrade approver not found for chain ${chain}`);
 
     return {
       low: {
