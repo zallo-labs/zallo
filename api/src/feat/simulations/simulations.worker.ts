@@ -43,6 +43,7 @@ import { EventsService, Log } from '../events/events.service';
 import { encodeEventData, EncodeEventDataParameters } from '~/core/networks/encodeEventData';
 import { match } from 'ts-pattern';
 import { TransactionsService } from '../transactions/transactions.service';
+import Decimal from 'decimal.js';
 
 export const SimulationsQueue = createQueue<{ transaction: UUID }>('Simulations');
 export type SimulationsQueue = typeof SimulationsQueue;
@@ -52,6 +53,7 @@ const TransactionExecutableShape = {
   approvals: { approver: { address: true } },
   policy: { id: true, isActive: true, threshold: true },
   validationErrors: true,
+  paymasterEthFees: { activation: true },
   ...TX_SHAPE,
 } satisfies Shape<typeof e.Transaction>;
 const s_ = e.assert_exists(
@@ -101,18 +103,28 @@ export class SimulationsWorker extends Worker<SimulationsQueue> {
       }),
     );
 
-    const [trace, networkFees] = await Promise.all([
+    const [trace, fees] = await Promise.all([
       network.traceCall({
         request: {
           from: localAccount,
           ...encodeOperations(operations),
         },
       }),
-      this.transactions.estimateNetworkFees({
-        account,
-        feeToken: asAddress(t.feeToken.address),
-        ...encodeOperations(operations),
-      }),
+      (async () =>
+        this.transactions.fees({
+          account,
+          feeToken: asAddress(t.feeToken.address),
+          paymasterEthFees: {
+            activation: new Decimal(t.paymasterEthFees.activation),
+          },
+          gasLimit: (
+            await this.transactions.estimateNetworkFees({
+              account,
+              feeToken: asAddress(t.feeToken.address),
+              ...encodeOperations(operations),
+            })
+          ).gasLimit,
+        }))(),
     ]);
 
     const error = trace.error || trace.revertReason;
@@ -123,17 +135,17 @@ export class SimulationsWorker extends Worker<SimulationsQueue> {
       ? this.db.exec(insertSimulatedSuccess, {
           transaction: id,
           response: trace.output,
-          gasUsed: networkFees.gasLimit,
+          gasUsed: fees.gasLimit,
         })
       : this.db.exec(insertSimulatedFailure, {
           transaction: id,
           response: trace.output,
-          gasUsed: networkFees.gasLimit,
+          gasUsed: fees.gasLimit,
           reason: error ?? '',
           validationErrors,
         }));
 
-    const logs = await this.simulateEvents(t);
+    const logs = await this.simulateEvents(t, fees.feeToken.total);
     await this.events.processSimulatedAndOptimistic({ chain, logs, result: asUUID(result.id) });
 
     this.proposals.event({ id, account }, ProposalEvent.simulated);
@@ -141,10 +153,26 @@ export class SimulationsWorker extends Worker<SimulationsQueue> {
     return { executable: success };
   }
 
-  private async simulateEvents(t: TransactionExecutableShape) {
+  private async simulateEvents(t: TransactionExecutableShape, totalFeeAmount: Decimal) {
     const account = asAddress(t.account.address);
-
     const logs: Log<undefined, false>[] = [];
+
+    // Fees
+    if (totalFeeAmount.gt(0)) {
+      logs.push({
+        address: asAddress(t.feeToken.address),
+        ...encodeEvent({
+          abi: ERC20,
+          eventName: 'Transfer',
+          args: {
+            from: account,
+            to: asAddress(t.paymaster),
+            value: await this.tokens.asFp(asUAddress(t.feeToken.address), totalFeeAmount),
+          },
+        }),
+      });
+    }
+
     for (const op of t.operations) {
       // Native transfer
       if (op.value) {
@@ -156,6 +184,7 @@ export class SimulationsWorker extends Worker<SimulationsQueue> {
             args: {
               from: account,
               to: asAddress(op.to),
+              value: op.value,
             },
           }),
         });
