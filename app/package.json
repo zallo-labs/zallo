@@ -19,6 +19,7 @@
   },
   "dependencies": {
     "@amplitude/analytics-react-native": "^1.4.9",
+    "@amplitude/experiment-react-native-client": "^1.5.1",
     "@expo/config": "~9.0.2",
     "@expo/vector-icons": "patch:@expo/vector-icons@npm:14.0.2#~/.yarn/patches/@expo-vector-icons-npm-14.0.2-204d0a5342.patch",
     "@formatjs/intl": "^2.10.4",

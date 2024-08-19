@@ -10,10 +10,7 @@ import { AnalyticsQuery } from '~/api/__generated__/AnalyticsQuery.graphql';
 
 ampli.load({
   client: {
-    apiKey: CONFIG.aplitudeKey,
-    configuration: {
-      trackingSessionEvents: true,
-    },
+    apiKey: CONFIG.amplitudeKey,
   },
 });
 

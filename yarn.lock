@@ -251,7 +251,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@amplitude/analytics-connector@npm:^1.5.0":
+"@amplitude/analytics-connector@npm:^1.4.7, @amplitude/analytics-connector@npm:^1.5.0":
   version: 1.5.0
   resolution: "@amplitude/analytics-connector@npm:1.5.0"
   checksum: 10/7f0c8f769e75697d8f85cfb8fba993fcbea966f7f678c7c5badaaf4af1f0e7579e157f63e4aaa7b9edf2cfd749df2dcc3593886be8625b138ffdf14cf77ec9ab
@@ -300,6 +300,30 @@ __metadata:
   version: 1.3.4
   resolution: "@amplitude/analytics-types@npm:1.3.4"
   checksum: 10/664ea9ab68f834680d9b91d7b867798e5823ee8977ee9d4d351977c023d9e3507d73bcdc601d1aa332b62052c97fe45cef06a4d225753dd215eab6e6b8776eb2
+  languageName: node
+  linkType: hard
+
+"@amplitude/experiment-core@npm:^0.7.2":
+  version: 0.7.2
+  resolution: "@amplitude/experiment-core@npm:0.7.2"
+  dependencies:
+    js-base64: "npm:^3.7.5"
+  checksum: 10/a72e3b80a43c1205d6a40939df617aebb5ce0432604891c2b55d939664f89140c9008fa3002404005723b27f21170c64a3dd9dc2d1fbf56b2e1f0a0a536c1ec2
+  languageName: node
+  linkType: hard
+
+"@amplitude/experiment-react-native-client@npm:^1.5.1":
+  version: 1.5.1
+  resolution: "@amplitude/experiment-react-native-client@npm:1.5.1"
+  dependencies:
+    "@amplitude/analytics-connector": "npm:^1.4.7"
+    "@amplitude/experiment-core": "npm:^0.7.2"
+    "@react-native-async-storage/async-storage": "npm:^1.17.6"
+    unfetch: "npm:^4.2.0"
+  peerDependencies:
+    react: "*"
+    react-native: "*"
+  checksum: 10/7d26efadb05d3f8636e7c2a10c38a6208c3eae81ff4aced5ee6a20bea4ff3669060c69a1d8ac6806a7736493524977e354e2ef5d782cfcce4646c5fd2d797038
   languageName: node
   linkType: hard
 
@@ -9436,6 +9460,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@react-native-async-storage/async-storage@npm:^1.17.6":
+  version: 1.24.0
+  resolution: "@react-native-async-storage/async-storage@npm:1.24.0"
+  dependencies:
+    merge-options: "npm:^3.0.4"
+  peerDependencies:
+    react-native: ^0.0.0-0 || >=0.60 <1.0
+  checksum: 10/5a6b7ac8bd7a9e537a53a3f2301530c284fd885a45ce4a4e0014859bc0f7c89bee5c4b5a6b3740b8d83751561159b237474d18f32fad75ea7d56d4ddb2180d91
+  languageName: node
+  linkType: hard
+
 "@react-native-clipboard/clipboard@npm:^1.13.2":
   version: 1.13.2
   resolution: "@react-native-clipboard/clipboard@npm:1.13.2"
@@ -14314,6 +14349,7 @@ __metadata:
   resolution: "app@workspace:app"
   dependencies:
     "@amplitude/analytics-react-native": "npm:^1.4.9"
+    "@amplitude/experiment-react-native-client": "npm:^1.5.1"
     "@babel/plugin-transform-flow-strip-types": "npm:^7.25.2"
     "@babel/plugin-transform-private-methods": "npm:^7.24.7"
     "@expo/config": "npm:~9.0.2"
@@ -25174,6 +25210,13 @@ __metadata:
   version: 3.1.1
   resolution: "joycon@npm:3.1.1"
   checksum: 10/4b36e3479144ec196425f46b3618f8a96ce7e1b658f091a309cd4906215f5b7a402d7df331a3e0a09681381a658d0c5f039cb3cf6907e0a1e17ed847f5d37775
+  languageName: node
+  linkType: hard
+
+"js-base64@npm:^3.7.5":
+  version: 3.7.7
+  resolution: "js-base64@npm:3.7.7"
+  checksum: 10/185e34c536a6b1c4e1ad8bd96d25b49a9ea4e6803e259eaaaca95f1b392a0d590b2933c5ca8580c776f7279507944b81ff1faf889d84baa5e31f026e96d676a5
   languageName: node
   linkType: hard
 

@@ -1,9 +1,10 @@
+import '~/lib/experiment';
 import * as Sentry from '@sentry/react-native';
+import { Analytics } from '#/Analytics';
 import { getLocales } from 'expo-localization';
 import { Stack } from 'expo-router';
 import { Suspense } from 'react';
 import { IntlProvider } from 'react-intl';
-import { Analytics } from '#/Analytics';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Background } from '#/layout/Background';
 import { RootErrorBoundary, IgnoredErrorBoundary } from '#/ErrorBoundary';
