@@ -6,6 +6,8 @@ import * as hre from 'hardhat';
 import chalk from 'chalk';
 import { verify } from './verify';
 import { CONFIG } from '../../config';
+import { CREATE2_FACTORY } from './create2Factory';
+import { hashBytecode } from 'zksync-ethers/build/utils';
 
 type ConstructorArgs<TAbi extends Abi> = AbiParametersToPrimitiveTypes<
   Extract<TAbi[number], { type: 'constructor' }>['inputs']
@@ -33,26 +35,28 @@ export async function deploy<TAbi extends Abi>(
   >;
 
   const salt = zeroHash;
+  const bytecodeHash = toHex(zk.utils.hashBytecode(hhArtifact.bytecode));
+  const input = constructorAbi
+    ? encodeAbiParameters(constructorAbi.inputs, constructorArgs as any)
+    : '0x';
   const address = zk.utils.create2Address(
-    wallet.account.address,
-    toHex(zk.utils.hashBytecode(hhArtifact.bytecode)),
+    CREATE2_FACTORY.address,
+    bytecodeHash,
     salt,
-    constructorAbi ? encodeAbiParameters(constructorAbi.inputs, constructorArgs as any) : '0x',
+    input,
   ) as Address;
 
   console.log(chalk.blue('Address: ') + explorer('address/', address));
 
   const isDeployed = !!(await network.getCode({ address }))?.length;
   if (!isDeployed) {
-    // @ts-expect-error types don't allow `deploymentType`, but it is required
-    const hash = await wallet.deployContract({
+    const hash = await wallet.writeContract({
       account,
-      abi: artifact.abi,
-      bytecode: hhArtifact.bytecode,
-      deploymentType: 'create2',
-      factoryDeps: Object.values(artifact.factoryDeps),
-      salt,
-      args: constructorArgs,
+      abi: CREATE2_FACTORY.abi,
+      address: CREATE2_FACTORY.address,
+      factoryDeps: [hhArtifact.bytecode as Hex, ...Object.values(artifact.factoryDeps)],
+      functionName: 'create2',
+      args: [salt, bytecodeHash, input],
     });
     console.log(chalk.blue('Transaction: ') + explorer('tx/', hash));
 
@@ -74,7 +78,7 @@ export async function deploy<TAbi extends Abi>(
 }
 
 function explorer(href: `${string}/`, id: string) {
-  const blockExplorer = CONFIG.chain.blockExplorers?.default.url;
+  const blockExplorer = CONFIG.chain.blockExplorers?.native.url;
   if (!blockExplorer) return chalk.bold.cyan(id);
 
   return chalk.cyan(blockExplorer + href) + chalk.bold.cyan(id);

@@ -9,7 +9,7 @@ export const EXPOSED_ABI = exposedArtifact.abi;
 
 export const ACCOUNT_IMPLEMENTATION = {
   address: addresses({
-    'zksync-sepolia': '0x990C247374eDf1d8F973CBE350d2D98F59Df4C19',
+    'zksync-sepolia': '0x696532D64a358a4CC2eCDBE698a4a08c7841af8c',
   }),
 } as const;
 
@@ -28,7 +28,7 @@ export const PAYMASTER = {
   abi: paymasterArtifact.abi,
   address: addresses({
     // Address across chains may differ due to different chain configurations
-    'zksync-sepolia': '0x7E2AB3dC2006fb7Ad242C1eC40c18e9f798c55A8',
+    'zksync-sepolia': '0xbC8fF109E862274a61919A3a48256814622070F8',
   }),
 };
 
