@@ -15,6 +15,7 @@ import { graphql } from 'relay-runtime';
 import { useLazyQuery } from '~/api';
 import { CreateAccountScreenQuery } from '~/api/__generated__/CreateAccountScreenQuery.graphql';
 import { useCreateAccount } from '~/hooks/mutations/useCreateAccount';
+import { experiment } from '~/lib/experiment';
 
 const Query = graphql`
   query CreateAccountScreenQuery {
@@ -49,7 +50,10 @@ export function CreateAccount({ onCreate }: CreateAccountScreenProps) {
   const { user } = query;
 
   const { control, handleSubmit, reset, watch } = useForm<Inputs>({
-    defaultValues: { name: '', chain: 'zksync-sepolia' },
+    defaultValues: {
+      name: '',
+      chain: experiment.variant('zksync-supported').value === 'on' ? 'zksync' : 'zksync-sepolia',
+    },
     mode: 'onChange',
   });
 
