@@ -2,7 +2,7 @@ import { Address, asAddress } from './address';
 import { utils as zkUtils } from 'zksync-ethers';
 import { Policy, encodePolicyStruct } from './policy';
 import { Network, NetworkWallet } from 'chains';
-import { ACCOUNT_ABI, ACCOUNT_PROXY, DEPLOYER } from './contract';
+import { ACCOUNT_ABI, ACCOUNT_PROXY } from './contract';
 import {
   Hex,
   encodeAbiParameters,
@@ -12,6 +12,7 @@ import {
 } from 'viem';
 import { err, ok } from 'neverthrow';
 import { randomHex } from './bytes';
+import { CREATE2_FACTORY } from './dapps';
 
 export const randomDeploySalt = () => randomHex(32);
 
@@ -68,7 +69,7 @@ export function deployAccountProxyRequest({
   ...constructorArgs
 }: DeployAccountProxyRequestParams) {
   return {
-    abi: DEPLOYER.abi,
+    abi: CREATE2_FACTORY.abi,
     address: deployer,
     functionName: 'create2Account' as const,
     args: [

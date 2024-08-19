@@ -2,7 +2,6 @@ import { Address } from './address';
 import { Chain } from 'chains';
 import * as accountArtifact from './abi/Account';
 import * as accountProxyArtifact from './abi/AccountProxy';
-import * as deployerArtifact from './abi/Deployer';
 import * as paymasterArtifact from './abi/Paymaster';
 import * as exposedArtifact from './abi/Expose';
 
@@ -30,13 +29,6 @@ export const PAYMASTER = {
   address: addresses({
     // Address across chains may differ due to different chain configurations
     'zksync-sepolia': '0x7E2AB3dC2006fb7Ad242C1eC40c18e9f798c55A8',
-  }),
-};
-
-export const DEPLOYER = {
-  abi: deployerArtifact.abi,
-  address: addresses({
-    'zksync-sepolia': '0x1C0E3aa8C1D5EbA1982026408500D7A382E2166f',
   }),
 };
 
