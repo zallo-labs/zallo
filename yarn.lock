@@ -12626,17 +12626,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/relay-runtime@npm:*":
+"@types/relay-runtime@npm:*, @types/relay-runtime@npm:17.0.1":
   version: 17.0.1
   resolution: "@types/relay-runtime@npm:17.0.1"
   checksum: 10/85be79a95cdf8df9754ccaac84ab39d0fe9cbc6716f8d0c49a051332e08a3f862ddcbd51388c08172cbd4a58723f941b10afec82fb74c2f9e3c376970ffc448f
-  languageName: node
-  linkType: hard
-
-"@types/relay-runtime@npm:^17.0.4":
-  version: 17.0.4
-  resolution: "@types/relay-runtime@npm:17.0.4"
-  checksum: 10/c163e6d1453d1d37dc45ac09295a66a0cf6417a9da1f81e98d1e286ea37b4c7bb226fa7fecbec8146f37856ff977c68a17121adcfa46126b98456de7e7e7abca
   languageName: node
   linkType: hard
 
@@ -14361,7 +14354,7 @@ __metadata:
     "@types/react-native-typewriter": "npm:^0.7.4"
     "@types/react-relay": "npm:^16.0.6"
     "@types/react-test-renderer": "npm:^18.3.0"
-    "@types/relay-runtime": "npm:^17.0.4"
+    "@types/relay-runtime": "npm:17.0.1"
     "@types/ua-parser-js": "npm:^0.7.39"
     "@typescript-eslint/parser": "npm:^7.18.0"
     "@walletconnect/jsonrpc-types": "npm:^1.0.4"
@@ -14371,7 +14364,7 @@ __metadata:
     babel-plugin-formatjs: "npm:^10.5.16"
     babel-plugin-lodash: "npm:^3.3.4"
     babel-plugin-module-resolver: "npm:^5.0.2"
-    babel-plugin-react-compiler: "npm:0.0.0-experimental-334f00b-20240725"
+    babel-plugin-react-compiler: "npm:0.0.0-experimental-52d6685-20240815"
     babel-plugin-relay: "npm:^17.0.0"
     babel-plugin-transform-remove-console: "npm:^6.9.4"
     babel-preset-expo: "npm:~11.0.8"
@@ -14383,7 +14376,7 @@ __metadata:
     dotenv: "npm:^16.4.5"
     eslint: "npm:^8.57.0"
     eslint-plugin-react: "npm:^7.35.0"
-    eslint-plugin-react-compiler: "npm:0.0.0-experimental-9ed098e-20240725"
+    eslint-plugin-react-compiler: "npm:0.0.0-experimental-9aef357-20240815"
     eslint-plugin-react-hooks: "npm:^4.6.2"
     ethers: "npm:^6.13.2"
     expo: "npm:~51.0.18"
@@ -15142,9 +15135,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"babel-plugin-react-compiler@npm:0.0.0-experimental-334f00b-20240725":
-  version: 0.0.0-experimental-334f00b-20240725
-  resolution: "babel-plugin-react-compiler@npm:0.0.0-experimental-334f00b-20240725"
+"babel-plugin-react-compiler@npm:0.0.0-experimental-52d6685-20240815":
+  version: 0.0.0-experimental-52d6685-20240815
+  resolution: "babel-plugin-react-compiler@npm:0.0.0-experimental-52d6685-20240815"
   dependencies:
     "@babel/generator": "npm:7.2.0"
     "@babel/types": "npm:^7.19.0"
@@ -15153,7 +15146,7 @@ __metadata:
     pretty-format: "npm:^24"
     zod: "npm:^3.22.4"
     zod-validation-error: "npm:^2.1.0"
-  checksum: 10/ef5de8fcc872f18af511dd587cfb83ca19a5a32c22b1c8bb4befde6947d812c137ab16a56f0532823a02120140daeb224118376efe3883ae1a68ff6ce904a2dd
+  checksum: 10/185f5664f4d4c772ff67f174972abd3c715be81dc58869952a6b799961b42e444645b7e089d16ae97b50c4a8f03a729e304f040a9dce55053e8f72b0238ae43c
   languageName: node
   linkType: hard
 
@@ -19478,9 +19471,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-plugin-react-compiler@npm:0.0.0-experimental-9ed098e-20240725":
-  version: 0.0.0-experimental-9ed098e-20240725
-  resolution: "eslint-plugin-react-compiler@npm:0.0.0-experimental-9ed098e-20240725"
+"eslint-plugin-react-compiler@npm:0.0.0-experimental-9aef357-20240815":
+  version: 0.0.0-experimental-9aef357-20240815
+  resolution: "eslint-plugin-react-compiler@npm:0.0.0-experimental-9aef357-20240815"
   dependencies:
     "@babel/core": "npm:^7.24.4"
     "@babel/parser": "npm:^7.24.4"
@@ -19490,7 +19483,7 @@ __metadata:
     zod-validation-error: "npm:^3.0.3"
   peerDependencies:
     eslint: ">=7"
-  checksum: 10/cff861ee847a0bab167d40159a157ca6827b019e79e34eb3cb41677aa0de56e48c5c922138f11ab0f03b3056a52cbda468f3b08678f2c693aaf87f56a3ef43f8
+  checksum: 10/8f43131e6493b118e3cbac3de0c1299fe9f6272ec312bc400bda27701bfb7b54166034394430c93dc6b7dbcb1607b7495cfdfe788699b75a98e82b99b2f3044f
   languageName: node
   linkType: hard
 
