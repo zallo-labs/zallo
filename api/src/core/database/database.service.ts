@@ -26,7 +26,7 @@ export class DatabaseService implements OnModuleInit {
       .withConfig({
         allow_user_specified_id: true /* Required for account insertion */,
       })
-      .withRetryOptions({ attempts: 7 });
+      .withRetryOptions({ attempts: 10 });
     this.DANGEROUS_superuserClient = this.__client.withConfig({ apply_access_policies: false });
   }
 
