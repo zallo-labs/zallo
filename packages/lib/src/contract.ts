@@ -35,8 +35,8 @@ export const PAYMASTER = {
 };
 
 export const UPGRADE_APPROVER = addresses({
-  zksync: '0x006629B301Ce7EF02ff2622e99752B2b2695B167',
-  'zksync-sepolia': '0x70fa585aFdbe80Ad4619bcCec17B86d31f017a23',
+  zksync: '0x34c1ADDf5BbF24a76b3968Ec9B6f9FEd75159AAf',
+  'zksync-sepolia': '0x64Ce53387A29fa667e3E99f576e7718CdfAB6DBa',
 });
 
 function addresses(
