@@ -11,6 +11,9 @@ import { AnalyticsQuery } from '~/api/__generated__/AnalyticsQuery.graphql';
 ampli.load({
   client: {
     apiKey: CONFIG.amplitudeKey,
+    configuration: {
+      trackingSessionEvents: true,
+    },
   },
 });
 
@@ -18,6 +21,9 @@ const Query = graphql`
   query AnalyticsQuery {
     user {
       id
+    }
+    accounts {
+      address
     }
   }
 `;
@@ -29,12 +35,16 @@ export function Analytics() {
 
   const previousPathname = useRef<string>();
 
-  const userId = useLazyQuery<AnalyticsQuery>(Query, {}).user.id;
+  const { user, accounts } = useLazyQuery<AnalyticsQuery>(Query, {});
 
   useEffect(() => {
-    ampli.identify(userId, { device_id: approver });
     Sentry.setUser({ id: approver });
-  }, [approver, userId]);
+    ampli.identify(user.id, { device_id: approver });
+    ampli.client.setGroup(
+      'account',
+      accounts.map((a) => a.address),
+    );
+  }, [approver, user.id, accounts]);
 
   useEffect(() => {
     ampli.screenView({
