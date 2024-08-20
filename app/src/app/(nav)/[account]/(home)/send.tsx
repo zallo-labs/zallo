@@ -103,9 +103,6 @@ function SendScreen() {
           .with('transfer', () => (
             <TransferMode account={account} token={token} to={to} amount={amount} />
           ))
-          .with('transferFrom', () => (
-            <TransferFromMode account={account} token={token} to={to} amount={amount} />
-          ))
           .exhaustive()}
       </Scrollable>
     </Pane>

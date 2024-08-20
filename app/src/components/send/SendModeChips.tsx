@@ -3,7 +3,7 @@ import { Scrollable } from '#/Scrollable';
 import { CheckAllIcon, ContactsOutlineIcon, DataIcon, OutboundIcon } from '@theme/icons';
 import { createStyles, useStyles } from '@theme/styles';
 
-export type SendMode = 'transfer' | 'transferFrom'; // | 'approve' | 'data';
+export type SendMode = 'transfer'; // | 'transferFrom' | 'approve' | 'data';
 
 export interface SendModeChipsProps {
   mode: SendMode;

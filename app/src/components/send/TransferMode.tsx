@@ -1,4 +1,4 @@
-import { asAddress, asFp, UAddress } from 'lib';
+import { asAddress, asFp, isEthToken, UAddress } from 'lib';
 import { Actions } from '#/layout/Actions';
 import { Button } from '#/Button';
 import { graphql } from 'relay-runtime';
@@ -11,7 +11,6 @@ import Decimal from 'decimal.js';
 import { CheckAllIcon } from '@theme/icons';
 import { useRouter } from 'expo-router';
 import { ampli } from '~/lib/ampli';
-import { useMemo } from 'react';
 import { usePreparedTransaction } from '~/hooks/mutations/usePreparedTransaction';
 
 const Account = graphql`
@@ -40,15 +39,21 @@ export function TransferMode({ to, amount, ...props }: TransferModeProps) {
   const token = useFragment(Token, props.token);
   const router = useRouter();
 
+  const amountFp = asFp(amount, token.decimals, Decimal.ROUND_DOWN);
   const operations = to && [
-    {
-      to: asAddress(token.address),
-      data: encodeFunctionData({
-        abi: ERC20,
-        functionName: 'transfer',
-        args: [asAddress(to), asFp(amount, token.decimals, Decimal.ROUND_DOWN)],
-      }),
-    },
+    isEthToken(asAddress(token.address))
+      ? {
+          to: asAddress(to),
+          value: amountFp,
+        }
+      : {
+          to: asAddress(token.address),
+          data: encodeFunctionData({
+            abi: ERC20,
+            functionName: 'transfer',
+            args: [asAddress(to), amountFp],
+          }),
+        },
   ];
   const propose = usePreparedTransaction({
     account,
