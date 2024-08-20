@@ -2,7 +2,6 @@ import { Address } from './address';
 import { Chain } from 'chains';
 import * as accountArtifact from './abi/Account';
 import * as accountProxyArtifact from './abi/AccountProxy';
-import * as deployerArtifact from './abi/Deployer';
 import * as paymasterArtifact from './abi/Paymaster';
 import * as exposedArtifact from './abi/Expose';
 
@@ -10,7 +9,8 @@ export const EXPOSED_ABI = exposedArtifact.abi;
 
 export const ACCOUNT_IMPLEMENTATION = {
   address: addresses({
-    'zksync-sepolia': '0x990C247374eDf1d8F973CBE350d2D98F59Df4C19',
+    zksync: '0x696532D64a358a4CC2eCDBE698a4a08c7841af8c',
+    'zksync-sepolia': '0x696532D64a358a4CC2eCDBE698a4a08c7841af8c',
   }),
 } as const;
 
@@ -27,20 +27,15 @@ export const ACCOUNT_ABI = [
 
 export const PAYMASTER = {
   abi: paymasterArtifact.abi,
+  // Address across chains may differ due to different chain configurations
   address: addresses({
-    // Address across chains may differ due to different chain configurations
-    'zksync-sepolia': '0x7E2AB3dC2006fb7Ad242C1eC40c18e9f798c55A8',
-  }),
-};
-
-export const DEPLOYER = {
-  abi: deployerArtifact.abi,
-  address: addresses({
-    'zksync-sepolia': '0x1C0E3aa8C1D5EbA1982026408500D7A382E2166f',
+    zksync: '0x17827Dcc71719C31adE3F6d5D3119aeEf30F6Aa8',
+    'zksync-sepolia': '0xbC8fF109E862274a61919A3a48256814622070F8',
   }),
 };
 
 export const UPGRADE_APPROVER = addresses({
+  zksync: '0x006629B301Ce7EF02ff2622e99752B2b2695B167',
   'zksync-sepolia': '0x70fa585aFdbe80Ad4619bcCec17B86d31f017a23',
 });
 

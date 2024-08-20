@@ -9,10 +9,10 @@ import {
   UAddress,
   asAddress,
   ACCOUNT_IMPLEMENTATION,
-  DEPLOYER,
   asUAddress,
   PLACEHOLDER_ACCOUNT_ADDRESS,
 } from 'lib';
+import { CREATE2_FACTORY } from 'lib/dapps';
 import { ShapeFunc } from '~/core/database';
 import {
   AccountsInput,
@@ -109,7 +109,7 @@ export class AccountsService {
     const implementation = ACCOUNT_IMPLEMENTATION.address[chain];
     const address = asUAddress(
       getProxyAddress({
-        deployer: DEPLOYER.address[chain],
+        deployer: CREATE2_FACTORY.address,
         implementation,
         salt,
         policies: policies.map((p) => inputAsPolicy(p.key, p)),

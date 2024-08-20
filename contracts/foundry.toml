@@ -1,6 +1,6 @@
 # https://github.com/foundry-rs/foundry/blob/master/crates/config/README.md#all-options
 [profile.default]
-solc = "0.8.25"
+solc = "0.8.26"
 src = "src"
 libs = ["node_modules"]
 out = "out"
@@ -10,17 +10,16 @@ cache_path = 'cache-forge'
 via_ir = true
 
 [profile.default.zksync]
-enable = true
-mode = '3'
-# is_system = true
-# detect_missing_libraries = true
+zksolc = "1.5.2"
+eravm_extensions = true
+optimizer_mode = '3'
 
 [profile.default.fuzz]
 runs = 32
 
 [rpc_endpoints]
-zksync_mainnet = "${RPC_ZKSYNC_MAINNET}"
-zksync_sepolia = "${RPC_ZKSYNC_SEPOLIA}"
+zksync_mainnet = "${RPC_ZKSYNC_MAINNET:-https://mainnet.era.zksync.io}"
+zksync_sepolia = "${RPC_ZKSYNC_SEPOLIA:-https://sepolia.era.zksync.dev}"
 
 
 [profile.ci]

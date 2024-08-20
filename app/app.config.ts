@@ -23,7 +23,7 @@ export const CONFIG = {
   apiGqlWs: ENV.API_GQL_WS!,
   docsUrl: ENV.DOCS_URL! as ExternalUrl,
   walletConnectProjectId: ENV.WALLET_CONNECT_PROJECT_ID!,
-  aplitudeKey: ENV.AMPLITUDE_KEY!,
+  amplitudeKey: ENV.AMPLITUDE_KEY!,
   metadata: {
     iconUri: ENV.ICON_URI!,
     appStore: ENV.APP_STORE_URL! as ExternalUrl,

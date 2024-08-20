@@ -14,10 +14,10 @@
     "dev": "tsup --watch"
   },
   "dependencies": {
-    "viem": "^2.18.5"
+    "viem": "^2.19.7"
   },
   "devDependencies": {
-    "tsup": "^8.2.3",
+    "tsup": "^8.2.4",
     "typescript": "^5.5.4"
   }
 }

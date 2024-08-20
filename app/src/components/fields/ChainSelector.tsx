@@ -5,6 +5,7 @@ import { SUPPORTED_CHAIN_KEYS } from '@network/chains';
 import { ICON_SIZE } from '@theme/paper';
 import { createStyles, useStyles } from '@theme/styles';
 import { ItemList, ItemListProps } from '#/layout/ItemList';
+import { experiment } from '~/lib/experiment';
 
 const descriptions: Record<Chain, string> = {
   zksync: 'Fast & low-cost layer 2 secured by Ethereum',
@@ -22,14 +23,6 @@ export function ChainSelector({ value: selected, onChange, ...props }: ChainSele
 
   return (
     <ItemList {...props}>
-      <ListItem
-        leading={<ChainIcon chain="zksync" size={ICON_SIZE.medium} />}
-        headline={CHAINS['zksync'].name + ' - coming soon'}
-        supporting={descriptions['zksync']}
-        containerStyle={styles.item}
-        disabled
-      />
-
       {SUPPORTED_CHAIN_KEYS.map((c) => (
         <ListItem
           key={c}
@@ -41,7 +34,7 @@ export function ChainSelector({ value: selected, onChange, ...props }: ChainSele
           onPress={() => {
             onChange(c);
           }}
-          disabled={selected !== c}
+          disabled={c === 'zksync' && experiment.variant('zksync-supported').value !== 'on'}
         />
       ))}
     </ItemList>

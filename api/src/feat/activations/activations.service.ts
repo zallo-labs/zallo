@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { ActivationsQueue } from './activations.queue';
 import { QueueData } from '~/core/bull/bull.util';
 import {
-  DEPLOYER,
   UAddress,
   asAddress,
   asChain,
@@ -13,6 +12,7 @@ import {
   ACCOUNT_PROXY,
   encodeProxyConstructorArgs,
 } from 'lib';
+import { CREATE2_FACTORY } from 'lib/dapps';
 import { NetworksService } from '~/core/networks/networks.service';
 import e from '~/edgeql-js';
 import { DatabaseService } from '~/core/database';
@@ -122,8 +122,8 @@ export class ActivationsService {
     const network = this.networks.get(address);
     return {
       account: asAddress(network.walletAddress),
-      abi: DEPLOYER.abi,
-      address: DEPLOYER.address[asChain(address)],
+      abi: CREATE2_FACTORY.abi,
+      address: CREATE2_FACTORY.address,
       functionName: 'create2Account' as const,
       args: [
         asHex(account.salt),
