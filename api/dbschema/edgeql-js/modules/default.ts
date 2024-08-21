@@ -96,13 +96,13 @@ export type $AccountλShape = $.typeutil.flatten<Omit<$LabelledλShape, "address
   "active": $.PropertyDesc<_std.$bool, $.Cardinality.One, false, true, false, false>;
   "implementation": $.PropertyDesc<$Address, $.Cardinality.One, false, false, false, false>;
   "photo": $.PropertyDesc<$Url, $.Cardinality.AtMostOne, false, false, false, false>;
-  "salt": $.PropertyDesc<$Bytes32, $.Cardinality.One, false, false, false, false>;
   "policies": $.LinkDesc<$Policy, $.Cardinality.Many, {}, false, true,  false, false>;
   "approvers": $.LinkDesc<$Approver, $.Cardinality.Many, {}, false, true,  false, false>;
   "messages": $.LinkDesc<$Message, $.Cardinality.Many, {}, false, true,  false, false>;
   "proposals": $.LinkDesc<$Proposal, $.Cardinality.Many, {}, false, true,  false, false>;
   "transactions": $.LinkDesc<$Transaction, $.Cardinality.Many, {}, false, true,  false, false>;
   "transfers": $.LinkDesc<$Transfer, $.Cardinality.Many, {}, false, true,  false, false>;
+  "initialization": $.PropertyDesc<$.NamedTupleType<{salt: $Bytes32, bytecodeHash: $Bytes32, aaVersion: $uint16}>, $.Cardinality.One, false, false, false, false>;
   "<account[is Proposal]": $.LinkDesc<$Proposal, $.Cardinality.Many, {}, false, false,  false, false>;
   "<account[is Message]": $.LinkDesc<$Message, $.Cardinality.Many, {}, false, false,  false, false>;
   "<account[is Transaction]": $.LinkDesc<$Transaction, $.Cardinality.Many, {}, false, false,  false, false>;

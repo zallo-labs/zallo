@@ -13,13 +13,13 @@ import {
   asChain,
   asUAddress,
   asUUID,
-  randomDeploySalt,
 } from 'lib';
-import { randomAddress, randomLabel, randomUAddress, randomUser } from '~/util/test';
+import { randomLabel, randomUAddress, randomUser } from '~/util/test';
 import e from '~/edgeql-js';
 import { v1 as uuidv1 } from 'uuid';
 import { InsertShape } from '~/edgeql-js/insert';
 import { $Transfer } from '~/edgeql-js/modules/default';
+import { zeroHash } from 'viem';
 
 describe(TransfersService.name, () => {
   let service: TransfersService;
@@ -45,8 +45,8 @@ describe(TransfersService.name, () => {
         id,
         address,
         name: randomLabel(),
-        implementation: randomAddress(),
-        salt: randomDeploySalt(),
+        implementation: ZERO_ADDR,
+        initialization: { salt: zeroHash, bytecodeHash: zeroHash, aaVersion: 1 },
         upgradedAtBlock: 1n,
       })
       .unlessConflict()

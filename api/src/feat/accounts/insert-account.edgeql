@@ -3,5 +3,5 @@ insert Account {
   address := <UAddress>$address,
   name := <str>$name,
   implementation := <Address>$implementation,
-  salt := <Bytes32>$salt
+  initialization := <tuple<salt: Bytes32, bytecodeHash: Bytes32, aaVersion: uint16>>$initialization
 }

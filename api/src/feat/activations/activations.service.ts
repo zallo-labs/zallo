@@ -9,7 +9,6 @@ import {
   replaceSelfAddress,
   PLACEHOLDER_ACCOUNT_ADDRESS,
   UUID,
-  ACCOUNT_PROXY,
   encodeProxyConstructorArgs,
 } from 'lib';
 import { CREATE2_FACTORY } from 'lib/dapps';
@@ -21,13 +20,6 @@ import { FlowJob } from 'bullmq';
 import { ConfirmationQueue } from '../system-txs/confirmations.queue';
 import Decimal from 'decimal.js';
 import { SimulationsQueue } from '../simulations/simulations.worker';
-import { toHex } from 'viem';
-import { utils as zkUtils } from 'zksync-ethers';
-
-interface FeeParams {
-  account: UAddress;
-  feePerGas: Decimal;
-}
 
 @Injectable()
 export class ActivationsService {
@@ -61,15 +53,15 @@ export class ActivationsService {
     } satisfies FlowJob;
   }
 
-  async fee({ account, feePerGas }: FeeParams): Promise<Decimal | null> {
-    const a = await this.db.queryWith(
+  async fee(account: UAddress): Promise<Decimal | null> {
+    const a = await this.db.queryWith2(
       { address: e.UAddress },
+      { address: account },
       ({ address }) =>
         e.select(e.Account, () => ({
           filter_single: { address },
           activationEthFee: true,
         })),
-      { address: account },
     );
     if (!a) return null;
     if (a.activationEthFee) return new Decimal(a.activationEthFee);
@@ -79,8 +71,11 @@ export class ActivationsService {
 
     const network = this.networks.get(account);
     try {
-      const gas = await network.estimateContractGas(request);
-      return feePerGas.mul(gas.toString());
+      const [gas, maxFeePerGas] = await Promise.all([
+        network.estimateContractGas(request),
+        network.maxFeePerGas(),
+      ]);
+      return maxFeePerGas.mul(gas.toString());
     } catch (e) {
       const isDeployed = !!(await network.getCode({ address: asAddress(account) }))?.length;
       if (isDeployed) return null;
@@ -97,7 +92,7 @@ export class ActivationsService {
           filter_single: { address },
           active: true,
           implementation: true,
-          salt: true,
+          initialization: true,
           initPolicies: e.select(a.policies, (p) => ({
             filter: p.initState,
             ...PolicyShape,
@@ -126,10 +121,10 @@ export class ActivationsService {
       address: CREATE2_FACTORY.address,
       functionName: 'create2Account' as const,
       args: [
-        asHex(account.salt),
-        toHex(zkUtils.hashBytecode(ACCOUNT_PROXY.bytecode)),
+        asHex(account.initialization.salt),
+        asHex(account.initialization.bytecodeHash),
         constructorArgs,
-        1, // AccountAbstractionVersion.Version1
+        account.initialization.aaVersion,
       ] as const,
       // factoryDeps: [ACCOUNT_PROXY.bytecode], // Throws "rpc method is not whitelisted" if provided; bytecode must be deployed using SystemContractDeployer first
       // gas: 3_000_000n * BigInt(params.policies.length), // ~1M per policy; gas estimation panics if not provided

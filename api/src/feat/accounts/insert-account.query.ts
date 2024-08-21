@@ -7,7 +7,11 @@ export type InsertAccountArgs = {
   readonly "address": string;
   readonly "name": string;
   readonly "implementation": string;
-  readonly "salt": string;
+  readonly "initialization": {
+    readonly "salt": string;
+    readonly "bytecodeHash": string;
+    readonly "aaVersion": number;
+  };
 };
 
 export type InsertAccountReturns = {
@@ -21,7 +25,7 @@ insert Account {
   address := <UAddress>$address,
   name := <str>$name,
   implementation := <Address>$implementation,
-  salt := <Bytes32>$salt
+  initialization := <tuple<salt: Bytes32, bytecodeHash: Bytes32, aaVersion: uint16>>$initialization
 }`, args);
 
 }
