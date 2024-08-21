@@ -1,0 +1,76 @@
+diff --git a/lib/BleTransport.d.ts b/lib/BleTransport.d.ts
+index c33bae411b2b4dd9057c25f890b6a29086f1f530..b5511f05900630bed350212eeebf8a10d9fdc100 100644
+--- a/lib/BleTransport.d.ts
++++ b/lib/BleTransport.d.ts
+@@ -6,8 +6,9 @@ import type { DeviceModel } from "@ledgerhq/devices";
+ import { TraceContext } from "@ledgerhq/logs";
+ import { Observable, Observer, SchedulerLike } from "rxjs";
+ import { HwTransportError } from "@ledgerhq/errors";
+-import { ReconnectionConfig } from "./types";
++import { BleManager, ReconnectionConfig } from "./types";
+ export declare const setReconnectionConfig: (config: ReconnectionConfig | null | undefined) => void;
++export declare const setBleManagerInstance: (manager: BleManager | null) => void;
+ /**
+  * react-native bluetooth BLE implementation
+  * @example
+diff --git a/lib/BleTransport.js b/lib/BleTransport.js
+index c914ce808acae77470589415e72f297d60738717..e6c40acbb4dfcaa3910bf2d80c728f7b1ad85778 100644
+--- a/lib/BleTransport.js
++++ b/lib/BleTransport.js
+@@ -85,6 +85,11 @@ let connectOptions = {
+  * @returns {BleManager} - The instance of the BleManager.
+  */
+ let _bleManager = null;
++const setBleManagerInstance = (manager) => {
++    if (_bleManager && manager && _bleManager !== manager) console.error('BleTransport _bleManager already initialized');
++    _bleManager = manager;
++}
++exports.setBleManagerInstance = setBleManagerInstance;
+ const bleManagerInstance = () => {
+     if (!_bleManager) {
+         _bleManager = new react_native_ble_plx_1.BleManager();
+diff --git a/lib-es/BleTransport.d.ts b/lib-es/BleTransport.d.ts
+index c33bae411b2b4dd9057c25f890b6a29086f1f530..b5511f05900630bed350212eeebf8a10d9fdc100 100644
+--- a/lib-es/BleTransport.d.ts
++++ b/lib-es/BleTransport.d.ts
+@@ -6,8 +6,9 @@ import type { DeviceModel } from "@ledgerhq/devices";
+ import { TraceContext } from "@ledgerhq/logs";
+ import { Observable, Observer, SchedulerLike } from "rxjs";
+ import { HwTransportError } from "@ledgerhq/errors";
+-import { ReconnectionConfig } from "./types";
++import { BleManager, ReconnectionConfig } from "./types";
+ export declare const setReconnectionConfig: (config: ReconnectionConfig | null | undefined) => void;
++export declare const setBleManagerInstance: (manager: BleManager | null) => void;
+ /**
+  * react-native bluetooth BLE implementation
+  * @example
+diff --git a/lib-es/BleTransport.js b/lib-es/BleTransport.js
+index cfef17bf343a9bda226a0027826c2476b1a380c6..7b6ebab7b534580fe69fca0d88cc8c84cadcc6b7 100644
+--- a/lib-es/BleTransport.js
++++ b/lib-es/BleTransport.js
+@@ -78,6 +78,10 @@ let connectOptions = {
+  * @returns {BleManager} - The instance of the BleManager.
+  */
+ let _bleManager = null;
++export const setBleManagerInstance = (manager) => {
++    if (_bleManager && manager && _bleManager !== manager) console.error('BleTransport _bleManager already initialized');
++    _bleManager = manager;
++}
+ const bleManagerInstance = () => {
+     if (!_bleManager) {
+         _bleManager = new BleManager();
+diff --git a/src/BleTransport.ts b/src/BleTransport.ts
+index f8b73dc44ac2f5d56deb69ef6e1baa3bae044137..b002652dc905f0f74a5f135361e6f3bd53f7d00e 100644
+--- a/src/BleTransport.ts
++++ b/src/BleTransport.ts
+@@ -128,6 +128,10 @@ let connectOptions: Record<string, unknown> = {
+  * @returns {BleManager} - The instance of the BleManager.
+  */
+ let _bleManager: BleManager | null = null;
++export const setBleManagerInstance = (manager: BleManager | null) => {
++  if (_bleManager && manager && _bleManager !== manager) console.error('BleTransport _bleManager already initialized');
++  _bleManager = manager;
++}
+ const bleManagerInstance = (): BleManager => {
+   if (!_bleManager) {
+     _bleManager = new BleManager();
