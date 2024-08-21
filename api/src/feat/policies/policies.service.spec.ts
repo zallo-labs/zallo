@@ -1,15 +1,7 @@
 import { Test } from '@nestjs/testing';
 import { createMock, DeepMocked } from '@golevelup/ts-jest';
 import { PoliciesService, ProposePoliciesParams } from './policies.service';
-import {
-  asPolicyKey,
-  asSelector,
-  asUUID,
-  randomDeploySalt,
-  randomHex,
-  UAddress,
-  ZERO_ADDR,
-} from 'lib';
+import { asPolicyKey, asSelector, asUUID, randomHex, UAddress, ZERO_ADDR } from 'lib';
 import { UserContext } from '~/core/context';
 import { asUser, getUserCtx } from '~/core/context';
 import { randomAddress, randomLabel, randomUAddress, randomUser } from '~/util/test';
@@ -20,6 +12,7 @@ import { inputAsPolicy, policyStateAsPolicy, PolicyShape, selectPolicy } from '.
 import { PolicyInput } from './policies.input';
 import { v1 as uuidv1 } from 'uuid';
 import { selectAccount } from '../accounts/accounts.util';
+import { zeroHash } from 'viem';
 
 describe(PoliciesService.name, () => {
   let service: PoliciesService;
@@ -58,8 +51,8 @@ describe(PoliciesService.name, () => {
         id: accountId,
         address: account,
         name: randomLabel(),
-        implementation: randomAddress(),
-        salt: randomDeploySalt(),
+        implementation: ZERO_ADDR,
+        initialization: { salt: zeroHash, bytecodeHash: zeroHash, aaVersion: 1 },
       }),
     );
 

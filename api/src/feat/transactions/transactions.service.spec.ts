@@ -2,7 +2,7 @@ import { Test } from '@nestjs/testing';
 import { createMock, DeepMocked } from '@golevelup/ts-jest';
 import { asUser, getUserCtx, UserContext } from '~/core/context';
 import { DeepPartial, randomAddress, randomLabel, randomUAddress, randomUser } from '~/util/test';
-import { randomDeploySalt, Hex, UAddress, ZERO_ADDR, asUUID, asPolicyKey } from 'lib';
+import { Hex, UAddress, ZERO_ADDR, asUUID, asPolicyKey } from 'lib';
 import { Network, NetworksService } from '~/core/networks/networks.service';
 import { ProposeTransactionInput } from './transactions.input';
 import { DatabaseService } from '~/core/database';
@@ -112,8 +112,8 @@ describe(TransactionsService.name, () => {
             id: accountId,
             address: account,
             name: randomLabel(),
-            implementation: randomAddress(),
-            salt: randomDeploySalt(),
+            implementation: ZERO_ADDR,
+            initialization: { salt: zeroHash, bytecodeHash: zeroHash, aaVersion: 1 },
             upgradedAtBlock: 1n,
           })
           .unlessConflict(),

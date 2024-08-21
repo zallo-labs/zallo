@@ -1,18 +1,8 @@
-import { Address, asAddress } from './address';
-import { utils as zkUtils } from 'zksync-ethers';
+import { Address } from './address';
 import { Policy, encodePolicyStruct } from './policy';
-import { Network, NetworkWallet } from 'chains';
 import { ACCOUNT_ABI, ACCOUNT_PROXY } from './contract';
-import {
-  Hex,
-  encodeAbiParameters,
-  encodeFunctionData,
-  ContractFunctionParameters,
-  toHex,
-} from 'viem';
-import { err, ok } from 'neverthrow';
+import { encodeAbiParameters, encodeFunctionData } from 'viem';
 import { randomHex } from './bytes';
-import { CREATE2_FACTORY } from './dapps';
 
 export const randomDeploySalt = () => randomHex(32);
 
@@ -40,76 +30,4 @@ export const encodeProxyConstructorArgs = ({ policies, implementation }: ProxyCo
     implementation,
     encodedInitializeCall,
   ]);
-};
-
-export interface GetProxyAddressArgs extends ProxyConstructorArgs {
-  deployer: Address;
-  salt: Hex;
-}
-
-export function getProxyAddress({ deployer, salt, ...constructorArgs }: GetProxyAddressArgs) {
-  const address = zkUtils.create2Address(
-    deployer,
-    toHex(zkUtils.hashBytecode(ACCOUNT_PROXY.bytecode)),
-    salt,
-    encodeProxyConstructorArgs(constructorArgs),
-  );
-
-  return asAddress(address);
-}
-
-export interface DeployAccountProxyRequestParams extends ProxyConstructorArgs {
-  deployer: Address;
-  salt: Hex;
-}
-
-export function deployAccountProxyRequest({
-  deployer,
-  salt,
-  ...constructorArgs
-}: DeployAccountProxyRequestParams) {
-  return {
-    abi: CREATE2_FACTORY.abi,
-    address: deployer,
-    functionName: 'create2Account' as const,
-    args: [
-      salt,
-      toHex(zkUtils.hashBytecode(ACCOUNT_PROXY.bytecode)),
-      encodeProxyConstructorArgs(constructorArgs),
-      1, // AccountAbstractionVersion.Version1
-    ] as const,
-    gas: 3_000_000n * BigInt(constructorArgs.policies.length), // ~1M per policy; gas estimation panics if not provided
-  } satisfies ContractFunctionParameters & { gas: bigint };
-}
-
-export interface SimulateDeployAccountProxyArgs extends DeployAccountProxyRequestParams {
-  network: Network;
-}
-
-export async function simulateDeployAccountProxy({
-  network,
-  deployer,
-  salt,
-  ...constructorArgs
-}: SimulateDeployAccountProxyArgs) {
-  const proxy = getProxyAddress({ deployer, salt, ...constructorArgs });
-
-  const params = deployAccountProxyRequest({ deployer, salt, ...constructorArgs });
-  const sim = await network.simulateContract(params);
-  if (sim.result !== proxy) return err({ proxy, simulated: sim.result });
-
-  return ok({ proxy, params, ...sim });
-}
-
-export interface DeployAccountProxyArgs extends SimulateDeployAccountProxyArgs {
-  wallet: NetworkWallet;
-}
-
-export const deployAccountProxy = async ({ wallet, ...args }: DeployAccountProxyArgs) => {
-  const sim = await simulateDeployAccountProxy(args);
-
-  return sim.asyncMap(async ({ proxy, request }) => {
-    const transactionHash = await wallet.writeContract(request);
-    return { proxy, transactionHash };
-  });
 };

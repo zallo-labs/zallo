@@ -87,13 +87,13 @@ export namespace $default {
     "active": boolean;
     "implementation": string;
     "photo"?: string | null;
-    "salt": string;
     "policies": Policy[];
     "approvers": Approver[];
     "messages": Message[];
     "proposals": Proposal[];
     "transactions": Transaction[];
     "transfers": Transfer[];
+    "initialization": {salt: string, bytecodeHash: string, aaVersion: number};
   }
   export interface Action extends std.$Object {
     "functions": ActionFunction[];

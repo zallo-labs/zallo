@@ -7,7 +7,7 @@ module default {
   type Account extending Labelled {
     overloaded required address: UAddress { constraint exclusive; }
     required implementation: Address;
-    required salt: Bytes32;
+    required initialization: tuple<salt: Bytes32, bytecodeHash: Bytes32, aaVersion: uint16>;
     activationEthFee: decimal { constraint min_value(0); }
     upgradedAtBlock: bigint { constraint min_value(0); }
     photo: Url;

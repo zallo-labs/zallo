@@ -39,9 +39,7 @@ export class PaymastersService implements OnModuleInit {
   }
 
   async paymasterFees({ account }: PaymasterFeesParams): Promise<PaymasterFeeParts> {
-    const feePerGas = await this.networks.get(account).maxFeePerGas();
-
-    const activation = await this.activations.fee({ account, feePerGas });
+    const activation = await this.activations.fee(account);
 
     return { activation: activation ?? new Decimal(0) };
   }

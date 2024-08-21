@@ -4,13 +4,14 @@ import e from '~/edgeql-js';
 import {
   asPolicyKey,
   randomDeploySalt,
-  getProxyAddress,
   Address,
   UAddress,
   asAddress,
   ACCOUNT_IMPLEMENTATION,
   asUAddress,
   PLACEHOLDER_ACCOUNT_ADDRESS,
+  ACCOUNT_PROXY,
+  encodeProxyConstructorArgs,
 } from 'lib';
 import { CREATE2_FACTORY } from 'lib/dapps';
 import { ShapeFunc } from '~/core/database';
@@ -32,6 +33,8 @@ import { v4 as uuid } from 'uuid';
 import { selectAccount2 } from './accounts.util';
 import { AccountEvent } from './accounts.model';
 import { PolicyInput } from '../policies/policies.input';
+import { utils as zkUtils } from 'zksync-ethers';
+import { toHex } from 'viem';
 
 const accountTrigger = (account: UAddress) => `account.updated:${account}`;
 const accountApproverTrigger = (approver: Address) => `account.updated:approver:${approver}`;
@@ -107,13 +110,17 @@ export class AccountsService {
       throw new UserInputError('Duplicate policy keys');
 
     const implementation = ACCOUNT_IMPLEMENTATION.address[chain];
+    const bytecodeHash = toHex(zkUtils.hashBytecode(ACCOUNT_PROXY.bytecode));
     const address = asUAddress(
-      getProxyAddress({
-        deployer: CREATE2_FACTORY.address,
-        implementation,
+      zkUtils.create2Address(
+        CREATE2_FACTORY.address,
+        bytecodeHash,
         salt,
-        policies: policies.map((p) => inputAsPolicy(p.key, p)),
-      }),
+        encodeProxyConstructorArgs({
+          implementation,
+          policies: policies.map((p) => inputAsPolicy(p.key, p)),
+        }),
+      ),
       chain,
     );
 
@@ -147,7 +154,7 @@ export class AccountsService {
           address,
           name,
           implementation,
-          salt,
+          initialization: { salt, bytecodeHash, aaVersion: 1 },
         }),
       );
 

@@ -1,8 +1,8 @@
 import { createMock, DeepMocked } from '@golevelup/ts-jest';
 import { Test } from '@nestjs/testing';
 import { UserContext, asUser, getUserCtx } from '~/core/context';
-import { randomLabel, randomAddress, randomUAddress, randomUser } from '~/util/test';
-import { getProxyAddress, UAddress } from 'lib';
+import { randomAddress, randomLabel, randomUAddress, randomUser } from '~/util/test';
+import { UAddress } from 'lib';
 import { PoliciesService } from '../policies/policies.service';
 import { BullModule, getQueueToken } from '@nestjs/bullmq';
 import { ActivationsQueue } from '../activations/activations.queue';
@@ -12,13 +12,14 @@ import e from '~/edgeql-js';
 import { uuid } from 'edgedb/dist/codecs/ifaces';
 import { AccountsCacheService } from '../auth/accounts.cache.service';
 import { TypedQueue } from '~/core/bull/bull.util';
+import { create2Address } from 'zksync-ethers/build/utils';
 
-jest.mock('lib', () => ({
-  ...jest.requireActual('lib'),
-  getProxyAddress: jest.fn(),
+jest.mock('zksync-ethers/build/utils', () => ({
+  ...jest.requireActual('zksync-ethers/build/utils'),
+  create2Address: jest.fn(),
 }));
 
-const getProxyAddressMock = jest.mocked(getProxyAddress);
+const create2AddressMock = jest.mocked(create2Address);
 
 describe(AccountsService.name, () => {
   let service: AccountsService;
@@ -51,7 +52,7 @@ describe(AccountsService.name, () => {
   const createAccount = async () => {
     const userCtx = getUserCtx();
 
-    getProxyAddressMock.mockReturnValue(randomAddress());
+    create2AddressMock.mockReturnValue(randomAddress());
 
     return service.createAccount({
       chain: 'zksync-local',

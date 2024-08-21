@@ -8,6 +8,8 @@ import { ActivationsQueue } from './activations.queue';
 import { DatabaseService } from '~/core/database';
 import e from '~/edgeql-js';
 import { selectTransaction2 } from '../transactions/transactions.util';
+import { UnrecoverableError } from 'bullmq';
+import { asAddress } from 'lib';
 
 @Injectable()
 @Processor(ActivationsQueue.name, { autorun: false })
@@ -42,7 +44,11 @@ export class ActivationsWorker extends Worker<ActivationsQueue> {
     const request = await this.activations.request(account);
     if (!request) return null;
 
-    await network.simulateContract(request); // Throws on error
+    const sim = await network.simulateContract(request); // Throws on error
+    if (sim.result !== asAddress(account))
+      throw new UnrecoverableError(
+        `Simulated deployment address ${sim.result} doesn't match expected address ${asAddress(account)}`,
+      );
 
     const { account: _, ...req } = request;
     const receipt = await network.useWallet((wallet) => wallet.writeContract(req));

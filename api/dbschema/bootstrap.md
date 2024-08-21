@@ -9,7 +9,7 @@ configure instance set effective_io_concurrency := 1000;
 configure instance set query_work_mem := <cfg::memory>"8MiB";
 
 # Memory available to cache data - 50%
-configure instance set shared_buffers := <cfg::memory>"2GiB";
+configure instance set shared_buffers := <cfg::memory>"4GiB";
 
 # Total memory available to the database for caching - 75%
 configure instance set effective_cache_size := <cfg::memory>"6GiB";
