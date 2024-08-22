@@ -1,8 +1,8 @@
-import { Chain, getChain } from 'chains';
+import { Chain, getChainConfig } from 'chains';
 import localWallets from './local-wallets.json';
 require('dotenv').config({ path: '../.env' });
 
-const chain = getChain(process.env.CHAIN || ('zksync-local' satisfies Chain));
+const chain = getChainConfig(process.env.CHAIN || ('zksync-local' satisfies Chain));
 
 export const CONFIG = {
   env: process.env.RELEASE_ENV === 'development' ? 'development' : 'production',
