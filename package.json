@@ -52,6 +52,7 @@
   },
   "resolutions": {
     "dotenv": "patch:dotenv@npm:16.4.5#.yarn/patches/dotenv-npm-16.4.5-bcb20eb95d.patch",
+    "react-native": "0.74.5",
     "promise": "8.3.0"
   }
 }
