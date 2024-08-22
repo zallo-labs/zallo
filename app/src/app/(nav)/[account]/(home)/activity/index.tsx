@@ -68,7 +68,7 @@ function ActivityPane() {
 
   const items = [...(a?.proposals ?? []), ...(a?.transfers ?? [])]
     .map((v) => ({ ...v, section: getItemSection(v), timestamp: asDateTime(v.timestamp) }))
-    .sort((a, b) => asDateTime(b.timestamp).toMillis() - asDateTime(a.timestamp).toMillis());
+    .sort((a, b) => asDateTime(a.timestamp).toMillis() - asDateTime(b.timestamp).toMillis());
 
   const data = [...new Set(items.map((i) => i.section))]
     .sort((a, b) => sectionOrder(a) - sectionOrder(b))
