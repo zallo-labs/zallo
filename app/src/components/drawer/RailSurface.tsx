@@ -1,4 +1,3 @@
-import { Surface, SurfaceProps } from '#/layout/Surface';
 import { createStyles, useStyles } from '@theme/styles';
 import { useDrawerActions } from './DrawerContextProvider';
 import { MenuIcon } from '#/Appbar/AppbarMenu';
@@ -6,40 +5,40 @@ import { ReactNode } from 'react';
 import { ICON_SIZE } from '@theme/paper';
 import { View } from 'react-native';
 import { IconButton } from '#/IconButton';
+import { Scrollable } from '#/Scrollable';
 
-export interface RailSurfaceProps extends SurfaceProps {
+export interface RailSurfaceProps {
+  children: ReactNode;
   fab?: ReactNode;
 }
 
-export function RailSurface({ children, fab, ...surfaceProps }: RailSurfaceProps) {
+export function RailSurface({ children, fab }: RailSurfaceProps) {
   const { styles } = useStyles(stylesheet);
   const { toggle } = useDrawerActions();
 
   return (
-    <Surface elevation={0} {...surfaceProps} style={[styles.surface, surfaceProps.style]}>
+    <Scrollable contentContainerStyle={styles.container}>
       <View style={styles.top}>
         <IconButton icon={MenuIcon} size={ICON_SIZE.small} onPress={toggle} />
         {fab}
       </View>
 
       <View style={styles.content}>{children}</View>
-      {/* <View style={styles.content} /> */}
-    </Surface>
+    </Scrollable>
   );
 }
 
 const stylesheet = createStyles(({ colors }, { insets }) => ({
-  surface: {
-    flex: 1,
+  container: {
     width: 80,
-    // paddingHorizontal: 12,
-    paddingTop: insets.top + 44,
-    paddingBottom: insets.bottom + 56,
+    paddingTop: insets.top + 16,
+    paddingBottom: insets.bottom + 16,
     backgroundColor: colors.surfaceContainer.low,
   },
   top: {
     alignItems: 'center',
     gap: 12,
+    marginBottom: 24,
   },
   content: {
     flex: 1,
