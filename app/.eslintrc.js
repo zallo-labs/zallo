@@ -28,6 +28,7 @@ module.exports = {
     'react-hooks/rules-of-hooks': 'error',
     'react-hooks/exhaustive-deps': 'error',
     'react-compiler/react-compiler': 'error',
+    '@tanstack/query/no-unstable-deps': 'warn', // false positives for non tanstack/query deps
   },
   env: {
     es2021: true,
