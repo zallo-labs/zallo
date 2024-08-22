@@ -1,4 +1,3 @@
-import { PROJECT_ID } from 'app.config';
 import * as Notifications from 'expo-notifications';
 import type { DevicePushToken } from 'expo-notifications';
 import { useEffect } from 'react';
@@ -13,6 +12,7 @@ import { graphql } from 'relay-runtime';
 import { useLazyQuery } from '~/api';
 import { NotificationsRegistrarQuery } from '~/api/__generated__/NotificationsRegistrarQuery.graphql';
 import { useMutation } from '~/api';
+import { CONFIG } from '~/util/config';
 
 const Query = graphql`
   query NotificationsRegistrarQuery {
@@ -88,7 +88,7 @@ export const NotificationsRegistrar = () => {
 
             const pushToken = (
               await Notifications.getExpoPushTokenAsync({
-                projectId: PROJECT_ID,
+                projectId: CONFIG.projectId,
                 devicePushToken: devicePushToken ?? (await Notifications.getDevicePushTokenAsync()),
               })
             ).data;

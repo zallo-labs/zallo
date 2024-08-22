@@ -141,7 +141,7 @@ export function PolicyPane({ initial, ...props }: PolicyPaneProps) {
                 label="View proposal"
                 onPress={() =>
                   router.push({
-                    pathname: '/(nav)/[account]/(home)/activity/transaction/[id])',
+                    pathname: '/(nav)/[account]/(home)/activity/transaction/[id]',
                     params: { account: draft.account, id: policy.proposal!.id },
                   })
                 }

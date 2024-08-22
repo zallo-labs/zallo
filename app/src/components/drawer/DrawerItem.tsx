@@ -1,7 +1,6 @@
 import { IconProps } from '@theme/icons';
 import { useStyles } from '@theme/styles';
-import { useRouter } from 'expo-router';
-import type { ExpoRouter } from 'expo-router/types/expo-router';
+import { Href, useRouter } from 'expo-router';
 import { ComponentPropsWithoutRef, FC } from 'react';
 import { Drawer } from 'react-native-paper';
 import { useDrawerActions } from '#/drawer/DrawerContextProvider';
@@ -9,7 +8,7 @@ import { usePath } from '#/usePath';
 
 export interface DrawerItemProps
   extends Pick<ComponentPropsWithoutRef<typeof Drawer.Item>, 'onPress'> {
-  href: ExpoRouter.Href;
+  href: Href;
   label: string;
   icon?: FC<IconProps>;
   disabled?: boolean;
@@ -42,7 +41,7 @@ export function DrawerItem({ href, label, icon: Icon, disabled, ...props }: Draw
   );
 }
 
-function getHrefPath(href: ExpoRouter.Href) {
+function getHrefPath(href: Href) {
   let p: string = typeof href === 'string' ? href : href.pathname;
   if (p.endsWith('/')) p = p.slice(0, p.length - 1);
   return p;

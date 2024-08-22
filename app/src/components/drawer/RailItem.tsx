@@ -1,13 +1,12 @@
 import { IconProps } from '@theme/icons';
-import { useRouter } from 'expo-router';
-import type { ExpoRouter } from 'expo-router/types/expo-router';
+import { Href, useRouter } from 'expo-router';
 import { ComponentPropsWithoutRef, FC } from 'react';
 import { Drawer } from 'react-native-paper';
 import { usePath } from '#/usePath';
 
 export interface RailItemProps
   extends Pick<ComponentPropsWithoutRef<typeof Drawer.CollapsedItem>, 'onPress'> {
-  href: ExpoRouter.Href;
+  href: Href;
   label: string;
   icon?: FC<IconProps>;
 }
@@ -33,7 +32,7 @@ export function RailItem({ href, label, icon: Icon, ...props }: RailItemProps) {
   );
 }
 
-function getHrefPath(href: ExpoRouter.Href) {
+function getHrefPath(href: Href) {
   let p: string = typeof href === 'string' ? href : href.pathname;
   if (p.endsWith('/')) p = p.slice(0, p.length - 1);
   return p;

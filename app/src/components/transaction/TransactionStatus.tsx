@@ -74,7 +74,7 @@ export function TransactionStatus(props: TransactionStatusProps) {
   const chain = CHAINS[t.account.chain];
   const blockExplorer = chain.blockExplorers?.native || chain.blockExplorers?.default;
   const explorerButton = blockExplorer && t.result?.systx && (
-    <Link href={blockExplorer.url + `tx/${t.result.systx.hash}`} asChild>
+    <Link href={`${blockExplorer.url}tx/${t.result.systx.hash}`} asChild>
       <Button mode="contained-tonal" icon={WebIcon}>
         Explorer
       </Button>

@@ -44,7 +44,7 @@ function SessionsScreen() {
           showsVerticalScrollIndicator={false}
         />
 
-        <Fab icon={ScanIcon} label="Scan" onPress={() => router.push(`/scan/`)} />
+        <Fab icon={ScanIcon} label="Scan" onPress={() => router.push(`/scan`)} />
       </ScreenSurface>
     </>
   );

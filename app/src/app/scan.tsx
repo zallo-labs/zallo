@@ -25,7 +25,7 @@ export function useScanAddress() {
   const getEvent = useGetEvent();
 
   return (account?: UAddress) =>
-    getEvent({ pathname: `/scan/`, params: { ...(account && { account }) } }, SCANNED_ADDRESSES);
+    getEvent({ pathname: `/scan`, params: { ...(account && { account }) } }, SCANNED_ADDRESSES);
 }
 
 const ScanScreenParams = z.object({ account: zUAddress().optional() });

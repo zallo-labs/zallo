@@ -6,6 +6,7 @@ import {
   commitMutation,
 } from 'relay-runtime';
 import { Headers, withHeaders } from './network/auth';
+import { useCallback } from 'react';
 
 export interface UseMutationOptions<TOperation extends MutationParameters>
   extends Pick<
@@ -24,20 +25,23 @@ export function useMutation<TOperation extends MutationParameters>(
 ) {
   const environment = useRelayEnvironment();
 
-  return (variables: TOperation['variables'], opts: MutateOptions<TOperation> = {}) => {
-    const overrides = { ...params, ...opts };
+  return useCallback(
+    (variables: TOperation['variables'], opts: MutateOptions<TOperation> = {}) => {
+      const overrides = { ...params, ...opts };
 
-    return new Promise<TOperation['response']>((resolve, reject) =>
-      commitMutation(environment, {
-        mutation,
-        variables,
-        onCompleted: (response) => resolve(response),
-        onError: (error) => reject(error),
-        ...overrides,
-        ...(opts.headers && {
-          cacheConfig: withHeaders(opts.headers, overrides.cacheConfig),
+      return new Promise<TOperation['response']>((resolve, reject) =>
+        commitMutation(environment, {
+          mutation,
+          variables,
+          onCompleted: (response) => resolve(response),
+          onError: (error) => reject(error),
+          ...overrides,
+          ...(opts.headers && {
+            cacheConfig: withHeaders(opts.headers, overrides.cacheConfig),
+          }),
         }),
-      }),
-    );
-  };
+      );
+    },
+    [environment, mutation, params],
+  );
 }

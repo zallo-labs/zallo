@@ -134,7 +134,7 @@ function AccountSettings() {
             <Link
               key={p.id}
               href={{
-                pathname: `/(nav)/[account]/settings/policy/[id]/`,
+                pathname: `/(nav)/[account]/settings/policy/[id]`,
                 params: { account, id: p.id },
               }}
               asChild
@@ -169,7 +169,7 @@ function AccountSettings() {
 
           <Link
             href={{
-              pathname: `/(nav)/[account]/settings/policy/[id]/`,
+              pathname: `/(nav)/[account]/settings/policy/[id]`,
               params: { account, id: 'add' },
             }}
             asChild

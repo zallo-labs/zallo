@@ -5,4 +5,5 @@
 /api
 /contracts
 /docs
+/services
 # packages/{chain,lib} are required

@@ -77,7 +77,7 @@ export function PolicySuggestions(props: PolicySuggestionsProps) {
     ).proposePolicies?.[0];
 
     router.push({
-      pathname: '/(nav)/[account]/settings/policy/[id]/',
+      pathname: '/(nav)/[account]/settings/policy/[id]',
       params: { account: account.address, id: r.id },
     });
   };
