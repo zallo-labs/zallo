@@ -705,10 +705,10 @@ export type $TransferlikeλShape = $.typeutil.flatten<$EventλShape & {
   "amount": $.PropertyDesc<_std.$decimal, $.Cardinality.One, false, false, false, false>;
   "from": $.PropertyDesc<$Address, $.Cardinality.One, false, false, false, false>;
   "incoming": $.PropertyDesc<_std.$bool, $.Cardinality.One, false, false, false, false>;
-  "isFeeTransfer": $.PropertyDesc<_std.$bool, $.Cardinality.One, false, false, false, true>;
   "outgoing": $.PropertyDesc<_std.$bool, $.Cardinality.One, false, false, false, false>;
   "to": $.PropertyDesc<$Address, $.Cardinality.One, false, false, false, false>;
   "spentBy": $.LinkDesc<$Policy, $.Cardinality.AtMostOne, {}, false, false,  false, false>;
+  "fee": $.PropertyDesc<_std.$bool, $.Cardinality.One, false, false, false, true>;
 }>;
 type $Transferlike = $.ObjectType<"default::Transferlike", $TransferlikeλShape, null, [
   ...$Event['__exclusives__'],

@@ -32,7 +32,7 @@ module default {
     required amount: decimal;
     required incoming: bool;
     required outgoing: bool;
-    required isFeeTransfer: bool { default := false; }
+    required fee: bool { default := false; }
     spentBy: Policy { rewrite insert, update using (__subject__.result.transaction.policy) }
 
     access policy members_can_select_insert

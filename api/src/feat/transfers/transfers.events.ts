@@ -96,7 +96,7 @@ export class TransfersEvents {
           (payload) => payload.transfer,
         );
 
-        if (!event.result && !transfer.isFeeTransfer) {
+        if (!event.result && !transfer.fee) {
           this.log.debug(
             `[${account}]: token (${token}) transfer ${
               from === account ? `to ${to}` : `from ${from}`

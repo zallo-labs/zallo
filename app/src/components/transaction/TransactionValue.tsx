@@ -12,7 +12,7 @@ const Transaction = graphql`
       transfers {
         id
         value
-        isFeeTransfer
+        fee
       }
     }
   }
@@ -26,7 +26,7 @@ export interface TransactionValueProps {
 export function TransactionValue(props: TransactionValueProps) {
   const p = useFragment(Transaction, props.transaction);
 
-  const transfers = (p.result?.transfers ?? []).filter((t) => !t.isFeeTransfer);
+  const transfers = (p.result?.transfers ?? []).filter((t) => !t.fee);
 
   const value = Decimal.sum(0, ...transfers.map((t) => t.value ?? 0));
 

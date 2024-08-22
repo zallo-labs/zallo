@@ -28,7 +28,7 @@ const Transaction = graphql`
         amount
         from
         to
-        isFeeTransfer
+        fee
       }
     }
     ...TransactionValue_transaction
@@ -43,7 +43,7 @@ export function TransactionTransfers(props: TransactionTransfersProps) {
   const { styles } = useStyles(stylesheet);
   const t = useFragment(Transaction, props.transaction);
 
-  const transfers = t.result?.transfers?.filter((t) => !t.isFeeTransfer);
+  const transfers = t.result?.transfers?.filter((t) => !t.fee);
 
   if (!transfers?.length) return null;
 
