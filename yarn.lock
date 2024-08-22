@@ -14105,7 +14105,7 @@ __metadata:
     babel-plugin-formatjs: "npm:^10.5.16"
     babel-plugin-lodash: "npm:^3.3.4"
     babel-plugin-module-resolver: "npm:^5.0.2"
-    babel-plugin-react-compiler: "npm:0.0.0-experimental-7d62301-20240819"
+    babel-plugin-react-compiler: "npm:0.0.0-experimental-7d62301-20240821"
     babel-plugin-relay: "npm:^17.0.0"
     babel-plugin-transform-remove-console: "npm:^6.9.4"
     babel-preset-expo: "npm:11.0.12"
@@ -14117,7 +14117,7 @@ __metadata:
     dotenv: "npm:^16.4.5"
     eslint: "npm:^8.57.0"
     eslint-plugin-react: "npm:^7.35.0"
-    eslint-plugin-react-compiler: "npm:0.0.0-experimental-8e3b87c-20240819"
+    eslint-plugin-react-compiler: "npm:0.0.0-experimental-8e3b87c-20240821"
     eslint-plugin-react-hooks: "npm:^4.6.2"
     ethers: "npm:^6.13.2"
     expo: "npm:~51.0.30"
@@ -14867,9 +14867,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"babel-plugin-react-compiler@npm:0.0.0-experimental-7d62301-20240819":
-  version: 0.0.0-experimental-7d62301-20240819
-  resolution: "babel-plugin-react-compiler@npm:0.0.0-experimental-7d62301-20240819"
+"babel-plugin-react-compiler@npm:0.0.0-experimental-7d62301-20240821":
+  version: 0.0.0-experimental-7d62301-20240821
+  resolution: "babel-plugin-react-compiler@npm:0.0.0-experimental-7d62301-20240821"
   dependencies:
     "@babel/generator": "npm:7.2.0"
     "@babel/types": "npm:^7.19.0"
@@ -14878,7 +14878,7 @@ __metadata:
     pretty-format: "npm:^24"
     zod: "npm:^3.22.4"
     zod-validation-error: "npm:^2.1.0"
-  checksum: 10/c3ff58263f086e1b47159ae632748cef830efda20075e8ff92cd84de92ed784c1295164040082ea4fbcd587fe0678f2586deed77ebc97d717910a0a0ba983249
+  checksum: 10/d76d438e8ba1f009a129d8381752bd1509c5484dd436ed0abc1ead40b771a5d67dcbda19c82613f88733dc4d34db5130203e6b640bf9b5176ceb464ab34ea688
   languageName: node
   linkType: hard
 
@@ -19124,9 +19124,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-plugin-react-compiler@npm:0.0.0-experimental-8e3b87c-20240819":
-  version: 0.0.0-experimental-8e3b87c-20240819
-  resolution: "eslint-plugin-react-compiler@npm:0.0.0-experimental-8e3b87c-20240819"
+"eslint-plugin-react-compiler@npm:0.0.0-experimental-8e3b87c-20240821":
+  version: 0.0.0-experimental-8e3b87c-20240821
+  resolution: "eslint-plugin-react-compiler@npm:0.0.0-experimental-8e3b87c-20240821"
   dependencies:
     "@babel/core": "npm:^7.24.4"
     "@babel/parser": "npm:^7.24.4"
@@ -19136,7 +19136,7 @@ __metadata:
     zod-validation-error: "npm:^3.0.3"
   peerDependencies:
     eslint: ">=7"
-  checksum: 10/cee320c026ec9536c7a5deb7e174e57bc07c6866b5bf60b4c746209be4494b043be680262f6630fe2e9664221e66ebbd4ab9e6b8069795e2740ca975e196d351
+  checksum: 10/6d6c278a0253ce20a8549f173053250d6ad1da99e3c0c3b7b21eb90cdb984d67d10b113aec87a585d10c946bb4bce5c2525b4cbda7e65f570410d0782abca4b4
   languageName: node
   linkType: hard
 
