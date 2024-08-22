@@ -9,11 +9,11 @@ import '@walletconnect/react-native-compat';
 // Intl pollyfills - required for iOS
 import './intl';
 
+// Import corejs async iterator polyfill
+import 'core-js/features/symbol/async-iterator'; // Required for neverthrow & viem
+
 global.process = require('process');
 // @ts-expect-error Cannot assign to userAgent because it is a read-only property.
 global.navigator.userAgent ??= 'React Native';
-
-// Import corejs async iterator polyfill
-import 'core-js/features/symbol/async-iterator'; // Required for neverthrow & viem
 
 export default {};

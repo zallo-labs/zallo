@@ -17,6 +17,7 @@ const vary = (value: string, f: (variant: string) => string = (v) => '.' + v) =>
 type ExternalUrl = `https:${string}`;
 
 export const CONFIG = {
+  projectId: 'f8f4def1-b838-4dec-8b50-6c07995c4ff5',
   env: ENV.RELEASE_ENV === 'development' ? 'development' : 'production',
   sentryDsn: ENV.APP_SENTRY_DSN!,
   apiUrl: ENV.API_URL!,
@@ -41,7 +42,6 @@ export const CONFIG = {
 
 export type Config = typeof CONFIG;
 
-export const PROJECT_ID = 'f8f4def1-b838-4dec-8b50-6c07995c4ff5';
 const packageId = vary('io.zallo');
 
 // https://docs.expo.dev/versions/latest/config/app/
@@ -55,7 +55,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   runtimeVersion: { policy: 'fingerprint' },
   extra: {
     ...CONFIG,
-    eas: { projectId: PROJECT_ID },
+    eas: { projectId: CONFIG.projectId },
   },
   plugins: [
     [
@@ -177,6 +177,6 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     // reactCompiler: true,
   },
   updates: {
-    url: `https://u.expo.dev/${PROJECT_ID}`,
+    url: `https://u.expo.dev/${CONFIG.projectId}`,
   },
 });
