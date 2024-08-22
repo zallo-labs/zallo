@@ -29,12 +29,6 @@ config.resolver.nodeModulesPaths = [
 
 config.resolver.sourceExts.push('cjs', 'mjs');
 
-// node-libs-react-native
-config.resolver.extraNodeModules = {
-  ...config.resolver.extraNodeModules,
-  ...require('node-libs-react-native'),
-};
-
 // Use turborepo to restore the cache when possible
 config.cacheStores = [new FileStore({ root: path.join(projectRoot, '.cache', 'metro') })];
 

@@ -100,7 +100,6 @@
     "lib": "workspace:*",
     "luxon": "^3.5.0",
     "neverthrow": "^7.0.1",
-    "node-libs-react-native": "^1.2.1",
     "react": "18.2.0",
     "react-call": "^1.2.0",
     "react-compiler-runtime": "file:./src/util/patches/react-compiler-runtime",
