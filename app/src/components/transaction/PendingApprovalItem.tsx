@@ -8,7 +8,8 @@ import { useFragment } from 'react-relay';
 import { PendingApprovalItem_user$key } from '~/api/__generated__/PendingApprovalItem_user.graphql';
 import { PendingApprovalItem_approver$key } from '~/api/__generated__/PendingApprovalItem_approver.graphql';
 import { PendingApprovalItem_proposal$key } from '~/api/__generated__/PendingApprovalItem_proposal.graphql';
-import { truncateAddr } from '~/util/format';
+import { AddressLabel } from '#/address/AddressLabel';
+import { asUAddress } from 'lib';
 
 const User = graphql`
   fragment PendingApprovalItem_user on User {
@@ -50,7 +51,7 @@ export function PendingApprovalItem(props: PendingApprovalItemProps) {
   return (
     <ListItem
       leading={<AddressIcon address={approver.address} />}
-      headline={approver.label || truncateAddr(approver.address)}
+      headline={<AddressLabel address={asUAddress(approver.address, proposal.account.chain)} />}
       {...(approve && {
         trailing: ({ size }) => (
           <IconButton mode="contained-tonal" icon={CheckIcon} size={size} onPress={approve} />

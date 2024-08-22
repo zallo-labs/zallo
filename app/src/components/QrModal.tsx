@@ -35,9 +35,9 @@ export function QrModal({ address, actions }: QrModalProps) {
             <IconButton mode="contained-tonal" icon={CloseIcon} size={styles.iconButton.width} />
           </Link>
 
-          <Text variant="displaySmall" style={styles.name}>
-            {isUAddress(address) && <AddressLabel address={address} />}
-          </Text>
+          {isUAddress(address) && (
+            <AddressLabel address={address} variant="displaySmall" style={styles.name} />
+          )}
 
           <View style={styles.iconButton} />
         </View>
