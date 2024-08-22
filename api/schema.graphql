@@ -922,11 +922,11 @@ type Transfer implements Event & Node & Transferlike {
   amount: Decimal!
   block: BigInt!
   confirmed: Boolean!
+  fee: Boolean!
   from: Address!
   id: ID!
   incoming: Boolean!
   internal: Boolean!
-  isFeeTransfer: Boolean!
   logIndex: Float!
   outgoing: Boolean!
   result: Result
@@ -945,11 +945,11 @@ type TransferApproval implements Event & Node & Transferlike {
   block: BigInt!
   confirmed: Boolean!
   delta: Decimal!
+  fee: Boolean!
   from: Address!
   id: ID!
   incoming: Boolean!
   internal: Boolean!
-  isFeeTransfer: Boolean!
   logIndex: Float!
   outgoing: Boolean!
   result: Result
@@ -1012,11 +1012,11 @@ interface Transferlike implements Event & Node {
   amount: Decimal!
   block: BigInt!
   confirmed: Boolean!
+  fee: Boolean!
   from: Address!
   id: ID!
   incoming: Boolean!
   internal: Boolean!
-  isFeeTransfer: Boolean!
   logIndex: Float!
   outgoing: Boolean!
   result: Result

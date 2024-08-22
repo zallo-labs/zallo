@@ -34,7 +34,7 @@ export class Transferlike extends Node {
   outgoing: boolean;
 
   @Field(() => Boolean)
-  isFeeTransfer: boolean;
+  fee: boolean;
 
   @Field(() => Policy, { nullable: true })
   spentBy?: Policy;

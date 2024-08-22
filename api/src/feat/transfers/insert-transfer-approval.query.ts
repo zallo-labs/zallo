@@ -43,7 +43,7 @@ with accountAddress := <UAddress>$account,
          amount := <decimal>$amount,
          incoming := (to = localAccount),
          outgoing := (from = localAccount),
-         isFeeTransfer := ((result.transaction.paymaster in {from, to}) ?? false)
+         fee := ((result.transaction.paymaster in {from, to}) ?? false)
        } unless conflict
      )
 select transfer;`, args);

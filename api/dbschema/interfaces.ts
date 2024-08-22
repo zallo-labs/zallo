@@ -291,10 +291,10 @@ export namespace $default {
     "amount": string;
     "from": string;
     "incoming": boolean;
-    "isFeeTransfer": boolean;
     "outgoing": boolean;
     "to": string;
     "spentBy"?: Policy | null;
+    "fee": boolean;
   }
   export interface Transfer extends Transferlike {}
   export interface TransferApproval extends Transferlike {
