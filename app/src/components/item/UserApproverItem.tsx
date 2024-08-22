@@ -1,5 +1,4 @@
 import { useApproverAddress } from '~/lib/network/useApprover';
-import { useRouter } from 'expo-router';
 import { ListItem, ListItemProps } from '#/list/ListItem';
 import { truncateAddr } from '~/util/format';
 import { AddressIcon } from '#/Identicon/AddressIcon';
@@ -21,7 +20,6 @@ export interface UserApproverItemProps extends Partial<ListItemProps> {
 
 export function UserApproverItem(props: UserApproverItemProps) {
   const a = useFragment(UserApprover, props.approver);
-  const router = useRouter();
   const selected = useApproverAddress() === a.address;
 
   return (
@@ -30,9 +28,6 @@ export function UserApproverItem(props: UserApproverItemProps) {
       headline={a.label}
       supporting={truncateAddr(a.address)}
       {...(selected && { trailing: 'This device' })}
-      onPress={() =>
-        router.push({ pathname: `/(nav)/approvers/[address]/`, params: { address: a.address } })
-      }
       {...props}
     />
   );

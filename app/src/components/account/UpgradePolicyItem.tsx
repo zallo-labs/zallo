@@ -12,7 +12,7 @@ import { Button, Checkbox, Dialog, Text } from 'react-native-paper';
 import { useRemovePolicy } from '~/hooks/mutations/useRemovePolicy';
 import { CONFIG } from '~/util/config';
 
-const UPGRADE_POLICY_HREF = CONFIG.docsUrl + '/upgrades';
+const UPGRADE_POLICY_HREF = `${CONFIG.docsUrl}/upgrades` as const;
 
 export interface UpgradePolicyItemProps extends Partial<ListItemProps> {
   account: UAddress;

@@ -1,5 +1,4 @@
-import { useRouter } from 'expo-router';
-import type { ExpoRouter } from 'expo-router/types/expo-router';
+import { useRouter, Href } from 'expo-router';
 import { useCallback, useRef } from 'react';
 import { Observable, firstValueFrom } from 'rxjs';
 
@@ -10,7 +9,7 @@ export function useGetEvent() {
 
   return useCallback(
     <T>(
-      route: ExpoRouter.Href,
+      route: Href,
       observable: Observable<T>,
       withObservable?: (obs: Observable<T>) => Observable<T>,
     ) =>

@@ -71,7 +71,7 @@ function TransferScreen() {
   const from = asUAddress(t.from, chain);
 
   const blockExplorer = CHAINS[chain].blockExplorers?.default;
-  const explorerUrl = blockExplorer && `${blockExplorer.url}/tx/${t.systxHash}`;
+  const explorerUrl = blockExplorer && `${blockExplorer.url}tx/${t.systxHash}` as const;
 
   return (
     <Pane flex>

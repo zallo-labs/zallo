@@ -1,9 +1,9 @@
-import type { ExpoRouter } from 'expo-router/types/expo-router';
+import type { Href } from 'expo-router';
 import { resolveHref } from 'expo-router/build/link/href';
 import _ from 'lodash';
 import { SCHEME, CONFIG } from '../util/config';
 
-export function appLink(href: ExpoRouter.Href, type: 'native' | 'universal' = 'universal') {
+export function appLink(href: Href, type: 'native' | 'universal' = 'universal') {
   const path = resolveHref(href);
 
   return type === 'native' ? `${SCHEME}:/${path}` : `${CONFIG.webAppUrl}${path}`;
@@ -21,5 +21,5 @@ export const parseAppLink = (appLink: string) => {
   return {
     pathname: url.pathname,
     params: Object.fromEntries(url.searchParams),
-  } as unknown as ExpoRouter.Href;
+  } as unknown as Href;
 };
