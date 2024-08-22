@@ -39,7 +39,7 @@ export const materialCommunityIcon = icon('materialCommunity');
 
 export const HomeIcon = materialIcon('home');
 export const OutboundIcon = materialCommunityIcon('arrow-top-right');
-export const UserOutlineIcon = materialIcon('person-outline');
+export const ContactOutlineIcon = materialIcon('person-outline');
 export const ContactsIcon = materialIcon('people');
 export const ContactsOutlineIcon = materialIcon('people-outline');
 export const AddIcon = materialCommunityIcon('plus');

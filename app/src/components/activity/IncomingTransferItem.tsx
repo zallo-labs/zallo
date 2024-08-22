@@ -1,4 +1,4 @@
-import { useAddressLabel } from '#/address/AddressLabel';
+import { AddressLabel } from '#/address/AddressLabel';
 import { Timestamp } from '#/format/Timestamp';
 import { ListItem, ListItemProps } from '#/list/ListItem';
 import { ListItemSkeleton } from '#/list/ListItemSkeleton';
@@ -40,7 +40,6 @@ export interface IncomingTransferItemProps extends Partial<ListItemProps> {
 
 function IncomingTransferItem_(props: IncomingTransferItemProps) {
   const transfer = useFragment(Transfer, props.transfer);
-  const from = useAddressLabel(asUAddress(transfer.from, transfer.account.chain));
   const amount = useTokenAmount({ token: transfer.token, amount: transfer.amount });
 
   return (
@@ -58,7 +57,12 @@ function IncomingTransferItem_(props: IncomingTransferItemProps) {
             <OverlayIcon icon={ReceiveIcon} />
           </View>
         }
-        headline={`Received ${amount} from ${from}`}
+        headline={
+          <>
+            {`Received ${amount} from `}
+            <AddressLabel address={asUAddress(transfer.from, transfer.account.chain)} />
+          </>
+        }
         supporting={<Timestamp timestamp={transfer.timestamp} />}
         trailing={({ Text }) =>
           transfer.value !== null && transfer.value !== undefined ? (

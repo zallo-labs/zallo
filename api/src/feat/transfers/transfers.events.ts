@@ -2,9 +2,8 @@ import { Injectable, Logger } from '@nestjs/common';
 import { Address, UAddress, asAddress, asUAddress, isTruthy, ETH_ADDRESS, isEthToken } from 'lib';
 import { ERC20 } from 'lib/dapps';
 import { EventsService, OptimisticEvent, ConfirmedEvent } from '../events/events.service';
-import { and, DatabaseService } from '~/core/database';
+import { DatabaseService } from '~/core/database';
 import e from '~/edgeql-js';
-import { selectAccount } from '../accounts/accounts.util';
 import { uuid } from 'edgedb/dist/codecs/ifaces';
 import { EventPayload, PubsubService } from '~/core/pubsub/pubsub.service';
 import { getAbiItem } from 'viem';
@@ -14,6 +13,8 @@ import { BalancesService } from '~/core/balances/balances.service';
 import Decimal from 'decimal.js';
 import { TokensService } from '~/feat/tokens/tokens.service';
 import { ampli } from '~/util/ampli';
+import { insertTransfer } from './insert-transfer.query';
+import { insertTransferApproval } from './insert-transfer-approval.query';
 
 export const transferTrigger = (account: UAddress) => `transfer.account.${account}`;
 export interface TransferSubscriptionPayload extends EventPayload<'transfer'> {
@@ -66,55 +67,19 @@ export class TransfersEvents {
 
     await Promise.all(
       accounts.map(async (account) => {
-        const selectedAccount = selectAccount(account);
-        const result = event.result
-          ? e.assert_single(
-              e.select(e.Result, (r) => ({
-                filter: and(
-                  e.op(r.id, '=', e.uuid(event.result!)),
-                  e.op(r.transaction.account, '=', selectedAccount),
-                ),
-              })),
-            )
-          : e.cast(e.Result, e.set());
-
-        const transfer = await this.db.query(
-          e.select(
-            e
-              .insert(e.Transfer, {
-                account: selectedAccount,
-                systxHash: log.transactionHash,
-                result,
-                logIndex: event.logIndex,
-                block: event.block,
-                timestamp: event.timestamp,
-                confirmed: e.op(e.op('exists', result.is(e.Confirmed)), '??', true),
-                from: localFrom,
-                to: localTo,
-                tokenAddress: token,
-                amount:
-                  from === to
-                    ? '0'
-                    : to === account
-                      ? amount.toString()
-                      : amount.negated().toString(),
-                incoming: account === to,
-                outgoing: account === from,
-                isFeeTransfer: e.op(
-                  e.op(result.transaction.paymaster, 'in', e.set(localFrom, localTo)),
-                  '??',
-                  false,
-                ),
-              })
-              .unlessConflict(),
-            (t) => ({
-              id: true,
-              internal: true,
-              isFeeTransfer: true,
-              accountUsers: t.account.approvers.user.id,
-            }),
-          ),
-        );
+        const transfer = await this.db.exec(insertTransfer, {
+          account,
+          systxHash: log.transactionHash,
+          result: event.result,
+          block: event.block,
+          logIndex: event.logIndex,
+          timestamp: event.timestamp,
+          from: localFrom,
+          to: localTo,
+          token,
+          amount:
+            from === to ? '0' : to === account ? amount.toString() : amount.negated().toString(),
+        });
         if (!transfer) return; // Already processed
 
         this.balances.invalidate({ account, token });
@@ -167,50 +132,20 @@ export class TransfersEvents {
 
     await Promise.all(
       accounts.map(async (account) => {
-        const selectedAccount = selectAccount(account);
-        const result = event.result
-          ? e.assert_single(
-              e.select(e.Result, (r) => ({
-                filter: and(
-                  e.op(r.id, '=', e.uuid(event.result!)),
-                  e.op(r.transaction.account, '=', selectedAccount),
-                ),
-              })),
-            )
-          : e.cast(e.Result, e.set());
-
-        const approval = await this.db.query(
-          e
-            .insert(e.TransferApproval, {
-              account: selectedAccount,
-              systxHash: log.transactionHash,
-              result,
-              logIndex: event.logIndex,
-              block: event.block,
-              timestamp: event.timestamp,
-              confirmed: e.op(e.op('exists', result.is(e.Confirmed)), '??', true),
-              from: localFrom,
-              to: localTo,
-              tokenAddress: token,
-              amount:
-                from === to
-                  ? '0'
-                  : to === account
-                    ? amount.toString()
-                    : amount.negated().toString(),
-              incoming: account === to,
-              outgoing: account === from,
-              isFeeTransfer: e.op(
-                e.op(result.transaction.paymaster, 'in', e.set(localFrom, localTo)),
-                '??',
-                false,
-              ),
-            })
-            .unlessConflict((t) => ({
-              on: e.tuple([t.account, t.block, t.logIndex]),
-            })),
-        );
-        if (!approval) return; // Already processed
+        const transfer = await this.db.exec(insertTransferApproval, {
+          account,
+          systxHash: log.transactionHash,
+          result: event.result,
+          block: event.block,
+          logIndex: event.logIndex,
+          timestamp: event.timestamp,
+          from: localFrom,
+          to: localTo,
+          token,
+          amount:
+            from === to ? '0' : to === account ? amount.toString() : amount.negated().toString(),
+        });
+        if (!transfer) return; // Already processed
 
         if (to === account) {
           this.log.debug(`Transfer approval ${token}: ${from} -> ${to}`);

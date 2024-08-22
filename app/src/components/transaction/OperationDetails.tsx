@@ -2,7 +2,7 @@ import { ClockOutlineIcon } from '@theme/icons';
 import { UAddress, asChain, asUAddress } from 'lib';
 import { DateTime } from 'luxon';
 import { match } from 'ts-pattern';
-import { AddressLabel, useAddressLabel } from '#/address/AddressLabel';
+import { AddressLabel } from '#/address/AddressLabel';
 import { useTimestamp } from '#/format/Timestamp';
 import { ListItem } from '#/list/ListItem';
 import { AddressIcon } from '#/Identicon/AddressIcon';
@@ -85,7 +85,7 @@ function TransferOp({ f, chain }: PropsFor<'TransferOp'>) {
       <ListItem
         leading={<AddressIcon address={f.to} />}
         overline="To"
-        headline={useAddressLabel(asUAddress(f.to, chain))}
+        headline={<AddressLabel address={asUAddress(f.to, chain)} />}
       />
       <ListItem
         leading={<LazyTokenIcon token={asUAddress(f.token, chain)} />}
@@ -136,7 +136,7 @@ function TransferApprovalOp({ f, chain }: PropsFor<'TransferApprovalOp'>) {
       <ListItem
         leading={<AddressIcon address={f.to} />}
         overline="Spender"
-        headline={useAddressLabel(asUAddress(f.to, chain))}
+        headline={<AddressLabel address={asUAddress(f.to, chain)} />}
       />
       <ListItem
         leading={<LazyTokenIcon token={asUAddress(f.token, chain)} />}
@@ -186,7 +186,7 @@ function Other({ op, chain }: OtherProps) {
     <ListItem
       leading={<AddressIcon address={op.to} />}
       overline={op.data ? 'Contract' : 'To'}
-      headline={useAddressLabel(asUAddress(op.to, chain))}
+      headline={<AddressLabel address={asUAddress(op.to, chain)} />}
     />
   );
 }

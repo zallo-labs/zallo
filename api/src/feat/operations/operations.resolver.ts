@@ -5,7 +5,7 @@ import { Operation, OperationFunction } from './operations.model';
 import { OperationsService } from './operations.service';
 import { Shape } from '~/core/database';
 import { asAddress, asHex } from 'lib';
-import { getChain } from 'chains';
+import { getChainConfig } from 'chains';
 
 const functionDeps = {
   to: true,
@@ -29,7 +29,7 @@ export class OperationsResolver {
         value: deps.value ?? undefined,
         data: asHex(deps.data),
       },
-      getChain(deps['<unorderedOperations[is Transaction]']!.account.chain).key,
+      getChainConfig(deps['<unorderedOperations[is Transaction]']!.account.chain).key,
     );
   }
 }
