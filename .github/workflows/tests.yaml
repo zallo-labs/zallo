@@ -19,33 +19,6 @@ jobs:
       - name: 🧪 Test
         run: yarn lib test
 
-  # Temporarily disabled as both era_test_node@latest and era-test-node-action.releaseTag are broken
-  # Manually test on era_test_node@v0.1.0-alpha.18
-
-  # contracts:
-  #   runs-on: ubuntu-latest
-
-  #   steps:
-  #     - name: 🚧 Checkout
-  #       uses: actions/checkout@v4
-  #       with:
-  #         fetch-depth: 2
-
-  #     - name: 🚧 Setup Node
-  #       uses: actions/setup-node@v4
-  #       with:
-  #         cache: 'yarn'
-  #         node-version-file: '.nvmrc'
-
-  #     - name: 🚧 Start zkSync local testnet node
-  #       uses: dutterbutter/era-test-node-action@latest
-
-  #     - name: 📦 Install
-  #       run: yarn
-
-  #     - name: 🧪 Test
-  #       run: yarn contracts test
-
   contracts-foundry:
     runs-on: ubuntu-latest
 
@@ -63,7 +36,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: matter-labs/foundry-zksync
-          ref: 'dev'
+          ref: 'main'
           path: 'foundry-zksync'
 
       - name: 🚧 Add foundry-zksync to PATH
