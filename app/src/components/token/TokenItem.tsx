@@ -1,4 +1,4 @@
-import { StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
+import { StyleProp, ViewStyle } from 'react-native';
 import { FiatValue } from '../FiatValue';
 import { ListIconElementProps, ListItem, ListItemProps, ListItemTextProps } from '../list/ListItem';
 import { ListItemSkeleton } from '../list/ListItemSkeleton';
@@ -58,22 +58,17 @@ const TokenItem_ = memo(
         leading={<TokenIcon token={token} />}
         leadingSize="medium"
         headline={token.name}
-        supporting={({ Text }) => (
-          <View style={styles.supportingContainer}>
-            {amount !== undefined && (
-              <Text>
-                <TokenAmount token={token} amount={amount} />
-              </Text>
-            )}
-
+        supporting={
+          <>
+            <TokenAmount token={token} amount={amount} />
             {token.price && (
-              <Text style={styles.price}>
-                {amount !== undefined && ' @ '}
+              <>
+                {amount !== undefined && ' | '}
                 <FiatValue value={token.price.usd} maximumFractionDigits={0} />
-              </Text>
+              </>
             )}
-          </View>
-        )}
+          </>
+        }
         trailing={({ Text }) =>
           TrailingProp ? (
             <TrailingProp Text={Text} Trailing={() => <Trailing Text={Text} />} />
@@ -88,16 +83,6 @@ const TokenItem_ = memo(
   },
   deepEqual,
 );
-
-const styles = StyleSheet.create({
-  price: {
-    verticalAlign: 'middle',
-  },
-  supportingContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-});
 
 export const TokenItem = withSuspense(TokenItem_, (props) => (
   <ListItemSkeleton {...props} leading supporting trailing />

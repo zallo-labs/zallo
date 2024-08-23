@@ -1,21 +1,21 @@
 import { useRouter } from 'expo-router';
-import { FlatList, StyleSheet } from 'react-native';
+import { FlatList, StyleSheet, View } from 'react-native';
 import { asChain } from 'lib';
 import { AddIcon } from '@theme/icons';
-import { ListHeader } from '#/list/ListHeader';
 import { TokenItem } from '#/token/TokenItem';
 import { useState } from 'react';
-import { z } from 'zod';
-import { zUAddress } from '~/lib/zod';
 import { useLocalParams } from '~/hooks/useLocalParams';
 import { withSuspense } from '#/skeleton/withSuspense';
-import { ScreenSkeleton } from '#/skeleton/ScreenSkeleton';
-import { ScreenSurface } from '#/layout/ScreenSurface';
 import { MenuOrSearchIcon } from '#/Appbar/MenuOrSearchIcon';
 import { graphql } from 'relay-runtime';
 import { tokens_TokensScreenQuery } from '~/api/__generated__/tokens_TokensScreenQuery.graphql';
 import { useLazyQuery } from '~/api';
 import { Searchbar } from '#/Appbar/Searchbar';
+import { AccountParams } from '../_layout';
+import { Pane } from '#/layout/Pane';
+import { ITEM_LIST_GAP } from '#/layout/ItemList';
+import { CORNER } from '@theme/paper';
+import { PaneSkeleton } from '#/skeleton/PaneSkeleton';
 
 const Query = graphql`
   query tokens_TokensScreenQuery($account: UAddress!, $chain: Chain, $query: String) {
@@ -28,10 +28,10 @@ const Query = graphql`
   }
 `;
 
-const TokensScreenParams = z.object({ account: zUAddress() });
+const Params = AccountParams;
 
 function TokensScreen() {
-  const { account } = useLocalParams(TokensScreenParams);
+  const { account } = useLocalParams(Params);
   const router = useRouter();
 
   const [query, setQuery] = useState('');
@@ -43,7 +43,7 @@ function TokensScreen() {
   });
 
   return (
-    <>
+    <Pane fixed>
       <Searchbar
         leading={MenuOrSearchIcon}
         placeholder="Search tokens"
@@ -52,37 +52,47 @@ function TokensScreen() {
         onChangeText={setQuery}
       />
 
-      <ScreenSurface>
-        <FlatList
-          data={tokens}
-          ListHeaderComponent={<ListHeader>Tokens</ListHeader>}
-          renderItem={({ item: token }) => (
-            <TokenItem
-              token={token}
-              amount={token.balance}
-              onPress={() =>
-                router.push({
-                  pathname: `/(nav)/token/[address]`,
-                  params: { address: token.address },
-                })
-              }
-            />
-          )}
-          contentContainerStyle={styles.container}
-          showsVerticalScrollIndicator={false}
-          keyExtractor={(item) => item.id}
-        />
-      </ScreenSurface>
-    </>
+      <FlatList
+        data={tokens}
+        renderItem={({ item: token, index }) => (
+          <TokenItem
+            variant="surface"
+            token={token}
+            amount={token.balance}
+            containerStyle={[
+              index === 0 && styles.firstItem,
+              index === tokens.length - 1 && styles.lastItem,
+            ]}
+            onPress={() =>
+              router.push({
+                pathname: `/(nav)/token/[address]`,
+                params: { address: token.address },
+              })
+            }
+          />
+        )}
+        ItemSeparatorComponent={() => <View style={styles.separator} />}
+        keyExtractor={(item) => item.id}
+        showsVerticalScrollIndicator={false}
+      />
+    </Pane>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    paddingVertical: 8,
+  separator: {
+    height: ITEM_LIST_GAP,
+  },
+  firstItem: {
+    borderTopLeftRadius: CORNER.l,
+    borderTopRightRadius: CORNER.l,
+  },
+  lastItem: {
+    borderBottomLeftRadius: CORNER.l,
+    borderBottomRightRadius: CORNER.l,
   },
 });
 
-export default withSuspense(TokensScreen, <ScreenSkeleton />);
+export default withSuspense(TokensScreen, <PaneSkeleton />);
 
 export { ErrorBoundary } from '#/ErrorBoundary';

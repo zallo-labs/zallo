@@ -81,10 +81,10 @@ function HomePane() {
         data={tokensByValue}
         renderItem={({ item, index }) => (
           <TokenItem
+            variant="surface"
             token={item}
             amount={item.balance}
             containerStyle={[
-              styles.item,
               index === 0 && styles.firstItem,
               index === tokensByValue.length - 1 && styles.lastItem,
             ]}
@@ -98,16 +98,13 @@ function HomePane() {
   );
 }
 
-const stylesheet = createStyles(({ colors, padding }) => ({
+const stylesheet = createStyles(({ padding }) => ({
   container: {
     paddingHorizontal: padding,
     paddingBottom: 16,
   },
   appbar: {
     marginRight: 40, // menu offset
-  },
-  item: {
-    backgroundColor: colors.surface,
   },
   separator: {
     height: ITEM_LIST_GAP,
