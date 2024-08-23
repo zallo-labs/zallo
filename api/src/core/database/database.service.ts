@@ -72,8 +72,13 @@ export class DatabaseService implements OnModuleInit {
     getExpr: (params: paramsToParamExprs<Params>) => Expr,
     params: paramsToParamArgs<Params>,
   ) {
-    const expression = e.params(paramsDef, getExpr as any);
-    return this.run(() => expression.run(this.client, params as any)) as Promise<$infer<Expr>>;
+    try {
+      const expression = e.params(paramsDef, getExpr as any);
+      return this.run(() => expression.run(this.client, params as any)) as Promise<$infer<Expr>>;
+    } catch (e) {
+      if (e instanceof EdgeDBError) Sentry.setExtra('EdgeQL Params', params);
+      throw e;
+    }
   }
 
   async queryWith2<
@@ -84,8 +89,7 @@ export class DatabaseService implements OnModuleInit {
     params: paramsToParamArgs<Params>,
     getExpr: (params: paramsToParamExprs<Params>) => Expr,
   ) {
-    const expression = e.params(paramsDef, getExpr as any);
-    return this.run(() => expression.run(this.client, params as any)) as Promise<$infer<Expr>>;
+    return this.queryWith(paramsDef, getExpr, params);
   }
 
   async exec<F extends (client: Executor, args: any) => Promise<any>>(
