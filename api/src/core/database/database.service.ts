@@ -74,7 +74,9 @@ export class DatabaseService implements OnModuleInit {
   ) {
     try {
       const expression = e.params(paramsDef, getExpr as any);
-      return this.run(() => expression.run(this.client, params as any)) as Promise<$infer<Expr>>;
+      return (await this.run(() => expression.run(this.client, params as any))) as Promise<
+        $infer<Expr>
+      >;
     } catch (e) {
       if (e instanceof EdgeDBError) Sentry.setExtra('EdgeQL Params', params);
       throw e;
