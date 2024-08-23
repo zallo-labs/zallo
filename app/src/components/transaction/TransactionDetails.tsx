@@ -48,7 +48,7 @@ export function TransactionDetails(props: TransactionDetailsProps) {
             }
             trailing={
               <Percent
-                value={Number((BigInt(t.result.gasUsed) * 10000n) / BigInt(t.gasLimit)) / 100}
+                value={Number((BigInt(t.result.gasUsed ?? 0) * 10000n) / BigInt(t.gasLimit)) / 100}
               />
             }
           />

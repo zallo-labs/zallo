@@ -54,6 +54,7 @@ export class SentryInterceptor implements NestInterceptor {
 
                   scope.setExtra('exceptionData', JSON.stringify(exception, null, 2));
                   this.addContextExceptionMetadata(scope, context);
+                  scope.setExtra('userContext', getContextUnsafe()?.user);
 
                   Sentry.captureException(exception);
                 },

@@ -35,6 +35,7 @@ import { AccountEvent } from './accounts.model';
 import { PolicyInput } from '../policies/policies.input';
 import { utils as zkUtils } from 'zksync-ethers';
 import { toHex } from 'viem';
+import { insertAccount } from './insert-account.query';
 
 const accountTrigger = (account: UAddress) => `account.updated:${account}`;
 const accountApproverTrigger = (approver: Address) => `account.updated:approver:${approver}`;
@@ -148,15 +149,13 @@ export class AccountsService {
     );
 
     await this.db.transaction(async () => {
-      await this.db.query(
-        e.insert(e.Account, {
-          id,
-          address,
-          name,
-          implementation,
-          initialization: { salt, bytecodeHash, aaVersion: 1 },
-        }),
-      );
+      await this.db.exec(insertAccount, {
+        id,
+        address,
+        name,
+        implementation,
+        initialization: { salt, bytecodeHash, aaVersion: 1 },
+      });
 
       await this.policies.propose(
         {

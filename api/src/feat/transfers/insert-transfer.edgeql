@@ -26,5 +26,6 @@ with accountAddress := <UAddress>$account,
 select transfer {
   id,
   internal,
+  fee,
   accountUsers := .account.approvers.user.id
 }

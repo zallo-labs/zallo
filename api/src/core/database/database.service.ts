@@ -42,13 +42,11 @@ export class DatabaseService implements OnModuleInit {
     const reqCtx = getContextUnsafe();
     if (!reqCtx?.user) return this.DANGEROUS_superuserClient;
 
-    reqCtx.db ??= this.__client.withGlobals({
+    return this.__client.withGlobals({
       current_accounts: reqCtx.user.accounts.map((a) => a.id),
       current_approver_address: reqCtx.user.approver,
       // current_user_id: reqCtx.user.id,
     } satisfies Globals);
-
-    return reqCtx.db;
   }
 
   private async run<R>(f: () => Promise<R>, name = 'inline'): Promise<R> {
@@ -74,8 +72,15 @@ export class DatabaseService implements OnModuleInit {
     getExpr: (params: paramsToParamExprs<Params>) => Expr,
     params: paramsToParamArgs<Params>,
   ) {
-    const expression = e.params(paramsDef, getExpr as any);
-    return this.run(() => expression.run(this.client, params as any)) as Promise<$infer<Expr>>;
+    try {
+      const expression = e.params(paramsDef, getExpr as any);
+      return (await this.run(() => expression.run(this.client, params as any))) as Promise<
+        $infer<Expr>
+      >;
+    } catch (e) {
+      if (e instanceof EdgeDBError) Sentry.setExtra('EdgeQL Params', params);
+      throw e;
+    }
   }
 
   async queryWith2<
@@ -86,8 +91,7 @@ export class DatabaseService implements OnModuleInit {
     params: paramsToParamArgs<Params>,
     getExpr: (params: paramsToParamExprs<Params>) => Expr,
   ) {
-    const expression = e.params(paramsDef, getExpr as any);
-    return this.run(() => expression.run(this.client, params as any)) as Promise<$infer<Expr>>;
+    return this.queryWith(paramsDef, getExpr, params);
   }
 
   async exec<F extends (client: Executor, args: any) => Promise<any>>(

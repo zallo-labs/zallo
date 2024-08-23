@@ -60,9 +60,9 @@ export function zBool() {
 export function zBoundStr() {
   return z
     .string()
-    .min(3)
-    .max(50)
-    .regex(/(?![0oO][xX])[^\n\t]{3,50}$/, 'Must not start with 0x');
+    .min(2)
+    .max(70)
+    .regex(/(?![0oO][xX])[^\n\t]{2,70}$/, 'Must not start with 0x');
 }
 
 export function zNonEmptyStr() {
