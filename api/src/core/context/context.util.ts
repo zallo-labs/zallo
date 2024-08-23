@@ -2,12 +2,10 @@ import { AsyncLocalStorage } from 'async_hooks';
 import { uuid } from 'edgedb/dist/codecs/ifaces';
 import { Address, UAddress, UUID } from 'lib';
 import { GqlContext } from '~/core/apollo/ctx';
-import { type Client as DatabaseClient } from 'edgedb';
 
 export interface Context {
   afterRequestHooks: AfterRequestHook[];
   user?: UserContext;
-  db?: DatabaseClient;
 }
 
 export interface UserContext {

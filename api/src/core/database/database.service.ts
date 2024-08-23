@@ -42,13 +42,11 @@ export class DatabaseService implements OnModuleInit {
     const reqCtx = getContextUnsafe();
     if (!reqCtx?.user) return this.DANGEROUS_superuserClient;
 
-    reqCtx.db ??= this.__client.withGlobals({
+    return this.__client.withGlobals({
       current_accounts: reqCtx.user.accounts.map((a) => a.id),
       current_approver_address: reqCtx.user.approver,
       // current_user_id: reqCtx.user.id,
     } satisfies Globals);
-
-    return reqCtx.db;
   }
 
   private async run<R>(f: () => Promise<R>, name = 'inline'): Promise<R> {
