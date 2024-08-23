@@ -15,6 +15,7 @@ import { useGetCloudApproverQuery } from '~/api/__generated__/useGetCloudApprove
 import { signAuthHeaders } from '~/api/auth-manager';
 import { UpdateApproverInput } from '~/api/__generated__/useGetCloudApproverMutation.graphql';
 import { withHeaders } from '~/api/network/auth';
+import { zBoundStr } from '~/lib/zod';
 
 const PK_PATH = '/approver.private-key';
 const SCOPE = CloudStorageScope.AppData;
@@ -84,9 +85,7 @@ export function useGetCloudApprover() {
             await fetchQuery<useGetCloudApproverQuery>(
               environment,
               Query,
-              {
-                approver: approver.address,
-              },
+              { approver: approver.address },
               { networkCacheConfig: withHeaders(authHeaders) },
             ).toPromise()
           )?.approver.details;
@@ -95,7 +94,11 @@ export function useGetCloudApprover() {
             {
               input: {
                 address: approver.address,
-                name: !e?.name ? details?.name : undefined,
+                name: !e?.name
+                  ? zBoundStr().safeParse(
+                      details?.name?.slice(0, zBoundStr().maxLength ?? undefined),
+                    )
+                  : undefined,
                 cloud: !e?.cloud ? details?.cloud : undefined,
               },
             },
