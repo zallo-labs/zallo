@@ -7,7 +7,7 @@ import { useFragment } from 'react-relay';
 import { graphql } from 'relay-runtime';
 import { TransactionResponse_transaction$key } from '~/api/__generated__/TransactionResponse_transaction.graphql';
 import * as Clipboard from 'expo-clipboard';
-import { showInfo } from '#/provider/SnackbarProvider';
+import { showInfo } from '#/Snackbar';
 import { size, slice } from 'viem';
 import { isHex } from 'lib';
 import { Link } from 'expo-router';

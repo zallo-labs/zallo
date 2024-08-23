@@ -1,4 +1,4 @@
-import { showError } from '#/provider/SnackbarProvider';
+import { showError } from '#/Snackbar';
 import { ampli } from '~/lib/ampli';
 import { useGetGoogleApprover } from '#/cloud/google/useGetGoogleApprover';
 import { graphql } from 'relay-runtime';

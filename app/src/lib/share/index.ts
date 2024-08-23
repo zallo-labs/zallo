@@ -1,5 +1,5 @@
 import Clipboard from '@react-native-clipboard/clipboard';
-import { showInfo } from '#/provider/SnackbarProvider';
+import { showInfo } from '#/Snackbar';
 
 export interface ShareOptions {
   message?: string;

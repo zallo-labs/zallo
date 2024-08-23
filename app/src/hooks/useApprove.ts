@@ -1,7 +1,7 @@
 import { useApproverAddress } from '~/lib/network/useApprover';
 import { Address, asMessageTypedData, UUID } from 'lib';
 import { match } from 'ts-pattern';
-import { showError } from '#/provider/SnackbarProvider';
+import { showError } from '#/Snackbar';
 import { proposalAsTypedData } from '~/lib/proposalAsTypedData';
 import { useGetLedgerApprover } from '~/app/(sheet)/ledger/approve';
 import { useSignWithApprover } from '#/transaction/useSignWithApprover';

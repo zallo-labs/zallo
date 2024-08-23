@@ -4,7 +4,7 @@ import { materialCommunityIcon } from '@theme/icons';
 import { View } from 'react-native';
 import { Text } from 'react-native-paper';
 import { Button } from '#/Button';
-import { showSuccess } from '#/provider/SnackbarProvider';
+import { showSuccess } from '#/Snackbar';
 import { z } from 'zod';
 import { useLocalParams } from '~/hooks/useLocalParams';
 import { createStyles, useStyles } from '@theme/styles';

@@ -13,7 +13,7 @@ import { WalletConnectListeners } from '#/walletconnect/WalletConnectListeners';
 import { AuthGate } from '#/provider/AuthGate';
 import { ApiProvider } from '~/api/ApiProvider';
 import { NotificationsProvider } from '#/provider/NotificationsProvider';
-import { SnackbarProvider } from '#/provider/SnackbarProvider';
+import { Snackbar } from '#/Snackbar';
 import { UpdateProvider } from '#/provider/UpdateProvider';
 import { ThemeProvider } from '~/util/theme/ThemeProvider';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -114,7 +114,7 @@ function RootLayout() {
                   </AuthGate>
                 </Suspense>
               </Background>
-              <SnackbarProvider />
+              <Snackbar.Root />
               <Confirm.Root />
             </GestureHandlerRootView>
           </IntlProvider>

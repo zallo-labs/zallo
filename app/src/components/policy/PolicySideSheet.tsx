@@ -3,7 +3,7 @@ import { FormTextField } from '#/fields/FormTextField';
 import { Actions } from '#/layout/Actions';
 import { FormSubmitButton } from '#/fields/FormSubmitButton';
 import { usePolicyDraft } from '~/lib/policy/policyAsDraft';
-import { showError } from '#/provider/SnackbarProvider';
+import { showError } from '#/Snackbar';
 import { SideSheet } from '../SideSheet/SideSheet';
 import { Button } from '../Button';
 import { createStyles, useStyles } from '@theme/styles';
@@ -122,7 +122,7 @@ export function PolicySideSheet(props: PolicySideSheetProps) {
               if (policy && draft.key !== undefined) {
                 const r = (await rename({ account: draft.account, key: draft.key, name }))
                   ?.updatePolicyDetails;
-                if (r?.__typename !== 'Policy') return showError(r?.message);
+                if (r?.__typename !== 'Policy') return showError(r?.message || 'Unknown error');
               }
 
               updateDraft((draft) => {

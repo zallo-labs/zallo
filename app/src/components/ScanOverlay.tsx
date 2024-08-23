@@ -2,7 +2,7 @@ import { BackIcon, ContactsIcon, PasteIcon } from '~/util/theme/icons';
 import { IconButton } from 'react-native-paper';
 import { StyleSheet, View } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
-import { showWarning } from '#/provider/SnackbarProvider';
+import { showWarning } from '#/Snackbar';
 import { useSelectAddress } from '~/hooks/useSelectAddress';
 import { useRouter } from 'expo-router';
 import { createStyles, useStyles } from '@theme/styles';

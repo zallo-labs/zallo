@@ -7,7 +7,7 @@ import { Actions } from '#/layout/Actions';
 import { Address, UAddress, tryAsAddress } from 'lib';
 import * as Linking from 'expo-linking';
 import useAsyncEffect from 'use-async-effect';
-import { showError } from '#/provider/SnackbarProvider';
+import { showError } from '#/Snackbar';
 import { parseAppLink } from '~/lib/appLink';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { ScanOverlay } from '#/ScanOverlay';

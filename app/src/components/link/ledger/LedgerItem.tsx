@@ -3,7 +3,7 @@ import { useCallback } from 'react';
 import { ListItem } from '#/list/ListItem';
 import { useGetLedgerApprover } from '~/app/(sheet)/ledger/approve';
 import { APPROVER_BLE_IDS } from '~/hooks/ledger/useLedger';
-import { showError } from '#/provider/SnackbarProvider';
+import { showError } from '#/Snackbar';
 import { useImmerAtom } from 'jotai-immer';
 import { getLedgerDeviceModel } from '~/hooks/ledger/connectLedger';
 import { elipseTruncate } from '~/util/format';
@@ -94,10 +94,11 @@ export function LedgerItem({ device: d, ...props }: LedgerItemProps) {
         },
       }),
     );
-    if (!authHeaders)
-      return showError('Connection request cancelled', {
-        action: { label: 'Try again', onPress: connect },
-      });
+    if (!authHeaders) {
+      const retry = await showError('Connection request cancelled', { action: 'Try again' });
+      if (retry) connect();
+      return;
+    }
 
     // 1. Link
     const { approvers } = (await link({ token: user.linkingToken }, { headers: authHeaders })).link;

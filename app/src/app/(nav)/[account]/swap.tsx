@@ -24,7 +24,7 @@ import { getSwapOperations } from '~/util/swap/syncswap/swap';
 import Decimal from 'decimal.js';
 import { ampli } from '~/lib/ampli';
 import { SwapToTokenItem } from '#/swap/SwapToTokenItem';
-import { showError } from '#/provider/SnackbarProvider';
+import { showError } from '#/Snackbar';
 import { estimateSwap } from '~/util/swap/syncswap/estimate';
 import { ScreenSkeleton } from '#/skeleton/ScreenSkeleton';
 import { graphql } from 'relay-runtime';

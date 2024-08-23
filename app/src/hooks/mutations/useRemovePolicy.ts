@@ -1,4 +1,4 @@
-import { showError } from '#/provider/SnackbarProvider';
+import { showError } from '#/Snackbar';
 import { useRouter } from 'expo-router';
 import { PolicyKey, UAddress } from 'lib';
 import { graphql } from 'relay-runtime';

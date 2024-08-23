@@ -9,7 +9,7 @@ import { ListItemHorizontalTrailing } from '#/list/ListItemHorizontalTrailing';
 import { ListItemTrailingText } from '#/list/ListItemTrailingText';
 import { ApproverItem } from '#/policy/ApproverItem';
 import { ThresholdChip } from './ThresholdChip';
-import { showInfo } from '#/provider/SnackbarProvider';
+import { showInfo } from '#/Snackbar';
 import { useSelectAddress } from '~/hooks/useSelectAddress';
 import { useToggle } from '~/hooks/useToggle';
 import { usePolicyDraft } from '~/lib/policy/policyAsDraft';
@@ -38,7 +38,7 @@ export function ApprovalSettings() {
     }
   };
 
-  const remove = (approver: Address) => {
+  const remove = async (approver: Address) => {
     const originalThreshold = policy.threshold;
 
     update((draft) => {
@@ -46,16 +46,13 @@ export function ApprovalSettings() {
       draft.threshold = Math.max(policy.threshold, policy.approvers.size);
     });
 
-    showInfo('Approver removed', {
-      action: {
-        label: 'Undo',
-        onPress: () =>
-          update((draft) => {
-            draft.approvers.add(approver);
-            draft.threshold = originalThreshold;
-          }),
-      },
-    });
+    const undo = await showInfo('Approver removed', { action: 'Undo' });
+    if (undo) {
+      update((draft) => {
+        draft.approvers.add(approver);
+        draft.threshold = originalThreshold;
+      });
+    }
   };
 
   return (

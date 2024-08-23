@@ -2,13 +2,13 @@ import { useApproverWallet } from '~/lib/network/useApprover';
 import { ok, err } from 'neverthrow';
 import { useMemo } from 'react';
 import { useAuthenticate } from '~/app/auth';
-import { showError } from '#/provider/SnackbarProvider';
+import { showError } from '#/Snackbar';
 import { useAuthSettings } from '#/auth/AuthSettings';
 
 export function useSignWithApprover() {
   const approver = useApproverWallet();
   const auth = useAuthenticate();
-  const {approval: authRequired} = useAuthSettings();
+  const { approval: authRequired } = useAuthSettings();
 
   return useMemo(() => {
     const check = async () => {
