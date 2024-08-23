@@ -12,7 +12,7 @@ module default {
   };
 
   scalar type BoundedStr extending str {
-    constraint regexp(r'^(?![0oO][xX])[^\n\t]{3,50}$');
+    constraint regexp(r'^(?![0oO][xX])[^\n\t]{2,70}$');
   }
 
   scalar type Bytes extending str {

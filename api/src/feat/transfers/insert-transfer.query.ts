@@ -18,7 +18,6 @@ export type InsertTransferArgs = {
 export type InsertTransferReturns = {
   "id": string;
   "internal": boolean;
-  "fee": boolean;
   "accountUsers": Array<string>;
 } | null;
 
@@ -52,7 +51,6 @@ with accountAddress := <UAddress>$account,
 select transfer {
   id,
   internal,
-  fee,
   accountUsers := .account.approvers.user.id
 }`, args);
 
