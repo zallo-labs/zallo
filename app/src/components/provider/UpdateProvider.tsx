@@ -1,6 +1,6 @@
 import * as Updates from 'expo-updates';
 import { useEffect } from 'react';
-import { AppState, Platform } from 'react-native';
+import { AppState } from 'react-native';
 import * as Sentry from '@sentry/react-native';
 import { showInfo, showWarning } from '#/Snackbar';
 
@@ -21,7 +21,7 @@ export function UpdateProvider() {
   // - when app enters foreground
   // - every 5 minutes
   useEffect(() => {
-    if (__DEV__ || Platform.OS === 'web') return;
+    if (!Updates.isEnabled) return;
 
     const checkStale = () =>
       !lastCheckForUpdateTimeSinceRestart ||
