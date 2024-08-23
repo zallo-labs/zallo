@@ -11,7 +11,7 @@ import { changeSecureStorePassword } from '~/lib/secure-storage';
 import { createStyles, useStyles } from '@theme/styles';
 import { Actions } from '#/layout/Actions';
 import { Button } from '#/Button';
-import { showInfo } from '#/provider/SnackbarProvider';
+import { showInfo } from '#/Snackbar';
 
 const PASSWORD_HASH = persistedAtom<string | null>('passwordHash', null);
 export const usePasswordHash = () => useAtomValue(PASSWORD_HASH);

@@ -1,5 +1,5 @@
 import { useGetAppleApprover } from './useGetAppleApprover';
-import { showError } from '#/provider/SnackbarProvider';
+import { showError } from '#/Snackbar';
 import { ampli } from '~/lib/ampli';
 import { graphql } from 'relay-runtime';
 import { useFragment } from 'react-relay';

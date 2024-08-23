@@ -7,7 +7,7 @@ import { Actions } from '#/layout/Actions';
 import { Sheet } from '#/sheet/Sheet';
 import { AccountsList } from '#/walletconnect/AccountsList';
 import { DappHeader } from '#/walletconnect/DappHeader';
-import { hideSnackbar, showError, showSuccess } from '#/provider/SnackbarProvider';
+import { hideSnackbar, showError, showSuccess } from '#/Snackbar';
 import {
   sessionChains,
   supportedNamespaces,
@@ -91,7 +91,7 @@ export default function ConnectSessionSheet() {
         }),
       });
 
-      showSuccess(`Connected with ${dapp}`, { visibilityTime: 2000 });
+      showSuccess(`Connected with ${dapp}`, { duration: 2000 });
     } catch (error) {
       showError(`Failed to connect to ${dapp}: ${(error as Error).message}`, { event: { error } });
     }

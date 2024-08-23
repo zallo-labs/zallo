@@ -1,7 +1,7 @@
 import { asUAddress } from 'lib';
 import { CHAINS } from 'chains';
 import { useEffect } from 'react';
-import { showError, showInfo } from '#/provider/SnackbarProvider';
+import { showError, showInfo } from '#/Snackbar';
 import { logError } from '~/util/analytics';
 import {
   asCaip2,

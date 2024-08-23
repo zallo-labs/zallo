@@ -2,7 +2,6 @@ import { Timestamp } from '#/format/Timestamp';
 import { ListHeader } from '#/list/ListHeader';
 import { ListItem } from '#/list/ListItem';
 import { DELAY_ENTRIES } from '#/policy/DelaySettings';
-import { showError } from '#/provider/SnackbarProvider';
 import { CancelIcon, materialCommunityIcon } from '@theme/icons';
 import { createStyles } from '@theme/styles';
 import { useRouter } from 'expo-router';

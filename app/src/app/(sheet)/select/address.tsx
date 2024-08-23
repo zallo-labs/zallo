@@ -21,7 +21,7 @@ import { ADDRESS_SELECTED } from '~/hooks/useSelectAddress';
 import { zChain, zArray, zUAddress, zAddress } from '~/lib/zod';
 import * as Clipboard from 'expo-clipboard';
 import { isAddress } from 'viem';
-import { showWarning } from '#/provider/SnackbarProvider';
+import { showWarning } from '#/Snackbar';
 import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import { graphql } from 'relay-runtime';
 import { useLazyQuery } from '~/api';

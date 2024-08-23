@@ -20,7 +20,7 @@ import { useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Updates from 'expo-updates';
 import { Confirm } from '#/Confirm';
-import { showInfo } from '#/provider/SnackbarProvider';
+import { showInfo } from '#/Snackbar';
 
 const UNLOCKED = new Subject<true>();
 const emitAuth = () => UNLOCKED.next(true);

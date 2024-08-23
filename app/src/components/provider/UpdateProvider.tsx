@@ -1,9 +1,8 @@
 import * as Updates from 'expo-updates';
 import { useEffect } from 'react';
-import { AppState, Platform } from 'react-native';
-import { showInfo } from './SnackbarProvider';
-import { showWarning } from './SnackbarProvider';
+import { AppState } from 'react-native';
 import * as Sentry from '@sentry/react-native';
+import { showInfo, showWarning } from '#/Snackbar';
 
 const UPDATE_INTEVAL = 5 * 60_000;
 
@@ -22,7 +21,7 @@ export function UpdateProvider() {
   // - when app enters foreground
   // - every 5 minutes
   useEffect(() => {
-    if (__DEV__ || Platform.OS === 'web') return;
+    if (!Updates.isEnabled) return;
 
     const checkStale = () =>
       !lastCheckForUpdateTimeSinceRestart ||
@@ -50,12 +49,8 @@ export function UpdateProvider() {
   // Prompt user to reload when update is pending
   useEffect(() => {
     if (isUpdatePending) {
-      showInfo('A new improved version is available. Please reload to apply the update.', {
-        action: {
-          label: 'Reload',
-          onPress: Updates.reloadAsync,
-        },
-        autoHide: false,
+      showInfo('Update available', { action: 'Reload', duration: Infinity }).then((confirmed) => {
+        confirmed && Updates.reloadAsync();
       });
     }
   }, [isUpdatePending]);

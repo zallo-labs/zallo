@@ -1,6 +1,6 @@
 import { getSdkError } from '@walletconnect/utils';
 import { useEffect, useRef } from 'react';
-import { showError } from '#/provider/SnackbarProvider';
+import { showError } from '#/Snackbar';
 import { useWalletConnectWithoutWatching, sessionChains } from '~/lib/wc';
 import { useRouter, usePathname, Href } from 'expo-router';
 import { Web3WalletTypes } from '@walletconnect/web3wallet';

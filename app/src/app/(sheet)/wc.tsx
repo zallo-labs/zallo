@@ -8,7 +8,7 @@ import { Sheet } from '#/sheet/Sheet';
 import { useLocalParams } from '~/hooks/useLocalParams';
 import { useWalletConnectWithoutWatching } from '~/lib/wc';
 import { zWalletConnectUri } from '~/lib/wc/uri';
-import { showError } from '#/provider/SnackbarProvider';
+import { showError } from '#/Snackbar';
 import { useRouter } from 'expo-router';
 
 export const WalletConnectUriScreenParams = z.object({ uri: zWalletConnectUri() });

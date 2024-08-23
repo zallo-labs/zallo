@@ -1,5 +1,4 @@
 import { Chip } from '#/Chip';
-import { showError } from '#/provider/SnackbarProvider';
 import { createStyles, useStyles } from '@theme/styles';
 import { useRouter } from 'expo-router';
 import { asChain } from 'lib';
