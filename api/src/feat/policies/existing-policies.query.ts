@@ -45,7 +45,7 @@ export function existingPolicies(client: Executor, args: ExistingPoliciesArgs): 
   return client.query(`\
 with account := (select Account filter .address = <UAddress>$account),
      keys := array_unpack(<array<uint16>>$policyKeys)
-select Policy {
+select account.<account[is Policy] {
   key,
   name,
   approvers: { address },
@@ -71,7 +71,6 @@ select Policy {
   },
   allowMessages,
   delay,
-} filter .account = account and .key in keys and 
-  (.isDraft if exists .draft else .isLatest)`, args);
+} filter .key in keys and (.isDraft if exists .draft else .isLatest)`, args);
 
 }
