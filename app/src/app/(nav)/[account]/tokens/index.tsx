@@ -43,11 +43,16 @@ function TokensScreen() {
   });
 
   return (
-    <Pane fixed>
+    <Pane flex>
       <Searchbar
         leading={MenuOrSearchIcon}
         placeholder="Search tokens"
-        trailing={(props) => <AddIcon {...props} onPress={() => router.push(`/token/add`)} />}
+        trailing={(props) => (
+          <AddIcon
+            {...props}
+            onPress={() => router.push({ pathname: '/[account]/tokens/add', params: { account } })}
+          />
+        )}
         value={query}
         onChangeText={setQuery}
       />
@@ -65,8 +70,8 @@ function TokensScreen() {
             ]}
             onPress={() =>
               router.push({
-                pathname: `/(nav)/token/[address]`,
-                params: { address: token.address },
+                pathname: `/[account]/tokens/[address]`,
+                params: { account, address: token.address },
               })
             }
           />

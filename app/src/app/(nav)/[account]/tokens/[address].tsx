@@ -1,5 +1,4 @@
 import { Link, useRouter } from 'expo-router';
-import { Image } from '#/Image';
 import { asAddress, asChain, tryOrIgnore } from 'lib';
 import { useForm } from 'react-hook-form';
 import { FormSubmitButton } from '#/fields/FormSubmitButton';
@@ -9,17 +8,15 @@ import { AppbarMore } from '#/Appbar/AppbarMore';
 import { Menu } from 'react-native-paper';
 import { Appbar } from '#/Appbar/Appbar';
 import { withSuspense } from '#/skeleton/withSuspense';
-import { ScreenSkeleton } from '#/skeleton/ScreenSkeleton';
 import { z } from 'zod';
 import { zHex, zNonEmptyStr, zUAddress } from '~/lib/zod';
 import { useLocalParams } from '~/hooks/useLocalParams';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ListItem } from '#/list/ListItem';
 import { CHAINS } from 'chains';
-import { View } from 'react-native';
 import { createStyles, useStyles } from '@theme/styles';
 import { Button } from '#/Button';
-import { ExternalLinkIcon, GenericTokenIcon } from '@theme/icons';
+import { ExternalLinkIcon } from '@theme/icons';
 import { ICON_SIZE } from '@theme/paper';
 import { graphql } from 'relay-runtime';
 import { useLazyQuery } from '~/api';
@@ -29,6 +26,9 @@ import { useRemoveToken } from '~/hooks/mutations/useRemoveToken';
 import { Scrollable } from '#/Scrollable';
 import { Pane } from '#/layout/Pane';
 import { ItemList } from '#/layout/ItemList';
+import { AddressIcon } from '#/Identicon/AddressIcon';
+import { PaneSkeleton } from '#/skeleton/PaneSkeleton';
+import { View } from 'react-native';
 
 const PYTH_PRICE_FEEDS_URL = 'https://pyth.network/developers/price-feed-ids';
 
@@ -87,7 +87,7 @@ function TokenScreen_() {
       priceId: t?.pythUsdPriceId ?? undefined,
     },
   });
-  const [name, symbol, icon, priceId] = watch(['name', 'symbol', 'icon', 'priceId']);
+  const [icon, priceId] = watch(['name', 'symbol', 'icon', 'priceId']);
   const iconValid = !!tryOrIgnore(() => icon && new URL(icon));
 
   return (
@@ -111,24 +111,18 @@ function TokenScreen_() {
         })}
       />
 
-      <Scrollable contentContainerStyle={styles.sheet}>
-        <ItemList>
-          <ListItem
-            leading={
-              icon && iconValid ? (
-                <Image source={[{ uri: icon }]} style={styles.icon} />
-              ) : (
-                GenericTokenIcon
-              )
-            }
-            headline={`${name || 'Token'} (${symbol || 'TKN'})`}
-            supporting={asAddress(token)}
-            trailing={CHAINS[chain].name}
-            containerStyle={styles.item}
-          />
-        </ItemList>
+      <Scrollable>
+        <View style={styles.container}>
+          <ItemList>
+            <ListItem
+              variant="surface"
+              leading={<AddressIcon address={token} size={ICON_SIZE.medium} />}
+              overline={CHAINS[chain].name}
+              headline={asAddress(token)}
+              trailing={CHAINS[chain].name}
+            />
+          </ItemList>
 
-        <View style={styles.fields}>
           <FormTextField label="Name" name="name" placeholder="Token name" control={control} />
 
           <FormTextField label="Symbol" name="symbol" placeholder="TKN" control={control} />
@@ -152,7 +146,7 @@ function TokenScreen_() {
           )}
         </View>
 
-        <Actions>
+        <Actions horizontal style={styles.actions}>
           <FormSubmitButton
             mode="contained"
             control={control}
@@ -177,24 +171,15 @@ function TokenScreen_() {
   );
 }
 
-const stylesheet = createStyles(({ colors }) => ({
-  sheet: {
-    paddingTop: 8,
-  },
-  item: {
-    backgroundColor: colors.surface,
-  },
-  fields: {
-    marginVertical: 16,
-    marginHorizontal: 16,
+const stylesheet = createStyles(() => ({
+  container: {
     gap: 8,
   },
-  icon: {
-    width: ICON_SIZE.medium,
-    height: ICON_SIZE.medium,
+  actions: {
+    paddingHorizontal: 0,
   },
 }));
 
-export default withSuspense(TokenScreen_, <ScreenSkeleton />);
+export default withSuspense(TokenScreen_, <PaneSkeleton />);
 
 export { ErrorBoundary } from '#/ErrorBoundary';

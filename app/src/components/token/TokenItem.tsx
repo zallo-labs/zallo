@@ -60,7 +60,7 @@ const TokenItem_ = memo(
         headline={token.name}
         supporting={
           <>
-            <TokenAmount token={token} amount={amount} />
+            {amount !== undefined && <TokenAmount token={token} amount={amount} />}
             {token.price && (
               <>
                 {amount !== undefined && ' | '}
