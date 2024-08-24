@@ -1,39 +1,43 @@
 import { Appbar } from '#/Appbar/Appbar';
-import { FormSelectChip } from '#/fields/FormSelectChip';
 import { FormSubmitButton } from '#/fields/FormSubmitButton';
 import { FormTextField } from '#/fields/FormTextField';
 import { Actions } from '#/layout/Actions';
-import { ScrollableScreenSurface } from '#/layout/ScrollableScreenSurface';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { CHAIN_ENTRIES } from '@network/chains';
 import { createStyles } from '@theme/styles';
 import { useRouter } from 'expo-router';
-import { asUAddress } from 'lib';
+import { asChain, asUAddress } from 'lib';
 import { useForm } from 'react-hook-form';
 import { View } from 'react-native';
 import { z } from 'zod';
-import { useSelectedChain } from '~/hooks/useSelectedAccount';
 import { zAddress, zChain } from '~/lib/zod';
 import { ADDRESS_FIELD_RULES } from '~/util/form.rules';
+import { AccountParams } from '../_layout';
+import { useLocalParams } from '~/hooks/useLocalParams';
+import { Pane } from '#/layout/Pane';
+import { Scrollable } from '#/Scrollable';
+import { FormChainSelector } from '#/fields/FormChainSelector';
 
 const scheme = z.object({
   address: zAddress(),
   chain: zChain(),
 });
 
+const Params = AccountParams;
+
 export default function AddTokenScreen() {
+  const { account } = useLocalParams(Params);
   const router = useRouter();
 
   const { control, handleSubmit } = useForm<z.infer<typeof scheme>>({
     resolver: zodResolver(scheme),
-    defaultValues: { chain: useSelectedChain() },
+    defaultValues: { chain: asChain(account) },
   });
 
   return (
-    <>
-      <Appbar headline="Add token" />
+    <Pane flex>
+      <Appbar mode="large" headline="Add token" />
 
-      <ScrollableScreenSurface>
+      <Scrollable>
         <View style={styles.container}>
           <FormTextField
             label="Address"
@@ -47,36 +51,30 @@ export default function AddTokenScreen() {
             }}
           />
 
-          <FormSelectChip
-            name="chain"
-            control={control}
-            entries={CHAIN_ENTRIES}
-            chipProps={{ style: styles.chain }}
-          />
+          <FormChainSelector name="chain" control={control} />
         </View>
 
-        <Actions>
+        <Actions horizontal>
           <FormSubmitButton
             mode="contained"
             control={control}
             onPress={handleSubmit(({ address, chain }) =>
               router.replace({
-                pathname: '/(nav)/token/[address]',
-                params: { address: asUAddress(address, chain) },
+                pathname: '/(nav)/[account]/tokens/[address]',
+                params: { account, address: asUAddress(address, chain) },
               }),
             )}
           >
             Continue
           </FormSubmitButton>
         </Actions>
-      </ScrollableScreenSurface>
-    </>
+      </Scrollable>
+    </Pane>
   );
 }
 
 const styles = createStyles({
   container: {
-    marginVertical: 16,
     marginHorizontal: 16,
     gap: 16,
   },

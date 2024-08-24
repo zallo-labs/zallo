@@ -87,8 +87,7 @@ function TokenScreen_() {
       priceId: t?.pythUsdPriceId ?? undefined,
     },
   });
-  const [icon, priceId] = watch(['name', 'symbol', 'icon', 'priceId']);
-  const iconValid = !!tryOrIgnore(() => icon && new URL(icon));
+  const priceId = watch('priceId');
 
   return (
     <Pane flex>
@@ -136,14 +135,6 @@ function TokenScreen_() {
             placeholder="0x..."
             control={control}
           />
-
-          {!priceId && (
-            <Link asChild href={PYTH_PRICE_FEEDS_URL}>
-              <Button mode="outlined" icon={ExternalLinkIcon}>
-                Pyth price feeds
-              </Button>
-            </Link>
-          )}
         </View>
 
         <Actions horizontal style={styles.actions}>
@@ -165,6 +156,14 @@ function TokenScreen_() {
           >
             {query.token ? 'Update' : 'Add'}
           </FormSubmitButton>
+
+          {!priceId && (
+            <Link asChild href={PYTH_PRICE_FEEDS_URL}>
+              <Button mode="outlined" icon={ExternalLinkIcon}>
+                Pyth price feeds
+              </Button>
+            </Link>
+          )}
         </Actions>
       </Scrollable>
     </Pane>
